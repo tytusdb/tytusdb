@@ -24,6 +24,8 @@ import ply.lex as lex
 import re
 from ply import *
 
+from GenerarRepGram import GenerarRepGram
+
 reservadas = {
     'smallint': 'SMALLINT',
     'integer': 'INTEGER',
@@ -415,6 +417,11 @@ def p_init(t):
     'init   :   instrucciones'
     t[0] = t[1]
 
+    GenerarRepGram.AgregarTexto('init   ::=   instrucciones\n\n\
+    \t t[0] = t[1]\n\n')
+    GenerarRepGram.AgregarTexto('#REPORTE GRAMATICAL\n\n----------\n\n')
+    GenerarRepGram.GenerarReporte()
+    
 
 def p_lista_instrucciones(t):
     'instrucciones  :   instrucciones instruccion'
@@ -422,12 +429,22 @@ def p_lista_instrucciones(t):
     nodo.hijos.append(t[2])
     t[0] = nodo
 
+    GenerarRepGram.AgregarTexto("instrucciones  ::=   instrucciones instruccion\n\n\
+    \t nodo = t[1]\n\
+    \t nodo.hijos.append(t[2])\n\
+    \t t[0] = nodo\n\n")
+
 
 def p_instrucciones_instruccion(t):
     'instrucciones  :   instruccion'
     nodo = crear_nodo_general("init", "", str(t.lexer.lineno), columna)
     nodo.hijos.append(t[1])
     t[0] = nodo
+
+    GenerarRepGram.AgregarTexto("instrucciones  ::=   instruccion\n\n\
+    \t nodo = crear_nodo_general(\"init\", "", str(t.lexer.lineno), columna)\n\
+    \t nodo.hijos.append(t[1])\n\
+    \t t[0] = nodo\n\n")
 
 
 def p_instruccion(t):
@@ -437,25 +454,56 @@ def p_instruccion(t):
                     |   use_dabatabase'''
     t[0] = t[1]
 
+    if str.lower(t[1].nombreNodo) == "insert_table":
+        GenerarRepGram.AgregarTexto("instruccion  ::=   insert_table\n\n\
+        \t t[0] = t[1]\n\n")
+
+    elif str.lower(t[1].nombreNodo) == "delete_table":
+        GenerarRepGram.AgregarTexto("instruccion  ::=   delete_table\n\n\
+        \t t[0] = t[1]\n\n")
+    
+    elif str.lower(t[1].nombreNodo) == "update_table":
+        GenerarRepGram.AgregarTexto("instruccion  ::=   update_table\n\n\
+        \t t[0] = t[1]\n\n")
+
+    else: 
+        GenerarRepGram.AgregarTexto("instruccion  ::=   use_dabatabase\n\n\
+        \t t[0] = t[1]\n\n")
+
 
 def p_instruccion_crear(t):
     'instruccion      : crear_instr'
     t[0] = t[1]
+
+    GenerarRepGram.AgregarTexto("instruccion  ::=   crear_instr\n\n\
+    \t t[0] = t[1]\n\n")
+
 
 
 def p_instruccion_alter(t):
     'instruccion : alter_instr'
     t[0] = t[1]
 
+    GenerarRepGram.AgregarTexto("instruccion  ::=   alter_instr\n\n\
+    \t t[0] = t[1]\n\n")
+
+
 
 def p_instruccion_drop(t):
     'instruccion : drop_instr'
     t[0] = t[1]
 
+    GenerarRepGram.AgregarTexto("instruccion  ::=   drop_instr\n\n\
+    \t t[0] = t[1]\n\n")
+
+
 
 def p_instruccion_select(t):
     'instruccion  :   inst_select PTCOMA'
     t[0] = t[1]
+
+    GenerarRepGram.AgregarTexto("instruccion  ::=   inst_select PTCOMA\n\n\
+    \t t[0] = t[1]\n\n")
 
 
 # --------------------------------------------Instrucciones crear------------------------------------------------------------
@@ -474,19 +522,49 @@ def p_instruccion_crear_table(t):
     instru.setearValores(linea, columna, "CREATE_TABLE", nNodo, "", hijos)
     t[0] = instru
 
+    GenerarRepGram.AgregarTexto("crear_instr ::= CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t hijos = []\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+    \t nodoColumnas = t[5]\n\
+    \t nodoHerencia = t[7]\n\
+    \t instru = createTable.createTable(t[3], t[7], t[5].hijos)\n\
+    \t hijos.append(nodoId)\n\
+    \t hijos.append(nodoColumnas)\n\
+    \t hijos.append(nodoHerencia)\n\
+    \t instru.setearValores(linea, columna, \"CREATE_TABLE\", nNodo, "", hijos)\n\
+    \t t[0] = instru\n\n")
+
 
 def p_crear_database(t):
     'crear_instr : CREATE opReplace DATABASE opExists ID opDatabase PTCOMA'
     linea = str(t.lexer.lineno)
     hijos = []
     nNodo = incNodo(numNodo)
-    nodoId = crear_nodo_general("ID", t[5], linea, columna)
+    nodoReplace = t[2]
+    nodoOpExists = t[4]
+    nodoId = crear_nodo_general("ID",t[5],linea,columna)
     nodoOpciones = t[6]
-    instru = createDatabase.createDatabase(t[5], t[6].hijos)
+    instru = createDatabase.createDatabase(t[2],t[4],t[5],t[6].hijos)
+    hijos.append(nodoReplace)
     hijos.append(nodoId)
+    hijos.append(nodoOpExists)
     hijos.append(nodoOpciones)
-    instru.setearValores(linea, columna, "CREATE_DATABASE", nNodo, "", hijos)
+    instru.setearValores(linea,columna,"CREATE_DATABASE",nNodo,"",hijos)
     t[0] = instru
+
+    GenerarRepGram.AgregarTexto("crear_instr ::= CREATE opReplace DATABASE opExists ID opDatabase PTCOMA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t hijos = []\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[5], linea, columna)\n\
+    \t nodoOpciones = t[6]\n\
+    \t instru = createDatabase.createDatabase(t[5], t[6].hijos)\n\
+    \t hijos.append(nodoId)\n\
+    \t hijos.append(nodoOpciones)\n\
+    \t instru.setearValores(linea, columna, \"CREATE_DATABASE\", nNodo, "", hijos)\n\
+    \t t[0] = instru\n\n")
 
 
 def p_instr_crear_enum(t):
@@ -505,6 +583,15 @@ def p_instr_crear_enum(t):
     print("numNodo: ", nNodo)
     print("Valor 1: '%s'" % t)
 
+    GenerarRepGram.AgregarTexto("crear_instr     :   CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA\n\n\
+    \t instru = createType.createType(t[3], [t[7]])\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t hijos = []\n\
+    \t hijos.append(t[3])\n\
+    \t hijos.append(t[7])\n\
+    \t instru.setearValores(str(t.lexer.lineno), columna,\"Crear_Enum\", nNodo, "", hijos)\n\
+    \t t[0] = instru\n\n")
+
 def p_inst_use_database(t):
     'use_dabatabase : USE ID PTCOMA'
 
@@ -516,6 +603,16 @@ def p_inst_use_database(t):
     hijos.append(nodoId)
     nodoUse.setearValores(linea,columna,"Use_DataBase",nNodo,"",hijos)
     t[0] = nodoUse
+
+    GenerarRepGram.AgregarTexto("use_dabatabase : USE ID PTCOMA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[2], str(linea), columna)\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoUse = useDataBase.UseDataBase(t[2])\n\
+    \t hijos = []\n\
+    \t hijos.append(nodoId)\n\
+    \t nodoUse.setearValores(linea,columna,\"Use_DataBase\",nNodo,"",hijos)\n\
+    \t t[0] = nodoUse\n\n")
 
 
 
@@ -539,6 +636,14 @@ def p_instr_insert(t):
         instru.setearValores(str(linea), columna,
                              "Insert_table", nNodo, "", hijos)
         t[0] = instru
+
+        GenerarRepGram.AgregarTexto("insert_table   ::=   INSERT INTO ID VALUES lista_valores PTCOMA\n\n\
+        \t instru = insertTable.InsertTable(t[3], [], t[5].hijos)\n\
+        \t hijos.append(nodoId)\n\
+        \t hijos.append(t[5])\n\
+        \t instru.setearValores(str(linea), columna,\"Insert_table\", nNodo, "", hijos)\n\
+        \t t[0] = instru\n\n")
+
     elif identificador.lower() == 'default':  # Terdera producción
         instru = insertTable.InsertTable(t[3], [], [], True)
         nDefault = crear_nodo_general(
@@ -548,6 +653,15 @@ def p_instr_insert(t):
         instru.setearValores(str(linea), columna,
                              "Insert_Table", nNodo, "", hijos)
         t[0] = instru
+
+        GenerarRepGram.AgregarTexto("insert_table   ::=   INSERT INTO ID DEFAULT VALUES PTCOMA\n\n\
+        \t instru = insertTable.InsertTable(t[3], [], [], True)\n\
+        \t nDefault = crear_nodo_general(\"default\", \"default values\", str(linea), columna)\n\
+        \t hijos.append(nodoId)\n\
+        \t hijos.append(nDefault)\n\
+        \t instru.setearValores(str(linea), columna,\"Insert_Table\", nNodo, "", hijos)\n\
+        \t t[0] = instru\n\n")
+
     elif identificador == '(':
         if t[7].lower() == "values":  # Segunda Producción
             instru = insertTable.InsertTable(t[3], t[5].hijos, t[8].hijos)
@@ -568,6 +682,14 @@ def p_instr_insert(t):
                 linea, columna, "Insert_table", nNodo, "", hijos)
             t[0] = instru
 
+        GenerarRepGram.AgregarTexto("insert_table   ::=   INSERT INTO ID PARIZQUIERDO  lista_columnas  PARDERECHO VALUES lista_valores PTCOMA\n\n\
+        \t instru = insertTable.InsertTable(t[3], t[5].hijos, t[8].hijos)\n\
+        \t hijos.append(nodoId)\n\
+        \t hijos.append(t[5])\n\
+        \t hijos.append(t[8])\n\
+        \t instru.setearValores(str(linea), columna, \"Insert_table\", nNodo, "", hijos)\n\
+        \t t[0] = instru\n\n")
+
 
 def p_lista_columnas(t):
     '''lista_columnas     :   lista_columnas COMA ID
@@ -579,12 +701,28 @@ def p_lista_columnas(t):
         nodoLista = crear_nodo_general("lista_columnas", "", linea, columna)
         nodoLista.hijos.append(nodoId)
         t[0] = nodoLista
+
+        GenerarRepGram.AgregarTexto("lista_columnas     ::=     ID\n\n\
+        \t linea = str(t.lexer.lineno)\n\
+        \t nodoId = crear_nodo_general(\"ID\", t[1], str(linea), columna)\n\
+        \t nodoLista = crear_nodo_general(\"lista_columnas\", "", linea, columna)\n\
+        \t nodoLista.hijos.append(nodoId)\n\
+        \t t[0] = nodoLista\n\n")
+
     else:
         linea = str(t.lexer.lineno)
         nodoPadre = t[1]
         nodoId = crear_nodo_general("ID", t[3], str(linea), columna)
         nodoPadre.hijos.append(nodoId)
         t[0] = nodoPadre
+
+        GenerarRepGram.AgregarTexto("lista_columnas     ::=   lista_columnas COMA ID\n\n\
+        \t linea = str(t.lexer.lineno)\n\
+        \t nodoPadre = t[1]\n\
+        \t nodoId = crear_nodo_general(\"ID\", t[3], str(linea), columna)\n\
+        \t nodoPadre.hijos.append(nodoId)\n\
+        \t t[0] = nodoPadre\n\n")
+
 
 
 def p_lista_valores(t):
@@ -595,10 +733,21 @@ def p_lista_valores(t):
             "Lista_valores", "", str(t.lexer.lineno), columna)
         nodoLista.hijos.append(t[1])
         t[0] = nodoLista
+
+        GenerarRepGram.AgregarTexto("lista_valores  ::=   tupla\n\n\
+        \t nodoLista = crear_nodo_general(\"Lista_valores\", "", str(t.lexer.lineno), columna)\n\
+        \t nodoLista.hijos.append(t[1])\n\
+        \t t[0] = nodoLista\n\n")
+        
     else:
         nodoLista = t[1]
         nodoLista.hijos.append(t[3])
         t[0] = nodoLista
+
+        GenerarRepGram.AgregarTexto("lista_valores  ::=   lista_valores COMA tupla\n\n\
+        \t nodoLista = t[1]\n\
+        \t nodoLista.hijos.append(t[3])\n\
+        \t t[0] = nodoLista\n\n")
 
 
 def p_tupla(t):
@@ -607,6 +756,11 @@ def p_tupla(t):
     nodoTupla.hijos.append(t[2])
     t[0] = nodoTupla
 
+    GenerarRepGram.AgregarTexto("tupla  ::=   PARIZQUIERDO lista_expresiones PARDERECHO\n\n\
+    \t nodoTupla = crear_nodo_general(\"Tupla\", "", str(t.lexer.lineno), columna)\n\
+    \t nodoTupla.hijos.append(t[2])\n\
+    \t t[0] = nodoTupla\n\n")
+
 
 def p_lista_expresiones(t):
     'lista_expresiones  :   lista_expresiones COMA exp_operacion'
@@ -614,12 +768,22 @@ def p_lista_expresiones(t):
     nodoLista.hijos.append(t[3])
     t[0] = nodoLista
 
+    GenerarRepGram.AgregarTexto("lista_expresiones  ::=   lista_expresiones COMA exp_operacion\n\n\
+    \t nodoLista = t[1]\n\
+    \t nodoLista.hijos.append(t[3])\n\
+    \t t[0] = nodoLista\n\n")
+
 
 def p_lista_expresiones_expresion(t):
     'lista_expresiones  :   exp_operacion'
     nodoLista = crear_nodo_general("lista_expresiones","",str(t.lexer.lineno),columna)
     nodoLista.hijos.append(t[1])
     t[0] = t[1]
+
+    GenerarRepGram.AgregarTexto("lista_expresiones  ::=   exp_operacion\n\n\
+    \t nodoLista = crear_nodo_general(\"lista_expresiones\","",str(t.lexer.lineno),columna)\n\
+    \t nodoLista.hijos.append(t[1])\n\
+    \t t[0] = t[1]\n\n")
 
 
 def p_expresion_cadena(t):
@@ -631,6 +795,13 @@ def p_expresion_cadena(t):
                           "CADENA", nNodo, t[1], [])
     t[0] = nodoExp
 
+    GenerarRepGram.AgregarTexto("expresion  ::=   CADENA\n\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoExp = expresion.Expresion()\n\
+    \t nodoExp.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)\n\
+    \t nodoExp.setearValores(str(t.lexer.lineno), columna,\"CADENA\", nNodo, t[1], [])\n\
+    \t t[0] = nodoExp\n\n")
+
 
 def p_expresion_entero(t):
     'expresion  :   ENTERO'
@@ -640,6 +811,13 @@ def p_expresion_entero(t):
     nodoExp.setearValores(str(t.lexer.lineno), columna,
                           "ENTERO", nNodo, t[1], [])
     t[0] = nodoExp
+
+    GenerarRepGram.AgregarTexto("expresion  ::=   ENTERO\n\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \tnodoExp = expresion.Expresion()\n\
+    \tnodoExp.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.ENTERO)\n\
+    \tnodoExp.setearValores(str(t.lexer.lineno), columna,\"ENTERO\", nNodo, t[1], [])\n\
+    \tt[0] = nodoExp\n\n")
 
 
 def p_expresion_decimal(t):
@@ -651,6 +829,13 @@ def p_expresion_decimal(t):
     nodoExp.setearValores(str(t.lexer.lineno), columna,
                           "DECIMAL_", nNodo, t[1], [])
     t[0] = nodoExp
+
+    GenerarRepGram.AgregarTexto("expresion  ::=   DECIMAL_\n\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoExp = expresion.Expresion()\n\
+    \t nodoExp.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.DECIMAL)\n\
+    \t nodoExp.setearValores(str(t.lexer.lineno), columna,\"DECIMAL_\", nNodo, t[1], [])\n\
+    \t t[0] = nodoExp\n\n")
 
 
 def p_instr_delete(t):
@@ -668,6 +853,12 @@ def p_instr_delete(t):
         nodoDelete.setearValores(
             linea, columna, "DELETE_FROM", nNodo, "", hijos)
         t[0] = nodoDelete
+
+        GenerarRepGram.AgregarTexto("delete_table   ::=   DELETE FROM ID PTCOMA\n\n\
+        \t nodoDelete = deleteTable.DeleteTable(t[3], None)\n\
+        \t hijos.append(nodoId)\n\
+        \t nodoDelete.setearValores(linea, columna, \"DELETE_FROM\", nNodo, "", hijos)\n\
+        \t t[0] = nodoDelete\n\n")
     else:
         nodoDelete = deleteTable.DeleteTable(t[3], t[5])
         hijos.append(nodoId)
@@ -676,6 +867,13 @@ def p_instr_delete(t):
             linea, columna, "DELETE_FROM", nNodo, "", hijos)
         t[0] = nodoDelete
 
+        GenerarRepGram.AgregarTexto("delete_table   ::=   DELETE FROM ID WHERE exp_operacion PTCOMA\n\n\
+        \t nodoDelete = deleteTable.DeleteTable(t[3], t[5])\n\
+        \t hijos.append(nodoId)\n\
+        \t hijos.append(t[5])\n\
+        \t nodoDelete.setearValores(linea, columna, \"DELETE_FROM\", nNodo, "", hijos)\n\
+        \t t[0] = nodoDelete\n\n")
+
 
 def p_instr_condicion_where(t):
     'exp_operacion  :  exp_logica'
@@ -683,6 +881,11 @@ def p_instr_condicion_where(t):
         "Exp_OPERACION", "", str(t.lexer.lineno), columna)
     nodoExp.hijos.append(t[1])
     t[0] = t[1]
+
+    GenerarRepGram.AgregarTexto("exp_operacion  ::=  exp_logica\n\n\
+    \t nodoExp = crear_nodo_general(\"Exp_OPERACION\", "", str(t.lexer.lineno), columna)\n\
+    \t nodoExp.hijos.append(t[1])\n\
+    \t t[0] = t[1]\n\n")
 
 
 def p_exp_logica(t):
@@ -693,6 +896,10 @@ def p_exp_logica(t):
 
     if len(t) == 2:
         t[0] = t[1]
+
+        GenerarRepGram.AgregarTexto("exp_logica     ::=     exp_relacional\n\n\
+        \t t[0] = t[1]\n\n")
+
     elif len(t) == 3:
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
@@ -704,6 +911,18 @@ def p_exp_logica(t):
         nodoExp.hijos.append(nodoMas)
         nodoExp.hijos.append(t[2])
         t[0] = nodoExp
+
+        GenerarRepGram.AgregarTexto("exp_logica     ::=     NOT exp_logica\n\n\
+        \t linea = str(t.lexer.lineno)\n\
+        \t nNodo = incNodo(numNodo)\n\
+        \t nodoExp = expresion.Expresion()\n\
+        \t nodoExp.setearValores(linea, columna, \"EXPRESION_LOGICA\", nNodo, "", [])\n\
+        \t nodoExp.operacionUnaria(t[2], tipoSimbolo.TipoSimbolo.NOT)\n\
+        \t nodoMas = crear_nodo_general(\"NOT\", \"not\", linea, columna)\n\
+        \t nodoExp.hijos.append(nodoMas)\n\
+        \t nodoExp.hijos.append(t[2])\n\
+        \t t[0] = nodoExp\n\n")
+
     else:
         tipOp = t[2]
         linea = str(t.lexer.lineno)
@@ -719,6 +938,15 @@ def p_exp_logica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_logica     ::=   exp_logica OR exp_logica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.OR)\n\
+            \t nodoMas = crear_nodo_general(\"OR\", \"or\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp.lower() == "and":
             nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.AND)
             nodoMas = crear_nodo_general("AND", "and", linea, columna)
@@ -726,6 +954,16 @@ def p_exp_logica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_logica     ::=   exp_logica AND exp_logica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.AND)\n\
+            \t nodoMas = crear_nodo_general(\"AND\", \"and\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
+        
 
 
 def p_exp_relacional(t):
@@ -755,6 +993,15 @@ def p_exp_relacional(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_relacional   ::=   exp_relacional MENOR_QUE exp_relacional\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MENOR_QUE)\n\
+            \t nodoMas = crear_nodo_general(\"MENOR_QUE\", \"<\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp == "<=":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.MENOR_IGUAL)
@@ -763,6 +1010,15 @@ def p_exp_relacional(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_relacional   ::=   exp_relacional MENOR_IGUAL exp_relacional\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MENOR_IGUAL)\n\
+            \t nodoMas = crear_nodo_general(\"MENOR_IGUAL\", \"<=\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp == ">":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.MAYOR_QUE)
@@ -771,6 +1027,15 @@ def p_exp_relacional(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_relacional   ::=   exp_relacional MAYOR_QUE exp_relacional\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MAYOR_QUE)\n\
+            \t nodoMas = crear_nodo_general(\"MAYOR_QUE\", \">\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp == ">=":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.MAYOR_IGUAL)
@@ -779,6 +1044,15 @@ def p_exp_relacional(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_relacional   ::=   exp_relacional MAYOR_IGUAL exp_relacional\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MAYOR_IGUAL)\n\
+            \t nodoMas = crear_nodo_general(\"MAYOR_IGUAL\", \">=\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp == "<>":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.DISTINTO)
@@ -787,6 +1061,15 @@ def p_exp_relacional(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_relacional   ::=   exp_relacional DISTINTO exp_relacional\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.DISTINTO)\n\
+            \t nodoMas = crear_nodo_general(\"DISTINTO\", \"<>\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp == "=":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.IGUALACION)
@@ -795,6 +1078,15 @@ def p_exp_relacional(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_relacional   ::=   exp_relacional IGUAL exp_relacional\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.IGUALACION)\n\
+            \t nodoMas = crear_nodo_general(\"IGUALACION\", \"=\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp  \n\n")
+
 
 
 def p_exp_aritmetica(t):
@@ -840,6 +1132,15 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica MAS exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.SUMA)\n\
+            \t nodoMas = crear_nodo_general(\"MAS\", \"+\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp == "-":
             nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.RESTA)
             nodoMas = crear_nodo_general("MENOS", "-", linea, columna)
@@ -847,6 +1148,16 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica MENOS exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.SUMA)\n\
+            \t nodoMas = crear_nodo_general(\"MENOS\", \"-\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
+
         elif tipOp == "*":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.MULTIPLICACION)
@@ -855,6 +1166,15 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica MULTIPLICACION exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.SUMA)\n\
+            \t nodoMas = crear_nodo_general(\"MULTIPLICACION\", \"*\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp == "/":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.DIVISION)
@@ -863,6 +1183,15 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica DIVISION exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.SUMA)\n\
+            \t nodoMas = crear_nodo_general(\"DIVISION\", \"/\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp == "%":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.MODULO)
@@ -871,6 +1200,16 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica MODULO exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.SUMA)\n\
+            \t nodoMas = crear_nodo_general(\"MODULO\", \"%\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
+
         elif tipOp == "^":
             nodoExp.operacionBinaria(
                 t[1], t[3], tipoSimbolo.TipoSimbolo.POTENCIA)
@@ -879,6 +1218,15 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica POTENCIA exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.SUMA)\n\
+            \t nodoMas = crear_nodo_general(\"POTENCIA\", \"^\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp.lower() == "between":
             nNodo = incNodo(numNodo)
             nodoBetween = betweenIN.BetweenIn()
@@ -894,6 +1242,20 @@ def p_exp_aritmetica(t):
                 nodoBetween, tipoSimbolo.TipoSimbolo.BETWEEN)
             nodoExp.hijos.append(nodoBetween)
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica BETWEEN exp_aritmetica AND exp_aritmetica\n\n\
+            \t nNodo = incNodo(numNodo)\n\
+            \t nodoBetween = betweenIN.BetweenIn()\n\
+            \t nodoBetween.between(t[1], t[3], t[5], tipoSimbolo.TipoSimbolo.BETWEEN)\n\
+            \t hijosBetween = []\n\
+            \t hijosBetween.append(t[1])\n\
+            \t hijosBetween.append(t[3])\n\
+            \t hijosBetween.append(t[5])\n\
+            \t nodoBetween.setearValores(linea, columna, \"BETWEEN\", nNodo, "", hijosBetween)\n\
+            \t nodoExp.operacionUnaria(nodoBetween, tipoSimbolo.TipoSimbolo.BETWEEN)\n\
+            \t nodoExp.hijos.append(nodoBetween)\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp.lower() == "in":
             if len(t) == 4:
                 nNodo = incNodo(numNodo)
@@ -909,6 +1271,19 @@ def p_exp_aritmetica(t):
                     nodoBetween, tipoSimbolo.TipoSimbolo.INN)
                 nodoExp.hijos.append(nodoBetween)
                 t[0] = nodoExp
+
+                GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica IN subquery\n\n\
+                \t nNodo = incNodo(numNodo)\n\
+                \t nodoBetween = betweenIN.BetweenIn()\n\
+                \t nodoBetween.innSubquery(t[1], None, tipoSimbolo.TipoSimbolo.INN)\n\
+                \t hijosBetween = []\n\
+                \t hijosBetween.append(t[1])\n\
+                \t hijosBetween.append(None)\n\
+                \t nodoBetween.setearValores(linea, columna, "IN", nNodo, "", hijosBetween)\n\
+                \t nodoExp.operacionUnaria(nodoBetween, tipoSimbolo.TipoSimbolo.INN)\n\
+                \t nodoExp.hijos.append(nodoBetween)\n\
+                \t t[0] = nodoExp\n\n")
+            
             else:
 
                 nNodo = incNodo(numNodo)
@@ -923,6 +1298,19 @@ def p_exp_aritmetica(t):
                     nodoBetween, tipoSimbolo.TipoSimbolo.INN)
                 nodoExp.hijos.append(nodoBetween)
                 t[0] = nodoExp
+
+                GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica IN PARIZQUIERDO lista_expresiones PARDERECHO\n\n\
+                \t nNodo = incNodo(numNodo)\n\
+                \t nodoBetween = betweenIN.BetweenIn()\n\
+                \t nodoBetween.inn(t[1], t[4], tipoSimbolo.TipoSimbolo.INN)\n\
+                \t hijosBetween = []\n\
+                \t hijosBetween.append(t[1])\n\
+                \t hijosBetween.append(t[4])\n\
+                \t nodoBetween.setearValores(linea, columna, \"IN\", nNodo, "", hijosBetween)\n\
+                \t nodoExp.operacionUnaria(nodoBetween, tipoSimbolo.TipoSimbolo.INN)\n\
+                \t nodoExp.hijos.append(nodoBetween)\n\
+                \t t[0] = nodoExp\n\n")
+
         elif tipOp.lower() == "like":
             nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.LIKE)
             nodoMas = crear_nodo_general("LIKE", "like", linea, columna)
@@ -930,6 +1318,15 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica LIKE exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.LIKE)\n\
+            \t nodoMas = crear_nodo_general(\"LIKE\", \"like\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp.lower() == "ilike":
             nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.ILIKE)
             nodoMas = crear_nodo_general("ILIKE", "ilike", linea, columna)
@@ -937,6 +1334,15 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[3])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica ILIKE exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.ILIKE)\n\
+            \t nodoMas = crear_nodo_general(\"ILIKE\", \"ilike\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[3])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp.lower() == "similar":
             nodoExp.operacionBinaria(
                 t[1], t[4], tipoSimbolo.TipoSimbolo.SIMILAR)
@@ -946,6 +1352,15 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoMas)
             nodoExp.hijos.append(t[4])
             t[0] = nodoExp
+
+            GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica SIMILAR TO exp_aritmetica\n\n\
+            \t nodoExp.operacionBinaria(t[1], t[4], tipoSimbolo.TipoSimbolo.SIMILAR)\n\
+            \t nodoMas = crear_nodo_general(\"SIMILAR\", \"similar to\", linea, columna)\n\
+            \t nodoExp.hijos.append(t[1])\n\
+            \t nodoExp.hijos.append(nodoMas)\n\
+            \t nodoExp.hijos.append(t[4])\n\
+            \t t[0] = nodoExp\n\n")
+
         elif tipOp.lower() == "is":
             if len(t) == 4:
                 nodoExp.operacionUnaria(t[1], tipoSimbolo.TipoSimbolo.IS_NULL)
@@ -954,6 +1369,14 @@ def p_exp_aritmetica(t):
                 nodoExp.hijos.append(t[1])
                 nodoExp.hijos.append(nodoMas)
                 t[0] = nodoExp
+
+                GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica IS NULL\n\n\
+                \t nodoExp.operacionUnaria(t[1], tipoSimbolo.TipoSimbolo.IS_NULL)\n\
+                \t nodoMas = crear_nodo_general(\"IS_NULL\", \"is null\", linea, columna)\n\
+                \t nodoExp.hijos.append(t[1])\n\
+                \t nodoExp.hijos.append(nodoMas)\n\
+                \t t[0] = nodoExp\n\n")
+
             else:
                 nodoExp.operacionUnaria(
                     t[1], tipoSimbolo.TipoSimbolo.IS_NOT_NULL)
@@ -962,6 +1385,15 @@ def p_exp_aritmetica(t):
                 nodoExp.hijos.append(t[1])
                 nodoExp.hijos.append(nodoMas)
                 t[0] = nodoExp
+
+                GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica IS NOT NULL\n\n\
+                \t nodoExp.operacionUnaria(t[1], tipoSimbolo.TipoSimbolo.IS_NOT_NULL)\n\
+                \t nodoMas = crear_nodo_general(\"IS_NOT_NULL\", \"is not null\", linea, columna)\n\
+                \t nodoExp.hijos.append(t[1])\n\
+                \t nodoExp.hijos.append(nodoMas)\n\
+                \t t[0] = nodoExp\n\n")
+
+
         elif tipOp.lower() == "not":
             tip2 = t[3]
             if tip2.lower() == "between":
@@ -979,6 +1411,20 @@ def p_exp_aritmetica(t):
                     nodoBetween, tipoSimbolo.TipoSimbolo.NOT_BETWEEN)
                 nodoExp.hijos.append(nodoBetween)
                 t[0] = nodoExp
+
+                GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica NOT BETWEEN exp_aritmetica AND exp_aritmetica\n\n\
+                \t nNodo = incNodo(numNodo)\n\
+                \t nodoBetween = betweenIN.BetweenIn()\n\
+                \t nodoBetween.between(t[1], t[4], t[6], tipoSimbolo.TipoSimbolo.NOT_BETWEEN)\n\
+                \t hijosBetween = []\n\
+                \t hijosBetween.append(t[1])\n\
+                \t hijosBetween.append(t[4])\n\
+                \t hijosBetween.append(t[6])\n\
+                \t nodoBetween.setearValores(linea, columna, \"NOT_BETWEEN\", nNodo, "", hijosBetween)\n\
+                \t nodoExp.operacionUnaria(nodoBetween, tipoSimbolo.TipoSimbolo.NOT_BETWEEN)\n\
+                \t nodoExp.hijos.append(nodoBetween)\n\
+                \t t[0] = nodoExp\n\n")
+
             elif tip2.lower() == "in":
 
                 if len(t) == 5:
@@ -995,6 +1441,19 @@ def p_exp_aritmetica(t):
                         nodoBetween, tipoSimbolo.TipoSimbolo.NOT_INN)
                     nodoExp.hijos.append(nodoBetween)
                     t[0] = nodoExp
+
+                    GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica NOT IN subquery\n\n\
+                    \t nNodo = incNodo(numNodo)\n\
+                    \t nodoBetween = betweenIN.BetweenIn()\n\
+                    \t nodoBetween.innSubquery(t[1], None, tipoSimbolo.TipoSimbolo.NOT_INN)\n\
+                    \t hijosBetween = []\n\
+                    \t hijosBetween.append(t[1])\n\
+                    \t hijosBetween.append(None)\n\
+                    \t nodoBetween.setearValores(linea, columna, \"NOT_IN\", nNodo, "", hijosBetween)\n\
+                    \t nodoExp.operacionUnaria(nodoBetween, tipoSimbolo.TipoSimbolo.NOT_INN)\n\
+                    \t nodoExp.hijos.append(nodoBetween)\n\
+                    \t t[0] = nodoExp\n\n")
+
                 else:
                     nNodo = incNodo(numNodo)
                     nodoBetween = betweenIN.BetweenIn()
@@ -1009,6 +1468,19 @@ def p_exp_aritmetica(t):
                         nodoBetween, tipoSimbolo.TipoSimbolo.NOT_INN)
                     nodoExp.hijos.append(nodoBetween)
                     t[0] = nodoExp
+
+                    GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica NOT IN PARIZQUIERDO lista_expresiones PARDERECHO\n\n\
+                    \t nNodo = incNodo(numNodo)\n\
+                    \t nodoBetween = betweenIN.BetweenIn()\n\
+                    \t nodoBetween.inn(t[1], t[5], tipoSimbolo.TipoSimbolo.NOT_INN)\n\
+                    \t hijosBetween = []\n\
+                    \t hijosBetween.append(t[1])\n\
+                    \t hijosBetween.append(t[5])\n\
+                    \t nodoBetween.setearValores(linea, columna, \"NOT_IN\", nNodo, "", hijosBetween)\n\
+                    \t nodoExp.operacionUnaria(nodoBetween, tipoSimbolo.TipoSimbolo.NOT_INN)\n\
+                    \t nodoExp.hijos.append(nodoBetween)\n\
+                    \t t[0] = nodoExp\n\n")
+
             elif tip2.lower() == "like":
                 nodoExp.operacionBinaria(
                     t[1], t[4], tipoSimbolo.TipoSimbolo.NOT_LIKE)
@@ -1018,6 +1490,15 @@ def p_exp_aritmetica(t):
                 nodoExp.hijos.append(nodoMas)
                 nodoExp.hijos.append(t[4])
                 t[0] = nodoExp
+
+                GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica NOT LIKE exp_aritmetica\n\n\
+                \t nodoExp.operacionBinaria(t[1], t[4], tipoSimbolo.TipoSimbolo.NOT_LIKE)\n\
+                \t nodoMas = crear_nodo_general(\"NOT_LIKE\", \"not like\", linea, columna)\n\
+                \t nodoExp.hijos.append(t[1])\n\
+                \t nodoExp.hijos.append(nodoMas)\n\
+                \t nodoExp.hijos.append(t[4])\n\
+                \t t[0] = nodoExp\n\n")
+
             elif tip2.lower() == "ilike":
                 nodoExp.operacionBinaria(
                     t[1], t[4], tipoSimbolo.TipoSimbolo.NOT_ILIKE)
@@ -1027,6 +1508,14 @@ def p_exp_aritmetica(t):
                 nodoExp.hijos.append(nodoMas)
                 nodoExp.hijos.append(t[4])
                 t[0] = nodoExp
+
+                GenerarRepGram.AgregarTexto("exp_aritmetica   ::=   exp_aritmetica NOT ILIKE exp_aritmetica\n\n\
+                \t nodoExp.operacionBinaria(t[1], t[4], tipoSimbolo.TipoSimbolo.NOT_ILIKE)\n\
+                \t nodoMas = crear_nodo_general(\"NOT_ILIKE\", \"not ilike\", linea, columna)\n\
+                \t nodoExp.hijos.append(t[1])\n\
+                \t nodoExp.hijos.append(nodoMas)\n\
+                \t nodoExp.hijos.append(t[4])\n\
+                \t t[0] = nodoExp\n\n")
 
 
 def p_primitivo_columna(t):
@@ -1042,6 +1531,17 @@ def p_primitivo_columna(t):
     nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], hijos)
     t[0] = nodoPri
 
+    GenerarRepGram.AgregarTexto("primitivo  ::=   ID\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoId = crear_nodo_general(\"NombreColumna\", t[1], linea, columna)\n\
+    \t hijos = []\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoPri = expresion.Expresion()\n\
+    \t nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.NOMBRE_COLUMNA)\n\
+    \t hijos.append(nodoId)\n\
+    \t nodoPri.setearValores(linea, columna, \"PRIMITIVO\", nNodo, t[1], hijos)\n\
+    \t t[0] = nodoPri\n\n")
+
 
 def p_primitivo_primitivo(t):
     '''primitivo    :   MAS primitivo
@@ -1050,6 +1550,10 @@ def p_primitivo_primitivo(t):
 
     if len(t) == 4:
         t[0] = t[2]
+
+        GenerarRepGram.AgregarTexto("primitivo    ::=   PARIZQUIERDO exp_operacion PARDERECHO\n\n\
+        \t t[0] = t[2]\n\n")
+
     else:
         linea = str(t.lexer.lineno)
         nodoPri = expresion.Expresion()
@@ -1065,6 +1569,16 @@ def p_primitivo_primitivo(t):
             nodoPri.setearValores(
                 linea, columna, "PRIMITIVO", nNodo, "", hijos)
             t[0] = nodoPri
+
+            GenerarRepGram.AgregarTexto("primitivo    ::=   MAS primitivo\n\n\
+            \t nodoOp = crear_nodo_general(\"MAS\", \"+\", linea, columna)\n\
+            \t nNodo = incNodo(numNodo)\n\
+            \t nodoPri.operacionUnaria(t[2], tipoSimbolo.TipoSimbolo.POSITIVO_UNARIO)\n\
+            \t hijos.append(nodoOp)\n\
+            \t hijos.append(t[2])\n\
+            \t nodoPri.setearValores(linea, columna, \"PRIMITIVO\", nNodo, "", hijos)\n\
+            \t t[0] = nodoPri\n\n")
+
         else:
             nodoOp = crear_nodo_general("MENOS", "-", linea, columna)
             nNodo = incNodo(numNodo)
@@ -1076,6 +1590,15 @@ def p_primitivo_primitivo(t):
                 linea, columna, "PRIMITIVO", nNodo, "", hijos)
             t[0] = nodoPri
 
+            GenerarRepGram.AgregarTexto("primitivo    ::=   MENOS primitivo\n\n\
+            \t nodoOp = crear_nodo_general(\"MENOS\", \"-\", linea, columna)\n\
+            \t nNodo = incNodo(numNodo)\n\
+            \t nodoPri.operacionUnaria(t[2], tipoSimbolo.TipoSimbolo.NEGATIVO_UNARIO)\n\
+            \t hijos.append(nodoOp)\n\
+            \t hijos.append(t[2])\n\
+            \t nodoPri.setearValores(linea, columna, \"PRIMITIVO\", nNodo, "", hijos)\n\
+            \t t[0] = nodoPri\n\n")
+
 
 def p_primitivo_entero(t):
     'primitivo  :   ENTERO'
@@ -1085,6 +1608,13 @@ def p_primitivo_entero(t):
     nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.ENTERO)
     nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
     t[0] = nodoPri
+    GenerarRepGram.AgregarTexto("primitivo  ::=   ENTERO\n\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoPri = expresion.Expresion()\n\
+    \t nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.ENTERO)\n\
+    \t nodoPri.setearValores(linea, columna, \"PRIMITIVO\", nNodo, t[1], [])\n\
+    \t t[0] = nodoPri\n\n")
 
 def p_primitivo_null(t):
     'primitivo  :   NULL'
@@ -1103,6 +1633,7 @@ def p_primitivo_default(t):
     nodoPri.valorPrimitivo("default",tipoSimbolo.TipoSimbolo.NULO)
     nodoPri.setearValores(linea, columna, "PRIMITIVO",nNodo,"default",[])
     t[0] = nodoPri
+    
 
 
 def p_primitivo_decimal(t):
@@ -1115,6 +1646,14 @@ def p_primitivo_decimal(t):
     nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
     t[0] = nodoPri
 
+    GenerarRepGram.AgregarTexto("primitivo    ::=   DECIMAL_\n\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoPri = expresion.Expresion()\n\
+    \t nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.DECIMAL)\n\
+    \t nodoPri.setearValores(linea, columna, \"PRIMITIVO\", nNodo, t[1], [])\n\
+    \t t[0] = nodoPri\n\n")
+
 
 def p_primitivo_cadena(t):
     'primitivo  :   CADENA'
@@ -1125,6 +1664,14 @@ def p_primitivo_cadena(t):
     nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
     nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
     t[0] = nodoPri
+
+    GenerarRepGram.AgregarTexto("primitivo  ::=   CADENA\n\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoPri = expresion.Expresion()\n\
+    \t nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)\n\
+    \t nodoPri.setearValores(linea, columna, \"PRIMITIVO\", nNodo, t[1], [])\n\
+    \t t[0] = nodoPri\n\n")
 
 
 def p_primitivo_booleano(t):
@@ -1139,11 +1686,26 @@ def p_primitivo_booleano(t):
         nodoPri.valorPrimitivo(True, tipoSimbolo.TipoSimbolo.BOOLEANO)
         nodoPri.setearValores(linea, columna, "PRIMTIVO", nNodo, True, [])
         t[0] = nodoPri
+
+        GenerarRepGram.AgregarTexto("primitivo  ::=   TRUE\n\n\
+        \t nodoPri = expresion.Expresion()\n\
+        \t nodoPri.valorPrimitivo(True, tipoSimbolo.TipoSimbolo.BOOLEANO)\n\
+        \t nodoPri.setearValores(linea, columna, \"PRIMTIVO\", nNodo, True, [])\n\
+        \t t[0] = nodoPri\n\n")
+
     else:
         nodoPri = expresion.Expresion()
         nodoPri.valorPrimitivo(False, tipoSimbolo.TipoSimbolo.BOOLEANO)
         nodoPri.setearValores(linea, columna, "PRIMTIVO", nNodo, False, [])
         t[0] = nodoPri
+
+        GenerarRepGram.AgregarTexto("primitivo  ::=   TRUE\n\n\
+        \t nodoPri = expresion.Expresion()\n\
+        \t nodoPri.valorPrimitivo(False, tipoSimbolo.TipoSimbolo.BOOLEANO)\n\
+        \t nodoPri.setearValores(linea, columna, \"PRIMTIVO\", nNodo, False, [])\n\
+        \t t[0] = nodoPri\n\n")
+
+    
 
 
 def p_instr_update_table(t):
@@ -1162,6 +1724,14 @@ def p_instr_update_table(t):
         nodoUpdate.setearValores(
             linea, columna, "UPDATE_TABLE", nNodo, "", hijos)
         t[0] = nodoUpdate
+
+        GenerarRepGram.AgregarTexto("update_table     ::=   UPDATE ID SET lista_seteos PTCOMA\n\n\
+        \t nodoUpdate = updateTable.UpdateTable(t[2], t[4].hijos, None)\n\
+        \t hijos.append(nodoId)\n\
+        \t hijos.append(t[4])\n\
+        \t nodoUpdate.setearValores(linea, columna, \"UPDATE_TABLE\", nNodo, "", hijos)\n\
+        \t t[0] = nodoUpdate\n\n")
+
     else:
         nodoUpdate = updateTable.UpdateTable(t[2], t[4].hijos, t[6])
         hijos.append(nodoId)
@@ -1170,6 +1740,14 @@ def p_instr_update_table(t):
         nodoUpdate.setearValores(
             linea, columna, "UPDATE_TABLE", nNodo, "", hijos)
         t[0] = nodoUpdate
+
+        GenerarRepGram.AgregarTexto("update_table     ::=   UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA\n\n\
+        \t nodoUpdate = updateTable.UpdateTable(t[2], t[4].hijos, t[6])\n\
+        \t hijos.append(nodoId)\n\
+        \t hijos.append(t[4])\n\
+        \t hijos.append(t[6])\n\
+        \t nodoUpdate.setearValores(linea, columna, \"UPDATE_TABLE\", nNodo, "", hijos)\n\
+        \t t[0] = nodoUpdate\n\n")
 
 
 def p_lista_seteos(t):
@@ -1181,10 +1759,21 @@ def p_lista_seteos(t):
         nodoLista = crear_nodo_general("LISTA_SETEOS", "", linea, columna)
         nodoLista.hijos.append(t[1])
         t[0] = nodoLista
+
+        GenerarRepGram.AgregarTexto("lista_seteos     ::=   set_columna\n\n\
+        \t nodoLista = crear_nodo_general(\"LISTA_SETEOS\", \"\", linea, columna)\n\
+        \t nodoLista.hijos.append(t[1])\n\
+        \t t[0] = nodoLista\n\n")
+
     else:
         nodoLista = t[1]
         nodoLista.hijos.append(t[3])
         t[0] = nodoLista
+
+        GenerarRepGram.AgregarTexto("lista_seteos     ::=   lista_seteos COMA set_columna\n\n\
+        \t nodoLista = t[1]\n\
+        \t nodoLista.hijos.append(t[3])\n\
+        \t t[0] = nodoLista\n\n")
 
 
 def p_set_columna(t):
@@ -1200,6 +1789,17 @@ def p_set_columna(t):
     nodoSet.setearValores(linea, columna, "set_columna", nNodo, "", hijos)
     t[0] = nodoSet
 
+    GenerarRepGram.AgregarTexto("set_columna    ::=   ID IGUAL exp_operacion\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[1], linea, columna)\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t hijos = []\n\
+    \t nodoSet = updateColumna.UpdateColumna(t[1], t[3])\n\
+    \t hijos.append(nodoId)\n\
+    \t hijos.append(t[3])\n\
+    \t nodoSet.setearValores(linea, columna, \"set_columna\", nNodo, "", hijos)\n\
+    \t t[0] = nodoSet\n\n")
+
 # --------------------------------------------Definiciones de las columnas de tablas----------------------------------------------------
 
 
@@ -1211,50 +1811,90 @@ def p_columnas_lista(t):
     nodoColumnas.hijos.append(nodoColumna)
     t[0] = nodoColumnas
 
+    GenerarRepGram.AgregarTexto("columnas ::= columnas COMA columna\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumnas = t[1]\n\
+    \t nodoColumna = t[3]\n\
+    \t nodoColumnas.hijos.append(nodoColumna)\n\
+    \t t[0] = nodoColumnas\n\n")
+
 
 def p_columnas_columna(t):
     'columnas : columna'
     linea = str(t.lexer.lineno)
     nodoColumna = t[1]
-    nodoColumnas = crear_nodo_general("columnas", "", linea, columna)
+    nodoColumnas = crear_nodo_general("columnas","",linea,columna)
+    nodoColumnas.hijos = []
     nodoColumnas.hijos.append(nodoColumna)
     t[0] = nodoColumnas
+
+    GenerarRepGram.AgregarTexto("columnas ::= columna\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumna = t[1]\n\
+    \t nodoColumnas = crear_nodo_general(\"columnas\","",linea,columna)\n\
+    \t nodoColumnas.hijos = []\n\
+    \t nodoColumnas.hijos.append(nodoColumna)\n\
+    \t t[0] = nodoColumnas\n\n")
 
 
 def p_columna_id(t):
     'columna : ID tipos opcional'
     linea = str(t.lexer.lineno)
-    nodoColumna = crear_nodo_general("columna", "", linea, columna)
-    nodoId = crear_nodo_general("ID", t[1], linea, columna)
+    nodoColumna = crear_nodo_general("columna","",linea,columna)
+    nodoId = crear_nodo_general("ID",t[1],linea,columna)
     nodoTipo = t[2]
     nodoOpcional = t[3]
+    nodoColumna.hijos = []
     nodoColumna.hijos.append(nodoId)
     nodoColumna.hijos.append(nodoTipo)
     nodoColumna.hijos.append(nodoOpcional)
     t[0] = nodoColumna
 
+    GenerarRepGram.AgregarTexto("columna ::= ID tipos opcional\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumna = crear_nodo_general(\"columna\","",linea,columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\",t[1],linea,columna)\n\
+    \t nodoTipo = t[2]\n\
+    \t nodoOpcional = t[3]\n\
+    \t nodoColumna.hijos = []\n\
+    \t nodoColumna.hijos.append(nodoId)\n\
+    \t nodoColumna.hijos.append(nodoTipo)\n\
+    \t nodoColumna.hijos.append(nodoOpcional)\n\
+    \t t[0] = nodoColumna\n\n")
+
 
 def p_columna_primary(t):
     'columna : PRIMARY KEY PARIZQUIERDO identificadores PARDERECHO'
     linea = str(t.lexer.lineno)
-    nodoColumna = crear_nodo_general("columna", "", linea, columna)
-    nodoPK = crear_nodo_general("PRIMARY", "PRIMARY KEY", linea, columna)
+    nodoColumna = crear_nodo_general("columna","",linea,columna)
+    nodoPK = crear_nodo_general("PRIMARY","PRIMARY KEY",linea,columna)
     listaIds = t[4]
+    nodoColumna.hijos = []
     nodoColumna.hijos.append(nodoPK)
     nodoColumna.hijos.append(listaIds)
     t[0] = nodoColumna
+
+    GenerarRepGram.AgregarTexto("columna ::= PRIMARY KEY PARIZQUIERDO identificadores PARDERECHO\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumna = crear_nodo_general(\"columna\","",linea,columna)\n\
+    \t nodoPK = crear_nodo_general(\"PRIMARY\",\"PRIMARY KEY\",linea,columna)\n\
+    \t listaIds = t[4]\n\
+    \t nodoColumna.hijos = []\n\
+    \t nodoColumna.hijos.append(nodoPK)\n\
+    \t nodoColumna.hijos.append(listaIds)\n\
+    \t t[0] = nodoColumna")
 
 
 def p_columna_foreign(t):
     'columna : FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO REFERENCES ID PARIZQUIERDO identificadores PARDERECHO'
     linea = str(t.lexer.lineno)
-    nodoColumna = crear_nodo_general("columna", "", linea, columna)
-    nodoFK = crear_nodo_general("FOREIGN", "FOREIGN KEY", linea, columna)
+    nodoColumna = crear_nodo_general("columna","",linea,columna)
+    nodoFK = crear_nodo_general("FOREIGN","FOREIGN KEY",linea,columna)
     listaId1 = t[4]
-    nodoReferences = crear_nodo_general(
-        "REFERENCES", "REFERENCES", linea, columna)
-    nodoId = crear_nodo_general("ID", t[7], linea, columna)
+    nodoReferences = crear_nodo_general("REFERENCES","REFERENCES",linea,columna)
+    nodoId = crear_nodo_general("ID",t[7],linea,columna)
     listaId2 = t[9]
+    nodoColumna.hijos = []
     nodoColumna.hijos.append(nodoFK)
     nodoColumna.hijos.append(listaId1)
     nodoColumna.hijos.append(nodoReferences)
@@ -1262,16 +1902,43 @@ def p_columna_foreign(t):
     nodoColumna.hijos.append(listaId2)
     t[0] = nodoColumna
 
+    GenerarRepGram.AgregarTexto("columna ::= FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO REFERENCES ID PARIZQUIERDO identificadores PARDERECHO\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumna = crear_nodo_general(\"columna\","",linea,columna)\n\
+    \t nodoFK = crear_nodo_general(\"FOREIGN\",\"FOREIGN KEY\",linea,columna)\n\
+    \t listaId1 = t[4]\n\
+    \t nodoReferences = crear_nodo_general(\"REFERENCES\",\"REFERENCES\",linea,columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\",t[7],linea,columna)\n\
+    \t listaId2 = t[9]\n\
+    \t nodoColumna.hijos = []\n\
+    \t nodoColumna.hijos.append(nodoFK)\n\
+    \t nodoColumna.hijos.append(listaId1)\n\
+    \t nodoColumna.hijos.append(nodoReferences)\n\
+    \t nodoColumna.hijos.append(nodoId)\n\
+    \t nodoColumna.hijos.append(listaId2)\n\
+    \t t[0] = nodoColumna\n\n")
+
 
 def p_columna_unique(t):
     'columna : UNIQUE PARIZQUIERDO identificadores PARDERECHO'
     linea = str(t.lexer.lineno)
-    nodoColumna = crear_nodo_general("columna", "", linea, columna)
-    nodoUnique = crear_nodo_general("UNIQUE", "UNIQUE", linea, columna)
+    nodoColumna = crear_nodo_general("columna","",linea,columna)
+    nodoUnique = crear_nodo_general("UNIQUE","UNIQUE",linea,columna)
     listaIds = t[3]
+    nodoColumna.hijos = []
     nodoColumna.hijos.append(nodoUnique)
     nodoColumna.hijos.append(listaIds)
     t[0] = nodoColumna
+
+    GenerarRepGram.AgregarTexto("columna ::= UNIQUE PARIZQUIERDO identificadores PARDERECHO\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumna = crear_nodo_general(\"columna\","",linea,columna)\n\
+    \t nodoUnique = crear_nodo_general(\"UNIQUE\",\"UNIQUE\",linea,columna)\n\
+    \t listaIds = t[3]\n\
+    \t nodoColumna.hijos = []\n\
+    \t nodoColumna.hijos.append(nodoUnique)\n\
+    \t nodoColumna.hijos.append(listaIds)\n\
+    \t t[0] = nodoColumna\n\n")
 
 # -------------------------------------------Definiciones de opcionales para la columna ID Tipo...---------------------------------------
 
@@ -1279,95 +1946,245 @@ def p_columna_unique(t):
 def p_opcionales(t):
     'opcional : DEFAULT opcionNull'
     linea = str(t.lexer.lineno)
-    nodoOpcional = crear_nodo_general("opcional", "", linea, columna)
-    nodoDefault = crear_nodo_general("DEFAULT", "DEFAULT", linea, columna)
-    nodoOpNull = t[2]
+    nodoOpcional = crear_nodo_general("opcional","",linea,columna)
+    nodoDefault = crear_nodo_general("DEFAULT",t[1],linea,columna)
+    nodoDefault.hijos = []
+    nodoExpresion = t[2]
+    nodoOpNull = t[3]
+    nodoOpcional.hijos = []
     nodoOpcional.hijos.append(nodoDefault)
+    nodoOpcional.hijos.append(nodoExpresion)
     nodoOpcional.hijos.append(nodoOpNull)
     t[0] = nodoOpcional
+
+    GenerarRepGram.AgregarTexto("opcional ::= DEFAULT opcionNull\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpcional = crear_nodo_general(\"opcional\","",linea,columna)\n\
+    \t nodoDefault = crear_nodo_general(\"DEFAULT\",t[1],linea,columna)\n\
+    \t nodoDefault.hijos = []\n\
+    \t nodoExpresion = t[2]\n\
+    \t nodoOpNull = t[3]\n\
+    \t nodoOpcional.hijos = []\n\
+    \t nodoOpcional.hijos.append(nodoDefault)\n\
+    \t nodoOpcional.hijos.append(nodoExpresion)\n\
+    \t nodoOpcional.hijos.append(nodoOpNull)\n\
+    \t t[0] = nodoOpcional\n\n")
 
 
 def p_opcional_opcionNull(t):
     'opcional : opcionNull'
     linea = str(t.lexer.lineno)
-    nodoOpcional = crear_nodo_general("opcional", "", linea, columna)
+    nodoOpcional = crear_nodo_general("opcional","",linea,columna)
     nodoOpNull = t[1]
+    nodoOpcional.hijos = []
     nodoOpcional.hijos.append(nodoOpNull)
     t[0] = nodoOpcional
+
+    GenerarRepGram.AgregarTexto("opcional ::= opcionNull\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpcional = crear_nodo_general(\"opcional\","",linea,columna)\n\
+    \t nodoOpNull = t[1]\n\
+    \t nodoOpcional.hijos = []\n\
+    \t nodoOpcional.hijos.append(nodoOpNull)\n\
+    \t t[0] = nodoOpcional\n\n")
 
 
 def p_opcion_null(t):
     'opcionNull : NULL opConstraint'
     linea = str(t.lexer.lineno)
-    nodoOpNull = crear_nodo_general("opcionNull", "", linea, columna)
-    nodoNull = crear_nodo_general("NULL", "NULL", linea, columna)
+    nodoOpNull = crear_nodo_general("opcionNull","",linea,columna)
+    nodoNull = crear_nodo_general("NULL","NULL",linea,columna)
+    nodoNull.hijos = []
     nodoOpConstraint = t[2]
+    nodoOpNull.hijos = []
     nodoOpNull.hijos.append(nodoNull)
     nodoOpNull.hijos.append(nodoOpConstraint)
     t[0] = nodoOpNull
+
+    GenerarRepGram.AgregarTexto("opcionNull ::= NULL opConstraint\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpNull = crear_nodo_general(\"opcionNull\","",linea,columna)\n\
+    \t nodoNull = crear_nodo_general(\"NULL\",\"NULL\",linea,columna)\n\
+    \t nodoNull.hijos = []\n\
+    \t nodoOpConstraint = t[2]\n\
+    \t nodoOpNull.hijos = []\n\
+    \t nodoOpNull.hijos.append(nodoNull)\n\
+    \t nodoOpNull.hijos.append(nodoOpConstraint)\n\
+    \t t[0] = nodoOpNull\n\n")
 
 
 def p_opcion_not_null(t):
     'opcionNull : NOT NULL opConstraint'
     linea = str(t.lexer.lineno)
-    nodoOpNull = crear_nodo_general("opcionNull", "", linea, columna)
-    nodoNull = crear_nodo_general("NOTNULL", "NOT NULL", linea, columna)
+    nodoOpNull = crear_nodo_general("opcionNull","",linea,columna)
+    nodoNull = crear_nodo_general("NOTNULL","NOT NULL",linea,columna)
+    nodoNull.hijos = []
     nodoOpConstraint = t[3]
+    nodoOpNull.hijos = []
     nodoOpNull.hijos.append(nodoNull)
     nodoOpNull.hijos.append(nodoOpConstraint)
     t[0] = nodoOpNull
+
+    GenerarRepGram.AgregarTexto("opcionNull ::= NOT NULL opConstraint\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpNull = crear_nodo_general(\"opcionNull\","",linea,columna)\n\
+    \t nodoNull = crear_nodo_general(\"NOTNULL\",\"NOT NULL\",linea,columna)\n\
+    \t nodoNull.hijos = []\n\
+    \t nodoOpConstraint = t[3]\n\
+    \t nodoOpNull.hijos = []\n\
+    \t nodoOpNull.hijos.append(nodoNull)\n\
+    \t nodoOpNull.hijos.append(nodoOpConstraint)\n\
+    \t t[0] = nodoOpNull\n\n")
 
 
 def p_opcion_null_constraint(t):
     'opcionNull : opConstraint '
     linea = str(t.lexer.lineno)
-    nodoOpNull = crear_nodo_general("opcionNull", "", linea, columna)
+    nodoOpNull = crear_nodo_general("opcionNull","",linea,columna)
     nodoOpConstraint = t[1]
+    nodoOpNull.hijos = []
     nodoOpNull.hijos.append(nodoOpConstraint)
     t[0] = nodoOpNull
+
+    GenerarRepGram.AgregarTexto("opcionNull ::= opConstraint \n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpNull = crear_nodo_general(\"opcionNull\","",linea,columna)\n\
+    \t nodoOpConstraint = t[1]\n\
+    \t nodoOpNull.hijos = []\n\
+    \t nodoOpNull.hijos.append(nodoOpConstraint)\n\
+    \t t[0] = nodoOpNull\n\n")
 
 
 def p_op_constraint(t):
     'opConstraint : CONSTRAINT ID opUniqueCheck'
     linea = str(t.lexer.lineno)
-    nodoOpConstraint = crear_nodo_general("opConstraint", "", linea, columna)
-    nodoConstrant = crear_nodo_general(
-        "CONSTRAINT", "CONSTRAINT", linea, columna)
-    nodoId = crear_nodo_general("ID", t[2], linea, columna)
+    nodoOpConstraint = crear_nodo_general("opConstraint","",linea,columna)
+    nodoConstrant = crear_nodo_general("CONSTRAINT","CONSTRAINT",linea,columna)
+    nodoConstrant.hijos = []
+    nodoId = crear_nodo_general("ID",t[2],linea,columna)
+    nodoId.hijos = []
     nodoopUniqueCheck = t[3]
+    nodoOpConstraint.hijos = []
     nodoOpConstraint.hijos.append(nodoConstrant)
     nodoOpConstraint.hijos.append(nodoId)
     nodoOpConstraint.hijos.append(nodoopUniqueCheck)
     t[0] = nodoOpConstraint
+
+    GenerarRepGram.AgregarTexto("opConstraint ::= CONSTRAINT ID opUniqueCheck\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpConstraint = crear_nodo_general(\"opConstraint\","",linea,columna)\n\
+    \t nodoConstrant = crear_nodo_general(\"CONSTRAINT\",\"CONSTRAINT\",linea,columna)\n\
+    \t nodoConstrant.hijos = []\n\
+    \t nodoId = crear_nodo_general(\"ID\",t[2],linea,columna)\n\
+    \t nodoId.hijos = []\n\
+    \t nodoopUniqueCheck = t[3]\n\
+    \t nodoOpConstraint.hijos = []\n\
+    \t nodoOpConstraint.hijos.append(nodoConstrant)\n\
+    \t nodoOpConstraint.hijos.append(nodoId)\n\
+    \t nodoOpConstraint.hijos.append(nodoopUniqueCheck)\n\
+    \t t[0] = nodoOpConstraint\n\n")
 
 
 def p_op_constraint_unique_check(t):
     'opConstraint : opUniqueCheck'
     linea = str(t.lexer.lineno)
     nodoOpUnique = t[1]
-    nodoOpConstraint = crear_nodo_general("opConstraint", "", linea, columna)
+    nodoOpConstraint = crear_nodo_general("opConstraint","",linea,columna)
+    nodoOpConstraint.hijos = []
     nodoOpConstraint.hijos.append(nodoOpUnique)
     t[0] = nodoOpConstraint
+
+    GenerarRepGram.AgregarTexto("opConstraint ::= opUniqueCheck\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpUnique = t[1]\n\
+    \t nodoOpConstraint = crear_nodo_general(\"opConstraint\","",linea,columna)\n\
+    \t nodoOpConstraint.hijos = []\n\
+    \t nodoOpConstraint.hijos.append(nodoOpUnique)\n\
+    \t t[0] = nodoOpConstraint\n\n")
 
 
 def p_op_unique_check(t):
     'opUniqueCheck : UNIQUE'
     linea = str(t.lexer.lineno)
-    nodoUnique = crear_nodo_general("UNIQUE", "UNIQUE", linea, columna)
-    nodoOpUnique = crear_nodo_general("opUniqueCheck", "", linea, columna)
+    nodoUnique = crear_nodo_general("UNIQUE","UNIQUE",linea,columna)
+    nodoUnique.hijos = []
+    nodoOpUnique = crear_nodo_general("opUniqueCheck","",linea,columna)
+    nodoOpUnique.hijos = []
     nodoOpUnique.hijos.append(nodoUnique)
     t[0] = nodoOpUnique
+
+    GenerarRepGram.AgregarTexto("opUniqueCheck ::= UNIQUE\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoUnique = crear_nodo_general(\"UNIQUE\",\"UNIQUE\",linea,columna)\n\
+    \t nodoUnique.hijos = []\n\
+    \t nodoOpUnique = crear_nodo_general(\"opUniqueCheck\","",linea,columna)\n\
+    \t nodoOpUnique.hijos = []\n\
+    \t nodoOpUnique.hijos.append(nodoUnique)\n\
+    \t t[0] = nodoOpUnique\n\n")
 
 
 def p_op_unique_check_check(t):
     'opUniqueCheck : CHECK PARIZQUIERDO condicion_check PARDERECHO'
-    linea = str(t.lexer.lineno)
-    nodoopUniqueCheck = crear_nodo_general("opUniqueCheck", "", linea, columna)
-    nodoCheck = crear_nodo_general("CHECK", "CHECK", linea, columna)
+    linea =  str(t.lexer.lineno)
+    nodoopUniqueCheck = crear_nodo_general("opUniqueCheck","",linea,columna)
+    nodoCheck = crear_nodo_general("CHECK","CHECK",linea,columna)
+    nodoCheck.hijos = []
     nodoCondicion = t[3]
+    nodoopUniqueCheck.hijos = []
     nodoopUniqueCheck.hijos.append(nodoCheck)
     nodoopUniqueCheck.hijos.append(nodoCondicion)
     t[0] = nodoopUniqueCheck
+
+    GenerarRepGram.AgregarTexto("opUniqueCheck ::= CHECK PARIZQUIERDO condicion_check PARDERECHO\n\n\
+    \t linea =  str(t.lexer.lineno)\n\
+    \t nodoopUniqueCheck = crear_nodo_general(\"opUniqueCheck\","",linea,columna)\n\
+    \t nodoCheck = crear_nodo_general(\"CHECK\",\"CHECK\",linea,columna)\n\
+    \t nodoCheck.hijos = []\n\
+    \t nodoCondicion = t[3]\n\
+    \t nodoopUniqueCheck.hijos = []\n\
+    \t nodoopUniqueCheck.hijos.append(nodoCheck)\n\
+    \t nodoopUniqueCheck.hijos.append(nodoCondicion)\n\
+    \t t[0] = nodoopUniqueCheck\n\n")
+
+def p_op_unique_check_pk(t):
+    'opUniqueCheck : PRIMARY KEY'
+    nodoPrimary = crear_nodo_general("PRIMARY","PRIMARY KEY",str(t.lexer.lineno),columna)
+    nodoPrimary.hijos = []
+    nodoOpPrimary = crear_nodo_general("opUniqueCheck","",str(t.lexer.lineno),columna)
+    nodoOpPrimary.hijos = []
+    nodoOpPrimary.hijos.append(nodoPrimary)
+    t[0] = nodoOpPrimary
+
+    GenerarRepGram.AgregarTexto("opUniqueCheck ::= PRIMARY KEY\n\n\
+    \t nodoPrimary = crear_nodo_general(\"PRIMARY\",\"PRIMARY KEY\",str(t.lexer.lineno),columna)\n\
+    \t nodoPrimary.hijos = []\n\
+    \t nodoOpPrimary = crear_nodo_general(\"opUniqueCheck\","",str(t.lexer.lineno),columna)\n\
+    \t nodoOpPrimary.hijos = []\n\
+    \t nodoOpPrimary.hijos.append(nodoPrimary)\n\
+    \t t[0] = nodoOpPrimary\n\n")
+
+def p_op_unique_check_fk(t):
+    'opUniqueCheck : REFERENCES ID'
+    nodoForeign = crear_nodo_general("REFERENCES","REFERENCES",str(t.lexer.lineno),columna)
+    nodoId = crear_nodo_general("ID",t[2],str(t.lexer.lineno),columna)
+    nodoForeign.hijos = []
+    nodoId.hijos = []
+    nodoOpForeign = crear_nodo_general("opUniqueCheck","",str(t.lexer.lineno),columna)
+    nodoOpForeign.hijos = []
+    nodoOpForeign.hijos.append(nodoForeign)
+    nodoOpForeign.hijos.append(nodoId)
+    t[0] = nodoOpForeign
+
+    GenerarRepGram.AgregarTexto("opUniqueCheck ::= REFERENCES ID\n\n\
+    \t nodoForeign = crear_nodo_general(\"REFERENCES\",\"REFERENCES\",str(t.lexer.lineno),columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\",t[2],str(t.lexer.lineno),columna)\n\
+    \t nodoForeign.hijos = []\n\
+    \t nodoId.hijos = []\n\
+    \t nodoOpForeign = crear_nodo_general(\"opUniqueCheck\","",str(t.lexer.lineno),columna)\n\
+    \t nodoOpForeign.hijos = []\n\
+    \t nodoOpForeign.hijos.append(nodoForeign)\n\
+    \t nodoOpForeign.hijos.append(nodoId)\n\
+    \t t[0] = nodoOpForeign\n\n")
 
 
 def p_condicion_check(t):
@@ -1377,21 +2194,46 @@ def p_condicion_check(t):
                         | ID MAYOR_IGUAL expresion
                         | ID DISTINTO expresion
                         | ID IGUAL expresion '''
+    tipoC = t[2]
     linea = str(t.lexer.lineno)
-    hijos = []
-    nodoId = crear_nodo_general("ID", t[1], linea, columna)
-    nodoComp = crear_nodo_general("comparacion", t[2], linea, columna)
-    nodoPrimitivo = crear_nodo_general("primitivo", t[3], linea, columna)
-    nodoCondicion = crear_nodo_general("condicion_check", "", linea, columna)
+    nNodo = incNodo(numNodo)
+    nodoId = crear_nodo_general("ID",t[1],linea,columna)
+    nodoId.hijos = []
+    nodoPrimitivo = t[3]
+    nodoPrimitivo.hijos = []
+    nodoCondicion = expresion.Expresion()
+    nodoCondicion.setearValores(linea, columna, "EXPRESION_RELACIONAL", nNodo, "", [])
+    if tipoC == "<":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MENOR_QUE)
+        nodoComp = crear_nodo_general("MENOR_QUE", "<", linea, columna)
+    elif tipoC == "<=":
+        nodoCondicion.operacionBinaria( t[1], t[3], tipoSimbolo.TipoSimbolo.MENOR_IGUAL)
+        nodoComp = crear_nodo_general("MENOR_IGUAL", "<=", linea, columna)
+    elif tipoC == ">":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MAYOR_QUE)
+        nodoComp = crear_nodo_general("MAYOR_QUE", ">", linea, columna)
+    elif tipoC == ">=":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MAYOR_IGUAL)
+        nodoComp = crear_nodo_general("MAYOR_IGUAL", ">=", linea, columna)
+    elif tipoC == "<>" or tipoC == "!=":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.DISTINTO)
+        nodoComp = crear_nodo_general("DISTINTO", t[2], linea, columna)
+    elif tipoC == "=":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.IGUALACION)
+        nodoComp = crear_nodo_general("IGUALACION", "=", linea, columna)
+    nodoComp.hijos = []
     nodoCondicion.hijos.append(nodoId)
     nodoCondicion.hijos.append(nodoComp)
     nodoCondicion.hijos.append(nodoPrimitivo)
-    t[0] = nodoCondicion
+    t[0] = nodoCondicion 
 
 
 def p_op_unique_empty(t):
     'opUniqueCheck : empty'
     t[0] = None
+
+    GenerarRepGram.AgregarTexto("opUniqueCheck ::= empty\n\n\
+    \t t[0] = None\n\n")
  # ------------------------------------------------Definicion de regla epsilon y herencia----------------------------------------------------------
 
 
@@ -1403,15 +2245,27 @@ def p_empty(t):
 def p_herencia(t):
     'herencia : INHERITS PARIZQUIERDO ID PARDERECHO'
     linea = str(t.lexer.lineno)
-    nodoId = crear_nodo_general("ID", t[3], linea, columna)
-    nodoHerencia = crear_nodo_general("herencia", "", linea, columna)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoHerencia = crear_nodo_general("herencia","",linea,columna)
+    nodoHerencia.hijos = []
     nodoHerencia.hijos.append(nodoId)
     t[0] = nodoHerencia
+
+    GenerarRepGram.AgregarTexto("herencia ::= INHERITS PARIZQUIERDO ID PARDERECHO\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoId = crear_nodo_general(\"ID\",t[3],linea,columna)\n\
+    \t nodoHerencia = crear_nodo_general(\"herencia\","",linea,columna)\n\
+    \t nodoHerencia.hijos = []\n\
+    \t nodoHerencia.hijos.append(nodoId)\n\
+    \t t[0] = nodoHerencia\n\n")
 
 
 def p_herencia_empty(t):
     'herencia : empty'
     t[0] = None
+
+    GenerarRepGram.AgregarTexto("herencia : empty\n\n\
+    \t t[0] = None\n\n")
 # --------------------------------------------------Lista de identificadores y cadenas------------------------------------------------------------
 
 
@@ -1420,8 +2274,17 @@ def p_identificadores_lista(t):
     linea = str(t.lexer.lineno)
     nodoPadre = t[1]
     nodoId = crear_nodo_general("ID", t[3], str(linea), columna)
+    nodoId.hijos = []
     nodoPadre.hijos.append(nodoId)
     t[0] = nodoPadre
+
+    GenerarRepGram.AgregarTexto("identificadores ::= identificadores COMA ID\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoPadre = t[1]\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], str(linea), columna)\n\
+    \t nodoId.hijos = []\n\
+    \t nodoPadre.hijos.append(nodoId)\n\
+    \t t[0] = nodoPadre\n\n")
 
 
 def p_identificadores_id(t):
@@ -1429,26 +2292,55 @@ def p_identificadores_id(t):
     linea = str(t.lexer.lineno)
     nodoId = crear_nodo_general("ID", t[1], str(linea), columna)
     nodoLista = crear_nodo_general("identificadores", "", linea, columna)
+    nodoLista.hijos = []
     nodoLista.hijos.append(nodoId)
     t[0] = nodoLista
+
+    GenerarRepGram.AgregarTexto("identificadores ::= ID\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[1], str(linea), columna)\n\
+    \t nodoLista = crear_nodo_general(\"identificadores\", "", linea, columna)\n\
+    \t nodoLista.hijos = []\n\
+    \t nodoLista.hijos.append(nodoId)\n\
+    \t t[0] = nodoLista\n\n")
 
 
 def p_cadenas_lista(t):
     'cadenas : cadenas COMA  CADENA'
     linea = str(t.lexer.lineno)
     nodoPadre = t[1]
-    nodoId = crear_nodo_general("CADENA", t[3], str(linea), columna)
-    nodoPadre.hijos.append(nodoId)
+    nodoCadena = crear_nodo_general("CADENA", t[3], str(linea), columna)
+    nodoCadena.hijos = []
+    nodoPadre.hijos.append(nodoCadena)
     t[0] = nodoPadre
+
+    GenerarRepGram.AgregarTexto("cadenas ::= cadenas COMA  CADENA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoPadre = t[1]\n\
+    \t nodoCadena = crear_nodo_general(\"CADENA\", t[3], str(linea), columna)\n\
+    \t nodoCadena.hijos = []\n\
+    \t nodoPadre.hijos.append(nodoCadena)\n\
+    \t t[0] = nodoPadre\n\n")
 
 
 def p_cadenas_cadena(t):
     'cadenas : CADENA'
     linea = str(t.lexer.lineno)
-    nodoId = crear_nodo_general("CADENA", t[1], str(linea), columna)
+    nodoCadena = crear_nodo_general("CADENA", t[1], str(linea), columna)
+    nodoCadena.hijos = []
     nodoLista = crear_nodo_general("cadenas", "", linea, columna)
-    nodoLista.hijos.append(nodoId)
+    nodoLista.hijos = []
+    nodoLista.hijos.append(nodoCadena)
     t[0] = nodoLista
+
+    GenerarRepGram.AgregarTexto("cadenas ::= CADENA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoCadena = crear_nodo_general(\"CADENA\", t[1], str(linea), columna)\n\
+    \t nodoCadena.hijos = []\n\
+    \t nodoLista = crear_nodo_general(\"cadenas\", "", linea, columna)\n\
+    \t nodoLista.hijos = []\n\
+    \t nodoLista.hijos.append(nodoCadena)\n\
+    \t t[0] = nodoLista\n\n")
 
 # -------------------------------------------------Definiciones de opcionales para crear databases--------------------------------------
 
@@ -1456,87 +2348,162 @@ def p_cadenas_cadena(t):
 def p_op_replace(t):
     'opReplace : OR REPLACE'
     linea = str(t.lexer.lineno)
-    nodoOpReplace = crear_nodo_general("opReplace", "", linea, columna)
-    nodoOrReplace = crear_nodo_general(
-        "ORREPLACE", "OR REPLACE", linea, columna)
+    nodoOpReplace = crear_nodo_general("opReplace","",linea,columna)
+    nodoOpReplace.hijos = []
+    nodoOrReplace = crear_nodo_general("ORREPLACE", "OR REPLACE",linea,columna)
+    nodoOrReplace = []
     nodoOpReplace.hijos.append(nodoOrReplace)
     t[0] = nodoOpReplace
+
+    GenerarRepGram.AgregarTexto("opReplace ::= OR REPLACE\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpReplace = crear_nodo_general(\"opReplace\","",linea,columna)\n\
+    \t nodoOpReplace.hijos = []\n\
+    \t nodoOrReplace = crear_nodo_general(\"ORREPLACE\", \"OR REPLACE\",linea,columna)\n\
+    \t nodoOrReplace = []\n\
+    \t nodoOpReplace.hijos.append(nodoOrReplace)\n\
+    \t t[0] = nodoOpReplace\n\n")
 
 
 def p_op_replace_empty(t):
     'opReplace : empty'
     t[0] = None
 
+    GenerarRepGram.AgregarTexto("opReplace ::= empty\n\n\
+    \t t[0] = None\n\n")
 
 def p_op_exists(t):
     'opExists : IF NOT EXISTS'
     linea = str(t.lexer.lineno)
-    nodoOpExists = crear_nodo_general("opExists", "", linea, columna)
-    nodoCondicion = crear_nodo_general(
-        "IFNOTEXISTS", "IF NOT EXISTS", linea, columna)
+    nodoOpExists = crear_nodo_general("opExists","",linea,columna)
+    nodoOpExists.hijos = []
+    nodoCondicion = crear_nodo_general("IFNOTEXISTS","IF NOT EXISTS",linea,columna)
+    nodoCondicion.hijos = []
     nodoOpExists.hijos.append(nodoCondicion)
     t[0] = nodoOpExists
 
+    GenerarRepGram.AgregarTexto("opExists ::= IF NOT EXISTS\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpExists = crear_nodo_general(\"opExists\","",linea,columna)\n\
+    \t nodoOpExists.hijos = []\n\
+    \t nodoCondicion = crear_nodo_general(\"IFNOTEXISTS\",\"IF NOT EXISTS\",linea,columna)\n\
+    \t nodoCondicion.hijos = []\n\
+    \t nodoOpExists.hijos.append(nodoCondicion)\n\
+    \t t[0] = nodoOpExists\n\n")
 
 def p_op_exists_empty(t):
     'opExists : empty'
     t[0] = None
 
+    GenerarRepGram.AgregarTexto("opExists ::= empty\n\n\
+    \t t[0] = None\n\n")
+
 
 def p_op_database(t):
-    'opDatabase : OWNER opIgual ID mode'
-    linea = str(t.lexer.lineno)
-    nodoOpDatabase = crear_nodo_general("opDatabase", "", linea, columna)
-    nodoOwner = crear_nodo_general("OWNER", "OWNER", linea, columna)
-    nodoOpIgual = t[2]
-    nodoId = crear_nodo_general("ID", t[3], linea, columna)
-    nodoModo = crear_nodo_general("mode", t[4], linea, columna)
-    nodoOpDatabase.hijos.append(nodoOwner)
-    nodoOpDatabase.hijos.append(nodoOpIgual)
-    nodoOpDatabase.hijos.append(nodoId)
-    nodoOpDatabase.hijos.append(nodoModo)
-    t[0] = nodoOpDatabase
+    '''opDatabase : OWNER opIgual ID mode
+                  | mode'''
+    if len(t) > 2:
+        linea = str(t.lexer.lineno)
+        nodoOpDatabase = crear_nodo_general("opDatabase","",linea,columna)
+        nodoOpDatabase.hijos = []
+        nodoOwner = crear_nodo_general("OWNER","OWNER",linea,columna)
+        nodoOpIgual = t[2]
+        nodoId = crear_nodo_general("ID",t[3],linea,columna)
+        nodoModo = t[4]
+        nodoOpDatabase.hijos.append(nodoOwner)
+        nodoOpDatabase.hijos.append(nodoOpIgual)
+        nodoOpDatabase.hijos.append(nodoId)
+        nodoOpDatabase.hijos.append(nodoModo)
+        t[0] = nodoOpDatabase
 
+        GenerarRepGram.AgregarTexto("opDatabase ::= OWNER opIgual ID mode\n\n\
+        \t linea = str(t.lexer.lineno)\n\
+        \t nodoOpDatabase = crear_nodo_general(\"opDatabase\","",linea,columna)\n\
+        \t nodoOpDatabase.hijos = []\n\
+        \t nodoOwner = crear_nodo_general(\"OWNER\",\"OWNER\",linea,columna)\n\
+        \t nodoOpIgual = t[2]\n\
+        \t nodoId = crear_nodo_general(\"ID\",t[3],linea,columna)\n\
+        \t nodoModo = t[4]\n\
+        \t nodoOpDatabase.hijos.append(nodoOwner)\n\
+        \t nodoOpDatabase.hijos.append(nodoOpIgual)\n\
+        \t nodoOpDatabase.hijos.append(nodoId)\n\
+        \t nodoOpDatabase.hijos.append(nodoModo)\n\
+        \t t[0] = nodoOpDatabase\n\n")
 
-def p_op_database_mode(t):
-    'opDatabase : mode'
-    linea = str(t.lexer.lineno)
-    nodoOpDatabase = crear_nodo_general("opDatabase", "", linea, columna)
-    nodoModo = t[1]
-    nodoOpDatabase.hijos.append(nodoModo)
-    t[0] = nodoOpDatabase
+    else:
+        linea = str(t.lexer.lineno)
+        nodoOpDatabase = crear_nodo_general("opDatabase","",linea,columna)
+        nodoOpDatabase.hijos = []
+        nodoModo = t[1]
+        nodoOpDatabase.hijos.append(nodoModo)
+        t[0] = nodoOpDatabase
+
+        GenerarRepGram.AgregarTexto("opDatabase ::= mode\n\n\
+        \t linea = str(t.lexer.lineno)\n\
+        \t nodoOpDatabase = crear_nodo_general(\"opDatabase\","",linea,columna)\n\
+        \t nodoOpDatabase.hijos = []\n\
+        \t nodoModo = t[1]\n\
+        \t nodoOpDatabase.hijos.append(nodoModo)\n\
+        \t t[0] = nodoOpDatabase\n\n")
 
 
 def p_op_igual(t):
     'opIgual : IGUAL'
     linea = str(t.lexer.lineno)
-    nodoOpIgual = crear_nodo_general("opIgual", "", linea, columna)
-    nodoIgual = crear_nodo_general("IGUAL", t[1], linea, columna)
+    nodoOpIgual = crear_nodo_general("opIgual","",linea,columna)
+    nodoOpIgual.hijos = []
+    nodoIgual = crear_nodo_general("IGUAL",t[1],linea,columna)
     nodoOpIgual.hijos.append(nodoIgual)
     t[0] = nodoOpIgual
+
+    GenerarRepGram.AgregarTexto("opIgual ::= IGUAL\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpIgual = crear_nodo_general(\"opIgual\","",linea,columna)\n\
+    \t nodoOpIgual.hijos = []\n\
+    \t nodoIgual = crear_nodo_general(\"IGUAL\",t[1],linea,columna)\n\
+    \t nodoOpIgual.hijos.append(nodoIgual)\n\
+    \t t[0] = nodoOpIgual\n\n")
 
 
 def p_op_igual_empty(t):
     'opIgual : empty'
     t[0] = None
 
+    GenerarRepGram.AgregarTexto("opIgual ::= empty\n\n\
+    \t t[0] = None\n\n")
 
 def p_mode(t):
     'mode : MODE opIgual ENTERO'
     linea = str(t.lexer.lineno)
-    nodoModo = crear_nodo_general("modo", "", linea, columna)
-    nodoMode = crear_nodo_general("MODE", t[1], linea, columna)
+    nodoModo = crear_nodo_general("modo","modo",linea,columna)
+    nodoModo.hijos = []
+    nodoMode = crear_nodo_general("MODE",t[1],linea,columna)
     nodoOpIgual = t[2]
-    nodoEntero = crear_nodo_general("ENTERO", t[3], linea, columna)
+    nodoEntero = crear_nodo_general("ENTERO",t[3],linea,columna)
     nodoModo.hijos.append(nodoMode)
     nodoModo.hijos.append(nodoOpIgual)
     nodoModo.hijos.append(nodoEntero)
     t[0] = nodoModo
 
+    GenerarRepGram.AgregarTexto("mode ::= MODE opIgual ENTERO\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoModo = crear_nodo_general(\"modo\",\"modo\",linea,columna)\n\
+    \t nodoModo.hijos = []\n\
+    \t nodoMode = crear_nodo_general(\"MODE\",t[1],linea,columna)\n\
+    \t nodoOpIgual = t[2]\n\
+    \t nodoEntero = crear_nodo_general(\"ENTERO\",t[3],linea,columna)\n\
+    \t nodoModo.hijos.append(nodoMode)\n\
+    \t nodoModo.hijos.append(nodoOpIgual)\n\
+    \t nodoModo.hijos.append(nodoEntero)\n\
+    \t t[0] = nodoModo\n\n")
+
 
 def p_mode_empty(t):
     'mode : empty'
     t[0] = None
+
+    GenerarRepGram.AgregarTexto("mode ::= empty\n\n\
+    \t t[0] = None\n\n")
 
 
 # ---------------------------------------------------Instrucciones alter------------------------------------
@@ -1553,6 +2520,18 @@ def p_alter_instr(t):
     instru.setearValores(linea, columna, "ALTER_DATABASE", nNodo, "", hijos)
     t[0] = instru
 
+    GenerarRepGram.AgregarTexto("alter_instr ::= ALTER DATABASE ID opAlterDatabase PTCOMA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t hijos = []\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+    \t nodoInstr = t[4]\n\
+    \t instru = alterDatabase.alterDatabase(t[3], t[4].hijos)\n\
+    \t hijos.append(nodoId)\n\
+    \t hijos.append(nodoInstr)\n\
+    \t instru.setearValores(linea, columna, \"ALTER_DATABASE\", nNodo, "", hijos)\n\
+    \t t[0] = instru\n\n")
+
 
 def p_alter_instr_table(t):
     'alter_instr : ALTER TABLE ID alter_table_instr PTCOMA'
@@ -1567,6 +2546,18 @@ def p_alter_instr_table(t):
     instru.setearValores(linea, columna, "ALTER_TABLE", nNodo, "", hijos)
     t[0] = instru
 
+    GenerarRepGram.AgregarTexto("alter_instr ::= ALTER TABLE ID alter_table_instr PTCOMA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t hijos = []\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+    \t nodoInstr = t[4]\n\
+    \t instru = alterTable.alterTable(t[3], t[4].hijos)\n\
+    \t hijos.append(nodoId)\n\
+    \t hijos.append(nodoInstr)\n\
+    \t instru.setearValores(linea, columna, \"ALTER_TABLE\", nNodo, "", hijos)\n\
+    \t t[0] = instru\n\n")
+
 
 def p_op_alter_database(t):
     'opAlterDatabase : RENAME TO ID'
@@ -1577,6 +2568,15 @@ def p_op_alter_database(t):
     nodoOpAlter.hijos.append(nodoRename)
     nodoOpAlter.hijos.append(nodoId)
     t[0] = nodoOpAlter
+
+    GenerarRepGram.AgregarTexto("opAlterDatabase ::= RENAME TO ID\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpAlter = crear_nodo_general(\"opAlterDatabase\", "", linea, columna)\n\
+    \t nodoRename = crear_nodo_general(\"RENAME\", \"RENAME TO\", linea, columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+    \t nodoOpAlter.hijos.append(nodoRename)\n\
+    \t nodoOpAlter.hijos.append(nodoId)\n\
+    \t t[0] = nodoOpAlter\n\n")
 
 
 def p_op_alter_database_owner(t):
@@ -1589,6 +2589,15 @@ def p_op_alter_database_owner(t):
     nodoOpAlter.hijos.append(nodoOwnerList)
     t[0] = nodoOpAlter
 
+    GenerarRepGram.AgregarTexto("opAlterDatabase ::= OWNER TO ownerList\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOpAlter = crear_nodo_general(\"opAlterDatabase\", "", linea, columna)\n\
+    \t nodoOwner = crear_nodo_general(\"OWNER\", \"OWNER TO\", linea, columna)\n\
+    \t nodoOwnerList = t[3]\n\
+    \t nodoOpAlter.hijos.append(nodoOwner)\n\
+    \t nodoOpAlter.hijos.append(nodoOwnerList)\n\
+    \t t[0] = nodoOpAlter\n\n")
+
 
 def p_owner_list(t):
     'ownerList : ID'
@@ -1597,6 +2606,13 @@ def p_owner_list(t):
     nodoId = crear_nodo_general("ID", t[1], linea, columna)
     nodoOwnerList.hijos.append(nodoId)
     t[0] = nodoOwnerList
+
+    GenerarRepGram.AgregarTexto("ownerList ::= ID\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOwnerList = crear_nodo_general(\"ownerList\", "", linea, columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[1], linea, columna)\n\
+    \t nodoOwnerList.hijos.append(nodoId)\n\
+    \t t[0] = nodoOwnerList\n\n")
 
 
 def p_owner_current(t):
@@ -1607,6 +2623,13 @@ def p_owner_current(t):
     nodoOwnerList.hijos.append(nodoCurrent)
     t[0] = nodoOwnerList
 
+    GenerarRepGram.AgregarTexto("ownerList ::= CURRENT_USER\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOwnerList = crear_nodo_general(\"ownerList\", "", linea, columna)\n\
+    \t nodoCurrent = crear_nodo_general(\"CURRENT_USER\", t[1], linea, columna)\n\
+    \t nodoOwnerList.hijos.append(nodoCurrent)\n\
+    \t t[0] = nodoOwnerList\n\n")
+
 
 def p_owner_session(t):
     'ownerList : SESSION_USER'
@@ -1615,6 +2638,13 @@ def p_owner_session(t):
     nodoSession = crear_nodo_general("SESSION_USER", t[1], linea, columna)
     nodoOwnerList.hijos.append(nodoSession)
     t[0] = nodoOwnerList
+
+    GenerarRepGram.AgregarTexto("ownerList ::= SESSION_USER\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoOwnerList = crear_nodo_general(\"ownerList\", "", linea, columna)\n\
+    \t nodoSession = crear_nodo_general(\"SESSION_USER\", t[1], linea, columna)\n\
+    \t nodoOwnerList.hijos.append(nodoSession)\n\
+    \t t[0] = nodoOwnerList\n\n")
 
 
 def p_alter_table_instr(t):
@@ -1627,6 +2657,15 @@ def p_alter_table_instr(t):
     nodoAlter.hijos.append(nodoAddI)
     t[0] = nodoAlter
 
+    GenerarRepGram.AgregarTexto("alter_table_instr ::= ADD add_instr\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoAddI = t[2]\n\
+    \t nodoAdd = crear_nodo_general(\"ADD\", \"ADD\", linea, columna)\n\
+    \t nodoAlter = crear_nodo_general(\"alter_column_instr\", "", linea, columna)\n\
+    \t nodoAlter.hijos.append(nodoAdd)\n\
+    \t nodoAlter.hijos.append(nodoAddI)\n\
+    \t t[0] = nodoAlter\n\n")
+
 
 def p_alter_table_instr_column(t):
     'alter_table_instr : alter_columnas'
@@ -1635,6 +2674,13 @@ def p_alter_table_instr_column(t):
     nodoAlter = crear_nodo_general("alter_column_instr", "", linea, columna)
     nodoAlter.hijos.append(nodoColumnas)
     t[0] = nodoAlter
+
+    GenerarRepGram.AgregarTexto("alter_table_instr ::= alter_columnas\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumnas = t[1]\n\
+    \t nodoAlter = crear_nodo_general(\"alter_column_instr\", "", linea, columna)\n\
+    \t nodoAlter.hijos.append(nodoColumnas)\n\
+    \t t[0] = nodoAlter\n\n")
 
 
 def p_alter_table_instr_drop_columnas(t):
@@ -1645,6 +2691,13 @@ def p_alter_table_instr_drop_columnas(t):
     nodoAlter.hijos.append(nodoDrop)
     t[0] = nodoAlter
 
+    GenerarRepGram.AgregarTexto("alter_table_instr ::= drop_columnas\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoDrop = t[1]\n\
+    \t nodoAlter = crear_nodo_general(\"alter_column_instr\", "", linea, columna)\n\
+    \t nodoAlter.hijos.append(nodoDrop)\n\
+    \t t[0] = nodoAlter\n\n")
+
 
 def p_alter_columnas(t):
     'alter_columnas : alter_columnas COMA alter_columna'
@@ -1654,6 +2707,13 @@ def p_alter_columnas(t):
     nodoColumnas.hijos.append(nodoColumna)
     t[0] = nodoColumnas
 
+    GenerarRepGram.AgregarTexto("alter_columnas ::= alter_columnas COMA alter_columna\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumnas = t[1]\n\
+    \t nodoColumna = t[3]\n\
+    \t nodoColumnas.hijos.append(nodoColumna)\n\
+    \t t[0] = nodoColumnas\n\n")
+
 
 def p_alter_columnas_columna(t):
     'alter_columnas : alter_columna'
@@ -1662,6 +2722,13 @@ def p_alter_columnas_columna(t):
     nodoColumnas = crear_nodo_general("alter_columnas", "", linea, columna)
     nodoColumnas.hijos.append(nodoColumna)
     t[0] = nodoColumnas
+    
+    GenerarRepGram.AgregarTexto("alter_columnas ::= alter_columna\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumna = t[1]\n\
+    \t nodoColumnas = crear_nodo_general(\"alter_columnas\", "", linea, columna)\n\
+    \t nodoColumnas.hijos.append(nodoColumna)\n\
+    \t t[0] = nodoColumnas\n\n")
 
 
 def p_alter_columna(t):
@@ -1677,6 +2744,16 @@ def p_alter_columna(t):
     nodoIAlterColumn.hijos.append(nodoAlterInstr)
     t[0] = nodoIAlterColumn
 
+    GenerarRepGram.AgregarTexto("alter_columna ::= ALTER COLUMN ID alter_column_instr\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoIAlterColumn = crear_nodo_general(\"alter_columna\", "", linea, columna)\n\
+    \t nodoAlterColumn = crear_nodo_general(\"ALTER\", \"ALTER COLUMN\", linea, columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+    \t nodoAlterInstr = t[4]\n\
+    \t nodoIAlterColumn.hijos.append(nodoAlterColumn)\n\
+    \t nodoIAlterColumn.hijos.append(nodoId)\n\
+    \t nodoIAlterColumn.hijos.append(nodoAlterInstr)\n\
+    \t t[0] = nodoIAlterColumn\n\n")
 
 def p_drop_columnas(t):
     'drop_columnas : drop_columnas COMA drop_columna'
@@ -1686,6 +2763,13 @@ def p_drop_columnas(t):
     nodoColumnas.hijos.append(nodoColumna)
     t[0] = nodoColumnas
 
+    GenerarRepGram.AgregarTexto("drop_columnas ::= drop_columnas COMA drop_columna\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumnas = t[1]\n\
+    \t nodoColumna = t[3]\n\
+    \t nodoColumnas.hijos.append(nodoColumna)\n\
+    \t t[0] = nodoColumnas\n\n")
+
 
 def p_drop_columnas_columna(t):
     'drop_columnas : drop_columna'
@@ -1694,6 +2778,13 @@ def p_drop_columnas_columna(t):
     nodoColumnas = crear_nodo_general("drop_columnas", "", linea, columna)
     nodoColumnas.hijos.append(nodoColumna)
     t[0] = nodoColumnas
+
+    GenerarRepGram.AgregarTexto("drop_columnas ::= drop_columna\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoColumna = t[1]\n\
+    \t nodoColumnas = crear_nodo_general(\"drop_columnas\", "", linea, columna)\n\
+    \t nodoColumnas.hijos.append(nodoColumna)\n\
+    \t t[0] = nodoColumnas\n\n")
 
 
 def p_drop_columna(t):
@@ -1707,6 +2798,17 @@ def p_drop_columna(t):
     nodoDropInstr.hijos.append(nodoColumna)
     nodoDropInstr.hijos.append(nodoId)
     t[0] = nodoDropInstr
+
+    GenerarRepGram.AgregarTexto("drop_columna ::= DROP COLUMN ID\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoDropInstr = crear_nodo_general(\"drop_instr\", "", linea, columna)\n\
+    \t nodoDrop = crear_nodo_general(\"DROP\", \"DROP\", linea, columna)\n\
+    \t nodoColumna = crear_nodo_general(\"COLUMN\", \"COLUMN\", linea, columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+    \t nodoDropInstr.hijos.append(nodoDrop)\n\
+    \t nodoDropInstr.hijos.append(nodoColumna)\n\
+    \t nodoDropInstr.hijos.append(nodoId)\n\
+    \t t[0] = nodoDropInstr\n\n")
 
 
 def p_alter_table_instr_drop(t):
@@ -1722,6 +2824,17 @@ def p_alter_table_instr_drop(t):
     nodoAlter.hijos.append(nodoId)
     t[0] = nodoAlter
 
+    GenerarRepGram.AgregarTexto("alter_table_instr ::= DROP CONSTRAINT ID\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoAlter = crear_nodo_general(\"alter_table_instr\", "", linea, columna)\n\
+    \t nodoDrop = crear_nodo_general(\"DROP\", \"DROP\", linea, columna)\n\
+    \t nodoConstrant = crear_nodo_general(\"CONSTRAINT\", \"CONSTRAINT\", linea, columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+    \t nodoAlter.hijos.append(nodoDrop)\n\
+    \t nodoAlter.hijos.append(nodoConstrant)\n\
+    \t nodoAlter.hijos.append(nodoId)\n\
+    \t t[0] = nodoAlter\n\n")
+
 
 def p_add_instr(t):
     'add_instr : CHECK PARIZQUIERDO condicion_check PARDERECHO'
@@ -1732,6 +2845,15 @@ def p_add_instr(t):
     nodoAdd.hijos.append(nodoCheck)
     nodoAdd.hijos.append(nodoCondicion)
     t[0] = nodoAdd
+
+    GenerarRepGram.AgregarTexto("add_instr ::= CHECK PARIZQUIERDO condicion_check PARDERECHO\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoAdd = crear_nodo_general(\"add_instr\", "", linea, columna)\n\
+    \t nodoCheck = crear_nodo_general(\"CHECK\", \"CHECK\", linea, columna)\n\
+    \t nodoCondicion = crear_nodo_general(\"condicion_check\", t[3], linea, columna)\n\
+    \t nodoAdd.hijos.append(nodoCheck)\n\
+    \t nodoAdd.hijos.append(nodoCondicion)\n\
+    \t t[0] = nodoAdd\n\n")
 
 
 def p_add_instr_constraint(t):
@@ -1749,6 +2871,19 @@ def p_add_instr_constraint(t):
     nodoAdd.hijos.append(nodoId2)
     t[0] = nodoAdd
 
+    GenerarRepGram.AgregarTexto("add_instr ::= CONSTRAINT ID UNIQUE PARIZQUIERDO ID PARDERECHO\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoAdd = crear_nodo_general(\"add_instr\", "", linea, columna)\n\
+    \t nodoConstrant = crear_nodo_general(\"CONSTRAINT\", \"CONSTRAINT\", linea, columna)\n\
+    \t nodoId1 = crear_nodo_general(\"ID\", t[2], linea, columna)\n\
+    \t nodoUnique = crear_nodo_general(\"UNIQUE\", \"UNIQUE\", linea, columna)\n\
+    \t nodoId2 = crear_nodo_general(\"ID\", t[5], linea, columna)\n\
+    \t nodoAdd.hijos.append(nodoConstrant)\n\
+    \t nodoAdd.hijos.append(nodoId1)\n\
+    \t nodoAdd.hijos.append(nodoUnique)\n\
+    \t nodoAdd.hijos.append(nodoId2)\n\
+    \t t[0] = nodoAdd\n\n")
+
 
 def p_alter_column_instr(t):
     'alter_column_instr : SET NOT NULL'
@@ -1760,6 +2895,15 @@ def p_alter_column_instr(t):
     nodoAlterColumn.hijos.append(nodoSet)
     nodoAlterColumn.hijos.append(nodoNull)
     t[0] = nodoAlterColumn
+
+    GenerarRepGram.AgregarTexto("alter_column_instr ::= SET NOT NULL\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoAlterColumn = crear_nodo_general(\"alter_table_instr\", "", linea, columna)\n\
+    \t nodoSet = crear_nodo_general(\"SET\", \"SET\", linea, columna)\n\
+    \t nodoNull = crear_nodo_general(\"NOTNULL\", \"NOT NULL\", linea, columna)\n\
+    \t nodoAlterColumn.hijos.append(nodoSet)\n\
+    \t nodoAlterColumn.hijos.append(nodoNull)\n\
+    \t t[0] = nodoAlterColumn\n\n")
 
 
 def p_alter_column_instr_null(t):
@@ -1773,17 +2917,34 @@ def p_alter_column_instr_null(t):
     nodoAlterColumn.hijos.append(nodoNull)
     t[0] = nodoAlterColumn
 
+    GenerarRepGram.AgregarTexto("alter_column_instr ::= SET NULL\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoAlterColumn = crear_nodo_general(\"alter_table_instr\", "", linea, columna)\n\
+    \t nodoSet = crear_nodo_general(\"SET\", \"SET\", linea, columna)\n\
+    \t nodoNull = crear_nodo_general(\"NULL\", \"NULL\", linea, columna)\n\
+    \t nodoAlterColumn.hijos.append(nodoSet)\n\
+    \t nodoAlterColumn.hijos.append(nodoNull)\n\
+    \t t[0] = nodoAlterColumn\n\n")
+
 
 def p_alter_column_instr_tipo(t):
     'alter_column_instr : TYPE ID '  # HAY QUE COLOCAR UN TIPO
     linea = str(t.lexer.lineno)
-    nodoAlterColumn = crear_nodo_general(
-        "alter_table_instr", "", linea, columna)
+    nodoAlterColumn = crear_nodo_general("alter_table_instr", "", linea, columna)
     nodoType = crear_nodo_general("TYPE", "TYPE", linea, columna)
     nodoId = crear_nodo_general("ID", t[2], linea, columna)
     nodoAlterColumn.hijos.append(nodoType)
     nodoAlterColumn.hijos.append(nodoId)
     t[0] = nodoAlterColumn
+
+    GenerarRepGram.AgregarTexto("alter_column_instr ::= TYPE ID\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoAlterColumn = crear_nodo_general(\"alter_table_instr\", "", linea, columna)\n\
+    \t nodoType = crear_nodo_general(\"TYPE\", \"TYPE\", linea, columna)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[2], linea, columna)\n\
+    \t nodoAlterColumn.hijos.append(nodoType)\n\
+    \t nodoAlterColumn.hijos.append(nodoId)\n\
+    \t t[0] = nodoAlterColumn\n\n")
 
 # --------------------------------------------------------INSTRUCCIONES DROP-------------------------------------------------------------
 
@@ -1799,6 +2960,16 @@ def p_drop_instr(t):
     instru.setearValores(linea, columna, "DROP_DATABASE", nNodo, "", hijos)
     t[0] = instru
 
+    GenerarRepGram.AgregarTexto("drop_instr ::= DROP DATABASE si_existe ID PTCOMA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t hijos = []\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[4], linea, columna)\n\
+    \t instru = dropDatabase.dropDatabase(t[4])\n\
+    \t hijos.append(nodoId)\n\
+    \t instru.setearValores(linea, columna, \"DROP_DATABASE\", nNodo, "", hijos)\n\
+    \t t[0] = instru\n\n")
+
 
 def p_drop_instr_table(t):
     'drop_instr : DROP TABLE ID PTCOMA'
@@ -1812,6 +2983,16 @@ def p_drop_instr_table(t):
                          nNodo, "DROP TABLE", hijos)
     t[0] = instru
 
+    GenerarRepGram.AgregarTexto("drop_instr ::= DROP TABLE ID PTCOMA\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t hijos = []\n\
+    \t nNodo = incNodo(numNodo)\n\
+    \t nodoId = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+    \t instru = dropDatabase.dropDatabase(t[3])\n\
+    \t hijos.append(nodoId)\n\
+    \t instru.setearValores(linea, columna, \"drop_instr\",nNodo, \"DROP TABLE\", hijos)\n\
+    \t t[0] = instru\n\n")
+
 
 def p_si_existe(t):
     'si_existe : IF EXISTS'
@@ -1822,10 +3003,19 @@ def p_si_existe(t):
     nodoPadre.hijos.append(nodo)
     t[0] = nodo
 
+    GenerarRepGram.AgregarTexto("si_existe ::= IF EXISTS\n\n\
+    \t nodoPadre = crear_nodo_general(\"si_existe\", "", str(t.lexer.lineno), columna)\n\
+    \t nodo = crear_nodo_general(\"IFEXISTS\", \"IF EXISTS\", str(t.lexer.lineno), columna)\n\
+    \t nodoPadre.hijos.append(nodo)\n\
+    \t t[0] = nodo\n\n")
+
 
 def p_si_existe_empty(t):
     'si_existe : empty'
     t[0] = None
+
+    GenerarRepGram.AgregarTexto("si_existe ::= empty\n\n\
+    \t t[0] = None\n\n")
 # ----------------------------------------------------------INSTRUCCIONES SELECT----------------------------------------------------------------
 
 
@@ -1847,6 +3037,12 @@ def p_inst_query(t):
         instruccion.setearValores(
             linea, columna, 'INSTRUCCION_SELECT', nNodo, '', hijos)
         t[0] = instruccion
+
+        GenerarRepGram.AgregarTexto("inst_select  ::=   select_query\n\n\
+        \t instruccion = select_query.select_query(t[1], None, None)\n\
+        \t hijos.append(t[1])\n\
+        \t instruccion.setearValores(linea, columna, 'INSTRUCCION_SELECT', nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
     else:
         nodoOp = crear_nodo_general("OP_QUERY", t[2], linea, columna)
         instruccion = select_query.select_query(t[1], t[3], nodoOp)
@@ -1856,6 +3052,15 @@ def p_inst_query(t):
         instruccion.setearValores(
             linea, columna, 'INSTRUCCION_SELECT', nNodo, '', hijos)
         t[0] = instruccion
+
+        GenerarRepGram.AgregarTexto("inst_select  ::=   select_query " + t[2] + "select_query\n\n\
+        \t nodoOp = crear_nodo_general(\"OP_QUERY\", t[2], linea, columna)\n\
+        \t instruccion = select_query.select_query(t[1], t[3], nodoOp)\n\
+        \t hijos.append(t[1])\n\
+        \t hijos.append(nodoOp)\n\
+        \t hijos.append(t[3])\n\
+        \t instruccion.setearValores(linea, columna, 'INSTRUCCION_SELECT', nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
 
 
 def p_select_query(t):
@@ -1875,6 +3080,15 @@ def p_select_query(t):
         hijos.append(t[6])
         instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
         t[0] = instruccion
+
+        GenerarRepGram.AgregarTexto("select_query     ::=   SELECT DISTINCT select_list FROM from_query_list lista_condiciones_query\n\n\
+        \t instruccion = selectSimple.selectSimple(t[3], t[5], t[6], True)\n\
+        \t hijos.append(t[3])\n\
+        \t hijos.append(t[5])\n\
+        \t hijos.append(t[6])\n\
+        \t instruccion.setearValores(linea, columna, \"SELECT\", nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
+
     elif len(t) == 6:
         if str.lower(t[2]) == 'distinct':
             instruccion = selectSimple.selectSimple(t[3], t[5], None, True)
@@ -1883,6 +3097,14 @@ def p_select_query(t):
             instruccion.setearValores(
                 linea, columna, "SELECT", nNodo, '', hijos)
             t[0] = instruccion
+
+            GenerarRepGram.AgregarTexto("select_query     ::=   SELECT DISTINCT select_list FROM from_query_list\n\n\
+            \t instruccion = selectSimple.selectSimple(t[3], t[5], None, True)\n\
+            \t hijos.append(t[3])\n\
+            \t hijos.append(t[5])\n\
+            \t instruccion.setearValores(linea, columna, \"SELECT\", nNodo, '', hijos)\n\
+            \t t[0] = instruccion\n\n")
+
         else:
             instruccion = selectSimple.selectSimple(t[2], t[4], t[5], False)
             hijos.append(t[2])
@@ -1892,6 +3114,14 @@ def p_select_query(t):
                 linea, columna, "SELECT", nNodo, '', hijos)
             t[0] = instruccion
 
+            GenerarRepGram.AgregarTexto("select_query     ::=   SELECT select_list FROM from_query_list lista_condiciones_query\n\n\
+            \t instruccion = selectSimple.selectSimple(t[2], t[4], t[5], False)\n\
+            \t hijos.append(t[2])\n\
+            \t hijos.append(t[4])\n\
+            \t hijos.append(t[5])\n\
+            \t instruccion.setearValores(linea, columna, \"SELECT\", nNodo, '', hijos)\n\
+            \t t[0] = instruccion\n\n")
+
     elif len(t) == 5:
         instruccion = selectSimple.selectSimple(t[2], t[4], None, False)
         hijos.append(t[2])
@@ -1899,11 +3129,24 @@ def p_select_query(t):
         instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
         t[0] = instruccion
 
+        GenerarRepGram.AgregarTexto("select_query     ::=   SELECT select_list FROM from_query_list\n\n\
+        \t instruccion = selectSimple.selectSimple(t[2], t[4], None, False)\n\
+        \t hijos.append(t[2])\n\
+        \t hijos.append(t[4])\n\
+        \t instruccion.setearValores(linea, columna, \"SELECT\", nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
+
     elif len(t) == 3:
         instruccion = selectSimple.selectSimple(t[2], None, None, False)
         hijos.append(t[2])
         instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
         t[0] = instruccion
+
+        GenerarRepGram.AgregarTexto("select_query     ::=   SELECT select_list\n\n\
+        \t instruccion = selectSimple.selectSimple(t[2], None, None, False)\n\
+        \t hijos.append(t[2])\n\
+        \t instruccion.setearValores(linea, columna, \"SELECT\", nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
 
 
 def p_select_list(t):
@@ -1914,8 +3157,16 @@ def p_select_list(t):
     if t[1] == "*":
         nodoMult = crear_nodo_general('ASTERISCO', '*', linea, columna)
         t[0] = nodoMult
+
+        GenerarRepGram.AgregarTexto("select_list  ::=   MULTIPLICACION\n\n\
+        \t nodoMult = crear_nodo_general('ASTERISCO', '*', linea, columna)\n\
+        \t t[0] = nodoMult\n\n")
+
     else:
         t[0] = t[1]
+
+        GenerarRepGram.AgregarTexto("select_list  ::=   elementos_select_list\n\n\
+        \t t[0] = t[1]\n\n")
 
 
 def p_elementos_select_list(t):
@@ -1928,6 +3179,13 @@ def p_elementos_select_list(t):
         NodoElemento = t[3]
         NodoListaElementos.hijos.append(NodoElemento)
         t[0] = NodoListaElementos
+
+        GenerarRepGram.AgregarTexto("elementos_select_list    ::=   elementos_select_list COMA elemento_select\n\n\
+        \t NodoListaElementos = t[1]\n\
+        \t NodoElemento = t[3]\n\
+        \t NodoListaElementos.hijos.append(NodoElemento)\n\
+        \t t[0] = NodoListaElementos\n\n")
+
     else:
         NodoListaElementos = t[1]
         NodoSelectList = crear_nodo_general(
@@ -1935,10 +3193,19 @@ def p_elementos_select_list(t):
         NodoSelectList.hijos.append(NodoListaElementos)
         t[0] = NodoSelectList
 
+        GenerarRepGram.AgregarTexto("elementos_select_list    ::=   elemento_select\n\n\
+        \t NodoListaElementos = t[1] \n\
+        \t NodoSelectList = crear_nodo_general('elementos_select_list', '', linea, columna)\n\
+        \t NodoSelectList.hijos.append(NodoListaElementos)\n\
+        \t t[0] = NodoSelectList\n\n")
+
 
 def p_elemento_select_id(t):
     'elemento_select  :   dec_select_columna'
     t[0] = t[1]
+
+    GenerarRepGram.AgregarTexto("elemento_select  ::=   dec_select_columna\n\n\
+    \t t[0] = t[1]\n\n")
 
 
 def p_elemento_select_subquery(t):
@@ -1957,6 +3224,13 @@ def p_elemento_select_subquery(t):
             linea, columna, "elemento_select", "", hijos)
         t[0] = nodoElemento
 
+        GenerarRepGram.AgregarTexto("elemento_select  ::=   subquery AS ID\n\n\
+        \t nodoID = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+        \t hijos.append(t[1])\n\
+        \t hijos.append(nodoID)\n\
+        \t nodoElemento.setearValores(linea, columna, \"elemento_select\", "", hijos)\n\
+        \t t[0] = nodoElemento\n\n")
+
     elif len(t) == 3:
         nodoID = crear_nodo_general("ID", t[2], linea, columna)
         hijos.append(t[1])
@@ -1965,11 +3239,23 @@ def p_elemento_select_subquery(t):
             linea, columna, "elemento_select", "", hijos)
         t[0] = nodoElemento
 
+        GenerarRepGram.AgregarTexto("elemento_select  ::=   subquery ID\n\n\
+        \t nodoID = crear_nodo_general(\"ID\", t[2], linea, columna)\n\
+        \t hijos.append(t[1])\n\
+        \t hijos.append(nodoID)\n\
+        \t nodoElemento.setearValores(linea, columna, \"elemento_select\", "", hijos)\n\
+        \t t[0] = nodoElemento\n\n")
+
     elif len(t) == 2:
         hijos.append(t[1])
         nodoElemento.setearValores(
             linea, columna, "elemento_select", "", hijos)
         t[0] = nodoElemento
+
+        GenerarRepGram.AgregarTexto("elemento_select  ::=   subquery\n\n\
+        \t hijos.append(t[1])\n\
+        \t nodoElemento.setearValores(linea, columna, \"elemento_select\", "", hijos)\n\
+        \t t[0] = nodoElemento\n\n")
 
 
 def p_elemento_select_funcion(t):
@@ -1984,23 +3270,39 @@ def p_elemento_select_funcion(t):
         nodoID = crear_nodo_general("ID", t[3], linea, columna)
         hijos.append(t[1])
         hijos.append(nodoID)
-        nodoElemento.setearValores(
-            linea, columna, "elemento_select", "", hijos)
+        nodoElemento.hijos = hijos
         t[0] = nodoElemento
+
+        GenerarRepGram.AgregarTexto("elemento_select  ::=   funcion AS ID\n\n\
+        \t nodoID = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+        \t hijos.append(t[1])\n\
+        \t hijos.append(nodoID)\n\
+        \t nodoElemento.hijos = hijos\n\
+        \t t[0] = nodoElemento\n\n")
 
     elif len(t) == 3:
         nodoID = crear_nodo_general("ID", t[2], linea, columna)
         hijos.append(t[1])
         hijos.append(nodoID)
-        nodoElemento.setearValores(
-            linea, columna, "elemento_select", "", hijos)
+        nodoElemento.hijos = hijos
         t[0] = nodoElemento
+
+        GenerarRepGram.AgregarTexto("elemento_select  ::=   funcion ID\n\n\
+        \t nodoID = crear_nodo_general(\"ID\", t[2], linea, columna)\n\
+        \t hijos.append(t[1])\n\
+        \t hijos.append(nodoID)\n\
+        \t nodoElemento.hijos = hijos\n\
+        \t t[0] = nodoElemento\n\n")
 
     elif len(t) == 2:
         hijos.append(t[1])
-        nodoElemento.setearValores(
-            linea, columna, "elemento_select", "", hijos)
+        nodoElemento.hijos = hijos
         t[0] = nodoElemento
+
+        GenerarRepGram.AgregarTexto("elemento_select  ::=   funcion\n\n\
+        \t hijos.append(t[1])\n\
+        \t nodoElemento.hijos = hijos\n\
+        \t t[0] = nodoElemento\n\n")
 
 
 def p_dec_select_columna(t):
@@ -2024,6 +3326,17 @@ def p_dec_select_columna(t):
             linea, columna, "TABLA_CAMPO_ALIAS", nNodo, '', hijos)
         t[0] = instruccion
 
+        GenerarRepGram.AgregarTexto("dec_select_columna   ::=   ID PUNTO ID AS ID\n\n\
+        \t instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], t[5])\n\
+        \t nodoIDcol = crear_nodo_general(\"ID\", t[1], linea, columna)\n\
+        \t nodoIDcampo = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+        \t nodoIDalias = crear_nodo_general(\"ID\", t[5], linea, columna)\n\
+        \t hijos.append(nodoIDcol)\n\
+        \t hijos.append(nodoIDcampo)\n\
+        \t hijos.append(nNodo)\n\
+        \t instruccion.setearValores(linea, columna, \"TABLA_CAMPO_ALIAS\", nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
+
     elif len(t) == 5:
         instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], t[4])
         nodoIDcol = crear_nodo_general("ID", t[1], linea, columna)
@@ -2036,6 +3349,17 @@ def p_dec_select_columna(t):
             linea, columna, "TABLA_CAMPO_ALIAS", nNodo, '', hijos)
         t[0] = instruccion
 
+        GenerarRepGram.AgregarTexto("dec_select_columna   ::=   ID PUNTO ID ID\n\n\
+        \t instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], t[4])\n\
+        \t nodoIDcol = crear_nodo_general(\"ID\", t[1], linea, columna)\n\
+        \t nodoIDcampo = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+        \t nodoIDalias = crear_nodo_general(\"ID\", t[4], linea, columna)\n\
+        \t hijos.append(nodoIDcol)\n\
+        \t hijos.append(nodoIDcampo)\n\
+        \t hijos.append(nNodo)\n\
+        \t instruccion.setearValores(linea, columna, \"TABLA_CAMPO_ALIAS\", nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
+
     elif len(t) == 4:
         instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], None)
         nodoIDcol = crear_nodo_general("ID", t[1], linea, columna)
@@ -2046,6 +3370,15 @@ def p_dec_select_columna(t):
             linea, columna, "TABLA_CAMPO_ALIAS", nNodo, '', hijos)
         t[0] = instruccion
 
+        GenerarRepGram.AgregarTexto("dec_select_columna   ::=   ID PUNTO ID\n\n\
+        \t instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], None)\n\
+        \t nodoIDcol = crear_nodo_general(\"ID\", t[1], linea, columna)\n\
+        \t nodoIDcampo = crear_nodo_general(\"ID\", t[3], linea, columna)\n\
+        \t hijos.append(nodoIDcol)\n\
+        \t hijos.append(nodoIDcampo)\n\
+        \t instruccion.setearValores(linea, columna, \"TABLA_CAMPO_ALIAS\", nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
+
     elif len(t) == 2:
         instruccion = columnaCampoAlias.columnaCampoAlias(t[1], None, None)
         nodoIDcol = crear_nodo_general("ID", t[1], linea, columna)
@@ -2053,6 +3386,13 @@ def p_dec_select_columna(t):
         instruccion.setearValores(
             linea, columna, "TABLA_CAMPO_ALIAS", nNodo, '', hijos)
         t[0] = instruccion
+
+        GenerarRepGram.AgregarTexto("dec_select_columna   ::=   ID\n\n\
+        \t instruccion = columnaCampoAlias.columnaCampoAlias(t[1], None, None)\n\
+        \t nodoIDcol = crear_nodo_general(\"ID\", t[1], linea, columna)\n\
+        \t hijos.append(nodoIDcol)\n\
+        \t instruccion.setearValores(linea, columna, \"TABLA_CAMPO_ALIAS\", nNodo, '', hijos)\n\
+        \t t[0] = instruccion\n\n")
 
 
 def p_funcion(t):
@@ -2064,6 +3404,36 @@ def p_funcion(t):
                 |   funcion_agregacion
                 |   dec_case'''
     t[0] = t[1]
+
+    if t[1].nombreNodo == "FUNCION_TIME":
+        GenerarRepGram.AgregarTexto("funcion  ::=   funcion_time\n\n\
+        \t t[0] = t[1]\n\n")
+
+    elif t[1].nombreNodo == "FUNCION_MATEMATICA":
+        GenerarRepGram.AgregarTexto("funcion  ::=   funcion_mate\n\n\
+        \t t[0] = t[1]\n\n")
+    
+    elif t[1].nombreNodo == "FUNCION_TRIGONOMETRICA":
+        GenerarRepGram.AgregarTexto("funcion  ::=   funcion_trig\n\n\
+        \t t[0] = t[1]\n\n")
+
+    elif t[1].nombreNodo == "FUNCION_BINARIASTR":
+        GenerarRepGram.AgregarTexto("funcion  ::=   funcion_binstr\n\n\
+        \t t[0] = t[1]\n\n")
+
+    elif t[1].nombreNodo == "FUNCION_AGREGACION":
+        GenerarRepGram.AgregarTexto("funcion  ::=   funcion_agregacion\n\n\
+        \t t[0] = t[1]\n\n")
+
+    elif t[1].nombreNodo == "CASE":
+        GenerarRepGram.AgregarTexto("funcion  ::=   dec_case\n\n\
+        \t t[0] = t[1]\n\n")
+
+    else:
+        GenerarRepGram.AgregarTexto("funcion  ::=   funcion_exprecion\n\n\
+        \t t[0] = t[1]\n\n")
+        
+        
 
 
 def p_funcion_time(t):
@@ -2087,6 +3457,19 @@ def p_funcion_time(t):
                 linea, columna, "FUNCION_TIME", nNodo, "", hijos)
             nodoFuncion.funcionTimeExtract(t[3], t[5], t[6])
             t[0] = nodoFuncion
+
+            GenerarRepGram.AgregarTexto("funcion_time ::=   EXTRACT PARIZQUIERDO var_time FROM var_timeextract CADENA PARDERECHO\n\n\
+            \t nodoFuncion = funcion.funcion()\n\
+            \t nodoCadena = crear_nodo_general(\"CADENA\", t[6], linea, columna)\n\
+            \t hijos.append(t[3])\n\
+            \t hijos.append(t[5])\n\
+            \t hijos.append(nodoCadena)\n\
+            \t nNodo = incNodo(numNodo)\n\
+            \t nodoFuncion.setearValores(linea, columna, \"FUNCION_TIME\", nNodo, "", hijos)\n\
+            \t nodoFuncion.funcionTimeExtract(t[3], t[5], t[6])\n\
+            \t t[0] = nodoFuncion\n\n")
+
+
         elif t[1] == 'date_part':
             nodoFuncion = funcion.funcion()
             nodoCadenaPart = crear_nodo_general("CADENA", t[3], linea, columna)
@@ -2100,7 +3483,18 @@ def p_funcion_time(t):
                 linea, columna, "FUNCION_TIME", nNodo, "", hijos)
             nodoFuncion.funcionTimeExtract(t[3], t[5], t[6])
             t[0] = nodoFuncion
-            pass
+
+            GenerarRepGram.AgregarTexto("funcion_time ::=   DATE_PART PARIZQUIERDO CADENA COMA var_timeextract CADENA PARDERECHO\n\n\
+            \t nodoFuncion = funcion.funcion()\n\
+            \t nodoCadenaPart = crear_nodo_general(\"CADENA\", t[3], linea, columna)\n\
+            \t nodoCadenaTiempo = crear_nodo_general(\"CADENA\", t[6], linea, columna)\n\
+            \t hijos.append(nodoCadenaPart)\n\
+            \t hijos.append(t[5])\n\
+            \t hijos.append(nodoCadenaTiempo)\n\
+            \t nNodo = incNodo(numNodo)\n\
+            \t nodoFuncion.setearValores(linea, columna, \"FUNCION_TIME\", nNodo, "", hijos)\n\
+            \t nodoFuncion.funcionTimeExtract(t[3], t[5], t[6])\n\
+            \t t[0] = nodoFuncion\n\n")
     else:
         nodoFuncion = funcion.funcion()
         nodoTipoLlamada = crear_nodo_general(
@@ -2111,6 +3505,15 @@ def p_funcion_time(t):
             linea, columna, "FUNCION_TIME", nNodo, "", hijos)
         nodoFuncion.funcionTiempoPredefinido(t[1])
         t[0] = t[1]
+
+        GenerarRepGram.AgregarTexto("funcion_time ::=   " + t[1] + "\n\n\
+        \t nodoFuncion = funcion.funcion()\n\
+        \t nodoTipoLlamada = crear_nodo_general(\"PAMETRO_PREDEFINIDO\", t[1], linea, columna)\n\
+        \t hijos.append(nodoTipoLlamada)\n\
+        \t nNodo = incNodo(numNodo)\n\
+        \t nodoFuncion.setearValores(linea, columna, \"FUNCION_TIME\", nNodo, "", hijos)\n\
+        \t nodoFuncion.funcionTiempoPredefinido(t[1])\n\
+        \t t[0] = t[1]\n\n")
 
 
 def p_var_time(t):
@@ -2124,6 +3527,10 @@ def p_var_time(t):
         "VAR_TIME", t[1], str(t.lexer.lineno), columna)
     t[0] = nodoVarTime
 
+    GenerarRepGram.AgregarTexto("var_time ::=   " + t[1] + "\n\n\
+    \t nodoVarTime = crear_nodo_general(\"VAR_TIME\", t[1], str(t.lexer.lineno), columna)\n\
+    \t t[0] = nodoVarTime\n\n")
+
 
 def p_var_timeextract(t):
     '''var_timeextract  :   TIMESTAMP
@@ -2133,6 +3540,10 @@ def p_var_timeextract(t):
     nodoVarTimeExtract = crear_nodo_general(
         "VAR_TIMEEXTRACT", t[1], str(t.lexer.lineno), columna)
     t[0] = nodoVarTimeExtract
+
+    GenerarRepGram.AgregarTexto("var_timeextract  :   " + t[1] + "\n\n\
+    \t nodoVarTimeExtract = crear_nodo_general(\"VAR_TIMEEXTRACT\", t[1], str(t.lexer.lineno), columna)\n\
+    \t t[0] = nodoVarTimeExtract\n\n")
 
 
 def p_funcion_mate(t):
@@ -2157,41 +3568,55 @@ def p_funcion_mate(t):
                     |   SQRT PARIZQUIERDO exp_operacion PARDERECHO
                     |   WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO
                     |   TRUNC PARIZQUIERDO exp_operacion PARDERECHO
-                    |   RANDOM PARIZQUIERDO exp_operacion PARDERECHO'''
+                    |   RANDOM PARIZQUIERDO PARDERECHO'''
     linea = str(t.lexer.lineno)
     nNodo = incNodo(numNodo)
+    nodoFuncion = funcion.funcion()
+    nodoFuncion.setearValores(linea, columna, "FUNCION_MATEMATICA", nNodo, "", [])
 
     if len(t) == 4:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_MATEMATICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionMateUnitaria(tipoFuncion, None)
         nodoFuncion.hijos.append(tipoFuncion)
         t[0] = nodoFuncion
+
+        GenerarRepGram.AgregarTexto("funcion_mate ::=  " + t[1] + "PARIZQUIERDO PARDERECHO\n\n\
+        \t tipoFuncion = crear_nodo_general(\"TIPO_FUNCION\", t[1], linea, columna)\n\
+        \t nodoFuncion.funcionMateUnitaria(tipoFuncion, None)\n\
+        \t nodoFuncion.hijos.append(tipoFuncion)\n\
+        \t t[0] = nodoFuncion\n\n")
+
     elif len(t) == 5:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_MATEMATICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionMateUnitaria(tipoFuncion, t[3])
         nodoFuncion.hijos.append(tipoFuncion)
         nodoFuncion.hijos.append(t[3])
         t[0] = nodoFuncion
+
+        GenerarRepGram.AgregarTexto("funcion_mate ::=  " + t[1] + "PARIZQUIERDO exp_operacion PARDERECHO\n\n\
+        \t tipoFuncion = crear_nodo_general(\"TIPO_FUNCION\", t[1], linea, columna)\n\
+        \t nodoFuncion.funcionMateUnitaria(tipoFuncion, t[3])\n\
+        \t nodoFuncion.hijos.append(tipoFuncion)\n\
+        \t nodoFuncion.hijos.append(t[3])\n\
+        \t t[0] = nodoFuncion\n\n")
+
     elif len(t) == 7:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_MATEMATICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionMateBinaria(tipoFuncion, t[3], t[5])
         nodoFuncion.hijos.append(tipoFuncion)
         nodoFuncion.hijos.append(t[3])
         nodoFuncion.hijos.append(t[5])
         t[0] = nodoFuncion
+        
+        GenerarRepGram.AgregarTexto("funcion_mate ::=  " + t[1] + "PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO\n\n\
+        \t tipoFuncion = crear_nodo_general(\"TIPO_FUNCION\", t[1], linea, columna)\n\
+        \t nodoFuncion.funcionMateBinaria(tipoFuncion, t[3], t[5])\n\
+        \t nodoFuncion.hijos.append(tipoFuncion)\n\
+        \t nodoFuncion.hijos.append(t[3])\n\
+        \t nodoFuncion.hijos.append(t[5])\n\
+        \t t[0] = nodoFuncion\n\n")
+
     elif len(t) == 11:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_MATEMATICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionMateWidthBucket(tipoFuncion, t[3], t[5], t[7], t[9])
         nodoFuncion.hijos.append(tipoFuncion)
@@ -2200,6 +3625,16 @@ def p_funcion_mate(t):
         nodoFuncion.hijos.append(t[7])
         nodoFuncion.hijos.append(t[9])
         t[0] = nodoFuncion
+
+        GenerarRepGram.AgregarTexto("funcion_mate ::=  WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO\n\n\
+        \t tipoFuncion = crear_nodo_general(\"TIPO_FUNCION\", t[1], linea, columna)\n\
+        \t nodoFuncion.funcionMateWidthBucket(tipoFuncion, t[3], t[5], t[7], t[9])\n\
+        \t nodoFuncion.hijos.append(tipoFuncion)\n\
+        \t nodoFuncion.hijos.append(t[3])\n\
+        \t nodoFuncion.hijos.append(t[5])\n\
+        \t nodoFuncion.hijos.append(t[7])\n\
+        \t nodoFuncion.hijos.append(t[9])\n\
+        \t t[0] = nodoFuncion\n\n")
 
 
 def p_funcion_trig(t):
@@ -2225,26 +3660,38 @@ def p_funcion_trig(t):
                     |   ATANH PARIZQUIERDO exp_operacion PARDERECHO'''
     linea = str(t.lexer.lineno)
     nNodo = incNodo(numNodo)
+    nodoFuncion = funcion.funcion()
+    nodoFuncion.setearValores(linea, columna, "FUNCION_TRIGONOMETRICA", nNodo, "", [])
 
     if len(t) == 5:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_TRIGONOMETRICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3])
         nodoFuncion.hijos.append(tipoFuncion)
         nodoFuncion.hijos.append(t[3])
         t[0] = nodoFuncion
+
+        GenerarRepGram.AgregarTexto("funcion_trig ::=   "+ t[1] +" PARIZQUIERDO exp_operacion PARDERECHO\n\n\
+        \t tipoFuncion = crear_nodo_general(\"TIPO_FUNCION\", t[1], linea, columna)\n\
+        \t nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3])\n\
+        \t nodoFuncion.hijos.append(tipoFuncion)\n\
+        \t nodoFuncion.hijos.append(t[3])\n\
+        \t t[0] = nodoFuncion\n\n")
+
     elif len(t) == 7:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_TRIGONOMETRICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
-        #nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3], t[5])
+        nodoFuncion.funcionTrigonometricaBinaria(tipoFuncion, t[3], t[5])
         nodoFuncion.hijos.append(tipoFuncion)
         nodoFuncion.hijos.append(t[3])
         nodoFuncion.hijos.append(t[5])
         t[0] = nodoFuncion
+
+        GenerarRepGram.AgregarTexto("funcion_trig ::=   "+ t[1] +" PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO\n\n\
+        \t tipoFuncion = crear_nodo_general(\"TIPO_FUNCION\", t[1], linea, columna)\n\
+        \t nodoFuncion.funcionTrigonometricaBinaria(tipoFuncion, t[3], t[5])\n\
+        \t nodoFuncion.hijos.append(tipoFuncion)\n\
+        \t nodoFuncion.hijos.append(t[3])\n\
+        \t nodoFuncion.hijos.append(t[5])\n\
+        \t t[0] = nodoFuncion\n\n")
 
 
 def p_funcion_binstr(t):
@@ -2261,11 +3708,11 @@ def p_funcion_binstr(t):
                         |   DECODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO'''
     linea = str(t.lexer.lineno)
     nNodo = incNodo(numNodo)
+    
+    nodoFuncion = funcion.funcion()
+    nodoFuncion.setearValores(linea, columna, "FUNCION_BINARIASTR", nNodo, "", [])
 
     if len(t) == 5:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_BINARIASTR", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionBinariaStrUnitaria(tipoFuncion, t[3])
         nodoFuncion.hijos.append(tipoFuncion)
@@ -2273,9 +3720,6 @@ def p_funcion_binstr(t):
         t[0] = nodoFuncion
     elif len(t) == 7:
         if t[1] == 'get_byte':
-            nodoFuncion = funcion.funcion()
-            nodoFuncion.setearValores(
-                linea, columna, "FUNCION_BINARIASTR", nNodo, "")
             tipoFuncion = crear_nodo_general(
                 "TIPO_FUNCION", t[1], linea, columna)
             nodoP2 = crear_nodo_general("ENTERO", t[5], linea, columna)
@@ -2285,9 +3729,6 @@ def p_funcion_binstr(t):
             nodoFuncion.hijos.append(nodoP2)
             t[0] = nodoFuncion
         else:
-            nodoFuncion = funcion.funcion()
-            nodoFuncion.setearValores(
-                linea, columna, "FUNCION_BINARIASTR", nNodo, "")
             tipoFuncion = crear_nodo_general(
                 "TIPO_FUNCION", t[1], linea, columna)
             nodoFuncion.funcionTrigonometricaBinaria(tipoFuncion, t[3], t[5])
@@ -2297,9 +3738,6 @@ def p_funcion_binstr(t):
             t[0] = nodoFuncion
 
     elif len(t) == 9:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_BINARIASTR", nNodo, "")
 
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoP2 = crear_nodo_general("ENTERO", t[5], linea, columna)
