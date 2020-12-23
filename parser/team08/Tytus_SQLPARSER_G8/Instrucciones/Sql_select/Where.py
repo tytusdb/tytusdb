@@ -7,8 +7,18 @@ class Where(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print("DEVOLVER El WHERE")
-        return self.valor
+        
+        if not arbol.getUpdate():
+            arbol.setWhere(True)
+            val = self.valor.ejecutar(tabla,arbol)
+            arbol.setWhere(False)
+            return val
+            
+        val = self.valor.ejecutar(tabla,arbol)
+        print("hola me ejecuto en el where porque ahora soy un update")
+        return val
+        
+        
 
 '''
 instruccion = Where("hola mundo",None, 1,2)

@@ -15,7 +15,7 @@ class Numeric(ASTNode):
         return self.val
 
 
-class NumericNegative(ASTNode):
+class NumericPositive(ASTNode):
     def __init__(self, val, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.val = val
@@ -23,7 +23,28 @@ class NumericNegative(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return self.val * -1
+        self.val = self.val.execute(table, tree)
+        print(type(self.val))
+        if(type(self.val) == int or type(self.val) == float):
+            return self.val * 1
+        else:
+            raise Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be number')
+        
+
+
+class NumericNegative(ASTNode):
+    def __init__(self, val, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.val = val
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        self.val = self.val.execute(table, tree)
+        if(type(self.val) == int or type(self.val) == float):
+            return self.val * -1
+        else:
+            raise Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be number')
+        
 
 
 class Text(ASTNode):
@@ -72,7 +93,6 @@ class ColumnName(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        print("TEXT: ", self.tName, ".", self.cName)
         if self.tName is None or self.tName == "":
             return self.cName
         else:
@@ -87,16 +107,6 @@ class Now(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return date.today()
-
-
-''''class Expression(ASTNode):    
-    def __init__(self,exp1,line,column, graph_ref):
-        ASTNode.__init__(self,line,column)
-        self.exp1 = exp1
-    def execute(self, table, tree):
-        super().execute(table, tree)
-        #TODO: check each value or AST node which can reduce...
-'''
 
 
 class BinaryExpression(ASTNode):
@@ -226,3 +236,53 @@ class Negation(ASTNode):
         else:
             raise Exception("The result of operation isn't boolean value")
         
+
+class Identifier(ASTNode):
+    def __init__(self, val, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.val = val
+        self.graph_ref = graph_ref
+
+    #Must return lexeme of ID
+    def execute(self, table, tree): 
+        super().execute(table, tree)
+        return self.val
+
+    def executeSTVal(self, table, tree): #TODO: Symbol value from ST :S
+        super().execute(table, tree)
+        return self.val
+
+
+class TypeDef(ASTNode):
+    def __init__(self, val, min_size, max_size, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.val = val #token name: CHAR, INTEGER,...
+        self.min_size = min_size,
+        self.max_size = max_size,
+        self.graph_ref = graph_ref
+
+    #Must return lexeme of ID
+    def execute(self, table, tree): 
+        super().execute(table, tree)
+        return self.val
+
+    def minSize(self, table, tree): 
+        super().execute(table, tree)
+        return self.min_size
+    
+    def maxSize(self, table, tree): 
+        super().execute(table, tree)
+        return self.max_size
+
+
+class Nullable(ASTNode):
+    def __init__(self, val, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.val = val #True: accept null values other wise False
+        self.graph_ref = graph_ref
+    
+    def execute(self, table, tree): 
+        super().execute(table, tree)
+        return self.val
+
+    

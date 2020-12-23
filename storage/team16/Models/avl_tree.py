@@ -1,41 +1,23 @@
-# # region Code
-# from node import Node
-# from tree_graph import TreeGraph
-# # endregion
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
 
-# region Pycharm
+
 from Models.node import Node
-from Models.tree_graph import TreeGraph
-
-
-# endregion
 
 
 class AVLTree:
-    def __init__(self, database: str, name: str, numberColumns: int, pklist: list):
+    def __init__(self, database: str, name: str, numberColumns: int, pklist: list = []):
         self.root = None
         self.database = database
         self.name = name
         self.numberColumns = int(numberColumns)
         self.pklist = pklist
-        # self.columns = self.crearCols(numberColumns)
+        self.hidden = 1
 
     def __repr__(self) -> str:
         return str(self.name)
-
-        # En caso sirva:
-
-    # def crearCols(self, numberColumns: int) -> list:
-    #     tmp = []
-    #     for i in range(numberColumns):
-    #         tmp.append(i)
-    #     return tmp
-
-    # def agregarCols(self, columns: list):
-    #     columns.append(int(columns[-1])+1)
-
-    # def eliminarCol(self, posicion):
-    #     self.columns.pop(posicion)
 
     # region basic methods
     def add(self, index, content):
@@ -66,15 +48,40 @@ class AVLTree:
             return content
         return None
 
+    def update(self, index, content):
+        self.root = self.__update(index, content, self.root)
+
+    def __update(self, index, content, node):
+        if node:
+            if node.index == index:
+                node.content = content
+                return node
+            elif node.index < index:
+                node.right = self.__update(index, content, node.right)
+            else:
+                node.left = self.__update(index, content, node.left)
+            return node
+        return None
+
     def tolist(self) -> list:
         return self.__tolist(self.root, tuples=[]) if self.root is not None else []
 
     def __tolist(self, node: Node, tuples: list) -> list:
         if node:
-            self.__tolist(node.left, tuples)
             tuples.append(node.content)
+            self.__tolist(node.left, tuples)
             self.__tolist(node.right, tuples)
             return tuples
+
+    def indexes(self) -> list:
+        return self.__indexes(self.root, indexes=[]) if self.root is not None else []
+
+    def __indexes(self, node: Node, indexes: list) -> list:
+        if node:
+            indexes.append(node.index)
+            self.__indexes(node.left, indexes)
+            self.__indexes(node.right, indexes)
+            return indexes
 
     def massiveupdate(self, action: str, arg):
         self.__massiveupdate(self.root, action, arg)
@@ -122,6 +129,28 @@ class AVLTree:
             else:
                 node.left = self.__delete(index, node.left)
         return node
+
+    def range(self, columnNumber: int, lower: any, upper: any) -> list:
+        tuples = []
+        return self.__range(self.root, tuples, columnNumber, lower, upper) if self.root is not None else []
+
+    def __range(self, node: Node, tuples: list, columnNumber: int, lower: any, upper: any) -> list:
+        if node:
+            if isinstance(node.content[columnNumber], int):
+                if int(lower) <= node.content[columnNumber] <= int(upper):
+                    tuples.append(node.content)
+            elif isinstance(node.content[columnNumber], str):
+                if str(lower) <= node.content[columnNumber] <= str(upper):
+                    tuples.append(node.content)
+            elif isinstance(node.content[columnNumber], float):
+                if float(lower) <= node.content[columnNumber] <= float(upper):
+                    tuples.append(node.content)
+            elif isinstance(node.content[columnNumber], bool):
+                if bool(lower) <= node.content[columnNumber] <= bool(upper):
+                    tuples.append(node.content)
+            self.__range(node.left, tuples, columnNumber, lower, upper)
+            self.__range(node.right, tuples, columnNumber, lower, upper)
+            return tuples
 
     # endregion
 
@@ -239,62 +268,3 @@ class AVLTree:
             print(temp.index, end=' ')
         # backtracking action
     # endregion
-
-
-t = AVLTree("test", "tst", 5, [])
-t.add(57, ["test", "test2"])
-t.add(25, ["test", "test2"])
-t.add(78, ["test", "test2"])
-t.add(17, ["test", "test2"])
-t.add(45, ["test", "test2"])
-t.add(64, ["test", "test2"])
-t.add(97, ["test", "test2"])
-t.add(4, ["test", "test2"])
-t.add(20, ["test", "test2"])
-t.add(43, ["test", "test2"])
-t.add(56, ["test", "test2"])
-t.add(61, ["test", "test2"])
-t.add(68, ["test", "test2"])
-t.add(89, ["test", "test2"])
-t.add(100, ["test", "test2"])
-t.add(1, ["test", "test2"])
-t.add(12, ["test", "test2"])
-t.add(19, ["test", "test2"])
-t.add(23, ["test", "test2"])
-t.add(54, ["test", "test2"])
-t.add(62, ["test", "test2"])
-t.add(66, ["test", "test2"])
-t.add(73, ["test", "test2"])
-t.add(87, ["test", "test2"])
-t.add(90, ["test", "test2"])
-t.add(10, ["test", "test2"])
-t.add(15, ["test", "test2"])
-t.add(58, ["test", "test2"])
-t.delete(64)
-t.add(9, ["test", "test2"])
-t.add(3, ["test", "test2"])
-t.delete(9)
-t.delete(15)
-t.delete(12)
-t.delete(57)
-t.add(103, ["test", "test2"])
-t.add(98, ["test", "test2"])
-t.add(102, ["test", "test2"])
-t.delete(103)
-
-search = t.search(103)
-if search:
-    print(search)
-else:
-    print("empty")
-
-t.tolist()
-
-# t.inorder()
-# aa = TreeGraph(t)
-# aa.export()
-
-
-t.massiveupdate("add", "perro")
-t.massiveupdate("drop", 2)
-t.inorder()

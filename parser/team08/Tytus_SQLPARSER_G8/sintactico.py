@@ -1,4 +1,5 @@
 #IMPORTS
+from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Identificador import Identificador
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from tkinter.constants import HORIZONTAL
@@ -14,7 +15,7 @@ from Instrucciones.FunctionBinaryString import Convert, Decode, Encode, GetByte,
 from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional
 from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
 
-from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType
+from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
 from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set
 from Instrucciones.Sql_declare import Declare
 from Instrucciones.Sql_delete import DeleteTable
@@ -34,7 +35,6 @@ from Instrucciones.Sql_create.Tipo_Constraint import *
 lista_lexicos=lista_errores_lexico
 
 # INICIA EN ANALISIS SINTACTICO
-
 
 
 # Asociación de operadores y precedencia
@@ -209,10 +209,11 @@ def p_instruccion_where(t):
 # update tabla set campo = valor , campo 2= valor where condicion
 
 def p_instruccion_update(t):
-    '''instruccion : UPDATE ID SET l_columnas instructionWhere PUNTO_COMA
+    '''instruccion : UPDATE ID SET lcol instructionWhere PUNTO_COMA
 
     '''
-    t[0] = UpdateTable.UpdateTable(t[2],None, t[4], t[5], t.lexer.lineno, t.lexer.lexpos)
+    id1 = Identificador(t[2], t.lexer.lineno, t.lexer.lexpos)
+    t[0] = UpdateTable.UpdateTable(id1, None, t[4], t[5], t.lexer.lineno, t.lexer.lexpos)
 
 # DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
 def p_columunas_delete(t):
@@ -259,17 +260,6 @@ def p_set(t):
     '''
     t[0] =Set.Set(t[2], None, t[4], t.lexer.lineno, t.lexer.lexpos)
 
-def p_columunas_actualizar(t):
-    '''
-    l_columnas : l_columnas COMA expre
-    '''
-    t[0] = t[1].append(t[3])
-
-def p_columunas_actualizar1(t):
-    '''
-    l_columnas : expre
-    '''
-    t[0] = t[1]
 
 # ALTER DATABASE name RENAME TO new_name
 def p_instruccion_alter_database1(t):
@@ -337,13 +327,19 @@ def p_drop_column(t):
 def p_instruccion_alter3(t):
     '''instruccion : ALTER TABLE ID ADD CHECK expre PUNTO_COMA
     '''
-    t[0] = AlterTable.AlterTable(t[3], None, None, t[4], t[6], None, None, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = AlterTableAddCheck.AlterTableAddCheck(t[3],t[6],t.lexer.lineno, t.lexer.lexpos)
 
 # ALTER TABLE 'NOMBRE_TABLA' ADD CONSTRAINT 'NOMBRE' UNIQUE (LISTA_ID);
 def p_instruccion_alter4(t):
     '''instruccion : ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ lista_id PARDER PUNTO_COMA
     '''
     t[0] = AlterTableAddConstraint.AlterTableAddConstraint(t[3], t[6], t[9], t.lexer.lineno, t.lexer.lexpos)
+
+
+def p_instruccion_altercfk(t):
+    '''instruccion : ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER PUNTO_COMA
+    '''
+    t[0] = AlterTableAddConstraintFK.AlterTableAddConstraintFK(t[3], t[6], t[10], t[13], t[15], t.lexer.lineno, t.lexer.lexpos)
 
 # ALTER TABLE child_table ADD FOREIGN KEY (fk_columns) REFERENCES parent_table (parent_key_columns);
 def p_instruccion_alter5(t):
@@ -407,11 +403,9 @@ def p_instruccion_query(t):
     t[0]=t[1]
 
 def p_lista_querys(t):
-    '''
-    lquery : lquery relaciones query
-    '''
+    '''lquery : lquery relaciones query
+    '''    
     t[0] = Relaciones.Relaciones(t[1],t[2],t[3],t.lexer.lineno, t.lexer.lexpos)
-
 
 def p_lista_querys2(t):
     '''
@@ -425,52 +419,63 @@ def p_tipo_relaciones(t):
                 | INTERSECT
                 | EXCEPT
     '''
-    if(t[0]=="UNION"):
+    if(t[1]=="UNION"):
         t[0] = "UNION"
-    elif(t[0]=="INTERSECT"):
+    elif(t[1]=="INTERSECT"):
         t[0] = "INTERSECT"
-    elif(t[0]=="EXCEPT"):
+    elif(t[1]=="EXCEPT"):
         t[0] = "EXCEPT"
+    else:
+        t[0] = None
 
-def p_tipo_relaciones(t):
+def p_tipo_relaciones2(t):
     '''relaciones : UNION ALL 
                 | INTERSECT ALL 
                 | EXCEPT ALL 
     '''
-    if(t[0]=="UNIONALL"):
+    if(t[1]=="UNION"):
         t[0] = "UNIONALL"
-    elif(t[0]=="INTERSECTALL"):
+    elif(t[1]=="INTERSECT"):
         t[0] = "INTERSECTALL"
-    elif(t[0]=="EXCEPTALL"):
+    elif(t[1]=="EXCEPT"):
         t[0] = "EXCEPTALL"
+    else:
+        t[0] = None
 
 def p_instruccion_select(t):
     '''
-    query : SELECT dist lcol FROM lcol 
+    query : SELECT dist lcol FROM lcol
     '''
-    t[0] = Select.Select(t[2], None, t[3], t[5], None, None, None, t.lexer.lineno, t.lexer.lexpos)
-
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, None, None, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(val, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select1(t):
     '''
     query : SELECT dist lcol FROM lcol instructionWhere lrows
     '''
     #            dist  tipo  lcol  lcol  linners where lrows
-    t[0] = Select.Select(t[2], None, t[3], t[5], None, t[7], t[8], t.lexer.lineno, t.lexer.lexpos)
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, t[6], t[7], t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(val, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select2(t):
     '''
     query : SELECT dist lcol FROM lcol instructionWhere 
     '''
     #            dist  tipo  lcol  lcol  linners where lrows
-    t[0] = Select.Select(t[2], None, t[3], t[5], None, t[7], None, t.lexer.lineno, t.lexer.lexpos)
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(val, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select3(t):
     '''
     query : SELECT dist lcol FROM lcol linners 
     '''
     #            dist  tipo  lcol  lcol  linners where lrows
-    t[0] = Select.Select(t[2], None, t[3], t[5], t[6], None, None, t.lexer.lineno, t.lexer.lexpos)
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], t[6], None, None, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(val, t.lexer.lineno, t.lexer.lexpos)
 
 
 def p_instruccion_select4(t):
@@ -478,14 +483,18 @@ def p_instruccion_select4(t):
     query : SELECT dist lcol FROM lcol linners instructionWhere lrows
     '''
     #            dist  tipo  lcol  lcol  linners where lrows
-    t[0] = Select.Select(t[2], None, t[3], t[5], t[6], t[7], t[8], t.lexer.lineno, t.lexer.lexpos)
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], t[6], t[7], t[8], t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(val, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select5(t):
     '''
     query : SELECT dist lcol FROM lcol linners instructionWhere 
     '''
     #            dist  tipo  lcol  lcol  linners where lrows
-    t[0] = Select.Select(t[2], None, t[3], t[5], t[6], t[7], None, t.lexer.lineno, t.lexer.lexpos)
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], t[6], t[7], None, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(val, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select6(t):
     '''
@@ -494,6 +503,15 @@ def p_instruccion_select6(t):
     #            dist  tipo  lcol  lcol  linners where lrows
     t[0] = SelectLista.SelectLista(t[3], t.lexer.lineno, t.lexer.lexpos)
 
+
+def p_instruccion_select7(t):
+    '''
+    query   : SELECT dist lcol FROM lcol lrows
+    '''
+    #            dist  tipo  lcol  lcol  linners where lrows
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, None, t[6], t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(val, t.lexer.lineno, t.lexer.lexpos)
 
 def p_lista_case(t):
     '''lcase : lcase case
@@ -512,26 +530,16 @@ def p_instruccion_case(t):
             | ELSE expre
     '''
 
-
-
-def p_instruccion_select7(t):
-    '''
-    query   : SELECT dist lcol FROM lcol lrows
-    '''
-    #            dist  tipo  lcol  lcol  linners where lrows
-    t[0] = Select.Select(t[2], None, t[3], t[5], None, None, None, t.lexer.lineno, t.lexer.lexpos)
-
-
-
 def p_instruccion_lrows(t):
     '''lrows : lrows rows
     '''
-    t[0] = t[1].append(t[3])
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_instruccion_lrows2(t):
     '''lrows : rows
     '''
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_dist(t):
     '''dist : DISTINCT
@@ -545,45 +553,48 @@ def p_dist(t):
 
 def p_instruccion_rows(t):
     '''
-    rows    : ORDER BY lista_order
+    rows    : ORDER BY l_expresiones
+            | ORDER BY l_expresiones DESC
+            | ORDER BY l_expresiones ASC
+            | ORDER BY l_expresiones NULLS FIRST
+            | ORDER BY l_expresiones NULLS LAST 
             | GROUP BY l_expresiones
             | HAVING lcol
-            | LIMIT l_expresiones OFFSET expre
-            | LIMIT l_expresiones
+            | LIMIT ENTERO
     '''
     if(t[1] == "ORDER"):
         t[0] = OrderBy.OrderBy(t[3], None, t.lexer.lineno, t.lexer.lexpos)
     elif(t[1] == "GROUP"):
         t[0] = GroupBy.GroupBy(t[3], None, t.lexer.lineno, t.lexer.lexpos)
     elif(t[1] == "HAVING"):
-        t[0] = Having.Having(t[2], None, t.lexer.lineno, t.lexer.lexpos)
-    elif(t[1] == "Limit"):
-        t[0] = Limit.Limit(t[2], None, t[4], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Having.Having(t[2], None, t.lexer.lineno, t.lexer.lexpos)   
+    elif(t[1] == "LIMIT"):
+        #LIMIT(LIMITE,None,fila,columna)
+        t[0] = Limit.Limit(t[2], None, t.lexer.lineno, t.lexer.lexpos)
 
-def p_lista_order(t):
-    '''lista_order : lista_order COMA order_op
-        | order_op
-    '''
+def P_instruccion_row2(t):
+    '''rows : LIMIT ENTERO OFFSET ENTERO'''
+    #LIMIT(LIMITE,FILAS_A_EXCLUIR,fila,columna)
+    t[0] = Limit.Limit(t[2], t[4], t.lexer.lineno, t.lexer.lexpos) 
 
-def p_order_op(t):
-    '''order_op : expre
-            | expre DESC
-            | expre ASC
-            | expre NULLS FIRST
-            | expre NULLS LAST
-    '''
 
 def p_linner_join(t):
     '''linners : linners inners
-                | inners
     '''
+    t[0] = t[1].append(t[2])
+
+def p_linner_join2(t):
+    '''linners : inners
+    '''
+    t[0] = [t[1]]
+
 def p_inner_join(t):
     '''
-    inners : INNER JOIN expre ON expre
-            | LEFT JOIN expre ON expre
-            | FULL OUTER JOIN expre ON expre
-            | JOIN expre ON expre
-            | RIGHT JOIN expre ON expre
+    inners : INNER JOIN expre nombre ON expre
+            | LEFT JOIN expre nombre ON expre
+            | FULL OUTER JOIN expre nombre ON expre
+            | JOIN expre nombre ON expre
+            | RIGHT JOIN expre nombre ON expre
     '''
 
 def p_operadores_logicos(t):
@@ -635,8 +646,10 @@ def p_operadores_between(t):
     #t[0] = Between(t[1], t[3], t[5], 'BETWEEN', t.lexer.lineno, t.lexer.lexpos) if t[2] == 'LIKE' else Between(t[1], t[4], t[5], 'NOT_BETWEEN', t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_in(t):
-    '''expre : expre IN PARIZQ lcol PARDER
+    '''expre : expre IN lcol
+            | expre NOT IN lcol
     '''
+
     #t[0] = In(t[1], t[4], t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_is(t):
@@ -721,7 +734,7 @@ def p_operadores_matematica(t):
             | SQRT PARIZQ expre PARDER 
             | TRIM_SCALE PARIZQ expre PARDER 
             | TRUNC PARIZQ expre PARDER 
-            | WIDTH_BUCKET PARIZQ expre PARDER 
+            | WIDTH_BUCKET PARIZQ expresion COMA expresion COMA expresion COMA expresion PARDER 
     '''
     if t[1] == 'ABS':
         t[0] = Abs.Abs(t[3], t.lexer.lineno, t.lexer.lexpos)
@@ -778,33 +791,31 @@ def p_operadores_matematica(t):
     elif t[1] == 'TRUNC':
         t[0] = Trunc.Trunc(t[3], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'WIDTH_BUCKET':
-        t[0] = WidthBucket.WidthBucket(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
-        pass
+        t[0] = WidthBucket.WidthBucket(t[3], t[5], t[7], t[9], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_binarias(t):  
-    ''' expre : CONVERT PARIZQ lcol PARDER
-            | DECODE PARIZQ expre PARDER
-            | ENCODE PARIZQ expre PARDER
-            | GET_BYTE PARIZQ lcol PARDER
+    ''' expre : CONVERT PARIZQ expre AS tipo PARDER
+            | DECODE PARIZQ expre COMA expre PARDER
+            | ENCODE PARIZQ expre COMA expre PARDER
+            | GET_BYTE PARIZQ expre COMA ENTERO PARDER
             | LENGTH PARIZQ expre PARDER
-            | MD5 PARIZQ lcol PARDER
-            | SET_BYTE PARIZQ lcol PARDER
-            | SHA256 PARIZQ lcol PARDER
-            | SUBSTR PARIZQ lcol PARDER
-            | SUBSTRING PARIZQ lcol PARDER
+            | MD5 PARIZQ expre PARDER
+            | SET_BYTE PARIZQ expre COMA ENTERO COMA ENTERO PARDER
+            | SHA256 PARIZQ expre PARDER
+            | SUBSTR PARIZQ expre COMA ENTERO COMA ENTERO PARDER
+            | SUBSTRING PARIZQ expre COMA ENTERO COMA ENTERO PARDER
             | TRIM PARIZQ expre PARDER
     '''
     if t[1] == 'CONVERT':
-        t[0] = Convert.Convert(t[3], None,t.lexer.lineno, t.lexer.lexpos)
-        pass
+        t[0] = Convert.Convert(t[3], None, t[5], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'DECODE':
-        t[0] = Decode.Decode(t[3],  None,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Decode.Decode(t[3],  None, t[5],t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'ENCODE':
-        t[0] = Encode.Encode(t[3],  None,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Encode.Encode(t[3],  None, t[5], t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'GET_BYTE':
-        t[0] = GetByte.GetByte(t[3], None,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = GetByte.GetByte(t[3], None,t[5],t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'LENGTH':
         t[0] = Length.Length(t[3], None,t.lexer.lineno, t.lexer.lexpos)
@@ -813,17 +824,16 @@ def p_operadores_binarias(t):
         t[0] = Md5.Md5(t[3], None,t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'SET_BYTE':
-        t[0] = SetByte.SetByte(t[3], None,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = SetByte.SetByte(t[3], None, t[5], t[7], t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'SHA256':
         t[0] = Sha256.Sha256(t[3], None,t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'SUBSTR':
-        t[0] = Substr.Substr(t[3], None,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Substring.Substring(t[3], t[5], t[7], None, t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'SUBSTRING':
-        #Se necesita más parametros 
-        #t[0] = Substring.Substring(t[3], None, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Substring.Substring(t[3], t[5], t[7], None, t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'TRIM':
         t[0] = Trim.Trim(t[3], None, t.lexer.lineno, t.lexer.lexpos)
@@ -837,8 +847,8 @@ def p_operadores_trigonometricas(t):
             | ASIND PARIZQ expre PARDER
             | ASINH PARIZQ expre PARDER
             | ATAN PARIZQ expre PARDER
-            | ATAN2 PARIZQ expre PARDER
-            | ATAN2D PARIZQ expre PARDER
+            | ATAN2 PARIZQ expre COMA expre PARDER
+            | ATAN2D PARIZQ expre COMA expre PARDER
             | ATAND PARIZQ expre PARDER 
             | ATANH PARIZQ expre PARDER          
             | COS PARIZQ expre PARDER
@@ -868,9 +878,9 @@ def p_operadores_trigonometricas(t):
     elif t[1] == 'ATAN':
         t[0] = Atan.Atan(t[3], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'ATAN2':
-        t[0] = Atan2.Atan2(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atan2.Atan2(t[3], t[5], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'ATAN2D':
-        t[0] = Atan2d.Atan2d(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atan2d.Atan2d(t[3], t[5], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'ATAND':
         t[0] = Atand.Atand(t[3], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'ATANH':
@@ -916,7 +926,7 @@ def p_operadores_otros(t):
     elif t[1] == 'CURRENT_DATE':
         t[0] = CurrentDate.CurrentDate(t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'CURRENT_TIME':
-        t[0] = CurrentTime.CurrentTime(t[2], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = CurrentTime.CurrentTime(t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'TIMESTAMP':
         t[0] = TimeStamp.TimeStamp(t[2], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'POR':
@@ -980,30 +990,40 @@ def p_campos_tablas1(t):
     t[1].append(CColumna.Columna(t[3],t[4],None,t.lineno,t.lexpos))
     t[0] =t[1]
 
-def p_campos_tablas2(t):
-    '''campos : campos COMA CHECK expre
-    '''
+#def p_campos_tablas2(t):
+#    '''campos : campos COMA CHECK expre
+#    '''
+    #AQUI ESTOY TRABAJANDO
+#    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.CHECK,t[4]))
+#    t[0] = t[1]
 
-def p_campos_tablas3(t):
-    '''campos : campos COMA CONSTRAINT ID CHECK expre
-    '''
+#def p_campos_tablas3(t):
+#    '''campos : campos COMA CONSTRAINT ID CHECK expre
+#    '''
+#    t[1].append(Tipo_Constraint(t[4],Tipo_Dato_Constraint.CHECK,t[4]))
+#    t[0] = t[1]
 
 def p_campos_tablas4(t):
     '''campos : campos COMA UNIQUE PARIZQ lista_id PARDER
     '''
+    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.UNIQUE,t[5]))
+    t[0] = t[1]
 
 def p_campos_tablas5(t):
     '''campos : campos COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
     '''
+    t[1].append(Tipo_Constraint(t[6],Tipo_Dato_Constraint.FOREIGN_KEY,Tipo_Constraint([9],Tipo_Dato_Constraint.REFERENCES,t[11])))
+    t[0] = t[1]
 
 def p_campos_tablas6(t):
     '''campos : campos COMA PRIMARY KEY PARIZQ lista_id PARDER
     '''
+    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.PRIMARY_KEY,t[6]))
+    t[0] = t[1]
 
 def p_campos_tablas7(t):
     '''campos : ID tipo lista_op
     '''
-    #ESTOY HACIENDO ESTA
     t[0] = [CColumna.Columna(t[1],t[2],t[3],t.lineno,t.lexpos)]
 
 def p_campos_tablas8(t):
@@ -1082,14 +1102,14 @@ def p_opcion8(t):
 
 def p_lista_expresiones(t):
     '''
-    l_expresiones : l_expresiones COMA expresion
+    l_expresiones : l_expresiones COMA expre
     '''
     t[1].append(t[3])
     t[0] = t[1]
 
 def p_lista_expresiones1(t):
     '''
-    l_expresiones : expresion
+    l_expresiones : expre
     '''
     t[0] = [t[1]]
 
@@ -1097,7 +1117,7 @@ def p_expresion(t):
     '''
     expresion : CADENA
     '''
-    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.CADENA), t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.TEXT), t.lexer.lineno, t.lexer.lexpos)
 
 def p_expresion1(t):
     '''expresion : CARACTER
@@ -1118,7 +1138,7 @@ def p_expresion3(t):
 def p_expresion4(t):
     '''expresion : DOUBLE
     '''
-    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.DOUBLE), t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.DOUBLE_PRECISION), t.lexer.lineno, t.lexer.lexpos)
 
 def p_expresion5(t):
     '''expresion : ID
@@ -1126,10 +1146,16 @@ def p_expresion5(t):
     #t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
     t[0] = Identificador(t[1], t.lexer.lineno, t.lexer.lexpos)
 
-def p_expresion6(t):
+def p_expresion61(t):
     '''expresion : ID PUNTO ID
     '''
-    t[0] = Primitivo.Primitivo(t[1],t[2],Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
+
+def p_expresion62(t):
+    '''expresion : ID PUNTO POR
+    '''
+    t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_expresion7(t):
     '''expresion : ARROBA ID
@@ -1178,8 +1204,7 @@ def p_lista_columas01(t):
 def p_lista_columas3(t):
     '''lcol : expre
     '''
-    #print("entro aqui 2")
-    t[0] = t[1]
+    t[0] = [t[1]]
     
 def p_lista_columas4(t):
     '''lcol : expre nombre
@@ -1241,10 +1266,10 @@ def p_tipo_datos_varchar4(t):
     t[0]=Tipo(Tipo_Dato.TEXT)
 
 #ESTE NO SE CONTEMPLO EN LA GRAMATICA DE MAEDA
-#def p_tipo_datos_decimal(t):
-#    '''tipo : DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
-#    '''
-#    t[0]=t[1]
+def p_tipo_datos_decimal(t):
+    '''tipo : DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
+    '''
+    t[0]= Tipo(Tipo_Dato,[t[3],t[5]])
 
 #def p_tipo_datos_decimal1(t):
 #    '''tipo : DOUBLE
@@ -1311,7 +1336,7 @@ def p_tipo_datos_int8(t):
 def p_tipo_datos_date(t):
     '''tipo : TIMESTAMP
     '''
-    t[0]=Tipo(Tipo_Dato.TIMESPACE)
+    t[0]=Tipo(Tipo_Dato.TIMESTAMP)
 
 def p_tipo_datos_date1(t):
     '''tipo : TIME
@@ -1325,26 +1350,36 @@ def p_tipo_datos_date2(t):
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
+
 def p_error(p):
-    print("Error sintáctico en ", p.value, " linea: ", str(p.lexer.lineno))
-    
+
     if not p:
         print("Fin del Archivo!")
         return
-    # Read ahead looking for a closing '}'
+    dato = Excepcion(1,"Error Sintáctico", f"Se esperaba una instrucción y viene {p.value}", p.lexer.lineno, find_column(lexer.lexdata,p))
+    lista_lexicos.append(dato)
     while True:
+        
         tok = parser.token()             # Get the next token
         if not tok or tok.type == 'PUNTO_COMA':
             if not tok:
                 print("FIN DEL ARCHIVO")
             else:
                 print("Se recupero con ;")
-            break
+                break
+        dato = Excepcion(1,"Error Sintáctico", f"Se esperaba una instrucción y viene {tok.value}", p.lexer.lineno, find_column(lexer.lexdata,tok))
+        lista_lexicos.append(dato)
+        
     parser.restart()
-
+    
+def find_column(input,token):
+    last_cr = str(input).rfind('\n',0,token.lexpos)
+    if last_cr < 0:
+	    ast_cr = 0
+    column = (token.lexpos - last_cr) + 1
+    return column
 
 parser = yacc.yacc()
-
 def ejecutar_analisis(texto):
     #LIMPIAR VARIABLES
     columna=0

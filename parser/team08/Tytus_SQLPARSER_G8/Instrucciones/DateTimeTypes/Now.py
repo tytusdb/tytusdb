@@ -8,8 +8,10 @@ class Now(Instruccion):
 
     def ejecutar(self, ts, arbol):
         super().ejecutar(ts,arbol)
+        
         todays_date = datetime.now()
-        return todays_date
+        current_time = todays_date.strftime("%Y-%m-%d %H:%M:%S")
+        return current_time
 
 '''
 instruccion = Declare("hola mundo",None, 1,2)

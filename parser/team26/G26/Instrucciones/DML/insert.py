@@ -18,7 +18,10 @@ class Insert(Instruccion):
     def execute(self, data):
         valoresTabla = []
         for val in self.values:
-            valor = val.execute()
+            try:
+                valor = val.execute()
+            except:
+                valor = val.execute(data, None)
             valoresTabla.append(valor.val)
 
         listaColumnas = data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.tableid.upper()]['columns']
@@ -229,7 +232,7 @@ class Insert(Instruccion):
             nullInsertado = False
             if columna.null != None and comprobarNull and tamanioInferior:
                 compDefault = True
-                if columna.null.val:
+                if columna.null:
                     valoresTabla = self.insertarValor(valoresTabla, 'null', posColumna, valExtra)
                     nullInsertado = True
 
@@ -247,10 +250,13 @@ class Insert(Instruccion):
             if columna.check != None:
                 diccionarioTabla = {}
                 diccionarioTabla[self.tableid.upper()] = {'fila': valoresTabla, 'alias': None}
-                if columna.check.val.executeInsert(data, diccionarioTabla):
-                    ''
-                else:
-                    return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
+                for chk in columna.check :
+                    if chk == None:
+                        continue
+                    if chk.val.executeInsert(data, diccionarioTabla) :
+                        ''
+                    else:
+                        return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
 
             posColumna += 1
 

@@ -16,6 +16,8 @@ lexer = lex.lex()
 tabla_simbolos = TablaDeSimbolos()
 consola = []
 salida = []
+nodo_alias = 0
+nodo_distinct = 0
 type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
 
 i = 0
@@ -49,6 +51,8 @@ def p_init(t) :
     dot.node(str(id), 'INICIO')
     for element in t[1]:
         dot.edge(str(id), str(element['id']))
+    for element in tabla_errores.errores:
+        print('Error tipo: ', element.tipo, ' Descripción: ', element.descripcion, ' en la línea: ', element.linea)
     
 def p_instrucciones_lista(t) :
     'instrucciones    : instrucciones instruccion'
@@ -68,7 +72,7 @@ def p_instruccion(t) :
                         | SHOW show_db PTCOMA
                         | ALTER DATABASE alter_database PTCOMA
                         | USE cambio_bd
-                        | SELECT selects
+                        | SELECT selects PTCOMA
                         | DELETE deletes
                         | ALTER TABLE alter_table PTCOMA
                         | UPDATE update_table PTCOMA
@@ -177,6 +181,14 @@ def p_instruccion_crear_BD_Parametros(t) :
 
     temp_base = -1
 
+def p_instruccion_crear_BD_Parametros_error(t) :
+    'crear_bd   : ID error PTCOMA'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'ERROR')
+
 def p_instruccion_crear_BD_if_exists(t) :
     'crear_bd       : IF NOT EXISTS ID PTCOMA'
     type_checker.createDatabase(database = t[4].upper(), line = t.lexer.lineno)
@@ -242,9 +254,12 @@ def p_instruccion_crear_TB(t):
     id_cols = inc()
     dot.node(str(id_cols), 'COLUMNAS')
     dot.edge(str(id), str(id_cols))
-
     for element in t[3]:
-        dot.edge(str(id_cols), str(element['id']))
+        if type(element) == list:
+            for element2 in element:
+                dot.edge(str(id_cols), str(element2['id']))
+        else:
+            dot.edge(str(id_cols), str(element['id']))
     temp_tabla = -1
 
 
@@ -338,7 +353,7 @@ def p_instruccion_Use_BD(t) :
     type_checker.useDatabase(t[1].upper(), line = t.lexer.lineno)
 
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
     dot.node(str(id), t[1])
 
@@ -348,7 +363,7 @@ def p_instruccion_Use_BD(t) :
 # INSTRUCCIONES CON "SELECT"
 
 def p_instruccion_selects(t) :
-    '''selects      : lista_parametros FROM lista_parametros inicio_condicional PTCOMA
+    '''selects      : lista_parametros FROM lista_parametros inicio_condicional state_fin_query 
                     '''
     id = inc()
     t[0] = {'id': id}
@@ -366,20 +381,41 @@ def p_instruccion_selects(t) :
     # dot.node(str(id_where), 'WHERE')
     # dot.edge(str(id), str(id_where))
 
+    id_campos = inc()
+    global nodo_alias
+    global nodo_distinct
+
     for element in t[1]:
         dot.edge(str(id_id), str(element['id']))
+        # dot.edge(str(id_id), str(id_campos))
+        
+    # print("------------->" + str(id_campos))
+    # if nodo_alias != 0:
+    #     dot.edge(str(id_campos), str(nodo_alias))
+    # if nodo_distinct != 0:
+    #     dot.edge(str(id_campos), str(nodo_distinct))
+
+    nodo_alias = 0
+    nodo_distinct = 0
+
     for element in t[3]:
         dot.edge(str(id_from), str(element['id']))
         
     if t[4] != []:
-        dot.edge(str(id_from), str(t[4]['id'])) 
+        dot.edge(str(id), str(t[4]['id'])) 
+
+    if t[5] != []:
+        id_sub = inc()
+        dot.node(str(id_sub), 'SECOND QUERY')
+        dot.edge(str(id), str(id_sub))
+        dot.edge(str(id_sub), str(t[5]['id'])) 
     # for element in t[4]:
     #     # if type(element) !=  str:
     #     dot.edge(str(id), str(element['id']))
 
 
 def p_instruccion_selects2(t) :
-    '''selects      : lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
+    '''selects      : lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional state_fin_query inicio_group_by
                     '''
     id = inc()
     t[0] = {'id': id}
@@ -390,12 +426,14 @@ def p_instruccion_selects2(t) :
         dot.edge(str(id), str(element['id']))
     for element in t[6]:
         dot.edge(str(id), str(element['id']))
-    for element in t[7]:
-        dot.edge(str(id), str(element['id']))
+    if t[7] != []:
+        dot.edge(str(id), str(t[7]['id'])) 
+    # for element in t[7]:
+    #     dot.edge(str(id), str(element['id']))
 
 
 def p_instruccion_selects3(t) :
-    '''selects      : fun_trigonometrica state_aliases_field PTCOMA
+    '''selects      : fun_trigonometrica state_aliases_field 
                     '''
     id = inc()
     t[0] = {'id': id}
@@ -417,7 +455,7 @@ def p_instruccion_selects3(t) :
 
 
 def p_instruccion_selects4(t) :
-    '''selects      : fun_trigonometrica state_aliases_field FROM ID state_aliases_table PTCOMA
+    '''selects      : fun_trigonometrica state_aliases_field FROM ID state_aliases_table 
                     '''
     id = inc()
     t[0] = {'id': id}
@@ -442,14 +480,12 @@ def p_instruccion_selects4(t) :
     
 
 
-
-
 def p_instruccion_selects5(t) :
-    '''selects      : POR FROM select_all
-                    | POR FROM state_subquery inicio_condicional PTCOMA
-                    | GREATEST PARIZQ lista_parametros_funciones PARDER PTCOMA
-                    | LEAST PARIZQ lista_parametros_funciones PARDER PTCOMA
-                    | lista_parametros PTCOMA
+    '''selects      : POR FROM select_all 
+                    | POR FROM state_subquery inicio_condicional 
+                    | GREATEST PARIZQ lista_parametros_funciones PARDER 
+                    | LEAST PARIZQ lista_parametros_funciones PARDER 
+                    | lista_parametros 
                     '''
 
     print("selects")
@@ -457,16 +493,20 @@ def p_instruccion_selects5(t) :
     t[0] = {'id': id}
 
     if len(t) >3: 
-        if t[1].upper() == 'POR':
-            dot.node(str(id), 'DISTINCT')
+        if t[1].upper() == '*':
+            dot.node(str(id), 'SELECT ALL')
             if len(t) == 4:
-                for element in t[3]:
-                    dot.edge(str(id), str(element['id']))
+                dot.edge(str(id), str(t[3]['id'])) 
+                # for element in t[3]:
+                #     dot.edge(str(id), str(element['id']))
             else:
-                for element in t[3]:
-                    dot.edge(str(id), str(element['id']))
-                for element in t[4]:
-                    dot.edge(str(id), str(element['id']))
+                dot.edge(str(id), str(t[3]['id'])) 
+                # for element in t[3]:
+                #     dot.edge(str(id), str(element['id']))
+                if t[4] != []:
+                    dot.edge(str(id), str(t[4]['id'])) 
+                # for element in t[4]:
+                #     dot.edge(str(id), str(element['id']))
         
         if t[1].upper() == 'GREATEST':
             dot.node(str(id), 'GREATEST')
@@ -485,46 +525,51 @@ def p_instruccion_selects5(t) :
 
 
 
-def p_instruccion_selects_distinct(t) :
-    '''selects      : DISTINCT POR FROM select_all 
-                    | DISTINCT lista_parametros FROM lista_parametros inicio_condicional 
-                    | DISTINCT lista_parametros PTCOMA
-                    | DISTINCT lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional'''
-    # print("selects")
-    id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'DISTINCT')
+# def p_instruccion_selects_distinct(t) :
+#     '''selects      : DISTINCT POR FROM select_all 
+#                     | DISTINCT lista_parametros FROM lista_parametros inicio_condicional 
+#                     | DISTINCT lista_parametros 
+#                     | DISTINCT lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional'''
+#     id = inc()
+#     t[0] = {'id': id}
+#     dot.node(str(id), 'SELECT')
+#     id_dist = inc()
+#     dot.node(str(id_dist), 'DISTINCT')
+#     dot.edge(str(id), str(id_dist))
 
-    if t[2].upper() == 'POR':
-        for element in t[4]:
-            dot.edge(str(id), str(element['id']))
+#     if len(t) == 5:
+#         for element in t[4]:
+#             dot.edge(str(id), str(element['id']))
         
-    elif t[3].upper() == 'FROM':
-        for element in t[2]:
-            dot.edge(str(id), str(element['id']))
-        for element in t[4]:
-            dot.edge(str(id), str(element['id']))
-        for element in t[6]:
-            dot.edge(str(id), str(element['id']))
+#     elif len(t) == 6:
+#         for element in t[2]:
+#             dot.edge(str(id), str(element['id']))
+#         for element in t[4]:
+#             dot.edge(str(id), str(element['id']))
+#         if t[5] != []:
+#             dot.edge(str(id), str(t[5]['id'])) 
+#         # for element in t[5]:
+#         #     dot.edge(str(id), str(element['id']))
 
-    elif t[3].upper() == 'COMA':
-        for element in t[2]:
-            dot.edge(str(id), str(element['id']))
+#     elif t[3].upper() == ',':
+#         for element in t[2]:
+#             dot.edge(str(id), str(element['id']))
 
-        dot.edge(str(id), 'CASE')
-        for element in t[5]:
-            dot.edge(str(id), str(element['id']))
-        for element in t[7]:
-            dot.edge(str(id), str(element['id']))
-        for element in t[8]:
-            dot.edge(str(id), str(element['id']))
+#         dot.edge(str(id), 'CASE')
+#         for element in t[5]:
+#             dot.edge(str(id), str(element['id']))
+#         for element in t[7]:
+#             dot.edge(str(id), str(element['id']))
+#         for element in t[8]:
+#             dot.edge(str(id), str(element['id']))
 
-    elif t[3].upper() == 'PTCOMA':
-        for element in t[2]:
-            dot.edge(str(id), str(element['id']))
+#     else:
+#         for element in t[2]:
+#             dot.edge(str(id), str(element['id']))
+
 
 def p_instruccion_selects_where(t) :
-    'inicio_condicional      : WHERE relacional inicio_group_by'
+    'inicio_condicional      : WHERE relacional inicio_condicional'
     print("Condiciones (Where)")
     id = inc()
     t[0] = {'id': id}
@@ -555,8 +600,11 @@ def p_instruccion_selects_group_by(t) :
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'GROUP BY')
-    dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), str(t[4]['id'])) 
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
+    # dot.edge(str(id), str(t[3]['id'])) 
+    if t[4] != []:
+        dot.edge(str(id), str(t[4]['id'])) 
 
 def p_instruccion_selects_group_by2(t) :
     'inicio_group_by      : inicio_order_by '
@@ -574,7 +622,13 @@ def p_instruccion_selects_having(t) :
     t[0] = {'id': id}
     dot.node(str(id), 'HAVING')
     dot.edge(str(id), str(t[2]['id'])) 
+    # for element in t[2]:
+    #     dot.edge(str(id), str(element['id']))
     dot.edge(str(id), str(t[3]['id'])) 
+    # for element in t[3]:
+    #     dot.edge(str(id), str(element['id']))
+    # dot.edge(str(id), str(t[2]['id'])) 
+    # dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instruccion_selects_having2(t) :
     'inicio_having      : inicio_order_by '
@@ -590,8 +644,15 @@ def p_instruccion_selects_order_by(t) :
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'ORDER BY')
-    dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), str(t[4]['id'])) 
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
+    
+    if t[4] != []:
+        dot.edge(str(id), str(t[4]['id'])) 
+
+    # for element in t[4]:
+    #     print(">> ***********" + str(element))
+    #     dot.edge(str(id), str(element['id']))
 
 
 def p_instruccion_selects_order_by2(t) :
@@ -607,14 +668,14 @@ def p_instruccion_selects_limit(t) :
                         | LIMIT ALL state_offset'''
     id = inc()
     t[0] = {'id': id}
-    dot.node(str(id), 'LIMIT')
+    dot.node(str(id), 'LIMIT\n' + str(t[2]))
 
-    if t[1].upper() == 'ALL':
-        dot.edge(str(id), t[2])
-    else:
-        dot.edge(str(id), t[2])
-
-    dot.edge(str(id), str(t[3]['id'])) 
+    # if t[2].upper() == 'ALL':
+    #     dot.edge(str(id), t[2])
+    # else:
+    #     dot.edge(str(id), t[2])
+    if t[3] != []:
+        dot.edge(str(id), str(t[3]['id'])) 
 
 
 def p_instruccion_selects_limit2(t) :
@@ -632,14 +693,19 @@ def p_instruccion_selects_offset(t) :
                             | OFFSET ENTERO state_except'''
     id = inc()
     t[0] = {'id': id}
-    dot.node(str(id), 'OFFSET')
-    dot.edge(str(id), t[2])
-
-    dot.edge(str(id), str(t[3]['id'])) 
+    dot.node(str(id), 'OFFSET\n' + str(t[2]))
+    # dot.edge(str(id), t[2])
+    if t[3] != []:
+        dot.edge(str(id), str(t[3]['id'])) 
 
 
 def p_instruccion_selects_offset2(t) :
-    '''state_offset         : state_union 
+    '''state_offset      : '''
+    t[0] = []
+
+
+def p_instruccion_state_fin_query(t) :
+    '''state_fin_query      : state_union 
                             | state_intersect
                             | state_except
                             | state_subquery
@@ -662,10 +728,10 @@ def p_instruccion_selects_union(t) :
     t[0] = {'id': id}
 
     if t[2].upper() == 'ALL':
-        dot.node(str(id), 'ALL UNION EXCEPT')
+        dot.node(str(id), 'ALL UNION')
         dot.edge(str(id), str(t[4]['id'])) 
     else:
-        dot.node(str(id), 'UNION EXCEPT')
+        dot.node(str(id), 'UNION')
         dot.edge(str(id), str(t[3]['id']))
 
     
@@ -680,10 +746,10 @@ def p_instruccion_selects_intersect(t) :
     t[0] = {'id': id}
 
     if t[2].upper() == 'ALL':
-        dot.node(str(id), 'ALL INTERSECT EXCEPT')
+        dot.node(str(id), 'ALL INTERSECT')
         dot.edge(str(id), str(t[4]['id'])) 
     else:
-        dot.node(str(id), 'INTERSECT EXCEPT')
+        dot.node(str(id), 'INTERSECT')
         dot.edge(str(id), str(t[3]['id'])) 
 
     
@@ -700,10 +766,10 @@ def p_instruccion_selects_except(t) :
     t[0] = {'id': id}
 
     if t[2].upper() == 'ALL':
-        dot.node(str(id), 'ALL EXCEPT EXCEPT')
+        dot.node(str(id), 'ALL EXCEPT')
         dot.edge(str(id), str(t[4]['id'])) 
     else:
-        dot.node(str(id), 'EXCEPT EXCEPT')
+        dot.node(str(id), 'EXCEPT')
         dot.edge(str(id), str(t[3]['id'])) 
 
     
@@ -724,13 +790,15 @@ def p_instruccion_Select_All(t) :
     for element in t[2]:
         dot.edge(str(id), str(element['id']))
     # dot.edge(str(id), str(t[2]['id'])) 
-    dot.edge(str(id), str(t[3]['id'])) 
+    
+    if t[3] != []:
+        dot.edge(str(id), str(t[3]['id'])) 
 
 #Gramatica para fechas
 #========================================================
 def p_date_functions1(t):
     '''date_functions   : EXTRACT PARIZQ opcion_date_functions 
-                        | NOW PARIZQ opcion_date_functions'''
+                        | NOW PARIZQ PARDER'''
     print("fecha")
     id = inc()
     t[0] = {'id': id}
@@ -742,30 +810,41 @@ def p_date_functions1(t):
 
     elif t[1].upper() == 'NOW':
         dot.node(str(id), 'NOW')
-        for element in t[3]:
-            dot.edge(str(id), str(element['id']))
+        # dot.edge(str(id), str(t[3]['id'])) 
+        # for element in t[3]:
+        #     dot.edge(str(id), str(element['id']))
 
 def p_date_functions(t):
     '''date_functions   : date_part PARIZQ opcion_date_functions
                         | opcion_date_functions'''
     print("fecha")
-    id = inc()
-    t[0] = [{'id': id}]
 
-    dot.node(str(id), 'FUNCION FECHA')
-    if len(t) == 2:
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
+    
+    if str(t[1]['valor']) != 'cadenas':
+        id = inc()
+        t[0] = {'id': id, 'valor': 'date'}
+        dot.node(str(id), 'FUNCION FECHA')
+        
+        if len(t) == 2:
+            dot.edge(str(id), str(t[1]['id'])) 
+            # for element in t[1]:
+            #     dot.edge(str(id), str(element['id']))
+        else:
+            for element in t[1]:
+                dot.edge(str(id), str(element['id']))
+            for element in t[3]:
+                dot.edge(str(id), str(element['id']))
     else:
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
-        for element in t[3]:
-            dot.edge(str(id), str(element['id']))
+        t[0] = t[1]
+        # t[0] = {'id': id, 'valor': 'cadenas'}
+        # dot.node(str(id), 'CADENAS')
+    
+    
 
 def p_validate_date(t):
     'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER'
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
     dot.node(str(id), 'FROM TIMESTAMP')
 
     for element in t[1]:
@@ -783,41 +862,70 @@ def p_validate_date(t):
     except Exception:
         pass
 
+
 def p_opcion_lista_date_fuctions(t):
     '''opcion_date_functions    : opcion_date_functions lista_date_functions
-                                | lista_date_functions'''
+                                | lista_date_functions
+                                '''
     id = inc()
-    t[0] = [{'id': id}]
 
     if len(t) == 2:
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
+        
+        if str(t[1]['valor']) != 'cadenas':
+            t[0] = {'id': id, 'valor' : 'date'}
+            dot.node(str(id), 'FUNCION DATE')
+            dot.edge(str(id), str(t[1]['id'])) 
+        else:
+            t[0] = {'id': id, 'valor' : 'cadenas'}
+            dot.node(str(id), 'CADENAS')
+            dot.edge(str(id), str(t[1]['id'])) 
 
     else:
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
-        for element in t[2]:
-            dot.edge(str(id), str(element['id']))
+        
+        if str(t[2]['valor']) != 'cadenas':
+            t[0] = {'id': id, 'valor' : 'date'}
+            dot.node(str(id), 'FUNCIONES DATE')
+            dot.edge(str(id), str(t[1]['id'])) 
+            dot.edge(str(id), str(t[2]['id'])) 
+        else:
+            dot.node(str(id), 'CADENAS')
+            t[0] = {'id': id, 'valor' : 'cadenas'}
+            dot.edge(str(id), str(t[1]['id'])) 
+            dot.edge(str(id), str(t[2]['id'])) 
+
+        
+
 
 def p_lista_date_functions(t):
-    '''lista_date_functions : CADENA COMA INTERVAL CADENA
-                            | TIMESTAMP CADENA
+    '''lista_date_functions : TIMESTAMP CADENA
                             | CURRENT_DATE
                             | CURRENT_TIME
                             | PARDER'''
-    id = inc()
-    t[0] = [{'id': id}]
-
     if len(t) == 2:
-        dot.node(str(id), 'FUNCION DATE')
         if t[1].upper() != 'PARDER':
+            id = inc()
+            t[0] = {'id': id, 'valor': 'date'}
+            dot.node(str(id), 'FUNCION DATE')
             dot.edge(str(id), t[1])
+        else:
+            t[0] = t[1]
 
     elif len(t) == 3:
+        id = inc()
+        t[0] = {'id': id, 'valor': 'date'}
         dot.node(str(id), 'TIMESTAMP')
         dot.edge(str(id), t[2])
 
+    elif len(t) == 4:
+        id = inc()
+        t[0] = {'id': id, 'valor': 'cadenas'}
+        dot.node(str(id), 'CADENAS')
+        dot.edge(str(id), t[1])
+        dot.edge(str(id), str(t[3]['id']))  
+
     else: 
+        id = inc()
+        t[0] = {'id': id, 'valor': 'date'}
         dot.node(str(id), 'INTERVAL')
         dot.edge(str(id), t[1])
         dot.edge(str(id), t[4])
@@ -827,11 +935,19 @@ def p_lista_date_functions(t):
 def p_state_subquery(t):
     '''state_subquery   : PARIZQ SELECT selects PARDER'''
     id = inc()
-    t[0] = [{'id': id}]
-    dot.node(str(id), 'SELECT')
-    for element in t[3]:
-            dot.edge(str(id), str(element['id']))
+    t[0] = {'id': id}
+    dot.node(str(id), 'SUB-QUERY')
+    dot.edge(str(id), str(t[3]['id'])) 
+    # for element in t[3]:
+    #         dot.edge(str(id), str(element['id']))
 
+def p_state_subquery_error(t) :
+    'state_subquery : PARIZQ SELECT error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'ERROR')
 #========================================================
 
     
@@ -851,7 +967,7 @@ def p_instruccion_Insert_columnas(t) :
     dot.node(str(id), 'INSERT INTO')
     
     id_id = inc()
-    dot.node(str(id_id), t[2] + ' [tabla]')
+    dot.node(str(id_id), 'ID TABLA\n' + t[2])
     dot.edge(str(id), str(id_id))
 
 
@@ -877,12 +993,13 @@ def p_instruccion_insert(t) :
     t[0] = {'id': id}
     id_id = inc()
     dot.node(str(id), 'INSERT INTO')
-    dot.node(str(id_id), t[2] + ' [tabla]')
+    dot.node(str(id_id), 'ID TABLA\n' + t[2])
     dot.edge(str(id), str(id_id))
 
     id_val = inc()
     dot.node(str(id_val), 'VALORES A INSERTAR')
     dot.edge(str(id), str(id_val))
+    
     for element in t[5]:
         dot.edge(str(id_val), str(element['id']))
 
@@ -992,36 +1109,36 @@ def p_instrucciones_lista_sorting_rows(t) :
     'sorting_rows    : sorting_rows COMA sort'
     t[1].append(t[3])
     t[0] = t[1]
-    id = inc()
-    t[0] = [{'id': id}]
-    dot.node(str(id), 'SORTING ROWS')
+    # id = inc()
+    # t[0] = [{'id': id}]
+    # dot.node(str(id), 'SORTING ROWS')
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
-    for element in t[2]:
-        dot.edge(str(id), str(element['id']))
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
+    # for element in t[2]:
+    #     dot.edge(str(id), str(element['id']))
 
 
 def p_instrucciones_sort_DESC(t) :   
     'sorting_rows         : sort'
     t[0] = [t[1]]
-    print("sort")
-    id = inc()
-    t[0] = [{'id': id}]
-    dot.node(str(id), 'SORT')
+    # print("sort")
+    # id = inc()
+    # t[0] = [{'id': id}]
+    # dot.node(str(id), 'SORT')
 
 def p_temporalmente_nombres(t) :
     '''sort         : ID ASC
                     | ID DESC
                     | ID'''
-    t[0] = t[1]
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
+
     if len(t) == 2:
-        dot.node(str(id), t[1])
+        dot.node(str(id), 'IDENTIFICADOR\n' + t[1])
     else:
-        dot.node(str(id), t[2])
-        dot.edge(str(id), t[1])
+        dot.node(str(id),'SORT TYPE\n' +  t[2])
+        dot.edge(str(id), 'IDENTIFICADOR\n' +  t[1])
 
 #========================================================
 
@@ -1059,8 +1176,8 @@ def p_valores_fun3(t) :
 #========================================================
 # LISTA DE PARAMETROS
 def p_instrucciones_lista_parametros(t) :
-    'lista_parametros    : lista_parametros COMA parametro state_aliases_field'
-    t[1].append(t[3])
+    'lista_parametros    : lista_parametros COMA es_distinct parametro state_aliases_field'
+    t[1].append(t[4])
     t[0] = t[1]
     # print("Varios parametros")
     # id = inc()
@@ -1070,14 +1187,25 @@ def p_instrucciones_lista_parametros(t) :
     # for element in t[1]:
     #     dot.edge(str(id), str(element['id']))
     # for element in t[3]:
+    #     dot.edge(str(id), str(element['id'])) 
+    # for element in t[3]:
     #     dot.edge(str(id), str(element['id']))
-    for element in t[4]:
-        dot.edge(str(id), str(element['id']))
-        
+
+    # for element in t[5]:
+    #     dot.edge(str(id), str(element['id']))
+
+def p_instrucciones_lista_parametros_error2(t) :
+    'lista_parametros   : lista_parametros COMA error state_aliases_field'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[1].append({'id':id})
+    t[0] = t[1]
+    dot.node(str(id), 'ERROR')
 
 def p_instrucciones_parametro(t) :
-    'lista_parametros    : parametro state_aliases_field '
-    t[0] = [t[1]]
+    'lista_parametros    : es_distinct parametro state_aliases_field '
+    t[0] = [t[2]]
     # print("Un parametro")
     # id = inc()
     # t[0] = {'id': id}
@@ -1088,6 +1216,25 @@ def p_instrucciones_parametro(t) :
 
     # for element in t[2]:
     #     dot.edge(str(id), str(element['id']))
+    
+def p_instrucciones_parametro_error(t) :
+    'lista_parametros   : es_distinct error state_aliases_field'
+    id = inc()
+    t[0] = [{'id':id}]
+    dot.node(str(id), 'ERROR')
+
+def p_instrucciones_distinct(t) :
+    '''es_distinct      : DISTINCT
+                        | '''
+    if len(t) == 2:
+        id = inc()
+        global nodo_distinct
+        nodo_distinct = id
+        t[0] = {'id': id}
+        dot.node(str(id), 'DISTINCT')
+    else:
+        t[0] = []
+
 
 def p_parametro_con_tabla(t) :
     '''parametro        : ID PUNTO ID
@@ -1099,6 +1246,14 @@ def p_parametro_con_tabla(t) :
 
     # dot.node(str(id), 'IDENTIFICADOR')
     dot.node(str(id), 'IDENTIFICADOR\n' +  t[1] + '.' + t[3])
+
+def p_parametro_con_tabla_error(t) :
+    'parametro  : ID PUNTO error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id),'INDENTIFICADOR\n'+ t[1] +'.ERROR')
 
 def p_parametros_funciones(t) :
     '''parametro         : lista_funciones
@@ -1113,7 +1268,6 @@ def p_parametros_funciones(t) :
     # dot.node(str(id), 'FUNCIONES 0')
     # for element in t[1]:
     #     dot.edge(str(id), str(element['id']))
-
 
 def p_parametros_cadena(t) :
     'parametro         : CADENA'
@@ -1155,10 +1309,26 @@ def p_instrucciones_lista_columnas(t) :
     t[1].append(t[3])
     t[0] = t[1]
 
+def p_instrucciones_lista_columnas_error(t) :
+    'crear_tb_columnas      : crear_tb_columnas COMA error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[1].append({'id':id})
+    t[0] = t[1]
+    dot.node(str(id), 'ERROR')
+
 def p_instrucciones_columnas(t) :
     'crear_tb_columnas      : crear_tb_columna'
     t[0] = [t[1]]
 
+def p_instrucciones_columnas_error(t) :
+    'crear_tb_columnas  : error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = [{'id':id}]
+    dot.node(str(id), 'ERROR')
 
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
@@ -1168,11 +1338,24 @@ def p_instrucciones_columna_parametros(t) :
     dot.node(str(id), 'ID')
     dot.edge(str(id), t[1])
     
-    for element in t[2]:
-        dot.edge(str(id), str(element['id']))
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[2]['id'])) 
+    # for element in t[2]:
+    #     dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
+    # for element in t[3]:
+    #     dot.edge(str(id), str(element['id']))
 
+def p_instrucciones_columna_parametros_error(t) :
+    'crear_tb_columna       : ID error parametros_columna'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = [{'nombre':t[1], 'col':Columna(tipo='ERROR'), 'id':id}]
+    dot.node(str(id), 'ID')
+    dot.edge(str(id),t[1])
+    id2 = inc()
+    dot.edge(str(id),str(id2))
+    dot.node(str(id2),'ERROR')
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
@@ -1195,10 +1378,14 @@ def p_instrucciones_columna_pk(t) :
     #t[0] = LlavesPrimarias(t[4])
     id = inc()
     t[0] = [{'id': id}]
+    print('primary key t0 ',t[0])
     dot.node(str(id), ' PRIMARY KEY')
     
-    for element in t[4]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[4]['id'])) 
+    # for element in t[4]:
+    #     dot.edge(str(id), str(element['id']))
+
+
 
 def p_instrucciones_columna_fk(t) :
     'crear_tb_columna       : FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'
@@ -1246,10 +1433,25 @@ def p_instrucciones_lista_params_columnas(t) :
     t[0] = {'id': id}
     dot.node(str(id), 'PARAMETRO')
     
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
-    for element in t[2]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id'])) 
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[2]['id'])) 
+    # for element in t[2]:
+    #     dot.edge(str(id), str(element['id']))
+
+def p_instrucciones_lista_params_columnas_error(t) :
+    'parametros_columna : parametros_columna error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    t[1].update(t[2])
+    id2 = inc()
+    id = inc()
+    t[0] = {'id':id2}
+    dot.node(str(id2), 'PARAMETRO')
+    dot.edge(str(id2), str(t[1]['id']))
+    dot.edge(str(id2), str(id))
+    dot.node(str(id),'ERROR')
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
@@ -1259,8 +1461,20 @@ def p_instrucciones_params_columnas(t) :
     t[0] = {'id': id}
     dot.node(str(id), 'PARAMETRO')
     
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id'])) 
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
+
+def p_instrucciones_params_columnas_error(t) :
+    'parametros_columna : error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'PARAMETRO')
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    dot.edge(str(id), str(id2))
 
 def p_instrucciones_parametro_columna_default(t) :
     'parametro_columna      : DEFAULT valor'
@@ -1281,8 +1495,9 @@ def p_instrucciones_parametro_columna_nul(t) :
     t[0] = {'id': id}
     dot.node(str(id), 'PARAMETRO')
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id'])) 
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_parametro_columna_unique(t) :
     'parametro_columna      : unic'
@@ -1299,8 +1514,9 @@ def p_instrucciones_parametro_columna_checkeo(t) :
     t[0] = {'id': id}
     dot.node(str(id), 'PARAMETRO')
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id'])) 
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
@@ -1348,8 +1564,20 @@ def p_instrucciones_chequeo_constraint(t) :
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'CONSTRAINT ' + t[2] + ' CHECK')
-    for element in t[5]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[5]['id'])) 
+    # for element in t[5]:
+    #     dot.edge(str(id), str(element['id']))
+
+def p_instrucciones_chequeo_constraint_error(t) :
+    'chequeo    : CONSTRAINT ID CHECK PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'CONSTRAINT '+t[2]+' CHECK')
+    id2 = inc()
+    dot.edge(str(id), str(id2))
+    dot.node(str(id2), 'ERROR')
 
 def p_instrucciones_chequeo(t) :
     'chequeo    : CHECK PARIZQ relacional PARDER'
@@ -1359,7 +1587,17 @@ def p_instrucciones_chequeo(t) :
     for element in t[3]:
         dot.edge(str(id), str(element['id']))
     
-
+def p_instrucciones_chequeo_error(t) :
+    'chequeo    : CHECK PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    id2 = inc()
+    dot.node(str(id), 'CHECK')
+    dot.node(str(id2),'ERROR')
+    dot.edge(str(id), str(id2))
+    
 #========================================================
 
 #========================================================
@@ -1374,6 +1612,14 @@ def p_instrucciones_lista_ids(t) :
 
     # dot.edge(str(id), str(t[1]['id'])) 
     # dot.edge(str(id), t[3])
+def p_instrucciones_lista_ids_error(t) :
+    'lista_id   : lista_id COMA error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[1].append({'id':id})
+    t[0] = t[1]
+    dot.node(str(id), 'ERROR')
 
 def p_instrucciones_lista_id(t) :
     'lista_id   : ID'
@@ -1383,18 +1629,46 @@ def p_instrucciones_lista_id(t) :
     # dot.node(str(id), 'ID')
     # dot.edge(str(id), t[1])
 
+def p_isntrucciones_lista_id_error(t) :
+    'lista_id   : error'
+    #error sintáctico
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    print(error.imprimir())
+    id = inc()
+    t[0] = [{'id':id}]
+    dot.node(str(id), 'ERROR')
+    
+
 def p_instrucciones_lista_objetos(t) :
-    'lista_objetos  : lista_objetos COMA objeto'
+    '''lista_objetos  : lista_objetos COMA objeto
+                      | CADENA COMA INTERVAL CADENA'''
     # t[1].append(t[3])
     # t[0] = t[1]
     id = inc()
     t[0] = {'id': id}
-    dot.node(str(id), 'Lista de Objetos')
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    if len(t) == 4:
+        dot.node(str(id), 'Lista de Objetos')
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), t[3])
 
-    dot.edge(str(id), t[3])
+    else:
+        dot.node(str(id), 'INTERVAL')
+        dot.edge(str(id), t[1])
+        dot.edge(str(id), t[4])
+
+def p_instrucciones_lista_objetos_error2(t) :
+    'lista_objetos  : lista_objetos COMA error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.edge(str(id), t[1])
+    id2 = inc()
+    dot.edge(str(id), id2)
+    dot.node(str(id2), 'ERROR')
 
 def p_instrucciones_lista_objeto(t) :
     'lista_objetos  : objeto'
@@ -1402,26 +1676,41 @@ def p_instrucciones_lista_objeto(t) :
     id = inc()
     t[0] = {'id': id}
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id'])) 
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
 
-def p_instrucciones_objeto(t) :
-    'objeto       : CADENA'
+# def p_instrucciones_objeto(t) :
+#     'objeto       : CADENA'
+#     id = inc()
+#     t[0] = {'id': id}
+
+#     dot.node(str(id), 'OBJETO')
+#     dot.edge(str(id), 'CADENA\n' + t[1])
+
+def p_instrucciones_lista_objeto_error(t) :
+    'lista_objetos  : error'
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
     id = inc()
-    t[0] = {'id': id}
-
-    dot.node(str(id), t[1])
+    t[0] = {'id',id}
+    dot.edge(str(id), str(id2))
 
 def p_instrucciones_objeto2(t) :
-    'objeto       : valor'
+    '''objeto       : valor
+                    | fun_binario_insert
+                    '''
     id = inc()
     t[0] = {'id': id}
+
     dot.node(str(id), 'OBJETO')
     dot.edge(str(id), str(t[1]['id'])) 
 
 
+
 def p_instrucciones_lista_insercion_objeto(t) :
-    'lista_insercion  : lista_insercion COMA objeto'
+    '''lista_insercion  : lista_insercion COMA objeto
+                         '''
     t[1].append(t[3])
     t[0] = t[1]
     #para objetos simples
@@ -1431,6 +1720,14 @@ def p_instrucciones_lista_insercion_objeto(t) :
 
     # dot.edge(str(id), str(t[1]['id'])) 
     # dot.edge(str(id), str(t[3]['id'])) 
+
+def p_instrucciones_lista_insercion_objeto_error(t) :
+    'lista_insercion    : lista_insercion COMA error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[1].append({'id':id})
+    t[0] = t[1]
 
 def p_instrucciones_lista_insercion_select(t) :
     'lista_insercion  : lista_insercion COMA PARIZQ SELECT state_subquery PARDER'
@@ -1448,7 +1745,8 @@ def p_instrucciones_lista_insercion_select(t) :
         dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_insercion_objeto(t) :
-    '''lista_insercion  : objeto'''
+    '''lista_insercion  : objeto
+                        '''
     t[0] = [t[1]]
     #para un objeto simple
     # id = inc()
@@ -1657,6 +1955,18 @@ def p_tipos_5(t) :
     t[0].update({'tipo': TipoColumna[t[1].upper()], 'id': id})
 
     
+def p_def_dt_types_1_error(t) :
+    '''def_dt_types : PARIZQ error PARDER WITHOUT TIME ZONE
+                    | PARIZQ error PARDER WITH TIME ZONE
+                    | PARIZQ error PARDER'''
+
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    print(error.imprimir())
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'ERROR')
+
 def p_def_dt_types_1(t) :
     '''def_dt_types : PARIZQ ENTERO PARDER WITHOUT TIME ZONE
                     | PARIZQ ENTERO PARDER WITH TIME ZONE
@@ -1815,7 +2125,158 @@ def p_relacional_op(t) :
         dot.edge(str(id), str(id_op_signo))
         dot.edge(str(id_op_signo), str(t[2]['id'])) 
 
+def p_relacional_error(t) :
+    '''relacional   : error MENOR aritmetica
+                    | error MAYOR aritmetica
+                    | error IGUAL IGUAL aritmetica
+                    | error MENORIGUAL aritmetica
+                    | error MAYORIGUAL aritmetica
+                    | error DIFERENTE aritmetica
+                    | error NO_IGUAL aritmetica
+                    | error IGUAL aritmetica '''
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id' : id}
+    dot.node(str(id),  'OPERACION RELACIONAL')
+    
+    if len(t) == 4:
+        id_op_signo = inc()
 
+        if t[2].upper() == '<=':
+            dot.node(str(id_op_signo), 'MENOR O IGUAL')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(id2))
+            dot.edge(str(id_op_signo), str(t[3]['id']))  
+
+        elif t[2].upper() == '<':
+            dot.node(str(id_op_signo), 'MENOR')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(id2))
+            dot.edge(str(id_op_signo), str(t[3]['id']))  
+            
+        elif t[2].upper() == '>=':
+            dot.node(str(id_op_signo), 'MAYOR O IGUAL')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(id2))
+            dot.edge(str(id_op_signo), str(t[3]['id']))  
+            
+        elif t[2].upper() == '>':
+            dot.node(str(id_op_signo), 'MAYOR')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(id2))
+            dot.edge(str(id_op_signo), str(t[3]['id']))  
+            
+        elif t[2].upper() == '=':
+            dot.node(str(id_op_signo), 'IGUAL')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(id2)) 
+            dot.edge(str(id_op_signo), str(t[3]['id']))  
+            
+        # PARA LOS OPERADORES LOGICOS
+        elif t[2].upper() == 'AND':
+            dot.node(str(id_op_signo), 'AND')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(id2)) 
+            dot.edge(str(id_op_signo), str(t[3]['id']))  
+
+        elif t[2].upper() == 'OR':
+            dot.node(str(id_op_signo), 'OR')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(id2)) 
+            dot.edge(str(id_op_signo), str(t[3]['id']))  
+
+    elif len(t) == 5:
+        id_op_signo = inc()
+        if t[2].upper() == '=':
+            dot.node(str(id_op_signo), 'IGUAL IGUAL')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(id2)) 
+            dot.edge(str(id_op_signo), str(t[4]['id'])) 
+    else:
+        id_op_signo = inc()
+        dot.node(str(id_op_signo), 'NOT')
+        dot.edge(str(id), str(id_op_signo))
+        dot.edge(str(id_op_signo), str(t[2]['id'])) 
+
+def p_relacional_error2(t) :
+    '''relacional   : aritmetica MENOR error
+                    | aritmetica MAYOR error
+                    | aritmetica IGUAL IGUAL error
+                    | aritmetica MENORIGUAL error
+                    | aritmetica MAYORIGUAL error
+                    | aritmetica DIFERENTE error
+                    | aritmetica NO_IGUAL error
+                    | aritmetica IGUAL error'''
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id' : id}
+    dot.node(str(id),  'OPERACION RELACIONAL')
+    
+    if len(t) == 4:
+        id_op_signo = inc()
+
+        if t[2].upper() == '<=':
+            dot.node(str(id_op_signo), 'MENOR O IGUAL')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            dot.edge(str(id_op_signo), str(id2))  
+
+        elif t[2].upper() == '<':
+            dot.node(str(id_op_signo), 'MENOR')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            dot.edge(str(id_op_signo), str(id2))  
+            
+        elif t[2].upper() == '>=':
+            dot.node(str(id_op_signo), 'MAYOR O IGUAL')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            dot.edge(str(id_op_signo), str(id2))  
+            
+        elif t[2].upper() == '>':
+            dot.node(str(id_op_signo), 'MAYOR')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            dot.edge(str(id_op_signo), str(id2))  
+            
+        elif t[2].upper() == '=':
+            dot.node(str(id_op_signo), 'IGUAL')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            dot.edge(str(id_op_signo), str(id2))  
+            
+        # PARA LOS OPERADORES LOGICOS
+        elif t[2].upper() == 'AND':
+            dot.node(str(id_op_signo), 'AND')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            dot.edge(str(id_op_signo), str(id2))  
+
+        elif t[2].upper() == 'OR':
+            dot.node(str(id_op_signo), 'OR')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            dot.edge(str(id_op_signo), str(id2))  
+
+    elif len(t) == 5:
+        id_op_signo = inc()
+        if t[2].upper() == '=':
+            dot.node(str(id_op_signo), 'IGUAL IGUAL')
+            dot.edge(str(id), str(id_op_signo))
+            dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            dot.edge(str(id_op_signo), str(id2)) 
+    else:
+        id_op_signo = inc()
+        dot.node(str(id_op_signo), 'NOT')
+        dot.edge(str(id), str(id_op_signo))
+        dot.edge(str(id_op_signo), str(id2)) 
 
 def p_relacional_val(t) :
     'relacional   : aritmetica'
@@ -1885,8 +2346,16 @@ def p_relacional2(t) :
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'Valor Relacional')
-
+    print("***" + str(t[1]))
     dot.edge(str(id), str(t[1]['id'])) 
+        
+def p_aritmetica1(t) :
+    '''aritmetica   : PARIZQ aritmetica PARDER
+                    | PARIZQ relacional PARDER'''
+    id = inc()
+    t[0] = {'id': id}
+    dot.node(str(id), 'Valor aritmetico' )
+    dot.edge(str(id), str(t[2]['id'])) 
 
 def p_aritmetica(t) :
     '''aritmetica   : aritmetica MAS aritmetica
@@ -1895,24 +2364,62 @@ def p_aritmetica(t) :
                     | aritmetica DIVISION aritmetica
                     | aritmetica MODULO aritmetica
                     | aritmetica EXP aritmetica
-                    | valor
-                    | PARIZQ aritmetica PARDER
-                    | PARIZQ relacional PARDER'''
+                    | valor'''
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'Valor aritmetico' )
 
     if len(t) == 2:
         dot.edge(str(id), str(t[1]['id'])) 
-        # t[0] = t[1]
     else:
-        if t[1].upper() == "(":
-            dot.edge(str(id), str(t[2]['id'])) 
-        else:
-            dot.edge(str(id), str(t[1]['id'])) 
-            dot.edge(str(id), t[2])
-            dot.edge(str(id), str(t[3]['id'])) 
+        dot.edge(str(id), str(t[1]['id'])) 
+        dot.edge(str(id), t[2])
+        dot.edge(str(id), str(t[3]['id'])) 
 
+def p_aritmetica_error(t) :
+    '''aritmetica   : error MAS aritmetica
+                    | error MENOS aritmetica
+                    | error POR aritmetica
+                    | error DIVISION aritmetica
+                    | error MODULO aritmetica
+                    | error EXP aritmetica
+                    | PARIZQ error PARDER'''
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id': id}
+    dot.node(str(id), 'Valor aritmetico' )
+
+    if len(t) == 2:
+        dot.edge(str(id), str(id2)) 
+    else:
+        dot.edge(str(id), str(id2)) 
+        dot.edge(str(id), t[2])
+        dot.edge(str(id), str(t[3]['id'])) 
+
+def p_aritmetica_error2(t) :
+    '''aritmetica   : aritmetica MAS error
+                    | aritmetica MENOS error
+                    | aritmetica POR error
+                    | aritmetica DIVISION error
+                    | aritmetica MODULO error
+                    | aritmetica EXP error'''
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id': id}
+    dot.node(str(id), 'Valor aritmetico' )
+
+    if len(t) == 2:
+        dot.edge(str(id), str(t[1]['id'])) 
+    else:
+        dot.edge(str(id), str(t[1]['id'])) 
+        dot.edge(str(id), t[2])
+        dot.edge(str(id), str(id2)) 
 
 def p_aritmetica2(t) :
     '''aritmetica   : funciones_math_esenciales
@@ -1923,8 +2430,9 @@ def p_aritmetica2(t) :
     t[0] = {'id': id}
     dot.node(str(id), 'Funciones')
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id'])) 
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
 
 def p_valor_id(t) :
     '''valor        : ID
@@ -1933,40 +2441,66 @@ def p_valor_id(t) :
     t[0] = {'id': id}
 
     if len(t) == 2:
-        dot.node(str(id), 'IDENTIFICADOR')
-        dot.edge(str(id), ' '+ str(t[1]) )
+        dot.node(str(id), 'IDENTIFICADOR\n' + str(t[1]))
+        # dot.edge(str(id), ' '+ str(t[1]) )
     else:
-        dot.node(str(id), 'FIELD')
-        dot.edge(str(id), t[1] + t[2] + t[3])
+        dot.node(str(id), 'FIELD\n' + t[1] + t[2] + t[3])
+        # dot.edge(str(id), t[1] + t[2] + t[3])
 
 def p_valor_num(t) :
     '''valor        : ENTERO
                     | DECIMAL  '''
     id = inc()
     t[0] = {'id': id}
-    dot.node(str(id), 'NUMERO')
-    dot.edge(str(id), ' '+ str(t[1]) )
+    dot.node(str(id), 'NUMERO\n'+ str(t[1]))
+    # dot.edge(str(id), ' '+ str(t[1]) )
 
 def p_valor(t) :
     '''valor        : CADENA
                     '''
     id = inc()
     t[0] = {'id': id}
-    dot.node(str(id), 'CADENA')
-    dot.edge(str(id), ' '+ str(t[1]) )
+    dot.node(str(id), 'CADENA\n'+ str(t[1]))
+    # dot.edge(str(id), ' '+ str(t[1]) )
 
 def p_valor2(t) :
     '''valor        : lista_funciones_where
                     | fun_binario_where
-                    | date_functions
-                    | state_subquery'''
+                    | state_subquery
+                    | fun_trigonometrica
+                    | fun_binario_update
+                    | fun_binario_select
+                    '''
     id = inc()
     t[0] = {'id': id}
-    dot.node(str(id), 'Funciones')
+    dot.node(str(id), 'FUNCIONES')
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
+        
+    dot.edge(str(id), str(t[1]['id'])) 
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
 
+def p_valor3(t) :
+    '''valor        : date_functions
+                    '''
+    id = inc()
+
+    # if str(t[1]['valor']) != 'cadenas':
+    #     t[0] = {'id': id, 'valor': 'date'}
+    #     dot.node(str(id), 'Funciones')
+    # else:
+    t[0] = {'id': id, 'valor': 'cadenas'}
+    dot.node(str(id), 'FUNCIONES DE FECHA')
+
+    dot.edge(str(id), str(t[1]['id'])) 
+
+def p_valor_error(t) :
+    'valor  : error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'ERROR')
 
 def p_instruccion_update_where(t) :
     '''update_table : ID SET def_update WHERE relacional'''
@@ -1980,7 +2514,7 @@ def p_instruccion_update_where(t) :
     id_id = inc()
     dot.node(str(id_id), 'WHERE')
     dot.edge(str(id), str(id_id))
-    dot.edge(str(id_id), t[1])
+    # dot.edge(str(id_id), t[1])
 
     for element in t[3]:
         dot.edge(str(id), str(element['id']))
@@ -2012,6 +2546,15 @@ def p_def_update_rec(t) :
     # dot.edge(str(id), 'IDENTIFICADOR\n' + t[3])
     # dot.edge(str(id), str(t[5]['id'])) 
 
+def p_def_update_rec_error2(t) :
+    'def_update : def_update COMA error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    dot.node(str(id), 'ERROR')
+    t[1].append({'id':id})
+    t[0] = t[1]
+
 def p_def_update(t) :
     '''def_update   : def_update_asig'''
     t[0] = [t[1]]
@@ -2020,6 +2563,12 @@ def p_def_update(t) :
     # dot.node(str(id), 'ASIGNACION')
     # dot.edge(str(id), 'IDENTIFICADOR\n' + t[1])
     # dot.edge(str(id), str(t[3]['id'])) 
+
+def p_def_update_error(t) :
+    'def_update : error'
+    id = inc()
+    dot.node(str(id), 'ERROR')
+    t[0] = [{'id':id}]
 
 def p_def_update_2(t) :
     '''def_update_asig   : ID IGUAL valor'''
@@ -2043,8 +2592,9 @@ def p_between(t) :
             dot.node(str(id), 'NOT IN')
             dot.edge(str(id), str(t[1]['id'])) 
 
-            for element in t[4]:
-                dot.edge(str(id), str(element['id']))
+            dot.edge(str(id), str(t[4]['id'])) 
+            # for element in t[4]:
+            #     dot.edge(str(id), str(element['id']))
         else:
             dot.node(str(id), 'NOT BETWEEN')
             dot.edge(str(id), str(t[1]['id'])) 
@@ -2074,18 +2624,21 @@ def p_is_distinct(t) :
 
     if t[3].upper() == 'NOT':
         dot.node(str(id), 'IS NOT DISTINCT')
-        dot.edge(str(id), t[1])
-        dot.edge(str(id), t[6] + ' [table]')
+        dot.edge(str(id), str(t[1]['id'])) 
+        dot.edge(str(id), str(t[6]['id'])) 
+        # dot.edge(str(id), t[6] + ' [table]')
 
         for element in t[7]:
             dot.edge(str(id), str(element['id']))
     else:
         dot.node(str(id), 'IS DISTINCT')
-        dot.edge(str(id), t[1])
-        dot.edge(str(id), t[5] + ' [table]')
+        dot.edge(str(id), str(t[1]['id'])) 
+        dot.edge(str(id), str(t[5]['id'])) 
+        # dot.edge(str(id), t[5] + ' [table]')
 
-        for element in t[6]:
-            dot.edge(str(id), str(element['id']))
+        # dot.edge(str(id), str(t[6]['id'])) 
+        # for element in t[6]:
+        #     dot.edge(str(id), str(element['id']))
 #=======================================================
 
 
@@ -2097,17 +2650,19 @@ def p_predicate_nulls(t) :
                                     | valor ISNULL
                                     | valor NOTNULL'''
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
-    dot.node(str(id), 'Predicates')
 
     if t[2].upper() == 'IS':
         if t[3].upper() == 'NOT':
-            dot.edge(str(id), 'IS NOT NULL')
+            dot.node(str(id), 'PREDICATES\nIS NOT NULL')
+            dot.edge(str(id), str(t[1]['id'])) 
         else:
-            dot.edge(str(id), 'IS NULL')
+            dot.edge(str(id), 'PREDICATES\nIS NULL')
+            dot.edge(str(id), str(t[1]['id'])) 
     else:
-        dot.edge(str(id), t[2])
+        dot.node(str(id), 'PREDICATES\n' + t[2])
+        dot.edge(str(id), str(t[1]['id'])) 
 #=======================================================
 
 
@@ -2118,11 +2673,12 @@ def p_matchs(t) :
                                 | aritmetica LIKE CADENA_DOBLE'''
     print("LIKE")
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
     dot.node(str(id), 'Pattern Match')
 
-    dot.edge(str(id), t[1])
+    # dot.edge(str(id), t[1])
+    dot.edge(str(id), str(t[1]['id'])) 
     dot.edge(str(id), t[3])
 # #=======================================================
 
@@ -2155,11 +2711,18 @@ def p_aliases_field(t):
     ''' state_aliases_field     : AS CADENA
                                 | AS CADENA_DOBLE
                                 | AS ID
+                                | ID
                                 '''
     print("alias de campos")
     id = inc()
+    global nodo_alias
+    nodo_alias = id
     t[0] = {'id': id}
-    dot.node(str(id), 'ALIAS\n' + t[2])
+    
+    if len(t) == 3:
+        dot.node(str(id), 'ALIAS AS\n' + t[2])
+    else:
+        dot.node(str(id), 'ALIAS\n' + t[1])
 
 def p_aliases_field2(t):
     ' state_aliases_field     : '
@@ -2257,7 +2820,7 @@ def p_lista_instrucciones_funcion_math(t):
                                         | lista_id
                                         | POR'''
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
     dot.node(str(id), t[0])
 
@@ -2268,8 +2831,9 @@ def p_instrucciones_funcion_abs_where(t) :
     t[0] = [{'id': id}]
 
     dot.node(str(id), 'ABS')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
+    # for element in t[3]:
+    #     dot.edge(str(id), str(element['id']))
 
 
 def p_instrucciones_funcion_cbrt_where(t) :
@@ -2278,8 +2842,9 @@ def p_instrucciones_funcion_cbrt_where(t) :
     t[0] = [{'id': id}]
 
     dot.node(str(id), 'CBRT')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
+    # for element in t[3]:
+    #     dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_funcion_ceil_where(t) :
     'lista_funciones_where    : CEIL PARIZQ funcion_math_parametro PARDER'
@@ -2287,8 +2852,7 @@ def p_instrucciones_funcion_ceil_where(t) :
     t[0] = [{'id': id}]
 
     dot.node(str(id), 'CEIL')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_cieling_where(t) :
     'lista_funciones_where    : CEILING PARIZQ funcion_math_parametro PARDER'
@@ -2296,8 +2860,7 @@ def p_instrucciones_funcion_cieling_where(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'CEILING')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 #ESTOS SE USAN EN EL SELECT
 def p_instrucciones_funcion_abs_select(t) :
@@ -2306,8 +2869,9 @@ def p_instrucciones_funcion_abs_select(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'ABS')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
+    # for element in t[3]:
+    #     dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_funcion_cbrt_select(t) :
     'lista_funciones    : CBRT PARIZQ funcion_math_parametro PARDER'
@@ -2315,8 +2879,7 @@ def p_instrucciones_funcion_cbrt_select(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'CBRT')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_ceil_select(t) :
     'lista_funciones    : CEIL PARIZQ funcion_math_parametro PARDER'
@@ -2324,8 +2887,7 @@ def p_instrucciones_funcion_ceil_select(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'CEIL')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_cieling_select(t) :
     'lista_funciones    : CEILING PARIZQ funcion_math_parametro PARDER'
@@ -2333,8 +2895,7 @@ def p_instrucciones_funcion_cieling_select(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'CEILING')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_degrees(t) :
     'lista_funciones    : DEGREES PARIZQ funcion_math_parametro PARDER'
@@ -2342,8 +2903,7 @@ def p_instrucciones_funcion_degrees(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'DEGREES')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_div(t) :
     'lista_funciones    : DIV PARIZQ funcion_math_parametro COMA ENTERO PARDER'
@@ -2351,8 +2911,7 @@ def p_instrucciones_funcion_div(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'DIV')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_exp(t) :
     'lista_funciones    : EXP PARIZQ funcion_math_parametro PARDER'
@@ -2360,8 +2919,7 @@ def p_instrucciones_funcion_exp(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'EXP')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_factorial(t) :
     'lista_funciones    : FACTORIAL PARIZQ ENTERO PARDER'
@@ -2377,8 +2935,7 @@ def p_instrucciones_funcion_floor(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'FLOOR')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_gcd(t) :
     'lista_funciones    : GCD PARIZQ ENTERO COMA ENTERO PARDER'
@@ -2394,8 +2951,7 @@ def p_instrucciones_funcion_ln(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'LN')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_log(t) :
     'lista_funciones    : LOG PARIZQ funcion_math_parametro PARDER'
@@ -2403,8 +2959,7 @@ def p_instrucciones_funcion_log(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'LOG')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_mod(t) :
     'lista_funciones    : MOD PARIZQ funcion_math_parametro COMA ENTERO PARDER'
@@ -2412,8 +2967,7 @@ def p_instrucciones_funcion_mod(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'MOD')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
     dot.edge(str(id), t[5])
 
@@ -2430,8 +2984,7 @@ def p_instrucciones_funcion_power(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'POWER')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
     dot.edge(str(id), t[5])
 
@@ -2441,8 +2994,7 @@ def p_instrucciones_funcion_radians(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'RADIANS')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_round(t) :
     'lista_funciones    : ROUND PARIZQ funcion_math_parametro PARDER'
@@ -2450,8 +3002,7 @@ def p_instrucciones_funcion_round(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'ROUND')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_sign(t) :
     'lista_funciones    : SIGN PARIZQ funcion_math_parametro PARDER'
@@ -2459,8 +3010,7 @@ def p_instrucciones_funcion_sign(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'SIGN')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_sqrt(t) :
     'lista_funciones    : SQRT PARIZQ funcion_math_parametro PARDER'
@@ -2468,8 +3018,7 @@ def p_instrucciones_funcion_sqrt(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'SQRT')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_width_bucket(t) :
     'lista_funciones    : WIDTH_BUCKET PARIZQ funcion_math_parametro COMA funcion_math_parametro COMA funcion_math_parametro COMA funcion_math_parametro PARDER'
@@ -2477,14 +3026,16 @@ def p_instrucciones_funcion_width_bucket(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'WIDTH_BUCKET')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
-    for element in t[5]:
-        dot.edge(str(id), str(element['id']))
-    for element in t[7]:
-        dot.edge(str(id), str(element['id']))
-    for element in t[9]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
+    dot.edge(str(id), str(t[5]['id'])) 
+    dot.edge(str(id), str(t[7]['id'])) 
+    dot.edge(str(id), str(t[9]['id'])) 
+    # for element in t[5]:
+    #     dot.edge(str(id), str(element['id']))
+    # for element in t[7]:
+    #     dot.edge(str(id), str(element['id']))
+    # for element in t[9]:
+    #     dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_funcion_trunc(t) :
     'lista_funciones    : TRUNC PARIZQ funcion_math_parametro PARDER'
@@ -2492,8 +3043,7 @@ def p_instrucciones_funcion_trunc(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'TRUNC')
-    for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[3]['id'])) 
 
 def p_instrucciones_funcion_random(t) :
     'lista_funciones    : RANDOM PARIZQ PARDER'
@@ -2506,12 +3056,27 @@ def p_instrucciones_funcion_math_parametro(t) :
     '''funcion_math_parametro   : ENTERO
                                 | ID
                                 | DECIMAL
-                                | funcion_math_parametro_negativo'''
+                                '''
     id = inc()
     t[0] = {'id': id}
 
-    dot.node(str(id), t[0])
+    dot.node(str(id), 'PARAMETRO' + str(t[0]))
     # dot.edge(str(id), t[3])
+
+def p_instrucciones_funcion_math_parametro_error(t) :
+    'funcion_math_parametro : error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'ERROR')
+    
+def p_instrucciones_funcion_math_parametro2(t) :
+    '''funcion_math_parametro   : funcion_math_parametro_negativo'''
+    id = inc()
+    t[0] = {'id': id}
+    dot.node(str(id), 'FUNCION MATEMATICA')
+    dot.edge(str(id), str(t[1]['id'])) 
 
 def p_instrucciones_funcion_math_parametro_negativo(t) :
     '''funcion_math_parametro_negativo  : MENOS DECIMAL
@@ -2519,8 +3084,7 @@ def p_instrucciones_funcion_math_parametro_negativo(t) :
     id = inc()
     t[0] = {'id': id}
 
-    dot.node(str(id), 'Numero negativo')
-    dot.edge(str(id), t[2])
+    dot.node(str(id), 'NUMERO NEGATIVO\n' + str(t[2]))
 
 #========================================================
 
@@ -2740,6 +3304,17 @@ def p_instrucciones_funcion_binary_string_length_select(t) :
     dot.node(str(id), 'LENGTH')
     dot.edge(str(id), str(t[3]['id'])) 
 
+def p_instruccciones_funcion_binary_string_length_select_error(t) :
+    'fun_binario_select : LENGTH PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'LENGTH')
+    dot.edge(str(id), str(id2))
+
 def p_instrucciones_funcion_binary_string_length_where(t) :
     'fun_binario_where    : LENGTH PARIZQ valor PARDER'
     print('Ejecuta Funcion length')
@@ -2749,6 +3324,17 @@ def p_instrucciones_funcion_binary_string_length_where(t) :
     dot.node(str(id), 'LENGTH')
     dot.edge(str(id), str(t[3]['id'])) 
 
+def p_instrucciones_funcion_binary_string_length_where_error(t) :
+    'fun_binario_where  : LENGTH PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'LENGTH')
+    dot.edge(str(id), str(id2))
+
 def p_instrucciones_funcion_binary_string_substring_select(t) :
     'fun_binario_select    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substring')
@@ -2757,8 +3343,21 @@ def p_instrucciones_funcion_binary_string_substring_select(t) :
 
     dot.node(str(id), 'SUBSTRING')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_substring_select_error(t) :
+    'fun_binario_select : SUBSTRING PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substring_insert(t) :
     'fun_binario_insert    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -2768,8 +3367,21 @@ def p_instrucciones_funcion_binary_string_substring_insert(t) :
 
     dot.node(str(id), 'SUBSTRING')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_substring_insert_error(t) :
+    'fun_binario_insert : SUBSTRING PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substring_update(t) :
     'fun_binario_update    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -2779,8 +3391,21 @@ def p_instrucciones_funcion_binary_string_substring_update(t) :
 
     dot.node(str(id), 'SUBSTRING')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_substring_update_error(t) :
+    'fun_binario_update : SUBSTRING PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substring_where(t) :
     'fun_binario_where    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -2789,9 +3414,22 @@ def p_instrucciones_funcion_binary_string_substring_where(t) :
     t[0] = {'id': id}
 
     dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    # dot.edge(str(id), str(t[3]['id'])) 
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_substring_where_error(t) :
+    'fun_binario_where  : SUBSTRING PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_trim_select(t) :
     'fun_binario_select    : TRIM PARIZQ CADENA FROM valor PARDER'
@@ -2803,6 +3441,18 @@ def p_instrucciones_funcion_binary_string_trim_select(t) :
     dot.edge(str(id), t[3])
     dot.edge(str(id), str(t[5]['id'])) 
 
+def p_instrucciones_funcion_binary_string_trim_select_error(t) :
+    'fun_binario_select : TRIM PARIZQ CADENA FROM error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'TRIM')
+    dot.edge(str(id), str(t[3]))
+    dot.edge(str(id), str(id2))
+
 def p_instrucciones_funcion_binary_string_trim_insert(t) :
     'fun_binario_insert    : TRIM PARIZQ CADENA FROM valor PARDER'
     print('Ejecuta Funcion trim')
@@ -2813,6 +3463,18 @@ def p_instrucciones_funcion_binary_string_trim_insert(t) :
     dot.edge(str(id), t[3])
     dot.edge(str(id), str(t[5]['id'])) 
 
+def p_instrucciones_funcion_binary_string_trim_insert_error(t) :
+    'fun_binario_insert : TRIM PARIZQ CADENA FROM error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'TRIM')
+    dot.edge(str(id), str(t[3]))
+    dot.edge(str(id), str(id2))
+    
 def p_instrucciones_funcion_binary_string_trim_update(t) :
     'fun_binario_update    : TRIM PARIZQ CADENA FROM valor PARDER'
     print('Ejecuta Funcion trim')
@@ -2822,6 +3484,18 @@ def p_instrucciones_funcion_binary_string_trim_update(t) :
     dot.node(str(id), 'TRIM')
     dot.edge(str(id), t[3])
     dot.edge(str(id), str(t[5]['id'])) 
+
+def p_instrucciones_funcion_binary_string_trim_update_error(t) :
+    'fun_binario_update : TRIM PARIZQ CADENA FROM error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'TRIM')
+    dot.edge(str(id), str(t[3]))
+    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_trim_where(t) :
     'fun_binario_where    : TRIM PARIZQ CADENA FROM valor PARDER'
@@ -2833,6 +3507,18 @@ def p_instrucciones_funcion_binary_string_trim_where(t) :
     dot.edge(str(id), t[3])
     dot.edge(str(id), str(t[5]['id'])) 
 
+def p_instrucciones_funcion_binary_string_trim_where_error(t) :
+    'fun_binario_where  : TRIM PARIZQ CADENA FROM error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'TRIM')
+    dot.edge(str(id), str(t[3]))
+    dot.edge(str(id), str(id2))
+
 def p_instrucciones_funcion_binary_string_md5_insert(t) :
     'fun_binario_insert : MD5 PARIZQ valor PARDER'
     print('Ejecuta Funcion md5')
@@ -2841,6 +3527,17 @@ def p_instrucciones_funcion_binary_string_md5_insert(t) :
 
     dot.node(str(id), 'MD5')
     dot.edge(str(id), str(t[3]['id'])) 
+
+def p_instrucciones_funcion_binary_string_md5_insert_error(t) :
+    'fun_binario_insert : MD5 PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'MD5')
+    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_md5_update(t) :
     'fun_binario_update : MD5 PARIZQ valor PARDER'
@@ -2851,6 +3548,17 @@ def p_instrucciones_funcion_binary_string_md5_update(t) :
     dot.node(str(id), 'MD5')
     dot.edge(str(id), str(t[3]['id'])) 
 
+def p_instrucciones_funcion_binary_string_md5_update_error(t) :
+    'fun_binario_update : MD5 PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'MD5')
+    dot.edge(str(id), str(id2))
+
 def p_instrucciones_funcion_binary_string_sha256_select(t) :
     'fun_binario_select : SHA256 PARIZQ valor PARDER'
     print('Ejecuta Funcion sha256')
@@ -2860,6 +3568,17 @@ def p_instrucciones_funcion_binary_string_sha256_select(t) :
     dot.node(str(id), 'SHA256')
     dot.edge(str(id), str(t[3]['id'])) 
 
+def p_instrucciones_funcion_binary_string_sha256_select_error(t) :
+    'fun_binario_select : SHA256 PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SHA256')
+    dot.edge(str(id), str(id2))
+
 def p_instrucciones_funcion_binary_string_substr_select(t) :
     'fun_binario_select : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substr')
@@ -2868,8 +3587,21 @@ def p_instrucciones_funcion_binary_string_substr_select(t) :
 
     dot.node(str(id), 'SUBSTRING')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_substr_select_error(t) :
+    'fun_binario_select : SUBSTR PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substr_insert(t) :
     'fun_binario_insert : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -2879,8 +3611,21 @@ def p_instrucciones_funcion_binary_string_substr_insert(t) :
 
     dot.node(str(id), 'SUBSTRING')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_substr_insert_error(t) :
+    'fun_binario_insert : SUBSTR PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substr_update(t) :
     'fun_binario_update : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -2890,8 +3635,21 @@ def p_instrucciones_funcion_binary_string_substr_update(t) :
 
     dot.node(str(id), 'SUBSTRING')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_substr_update_error(t) :
+    'fun_binario_update : SUBSTR PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substr_where(t) :
     'fun_binario_where : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -2901,8 +3659,21 @@ def p_instrucciones_funcion_binary_string_substr_where(t) :
 
     dot.node(str(id), 'SUBSTRING')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_substr_where_error(t) :
+    'fun_binario_where  : SUBSTR PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_get_byte(t) :
     'fun_binario_select : GET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO PARDER'
@@ -2912,7 +3683,20 @@ def p_instrucciones_funcion_binary_string_get_byte(t) :
 
     dot.node(str(id), 'GET_BYTE')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[8])
+    dot.edge(str(id), str(t[8]))
+
+def p_instrucciones_funcion_binary_string_get_byte_error(t) :
+    'fun_binario_select : GET_BYTE PARIZQ error DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO PARDER'
+    
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'GET_BYTE')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[8]))
 
 def p_instrucciones_funcion_binary_string_get_byte2(t) :
     'fun_binario_select : GET_BYTE PARIZQ valor COMA ENTERO PARDER'
@@ -2922,7 +3706,19 @@ def p_instrucciones_funcion_binary_string_get_byte2(t) :
 
     dot.node(str(id), 'GET_BYTE')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
+    dot.edge(str(id), str(t[5]))
+
+def p_instrucciones_funcion_binary_string_get_byte2_error(t) :
+    'fun_binario_select : GET_BYTE PARIZQ error COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'GET_BYTE')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
 
 def p_instrucciones_funcion_binary_string_set_byte(t) :
     'fun_binario_select : SET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO COMA ENTERO PARDER'
@@ -2932,8 +3728,13 @@ def p_instrucciones_funcion_binary_string_set_byte(t) :
 
     dot.node(str(id), 'SET_BYTE')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[8])
-    dot.edge(str(id), t[10])
+    dot.edge(str(id), str(t[8]))
+    dot.edge(str(id), str(t[10]))
+
+def p_instrucciones_funcion_binary_string_set_byte_error(t) :
+    'fun_binario_select : SET_BYTE PARIZQ error DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
 
 def p_instrucciones_funcion_binary_string_set_byte2(t) :
     'fun_binario_select : SET_BYTE PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -2943,8 +3744,21 @@ def p_instrucciones_funcion_binary_string_set_byte2(t) :
 
     dot.node(str(id), 'SET_BYTE')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
-    dot.edge(str(id), t[7])
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
+
+def p_instrucciones_funcion_binary_string_set_byte2_error(t) :
+    'fun_binario_select : SET_BYTE PARIZQ error COMA ENTERO COMA ENTERO PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SET_BYTE')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_Convert(t) :
     'fun_binario_select : CONVERT PARIZQ valor AS tipos PARDER'
@@ -2954,7 +3768,19 @@ def p_instrucciones_funcion_binary_string_Convert(t) :
 
     dot.node(str(id), 'CONVERT')
     dot.edge(str(id), str(t[3]['id'])) 
-    dot.edge(str(id), t[5])
+    dot.edge(str(id), str(t[5]['id'])) 
+
+def p_instrucciones_funcion_binary_string_convert_error(t) :
+    'fun_binario_select : CONVERT PARIZQ error AS tipos PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'SET_BYTE')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]['id']))
 
 def p_instrucciones_funcion_binary_string_encode(t) :
     'fun_binario_select : ENCODE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA CADENA PARDER'
@@ -2966,6 +3792,18 @@ def p_instrucciones_funcion_binary_string_encode(t) :
     dot.edge(str(id), str(t[3]['id'])) 
     dot.edge(str(id), t[8])
 
+def p_instrucciones_funcion_binary_string_encode_error(t) :
+    'fun_binario_select : ENCODE PARIZQ error DOS_PUNTOS DOS_PUNTOS BYTEA COMA CADENA PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'ENCODE')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[8]))
+
 def p_instrucciones_funcion_binary_string_encode2(t) :
     'fun_binario_select : ENCODE PARIZQ valor COMA CADENA PARDER'
     print('Ejecuta funcion encode')
@@ -2976,6 +3814,18 @@ def p_instrucciones_funcion_binary_string_encode2(t) :
     dot.edge(str(id), str(t[3]['id'])) 
     dot.edge(str(id), t[5])
 
+def p_instrucciones_funcion_binary_string_encode2_error(t) :
+    'fun_binario_select : ENCODE PARIZQ error COMA CADENA PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'ENCODE')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
+
 def p_instrucciones_funcion_binary_string_decode(t) :
     'fun_binario_select : DECODE PARIZQ valor COMA CADENA PARDER'
     print('Ejecuta funcion decode')
@@ -2985,6 +3835,18 @@ def p_instrucciones_funcion_binary_string_decode(t) :
     dot.node(str(id), 'DECODE')
     dot.edge(str(id), str(t[3]['id'])) 
     dot.edge(str(id), t[5])
+
+def p_instrucciones_funcion_binary_string_decode_error(t) :
+    'fun_binario_select : DECODE PARIZQ error COMA CADENA PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id2 = inc()
+    dot.node(str(id2), 'ERROR')
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'DECODE')
+    dot.edge(str(id), str(id2))
+    dot.edge(str(id), str(t[5]))
 
 #========================================================
 

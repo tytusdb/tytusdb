@@ -99,6 +99,8 @@ reservadas = {
     'right'         : 'RIGHT',
     'full'          : 'FULL',
     'outer'         : 'OUTER',
+    'boolean'       : 'BOOLEAN', 
+    'off'           : 'OFF', 
     'on'            : 'ON',
     'join'          : 'JOIN',
     'order'         : 'ORDER',
@@ -857,6 +859,7 @@ def p_data_type(p):
             | DATA
             | TIME
             | TIME time_zone
+            | BOOLEAN
             | INTERVAL
             | ID'''
     try:
@@ -1910,7 +1913,9 @@ def p_expresion(p):
 
 def p_booleanos(p):
     '''booleanos : TRUE
-                 | FALSE'''
+                 | FALSE
+                 | ON
+                 | OFF'''
 
 def p_now(p):
     'now : NOW PARIZQ PARDER'

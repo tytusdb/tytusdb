@@ -2,8 +2,8 @@
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
-import Storage
-import BplusTree
+from team18 import BPlusMode as Storage
+from team18 import BplusTree
 import tkinter
 from tkinter import *
 from tkinter import messagebox
@@ -112,7 +112,6 @@ def show_tables(parent_window, database):
     Button(main_tree, text='Drop', font='Helvetica 10 bold italic', bg='white', padx=20, pady=3, command=lambda:
     drop_table_window(parent_window, table_window, database, names)).place(x=620, y=15)
 
-
 def extract_table(database, table, parent_window):
     rows = Storage.extractTable(database, table)
     keys = get_keys(database, table)
@@ -138,15 +137,15 @@ def extract_table(database, table, parent_window):
     canvas_tree.image = PhotoImage(file=f'./Data/{database}/{table}/{table}.png')
     Label(frame_tree, image=canvas_tree.image).place(x=50, y=50)
 
-    canvas_buttons = Canvas(table_window, width=120, height=470)
-    canvas_buttons.place(x=25, y=75)
+    canvas_buttons = Canvas(table_window, width=120, height=433)
+    canvas_buttons.place(x=25, y=110)
     scroll_buttons = Scrollbar(main_tree, orient=VERTICAL, command=canvas_buttons.yview)
     scroll_buttons.pack(side=LEFT, fill=Y)
     canvas_buttons.configure(yscrollcommand=scroll_buttons.set)
     canvas_buttons.bind('<Configure>', lambda e: canvas_buttons.configure(scrollregion=canvas_buttons.bbox('all')))
     buttons_frame = Frame(canvas_buttons)
     canvas_buttons.create_window((15, 0), width=120, height=5000, window=buttons_frame, anchor='nw')
-    Button(table_window, text='Regresar', font='Helvetica 10 bold italic',command=lambda: close_table_window(table_window, parent_window), bg='red', width=15, pady=3).place(x=25, y=15)
+    Button(table_window, text='Regresar', font='Helvetica 10 bold italic',command=lambda: close_table_window(table_window, parent_window), bg='red', width=15, pady=1.5).place(x=25, y=15)
     yview = 5
     names = []
     for x in range(0,len(list(keys))):
@@ -172,6 +171,30 @@ def extract_table(database, table, parent_window):
     delete_window(parent_window, table_window, database, table)).place(x=380, y=60)
     Button(table_window, text='Truncate', font='Helvetica 10 bold italic', bg='white', padx=20, pady=3, command=lambda:
     truncate_table(parent_window, table_window, database, table)).place(x=480, y=60)
+    tkinter.Label(table_window, bg='yellow', text='Columnas: '+getColumn(database, table)[0], font='Helvetica 10 bold italic',width=10, padx=20, pady=3).place(x=25, y=50)
+    tkinter.Label(table_window, bg='yellow', text='PK: '+",".join(str(x) for x in getColumn(database, table)[1]), font='Helvetica 10 bold italic',width=10, padx=20, pady=3).place(x=25, y=80)
+
+
+def getColumn(database, table):
+    Storage.checkData()
+    # Get the databases tree
+    dataBaseTree = Storage.serializable.Read('./Data/', "Databases")
+    # Get the dbNode
+    databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
+    # If DB exist
+    if databaseNode:
+        tablesTree = Storage.serializable.Read(f"./Data/{database}/", database)
+        if tablesTree.search(tablesTree.getRoot(), table):
+            table_aux = Storage.serializable.Read(f'./Data/{database}/{table}/', table)
+            if len(table_aux.PKey):
+                pk = table_aux.PKey
+            else:
+                pk = ['PK Oculta']
+            return [str(table_aux.columns),pk]
+        else:
+            return ['0',['PK Oculta']]
+    else:
+        return ['0',['PK Oculta']]
 
 def get_keys(database, table):
     Storage.checkData()
@@ -239,10 +262,10 @@ def create_database_window(parent):
     create_window = Toplevel()
     create_window.geometry('400x200+200+100')
     create_window.title('Create Database')
-    tkinter.Label(create_window, text='Create Database', font='Helvetica 10 bold italic', width=20).place(x=50, y=70)
-    database_name = Entry(create_window, width=20)
-    database_name.place(x=190, y=70)
-    tkinter.Button(create_window, text='Create', font='Helvetica 10 bold italic', width=10, command=lambda: create_database(database_name.get(), database_name, create_window,parent)).place(x=260, y=65)
+    tkinter.Label(create_window, text='Create Database', font='Helvetica 10 bold italic', width=20).place(x=5, y=70)
+    database_name = Entry(create_window, width=25)
+    database_name.place(x=140, y=70)
+    tkinter.Button(create_window, text='Create', font='Helvetica 10 bold italic', width=10, command=lambda: create_database(database_name.get(), database_name, create_window,parent)).place(x=300, y=65)
 
 def create_database(database,database_name, window, parent):
    if database:
@@ -851,4 +874,6 @@ main_window.configure(background='black')
 main_canvas = Canvas(main_window, width=580, height=280).place(x=15, y=10)
 tkinter.Label(main_canvas, text='Tytus Database', font='Helvetica 30 bold italic',padx=10, pady=5).place(x=150, y=20)
 tkinter.Button(main_canvas, text='Reportes', font='Helvetica 16 bold italic', width=20, height=2, borderwidth= 5, fg='white', background='black',command=show_data_bases).place(x=175, y=150)
-main_window.mainloop()
+    
+def start():
+    main_window.mainloop()

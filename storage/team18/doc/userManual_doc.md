@@ -106,7 +106,7 @@ Se despliega una lista de botones con los nombres de las tablas creadas, el usua
 Se puede visualizar un arbol AVL, en donde cada nodo posee el nombre de cada tabla.
 
 ### Ventana Tuplas
-![](https://i.imgur.com/l9aTCLy.png)
+![](https://i.imgur.com/0rQMRNL.png)
 
 #### Parte Superior
 |Botón |Descripción|
@@ -124,6 +124,7 @@ Se puede visualizar un arbol AVL, en donde cada nodo posee el nombre de cada tab
 
 #### Parte izquierda
 Se despliega una lista de botones con las llaves primarias de los registros creadas, el usuario puede presionar sobre algun boton de la lista para visualizar toda la informacion del registro.
+Tambien se visualizan 2 labels de color amarillo, el primero indica el numero de columnas que posee la tabla y el segundo la llave primaria de la tabla.
 
 #### Parte central
 Se puede visualizar un arbol B+, en donde cada nodo posee la llave primaria de cada registro.

@@ -328,7 +328,9 @@ precedence = (
 
 def p_init(t) :
     'init            : instrucciones'
-    t[0] = t[1]['ast']
+    reporte = '<init> ::= <instrucciones>\n' +  t[1]['reporte']
+    t[0] =  {'ast': t[1]['ast'], 'reporte' : reporte } 
+
 
 def p_instrucciones_lista(t) :
     'instrucciones : instrucciones instruccion'
@@ -336,13 +338,16 @@ def p_instrucciones_lista(t) :
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     t[1]['ast'].append(t[2]['ast'])
-    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
+    reporte = '<instrucciones> ::= <instrucciones> <instruccion>\n' + t[1]['reporte'] + t[2]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruciones(t):
     'instrucciones : instruccion'''
     grafo.newnode('INSTRUCCIONES')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[0] = {'ast' : [t[1]['ast']], 'graph' : grafo.index}
+    reporte = '<instrucciones> ::= <instruccion>\n' + t[1]['reporte']
+    t[0] = {'ast' : [t[1]['ast']], 'graph' : grafo.index, 'reporte': reporte}
+
 
 
 def p_instruccion(t) :
@@ -355,31 +360,51 @@ def p_instruccion(t) :
                         | UPDATE update'''
     grafo.newnode('INSTRUCCION')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index}
+    reporte = '<instruccion> ::= '
+    if t[1].lower() == 'create':
+        reporte += 'CREATE <create>\n' + t[2]['reporte'] 
+    elif t[1].lower() == 'use':
+        reporte += 'USE <use>\n'  #falta
+    elif t[1].lower() == 'show':
+        reporte += 'SHOW <show>\n'  #falta
+    elif t[1].lower() == 'drop':
+        reporte += 'DROP <drop>\n'  #falta
+    elif t[1].lower() == 'delete':
+        reporte += 'DELETE <delete>\n'  #falta
+    elif t[1].lower() == 'insert':
+        reporte += 'INSERT <insert>\n'  #falta
+    elif t[1].lower() == 'update':
+        reporte += 'UPDATE <update>\n'  #falta
+    t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionAlter(t):
-    '''instruccion  :  ALTER alter'''
+    '''instruccion  :  ALTER alter''' #falta
+    reporte = "<instruccion> ::= ALTER <alter>"
     grafo.newnode('INSTRUCCION')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index}
+    t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
-    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
+    reporte = "<instruccion> ::= <select> PTCOMA\n"
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionQuerys(t):
     'instruccion  : querys'
-    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
+    reporte = "<instruccion> ::= <querys>\n" +t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionError(t):
     'instruccion  : error PTCOMA'
+    reporte ="<instruccion> ::= <error> PTCOMA\n"
     t[0] = {'ast' : None, 'graph' : grafo.index}
 
 def p_problem(t):
     '''problem  :  error PTCOMA'''
-    t[0] = {'ast' : "error", 'graph' : grafo.index}
+    reporte = "<problem> ::= <error> PTCOMA\n"
+    t[0] = {'ast' : "error", 'graph' : grafo.index, 'reporte': reporte}
 
-#----------------------------------------------------------------SELECT----------------------------------------------------------------
+#----------------------------------------------------------------SELECT---------------------------------
 def p_querys(t):
     '''querys : select UNION allopcional select
               | select INTERSECT  allopcional select
@@ -390,25 +415,29 @@ def p_querys(t):
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[4]['graph'])
     if t[2].lower() == 'union' : 
-        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<querys> ::= <select> UNION <allopcional> <select>"
+        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[2].lower() == 'intersect' :
-        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<querys> ::= <select> INTERSECT <allopcional> <select>"
+        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[2].lower() == 'except' : 
-        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<querys> ::= <select> EXCEPT <allopcional> <select>"
+        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_all_opcional(t):
     'allopcional  : ALL'
     grafo.newnode('ALL')
     grafo.newchildrenE(t[1].upper())
-    t[0]= {'ast' : select.Allopcional(t[1]['ast']), 'graph': grafo.index}
+    reporte =  "<allopcional> ::= ALL\n"
+    t[0]= {'ast' : select.Allopcional(t[1]['ast']), 'graph': grafo.index, 'reporte': reporte}
 
 def p_all_opcional_null(t):
     'allopcional : '
     grafo.newnode('ALL')
-    t[0] = {'ast': None, 'graph' : grafo.index}
+    reporte = "<allopcional> ::= ε\n"
+    t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
-
-
+#aqui
 def p_select(t):
     'select : SELECT parametrosselect fromopcional'
     grafo.newnode('SELECT')
@@ -505,7 +534,7 @@ def p_parametros_from(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[4]['graph'])
-    t[1]['ast'].append({'ast': select.ParametrosFromR(t[3]['ast'],t[4]['ast']) , 'graph' : grafo.index})
+    t[1]['ast'].append(select.ParametrosFromR(t[3]['ast'],t[4]['ast']))
     t[0] = {'ast': t[1]['ast'], 'graph': grafo.index }
 
 def p_parametros_from_r(t):
@@ -547,7 +576,7 @@ def p_lista_de_seleccion(t):
     grafo.newchildrenF(grafo.index,t[1]['graph'])
     grafo.newchildrenF(grafo.index,t[3]['graph'])
     grafo.newchildrenF(grafo.index,t[4]['graph'])
-    t[1]['ast'].append({'ast': select.ListaDeSeleccionadosR(t[3]['ast'],t[4]['ast']),'graph' : grafo.index})
+    t[1]['ast'].append(select.ListaDeSeleccionadosR(t[3]['ast'],t[4]['ast']))
     t[0] = {'ast': t[1]['ast'], 'graph': grafo.index }
 
 def p_lista_de_seleccion_r(t):
@@ -579,7 +608,7 @@ def p_lista_de_seleccionados(t):
         t[0] = {'ast' : select.ListaDeSeleccionadosConOperador(t[1].lower(),t[3]['ast'],t[4]) ,'graph' : grafo.index }
     elif t[1] == '*' :
         grafo.newchildrenE(t[1])
-        t[0] = {'ast' : select.ListaDeSeleccionados(t[1],True) ,'graph' : grafo.index }
+        t[0] = {'ast' : ident.Identificador(t[1],None) ,'graph' : grafo.index }
     elif t[1] == '(' :
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         t[0] = {'ast' : select.ListaDeSeleccionados(t[2]['ast'],False) ,'graph' : grafo.index }
@@ -942,6 +971,12 @@ def p_lista_de_seleccionados_id_punto_id(t):
     grafo.newchildrenE(t[3])  
     t[0] = { 'ast' : ident.Identificador(t[1], t[3]) , 'graph' :  grafo.index}
 
+def p_lista_de_seleccionados_id_punto_asterisco(t):
+    'listadeseleccionados : ID PUNTO ASTERISCO'
+    grafo.newnode('L_SELECTS')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[3])
+    t[0] = { 'ast' : ident.Identificador(t[1], t[3]) , 'graph' :  grafo.index}
 
 def p_asopcional(t): 
     'asopcional  : AS ID '
@@ -984,7 +1019,7 @@ def p_argument_noterminal(t):
     t[0] = {'ast': t[1]['ast'],'graph' : grafo.index}
 
 
-#-----------------------------------------------------CREATEEE------------------------------------------------------
+#-------------------------------------------CREATEEE----------------------------------------------------
 
 def p_create_instruccion(t) :
     '''create : TYPE createenum
@@ -997,26 +1032,35 @@ def p_create_instruccion(t) :
     if t[1].lower() == 'type' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : create.Create('type', t[2]['ast']['id'], t[2]['ast']['list']), 'graph' : grafo.index}
+        reporte = "<create> ::= TYPE <createenum>\n"  + t[2]['reporte']
+        t[0] = {'ast' : create.Create('type', t[2]['ast']['id'], t[2]['ast']['list']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'table' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : create.Create('table', t[2]['ast']['id'], t[2]['ast']), 'graph' : grafo.index}
+        reporte = "<create> ::= TABLE <createtable>\n" + t[2]['reporte']
+        t[0] = {'ast' : create.Create('table', t[2]['ast']['id'], t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'or' :
         grafo.newchildrenE('OR REPLACE DB')
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        t[0] = {'ast' : create.Create('replace', None, t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<create> ::= OR REPLACE DATABASE <createdatabase>\n" + t[4]['reporte']
+        t[0] = {'ast' : create.Create('replace', None, t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'database' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : create.Create('database', None, t[2]['ast']), 'graph' : grafo.index}
+        reporte = "<create> ::= DATABASE <createdatabase>\n" + t[2]['reporte']
+        t[0] = {'ast' : create.Create('database', None, t[2]['ast']), 'graph' : grafo.index, 'reporte' : reporte}
+    else:
+        #manejo errores aqui
+        reporte = "<create> ::= <problem>\n" #falta
+        t[0] = { 'reporte': reporte}
 
 def p_createenum(t):
     'createenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA'
     grafo.newnode('CREATEENUM')
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
-    t[0] = {'ast': { "id": t[1], "list": t[5]['ast'] }, 'graph' : grafo.index}
+    reporte = "<createenum> ::= " + t[1].upper() +" AS ENUM PARENIZQ <listacadenas> PARENDER PTCOMA\n" 
+    t[0] = {'ast': { "id": t[1], "list": t[5]['ast'] }, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listacadenas_recursiva(t):
     'listacadenas : listacadenas COMA CADENA'
@@ -1024,13 +1068,15 @@ def p_listacadenas_recursiva(t):
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[1]['ast'].append(primi.Primitive(None, t[3]))
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index}
+    reporte = "<listacadenas> ::= <listacadenas> COMA CADENA\n" + t[1]['reporte']
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listacadenas(t):
     'listacadenas : CADENA'
     grafo.newnode('LISTACADENAS')
     grafo.newchildrenE(t[1])
-    t[0] = {'ast': [primi.Primitive(None, t[1])], 'graph' : grafo.index}
+    reporte = "<listacadenas> ::= CADENA\n"
+    t[0] = {'ast': [primi.Primitive(None, t[1])], 'graph' : grafo.index, 'reporte': reporte }
 
 def p_createdatabase(t):
     '''createdatabase : IF NOT EXISTS ID databaseowner
@@ -1040,11 +1086,13 @@ def p_createdatabase(t):
         grafo.newchildrenE('IF NOT EXISTS')
         grafo.newchildrenE(t[4])
         grafo.newchildrenF(grafo.index, t[5]['graph'])
-        t[0] = {'ast': create.Exists(False, t[4], t[5]['ast']), 'graph' : grafo.index}
+        reporte = "<createdatabase> ::= IF NOT EXISTS "+ t[4].upper() +" <databaseowner>\n" + t[5]['reporte']
+        t[0] = {'ast': create.Exists(False, t[4], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE(t[1])
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast': create.Exists(False, t[1], t[2]['ast']), 'graph' : grafo.index}
+        reporte = "<createdatabase> ::= "+ t[1].upper() +" <databaseowner>\n" + t[2]['reporte']
+        t[0] = {'ast': create.Exists(False, t[1], t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_databaseowner(t):
     '''databaseowner : OWNER IGUAL tipoowner databasemode
@@ -1053,29 +1101,34 @@ def p_databaseowner(t):
     if t[2] == '=' :
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        t[0] = {'ast': create.Owner(t[3]['ast'], t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<databaseowner> ::= OWNER IGUAL <tipoowner> <databasemode>\n" + t[3]['reporte'] + t[4]['reporte']
+        t[0] = {'ast': create.Owner(t[3]['ast'], t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
-        t[0] = {'ast': create.Owner(t[2]['ast'], t[3]['ast']), 'graph' : grafo.index}
+        reporte = "<databaseowner> ::= OWNER <tipoowner> <databasemode>\n" + t[3]['reporte'] 
+        t[0] = {'ast': create.Owner(t[2]['ast'], t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tipoowner_id(t) :
     'tipoowner : ID'
     grafo.newnode('IDOWNER')
     grafo.newchildrenE(t[1])
-    t[0] = {'ast': t[1], 'graph' : grafo.index}
+    reporte = "<tipoowner> ::=" + t[1].upper() +  "\n"
+    t[0] = {'ast': t[1], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tipoowner_cadena(t) :
     'tipoowner : CADENA'
     grafo.newnode('CADENAOWNER')
     grafo.newchildrenE(t[1])
-    t[0] = {'ast': t[1], 'graph' : grafo.index}
+    reporte = "<tipoowner> ::= CADENA\n"
+    t[0] = {'ast': t[1], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_databaseownerP(t):
     'databaseowner  : databasemode'
     grafo.newnode('OWNER')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[0] = {'ast': create.Owner(None, t[1]['ast']), 'graph' : grafo.index}
+    reporte = "<databaseowner> ::= <databasemode>\n" + t[1]['reporte']
+    t[0] = {'ast': create.Owner(None, t[1]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_databasemode(t):
     '''databasemode : MODE IGUAL ENTERO PTCOMA
@@ -1084,14 +1137,17 @@ def p_databasemode(t):
     grafo.newnode('MODE')
     if t[1] == ';' :
         grafo.newchildrenE('1')
-        t[0] = {'ast': primi.Primitive(None, '1'), 'graph' : grafo.index}
+        reporte = "<databasemode> ::= PTCOMA\n"
+        t[0] = {'ast': primi.Primitive(None, '1'), 'graph' : grafo.index, 'reporte': reporte}
     else :
         if t[2] == '=' :
             grafo.newchildrenE(t[3])
-            t[0] = {'ast': primi.Primitive(None, t[3]), 'graph' : grafo.index}
+            reporte = "<databasemode> ::= MODE IGUAL ENTERO PTCOMA\n"
+            t[0] = {'ast': primi.Primitive(None, t[3]), 'graph' : grafo.index, 'reporte': reporte}
         else :
             grafo.newchildrenE(t[2])
-            t[0] = {'ast': primi.Primitive(None, t[2]), 'graph' : grafo.index}
+            reporte = "<databasemode> ::= MODE ENTERO PTCOMA\n"
+            t[0] = {'ast': primi.Primitive(None, t[2]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_createtable(t):
     'createtable : ID PARENIZQ tabledescriptions PARENDER tableherencia'
@@ -1099,7 +1155,8 @@ def p_createtable(t):
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
-    t[0] = {'ast': { "id" : t[1], "table" : create.Table(t[3]['ast'], t[5]['ast'])}, 'graph' : grafo.index}
+    reporte = "<createtable> ::= " + t[1].upper() + " PARENIZQ <tabledescriptions> PARENDER <tableherencia>\n" + t[3]['reporte'] + t[5]['reporte']
+    t[0] = {'ast': { "id" : t[1], "table" : create.Table(t[3]['ast'], t[5]['ast'])}, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableherencia(t):
     '''tableherencia : INHERITS PARENIZQ ID PARENDER PTCOMA
@@ -1107,8 +1164,11 @@ def p_tableherencia(t):
     grafo.newnode('TBHERENCIA')
     if t[1].lower() == 'inherits' :
         grafo.newchildrenE(t[3])
-        t[0] = {'ast': ident.Identificador(None, t[3]), 'graph' : grafo.index}
-    else : t[0] = {'ast': None, 'graph' : grafo.index}
+        reporte = "<tableherencia> ::= INHERITS PARENIZQ " + t[3].upper() + " PARENDER PTCOMA\n"
+        t[0] = {'ast': ident.Identificador(None, t[3]), 'graph' : grafo.index, 'reporte': reporte}
+    else :
+        reporte = "<tableherencia> ::= PTCOMA\n"
+        t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledescriptions_recursivo(t):
     'tabledescriptions : tabledescriptions COMA tabledescription'
@@ -1116,13 +1176,15 @@ def p_tabledescriptions_recursivo(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     t[1]['ast'].append(t[3]['ast'])
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index}
+    reporte = "<tabledescriptions> ::= <tabledescriptions> COMA <tabledescription>\n" + t[1]['reporte'] +  t[3]['reporte']
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledescriptions(t):
     'tabledescriptions :  tabledescription'
     grafo.newnode('DESCRIPTIONS')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[0] = {'ast': [t[1]['ast']], 'graph' : grafo.index}
+    reporte = "<tabledescriptions> ::= <tabledescription>\n" + t[1]['reporte']
+    t[0] = {'ast': [t[1]['ast']], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledescription(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''tabledescription : ID tipo tablekey
@@ -1135,31 +1197,37 @@ def p_tabledescription(t):#--------------------------------------------------CUI
     if t[1].lower() == 'primary' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        t[0] = {'ast': create.TableDescription('primary', t[4]['ast'], [], None), 'graph' : grafo.index}
+        reporte = "<tabledescription> ::= PRIMARY KEY PARENIZQ <listaids> PARENDER\n" + t[4]['reporte']
+        t[0] = {'ast': create.TableDescription('primary', t[4]['ast'], [], None), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'foreign' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[4]['graph'])
         grafo.newchildrenE(t[7])
         grafo.newchildrenF(grafo.index, t[9]['graph'])
-        t[0] = {'ast': create.TableDescription('foreign', t[7], t[4]['ast'], t[9]['ast']), 'graph' : grafo.index}
+        reporte = "<tabledescription> ::= FOREIGN KEY PARENIZQ <listaids> PARENDER REFERENCES "+ t[7].upper() + "PARENIZQ <listaids> PARENDER\n" + t[4]['reporte'] + t[9]['reporte']
+        t[0] = {'ast': create.TableDescription('foreign', t[7], t[4]['ast'], t[9]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'constraint' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenE(t[2])
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        t[0] = {'ast': create.TableDescription('constraint', t[2], t[4]['ast'], None), 'graph' : grafo.index}
+        reporte = "<tabledescription> ::= CONSTRAINT " + t[2].upper() +" CHECK <finalconstraintcheck>\n"+ t[4]['reporte']
+        t[0] = {'ast': create.TableDescription('constraint', t[2], t[4]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'check' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast': create.TableDescription('check', None, t[2]['ast'], None), 'graph' : grafo.index}
+        reporte = "<tabledescription> ::= CHECK <finalconstraintcheck>\n"+ t[2]['reporte']
+        t[0] = {'ast': create.TableDescription('check', None, t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'unique' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast': create.TableDescription('unique', None, t[2]['ast'], None), 'graph' : grafo.index}
+        reporte = "<tabledescription> ::= UNIQUE <finalunique>\n" +  t[2]['reporte']
+        t[0] = {'ast': create.TableDescription('unique', None, t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE(t[1])
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
-        t[0] = {'ast': create.TableDescription(t[1], t[2]['ast'], t[3]['ast'], None), 'graph' : grafo.index}
+        reporte = "<tabledescription> ::= " + t[1].upper() + " <tipo> <tablekey>\n" + t[2]['reporte'] + t[3]['reporte']
+        t[0] = {'ast': create.TableDescription(t[1], t[2]['ast'], t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tablekey(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''tablekey : PRIMARY KEY tabledefault
@@ -1168,24 +1236,28 @@ def p_tablekey(t):#--------------------------------------------------CUIDAAAAAAA
     grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'primary' :
         grafo.newchildrenF(grafo.index, t[3]['graph'])
-        t[0] = {'ast': create.TableDescription('primary', None, t[3]['ast'], None), 'graph' : grafo.index}
+        reporte = "<tablekey> ::= PRIMARY KEY <tabledefault>\n" + t[3]['reporte']
+        t[0] = {'ast': create.TableDescription('primary', None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'references' :
         grafo.newchildrenF(grafo.index, t[4]['graph'])
         grafo.newchildrenF(grafo.index, t[6]['graph'])
-        t[0] = {'ast': create.TableDescription('references', t[2], t[4]['ast'], t[6]['ast']), 'graph' : grafo.index}
+        reporte = "<tablekey> ::= REFERENCES ID PARENIZQ <columnreferences> PARENDER <tabledefault>\n" + t[4]['reporte'] + t[6]['reporte'] 
+        t[0] = {'ast': create.TableDescription('references', t[2], t[4]['ast'], t[6]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tablekeyP(t):
     'tablekey   : REFERENCES ID tabledefault'
     grafo.newnode('TBKEY')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    t[0] = {'ast': create.TableDescription('references', t[2], t[3]['ast'], None), 'graph' : grafo.index}
+    reporte = "<tablekey> ::= REFERENCES " + t[2] + " <tabledefault>\n" + t[3]['reporte']
+    t[0] = {'ast': create.TableDescription('references', t[2], t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tablekeyP2(t):
     'tablekey   : tabledefault'
     grafo.newnode('TBKEY')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index}
+    reporte = "<tablekey> ::= <tabledefault>\n" + t[1]['reporte']
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_columnreferences_r(t):
     'columnreferences : columnreferences COMA ID'
@@ -1193,13 +1265,15 @@ def p_columnreferences_r(t):
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[1]['ast'].append(ident.Identificador(None, t[3]))
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index}
+    reporte = "<columnreferences> ::= <columnreferences> COMA"+ t[3] + "\n" + t[1]['reporte']
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_columnreferences_r2(t):
     'columnreferences : ID'
     grafo.newnode('COLREFS')
     grafo.newchildrenE(t[1])
-    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index}
+    reporte = "<columnreferences> ::= " + t[1] + "\n"
+    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledefault(t):
     '''tabledefault : DEFAULT value tablenull'''
@@ -1207,13 +1281,15 @@ def p_tabledefault(t):
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    t[0] = {'ast': create.TableDescription('default', t[2]['ast'], t[3]['ast'], True), 'graph' : grafo.index}
+    reporte = "<tabledefault> ::= DEFAULT <value> <tablenull>\n" #FALTA VALUE
+    t[0] = {'ast': create.TableDescription('default', t[2]['ast'], t[3]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledefaultP(t):
     'tabledefault   : tablenull'
     grafo.newnode('TABLEDEFAULT')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[0] = {'ast': create.TableDescription('default', None, t[1]['ast'], False), 'graph' : grafo.index}
+    reporte ="<tabledefault> ::= <tablenull>\n" + t[1]['reporte']
+    t[0] = {'ast': create.TableDescription('default', None, t[1]['ast'], False), 'graph' : grafo.index, 'reporte':reporte}
 
 def p_tablenull(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''tablenull : NOT NULL tableconstraintunique
@@ -1222,17 +1298,20 @@ def p_tablenull(t):#--------------------------------------------------CUIDAAAAAA
     if t[1].lower() == 'not' :
         grafo.newchildrenE('NOT NULL')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
-        t[0] = {'ast': create.TableDescription('null', True, t[3]['ast'], None), 'graph' : grafo.index}
+        reporte = "<tablenull> ::= NOT NULL <tableconstraintunique>\n" + t[3]['reporte']
+        t[0] = {'ast': create.TableDescription('null', True, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE('NULL')
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast': create.TableDescription('null', False, t[2]['ast'], True), 'graph' : grafo.index}
+        reporte = "<tablenull> ::= NULL <tableconstraintunique>\n" + t[2]['reporte']
+        t[0] = {'ast': create.TableDescription('null', False, t[2]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tablenullP(t):
     'tablenull  : tableconstraintunique'
     grafo.newnode('TABLENULL')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[0] = {'ast': create.TableDescription('null', False, t[1]['ast'], False), 'graph' : grafo.index}
+    reporte = "<tablenull> ::= <tableconstraintunique>\n" + t[1]['reporte']
+    t[0] = {'ast': create.TableDescription('null', False, t[1]['ast'], False), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableconstraintunique(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''tableconstraintunique : CONSTRAINT ID UNIQUE tableconstraintcheck
@@ -1243,17 +1322,20 @@ def p_tableconstraintunique(t):#------------------------------------------------
         grafo.newchildrenE(t[1])
         grafo.newchildrenE('UNIQUE')
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        t[0] = {'ast': create.TableDescription('unique', t[2], t[4]['ast'], True), 'graph' : grafo.index}
+        reporte = "<tableconstraintunique> ::= CONSTRAINT " + t[2] + " UNIQUE <tableconstraintcheck>\n" + t[4]['reporte']
+        t[0] = {'ast': create.TableDescription('unique', t[2], t[4]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE('UNIQUE')
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast': create.TableDescription('unique', None, t[2]['ast'], True), 'graph' : grafo.index}
+        reporte = "<tableconstraintunique> ::= UNIQUE <tableconstraintcheck>\n" + t[2]['reporte']
+        t[0] = {'ast': create.TableDescription('unique', None, t[2]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableconstraintuniqueP(t):
     'tableconstraintunique  : tableconstraintcheck'
     grafo.newnode('TABLECONSUNIQ')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[0] = {'ast': create.TableDescription('unique', None, t[1]['ast'], False), 'graph' : grafo.index}
+    reporte = "<tableconstraintunique> ::= <tableconstraintcheck>\n" + t[1]['reporte']
+    t[0] = {'ast': create.TableDescription('unique', None, t[1]['ast'], False), 'graph' : grafo.index, 'reporte' : reporte}
 
 def p_tableconstraintcheck(t):
     '''tableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ condiciones PARENDER
@@ -1264,41 +1346,48 @@ def p_tableconstraintcheck(t):
         grafo.newchildrenE(t[2])
         grafo.newchildrenE(t[3].upper())
         grafo.newchildrenF(grafo.index, t[5]['graph'])
-        t[0] = {'ast': create.TableDescription('check', t[2], t[5]['ast'], None), 'graph' : grafo.index}
+        reporte = "<tableconstraintcheck> ::= CONSTRAINT ID CHECK PARENIZQ <condiciones> PARENDER\n" # +t[5]['reporte']
+        t[0] = {'ast': create.TableDescription('check', t[2], t[5]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenF(grafo.index, t[3]['graph'])
-        t[0] = {'ast': create.TableDescription('check', None, t[3]['ast'], None), 'graph' : grafo.index}
+        reporte = "<tableconstraintcheck> ::= CHECK PARENIZQ <condiciones> PARENDER\n" # + t[3]['reporte']
+        t[0] = {'ast': create.TableDescription('check', None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableconstraintcheckE(t):
     'tableconstraintcheck : '
     grafo.newnode('TABLECONSCHECK')
-    t[0] = {'ast': None, 'graph' : grafo.index}
+    reporte = "<tableconstraintcheck> ::= ε\n"
+    t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_finalconstraintcheck(t):
     'finalconstraintcheck : PARENIZQ condiciones PARENDER'
     grafo.newnode('CONSCHECK')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    t[0] = {'ast': t[2]['ast'], 'graph' : grafo.index}
+    reporte = "<finalconstraintcheck> ::= PARENIZQ <condiciones> PARENDER\n" # + t[2]['reporte']
+    t[0] = {'ast': t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_finalunique(t):
     'finalunique : PARENIZQ listaids PARENDER'
     grafo.newnode('FUNIQUE')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    t[0] = {'ast': t[2]['ast'], 'graph' : grafo.index}
+    reporte = "<finalunique> ::= PARENIZQ <listaids> PARENDER"
+    t[0] = {'ast': t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaids_r(t):
     'listaids : listaids COMA ID'
     grafo.newnode('LISTAIDS')
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listaids> ::= <listaids> COMA " + t[3].upper() +"\n" + t[1]['reporte']
     t[1]['ast'].append(ident.Identificador(None, t[3]))
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index}
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaids(t):
     'listaids : ID'
     grafo.newnode('LISTAIDS')
     grafo.newchildrenE(t[1])
-    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index}
+    reporte = "<listaids> ::= " + t[1].upper() + "\n"
+    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaidcts_r(t):
     'listaidcts : listaidcts COMA ID PUNTO ID'
@@ -1352,69 +1441,87 @@ def p_tipo(t):
     grafo.newnode('TIPO')
     if t[1].lower() == 'smallint' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= SMALLINT\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'integer' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= INTEGER\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'bigint' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= BIGINT\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'decimal' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= DECIMAL\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'numeric' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::=  NUMERIC\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'real' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= REAL\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'double' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= DOUBLE PRECION\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'money' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= MONEY\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'character' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : type.Types(t[1].lower(), t[2]['ast']), 'graph' : grafo.index}
+        reporte = "<tipo> ::= CHARACTER <tipochar>\n" + t[2].reporte
+        t[0] = {'ast' : type.Types(t[1].lower(), t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'varchar' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenE(t[3])
-        t[0] = {'ast' : type.Types(t[1].lower(), t[3]), 'graph' : grafo.index}
+        reporte = "<tipo> ::= VARCHAR PARENIZQ ENTERO PARENDER\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), t[3]), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'char' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenE(t[3])
-        t[0] = {'ast' : type.Types(t[1].lower(), t[3]), 'graph' : grafo.index}
+        reporte = "<tipo> ::= CHAR PARENIZQ ENTERO PARENDER\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), t[3]), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'text' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= TEXT\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'timestamp' :
         grafo.newchildrenE(t[1].upper())
         if t[2]['ast'] != None :
             grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : type.Types(t[1].lower(), t[2]['ast']), 'graph' : grafo.index}
+        reporte = "<tipo> ::= TIMESTAMP <precision>\n" + t[2]['reporte']
+        t[0] = {'ast' : type.Types(t[1].lower(), t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'time' :
         grafo.newchildrenE(t[1].upper())
         if t[2]['ast'] != None :
             grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : type.Types(t[1].lower(), t[2]['ast']), 'graph' : grafo.index}
+        reporte = "<tipo> ::= TIME <precision>\n" + t[2]['reporte']
+        t[0] = {'ast' : type.Types(t[1].lower(), t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'date' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte = "<tipo> ::= DATE\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'interval' :
         grafo.newchildrenE(t[1].upper())
         if t[2]['ast'] != None :
             grafo.newchildrenF(grafo.index, t[2]['graph'])
         if t[3]['ast'] != None :
             grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<tipo> ::= INTERVAL <fields> <precision>\n" + t[2]['reporte'] + t[3]['reporte']
         t[0] = {'ast' : type.Types(t[2]['ast'], t[3]['ast']), 'graph' : grafo.index}
     elif t[1].lower() == 'boleano' :
         grafo.newchildrenE(t[1].upper())
-        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index}
+        reporte ="<tipo> ::= BOLEANO\n"
+        t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE(t[1])
-        t[0] = {'ast' : type.Types('id', t[1]), 'graph' : grafo.index}
+        reporte = "<tipo> ::= " + t[1] + "\n"
+        t[0] = {'ast' : type.Types('id', t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_tipochar(t):
@@ -1423,21 +1530,25 @@ def p_tipochar(t):
     grafo.newnode('TIPOCHAR')
     if t[1].lower() == 'varying' :
         grafo.newchildrenE(t[1].upper)
-        grafo.newchildrenE(t[3])
-        t[0] = {'ast' : type.Char(t[3], True), 'graph' : grafo.index}
+        grafo.newchildrenE(t[3]) 
+        reporte = "<tipochar> ::= VARYING PARENIZQ ENTERO PARENDER\n"
+        t[0] = {'ast' : type.Char(t[3], True), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE(t[2])
-        t[0] = {'ast' : type.Char(t[2], False), 'graph' : grafo.index}
+        reporte = "<tipochar> ::= PARENIZQ ENTERO PARENDER\n"
+        t[0] = {'ast' : type.Char(t[2], False), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_precision(t):
     '''precision : PARENIZQ ENTERO PARENDER'''
     grafo.newnode('PRECISION')
     grafo.newchildrenE(t[2])
-    t[0] = {'ast' : t[2], 'graph' : grafo.index}
+    reporte = "<precision> ::= PARENIZQ ENTERO PARENDER\n"
+    t[0] = {'ast' : t[2], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_precisionE(t):
     'precision  :'
-    t[0] = {'ast' : None, 'graph' : grafo.index}
+    reporte = "<precision> := ε\n"
+    t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_fields(t):
     '''fields : MONTH
@@ -1447,11 +1558,21 @@ def p_fields(t):
               | YEAR'''
     grafo.newnode('FIELDS')
     grafo.newchildrenE(t[1].upper())
-    if t[1].lower() == 'month' : t[0] = {'ast' : 'month', 'graph' : grafo.index}
-    elif t[1].lower() == 'hour' : t[0] = {'ast' : 'hour', 'graph' : grafo.index}
-    elif t[1].lower() == 'minute' : t[0] = {'ast' : 'minute', 'graph' : grafo.index}
-    elif t[1].lower() == 'second' : t[0] = {'ast' : 'second', 'graph' : grafo.index}
-    elif t[1].lower() == 'year' : t[0] = {'ast' : 'year', 'graph' : grafo.index}
+    if t[1].lower() == 'month' :
+        reporte = "<fields> ::= MONTH\n"
+        t[0] = {'ast' : 'month', 'graph' : grafo.index, 'reporte': reporte}
+    elif t[1].lower() == 'hour' :
+        reporte = "<fields> ::= HOUR\n"
+        t[0] = {'ast' : 'hour', 'graph' : grafo.index, 'reporte':reporte}
+    elif t[1].lower() == 'minute' : 
+        reporte = "<fields> ::= MINUTE\n"
+        t[0] = {'ast' : 'minute', 'graph' : grafo.index}
+    elif t[1].lower() == 'second' :
+        reporte = "<fields> ::= SECOND\n"
+        t[0] = {'ast' : 'second', 'graph' : grafo.index}
+    elif t[1].lower() == 'year' :
+        reporte = "<fields> ::= YEAR\n"
+        t[0] = {'ast' : 'year', 'graph' : grafo.index}
 
 def p_fieldsE(t):
     'fields :'
@@ -1578,7 +1699,7 @@ def p_altertables(t):
     t[0] = {'ast' : [t[1]['ast']], 'graph' : grafo.index}
 
 def p_altertable(t):
-    '''altertable   : ADD alteradd
+    '''altertable   : ADD alteraddc
                     | ALTER COLUMN ID SET opcionesalterset
                     | DROP tipodedrop
                     | RENAME COLUMN ID TO ID'''
@@ -1590,14 +1711,22 @@ def p_altertable(t):
     elif t[1].lower() == 'alter' :
         grafo.newchildrenE(t[3])
         grafo.newchildrenF(grafo.index, t[5]['graph'])
-        t[0] = {'ast' : alter.AlterTableAlter(ident.Identificador(None, t[3]), t[5]['ast']), 'graph' : grafo.index}
+        t[0] = {'ast' : alter.AlterTableAlterNull(t[3], t[5]['ast']), 'graph' : grafo.index}
     elif t[1].lower() == 'drop' :
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index}
     elif t[1].lower() == 'rename' :
         grafo.newchildrenE(t[5])
         grafo.newchildrenE(t[3])
-        t[0] = {'ast' : alter.AlterTableRename(ident.Identificador(None, t[3]), ident.Identificador(None, t[3])), 'graph' : grafo.index}
+        t[0] = {'ast' : alter.AlterTableRenameCol(t[3], t[5]), 'graph' : grafo.index}
+
+def p_altertableRT(t):
+    '''altertable   : RENAME ID TO ID'''
+    grafo.newnode('altertable')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[4])
+    grafo.newchildrenE(t[2])
+    t[0] = {'ast' : alter.AlterTableRenameTB(t[2], t[4]), 'graph' : grafo.index}
 
 def p_altertableP(t):
     'altertable : ALTER COLUMN ID TYPE tipo'
@@ -1605,31 +1734,53 @@ def p_altertableP(t):
     grafo.newchildrenE(t[1])
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
-    t[0] = {'ast' : alter.AlterTableAlter(ident.Identificador(None, t[3]), t[5]['ast']), 'graph' : grafo.index}
+    t[0] = {'ast' : alter.AlterTableAlterTipo(t[3], t[5]['ast']), 'graph' : grafo.index}
 
 #agregar tipo, condiciones, listaids opcionsalter
-def p_alteradd(t):
-    '''alteradd     :  COLUMN ID tipo
-                    |  CHECK PARENIZQ condiciones PARENDER
-                    |  CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER
-                    |  FOREIGN KEY PARENIZQ listaids PARENDER REFERENCES PARENIZQ listaidcts PARENDER'''
-    grafo.newnode('ALTERADD')
-    grafo.newchildrenE(t[1])
-    if t[1].lower() == 'column' :
+def p_addConstraintU(t):
+    '''alteraddc    : CONSTRAINT ID UNIQUE PARENIZQ listaidcts PARENDER
+                    | COLUMN ID tipo'''
+    grafo.newnode('ALTERADDC')
+    grafo.newchildrenE(t[1].upper())
+    if t[1].lower() == 'constraint' :
+        grafo.newchildrenE(t[2])
+        grafo.newchildrenE(t[3].upper())
+        grafo.newchildrenE(t[5])
+        t[0] = {'ast' : alter.AlterTableAddUnique(t[2], t[5]['ast']), 'graph' : grafo.index}
+    elif t[1].lower() == 'column' :
         grafo.newchildrenE(t[2])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         t[0] = {'ast' : alter.AlterTableAddCol(t[2], t[3]['ast']), 'graph' : grafo.index}
-    elif t[1].lower() == 'check' :
+
+def p_addConstraint(t):
+    '''alteraddc    : CONSTRAINT ID alteradd'''
+    grafo.newnode('ALTERADDC')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenE(t[2].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    t[0] = {'ast' : alter.AlteraddConstraint(t[2], t[3]['ast']), 'graph' : grafo.index}
+
+def p_addConstraintS(t):
+    '''alteraddc    : alteradd'''
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
+
+def p_alteradd(t):
+    '''alteradd     : CHECK PARENIZQ condiciones PARENDER
+                    | FOREIGN KEY PARENIZQ listaids PARENDER REFERENCES ID PARENIZQ listaids PARENDER
+                    | PRIMARY KEY PARENIZQ listaids PARENDER'''
+    grafo.newnode('ALTERADD')
+    grafo.newchildrenE(t[1].upper())
+    if t[1].lower() == 'check' :
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         t[0] = {'ast' : alter.AlterTableAddChe(t[3]['ast']), 'graph' : grafo.index}
-    elif t[1].lower() == 'constrain' :
-        grafo.newchildrenE(t[5])
-        grafo.newchildrenE(t[2])
-        t[0] = {'ast' : alter.AlterTableAddCon(ident.Identificador(None, t[2]), ident.Identificador(None, t[5])), 'graph' : grafo.index}
     elif t[1].lower() == 'foreign' :
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        grafo.newchildrenF(grafo.index, t[8]['graph'])
-        t[0] = {'ast' : alter.AlterTableAddFor(t[4]['ast'], t[8]['ast']), 'graph' : grafo.index}
+        grafo.newchildrenE(t[7].upper())
+        grafo.newchildrenF(grafo.index, t[9]['graph'])
+        t[0] = {'ast' : alter.AlterTableAddFor(t[4]['ast'], t[7], t[9]['ast']), 'graph' : grafo.index}
+    elif t[1].lower() == 'primary' :
+        grafo.newchildrenF(grafo.index, t[4]['graph'])
+        t[0] = {'ast' : alter.AlterTableAddPK(t[4]['ast']), 'graph' : grafo.index}
 
 def p_opcionesalterset(t):
     '''opcionesalterset :   NOT NULL
@@ -1643,14 +1794,23 @@ def p_opcionesalterset(t):
 
 def p_tipodedrop(t):
     '''tipodedrop   : COLUMN ID
-                    | CONSTRAINT  ID'''
+                    | CONSTRAINT ID
+                    | PRIMARY KEY PARENIZQ listaids PARENDER
+                    | FOREIGN KEY PARENIZQ listaids PARENDER'''
     grafo.newnode('TIPODEDROP')
-    grafo.newchildrenE(t[2])
     grafo.newchildrenE(t[1])
     if t[1].lower() == 'column' :
-        t[0] = {'ast' : alter.AlterTableDrop(ident.Identificador(None, t[2]), False), 'graph' : grafo.index}
-    else :
-        t[0] = {'ast' : alter.AlterTableDrop(ident.Identificador(None, t[2]), True), 'graph' : grafo.index}
+        grafo.newchildrenE(t[2])
+        t[0] = {'ast' : alter.AlterTableDropCol(t[2]), 'graph' : grafo.index}
+    elif t[1].lower() == 'constraint' :
+        grafo.newchildrenE(t[2])
+        t[0] = {'ast' : alter.AlterTableDropCons(t[2]), 'graph' : grafo.index}
+    elif t[1].lower() == 'primary':
+        grafo.newchildrenF(grafo.index, t[4]['graph'])
+        t[0] = {'ast' : alter.AlterTableDropPK(t[4]['ast']), 'graph' : grafo.index}
+    elif t[1].lower() == 'foreign':
+        grafo.newchildrenF(grafo.index, t[4]['graph'])
+        t[0] = {'ast' : alter.AlterTableDropFK(t[4]['ast']), 'graph' : grafo.index}
 
 #------------------------------------------------------------DELETE----------------------------------------------------
 def p_instrucciones_delete(t) :
@@ -1661,7 +1821,7 @@ def p_instrucciones_delete(t) :
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     t[0] = {'ast' : delete.Delete(ident.Identificador(t[2], None), t[3]['ast']), 'graph' : grafo.index}
 
-#-------------------------------------------------------INSERT-------------------------------------------
+#-------------------------------------------------------INSERT------------------------------------------
 def p_instrucciones_insert(t):
     '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA
                     | error PTCOMA'''
@@ -1707,6 +1867,44 @@ def p_valueb(t):
     grafo.newnode('VALUE')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[0] = {'ast' : t[1], 'graph' : grafo.index}
+
+def p_value_md(t):
+    'value : MD5 PARENIZQ argument PARENDER'
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    t[0] =   {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index}
+
+def p_value_now(t):
+    '''value   : NOW PARENIZQ PARENDER'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1])
+    t[0] = {'ast' :select.FuncionFecha(t[1].lower(),None,None), 'graph' : grafo.index}
+
+def p_value_trim(t):
+    '''value   : TRIM PARENIZQ argument PARENDER'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    t[0] = {'ast' :select.FuncionFecha(t[1].lower(), None, None), 'graph' : grafo.index}
+
+def p_value_substring(t):
+    '''value   :  SUBSTRING PARENIZQ argument COMA ENTERO COMA ENTERO PARENDER'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenE(t[5])
+    grafo.newchildrenE(t[7])
+    t[0] =  {'ast' :select.FuncionBinaria( t[1].lower() , t[3]['ast'] , primi.Primitive('integer',t[5]) , primi.Primitive('integer',t[7]) ), 'graph' : grafo.index}
+
+def p_value_substr(t):
+    '''value   :  SUBSTR PARENIZQ argument COMA ENTERO COMA ENTERO PARENDER'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenE(t[5])
+    grafo.newchildrenE(t[7])
+    t[0] =  {'ast' :select.FuncionBinaria( t[1].lower() , t[3]['ast'] , primi.Primitive('integer',t[5]), primi.Primitive('integer',t[7]) ), 'graph' : grafo.index}
 
 #-------------------------------------------------------UPDATE-------------------------------------------
 def p_instrucciones_update(t):
