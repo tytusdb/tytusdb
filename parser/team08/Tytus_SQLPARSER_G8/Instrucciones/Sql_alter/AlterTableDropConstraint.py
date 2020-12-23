@@ -10,6 +10,36 @@ class AlterTableDropConstraint(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+        if arbol.bdUsar != None:
+            objetoTabla = arbol.devolviendoTablaDeBase(self.tabla)
+            if objetoTabla != 0:
+                existe = None
+                constraintBorrar = None
+                for columnas in objetoTabla.lista_de_campos:
+                    if columnas.constraint != None:
+                        for const in columnas.constraint:
+                            if const.id == self.col:
+                                existe = columnas
+                                constraintBorrar = const
+                if existe != None:
+                    existe.constraint.remove(constraintBorrar)
+                    arbol.consola.append("Consulta devuelta correctamente.")  
+                else:
+                    error = Excepcion('42P01',"Semántico","No existe la columna «"+self.col+"» en la llave",self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+            else:
+                error = Excepcion('42P01',"Semántico","No existe la relación "+self.tabla,self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
+        else:
+            error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+
+        '''
         resultado = 0
         #resultado = alterDropColumn(arbol.getBaseDatos(),self.tabla,c.id)
         if resultado == 1:
@@ -38,3 +68,4 @@ class AlterTableDropConstraint(Instruccion):
             arbol.consola.append(error.toString())
             return error
         arbol.consola.append("Consulta devuelta correctamente.")
+        '''
