@@ -323,6 +323,9 @@ class SSelectCols(Sentencia):
         self.distinct = distinct
         self.cols = cols
 
+    def __str__(self):
+        return "{ SSelectCols | distinct: '%s', cols: '%s' }" % (str(self.distinct), str(self.cols))
+
 
 class SSelectFunc(Sentencia):
     def __init__(self, id):
@@ -333,6 +336,9 @@ class SColumnasAsSelect(Sentencia):
     def __init__(self, id, cols=[]):
         self.id = id
         self.cols = cols
+
+    def __str__(self):
+        return "{ SColumnasAsSelect | id: '%s', cols: '%s' }" % (str(self.id), str(self.cols))
 
 
 class SColumnasSubstr(Sentencia):
@@ -493,6 +499,9 @@ class SWhere(Sentencia):
     def __init__(self, clist=[]):
         self.clist = clist
 
+    def __str__(self):
+        return "{ SWhere | clist: '%s' }" % str(self.clist)
+
 
 class SGroupBy(Sentencia):
     def __init__(self, slist=[]):
@@ -521,6 +530,10 @@ class SAlias(Sentencia):
     def __init__(self, id, alias):
         self.id = id
         self.alias = alias
+
+    def __str__(self):
+
+        return "{ SAlias | id: '%s', alias: '%s' }" % ( str(self.id), str(self.alias) )
 
 
 class SWhereCond1(Sentencia):

@@ -12,6 +12,8 @@ tablaSimbolos = TS.Entorno(None)
 from tkinter import messagebox
 import pickle
 
+from graphviz import Digraph
+
 #################################### CLASE TextLineNumbers ####################################
 class TextLineNumbers(tk.Canvas):
     def __init__(self, *args, **kwargs):
@@ -169,8 +171,9 @@ if __name__ == "__main__":
 
         g.errores_lexicos.clear()
         g.errores_sintacticos.clear()
+        
         principal.consola = ""
-
+        principal.listaSemanticos.clear()
         
         entrada = my_editor.text.get('1.0', END)
 
@@ -182,8 +185,10 @@ if __name__ == "__main__":
                 imprimir_consola("") 
                 #raiz = graficando.analizador(entrada)
                 data=principal.interpretar_sentencias(arbol,tablaSimbolos)
+                
                 #tablaSimbolos.mostrar()
                 imprimir_consola(data)
+                #append_consola(tablaSimbolos.mostrar_tabla())
                 #graficando.GraficarAST(raiz)
                 #graficando.ReporteGramatical()
             else:
@@ -239,8 +244,43 @@ if __name__ == "__main__":
    
     def __funcion_AST():
             os.startfile('arbol.jpg') 
- 
 
+
+    def __funcion_TS():
+
+        ast = Digraph('AST', filename='c:/source/ast.gv', node_attr={'color': 'black', 'fillcolor': 'white','style': 'filled', 'shape': 'record'})
+        ast.attr(rankdir='TB',ordering='in')
+        ast.edge_attr.update(arrowhead='none')
+        
+        clus = 'cluster_'
+        c_clus = 0
+        con = 0
+        tag = "t"
+        for i in tablaSimbolos.tabla:
+
+            base = tablaSimbolos.tabla[i]
+
+            cl = clus + str(c_clus)
+            with ast.subgraph(name=cl) as c:
+                c.attr(label= "NOMBRE BD: '%s'\\nOWNER: '%s'\\nMODE: '%s'" % (base.nombre,base.owner,base.mode))
+                c_clus += 1
+                
+                for j in base.tablas:
+
+                    tabla = base.tablas[j]
+                    label = ""
+
+                    for k in  tabla.columnas:
+
+                        column = tabla.columnas[k]
+                        
+                        label += "| COLUMNA: " + str(column.nombre) + " | { Tipo | " + str(column.tipo) + " } | { Llave Primaria | " + str(column.primary_key) +" } | { LLave Foránea | " + str(column.foreign_key) + " } | { Unique | " + str(column.unique) + " } | { Default | " + str(column.default) + " } | { Null | " + str(column.null) + " } | { Check |  " + str(column.check) + "  } | { Index | " + str(column.index) + " } "
+                    label2 = label
+                    t = tag + str(con)
+                    c.node(t, "{ NOMBRE TABLA: " + str(tabla.nombre) + "\\nPADRE: " + str(tabla.padre) + " " + label2 +" }")
+                    con += 1
+
+        ast.render('tablaS', format='png', view=True)
 
     def __funcion_on_closing():
         if messagebox.askokcancel("Salir", "¿Realmente desea finalizar el programa?"):
@@ -310,6 +350,7 @@ if __name__ == "__main__":
     #SUB MENÚS PARA EL MENÚ ANALIZAR
     menu_reporte.add_command(label="AST", command=__funcion_AST)
     menu_reporte.add_command(label="FormatoBNF", command=__funcion_FormatoBnf)
+    menu_reporte.add_command(label="Tabla de Símbolos", command=__funcion_TS)
     
     menu_reporte.add_separator()
     menu_reporte.add_command(label="Errores Léxicos", command=__funcion_errores_lexicos)
