@@ -3,10 +3,14 @@ import sys
 sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
 sys.path.append('../G26/Expresiones')
+sys.path.append('../G26/Librerias/storageManager')
 
+from jsonMode import *
 from instruccion import *
 from Error import *
 from Primitivo import *
+from datetime import *
+from TablaSimbolos import *
 
 import math
 import random
@@ -14,21 +18,257 @@ import hashlib
 
 class Select(Instruccion):
 
+    global columnasAceptadas
+
     def __init__(self, parametros, fromopcional):
         self.parametros = parametros
         self.fromopcional = fromopcional
 
     def execute(self, data):
-        if self.parametros != None:
-            return self.parametros.execute(data)
-        if self.fromopcional != None:
-            #self.fromopcional.execute(data)
-            ''
-        return self
+        fromData = self.fromopcional
+        tablas = fromData.execute(data).execute(data)
+        where = tablas.whereopcional
+        directorioTablas = {}
+        tablasFromTemporales = []
+        columnasFromTemporales = {}
+        for tablasSeleccionadas in tablas.parametros:
+            if isinstance(tablasSeleccionadas.parametros.operador, Select):
+                tablas = tablasSeleccionadas.parametros.operador.execute(data)
+                if isinstance(tablas, Error):
+                    return tablas
+                if tablasSeleccionadas.asop == None:
+                    return Error('Sintactico', 'Se esperaba As o un Alias.', 0, 0)
+                else:
+                    tablasFromTemporales.append(tablas)
+                    contador = 0
+                    nombre = ''
+                    while True:
+                        try:
+                            if contador == 0:
+                                nombre = tablasSeleccionadas.asop.upper()
+                            else:
+                                nombre = tablasSeleccionadas.asop.upper() + str(contador)
+                            prueba = data.tablaSimbolos[data.databaseSeleccionada]['tablas'][nombre]
+                            contador = contador + 1
+                        except:
+                            data.tablaSimbolos[data.databaseSeleccionada]['tablas'][nombre] = {'columns': []}
+                            break
+
+                    directorioNombres = []
+                    for keysTemporales in tablas.keys():
+                        eliminarPunto = False
+                        nombreNuevo = ''
+                        for letras in keysTemporales:
+                            if eliminarPunto:
+                                nombreNuevo = nombreNuevo + letras
+
+                            if letras == '.':
+                                eliminarPunto = True
+
+                        #nombreNuevo = tablasSeleccionadas.asop.upper() + '.' + nombreNuevo
+                        directorioNombres.append({'viejo': keysTemporales, 'nuevo': nombreNuevo})
+
+                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][nombre]['columns'].append(TableData(nombreNuevo, tablas[keysTemporales]['tipo'], None, None, None, None, None, None, None))
+
+                    for nombres in directorioNombres:
+                        tablas[nombres['nuevo']] = tablas.pop(nombres['viejo'])
+
+                    juntarValores = []
+                    inicio = 0
+                    for keys in tablas.keys():
+                        contador = 0
+                        for val in tablas[keys]['columnas']:
+                            if inicio == 0:
+                                juntarValores.append(val)
+                            else:
+                                juntarValores[contador].append(val[0])
+                            contador = contador + 1
+                        inicio = inicio + 1
+
+                    columnasFromTemporales[nombre] = juntarValores
+
+                    directorioTablas[nombre] = {'fila' : None, 'alias': tablasSeleccionadas.asop.upper(), 'temporal': True}
+            elif tablasSeleccionadas.asop == None:
+                directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': '', 'temporal': False}
+            else:
+                directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': tablasSeleccionadas.asop.upper(), 'temporal': False}
+
+        try:
+            for keys in directorioTablas.keys():
+                data.tablaSimbolos[data.databaseSeleccionada]['tablas'][keys]
+        except:
+            for borrarTemporales in columnasFromTemporales.keys():
+                del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
+            return Error('Semántico', 'Error(42P01): undefined_table.', 0, 0)
+
+        valores = []
+        temporales = []
+        columnasAceptadas = {}
+        for keys in directorioTablas.keys():
+            valores.append(keys)
+            columnasAceptadas[keys] = []
+            temporales.append(directorioTablas[keys]['temporal'])
+
+        if where == None:
+            val = self.funcionPosibilidades(data, valores, [], [], directorioTablas, True, columnasAceptadas, temporales, columnasFromTemporales)
+        else:
+            val = self.funcionPosibilidades(data, valores, [], [], directorioTablas, False, columnasAceptadas, temporales, columnasFromTemporales)
+
+        if isinstance(val, Error):
+            for borrarTemporales in columnasFromTemporales.keys():
+                del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
+            return val
+
+        select = self.parametros
+
+        columnasImprimir = select.listadeseleccion
+
+        diccionarioColumnasAceptadas = {}
+        for columnasSeleccionadas in columnasImprimir:
+            nombreColumna = columnasSeleccionadas.listaseleccionados
+            try:
+                retorno = nombreColumna.obtenerSeleccionado(data, directorioTablas, columnasAceptadas, diccionarioColumnasAceptadas)
+                if isinstance(retorno, Error):
+                    for borrarTemporales in columnasFromTemporales.keys():
+                        del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
+                    return retorno
+            except:
+                cant = 0
+                for keys in columnasAceptadas:
+                    cant = len(columnasAceptadas[keys])
+                    break
+
+                nuevaColumna = []
+                i = 0
+                contadorNombre = 0
+                nombreTabla = ''
+                while True:
+                    try:
+                        if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionmatematica
+                        else: nombreTabla = nombreColumna.tipofuncionmatematica + str(contadorNombre)
+                    except:
+                        try:
+                            if nombreColumna.operador == 'md5':
+                                return Error('Sintactico', 'El md5 solamente puede venir en el insert y update', 0, 0)
+                            if contadorNombre == 0: nombreTabla = nombreColumna.operador
+                            else: nombreTabla = nombreColumna.operador + str(contadorNombre)
+                        except:
+                            if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
+                            else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+
+
+                    try:
+                        a = diccionarioColumnasAceptadas[nombreTabla]
+                        contadorNombre = contadorNombre + 1
+                    except:
+                        diccionarioColumnasAceptadas[nombreTabla] = {'columnas': [], 'tipo': ''}
+                        break;
+
+                while True:
+                    if i == cant:
+                        break;
+                    for keys in columnasAceptadas:
+                        directorioTablas[keys]['fila'] = columnasAceptadas[keys][i]
+                    comprobar = nombreColumna.execute(data, directorioTablas)
+
+                    if isinstance(comprobar, Error):
+                        return comprobar
+
+                    diccionarioColumnasAceptadas[nombreTabla]['columnas'].append([comprobar.val])
+                    diccionarioColumnasAceptadas[nombreTabla]['tipo'] = comprobar.type
+                    i = i + 1
+
+        if select.distinct:
+            juntarValores = []
+            inicio = 0
+
+            for keys in diccionarioColumnasAceptadas.keys():
+                contador = 0
+                for val in diccionarioColumnasAceptadas[keys]['columnas']:
+                    if inicio == 0:
+                        juntarValores.append(val)
+                    else:
+                        juntarValores[contador].append(val[0])
+                    contador = contador + 1
+                inicio = inicio + 1
+
+            contador = 0
+            nuevoArregloDistinct = []
+
+            routes = juntarValores
+            dups = set()
+
+            for route in routes:
+               if tuple(route) in dups:
+                   nuevoArregloDistinct.append(route)
+                   juntarValores.pop(contador)
+               else:
+                   dups.add(tuple(route))
+            contador = contador + 1
+
+            print(nuevoArregloDistinct)
+            contador = 0
+            for tablas in diccionarioColumnasAceptadas.keys():
+                datosTablas = diccionarioColumnasAceptadas[tablas]
+                columnaSelect = []
+                for filaActual in nuevoArregloDistinct:
+                    columnaSelect.append([filaActual[contador]])
+                diccionarioColumnasAceptadas[tablas]['columnas'] = columnaSelect
+                contador = contador + 1
+
+        for borrarTemporales in columnasFromTemporales.keys():
+            del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
+
+        return diccionarioColumnasAceptadas
 
     def __repr__(self):
         return str(self.__dict__)
 
+
+    def funcionPosibilidades(self, data, nombres, columna, nombreAux, ordenTablas, noWhere, columnasAceptadas, temporales, columnasFromTemporales):
+        if len(nombres) == 0:
+            if noWhere:
+                val = 0
+                for fila in columna:
+                    columnasAceptadas[nombreAux[val]].append(fila)
+                    val = val + 1
+            else:
+                val = 0
+                for fila in columna:
+                    ordenTablas[nombreAux[val]]['fila'] = fila
+                    val = val + 1
+
+                result = self.fromopcional.whereopcional.operador.execute(data, ordenTablas)
+                if isinstance(result, Error):
+                    return result
+
+                if result:
+                    val = 0
+                    for fila in columna:
+                        columnasAceptadas[nombreAux[val]].append(fila)
+                        val = val + 1
+            return 'fin'
+        nombre = nombres[0]
+        nombres.remove(nombre)
+        temporal = temporales[0]
+        temporales.pop(0)
+        if temporal:
+            filas = columnasFromTemporales[nombre]
+        else:
+            filas = extractTable(data.databaseSeleccionada, nombre)
+
+        for fila in filas:
+            s = fila
+            columna.append(fila)
+            nombreAux.append(nombre)
+            comp = self.funcionPosibilidades(data, nombres, columna, nombreAux, ordenTablas, noWhere, columnasAceptadas, temporales, columnasFromTemporales)
+            if isinstance(comp, Error):
+                return comp
+            columna.remove(s)
+            nombreAux.remove(nombre)
+        nombres.append(nombre)
+        temporales.append(temporal)
+        return 'hola'
 
 class Casos(Instruccion):
 
@@ -42,10 +282,9 @@ class Casos(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class FromOpcional(Instruccion):
 
-    def __init__(self, parametros,whereogroup):
+    def __init__(self,parametros, whereogroup):
         self.parametros = parametros
         self.whereopcional = whereogroup
 
@@ -57,7 +296,7 @@ class FromOpcional(Instruccion):
 
 class ParametrosFromR(Instruccion):
 
-    def __init__(self, parametros,asop):
+    def __init__(self, parametros, asop):
         self.parametros = parametros
         self.asop = asop
 
@@ -66,7 +305,6 @@ class ParametrosFromR(Instruccion):
 
     def __repr__(self):
         return str(self.__dict__)
-
 
 class ListaDeSeleccionadosConOperador(Instruccion):
     #puede venir grastest con arg1
@@ -83,7 +321,6 @@ class ListaDeSeleccionadosConOperador(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class ListaDeSeleccionados(Instruccion):
     #puede venir asterisco(*) entonces tipo == True
     #puede venir un select completo -> Tipo == False
@@ -96,8 +333,6 @@ class ListaDeSeleccionados(Instruccion):
 
     def __repr__(self):
         return str(self.__dict__)
-
-
 
 class ElseOpcional(Instruccion):
 
@@ -122,7 +357,7 @@ class QuerysSelect(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__) 
+        return str(self.__dict__)
 
 class ParametrosFrom(Instruccion):
     #true select
@@ -135,7 +370,7 @@ class ParametrosFrom(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__)       
+        return str(self.__dict__)
 
 class WhereOpcional(Instruccion):
 
@@ -147,7 +382,7 @@ class WhereOpcional(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__)       
+        return str(self.__dict__)
 
 class GroupByOpcional(Instruccion):
 
@@ -159,7 +394,7 @@ class GroupByOpcional(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__)  
+        return str(self.__dict__)
 
 class HavingOpcional(Instruccion):
 
@@ -170,9 +405,7 @@ class HavingOpcional(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__)      
-
-
+        return str(self.__dict__)
 
 class Allopcional(Instruccion):
 
@@ -212,8 +445,6 @@ class ListaDeSeleccionadosR(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
-
 class ParametrosSelect(Instruccion):
     #true si hay distinct
     #false no hay distinct
@@ -252,7 +483,6 @@ class TipoRound(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class FuncionBinaria(Instruccion):
     #convert tiene un tipo no un argumento
     def __init__(self, operador, arg1,arg2,arg3):
@@ -261,38 +491,86 @@ class FuncionBinaria(Instruccion):
         self.arg2 = arg2
         self.arg3 = arg3
 
-    def execute(self,data):
-        tipo = str(self.tipofuncionTrigonometrica)
+    def execute(self, data, directorioTablas):
+        tipo = str(self.operador)
         if tipo == 'length':
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'string' or argumento.type == 'ID' :
                 return Primitive('integer',len(str(argumento.val)))
             else:
                 error = Error('Semántico', 'Error de tipos en LENGTH, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val), 0, 0)
-                return error 
+                return error
         elif tipo == 'substring' or tipo == 'substr':
-            argumento = self.arg1.execute()
-            argumento1 = self.arg2.execute()
-            argumento2 = self.arg3.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            try:
+                argumento1 = self.arg2.execute()
+            except:
+                argumento1 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento1, Error):
+                return argumento1
+
+            try:
+                argumento2 = self.arg3.execute()
+            except:
+                argumento2 = self.arg3.execute(data, valoresTabla)
+
+            if isinstance(argumento2, Error):
+                return argumento2
+
             if argumento.type == 'string' or argumento.type == 'ID' :
                 return Primitive('integer',str(argumento.val)[argumento1.val:argumento2.val])
             else:
                 error = Error('Semántico', 'Error de tipos en LENGTH, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
-                return error 
+                return error
         elif tipo == 'md5':
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'string' or argumento.type == 'ID' :
-                return Primitive('string',hashlib.md5(str(argumento.val)).hexdigest())
+                textoaconvertir = str(argumento.val)
+                md5_object = hashlib.md5(textoaconvertir.encode())
+                md5_hash = md5_object.hexdigest()
+                return Primitive('string',md5_hash)
             else:
                 error = Error('Semántico', 'Error de tipos en MD5, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
-                return error 
+                return error
         elif tipo == 'sha256':
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'string' or argumento.type == 'ID' :
-                return Primitive('string',hashlib.sha256(str(argumento.val)).hexdigest())
+                textoaconvertir = str(argumento.val)
+                sha256_object = hashlib.sha256(textoaconvertir.encode())
+                sha256_hash = sha256_object.hexdigest()
+                return Primitive('string',sha256_hash)
             else:
                 error = Error('Semántico', 'Error de tipos en MD5, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
-                return error  
+                return error
         return self
 
     def __repr__(self):
@@ -305,92 +583,147 @@ class FucionTrigonometrica(Instruccion):
         self.arg1 = arg1
         self.arg2 = arg2
 
-    def execute(self,data):
+    def execute(self, data, valoresTabla):
         tipo = str(self.tipofuncionTrigonometrica)
         if tipo == 'acos' :
             'devuelve el coseno inverso'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try :
-                    result = Primitive('float',math.acos(argumento.val))
-                    return result
+                    return Primitive('float',math.acos(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ACOS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error   
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ACOS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'acosd' :
             'devuelve el coseno inverso en grados '
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.degrees(math.acos(argumento.val)))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ACOSD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ACOSD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'asin' :
             'devuelve el seno inverso'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.asin(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ASIN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ASIN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'asind' :
             'devuelve el seno inverso en grados'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.degrees(math.asin(argumento.val)))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ASIND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ASIND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'atan' :
             'devuelve el tangente inverso'
-            argumento =  self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
-                try: 
+                try:
                     return Primitive('float',math.atan(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ATAN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ATAN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'atand' :
             'devuelve el tangente inverso en grados'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.degrees(math.atan(argumento.val)))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ACOS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ATAND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'atan2' :
             'devuelve el tangente inverso de una div'
-            argumento =  self.arg1.execute()
-            argumento2 = self.arg2.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
-                if argumento2.type == 'integer' or argumento2.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento2, Error):
+                return argumento2
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
+                if argumento2.type == 'integer' or argumento2.type == 'float' :
                     try:
                         return Primitive('float',math.atan2(argumento.val,argumento2.val))
                     except :
                         error = Error('Semántico', 'Error de DOMINIO en ATAN2, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                        return error 
+                        return error
                 else :
                     error = Error('Semántico', 'Error de tipos en ATAN2, solo se aceptan valores numéricos, se obtuvo: '+argumento2.val, 0, 0)
                     return error
@@ -399,15 +732,29 @@ class FucionTrigonometrica(Instruccion):
                 return error
         elif tipo == 'atan2d' :
             'devuelve el tangente inverso de una div en grados'
-            argumento =  self.arg1.execute()
-            argumento2 = self.arg2.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
-                if argumento2.type == 'integer' or argumento2.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento2, Error):
+                return argumento2
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
+                if argumento2.type == 'integer' or argumento2.type == 'float' :
                     try:
                         return Primitive('float',math.degrees(math.atan2(argumento.val,argumento2.val)))
                     except :
                         error = Error('Semántico', 'Error de DOMINIO en ATAN2D, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                        return error 
+                        return error
                 else :
                     error = Error('Semántico', 'Error de tipos en ATAN2D, solo se aceptan valores numéricos, se obtuvo: '+argumento2.val, 0, 0)
                     return error
@@ -416,174 +763,272 @@ class FucionTrigonometrica(Instruccion):
                 return error
         elif tipo == 'cos' :
             'devuelve el coseno'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.cos(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en COS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en COS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'cosd' :
             'devuelve el coseno en grados'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.degrees(math.cos(argumento.val)))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en COSD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en COSD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'cot' :
             'devuelve el cotangente'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.cos(argumento.val)/math.sin(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en COT, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en COT, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'cotd' :
             'devuelve el cotangente en grados'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.degrees(math.cos(argumento.val)/math.sin(argumento.val)))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en COTD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en COTD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'sin' :
             'devuelve el sin'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.sin(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en SIN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en SIN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'sind' :
             'devuelve el coseno en grados'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.degrees(math.sin(argumento.val)))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en SIND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en SIND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'tan' :
             'devuelve el tan'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.tan(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en TAN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en TAN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'tand' :
             'devuelve el tan en grados'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.degrees(math.tan(argumento.val)))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en TAND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en TAND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'sinh' :
             'devuelve el sinh'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.sinh(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en SINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en SINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'cosh' :
             'devuelve el cosh'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.cosh(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en COSH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en COSH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'tanh' :
             'devuelve el tanh'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.tanh(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en TANH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en SINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'asinh' :
             'devuelve el asinh'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.asinh(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ASINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ASINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'acosh' :
             'devuelve el asinh'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.asinh(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ACOSH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ACOSH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'atanh' :
             'devuelve el atanh'
-            argumento =  self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 try:
                     return Primitive('float',math.atanh(argumento.val))
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ATANH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
-                    return error 
+                    return error
             else :
                 error = Error('Semántico', 'Error de tipos en ATANH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
-        
-        return self
+
+        #return self
 
 
     def __repr__(self):
@@ -596,7 +1041,7 @@ class OperadoresSelect(Instruccion):
         # | or dos args
         # # <- xor
         # ~ not
-        # << sl(bitwise shift left) 
+        # << sl(bitwise shift left)
         # >> sr(bitwise shift right)
     def __init__(self, tipoOperador, arg1,arg2):
         self.tipoOperador = tipoOperador
@@ -609,35 +1054,48 @@ class OperadoresSelect(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class FuncionMatematica(Instruccion):
 
-    def __init__(self, tipofuncionmatematica, arg1,arg2,arg3,arg4):
+    def __init__(self, tipofuncionmatematica, arg1, arg2, arg3, arg4):
         self.tipofuncionmatematica = tipofuncionmatematica
         self.arg1 = arg1
         self.arg2 = arg2
         self.arg3 = arg3
         self.arg4 = arg4
 
-    def execute(self, data):
+    def execute(self, data, valoresTabla):
         tipo = str(self.tipofuncionmatematica)
-        if tipo == 'abs' : 
+        if tipo == 'abs' :
             'valor absoluto - FALTA IDS'
-            argumento = self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 return Primitive('float', math.fabs(argumento.val))
             else :
                 error = Error('Semántico', 'Error de tipos en ABS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
-        elif tipo == 'cbrt' : 
+        elif tipo == 'cbrt' :
             'raíz cúbica - solo numeros positivos'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0 :
                     reto = argumento.val**(1/3)
                     if isinstance(reto, int) :
                         return Primitive('integer', reto)
-                    
+
                     return Primitive('float', reto)
                 else :
                     error = Error('Semántico', 'Error de tipos en CBRT, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
@@ -647,9 +1105,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'ceil' : 
+        elif tipo == 'ceil' :
             'redondear - solo numeros positivos'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0 :
                     reto = math.ceil(argumento.val)
@@ -662,9 +1127,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'ceiling' : 
+        elif tipo == 'ceiling' :
             'redondear - solo numeros positivos'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0 :
                     reto = math.ceil(argumento.val)
@@ -677,9 +1149,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'degrees' : 
+        elif tipo == 'degrees' :
             'radianes a grados - '
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 reto = math.degrees(argumento.val)
                 return Primitive('float', reto)
@@ -688,10 +1167,24 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'div' : 
+        elif tipo == 'div' :
             'cociente - '
-            argumento = self.arg1.execute()
-            argumento2 = self.arg2.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento2, Error):
+                return argumento2
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento2.type == 'integer' or argumento2.type == 'float' :
                     reto = math.trunc(argumento.val / argumento2.val)
@@ -704,9 +1197,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'exp' : 
+        elif tipo == 'exp' :
             'e^ argumento - '
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 reto = math.exp(argumento.val)
                 return Primitive('float', reto)
@@ -715,9 +1215,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'factorial' : 
+        elif tipo == 'factorial' :
             'x! - solo numeros positivos'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' :
                 if argumento.val > 0 :
                     reto = math.factorial(argumento.val)
@@ -728,11 +1235,18 @@ class FuncionMatematica(Instruccion):
             else :
                 error = Error('Semántico', 'Error de tipos en FACTORIAL, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
-        
 
-        elif tipo == 'floor' : 
+
+        elif tipo == 'floor' :
             'redondear al menor -'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 reto = math.trunc(argumento.val)
                 return Primitive('integer', reto)
@@ -741,10 +1255,24 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'gcd' : 
+        elif tipo == 'gcd' :
             'MCD - '
-            argumento = self.arg1.execute()
-            argumento2 = self.arg2.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            try:
+                argument2 = self.arg2.execute()
+            except:
+                argument2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argument2, Error):
+                return argumento2
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento2.type == 'integer' or argumento2.type == 'float' :
                     if argumento.val > 0 and argumento2.val > 0 :
@@ -761,9 +1289,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'ln' : 
+        elif tipo == 'ln' :
             'Ln -'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0 :
                     reto = math.log(argumento.val)
@@ -776,9 +1311,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'log' : 
+        elif tipo == 'log' :
             'Log10 -'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0 :
                     reto = math.log10(argumento.val)
@@ -791,10 +1333,24 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'mod' : 
+        elif tipo == 'mod' :
             'modulo - '
-            argumento = self.arg1.execute()
-            argumento2 = self.arg2.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento2, Error):
+                return argumento2
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento2.type == 'integer' or argumento.type == 'float' :
                     reto = math.remainder(argumento.val, argumento2.val)
@@ -807,15 +1363,29 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'pi' : 
+        elif tipo == 'pi' :
             'PI'
             return math.pi
 
 
-        elif tipo == 'power' : 
+        elif tipo == 'power' :
             'power - solo positivos'
-            argumento = self.arg1.execute()
-            argumento2 = self.arg2.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento2, Error):
+                return argumento2
+
             if argumento.type == 'integer' or 'float' :
                 if argumento2.type == 'integer' or 'float' :
                     if argumento.val > 0 and argumento2.val > 0 :
@@ -833,9 +1403,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'radians' : 
+        elif tipo == 'radians' :
             'grados a radianes - '
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0:
                     reto = math.radians(argumento.val)
@@ -843,15 +1420,22 @@ class FuncionMatematica(Instruccion):
                 else :
                     error = Error('Semántico', 'Error de tipos en RADIANS, solo se aceptan valores numéricos positivo', 0, 0)
                     return error
-                
+
             else :
                 error = Error('Semántico', 'Error de tipos en RADIANS, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
-        elif tipo == 'round' : 
+        elif tipo == 'round' :
             'round - redondear n decimales'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if self.arg2 == None :
                     'numero de redondeo no específicado'
@@ -859,7 +1443,15 @@ class FuncionMatematica(Instruccion):
                     return Primitive('integer', reto)
                 else:
                     'numero de redondeo específicado'
-                    argumento2 = self.arg2.execute()
+
+                    try:
+                        argumento2 = self.arg2.execute()
+                    except:
+                        argumento2 = self.arg2.execute(data, valoresTabla)
+
+                    if isinstance(argumento2, Error):
+                        return argumento2
+
                     if argumento2.type == 'integer' or rgumento2.type == 'float' :
                         if argumento2.val > 0 :
                             reto = round(argumento.val, argumento2.val)
@@ -876,23 +1468,37 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'sign' : 
+        elif tipo == 'sign' :
             'devuelve signo - 1 o -1'
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0:
                     return Primitive('integer', 1)
                 else :
                     return Primitive('integer', -1)
-                
+
             else :
                 error = Error('Semántico', 'Error de tipos en SIGN, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
-        elif tipo == 'sqrt' : 
+        elif tipo == 'sqrt' :
             'grados a radianes - '
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0:
                     reto = math.sqrt(argumento.val)
@@ -900,18 +1506,46 @@ class FuncionMatematica(Instruccion):
                 else :
                     error = Error('Semántico', 'Error de tipos en SQRT, solo se aceptan valores numéricos positivo', 0, 0)
                     return error
-                
+
             else :
                 error = Error('Semántico', 'Error de tipos en SQRT, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
-        elif tipo == 'width_bucket' : 
+        elif tipo == 'width_bucket' :
             'histograma - argumento1 puede ser una columna'
-            argumento = self.arg1.execute()
-            argumento2 = self.arg2.execute()
-            argumento3 = self.arg3.execute()
-            argumento4 = self.arg4.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento2, Error):
+                return argumento2
+
+            try:
+                argumento3 = self.arg3.execute()
+            except:
+                argumento3 = self.arg3.execute(data, valoresTabla)
+
+            if isinstance(argumento3, Error):
+                return argumento3
+
+            try:
+                argumento4 = self.arg4.execute()
+            except:
+                argumento4 = self.arg4.execute(data, valoresTabla)
+
+            if isinstance(argumento4, Error):
+                return argumento4
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento2.type == 'integer' or argumento2.type == 'float' :
                     if argumento3.type == 'integer' or argumento3.type == 'float' :
@@ -932,9 +1566,16 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'trunc' : 
+        elif tipo == 'trunc' :
             'grados a radianes - '
-            argumento = self.arg1.execute()
+            try:
+                argumento = self.arg1.execute()
+            except:
+                argumento = self.arg1.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+
             if argumento.type == 'integer' or argumento.type == 'float' :
                 if argumento.val > 0:
                     reto = math.trunc(argumento.val)
@@ -942,7 +1583,7 @@ class FuncionMatematica(Instruccion):
                 else :
                     error = Error('Semántico', 'Error de tipos en trunc, solo se aceptan valores numéricos positivo', 0, 0)
                     return error
-                
+
             else :
                 error = Error('Semántico', 'Error de tipos en trunc, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
@@ -952,15 +1593,15 @@ class FuncionMatematica(Instruccion):
             return Primitive('integer', random.randint(0,1))
 
 
-        elif tipo == 'setseed' : 
+        elif tipo == 'setseed' :
             ''
-        elif tipo == 'scale' : 
+        elif tipo == 'scale' :
             ''
 
         return self
 
     def widthbucket(self, nnum, nmin, nmax, nbuckets):
-        if nnum < nmin : 
+        if nnum < nmin :
             return 0
         elif nnum > nmax :
             return nbuckets+1
@@ -984,7 +1625,6 @@ class FuncionMatematica(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class FuncionFecha(Instruccion):
     #2arg:
     #extract(parte y tamestap) y datepart ( argument y argument)
@@ -992,9 +1632,95 @@ class FuncionFecha(Instruccion):
         self.tipofuncionfehca = tipofuncionfehca
         self.arg1 = arg1
         self.arg2 = arg2
-    
-    def execute(self,data):
+
+    def execute(self, data, valoresTabla):
+        tipo = self.tipofuncionfehca
+        if tipo == 'extract':
+            extraccion = self.arg1
+            dextraccion = self.arg2.execute()
+            fechacopleta = ''
+            hora = ''
+            años = ''
+            try:
+                fechacopleta = datetime.strptime(dextraccion.val,'%Y-%m-%d %H:%M:%S')
+            except:
+                try:
+                    hora = datetime.strptime(dextraccion.val,'%H:%M:%S')
+                except:
+                    try :
+                         años = datetime.strptime(dextraccion.val,'%Y-%m-%d')
+                    except :
+                        error = Error('Semántico', 'Error de tipos en DATE, solo se aceptan valores de fechas, se obtuvo: '+str(dextraccion.val), 0, 0)
+                        return error
+
+            if fechacopleta != '' :
+                if extraccion == 'YEAR':
+                    return Primitive('integer',fechacopleta.year)
+                elif extraccion == 'MONTH':
+                    return Primitive('integer',fechacopleta.month)
+                elif extraccion == 'DAY':
+                    return Primitive('integer',fechacopleta.day)
+                elif extraccion == 'HOUR':
+                    return Primitive('integer',fechacopleta.hour)
+                elif extraccion == 'MINUTE':
+                    return Primitive('integer',fechacopleta.minute)
+                elif extraccion == 'SECOND':
+                    return Primitive('integer',fechacopleta.second)
+            elif hora != '' :
+                if extraccion == 'HOUR':
+                    return Primitive('integer',fechacopleta.hour)
+                elif extraccion == 'MINUTE':
+                    return Primitive('integer',fechacopleta.minute)
+                elif extraccion == 'SECOND':
+                    return Primitive('integer',fechacopleta.second)
+                else :
+                    error = Error('Semántico', 'Error de tipos en DATE, se quiere extraer una parte de la fecha no ingresada', 0, 0)
+                    return error
+            elif hora != '' :
+                if extraccion == 'YEAR':
+                    return Primitive('integer',fechacopleta.year)
+                elif extraccion == 'MONTH':
+                    return Primitive('integer',fechacopleta.month)
+                elif extraccion == 'DAY':
+                    return Primitive('integer',fechacopleta.day)
+                else :
+                    error = Error('Semántico', 'Error de tipos en DATE, se quiere extraer una parte de la fecha no fue ingresada', 0, 0)
+                    return error
+        elif tipo == 'now' :
+            return Primitive('string', str(datetime.now())[:19])
+        elif tipo == 'current_date' :
+            return Primitive('string', str(datetime.now().date()))
+        elif tipo == 'current_time' :
+            return Primitive('string', str(datetime.now().time())[:8])
+        elif tipo == 'timestamp' :
+            dextraccion = self.arg2.execute()
+            fechaval = datetime.strptime(dextraccion.val,'%Y-%m-%d %H:%M:%S')
+            return Primitive('string',str(fechaval))
+        elif tipo == 'date_part' :
+            extraccion = self.arg1.execute()
+            dextraccion = self.arg2.execute()
+            dic ={}
+            valor = ''
+            descrip = ''
+            for dex in dextraccion.val:
+                if dex.isnumeric():
+                    valor += dex
+                elif (dex == ' ' and descrip != ''):
+                    dic[descrip] = valor
+                    valor = ''
+                    descrip = ''
+                elif dex.isalpha() :
+                    descrip +=dex
+            dic[descrip] = valor
+            #print(dic)
+            for key in dic:
+                if str(key).find(extraccion.val) != -1 :
+                     return Primitive('integer',dic[key])
+            error = Error('Semántico', 'Error de valores en DATEPART, se solicita un valo no encontrado en la cadena  ', 0, 0)
+            return error
+
         return self
+
 
     def __repr__(self):
         return str(self.__dict__)

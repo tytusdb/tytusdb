@@ -12,5 +12,5 @@
 /View/data
 /*.dat
 /*.pyc
-
+/DataAccessLayer/imaging
 

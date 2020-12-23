@@ -7,33 +7,59 @@ import os
 import json
 
 
+
 class Select(Node.Nodo):
     def __init__(self, *args):
         if args[0] == '*':
             self.arguments = None
-            self.tables = [args[1]]
-            self.line = args[3]
-            self.column = args[4]
+            self.tables = args[1]
+            self.line = args[5]
+            self.column = args[6]
             self.conditions = args[2]
+            self.grp = args[3]
+            self.ord = args[4]
             self.result_query = PrettyTable()
         else:
             self.arguments = args[0]
             self.tables = args[1]
-            self.line = args[3]
-            self.column = args[4]
+            self.line = args[5]
+            self.column = args[6]
             self.conditions = args[2]
+            self.grp = args[3]
+            self.ord = args[4]
             self.result_query = PrettyTable()
 
     def ejecutar(self, TS, Errores):
         columnas = []
-        result = 'Query from tables: '
-        for columna in self.arguments:
-            columna.ejecutar(TS, Errores)
-            columnas.append(columna.val)
-        self.result_query.field_names = columnas
-        for obj in self.tables:
-            result += str(obj)
+        tuplas = []
         db = os.environ['DB']
+        result = 'Query from tables: '
+        contador = 0
+        if self.arguments is not None:
+            for columna in self.arguments:
+                columna.ejecutar(TS, Errores)
+                if columna.op_type == 'as':
+                    tuplas.append(columna.val)
+                    columnas.append(columna.asid)
+                elif columna.op_type == 'valor':
+                    tuplas.append(columna.val)
+                    columnas.append('Campo '+str(contador))
+                    contador = contador + 1
+                elif columna.op_type == 'iden':
+                    columnas.append(columna.id)
+                else:
+                    tuplas.append(columna.val)
+                    columnas.append('Campo ' + str(contador))
+                    contador = contador + 1
+            print(columnas)
+            print(self.tables)
+        else:
+            tuplas = jm.extractTable(db, self.tables[0])
+
+        #self.result_query.field_names = columnas
+        #self.result_query.add_row(tuplas)
+        for obj in self.tables:
+            result += str(obj) + ' '
         #jm.extractRow(db, self.tables, self.arguments)
         result += '\n' + self.result_query.get_string()
         return result
@@ -43,6 +69,7 @@ class Select(Node.Nodo):
 
     def graficarasc(self, padre, grafica):
         return 1
+
 
 class Insert(Node.Nodo):
     def __init__(self, table_id,col, values, fila, columna):
@@ -200,6 +227,4 @@ class UseDB(Node.Nodo):
         grafica.node("nombre_DB%s" % self.mi_id, 'id: %s' % self.id)
         grafica.edge(self.mi_id, "nombre_DB" + self.mi_id)
 
-
-
-
+    

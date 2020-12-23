@@ -16,3 +16,5 @@ class Error(BaseException):
         self.error_type = error_type
         self.message = message
 
+    def execute(self, table, tree):
+        raise (Error(self.line, self.column, ErrorType.SYNTAX, self.message))

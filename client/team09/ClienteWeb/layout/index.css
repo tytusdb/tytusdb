@@ -1,5 +1,5 @@
 .lateral{
-    background-color:darkgrey;
+    background-color:beige;
     border: 0;
     margin: 0;
     padding: 0;
@@ -11,11 +11,11 @@
     margin-left: 15%;
     float: left;
     min-width: 85%;
+    border-style: solid;
+     border-width: 4px; 
 }
 
-.textoQuery{
-    min-width: 100%;
-}
+
 
 .contenedorSalida{
     margin-left: 15%;
@@ -35,4 +35,10 @@
     min-width: 100%;
     font-size: 25PX;
     min-height: 100%;
+}
+
+.barra{
+    width: 85%;
+    height: 30px;
+    margin-left: 15%;
 }

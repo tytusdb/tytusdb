@@ -3,12 +3,12 @@ from reporteErrores.errorReport import ErrorReport # EN EL AMBITO MAS EXTERIOR S
 import math
 import hashlib
 import random
-
+from datetime import datetime
 class FuncionNumerica(Expresion):
     def __init__(self, funcion, parametro1=None, parametro2=None, linea = 0):
         self.parametro1 = parametro1
         self.parametro2 = parametro2
-        self.funcion = funcion
+        self.funcion = funcion.upper()
         self.linea = linea
 
     def dibujar(self):
@@ -162,14 +162,6 @@ class FuncionNumerica(Expresion):
                         decimalesAdjuntados+=1
                     valor = float(numero_truncado)
                     return ExpresionNumero(valor,self.getTipo(valor),self.linea) 
-                    
-                        
-                    
-                    
-
-                    
-                    
-            
             else:
                 return ErrorReport('semantico', 'error de tipo, se esperaba un ENTERO O DECIMAL' ,self.linea)
         elif self.parametro1 != None: # 1 PARAMETRO
@@ -316,10 +308,8 @@ class FuncionNumerica(Expresion):
 
                     
                 if self.funcion == "CBRT": #RAIZ CUBICA SOLO PARA ENTREROS
-                    if (nodoSyn1.val) < 0 :
-                        return ErrorReport('semantico', 'error SQRT solo recibe enteros POSITIVOS :D' ,self.linea)
                     if (nodoSyn1.val % 1) == 0:
-                        valor = nodoSyn1.val**(1/3)
+                        valor = raizCubica(nodoSyn1.val)
                         return ExpresionNumero(valor,self.getTipo(valor),self.linea)  
                     else:
                         return ErrorReport('semantico', 'error CBRT solo recibe enteros, NO decimales' ,self.linea)
@@ -420,7 +410,7 @@ class FuncionNumerica(Expresion):
 
 
 
-class FuncionCadena:
+class FuncionCadena(Expresion):
     def __init__(self, funcion, parametro1, parametro2=None, parametro3=None, linea = 0 ):
         self.funcion = funcion
         self.parametro1 = parametro1
@@ -467,7 +457,7 @@ class FuncionCadena:
                 if isinstance(res1 , ExpresionID) or isinstance(res1 , ExpresionCadena):
                     if isinstance(res2 , ExpresionNumero) or isinstance(res3 , ExpresionNumero):
                         if res2.tipo == TIPO_DE_DATO.ENTERO and res3.tipo == TIPO_DE_DATO.ENTERO:
-                            print("RETORNA: "+ str(res1)[int(res2.val) : int(res3.val)])
+                            
                             return ExpresionCadena(str(res1)[int(res2.val) : int(res3.val)], TIPO_DE_DATO.CADENA , self.linea)
                     # si no entra hasta el ultimo if  llega aca 
                     return ErrorReport('semantico', 'error de tipo en el parametro 2 o parametro 3' ,self.linea)
@@ -485,13 +475,11 @@ class FuncionCadena:
         
             if self.funcion == "LENGTH":
                 if  isinstance(nodoSimplificado , ExpresionCadena) or isinstance(nodoSimplificado , ExpresionID):
-                    print("RETORNA: "+ str(len(nodoSimplificado.val)))
                     return ExpresionNumero(len(nodoSimplificado.val), TIPO_DE_DATO.ENTERO , self.linea)
                 else:
                     return ErrorReport('semantico', 'error de tipo' ,self.linea)
             elif self.funcion == "TRIM":
                 if  isinstance(nodoSimplificado , ExpresionCadena) or isinstance(nodoSimplificado , ExpresionID):
-                    print("RETORNA: "+ str((nodoSimplificado.val)).strip())
                     return ExpresionCadena(str((nodoSimplificado.val)).strip(), TIPO_DE_DATO.CADENA , self.linea)
                 else:
                     return ErrorReport('semantico', 'error de tipo' ,self.linea)
@@ -505,9 +493,9 @@ class FuncionCadena:
                     return ExpresionCadena(hashlib.sha256(nodoSimplificado.val.encode()).hexdigest(), TIPO_DE_DATO.CADENA , self.linea)
                     
 
-class FuncionAgregacion:
+class FuncionAgregacion(Expresion):
     def __init__(self, funcion, parametro1, parametro2=None, linea = 0 ):
-        self.funcion = funcion
+        self.funcion = funcion.upper()
         self.parametro1 = parametro1
         self.parametro2 = parametro2
         self.linea = linea
@@ -518,29 +506,302 @@ class FuncionAgregacion:
         # -SUM es como acumulativa
 
 
-class FuncionBinaria(Expresion):
-    def __init__(self, funcion, parametro1=None, parametro2=None, linea = 0):
-        self.parametro1 = parametro1
-        self.parametro2 = parametro2
-        self.funcion = funcion
+class BitwaseBinaria(Expresion):
+    def __init__(self, exp1, exp2, operador, linea):
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operador = operador
         self.linea = linea
 
-    def dibujar(self):
-        pass
 
-    def ejecucion(self, ts):#los que pueden venir en el select 
-        pass
+    def dibujar(self):
+        identificador = str(hash(self))
+
+        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
+        nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
+
+        nodo += self.exp1.dibujar()
+        nodo += self.exp2.dibujar()
+
+        return nodo
+    def ejecutar(self, ts):
+        expizq = self.exp1.ejecutar(ts)
+        expder = self.exp2.ejecutar(ts)
+        # por si se quiere operar un error con una expresion buena ,  retorna de una el error
+        if isinstance(expizq , ErrorReport):
+            return expizq
+        if isinstance(expder , ErrorReport):
+            return expder
+        # la UNICA EXPRESION QUE DEBE DE OPERAR ES UN ID-tipo-entero o un tipoentero de la expresion sumerica
+        if not (isinstance(expizq , ExpresionNumero)  or isinstance(expizq , ExpresionID)):
+            return ErrorReport('semantico', 'Error de tipo con el operando izquierdo' , self.linea )
+        
+        if not (isinstance(expder , ExpresionNumero)  or isinstance(expizq , ExpresionID)):
+            return ErrorReport('semantico', 'Error de tipo con el operando Derecho' , self.linea )
+
+        if self.operador == ">>" :
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val >> expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando izquierdo en OPERADOR >>' , self.linea )
+            elif expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando derecho en OPERADOR >>' , self.linea )
+
+        elif self.operador == "<<":
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val << expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando izquierdo en OPERADOR <<' , self.linea )
+            elif expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando derecho en OPERADOR <<' , self.linea )
+            
+        elif self.operador == "#":
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                try:
+                    valor = expizq.val ^ expder.val
+                    return ExpresionNumero(valor, TIPO_DE_DATO.ENTERO , self.linea) 
+                except:
+                    return  ErrorReport('semantico', 'Error de Ejecucion con el OPERADOR | ', self.linea )
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando izquierdo en OPERADOR #' , self.linea )
+            elif expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando derecho en OPERADOR #' , self.linea )
+            else:
+                return 0
+        elif self.operador == "|":
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                try:
+                    valor = expizq.val | expder.val
+                    return ExpresionNumero(valor, TIPO_DE_DATO.ENTERO , self.linea) 
+                except:
+                    return  ErrorReport('semantico', 'Error de Ejecucion con el OPERADOR | ', self.linea )
+                
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando izquierdo en OPERADOR |' , self.linea )
+            elif expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando derecho en OPERADOR |' , self.linea )
+            else:
+                return 0
+        elif self.operador == "&":
+
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                try:
+                    valor = expizq.val & expder.val
+                    return ExpresionNumero(valor, TIPO_DE_DATO.ENTERO , self.linea) 
+                except:
+                    return  ErrorReport('semantico', 'Error de Ejecucion con el OPERADOR | ', self.linea )
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando izquierdo en OPERADOR #' , self.linea )
+            elif expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return  ErrorReport('semantico', 'Error de tipo con el operando derecho en OPERADOR #' , self.linea )
+        else:
+            return  ErrorReport('semantico', 'Error Operador desconocido' , self.linea )
     
+    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        izq = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
+        der = self.exp2.evaluacionCheck(tipoColumna , idCol , ts)
+        print(f'izq {izq} --- der {der}  {self.exp2.ejecutar(0).val}')
+        if (izq != 1) or (der != 1):
+            return 5
+        return 1  # no importa que operacion realice va regresar un numero
+    def getExpresionToString(self) -> str:
+        izq  = self.exp1.getExpresionToString()
+        der  = self.exp2.getExpresionToString()
+        op = self.operador
+        return str(izq + f' { op } '+der)
 
-class FuncionTime(Expresion):
+
+class FuncionTime(Expresion):# 0 , 1 y 2 
     def __init__(self, funcion, parametro1=None, parametro2=None, linea = 0):
         self.parametro1 = parametro1
         self.parametro2 = parametro2
-        self.funcion = funcion
+        self.funcion = funcion.upper()
         self.linea = linea
 
     def dibujar(self):
         pass
 
-    def ejecucion(self, ts):#los que pueden venir en el select 
-        pass
+    def ejecutar(self, ts):#los que pueden venir en el select 
+        if self.parametro1 != None and self.parametro2 != None:        
+            if self.funcion == "EXTRACT":
+                
+                self.parametro2 = str(self.parametro2).strip()
+                # AHORA REVISANDO SI TIENE COHERENCIA
+                
+                try:# EL PARAMETRO 2 ES MI CADENA DATE , PARAMETRO 2 ESPERADO  yyyy-mm-dd hh:mm:dd
+                    objetodate = datetime.strptime(self.parametro2, '%Y-%m-%d %H:%M:%S')
+                except:
+                    return ErrorReport('semantico', 'error Incoherencia con la cadena date' ,self.linea)
+                
+                if self.parametro1 == "YEAR":
+                    anio = str(objetodate.year)
+                    return ExpresionNumero(int(anio), TIPO_DE_DATO.ENTERO,self.linea)
+                    
+                elif self.parametro1 == "MONTH":
+                    mes = str(objetodate.month)
+                    return ExpresionNumero(int(mes), TIPO_DE_DATO.ENTERO,self.linea)
+    
+                elif self.parametro1 == "DAY":
+                    dia = str(objetodate.day)
+                    return ExpresionNumero(int(dia), TIPO_DE_DATO.ENTERO,self.linea)
+                        
+                elif self.parametro1 == "HOUR":
+                    hora = str(objetodate.hour)
+                    return ExpresionNumero(int(hora), TIPO_DE_DATO.ENTERO,self.linea)
+                
+                elif self.parametro1 == "MINUTE":
+                    minuto = str(objetodate.minute)
+                    return ExpresionNumero(int(minuto), TIPO_DE_DATO.ENTERO,self.linea)
+                    
+                elif self.parametro1 == "SECOND":
+                    seg = str(objetodate.second)
+                    return ExpresionNumero(int(seg), TIPO_DE_DATO.ENTERO,self.linea)
+            elif self.funcion == "DATE_PART":
+                
+                self.parametro2 = self.parametro2.lower().strip()
+                valores = {}
+                lexema = self.parametro2[0]
+                x = 1 
+                while(x < len(self.parametro2)):
+                    lexema += self.parametro2[x]
+                    if self.parametro2[x] == "s" and self.parametro2[x-1] != " " :
+                        lexema = lexema.strip()
+                        key = ''
+                        val = ''
+                        posIniKey = 0 
+                        for i in range( len(lexema)):
+                            if lexema[i] == ' ':
+                                break
+                            else:
+                                val += lexema[i]
+                                posIniKey = i
+                                posIniKey +=1
+                        
+                        while(posIniKey < len(lexema)):
+                            key += lexema[posIniKey]
+                            posIniKey+=1
+                        lexema = ""
+                        key = key.strip()
+                        validacion = valores.get(key , 'ok')
+                        
+                        if validacion == 'ok':
+                            valores[key] = val
+                        else:
+                            return ErrorReport('sintactico', 'ERROR:  la sintaxis de entrada no es válida para tipo interval' ,self.linea)            
+                    x+=1
+                    
+                
+
+                if self.parametro1 == "HOUR" or self.parametro1 == "HOURS":
+                    
+                    valor = valores.get('hours','NO_ESTA')
+                    if valor == 'NO_ESTA':
+                        return ErrorReport('semantico', 'solicitud de horas en Interaval y no fue especificado en la cadena' ,self.linea) 
+                    else:
+                        return ExpresionNumero(int(valor), TIPO_DE_DATO.ENTERO,self.linea)
+                    
+                elif self.parametro1 == "MINUTE" or self.parametro1 == "MINUTES":
+                    
+                    valor = valores.get('minutes','NO_ESTA')
+                    if valor == 'NO_ESTA':
+                        return ErrorReport('semantico', 'solicitud de minutos en Interaval y no fue especificado en la cadena' ,self.linea) 
+                    else:
+                        return ExpresionNumero(int(valor), TIPO_DE_DATO.ENTERO,self.linea)
+
+                elif self.parametro1 == "SECOND" or self.parametro1 == "SECONDS":
+                    
+                    valor = valores.get('seconds','NO_ESTA')
+                    if valor == 'NO_ESTA':
+                        return ErrorReport('semantico', 'solicitud de segundos en Interaval y no fue especificado en la cadena' ,self.linea) 
+                    else:                   
+                        return ExpresionNumero(int(valor), TIPO_DE_DATO.ENTERO,self.linea)
+                else: 
+                    return ErrorReport('semantico', 'la cadena debe solicitar hours,minutes or seconds' ,self.linea)
+            else:
+                print("funcion desconocida")
+        elif self.parametro1 != None:
+            if self.funcion == 'TIMESTAMP':
+                hora_fecha_actual = str(datetime.now())[0:19]
+                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea)
+            else:
+                print("funcion desconocida")
+        else:
+            if self.funcion == "NOW":
+                hora_fecha_actual = str(datetime.now())[0:19]
+                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea)
+            elif self.funcion == "CURRENT_DATE":
+                fecha_actual = str(datetime.now())[0:10]
+                return ExpresionCadena(fecha_actual,TIPO_DE_DATO.CADENA,self.linea)
+            elif self.funcion == "CURRENT_TIME":
+                hora_actual = str(datetime.now())[11:19]
+                return ExpresionCadena(hora_actual,TIPO_DE_DATO.CADENA,self.linea)
+            elif self.funcion == "CURRENT_TIMESTAMP":
+                hora_fecha_actual = str(datetime.now())[0:19]
+                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea)
+                                    
+                                    
+                                    
+
+class BitwaseUnaria(Expresion):
+    def __init__(self, operador , exp , linea):
+        self.exp = exp
+        self.linea = linea
+        self.operador = operador
+        
+    def dibujar(self):
+        identificador = str(hash(self))
+        nodo = "\n" + identificador + "[ label =\""+self.operador+"\" ];"
+        nodo += "\n" + identificador + " -> " + str(hash(self.exp)) + ";\n"
+        nodo += self.exp.dibujar()
+        return nodo
+    
+    def ejecutar(self, ts):
+        unario = self.exp.ejecutar(ts)
+        if isinstance(unario , ErrorReport):
+            return unario # si ya viene un error solo lo retorna
+        if not (isinstance(unario , ExpresionNumero)):
+            return ErrorReport('semantico', f'Error , Tipe Invalido UNARIO {self.operador}' ,self.linea)
+    
+        
+        try:# CASOS DE EJECUCION
+            if self.operador == "~":
+                if GET_TIPO(unario.val) == TIPO_DE_DATO.ENTERO:
+                    return ExpresionNumero(~ unario.val, GET_TIPO(unario.val), self.linea)
+                else:
+                    return ErrorReport('semantico', 'error operador Unario ~ solo recibe ENTEROS' ,self.linea)
+            elif self.operador =="|": # SACA LA RAIZ CUADRADA
+                    if (unario.val) < 0:
+                        return ErrorReport('semantico', 'error operador Unario | solo recibe numeros POSITIVOS' ,self.linea)
+                        valor = unario.val**(1/2)
+                        return ExpresionNumero(valor,GET_TIPO(valor),self.linea)
+            elif self.operador =="||": # SACA LA RAIZ CUBICA
+                        valor = raizCubica(unario.val)
+                        return ExpresionNumero(valor,GET_TIPO(valor),self.linea)    
+        except:
+            return ErrorReport('semantico', f'Error: Tipe Invalido UNARIO {self.operador}' ,self.linea)  
+
+    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        value = self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+        if value != 1 and value != 2:
+            return 5
+        return value
+    
+    def getExpresionToString(self) -> str:
+        sint = self.exp.getExpresionToString()
+        return str(f'{self.operador}' + sint)
+
+# funcion global para ver si es decimal o entero
+def GET_TIPO(valorNumerico):
+    if (valorNumerico % 1) == 0:
+        return TIPO_DE_DATO.ENTERO
+    else:
+        return TIPO_DE_DATO.DECIMAL
+    
+def raizCubica(valor):
+    if valor < 0 :
+        return -(abs(valor))**(1/3)
+    elif valor > 0:
+        return valor**(1/3)
+    else:
+        return 0 

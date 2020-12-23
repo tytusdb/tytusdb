@@ -1,0 +1,30 @@
+<div class="border rounded mt-1 mb-1 vh-100 overflow-auto ">
+    <div class="m-1">
+        <h6 class="d-inline mr-2">Databases</h6>
+        <div class="d-inline">
+           <button (click)="refrescar()" type="button" name="btnRefresh" class="btn btn-sm btn-outline-dark">
+               <fa-icon [icon]="faSync"></fa-icon>
+           </button>
+        </div>
+    </div>
+    <ul id="myTree" style="font-family: monospace; font-size: medium;">
+     <!-- style="color: white;"> -->
+        <li><span class="caret">Servidores</span>
+            <ul class="animacion activada">
+                <li><span class="caret">PostgresSQL</span>
+                    <ul class="animacion activada">
+                        <li><span class="caret">Databases [<a id="num_db">0</a>]</span>
+                            <ul class="animacion activada" id="db">
+    
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <br><br><br><br>
+</div>
+<script>
+    funcion1()
+</script>
