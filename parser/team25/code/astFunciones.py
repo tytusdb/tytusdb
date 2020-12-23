@@ -1,4 +1,4 @@
-from astExpresion import Expresion, ExpresionCadena, ExpresionID, ExpresionNumero, TIPO_DE_DATO
+from astExpresion import Expresion, ExpresionCadena, ExpresionID, ExpresionNumero, TIPO_DE_DATO , TuplaCompleta
 from reporteErrores.errorReport import ErrorReport # EN EL AMBITO MAS EXTERIOR SE INGRESAN A LA LISTA , EN ESTAS SUB CLASES SOLO SE SUBE EL ERROR
 import math
 import hashlib

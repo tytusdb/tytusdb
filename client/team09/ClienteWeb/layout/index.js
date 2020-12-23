@@ -39,3 +39,7 @@ function server(){
 function ejecutar(){
   alert("Se ejecutara el script.")
 }
+function logout(){
+  window.open("http://localhost:8000","_self") 
+}
+
