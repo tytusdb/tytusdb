@@ -1,3 +1,10 @@
+import ply.yacc as yacc
+import ply.lex as lex
+
+from Ast import *
+
+from graphviz import render
+
 reservadas = {
     'smallint'  : 'SMALLINT',          'integer'  : 'INTEGER',   
     'bigint'    : 'BIGINT',            'numeric'  : 'NUMERIC',   
@@ -82,7 +89,8 @@ reservadas = {
     'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
     'random': 'RANDOM',             'true': 'TRUE',
     'false': 'FALSE',               'use' : 'USE',
-    'decimal': 'RDECIMAL'
+    'decimal': 'RDECIMAL',          'union': 'UNION',
+    'intersect': 'INTERSECT',       'except': 'EXCEPT'
 }
 
 tokens  = [
@@ -216,12 +224,17 @@ precedence = (
 
 def p_init(t) :
     'init             : instrucciones'
+    t[0] = Nodo('INSTRUCCIONES','',t[1],t.lexer.lineno)
 
 def p_lista_instrucciones(t) :
     'instrucciones    : instrucciones instruccion'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_salida_instrucciones(t) :
     'instrucciones    : instruccion'
+    t[0] = [t[1]]
+
 
 def p_instruccion(t) :
     '''instruccion    : createDB_instr
@@ -239,6 +252,7 @@ def p_instruccion(t) :
                       | delete_instr
                       | truncate_instr
                       | select_instr'''
+    t[0] = t[1]
 
 
 ######################################################################################################################
@@ -251,102 +265,171 @@ def p_instruccion(t) :
 def p_create_db(t):
     'createDB_instr   : CREATE DATABASE existencia'
     #print("ESTA ES UNA SIMPLE CREACION DATABASE con existencia")
+    if t[3] != None:
+        gramatica = '<createDB_instr> ::= CREATE DATABASE  <existencia>'
+        t[0] = Nodo('CREATE DATABASE', '', [t[3]], t.lexer.lineno, 0 , gramatica)       
+    else :
+        gramatica = '<createDB_instr> ::= CREATE DATABASE'
+        t[0] = Nodo('CREATE DATABASE', '', [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_db2(t):
     'createDB_instr   : CREATE DATABASE ID state_owner'
     #print("ESTA ES UNA SIMPLE CREACION sin existencia alguna DATABASE")
+    if t[4] != None:
+        gramatica = '<createDB_instr> ::= CREATE DATABASE \"' +t[3] + '\"  <state_owner>'
+        t[0] = Nodo('CREATE DATABASE', t[3], [t[4]], t.lexer.lineno, 0 ,gramatica)
+    else :
+        gramatica = '<createDB_instr> ::= CREATE DATABASE \"' +t[3] + '\" '
+        t[0] = Nodo('CREATE DATABASE', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 ##REPLACE DATABASE
 def p_replace_db(t):
     'replaceDB_instr   : REPLACE DATABASE existencia'
     #print("ESTA ES UNA SIMPLE CREACION con existencia DATABASE")
+    if t[3] != None:
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE <existencia>'
+        t[0] = Nodo('REPLACE DATABASE', '', [t[3]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE '
+        t[0] = Nodo('REPLACE DATABASE', '', [], t.lexer.lineno, 0, gramatica)
 
 def p_replace_db2(t):
     'replaceDB_instr   : REPLACE DATABASE ID state_owner'
     #print("ESTA ES UNA SIMPLE CREACION sin existencia DATABASE")
+    if t[4] != None:
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE \"' +t[3] + '\" <state_owner>'
+        t[0] = Nodo('REPLACE DATABASE', t[3], [t[4]], t.lexer.lineno,0, gramatica)
+    else :
+        gramatica = '<replaceDB_instre> ::= REPLACE DATABASE \"' +t[3] + '\" '
+        t[0] = Nodo('REPLACE DATABASE', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 
 ##ESTADOS A LOS REPLACE Y CREATE CONTIENEN LO MISMO
 def p_create_replace_existencia(t):
     'existencia   : IF NOT EXISTS ID state_owner'
     #print("Existencia 1")
+    if t[5] != None:
+        gramatica = '<existencia> ::= IF NOT EXISTS \"' + t[4] +'\"  <state_owner>'
+        t[0] = Nodo('IF NOT EXISTS', t[4], [t[5]], t.lexer.lineno, 0 , gramatica)
+    else :
+        gramatica = '<existencia> ::= IF NOT EXISTS \"' + t[4] + '\" '
+        t[0] = Nodo('IF NOT EXISTS', t[4], [], t.lexer.lineno)
 
 def p_create_replace_state_owner(t):
     'state_owner   : OWNER IGUAL ID state_mode'
     #print("Estado owner con igual")
+    if t[4] != None:
+        gramatica = '<state_owner> ::= OWNER IGUAL \" ' + t[3] + '\"  <state_mode>'
+        t[0] = Nodo('OWNER', t[3], [t[4]], t.lexer.lineno, 0 , gramatica)
+    else :
+        gramatica = '<state_owner> ::= OWNER IGUAL \" ' + t[3] + '\" '
+        t[0] = Nodo('OWNER', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_owner2(t):
-    'state_owner   : OWNER ID state_mode'
+    '''state_owner   : OWNER ID state_mode
+                     | OWNER CADENASIMPLE state_mode'''
     #print("Estado owner sin igual")
+    if t[3] != None:
+        gramatica = '<state_owner> ::= OWNER \" ' + t[2] + '\"  <state_mode>'
+        t[0] = Nodo('OWNER', t[2], [t[3]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<state_owner> ::= OWNER \" ' + t[2] + '\" '
+        t[0] = Nodo('OWNER', t[2], [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_owner3(t):
     'state_owner   : state_mode'
     #print("Estado owner sentencia de escape a mode")
+    t[1].gramatica = '<state_owner> ::= <state_mode>\n' + t[1].gramatica
+    #print("Estado owner sentencia de escape a mode")
+    t[0] = t[1]
 
 def p_create_replace_state_mode(t):
     'state_mode   : MODE IGUAL ENTERO PTCOMA'
     #print("Estado mode con igual")
+    gramatica = '<state_mode> ::= MODE IGUAL \"'+ str(t[3]) + '\"  PTCOMA'
+    t[0] = Nodo('MODE', str(t[3]), [], t.lexer.lineno, 0, gramatica)
 
 def p_create_replace_state_mode2(t):
     'state_mode   : MODE ENTERO PTCOMA'
     #print("Estado mode sin igual")
+    gramatica = '<state_mode> ::= MODE \"'+ str(t[2]) + '\" PTCOMA'
+    t[0] = Nodo('MODE', str(t[3]), [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_mode3(t):
     'state_mode   : PTCOMA'
+    gramatica = '<state_mode> ::= PTCOMA'
     #print("Estado mode sentencia de escape ptcoma")
+    t[0] = Nodo('', t[1], [], t.lexer.lineno, 0 , gramatica)
 
 
 ##ALTER DATABASE
 def p_alter_state(t):
     'alterDB_instr    : ALTER DATABASE ID RENAME TO ID PTCOMA'
     #print("ALTERAR NOMBRE DE DATABASE A: " + t[6])
+    gramatica = '<alterDB_instr> ::= ALTER DATABASE \"' +t[3] + '\"  RENAME TO \" ' + t[6]+'\"  PTCOMA'
+    t[0] = Nodo('ALTER DATABASE', str(t[3]) + '\n RENAME TO ' + str(t[6]), [], t.lexer.lineno,0,gramatica)
 
 def p_alter_state2(t):
     'alterDB_instr    : ALTER DATABASE ID OWNER TO owner_users PTCOMA'
     #print("ALTERAR DUEÑO DE BASE DE DATOS")
+    gramatica = '<alterDB_instr> ::= ALTER DATABASE \"' +t[3] + '\"  OWNER TO <owner_users> PTCOMA'
+    t[0] = Nodo('ALTER DATABASE', str(t[3]), [t[6]], t.lexer.lineno, 0, gramatica)
+
 
 def p_owner_users(t):
     '''owner_users  : ID
                     | CURRENT_USER
                     | SESSION_USER'''   
 
-    #if t[1] == 'CURRENT_USER':
-        #print("-----CURRENT_USER-----")
-    #elif t[1] == 'SESSION_USER':
-        #print("-----SESSION_USER-----")
-    #else:
-        #print("-----USUARIO NUEVO----- " + t[1] + "-----------------")
+    gramatica = '<owner_users> ::= ' + t[1]
+    t[0] = Nodo('Modify owner to', str(t[1]), [], t.lexer.lineno, 0, gramatica)
+
 
 ###DROP DATABASE
 
 def p_dropDB_instr(t):
     'dropDB_instr : DROP DATABASE ID PTCOMA'
     #print("DROP DATABASE SIN CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[3])
+    gramatica = '<dropDB_instr> ::= DROP DATABASE \"' +t[3] + '\"  PTCOMA'
+    t[0] = Nodo('DROP DATABASE', str(t[3]), [], t.lexer.lineno, 0 , gramatica)
 
 def p_dropDB_instr2(t):
     'dropDB_instr : DROP DATABASE IF EXISTS ID PTCOMA'
-    #print("DROP DATABASE CON CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[5])
-
+    gramatica = '<dropDB_instr> ::= DROP DATABASE IF EXISTS \"' +t[5] + '\" PTCOMA'
+    t[0] = Nodo('DROP DATABASE', str(t[5]), [], t.lexer.lineno, 0 , gramatica)
 
 ##SHOW DATABASES
 def p_showDB_instr(t):
     'showDB_instr   : SHOW DATABASES PTCOMA'
     #print("Show DATABASE sencillo")
+    gramatica = '<showDB_instr> ::= SHOW DATABASES PTCOMA'
+    t[0] = Nodo('SHOW DATABASES','', [], t.lexer.lineno, 0, gramatica)
 
 def p_showDB_instr2(t):
     'showDB_instr   : SHOW DATABASES LIKE regexpr PTCOMA'
     #print("Show DATABASE con LIKE")
+    gramatica = '<showDB_instr> ::= SHOW DATABASES LIKE <regexpr> PTCOMA'
+    t[0] = Nodo('SHOW DATABASES', 'LIKE', [t[4]], t.lexer.lineno, 0, gramatica)
 
 def p_showDB_regexp(t):
     '''regexpr      : MODULO ID
                     | MODULO ID MODULO
-                    | ID MODULO
                     | MODULO ENTERO
-                    | MODULO ENTERO MODULO
+                    | MODULO ENTERO MODULO'''
+    gramatica = '<regexpr> ::= MODULO \" ' + str(t[2]) + '\"'
+    t[0] = Nodo('EXPRESION REGULAR', str(t[2]), [], t.lexer.lineno, 0, gramatica)
+
+def p_showDB_regexp2(t):
+    '''regexpr      : ID MODULO
                     | ENTERO MODULO'''
+    gramatica = '<regexpr> ::= \"' + t[1] + '\" MODULO'
+    t[0] = Nodo('EXPRESION REGULAR', str(t[1]), [], t.lexer.lineno, 0, gramatica)
 
 def p_use_instr(t):
     'use_instr      : USE DATABASE ID PTCOMA'
+    gramatica = '<use_instr> ::= USE DATABASE \"' + t[3] + '\"  PTCOMA'
+    t[0] = Nodo('USE DATABASE', str(t[3]), [], t.lexer.lineno, 0, gramatica)
+
 
 
 ## ----------------------------------- gramatica para el manejo de tablas ---------------------------------------
@@ -508,44 +591,72 @@ def p_parametro (t) :
 ## UPDATE
 def p_update_sinwhere(t) : 
     'update_instr     : UPDATE ID SET asignaciones PTCOMA'
+    g = '<update_instr> ::= \"UPDATE\" ID \"SET\" <asignaciones> \"PTCOMA\"\n'
+    t[0] = Nodo('UPDATE',t[2],t[4],t.lexer.lineno,0,g)
 
 def p_update_conwhere(t) : 
     'update_instr     : UPDATE ID SET asignaciones WHERE condiciones PTCOMA'  
-    
+    g = '<update_instr> ::= \"UPDATE\" ID \"SET\" <asignaciones> \"WHERE\" <condiciones> \"PTCOMA\"\n'
+    t[0] = Nodo('UPDATE',t[2],t[4],t.lexer.lineno,0,g)
+
 def p_lista_asignaciones(t): 
     'asignaciones     : asignaciones COMA asignacion'
+    t[3].gramatica = '<asignaciones> ::= <asignaciones> \"COMA\" <asignacion>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lista_asignacion_salida(t) :
     'asignaciones     : asignacion'
+    t[1].gramatica = '<asignaciones> ::= <asignacion>\n'
+    t[0] = [t[1]]
 
 def p_asignacion(t) :
     'asignacion       : ID IGUAL expresion'
-    
+    t[0] = getAssignNode(t)
+
 ## DELETE
 def p_delete_sinwhere(t):
     'delete_instr     : DELETE FROM ID PTCOMA'
+    g = '<delete_instr> ::= \"DELETE\" \"FROM\" ID \"PTCOMA\"\n'
+    t[0] = Nodo('DELETE',t[3],[],t.lexer.lineno,0,g)
 
 def p_delete_conwhere(t):
     'delete_instr     : DELETE FROM ID WHERE condiciones PTCOMA'
-    
+    g = '<delete_instr> ::= \"DELETE\" \"FROM\" ID \"WHERE\" <condiciones> \"PTCOMA\"\n'
+    t[0] = Nodo('DELETE',t[3],[t[5]],t.lexer.lineno,0,g)
+
 ## TRUNCATE
 def p_truncate_simple(t):
     'truncate_instr   : TRUNCATE listtablas PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" <listtablas> \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','',t[2],t.lexer.lineno,0,g)
 
 def p_truncate_simple_cascade(t):
     'truncate_instr   : TRUNCATE listtablas CASCADE PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" <listtablas> \"CASCADE\" \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','CASCADE',t[2],t.lexer.lineno,0,g)
 
 def p_truncate_table(t) :
     'truncate_instr   : TRUNCATE TABLE listtablas PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" \"TABLE\" <listtablas> \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','TABLE',t[3],t.lexer.lineno,0,g)
 
 def p_truncate_table_cascade(t) :
     'truncate_instr   : TRUNCATE TABLE listtablas CASCADE PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" \"TABLE\" <listtablas> \"CASCADE\" \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','TABLE CASCADE',t[3],t.lexer.lineno,0,g)
 
 def p_listatablas(t) : 
     'listtablas       : listtablas COMA ID'
+    g = '<listtablas> ::= <listtablas> \"COMA\" ID\n'
+    t[1].append(Nodo('ID',t[3],[],t.lexer.lineno,0,g))
+    t[0] = t[1]
 
 def p_listatablas_salida(t) :
     'listtablas       : ID'
+    g = '<listtablas> ::= ID\n'
+    t[0] = [Nodo('ID',t[1],[],t.lexer.lineno,0,g)]
+
 
 
 ######################################################################################################################
@@ -553,8 +664,25 @@ def p_listatablas_salida(t) :
 ######################################################################################################################
 
 def p_select(t):
-    'select_instr     :  select_instr1 PTCOMA'
+    'select_instr     :  select_instr1 second_query PTCOMA'
     t[0] = t[1]
+
+def p_second_query(t):
+    '''second_query     : UNION ALL select_instr1
+                        | INTERSECT ALL select_instr1
+                        | EXCEPT ALL select_instr1 '''
+    t[0] =  [t[3]]
+    t[0] = Nodo('COMBINING QUERY ALL',[], [t[3]], t.lexer.lineno)
+
+def p_second_query2(t):
+    '''second_query     : UNION select_instr1
+                        | INTERSECT select_instr1
+                        | EXCEPT select_instr1 '''
+    t[0] =  [t[2]]
+    t[0] = Nodo('COMBINING QUERY', t[1], [t[2]], t.lexer.lineno)
+
+def p_second_query3(t):
+    'second_query     : empty '
 
 def p_select_simple(t):
     'select_instr1    : SELECT termdistinct selectlist selectfrom'
@@ -580,6 +708,11 @@ def p_listaselect(t):
 
 def p_listaselect_salida(t):
     'listaselect      : valselect'
+
+def p_valselect_10_2(t):
+    'valselect      : CASE case_state END'
+    gramatica = '<valselect> ::= CASE <case_state> END'
+    t[0] = t[2]
 
 def p_valselect_1(t):
     'valselect      : ID alias'
@@ -875,35 +1008,29 @@ def p_valorlogico(t):
 
 #----------------------------- Case ---------------------------------
 def p_estadocase(t):
-    '''case_state   : case_state casestate2 END
-                    | casestate2 END
-                    | empty'''
+    'case_state         : list_case '
+    t[0] = [t[1]]
 
-def p_estadorelacional(t):
-    '''estadorelacional : expresionaritmetica MENQUE expresionaritmetica
-                        | expresionaritmetica MAYQUE expresionaritmetica
-                        | expresionaritmetica IGUAL IGUAL expresionaritmetica
-                        | expresionaritmetica MENIGUAL expresionaritmetica
-                        | expresionaritmetica MAYIGUAL expresionaritmetica
-                        | expresionaritmetica DIFERENTE expresionaritmetica
-                        | estadorelacional AND estadorelacional
-                        | estadorelacional OR estadorelacional '''
-    
-def p_estadorelacional2(t):
-    '''estadorelacional : expresionaritmetica
-                        | between_state
-                        | predicates_state
-                        | is_distinct_state '''
-    t[0] = t[1]
+def p_estadocase2(t):
+    '''list_case        : list_case s_case_state
+                        | s_case_state case_else
+                        | s_case_state
+                        | list_case case_else '''
+    if len(t) == 2:
+       t[0] = t[1]
+    else:
+        t[0] = [t[1], t[2]] 
 
-def p_casestate2(t):
-    'casestate2   : WHEN estadorelacional THEN CADENASIMPLE'
+def p_estadocase3(t):
+    's_case_state       : WHEN condiciones THEN valores'
+    t[2].append(t[4])
+    t[0] =t[2]
 
-def p_casestate22(t):
-    'casestate2    : ELSE CSIMPLE ID CSIMPLE'
+def p_estadocase4(t):
+    'case_else       : ELSE valores'
+    t[0] = [t[2]]
 
-def p_casestate22_(t):
-    'casestate2    : empty'
+
 
 # --------------Between-----------------
 

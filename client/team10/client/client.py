@@ -35,6 +35,7 @@ class cliente():
 
         # Creacion de la Ventana
         self.raiz = Tk()
+        self.f_log()
         self.treeview = ttk.Treeview(self.raiz)
 
         '''
@@ -80,6 +81,7 @@ class cliente():
         self.TEXPLICAR_ICON = PhotoImage(file=self.iconos[21])
         self.TDESCARGAR_ICON = PhotoImage(file=self.iconos[22])
         self.TCERRAR_ICON = PhotoImage(file=self.iconos[23])
+        
 
         # Preconfiguracion de la ventana
 
@@ -114,10 +116,10 @@ class cliente():
         barramenu.add_cascade(menu=self.aboutMenu, label='ABOUT')
 
         # Programacion del Menu de Archivos
-        self.fileMenu.add_command(label='   Abrir archivo *.sql', underline=0,
-                                  image=self.OPEN_ICON, compound=LEFT, state="disabled")
-        self.fileMenu.add_command(label='   Guardar archivo *.sql', underline=0,
-                                  image=self.SAVE_ICON, compound=LEFT, state="disabled")
+        self.fileMenu.add_command(label='   Abrir archivo *.sql', underline=0,command=self.f_cargar,
+                                  image=self.OPEN_ICON, compound=LEFT)
+        self.fileMenu.add_command(label='   Guardar archivo *.sql', underline=0,command = self.f_guardar,
+                                  image=self.SAVE_ICON, compound=LEFT)
 
         # Programacion del Menu de Objetos
 
@@ -208,7 +210,7 @@ class cliente():
         toolbar3 = Label(self.QueryTool2, bg="Gainsboro")
         toolbar3.pack(side=TOP, fill = X)
 
-        btnBase = Button(toolbar3, image=self.TBASE_ICON)
+        btnBase = Button(toolbar3, image=self.TBASE_ICON,command=self.f_cargar)
         # btnBase.grid(row=0,column=1, padx=8)
         btnBase.pack(side = LEFT, padx=2, pady=2)
 
@@ -216,11 +218,11 @@ class cliente():
         # btnCarpeta.grid(row=0,column=2, padx=8)
         btnCarpeta.pack(side = LEFT, padx=2, pady=2)
 
-        btnGuardar = Button(toolbar3, image=self.TGUARDAR_ICON)
+        btnGuardar = Button(toolbar3, image=self.TGUARDAR_ICON,command = self.f_guardar)
         # btnGuardar.grid(row=0,column=3, padx=8)
         btnGuardar.pack(side = LEFT, padx=2, pady=2)
 
-        btnBuscar = Button(toolbar3, image=self.TBUSCAR_ICON)
+        btnBuscar = Button(toolbar3, image=self.TBUSCAR_ICON,command = self.f_buscar)
         # btnBuscar.grid(row=0,column=4, padx=8)
         btnBuscar.pack(side = LEFT, padx=2, pady=2)
 
@@ -228,7 +230,7 @@ class cliente():
         # btnVaciar.grid(row=0,column=5, padx=8)
         btnVaciar.pack(side = LEFT, padx=2, pady=2)
 
-        btnCompilar = Button(toolbar3, image=self.TCOMPILAR_ICON)
+        btnCompilar = Button(toolbar3, image=self.TCOMPILAR_ICON,command = self.f_compilar)
         # btnCompilar.grid(row=0,column=6, padx=8)
         btnCompilar.pack(side = LEFT, padx=2, pady=2)
 
@@ -324,6 +326,84 @@ class cliente():
         messagebox.showinfo(
             "Loading...", "DEBERA DEJAR EDITAR O MOSTRAR QUERY TOOL")
         """
+    def f_guardar(self):
+            messagebox.showinfo(
+            "Loading...", "DEBERA GUARDAR LOS QUERYS")
+
+    def f_log(self):
+        self.log_screen = tk.Toplevel(self.raiz)
+        self.log_screen.title("Login")
+        self.log_screen.config(relief="sunken") 
+        self.log_screen.config(bd=25)  
+        ##self.log_screen.geometry("300x320")
+        ancho_ventana = 900
+        alto_ventana = 300
+
+        x_ventana = self.log_screen.winfo_screenwidth() // 2 - ancho_ventana // 2
+        y_ventana = self.log_screen.winfo_screenheight() // 2 - alto_ventana // 2
+
+        posicion = str(ancho_ventana) + "x" + str(alto_ventana) + "+" + str(x_ventana) + "+" + str(y_ventana)
+        self.log_screen.geometry(posicion)
+
+        self.log_screen.resizable(0,0)
+        Label(self.log_screen, text="Ingresar usuario y contraseña").pack()
+        Label(self.log_screen, text="").pack()
+        
+        global usernameV
+        global passwordV
+    
+        usernameV = StringVar()
+        passwordV = StringVar()
+    
+    
+        Label(self.log_screen, text="Username ").pack()
+        self.username_entry = Entry(self.log_screen, textvariable=usernameV)
+        self.username_entry.pack()
+        Label(self.log_screen, text="").pack()
+        Label(self.log_screen, text="Password ").pack()
+        self.password_entry = Entry(self.log_screen, textvariable=passwordV, show= '*')
+        self.password_entry.pack()
+        Label(self.log_screen, text="").pack()
+        Button(self.log_screen, text="Login", width=10, height=1, command=self.login_verification).pack()
+        self.raiz.iconify()
+
+    def login_verification(self):
+        #print(usernameV.get())
+        user = usernameV.get()
+        password = passwordV.get()
+
+        self.username_entry.delete(0, END)
+        self.password_entry.delete(0, END)
+
+        if user == "admin" and password == "123":
+            print("entro")
+            messagebox.showinfo(
+            "Loading...", "DATOS CORRECTOS ")
+            self.log_screen.destroy()
+            self.raiz.deiconify()
+        else:
+            messagebox.showinfo(
+            "Loading...", "DATOS INCORRECTOS")
+
+    def f_buscar(self):
+    
+        messagebox.showinfo(
+            "Loading...", "DEBERA BUSCAR DENTRO DEL QUERY")
+
+    def f_compilar(self):
+        
+        messagebox.showinfo(
+            "Loading...", "DEBERA COMPILAR EL SCRIPT ACTUAL")
+
+    def f_cargar(self):
+
+        messagebox.showinfo(
+            "Loading...", "DEBERA CARGAR QUERY")
+
+    def f_eliminar(self):
+    
+        messagebox.showinfo(
+            "Loading...", "DEBERA ELIMINAR QUERY ACTUAL")
 
     #cerrar query tool
     def f_cerrar_query_tool(self):
@@ -411,7 +491,8 @@ def main():
               ruta_r + "Tcompilar.png",
               ruta_r + "Texplicar.png",
               ruta_r + "Tdescargar.png",
-              ruta_r + "Tcerrar.png"
+              ruta_r + "Tcerrar.png",
+              ruta_r + "log.png"
               )
 
     error1 = f_verificar_iconos(iconos)

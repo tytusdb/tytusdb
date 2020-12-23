@@ -9,6 +9,7 @@ from instruccion.F_Key import *
 from instruccion.unique_simple import *
 from instruccion.condicion_simple import *
 from abstract.retorno import *
+from expresion.primitivo import *
 
 class insert_into  (instruccion):
     def __init__(self,dato,lista, cols_id, line,column,num_nodo):
@@ -16,6 +17,7 @@ class insert_into  (instruccion):
         self.dato = dato
         self.lista = lista
         self.cols_id = cols_id
+        self.num_nodo = num_nodo
 
         #Nodo AST INSERT INTO
         self.nodo = nodo_AST('INSERT INTO', num_nodo)
@@ -37,10 +39,10 @@ class insert_into  (instruccion):
         # Gramatica
         self.grammar_ = "<TR><TD>INSTRUCCION ::= INSERT INTO list_id ID VALUES ( list_val ); </TD><TD> INSTRUCCION = new insert_into( " + dato + ", list_val, list_id );</TD></TR>\n"
         if cols_id != None:
-            self.grammar_ += "<TR><TD> list_id ::= list_id1 COMA ID </TD><TD> list_id = list_id1.append(ID); </TD></TR>\n"
+            self.grammar_ += "<TR><TD> list_id ::= list_id1 , ID </TD><TD> list_id = list_id1.append(ID); </TD></TR>\n"
             self.grammar_ += '<TR><TD> list_id ::= ID </TD><TD> list_id = [ID] </TD></TR>\n'
         else:
-            self.grammar_ = "<TR><TD> list_id ::= EPSILON </TD><TD> list_id = None; </TD></TR>\n"
+            self.grammar_ += "<TR><TD> list_id ::= EPSILON </TD><TD> list_id = None; </TD></TR>\n"
         self.grammar_ += '<TR><TD> LIST_VAL ::= LIST_VAL1 , EXPRESSION </TD><TD> LIST_VAL = LIST_VAL1.append( EXPRESSION ); </TD></TR>\n'
         self.grammar_ += '<TR><TD> LIST_VAL ::= EXPRESSION </TD><TD> LIST_VAL ::= [] </TD></TR>\n'
         for valor in lista:
@@ -51,8 +53,10 @@ class insert_into  (instruccion):
         actual_db = get_actual_use()
 
         valores_iniciales = []
+        lista_aux = []
+
         for item in self.lista: 
-            valores_iniciales.append(item.ejecutar())
+            valores_iniciales.append(item.ejecutar([]))
 
         retornos = []
         index_id = 0
@@ -64,15 +68,18 @@ class insert_into  (instruccion):
                 for item_columna in columnas_table:
                     if index_id < len(self.cols_id):
                         if self.cols_id[index_id] == item_columna.id_:
+                            lista_aux.append(self.lista[index_id])
                             retornos.append(valores_iniciales[index_id])
                             index_id += 1
                         else:
+                            lista_aux.append(primitivo(self.line, self.column, 'NULL', tipo_primitivo.NULL, self.num_nodo + 1000000000))
                             retornos.append(retorno('NULL', tipo_primitivo.NULL))
                     else:
+                            lista_aux.append(primitivo(self.line, self.column, 'NULL', tipo_primitivo.NULL, self.num_nodo + 1000000000))
                             retornos.append(retorno('NULL', tipo_primitivo.NULL))
             else:
-                errores.append(nodo_error(self.line, self.column, 'ERROR - No se pueden extraer las columnas para insertar datos', 'Semántico'))
-                add_text('ERROR - No se pueden extraer las columnas para insertar datos\n')
+                errores.append(nodo_error(self.line, self.column, 'E-42P10 invalid column reference: Cannot extract columns to insert data', 'Semántico'))
+                add_text('E-42P10 invalid column reference: Cannot extract columns to insert data.\n')
         else:
             retornos = valores_iniciales
 
@@ -92,8 +99,8 @@ class insert_into  (instruccion):
                     tipo_dominante = tipos_tabla[value.tipo.value][columna.tipo.value]
 
                     if tipo_dominante != columna.tipo:
-                        errores.append(nodo_error(self.line, self.column, 'ERROR - No puedes insertar un tipo dato ' + self.get_str_tipo(value.tipo) + ' en una columna tipo ' + self.get_str_tipo(columna.tipo), 'Semántico'))
-                        add_text('ERROR - No puedes insertar un tipo dato ' + self.get_str_tipo(value.tipo) + ' en una columna tipo ' + self.get_str_tipo(columna.tipo)+ '\n')
+                        errores.append(nodo_error(self.line, self.column, 'E-42809 wrong object type: You cannot insert a data type ' + self.get_str_tipo(value.tipo) + ' in a column of type ' + self.get_str_tipo(columna.tipo), 'Semántico'))
+                        add_text('E-42809 wrong object type: You cannot insert a data type ' + self.get_str_tipo(value.tipo) + ' in a column of type ' + self.get_str_tipo(columna.tipo)+ '\n')
                         return
 
                     count_pos += 1
@@ -101,16 +108,16 @@ class insert_into  (instruccion):
                     #Validar el tamaño correcto
                     if tipo_dominante == tipo_primitivo.CHAR or tipo_dominante == tipo_primitivo.VARCHAR:
                         if columna.size < len(value.valor):
-                            errores.append(nodo_error(self.line, self.column, 'ERROR - Tamaño del dato superado ' + value.valor, 'Semántico'))
-                            add_text('ERROR - Tamaño del dato superado ' + value.valor + '\n')
+                            errores.append(nodo_error(self.line, self.column, 'E-22015 interval field overflow: Data size exceeded ' + value.valor, 'Semántico'))
+                            add_text('E-22015 interval field overflow: Data size exceeded ' + value.valor + '\n')
                             return
                     
                 else:
                     #Omitir NULL, para validar despues las restricciones de columnas
                     count_pos += 1
         else:   
-            errores.append(nodo_error(self.line, self.column, 'ERROR - Columnas fuera de limites', 'Semántico'))
-            add_text('ERROR - Columnas fuera de limites\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Columns out of bounds', 'Semántico'))
+            add_text('E-22005 error in assignment: Columns out of bounds\n')
             return 
 
         #Validar restricciones de columnas
@@ -144,22 +151,22 @@ class insert_into  (instruccion):
         # Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria duplicada, 5 columnas fuera de límites.
 
         if aux_insert == 0:
-            add_text("Fila insertada correctamente\n")
+            add_text("M-00000 successful completion: Row inserted correctly\n")
         elif aux_insert == 1:
-            errores.append(nodo_error(self.line, self.column, 'ERROR - No se pudo insertar la fila', 'Semántico'))
-            add_text('ERROR - No se pudo insertar la fila\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Could not insert row', 'Semántico'))
+            add_text('E-22005 error in assignment: Could not insert row\n')
         elif aux_insert == 2:
-            errores.append(nodo_error(self.line, self.column, 'ERROR - No existe la base de datos: ' + actual_db, 'Sémantico'))
-            add_text('ERROR - No existe la base de datos: ' + actual_db + '\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: There is no database with the following ID -> ' + actual_db, 'Sémantico'))
+            add_text('E-22005 error in assignment:\nThere is no database with the following ID ->' + actual_db + '\n')
         elif aux_insert == 3:
-            errores.append(nodo_error(self.line, self.column, 'ERROR - No existe la tabla: ' + self.dato, 'Semántico'))
-            add_text('ERROR - No existe la tabla: ' + self.dato + '\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: The table with the following ID does not exist -> ' + self.dato, 'Semántico'))
+            add_text('E-22005 error in assignment: The table with the following ID does not exist -> ' + self.dato + '\n')
         elif aux_insert == 4:
-            errores.append(nodo_error(self.line, self.column, 'ERROR - Llave primaria duplicada', 'Semántico'))
-            add_text('ERROR - Llave primaria duplicada\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Duplicate primary key', 'Semántico'))
+            add_text('E-22005 error in assignment: Duplicate primary key\n')
         elif aux_insert == 5:
-            errores.append(nodo_error(self.line, self.column, 'ERROR - Columnas fuera de limites', 'Semántico'))
-            add_text('ERROR - Columnas fuera de limites\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Columns out of bounds', 'Semántico'))
+            add_text('E-22005 error in assignment: Columns out of bounds\n')
             
         #except:
         #    errores.append(nodo_error(self.line, self.column, 'ERROR - No se pudo insertar en tabla: ' + self.dato, 'Semántico'))

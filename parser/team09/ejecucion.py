@@ -93,10 +93,12 @@ reservadas = {
     'right'     : 'RIGHT',
     'full'      : 'FULL',
     'outer'     : 'OUTER',
+    'boolean'   : 'BOOLEAN', 
+    'off'       : 'OFF', 
     'on'        : 'ON',
     'join'      : 'JOIN',
     'order'     : 'ORDER',
-    'by'        : 'BY', 
+    'by'        : 'BY',
     'asc'       : 'ASC',
     'desc'      : 'DESC',
     'inherits'  : 'INHERITS',
@@ -433,6 +435,7 @@ def p_data_type(p):
             | DATA
             | TIME
             | INTERVAL
+            | BOOLEAN
             | DOUBLE PRECISION
             | ID'''
 
@@ -527,13 +530,13 @@ def p_drop_db_2(p):
 def p_create_table(p): 
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER PTCOMA'''
     arr = p[5]
-    cons = ins.CreateTable(str(p[3]), None, arr[0], None,arr[1]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
+    cons = ins.CreateTable(str(p[3]), arr[0], None, arr[1])
     lst_instrucciones.append(cons)
 
 def p_create_table_2(p):
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
     arr = p[5]
-    cons = ins.CreateTable(str(p[3]), None, arr[0], p[9],arr[1]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
+    cons = ins.CreateTable(str(p[3]), arr[0], p[9], arr[1])
     lst_instrucciones.append(cons)
 
 def p_columnas(p):
@@ -813,20 +816,31 @@ def p_delete_2(p):
     cons = ins.Delete(str(p[3], p[5]))
     lst_instrucciones.append(cons)
 
-
 def p_insert(p):
     '''s_insert : INSERT INTO ID PARIZQ lista_id PARDER VALUES lista_values PTCOMA '''
-    cons = ins.Insert(p[3], p[8])
-    lst_instrucciones.append(cons)
+    global lst_instrucciones
+    cons = None
+    for valores in p[8]:
+        cons = ins.InsertT(p[3], p[5], valores)
+        lst_instrucciones.append(cons)
 
 def p_insert_2(p):
-    '''s_insert : INSERT INTO ID VALUES PARIZQ lista_values PARDER PTCOMA '''
-    cons = ins.Insert(p[3], p[6])
-    lst_instrucciones.append(cons)
+    '''s_insert : INSERT INTO ID VALUES lista_values PTCOMA '''
+    global lst_instrucciones
+    cons = None
+    for valores in p[5]:
+        cons = ins.InsertT(p[3], None, valores)
+        lst_instrucciones.append(cons)
 
 def p_lista_values(p):
-    '''lista_values : lista_valores '''
-    p[0] = p[1]
+    '''lista_values : lista_values COMA PARIZQ lista_valores PARDER
+                     | PARIZQ lista_valores PARDER'''
+    p[0] = []
+    if p[1] == '(':
+        p[0].append(p[2]) # [[lista_valores1]]
+    else:
+        p[1].append(p[4]) # [[lista_valores1][lista_valores2]...[lista_valoresn]]
+        p[0] = p[1]
 
 def p_lista_valores(p):
     '''lista_valores : lista_valores COMA valores'''
@@ -835,18 +849,23 @@ def p_lista_valores(p):
 
 def p_lista_valores_2(p):
     '''lista_valores : valores'''
-    arr = []
-    arr.append(p[1])
-    p[0] = arr
-    
+    p[0] = []
+    p[0].append(p[1])
 
 def p_valores(p):
     '''valores : CADENA
                | ENTERO
                | DECIMA
                | TRUE
-               | FALSE'''
-    p[0] = p[1]
+               | FALSE
+               | ON
+               | OFF'''
+    if str(p[1]).upper() == 'ON' or str(p[1]).upper() == 'TRUE':
+        p[0] = True
+    elif str(p[1]).upper() == 'OFF' or str(p[1]).upper() == 'FALSE':
+        p[0] = False
+    else:
+        p[0] = p[1]
 
 def p_s_update(p):
     '''s_update : UPDATE ID SET lista_asig PTCOMA'''
@@ -857,7 +876,6 @@ def p_s_update_2(p):
     '''s_update : UPDATE ID SET lista_asig WHERE expresion PTCOMA'''
     cons = ins.Update(p[2], p[4])
     lst_instrucciones.append(cons)
-
 
 def p_lista_asig(p):
     '''lista_asig : lista_asig COMA ID IGUAL valores'''
@@ -871,8 +889,6 @@ def p_lista_asig(p):
     '''lista_asig :  ID IGUAL valores'''
     exp = str(p[1]) + str(p[2]) + str(p[3])
     p[0] = exp
-
-
 
 def p_expresion(p):
     '''expresion : NOT expresion
@@ -965,7 +981,7 @@ def tipo_data(tipo):
         data_type = TS.tipo_simbolo.CHARACTER_V
     elif tipo.upper() == 'INTERVAL':
         data_type = TS.tipo_simbolo.INTERVAL
-    elif tipo.upper() == 'VARCHR':
+    elif tipo.upper() == 'VARCHAR':
         data_type = TS.tipo_simbolo.VARCHR
     elif tipo.upper() == 'TIMESTAMP':
         data_type = TS.tipo_simbolo.TIMESTAMP

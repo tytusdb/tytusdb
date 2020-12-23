@@ -10,7 +10,7 @@ from database import *
 from typ import *
 from storageManager import jsonMode as admin
 
-class alter_database(Querie):
+class Alter_Database(Querie):
     ''' 
      row = numero de fila
      column = numero de columna
@@ -42,7 +42,7 @@ class alter_database(Querie):
         elif result == 2:
             #Base de datos:oldName no existe
             return {'Error':'No existe la base de datos con el nombre: ' + self.oldName, 'Fila':self.row, 'Columna':self.column}
-         elif result == 3:
+        elif result == 3:
             #Base de datos:oldName no existe
             return {'Error':'Ya existe una base de datos con el nombre: ' + self.newName, 'Fila':self.row, 'Columna':self.column}
         else:

@@ -10,6 +10,7 @@ import mathtrig as mt
 import main
 import prettytable as pt
 import reportError as errores
+from reportError import CError
 #
 
 #
@@ -40,8 +41,11 @@ class select(query):
         self.offset = offset
         if having is not None and condition is not None:
             self.condition.append(having)
+        
+        
 
     def ejecutar(self):
+
         gro = self.group
         #Obtener la lista de tablas
         tables = {}
@@ -61,6 +65,7 @@ class select(query):
             
             results.append(res)
         
+        
         conditions = []
         if self.condition is not None:
             conditions = ejecutar_conditions(tables,self.condition)
@@ -68,7 +73,6 @@ class select(query):
                 e = errores.CError(0,0,"Error realizando las condiciones.",'Semantico')
                 errores.insert_error(e)
                 return e
-
         grouped = []
         
         if self.group :
@@ -84,61 +88,70 @@ class select(query):
 
             if isinstance(column,dict) and isinstance(column['valores'],list) and isinstance(conditions,dict):
                 column['valores'] = filtrar(column['valores'],conditions['posiciones'])
-            elif isinstance(column,dict) and isinstance(conditions,list):
+            elif isinstance(column,dict) and isinstance(conditions,list) and conditions:
                 column['valores'] = filtrar(column['valores'],conditions)
-        #return results
         
             
         consulta = []
         fila = []
         for col in self.select_list:
-            fila.append(col.alias)
-        
+            fila.append([col.alias])
+    
         contador = 0
         nombres = []
         for column in results:
-            
-            if fila[contador] == None:
-                if isinstance(column,dict):
-                    nombre = str(contador+1)+'. ' +column['columna'][0]['nombre']
-                    fila[contador]= nombre
-                    nombres.append(nombre)
+            actual = fila[contador]
+            if None in actual:
+                if not isinstance(results[contador]['columna'][0],dict): 
+                    r = results[contador]['columna']
+                    fila[contador] = r
                 else:
-                    nombre = str(contador+1)+'. '+'Funcion'
-                    fila[contador]= nombre
-                    nombres.append(nombre)
-                
-                
-            
-            contador = contador +1 
+                    r = results[contador]['columna'][0]['nombre']
+                    fila[contador] = [r]
+            contador += 1
+        
+        enc = []
+        contador = 1
+        for arreglo in fila:
+            for valor in arreglo:
+                enc.append(str(contador)+'. '+valor)
+                nombres.append(str(contador)+'. '+valor)
+                contador = contador+1        
 
-        consulta.append(fila)
+        consulta.append(enc)
         if gro:
-            consulta.extend(grouped)
+            colss=[]
+            contador = 0
+            for fila in grouped:
+                colss.append([])
+            for fila in grouped:
+                for i in range(len(grouped[0])):
+                    colss[i].append(fila[i])
+            consulta.extend(colss)    
         else:
-            cantidad = 0
-            for column in results:
-                if isinstance(column,dict):
-                    cantidad = len(column['valores'])
-                    break
-            
-            for i in range(0,cantidad):
-                fila = []
-                
-                for column in results:
-                    if isinstance(column,dict):
-                        if isinstance(column['valores'],list):
-                            
-                            fila.append(column['valores'][i])
-                        else:
-                            fila.append(column['valores'])
-                    else:
+            #añadiendo las columnas
+            conta = 0
+            for res in results:
+                vals = res['valores']
+                if isinstance(vals[0],list):
+                    for v in vals:
+                        consulta.append(v)
+                else:
+                    consulta.append(vals)
 
-                        fila.append(column)
-                
-                consulta.append(fila)
-            
-            
+        #buscamos el arreglo mas largo   
+        max = 0
+        for i in range(1,len(consulta)) :
+            actual = len(consulta[i])
+            if actual>max: max = actual
+        
+        for col in consulta:
+            for i in range(max):
+                if len(col)<=i:
+                    col.append('-')
+        
+        
+                      
         #Distinct
         if self.distinct:
             cabeceras = consulta[0]
@@ -187,11 +200,10 @@ class select(query):
                     sortby = nombre
         #
 
-
+        
         ptable = pt.PrettyTable()
-        ptable.field_names = consulta[0]
         for i in range(1,len(consulta)):
-            ptable.add_row(consulta[i])
+            ptable.add_column(consulta[0][i-1],consulta[i])
         if sortby != '':
             ptable.sortby = sortby
             if self.orderby[2].lower() =='desc':
@@ -225,16 +237,66 @@ class exp_id(exp_query):
         #Verificar si sabemos la tabla
         if self.table is None:
             #No sabemos la tabla
-            tupla = ts.getTabla(self.val)
+            if self.val == '*':
+                #Verificamos que solo sea una tabla la importada
+                if len(tables)>1:
+                    e = errores.CError(0,0,"La tabla buscada no está en el from",'Semantico')
+                    errores.insert_error(e)
+                    return e
+                t = list(tables)[0]
+                registros = s.extractTable(default_db,t)
+                #Buscamos los encabezados
+                encabezados = ts.getColumns(default_db,t)
+                if registros ==[] and encabezados == []:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
+                #Devolvemos todas las columnas
+                cols = []
+                #llenamos vacio
+                cont = len(registros[0])
+                for i in range(0,cont):
+                    cols.append([])
+                #metemos en los registros
+                for reg in registros:
+                    for i in range(0,cont):
+                        cols[i].append(reg[i])
+                dict = {
+                "valores":cols,
+                "columna":encabezados
+                }
+                return dict
+                
+            #Verificamos si es *
+            
+            #Tenemos que tener la tabla
+            c=0
+            while True: 
+                tupla = ts.getTabla(self.val,c)
+                if tupla is None:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
+                if tupla[0] not in tables and tupla[0] not in tables.values():
+                    c+=1
+                    tupla = ts.getTabla(self.val,c)
+                else:
+                    break
+            
+            
+            
             #Este devuelve la base de datos y la
             # tabla
-            if tupla is None : return #Error semántico
+            if tupla is None : 
+                e = errores.CError(0,0,"La tabla buscada no está en el from",'Semantico')
+                errores.insert_error(e)
+                return e
             #Ahora obtenemos los registros de la columna
-            registros = s.extractTable(tupla.db,tupla.tabla)
+            registros = s.extractTable(tupla[1],tupla[0])
 
             #Obtener el indice de la columna
 
-            indice = ts.getIndice(tupla.db,tupla.tabla,self.val)
+            indice = ts.getIndice(tupla[1],tupla[0],self.val)
 
             # Obtener la columna de los registros
 
@@ -243,7 +305,7 @@ class exp_id(exp_query):
                 columna.append(reg[indice])
             dict = {
                 "valores":columna,
-                "columna":[{"nombre":self.val,"indice":indice,"tabla":tupla.table}]
+                "columna":[{"nombre":self.val,"indice":indice,"tabla":tupla[0]}]
             }
             return dict
         else:
@@ -258,7 +320,28 @@ class exp_id(exp_query):
                 # si no fuera un alias 
                 #significa que el nombre es la tabla
                 registros = s.extractTable(default_db,self.table)
+                if self.val == '*':
+                    encabezados = ts.getColumns(default_db,self.table)
+                    cols = []
+                    #llenamos vacio
+                    cont = len(registros[0])
+                    for i in range(0,cont):
+                        cols.append([])
+                    #metemos en los registros
+                    for reg in registros:
+                        for i in range(0,cont):
+                            cols[i].append(reg[i])
+                    dict = {
+                            "valores":cols,
+                            "columna":encabezados
+                    }
+                    return dict
+
                 indice = ts.getIndice(default_db,self.table,self.val)
+                if registros ==[] and indice == -1:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 col = []
                 for reg in registros:
                     col.append(reg[indice])
@@ -267,15 +350,43 @@ class exp_id(exp_query):
                     "valores" : col,
                     "columna" : [{"nombre":self.val,"indice":indice,"tabla":self.table}] 
                 }
+                
                 return dic
 
             else:
                 #Obtenemos el nombre basado en el alias
-                table = getKeyFromValue(self.table,tables)     
+                table = getKeyFromValue(self.table,tables)
+                if isinstance(table,CError):
+                    return table    
                 #Obtenemos la tabla
                 registros = s.extractTable(default_db,table)
+
+                if self.val == '*':
+                    encabezados = ts.getColumns(default_db,table)
+                    if registros ==[] and encabezados == []:
+                        e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                        errores.insert_error(e)
+                        return e
+                    cols = []
+                    #llenamos vacio
+                    cont = len(registros[0])
+                    for i in range(0,cont):
+                        cols.append([])
+                    #metemos en los registros
+                    for reg in registros:
+                        for i in range(0,cont):
+                            cols[i].append(reg[i])
+                    dict = {
+                        "valores":cols,
+                        "columna":encabezados
+                    }
+                    return dict
                 #Obtenemos el indice de esa tabla
                 indice = main.ts.getIndice(default_db,table,self.val)
+                if indice == -1:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 #Obtenemos la columan que queremos
                 col = []
                 for reg in registros:
@@ -354,15 +465,17 @@ class exp_suma(exp_query):
                     try:
                         me = float(menor[i]) 
                         ma = float(mayor[i])
-                        result.append(me-ma)
+                        result.append(me+ma)
                     except ValueError: 
                         e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
                         errores.insert_error(e)
                         return e
+                menor = exp1 if len(val1) < len(val2) else exp2
                 newdict = {
                     'valores':result,
-                    'columna': exp1['columna'].append(exp2['columna'][0])
+                    'columna': menor['columna']
                 }
+                
                 return newdict
             else:
                 #Solo una de ellas es diccionario
@@ -375,7 +488,9 @@ class exp_suma(exp_query):
 
                         result.append(float(col)+float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -444,7 +559,9 @@ class exp_resta(exp_query):
 
                         result.append(float(col)-float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -509,7 +626,9 @@ class exp_multiplicacion(exp_query):
 
                         result.append(float(col)*float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     
                 newdict = {
                     'valores':result,
@@ -575,7 +694,9 @@ class exp_division(exp_query):
 
                         result.append(float(col)/float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -3850,7 +3971,9 @@ def getKeyFromValue(value,d):
         if alias == value:
             return table
 
-    return None
+    e = errores.CError(0,0,"Imposible obtener la tabla.",'Semantico')
+    errores.insert_error(e)
+    return e
 
 def getInstance(col):
     if isinstance(col,fun_count):
@@ -3878,7 +4001,6 @@ def ejecutar_groupBy(valores,select_list):
             contador = contador +1
     
     #Una vez tenemos el indice obtenemos el valor devuelto por esa funcion
-
     agg = valores[contador]
     #obtenemos cual es el resultado
     res = agg['valores']
@@ -3926,8 +4048,14 @@ def ejecutar_groupBy(valores,select_list):
         contdata = 0
         for val in values:
             if val not in dictionary:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
                 dictionary[val] = data[contdata]
             else:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
                 dictionary[val] += data[contdata] 
             contdata+=1
     elif instance == 'count':
@@ -3940,8 +4068,14 @@ def ejecutar_groupBy(valores,select_list):
         contdata = 0
         for val in values:
             if val not in dictionary:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
                 dictionary[val] = data[contdata]
             else:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
                 dictionary[val] += data[contdata]
             contdata+=1
         #We make a new dictionary 
@@ -3958,8 +4092,14 @@ def ejecutar_groupBy(valores,select_list):
         contdata = 0
         for val in values:
             if val not in dictionary:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
                 dictionary[val] = data[contdata]
             else:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
                 if dictionary[val] < data[contdata] :
                     dictionary[val] = data[contdata]
             contdata+=1
@@ -3967,13 +4107,18 @@ def ejecutar_groupBy(valores,select_list):
         contdata = 0
         for val in values:
             if val not in dictionary:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
                 dictionary[val] = data[contdata]
             else:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
                 if dictionary[val] > data[contdata] :
                     dictionary[val] = data[contdata]
             contdata+=1
     
-
     # Con el diccionario generado devolvemos
     # una lista para ser tratada en la
     # presentacion de la informacion
@@ -3984,6 +4129,18 @@ def ejecutar_groupBy(valores,select_list):
         fila.append(dictionary[llave])
         results.append(fila)
 
+    #Buscamos la lista mas larga
+    max = 0
+    for res in results:
+        if len(res)>max:
+            max = len(res)
+    #Llenamos los vacios con menos
+    for res in results:
+        if len(res) < max :
+            for i in range(len(res),max):
+                res.append('-')
+    
+    
     return results
 
 
@@ -4018,7 +4175,9 @@ class condition(exp_query):
 def ejecutar_conditions(tables,lcond):
     condition = lcond
     if len(condition) == 0:
-        return None
+        e = errores.CError(0,0,"Error en la ejecucion de condiciones.",'Semantico')
+        errores.insert_error(e)
+        return e
     elif len(condition) == 1:
         return condition[0].exp.ejecutar(tables)
     else:
@@ -4027,7 +4186,6 @@ def ejecutar_conditions(tables,lcond):
         res =  valor['posiciones']
         if len(condition) > 1 :
             for i in range(1, len(condition)):
-                print(condition[i].tipo)
                 if condition[i].tipo.upper() == 'AND':
                     
                     res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])

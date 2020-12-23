@@ -174,9 +174,20 @@ class MainWindow(object):
             report_ast = result2
             messagebox.showinfo('EXITO', 'SE FINALIZO EL ANALISIS CON EXITO')
 
-            # ---------- TEST ---------
+             # ---------- TEST ---------
             for inst in result:
-                inst.process(0)
+                # esto es por los select anidados (subquerys), no encontre otra menera 
+                # de retornar la tabla dibujada, lo hacia en mi clase
+                # pero si lo dejaba ahi me tronaban las subquery, 
+                # prueben que no les de problema
+                if isinstance(inst, Select):
+                    result = inst.process(0)
+                    if isinstance(result, DataFrame):
+                        DataWindow().consoleText(format_df(result))
+                    elif isinstance(result, list):
+                        DataWindow().consoleText(format_table_list(result))
+                else:
+                    inst.process(0)
             # ---------- TEST ---------
 
     # Para mostrar el editor

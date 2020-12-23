@@ -1,14 +1,16 @@
 import tkinter as tk
 import gramaticaASC as g
 #import Graficar as graficando
-#from Graficar import*
 import principal as principal
-
+import os
 from tkinter import filedialog
 from tkinter import StringVar
 from tkinter.constants import END, INSERT
 import TablaSimbolos as TS
 
+tablaSimbolos = TS.Entorno(None)
+from tkinter import messagebox
+import pickle
 
 #################################### CLASE TextLineNumbers ####################################
 class TextLineNumbers(tk.Canvas):
@@ -113,13 +115,14 @@ if __name__ == "__main__":
 
     ########################################## FUNCIONES ##########################################
     
+
     #FUNCIÓN PARA IMPRIMIR EN CONSOLA
     def imprimir_consola(expresion):
         consola.configure(state=tk.NORMAL)
         consola.delete('1.0',END)
         consola.insert(INSERT, expresion)
         consola.configure(state=tk.DISABLED)
-
+    
 
     #FUNCIÓN PARA ADJUNTAR TEXTO EN LA CONSOLA (SIN LIMPIARLA)
     def append_consola(expresion):
@@ -166,8 +169,9 @@ if __name__ == "__main__":
 
         g.errores_lexicos.clear()
         g.errores_sintacticos.clear()
+        principal.consola = ""
 
-        tablaSimbolos = TS.Entorno(None)
+        
         entrada = my_editor.text.get('1.0', END)
 
         arbol = g.parse(entrada)
@@ -175,13 +179,13 @@ if __name__ == "__main__":
         if len(g.errores_lexicos) == 0:
 
             if len(g.errores_sintacticos) == 0:
-                
-                # raiz = graficando.analizador(entrada)
+                imprimir_consola("") 
+                #raiz = graficando.analizador(entrada)
                 data=principal.interpretar_sentencias(arbol,tablaSimbolos)
-                tablaSimbolos.mostrar()
+                #tablaSimbolos.mostrar()
                 imprimir_consola(data)
-                # GraficarAST(raiz)
-            
+                #graficando.GraficarAST(raiz)
+                #graficando.ReporteGramatical()
             else:
 
                 imprimir_consola('Se detectaron algunos errores sintácticos')
@@ -229,6 +233,29 @@ if __name__ == "__main__":
     
         """ entrada = my_editor.text.get('1.0',END)
         gd.parse(entrada) """
+    # FUNCIÓN PRIVADA PARA REALIZAR EL REPORTE DE ERRORES SINTÁCTICOS
+    def __funcion_FormatoBnf():
+        os.startfile('gramaticaBNF.txt') 
+   
+    def __funcion_AST():
+            os.startfile('arbol.jpg') 
+ 
+
+
+    def __funcion_on_closing():
+        if messagebox.askokcancel("Salir", "¿Realmente desea finalizar el programa?"):
+
+            # try:
+            #     pickle.dump(tablaSimbolos,open("ts.p","wb"))
+            #     pickle.dump(principal.listaConstraint,open("lc.p","wb"))
+            #     pickle.dump(principal.listaFK,open("lf.p","wb"))
+                
+            # except Exception as e:
+            #     print(e)
+
+            root.destroy()
+
+
         
 
 ######################################## FIN FUNCIONES ########################################
@@ -281,7 +308,9 @@ if __name__ == "__main__":
     menu_reporte = tk.Menu(menubar, tearoff=0)
 
     #SUB MENÚS PARA EL MENÚ ANALIZAR
-    menu_reporte.add_command(label="AST", command=__funcion_analizar)
+    menu_reporte.add_command(label="AST", command=__funcion_AST)
+    menu_reporte.add_command(label="FormatoBNF", command=__funcion_FormatoBnf)
+    
     menu_reporte.add_separator()
     menu_reporte.add_command(label="Errores Léxicos", command=__funcion_errores_lexicos)
     menu_reporte.add_command(label="Errores Sintácticos", command=__funcion_errores_sintacticos)
@@ -298,7 +327,8 @@ if __name__ == "__main__":
     # EDITOR DE TEXTO
     my_editor = Example(frame)
     my_editor.pack(side="top", fill="both", expand=True)
-
+    
+    
     # ETIQUETAS PARA LA FILA Y COLUMNA ACTUAL
 
     fila = StringVar()
@@ -317,4 +347,13 @@ if __name__ == "__main__":
     consola = tk.Text(root, bg='black', fg='white', state=tk.DISABLED)
     consola.place(x=30, y=505, width=1330, height=140)
 
+    root.protocol("WM_DELETE_WINDOW", __funcion_on_closing)
+    try:
+        tablaSimbolos = pickle.load(open("ts.p","rb"))
+        principal.listaConstraint = pickle.load(open("lc.p","rb"))
+        principal.listaFK = pickle.load(open("lf.p","rb"))
+        #tablaSimbolos.mostrar()
+    except Exception as e:
+        print(e)
+    
     root.mainloop()
