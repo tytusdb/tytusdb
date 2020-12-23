@@ -32,6 +32,8 @@ def btnejecutar_click():
     print('ejecutando')
     txt_entrada = editor_box.get(1.0, END+"-1c")
     parse_result = ejecucion.ejecutar(str(txt_entrada))
+    console_box.delete('1.0', END)
+    console_box.insert(INSERT, parse_result[1])
 
 def tblerrores_click():
     print('tabla errores')

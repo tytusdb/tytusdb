@@ -496,16 +496,25 @@ def p_add_alter(p):
     '''addalter : COLUMN ID typecol
                 | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
                 | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+                | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
     '''
     if len(p) == 4:
-        p[0] = AlterTableAdd(CreateCol(p[2],p[3],None))
+        p[0] = AlterTableAdd(CreateCol(p[2],p[3],[{
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
+        'check_condition' : None,
+        'pk_option' : None,
+        'fk_references_to' : None
+    }]))
     elif len(p) == 5:
         p[0] = AlterTableAdd(Check(p[4]))
     elif len(p) == 7:
         p[0] = AlterTableAdd(Constraint(p[2],Unique(p[5]))) #TODO revisar esta asignacion
     else:
-        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   
+        p[0] = AlterTableAdd(ForeignKey(p[4],p[7],p[9]))   
 
 
 def p_alter_alter(p):
@@ -787,18 +796,20 @@ def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
+    lista_union = []
     if len(p) == 2:
         p[0] = p[1]
     elif len(p) == 5:
-        type_combine_query = TypeQuerySelect(p[2], p[3],p.lineno(2), find_column(p.slice[2]))
-        p[1].append(type_combine_query)
-        p[1].append(p[4])
-        p[0] = p[1]
+        lista_union.append(p[1])
+        lista_union.append(p[2])
+        lista_union.append(p[3])
+        lista_union.append(p[4])
+        p[0] = TypeQuerySelect(lista_union , p.lineno(3), find_column(p.slice[3]))
     elif len(p) == 4:
-        type_combine_query = TypeQuerySelect(p[2], None,p.lineno(2), find_column(p.slice[2]))
-        p[1].append(type_combine_query)
-        p[1].append(p[3])
-        p[0] = p[1]
+        lista_union.append(p[1])
+        lista_union.append(p[2])
+        lista_union.append(p[3])
+        p[0] = TypeQuerySelect(lista_union, 0, 0)
     
 
 
@@ -819,7 +830,7 @@ def p_selectq(p):
     if len(p) == 4:
         p[0] = SelectQ(None, p[2], p[3], None, p.lineno(1), find_column(p.slice[1]))
     elif len(p) == 5:
-        if ("ALL" in p[2] or 'DISTINCT' in p[2] or 'UNIQUE' in p[2]):
+        if (p.slice[2].type == "TYPESELECT"):
             p[0] = SelectQ(p[2], p[3], p[4], None,p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = SelectQ(None, p[2], p[3], p[4], p.lineno(1), find_column(p.slice[1]))
@@ -868,10 +879,11 @@ def p_from_clause(p):
     '''FROMCLAUSE : FROM FROMCLAUSELIST'''
     p[0] = From(p[2])
 
+# TODO le faltaba un coma xd 
 def p_from_clause_list(p):
     '''FROMCLAUSELIST : FROMCLAUSELIST COMMA TABLEREFERENCE
-                      | FROMCLAUSELIST LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
-                      | FROMCLAUSELIST LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                      | FROMCLAUSELIST COMMA LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
+                      | FROMCLAUSELIST COMMA LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
                       | TABLEREFERENCE'''
@@ -907,9 +919,9 @@ def p_select_group_having(p):
                          | HAVINGCLAUSE GROUPBYCLAUSE
                          | GROUPBYCLAUSE HAVINGCLAUSE'''
     if (len(p) == 2):
-        p[0] = p[1]
+        p[0] = GroupBy(p[1], None)
     elif (len(p) == 3):
-        p[0] = [p[1], p[2]]
+        p[0] = GroupBy(p[1], p[2])
 
 
 def p_table_reference(p):
@@ -960,12 +972,12 @@ def p_where_clause(p):
 
 def p_group_by_clause(p):
     '''GROUPBYCLAUSE : GROUP BY SQLEXPRESSIONLIST'''
-    p[0] = GroupBy(p[3])
+    p[0] = p[3]
 
 
 def p_having_clause(p):
     '''HAVINGCLAUSE : HAVING SQLEXPRESSION'''
-    p[0] = Having(p[2])
+    p[0] = p[2]
 
 
 def p_join_list(p):
@@ -1409,15 +1421,15 @@ def p_aggregate_functions(p):
     '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS
                           | AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS SQLALIAS'''
     if (len(p) == 5):
-        p[0] = AgreggateFunctions(p[1], p[3], None,p.lineno(1), find_column(p.slice[1]))
+        p[0] = AgreggateFunctions(p[1], p[3], None,p.lineno(2), find_column(p.slice[2]))
     else:
-        p[0] = AgreggateFunctions(p[1], p[3], p[5],p.lineno(1), find_column(p.slice[1]))
+        p[0] = AgreggateFunctions(p[1], p[3], p[5],p.lineno(2), find_column(p.slice[2]))
 
 def p_cont_of_aggregate(p):
     '''CONTOFAGGREGATE : ASTERISK
                        | SQLSIMPLEEXPRESSION'''
     if (p[1] == '*'):
-        p[0] = p[1]
+        p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
     else:
         p[0] = p[1]
 

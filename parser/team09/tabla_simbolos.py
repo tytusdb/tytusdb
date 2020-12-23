@@ -123,7 +123,7 @@ class tabla_simbolos():
             if simbolo.id == id:
                 return simbolo
         #no encuentra la base, retorna error
-        msj_error = 'la base de datos -'+id+'- no existe.'
+        msj_error = 'la base de datos -'+ str(id) + '- no existe.'
         error = E.Errores('ERROR', msj_error)
         return error
 

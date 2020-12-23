@@ -661,4 +661,119 @@ class HashTable:
             self.insert(database, table, t)
         
         self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+    #Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla
+    def extractTable(self, database: str, table: str):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        if ne.searchDatabase(database) is False:
+            return None
+
+        if ne.buscarTablaDatabase(database, table) is False:
+            return None
+
+        tuplas = []
+        #Obtiene todos los registros que están en la tabla
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tuplas.append(r.get(k))
+        return tuplas
+    
+    #Devuelve una lista con los elementos que corresponden a un rango de registros
+    def extractRangeTable(self, database: str, table: str, columnNumber: int, lower, upper):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        if ne.searchDatabase(database) is False:
+            return None
+
+        if ne.buscarTablaDatabase(database, table) is False:
+            return None
+
+        if columnNumber > ne.numeroDeColumnas(database, table):
+            return None
+
+        if lower < 0 or upper > len(self.__order_keys):
+            return None
+
+        lista_datos = []
+
+        for t in range(lower, upper):
+            llave = self.__order_keys[t][:-1].split("_")
+            lista_datos.append(self.extractRow(database, table, llave)[columnNumber])
+
+        return lista_datos
+    
+    #Imprime el vector de la tabla
+    def imprimir(self):
+        for k in self.__vector:
+            print(k)
+            
+    def graficar(self, database: str, table: str):
+        self.IniciarHashTable(database, table)
+        s = open('graph.dot', 'w')
+        s.write('digraph G{\n')
+        s.write('rankdir = \"LR\" \n')
+        s.write('node[shape=record]\n')
+        llave = 0
+        #diccionario = str(llave)
+        s.write('Nodo[label =\"<f' + str(llave) + '>')
+        if self.__vector[llave] is None:
+            s.write('|<f' + str(llave) + '>')
+        else:
+            posicion = 0
+            auxiliar = self.__vector[llave]
+            for key in auxiliar:
+                if(posicion != 0):
+                    posicion = posicion + 1
+                else:
+                    s.write('|<f' + str(llave) + str(auxiliar[key]) + '>')
+                    posicion = posicion + 1
+        llave = llave + 1
+        while llave < 20 :
+            if self.__vector[llave] is None:
+                s.write('|<f' + str(llave) + '>')
+            else:
+                posicion = 0
+                auxiliar = self.__vector[llave]
+                for key in auxiliar:
+                    if(posicion != 0):
+                        posicion = posicion + 1
+                    else:
+                        s.write('|<f' + str(llave) + '> ' + str(auxiliar[key]))
+                        posicion = posicion + 1
+            llave = llave + 1
+        s.write('\"];')
+        llave = 0
+        
+        while llave < 20 :
+            if self.__vector[llave] is not None:
+                posicion = 0
+                auxiliar = self.__vector[llave]
+                dato = "Nodo:<f"
+                for key in auxiliar:
+                    if(posicion == 0):
+                        posicion = posicion + 1
+                    else:
+                        s.write('nodo'+ str(llave) + str(posicion) + '[label= \"' + str(auxiliar[key]) + '\"];')  
+                        if(posicion == 1):
+                            s.write(dato + str(llave) + "> -> nodo" + str(llave) + str(posicion) + "; ")
+                            dato = "nodo" + str(llave) + str(posicion)
+                            posicion = posicion + 1
+                        else:
+                            s.write(dato + " -> nodo" + str(llave) + str(posicion) + ";")
+                            dato = "nodo" + str(llave) + str(posicion)
+                            posicion = posicion  + 1
+            llave = llave + 1
+        s.write('}')
+        s.close()
+        
+        path=os.getcwd()
+        print('path'+path)
+        
+        os.system('dot -Tpdf graph.dot -o graph.pdf')
+        os.system('graph.pdf')
+        
+        
+#Instancia de la clase DataBase
+ne = NombreEstructuras()
+ht = HashTable()
 

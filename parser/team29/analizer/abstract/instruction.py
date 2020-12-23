@@ -3,6 +3,8 @@ from hashlib import new
 from analizer.abstract.expression import Expression
 from analizer.abstract import expression
 from enum import Enum
+import sys
+sys.path.append("../../..")
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
 from analizer.typechecker import Checker
@@ -11,7 +13,7 @@ from analizer.symbol.symbol import Symbol
 from analizer.symbol.environment import Environment
 from analizer.reports import Nodo
 from analizer.reports import AST
-
+import analizer
 ast = AST.AST()
 root = None
 
@@ -30,6 +32,8 @@ dbtemp = ""
 sintaxPostgreSQL = list()
 semanticErrors = list()
 
+def makeAst(root):
+    ast.makeAst(root)
 
 class Instruction:
     """
@@ -157,9 +161,8 @@ class Select(Instruction):
             for p in self.params:
                 paramNode.addNode(p.dot())
         new.addNode(self.fromcl.dot())
-        new.addNode(self.wherecl.dot())
-        global root
-        root = new
+        if self.wherecl != None:
+            new.addNode(self.wherecl.dot())
         return new
 
 
@@ -228,13 +231,15 @@ class FromClause(Instruction):
     def dot(self):
         new = Nodo.Nodo("FROM")
         for t in self.tables:
-            t1 = Nodo.Nodo(t.name)
-            new.addNode(t1)
+            if isinstance(t,analizer.abstract.instruction.Select):
+                n = t.dot()
+                new.addNode(n)
+            else:
+                t1 = Nodo.Nodo(t.name)
+                new.addNode(t1)
         for a in self.aliases:
             a1 = Nodo.Nodo(a)
             new.addNode(a1)
-        global root
-        root = new
         return new
 
 
@@ -287,8 +292,6 @@ class WhereClause(Instruction):
     def dot(self):
         new = Nodo.Nodo("WHERE")
         new.addNode(self.series.dot())
-        global root
-        root = new
         return new
 
 
@@ -322,8 +325,6 @@ class SelectOnlyParams(Select):
         else:
             for p in self.params:
                 paramNode.addNode(p.dot())
-        global root
-        root = new
         return new
 
 
@@ -372,6 +373,11 @@ class Delete(Instruction):
         except:
             raise
 
+    def dot(self):
+        new = Nodo.Nodo("DELETE")
+        new.addNode(self.fromcl.dot())
+        new.addNode(self.wherecl.dot())
+        return new
 
 class Update(Instruction):
     def __init__(self, fromcl, values, wherecl, row, column):
@@ -418,7 +424,17 @@ class Update(Instruction):
             return "Operacion UPDATE completada"
         except:
             raise
+    def dot(self):
 
+        new = Nodo.Nodo("UPDATE")
+        new.addNode(self.fromcl.dot())
+
+        assigNode = Nodo.Nodo("SET")
+        new.addNode(assigNode)
+        for v in self.values:
+            assigNode.addNode(v.dot())
+        new.addNode(self.wherecl.dot())
+        return new
 
 class Assignment(Instruction):
     def __init__(self, id, value, row, column):
@@ -431,6 +447,12 @@ class Assignment(Instruction):
             self.value = self.value.execute(environment).value
         return self
 
+    def dot(self):
+        new = Nodo.Nodo("=")
+        idNode = Nodo.Nodo(str(self.id))
+        new.addNode(idNode)
+        new.addNode(self.value.dot())
+        return new
 
 class Drop(Instruction):
     """
@@ -502,9 +524,6 @@ class Drop(Instruction):
         n = Nodo.Nodo(self.name)
         new.addNode(t)
         new.addNode(n)
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -562,9 +581,6 @@ class AlterDataBase(Instruction):
         valOption = Nodo.Nodo(self.newname)
         optionNode.addNode(valOption)
 
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -601,9 +617,6 @@ class Truncate(Instruction):
         new = Nodo.Nodo("TRUNCATE")
         n = Nodo.Nodo(self.name)
         new.addNode(n)
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -678,9 +691,6 @@ class InsertInto(Instruction):
 
         new.addNode(t)
         new.addNode(par)
-        global root
-        root = new
-
         # ast.makeAst(root)
         return new
 
@@ -698,9 +708,7 @@ class useDataBase(Instruction):
         new = Nodo.Nodo("USE_DATABASE")
         n = Nodo.Nodo(self.db)
         new.addNode(n)
-        global root
-        root = new
-        # ast.makeAst(root)
+
         return new
 
 
@@ -732,9 +740,6 @@ class showDataBases(Instruction):
             new.addNode(l)
             l.addNode(ls)
 
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -797,12 +802,10 @@ class CreateDatabase(Instruction):
             new.addNode(ow)
         if self.mode != None:
             mod = Nodo.Nodo("MODE")
-            mod2 = Nodo.Nodo(self.mode)
+            mod2 = Nodo.Nodo(str(self.mode))
             mod.addNode(mod2)
             new.addNode(mod)
-        global root
-        root = new
-        # ast.makeAst(root)
+
         return new
 
 
@@ -828,7 +831,6 @@ class CreateTable(Instruction):
         3: exists table
         """
         if error == None and insert == None:
-
             result = jsonMode.createTable(dbtemp, self.name, nCol)
             if result == 0:
                 pass
@@ -846,7 +848,6 @@ class CreateTable(Instruction):
             elif result == 3 and self.exists:
                 return "La tabla ya existe en la base de datos"
             else:
-
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
                 )
@@ -860,10 +861,12 @@ class CreateTable(Instruction):
                 print("Error en llaves primarias del CREATE TABLE:", self.name)
             return "Tabla " + self.name + " creada"
         else:
-            #   for i in insert:
-            #      error.append(i)
+            if error == None:
+                error = insert
+
             Struct.dropTable(dbtemp, self.name)
             return error
+
 
     def dot(self):
         new = Nodo.Nodo("CREATE_TABLE")
@@ -879,6 +882,7 @@ class CreateTable(Instruction):
         new.addNode(c)
 
         for cl in self.columns:
+            print(cl)
             if not cl[0]:
                 id = Nodo.Nodo(cl[1])
                 c.addNode(id)
@@ -891,8 +895,11 @@ class CreateTable(Instruction):
                     params = Nodo.Nodo("PARAMS")
                     typ.addNode(params)
                     for parl in par:
+                        print(parl)
                         parl1 = Nodo.Nodo(str(parl))
                         params.addNode(parl1)
+
+                print(cl[3])
                 colOpts = cl[3]
                 if colOpts != None:
                     coNode = Nodo.Nodo("OPTIONS")
@@ -996,8 +1003,6 @@ class CreateType(Instruction):
         for v in self.values:
             paramsNode.addNode(v.dot())
 
-        global root
-        root = new
         return new
 
 
@@ -1052,6 +1057,23 @@ class CheckOperation(Instruction):
                 len(sintaxPostgreSQL), "Error: XX000: Error interno"
             )
             print("Error fatal CHECK")
+
+
+class AlterTable(Instruction):
+    def __init__(self, table, params=[]):
+        self.table = table
+        self.params = params
+
+    def execute(self, environment):
+        alter = Struct.alterColumnsTable(dbtemp, self.table, self.params)
+        if alter == None:
+            alter = Checker.checkValue(dbtemp, self.table)
+            Struct.save()
+
+        if alter == None:
+            alter = "Tabla alterada"
+
+        return alter
 
 
 class limitClause(Instruction):
