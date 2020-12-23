@@ -2766,12 +2766,15 @@ def cuerpo_select(cuerpo,ts):
         fila=[]
         for i in registro:
             for j in i:
-                fila.append(j)
+                fila.append(str(j))
         result.add_row(fila)
 
     # WHERE --------------------------------------------------------
     if cuerpo.b_where != False:
         result=filtroWhere(result,cuerpo.b_where,ts)
+    # ORDER BY --------------------------------------------------------
+    if cuerpo.b_order != False:
+        result=filtroOrderBy(result,cuerpo.b_order,ts)
     
     #mostrar el resultado
     agregarMensjae('table',result,'')
@@ -2836,11 +2839,14 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
             fila=[]
             for i in registro:
                 for j in i:
-                    fila.append(j)
+                    fila.append(str(j))
             result.add_row(fila) 
         # WHERE --------------------------------------------------------
         if cuerpo.b_where != False:
             result=filtroWhere(result,cuerpo.b_where,ts)
+        # ORDER BY --------------------------------------------------------
+        if cuerpo.b_order != False:
+            result=filtroOrderBy(result,cuerpo.b_order,ts)
         
         #filtro col a mostrar    
         result = result.get_string(fields=lcolumnas)
@@ -2856,9 +2862,6 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
                         tip=col.tipo
                         nom=col.nombre
                         agregarTSRepor('',nom,tip,tab,'1')
-
-
-
 
 def filtroWhere(tabla,filtro,ts):
     listaEliminar=[]
@@ -3017,6 +3020,39 @@ def filtroWhere(tabla,filtro,ts):
             tabla.del_row(listaEliminar[cont-1])
             cont=cont-1
     
+
+    return tabla
+
+def filtroOrderBy(tabla,filtro,ts):
+    print('-------------order by-------------')
+    print(filtro)
+    
+    orderOK=True
+    ordernar=[]
+    for x in filtro:
+        nombre=str(resolver_operacion(resolver_operacion(x.nombre,ts),ts))
+        if(nombre not in tabla.field_names):
+            orderOK=False
+            msg="42703:no existe la columnas para order:"+nombre
+            agregarMensjae('error',msg,'42703')
+        else:
+            ordernar.append([nombre,x.direccion,x.rango])
+    
+    #solo aplicar el primer order :D
+    if(orderOK):
+        #ordenar[x][]y]
+        # -[x][0] columna
+        # -[x][1] direccion
+        # -[x][2] anular inicio o fin
+        
+        #agregar orientacion
+        if(ordernar[0][1]!=False):
+            if(ordernar[0][1].lower()=="desc"):
+                tabla.reversesort = True
+        
+        #agregar el orden
+        tabla.sortby=ordernar[0][0]
+        
 
     return tabla
 
