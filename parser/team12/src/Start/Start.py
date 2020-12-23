@@ -56,6 +56,8 @@ class Start(Nodo):
                 nuevoEnum.execute(hijo)
             elif hijo.nombreNodo == 'SENTENCIA_SELECT':
                 hijo.execute(enviroment)
+            elif hijo.nombreNodo == 'SENTENCIA_SELECT_DISTINCT':
+                hijo.execute(enviroment)
             elif hijo.nombreNodo == 'E':
                 hijo.execute(enviroment)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
@@ -67,4 +69,6 @@ class Start(Nodo):
                 self.listaSemanticos.append(hijo.execute(None))
             elif hijo.nombreNodo == "SENTENCIA_DROP":
                 self.listaSemanticos.append(hijo.execute(None))
+            elif hijo.nombreNodo == "SENTENCIA_DELETE":
+                hijo.execute(enviroment)
                 

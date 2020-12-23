@@ -117,7 +117,7 @@ entrada = openFile.read()
 openFile.close()
 resp = run_method(entrada)
 #print("respuesta")
-resp.execute(None)
+#resp.execute(None)
 #print(resp.listaSemanticos)
 
 arbol = Arbol()

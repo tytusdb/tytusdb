@@ -44,6 +44,30 @@ from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Round import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Sign import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Sqrt import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Width_Bucket import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Trunc import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Random import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Acos import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Acosd import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Asin import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Asind import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Atan import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Atand import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Atan2 import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Atan2d import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Cos import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Cosd import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Cot import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Cotd import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Sin import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Sind import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Tan import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Tand import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Sinh import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Cosh import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Tanh import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Asinh import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Acosh import *
+from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Atanh import *
 from Config.BNF import bnf
 
 #Definicion de listado de errores
@@ -729,148 +753,155 @@ def p_select_funciones_20(t):
 
 def p_select_funciones_21(t):
     'funcion_matematica : TRUNC PARENTESISIZQ Exp PARENTESISDER'
-    reportebnf.append(bnf["p_select_funciones_21"])  
-    t[0] = Start("FUNCION_TRUNC",t.lineno(1),t.lexpos(1)+1,None)
+    reportebnf.append(bnf["p_select_funciones_21"])
+    t[0] = Function_Trunc("FUNCION_TRUNC",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
+
+def p_select_funciones_21_1(t):
+    'funcion_matematica : TRUNC PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_21_1"])
+    t[0] = Function_Trunc("FUNCION_TRUNC",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
 
 def p_select_funciones_22(t):
     'funcion_matematica : RANDOM PARENTESISIZQ PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_22"])  
-    t[0] = Start("FUNCION_RANDOM",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Random("FUNCION_RANDOM",t.lineno(1),t.lexpos(1)+1,None)
 #-------------------------------------------------------------------------------------------
 #---------------------------- Funciones Trigonometricas ------------------------------------
 def p_select_funciones_23(t):
     'funcion_trigonometrica : ACOS PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_23"])  
-    t[0] = Start("SENTENCIA_ACOS",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Acos("FUNCION_ACOS",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_24(t):
     'funcion_trigonometrica : ACOSD PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_24"])  
-    t[0] = Start("SENTENCIA_ACOSD",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Acosd("FUNCION_ACOSD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_25(t):
     'funcion_trigonometrica : ASIN PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_25"])  
-    t[0] = Start("SENTENCIA_ASIN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Asin("FUNCION_ASIN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_26(t):
     'funcion_trigonometrica : ASIND PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_26"])  
-    t[0] = Start("SENTENCIA_ASIND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Asind("FUNCION_ASIND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_27(t):
     'funcion_trigonometrica : ATAN PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_27"])  
-    t[0] = Start("SENTENCIA_ATAN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Atan("FUNCION_ATAN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_28(t):
     'funcion_trigonometrica : ATAND PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_28"])  
-    t[0] = Start("SENTENCIA_ATAND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Atand("FUNCION_ATAND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_29(t):
     'funcion_trigonometrica : ATAN2 PARENTESISIZQ Exp COMA Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_29"])  
-    t[0] = Start("SENTENCIA_ATAN2",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Atan2("FUNCION_ATAN2",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_30(t):
     'funcion_trigonometrica : ATAN2D PARENTESISIZQ Exp COMA Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_30"])  
-    t[0] = Start("SENTENCIA_ATAN2D",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Atan2d("FUNCION_ATAN2D",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_31(t):
     'funcion_trigonometrica : COS PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_31"])  
-    t[0] = Start("SENTENCIA_COS",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Cos("FUNCION_COS",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_32(t):
     'funcion_trigonometrica : COSD PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_32"])  
-    t[0] = Start("SENTENCIA_COSD",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Cosd("FUNCION_COSD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_33(t):
     'funcion_trigonometrica : COT PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_33"])  
-    t[0] = Start("SENTENCIA_COT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Cot("FUNCION_COT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_34(t):
     'funcion_trigonometrica : COTD PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_34"])  
-    t[0] = Start("SENTENCIA_COTD",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Cotd("FUNCION_COTD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])    
 
 def p_select_funciones_35(t):
     'funcion_trigonometrica : SIN PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_35"])  
-    t[0] = Start("SENTENCIA_SIN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Sin("FUNCION_SIN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_36(t):
     'funcion_trigonometrica : SIND PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_36"])  
-    t[0] = Start("SENTENCIA_SIND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Sind("FUNCION_SIND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_37(t):
     'funcion_trigonometrica : TAN PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_37"])  
-    t[0] = Start("SENTENCIA_TAN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Tan("FUNCION_TAN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_38(t):
     'funcion_trigonometrica : TAND PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_38"])  
-    t[0] = Start("SENTENCIA_TAND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Tand("FUNCION_TAND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_39(t):
     'funcion_trigonometrica : SINH PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_39"])  
-    t[0] = Start("SENTENCIA_SINH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Sinh("FUNCION_SINH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_40(t):
     'funcion_trigonometrica : COSH PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_40"])  
-    t[0] = Start("SENTENCIA_COSH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Cosh("FUNCION_COSH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_41(t):
     'funcion_trigonometrica : TANH PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_41"])  
-    t[0] = Start("SENTENCIA_TANH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Tanh("FUNCION_TANH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_42(t):
     'funcion_trigonometrica : ASINH PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_42"])  
-    t[0] = Start("SENTENCIA_ASINH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Asinh("FUNCION_ASINH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_43(t):
     'funcion_trigonometrica : ACOSH PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_43"])  
-    t[0] = Start("SENTENCIA_ACOSH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Acosh("FUNCION_ACOSH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_44(t):
     'funcion_trigonometrica : ATANH PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_44"])  
-    t[0] = Start("SENTENCIA_ATANH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Atanh("SENTENCIA_ATANH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 #-------------------------------------------------------------------------------------------
 #------------------------------- Funciones String ------------------------------------------
