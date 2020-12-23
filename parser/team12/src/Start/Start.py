@@ -9,6 +9,7 @@ from Libraries import Table
 from Libraries import Use
 from Libraries import Type
 from Libraries import Select
+from Libraries import InsertTable
 
 
 
@@ -58,4 +59,6 @@ class Start(Nodo):
                 hijo.execute(enviroment)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
                 print("Expresion valor: "+str(hijo.valorExpresion))
-                
+            elif hijo.nombreNodo == 'SENTENCIA_INSERT':
+                nuevoInsert = InsertTable()
+                nuevoInsert.execute(hijo,enviroment)

@@ -1264,25 +1264,33 @@ def p_insert2(t):
     
 def p_list_column(t):
     '''l_param_column : l_param_column COMA IDENTIFICADOR'''     
-    nuevo = nuevo = Insert('L_COLUMN')
-    nuevo.hijos.append(t[1])
+    nuevo = Insert('L_COLUMN')
+    for hijo in t[1].hijos:
+        nuevo.hijos.append(hijo)
     nuevo.hijos.append(IdentificadorDML("COL",t.lineno(1),t.lexpos(1)+1,t[3]))
     t[0] = nuevo
                  
 def p_list_column1(t):
-    '''l_param_column : IDENTIFICADOR'''                                   
-    t[0] = IdentificadorDML("COL",t.lineno(1),t.lexpos(1)+1,t[1])
+    '''l_param_column : IDENTIFICADOR'''  
+    nuevo = Insert('L_COLUMN')      
+    nuevo.hijos.append(IdentificadorDML("COL",t.lineno(1),t.lexpos(1)+1,t[1]))                           
+    t[0] = nuevo
     
 def p_list_param_insert(t):
     '''l_param_insert : l_param_insert COMA  Exp'''
     nuevo = Insert('PARAM_INSERT')
-    nuevo.hijos.append(t[1])
-    nuevo.hijos.append(t[3])
+    for hijo in t[1].hijos:
+        nuevo.hijos.append(hijo)
+    for hijo in t[3].hijos:
+        nuevo.hijos.append(hijo)
     t[0] = nuevo
     
 def p_list_param_insert1(t):
     '''l_param_insert : Exp'''
-    t[0] = t[1]
+    nuevo = Insert('PARAM_INSERT')
+    for hijo in t[1].hijos:
+        nuevo.hijos.append(hijo)
+    t[0] = nuevo
 
 # FIN SENTENCIA INSERT
 
