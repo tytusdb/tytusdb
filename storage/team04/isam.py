@@ -58,6 +58,53 @@ class Page:
         else:
             return self
 
+    # El nodo hijo más pequeño (sin tomar en cuenta las páginas de desborde)
+    @property
+    def lowest_child(self):
+        if self.left != None and not self.left.empty:
+            return self.left.lowest_child
+        elif self.mid != None and not self.mid.empty:
+            return self.mid.lowest_child
+        elif self.right != None and not self.right.empty:
+            return self.right.lowest_child
+        else:
+            return self.left_node if self.left_node != None else self.right_node
+
+    # El nodo hijo más grande (sin tomar en cuenta las páginas de desborde)
+    @property
+    def highest_child(self):
+        if self.right != None and not self.right.empty:
+            return self.right.highest_child
+        elif self.mid != None and not self.mid.empty:
+            return self.mid.highest_child
+        elif self.left != None and not self.left.empty:
+            return self.left.highest_child
+        else:
+            return self.right_node if self.right_node != None else self.left_node
+
+    # Indica si puede contraer sus hijos para volverse una sola página
+    @property
+    def can_contract(self):
+        if self.left != None and self.mid != None and self.right != None:
+            if self.left.leaf or self.mid.leaf or self.right.leaf:
+                return True if self.count_children() <= 2 else False
+            else:
+                return self.left.can_contract and self.mid.can_contract and self.right.can_contract
+        else:
+            return True
+
+    # Cuenta la cantidad de nodos hijo que tiene una página
+    def count_children(self):
+        if self.left != None and self.mid != None and self.right != None:
+            return self.left.count_children() + self.mid.count_children() + self.right.count_children()
+        else:
+            if self.empty:
+                return 0
+            if self.full:
+                return 2
+            else:
+                return 1
+
     # Inserta un nodo en la página
     def insert(self, new_node, full_tree):
         same_left_node = self.left_node != None and self.left_node.node_id == new_node.node_id
@@ -286,6 +333,27 @@ class Page:
             mid_leftmost.left_sister =  lft_rightmost
             code = 0
         return code
+
+    # Contrae las páginas hijo en caso de ser posible.
+    def contract(self):
+        if self.can_contract and self.left != None and self.mid != None and self.right != None:
+            if self.left.leaf and self.mid.leaf and self.right.leaf:
+                low = self.lowest_child
+                high = self.highest_child
+                self.next_page = self.right_sister
+                self.left = None
+                self.mid = None
+                self.right = None
+                self.left_node = low
+                self.right_node = high
+                self.leaf = True
+            else:
+                self.left.contract()
+                self.mid.contract()
+                self.right.contract()
+            return 0
+        else:
+            return 1
 
 # Clase que contiene la definicón de la estructura de datos ISAM
 class Isam:
