@@ -1,4 +1,4 @@
-# TytusDB
+# TytusDB - Manual de Usuario
 
 Universidad de San Carlos de Guatemala  
 Facultad de Ingeniería  
@@ -6,8 +6,6 @@ Cursos: 772 Estructuras de Datos | 774 Sistemas de Bases de Datos 1 | 781 Organi
 Diciembre 2020
 
 ## Índice
-- [Competencias del proyecto](#competencias-del-proyecto) 
-- [Condiciones del proyecto](#condiciones-del-proyecto)
 - [TytusDB](#tytusdb)
 - [Administrador de almacenamiento](#administrador-de-almacenamiento)
 - [Administrador de la base de datos](#administrador-de-la-base-de-datos)
@@ -38,23 +36,23 @@ El administrador de la base de datos se compone de dos componentes:
 Al ejecutar la aplicación nos mostrará una ventana donde podremos ingresar nuestro usuario y contraseña.
 
 <p align="center">
-  <img src="img/02.png" width="800" alt="TytusDB Sesion">
+  <img src="img/02.png" width="500" alt="TytusDB Sesion">
 </p>
 
 <p align="center">
-  <img src="img/03.png" width="800" alt="TytusDB Sesion">
+  <img src="img/03.png" width="500" alt="TytusDB Sesion">
 </p>
 
 De ingresar un usuario y contraseña incorrecto nos preguntará si deseamos reintentar el inicio de sesión, si se acepta tendremos que ingresar otra vez las credenciales y si no se cierra la aplicación.
 
 <p align="center">
-  <img src="img/04.png" width="800" alt="TytusDB Sesion">
+  <img src="img/04.png" width="500" alt="TytusDB Sesion">
 </p>
 
 De lo contrario, si el usuario y contraseña son correctos podremos visualizar el siguiente mensaje. 
 
 <p align="center">
-  <img src="img/05.png" width="800" alt="TytusDB Sesion">
+  <img src="img/05.png" width="500" alt="TytusDB Sesion">
 </p>
 
 ### Barra de Herramientas
