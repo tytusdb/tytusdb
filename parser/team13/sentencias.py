@@ -33,6 +33,11 @@ class Expresion(Enum):
     CADENA = 5
     TABATT = 6
     NEGATIVO = 7
+    FECHA=8
+    HORA=9
+    FECHA_HORA=10
+    INTERVALO=11
+    NULL=12
 
 
 class TipoDato(Enum):
@@ -51,6 +56,8 @@ class TipoAlterColumn(Enum):
 class TipoAlterDrop(Enum):
     CONSTRAINT = 1
     COLUMN = 2
+
+
 
 
 class TipoOpcionales(Enum):
@@ -106,12 +113,20 @@ class SExpresion(Sentencia):
         self.valor = valor
         self.tipo = tipo
 
+    def __str__(self):
+        return "{ SExpresion || 'valor': %s, 'tipo': %s }" % (
+            str(self.valor), str(self.tipo))
+
 
 class SOperacion(Sentencia):
     def __init__(self, opIzq, opDer, operador):
         self.opIzq = opIzq
         self.opDer = opDer
         self.operador = operador
+
+    def __str__(self):
+        return "{ SOperacion || 'opIzq': %s, 'operador': %s, 'opDer': %s }" % (
+            str(self.opIzq), str(self.operador),str(self.opDer))
 
 
 class SUpdateBase(Sentencia):
@@ -139,8 +154,9 @@ class STruncateBase(Sentencia):
 
 
 class SInsertBase(Sentencia):
-    def __init__(self, id, listValores=[]):
+    def __init__(self, id, listaColumnas=[],listValores=[]):
         self.id = id
+        self.listaColumnas=listaColumnas
         self.listValores = listValores
 
 
@@ -220,9 +236,10 @@ class SAlterTableAddUnique(Sentencia):
 
 
 class SAlterTableAddFK(Sentencia):
-    def __init__(self, idtabla, idtablafk,idlocal=[], idfk=[]):
+    def __init__(self, idtabla, idtablafk,idconstraint,idlocal=[], idfk=[]):
         self.idtabla = idtabla
         self.idtablafk=idtablafk
+        self.idconstraint=idconstraint
         self.idlocal = idlocal
         self.idfk = idfk
 
@@ -269,8 +286,9 @@ class SColumnaPk(Sentencia):
 
 
 class SColumnaFk(Sentencia):
-    def __init__(self, id, idlocal=[], idfk=[]):
+    def __init__(self, id, idconstraint,idlocal=[], idfk=[]):
         self.id = id
+        self.idconstraint=idconstraint
         self.idlocal = idlocal
         self.idfk = idfk
 
@@ -318,12 +336,11 @@ class SColumnasAsSelect(Sentencia):
 
 
 class SColumnasSubstr(Sentencia):
-    def __init__(self, st, st2, st3, id):
-        self.st = st
-        self.st2 = st2
-        self.st3 = st3
+    def __init__(self, id,cols=[],cols2=[],cols3=[]):
         self.id = id
-
+        self.cols = cols
+        self.cols2 = cols2
+        self.cols3 = cols3
 
 class SColumnasGreatest(Sentencia):
     def __init__(self, id, cols=[]):
@@ -576,3 +593,90 @@ class SWhereCond9(Sentencia):
 class SHaving(Sentencia):
     def __init__(self, efunc=[]):
         self.efunc = efunc
+
+class SColumnasMulti(Sentencia):
+    def __init__(self, id, cols=[]):
+        self.id = id
+        self.cols = cols
+
+class SWhereConds(Sentencia):
+    def __init__(self, ope,clist=[]):
+        self.ope = ope
+        self.clist = clist
+
+
+class SColQuery(Sentencia):
+    def __init__(self, id, cols=[]):
+        self.id = id
+        self.cols = cols
+
+
+#CLASE PARA UNA OPERACIÓN BEETWEN
+class SBetween(Sentencia):
+    def __init__(self, opIzq, columna, opDer):
+        self.opIzq = opIzq
+        self.columna = columna
+        self.opDer = opDer
+
+    def __str__(self):
+        return "{ SBetween || 'opIzq': %s, 'columna': %s, 'opDer': %s }" % (
+            str(self.opIzq), str(self.columna),str(self.opDer))
+
+
+#CLASE PARA UNA OPERACIÓN NOT BEETWEN
+class SNotBetween(Sentencia):
+    def __init__(self, opIzq, columna, opDer):
+        self.opIzq = opIzq
+        self.columna = columna
+        self.opDer = opDer
+
+
+#CLASE PARA UNA OPERACIÓN LIKE
+class SLike(Sentencia):
+
+    def __init__(self, columna, cadena):
+        self.columna = columna
+        self.cadena = cadena
+
+    def __str__(self):
+        return "{ SLike || 'columna': %s, 'cadena': %s }" % (
+            str(self.columna), str(self.cadena))
+
+
+#CLASE PARA UNA OPERACIÓN iLIKE
+class SILike(Sentencia):
+
+    def __init__(self, columna, cadena):
+        self.columna = columna
+        self.cadena = cadena
+
+    def __str__(self):
+        return "{ SILike || 'columna': %s, 'cadena': %s }" % (
+            str(self.columna), str(self.cadena))
+
+
+#CLASE PARA UNA OPERACIÓN SIMILAR TO
+class SSimilar(Sentencia):
+
+    def __init__(self,columna,patron):
+        self.columna = columna
+        self.patron = patron
+
+    def __str__(self):
+        return "{ SSimilar || 'columna': %s, 'patron': %s }" % (
+            str(self.columna), str(self.patron))
+
+
+#PARA UNA COMPARACIÓN  ENTRE SUBSTRINGS
+class SSubstring(Sentencia):
+
+    def __init__(self,cadena,inicio,tamanio,comparar):
+        self.cadena = cadena
+        self.inicio = inicio
+        self.tamanio = tamanio
+        self.comparar = comparar
+
+
+    def __str__(self):
+        return "{ SSubstring || 'cadena': %s, 'inicio': %s, 'tamanio': %s, 'comparar': %s }" % (
+            str(self.cadena), str(self.inicio), str(self.tamanio), str(self.comparar) )

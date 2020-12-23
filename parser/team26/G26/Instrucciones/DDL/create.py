@@ -94,13 +94,13 @@ class Create(Instruccion):
                         banderaDef = True
                         if column.list.type == 'primary':
                             banderaDef = False
-                            primary = column.list.execute()
-                            default = primary.list.execute()
+                            primary = column.list.execute(data)
+                            default = primary.list.execute(data)
                             references = None
                         elif column.list.type == 'references':
                             banderaDef = False
                             primary = None
-                            references = column.list.execute()
+                            references = column.list.execute(data)
                             if column.extra == None : default = references.list.execute()
                             else : default = references.extra.execute()
                         if banderaDef :
@@ -231,7 +231,7 @@ class TableDescription(Instruccion):
                 else:
                     error = Error('Semántico', 'Error(FK): La columna: ' +  self.extra[0].column +' no existe.', 0, 0)
                     return error
-                    
+
             else:
                 error = Error('Semántico', 'Error(FK): La tabla: ' + self.id +' no existe.', 0, 0)
                 return error

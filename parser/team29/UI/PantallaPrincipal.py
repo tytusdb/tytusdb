@@ -99,7 +99,7 @@ class Pantalla:
         tabls = self.tabControl.tabs()
         i=0
         while i<len(tabls):
-            self.tabControl.forget(i)
+            self.tabControl.forget(tabls[i])
             i+=1
         self.semanticErrors.clear()
         self.sintacticErrors.clear()

@@ -1,3 +1,11 @@
+import ply.yacc as yacc
+import ply.lex as lex
+
+from Ast import *
+from creacionArbol import *
+
+from graphviz import render
+
 reservadas = {
     'smallint'  : 'SMALLINT',          'integer'  : 'INTEGER',   
     'bigint'    : 'BIGINT',            'numeric'  : 'NUMERIC',   
@@ -82,7 +90,8 @@ reservadas = {
     'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
     'random': 'RANDOM',             'true': 'TRUE',
     'false': 'FALSE',               'use' : 'USE',
-    'decimal': 'RDECIMAL'
+    'decimal': 'RDECIMAL',          'union': 'UNION',
+    'intersect': 'INTERSECT',       'except': 'EXCEPT'
 }
 
 tokens  = [
@@ -216,12 +225,17 @@ precedence = (
 
 def p_init(t) :
     'init             : instrucciones'
+    t[0] = Nodo('INSTRUCCIONES','',t[1],t.lexer.lineno)
 
 def p_lista_instrucciones(t) :
     'instrucciones    : instrucciones instruccion'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_salida_instrucciones(t) :
     'instrucciones    : instruccion'
+    t[0] = [t[1]]
+
 
 def p_instruccion(t) :
     '''instruccion    : createDB_instr
@@ -239,6 +253,7 @@ def p_instruccion(t) :
                       | delete_instr
                       | truncate_instr
                       | select_instr'''
+    t[0] = t[1]
 
 
 ######################################################################################################################
@@ -251,102 +266,171 @@ def p_instruccion(t) :
 def p_create_db(t):
     'createDB_instr   : CREATE DATABASE existencia'
     #print("ESTA ES UNA SIMPLE CREACION DATABASE con existencia")
+    if t[3] != None:
+        gramatica = '<createDB_instr> ::= CREATE DATABASE  <existencia>'
+        t[0] = Nodo('CREATE DATABASE', '', [t[3]], t.lexer.lineno, 0 , gramatica)       
+    else :
+        gramatica = '<createDB_instr> ::= CREATE DATABASE'
+        t[0] = Nodo('CREATE DATABASE', '', [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_db2(t):
     'createDB_instr   : CREATE DATABASE ID state_owner'
     #print("ESTA ES UNA SIMPLE CREACION sin existencia alguna DATABASE")
+    if t[4] != None:
+        gramatica = '<createDB_instr> ::= CREATE DATABASE \"' +t[3] + '\"  <state_owner>'
+        t[0] = Nodo('CREATE DATABASE', t[3], [t[4]], t.lexer.lineno, 0 ,gramatica)
+    else :
+        gramatica = '<createDB_instr> ::= CREATE DATABASE \"' +t[3] + '\" '
+        t[0] = Nodo('CREATE DATABASE', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 ##REPLACE DATABASE
 def p_replace_db(t):
     'replaceDB_instr   : REPLACE DATABASE existencia'
     #print("ESTA ES UNA SIMPLE CREACION con existencia DATABASE")
+    if t[3] != None:
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE <existencia>'
+        t[0] = Nodo('REPLACE DATABASE', '', [t[3]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE '
+        t[0] = Nodo('REPLACE DATABASE', '', [], t.lexer.lineno, 0, gramatica)
 
 def p_replace_db2(t):
     'replaceDB_instr   : REPLACE DATABASE ID state_owner'
     #print("ESTA ES UNA SIMPLE CREACION sin existencia DATABASE")
+    if t[4] != None:
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE \"' +t[3] + '\" <state_owner>'
+        t[0] = Nodo('REPLACE DATABASE', t[3], [t[4]], t.lexer.lineno,0, gramatica)
+    else :
+        gramatica = '<replaceDB_instre> ::= REPLACE DATABASE \"' +t[3] + '\" '
+        t[0] = Nodo('REPLACE DATABASE', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 
 ##ESTADOS A LOS REPLACE Y CREATE CONTIENEN LO MISMO
 def p_create_replace_existencia(t):
     'existencia   : IF NOT EXISTS ID state_owner'
     #print("Existencia 1")
+    if t[5] != None:
+        gramatica = '<existencia> ::= IF NOT EXISTS \"' + t[4] +'\"  <state_owner>'
+        t[0] = Nodo('IF NOT EXISTS', t[4], [t[5]], t.lexer.lineno, 0 , gramatica)
+    else :
+        gramatica = '<existencia> ::= IF NOT EXISTS \"' + t[4] + '\" '
+        t[0] = Nodo('IF NOT EXISTS', t[4], [], t.lexer.lineno)
 
 def p_create_replace_state_owner(t):
     'state_owner   : OWNER IGUAL ID state_mode'
     #print("Estado owner con igual")
+    if t[4] != None:
+        gramatica = '<state_owner> ::= OWNER IGUAL \" ' + t[3] + '\"  <state_mode>'
+        t[0] = Nodo('OWNER', t[3], [t[4]], t.lexer.lineno, 0 , gramatica)
+    else :
+        gramatica = '<state_owner> ::= OWNER IGUAL \" ' + t[3] + '\" '
+        t[0] = Nodo('OWNER', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_owner2(t):
-    'state_owner   : OWNER ID state_mode'
+    '''state_owner   : OWNER ID state_mode
+                     | OWNER CADENASIMPLE state_mode'''
     #print("Estado owner sin igual")
+    if t[3] != None:
+        gramatica = '<state_owner> ::= OWNER \" ' + t[2] + '\"  <state_mode>'
+        t[0] = Nodo('OWNER', t[2], [t[3]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<state_owner> ::= OWNER \" ' + t[2] + '\" '
+        t[0] = Nodo('OWNER', t[2], [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_owner3(t):
     'state_owner   : state_mode'
     #print("Estado owner sentencia de escape a mode")
+    t[1].gramatica = '<state_owner> ::= <state_mode>\n' + t[1].gramatica
+    #print("Estado owner sentencia de escape a mode")
+    t[0] = t[1]
 
 def p_create_replace_state_mode(t):
     'state_mode   : MODE IGUAL ENTERO PTCOMA'
     #print("Estado mode con igual")
+    gramatica = '<state_mode> ::= MODE IGUAL \"'+ str(t[3]) + '\"  PTCOMA'
+    t[0] = Nodo('MODE', str(t[3]), [], t.lexer.lineno, 0, gramatica)
 
 def p_create_replace_state_mode2(t):
     'state_mode   : MODE ENTERO PTCOMA'
     #print("Estado mode sin igual")
+    gramatica = '<state_mode> ::= MODE \"'+ str(t[2]) + '\" PTCOMA'
+    t[0] = Nodo('MODE', str(t[3]), [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_mode3(t):
     'state_mode   : PTCOMA'
+    gramatica = '<state_mode> ::= PTCOMA'
     #print("Estado mode sentencia de escape ptcoma")
+    t[0] = Nodo('', t[1], [], t.lexer.lineno, 0 , gramatica)
 
 
 ##ALTER DATABASE
 def p_alter_state(t):
     'alterDB_instr    : ALTER DATABASE ID RENAME TO ID PTCOMA'
     #print("ALTERAR NOMBRE DE DATABASE A: " + t[6])
+    gramatica = '<alterDB_instr> ::= ALTER DATABASE \"' +t[3] + '\"  RENAME TO \" ' + t[6]+'\"  PTCOMA'
+    t[0] = Nodo('ALTER DATABASE', str(t[3]) + '\n RENAME TO ' + str(t[6]), [], t.lexer.lineno,0,gramatica)
 
 def p_alter_state2(t):
     'alterDB_instr    : ALTER DATABASE ID OWNER TO owner_users PTCOMA'
     #print("ALTERAR DUEÑO DE BASE DE DATOS")
+    gramatica = '<alterDB_instr> ::= ALTER DATABASE \"' +t[3] + '\"  OWNER TO <owner_users> PTCOMA'
+    t[0] = Nodo('ALTER DATABASE', str(t[3]), [t[6]], t.lexer.lineno, 0, gramatica)
+
 
 def p_owner_users(t):
     '''owner_users  : ID
                     | CURRENT_USER
                     | SESSION_USER'''   
 
-    #if t[1] == 'CURRENT_USER':
-        #print("-----CURRENT_USER-----")
-    #elif t[1] == 'SESSION_USER':
-        #print("-----SESSION_USER-----")
-    #else:
-        #print("-----USUARIO NUEVO----- " + t[1] + "-----------------")
+    gramatica = '<owner_users> ::= ' + t[1]
+    t[0] = Nodo('Modify owner to', str(t[1]), [], t.lexer.lineno, 0, gramatica)
+
 
 ###DROP DATABASE
 
 def p_dropDB_instr(t):
     'dropDB_instr : DROP DATABASE ID PTCOMA'
     #print("DROP DATABASE SIN CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[3])
+    gramatica = '<dropDB_instr> ::= DROP DATABASE \"' +t[3] + '\"  PTCOMA'
+    t[0] = Nodo('DROP DATABASE', str(t[3]), [], t.lexer.lineno, 0 , gramatica)
 
 def p_dropDB_instr2(t):
     'dropDB_instr : DROP DATABASE IF EXISTS ID PTCOMA'
-    #print("DROP DATABASE CON CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[5])
-
+    gramatica = '<dropDB_instr> ::= DROP DATABASE IF EXISTS \"' +t[5] + '\" PTCOMA'
+    t[0] = Nodo('DROP DATABASE', str(t[5]), [], t.lexer.lineno, 0 , gramatica)
 
 ##SHOW DATABASES
 def p_showDB_instr(t):
     'showDB_instr   : SHOW DATABASES PTCOMA'
     #print("Show DATABASE sencillo")
+    gramatica = '<showDB_instr> ::= SHOW DATABASES PTCOMA'
+    t[0] = Nodo('SHOW DATABASES','', [], t.lexer.lineno, 0, gramatica)
 
 def p_showDB_instr2(t):
     'showDB_instr   : SHOW DATABASES LIKE regexpr PTCOMA'
     #print("Show DATABASE con LIKE")
+    gramatica = '<showDB_instr> ::= SHOW DATABASES LIKE <regexpr> PTCOMA'
+    t[0] = Nodo('SHOW DATABASES', 'LIKE', [t[4]], t.lexer.lineno, 0, gramatica)
 
 def p_showDB_regexp(t):
     '''regexpr      : MODULO ID
                     | MODULO ID MODULO
-                    | ID MODULO
                     | MODULO ENTERO
-                    | MODULO ENTERO MODULO
+                    | MODULO ENTERO MODULO'''
+    gramatica = '<regexpr> ::= MODULO \" ' + str(t[2]) + '\"'
+    t[0] = Nodo('EXPRESION REGULAR', str(t[2]), [], t.lexer.lineno, 0, gramatica)
+
+def p_showDB_regexp2(t):
+    '''regexpr      : ID MODULO
                     | ENTERO MODULO'''
+    gramatica = '<regexpr> ::= \"' + t[1] + '\" MODULO'
+    t[0] = Nodo('EXPRESION REGULAR', str(t[1]), [], t.lexer.lineno, 0, gramatica)
 
 def p_use_instr(t):
     'use_instr      : USE DATABASE ID PTCOMA'
+    gramatica = '<use_instr> ::= USE DATABASE \"' + t[3] + '\"  PTCOMA'
+    t[0] = Nodo('USE DATABASE', str(t[3]), [], t.lexer.lineno, 0, gramatica)
+
 
 
 ## ----------------------------------- gramatica para el manejo de tablas ---------------------------------------
@@ -363,18 +447,29 @@ def p_inst_alter(t):
                         | ALTER TABLE ID RENAME COLUMN ID TO ID
                         | ALTER TABLE ID DROP COLUMN listtablas
                         | ALTER TABLE ID list_alter_column'''
+    t[0] = getAlterTableNode(t)
     
 def p_list_alter_column_r(t):
     'list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column'
+    g = '<list_alter_column> ::= <list_alter_column> \"COMA\" \"ALTER\" \"COLUMN\" ID \"TYPE\" <type_column>\n'
+    t[1].append( Nodo('Columna',t[5],[t[7]],t.lexer.lineno,0,g) )
+    t[0] = t[1]
     
 def p_list_alter_column(t):
     'list_alter_column : ALTER COLUMN ID TYPE type_column'
+    g = '<list_alter_column> ::= \"ALTER\" \"COLUMN\" ID \"TYPE\" <type_column>\n'
+    t[0] = [ Nodo('Columna',t[3],[t[5]],t.lexer.lineno,0,g) ]
     
 def p_list_columns_r(t):
     'list_columns       : list_columns COMA ID type_column'
+    g = '<list_columns> ::= <list_columns> \"COMA\" ID <type_column>\n'
+    t[1].append( Nodo('Columna','',[Nodo('ID',t[3],[],t.lexer.lineno), t[4]],t.lexer.lineno,0,g) )
+    t[0] = t[1]
 
 def p_list_columns_(t):
     'list_columns       : ID type_column'
+    g = '<list_columns> ::= ID <type_column>'
+    t[0] = [Nodo('Columna','',[Nodo('ID',t[1],[],t.lexer.lineno),t[2]],t.lexer.lineno,0,g)]
 
 # Tipos de datos para columnas/campos
 def p_type_column(t):
@@ -402,6 +497,7 @@ def p_type_column(t):
                       | ID
                       | TIME PARIZQ ENTERO PARDER
                       | INTERVAL field'''
+    t[0] = getColumnTypeNode(t)
  
 # Campos para intervalos de tiempo   
 def p_field(t) :
@@ -411,141 +507,212 @@ def p_field(t) :
                       | HOUR
                       | MINUTE
                       | SECOND'''
+    g = '<field> ::= \"'+str(t[1]).upper()+'\"'
+    t[0] = Nodo('Campo',t[1],[],t.lexer.lineno,0,g)
 
 # --------- PRODUCCIONES PARA CREATE TABLE -------------
 
 def p_create_table(t):
     'create_table : CREATE TABLE ID PARIZQ list_columns_x PARDER end_create_table'
+    t[0] = getCreateTableNode(t)
     
 def p_end_create_table(t):
     '''end_create_table : PTCOMA
-                      | INHERITS PARIZQ ID PARDER PTCOMA'''
+                      | INHERITS PARIZQ ID PARDER PTCOMA'''}
+    if len(t) > 2:
+        g = '<end_create_table> ::= \"INHERITS\" \"PARIZQ\" ID \"PARDER\" \"PTCOMA\"\n'
+        t[0] = Nodo('INHERITS',t[3],[],t.lexer.lineno,0,g)
     
 def p_list_columns_x(t):
     'list_columns_x : list_columns_x COMA key_column'
+    t[1].append(t[3])
+    t[0] = t[1]
     
 def p_list_columns(t):
     'list_columns_x : key_column'
+    t[0] = [t[1]]
 
 def p_key_column(t):
     '''key_column : PRIMARY KEY PARIZQ listtablas PARDER
                    | ID type_column attributes'''
+    t[0] = getKeyOrColumnNode(t)
 
 def p_attributes(t):
     'attributes   : default_value null_field constraint_field null_field primary_key'
+    t[0] = getAttributesNode(t)
     
 def p_default_value(t):
     '''default_value  : DEFAULT x_value
                       | empty '''
+    if t[1] != None:
+        g = '<default_value> ::= \"DEFAULT\" <x_value>\n'
+        t[0] = Nodo('DEFAULT','',[],t.lexer.lineno,0,g)
 
 def p_x_value(t):
     ''' x_value : cualquiercadena
                 | cualquiernumero'''
+    t[0] = t[1]
 
 def p_primary_key(t):
     '''primary_key : PRIMARY KEY
                    | empty'''
+    if t[1] != None:
+        g = '<primary_key> ::= \"PRIMARY\" \"KEY\"\n'
+        t[0] = Nodo('PRIMARY KEY','',[],t.lexer.lineno,0,g)
     
 def p_null_field(t):
     '''null_field     : NULL
                       | NOT NULL
                       | empty '''
+    t[0] = getNullFieldNode(t)
     
 def p_constraint_field(t):
     '''constraint_field : UNIQUE
                         | CONSTRAINT ID check_unique 
                         | CHECK PARIZQ condiciones PARDER
                         | empty'''
+    t[0] = getConstraintFieldNode(t)
     
 def p_check_unique(t):
     '''check_unique : UNIQUE 
                     | CHECK PARIZQ condiciones PARDER
                     | empty'''
-
+    t[0] = getCheckUnique(t)
 
 # -------- PRODUCCIONES PARA CREATE ENUMS ------------
 
 def p_create_enum(t):
     'create_enum : CREATE TYPE ID AS ENUM PARIZQ list_string PARDER PTCOMA'
+    g = '<create_enum> ::= \"CREATE\" \"TYPE\" ID \"AS\" \"ENUM\" \"PARIZQ\" <list_string> \"PARDER\" \"PTCOMA\"'
+    t[0] = Nodo('CREATE ENUM',t[3],t[7],t.lexer.lineno,0,g)
     
 def p_list_strings_r(t):
     'list_string : list_string COMA cualquiercadena'
+    t[3].gramatica = '<list_string> ::= <list_string> \"COMA\" <cualquiercadena>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
     
 def p_list_strings(t):
     'list_string : cualquiercadena'
+    t[1].gramatica = '<list_string> ::= <cualquiercadena>'
+    t[0] = [t[1]]
     
 # ------------ PRODUCCION PARA DROP TABLE ------------
 
 def p_drop_table(t):
     'drop_table : DROP TABLE ID PTCOMA'
-
+    g = '<drop_table> ::= \"DROP\" \"TABLE\" ID \"PTCOMA\"\n'
+    t[0] = Nodo('DROP TABLE',t[3],[],t.lexer.lineno,0,g)
 
 ## ------------------------------------- gramatica para el manejo de tuplas -----------------------------------------
 
 ## INSERT 
 def p_insert_sinorden(t) :
     'insert_instr     : INSERT INTO ID VALUES PARIZQ parametros PARDER PTCOMA'
+    g = '<insert_instr> ::=  \"INSERT\" \"INTO\" ID \"VALUES\" \"PARIZQ\" <parametros> \"PARDER\" \"PTCOMA\"\n'
+    t[0] = Nodo('INSERT INTO',t[3],t[6],t.lexer.lineno,0,g)
 
 def p_insert_conorden(t) :
     'insert_instr     : INSERT INTO ID PARIZQ columnas PARDER VALUES PARIZQ parametros PARDER PTCOMA'
+    g = '<insert_instr> ::= \"INSERT\" \"INTO\" ID \"PARIZQ\" <columnas> \"PARDER\" \"VALUES\" \"PARIZQ\" <parametros> \"PARDER\" \"PTCOMA\"\n'
+    t[0] = Nodo('INSERT INTO',t[3],t[6],t.lexer.lineno,0,g)
 
 def p_lista_columnas(t) :
     'columnas       : columnas COMA ID'
+    g = '<columnas> ::= <columnas> \"COMA\" ID\n'
+    t[1].append( Nodo('Columna',t[3],[],t.lexer.lineno,0,g) )
+    t[0] = t[1]
 
 def p_lista_columnas_salida(t) :
     'columnas       : ID'
+    g = '<columnas> ::= ID\n'
+    t[0] = [ Nodo('Columna',t[1],[],t.lexer.lineno,0,g) ]
     
 def p_lista_parametros(t) :
     'parametros       : parametros COMA parametroinsert'
+    t[3].gramatica = '<parametros> ::= <parametros> \"COMA\" <parametroinsert>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lista_parametros_salida(t) :
     'parametros       : parametroinsert'
+    t[1].gramatica = '<parametros> ::= <parametroinsert>\n'
+    t[0] = [t[1]]
 
 def p_parametro (t) :
     '''parametroinsert  : DEFAULT
                         | expresion'''
+    t[0] = getParamNode(t)
     
 ## UPDATE
 def p_update_sinwhere(t) : 
     'update_instr     : UPDATE ID SET asignaciones PTCOMA'
+    g = '<update_instr> ::= \"UPDATE\" ID \"SET\" <asignaciones> \"PTCOMA\"\n'
+    t[0] = Nodo('UPDATE',t[2],t[4],t.lexer.lineno,0,g)
 
 def p_update_conwhere(t) : 
     'update_instr     : UPDATE ID SET asignaciones WHERE condiciones PTCOMA'  
-    
+    g = '<update_instr> ::= \"UPDATE\" ID \"SET\" <asignaciones> \"WHERE\" <condiciones> \"PTCOMA\"\n'
+    t[0] = Nodo('UPDATE',t[2],t[4],t.lexer.lineno,0,g)
+
 def p_lista_asignaciones(t): 
     'asignaciones     : asignaciones COMA asignacion'
+    t[3].gramatica = '<asignaciones> ::= <asignaciones> \"COMA\" <asignacion>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lista_asignacion_salida(t) :
     'asignaciones     : asignacion'
+    t[1].gramatica = '<asignaciones> ::= <asignacion>\n'
+    t[0] = [t[1]]
 
 def p_asignacion(t) :
     'asignacion       : ID IGUAL expresion'
-    
+    t[0] = getAssignNode(t)
+
 ## DELETE
 def p_delete_sinwhere(t):
     'delete_instr     : DELETE FROM ID PTCOMA'
+    g = '<delete_instr> ::= \"DELETE\" \"FROM\" ID \"PTCOMA\"\n'
+    t[0] = Nodo('DELETE',t[3],[],t.lexer.lineno,0,g)
 
 def p_delete_conwhere(t):
     'delete_instr     : DELETE FROM ID WHERE condiciones PTCOMA'
-    
+    g = '<delete_instr> ::= \"DELETE\" \"FROM\" ID \"WHERE\" <condiciones> \"PTCOMA\"\n'
+    t[0] = Nodo('DELETE',t[3],[t[5]],t.lexer.lineno,0,g)
+
 ## TRUNCATE
 def p_truncate_simple(t):
     'truncate_instr   : TRUNCATE listtablas PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" <listtablas> \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','',t[2],t.lexer.lineno,0,g)
 
 def p_truncate_simple_cascade(t):
     'truncate_instr   : TRUNCATE listtablas CASCADE PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" <listtablas> \"CASCADE\" \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','CASCADE',t[2],t.lexer.lineno,0,g)
 
 def p_truncate_table(t) :
     'truncate_instr   : TRUNCATE TABLE listtablas PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" \"TABLE\" <listtablas> \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','TABLE',t[3],t.lexer.lineno,0,g)
 
 def p_truncate_table_cascade(t) :
     'truncate_instr   : TRUNCATE TABLE listtablas CASCADE PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" \"TABLE\" <listtablas> \"CASCADE\" \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','TABLE CASCADE',t[3],t.lexer.lineno,0,g)
 
 def p_listatablas(t) : 
     'listtablas       : listtablas COMA ID'
+    g = '<listtablas> ::= <listtablas> \"COMA\" ID\n'
+    t[1].append(Nodo('ID',t[3],[],t.lexer.lineno,0,g))
+    t[0] = t[1]
 
 def p_listatablas_salida(t) :
     'listtablas       : ID'
+    g = '<listtablas> ::= ID\n'
+    t[0] = [Nodo('ID',t[1],[],t.lexer.lineno,0,g)]
+
 
 
 ######################################################################################################################
@@ -553,8 +720,25 @@ def p_listatablas_salida(t) :
 ######################################################################################################################
 
 def p_select(t):
-    'select_instr     :  select_instr1 PTCOMA'
+    'select_instr     :  select_instr1 second_query PTCOMA'
     t[0] = t[1]
+
+def p_second_query(t):
+    '''second_query     : UNION ALL select_instr1
+                        | INTERSECT ALL select_instr1
+                        | EXCEPT ALL select_instr1 '''
+    t[0] =  [t[3]]
+    t[0] = Nodo('COMBINING QUERY ALL',[], [t[3]], t.lexer.lineno)
+
+def p_second_query2(t):
+    '''second_query     : UNION select_instr1
+                        | INTERSECT select_instr1
+                        | EXCEPT select_instr1 '''
+    t[0] =  [t[2]]
+    t[0] = Nodo('COMBINING QUERY', t[1], [t[2]], t.lexer.lineno)
+
+def p_second_query3(t):
+    'second_query     : empty '
 
 def p_select_simple(t):
     'select_instr1    : SELECT termdistinct selectlist selectfrom'
@@ -580,6 +764,11 @@ def p_listaselect(t):
 
 def p_listaselect_salida(t):
     'listaselect      : valselect'
+
+def p_valselect_10_2(t):
+    'valselect      : CASE case_state END'
+    gramatica = '<valselect> ::= CASE <case_state> END'
+    t[0] = t[2]
 
 def p_valselect_1(t):
     'valselect      : ID alias'
@@ -875,35 +1064,29 @@ def p_valorlogico(t):
 
 #----------------------------- Case ---------------------------------
 def p_estadocase(t):
-    '''case_state   : case_state casestate2 END
-                    | casestate2 END
-                    | empty'''
+    'case_state         : list_case '
+    t[0] = [t[1]]
 
-def p_estadorelacional(t):
-    '''estadorelacional : expresionaritmetica MENQUE expresionaritmetica
-                        | expresionaritmetica MAYQUE expresionaritmetica
-                        | expresionaritmetica IGUAL IGUAL expresionaritmetica
-                        | expresionaritmetica MENIGUAL expresionaritmetica
-                        | expresionaritmetica MAYIGUAL expresionaritmetica
-                        | expresionaritmetica DIFERENTE expresionaritmetica
-                        | estadorelacional AND estadorelacional
-                        | estadorelacional OR estadorelacional '''
-    
-def p_estadorelacional2(t):
-    '''estadorelacional : expresionaritmetica
-                        | between_state
-                        | predicates_state
-                        | is_distinct_state '''
-    t[0] = t[1]
+def p_estadocase2(t):
+    '''list_case        : list_case s_case_state
+                        | s_case_state case_else
+                        | s_case_state
+                        | list_case case_else '''
+    if len(t) == 2:
+       t[0] = t[1]
+    else:
+        t[0] = [t[1], t[2]] 
 
-def p_casestate2(t):
-    'casestate2   : WHEN estadorelacional THEN CADENASIMPLE'
+def p_estadocase3(t):
+    's_case_state       : WHEN condiciones THEN valores'
+    t[2].append(t[4])
+    t[0] =t[2]
 
-def p_casestate22(t):
-    'casestate2    : ELSE CSIMPLE ID CSIMPLE'
+def p_estadocase4(t):
+    'case_else       : ELSE valores'
+    t[0] = [t[2]]
 
-def p_casestate22_(t):
-    'casestate2    : empty'
+
 
 # --------------Between-----------------
 
@@ -942,7 +1125,7 @@ def p_valores(t):
    # t[0] = t[1]
 
 
-# -------------- FUNCIONES MÁTEMÁTICAS ----------------------
+# -------------- FUNCIONES MATEMÁTICAS ----------------------
 
 # Select | Where
 def p_funciones_matematicas1(t):
@@ -1007,16 +1190,21 @@ def p_funciones_trigonometricas(t):
 # Select | Where
 def p_fbinarias_cadenas_1(t):
     'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
+    g = '<fun_bin_strings_1> ::= \"LENGTH\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+    t[0] = Nodo('FUNCION STR','LENGTH',[],t.lexer.lineno,0,g)
     
 # Select | Insert | Update | Where
 def p_fbinarias_cadenas_2(t):
     '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
                             | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
                             | TRIM PARIZQ cadena PARDER'''
+    t[0] = getStringFunctionNode2(t)
     
 # Insert | Update                            
 def p_fbinarias_cadenas_3(t):
     'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
+    g = '<func_bin_strings_3> ::= \"MD5\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+    t[0] = Nodo('FUNCION STR','MD5',[t[3]],t.lexer.lineno,0,g)
 
 # Select
 def p_fbinarias_cadenas_4(t):
@@ -1026,11 +1214,12 @@ def p_fbinarias_cadenas_4(t):
                             | DECODE PARIZQ cadena COMA cadena PARDER
                             | SHA256 PARIZQ cadena PARDER
                             | CONVERT PARIZQ alias PARDER'''
+    t[0] = getStringFunctionNode4(t)
 
 def p_cadena(t):
     '''cadena   : cualquiercadena
                 | cualquieridentificador'''
-
+    t[0] = t[1]
 
 ############################################## PRODUCCIONES ESPECIALES #################################################
 

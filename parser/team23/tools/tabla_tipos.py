@@ -29,6 +29,8 @@ class tipo_primitivo(Enum):
 
     NULL = 16
     ERROR = 17
+
+    TABLA = 18
       
 
 class nodo_AST:
