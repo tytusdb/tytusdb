@@ -302,7 +302,8 @@ def dropTable(database: str, table: str) -> int:
         else:
             if not table in data[database]:
                 return 3
-            else:                
+            else:
+                os.remove('data/json/'+database+'-'+table)
                 data[database].pop(table)
                 dump = True
     if dump:

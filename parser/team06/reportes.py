@@ -91,11 +91,27 @@ def reporteSimbolos(ruta,cadena):
     #print(q)
     print(cadena)
     print(ruta)
-    ar3="""<h1 >REPORTE TABLA DE SIMBOLOS<h1>
-    <table>
+    ar3="""<h1 style="text-align:center;">REPORTE TABLA DE SIMBOLOS<h1>
+    <table border="1" style="margin-left: auto; margin-right: auto">
     <tr>
     <td>IDENTIFICADOR</td>
+    <td>NOMBRE</td>
+    <td>TIPO</td>
+    <td>TAMAÑO CAD</td>
+    <td>BD</td>
+    <td>TABLA</td>
+    <td>OBLIGATORIO</td>
+    <td>PK</td>
+    <td>FK</td>
+    <td>REFERENCIA_PK</td>
+    <td>REFERENCIA_FK</td>
+    <td>UNIQUE</td>
+    <td>ID_UNIQUE</td>
+    <td>CHECK</td>
+    <td>CONDICION_CHECK</td>
+    <td>ID_CHECK</td>
     <td>VALOR</td>
+    <td>DEFAULT</td>
     </tr>"""+cadena+"""</table> """
     print("forma bien la cadena")
     with open(ruta, "w") as f:

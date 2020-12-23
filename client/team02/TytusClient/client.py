@@ -234,24 +234,40 @@ class CustomNotebook(ttk.Notebook):
     ])
 
 # Metodo para iniciar sesion
-def iniciarSesion():
+def iniciarSesion(root):
     usuario = simpledialog.askstring(title="Usuario", prompt="Nombre de usuario:")
     password = simpledialog.askstring(title="Password", prompt="Password:", show="*")
     payload = {'user' : usuario, 'password': password}
-    url = "localhost:10000/conexionBD"
+    url = "http://localhost:10000/conexionBD"
     response = requests.post(url, json = payload)
     if response.status_code == 200:
         response_json = response.json()
-        print(response_json['mensaje'])
+        print(response_json['msj'])
+        if response_json['msj'] == "Conexion establecida":
+            messagebox.showinfo("TytusDB", "Conexion establecida con exito.")
+            return True
+        else:
+            reintentar = messagebox.askquestion("TytusDB", "Usuario o contraseña invalidos, desea reintentar?")
+            if reintentar == "yes":
+                return iniciarSesion(root)
+            else:
+                root.destroy()
+                return False
+        return False
+    else:
+        messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
+        root.destroy()
+        return False
 
 
 
 def main():
     root = Tk()
-    iniciarSesion()
-    app = Example()
-    root.geometry("350x300+300+300")
-    root.mainloop()
+    inicio = iniciarSesion(root)
+    if inicio:
+        app = Example()
+        root.geometry("350x300+300+300")
+        root.mainloop()
 
     # *************************** BARRA DE MENÚ ***************************    
     '''menubar = Menu(root)

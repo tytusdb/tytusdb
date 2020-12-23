@@ -13,6 +13,8 @@ import { TabcontrolComponent } from './component/tabcontrol/tabcontrol.component
 import { EditorComponent } from './component/editor/editor.component';
 import { AceEditorModule } from 'ng2-ace-editor';
 import { ConsoleComponent } from './component/console/console.component';
+import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,9 @@ import { ConsoleComponent } from './component/console/console.component';
     MatIconModule,
     MatButtonModule,
     MatGridListModule,
-    AceEditorModule
+    AceEditorModule,
+    SweetAlert2Module,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

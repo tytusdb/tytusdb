@@ -632,7 +632,7 @@ def p_valores1(p):
 #UPDATE----------------
 def p_update(p):
     "update :   UPDATE id SET cond WHERE wherecond PUNTOCOMA"
-    p[0] = inst.update(p[1],p[3],p[5])
+    p[0] = inst.update(p[2],p[4],p[6])
 
 #DELETE----------------
 def p_delete(p):
