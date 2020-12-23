@@ -1,10 +1,10 @@
 #Esta es la creación de la ventana principal , la raíz es en donde va la ventana 
 #con .config logramos personalizar cada elemento de la ventana 
-from tkinter import* 
+from tkinter import * 
 import sys
-from tkinter import filedialog, messagebox
+from tkinter import filedialog as FileDialog
+from tkinter import messagebox
 from io import open
-from tkinter.filedialog import FileDialog
 
 raiz = Tk()
 VentanaPrincipal = Frame(raiz, width = 1200, height=600)
@@ -402,6 +402,81 @@ opciones3 = OptionMenu(VentanaPrincipal, var3 , *opciones3)
 opciones3.place(x=550, y =350)
 opciones3.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "bold"))
 
+#----------------------AQUÍ VAN LAS FUNCIONES PARA LOS METODOS 
+
+
+def CrearTB(base1, tabla,columna):
+    return "El nombre de la base{},".format(base1), "Tabla {},".format(tabla), "y columna {}".format(columna), "fue creada."
+
+def MostrarTB(base1):
+    return "La base {}, se ha mostrado".format(base1)
+
+def ETable(base1, tabla):
+    return "La base {},".format(base1), "con la tabla {}".format(tabla), "Se ha extraido"
+
+def ERange (base1, tabla, columna, columna2, columna3):
+    return " La base {}, ".format(base1), "con la tabla {},".format(tabla), "columna {},".format(columna), "{},".format(columna2), "{}".format(columna3), "Extract range"
+
+def ADrop (base1 , tabla): 
+    return "La base {} ".format(base1), "con la tabla {}".format(tabla),"A. DROP"
+
+def AddPK(base1, tabla, columna): 
+    return "El nombre de la base{},".format(base1), "Tabla {},".format(tabla), "y columna {}".format(columna), "Agregada la PK"
+
+def RenombrarTB(base1, tabla, rename):
+    return "El nombre de la base{},".format(base1), "Tabla {},".format(tabla), "y columna {}".format(rename), "fue Renombrada."
+
+
+def AddCol (base1, tabla, default):
+    return "El nombre de la base{},".format(base1), "Tabla {},".format(tabla), "y columna {}".format(default), "fue añadida."
+
+
+def ECol(base1, tabla, col):
+    return "El nombre de la base{},".format(base1), "Tabla {},".format(tabla), "y columna {}".format(col), "fue eliminada."
+
+
+def Tablas_Prin():
+    resultadoTablas = ''
+
+#------------------------------ACCIONES TABLAS  
+
+    if nomTablaT.get() != '':
+        if var3.get() == 'Crear':
+            resultadoTablas = CrearTB(nomBaseDatosT.get(), nomTablaT.get(), numeroDeColumna.get())
+        elif var3.get() == 'Mostrar':
+            resultadoTablas = MostrarTB(nomBaseDatosT.get())        
+        elif var3.get()== 'E.Table':
+            resultadoTablas = ETable(nomBaseDatosT.get(), nomTablaT.get())
+        elif var3.get() == 'E. Range':
+            resultadoTablas = ERange(nomBaseDatosT.get(), nomTablaT.get(), numeroDeColumna.get(), numeroDeColumna2.get(), renombrarT.get())
+        elif var3.get() == 'A.AddPK':
+            resultadoTablas = AddPK(nomBaseDatosT.get(), nomTablaT.get(), numeroDeColumna.get())
+        elif var3.get() == 'Renombrar':
+            resultadoTablas = RenombrarTB(nomBaseDatosT.get(), nomTablaT.get(), numeroDeColumna.get())
+
+        elif var3.get() == 'Add.Col':
+            resultadoTablas = AddCol(nomBaseDatosT.get(), nomTablaT.get(), numeroDeColumna.get())                
+        elif var3.get() == 'A.Drop':
+            resultadoTablas = ADrop(nomBaseDatosT.get(), nomTablaT.get())
+        
+        else:
+                resultadoTablas = ECol(nomBaseDatosT.get(), nomTablaT.get(), numeroDeColumna.get())
+        
+        messagebox.showinfo(message= resultadoTablas, title='Tablas')
+    
+    else:
+
+        resultadoTablas = 'No Se encontraron tablas'
+        messagebox.showerror(message=resultadoTablas, title='Tablas')
+    
+    return None
+
+
+BotonPTablas = Button(VentanaPrincipal, text = '  OK  ' , command = Tablas_Prin )
+BotonPTablas.place(x = 550 , y = 400)
+BotonPTablas.config(background = "#682c0e", fg="white", font=("Helvetica", 9 , "bold") )
+
 
 
 raiz.mainloop()
+ruta = ''
