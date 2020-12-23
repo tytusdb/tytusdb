@@ -159,7 +159,8 @@ reservadas = {
     'nulls':'t_nulls',
     'all':'t_all',
     'offset':'t_offset',
-    'limit':'t_limit'
+    'limit':'t_limit',
+    'date':'t_date'
 }
 
 tokens = [
@@ -351,7 +352,7 @@ def p_Sentencias_DML(p):
     '''Sentencias_DML : t_select Lista_EXP Select_SQL Condiciones GRP ORD pyc
                     | t_select asterisco Select_SQL Condiciones GRP ORD pyc
                     | t_insert t_into id Insert_SQL pyc
-                    | t_update id t_set Lista_EXP t_where EXP pyc
+                    | t_update id t_set Lista_EXP Condiciones pyc
                     | t_delete t_from id Condiciones pyc
                     | t_use id pyc'''
     vaciar_lista()
@@ -362,6 +363,7 @@ def p_Sentencias_DML(p):
         p[0] = Insert(p[3], p[4]['col'],p[4]['valores'], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= insert into id INSERT_SQL ; </TD> <TD> {sentencias_dml.inst = insert(id,Insert_SQL.inst)}  </TD></TR>')
     elif p[1] == 'update':
+        p[0] = Update(p[2],p[4],p[5],p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= update id set LISTA_EXP where EXP ; </TD> <TD> {sentencias_dml.inst = update(id, lista_exp.list, exp.val)} </TD></TR>')
     elif p[1] == 'delete':
         p[0] = Delete(p[3],p[4],p.slice[1].lineno, find_column(input, p.slice[1]))
@@ -414,10 +416,10 @@ def p_Condiciones(p):
     '''Condiciones : t_where EXP
             | empty'''
     if len(p) == 3:
-        p[0] = p[2]
+        p[0] = Where(p[2], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> CONDICIONES ::= where EXP  </TD>  <TD> condiciones.val = exp.val </TD></TR>')
     else:
-        p[0] = p[1]
+        p[0] = []
         concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
 
 # ---------------------------- Group, having and order by --------------
@@ -426,7 +428,7 @@ def p_GRP(p):
            | t_group t_by Lista_ID HV
            | empty'''
     if len(p) == 5:
-        p[0] = p[3]
+        p[0] = p[3] + p[4]
     elif len(p) == 4:
         p[0] = p[3]
 
@@ -438,32 +440,55 @@ def p_ORD(p):
     '''ORD : t_order t_by LSORT
            | t_order t_by LSORT LMT
            | empty'''
+    if len(p) == 4:
+        p[0] = p[3]
+    elif len(p) == 5:
+        p[0] = p[3] + [p[4]]
 
 
-def p_LSORT(p):
+def p_L_SORT(p):
     '''LSORT : LSORT coma SORT
-             | SORT'''
+                | SORT'''
+    if len(p) == 4:
+        p[0] = p[1] + [p[3]]
+    else:
+        p[0] = [p[1]]
 
 def p_SORT(p):
     '''SORT : EXP AD NFL
             | EXP AD
             | EXP'''
+    if len(p) == 4:
+        p[0] = Order(p[1], p[2], p[3], p.slice[1].lineno, find_column(input, p.slice[1]))
+    elif len(p) == 3:
+        p[0] = Order(p[1], p[2], p.slice[1].lineno, find_column(input, p.slice[1]))
+    else:
+        p[0] = Order(p[1], p.slice[1].lineno, find_column(input, p.slice[1]))
 
 def p_AD(p):
     '''AD : t_asc
           | t_desc'''
+    p[0] = p[1]
+
 
 def p_NFL(p):
     '''NFL : t_nulls t_first
            | t_nulls t_last'''
+    p[0] = p[2]
+
 def p_LMT(p):
     '''LMT : t_limit NAL t_offset entero
            | t_limit NAL
            | t_offset entero '''
+    if len(p) == 5:
+        p[0] = p[1] + ':' + p[2] + ':' + p[3] + ':' + p[4]
+    else:
+        p[0] = p[1] + ':' + p[2]
 
 def p_NAL(p):
     '''NAL : entero
            | t_all '''
+    p[0] = p[1]
 
 # ---------------------------- Sentencias DDL y Enum Type --------------
 def p_Sentencias_DDL(p):
@@ -829,6 +854,7 @@ def p_Tipo(p):
               | t_charn par1 Valor par2
               | t_text
               | t_boolean
+              | t_date
             | id'''
     p[0] = p[1]
     concatenar_gramatica('\n <TR><TD> TIPO ::= ' + str(p[1]) + '</TD>  <TD> { tipo.type = ' + str(p[1]) + '  } </TD></TR>')
@@ -902,11 +928,11 @@ def p_unario(p):
            | menos EXP  %prec umenos
            | t_not EXP'''
     if p[1] == 'not': 
-        p[0] = Expression(p.slice[1].value, p[2], p.slice[2].lineno, find_column(input, p.slice[2]), 'unario')
+        p[0] = Expression(p.slice[1].value, p[2], p.slice[1].lineno, find_column(input, p.slice[1]), 'unario')
         concatenar_gramatica('\n <TR><TD> EXP ::= not EXP </TD>  <TD> { Exp =  Exp1.val  } </TD></TR>')
     else: 
-        p[0] = Expression(p.slice[1].value, p[2], p.slice[2].lineno, find_column(input, p.slice[2]), 'unario')
-        concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + 'EXP %prec' +  str(p[4]) +'</TD> <TD> { exp = exp1.val  } </TD></TR>')
+        p[0] = Expression(p.slice[1].value, p[2], p.slice[1].lineno, find_column(input, p.slice[1]), 'unario')
+        concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + 'EXP %prec' +  str(p[2]) +'</TD> <TD> { exp = exp1.val  } </TD></TR>')
 
 def p_EXP_Valor(p):
     'EXP : Valor'
