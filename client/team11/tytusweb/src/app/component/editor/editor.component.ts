@@ -3,10 +3,8 @@ import { PruebaService } from 'src/app/service/prueba.service'
 import Swal from 'sweetalert2';
 import 'brace';
 import 'brace/mode/sql';
-/*const THEME = 'ace/theme/nord_dark';
-const LANG = 'ace/mode/typescript';
-const LANG2 = 'ace/mode/c_cpp';
-*/
+import 'brace/theme/github';
+
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
@@ -31,7 +29,6 @@ export class EditorComponent implements OnInit {
       confirmButtonText: `Si`,
       denyButtonText: `No`,
     }).then((result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         Swal.fire('Guardado!', '', 'success')
       } else if (result.isDenied) {

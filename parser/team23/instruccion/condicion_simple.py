@@ -31,11 +31,12 @@ class condicion_simple(instruccion):
                     if dato.lower() == 'null':
                         valor = self.expresion.ejecutar([])
                         return valor.valor
-                elif self.comando.lower() == 'not':
+            elif self.comando.lower() == 'not':
+                if isinstance(dato, str):
                     if dato.lower() == 'null':
                         return nodo_error(self.line, self.column, 'E-23502 not null violation: cannot insert NULL', 'Semántico')
 
-                    return None
+            return None
         except:
             return nodo_error(self.line, self.column, 'E-22005 error in assignment: Could not validate restriction ' + self.comando, 'Semántico')
 

@@ -1,12 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-from function import *
-from typ import *
-from trigonometric_functions import tanh
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.trigonometric_functions import tanh
 
 class Tanh(Function):
     def __init__(self, input, row, column):
