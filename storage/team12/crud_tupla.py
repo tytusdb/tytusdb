@@ -327,23 +327,27 @@ class Arbol:
         else:
             print("Valor No Encontrado")
 
-Prueba = Arbol()
-Prueba.Insertar([5, "Hola"])
-Prueba.Insertar([10, "Hola2"])
-Prueba.Insertar([15, "Hola3"])
-Prueba.Insertar([20, "Hola4"])
-Prueba.Insertar([21, "Hola5"])
-Prueba.Insertar([22, "Hola6"])
-Prueba.Insertar([23, "Hola7"])
-Prueba.Insertar([24, "Hola8"])
-Prueba.Insertar([25, "Hola9"])
-Prueba.Insertar([26, "Hola10"])
-Prueba.Insertar([27, "Hola11"])
-Prueba.Insertar([4, "Hola12"])
-Prueba.Insertar([3, "Hola13"])
-Prueba.Insertar([2, "Hola14"])
-Prueba.Insertar([1, "Hola15"])
-Prueba.Eliminar(26)
-Prueba.Eliminar(23)
-Prueba.Eliminar(27)
-Prueba.Eliminar(20)
+
+
+    def takeDates(self):
+        self._takeDates(self.Raiz)
+        print("imprimiendo valores")
+        vals = self.values
+        print(vals)
+        print("valores imprimidos")
+        self.values = []
+
+        return vals
+    values = []
+    def _takeDates(self,tmp):
+
+        for i in range(3):
+            if tmp.Hijos[i] != None:
+                self._takeDates(tmp.Hijos[i])
+            if tmp.Valores[i][0] != -1:
+                self.values.append(tmp.Valores[i])
+                print(tmp.Valores)
+        if tmp.Hijos[3] != None:
+            self._takeDates(tmp.Hijos[2])
+    def insertar_(self,tupla):
+        self.Insertar(tupla)
