@@ -518,7 +518,7 @@ def p_create_table(t):
     
 def p_end_create_table(t):
     '''end_create_table : PTCOMA
-                      | INHERITS PARIZQ ID PARDER PTCOMA'''}
+                      | INHERITS PARIZQ ID PARDER PTCOMA'''
     if len(t) > 2:
         g = '<end_create_table> ::= \"INHERITS\" \"PARIZQ\" ID \"PARDER\" \"PTCOMA\"\n'
         t[0] = Nodo('INHERITS',t[3],[],t.lexer.lineno,0,g)
@@ -742,9 +742,11 @@ def p_second_query3(t):
 
 def p_select_simple(t):
     'select_instr1    : SELECT termdistinct selectlist selectfrom'
+    t[0] = getSelect(t) 
 
 def p_fromselect(t) :
     'selectfrom       : FROM listatablasselect whereselect groupby orderby'
+    t[0] = [t[2],t[3], t[4], t[5]]
 
 def p_fromselect2(t) :
     'selectfrom       : empty'  
@@ -754,16 +756,21 @@ def p_fromselect2(t) :
 def p_termdistinct(t):
     '''termdistinct   : DISTINCT
                       | empty'''
+    t[0] = getDistinct(t)
 
 def p_selectlist(t):
     '''selectlist     : ASTERISCO
                       | listaselect'''
+    t[0] = getSelectList(t)
 
 def p_listaselect(t):
     'listaselect      : listaselect COMA valselect'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_listaselect_salida(t):
     'listaselect      : valselect'
+    t[0] = [t[1]]
 
 def p_valselect_10_2(t):
     'valselect      : CASE case_state END'
@@ -772,62 +779,90 @@ def p_valselect_10_2(t):
 
 def p_valselect_1(t):
     'valselect      : ID alias'
+    t[0] = getValSelect(t, 'ID')
 
 def p_valselect_11(t):
     'valselect      : ID PUNTO ASTERISCO'
+    t[0] = getValSelect(t, 'ID.*')
 
 def p_valselect_2(t):
     'valselect      : ID PUNTO ID alias'
+    t[0] = getValSelect(t, 'ID.ID')
 
 def p_valselect_3(t):
     'valselect      : funcion_matematica_ws alias'
+    t[0] = getValSelect(t, 'funmat_ws')
 
 def p_valselect_4(t):
     'valselect      : funcion_matematica_s alias'
+    t[0] = getValSelect(t, 'funmat_s')
 
 def p_valselect_5(t):
     'valselect      : funcion_trigonometrica alias'
+    t[0] = getValSelect(t, 'funmat_trig')
 
 def p_valselect_6(t):
     'valselect      : PARIZQ select_instr1 PARDER alias'
+    t[0] = getValSelect(t, 'subquery')
 
 def p_valselect_7(t):
     'valselect      : agregacion PARIZQ cualquieridentificador PARDER alias'
+    t[0] = getValSelect(t, 'agregacion')
 
 def p_valselect_8(t):
     'valselect      : COUNT PARIZQ ASTERISCO PARDER alias'
+    t[0] = getValSelect(t, 'count_ast')
 
 def p_valselect_9(t):
     'valselect      : COUNT PARIZQ cualquieridentificador PARDER alias'
+    t[0] = getValSelect(t, 'count_val')
 
 def p_valselect_10(t) :
     'valselect      : func_bin_strings_1 alias'
+    t[0] = getValSelect(t, 'funcbinstring1')
 
 def p_valselect_12(t) :
     'valselect      : func_bin_strings_2 alias'
+    t[0] = getValSelect(t, 'funcbinstring2')
 
 def p_valselect_13(t):
     'valselect      : func_bin_strings_4 alias'
-    
+    t[0] = getValSelect(t, 'funcbinstring4')
+
+def p_valselect_14(t):
+    '''valselect      : extract_instr 
+                      | datepart_instr
+                      | current
+                      | timestampnow
+                      | nowinstr'''
+    t[0] = t[1]
+
 def p_funcionagregacion(t):
     '''agregacion      : SUM
                        | AVG
                        | MAX
                        | MIN'''
+    t[0] = t[1]
 
 ## ---------- tablas que se piden en el from  -----------------
 
 def p_listatablasselect(t):
     'listatablasselect : listatablasselect COMA tablaselect'
+    t[1].hijos.append(t[3])
+    t[0] = t[1]
 
 def p_listatablasselect_salida(t):
     'listatablasselect : tablaselect'
+    gramatica =  '<listatablasselect> ::=  <tablaselect>'
+    t[0] = Nodo("FROM", '', [t[1]], t.lexer.lineno, 0, gramatica)
 
 def p_tablasselect_1(t):
     'tablaselect       : ID alias'
+    t[0] = getTablaSelect(t)
 
 def p_tablasselect_2(t):
     'tablaselect       : PARIZQ select_instr1 PARDER alias'
+    t[0] = getTablaSelect(t)
 
 def p_asignar_alias(t):
     '''alias             : ID
@@ -837,6 +872,7 @@ def p_asignar_alias(t):
                          | AS CADENASIMPLE
                          | AS CADENADOBLE
                          | empty'''
+    t[0] = getAlias(t)
 
 
 
@@ -844,7 +880,8 @@ def p_asignar_alias(t):
 
 def p_whereselect_1(t):
     'whereselect       : WHERE condicioneswhere'
-
+    gramatica = '<whereselect> ::= \"WHERE\" <condicioneswhere>'
+    t[0] = Nodo('WHERE', '', [t[2]], t.lexer.lineno,0, gramatica)
 
 def p_whereselect_5(t):
     'whereselect       : empty'
@@ -853,11 +890,13 @@ def p_whereselect_5(t):
 def p_lista_condicionwhere(t):
     '''condicioneswhere    : condicioneswhere OR  condicionwhere
                            | condicioneswhere AND condicionwhere'''
-
+    gramatica = '<condicioneswhere> ::= <condicioneswhere> \"'+t[2]+'\" <condicionwhere>'
+    t[0] = Nodo('OPLOG', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_lista_condicionwhere_salida(t):
     'condicioneswhere      : condicionwhere'
-
+    t[1].gramatica = '<condicioneswhere> ::= <condicionwhere>\n' + t[1].gramatica
+    t[0] = t[1]
 
 def p_condicionwhere(t):
     '''condicionwhere      : whereexists
@@ -871,40 +910,56 @@ def p_condicionwhere(t):
                            | not_between_state
                            | predicates_state
                            | is_distinct_state
-                           | condicion'''                     
+                           | condicion''' 
+    t[0] = t[1]                    
 
 def p_existwhere(t):
     'whereexists       : EXISTS PARIZQ select_instr1 PARDER'
+    gramatica = '<condicionwhere> ::= <whereexists>\n'
+    gramatica += '<whereexists> ::= \"EXISTS\" \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('EXISTS', '', [t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_notexistwhere(t):
     'notwhereexists    : NOT EXISTS PARIZQ select_instr1 PARDER'
+    gramatica = '<condicionwhere> ::= <notwhereexists>\n'
+    gramatica += '<notwhereexists> ::= \"NOT\" \"EXISTS\" \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('NOT EXISTS', '', [t[4]], t.lexer.lineno, 0, gramatica)
 
 def p_inwhere(t):
     '''wherein         : cualquiernumero IN PARIZQ select_instr1 PARDER
                        | cadenastodas IN PARIZQ select_instr1 PARDER'''
-
+    gramatica = '<condicionwhere> ::= <wherein>\n'
+    gramatica += '<wherein> ::= <cualquiernumero> \"IN\" \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('IN', '', [t[1], t[4]], t.lexer.lineno, 0, gramatica)
 
 def p_notinwhere(t):
     '''wherenotin      : cualquiernumero NOT IN PARIZQ select_instr1 PARDER
                        | cadenastodas NOT IN PARIZQ select_instr1 PARDER'''
-
+    gramatica = '<condicionwhere> ::= <wherenotin>\n'
+    gramatica += '<wherenotin> ::= <cualquiernumero> \"NOT\" \"IN\" \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('NOT IN', '', [t[1], t[5]], t.lexer.lineno, 0, gramatica)
 
 def p_notlikewhere(t):
     'wherenotlike      : cadenastodas NOT LIKE CADENALIKE'
-
+    gramatica = '<condicionwhere> ::= <wherenotlike>\n'
+    gramatica = '<wherenotlike> ::= <cadenastodas> \"NOT\" \"LIKE\" \"CADENALIKE\"'
+    t[0] = Nodo('NOT LIKE', t[4], [t[1]], t.lexer.lineno, 0, gramatica)
 
 def p_likewhere(t):
     'wherelike         : cadenastodas LIKE CADENALIKE'
+    gramatica = '<condicionwhere> ::= <wherelike>\n'
+    gramatica += '<wherelike> ::= <cadenastodas> \"LIKE\" \"CADENALIKE\"'
+    t[0] = Nodo('LIKE', t[3], [t[1]], t.lexer.lineno, 0, gramatica)
 
 
 def p_substringwhere(t):
     'wheresubstring    : SUBSTRING PARIZQ cadenastodas COMA ENTERO COMA ENTERO PARDER IGUAL CADENASIMPLE'
-
+    t[0] = getSubstring(t)
 
 def p_cadenas(t):
     '''cadenastodas    : cualquiercadena
                        | cualquieridentificador'''
-
+    t[0] = t[1]
 
 # ----- Producciones para el manejo del group by, incluyendo Having --------
 
