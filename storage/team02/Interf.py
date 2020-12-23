@@ -58,6 +58,14 @@ RegistroLabel = Label(VentanaPrincipal, text="Registro:" )
 RegistroLabel.place (x =960 , y = 240)
 RegistroLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
 
+LlavePrimaria = Entry(VentanaPrincipal)
+LlavePrimaria.place (x = 1050 ,  y = 270)
+LlavePrimaria.config(relief = "sunken", borderwidth = 4)
+LlavePrimariaLabel = Label(VentanaPrincipal, text="Llave Primaria:" )
+LlavePrimariaLabel.place (x =960 , y = 270)
+LlavePrimariaLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
+
+
 #---------------CREACIÓN DE CAMPOS PARA LAS Tablas ---------- 
 
 #**************NOMBRE DE LA TABLA****************
@@ -223,14 +231,6 @@ opcion = OptionMenu(VentanaPrincipal, var, *opciones)
 opcion.place(x= 1000, y = 350)
 opcion.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "bold"))
 
-
-#labelTest =Label(VentanaPrincipal, text="", font=('Helvetica', 12), fg='red')
-#labelTest.place(x = 1000, y = 390)
-
-#def callback(*args):
-#    labelTest.configure(text="selected is {}".format(var.get()))
-
-#var.trace("w", callback)
 
 def print_respuesta():
     return None
