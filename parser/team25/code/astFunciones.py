@@ -723,22 +723,22 @@ class FuncionTime(Expresion):# 0 , 1 y 2
         elif self.parametro1 != None:
             if self.funcion == 'TIMESTAMP':
                 hora_fecha_actual = str(datetime.now())[0:19]
-                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea)
+                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea,True)
             else:
                 print("funcion desconocida")
         else:
             if self.funcion == "NOW":
                 hora_fecha_actual = str(datetime.now())[0:19]
-                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea)
+                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea,True)
             elif self.funcion == "CURRENT_DATE":
                 fecha_actual = str(datetime.now())[0:10]
-                return ExpresionCadena(fecha_actual,TIPO_DE_DATO.CADENA,self.linea)
+                return ExpresionCadena(fecha_actual,TIPO_DE_DATO.CADENA,self.linea,True)
             elif self.funcion == "CURRENT_TIME":
                 hora_actual = str(datetime.now())[11:19]
-                return ExpresionCadena(hora_actual,TIPO_DE_DATO.CADENA,self.linea)
+                return ExpresionCadena(hora_actual,TIPO_DE_DATO.CADENA,self.linea,True)
             elif self.funcion == "CURRENT_TIMESTAMP":
                 hora_fecha_actual = str(datetime.now())[0:19]
-                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea)
+                return ExpresionCadena(hora_fecha_actual,TIPO_DE_DATO.CADENA,self.linea,True)
                                     
                                     
                                     
