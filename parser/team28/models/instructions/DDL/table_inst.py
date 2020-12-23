@@ -111,7 +111,7 @@ class CreateTB(Instruction):
     def addPropertyes(self, prop,columnaFinal):
         if prop['default_value'] != None:
             validation = self.validateType(columnaFinal._dataType,prop['default_value'], True)
-            if validation == None:
+            if validation == None or validation == False:
                 return
             else:
                 columnaFinal._default = prop['default_value'].alias
@@ -318,10 +318,12 @@ class CreateTB(Instruction):
                 else:
                     desc = f": out of range value in bigint"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             except:
                 desc = f": invalid default value to bigint column"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -331,6 +333,7 @@ class CreateTB(Instruction):
             else:
                 desc = f": invalid default value to boolean column"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
 
@@ -341,11 +344,13 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid length in char column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             else:
                 if len(valorDef) > 1:
                     desc = f": invalid length in char column, limit is 1"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
                     
 
@@ -356,11 +361,13 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid len in character column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             else:
                 if len(valorDef) > 1:
                     desc = f": invalid length in char column, limit is 1"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
 
         #-->
@@ -370,6 +377,7 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid len in varying column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             else:
                 pass
@@ -382,6 +390,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format in date column"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -401,6 +410,7 @@ class CreateTB(Instruction):
                         if conteo > paramOne:
                             desc = f": overflow in decimal or numeric column"
                             ErrorController().add(6, 'Execution', desc, 0, 0)
+                            self._can_create_flag = False
                             return False
                 else:
                     strValorDef = str(valorDef)
@@ -410,11 +420,13 @@ class CreateTB(Instruction):
                         if len(str(parteEntera)) > paramOne and parteEntera != 0:
                             desc = f": overflow in decimal or numeric column"
                             ErrorController().add(6, 'Execution', desc, 0, 0)
+                            self._can_create_flag = False
                             return False
 
             except:
                 desc = f": invalid default value in decimal or numeric"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         elif columnType == 'ColumnsTypes.DOUBLE_PRECISION' or columnType == 'ColumnsTypes.REAL':
@@ -423,6 +435,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in double or real"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -434,10 +447,12 @@ class CreateTB(Instruction):
                 else:
                     desc = f": default value out of range in integer col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             except:
                 desc = f": invalid default value in integer col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -451,6 +466,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in money col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -462,10 +478,12 @@ class CreateTB(Instruction):
                 else:
                     desc = f": default value out of range in small col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             except:
                 desc = f": invalid default value in smallint col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
         
         #-->
@@ -475,6 +493,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in text col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
         
         #-->
@@ -485,6 +504,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format timpestamp, yyyy-mm-dd h:m:s"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
         
         #-->
@@ -495,6 +515,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format time, h:m:s"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         elif columnType == 'ColumnsTypes.VARCHAR':
@@ -503,9 +524,11 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f":  out of range value in varchar col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             else:
                 pass
+
         return True
 
 
@@ -649,3 +672,4 @@ class AlterTableRename(AlterTable):
 
     def __repr__(self):
         return str(vars(self))
+

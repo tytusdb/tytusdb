@@ -161,6 +161,8 @@ class MainWindow(object):
         global report_ast
 
         DataWindow().clearConsole()
+        SymbolTable().destroy()
+
         texto = self.entrada.get('1.0', END)
         result = parse(texto)
         # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
@@ -174,11 +176,11 @@ class MainWindow(object):
             report_ast = result2
             messagebox.showinfo('EXITO', 'SE FINALIZO EL ANALISIS CON EXITO')
 
-             # ---------- TEST ---------
+            # ---------- TEST ---------
             for inst in result:
-                # esto es por los select anidados (subquerys), no encontre otra menera 
+                # esto es por los select anidados (subquerys), no encontre otra menera
                 # de retornar la tabla dibujada, lo hacia en mi clase
-                # pero si lo dejaba ahi me tronaban las subquery, 
+                # pero si lo dejaba ahi me tronaban las subquery,
                 # prueben que no les de problema
                 if isinstance(inst, Select):
                     result = inst.process(0)

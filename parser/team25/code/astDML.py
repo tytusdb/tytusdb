@@ -3,6 +3,7 @@ import storageManager.jsonMode as DBMS
 from useDB.instanciaDB import DB_ACTUAL
 import typeChecker.typeReference as TypeCheck
 from astExpresion import TIPO_DE_DATO
+from astFunciones import FuncionTime
 from useDB import instanciaDB
 import sqlErrors
 
@@ -65,7 +66,7 @@ class InsertTable(Instruccion):
         valores1=self.valores
         listaCol=self.listaColumnas
         dbName=DB_ACTUAL.getName()
-        # dbName="DbTest"
+        # dbName="test"
         # Check if a db is in use
         if dbName==None:
             # Add this error to the errors Tree
@@ -85,6 +86,8 @@ class InsertTable(Instruccion):
                     # INSERT CHECKING ALL COLUMNS ON THEIR RESPECTIVE ORDER
                     if len(columnsNameList)==len(valores1):
                         for val in valores1:
+                            if isinstance(val,FuncionTime):
+                                val=val.ejecutar(ts)
                             if val.tipo==TIPO_DE_DATO.CADENA:
                                 if TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="varchar".casefold() or TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="character varying".casefold():
                                     if len(val.val)<=TypeCheck.getLenght(dbName,tabla1,columnsNameList[counter]):
@@ -102,7 +105,18 @@ class InsertTable(Instruccion):
                                                     sqlTypeError=sqlErrors.sql_error_data_exception.null_value_not_allowed
                                                     print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                         else:
-                                            result.append(val.val)
+                                            if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                                check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                                dictCheck={columnsNameList[counter]:val.val}
+                                                if eval(check,dictCheck):
+                                                    result.append(val.val)
+                                                else:
+                                                    sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                    print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                    flag=True
+                                                    break
+                                            else:
+                                                result.append(val.val)
                                     else:
                                         print("ERROR: la longitud de la cadena es mayor a lo permitido por el tipo de dato")
                                         flag=True
@@ -122,7 +136,18 @@ class InsertTable(Instruccion):
                                                     sqlTypeError=sqlErrors.sql_error_data_exception.null_value_not_allowed
                                                     print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                         else:
-                                            result.append(val.val)
+                                            if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                                check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                                dictCheck={columnsNameList[counter]:val.val}
+                                                if eval(check,dictCheck):
+                                                    result.append(val.val)
+                                                else:
+                                                    sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                    print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                    flag=True
+                                                    break
+                                            else:
+                                                result.append(val.val)
                                     else:
                                         print("ERROR: el tamaño de la cadena es mayor a lo permitido por el tipo de dato")
                                         flag=True
@@ -141,7 +166,38 @@ class InsertTable(Instruccion):
                                                 sqlTypeError=sqlErrors.sql_error_data_exception.null_value_not_allowed
                                                 print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                     else:
-                                        result.append(val.val)
+                                        if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                            check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                            dictCheck={columnsNameList[counter]:val.val}
+                                            if eval(check,dictCheck):
+                                                result.append(val.val)
+                                            else:
+                                                sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                flag=True
+                                                break
+                                        else:
+                                            result.append(val.val)
+                                elif TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="date".casefold() or\
+                                    TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="time".casefold() or\
+                                        TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="interval".casefold() :
+                                    if val.isFecha:
+                                        if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                            check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                            dictCheck={columnsNameList[counter]:val.val}
+                                            if eval(check,dictCheck):
+                                                result.append(val.val)
+                                            else:
+                                                sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                flag=True
+                                                break
+                                        else:
+                                            result.append(val.val)
+                                    else:
+                                        flag=True
+                                        sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
+                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                 else:
                                     flag=True
                                     sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
@@ -149,19 +205,52 @@ class InsertTable(Instruccion):
                             elif val.tipo==TIPO_DE_DATO.ENTERO:
                                 if TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="smallint".casefold():
                                     if val.val>=-32768 and val.val<=32767:
-                                        result.append(val.val)
+                                        if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                            check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                            dictCheck={columnsNameList[counter]:val.val}
+                                            if eval(check,dictCheck):
+                                                result.append(val.val)
+                                            else:
+                                                sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                flag=True
+                                                break
+                                        else:
+                                            result.append(val.val)
                                     else:
                                         print("ERROR: el tamaño del número no coincide con el tipo de dato")
                                         flag=True
                                 elif TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="integer".casefold():
                                     if val.val>=-2147483648 and val.val<=2147483647:
-                                        result.append(val.val)
+                                        if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                            check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                            dictCheck={columnsNameList[counter]:val.val}
+                                            if eval(check,dictCheck):
+                                                result.append(val.val)
+                                            else:
+                                                sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                flag=True
+                                                break
+                                        else:
+                                            result.append(val.val)
                                     else:
                                         print("ERROR: el tamaño del número no coincide con el tipo de dato")
                                         flag=True
                                 elif TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="bigint".casefold():
                                     if val.val>=-9223372036854775808  and val.val<=9223372036854775807:
-                                        result.append(val.val)
+                                        if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                            check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                            dictCheck={columnsNameList[counter]:val.val}
+                                            if eval(check,dictCheck):
+                                                result.append(val.val)
+                                            else:
+                                                sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                flag=True
+                                                break
+                                        else:
+                                            result.append(val.val)
                                     else:
                                         print("ERROR: el tamaño del número no coincide con el tipo de dato")
                                         flag=True
@@ -175,24 +264,36 @@ class InsertTable(Instruccion):
                                     TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="real".casefold() or \
                                     TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="double precision".casefold() or \
                                     TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="money".casefold():
-                                    result.append(val.val)
-                                else:
-                                    flag=True
-                                    sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
-                                    print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
-                                # FALTA COMPROBAR FECHAS Y TYPES
-                            elif val.tipo==TIPO_DE_DATO.DATE:
-                                if TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="date".casefold() or \
-                                    TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="time".casefold() or \
-                                        TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="interval".casefold():
-                                    result.append(val.val)
+                                    if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                        check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                        dictCheck={columnsNameList[counter]:val.val}
+                                        if eval(check,dictCheck):
+                                            result.append(val.val)
+                                        else:
+                                            sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                            flag=True
+                                            break
+                                    else:
+                                        result.append(val.val)
                                 else:
                                     flag=True
                                     sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
                                     print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                             elif val.tipo==TIPO_DE_DATO.BOOLEANO and \
                                 TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="boolean".casefold():
-                                result.append(val.val)
+                                if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter])==None:
+                                    check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[counter]).lower()
+                                    dictCheck={columnsNameList[counter]:val.val}
+                                    if eval(check,dictCheck):
+                                        result.append(val.val)
+                                    else:
+                                        sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                        flag=True
+                                        break
+                                else:
+                                    result.append(val.val)
                             else:
                                 flag=True
                                 sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
@@ -211,6 +312,8 @@ class InsertTable(Instruccion):
                         columnsIndex=0
                         counter=0
                         for val in valores1:
+                            if isinstance(val,FuncionTime):
+                                val=val.ejecutar(ts)
                             colIndex=getColumnIndex(columnsNameList,listaCol[counter])
                             if not colIndex==None:
                                 if not checkColumnsDictionary(columnsDict,listaCol[counter]):
@@ -231,7 +334,19 @@ class InsertTable(Instruccion):
                                                             sqlTypeError=sqlErrors.sql_error_data_exception.null_value_not_allowed
                                                             print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                                 else:
-                                                    columnsDict[listaCol[counter]]=val.val
+                                                    if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                        check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                        dictCheck={columnsNameList[colIndex]:val.val}
+                                                        if eval(check,dictCheck):
+                                                            columnsDict[listaCol[counter]]=val.val
+                                                        else:
+                                                            sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                            flag=True
+                                                            break
+                                                    else:
+                                                        columnsDict[listaCol[counter]]=val.val
+                                                    
                                             else:
                                                 print("ERROR: la longitud de la cadena es mayor a lo permitido por el tipo de dato")
                                                 flag=True
@@ -251,7 +366,18 @@ class InsertTable(Instruccion):
                                                             sqlTypeError=sqlErrors.sql_error_data_exception.null_value_not_allowed
                                                             print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                                 else:
-                                                    columnsDict[listaCol[counter]]=val.val
+                                                    if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                        check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                        dictCheck={columnsNameList[colIndex]:val.val}
+                                                        if eval(check,dictCheck):
+                                                            columnsDict[listaCol[counter]]=val.val
+                                                        else:
+                                                            sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                            flag=True
+                                                            break
+                                                    else:
+                                                        columnsDict[listaCol[counter]]=val.val
                                             else:
                                                 print("ERROR: el tamaño de la cadena es mayor a lo permitido por el tipo de dato")
                                                 flag=True
@@ -270,27 +396,91 @@ class InsertTable(Instruccion):
                                                         sqlTypeError=sqlErrors.sql_error_data_exception.null_value_not_allowed
                                                         print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                             else:
-                                                result.append(val.val)
+                                                if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                    check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                    dictCheck={columnsNameList[colIndex]:val.val}
+                                                    if eval(check,dictCheck):
+                                                        columnsDict[listaCol[counter]]=val.val
+                                                    else:
+                                                        sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                        flag=True
+                                                        break
+                                                else:
+                                                    columnsDict[listaCol[counter]]=val.val
+                                        elif TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="date".casefold() or\
+                                             TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="time".casefold() or\
+                                             TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="interval".casefold() :
+                                            if val.isFecha:
+                                                if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                    check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                    dictCheck={columnsNameList[colIndex]:val.val}
+                                                    if eval(check,dictCheck):
+                                                        columnsDict[listaCol[counter]]=val.val
+                                                    else:
+                                                        sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                        flag=True
+                                                        break
+                                                else:
+                                                    columnsDict[listaCol[counter]]=val.val
+                                            else:
+                                                flag=True
+                                                sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
+                                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                         else:
                                             flag=True
                                             sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_column
-                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name)+" "+listaCol[counter])
                                     elif val.tipo==TIPO_DE_DATO.ENTERO:
                                         if TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="smallint".casefold():
                                             if val.val>=-32768 and val.val<=32767:
-                                                columnsDict[listaCol[counter]]=val.val
+                                                if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                    check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                    dictCheck={columnsNameList[colIndex]:val.val}
+                                                    if eval(check,dictCheck):
+                                                        columnsDict[listaCol[counter]]=val.val
+                                                    else:
+                                                        sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                        flag=True
+                                                        break
+                                                else:
+                                                    columnsDict[listaCol[counter]]=val.val
                                             else:
                                                 print("ERROR: el tamaño del número no coincide con el tipo de dato")
                                                 flag=True
                                         elif TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="integer".casefold():
                                             if val.val>=-2147483648 and val.val<=2147483647:
-                                                columnsDict[listaCol[counter]]=val.val
+                                                if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                    check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                    dictCheck={columnsNameList[colIndex]:val.val}
+                                                    if eval(check,dictCheck):
+                                                        columnsDict[listaCol[counter]]=val.val
+                                                    else:
+                                                        sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                        flag=True
+                                                        break
+                                                else:
+                                                    columnsDict[listaCol[counter]]=val.val
                                             else:
                                                 print("ERROR: el tamaño del número no coincide con el tipo de dato")
                                                 flag=True
                                         elif TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="bigint".casefold():
                                             if val.val>=-9223372036854775808  and val.val<=9223372036854775807:
-                                                columnsDict[listaCol[counter]]=val.val
+                                                if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                    check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                    dictCheck={columnsNameList[colIndex]:val.val}
+                                                    if eval(check,dictCheck):
+                                                        columnsDict[listaCol[counter]]=val.val
+                                                    else:
+                                                        sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                        flag=True
+                                                        break
+                                                else:
+                                                    columnsDict[listaCol[counter]]=val.val
                                             else:
                                                 print("ERROR: el tamaño del número no coincide con el tipo de dato")
                                                 flag=True
@@ -299,33 +489,66 @@ class InsertTable(Instruccion):
                                             sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
                                             print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
                                     elif val.tipo==TIPO_DE_DATO.DECIMAL:
-                                        if TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="decimal".casefold() or \
-                                            TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="numeric".casefold() or \
-                                            TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="real".casefold() or \
-                                            TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="double precision".casefold() or \
-                                            TypeCheck.getType(dbName,tabla1,columnsNameList[counter]).casefold()=="money".casefold():
-                                            columnsDict[listaCol[counter]]=val.val
+                                        if TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="decimal".casefold() or \
+                                            TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="numeric".casefold() or \
+                                            TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="real".casefold() or \
+                                            TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="double precision".casefold() or \
+                                            TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="money".casefold():
+                                            if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                dictCheck={columnsNameList[colIndex]:val.val}
+                                                if eval(check,dictCheck):
+                                                    columnsDict[listaCol[counter]]=val.val
+                                                else:
+                                                    sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                    print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                    flag=True
+                                                    break
+                                            else:
+                                                columnsDict[listaCol[counter]]=val.val
                                         else:
                                             flag=True
                                             sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
-                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name)+ " "+columnsNameList[colIndex] + " "+str(val.val))
                                         # FALTA COMPROBAR FECHAS Y TYPES
                                     elif val.tipo==TIPO_DE_DATO.DATE:
                                         if TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="date".casefold() or \
                                             TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="time".casefold() or \
                                                 TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="interval".casefold():
-                                            columnsDict[listaCol[counter]]=val.val
+                                            if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                                check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                                dictCheck={columnsNameList[colIndex]:val.val}
+                                                if eval(check,dictCheck):
+                                                    columnsDict[listaCol[counter]]=val.val
+                                                else:
+                                                    sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                    print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                    flag=True
+                                                    break
+                                            else:
+                                                columnsDict[listaCol[counter]]=val.val
                                         else:
                                             flag=True
                                             sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
-                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                            print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name)+ " "+columnsNameList[colIndex] + " "+str(val.val))
                                     elif val.tipo==TIPO_DE_DATO.BOOLEANO and \
                                         TypeCheck.getType(dbName,tabla1,columnsNameList[colIndex]).casefold()=="boolean".casefold():
-                                        columnsDict[listaCol[counter]]=val.val
+                                        if not TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex])==None:
+                                            check=TypeCheck.getCheck(dbName,tabla1,columnsNameList[colIndex]).lower()
+                                            dictCheck={columnsNameList[colIndex]:val.val}
+                                            if eval(check,dictCheck):
+                                                columnsDict[listaCol[counter]]=val.val
+                                            else:
+                                                sqlTypeError=sqlErrors.sql_error_integrity_constraint_violation.check_violation
+                                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                                flag=True
+                                                break
+                                        else:
+                                            columnsDict[listaCol[counter]]=val.val
                                     else:
                                         flag=True
                                         sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
-                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                        print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name) + " "+columnsNameList[colIndex] + " "+str(val.val))
                                 else:
                                     flag=True
                                     print("ERROR: se está intentando ingresar una misma columna dentro de una sentencia INSERT")
@@ -334,7 +557,7 @@ class InsertTable(Instruccion):
                             else:
                                 flag=True
                                 sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_column
-                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name)+" "+listaCol[counter])
                         if not flag:
                             # THIS SECOND FLAG WILL CHECK IF A REMAINING COLUMN CAN BE NULL, IF NOT, RETURNS TRUE AND IS AN ERROR
                             secondFlag=False
@@ -372,7 +595,7 @@ class InsertTable(Instruccion):
                                 # WE ARE GONNA USE A THIRD FLAG :/
                                 thirdFlag=False
                                 for itemDict in list(columnsDict.keys()):
-                                    print(itemDict)
+                                    # print(itemDict)
                                     if not itemDict in columnsNameList:
                                         thirdFlag=True
                                         break
@@ -381,7 +604,7 @@ class InsertTable(Instruccion):
                                     print(DBMS.insert(dbName,tabla1,result))
                                 else:
                                     sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_column
-                                    print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name))
+                                    print("ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name)+" "+listaCol[counter])
                             else:
                                 print("ERROR: Una o varias columnas no han sido especificadas y no pueden ser nulas")
                         else:
