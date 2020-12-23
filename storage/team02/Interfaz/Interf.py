@@ -223,13 +223,17 @@ opcion = OptionMenu(VentanaPrincipal, var, *opciones)
 opcion.place(x= 1000, y = 350)
 opcion.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "bold"))
 
-labelTest =Label(VentanaPrincipal, text="", font=('Helvetica', 12), fg='red')
-labelTest.place(x = 1000, y = 390)
 
-def callback(*args):
-    labelTest.configure(text="selected is {}".format(var.get()))
+#labelTest =Label(VentanaPrincipal, text="", font=('Helvetica', 12), fg='red')
+#labelTest.place(x = 1000, y = 390)
 
-var.trace("w", callback)
+#def callback(*args):
+#    labelTest.configure(text="selected is {}".format(var.get()))
+
+#var.trace("w", callback)
+
+def print_respuesta():
+    return None
 
 #-----------MENU DESPLEGABLE PARA LAS BASES DE DATOS
 
