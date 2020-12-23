@@ -410,7 +410,7 @@ class FuncionNumerica(Expresion):
 
 
 
-class FuncionCadena:
+class FuncionCadena(Expresion):
     def __init__(self, funcion, parametro1, parametro2=None, parametro3=None, linea = 0 ):
         self.funcion = funcion
         self.parametro1 = parametro1
@@ -493,7 +493,7 @@ class FuncionCadena:
                     return ExpresionCadena(hashlib.sha256(nodoSimplificado.val.encode()).hexdigest(), TIPO_DE_DATO.CADENA , self.linea)
                     
 
-class FuncionAgregacion:
+class FuncionAgregacion(Expresion):
     def __init__(self, funcion, parametro1, parametro2=None, linea = 0 ):
         self.funcion = funcion.upper()
         self.parametro1 = parametro1

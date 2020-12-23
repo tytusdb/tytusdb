@@ -79,7 +79,7 @@ insert1 = Insert('persona',valores,None,4,3)
 
 
 valor3 = Literal(2,Type.INT,2,3)
-valor4 = Literal('Juan Pedro',Type.STRING,2,3)
+valor4 = Literal('Chepix Pedro',Type.STRING,2,3)
 valor23 = Literal('femenino',Type.STRING,2,3)
 valores2 = [valor4,valor3, valor23]
 columnasval =['nombre','id','sexo']
@@ -92,7 +92,7 @@ valor24 = Literal('femenino',Type.STRING,2,3)
 valores3 = [valor5,valor6,valor24]
 insert3 = Insert('persona',valores3,None,4,3)
 
-colList = ['id', 'nombre']
+colList = ['id', 'nombre','sexo']
 tabList = ['persona']
 
 idexp = Id('nombre', None, 3,4)
@@ -102,7 +102,11 @@ where = Relational(idexp, op2, '<>', 5,4)
 idCount = Id('sexo', None, 5,6)
 count = Count(idCount)
 
-select_ins = Select(False,colList,tabList,where,['sexo','nombre'],[count],0,0)
+expHav= Id('id', None, 3,5)
+opxd = Literal(0, Type.INT, 4,12)
+hav= Relational(expHav, opxd, '>=', 5,4)
+
+select_ins = Select(False,colList,tabList,where,['sexo'],None,None,['id'],0,0)
 #add column
 '''tipoColumna={'type':Type.STRING, 'length':-1, 'default':'no tiene'}
 add = Add_Column('apellido',tipoColumna,5,8)
@@ -145,32 +149,3 @@ instrucciones = [database,objUse,objTable,insert1,insert2,insert3,select_ins]
 objMain = Main(instrucciones)
 env = Environment(None)
 objMain.execute(env)
-
-
-"""
-sum = SUM(id | '*')
-
-for t in split:
-    for op in aggregates:
-        newVal = sum.execute(tabla, metadata)---> columna 
-        t = newVal['data']
-
-
------
-if id != None:
-    sum = 0
-    for data in self.tabla:
-        #declarar cada campo en la tabla de simbolos
-        env = Environment(None)
-        for index  in range(len(metadata.columns)):
-            meta = metadata.columns[index]            
-            env.guardarVariable(meta.name, getPrimitivo(meta.tipo), data[index])
-        sum = sum + self.id.execute(env)['value']
-    
-    for data in self.tabla:
-        data.append(sum)
-    columna = Columna( 'SUM('+self.id')', Type.numeric, 0, -1)
-    metadata.columns.append(columna)
-    return {'tabla': metadata, 'data': tabla}
-
-"""
