@@ -111,6 +111,7 @@ class ArbolAVLDB:
 
         self.cadena += "}\n"
         print(self.cadena)
+        return self.cadena
 
     def get_root(self):
         return self.root
@@ -187,7 +188,6 @@ class ArbolAVLDB:
             return root
         if root.get_element().get_database() > name:
             return self.__search_value(root.get_left(), name)
-
         return self.__search_value(root.get_right(), name)
 
     def search_value(self, db_name):
@@ -214,7 +214,8 @@ class ArbolAVLDB:
     def __inorder(self, nodo):
         if nodo.get_left() is not None:
             self.__inorder(nodo.get_left())
-        self.__list_databases.append(nodo.get_element())
+        self.__list_databases.append(nodo.get_element().get_database())
 
         if nodo.get_right() is not None:
             self.__inorder(nodo.get_right())
+

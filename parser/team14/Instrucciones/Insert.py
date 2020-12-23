@@ -9,14 +9,16 @@ from Expresion.Relacional import *
 from Expresion.Expresion import *
 from Expresion.Terminal import *
 from Expresion.FuncionesNativas import *
-
+from Expresion.variablesestaticas import variables
+from tkinter import *
+from reportes import *
 class Insert(Instruccion):
     def __init__(self, nombre,valores=[]):
         self.nombre=nombre
         self.valores=valores
 
     def ejecutar(self, ent:Entorno):
-        completo=self.nombre+'_'+ent.getDataBase()
+        completo=str(self.nombre+'_'+ent.getDataBase())
         tabla:Simbolo = ent.buscarSimbolo(completo)
         if tabla != None:
             columnas=tabla.valor
@@ -27,11 +29,8 @@ class Insert(Instruccion):
                 i=0
                 correcto=True
                 for columna in columnas:
-                    verificarnull=tabla.valor[i].atributos.get('not null')
-                    verificarprimary=tabla.valor[i].atributos.get('primary')
                     verificarunique=tabla.valor[i].atributos.get('unique')
                     verificarcheck=tabla.valor[i].atributos.get('check')
-                     
                     nombre=columna.nombre
                     tipo=columna.tipo
 
@@ -47,9 +46,11 @@ class Insert(Instruccion):
                             v=self.validarunique(ent,tabla,colunique,self.valores[i].getval(ent))
                             #print("-----",v)
                             if v:
-                                print('Error Violacion de Constraint Unique en:',colunique,' : ',self.valores[i].getval(ent))
-                                return 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+self.valores[i].getval(ent)
-
+                                #print('Error Violacion de Constraint Unique en:',colunique,' : ',self.valores[i].getval(ent))
+                                variables.consola.insert(INSERT,'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[i].getval(ent))+'\n')
+                                reporteerrores.append(Lerrores("Error Semantico", 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[i].getval(ent)),'',''))
+                                return
+                                
                     if(verificarcheck!=None):
                         check=ent.buscarSimbolo(verificarcheck)
                         #print("Condicion:",check.valor.exp1.getval(ent),check.valor.simbolo,check.valor.exp2.getval(ent))
@@ -58,9 +59,9 @@ class Insert(Instruccion):
                         operador=check.valor.simbolo
                         l=0
                         for columna in columnas:
-                            tipo=columna.tipo
+                            #tipo=columna.tipo
                             if(check.valor.exp1.getval(ent)==columna.nombre):
-                                condicion1=Terminal(tipo,self.valores[l].getval(ent))     
+                                condicion1=Terminal(columna.tipo,self.valores[l].getval(ent))     
                             l=l+1
                         
                         n=0
@@ -77,25 +78,54 @@ class Insert(Instruccion):
                             if nuevaop.getval(ent):
                                 correcto=True
                             else:
-                                return('Registro no cumple con condicion check')
+                                variables.consola.insert(INSERT,'Error Registro no cumple con condicion check\n')
+                                reporteerrores.append(Lerrores("Error Semantico", 'Registro no cumple con condicion check','',''))
+                                return
 
                         elif operador in ('or','and','not'):
                             nuevaop = Logica(condicion1,condicion2,operador);
                             if nuevaop.getval(ent):
                                 correcto=True
                             else:
-                                return('Registro no cumple con condicion Check')
-                                    
-                    util=Tipo(None,None,-1,-1)
-                    if isinstance (self.valores[i],FuncionesNativas):
-                        self.valores[i]=self.valores[i].getval(ent)
+                                variables.consola.insert(INSERT,'Error Registro no cumple con condicion check\n')
+                                reporteerrores.append(Lerrores("Error Semantico", 'Error Registro no cumple con condicion check','',''))
+                                return
+                    
+                    buscado=str('ENUM_'+ent.getDataBase()+'_'+tipo.getTipo())
+                    types:Simbolo= ent.buscarSimbolo(buscado)
+                    
+                    tipocorrecto = False 
+                    
+                    if types!=None:
+                        tiposenum=types.valor
+                        print("Comparando Enum")
+                        for valenum in tiposenum:
+                             if str(valenum.getval(ent)).lower() == str(self.valores[i].getval(ent)).lower():
+                                  tipocorrecto=True
+                        if not tipocorrecto:
+                            variables.consola.insert(INSERT,str('Error Tipo enum no correcto en valor: '+self.valores[i].getval(ent))+'\n')
+                            reporteerrores.append(Lerrores("Error Semantico",str('Error Tipo enum no correcto en valor: '+self.valores[i].getval(ent)),'',''))
+                            return
 
-                    if util.comparetipo(tipo,self.valores[i].tipo):
-                        'todo correcto'
-                        
-                    else:
-                        correcto=False
-                        return 'Error los tipos de los valores no coinciden con la definicion de la tabla'
+                            
+                    if not tipocorrecto:
+                        print("comparando tipos")
+                       
+                        util=Tipo(None,None,-1,-1)
+                        #tabla:Simbolo = ent.buscarSimbolo(completo)
+        
+                        if isinstance (self.valores[i],FuncionesNativas):
+                            self.valores[i]=self.valores[i].getval(ent)
+
+                        if util.comparetipo(tipo,self.valores[i].tipo):
+                            'todo correcto'
+                            
+                        else:
+                            correcto=False
+                            variables.consola.insert(INSERT,'Error los tipos no coinciden con la definicion de la tabla\n')
+                            reporteerrores.append(Lerrores("Error Semantico",'Tipo de datos en columanas no son iguales','',''))
+                            return
+                           
                     i=i+1
                 terminales = []
                 for val in self.valores:
@@ -103,9 +133,13 @@ class Insert(Instruccion):
 
                 r=DBMS.insert(ent.getDataBase(),self.nombre,terminales)
                 if(r==4):
-                    return 'Error al Insertar Registro Violacion de Constraint Primary Key'
-
-                return 'Registros insertados con exito'
+                    variables.consola.insert(INSERT,'Error violacion de Constraint Primary key\n')
+                    reporteerrores.append(Lerrores("Error Semantico",'Violacion de Constraint primary Key','',''))
+                    return
+                variables.consola.insert(INSERT,'Registros Ingresados EXITOSAMENTE\n')
+                           
+                return    
+             
     def validarunique(self,entorno,tabla,namecolums,unique):
         encontrado=0
         nocol=-1
@@ -150,7 +184,7 @@ class InsertWhitColum(Instruccion):
         self.namecolums=namecolums
 
     def ejecutar(self, ent:Entorno):
-        completo=self.nombre+'_'+ent.getDataBase()
+        completo=str(self.nombre+'_'+ ent.getDataBase())
         tabla:Simbolo = ent.buscarSimbolo(completo)
         if tabla != None:
             columnas=tabla.valor
@@ -179,12 +213,12 @@ class InsertWhitColum(Instruccion):
                     operador=check.valor.simbolo
                     l=0
                     for columna in columnas:
-                        tipo=columna.tipo
+                        #tipo=columna.tipo
                         if(check.valor.exp1.getval(ent)==columna.nombre):
                             k=0
                             for actual in self.namecolums:
                                 if(check.valor.exp1.getval(ent)==actual.getval(ent)):
-                                    condicion1=Terminal(tipo,self.valores[k].getval(ent))
+                                    condicion1=Terminal(columna.tipo,self.valores[k].getval(ent))
                                 k=k+1
                         l=l+1
                     
@@ -205,15 +239,18 @@ class InsertWhitColum(Instruccion):
                         if nuevaop.getval(ent):
                             correcto=True
                         else:
-                            return('Registro no cumple con condicion check')
+                            variables.consola.insert(INSERT,'Error Registro no cumple con condicion check\n')
+                            reporteerrores.append(Lerrores("Error Semantico", 'Registro no cumple con condicion check','',''))
+                            return
 
                     elif operador in ('or','and','not'):
                         nuevaop = Logica(condicion1,condicion2,operador);
                         if nuevaop.getval(ent):
                             correcto=True
                         else:
-                            return('Registro no cumple con condicion Check')
-                                
+                            variables.consola.insert(INSERT,'Error Registro no cumple con condicion check\n')
+                            reporteerrores.append(Lerrores("Error Semantico", 'Registro no cumple con condicion check','',''))
+                            return 
                   
 
 
@@ -241,17 +278,41 @@ class InsertWhitColum(Instruccion):
                                 v=self.validarunique(ent,tabla,colunique,self.valores[j].getval(ent))
                                 #print("-----",v)
                                 if v:
-                                    print('Error Violacion de Constraint Unique en:',colunique,' : ',self.valores[j].getval(ent))
-                                    return 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+self.valores[j].getval(ent)
-                    
+                                    variables.consola.insert(INSERT,'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[j].getval(ent))+'\n')
+                                    reporteerrores.append(Lerrores("Error Semantico", 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[j].getval(ent)),'',''))
+                                    return
+                                    
                         if isinstance (self.valores[j],FuncionesNativas):
                             self.valores[j]=self.valores[j].getval(ent)
+                        
+                        buscado=str('ENUM_'+ent.getDataBase()+'_'+tipo.getTipo())
+                        types:Simbolo= ent.buscarSimbolo(buscado)
+                    
+                        tipocorrecto = False 
+                    
+                        if types!=None:
+                            tiposenum=types.valor
+                            print("Comparando Enum")
+                            for valenum in tiposenum:
+                                if str(valenum.getval(ent)).lower() == str(self.valores[j].getval(ent)).lower():
+                                    tipocorrecto=True
+                            if not tipocorrecto:
+                                variables.consola.insert(INSERT,str('Error Tipo enum no correcto en valor: '+self.valores[j].getval(ent))+'\n')
+                                reporteerrores.append(Lerrores("Error Semantico",str('Tipo enum no correcto en valor: '+self.valores[j].getval(ent)),'',''))
+                                return
 
-                        if util.comparetipo(tipo,self.valores[j].tipo):
-                            'todo correcto'
-                        else:
-                            correcto=False
-                            return 'Error los tipos de los valores no coinciden con la definicion de la tabla'
+
+
+                        if not tipocorrecto:
+                            if util.comparetipo(tipo,self.valores[j].tipo):
+                                'todo correcto'
+                            else:
+                                correcto=False
+                                variables.consola.insert(INSERT,'Error los tipos no coinciden con la definicion de la tabla\n')
+                                reporteerrores.append(Lerrores("Error Semantico",'Tipo de datos en columanas no son iguales','',''))
+                                return
+                        
+                        
                         terminales.append(self.valores[j].getval(ent))
                         j=j+1
                     else: 
@@ -259,18 +320,24 @@ class InsertWhitColum(Instruccion):
                         terminales.append('')
                 r=DBMS.insert(ent.getDataBase(),self.nombre,terminales)
                 if(r==4):
-                    return 'Error al Insertar Registro Violacion de Constraint Primary Key'
-                
-                
-                return 'Registro insertado exitosamente'
+                    variables.consola.insert(INSERT,'Error violacion de Constraint Primary key\n')
+                    reporteerrores.append(Lerrores("Error Semantico",'Violacion de Constraint primary Key','',''))
+                    return
+
+                variables.consola.insert(INSERT,'Registros Ingresados EXITOSAMENTE\n')
+                return 
                 
                 
             else:
-                return str('Error Numero Parametros en tabla '+self.nombre+' Incorrectos')
-
+                variables.consola.insert(INSERT,'Error Numero Parametros en tabla '+self.nombre+' Incorrectos\n')
+                reporteerrores.append(Lerrores('Erro semantico','Numero Parametros en tabla '+self.nombre+' Incorrectos','',''))
+                return
+                
         else:
-            return str('Error Tabla '+self.nombre+' No Existe en la BD actual')
-
+            variables.consola.insert(INSERT,'Error Tabla '+self.nombre+' No Existe en la BD actual\n')
+            reporteerrores.append(Lerrores('Error Semantico','Numero Parametros en tabla '+self.nombre+' Incorrectos','',''))
+            return
+           
 
     def validarunique(self,entorno,tabla,namecolums,unique):
         encontrado=0
@@ -312,10 +379,3 @@ class InsertWhitColum(Instruccion):
                         #else:
                             #print("diferete",dato,unique)
             return False
-                        
-                        
-                            
-          
-            
-           
-                      
