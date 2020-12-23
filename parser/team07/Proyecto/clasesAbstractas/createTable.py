@@ -88,6 +88,7 @@ class createTable(InstruccionAbstracta):
                         pass         
                     
                     indice = indice + 1
+                baseDatos.agregarTabla(tablaGuardar)
                 return
         pass
 
