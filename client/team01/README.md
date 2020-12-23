@@ -71,7 +71,7 @@ CodeMirror es un editor de texto muy versátil implementado en JavaScirpt para n
 > Se utiliza CodeMirror para el editor de texto principal, permitiendonos el manejo de sintaxis de SQL de una manera rápida y correcta.
 
 **[py2exe](https://www.py2exe.org/).**
-<img src="docs/Grupo01_Imagen10.png" width="75" height="75">
+<img src="docs/Grupo01_Imagen10.png" width="150" height="75">
 
 py2Exe es una extension de Python que se encarga de convertir código de Python a programas ejecutables de windows (.exe) y permite correrlos sin necesidad de instalar Python. Su desarrollo está en [GitHub](https://github.com/py2exe/py2exe).
 
