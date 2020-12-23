@@ -1133,8 +1133,6 @@ def p_expression_trigonometricfunctions(t):
                   | ASIND BRACKET_OPEN expression BRACKET_CLOSE 
                   | ATAN BRACKET_OPEN expression BRACKET_CLOSE 
                   | ATAND BRACKET_OPEN expression BRACKET_CLOSE 
-                  | ATAN2 BRACKET_OPEN expression BRACKET_CLOSE 
-                  | ATAN2D BRACKET_OPEN expression BRACKET_CLOSE 
                   | COS BRACKET_OPEN expression BRACKET_CLOSE 
                   | COSD BRACKET_OPEN expression BRACKET_CLOSE 
                   | COT BRACKET_OPEN expression BRACKET_CLOSE 
@@ -1162,6 +1160,8 @@ def p_expression_argumentlistfunctions(t):
                   | POWER BRACKET_OPEN expressionList BRACKET_CLOSE 
                   | ROUND BRACKET_OPEN expressionList BRACKET_CLOSE
                   | TRUNC BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | ATAN2 BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | ATAN2D BRACKET_OPEN expressionList BRACKET_CLOSE 
                   '''
     t[0] = ArgumentListFunction(t[1],t[3])
     global grammarreport

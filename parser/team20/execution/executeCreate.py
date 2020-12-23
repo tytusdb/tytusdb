@@ -312,20 +312,29 @@ def executeCreateTable(self, table):
     #
         
 def executeCreateType(self, typeEnum):
+    #data=TCgetDatabase()
+    #array={}
+    #if(typeEnum.expressions!=None):
+        #i = 0
+        #for node in typeEnum.expressions:
+            #res=executeExpression(self,node)
+            #if(res.type == 5):
+                #res.value = res.value.replace("'","")
+                #new={str(i):res.value}
+                #array.update(new)
+                #i=i+1
+        #print(array)
+    #return TCcreateType(data,typeEnum.name,array) 
+
     data=TCgetDatabase()
     array={}
     if(typeEnum.expressions!=None):
         i = 0
         for node in typeEnum.expressions:
             res=executeExpression(self,node)
-            if(res.type == 5):
-                res.value = res.value.replace("'","")
-                new={str(i):res.value}
-                array.update(new)
-                i=i+1
-        #print(array)
-    return TCcreateType(data,typeEnum.name,array) 
-
+            print(res.type)
+            print(res.value)
+    return 0
    
 
 
