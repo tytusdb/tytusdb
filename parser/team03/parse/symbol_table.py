@@ -90,7 +90,7 @@ class SymbolTable:
             raise Error(0, 0, ErrorType.RUNTIME, f'[TS]{symbol.name} ya ha sido declarado previamente')
         return True
 
-    def get(self, symbol_id):
+    def get_by_id(self, symbol_id):
         result = next((sym for sym in self.symbols if sym.id == symbol_id), None)
         if result is None:
             raise Error(0, 0, ErrorType.RUNTIME, f'[TS]Simbolo id:{symbol_id} no pudo ser encontrado')
@@ -109,12 +109,12 @@ class SymbolTable:
         return result
 
     def update(self, symbol):
-        result = self.get(symbol.id)
+        result = self.get_by_id(symbol.id)
         self.symbols[self.symbols.index(result)] = symbol
         return True
 
     def delete(self, symbol_id):
-        result = self.get(symbol_id)
+        result = self.get_by_id(symbol_id)
         self.symbols.remove(result)
         return True
 
