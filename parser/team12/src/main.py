@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 from gramatica import run_method
+from gramatica import errores,reportebnf
+from ERROR.Error import Error,Tipo
 from ARBOL_AST.Arbol import *
 import pathlib
 import json
@@ -31,6 +33,7 @@ class mainWindow:
         self.consoleArea.heading("Columna", text = "Columna")
         self.consoleArea.heading("Desc", text = "Descripcion")
         self.consoleArea.grid(columnspan=10, padx = 15, pady = 15)
+        self.fila_no = 0
         
         # Forma de Insertar las columnas
         # self.consoleArea.insert(parent = '', index= 'end', iid = 0, values = ("Columna 1","Columna 2", "Columna 3")) 
@@ -74,6 +77,25 @@ class mainWindow:
         self.textArea2.configure(state = 'disabled')
         #print(arbol.generar_dot(resp))
 
+        self.agregar_errores()
+        #print(arbol.generar_dot(resp))
+
+    def agregar_errores(self):
+        global errores
+        print(errores)
+        for err in errores:
+            tipo = ""
+            if err.tipo == 3 or err.tipo == Tipo.SEMANTICO:
+                tipo == "[SEMANTIC ERROR]"
+            self.consoleArea.insert(parent = '', index= 'end', iid = self.fila_no, values = (str(err.linea),str(err.columna),tipo+" "+err.descripcion)) 
+            self.fila_no = self.fila_no + 1
+        errores.clear()
+
+    def reportar_bnf(self):
+        global reportebnf
+        for i in reportebnf:
+            print(i)
+        reportebnf.clear()
 
 #Borrar las variables de configuración
 with open('src/Config/Config.json') as file:
