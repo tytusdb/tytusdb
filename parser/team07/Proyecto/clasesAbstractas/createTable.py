@@ -15,7 +15,7 @@ class createTable(InstruccionAbstracta):
 
 
     def ejecutar(self, tabalSimbolos, listaErrores): 
-        baseDatos =  tabalSimbolos.obtenerBaseDatos(tabalSimbolos.useDataBase)
+        baseDatos =  tabalSimbolos.useDataBase
         bandera = baseDatos.comprobarNombreTabla(self.identificador)
         if bandera == 1:
             #Tabla ya existe

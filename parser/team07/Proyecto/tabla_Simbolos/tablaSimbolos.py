@@ -19,6 +19,7 @@ class tablaDeSimbolos():
     #Metodo para guardar un mensaje de ejecución exitoso
     def guardarMensajeEjecucion(self, mensaje):
         self.listaMensajes.append(mensaje)
+        print(mensaje)
 
 
     #Metodo para obtener el tipo de dato resultante de acuerdo a dos tipos de datos dados

@@ -1279,7 +1279,7 @@ def p_exp_aritmetica(t):
                 \t hijosBetween = []\n\
                 \t hijosBetween.append(t[1])\n\
                 \t hijosBetween.append(None)\n\
-                \t nodoBetween.setearValores(linea, columna, "IN", nNodo, "", hijosBetween)\n\
+                \t nodoBetween.setearValores(linea, columna, \"IN\", nNodo, "", hijosBetween)\n\
                 \t nodoExp.operacionUnaria(nodoBetween, tipoSimbolo.TipoSimbolo.INN)\n\
                 \t nodoExp.hijos.append(nodoBetween)\n\
                 \t t[0] = nodoExp\n\n")
