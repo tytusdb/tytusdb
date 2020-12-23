@@ -90,6 +90,25 @@ def TCdropDatabase(database: str) -> int:
     else:
         return 1              
 
+def TCdropTable(database:str, table:str):
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)        
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database] :
+                return 3
+            else:
+                data[database].pop(table)
+                dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1
 
 # READ and show databases by constructing a list
 def TCshowDatabases() -> list:

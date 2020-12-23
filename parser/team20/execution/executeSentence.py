@@ -2,11 +2,11 @@ from .AST.sentence import *
 from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType
 from .executeShow import executeShowDatabases
 from .executeSelect import executeSelect
-from .executeDrop import executeDropDatabase
+from .executeDrop import executeDropDatabase,executeDropTable
 from .executeUse import executeUse
 from .executeExpression import executeExpression
 from .executeInsert import executeInsertAll
-from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase
+from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable
 from .AST.error import * 
 import sys
 sys.path.append("../")
@@ -26,7 +26,7 @@ def executeSentence(self, sentence):
             TCcreateDatabase(sentence.name,mode)
             print_success('QUERY',"Database "+sentence.name+" has been created Query returned successfully")
         elif(result==2 and sentence.ifNotExistsFlag):
-            print_warning("NOTICE",'Database '+sentence.name+' has been created Query returned successfully')
+            print_warning("NOTICE",'Database '+sentence.name+' already exists Query returned successfully')
         elif(result==2 and not sentence.ifNotExistsFlag):
             print_error('SEMANTIC ERROR','Database '+sentence.name+' already exists')
         else:
@@ -82,4 +82,17 @@ def executeSentence(self, sentence):
     # #Resto de sentencias posibles
     elif isinstance(sentence,Select):
         executeSelect(self,sentence) 
+    elif isinstance(sentence,DropTable):
+        database=TCgetDatabase()
+        result= executeDropTable(self,sentence)
+        if(result==0):
+            print(TCdropTable(database,sentence.name))
+            print_success("QUERY","Table "+sentence.name+" has been dropped")
+        elif(result==2):
+            print_error("SEMANTIC ERROR","Database "+database+" does not exist")
+        elif(result==3):
+            print_error("SEMANTIC ERROR","Table "+sentence.name+" does not exist")
+        else:
+            print_error("SEMANTIC ERROR",'error in the operation')
+
     

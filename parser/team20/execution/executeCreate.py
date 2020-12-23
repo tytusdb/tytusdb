@@ -164,6 +164,9 @@ def executeCreateTable(self, table):
                 NColumns+=1
                 new1={'TYPE':node.type[0]}
                 constrains1.update(new1)
+                if (len(node.type)==2):
+                    new={'MAXLENGTH':node.type[1]}
+                    constrains1.update(new)
                 if(node.options!=None):
                     if'primary' in node.options:
                         primary+=1
@@ -181,9 +184,6 @@ def executeCreateTable(self, table):
                             notnull+=1
 
                         new={'NULL':node.options['null']}
-                        constrains1.update(new)
-                    if (len(node.type)==2):
-                        new={'MAXLENGTH':node.type[1]}
                         constrains1.update(new)
                     if 'unique' in node.options:
                         new={'UNIQUE':node.options['unique']}
