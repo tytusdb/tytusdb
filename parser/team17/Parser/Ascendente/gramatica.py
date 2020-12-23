@@ -13,7 +13,13 @@ from Interprete.Insert.insert import Insert
 from Interprete.USE_DATABASE.use_database import UseDatabase
 from Interprete.ALTER_DATABASE.alter_database import AlterDatabase
 from Interprete.CREATE_TABLE import clases_auxiliares
+from Interprete.UPDATE.update import Update
 from Interprete.OperacionesConExpresiones.OperadoresCondicionales import OperadoresCondicionales
+from Interprete.OperacionesConExpresiones.OperacionesLogicas import OperacionesLogicas
+from Interprete.SELECT.Select_simples import Select_simples
+from Interprete.TYPE.type import type
+from Interprete.SELECT.Select_simple_simple import select_simple_simple
+from Interprete.SELECT.Select_Trig import Select_Trig
 
 reservadas = {
 
@@ -471,7 +477,7 @@ def p_ddl_update(t):
     '''
         ddl  : update
     '''
-    pass
+    t[0] = t[1]
 
 def p_ddl_deletetable(t):
     '''
@@ -548,6 +554,11 @@ def p_select_simple(t):
     # SELECT SIMPLE
     t[0] = select(t[2], t[4], "N/A", 1, 1)
 
+def p_select_simple_simple(t):
+    '''
+        select : SELECT listavalores
+    '''
+    t[0] = select_simple_simple(t[2], 1, 1)
 
 def p_time(t):
     '''
@@ -574,24 +585,27 @@ def p_listawhere(t):
 def p_atributoselecit(t):
     '''
         atributoselect  : WHERE exp
-                        | ORDER BY listavalores ordenamiento
+                        | ORDER BY exp ordenamiento
                         | GROUP BY listavalores
                         | LIMIT exp
                         | HAVING exp
     '''
     if t[1].lower() == "where":
-        t[0] = Condicion(t[2], "where", 1, 1)
+        t[0] = Condicion(t[2], "where", None, 1, 1)
     elif t[1].lower() == "order":
         # ORDER BY listavalores ordenamiento
+        t[0] = Condicion(t[3], "ORDER", t[4], 1, 1)
         pass
     elif t[1].lower() == "group":
         # GROUP BY listavalores
         pass
     elif t[1].lower() == "limit":
         # LIMIT exp
+        t[0] = Condicion(t[2], "LIMIT", None, 1, 1)
         pass
     elif t[1].lower() == "having":
         # HAVING exp
+        t[0] = Condicion(t[2], "where", None, 1, 1)
         pass
 
 def p_atributoselecit_subquery(t):
@@ -606,7 +620,7 @@ def p_ordenamiento(t):
         ordenamiento   : ASC
                        | DESC
     '''
-    t[0] = t[1]
+    t[0] = str(t[1])
 
 def p_listavalores(t):
     '''
@@ -680,78 +694,91 @@ def p_exp_cbrt(t):
     '''
         exp   : CBRT PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "CBRT", 1, 1)
     pass
 
 def p_exp_ceil(t):
     '''
         exp   : CEIL PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "CEIL", 1, 1)
     pass
 
 def p_exp_ceiling(t):
     '''
         exp   : CEILING PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "CEIL", 1, 1)
     pass
 
 def p_exp_degrees(t):
     '''
         exp   : DEGREES PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "DEGREES", 1, 1)
     pass
 
 def p_exp_div(t):
     '''
-        exp   : DIV PARIZQ exp COMA exp PARDER
+        exp   : DIV PARIZQ listavalores PARDER
     '''
+    t[0] = Select_simples(t[3], "DIV", 1, 1)
     pass
 
 def p_exp_tkexp(t):
     '''
         exp   : TKEXP PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "EXP", 1, 1)
     pass
 
 def p_exp_factorial(t):
     '''
         exp   : FACTORIAL PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3],"FACTORIAL", 1,1)
     pass
 
 def p_exp_floor(t):
     '''
         exp   : FLOOR PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "FLOOR", 1, 1)
     pass
 
 def p_exp_gcd(t):
     '''
-        exp   : GCD PARIZQ exp COMA exp PARDER
+        exp   : GCD PARIZQ listavalores PARDER
     '''
+    t[0] = Select_simples(t[3], "GCD", 1, 1)
     pass
 
 def p_exp_ln(t):
     '''
         exp   : LN PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "LN", 1, 1)
     pass
 
 def p_exp_log(t):
     '''
         exp   : LOG PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "LOG", 1, 1)
     pass
 
 def p_exp_mod(t):
     '''
-        exp   : MOD PARIZQ exp COMA exp PARDER
+        exp   : MOD PARIZQ listavalores PARDER
    '''
+    t[0] = Select_simples(t[3], "MOD", 1, 1)
     pass
 
 def p_exp_pi(t):
     '''
         exp   : PI PARIZQ PARDER
     '''
+    t[0] = Select_simples(None, "PI", 1, 1)
     pass
 
 def p_exp_now(t):
@@ -762,26 +789,30 @@ def p_exp_now(t):
 
 def p_exp_power(t):
     '''
-        exp   : POWER PARIZQ exp COMA exp PARDER
+        exp   : POWER PARIZQ listavalores PARDER
     '''
+    t[0] = Select_simples(t[3], "POWER", 1, 1)
     pass
 
 def p_exp_radians(t):
     '''
         exp   : RADIANS PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "RADIANS", 1, 1)
     pass
 
 def p_exp_round(t):
     '''
         exp   : ROUND PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "ROUND", 1, 1)
     pass
 
 def p_exp_sign(t):
     '''
         exp   : SIGN PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "SIGN", 1, 1)
     pass
 
 
@@ -789,6 +820,7 @@ def p_exp_sqrt(t):
     '''
         exp   : SQRT PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "SQRT", 1, 1)
     pass
 
 def p_exp_width(t):
@@ -802,6 +834,7 @@ def p_exp_trunc(t):
     '''
         exp   : TRUNC PARIZQ exp PARDER
     '''
+    t[0] = Select_simples(t[3], "TRUNC", 1, 1)
     pass
 
 
@@ -809,149 +842,158 @@ def p_exp_random(t):
     '''
         exp   : RANDOM PARIZQ PARDER
     '''
+    t[0] = Select_simples(None, "RANDOM", 1, 1)
     pass
+
+#==================================================================================
+#================================Fin Funciones Trigonometricas  ===================
+#==================================================================================
 
 def p_exp_acos(t):
     '''
         exp   : ACOS PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"acos", 1,1)
 
 def p_exp_acosd(t):
     '''
         exp   : ACOSD PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"acosd", 1,1)
 
 
 def p_exp_asin(t):
     '''
         exp   : ASIN PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"asin", 1,1)
 
 def p_exp_asind(t):
     '''
         exp   : ASIND PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"asind", 1,1)
 
 def p_exp_atan(t):
     '''
         exp   : ATAN PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"atan", 1,1)
 
 
 def p_exp_atand(t):
     '''
         exp   : ATAND PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"atand", 1,1)
 
 def p_exp_atan2(t):
     '''
         exp   : ATAN2 PARIZQ exp COMA exp PARDER
     '''
-    pass
+    t[0] = Select_Trig([t[3],t[5]],"atan2", 1,1)
 
 
 def p_exp_atan2d(t):
     '''
         exp   : ATAN2D PARIZQ exp COMA exp PARDER
     '''
-    pass
+    t[0] = Select_Trig([t[3],t[5]],"atan2d", 1,1)
 
 
 def p_exp_cos(t):
     '''
         exp   : COS PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"cos", 1,1)
 
 
 def p_exp_cosd(t):
     '''
         exp   : COSD PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"cosd", 1,1)
 
 
 def p_exp_cot(t):
     '''
         exp   : COT PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"cot", 1,1)
 
 def p_exp_cotd(t):
     '''
         exp   : COTD PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"cotd", 1,1)
 
 def p_exp_sin(t):
     '''
         exp   : SIN PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"sin", 1,1)
 
 def p_exp_sind(t):
     '''
         exp   : SIND PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"sind", 1,1)
 
 
 def p_exp_tan(t):
     '''
         exp   : TAN PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"tan", 1,1)
 
 def p_exp_tand(t):
     '''
         exp   : TAND PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"tand", 1,1)
 
 def p_exp_sinh(t):
     '''
         exp   : SINH PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"sinh", 1,1)
 
 
 def p_exp_cosh(t):
     '''
         exp   : COSH PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"cosh", 1,1)
 
 
 def p_exp_tanh(t):
     '''
         exp   : TANH PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"tanh", 1,1)
 
 def p_exp_asinh(t):
     '''
         exp   : ASINH PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"asinh", 1,1)
 
 
 def p_exp_acosh(t):
     '''
         exp   : ACOSH PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"acosh", 1,1)
 
 def p_exp_atanh(t):
     '''
         exp   : ATANH PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_Trig(t[3],"atanh", 1,1)
+
+#==================================================================================
+#================================Fin Funciones Trigonometricas  ===================
+#==================================================================================
 
 def p_exp_length(t):
     '''
@@ -1122,6 +1164,7 @@ def p_exp(t):
         #t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
         if t[2]=='&':
             #exp ANDBB exp
+            t[0] = OperacionesLogicas(t[1], t[3], "&", 1, 1)
             pass
         elif t[2]=='|':
             # exp ORBB exp
@@ -1170,7 +1213,8 @@ def p_exp(t):
             pass
         elif t[2]=='=':
             # exp IGUAL exp
-            t[0] = OperadoresCondicionales(t[1], t[3], "=")
+            #t[0] = OperadoresCondicionales(t[1], t[3], "=")
+            t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
             pass
         elif t[2]=='>':
             # exp MAYORQUE exp
@@ -1218,17 +1262,23 @@ def p_expSimples(t):
     '''
     t[0] = t[1]
 
+def p_expSimples_ACCESO_TYPE(t):
+    '''
+        expSimple : ID PARIZQ exp PARDER
+    '''
+    t[0] = indexador_auxiliar(t[1], t[3], 7)
+
 def p_expSimples_ALIAS_MULTI(t):
     '''
         expSimple : ID PT MULTI
     '''
-    t[0] = indexador_auxiliar(t[1], t[1], 6)
+    t[0] = indexador_auxiliar(t[1], "MULTI", 6)
 
 def p_expSimples_MULTI(t):
     '''
         expSimple : MULTI
     '''
-    t[0] = indexador_auxiliar(t[1], t[1], 5)
+    t[0] = indexador_auxiliar("GLOBAL", "MULTI", 5)
 
 def p_expSimples_ID(t):
     '''
@@ -1252,6 +1302,8 @@ def p_expSimples_exp_AS_ID(t):
     '''
         expSimple : ID AS ID
                   | exp AS CADENA
+                  | exp AS ID
+                  | exp AS CADENADOBLE
     '''
     t[0] = indexador_auxiliar(t[1], t[3], 1)
 
@@ -1590,7 +1642,7 @@ def p_update(t):
     '''
     if len(t)==7:
         #UPDATE ID SET listaupdate WHERE exp
-        pass
+        t[0] = Update(t.lineno, 0, t[2], t[4], t[6])
     elif len(t)==5:
         #UPDATE ID SET listaupdate
         pass
@@ -1840,6 +1892,7 @@ def p_create_type(t):
         create_type : CREATE TYPE ID AS ID PARIZQ listavalores PARDER
     '''
     # t[0] = interprete
+    t[0] = type(t[3], t[7], 1, 1)
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------ALTER DATABASE--------------------------------------
