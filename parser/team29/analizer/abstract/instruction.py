@@ -828,7 +828,6 @@ class CreateTable(Instruction):
         3: exists table
         """
         if error == None and insert == None:
-
             result = jsonMode.createTable(dbtemp, self.name, nCol)
             if result == 0:
                 pass
@@ -846,7 +845,6 @@ class CreateTable(Instruction):
             elif result == 3 and self.exists:
                 return "La tabla ya existe en la base de datos"
             else:
-
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
                 )
@@ -1056,16 +1054,14 @@ class CheckOperation(Instruction):
 
 
 class AlterTable(Instruction):
-
-
-    def __init__(self, table,params = []):
+    def __init__(self, table, params=[]):
         self.table = table
         self.params = params
 
     def execute(self, environment):
-        alter = Struct.alterColumnsTable(dbtemp,self.table,self.params)
+        alter = Struct.alterColumnsTable(dbtemp, self.table, self.params)
         if alter == None:
-            alter = Checker.checkValue(dbtemp,self.table)
+            alter = Checker.checkValue(dbtemp, self.table)
             Struct.save()
 
         if alter == None:

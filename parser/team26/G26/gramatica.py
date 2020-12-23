@@ -699,7 +699,7 @@ def p_operadores_s_pleca(t):
 def p_operadores_select_nt(t):
     '''operadoresselect : argumentodeoperadores AMPERSON argumentodeoperadores
                         | argumentodeoperadores PLECA argumentodeoperadores
-                        | argumentodeoperadores NUMERAL          
+                        | argumentodeoperadores NUMERAL argumentodeoperadores          
                         | argumentodeoperadores MENORQUE MENORQUE argumentodeoperadores
                         | argumentodeoperadores MAYORQUE MAYORQUE argumentodeoperadores'''
     grafo.newnode('OP_SELECT')
@@ -711,7 +711,7 @@ def p_operadores_select_nt(t):
         grafo.newchildrenF(grafo.index,t[3]['graph'])
         t[0] = {'ast': select.OperadoresSelect('or',t[1]['ast'],t[3]['ast']),'graph': grafo.index}
     elif t[2] == '#' :
-        t[0] = {'ast': select.OperadoresSelect('xor',t[1]['ast'],None),'graph': grafo.index}
+        t[0] = {'ast': select.OperadoresSelect('xor',t[1]['ast'],t[3]['ast']),'graph': grafo.index}
     elif t[2] == '<' :
         grafo.newchildrenF(grafo.index,t[4]['graph'])
         t[0] = {'ast': select.OperadoresSelect('sl',t[1]['ast'],t[4]['ast']),'graph': grafo.index}
