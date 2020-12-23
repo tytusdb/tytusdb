@@ -535,7 +535,7 @@ def p_ins_replace(t):
         t[0].produccion = '<REPLACE>'
         t[0].code += '\n' + '<REPLACE>' + ' ::= EPSILON'
 
-def p_if_exist(t): 
+def p_if_exists(t): 
     '''if_exists :  IF NOT EXISTS
                 |  IF EXISTS
                 | ''' # EPSILON
@@ -604,23 +604,34 @@ def p_alteracion_tabla(t):
         t[0].code += '\n' + '<ALTERACION_TABLA>' + ' ::= ' + t[1].produccion + ' ' + t[1].code 
 
 def p_alterar_tabla(t): 
-    '''alterar_tabla : ADD COLUMN columna
-                     | ADD CONSTRAINT ID columna
-                     | ALTER COLUMN columna
+    #alter column viene como una lista
+    '''alterar_tabla : ADD COLUMN ID tipo_dato
+                     | ADD CONSTRAINT ins_constraint
+                     | ALTER COLUMN ID TYPE tipo_dato
+                     | ALTER COLUMN ID SET NOT NULL
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
-    if len(t) == 5:
+    if len(t) == 4: 
+        if t[1] == 'DROP':
+            t[0] = GenerarBNF()
+            t[0].produccion = '<ALTERAR_TABLA>'
+            t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3])
+        else:
+            t[0] = GenerarBNF()
+            t[0].produccion = '<ALTERAR_TABLA>'
+            t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + t[3].code
+    elif len(t) == 7:
         t[0] = GenerarBNF()
         t[0].produccion = '<ALTERAR_TABLA>'
-        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3])+ ' ' + t[4].produccion + ' ' + t[4].code
-    elif t[1] == 'ADD' or t[1] == 'ALTER':
+        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6])
+    elif len(t) == 6:
         t[0] = GenerarBNF()
         t[0].produccion = '<ALTERAR_TABLA>'
-        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + t[3].code
+        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + t[5].code
     else:
         t[0] = GenerarBNF()
         t[0].produccion = '<ALTERAR_TABLA>'
-        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3])
+        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + t[4].code
 
 def p_alter_database(t): 
     '''alter_database : RENAME TO ID
@@ -648,11 +659,28 @@ def p_tipo_drop(t):
         t[0].code += '\n' + '<TIPO_DROP>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3])
 
 def p_ins_insert(t):
-    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA '''
-    print('INSERT INTO ID VALUES ( *values* )')
-    t[0] = GenerarBNF()
-    t[0].produccion = '<INSERT>'
-    t[0].code += '\n' + '<INSERT>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].code + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[6].produccion
+    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA 
+                | INSERT INTO ID PARABRE list_id PARCIERRE VALUES PARABRE list_vls PARCIERRE PUNTO_COMA'''
+    if len(t) == 9:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<INSERT>'
+        t[0].code += '\n' + '<INSERT>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[6].code
+    else:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<INSERT>'
+        t[0].code += '\n' + '<INSERT>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + str(t[6]) + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[9].produccion + ' ' + str(t[10]) + ' ' + str(t[11]) + ' ' + t[5].code + ' ' + t[9].code
+
+def p_list_id(t):
+    '''list_id : list_id COMA ID
+               | ID'''
+    if len(t) == 4:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<LIST_ID>'
+        t[0].code += '\n' + '<LIST_ID>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[1].code
+    else:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<LIST_ID>'
+        t[0].code += '\n' + '<LIST_ID>' + ' ::= ' + str(t[1])
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA val_value
@@ -993,16 +1021,16 @@ def p_param(t):
         t[0].code += '\n' + '<PARAM>' + ' ::= ' + str(t[1])
 
 def p_table_list(t):
-    '''table_list   :   table_list COMA ID
-                    |   ID '''
-    if len(t) == 4: 
+    '''table_list   :   table_list COMA ID as_id
+                    |   ID as_id'''
+    if len(t) == 5: 
         t[0] = GenerarBNF()
         t[0].produccion = '<TABLE_LIST>'
-        t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[1].code
+        t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + t[1].code + ' ' + t[4].code
     else:
         t[0] = GenerarBNF()
         t[0].produccion = '<TABLE_LIST>'
-        t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + str(t[1])
+        t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[2].code
 
 def p_arg_where(t):
     '''arg_where    :   WHERE exp
@@ -1042,8 +1070,7 @@ def p_exp(t):
             | arg_case
             | arg_greatest
             | arg_least 
-            | val_value	
-            | ID'''
+            | val_value'''
 # values -> list_vls
     if len(t) == 4:
         t[0] = GenerarBNF()
@@ -1054,17 +1081,9 @@ def p_exp(t):
         t[0].produccion = '<EXP>'
         t[0].code += '\n' + '<EXP>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[2].code
     else:
-        #print('QUE SOY?' + str(t[1]))
-        #print('QUE SOY?' + str(t[1].code))
-        if isinstance(t[1], GenerarBNF):
-
-            t[0] = GenerarBNF()
-            t[0].produccion = '<EXP>'
-            t[0].code += '\n' + '<EXP>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
-        else:
-            t[0] = GenerarBNF()
-            t[0].produccion = '<EXP>'
-            t[0].code += '\n' + '<EXP>' + ' ::= ' + str(t[1])
+        t[0] = GenerarBNF()
+        t[0].produccion = '<EXP>'
+        t[0].code += '\n' + '<EXP>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
 
 def p_arg_greatest(t):
     '''arg_greatest  : GREATEST PARABRE exp_list PARCIERRE''' 
@@ -1362,8 +1381,8 @@ def p_ins_update(t):
     t[0].code += '\n' + '<UPDATE>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + t[4].code + ' ' + t[6].code
 
 def p_ins_asign_list(t):
-    '''asign_list  : asign_list COMA ID SIGNO_IGUAL val_value
-                   | ID SIGNO_IGUAL val_value'''
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL exp
+                   | ID SIGNO_IGUAL exp'''
     if len(t) == 6:
         t[0] = GenerarBNF()
         t[0].produccion = '<ASIGN_LIST>'

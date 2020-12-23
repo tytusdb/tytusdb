@@ -55,7 +55,120 @@ def getColumnTypeNode(t):
         return Nodo('Tipo',t[1],[n1,n2],t.lexer.lineno)
     else:
         return Nodo('Error','getColumType',[],t.lexer.lineno)
+ 
+# Función para obtener el nodo Parametro de la produccion Insert-Into
+def getParamNode(t):
+    g = '<parametroinsert> ::= '
+    if str(t[1]).upper() == 'DEFAULT':
+        g += '\"DEFAULT\"\n'
+        return Nodo('Parametro','DEFAULT',[],t.lexer.lineno,0,g)
+    else:
+        g += '<expresion>\n'
+        return Nodo('Parametro','',[t[1]],t.lexer.lineno,0,g) 
 
+# Función para crear el Nodo para la producción 'asignacion'
+def getAssignNode(t):
+    g = '<asignacion> ::= ID \"IGUAL\" <expresion>\n'
+    n1 = Nodo('ID',t[1],[],t.lexer.lineno)
+    return Nodo('Asignacion','',[n1,t[3]],t.lexer.lineno,0,g)
+
+# Función para crear el Nodo para FBC2
+def getStringFunctionNode2(t):
+    if len(t) == 9:
+        g = '<func_bin_strings_2> ::= \"'+t[1]+'\" \"PARIZQ\" <cadena> \"COMA\" <cualquiernumero> \"COMA\" <cualquiernumero> \"PARDER\"\n'
+        return Nodo('FUNCION STR',t[1],[t[3], t[5], t[7]],t.lexer.lineno,0,g)
+    else:
+        g = '<func_bin_strings_2> ::= \"TRIM\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+        return Nodo('FUNCION STR','TRIM',[t[3]],t.lexer.lineno,0,g)
+
+# Función para crear el Nodo para FBC4
+def getStringFunctionNode4(t):
+    childs = []
+    g = '<func_bin_strings_4> ::= '
+    if len(t) == 5:
+        v = '<alias>' if str(t[1]).upper() == 'CONVERT' else '<cadena>'
+        g += '\"'+str(t[1])+'\" \"PARIZQ\"'+v+'\"PARDER\"\n'
+        childs = [ t[3] ]
+    elif len(t) == 7:
+        v = 'ENTERO' if str(t[1]).upper() == 'GET_BYTE' else '<cadena>'
+        g += '\"'+t[1]+'\" \"PARIZQ\" <cadena> \"COMA\" '+v+' \"PARDER\"\n'
+        childs = [ t[3], t[5] ]
+    elif len(t) == 9:
+        g += '\"SET_BYTE\" \"PARIZQ\" <cadena> \"COMA\" ENTERO \"COMA\" ENTERO \"PARDER\"\n'
+        childs = [ t[3], t[5], t[7] ]
+    return Nodo('FUNCION STR',t[1],childs,t.lexer.lineno,0,g)
+
+# Función para crear el nodo para la instruccion Create Table
+def getCreateTableNode(t):
+    g = '<create_table> : \"CREATE\" \"TABLE\" ID \"PARIZQ\" <list_columns_x> \"PARDER\" <end_create_table>'
+    n = Nodo('COLUMNAS','',t[5],t.lexer.lineno)
+    if t[7] != None:
+        return Nodo('CREATE TABLE',t[3],[n,t[7]],t.lexer.lineno,0,g)
+    return Nodo('CREATE TABLE',t[3],[n],t.lexer.lineno,0,g)
+
+# Función para crear una columna
+def getKeyOrColumnNode(t):
+    g =  '<key_column> ::= \"PRIMARY\" \"KEY\" \"PARIZQ\" <listtablas> \"PARDER\"\n'
+    g += '<key_column> ::= ID <type_column> <attributes>\n'
+    if len(t) == 6:
+        return Nodo('PRIMARY KEY','',t[4],t.lexer.lineno,0,g)
+    return Nodo('COLUMN',t[1],[t[2],t[3]],t.lexer.lineno,0,g)
+
+# Función para crear un Nodo atributo
+def getAttributesNode(t):
+    g = '<attributes> ::= <default_value> <null_field> <constraint_field> <null_field> <primary_key>\n'
+    childs = []
+    if t[1] != None:
+        childs.append(t[1])
+    if t[2] != None:
+        childs.append(t[2])
+    if t[3] != None:
+        childs.append(t[3])
+    if t[4] != None:
+        childs.append(t[4])
+    if t[5] != None:
+        childs.append(t[5])
+    return Nodo('ATRIBUTOS','',childs,t.lexer.lineno,0,g)
+
+# Función para crear un Nodo de atributo Null
+def getNullFieldNode(t):
+    g = ''
+    if len(t) == 3:
+        g = '<null_field> ::= \"NOT\" \"NULL\"\n'
+        return Nodo('NOT NULL','',[],t.lexer.lineno,0,g)
+    elif t[1] != None:
+        g = '<null_field> ::= \"NULL\"\n'
+        return Nodo('NULL','',[],t.lexer.lineno,0,g)
+    return None
+
+# Función para crear el nodo para Constraint
+def getConstraintFieldNode(t):
+    g  = '<constraint_field> ::= \"UNIQUE\"\n'
+    g += '<constraint_field> ::= \"CONSTRAINT\" ID <check_unique>\n'
+    g += '<constraint_field> ::= \"CHECK\" \"PARIZQ\" <condiciones> \"PARDER\"\n'
+    g += '<constraint_field> ::= <empty>\n'
+    if len(t) == 2:
+        if t[1] != None:
+            return Nodo('UNIQUE','',[],t.lexer.lineno,0,g)
+    elif len(t) == 4:
+        if t[3] != None:
+            return Nodo('CONSTRAINT',t[2],[t[3]],t.lexer.lineno,0,g)
+        else:
+            return Nodo('CONSTRAINT',t[2],[],t.lexer.lineno,0,g)
+    elif len(t) == 5:
+        return Nodo('CHECK','',[t[3]],t.lexer.lineno,0,g)
+    return None
+
+# Función para crear el nodo para el atributo Check | Unique
+def getCheckUnique(t):
+    g  = '<check_unique> ::= \"UNIQUE\"\n'
+    g += '<check_unique> ::= \"CHECK\" \"PARIZQ\" <condiciones> \"PARDER\"\n'
+    g += '<check_unique> ::= <empty>\n'
+    if len(t) == 5:
+        return Nodo('CHECK','',[t[3]],t.lexer.lineno,0,g)
+    elif t[1] != None:
+        return Nodo('UNIQUE','',[],t.lexer.lineno,0,g)
+    return None
 
 ############################################ Funciones AST Querys ########################################
 
@@ -240,7 +353,7 @@ def getOpRelacional(t):
     gramatica = '<condicion> ::= <expresion> \"' +t[2]+'\" <expresion>'
     return Nodo('OPREL', '\\'+str(t[2]), [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
-ef getGroupby(t):
+def getGroupby(t):
     if len(t) == 4:
         gramatica = '<groupby> ::= \"GROUP\" \"BY\" <listagroupby>' 
         childs = Nodo('LISTA', '', t[3], t.lexer.lineno)
@@ -301,3 +414,45 @@ def getValorNumerico(t):
     else:
         gramatica = '<cualquiernumero> ::= \"'+str(t[1])+'\"'
         return Nodo('ENTERO', str(t[1]), [], t.lexer.lineno, 0, gramatica)
+
+def getFuncionMatematica(t):
+    if len(t) == 4:
+        gramatica = '<funcion_matematica_s> ::= \"'+str(t[1])+'\" \"PARIZQ\" \"PARDER\"'
+        return Nodo('PI', '', [], t.lexer.lineno, 0, gramatica)
+    elif len(t) == 5:
+        gramatica = '<funcion_matematica_s> ::= \"'+str(t[1])+'\" \"PARIZQ\" <expresionaritmetica> \"PARDER\"'
+        return Nodo('Matematica', t[1], [t[3]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<funcion_matematica_s> ::= \"'+str(t[1])+'\" \"PARIZQ\" <expresionaritmetica> \"COMA\" <expresionaritmetica>\"PARDER\"'
+        return Nodo('Matematica', t[1], [t[3], t[5]], t.lexer.lineno, 0, gramatica)
+
+def getBetween(t):
+    if len(t) == 6:
+        gramatica = '<condicionwhere> ::= <between_state>\n'
+        gramatica += '<between_state> ::= <cualquiernumero> \"BETWEEN\" <valores> \"AND\" <valores>'
+        return Nodo('BETWEEN', '', [t[1], t[3], t[5]], t.lexer.lineno, 0, gramatica)
+    else: 
+        gramatica = '<condicionwhere> ::= <not_between_state>\n'
+        gramatica += '<between_state> ::= <cualquiernumero> \"NOT\" \"BETWEEN\" <valores> \"AND\" <valores>'
+        return Nodo('NOT BETWEEN', '', [t[1], t[4], t[6]], t.lexer.lineno, 0, gramatica)
+
+def getPredicates(t):
+    gramatica = '<condicionwhere> ::= <predicates_state>\n' 
+    if len(t) == 3:
+        gramatica += '<predicates_state> ::= <valores> \"' + t[2]+'\"'
+        return Nodo(t[2], '', [t[1]], t.lexer.lineno, 0, gramatica)
+    elif len(t) == 4:
+        gramatica += '<predicates_state> ::= <valores> \"IS\" \"NULL\"'
+        return Nodo('IS NULL', '', [t[1]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica += '<predicates_state> ::= <valores> \"IS\" \"NOT\" \"NULL\"'
+        return Nodo('IS NOT NULL', '', [t[1]], t.lexer.lineno, 0, gramatica)
+
+def getDistinctFrom(t) :
+    gramatica = '<condicionwhere> ::= <is_distinct_state>\n' 
+    if len(t) == 6: 
+        gramatica += '<is_distinct_state> ::= <valores> \"IS\" \"DISTINCT\" \"FROM\" <valores>'
+        return Nodo('IS DISTINCT', '', [t[1], t[5]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica += '<is_distinct_state> ::= <valores> \"IS\" \"NOT\" \"DISTINCT\" \"FROM\" <valores>'
+        return Nodo('IS NOT DISTINCT', '', [t[1], t[6]], t.lexer.lineno, 0, gramatica)

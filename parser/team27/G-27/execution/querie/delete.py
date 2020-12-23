@@ -1,10 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/storage')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from querie import Querie
+from execution.abstract.querie import Querie
 from storageManager import jsonMode as admin
-from typ import *
+from execution.symbol.typ import *
 
 class Delete(Querie):
 
@@ -50,7 +46,7 @@ class Delete(Querie):
                 if isinstance(tuplas[tindex][index],int):
                     tipo = Type.DECIMAL
                 #GUARDAR EN EL ENTORNO UNA VARIALBE CON EL NOMBRE DE LA COLUMNA               
-                environment.guardarVariable(table.columns[index].name, tipo, tuplas[tindex][index])
+                environment.guardarVariable(table.columns[index].name, tipo, tuplas[tindex][index], None)
             
             #CREO UN ARREGLO CON LA LLAVE PRIMARIA DE ESE REGISTRO
             primaryKey = []

@@ -1,5 +1,13 @@
+
 from enum import Enum
+
+from ply.yacc import errok
 from astDDL import Instruccion
+from useDB.instanciaDB import DB_ACTUAL
+from storageManager.jsonMode import extractTable
+from typeChecker.typeReference import getColumns
+from prettytable import PrettyTable
+from astExpresion import ExpresionID, Expresion , TuplaCompleta
 
 class COMBINE_QUERYS(Enum):
     UNION = 1
@@ -11,7 +19,10 @@ class JOIN(Enum):
     LEFT = 2
     RIGHT = 3
     FULL = 4
-
+class TABLA_TIPO(Enum):
+    PRODUCTO_CRUZ = 0
+    UNICA = 1
+    SELECCIONADA = 2
 # ------------------------ Select ----------------------------
 # Select Table
 class SelectTable(Instruccion):
@@ -136,8 +147,9 @@ class SelectJoin(Instruccion):
 
 # Select From
 class SelectFrom(Instruccion):
-    def __init__(self, fuente, alias = None):
-        self.fuente = fuente
+    def __init__(self, fuentes, campos, alias=None):
+        self.fuentes = fuentes
+        self.campos = campos
         self.alias = alias
     
     def dibujar(self):
@@ -159,7 +171,96 @@ class SelectFrom(Instruccion):
                 nodo += "\n" + identificador + " -> " + str(hash(self.fuente)) + ";"
                 nodo += self.fuente.dibujar()
         return nodo
+    def ejecutar(self, ts):        
+        if len(self.fuentes)>1:
+            columnas = []
+            for col in self.campos:
+                if isinstance (col, ExpresionID):
+                    columnas.append(col.val)
+                elif isinstance(col, str):
+                    columnas.append(col)
+                elif isinstance(col, Expresion):
+                    # ACA RECIBO POR MEDIO DE TS UNA TABLA DE SIMBOLOS  ---> tipo MATRIX  que tiene TODAS LAS COLUMNAS DE TODAS LAS TABLAS ESPECIFICADAS EN EL FORM
+                    #print(ts.columnas)                    
+                    print(col.ejecutar(ts).val)
+            encabezados = []
+            lista = []
+            for tabla in self.fuentes:
+                tb = extractTable(DB_ACTUAL.name,tabla)
+                lista.append(tb)
+                clm = getColumns(DB_ACTUAL.name,tabla)
+                for encabezado in clm:
+                    encabezados.append(tabla+"."+encabezado)
+            tabla_fuente = productoCruz(lista)
+            resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", self.fuentes)
+            ts.append(resultado)
+            print(ts)
+            salida = None
+            seleccion_columnas = []
+            
+            for actual in columnas:
+                if actual.count('.') == 1:
+                    seleccion_columnas.append(actual)
+                elif actual == "*":
+                    seleccion_columnas.append(actual)
+                else:
+                    if esAmbiguo(actual,encabezados,self.fuentes):
+                        print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                    else:
+                        actual = aclarar(actual, encabezados, self.fuentes)
+                        seleccion_columnas.append(actual)
+            salida = resultado.obtenerColumnas(seleccion_columnas)
+            if salida != None:
+                salida.imprimirMatriz()
+                pass
+            else:
+                print("Algo salió mal")
+        else:
+            # SOLO UNA FUENTE 
+            encabezados = []
+            tb = extractTable(DB_ACTUAL.name,self.fuentes[0])
+            clm = getColumns(DB_ACTUAL.name,self.fuentes[0])
+            for encabezado in clm:
+                encabezados.append(self.fuentes[0]+"."+encabezado)
+            resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0], self.fuentes)
+            ts.append(resultado)
+#----------------------------------------------------------------------------------------------------- ACA IRIA LO DE EL LISTADO EN LAS COLUMNAS   porque ya ttengo la matrix para validar cosas     
+            columnas = []
+            for col in self.campos:
+                if isinstance (col, ExpresionID):
+                    columnas.append(col.val)
+                elif isinstance(col, str):
+                    columnas.append(col)
+#_________________________________________________________________________________________________ EJECUCION DE EXPRESIONES    , ASI SE PODRIA HACER EL WHERE EXPRESION TAMBIEN :V
+                elif isinstance(col, Expresion):
+                    # ACA RECIBO POR MEDIO DE TS UNA TABLA DE SIMBOLOS  ---> tipo MATRIX  que tiene TODAS LAS COLUMNAS DE TODAS LAS TABLAS ESPECIFICADAS EN EL FORM
+                    MinitablaSimbolos = []
+                    filas = resultado.filas
+                    columnas = resultado.columnas
+                    i = 0 
+                    while(i < len(filas)):
+                        indiceColumna = 0
+                        while(indiceColumna < len(columnas)): # PARA  MANDAR UNA LISTA [ {id :    tipo:    valor:  } , {id :    tipo:    valor:  } , {id :    tipo:    valor:  }  ]
+                            MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':'none'})
+                            indiceColumna+=1
+                        #print(MinitablaSimbolos)
+                        tupla = TuplaCompleta(MinitablaSimbolos) # ESTO SOLO LO HICE PARA PODER HACER UN IF EN EL EJECUTAREXPRESIONID y no matar lo que puso cante :v 
+                        columnaResultante = col.ejecutar(tupla) 
+                        
+                        print(columnaResultante.val)
+                        MinitablaSimbolos.clear()
+                        i+=1
+                        
+            # falta agregar las columnas de expresion a la hora de mostrar 
+            salida = resultado.obtenerColumnas(columnas)
+            if salida != None:
+                salida.imprimirMatriz()
+                pass
+            else:
+                print("Algo salió mal")
 
+
+    
 # Select filter
 class SelectFilter(Instruccion):
     def __init__(self, where, groupby = None, having = None):
@@ -255,3 +356,144 @@ class CombineSelect(Instruccion):
         nodo += self.select2.dibujar() + "\n"
 
         return nodo
+
+def productoCruz(lista:list):
+    
+    return execProduct(lista)
+
+def execProduct(lista:list):
+    nuevo = realizarProducto(lista)
+    if len(lista)>=2:
+        return realizarProducto(lista)
+    else:
+        return nuevo
+        
+def realizarProducto(operandos:list):
+    res = []
+    iterado = operandos.pop()
+    base = operandos.pop()
+    for item_base in base:
+        for item_iterado in iterado:
+            nuevo = item_base[:]
+            for item_item in item_iterado:
+                nuevo.append(item_item)
+            res.append(nuevo)
+    operandos.append(res)
+    return res  
+class matriz():
+    def __init__(self, columnas:list, filas:list, tipo, nombre, fuentes: list):
+        self.columnas = columnas
+        self.filas = filas
+        self.tipo = tipo
+        self.nombre = nombre
+        self.fuentes = fuentes
+    def imprimirMatriz(self):
+        x = PrettyTable()
+        x.field_names = sinRepetidos(self.columnas)
+        for fila in self.filas:
+            x.add_row(fila)
+        print(x)
+    def obtenerColumnas(self, ids:list):
+        error = False
+        resultante = []
+        flag = True
+        columnas_resultantes = []
+        for actual in ids:
+            if actual == "*":
+                j = 0
+                for fila in self.filas:
+                    if flag:
+                        nuevaColumna = []
+                        for k in fila:
+                            nuevaColumna.append(k)
+                        resultante.append(nuevaColumna)
+                    else:
+                        for k in fila:
+                            resultante[j].append(k)
+                    j+=1
+                for c in self.columnas:
+                    columnas_resultantes.append(c)
+                flag = False
+            elif self.columnas.__contains__(self.nombre+"."+actual) and self.tipo == TABLA_TIPO.UNICA:
+                i = 0
+                for columna in self.columnas:
+                    if columna == self.nombre+"."+actual:
+                        break
+                    else:
+                        i+=1
+                j = 0
+                for fila in self.filas:
+                    if flag:
+                        nuevaColumna = []
+                        nuevaColumna.append(fila[i])
+                        resultante.append(nuevaColumna)
+                    else:
+                        resultante[j].append(fila[i])
+                    j+=1
+                flag = False
+                columnas_resultantes.append(actual)
+            else:
+                i = 0
+                bandera = False
+                for columna in self.columnas:
+                    if columna == actual:
+                        bandera = True
+                        break
+                    else:
+                        i+=1
+                if bandera:
+                    j = 0
+                    for fila in self.filas:
+                        if flag:
+                            nuevaColumna = []
+                            nuevaColumna.append(fila[i])
+                            resultante.append(nuevaColumna)
+                        else:
+                            resultante[j].append(fila[i])
+                        j+=1
+                    flag = False
+                    columnas_resultantes.append(actual)
+                else:                        
+                    print("Error semántico, la columna:  \" ", actual," \"  no se encuentra o su referencia es ambigua.")
+                    error = True
+                    break
+        if not error:
+            salida = matriz(columnas_resultantes, resultante, TABLA_TIPO.SELECCIONADA, "nueva tabla", self.fuentes)
+        else: 
+            salida = None
+        return salida
+
+def esAmbiguo(id, columnas, tablas):
+    contador = 0
+    for col in columnas:
+        for tb in tablas:
+            actual = tb+"."+id
+            if col == actual:
+                contador +=1    
+    if contador>1:
+        return True
+    else:
+        return False
+
+def aclarar(id, columnas, tablas):
+    for col in columnas:
+        for tb in tablas:
+            actual = tb+"."+id
+            if col == actual:
+                return actual
+
+def sinRepetidos(lista: list) -> list:
+    aux = dict()
+
+    for item in lista:
+        aux[item] = 0
+
+    nuevaLista = list()
+    for item in lista:
+        if aux[item] != 0:
+            nuevaLista.append(item + '(' + str(aux[item]) + ')' )
+        else:
+            nuevaLista.append(item)
+        aux[item] += 1
+
+    return nuevaLista
