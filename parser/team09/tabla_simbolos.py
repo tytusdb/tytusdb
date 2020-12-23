@@ -21,7 +21,8 @@ class tipo_simbolo(Enum):
     TIME = 17,
     INTERVAL = 18,
     NUMERIC = 19,
-    DB_ACTUAL = 20
+    DB_ACTUAL = 20,
+    BOOLEAN = 21
 
 class t_constraint(Enum):
     NOT_NULL    = 1,
@@ -32,10 +33,10 @@ class t_constraint(Enum):
     PRIMARY     = 6,
     FOREIGN     = 7
 
-class Simbolo(): 
+class Simbolo():
 
-#los tipos de los simbolos ayudan a idetificar que tipo de simbolo es
-#1-base de datos , 2-tablas , 3-columnas , 4-pk , 5-fk , 6-check , 7-constraint , 8-enum de types
+    #los tipos de los simbolos ayudan a idetificar que tipo de simbolo es
+    #1-base de datos , 2-tablas , 3-columnas , 4-pk , 5-fk , 6-check , 7-constraint , 8-enum de types
 
     def __init__(self,id, tipo, valor, base,longitud,pk,fk,referencia): 
         self.id = id
@@ -99,7 +100,7 @@ class tabla_simbolos():
             #validar que no exista una columna con el mismo nombre
             for col in tabla.valor:
                 if col.id == columna.id:
-                    msj_error = 'La columna -'+columna+' ya existe en la tabla -'+tabla+'-.'
+                    msj_error = 'La columna -'+columna.id+' ya existe en la tabla -'+tabla.id+'-.'
                     error = E.Errores('EROOR', msj_error)
                     return error
                     
@@ -122,7 +123,7 @@ class tabla_simbolos():
             if simbolo.id == id:
                 return simbolo
         #no encuentra la base, retorna error
-        msj_error = 'la base de datos -'+id+'- no existe.'
+        msj_error = 'la base de datos -'+ str(id) + '- no existe.'
         error = E.Errores('ERROR', msj_error)
         return error
 

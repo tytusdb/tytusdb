@@ -14,6 +14,7 @@ def view_createDatabase():
             value = crud.createDatabase(name_database)
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
             elif value == 2:
                 messagebox.showinfo('', 'Base de Datos Existente')
             else:
@@ -79,7 +80,7 @@ def view_showDatabase():
     var_font = tkFont.Font(size=13, weight="bold", family="Arial")
 
     for word in list_words:
-        btn = Button(second_frame, text=word, width=58, height=2, bg="#DBE2FC", font=var_font, command=lambda txt=word:mostrarTablas(txt))
+        btn = Button(second_frame, text=word, width=58, height=2, bg="#DBE2FC", font=var_font, command=lambda txt=word:mostrarTablas(txt, ventana_principal))
         btn.grid(row=var, column=0, pady=1)
         var += 1
 
@@ -97,6 +98,7 @@ def view_alterDatabase():
             value = crud.alterDatabase(nombre_anterior, nombre_nuevo)
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
             elif value == 2:
                 messagebox.showinfo('', 'databaseOld No Existente')
             elif value == 3:
@@ -127,6 +129,7 @@ def view_dropDatabase():
             value = crud.dropDatabase(name_database)
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
             elif value == 2:
                 messagebox.showinfo('', 'Base de Datos No Existente')
             else:
@@ -140,6 +143,9 @@ def view_dropDatabase():
     txt.place(x = 100, y = 160)
     btn = Button(window, text='Eliminar', command=eliminar)
     btn.place(x = 350, y = 200)
+
+def view_showGraphivz():
+    CRUD_DataBase().showGraphviz()
 
 def edicionPantalla(window, titulo, color, ancho_ventana, alto_ventana):
     x_ventana = window.winfo_screenwidth() // 2 - ancho_ventana // 2
@@ -163,8 +169,8 @@ separacion = 3
 var_height = int(var_width//2.5)
 var_font = tkFont.Font(size=12, weight="bold", family="Arial")
 
-encabezado = Label(window, text="", bg="white",width=25)
-encabezado.grid(padx=separacion, pady=separacion, row=0, column=0, columnspan = 3)
+btnGraficarArbol = Button(window, text="Graficar Arbol", bg="#AAAFBF", fg="white", font=var_font, width=60, command=view_showGraphivz)
+btnGraficarArbol.grid(padx=separacion, pady=separacion, row=0, column=1, columnspan = 3)
 
 izquierda = Label(window, text="", bg="white",width=16)
 izquierda.grid(padx=separacion, pady=separacion, row=1, column=0, rowspan =2)

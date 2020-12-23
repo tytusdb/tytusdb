@@ -3,6 +3,7 @@ from tools.tabla_tipos import *
 class tabla_simbolos:
     def __init__(self, simbolos = {}):
         self.simbolos = simbolos
+        self.simbolos['inherits'] = {}
 
     #ADD SIMBOLOS
     def add_db(self, simbolo_db):
@@ -14,15 +15,38 @@ class tabla_simbolos:
     def add_col(self, db_id, tb_id, simbolo_col):
         self.simbolos[db_id][tb_id][simbolo_col.id_] = simbolo_col
 
+    def add_inherits(self, padre, hijo):
+        self.simbolos['inherits'][hijo] = padre
+
     #GET SIMBOLOS
     def get_db(self, id_db):
         return self.simbolos[id_db]
 
     def get_tb(self, id_db, id_tb):
-        return self.simbolos[id_db][id_tb]
+        try:
+            return self.simbolos[id_db][id_tb]
+        except:
+            return None
 
     def get_col(self, id_db, id_tb, id_col):
-        return self.simbolos[id_db][id_tb][id_col]
+        try:
+            return self.simbolos[id_db][id_tb][id_col]
+        except:
+            return None
+
+    def get_inherits(self, hijo):
+        try:
+            return self.simbolos['inherits'][hijo]
+        except:
+            return None
+
+    def get_padre(self, padre):
+        list_hijos = []
+        for inher in self.simbolos['inherits']:
+            if inher.value == padre:
+                list_hijos.append(inher.key)
+
+        return list_hijos
 
     #DELETE SIMBOLOS
     def delete_db(self, id_db):
@@ -34,18 +58,22 @@ class tabla_simbolos:
     def delete_col(self, id_db, id_tb, id_col):
         del self.simbolos[id_db][id_tb][id_col]
 
+    def delete_restriccion(self, id_db, id_tb, id_col, index_restr):
+        del self.simbolos[id_db][id_tb][id_col].condiciones[index_restr]
+
     #UPDATE SIMBOLOS
     def update_db(self, id_db, new_db):
-        del self.simbolos[id_db]
-        self.simbolos[new_db.id_] = {}
+        self.simbolos[new_db] = self.simbolos[id_db]
+        del self.simbolos[id_db]        
 
     def update_tb(self, id_db, id_tb, new_tb):
-        del self.simbolos[id_db][id_tb] 
-        self.simbolos[id_db][new_tb.id_] = {}
+        self.simbolos[id_db][new_tb] = self.simbolos[id_db][id_tb]
+        del self.simbolos[id_db][id_tb]         
 
     def update_col(self, id_db, id_tb, id_col, new_col):
-        del self.simbolos[id_db][id_tb][id_col]
         self.simbolos[id_db][id_tb][new_col.id_] = new_col
+        if id_col != new_col.id_:
+            del self.simbolos[id_db][id_tb][id_col]
 
     #FUNCIONES EXTRA
     def get_col_by_pos(self, id_db, id_tb, pos):
@@ -142,6 +170,29 @@ class tabla_simbolos:
                             
         return None
 
+    def get_index_pk(self, id_db, id_tb):
+        count_cols = 0
+        list_pk = []
+        for database_ in self.simbolos:
+            database_val = self.simbolos[database_]
+            
+            if database_ == id_db:
+                for table_ in database_val:
+                    table_val = database_val[table_]
+                        
+                    if table_ == id_tb:
+                        for col in table_val.values():
+                            if col.condiciones != None:
+                                for restr in col.condiciones:
+                                    try:
+                                        if restr.pk == 'pk':
+                                            list_pk.append(count_cols)
+                                    except:
+                                        pass
+                                count_cols += 1
+        
+        return list_pk
+
     def reiniciar_ts(self):
         self.simbolos = {}
 
@@ -156,15 +207,16 @@ class tabla_simbolos:
             count_dbs += 1
 
             count_tbs = 1
-            for table_ in database_val:
-                str_ts += '<TR><TD>' + str(count_tbs) + '</TD><TD> TABLA </TD><TD> ' + table_ + '</TD><TD> ' + database_ + ' </TD><TD> - </TD></TR>\n'
-                table_val = database_val[table_]
-                count_tbs += 1
+            if database_ != 'inherits':
+                for table_ in database_val:            
+                    str_ts += '<TR><TD>' + str(count_tbs) + '</TD><TD> TABLA </TD><TD> ' + table_ + '</TD><TD> ' + database_ + ' </TD><TD> - </TD></TR>\n'
+                    table_val = database_val[table_]
+                    count_tbs += 1
 
-                count_cols = 1
-                for col in table_val.values():
-                    str_ts += '<TR><TD>' + str(count_cols) + '</TD><TD> COLUMNA </TD><TD> ' + col.id_ + ' </TD><TD> ' + table_ + ' </TD><TD> ' + self.get_str_tipo(col.tipo) + ' </TD></TR>\n'
-                    count_cols += 1
+                    count_cols = 1
+                    for col in table_val.values():
+                        str_ts += '<TR><TD>' + str(count_cols) + '</TD><TD> COLUMNA </TD><TD> ' + col.id_ + ' </TD><TD> ' + table_ + ' </TD><TD> ' + self.get_str_tipo(col.tipo) + ' </TD></TR>\n'
+                        count_cols += 1
 
         str_ts += '</TABLE>\n>, ];\n}'
 

@@ -118,9 +118,6 @@ def p_use_statement(p):
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(Node(p[3]))
     nodo.production = f"<usestatement> ::= USE ID SEMICOLON\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
     p[0] = nodo
 
 
@@ -171,9 +168,7 @@ def p_create_statement(p):
     nodo.add_childrens(p[2])
     nodo.add_childrens(Node(p[3]))
     nodo.production = f"<createstatement> ::= CREATE <optioncreate> SEMICOLON\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
-    nodo.production += f"{Node(p[3]).production}"
     p[0] = nodo
 
 
@@ -194,20 +189,14 @@ def p_option_create(p):
         nodo.add_childrens(p[6])
         nodo.add_childrens(Node(p[7]))
         nodo.production = f"<optioncreate> ::= <TYPE> <SQLNAME> AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
         nodo.production += f"{p[2].production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
-        nodo.production += f"{Node(p[5]).production}"
         nodo.production += f"{p[6].production}"
-        nodo.production += f"{Node(p[7]).production}"
         p[0] = nodo
 
     elif len(p) == 3:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.production = f"<optioncreate> ::= DATABASE <createdb>\n"
-        nodo.production += f"{Node(p[1]).production}"
         nodo.production += f"{p[2].production}"
         p[0] = nodo
 
@@ -217,9 +206,6 @@ def p_option_create(p):
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
         nodo.production = f"<optioncreate> ::= OR REPLACE DATABASE <createdb>\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
         p[0] = nodo
 
@@ -230,11 +216,8 @@ def p_option_create(p):
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
         nodo.production = f"<optioncreate> ::= TABLE <SQLNAME> LEFT_PARENTHESIS <columnstable> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
         nodo.production += f"{p[2].production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
-        nodo.production += f"{Node(p[5]).production}"
         p[0] = nodo
 
     elif len(p) == 10:
@@ -248,15 +231,8 @@ def p_option_create(p):
         nodo.add_childrens(Node(p[8]))
         nodo.add_childrens(Node(p[9]))
         nodo.production = f"<optioncreate> ::= TABLE <SQLNAME> LEFT_PARENTHESIS <columnstable> RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
         nodo.production += f"{p[2].production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
-        nodo.production += f"{Node(p[5]).production}"
-        nodo.production += f"{Node(p[6]).production}"
-        nodo.production += f"{Node(p[7]).production}"
-        nodo.production += f"{Node(p[8]).production}"
-        nodo.production += f"{Node(p[9]).production}"
         p[0] = nodo
 
 
@@ -271,7 +247,6 @@ def p_type_list(p):
         nodo.add_childrens(p[3])
         nodo.production = f"<typelist> ::= <typelist> <SQLNAME>\n"
         nodo.production += f"{p[1].production}"
-        nodo.production += f"{Node(p[2]).production}"
         nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
@@ -296,10 +271,6 @@ def p_create_db(p):
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(p[5])
         nodo.production = f"<createdb> ::= IF NOT EXISTS ID <listpermits>\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
         nodo.production += f"{p[5].production}"
         p[0] = nodo
 
@@ -309,23 +280,17 @@ def p_create_db(p):
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(Node(p[4]))
         nodo.production = f"<createdb> ::= IF NOT EXISTS ID\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
         p[0] = nodo
 
     elif len(p) == 3:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.production = f"<createdb> ::= ID <listpermits>\n"
-        nodo.production += f"{Node(p[1]).production}"
         nodo.production += f"{p[2].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
         nodo.production = f"<createdb> ::= ID\n"
-        nodo.production += f"{Node(p[1]).production}"
         p[0] = nodo
 
 
@@ -357,8 +322,6 @@ def p_permits_OWNER_EQUALS(p):
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(p[3])
     nodo.production = f"<listpermits> ::= OWNER EQUALS <SQLNAME>\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     nodo.production += f"{p[3].production}"
     p[0] = nodo
 
@@ -370,7 +333,6 @@ def p_permits_OWNER(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<permits> ::= OWNER <SQLNAME>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -383,8 +345,6 @@ def p_permits_MODE_EQUALS(p):
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(Node(p[3]))
     nodo.production = f"<permits> ::= MODE EQUALS INT_NUMBER\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     p[0] = nodo
 
 
@@ -395,8 +355,6 @@ def p_permits_MODE(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.production = f"<permits> ::= MODE INT_NUMBER\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     p[0] = nodo
 
 
@@ -412,7 +370,6 @@ def p_columns_table(p):
         nodo.add_childrens(p[3])
         nodo.production = f"<columnstable> ::= <columnstable> COMMA <column>\n"
         nodo.production += f"{p[1].production}"
-        nodo.production += f"{Node(p[2]).production}"
         nodo.production += f"{p[3].production}"
         p[0] = nodo
 
@@ -439,7 +396,6 @@ def p_column(p):
         nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
         nodo.production = f"<column> ::= ID <typecol> <optionscollist>\n"
-        nodo.production += f"{Node(p[1]).production}"
         nodo.production += f"{p[2].production}"
         nodo.production += f"{p[3].production}"
         p[0] = nodo
@@ -448,7 +404,6 @@ def p_column(p):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.production = f"<column> ::= ID <typecol>\n"
-        nodo.production += f"{Node(p[1]).production}"
         nodo.production += f"{p[2].production}"
         p[0] = nodo
 
@@ -459,10 +414,7 @@ def p_column(p):
             nodo.add_childrens(p[3])
             nodo.add_childrens(Node(p[4]))
             nodo.production = f"<column> ::= UNIQUE LEFT_PARENTHESIS <columnlist> RIGHT_PARENTHESIS\n"
-            nodo.production += f"{Node(p[1]).production}"
-            nodo.production += f"{Node(p[2]).production}"
             nodo.production += f"{p[3].production}"
-            nodo.production += f"{Node(p[4]).production}"
             p[0] = nodo
 
         else:  # CHECK
@@ -471,10 +423,7 @@ def p_column(p):
             nodo.add_childrens(p[3])
             nodo.add_childrens(Node(p[4]))
             nodo.production = f"<column> ::= CHECK LEFT_PARENTHESIS <conditionColumn> RIGHT_PARENTHESIS\n"
-            nodo.production += f"{Node(p[1]).production}"
-            nodo.production += f"{Node(p[2]).production}"
             nodo.production += f"{p[3].production}"
-            nodo.production += f"{Node(p[4]).production}"
             p[0] = nodo
 
     elif len(p) == 6:
@@ -484,11 +433,7 @@ def p_column(p):
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
         nodo.production = f"<column> ::= PRIMARY KEY LEFT_PARENTHESIS <columnlist> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
-        nodo.production += f"{Node(p[5]).production}"
         p[0] = nodo
 
     elif len(p) == 11:
@@ -503,16 +448,8 @@ def p_column(p):
         nodo.add_childrens(p[9])
         nodo.add_childrens(Node(p[10]))
         nodo.production = f"<column> ::= FOREIGN KEY LEFT_PARENTHESIS <columnlist> RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS <columnlist> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
-        nodo.production += f"{Node(p[5]).production}"
-        nodo.production += f"{Node(p[6]).production}"
-        nodo.production += f"{Node(p[7]).production}"
-        nodo.production += f"{Node(p[8]).production}"
         nodo.production += f"{p[9].production}"
-        nodo.production += f"{Node(p[10]).production}"
         p[0] = nodo
 
     elif len(p) == 7:
@@ -523,12 +460,7 @@ def p_column(p):
         nodo.add_childrens(p[5])
         nodo.add_childrens(Node(p[6]))
         nodo.production = f"<column> ::= CONSTRAINT ID CHECK LEFT_PARENTHESIS <conditionColumn> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
         nodo.production += f"{p[5].production}"
-        nodo.production += f"{Node(p[6]).production}"
         p[0] = nodo
 
 
@@ -538,7 +470,6 @@ def p_type_col_SMALLINT(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= SMALLINT\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -548,7 +479,6 @@ def p_type_col_INTEGER(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= INTEGER\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -558,7 +488,6 @@ def p_type_col_BIGINT(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= BIGINT\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -573,12 +502,6 @@ def p_type_col_DECIMAL_list(p):
     nodo.add_childrens(Node(p[5]))
     nodo.add_childrens(Node(p[6]))
     nodo.production = f"<typecol> ::= DECIMAL LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
-    nodo.production += f"{Node(p[5]).production}"
-    nodo.production += f"{Node(p[6]).production}"
     p[0] = nodo
 
 
@@ -591,10 +514,6 @@ def p_type_col_DECIMAL(p):
     nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<typecol> ::= DECIMAL LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
     p[0] = nodo
 
 
@@ -609,12 +528,6 @@ def p_type_col_NUMERIC_list(p):
     nodo.add_childrens(Node(p[5]))
     nodo.add_childrens(Node(p[6]))
     nodo.production = f"<typecol> ::= NUMERIC LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
-    nodo.production += f"{Node(p[5]).production}"
-    nodo.production += f"{Node(p[6]).production}"
     p[0] = nodo
 
 
@@ -627,10 +540,6 @@ def p_type_col_NUMERIC(p):
     nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<typecol> ::= NUMERIC LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
     p[0] = nodo
 
 
@@ -640,7 +549,6 @@ def p_type_col_REAL(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= REAL\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -651,8 +559,6 @@ def p_type_col_DOUBLE(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.production = f"<typecol> ::= DOUBLE PRECISION\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     p[0] = nodo
 
 
@@ -662,7 +568,6 @@ def p_type_col_MONEY(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= MONEY\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -676,11 +581,6 @@ def p_type_col_CHARACTER_VARYING_INT(p):
     nodo.add_childrens(Node(p[4]))
     nodo.add_childrens(Node(p[5]))
     nodo.production = f"<typecol> ::= CHARACTER VARYING LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
-    nodo.production += f"{Node(p[5]).production}"
     p[0] = nodo
 
 
@@ -691,8 +591,6 @@ def p_type_col_CHARACTER_VARYING(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.production = f"<typecol> ::= CHARACTER VARYING\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     p[0] = nodo
 
 
@@ -705,10 +603,6 @@ def p_type_col_VARCHAR_INT(p):
     nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<typecol> ::= VARCHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESI\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
     p[0] = nodo
 
 
@@ -718,7 +612,6 @@ def p_type_col_VARCHAR(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= VARCHAR\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -731,10 +624,6 @@ def p_type_col_CHARACTER_INT(p):
     nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<typecol> ::= CHARACTER LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
     p[0] = nodo
 
 
@@ -744,7 +633,6 @@ def p_type_col_CHARACTER(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= CHARACTER\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -757,10 +645,6 @@ def p_type_col_CHAR_INT(p):
     nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<typecol> ::= CHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
     p[0] = nodo
 
 
@@ -770,7 +654,6 @@ def p_type_col_CHAR(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= CHAR\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -780,7 +663,6 @@ def p_type_col_TEXT(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= TEXT\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -793,10 +675,6 @@ def p_type_col_TIMESTAMP_INT(p):
     nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<typecol> ::= TIMESTAMP LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
     p[0] = nodo
 
 
@@ -806,7 +684,6 @@ def p_type_col_TIMESTAMP(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= TIMESTAMP\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -816,7 +693,6 @@ def p_type_col_DATE(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= TIMESTAMP\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -829,10 +705,6 @@ def p_type_col_TIME_INT(p):
     nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<typecol> ::= TIME LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
     p[0] = nodo
 
 
@@ -842,7 +714,6 @@ def p_type_col_TIME(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= TIME\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -853,7 +724,6 @@ def p_type_col_INTERVAL(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<typecol> ::= INTERVAL <SQLNAME>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -864,7 +734,6 @@ def p_type_col_BOOLEAN(p):
     nodo = Node('Type Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typecol> ::= BOOLEAN\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -894,8 +763,7 @@ def p_option_col_DEFAULT_SIMP(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<optioncol> ::= DEFAULT <SQLSIMPLEEXPRESSION>\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
     p[0] = nodo
 
 
@@ -906,8 +774,6 @@ def p_option_col_NOT_NULL(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.production = f"<optioncol> ::= NOT NULL\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     p[0] = nodo
 
 
@@ -917,7 +783,6 @@ def p_option_col_NULL(p):
     nodo = Node('Option Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<optioncol> ::= NULL\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -929,9 +794,6 @@ def p_option_col_constraint_unique(p):
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(Node(p[3]))
     nodo.production = f"<optioncol> ::= CONSTRAINT ID UNIQUE\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
     p[0] = nodo
 
 
@@ -941,7 +803,6 @@ def p_option_col_UNIQUE(p):
     nodo = Node('Option Column')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<optioncol> ::= UNIQUE\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -955,8 +816,6 @@ def p_option_col_CONSTRAINT_CHECK(p):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.production = f"<optioncol> ::= PRIMARY KEY\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
         p[0] = nodo
     elif len(p) == 5:
         nodo.add_childrens(Node(p[1]))
@@ -964,10 +823,7 @@ def p_option_col_CONSTRAINT_CHECK(p):
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
         nodo.production = f"<optioncol> ::= CHECK LEFT_PARENTHESIS <conditionColumn> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
         nodo.production += f"{p[3].production}"
-        nodo.production += f"{Node(p[4]).production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -977,12 +833,7 @@ def p_option_col_CONSTRAINT_CHECK(p):
         nodo.add_childrens(p[5])
         nodo.add_childrens(Node(p[6]))
         nodo.production = f"<optioncol> ::= CONSTRAINT ID CHECK LEFT_PARENTHESIS <conditionColumn> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
         nodo.production += f"{p[5].production}"
-        nodo.production += f"{Node(p[6]).production}"
         p[0] = nodo
 
 
@@ -993,8 +844,6 @@ def p_option_col(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.production = f"<optioncol> ::= REFERENCES ID\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     p[0] = nodo
 
 
@@ -1028,13 +877,10 @@ def p_column_list(p):
         nodo.add_childrens(Node(p[3]))
         nodo.production = f"<columnlist> ::= <columnlist> COMMA ID>\n"
         nodo.production += f"{p[1].production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
-        nodo.production = f"<columnlist> ::= ID>\n"
-        nodo.production += f"{Node(p[1]).production}"
+        nodo.production = f"<columnlist> ::= ID\n"
         p[0] = nodo
 
 
@@ -1048,9 +894,6 @@ def p_show_statement(p):
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
         nodo.production = f"<showstatement> ::= SHOW DATABASES SEMICOLON\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -1059,11 +902,7 @@ def p_show_statement(p):
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
         nodo.production = f"<showstatement> ::= SHOW DATABASES LIKE <SQLNAME> SEMICOLON\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
-        nodo.production += f"{Node(p[5]).production}"
         p[0] = nodo
 
 
@@ -1075,9 +914,7 @@ def p_alter_statement(p):
     nodo.add_childrens(p[2])
     nodo.add_childrens(Node(p[3]))
     nodo.production = f"<alterstatement> ::= ALTER <optionsalter> SEMICOLON\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
-    nodo.production += f"{Node(p[3]).production}"
     p[0] = nodo
 
 
@@ -1088,7 +925,6 @@ def p_options_alter_DATABASE(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<optionsalter> ::= DATABASE <alterdatabase>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1100,7 +936,6 @@ def p_options_alter_TABLE(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<optionsalter> ::= TABLE <altertable>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1116,10 +951,6 @@ def p_alter_database(p):
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(Node(p[4]))
         nodo.production = f"<alterdatabase> ::= ID RENAME TO ID\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -1127,9 +958,6 @@ def p_alter_database(p):
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
         nodo.production = f"<alterdatabase> ::= ID OWNER TO <typeowner>\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
         p[0] = nodo
 
@@ -1140,7 +968,6 @@ def p_type_owner_ID(p):
     nodo = Node('Type Owner')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typeowner> ::= ID\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -1150,7 +977,6 @@ def p_type_owner_CURRENT_USER(p):
     nodo = Node('Type Owner')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typeowner> ::= CURRENT_USER\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -1160,7 +986,6 @@ def p_type_owner_SESSION_USER(p):
     nodo = Node('Type Owner')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<typeowner> ::= SESSION_USER\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -1171,7 +996,6 @@ def p_alter_table(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<altertable> ::= ID <alterlist>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1187,7 +1011,6 @@ def p_alter_list(p):
         nodo.add_childrens(p[3])
         nodo.production = f"<alterlist> ::= <alterlist> COMMA <typealter>\n"
         nodo.production += f"{p[1].production}"
-        nodo.production += f"{Node(p[2]).production}"
         nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
@@ -1204,7 +1027,6 @@ def p_type_alter_ADD(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<typealter> ::= ADD <addalter>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1216,7 +1038,6 @@ def p_type_alter_ALTER(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<typealter> ::= ALTER <alteralter>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1228,7 +1049,6 @@ def p_type_alter_DROP(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<typealter> ::= DROP <dropalter>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1240,7 +1060,6 @@ def p_type_alter_RENAME(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<typealter> ::= RENAME <renamealter>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1258,8 +1077,6 @@ def p_add_alter(p):
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
         nodo.production = f"<addalter> ::= COLUMN ID <typecol>\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
         nodo.production += f"{p[3].production}"
         p[0] = nodo
 
@@ -1269,10 +1086,7 @@ def p_add_alter(p):
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
         nodo.production = f"<addalter> ::= CHECK LEFT_PARENTHESIS <conditionColumn> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
         nodo.production += f"{p[3].production}"
-        nodo.production += f"{Node(p[4]).production}"
         p[0] = nodo
 
     elif len(p) == 7:
@@ -1283,12 +1097,6 @@ def p_add_alter(p):
         nodo.add_childrens(Node(p[5]))
         nodo.add_childrens(Node(p[6]))
         nodo.production = f"<addalter> ::= CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
-        nodo.production += f"{Node(p[5]).production}"
-        nodo.production += f"{Node(p[6]).production}"
         p[0] = nodo
 
     else:
@@ -1300,13 +1108,6 @@ def p_add_alter(p):
         nodo.add_childrens(Node(p[6]))
         nodo.add_childrens(Node(p[7]))
         nodo.production = f"<addalter> ::= FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
-        nodo.production += f"{Node(p[5]).production}"
-        nodo.production += f"{Node(p[6]).production}"
-        nodo.production += f"{Node(p[7]).production}"
         p[0] = nodo
 
 
@@ -1322,11 +1123,6 @@ def p_alter_alter(p):
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(Node(p[5]))
         nodo.production = f"<alteralter> ::= COLUMN ID SET NOT NULL\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
-        nodo.production += f"{Node(p[4]).production}"
-        nodo.production += f"{Node(p[5]).production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -1334,9 +1130,6 @@ def p_alter_alter(p):
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
         nodo.production = f"<alteralter> ::= COLUMN ID TYPE <typecol>\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
         p[0] = nodo
 
@@ -1348,8 +1141,6 @@ def p_drop_alter_COLUMN(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.production = f"<dropalter> ::= COLUMN ID\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     p[0] = nodo
 
 
@@ -1360,8 +1151,6 @@ def p_drop_alter_CONSTRAINT(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.production = f"<dropalter> ::= CONSTRAINT ID\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
     p[0] = nodo
 
 
@@ -1374,10 +1163,6 @@ def p_rename_alter(p):
     nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<renamealter> ::= COLUMN ID TO ID\n"
-    nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{Node(p[2]).production}"
-    nodo.production += f"{Node(p[3]).production}"
-    nodo.production += f"{Node(p[4]).production}"
     p[0] = nodo
 
 
@@ -1388,9 +1173,7 @@ def p_drop_statement(p):
     nodo.add_childrens(p[2])
     nodo.add_childrens(Node(p[3]))
     nodo.production = f"<dropstatement> ::= DROP <optionsdrop> SEMICOLON\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
-    nodo.production += f"{Node(p[3]).production}"
     p[0] = nodo
 
 
@@ -1401,7 +1184,6 @@ def p_options_drop_dropdatabase(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<optionsdrop> ::= DATABASE <dropdatabase>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1413,7 +1195,6 @@ def p_options_drop_(p):
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
     nodo.production = f"<optionsdrop> ::= TABLE <droptable>\n"
-    nodo.production += f"{Node(p[1]).production}"
     nodo.production += f"{p[2].production}"
     p[0] = nodo
 
@@ -1428,14 +1209,10 @@ def p_drop_database(p):
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
         nodo.production = f"<dropdatabase> ::= IF EXISTS ID\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
         nodo.production = f"<dropdatabase> ::= ID\n"
-        nodo.production += f"{Node(p[1]).production}"
         p[0] = nodo
 
 
@@ -1445,7 +1222,6 @@ def p_drop_table(p):
     nodo = Node('Drop Table')
     nodo.add_childrens(Node(p[1]))
     nodo.production = f"<droptable> ::= ID\n"
-    nodo.production += f"{Node(p[1]).production}"
     p[0] = nodo
 
 
@@ -1492,7 +1268,7 @@ def p_dml_UPDATESTATEMENT(p):
 def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
-                       | UPDATE ID SET SETLIST  SEMICOLON '''
+                       | UPDATE ID SET SETLIST SEMICOLON'''
     nodo = Node('Update Statement')
     if(len(p) == 7):
         nodo.add_childrens(Node(p[1]))
@@ -1502,12 +1278,8 @@ def p_update_statement(p):
         nodo.add_childrens(p[5])
         nodo.add_childrens(Node(p[6]))
         nodo.production = f"<UPDATESTATEMENT> ::= UPDATE ID SET <SETLIST> <OPTIONSLIST2> SEMICOLON\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
         nodo.production += f"{p[5].production}"
-        nodo.production += f"{Node(p[6]).production}"
         p[0] = nodo
     elif(len(p) == 6):
         nodo.add_childrens(Node(p[1]))
@@ -1516,11 +1288,7 @@ def p_update_statement(p):
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
         nodo.production = f"<UPDATESTATEMENT> ::= UPDATE ID SET <SETLIST> SEMICOLON\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
-        nodo.production += f"{Node(p[3]).production}"
         nodo.production += f"{p[4].production}"
-        nodo.production += f"{Node(p[5]).production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -1531,13 +1299,9 @@ def p_update_statement(p):
         nodo.add_childrens(p[6])
         nodo.add_childrens(Node(p[7]))
         nodo.production = f"<UPDATESTATEMENT> ::= UPDATE ID <OPTIONS1> SET <SETLIST> <OPTIONSLIST2> SEMICOLON\n"
-        nodo.production += f"{Node(p[1]).production}"
-        nodo.production += f"{Node(p[2]).production}"
         nodo.production += f"{p[3].production}"
-        nodo.production += f"{Node(p[4]).production}"
         nodo.production += f"{p[5].production}"
         nodo.production += f"{p[6].production}"
-        nodo.production += f"{Node(p[7]).production}"
         p[0] = nodo
 
 
@@ -1551,7 +1315,6 @@ def p_set_list(p):
         nodo.add_childrens(p[3])
         nodo.production = f"<SETLIST> ::= <SETLIST> COMMA <COLUMNVALUES>\n"
         nodo.production += f"{p[1].production}"
-        nodo.production += f"{Node(p[2]).production}"
         nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
@@ -1569,151 +1332,435 @@ def p_column_values(p):
     nodo.add_childrens(p[3])
     nodo.production = f"<COLUMNVALUES> ::= <OBJECTREFERENCE> EQUALS <SQLEXPRESSION2>\n"
     nodo.production += f"{p[1].production}"
-    nodo.production += f"{Node(p[1]).production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_PLUS(p):
+    '''SQLEXPRESSION2 : SQLEXPRESSION2 PLUS SQLEXPRESSION2'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLEXPRESSION2> ::= <SQLEXPRESSION2> PLUS <SQLEXPRESSION2>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_REST(p):
+    '''SQLEXPRESSION2 : SQLEXPRESSION2 REST SQLEXPRESSION2'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLEXPRESSION2> ::= <SQLEXPRESSION2> REST <SQLEXPRESSION2>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_DIVISION(p):
+    '''SQLEXPRESSION2 : SQLEXPRESSION2 DIVISION SQLEXPRESSION2'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLEXPRESSION2> ::= <SQLEXPRESSION2> DIVISION <SQLEXPRESSION2>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_ASTERISK(p):
+    '''SQLEXPRESSION2 : SQLEXPRESSION2 ASTERISK SQLEXPRESSION2'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLEXPRESSION2> ::= <SQLEXPRESSION2> ASTERISK <SQLEXPRESSION2>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_MODULAR(p):
+    '''SQLEXPRESSION2 : SQLEXPRESSION2 MODULAR SQLEXPRESSION2'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLEXPRESSION2> ::= <SQLEXPRESSION2> MODULAR <SQLEXPRESSION2>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_EXPONENT(p):
+    '''SQLEXPRESSION2 : SQLEXPRESSION2 EXPONENT SQLEXPRESSION2'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLEXPRESSION2> ::= <SQLEXPRESSION2> EXPONENT <SQLEXPRESSION2>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_uREST(p):
+    '''SQLEXPRESSION2 : REST SQLEXPRESSION2 %prec UREST'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLEXPRESSION2> ::= REST <SQLEXPRESSION2> %prec UREST\n"
+    nodo.production += f"{p[2].production}"
+
+
+def p_sql_expression2_uPLUS(p):
+    '''SQLEXPRESSION2 : PLUS SQLEXPRESSION2 %prec UPLUS'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLEXPRESSION2> ::= PLUS <SQLEXPRESSION2> %prec UPLUS\n"
+    nodo.production += f"{p[2].production}"
+
+
+def p_sql_expression2_LEFT_PARENTHESIS(p):
+    '''SQLEXPRESSION2 : LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(Node(p[3]))
+    nodo.production = f"<SQLEXPRESSION2> ::= LEFT_PARENTHESIS <SQLEXPRESSION2> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_LEFT_ACOSD(p):
+    '''SQLEXPRESSION2 : ACOSD LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<SQLEXPRESSION2> ::= ACOSD LEFT_PARENTHESIS <SQLEXPRESSION2> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_LEFT_ASIND(p):
+    '''SQLEXPRESSION2 : ASIND LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<SQLEXPRESSION2> ::= ASIND LEFT_PARENTHESIS <SQLEXPRESSION2> RIGHT_PARENTHESIS\n"
     nodo.production += f"{p[3].production}"
     p[0] = nodo
 
 
 def p_sql_expression2(p):
-    '''SQLEXPRESSION2 : SQLEXPRESSION2 PLUS SQLEXPRESSION2 
-                      | SQLEXPRESSION2 REST SQLEXPRESSION2 
-                      | SQLEXPRESSION2 DIVISION SQLEXPRESSION2 
-                      | SQLEXPRESSION2 ASTERISK SQLEXPRESSION2 
-                      | SQLEXPRESSION2 MODULAR SQLEXPRESSION2
-                      | SQLEXPRESSION2 EXPONENT SQLEXPRESSION2 
-                      | REST SQLEXPRESSION2 %prec UREST
-                      | PLUS SQLEXPRESSION2 %prec UPLUS
-                      | LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS
-                      | SQLNAME
-                      | SQLINTEGER'''
+    '''SQLEXPRESSION2 : SUBSTRING LEFT_PARENTHESIS ID COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
+                      | SQLNAME'''
     nodo = Node('SQL Expression 2')
-    if len(p) == 4:
-        if p[1] == '(':
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(p[2])
-            nodo.add_childrens(Node(p[3]))
-            p[0] = nodo
-        else:
-            nodo.add_childrens(p[1])
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-            p[0] = nodo
-    elif len(p) == 3:
+    if len(p) == 9:
         nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.add_childrens(Node(p[6]))
+        nodo.add_childrens(p[7])
+        nodo.add_childrens(Node(p[8]))
+        nodo.production = f"<SQLEXPRESSION2> ::= SUBSTRING LEFT_PARENTHESIS ID COMMA <SQLINTEGER> COMMA <SQLINTEGER> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[5].production}"
+        nodo.production += f"{p[7].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
+        nodo.production = f"<SQLEXPRESSION2> ::= <SQLNAME>\n"
+        nodo.production += f"{p[1].production}"
+        p[0] = nodo
+
+
+def p_sql_expression2_SQLINTEGER(p):
+    '''SQLEXPRESSION2 : SQLINTEGER'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLEXPRESSION2> ::= <SQLINTEGER>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_options_list2_WHERECLAUSE(p):
+    '''OPTIONSLIST2 : WHERECLAUSE OPTIONS4
+                    | WHERECLAUSE'''
+    nodo = Node('Options List 2')
+    if (len(p) == 3):
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(p[2])
+        nodo.production = f"<OPTIONSLIST2> ::= <WHERECLAUSE> <OPTIONS4>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
+        p[0] = nodo
+    else:
+        nodo.add_childrens(p[1])
+        nodo.production = f"<OPTIONSLIST2> ::= <WHERECLAUSE>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
 def p_options_list2(p):
-    '''OPTIONSLIST2 : WHERECLAUSE OPTIONS4
-                    | WHERECLAUSE
-                    | OPTIONS4'''
-    nodo = Node('OPTIONSLIST2')
-    if (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        p[0] = nodo
-    else:
-        nodo.add_childrens(p[1])
-        p[0] = nodo
+    '''OPTIONSLIST2 : OPTIONS4'''
+    nodo = Node('Options List 2')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<OPTIONSLIST2> ::= <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
 
 
 def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
-    nodo = Node('DELETESTATEMENT')
+    nodo = Node('Delete Statement')
     if (len(p) == 6):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
+        nodo.production = f"<DELETESTATEMENT> ::= DELETE FROM ID <OPTIONSLIST> SEMICOLON\n"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<DELETESTATEMENT> ::= DELETE FROM ID SEMICOLON\n"
         p[0] = nodo
 
 
-def p_options_list(p):
-    '''OPTIONSLIST : OPTIONS1 OPTIONS2 WHERECLAUSE OPTIONS4
-                   | OPTIONS1 OPTIONS2 WHERECLAUSE
-                   | OPTIONS1 WHERECLAUSE OPTIONS4
-                   | OPTIONS1 OPTIONS2 OPTIONS4
-                   | OPTIONS2 WHERECLAUSE OPTIONS4
-                   | OPTIONS1 OPTIONS2
-                   | OPTIONS1 WHERECLAUSE
-                   | OPTIONS1 OPTIONS4
-                   | OPTIONS2 WHERECLAUSE
-                   | OPTIONS2 OPTIONS4
-                   | WHERECLAUSE OPTIONS4
-                   | OPTIONS1
-                   | OPTIONS2
-                   | WHERECLAUSE
-                   | OPTIONS4'''
-    nodo = Node('OPTIONSLIST')
-    if (len(p) == 5):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(p[4])
-        p[0] = nodo
-    elif (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(p[3])
-        p[0] = nodo
-    elif (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        p[0] = nodo
-    else:
-        nodo.add_childrens(p[1])
-        p[0] = nodo
+def p_options_list_op12W4(p):
+    '''OPTIONSLIST : OPTIONS1 OPTIONS2 WHERECLAUSE OPTIONS4'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(p[4])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS1> <OPTIONS2> <WHERECLAUSE> <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    nodo.production += f"{p[3].production}"
+    nodo.production += f"{p[4].production}"
+    p[0] = nodo
+
+
+def p_options_list_op12W(p):
+    '''OPTIONSLIST : OPTIONS1 OPTIONS2 WHERECLAUSE'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(p[3])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS1> <OPTIONS2> <WHERECLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_options_list_op1W4(p):
+    '''OPTIONSLIST : OPTIONS1 WHERECLAUSE OPTIONS4'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(p[3])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS1> <WHERECLAUSE> <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_options_list_op124(p):
+    '''OPTIONSLIST : OPTIONS1 OPTIONS2 OPTIONS4'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(p[3])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS1> <OPTIONS2> <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_options_list_op2w4(p):
+    '''OPTIONSLIST : OPTIONS2 WHERECLAUSE OPTIONS4'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(p[3])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS2> <WHERECLAUSE> <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_options_list_op12(p):
+    '''OPTIONSLIST : OPTIONS1 OPTIONS2'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS1> <OPTIONS2>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_options_list_op1w(p):
+    '''OPTIONSLIST : OPTIONS1 WHERECLAUSE'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS1> <WHERECLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_options_list_op14(p):
+    '''OPTIONSLIST : OPTIONS1 OPTIONS4'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS1> <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_options_list_op2w(p):
+    '''OPTIONSLIST : OPTIONS2 WHERECLAUSE'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS2> <WHERECLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_options_list_op24(p):
+    '''OPTIONSLIST : OPTIONS2 OPTIONS4'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS2> <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_options_list_opw4(p):
+    '''OPTIONSLIST : WHERECLAUSE OPTIONS4'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<OPTIONSLIST> ::= <WHERECLAUSE> <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_options_list_op1(p):
+    '''OPTIONSLIST : OPTIONS1'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS1>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_options_list_op2(p):
+    '''OPTIONSLIST : OPTIONS2'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS2>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_options_list_w(p):
+    '''OPTIONSLIST : WHERECLAUSE'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<OPTIONSLIST> ::= <WHERECLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_options_list_op4(p):
+    '''OPTIONSLIST : OPTIONS4'''
+    nodo = Node('Options List')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<OPTIONSLIST> ::= <OPTIONS4>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
 
 
 def p_options1(p):
     '''OPTIONS1 : ASTERISK SQLALIAS
                 | ASTERISK
                 | SQLALIAS'''
-    nodo = Node('OPTIONS1')
+    nodo = Node('Options 1')
     if(len(p) == 2):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
+        nodo.production = f"<OPTIONS1> ::= ASTERISK <SQLALIAS>\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     else:
         if(p[1] == "*"):
             nodo.add_childrens(Node(p[1]))
+            nodo.production = f"<OPTIONS1> ::= ASTERISK\n"
             p[0] = nodo
         else:
             nodo.add_childrens(p[1])
+            nodo.production = f"<OPTIONS1> ::= <SQLALIAS>\n"
+            nodo.production += f"{p[1].production}"
             p[0] = nodo
 
 
 def p_options2(p):
     '''OPTIONS2 : USING USINGLIST'''
-    nodo = Node('OPTIONS2')
+    nodo = Node('Options 2')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
+    nodo.production = f"<OPTIONS2> ::= USING <USINGLIST>\n"
+    nodo.production += f"{p[2].production}"
     p[0] = nodo
 
 
 def p_using_list(p):
     '''USINGLIST  : USINGLIST COMMA SQLNAME
                   | SQLNAME'''
-    nodo = Node('USINGLIST')
+    nodo = Node('Using List')
     if(len(p) == 4):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
+        nodo.production = f"<USINGLIST> ::= <USINGLIST> COMMA <SQLNAME>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
+        nodo.production = f"<USINGLIST> ::= <SQLNAME>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 # def p_options3(p):
@@ -1723,44 +1770,56 @@ def p_using_list(p):
 
 def p_options4(p):
     '''OPTIONS4 : RETURNING RETURNINGLIST'''
-    nodo = Node('OPTIONS4')
+    nodo = Node('Options 4')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
+    nodo.production = f"<OPTIONS4> ::= RETURNING <RETURNINGLIST>\n"
+    nodo.production += f"{p[2].production}"
     p[0] = nodo
 
 
 def p_returning_list(p):
     '''RETURNINGLIST   : ASTERISK
                        | EXPRESSIONRETURNING'''
-    nodo = Node('RETURNINGLIST')
+    nodo = Node('Returning List')
     if p[1] == '*':
         nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<RETURNINGLIST> ::= ASTERISK\n"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
+        nodo.production = f"<RETURNINGLIST> ::= <EXPRESSIONRETURNING>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
 def p_returning_expression(p):
     '''EXPRESSIONRETURNING : EXPRESSIONRETURNING COMMA SQLEXPRESSION SQLALIAS
                            | SQLEXPRESSION SQLALIAS'''
-    nodo = Node('EXPRESSIONRETURNING')
+    nodo = Node('Expression Returning')
     if(len(p) == 5):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
         nodo.add_childrens(p[4])
+        nodo.production = f"<EXPRESSIONRETURNING> ::= <EXPRESSIONRETURNING> COMMA <SQLEXPRESSION> <SQLALIAS>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
+        nodo.production = f"<EXPRESSIONRETURNING> ::= <SQLEXPRESSION> <SQLALIAS>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
 
 
 def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
-    nodo = Node('INSERTSTATEMENT')
+    nodo = Node('Insert Statement')
     if(len(p) == 12):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
@@ -1773,6 +1832,10 @@ def p_insert_statement(p):
         nodo.add_childrens(p[9])
         nodo.add_childrens(Node(p[10]))
         nodo.add_childrens(Node(p[11]))
+        nodo.production = f"<INSERTSTATEMENT> ::= INSERT INTO <SQLNAME> LEFT_PARENTHESIS <LISTPARAMSINSERT> RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS <LISTVALUESINSERT> RIGHT_PARENTHESIS SEMICOLON\n"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[5].production}"
+        nodo.production += f"{p[9].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -1783,104 +1846,153 @@ def p_insert_statement(p):
         nodo.add_childrens(p[6])
         nodo.add_childrens(Node(p[7]))
         nodo.add_childrens(Node(p[8]))
+        nodo.production = f"<INSERTSTATEMENT> ::= INSERT INTO <SQLNAME> VALUES LEFT_PARENTHESIS <LISTVALUESINSERT> RIGHT_PARENTHESIS SEMICOLON\n"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[6].production}"
         p[0] = nodo
 
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
                         | SQLNAME'''
-    nodo = Node("LISTPARAMSINSERT")
+    nodo = Node("List Params Insert")
     if(len(p) == 4):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(p[3])
+        nodo.production = f"<LISTPARAMSINSERT> ::= <LISTPARAMSINSERT> COMMA <SQLNAME>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
-        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(p[1])
+        nodo.production = f"<LISTPARAMSINSERT> ::= <SQLNAME>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
 def p_query_statement(p):
     #  ELEMENTO 0       ELEMENTO 1     ELEMENTO 2      ELEMENTO 3
     '''QUERYSTATEMENT : SELECTSTATEMENT SEMICOLON'''
-    nodo = Node('QUERYSTATEMENT')
+    nodo = Node('Query Statement')
     nodo.add_childrens(p[1])
     nodo.add_childrens(Node(p[2]))
+    nodo.production = f"<QUERYSTATEMENT> ::= <SELECTSTATEMENT> SEMICOLON\n"
+    nodo.production += f"{p[1].production}"
     p[0] = nodo
 
 
 def p_select_statement(p):
     '''SELECTSTATEMENT : SELECTWITHOUTORDER ORDERBYCLAUSE LIMITCLAUSE
-                       | SELECTWITHOUTORDER ORDERBYCLAUSE 
-                       | SELECTWITHOUTORDER LIMITCLAUSE 
+                       | SELECTWITHOUTORDER ORDERBYCLAUSE
                        | SELECTWITHOUTORDER'''
-    nodo = Node('SELECTSTATEMENT')
+    nodo = Node('Select Statement')
     if (len(p) == 4):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
+        nodo.production = f"<SELECTSTATEMENT> ::= <SELECTWITHOUTORDER> <ORDERBYCLAUSE> <LIMITCLAUSE>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     elif (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
+        nodo.production = f"<SELECTSTATEMENT> ::= <SELECTWITHOUTORDER> <ORDERBYCLAUSE>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     elif (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<SELECTSTATEMENT> ::= <SELECTWITHOUTORDER>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
+
+
+def p_select_statement_LIMITCLAUSE(p):
+    '''SELECTSTATEMENT : SELECTWITHOUTORDER LIMITCLAUSE'''
+    nodo = Node('Select Statement')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SELECTSTATEMENT> ::= <SELECTWITHOUTORDER> <LIMITCLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
 
 
 def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
-    nodo = Node('SELECTWITHOUTORDER')
+    nodo = Node('Select With Out Order')
     if len(p) == 2:
         nodo.add_childrens(p[1])
+        nodo.production = f"<SELECTWITHOUTORDER> ::= <SELECTSET>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
     elif len(p) == 5:
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
+        nodo.production = f"<SELECTWITHOUTORDER> ::= <SELECTWITHOUTORDER> <TYPECOMBINEQUERY> ALL <SELECTSET>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
     elif len(p) == 4:
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
+        nodo.production = f"<SELECTWITHOUTORDER> ::= <SELECTWITHOUTORDER> <TYPECOMBINEQUERY> <SELECTSET>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
 
 
 def p_select_set(p):
     '''SELECTSET : SELECTQ 
                  | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
-    nodo = Node('SELECTSET')
+    nodo = Node('Select Set')
     if len(p) == 2:
         nodo.add_childrens(p[1])
+        nodo.production = f"<SELECTSET> ::= <SELECTQ>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
     elif len(p) == 4:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.add_childrens(Node(p[3]))
+        nodo.production = f"<SELECTSET> ::= LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
 
 
 def p_selectq(p):
     '''SELECTQ : SELECT SELECTLIST FROMCLAUSE
                | SELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
-               | SELECT TYPESELECT SELECTLIST FROMCLAUSE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
                | SELECT SELECTLIST'''
-    nodo = Node('SELECTQ')
+    nodo = Node('Select Q')
     if len(p) == 4:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
+        nodo.production = f"<SELECTQ> ::= SELECT <SELECTLIST> <FROMCLAUSE>\n"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     elif len(p) == 5:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
         nodo.add_childrens(p[4])
+        nodo.production = f"<SELECTQ> ::= SELECT <SELECTLIST> <FROMCLAUSE> <SELECTWHEREAGGREGATE>\n"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
     elif len(p) == 6:
         nodo.add_childrens(Node(p[1]))
@@ -1888,36 +2000,65 @@ def p_selectq(p):
         nodo.add_childrens(p[3])
         nodo.add_childrens(p[4])
         nodo.add_childrens(p[5])
+        nodo.production = f"<SELECTQ> ::= SELECT <TYPESELECT> <SELECTLIST> <FROMCLAUSE> <SELECTWHEREAGGREGATE>\n"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[4].production}"
+        nodo.production += f"{p[5].production}"
         p[0] = nodo
     elif len(p) == 3:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
+        nodo.production = f"<SELECTQ> ::= SELECT <SELECTLIST>\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
+
+
+def p_selectq_FROMCLAUSE(p):
+    '''SELECTQ : SELECT TYPESELECT SELECTLIST FROMCLAUSE'''
+    nodo = Node('Select Q')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(p[4])
+    nodo.production = f"<SELECTQ> ::= SELECT <TYPESELECT> <SELECTLIST> <FROMCLAUSE>\n"
+    nodo.production += f"{p[2].production}"
+    nodo.production += f"{p[3].production}"
+    nodo.production += f"{p[4].production}"
+    p[0] = nodo
 
 
 def p_select_list(p):
     '''SELECTLIST : ASTERISK
                   | LISTITEM'''
-    nodo = Node('SELECTLIST')
+    nodo = Node('Select List')
     if p[1] == '*':
         nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<SELECTLIST> ::= ASTERISK\n"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
+        nodo.production = f"<SELECTLIST> ::= <LISTITEM>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
 def p_list_item(p):
     '''LISTITEM : LISTITEM COMMA SELECTITEM
                 | SELECTITEM'''
-    nodo = Node('LISTITEM')
+    nodo = Node('List Item')
     if len(p) == 2:
         nodo.add_childrens(p[1])
+        nodo.production = f"<LISTITEM> ::= <SELECTITEM>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
     elif len(p) == 4:
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
+        nodo.production = f"<LISTITEM> ::= <LISTITEM> COMMA <SELECTITEM>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
 
 
@@ -1925,26 +2066,35 @@ def p_select_item(p):
     '''SELECTITEM : SQLEXPRESSION SQLALIAS
                   | SQLEXPRESSION
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
-    nodo = Node('SELECTITEM')
+    nodo = Node('Select Item')
     if (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
+        nodo.production = f"<SELECTITEM> ::= <SQLEXPRESSION> <SQLALIAS>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     elif (len(p) == 4):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.add_childrens(Node(p[3]))
+        nodo.production = f"<SELECTITEM> ::= LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     elif (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<SELECTITEM> ::= <SQLEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
 def p_from_clause(p):
     '''FROMCLAUSE : FROM FROMCLAUSELIST'''
-    nodo = Node('FROMCLAUSE')
+    nodo = Node('From Clause')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
+    nodo.production = f"<FROMCLAUSE> ::= FROM <FROMCLAUSELIST>\n"
+    nodo.production += f"{p[2].production}"
     p[0] = nodo
 
 
@@ -1955,13 +2105,17 @@ def p_from_clause_list(p):
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
                       | TABLEREFERENCE'''
-    nodo = Node('FROMCLAUSELIST')
+    nodo = Node('From Clause List')
     if (len(p) == 6):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(p[5])
+        nodo.production = f"<FROMCLAUSELIST> ::= <FROMCLAUSELIST> LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS <SQLALIAS>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[5].production}"
         p[0] = nodo
     elif (len(p) == 5):
         if (p[1] == "("):
@@ -1969,98 +2123,173 @@ def p_from_clause_list(p):
             nodo.add_childrens(p[2])
             nodo.add_childrens(Node(p[3]))
             nodo.add_childrens(p[4])
+            nodo.production = f"<FROMCLAUSELIST> ::= LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS <SQLALIAS>\n"
+            nodo.production += f"{p[2].production}"
+            nodo.production += f"{p[4].production}"
             p[0] = nodo
         else:
             nodo.add_childrens(p[1])
             nodo.add_childrens(Node(p[2]))
             nodo.add_childrens(p[3])
             nodo.add_childrens(Node(p[4]))
+            nodo.production = f"<FROMCLAUSELIST> ::= <FROMCLAUSELIST> LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+            nodo.production += f"{p[1].production}"
+            nodo.production += f"{p[3].production}"
             p[0] = nodo
     elif (len(p) == 4):
         if (p[1] == "("):
             nodo.add_childrens(Node(p[1]))
             nodo.add_childrens(p[2])
             nodo.add_childrens(Node(p[3]))
+            nodo.production = f"<FROMCLAUSELIST> ::= LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+            nodo.production += f"{p[2].production}"
             p[0] = nodo
         else:
             nodo.add_childrens(p[1])
             nodo.add_childrens(Node(p[2]))
             nodo.add_childrens(p[3])
+            nodo.production = f"<FROMCLAUSELIST> ::= <FROMCLAUSELIST> COMMA <TABLEREFERENCE>\n"
+            nodo.production += f"{p[1].production}"
+            nodo.production += f"{p[3].production}"
             p[0] = nodo
     elif (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<FROMCLAUSELIST> ::= <TABLEREFERENCE>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
 def p_where_aggregate(p):
     '''SELECTWHEREAGGREGATE : WHERECLAUSE  SELECTGROUPHAVING
-                            | SELECTGROUPHAVING
-                            | WHERECLAUSE'''
-    nodo = Node('SELECTWHEREAGGREGATE')
+                            | SELECTGROUPHAVING'''
+    nodo = Node('Select Where Aggregate')
     if (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
+        nodo.production = f"<SELECTWHEREAGGREGATE> ::= <WHERECLAUSE> <SELECTGROUPHAVING>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     elif (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<SELECTWHEREAGGREGATE> ::= <SELECTGROUPHAVING>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
+
+
+def p_where_aggregate_WHERECLAUSE(p):
+    '''SELECTWHEREAGGREGATE : WHERECLAUSE'''
+    nodo = Node('Select Where Aggregate')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SELECTWHEREAGGREGATE> ::= <WHERECLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
 
 
 def p_select_group_having(p):
     '''SELECTGROUPHAVING : GROUPBYCLAUSE
-                         | HAVINGCLAUSE GROUPBYCLAUSE
-                         | GROUPBYCLAUSE HAVINGCLAUSE'''
-    nodo = Node('SELECTGROUPHAVING')
+                         | HAVINGCLAUSE GROUPBYCLAUSE'''
+    nodo = Node('Select Group Having')
     if (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<SELECTGROUPHAVING> ::= <GROUPBYCLAUSE>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
     elif (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
+        nodo.production = f"<SELECTGROUPHAVING> ::= <HAVINGCLAUSE> <GROUPBYCLAUSE>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
+
+
+def p_select_group_having_GROUPBYCLAUSE(p):
+    '''SELECTGROUPHAVING : GROUPBYCLAUSE HAVINGCLAUSE'''
+    nodo = Node('Select Group Having')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SELECTGROUPHAVING> ::= <HAVINGCLAUSE> <GROUPBYCLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
 
 
 def p_table_reference(p):
-    '''TABLEREFERENCE : OBJECTREFERENCE SQLALIAS
-                      | OBJECTREFERENCE SQLALIAS JOINLIST
-                      | OBJECTREFERENCE JOINLIST
-                      | OBJECTREFERENCE'''
-    nodo = Node('TABLEREFERENCE')
+    '''TABLEREFERENCE : SQLNAME SQLALIAS
+                      | SQLNAME SQLALIAS JOINLIST
+                      | SQLNAME'''
+    nodo = Node('Table Reference')
     if (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<TABLEREFERENCE> ::= <SQLNAME>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
     elif (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
+        nodo.production = f"<TABLEREFERENCE> ::= <SQLNAME> <SQLALIAS>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     elif (len(p) == 4):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
+        nodo.production = f"<TABLEREFERENCE> ::= <SQLNAME> <SQLALIAS> <JOINLIST>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
+
+
+def p_table_reference_JOINLIST(p):
+    '''TABLEREFERENCE : SQLNAME JOINLIST'''
+    nodo = Node('Table Reference')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<TABLEREFERENCE> ::= <SQLNAME> <JOINLIST>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
 
 
 def p_order_by_clause(p):
     '''ORDERBYCLAUSE : ORDER BY ORDERBYEXPRESSION'''
-    nodo = Node('ORDERBYCLAUSE')
+    nodo = Node('Order By Clause')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(p[3])
+    nodo.production = f"<ORDERBYCLAUSE> ::= ORDER BY <ORDERBYEXPRESSION>\n"
+    nodo.production += f"{p[3].production}"
     p[0] = nodo
 
 
 def p_order_by_expression(p):
     '''ORDERBYEXPRESSION : LISTPARAMSINSERT ASC
-                         | LISTPARAMSINSERT DESC
                          | LISTPARAMSINSERT'''
-    nodo = Node('ORDERBYEXPRESSION')
+    nodo = Node('Oder By Expression')
     if (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
+        nodo.production = f"<ORDERBYEXPRESSION> ::= <LISTPARAMSINSERT> ASC\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
     elif (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<ORDERBYEXPRESSION> ::= <LISTPARAMSINSERT>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
+
+
+def p_order_by_expression_DESC(p):
+    '''ORDERBYEXPRESSION : LISTPARAMSINSERT DESC'''
+    nodo = Node('Oder By Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f"<ORDERBYEXPRESSION> ::= <LISTPARAMSINSERT> DESC\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
 
 
 def p_limit_clause(p):
@@ -2072,110 +2301,167 @@ def p_limit_clause(p):
         nodo.add_childrens(p[2])
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<LIMITCLAUSE> ::= LIMIT <LIMITTYPES> OFFSET INT_NUMBER\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
+        nodo.production = f"<LIMITCLAUSE> ::= LIMIT <LIMITTYPES>\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
 
 
 def p_limit_types(p):
     '''LIMITTYPES : INT_NUMBER
                   | ALL'''
-    nodo = Node('LIMITTYPES')
+    nodo = Node('Limit Types')
     if p[1] == 'ALL':
         nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<LIMITTYPES> ::= INT_NUMBER\n"
         p[0] = nodo
     else:
-        nodo.add_childrens(p[1])
-        p[0] = p[1]
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<LIMITTYPES> ::= ALL\n"
+        p[0] = nodo
 
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
-    nodo = Node('WHERECLAUSE')
+    nodo = Node('Where Clause')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
+    nodo.production = f"<WHERECLAUSE> ::= WHERE <SQLEXPRESSION>\n"
+    nodo.production += f"{p[2].production}"
     p[0] = nodo
 
 
 def p_group_by_clause(p):
     '''GROUPBYCLAUSE : GROUP BY SQLEXPRESSIONLIST'''
-    nodo = Node('GROUPBYCLAUSE')
+    nodo = Node('Group By Clause')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(p[3])
+    nodo.production = f"<GROUPBYCLAUSE> ::= GROUP BY <SQLEXPRESSIONLIST>\n"
+    nodo.production += f"{p[3].production}"
     p[0] = nodo
 
 
 def p_having_clause(p):
     '''HAVINGCLAUSE : HAVING SQLEXPRESSION'''
-    nodo = Node('HAVINGCLAUSE')
+    nodo = Node('Having Clause')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(p[2])
+    nodo.production = f"<HAVINGCLAUSE> ::= HAVING <SQLEXPRESSION>\n"
+    nodo.production += f"{p[2].production}"
     p[0] = nodo
 
 
 def p_join_list(p):
     '''JOINLIST : JOINLIST JOINP
                 | JOINP'''
-    nodo = Node('JOINLIST')
+    nodo = Node('Join List')
     if (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<JOINLIST> ::= <JOINP>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
     elif (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
+        nodo.production = f"<JOINLIST> ::= <JOINLIST> <JOINP>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
 
 
 def p_joinp(p):
     '''JOINP : JOINTYPE JOIN TABLEREFERENCE ON SQLEXPRESSION'''
-    nodo = Node('JOINP')
+    nodo = Node('JoinP')
     nodo.add_childrens(p[1])
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(p[3])
     nodo.add_childrens(Node(p[4]))
     nodo.add_childrens(p[5])
+    nodo.production = f"<JOINP> ::= <JOINTYPE> JOIN <TABLEREFERENCE> ON <SQLEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    nodo.production += f"{p[5].production}"
     p[0] = nodo
 
 
 def p_join_type(p):
     '''JOINTYPE : INNER
-                | LEFT OUTER
-                | RIGHT OUTER
-                | FULL OUTER'''
-    nodo = Node('JOINTYPE')
+                | LEFT OUTER'''
+    nodo = Node('Join Type')
     if (len(p) == 2):
         nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<JOINTYPE> ::= INNER\n"
         p[0] = nodo
     elif (len(p) == 3):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
+        nodo.production = f"<JOINTYPE> ::= LEFT OUTER\n"
         p[0] = nodo
+
+
+def p_join_type_RIGHT(p):
+    '''JOINTYPE : RIGHT OUTER'''
+    nodo = Node('Join Type')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f"<JOINTYPE> ::= RIGHT OUTER\n"
+    p[0] = nodo
+
+
+def p_join_type_FULL(p):
+    '''JOINTYPE : FULL OUTER'''
+    nodo = Node('Join Type')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f"<JOINTYPE> ::= FULL OUTER\n"
+    p[0] = nodo
 
 
 def p_sql_expression(p):
     '''SQLEXPRESSION : SQLEXPRESSION OR SQLEXPRESSION
-                     | SQLEXPRESSION AND SQLEXPRESSION
                      | NOT EXISTSORSQLRELATIONALCLAUSE
                      | EXISTSORSQLRELATIONALCLAUSE'''
-    nodo = Node('SQLEXPRESSION')
+    nodo = Node('SQL Expression')
     if len(p) == 4:
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
+        nodo.production = f"<SQLEXPRESSION> ::= <SQLEXPRESSION> OR <SQLEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     elif len(p) == 3:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
+        nodo.production = f"<SQLEXPRESSION> ::= OR <EXISTSORSQLRELATIONALCLAUSE>\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
+        nodo.production = f"<SQLEXPRESSION> ::= <EXISTSORSQLRELATIONALCLAUSE>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
-def p_exits_or_relational_clause(p):
+def p_sql_expression_AND(p):
+    '''SQLEXPRESSION : SQLEXPRESSION AND SQLEXPRESSION'''
+    nodo = Node('SQL Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLEXPRESSION> ::= <SQLEXPRESSION> AND <SQLEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_exits_or_relational_clause(p):  # TODO
     '''EXISTSORSQLRELATIONALCLAUSE : EXISTSCLAUSE
                                    | SQLRELATIONALEXPRESSION'''
     nodo = Node('EXISTSORSQLRELATIONALCLAUSE')
