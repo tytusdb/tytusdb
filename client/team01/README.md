@@ -61,17 +61,28 @@ Por último en la parte inferior de la pantalla, se encuentra la consola. Esta s
 
 Flask es un micro web framework, progrmado en Python y está creado con el objetivo de ofrecer las herramientas necesarias para la creación de aplicaciones web usando Python, sin depender de herramientas o librerías extras. No cuenta con capa de abstracción de base de datos, ni validación de formularios y muchos componentes más que se encuentran a menudo en web frameworks. Esto permite que su uso sea simplificado, pero corrige estas faltas con la posibilidad de que se le agregue por medio de extensiones estas funciones que pueden llegar a hacer falta.
 
+> Flask es utilizado en este proyecto debido a su fácil implementación, además de su amigable comunicación cliente-servidor debido a que se utiliza flask para ambas tareas. Además, es compatible y fácil de manejar junto con bootstrap.
+
 **[CodeMirror](https://codemirror.net/).**
 <img src="docs/Grupo01_Imagen07.png" width="75" height="75">
 
 CodeMirror es un editor de texto muy versátil implementado en JavaScirpt para navegadores. Se enfoca especialmente en ediciones de código y tiene la opción de funcionar para múltiples lenguajes, además de permitir que se agregue muchos addons para complementar necesidades. También cuenta con una API de programación y temas en CSS que permiten su personalización.
 
+> Se utiliza CodeMirror para el editor de texto principal, permitiendonos el manejo de sintaxis de SQL de una manera rápida y correcta.
 
 **[py2exe](https://www.py2exe.org/).**
 <img src="docs/Grupo01_Imagen10.png" width="75" height="75">
 
 py2Exe es una extension de Python que se encarga de convertir código de Python a programas ejecutables de windows (.exe) y permite correrlos sin necesidad de instalar Python. Su desarrollo está en [GitHub](https://github.com/py2exe/py2exe).
 
+> Con py2exe generamos los ejecutables para sistema operativo Windows del servidor y del cliente.
+
+**[Bootstrap](https://getbootstrap.com/).**
+<img src="docs/Grupo01_Imagen11.png" width="75" height="75">
+
+Bootstrap es el frameworkk CSS más popular, utilizado para la creación de websites responsivos y enfocados a móviles. Contiene diseños y plantillas basadas en CSS y JavaScript para utilizar en formularios, botones, navegación y otros componentes.
+
+> Bootstrap nos sirvió para la creación de la vistas, ya que nos facilita el crear menús laterales, encabezados y el footer.
 
 **Diagrama De Despliegue**
 
