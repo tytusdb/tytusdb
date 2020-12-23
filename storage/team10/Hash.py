@@ -312,9 +312,11 @@ class TablaHash:
                 i.isGeneric = True
 
     def genGraph(self, name):
-        f = Digraph("structs" , filename = name+".gv" , format = "png",
-                    node_attr={'shape' : 'record', } )
-        f.attr(rankdir='LR', size='8,5')
+        f = Digraph("structs" , filename = name+".gv" , format = "svg",  
+                    node_attr={'shape' : 'record',  } )
+        f.attr(rankdir='LR')
+        f.graph_attr['overlap']= 'false'
+        f.graph_attr['splines']= 'true'
         hashTB = ''
         contador = 0 
         for i in self.values:
@@ -348,3 +350,4 @@ class TablaHash:
                         m+=1 
                 n+=1
         f.view()
+
