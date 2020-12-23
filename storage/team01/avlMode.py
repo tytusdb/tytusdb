@@ -746,7 +746,7 @@ def deserializar(archivo) -> list:
 #Grafica la estructura que contiene las Bases de Datos
 def graficaBD() -> int:
     if mBBDD.raiz:
-        mBBDD.armararbol(mBBDD.raiz, "Bases de Datos", "BBDD.jpg")
+        mBBDD.armararbol(mBBDD.raiz, "Bases de Datos", "BBDD")
         return 0 #Operación exitosa
     else:
         return 1 #Error en la operación
@@ -755,7 +755,7 @@ def graficaBD() -> int:
 def graficaTBL(database: str) -> int:
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
-        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Base de Datos: " + nodoBD.clave, nodoBD.clave+'.jpg')
+        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Base de Datos: " + nodoBD.clave, nodoBD.clave)
         return 0 #Operación exitosa
     else:
         return 1 #Error en la operación
@@ -766,13 +766,9 @@ def graficaREG(database: str, table: str) -> int:
     if nodoBD:
         nodoTBL = nodoBD.datos.obtener(table)
         if nodoTBL:
-            nodoTBL.datos.armararbol(nodoTBL.datos.raiz, "Tabla: " + nodoTBL.clave, nodoTBL.clave+'.jpg')
+            nodoTBL.datos.armararbol(nodoTBL.datos.raiz, "Tabla: " + nodoTBL.clave, nodoTBL.clave)
             return 0 #Operación exitosa
         else:
             return 1 #Error en la operación
     else:
         return 1 #Error en la operación
-
-def showCollection():
-    from team01 import Principal as interfaz
-    mostrar = interfaz.Application()
