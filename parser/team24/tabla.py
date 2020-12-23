@@ -53,7 +53,6 @@ class Tabla() :
             self.simbolos[simbolo.id] = simbolo
 
     def getTabla(self,nombre):
-        
         for simbolo in self.simbolos.values():
             if simbolo.valor ==nombre:
                 #Verificar si es tabla
@@ -71,6 +70,25 @@ class Tabla() :
                     return tabla , db
 
         return None
+
+    def getColumns(self,db,table):
+        #Buscamos el ambito de la DB
+        iddb = -1
+        for simbolo in self.simbolos.values():  
+            
+            if simbolo.valor == db and simbolo.tipo == TIPO.DATABASE : 
+                iddb = simbolo.id
+        #Buscamos el ambito de la tabla        
+        idtable = -1
+        for simbolo in self.simbolos.values():
+            if simbolo.valor == table and simbolo.tipo == TIPO.TABLE and simbolo.ambito == iddb : 
+                idtable = simbolo.id
+        columns = []        
+        for simbolo in self.simbolos.values() :
+            if simbolo.tipo == TIPO.COLUMN and simbolo.ambito == idtable:
+                columns.append(simbolo.valor)
+        return columns        
+
 
     def getIndice(self,db,table,col):
 

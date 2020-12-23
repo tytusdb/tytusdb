@@ -6,6 +6,7 @@ from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
 from parse.sql_common.sql_general import *
 from parse.sql_ddl.create import *
+from parse.sql_dml.insert import *
 from treeGraph import *
 
 #===========================================================================================
@@ -372,10 +373,10 @@ def p_statement(t):
                     | stm_create PUNTOCOMA
                     | stm_use_db PUNTOCOMA 
                     | stm_select PUNTOCOMA
-                    
+                    | stm_insert PUNTOCOMA
+
                     '''
-#                    |    stm_select PUNTOCOMA 
-#                    |    stm_insert PUNTOCOMA
+#                    |    stm_select PUNTOCOMA
 #                    |    stm_update PUNTOCOMA
 #                    |    stm_delete PUNTOCOMA
 #                    |    stm_alter  PUNTOCOMA
@@ -542,26 +543,31 @@ def p_table0(t):
 def p_stm_insert(t):
     '''stm_insert   : INSERT INTO ID insert_ops'''
     childsProduction  = addNotNoneChild(t,[4])
-    graph_ref = graph_node(str("stm_insert"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+    graph_ref = graph_node(str("stm_insert"), [t[1], t[2], t[3], t[4]], childsProduction)
     addCad("**\<STM_INSERT>** ::=  tInsert tInto tIdentifier \<INSERT_OPS>  ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    # t[0] = upNodo("token", 0, 0, graph_ref)
+    token_insert = t.slice[1]
+    t[0] = InsertInto(t[3], t[4].column_list, t[4].values_list, token_insert.lineno, token_insert.lexpos, graph_ref)
+    print(t)
+
 
 
 def p_insert_ops(t):
     '''insert_ops   : column_list_param_opt VALUES PARA exp_list PARC
                     |   column_list_param_opt stm_select'''
     if len(t) == 6:
-        childsProduction  = addNotNoneChild(t,[1,4])
-        graph_ref = graph_node(str("insert_ops"),    [t[1],t[2],t[3]]       ,childsProduction)
+        # childsProduction  = addNotNoneChild(t, [1, 4])
+        # graph_ref = graph_node(str("insert_ops"), [t[1], t[2], t[3]], childsProduction)
+        graph_ref = None
         addCad("**\<INSERT_OPS>** ::=  \<COLUMN_LIST>  tValues  '(' \<EXP_LIST> ')' ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####                
+        # t[0] = upNodo(t[1], 0, 0, graph_ref)
+        token_ops = t.slice[2]
+        t[0] = InsertItem(t[1].val, t[4], token_ops.lineno, token_ops.lexpos, graph_ref)
     else: 
-        childsProduction  = addNotNoneChild(t,[1,2])
-        graph_ref = graph_node(str("insert_ops"),    [t[1],t[2]]       ,childsProduction)
+        childsProduction  = addNotNoneChild(t, [1, 2])
+        graph_ref = graph_node(str("insert_ops"), [t[1], t[2]], childsProduction)
         addCad("**\<INSERT_OPS>** ::=  \<COLUMN_LIST>  \<STM_SELECT>  ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-        #####   
 
 
 def p_table_list(t):
@@ -823,28 +829,33 @@ def p_column_list_param_opt(t):
     '''column_list_param_opt  : PARA column_list PARC
                                 | empty'''    
     if len(t) == 4:
-        childsProduction  = addNotNoneChild(t,[2])
-        graph_ref = graph_node(str("colum_list_param_opt"),    [t[1],t[2],t[3]]       ,childsProduction)
+        # childsProduction  = addNotNoneChild(t,[2])
+        # graph_ref = graph_node(str("column_list_param_opt"), [t[1], t[2], t[3]], childsProduction)
+        graph_ref = None
         addCad("**\<COLUMN_LIST_PARAM_OPT>** ::= '(' \<COLUMN_LIST>    ')' ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####        
+        t[0] = upNodo(t[2], 0, 0, graph_ref)
     else: 
-        t[0]=None 
+        t[0] = None
+
 
 def p_column_list(t):
     '''column_list  : column_list COMA ID
                     | ID'''
     if len(t) == 4:
-        childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("colum_list"),    [t[1],t[2],t[3]]       ,childsProduction)
+        # childsProduction = addNotNoneChild(t, [1])
+        # graph_ref = graph_node(str("column_list"), [t[1], t[2], t[3]], childsProduction)
+        graph_ref = None
         addCad("**\<COLUMN_LIST>** ::= \<COLUMN_LIST> ',' tIdentifier ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####        
+        # t[0] = upNodo("token", 0, 0, graph_ref)
+        token_id = t.slice[3]
+        t[1].append(Identifier(token_id.value, token_id.lineno, token_id.lexpos, graph_ref))
+        t[0] = t[1]
     else: 
         graph_ref = graph_node(str(t[1]))
         addCad("**\<COLUMN_LIST>** ::=  tIdentifier ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####   
+        token_id = t.slice[1]
+        t[0] = [Identifier(token_id.value, token_id.lineno, token_id.lexpos, graph_ref)]
+
 
 def p_stm_update(t):
     '''stm_update : UPDATE ID SET update_list where_clause
@@ -1340,12 +1351,12 @@ def p_stm_show0(t):
 
 def p_exp_list(t):
     '''exp_list : exp_list COMA expression'''
-#    t[1].append(t[3])
-#    t[0] = t[1]
-    childsProduction = addNotNoneChild(t,[1,3])                
-    graph_ref = graph_node(str("exp_list"), [t[1],t[2],t[3]]    ,childsProduction)
-    addCad("**\<EXP_LIST>** ::= <EXP_LIST> ',' <EXP>")
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    t[1].append(t[3])
+    t[0] = t[1]
+    # childsProduction = addNotNoneChild(t, [1, 3])
+    # graph_ref = graph_node(str("exp_list"), [t[1], t[2], t[3]], childsProduction)
+    # addCad("**\<EXP_LIST>** ::= <EXP_LIST> ',' <EXP>")
+    # t[0] = upNodo("token", 0, 0, graph_ref)
 
 #    graph_ref = graph_node("COMA", [t[1].graph_ref,t[2].graph_ref])
     
@@ -1353,7 +1364,7 @@ def p_exp_list(t):
 
 def p_exp_list0(t):    
     '''exp_list : expression'''    
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 ########## Definition of opttional productions, who could reduce to 'empty' (epsilon) ################
 # def p_not_opt(t):

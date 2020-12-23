@@ -3,10 +3,13 @@ sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
 sys.path.append('../G26/Librerias/storageManager')
 
+
+
 from jsonMode import *
 from instruccion import *
 from Lista import *
 from TablaSimbolos import *
+from Error import *
 
 class Create(Instruccion):
 
@@ -82,29 +85,28 @@ class Create(Instruccion):
                         elif resPK == 4: print('Error(???): Llave primaria existente.')
                         elif resPK == 5: print('Error(42P10): invalid_column_reference.')
                     elif column.type == 'foreign':
-                        print('Se agrega hasta la fase 2')
+                       foreign = column.execute(data)
+                       if isinstance(foreign, Error):
+                           return foreign
                     elif column.type == 'constraint':
                         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['constraint'].append(ConstraintData(column.id, column.list, 'check'))
                     else:
                         banderaDef = True
-
                         if column.list.type == 'primary':
                             banderaDef = False
-                            primary = column.list.execute()
-                            default = primary.list.execute()
+                            primary = column.list.execute(data)
+                            default = primary.list.execute(data)
                             references = None
                         elif column.list.type == 'references':
                             banderaDef = False
                             primary = None
-                            references = column.list.execute()
+                            references = column.list.execute(data)
                             if column.extra == None : default = references.list.execute()
                             else : default = references.extra.execute()
-
                         if banderaDef :
-                            default = column.list.execute()
+                            default = column.list.execute(data)
                             primary = None
                             references = None
-
                         type = column.id.execute()
                         if type.type == 'id':
                             if type.length.upper() in data.tablaSimbolos[data.databaseSeleccionada]['enum']:
@@ -114,8 +116,8 @@ class Create(Instruccion):
                                 dropTable(data.databaseSeleccionada, self.name.upper())
                                 return 'Error(???): El tipo ' + type.length.upper() + ' no se encuentra declarado en los ENUMS.'
 
-                        null = default.list.execute()
-                        unique = null.list.execute()
+                        null = default.list.execute(data)
+                        unique = null.list.execute(data)
                         if unique.list == None : check = None
                         else : check = unique.list.execute()
 
@@ -221,8 +223,31 @@ class TableDescription(Instruccion):
         self.list = list
         self.extra = extra
 
-    def execute(self):
+    def execute(self, data):
+        if self.type == 'foreign':
+            if self.tableExists(data):
+                if self.columnExists(data):
+                    print("FK_EXITOSA...")
+                else:
+                    error = Error('Semántico', 'Error(FK): La columna: ' +  self.extra[0].column +' no existe.', 0, 0)
+                    return error
+
+            else:
+                error = Error('Semántico', 'Error(FK): La tabla: ' + self.id +' no existe.', 0, 0)
+                return error
         return self
+
+
+    def tableExists(self, data):
+        for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas']:
+            if self.id.lower() == table.lower():
+                return True
+
+    def columnExists(self, data):
+        tabla = self.id.upper()
+        for column in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tabla]['columns']:
+            if self.extra[0].column.lower() == column.name.lower():
+                return True
 
     def __repr__(self):
         return str(self.__dict__)
