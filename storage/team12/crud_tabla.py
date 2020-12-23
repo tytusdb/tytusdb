@@ -20,8 +20,8 @@ class CRUD_Tabla():
                     return 3
                 else:
                     large = search_table.numberColumns
-                    print(large)
-                    print(len(columns))
+                    #print(large)
+                    #print(len(columns))
                     if len(columns) <= large:
                         tmp = CRUD_DataBase().getRoot()
                         if search_table.PK == asd:
@@ -77,11 +77,11 @@ class CRUD_Tabla():
 
             else:
                 pk = tmp.tables[id].PK[0]
-                print(pk)
+                #print(pk)
 
                 for n in temp_vals:
                     temp_pos = n[pk]
-                    print(temp_pos)
+                    #print(temp_pos)
                     n.insert(0, temp_pos)
                     tmp.tables[id].tuples.Insertar(n)
 
@@ -89,8 +89,8 @@ class CRUD_Tabla():
 
     def sumatoryStringKey(self,values,keys):
         concatenatePK = ""
-        print(values)
-        print(values[2])
+        #print(values)
+        #print(values[2])
         for n in keys:
             asd = values[n]
             concatenatePK += asd
@@ -180,7 +180,7 @@ class CRUD_Tabla():
             temp = CRUD_DataBase().searchDatabase(database)
             lista_retorno = []
             for item in temp.tables:
-                print(item.name)
+                #print(item.name)
                 lista_retorno.append(item.name)
             return lista_retorno
         except:
@@ -291,6 +291,8 @@ class CRUD_Tabla():
                 else:
                     tmp.tables[id].tuples.insertar_(tupla)
                 return tmp
+    
+    ############################################################################
     def extractRangeTable(self,database,table,columnNumber,lower,upper):
         search = self.extractTable(database,table)
         if search:
@@ -299,17 +301,19 @@ class CRUD_Tabla():
             else:
                 dates = search.tuples.takeDates()
                 dates = self._extractRangeTables(columnNumber,lower,upper,dates)
-                print("valores")
+                #print("valores")
                 return dates
         else:
             return print("error no se encontrola base de datos ")
+    ############################################################################
+    
     def _extractRangeTables(self,columnNumber,Lower,upper,dates):
         vals = []
-
         for n in dates:
             if n[columnNumber] >= Lower and n[columnNumber] <= upper:
                 vals.append(n[columnNumber])
         return vals
+    
     def alterDropColumn(self,database, table , columnnumber):
         search = CRUD_DataBase().searchDatabase(database)
         if search:
@@ -339,6 +343,7 @@ class CRUD_Tabla():
                 return 3
         else:
             return 2
+       
     def _alterDropColumns(self,name,table,columnumber,tmp):
         if tmp is None:
             pass
@@ -355,6 +360,7 @@ class CRUD_Tabla():
         else:
             tmp = self._alterAddPK(name, table, columns, tmp.left)
         return tmp
+   
     def newEstructureColumns(self,tmp,id,columnumber):
         ## igualamos la lista de pk con keys
         temp_vals = tmp.tables[id].tuples.takeDates()
@@ -418,19 +424,3 @@ class CRUD_Tabla():
             tmp.tables[id].tuples.Insertar(n)
 
         return tmp
-bd = CRUD_DataBase()
-bd.createDatabase("jolines")
-table = CRUD_Tabla()
-table.createTable("jolines","tabla_prueba",10)
-table.shownTables("jolines")
-
-table.insert("jolines","tabla_prueba",["asd","bd","otros"])
-table.insert("jolines","tabla_prueba",["toyo","alv","perro"])
-table.insert("jolines","tabla_prueba",["gato","perro","gato"])
-table.insert("jolines","tabla_prueba",["hostias","qweqwe","joder"])
-print(table.alterDropColumn("jolines","tabla_prueba",1))
-print("impirmiendo")
-table.extractTable("jolines","tabla_prueba").tuples.takeDates()
-
-print("prueba")
-
