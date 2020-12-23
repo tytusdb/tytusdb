@@ -495,3 +495,170 @@ class HashTable:
                 return 0
             return 4
         return 1
+    
+    #Devuelve la tupla con respecto a su llave primaria
+    def extractRow(self, database: str, table: str, columns: list):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+
+        #Verifica si existe la base de datos especificada
+        if ne.searchDatabase(database) is False:
+            return []
+
+        #Verifica si existe la tabla especificada en la base de datos
+        if ne.buscarTablaDatabase(database, table) is False:
+            return []
+
+        #Verifica si la tabla tiene llave primaria
+        concat_llaves = ""
+        for c in columns:
+            concat_llaves = concat_llaves+ str(c) + "_"
+        #Obtiene la llave hash 
+        llave = self.__hash(concat_llaves)
+        if self.__vector[llave] is not None:
+            dic_datos = self.__vector[llave]
+            if dic_datos.get(concat_llaves) is not None:
+                return dic_datos.get(concat_llaves)
+        return []
+            
+    #Modifica un registro de una tupla especificada
+    def update(self, database: str, table: str, register: dict, columns: list):
+        
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        #Verifica si existe la base de datos especificada
+        if ne.searchDatabase(database) is False:
+            return 2
+
+        #Verifica si existe la tabla especificada en la base de datos
+        if ne.buscarTablaDatabase(database, table) is False:
+            return 3
+
+        #Verifica si la tabla tiene llave primaria
+        concat_llaves = ""
+        for k in columns:
+            concat_llaves += str(k) + "_"
+        
+        #Obtiene la llave hash
+        llave = self.__hash(concat_llaves)
+        #Verificación de llave y cambio de valores
+        if self.__vector[llave] is not None:
+            dic_tupla = self.__vector[llave]
+
+            if dic_tupla.get(concat_llaves) is not None:
+                listaDatos = []
+                #tupla = dic_tupla.get(concat_llaves)
+                for k in register.keys():
+                    #tupla[k] = register.get(k)
+                    listaDatos.append(register.get(k))
+                #dic_tupla[concat_llaves] = tupla
+                del dic_tupla[concat_llaves]
+                self.insert(database, table, listaDatos)
+                self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+                return 0
+            else:
+                return 4
+        return 1
+
+    #Elimina un registro de una tabla y base de datos especificados por la PK
+    def delete(self, database: str, table: str, columns: list):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        
+        #Verifica si existe la base de datos especificada
+        if ne.searchDatabase(database) is False:
+            return 2
+
+        #Verifica si existe la tabla especificada en la base de datos
+        if ne.buscarTablaDatabase(database, table) is False:
+            return 3
+
+        #Verifica si la tabla tiene llave primaria
+        concat_llaves = ""
+
+        lista_llaves = ne.listaPrimaryKeyTabla(database, table)
+
+        if lista_llaves != None:
+            
+            #Concatena los datos de la columna
+            for l in lista_llaves:
+                concat_llaves += str(columns[l]) + "_"
+        else:
+            for c in columns:
+                if c is not None:
+                    concat_llaves += str(c) + "_"
+        
+        #Obtiene la llave hash
+        llave = self.__hash(concat_llaves)
+        #Verificación de llave y eliminación de valor
+        if self.__vector[llave] is None:
+            return 4
+        
+        dic_tupla = self.__vector[llave]
+        if dic_tupla.get(concat_llaves) is None:
+            return 4
+        else:
+            del dic_tupla[concat_llaves]
+            self.__vector[llave] = dic_tupla
+            self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+            return 0
+        return 1
+        
+    #Elimina todos los registros de una tabla y base de datos
+    def truncate(self, database: str, table: str):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        #Verifica si existe la base de datos especificada
+        if ne.searchDatabase(database) is False:
+            return 2
+
+        #Verifica si existe la tabla especificada en la base de datos
+        if ne.buscarTablaDatabase(database, table) is False:
+            return 3
+
+        self.__vector = [None] * 20
+        self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+        return 0
+    
+        def addColumn(self, data_default, database, table):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tup = r.get(k)
+                    tup.append(data_default)
+                    r[k] = tup
+        
+        self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+        return 0
+         
+    #Elimina la columna de la tupla
+    def dropColumn(self, numberColum: int, database, table):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tup = r.get(k)
+                    tup.pop(numberColum)
+                    r[k] = tup
+
+        self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+        return 0
+    
+    #Complemento del método alterAddPK
+    def pk_redefinition(self, database: str, table: str):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        tuplas = []
+        #Obtiene todos los registros que están en la tabla
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tuplas.append(r.get(k))
+        #Vacía el vector
+        self.__vector = [None] * 20
+        del self.DiccionarioTabla[database+"_"+table] #
+        #Reingresa los valores
+        for t in tuplas:
+            self.insert(database, table, t)
+        
+        self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+

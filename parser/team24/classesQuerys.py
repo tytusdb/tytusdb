@@ -41,8 +41,11 @@ class select(query):
         self.offset = offset
         if having is not None and condition is not None:
             self.condition.append(having)
+        
+        
 
     def ejecutar(self):
+
         gro = self.group
         #Obtener la lista de tablas
         tables = {}
@@ -463,7 +466,9 @@ class exp_suma(exp_query):
 
                         result.append(float(col)+float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -532,7 +537,9 @@ class exp_resta(exp_query):
 
                         result.append(float(col)-float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -597,7 +604,9 @@ class exp_multiplicacion(exp_query):
 
                         result.append(float(col)*float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     
                 newdict = {
                     'valores':result,
@@ -663,7 +672,9 @@ class exp_division(exp_query):
 
                         result.append(float(col)/float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -3938,7 +3949,9 @@ def getKeyFromValue(value,d):
         if alias == value:
             return table
 
-    return None
+    e = errores.CError(0,0,"Imposible obtener la tabla.",'Semantico')
+    errores.insert_error(e)
+    return e
 
 def getInstance(col):
     if isinstance(col,fun_count):
@@ -4140,7 +4153,9 @@ class condition(exp_query):
 def ejecutar_conditions(tables,lcond):
     condition = lcond
     if len(condition) == 0:
-        return None
+        e = errores.CError(0,0,"Error en la ejecucion de condiciones.",'Semantico')
+        errores.insert_error(e)
+        return e
     elif len(condition) == 1:
         return condition[0].exp.ejecutar(tables)
     else:

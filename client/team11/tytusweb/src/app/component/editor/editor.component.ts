@@ -1,5 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { PruebaService } from 'src/app/service/prueba.service'
 import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
@@ -7,7 +9,9 @@ import Swal from 'sweetalert2';
 
 })
 export class EditorComponent implements OnInit {
-  constructor() {
+  constructor(
+    private puebaService: PruebaService
+  ) {
   };
   text: string = "";
   options: any = { maxLines: 20, minLines: 20, printMargin: false };
@@ -32,6 +36,13 @@ export class EditorComponent implements OnInit {
   }
 
   public run() {
+    this.puebaService.consultaPrueba().subscribe(
+      res=>{
+        console.log(res);
+      },
+      err => console.error(err)
+    );
+    
     Swal.fire(
       'Ejucucion exitosa',
       'Resultados se encuentran en la consola',
