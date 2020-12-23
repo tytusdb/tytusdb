@@ -104,7 +104,7 @@ def open_file(event=None):
     if input_file_name:
         global archivo
         archivo = input_file_name
-        ventana.title('{} - {}'.format(os.path.basename(archivo), IDE))
+        ventana.title('{} - {}'.format(os.path.basename(archivo), "TytusDB_18"))
         content_text.delete(1.0, END)
         with open(archivo) as _file:
             content_text.insert(1.0, _file.read())

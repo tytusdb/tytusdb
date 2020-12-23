@@ -48,11 +48,14 @@ class DOTAST:
                 self.getTextDotUseDB("node2",instruccion)
             elif isinstance(instruccion,MostrarDB):
                 self.getTextDotShowDB("node2",instruccion)
+            elif isinstance(instruccion, ALTERDBO) : print('Alter dbo')
+            elif isinstance(instruccion, ALTERTBO) : print('Alter tbo')
             else:
                 for val in instruccion:
                     if(isinstance (val,SELECT)):
                         self.getTextDotSelect("node2",val)
-
+               
+                    else : print('Error: instrucción no válida') 
             tam = tam +1
             print(TextDot)
         TextDot.view('reporte_AST', cleanup=True)
@@ -279,9 +282,11 @@ class DOTAST:
         TextDot.node("node"+str(contador),"SELECT")
         TextDot.edge(padre, "node"+str(contador))
         aux = "node"+str(contador)
-        for val in instr.funcion_alias:
-            if(isinstance (val,Funcion_Alias)):
-                self.getTextDotSelectMathFunc(aux,val)
+        if instr.funcion_alias is not None:
+            for val in instr.funcion_alias:
+                if(isinstance (val,Funcion_Alias)):
+                    self.getTextDotSelectMathFunc(aux,val)
+        else: print('No funciono')
 
 
     def getTextDotSelectMathFunc(self,padre,instr):
