@@ -50,7 +50,7 @@ class Delete(Querie):
                 if isinstance(tuplas[tindex][index],int):
                     tipo = Type.DECIMAL
                 #GUARDAR EN EL ENTORNO UNA VARIALBE CON EL NOMBRE DE LA COLUMNA               
-                environment.guardarVariable(table.columns[index].name, tipo, tuplas[tindex][index])
+                environment.guardarVariable(table.columns[index].name, tipo, tuplas[tindex][index], None)
             
             #CREO UN ARREGLO CON LA LLAVE PRIMARIA DE ESE REGISTRO
             primaryKey = []

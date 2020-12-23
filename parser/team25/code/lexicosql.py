@@ -199,7 +199,8 @@ palabrasReservadas = {
     'extract':'EXTRACT',
     'date_part':'DATE_PART',
     'current_date':'CURRENT_DATE',
-    'current_timestamp':'CURRENT_TIMESTAMP'
+    'current_timestamp':'CURRENT_TIMESTAMP',
+
 }
 tokens = [
     # corchetes no porque dijo el aux que no venia
@@ -239,7 +240,8 @@ tokens = [
     'CADENA_DATE',
     'CADENA_NOW',
     'CADENA_INTERVAL',
-    'DOBLE_PUNTO'
+    'DOBLE_PUNTO',
+    'NOT_IN'
 ] + list(palabrasReservadas.values())
 
 
@@ -276,6 +278,10 @@ t_DOBLE_PUNTO= r'[:][:]'
 def t_NOTBETWEEN(t):
     r'[Nn][Oo][tT][ ]+[Bb][eE][tT][wW][eE][eE][nN]'
     t.type = 'NOTBETWEEN'
+    return t
+def t_NOT_IN(t):
+    r'[Nn][Oo][tT][ ]+[iI][nN]'
+    t.type = 'NOT_IN'
     return t
 # funcion para id, aca tambien se reconocen las palabras reservadas
 def t_ID(t):
@@ -330,6 +336,19 @@ def t_CADENA_INTERVAL(t):
     t.value =  t.value[1:-1]
     t.type = "CADENA_INTERVAL"
     return t
+
+def t_CADENA_DATE4(t):# HORA Y MINUTOS 
+    r'\'[ ]*[\d][\d]?[:][\d][\d]?[ ]*\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_DATE"
+    return t
+
+def t_CADENA_DATE3(t): # HORA MIN , SEG 
+    r'\'[ ]*[\d][\d]?[:][\d][\d]?[:][\d][\d]?[ ]*\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_DATE"
+    return t
+
 def t_CADENA_DATE2(t):
     r'\'[ ]*[\d][\d][\d][\d][-][\d][\d]?[-][\d][\d]?[ ]+[\d][\d]?[:][\d][\d]?[:][\d][\d]?[ ]*\''
     t.value =  t.value[1:-1]
@@ -371,6 +390,8 @@ lexer = lex.lex(reflags = re.IGNORECASE)
 #para debugger los nuevos tokens
 # lexer.input('''
 # SELECT date_part('minutes', INTERVAL '4 houRs 3 miNutes');
+# SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+# SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
 # ''')
 # while not False:
 #     token = lexer.token()
