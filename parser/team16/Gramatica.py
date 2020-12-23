@@ -349,9 +349,10 @@ def t_COMENTARIOMULTI(t):
     return t
 
 
-
 def t_COMENTARIONORMAL(t):
-    r'--.*\n'
+    #r'/--(.|\n)*?/'
+    #r'--.*\n'
+    r'--.*'
     t.lexer.lineno += 1
     return t
 
