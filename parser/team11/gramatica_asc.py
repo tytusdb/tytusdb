@@ -965,29 +965,42 @@ def p_cadenas(t):
 
 def p_gruopby(t):
     'groupby          : GROUP BY listagroupby' 
+    t[0] = getGroupby(t) 
 
 def p_groupby(t):
     'groupby          : GROUP BY listagroupby HAVING condicioneshaving'
+    t[0] = getGroupby(t)
 
 def p_gruopby_2(t):
     'groupby          : empty'
 
 def p_listagroupby(t):
     'listagroupby     : listagroupby COMA valgroupby'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_salidagroupby(t):
     'listagroupby     : valgroupby'
+    t[1].gramatica = '<listagroupby> ::= <valgroupby>\n' + t[1].gramatica
+    t[0] = [t[1]]
 
 def p_valgroupby(t):
     '''valgroupby     : cualquieridentificador
                       | cualquiernumero'''
+    t[1].gramatica = '<valgroupby> ::= <cualquieridentificador>\n' +t[1].gramatica
+    t[0] = t[1]
 
 def p_lista_condicionhaving(t):
     '''condicioneshaving  : condicioneshaving OR  condicionhaving
                           | condicioneshaving AND condicionhaving'''
+    gramatica = '<condicioneshaving> ::= <condicioneshaving> \"'+t[2]+'\" <condicionhaving>\n'
+    t[0] = Nodo('OPLOG', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_listacondicionhaving_salida(t):
     'condicioneshaving    :  condicionhaving'''
+    aux = t[1].gramatica
+    t[1].gramatica  = '<condicioneshaving> ::=  <condicionhaving>\n' + aux
+    t[0] = t[1]
 
 def p_condicionhaving(t):
     '''condicionhaving  : expresionhaving MENQUE expresionhaving
@@ -996,46 +1009,62 @@ def p_condicionhaving(t):
                         | expresionhaving MAYIGUAL expresionhaving
                         | expresionhaving IGUAL expresionhaving 
                         | expresionhaving DIFERENTE expresionhaving'''
+    t[0] = getOpRelacional(t)
 
 def p_expresionhaving(t):
     '''expresionhaving     : cualquiercadena
                            | expresionaritmetica
                            | condicionhavingagregacion
                            | funcion_matematica_ws'''
+    t[0] = t[1]
 
 def p_condicionhavingagregacion(t):
     'condicionhavingagregacion  : agregacion PARIZQ cualquieridentificador PARDER'
-
+    gramatica = '<expresionhaving> ::= <condicionhavingagregacion>'
+    gramatica += '<condicionhavingagregacion> ::= <agregacion> \"PARIZQ\" <cualquieridentificador> \"PARDER\"'
+    t[0] = Nodo('Agregacion', t[1], [t[3]], t.lexer.lineno, 0, gramatica)
 
 # ----- Producciones para el manejo del Order by, incluyendo ASC y DESC --------
 
 def p_orderby(t):
     'orderby          : ORDER BY listaorderby'
+    t[0] = getOrderBy(t)
 
 def p_orderby_1(t):
     'orderby          : ORDER BY listaorderby instrlimit'
+    t[0] = getOrderBy(t)
 
 def p_orderby_2(t):
     'orderby          : empty'
 
 def p_listaorderby(t):
     'listaorderby     : listaorderby COMA valororderby'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_salidaorderby(t):
     'listaorderby     : valororderby'
+    aux = t[1].gramatica
+    t[1].gramatica = '<listaorderby> ::= <listaorderby> \"COMA\" <valororderby>\n'
+    t[1].gramatica += '<listaorderby> ::= <valororderby>\n' + aux
+    t[0] = [t[1]]
 
 def p_valororderby(t):
     '''valororderby     : cualquieridentificador ascdesc anular
                         | cualquiernumero ascdesc anular'''
+    t[0] = getValOrder(t)
 
 def p_ascdesc(t):
     '''ascdesc        : DESC
                       | ASC
                       | empty'''
+    t[0] = getAscDesc(t)
 
 def p_anular(t):
     '''anular        : NULLS LAST
                      | NULLS FIRST'''
+    gramatica = '<anular> ::= \"NULLS\" \"' +t[2]+ "\""
+    t[0] = Nodo(t[1], t[2], [], t.lexer.lineno, 0, gramatica)
 
 def p_anular_1(t):
     'anular          : empty'
@@ -1043,9 +1072,12 @@ def p_anular_1(t):
 def p_instrlimit(t):
     '''instrlimit    : LIMIT ENTERO instroffset
                      | LIMIT ALL instroffset'''
+    t[0] = getLimit(t)
 
 def p_instroffset(t):
     'instroffset     : OFFSET ENTERO'
+    gramatica = '<instroffset> ::= \"OFFSET\" \"'+ str(t[2]) +'\"'
+    t[0] = Nodo('OFFSET', str(t[2]), [], t.lexer.lineno, 0, gramatica)
 
 def p_instroffset_2(t):
     'instroffset     : empty'
@@ -1057,9 +1089,13 @@ def p_instroffset_2(t):
 def p_lista_condicion(t): 
     '''condiciones    : condiciones AND condicion
                       | condiciones OR  condicion'''
+    gramatica = '<condiciones> ::= <condiciones> \"'+ t[2]+'\" <condicion>'
+    t[0] = Nodo('OPLOG', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_lista_condicion_salida(t) :
     'condiciones      : condicion'
+    t[1].gramatica = '<condiciones> ::= <condicion>\n' + t[1].gramatica
+    t[0] = t[1]
     
 ## expresiones relacionales
 def p_condicion (t):
@@ -1069,6 +1105,7 @@ def p_condicion (t):
                       | expresion MAYIGUAL expresion
                       | expresion IGUAL expresion 
                       | expresion DIFERENTE expresion'''
+    t[0] = getOpRelacional(t)
     
 def p_expresion(t) : 
     '''expresion      : cualquiercadena
@@ -1077,9 +1114,12 @@ def p_expresion(t) :
                       | func_bin_strings_1
                       | func_bin_strings_2
                       | vallogico'''
+    t[0] = t[1]
 
 def p_expresion_2(t):
     'expresion        : PARIZQ select_instr1 PARDER'
+    gramatica = '<expresion> :: \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('Subquery', '', [t[2]], t.lexer.lineno, 0, gramatica) 
 
 ## expresiones aritmeticas
 def p_expresion_aritmetica (t):
@@ -1089,32 +1129,46 @@ def p_expresion_aritmetica (t):
                             | expresionaritmetica DIVIDIDO expresionaritmetica 
                             | expresionaritmetica MODULO expresionaritmetica 
                             | expresionaritmetica EXPONENTE expresionaritmetica'''
+    gramatica = '<expresionaritmetica> ::= <expresionaritmetica> \"'+t[2]+'\" <expresionaritmetica>'
+    t[0] = Nodo('OPARIT', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
     
 def p_expresion_aritmetica_2(t) : 
     'expresionaritmetica    : MENOS expresionaritmetica %prec UMENOS'
+    gramatica = '<expresionaritmetica> ::= \"MENOS\" <expresionaritmetica> %prec \"UMENOS\"'
+    t[0] = Nodo('NEGATIVO', '-', [t[2]], t.lexer.lineno, 0, gramatica)
 
 def p_expresion_aritmetica_3(t) : 
     '''expresionaritmetica  : cualquiernumero
                             | cualquieridentificador'''
+    t[1].gramatica = '<expresionaritmetica> ::= <cualquiernumero>\n' + t[1].gramatica
+    t[0] = t[1]
 
 def p_expresion_aritmetica_4(t) : 
     'expresionaritmetica    : PARIZQ expresionaritmetica PARDER'
+    t[2].gramatica = '<expresionaritmetica> ::= \"PARIZQ\" <expresionaritmetica> \"PARDER\"\n' + t[2].gramatica
+    t[0] = t[2]
 
 def p_cualquiernumero(t) : 
     '''cualquiernumero      : ENTERO
                             | DECIMAL'''
+    t[0] = getValorNumerico(t)
 
 def p_culquiercadena (t):
     '''cualquiercadena      : CADENASIMPLE
                             | CADENADOBLE'''
+    gramatica = '<cualquiercadena> ::= \"'+str(t[1])+'\"'
+    t[0] = Nodo('CADENA', str(t[1]), [], t.lexer.lineno, 0, gramatica)
 
 def p_culquieridentificador (t):
     '''cualquieridentificador    : ID
                                  | ID PUNTO ID'''
+    t[0] = getIdentificador(t)
 
 def p_valorlogico(t):
     '''vallogico    : FALSE
                     | TRUE'''
+    gramatica = '<vallogico> ::= \"'+t[1]+'\"'
+    t[0] = Nodo('LOGICO', t[1], [], t.lexer.lineno, 0, gramatica)
 
 
 #----------------------------- Case ---------------------------------
@@ -1188,6 +1242,8 @@ def p_funciones_matematicas1(t):
                                 | CBRT PARIZQ expresionaritmetica PARDER
                                 | CEIL PARIZQ expresionaritmetica PARDER
                                 | CEILING PARIZQ expresionaritmetica PARDER'''
+    gramatica = '<funcion_matematica_ws > ::= \"'+str(t[1])+'\" \"PARIZQ\" <expresionaritmetica> \"PARDER\"' 
+    t[0] = Nodo('Matematica', t[1], [t[3]], t.lexer.lineno, 0, gramatica)
 
 # Select
 def p_funciones_matematicas2(t):
@@ -1209,6 +1265,7 @@ def p_funciones_matematicas2(t):
                                 | WBUCKET PARIZQ explist PARDER
                                 | TRUNC PARIZQ expresionaritmetica PARDER
                                 | RANDOM PARIZQ expresionaritmetica PARDER'''
+    t[0] = getFuncionMatematica(t)
     
 # Lista de expresiones para la función Width Bucket
 def p_wbucket_exp(t):
@@ -1239,6 +1296,8 @@ def p_funciones_trigonometricas(t):
                                | ASINH PARIZQ expresionaritmetica PARDER
                                | ACOSH PARIZQ expresionaritmetica PARDER
                                | ATANH PARIZQ expresionaritmetica PARDER'''
+    gramatica = '<funcion_trigonometrica> ::= \"'+str(t[1])+'\" \"PARIZQ\" <expresionaritmetica> \"PARDER\"'
+    t[0] = Nodo('Trigonometrica', t[1], [t[3]], t.lexer.lineno, 0, gramatica)
     
 # ----------- FUNCIONES BINARIAS SOBRE CADENAS ---------------
 
