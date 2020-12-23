@@ -21,7 +21,8 @@ class tipo_simbolo(Enum):
     TIME = 17,
     INTERVAL = 18,
     NUMERIC = 19,
-    DB_ACTUAL = 20
+    DB_ACTUAL = 20,
+    BOOLEAN = 21
 
 class t_constraint(Enum):
     NOT_NULL    = 1,
@@ -32,10 +33,10 @@ class t_constraint(Enum):
     PRIMARY     = 6,
     FOREIGN     = 7
 
-class Simbolo(): 
+class Simbolo():
 
-#los tipos de los simbolos ayudan a idetificar que tipo de simbolo es
-#1-base de datos , 2-tablas , 3-columnas , 4-pk , 5-fk , 6-check , 7-constraint , 8-enum de types
+    #los tipos de los simbolos ayudan a idetificar que tipo de simbolo es
+    #1-base de datos , 2-tablas , 3-columnas , 4-pk , 5-fk , 6-check , 7-constraint , 8-enum de types
 
     def __init__(self,id, tipo, valor, base,longitud,pk,fk,referencia): 
         self.id = id
@@ -77,7 +78,15 @@ class tabla_simbolos():
 
     def agregar_simbolo(self, new_simbolo):  #agrega tablas y bases de datoos
         self.lis_simbolos.append(new_simbolo)
+        
+    def agregar_tabla(self,db,tabla):
+        verficar_db = self.get_simbol(db)
+        if(isinstance(verficar_db,E.Errores)):
+            return verficar_db #la base de datos no existe en la ts, database ya trae el error
+        else:
+            self.agregar_simbolo(tabla)
 
+        return tabla
 
     def agregar_columna(self,table, db,columna): 
         # agrega un simbolo columna a un simbolo tabla en la lista de valores de la misma
@@ -91,7 +100,7 @@ class tabla_simbolos():
             #validar que no exista una columna con el mismo nombre
             for col in tabla.valor:
                 if col.id == columna.id:
-                    msj_error = 'La columna -'+columna+' ya existe en la tabla -'+tabla+'-.'
+                    msj_error = 'La columna -'+columna.id+' ya existe en la tabla -'+tabla.id+'-.'
                     error = E.Errores('EROOR', msj_error)
                     return error
                     
@@ -189,13 +198,21 @@ class tabla_simbolos():
         
         #si existe eliminamos el simbolo base de datos
         self.lis_simbolos.remove(database)
-        return True
-
         #eliminar todas las tablas que perteneces a esa base de datos
         for Sim in self.lis_simbolos:
-            if Sim.tipo == tipo_simbolo.TABLE and Sim.base == db :
+            print('simbolo ->  ' +Sim.id)
+            if Sim.base == db :
                 self.lis_simbolos.remove(Sim)
 
+        #eliminar base acutial
+        db_actual = self.get_dbActual()
+        try:
+            if(db_actual.id == db):
+                self.lis_simbolos.remove(db_actual)
+        except:
+            return True
+
+        return True
 
     def graficar(self):
         cont = 0
@@ -211,7 +228,7 @@ class tabla_simbolos():
             if sim.tipo == tipo_simbolo.DATABASE:
                 f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + sim.id + "<th>BASE DE DATOS</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
             elif sim.tipo == tipo_simbolo.TABLE:
-                f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + sim.id + "<th>TABLA</th><th>---</th><th>---</th><th>---</th><th>"+sim.base+"</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
+                f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + str(sim.id) + "<th>TABLA</th><th>---</th><th>---</th><th>---</th><th>"+str(sim.base)+"</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
                 #imprimir columnas de la tabla
                 cont = cont+1
                 for col in sim.valor:

@@ -180,8 +180,9 @@ class InsertinDataBases(query):
         Esta clase representa la accion de insert de uno o varios
         registros en un tabla
     '''
-    def __init__(self,idTable,listRegistros=[]):
+    def __init__(self,idTable,listidCol=[],listRegistros=[]):
         self.idTable = idTable
+        self.listidCol=listidCol
         self.listRegistros = listRegistros
 
 

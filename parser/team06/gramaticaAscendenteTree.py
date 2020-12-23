@@ -2290,68 +2290,290 @@ def p_funcion_basica(t):
         t[0] = nodeFather
 #HAYRTON
     elif t[1].upper()=="WIDTH_BUCKET":
-        t[0]=ExpresionWIDTHBUCKET(t[3],t[5],t[7],t[9])
-        h.reporteGramatical1 +="funcionBasica    ::=      WIDTH_BUCKET PARENTESISIZQUIERDA operacion COMA operacion COMA operacion COMA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="RANDOM":
-        t[0]=ExpresionRANDOM(1)
-        h.reporteGramatical1 +="funcionBasica    ::=      RANDOM PARENTESISIZQUIERDA  PARENTESISDERECHA\n"
-    elif t[1].upper()=="ACOS":
-        t[0]=ExpresionACOS(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ACOS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="ACOSD":
-        t[0]=ExpresionACOSD(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ACOSD PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="ASIN":
-        t[0]=ExpresionASIN(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ASIN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="ASIND":
-        t[0]=ExpresionASIND(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ASIND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="ATAN":
-        t[0]=ExpresionATAN(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ATAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="ATAND":
-        t[0]=ExpresionATAND(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ATAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n" 
-    elif t[1].upper()=="ATAN2":
-        t[0]=ExpresionATAN2(t[3],t[5])
-        h.reporteGramatical1 +="funcionBasica    ::=      ATAN2 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="ATAN2D":
-        t[0]=ExpresionATAN2D(t[3],t[5])
-        h.reporteGramatical1 +="funcionBasica    ::=      ATAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="COS":
-        t[0]=ExpresionCOS(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      COS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="COSD":
-        t[0]=ExpresionCOSD(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      COSD PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="COT":
-        t[0]=ExpresionCOT(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      COT PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="COTD":
-        t[0]=ExpresionCOTD(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      COTD PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1].upper()=="SIN":
-        t[0]=ExpresionSIN(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      SIN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
 
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  WHIDTH_BUCKET'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = t[5]
+        nodeFather.son.append(nodeSon3)
+        
+        nodeSon4 = t[7]
+        nodeFather.son.append(nodeSon4)
+
+        nodeSon5 = t[9]
+        nodeFather.son.append(nodeSon5)
+
+        t[0] = nodeFather
+
+    elif t[1].upper()=="RANDOM":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  RANDOM'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="ACOS":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ACOS'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="ACOSD":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ACOSD'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="ASIN":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ASIN'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="ASIND":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ASIND'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="ATAN":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ATAN'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="ATAND":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ATAND'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
+    elif t[1].upper()=="ATAN2":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ATAN2'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="ATAN2D":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ATAN2D'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather    
+    
+    elif t[1].upper()=="COS":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  COS'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="COSD":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  ACOSD'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
+    elif t[1].upper()=="COT":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  COT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
+    elif t[1].upper()=="COTD":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  COTD'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
+    elif t[1].upper()=="SIN":
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  SIN'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
     
     elif t[1].upper()=="SIND":
-        t[0]=ExpresionSIND(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      SIND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  SIND'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
     elif t[1].upper()=="TAN":
-        t[0]=ExpresionTAN(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      TAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  TAN'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
     elif t[1].upper()=="TAND":
-        t[0]=ExpresionTAND(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      TAND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  TAND'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+    
     elif t[1].upper()=="SINH":
-        t[0]=ExpresionSINH(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      SINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  SINH'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+   
     elif t[1].upper()=="COSH":
-        t[0]=ExpresionCOSH(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      COSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = '  funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = '  COSH'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
 #JPI    
     elif t[1].upper()=="TANH":
         nodeFather = nodeAst()
@@ -2655,6 +2877,8 @@ def p_funcion_basica(t):
         nodeSon1.token = 'NOW'
         nodeSon1.lexeme = t[1]
         nodeFather.son.append(nodeSon1)   
+
+        t[0]=nodeFather
     else:
         print("no entra a ninguna en funcionBasica")
 #JPI
@@ -3897,16 +4121,16 @@ def p_select_3(t):
 def p_opcionesSelect_1(t):
     '''opcionesSelect   : opcionesSelect opcionSelect
     '''
-        nodeFather = nodeAst()
-        nodeFather.token = 'OPCIONES_SELECT'
+    nodeFather = nodeAst()
+    nodeFather.token = 'OPCIONES_SELECT'
 
-        nodeSon11 = t[1]
-        nodeFather.son.append(nodeSon11)
+    nodeSon11 = t[1]
+    nodeFather.son.append(nodeSon11)
 
-        nodeSon1 = t[2]
-        nodeFather.son.append(nodeSon1)
+    nodeSon1 = t[2]
+    nodeFather.son.append(nodeSon1)
 
-        t[0] = nodeFather
+    t[0] = nodeFather
 
 def p_opcionesSelect_2(t):
     '''opcionesSelect   : opcionSelect
@@ -4101,72 +4325,138 @@ def p_search_condition_4(t):
 
 def p_select_list_1(t):
     ' select_list   : select_list COMA operacion'
-    h.reporteGramatical1 +="select_list    ::=      select_list COMA operacion\n"
-    h.reporteGramatical2 +=" t[1].append(t[3])\nt[0]=t[1]\n"
-    print("Entra a select list COMA operacion****************************************")
-    t[1].append(t[3])
-    print(t[1])
-    t[0]=t[1]
-    
+    nodeFather = nodeAst()
+    nodeFather.token = '  select_list'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
 
  
 def p_select_list_6(t):
     ' select_list   : select_list COMA asignacion'
-    h.reporteGramatical1 +="select_list    ::=      select_list COMA asignacion\n"
-    h.reporteGramatical2 +=" t[0]=Asignacion(t[1],t[3])\n"
-    print(" entra al select_list COMA operacion-------------")
-    t[1].append(t[3])
-    t[0]=t[1]
-    print(t[0])
+    nodeFather = nodeAst()
+    nodeFather.token = '  select_list'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
  
 def p_select_list_7(t):
     ' select_list   :  asignacion'
-    h.reporteGramatical1 +="select_list    ::=      asignacion\n"
-    h.reporteGramatical2 +=" t[0]=t[1]\n"
-    print(" entra al select_list: asignacion-------------")
-    print(t[1])
-    t[0]=t[1]
+    nodeFather = nodeAst()
+    nodeFather.token = '  select_list'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 
 def p_select_list_2(t):
     'select_list    : operacion'
-    h.reporteGramatical1 +="select_list    ::=      operacion\n"
-    h.reporteGramatical2 +=" t[0]=[ExpresionFuncionBasica(t[1])]\n"
-    print("select_list+++++++++++++++++++++++++")
-    print(t[1])
-    t[0]=[ExpresionFuncionBasica(t[1])]
+    nodeFather = nodeAst()
+    nodeFather.token = '  select_list'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 def p_asignacion_1(t):
     ' asignacion   : operacion AS  operacion' 
-    h.reporteGramatical1 +="select_list    ::=      select_list AS  operacion\n"
-    h.reporteGramatical2 +=" t[0]=[Asignacion(t[1],t[3])]\n"
-    print("entra a asignacion: operacion AS operacion")
-    t[0]=[Asignacion(t[1],t[3])]
+    nodeFather = nodeAst()
+    nodeFather.token = '  asignacion'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = '  AS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
 
 def p_asignacion_2(t):
     ' asignacion   : final final'
-    h.reporteGramatical1 +="select_list    ::=      final final\n"
-    h.reporteGramatical2 +=" t[0]=[Asignacion(t[1],t[2])]\n"
-    print(" entra al select_list de 2 finales-------------")
-    t[0]=[Asignacion(t[1],t[2])]
-    print(t[0])
+    nodeFather = nodeAst()
+    nodeFather.token = '  asiganacion'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
 
 def p_funcion_basica_4(t):
     'funcionBasica   : operacion BETWEEN operacion '
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion BETWEEN operacion AND operacion\n"
-    h.reporteGramatical2 +="t[0]=ExpresionBetween(t[1],t[3])\n"
-    print("entra al between con sus operaciones")
-    print(t[1])
-    print(t[3])
-    t[0]=ExpresionBetween(t[1],t[3])
+    nodeFather = nodeAst()
+    nodeFather.token = '  funcionBasica'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = '  BETWEEN'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
 
 def p_funcion_basica_5(t):
     'funcionBasica   :  operacion LIKE CADENA'
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion LIKE CADENA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = '  funcionBasica'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = '  AS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = '  CADENA'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
 
 def p_funcion_basica_6(t):
     'funcionBasica   : operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA '
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = '  funcionBasica'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = '  IN'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
 
 #JPI
 def p_funcion_basica_7(t):
@@ -4311,6 +4601,7 @@ def find_column(input, token):
     print((token.lexpos - line_start) +1 )
     return (token.lexpos - line_start) 
     
+
 def p_error(t):
      print("token: '%s'" %t)
      print("Error sintáctico en '%s' " % t.value)

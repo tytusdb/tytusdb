@@ -1,14 +1,10 @@
-# # region Code
-# from node import Node
-# from tree_graph import TreeGraph
-# # endregion
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
 
-# region Pycharm
+
 from Models.node import Node
-from Models.tree_graph import TreeGraph
-
-
-# endregion
 
 
 class AVLTree:
@@ -23,6 +19,7 @@ class AVLTree:
     def __repr__(self) -> str:
         return str(self.name)
 
+    # region basic methods
     def add(self, index, content):
         self.root = self.__add(index, content, self.root)
 
@@ -271,65 +268,3 @@ class AVLTree:
             print(temp.index, end=' ')
         # backtracking action
     # endregion
-
-
-t = AVLTree("test", "tst", 5, [])
-t.add(57, ["test", "test2"])
-t.add(25, ["test", "test2"])
-t.add(78, ["test", "test2"])
-t.add(17, ["test", "test2"])
-t.add(45, ["test", "test2"])
-t.add(64, ["test", "test2"])
-t.add(97, ["test", "test2"])
-t.add(4, ["test", "test2"])
-t.add(20, ["test", "test2"])
-t.add(43, ["test", "test2"])
-t.add(56, ["test", "test2"])
-t.add(61, ["test", "test2"])
-t.add(68, ["test", "test2"])
-t.add(89, ["test", "test2"])
-t.add(100, ["test", "test2"])
-t.add(1, ["test", "test2"])
-t.add(12, ["test", "test2"])
-t.add(19, ["test", "test2"])
-t.add(23, ["test", "test2"])
-t.add(54, ["test", "test2"])
-t.add(62, ["test", "test2"])
-t.add(66, ["test", "test2"])
-t.add(73, ["test", "test2"])
-t.add(87, ["test", "test2"])
-t.add(90, ["test", "test2"])
-t.add(10, ["test", "test2"])
-t.add(15, ["test", "test2"])
-t.add(58, ["test", "test2"])
-t.delete(64)
-t.add(9, ["test", "test2"])
-t.add(3, ["test", "test2"])
-t.delete(9)
-t.delete(15)
-t.delete(12)
-t.delete(57)
-t.add(103, ["test", "test2"])
-t.add(98, ["test", "test2"])
-t.add(102, ["test", "test2"])
-t.delete(103)
-
-search = t.search(103)
-if search:
-    print(search)
-else:
-    print("empty")
-
-t.tolist()
-
-# t.inorder()
-# aa = TreeGraph(t)
-# aa.export()
-
-
-t.massiveupdate("add", "perro")
-t.massiveupdate("drop", 2)
-
-t.update(102, ["cambio", "prueba"])
-# print(t.indexes())
-# t.inorder()

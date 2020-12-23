@@ -1,3 +1,9 @@
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
 from BusinessLayer.database_module import DatabaseModule
 from BusinessLayer.table_module import TableModule
 from BusinessLayer.tuple_module import TupleModule

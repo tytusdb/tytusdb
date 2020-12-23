@@ -1,3 +1,9 @@
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
 from DataAccessLayer.handler import Handler
 from Models.avl_tree import AVLTree
 

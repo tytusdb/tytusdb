@@ -1,4 +1,4 @@
-import jsonMode as func
+import storage as func
 import tablaDGA as TS
 
 #VARIABLES GLOBALES
@@ -7,6 +7,7 @@ tabla = TS.Tabla()
 cont = 0
 contambito = 0
 NombreDB = ""
+contregistro = 0
 
 def Textoresultado():
     global tabla
@@ -61,13 +62,15 @@ class createdb(instruccion):
         try:       
             resultado = func.createDatabase(self.iden)
             if resultado == 0:
-                resultadotxt += "Se creo la base de datos " + self.iden + "\n"
                 NuevoSimbolo = TS.Simbolo(cont,self.iden,TS.TIPO.DATABASE,contambito)
                 cont+=1
                 contambito += 1
                 tabla.agregar(NuevoSimbolo)
+                resultadotxt += "Se creo la base de datos " + self.iden + "\n"
+                return "Se creo la base de datos " + self.iden + "\n"
             elif resultado == 2 and not self.replacedb:
                 resultadotxt += "Ya existe la base de datos " + self.iden + "\n"
+                return "Ya existe la base de datos " + self.iden + "\n"
             elif resultado == 2 and self.replacedb:
                 func.dropDatabase(self.iden)
                 buscar = tabla.BuscarNombre(self.iden)
@@ -78,8 +81,10 @@ class createdb(instruccion):
                 contambito+=1
                 tabla.agregar(NuevoSimbolo)
                 resultadotxt += "Se reemplazo la base de datos: " + self.iden + "\n"
+                return "Se reemplazo la base de datos: " + self.iden + "\n"
             else:
                 resultadotxt += "Error al crear base de datos: " + self.iden + "\n"
+                return "Error al crear base de datos: " + self.iden + "\n"
         except:
             """ERROR SEMANTICO"""
 
@@ -97,11 +102,16 @@ class showdb(instruccion):
             resultado = func.showDatabases()
             if len(resultado) > 0:
                 resultadotxt += "\nBases de datos existentes:\n"
+                resp =""
+                resp += "\nBases de datos existentes:\n"
                 for base in resultado:
                     resultadotxt += str(contador) + ". " + base + "\n"
+                    resp += str(contador) + ". " + base + "\n"
                     contador += 1
+                return resp
             else:
                 resultadotxt += "No existen bases de datos"
+                return "No existen bases de datos"
         except:
             """ERROR SEMANTICO"""
 
@@ -119,13 +129,16 @@ class alterdb(instruccion):
                 resultado = func.alterDatabase(self.alterdb2.iden, self.alterdb2.alterdb3.iden)
                 if resultado == 2:
                     resultadotxt += "No existe la base de datos " + self.alterdb2.iden + "\n"
+                    return "No existe la base de datos " + self.alterdb2.iden + "\n"
                 if resultado == 3:
                     resultadotxt += "Ya existe la base de datos " + self.alterdb2.alterdb3.iden + "\n"
+                    return "Ya existe la base de datos " + self.alterdb2.alterdb3.iden + "\n"
                 else:
                     buscar = tabla.BuscarNombre(self.alterdb2.iden)
                     buscar.nombre = self.alterdb2.alterdb3.iden
                     tabla.actualizar(buscar)
                     resultadotxt += "Se actualizo la base de datos " + self.alterdb2.iden + " a " + self.alterdb2.alterdb3.iden + "\n"
+                    return "Se actualizo la base de datos " + self.alterdb2.iden + " a " + self.alterdb2.alterdb3.iden + "\n"
         except:
             """ERROR SEMANTICO"""
         
@@ -162,6 +175,7 @@ class dropdb(instruccion):
             resultado = func.dropDatabase(self.iden)
             if(resultado == 2):
                 resultadotxt += "No existe la base de datos " + self.iden + "\n"
+                return "No existe la base de datos " + self.iden + "\n"
             else:
                 BaseDatos = tabla.BuscarNombre(self.iden)
                 eliminar = []
@@ -178,6 +192,7 @@ class dropdb(instruccion):
                 if self.iden == NombreDB:
                     NombreDB = ""
                 resultadotxt += "Se elimino la base de datos " + self.iden + "\n"
+                return "Se elimino la base de datos " + self.iden + "\n"
         except:
             """ERROR SEMANTICO"""
 
@@ -191,6 +206,7 @@ class usedb(instruccion):
         global NombreDB
         NombreDB = self.iden
         resultadotxt += "Usando la base de datos " + self.iden + "\n"
+        return "Usando la base de datos " + self.iden + "\n"
 
 #MANIPULACION DE TABLAS
 #CREATE TABLE---------------------------------------
@@ -205,6 +221,7 @@ class createtb(instruccion):
         global cont
         global tabla
         global NombreDB
+        resultadotxt = ""
         try:       
             resultado = func.createTable(NombreDB, self.iden,0)
             if(resultado == 2):
@@ -224,10 +241,8 @@ class createtb(instruccion):
                             NuevaColumna = TS.Simbolo(cont,columna.iden,TS.TIPO.COLUMN,NuevoSimbolo.id,0,columna.tipo,1,columna.references,columna.default,False,columna.constraint,inicio)
                             listacol = []
                             listacol.append(NuevaColumna.numcol)
-                            print(max(listacol))
-                            print(min(listacol))
-                            resultado = func.alterAddPK(NombreDB,NuevoSimbolo.nombre,listacol)
                             resultado2 = func.alterAddColumn(NombreDB,self.iden,columna)
+                            resultado = func.alterAddPK(NombreDB,NuevoSimbolo.nombre,listacol)
                         else:
                             NuevaColumna = TS.Simbolo(cont,columna.iden,TS.TIPO.COLUMN,NuevoSimbolo.id,0,columna.tipo,0,columna.references,columna.default,False,columna.constraint,inicio)
                             resultado = func.alterAddColumn(NombreDB,self.iden,columna)
@@ -250,9 +265,46 @@ class createtb(instruccion):
                             resultadotxt += "Se agrego la columna " + columna.iden + " a la tabla " + self.iden + "\n"
                     except:
                         """ERROR SEMANTICO"""
+                if self.inherits != "":
+                    TablaInherits = tabla.BuscarNombre(self.inherits)
+                    if TablaInherits:
+                        ColumnasInherits = []
+                        for simbolo in tabla.simbolos:
+                            if tabla.simbolos[simbolo].ambito == TablaInherits.id and tabla.simbolos[simbolo].tipo == TS.TIPO.COLUMN :
+                                ColumnasInherits.append(tabla.simbolos[simbolo])
+                        #AGREGAR COLUMNAS DE INHERITS A TABLA
+                        for columna in ColumnasInherits:
+                            try:
+                                if columna.llavecol == 1:
+                                    NuevaColumna = TS.Simbolo(cont,columna.nombre,TS.TIPO.COLUMN,NuevoSimbolo.id,0,columna.tipocol,columna.llavecol,columna.refcol,columna.defcol,columna.nullcol,columna.constcol,inicio)
+                                    listacol = []
+                                    listacol.append(NuevaColumna.numcol)
+                                    resultado2 = func.alterAddColumn(NombreDB,self.iden,columna)
+                                    resultado = func.alterAddPK(NombreDB,NuevoSimbolo.nombre,listacol)
+                                else:
+                                    NuevaColumna = TS.Simbolo(cont,columna.nombre,TS.TIPO.COLUMN,NuevoSimbolo.id,0,columna.tipocol,columna.llavecol,columna.refcol,columna.defcol,columna.nullcol,columna.constcol,inicio)
+                                    resultado = func.alterAddColumn(NombreDB,self.iden,columna)
+                                if resultado == 2:
+                                    resultadotxt += "No existe la base de datos " + NombreDB + "\n"
+                                elif resultado == 3:
+                                    resultadotxt += "No existe la tabla " + self.iden + "\n"
+                                elif resultado == 4:
+                                    resultadotxt += "Ya existe una llave primaria en " + self.iden + "\n"
+                                else:
+                                    cont+=1
+                                    inicio+=1
+                                    NuevoSimbolo.coltab+=1
+                                    tabla.actualizar(NuevoSimbolo)
+                                    tabla.agregar(NuevaColumna)
+                                    resultadotxt += "Se agrego la columna " + columna.nombre + " a la tabla " + self.iden + "\n"
+                            except:
+                                """ERROR SEMANTICO"""
+                    else:
+                        resultadotxt += "No existe la tabla " + self.inherits + "\n"
                 resultadotxt += "Se creo la tabla: " + self.iden + " En la base de datos: " + NombreDB + "\n"
         except:
             """ERROR SEMANTICO"""
+        return resultadotxt
 
 class columna(instruccion):
     def __init__(self,iden, tipo, notnull, key, references, default, constraint):
@@ -274,6 +326,7 @@ class droptb(instruccion):
         global cont
         global tabla
         global NombreDB
+        resultadotxt = ""
         try:       
             resultado = func.dropTable(NombreDB, self.iden)
             if(resultado == 2):
@@ -292,6 +345,7 @@ class droptb(instruccion):
                 resultadotxt += "Se elimino la tabla: " + self.iden + " de la base de datos: " + NombreDB + "\n"
         except:
             """ERROR SEMANTICO"""
+        return resultadotxt
 
 #ALTER TABLE-------------------------------------
 class altertb(instruccion):
@@ -304,6 +358,7 @@ class altertb(instruccion):
         global cont
         global tabla
         global NombreDB
+        resultadotxt = ""
         for alteracion in self.altertb2:
             if alteracion.texto and alteracion.texto.lower() == "add":
                 if alteracion.addprop.texto and alteracion.addprop.texto.lower() == "column":
@@ -338,9 +393,24 @@ class altertb(instruccion):
                         resultadotxt += "La columna " + ColumnaABorrar.nombre + " No existe" + "\n"
                     else:
                         tabla.simbolos.pop(ColumnaABorrar.id)
+                        OrdenarColumnas(self.iden)
                         resultadotxt += "Se elimino la columna " + ColumnaABorrar.nombre + " de la tabla " + self.iden + "\n"
                 except:
                     """ERROR SEMANTICO"""
+        return resultadotxt    
+
+def OrdenarColumnas(NombreTabla):
+    TablaActual = tabla.BuscarNombre(NombreTabla)
+    ListaColumnas = []
+    for simbolo in tabla.simbolos:
+        if tabla.simbolos[simbolo].ambito == TablaActual.id and tabla.simbolos[simbolo].tipo == TS.TIPO.COLUMN:
+            ListaColumnas.append(tabla.simbolos[simbolo])
+    
+    contador = 0
+    for columna in ListaColumnas:
+        columna.numcol = contador
+        contador+=1
+        tabla.actualizar(columna)
 
 class alteracion1(instruccion):
     def __init__(self,texto, iden):
@@ -380,6 +450,8 @@ class insert(instruccion):
         global cont
         global tabla
         global NombreDB
+        global contregistro
+        resultadotxt = ""
         try:
             columnasdetabla = []
             tablas = tabla.BuscarNombre(self.iden)
@@ -391,6 +463,8 @@ class insert(instruccion):
             for columna in columnasdetabla:
                 if VerificarTipo(columna.tipocol, self.valores[iter]):
                     colcorrecta.append(self.valores[iter])
+                else:
+                    resultadotxt += "El tipo de valor no coincide con la columna"
                 iter+=1
             resultado = func.insert(NombreDB,self.iden,colcorrecta)
             if resultado == 2:
@@ -400,25 +474,63 @@ class insert(instruccion):
             elif resultado == 5:
                 resultadotxt += "La cantidad de valores no coincide con la cantidad de columnas\n"
             else:
-                NuevoRegistro = TS.Simbolo(cont,str(colcorrecta[0]),TS.TIPO.TUPLA,tablas.id,0,"",0,"","",False,"",0,colcorrecta)
+                nombrereg = "registro" + str(contregistro)
+                NuevoRegistro = TS.Simbolo(cont,nombrereg,TS.TIPO.TUPLA,tablas.id,0,"",0,"","",False,"",0,colcorrecta)
+                contregistro+=1
                 cont+=1
                 tabla.agregar(NuevoRegistro)
-                resultadotxt += "El registro  " + self.valores[0] + " fue agregado a la tabla " + self.iden + "\n"
+                resultadotxt += "El registro  " + nombrereg + " fue agregado a la tabla " + self.iden + "\n"
         except:
             """ERRORES SEMANTICOS"""
+        return resultadotxt
 
 def VerificarTipo(TipoColumna,ValorColumna):
-    """if TipoColumna.lower() == "smallint" or TipoColumna.lower() == "integer" or TipoColumna.lower() == "bigint" or TipoColumna.lower() == "integer" or TipoColumna.lower() == "numeric" or TipoColumna.lower() == "real":
-        if int(ValorColumna):
-            return True
-    elif TipoColumna.lower() == "decimal":
+    """try:
         if float(ValorColumna):
+            TipoRegistro = definir_tipo(float(ValorColumna))
+        elif int(ValorColumna):
+            TipoRegistro = definir_tipo(int(ValorColumna))
+    except:
+        TipoRegistro = definir_tipo(ValorColumna)
+    if TipoRegistro == "smallint" and TipoColumna == "integer":
+        TipoRegistro = "integer"
+    try:
+        if TipoColumna.restipo.lower() == TipoRegistro:
             return True
-    elif TipoColumna.lower() == "boolean":
-        if ValorColumna.lower() == "true" or ValorColumna.lower() == "false":
+        else:
+            return False
+    except:
+        if TipoColumna.lower() == TipoRegistro:
             return True
-    else:"""
+        else:
+            return False"""
     return True
+
+def definir_tipo(entrada):
+    """if isinstance(entrada,int) or isinstance(entrada,float):
+        if entrada < 32767 and entrada > -32768:
+            return "smallint"
+        elif entrada < 214783648 and entrada > -214783648:
+            return "integer"
+        elif entrada < 9223372036854775808 and entrada > -9223372036854775808:
+            return "bigint"
+        elif entrada < 92233720368547758.08  and entrada > -92233720368547758.08 :
+            return "money"
+        else:
+            return "decimal"
+    elif isinstance(entrada,bool):
+        return "boolean"
+    else:
+        g = entrada.count('-')
+        dp = entrada.count(':')
+        if len(entrada) == 1:
+            return "char"
+        elif g == 3 and dp == 3:
+            return "time"
+        elif g == 3 and dp == 0:
+            return "date"
+        else:
+            return "varchar""""
     
 
 #UPDATE-----------------------------------------
@@ -433,11 +545,12 @@ class update(instruccion):
         global cont
         global tabla
         global NombreDB
+        resultadotxt = ""
         try:
             TuplasTabla = []
             ColumnasTabla = []
+            #OBTENER LAS TUPLAS Y COLUMNAS DE LA TABLA
             TablaActual = tabla.BuscarNombre(self.iden)
-            #OBTENER LAS TUPLAS DE LA TABLA
             for simbolo in tabla.simbolos:
                 if tabla.simbolos[simbolo].ambito == TablaActual.id and tabla.simbolos[simbolo].tipo == TS.TIPO.TUPLA:
                     TuplasTabla.append(tabla.simbolos[simbolo])
@@ -446,6 +559,7 @@ class update(instruccion):
             #OBTENER CAMPO DE CONDICION
             Condicion = self.wherecond.tipo
             NombreColumna = self.cond.iden
+            columnacond = self.wherecond.iden
             try:
                 cond2 = self.wherecond.tipo2
                 TuplasMod = []
@@ -453,13 +567,17 @@ class update(instruccion):
                     if columna.nombre == NombreColumna:
                         ColumnaModificar = columna
                         break
+                for columna in ColumnasTabla:
+                    if columna.nombre == columnacond:
+                        ColumnaCondicion = columna
+                        break
                 for tupla in TuplasTabla:
-                    if Condicion <= tupla.registro[ColumnaModificar.numcol] and tupla.registro[ColumnaModificar.numcol] <= cond2:
+                    if Condicion <= tupla.registro[ColumnaCondicion.numcol] and tupla.registro[ColumnaCondicion.numcol] <= cond2:
                         TuplasMod.append(tupla)
                 for registro in TuplasMod:
                     registro.registro[ColumnaModificar.numcol] = self.cond.tipo
-                    registro.nombre = self.cond.tipo
                     tabla.actualizar(registro)
+                func.update(NombreDB,self.iden,TuplasMod,ColumnasTabla)
                 resultadotxt += "Los registros fueron actualizados\n"
             except:
                 for tupla in TuplasTabla:
@@ -472,7 +590,6 @@ class update(instruccion):
                         ColumnaModificar = columna
                         break
                 TuplaModificar.registro[ColumnaModificar.numcol] = self.cond.tipo
-                TuplaModificar.nombre = self.cond.tipo
                 tabla.actualizar(TuplaModificar)
                 #SE ACTUALIZA EL ARCHIVO JSON
                 TuplasTabla = []
@@ -483,6 +600,7 @@ class update(instruccion):
                 resultadotxt += "Los registros fueron actualizados\n"
         except:
             """ERROR"""
+        return resultadotxt
         
 #DELETE-------------------------------------------
 class delete(instruccion):
@@ -495,7 +613,48 @@ class delete(instruccion):
         global cont
         global tabla
         global NombreDB
+        resultadotxt = ""
         try:
-            """PENDIENTE"""
+            TablaActual = tabla.BuscarNombre(self.iden)
+            TuplasTabla = []
+            ColumnasTabla = []
+            for simbolo in tabla.simbolos:
+                if tabla.simbolos[simbolo].ambito == TablaActual.id and tabla.simbolos[simbolo].tipo == TS.TIPO.TUPLA:
+                    TuplasTabla.append(tabla.simbolos[simbolo])
+                if tabla.simbolos[simbolo].ambito == TablaActual.id and tabla.simbolos[simbolo].tipo == TS.TIPO.COLUMN:
+                    ColumnasTabla.append(tabla.simbolos[simbolo])
+            resultado = func.delete(NombreDB,self.iden,ColumnasTabla)
+            try:
+                
+                #BETWEEN
+                cond2 = self.wherecond.tipo2
+                cond1 = self.wherecond.tipo
+                campocond = self.wherecond.iden
+                for columna in ColumnasTabla:
+                    if columna.nombre == campocond:
+                        ColumnaMod = columna
+                        break
+                ListaTuplaDelete = []
+                for tupla in TuplasTabla:
+                    if tupla.registro[ColumnaMod.numcol] >= cond1 and tupla.registro[ColumnaMod.numcol] <= cond2:
+                        ListaTuplaDelete.append(tupla)
+                for tupla in ListaTuplaDelete:
+                    tabla.simbolos.pop(tupla.id)
+                resultadotxt += "Se eliminaron los registros de la tabla\n"
+            except:
+                cond = self.wherecond.tipo
+                campocond = self.wherecond.iden
+                for columna in ColumnasTabla:
+                    if columna.nombre == campocond:
+                        ColumnaMod = columna
+                        break
+                ListaTuplaDelete = []
+                for tupla in TuplasTabla:
+                    if tupla.registro[ColumnaMod.numcol] == cond:
+                        ListaTuplaDelete.append(tupla)
+                for tupla in ListaTuplaDelete:
+                    tabla.simbolos.pop(tupla.id)
+                resultadotxt += "Se eliminaron los registros de la tabla\n"
         except:
             """ERROR"""
+        return resultadotxt
