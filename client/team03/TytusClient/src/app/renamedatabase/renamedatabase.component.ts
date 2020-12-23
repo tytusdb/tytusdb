@@ -11,5 +11,10 @@ export class RenamedatabaseComponent implements OnInit {
 
   ngOnInit() {
   }
+  
+  renamedatabase(event:Event)
+  {
+    alert("Modificando base de datos.....");
+  }
 
 }
