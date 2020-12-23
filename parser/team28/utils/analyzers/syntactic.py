@@ -496,16 +496,25 @@ def p_add_alter(p):
     '''addalter : COLUMN ID typecol
                 | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
                 | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+                | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
     '''
     if len(p) == 4:
-        p[0] = AlterTableAdd(CreateCol(p[2],p[3],None))
+        p[0] = AlterTableAdd(CreateCol(p[2],p[3],[{
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
+        'check_condition' : None,
+        'pk_option' : None,
+        'fk_references_to' : None
+    }]))
     elif len(p) == 5:
         p[0] = AlterTableAdd(Check(p[4]))
     elif len(p) == 7:
         p[0] = AlterTableAdd(Constraint(p[2],Unique(p[5]))) #TODO revisar esta asignacion
     else:
-        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   
+        p[0] = AlterTableAdd(ForeignKey(p[4],p[7],p[9]))   
 
 
 def p_alter_alter(p):
