@@ -126,7 +126,6 @@ tokens = [
              'ptcoma',
              'para',
              'coma',
-             'punto',
              'int',
              'decimales',
              'cadena',
@@ -244,7 +243,7 @@ from Expresion.Terminal import Terminal
 from Expresion.Logica import Logica
 from Expresion.Unaria import Unaria
 from Instrucciones.CreateTable import *
-from Instrucciones.Select import Select
+from Instrucciones.Select import *
 from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
 from Instrucciones.Insert import *
@@ -541,16 +540,17 @@ def p_CREATEDB(t):
     '''
     if len(t) == 7:
         listaBNF.append("CREATEDB ::= create RD if not exist " + str(t[6]))
-        t[0] = CreateDb(str(t[6]))
+        t[0] = CreateDb(str(t[6]),str(t[2]).lower(),'if not exists')
     elif len(t) == 8:
         listaBNF.append("CREATEDB ::= create RD if not exist " + str(t[6]) + " OPCCDB")
-        t[0] = CreateDb(str(t[6]))
+        t[0] = CreateDb(str(t[6]),str(t[2]).lower(),'if not exists')
     elif len(t) == 4:
         listaBNF.append("CREATEDB ::= create RD " + str(t[3]))
-        t[0] = CreateDb(str(t[3]))
+        t[0] = CreateDb(str(t[3]),str(t[2]).lower(),'')
     elif len(t) == 5:
         listaBNF.append("CREATEDB ::= create RD " + str(t[3]) + " OPCCDB")
-        t[0] = CreateDb(str(t[4]))
+        t[0] = CreateDb(str(t[4]),str(t[2]).lower(),'')
+
 
 
 def p_OPCCDB(t):
@@ -571,8 +571,10 @@ def p_RD(t):
     '''
     if len(t) == 2:
         listaBNF.append("RD ::= databases")
+        t[0]='databases'
     else:
         listaBNF.append("RD ::= or replace databases")
+        t[0]='or replace'
 
 
 def p_PROPIETARIO(t):
@@ -801,7 +803,16 @@ def p_LIMIT(t):
                | limit all offset int
                | offset int limit all
                | '''
-
+    if len(t) == 3:
+        if str(t[1]).lower() == 'limit':
+            t[0] = Limit(t[2], -1)
+        elif str(t[1]).lower() == 'offset':
+            t[0] = Limit(-1, t[2])
+    elif len(t) == 5:
+        if str(t[1]).lower() == 'limit':
+            t[0] = Limit(t[2], t[4])
+        elif str(t[1]).lower() == 'offset':
+            t[0] = Limit(t[4], t[2])
 
 def p_WHERE(t):
     ''' WHERE : where EXP '''
@@ -819,10 +830,12 @@ def p_COMBINING(t):
     '''COMBINING :  union EXP
                 | union all EXP
                 | intersect EXP
-                | intersect all EXP
                 | except EXP
-                | except all EXP
 	            | '''
+    if len(t) == 3:
+        t[0] = Combi(t[1], t[2], '')
+    elif len(t) == 4:
+        t[0] = Combi(t[1], t[3], t[2])
 
 
 def p_GROUP(t):

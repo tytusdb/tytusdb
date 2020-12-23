@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
+from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END, Entry, Label
 from tkinter import messagebox as MessageBox
-from tkinter import ttk,filedialog, INSERT
+from tkinter import ttk,filedialog, INSERT, PhotoImage
 import os
 import pathlib
 from campo import Campo, MyDialog
@@ -15,11 +15,13 @@ control=0
 notebook= None
 consola = None
 raiz = None
+tools = None
+loginOn = False
 
 
 #Variables para simular credenciales
-username = "admin"
-password = "admin"
+ActiveUsername = ""
+ActivePassword = ""
 
 #Metodo GET para probar peticiones al servidor
 def myGET():
@@ -114,16 +116,85 @@ def crearUsuario():
                 consola.config(state=DISABLED)
             myConnection.close()
         else:
-            MessageBox.showerror("Error", "Uno de los campos está vacío")
+            MessageBox.showerror("Error", "Es necesario llenar ambos campos!")
 
+def changeToLogout():
+    global tools
+    global loginOn
+    loginOn = True
+    tools.entryconfig(5, label="LOGOUT")
+
+def changeToLogin():
+    global tools
+    global loginOn
+    loginOn = False
+    tools.entryconfig(5, label="LOGIN")
+
+def LimpiarConsola():
+    global consola
+    consola.config(state=NORMAL)
+    consola.delete("1.0", tk.END)
+    consola.insert(1.0,"Consola de Salida:")
+    consola.config(state=DISABLED)
+
+def LogIn():
+    ###ventana para el log
+    global raiz
+    global loginOn
+    global ActiveUsername
+    if loginOn is False:
+        d = MyDialog(raiz)
+        if d.accept is True:
+            myUsername = d.result[0]
+            myPassword = d.result[1]
+            
+            if not "".__eq__(myUsername) and not "".__eq__(myPassword):
+                myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+                headers = {
+                    "Content-type": "application/json"
+                }
+
+                #Data en formato json
+                jsonData = { "username": myUsername, "password": myPassword }
+                myJson = json.dumps(jsonData)
+
+                myConnection.request("POST", "/checkLogin", myJson, headers)
+                response = myConnection.getresponse()
+                global consola
+                print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+                if response.status == 200:       
+                    data = response.read()
+                    result = data.decode("utf-8")
+                    consola.config(state=NORMAL)
+                    if result == "true":
+                        ActiveUsername = myUsername
+                        consola.insert(INSERT,"\nUsuario " + ActiveUsername + " loggeado correctamente.")
+                        changeToLogout()
+                    else:
+                        consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
+                    consola.config(state=DISABLED)
+                else:
+                    consola.config(state=NORMAL)
+                    consola.insert(INSERT,"\nHa ocurrido un error.")
+                    consola.config(state=DISABLED)
+                myConnection.close()
+            else:
+                MessageBox.showerror("Error", "Es necesario llenar ambos campos!")
+    else:
+        changeToLogin()
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nUsuario " + ActiveUsername + " ha cerrado sesión exitosamente.")
+        consola.config(state=DISABLED)
 
 def CrearMenu(masterRoot):
-
+    global tools
     ########### menu ############
     #Se crea la barra
-    barraDeMenu=Menu(masterRoot, tearoff=0,relief=FLAT, font=("Verdana", 12),activebackground='red')
+    barraDeMenu=Menu(masterRoot, tearoff=0,relief=FLAT, font=("Verdana", 12),activebackground='gray59')
+    barraDeMenu.config(bg='gray21',fg='white')
     #Se crean los menus que se deseen
-    archivo=Menu(barraDeMenu, tearoff=0)
+    archivo=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #Crear las opciones de la opción del menú
     #Se elimino el comando de crear Ventana por problemas con las imagenes
 
@@ -136,10 +207,10 @@ def CrearMenu(masterRoot):
     archivo.add_command(label="Guardar",command=guardarArchivo)
     archivo.add_command(label="Cerrar pestaña actual",command=cerrarPestaña)
     archivo.add_separator()
-    archivo.add_command(label="Salir")
+    archivo.add_command(label="Salir",command=cerrarVentana)
 
     #creando el Editar
-    editar=Menu(barraDeMenu, tearoff=0)
+    editar=Menu(barraDeMenu,tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #agregando su lista
     editar.add_command(label="Cortar")
     editar.add_command(label="Pegar")
@@ -150,17 +221,19 @@ def CrearMenu(masterRoot):
     editar.add_command(label="Preferencias")
 
     #se agrega Tools
-    tools=Menu(barraDeMenu, tearoff=0)
+    tools=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #se agrega su lista
     tools.add_command(label="Configuración")
     tools.add_command(label="Utilidades")
+    tools.add_command(label="Limpiar consola", command = LimpiarConsola)
     #Temporary tools to test client-server connection
-    tools.add_command(label="GET", command = myGET)
-    tools.add_command(label="POST", command = myPOST)
+    tools.add_command(label="GET USERS", command = myGET)
     tools.add_command(label="CREATE USER", command = crearUsuario)
+    #Log In sera parte de la barra de herramientas
+    tools.add_command(label="LOGIN", command = LogIn)
 
     #se agrega ayuda
-    ayuda=Menu(barraDeMenu, tearoff=0)
+    ayuda=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #lista de ayuda
     ayuda.add_command(label="Documentación de TytuSQL")
     ayuda.add_command(label="Acerca de TytuSQL")
@@ -217,21 +290,21 @@ def CrearVentana():
     #Configuracion de ventana
     raiz.title("TytuSQL") #Cambiar el nombre de la ventana
     #raiz.iconbitmap('resources/icon.ico')
+    raiz.configure(bg='gray21')
     raiz.rowconfigure(0, minsize=800, weight=1)
     raiz.columnconfigure(1, minsize=800, weight=1)
     raiz.config(menu=CrearMenu(raiz), background='silver')
-
     #Frame del Arbol
-    FrameIzquiero = Frame(raiz, relief=RAISED, bd=2)
+    FrameIzquiero = Frame(raiz, relief=RAISED, bd=2, bg='gray21')
     FrameIzquiero.pack(side="left", fill="both")
     #Se llama a la clase Arbol
     Arbol(FrameIzquiero)
-
     #Boton para realizar consulta
-    Button(raiz, text="Enviar Consulta").pack(side="top",fill="both")
+    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray').pack(side="top",fill="both")
     #Consola de Salida
     global consola
-    consola = Text(raiz)
+    consola = Text(raiz,bg='gray7',fg='white',selectbackground="gray21")
+    #inactiveselectbackground="green"
     consola.pack(side="bottom",fill="both")
     consola.insert(1.0,"Consola de Salida:")
     consola.config(wrap=WORD)
@@ -239,6 +312,10 @@ def CrearVentana():
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
     global notebook
     global control
+    style = ttk.Style()
+    style.theme_use("classic")
+    style.configure("TNotebook.Tab", background="gray21", font="helvetica 14",foreground='white')
+    style.map("TNotebook.Tab", background = [("selected", "slate gray")])
     notebook=ttk.Notebook(raiz)
     notebook.pack(side="right", fill="both", expand=True)
     añadir('Nuevo')
@@ -248,16 +325,17 @@ def añadir(titulo):
     global consola
     global control
     global notebook
-    consola.config(state=NORMAL)
-    consola.insert(INSERT,"\nSe creo una nueva Pestaña")
-    consola.config(state=DISABLED)
+    if control > 0:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nSe creo una nueva Pestaña")
+        consola.config(state=DISABLED)
     formularios.append(Frame(notebook,bg="white"))
     contador=control
     notebook.add(formularios[contador], text=titulo)
     valor=Campo(formularios[contador])
     valor.pack(side="left", fill="both",expand=True)
     vsb=Scrollbar(formularios[contador],orient="vertical",command=valor.text.yview)
-    valor.text.configure(yscrollcommand=vsb.set)
+    valor.text.configure(yscrollcommand=vsb.set,bg='gray21',fg='white',font="helvetica 12")
     vsb.pack(side="right",fill="y")
     textos.append(valor)
     contador=control+1
@@ -269,6 +347,10 @@ def cerrarPestaña():
     b=notebook.select()
     a=notebook.index(b)
     notebook.forget(a)
+
+def cerrarVentana():
+    global raiz
+    raiz.destroy()
 
 def main():
     CrearVentana()

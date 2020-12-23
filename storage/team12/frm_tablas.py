@@ -3,6 +3,7 @@ from tkinter import ttk
 import tkinter.font as tkFont
 from tkinter import messagebox
 from crud_tabla import CRUD_Tabla
+from frm_tuplas import mostrarTuplas
 
 nombre_BaseDatos = ""
 
@@ -30,6 +31,7 @@ def view_createTable():
             value = CRUD_Tabla().createTable(nombre_BaseDatos, name_table, column_table)
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
             elif value == 2:
                 messagebox.showinfo('', 'Base de Datos Inexistente')
             elif value == 3:
@@ -102,7 +104,7 @@ def view_showTable():
     var_font = tkFont.Font(size=13, weight="bold", family="Arial")
 
     for word in list_words:
-        btn = Button(second_frame, text=word, width=58, height=2, bg="#DBE2FC", font=var_font, command=lambda txt=word:mostrarTablas(txt))
+        btn = Button(second_frame, text=word, width=58, height=2, bg="#DBE2FC", font=var_font, command=lambda txt=word:mostrarTuplas(nombre_BaseDatos, txt, ventana_principal))
         btn.grid(row=var, column=0, pady=1)
         var += 1
 
@@ -119,6 +121,7 @@ def view_alterTable():
             value = CRUD_Tabla().alterTable(nombre_BaseDatos, nombre_anterior, nombre_nuevo)
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
             elif value == 2:
                 messagebox.showinfo('', 'Base de Datos No Existente')
             elif value == 3:
@@ -150,6 +153,7 @@ def view_dropTable():
             value = CRUD_Tabla().dropTable(nombre_BaseDatos, name_database)
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
             elif value == 2:
                 messagebox.showinfo('', 'Base de Datos No Existente')
             elif value == 3:
@@ -175,6 +179,7 @@ def view_extractTable():
             value = CRUD_Tabla().extractTable(nombre_BaseDatos, name_table)
             if value:
                 messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
             else:
                 messagebox.showinfo('', 'No hay Registros')
 
@@ -185,38 +190,154 @@ def view_extractTable():
     txtNombre = Entry(window, width = 35)
     txtNombre.place(x = 100, y = 115)
 
-    btn = Button(window, text='Guardar', command=ejecutar)
+    btn = Button(window, text='Obtener', command=ejecutar)
     btn.place(x = 350, y = 190)
 
 def view_extractRangeTable():
     print("funciona")
 
 def view_alterAddPk():
-    print("funciona")
+    def modificar():
+        v_table = txtTabla.get()
+        v_columnas = txtColumnas.get()
+        if v_table and v_columnas:
+            txtTabla.delete(0, END)
+            txtColumnas.delete(0, END)
+            #value = CRUD_Tabla().alterTable(nombre_BaseDatos, v_table, v_default)
+            value = 0
+            if value == 0:
+                messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
+            elif value == 2:
+                messagebox.showinfo('', 'Base de Datos No Existente')
+            elif value == 3:
+                messagebox.showinfo('', 'Nombre de Tabla No Existente')
+            elif value == 4:
+                messagebox.showinfo('', 'Llave Primaria Existente')
+            elif value == 5:
+                messagebox.showinfo('', 'Columna Fuera de Limites')
+            else:
+                messagebox.showinfo('', 'Error en la Operacion')
+
+    window = Tk()
+    edicionPantalla(window,  "Alter Add PK","#FCFCFB", 500, 350)
+    lblTabla = Label(window, text= 'Nombre de la Tabla', bg="#FCFCFB")
+    lblTabla.place(x = 125, y = 75)
+    txtTabla = Entry(window, width = 35)
+    txtTabla.place(x = 100, y = 115)
+    lblColumnas = Label(window, text= 'Columnas', bg="#FCFCFB")
+    lblColumnas.place(x = 125, y = 150)
+    txtColumnas = Entry(window, width = 35)
+    txtColumnas.place(x = 100, y = 190)
+    btnModificar = Button(window, text='Modificar', command = modificar)
+    btnModificar.place(x = 345, y = 240)
 
 def view_alterDropPk():
-    print("funciona")
+    def eliminar():
+        v_table = txtTabla.get()
+        if v_table:
+            txtTabla.delete(0, END)
+            #value = CRUD_Tabla().alterTable(nombre_BaseDatos, v_table, v_default)
+            value = 0
+            if value == 0:
+                messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
+            elif value == 2:
+                messagebox.showinfo('', 'Base de Datos No Existente')
+            elif value == 3:
+                messagebox.showinfo('', 'Nombre de Tabla No Existente')
+            elif value == 4:
+                messagebox.showinfo('', 'PK No Existente')
+            else:
+                messagebox.showinfo('', 'Error en la Operacion')
+
+    window = Tk()
+    edicionPantalla(window,  "Alter Drop PK","#FCFCFB", 500, 350)
+    lblTabla = Label(window, text= 'Nombre de la Tabla', bg="#FCFCFB")
+    lblTabla.place(x = 125, y = 75)
+    txtTabla = Entry(window, width = 35)
+    txtTabla.place(x = 100, y = 115)
+    btnEliminar = Button(window, text='Eliminar', command = eliminar)
+    btnEliminar.place(x = 345, y = 240)
 
 def view_alterAddColumn():
-    print("funciona")
+    def modificar():
+        v_table = txtTabla.get()
+        v_default = txtDefault.get()
+        if v_table and v_default:
+            txtTabla.delete(0, END)
+            txtDefault.delete(0, END)
+            #value = CRUD_Tabla().alterTable(nombre_BaseDatos, v_table, v_default)
+            value = 0
+            if value == 0:
+                messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
+            elif value == 2:
+                messagebox.showinfo('', 'Base de Datos No Existente')
+            elif value == 3:
+                messagebox.showinfo('', 'Nombre de Tabla No Existente')
+            else:
+                messagebox.showinfo('', 'Error en la Operacion')
+
+    window = Tk()
+    edicionPantalla(window,  "Alter Add Column","#FCFCFB", 500, 350)
+    lblTabla = Label(window, text= 'Nombre de la Tabla', bg="#FCFCFB")
+    lblTabla.place(x = 125, y = 75)
+    txtTabla = Entry(window, width = 35)
+    txtTabla.place(x = 100, y = 115)
+    lblDefault = Label(window, text= 'Default', bg="#FCFCFB")
+    lblDefault.place(x = 125, y = 150)
+    txtDefault = Entry(window, width = 35)
+    txtDefault.place(x = 100, y = 190)
+    btnModificar = Button(window, text='Modificar', command = modificar)
+    btnModificar.place(x = 345, y = 240)
 
 def view_alterDropColumn():
-    print("funciona")
+    def modificar():
+        v_table = txtTabla.get()
+        num_column = txtColumna.get()
+        if v_table and num_column:
+            txtTabla.delete(0, END)
+            txtColumna.delete(0, END)
+            #value = CRUD_Tabla().alterTable(nombre_BaseDatos, v_table, num_column)
+            value = 0
+            if value == 0:
+                messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
+            elif value == 2:
+                messagebox.showinfo('', 'Base de Datos No Existente')
+            elif value == 3:
+                messagebox.showinfo('', 'Nombre de Tabla No Existente')
+            elif value == 4:
+                messagebox.showinfo('', 'Llave No Puede Eliminarse')
+            elif value == 5:
+                messagebox.showinfo('', 'Columna Fuera de Limites')
+            else:
+                messagebox.showinfo('', 'Error en la Operacion')
 
-def mostrarTablas(nombre_BD):    
+    window = Tk()
+    edicionPantalla(window,  "Alter Drop Column","#FCFCFB", 500, 350)
+    lblTabla = Label(window, text= 'Nombre de la Tabla', bg="#FCFCFB")
+    lblTabla.place(x = 125, y = 75)
+    txtTabla = Entry(window, width = 35)
+    txtTabla.place(x = 100, y = 115)
+    lblColumna = Label(window, text= 'Numero de Columna', bg="#FCFCFB")
+    lblColumna.place(x = 125, y = 150)
+    txtColumna = Entry(window, width = 35)
+    txtColumna.place(x = 100, y = 190)
+    btnModificar = Button(window, text='Modificar', command = modificar)
+    btnModificar.place(x = 345, y = 240)
+
+def mostrarTablas(nombre_BD, f_window):
+    f_window.destroy() 
     window = Tk()
     ancho_ventana = 1000
-    alto_ventana = 800
-    edicionPantalla(window,"Tablas","white",  1000, 800)
+    alto_ventana = 550
+    edicionPantalla(window,"Tablas","white",  ancho_ventana, alto_ventana)
 
-    x_ventana = window.winfo_screenwidth() // 2 - ancho_ventana // 2
-    y_ventana = 0
-    posicion = str(ancho_ventana) + "x" + str(alto_ventana) + "+" + str(x_ventana) + "+" + str(y_ventana)
-    window.geometry(posicion)
-
-    var_width = 23
+    var_width = 25
     separacion = 3
-    var_height = int(var_width//2.5)
+    var_height = int(var_width//5)
     var_font = tkFont.Font(size=12, weight="bold", family="Arial")
 
     encabezado = Label(window, text="", bg="white",width=25)

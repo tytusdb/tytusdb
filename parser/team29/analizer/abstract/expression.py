@@ -80,7 +80,6 @@ class Identifiers(Expression):
         Expression.__init__(self, row, column)
         self.table = table
         self.name = name
-
         if table == None:
             self.temp = name
         else:
@@ -88,17 +87,26 @@ class Identifiers(Expression):
         self.type = None
 
     def execute(self, environment):
-        ta = None
-        if self.table == None:
-            ta = environment.ambiguityBetweenColumns(self.name)
-            if not ta:  # Si existe ambiguedad
+        if not self.table:
+            table = environment.ambiguityBetweenColumns(self.name)
+            if table[0]:  # Si existe ambiguedad
                 return
-            col = ta + "." + self.name
-            self.value = environment.dataFrame[col]
+            else:
+                if table[1]:
+                    self.table = table[1]
+                    col = self.table + "." + self.name
+                    self.value = environment.dataFrame[col]
+                else:
+                    x = environment.getVar(self.name)
+                    if not x:
+                        print("Variable no identificada")
+                        return
+                    self.table = x[0]
+                    self.name = x[1]
+                    self.value = environment.getColumn(self.table, self.name)
         else:
             self.value = environment.getColumn(self.table, self.name)
-            ta = self.table
-        r = environment.getType(ta, self.name)
+        r = environment.getType(self.table, self.name)
         self.type = r
         return self
 
@@ -943,7 +951,7 @@ class ExtractDate(Expression):
                 val = self.str
                 # ERROR
             self.dot()
-            return Primitive(TYPE.NUMBER, int(val),  self.temp, self.row, self.column)
+            return Primitive(TYPE.NUMBER, int(val), self.temp, self.row, self.column)
         except TypeError:
             pass
         except ValueError:  # cuando no tiene el valor INTERVAL
@@ -1216,11 +1224,12 @@ class AggregateFunction(Expression):
     """
     Esta clase representa las funciones de agregacion utilizadas en el Group By
     """
+
     def __init__(self, func, colData, row, column) -> None:
         super().__init__(row, column)
         self.func = func.lower()
         self.colData = colData
-        if colData == '*':
+        if colData == "*":
             self.temp = func + "(*)"
         else:
             self.temp = func + "(" + colData.temp + ")"
@@ -1228,7 +1237,7 @@ class AggregateFunction(Expression):
     def execute(self, environment):
         countGr = environment.groupCols
         if countGr == 0:
-            if self.colData != '*':
+            if self.colData != "*":
                 c = self.colData.execute(environment).value
                 if self.func == "sum":
                     newDf = c.sum()
@@ -1247,13 +1256,13 @@ class AggregateFunction(Expression):
                     newDf = None
                     print("error")
             return Primitive(TYPE.NUMBER, newDf, self.temp, self.row, self.column)
-        if self.colData != '*':
+        if self.colData != "*":
             # Obtiene las ultimas columnas metidas (Las del group by)
             df = environment.dataFrame.iloc[:, -countGr:]
             c = self.colData.execute(environment)
             x = c.value
             x = pd.DataFrame(x)
-            x.rename(columns={ x.columns[0]: c.temp }, inplace = True)
+            x.rename(columns={x.columns[0]: c.temp}, inplace=True)
             if len(list(x.columns)) > 1:
                 df = pd.concat([df, x.iloc[:, :1]], axis=1)
             else:
@@ -1268,7 +1277,7 @@ class AggregateFunction(Expression):
             else:
                 newDf = None
                 print("error")
-            
+
             value = newDf.iloc[:, -1:]
         else:
             # Obtiene las ultimas columnas metidas (Las del group by)
@@ -1276,11 +1285,11 @@ class AggregateFunction(Expression):
 
             x = df.iloc[:, -1:]
             x = pd.DataFrame(x)
-            x.rename(columns={ x.columns[0]: 'count(*)' }, inplace = True)
+            x.rename(columns={x.columns[0]: "count(*)"}, inplace=True)
             df = pd.concat([df, x], axis=1)
             cols = list(df.columns)[:-1]
             if self.func == "count":
-                
+
                 newDf = df.groupby(cols).count().reset_index()
             else:
                 newDf = None

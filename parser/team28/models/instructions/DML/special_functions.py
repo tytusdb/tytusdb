@@ -31,11 +31,17 @@ def list_expressions(array, enviroment):
 
 def loop_list(array, enviroment):
     lista1 = []
+    tabla = None
     for _, data in enumerate(array):
         valores = data.process(enviroment)
-        lista1.append(valores.value)
-    print(lista1)
-    return lista1
+        if isinstance(valores, DataFrame):
+            tabla = valores
+        else:
+            lista1.append(valores.value)
+    if len(lista1) >= 1:
+        return lista1
+    else:
+        return tabla
 
 def loop_list_of_order_by(array, enviroment):
     lista1 = []
@@ -65,17 +71,6 @@ def loop_list_with_columns(array, name, enviroment):
     
     valor = search_symbol(name).name
     lista2 = []
-    count = 0
-    lista_alias2 = []
-    
-    # while True:
-    #     if count > len(valor.headers) - 1:
-    #         break
-    #     for data in alias:
-    #         if data == valor.headers[count]:
-    #             alias.remove(data)
-    #             lista_alias2.append(valor.headers[count])
-    #     count += 1
     
 
     lista1 = results_list_select_columns(valor,result,lista2,lista1)
@@ -85,11 +80,6 @@ def loop_list_with_columns(array, name, enviroment):
         return table
     else:
         return None
-    
-    # print(tablita_test)
-    # return tablita_test
-
-
 
 
 def results_list_select_columns(valor, lista1, lista2, result_list):
@@ -123,17 +113,17 @@ def select_all(array,linea, column):
         ErrorController().add(4, 'Execution', desc, linea,column)#manejar linea y columna
         return None
         #Base de datos existe --> Obtener tabla
-    table_tp = TypeChecker().searchTable(database_id, array[0])
+    table_tp = TypeChecker().searchTable(database_id, array)
     if not table_tp:
         desc = f": Table does not exists"
         ErrorController().add(4, 'Execution', desc, linea , column)#manejar linea y columna
         return None
-    table_cont = DataController().extractTable(array[0],linea,column)
+    table_cont = DataController().extractTable(array,linea,column)
     
     headers = TypeChecker().searchColumnHeadings(table_tp)
     
     storage_columns(table_cont, headers, linea, column)
-    storage_table(table_cont,headers, array[0], linea, column)
+    storage_table(table_cont,headers, array, linea, column)
     
     tabla_select = pd.DataFrame(table_cont)
     # print(headers)
