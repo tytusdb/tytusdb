@@ -2,7 +2,7 @@
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
-from team18 import Storage
+from team18 import BPlusMode as Storage
 from team18 import BplusTree
 import tkinter
 from tkinter import *
@@ -867,12 +867,13 @@ def truncate_table(grandParent, parent ,database, table):
         else:
             messagebox.showinfo(title='Update', message='No lleno todos los campos')
 
+main_window = tkinter.Tk()
+main_window.geometry('610x310+300+100')
+main_window.title('Tytus EDD: Fase 1')
+main_window.configure(background='black')
+main_canvas = Canvas(main_window, width=580, height=280).place(x=15, y=10)
+tkinter.Label(main_canvas, text='Tytus Database', font='Helvetica 30 bold italic',padx=10, pady=5).place(x=150, y=20)
+tkinter.Button(main_canvas, text='Reportes', font='Helvetica 16 bold italic', width=20, height=2, borderwidth= 5, fg='white', background='black',command=show_data_bases).place(x=175, y=150)
+    
 def start():
-	main_window = tkinter.Tk()
-	main_window.geometry('610x310+300+100')
-	main_window.title('Tytus EDD: Fase 1')
-	main_window.configure(background='black')
-	main_canvas = Canvas(main_window, width=580, height=280).place(x=15, y=10)
-	tkinter.Label(main_canvas, text='Tytus Database', font='Helvetica 30 bold italic',padx=10, pady=5).place(x=150, y=20)
-	tkinter.Button(main_canvas, text='Reportes', font='Helvetica 16 bold italic', width=20, height=2, borderwidth= 5, fg='white', background='black',command=show_data_bases).place(x=175, y=150)
-	main_window.mainloop()
+    main_window.mainloop()

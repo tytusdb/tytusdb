@@ -530,3 +530,6 @@ def getPK(db:str,table:str,column:str):
 
 def getNull(db:str,table:str,column:str):
     return getColumns(db,table)[column]["Null"]
+
+def getCheck(db:str,table:str,column:str):
+    return getColumns(db,table)[column]["Check"]

@@ -127,8 +127,10 @@ def checkValue(dbName, tableName):
     for col in table['columns']:
         if col['Default'] !=None:
             if col['Default'][1] != 9:
-                value = expression.Primitive(TypeNumber.get(col['Default'][1]), col['Default'][0], 0, 0)
+                value = expression.Primitive(TypeNumber.get(col['Default'][1]), col['Default'][0],0, 0, 0)
                 select(col,value)
+                if len(lstErr) != 0:
+                    col['Default'] =None
             else:
                 col['Default'] =None
     
@@ -160,11 +162,14 @@ def checkInsert(dbName, tableName, columns, values):
     indexCol = 0
     for value in values:
         column = table["columns"][indexCol]
+
         x = Type.get(column["type"])
+        
         if not isinstance(value, expression.Primitive):
-            value = expression.Primitive(x, value, 0, 0)
+            value = expression.Primitive(x, value,0, 0, 0)
             values[indexCol] = value
-        if value != None and value.type != TYPE.NULL:
+            
+        if value.value != None and value.type != TYPE.NULL:
             if column["Unique"] or column["PK"]:
                 validateUnique(dbName, tableName, value.value, indexCol)
             if column["FK"] != None:

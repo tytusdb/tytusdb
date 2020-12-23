@@ -1,6 +1,5 @@
 import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from environment import *
+from execution.symbol.environment import Environment
 
 class Main(object):
     def __init__(self,queryArray):
