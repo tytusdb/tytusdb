@@ -5,6 +5,7 @@ from Errores.Nodo_Error import *
 import data.jsonMode as jm
 import os
 import json
+import TypeCheck.Type_Checker as tp
 
 
 
@@ -70,7 +71,6 @@ class Select(Node.Nodo):
     def graficarasc(self, padre, grafica):
         return 1
 
-
 class Insert(Node.Nodo):
     def __init__(self, table_id,col, values, fila, columna):
         super().__init__(fila=fila, columna=columna)
@@ -78,39 +78,122 @@ class Insert(Node.Nodo):
         self.col = col
         self.values = values
 
-    def ejecutar(self, TS, Errores): #falta la funcion de insertar solo ciertas columnas 
+    def ejecutar(self, TS, Errores):
         bd = os.environ['DB']
-        tipos = [] #verifica que los tipos coincidan
-        val =[]
+        infoTB = tp.showColumns(bd,self.table_id) #datos de tabla
+        noCol = len(infoTB) 
+        nombreCol = list(infoTB.keys())
+        TiposCol = list(infoTB.values())
+        
+        tipos = []
+        val = [] #valores
+        noValores = len(self.values) #noValues
         for columna in self.values:
             columna.ejecutar(TS, Errores)
             val.append(columna.val)
             tipos.append(columna.type)
-        respuesta = jm.insert(bd,self.table_id,val)
-        if respuesta == 2:  # noexisteDB
-            Errores.insertar(Nodo_Error('08003', 'connection_does_not_exist', self.fila, self.columna))
-            return '08003: ' + str(bd) + ' connection_does_not_exist\n'
-        elif respuesta == 3:  # noexisteTB
-            Errores.insertar(Nodo_Error('42P01', 'undefined_table', self.fila, self.columna))
-            return '42P01: ' + str(self.table_id)  +' undefined_table \n'
-        elif respuesta == 5: #noColDiferente
-            Errores.insertar(Nodo_Error('HV008', 'fdw_invalid_column_number', self.fila, self.columna))
-            return 'HV008: fdw_invalid_column_number \n'
-        elif respuesta == 4: #Pk_duplicada
-            Errores.insertar(Nodo_Error('42710', 'duplicate_object', self.fila, self.columna))
-            return '42710: duplicate_object  \n'
-        elif respuesta == 1:  # error
-            Errores.insertar(Nodo_Error('XX000', 'internal_error', self.fila, self.columna))
-            return 'XX000: internal_error \n'
-        else:
-            return 'Se ingresaron los registros exitosamente \n'
+
+        if self.col != None: 
+                noc = len(self.col) #noValues
+                if noc == noCol:
+                    for nn, ss in enumerate(self.col):
+                        if ss == nombreCol[nn]:
+                            print('')
+                        else: 
+                            Errores.insertar(Nodo_Error('42P10', 'invalid_column_reference', self.fila, self.columna))
+                            return '42P10 : invalid_column_reference'
+
+                    for n, s in enumerate(TiposCol):
+                        if (s == 'integer' or s == 'money' or s =='real' or s =='double precision' or s == 'smallint' or s =='decimal' or s =='bigint' or s=='numeric'):
+                            if (tipos[n] == 'INT' or tipos[n] == 'DOUBLE'):
+                                print(' ')
+                            else: 
+                                Errores.insertar(Nodo_Error('22023', 'invalid_parameter_value', self.fila, self.columna))
+                                return '22023 : invalid_parameter_value'
+                        elif( s == 'varchar' or s =='character' or s == 'text' or s == 'character varying'):
+                            if (tipos[n] == 'CHAR' or tipos[n] == 'STRING'):
+                                print(' ')
+                            else: 
+                                Errores.insertar(Nodo_Error('22023', 'invalid_parameter_value', self.fila, self.columna))
+                                return '22023 : invalid_parameter_value'
+                        elif( s == 'boolean'):
+                            if (tipos[n] == 'BOOLEAN'):
+                                print(' ')
+                            else:
+                                Errores.insertar(Nodo_Error('22023', 'invalid_parameter_value', self.fila, self.columna))
+                                return '22023 : invalid_parameter_value'
+                
+                    respuesta = jm.insert(bd,self.table_id,val)
+                    if respuesta == 2:  # noexisteDB
+                        Errores.insertar(Nodo_Error('08003', 'connection_does_not_exist', self.fila, self.columna))
+                        return '08003: ' + str(bd) + ' connection_does_not_exist\n'
+                    elif respuesta == 3:  # noexisteTB
+                        Errores.insertar(Nodo_Error('42P01', 'undefined_table', self.fila, self.columna))
+                        return '42P01: ' + str(self.table_id)  +' undefined_table \n'
+                    elif respuesta == 5: #noColDiferente
+                        Errores.insertar(Nodo_Error('HV008', 'fdw_invalid_column_number', self.fila, self.columna))
+                        return 'HV008: fdw_invalid_column_number \n'
+                    elif respuesta == 4: #Pk_duplicada
+                        Errores.insertar(Nodo_Error('42710', 'duplicate_object', self.fila, self.columna))
+                        return '42710: duplicate_object  \n'
+                    elif respuesta == 1:  # error
+                        Errores.insertar(Nodo_Error('XX000', 'internal_error', self.fila, self.columna))
+                        return 'XX000: internal_error \n'
+                    else:
+                        return 'Se ingresaron los registros exitosamente \n'
+                else :
+                    Errores.insertar(Nodo_Error('HV008', 'fdw_invalid_column_number', self.fila, self.columna))
+                    return 'HV008: fdw_invalid_column_number \n'
+        else: 
+            if noValores == noCol: 
+                for n, s in enumerate(TiposCol):
+                    if (s == 'integer' or s == 'money' or s =='real' or s =='double precision' or s == 'smallint' or s =='decimal' or s =='bigint' or s=='numeric'):
+                        if (tipos[n] == 'INT' or tipos[n] == 'DOUBLE'):
+                            print(' ')
+                        else: 
+                            Errores.insertar(Nodo_Error('22023', 'invalid_parameter_value', self.fila, self.columna))
+                            return '22023 : invalid_parameter_value'
+                    elif( s == 'varchar' or s =='character' or s == 'text' or s == 'character varying'):
+                        if (tipos[n] == 'CHAR' or tipos[n] == 'STRING'):
+                            print(' ')
+                        else: 
+                            Errores.insertar(Nodo_Error('22023', 'invalid_parameter_value', self.fila, self.columna))
+                            return '22023 : invalid_parameter_value'
+                    elif( s == 'boolean'):
+                        if (tipos[n] == 'BOOLEAN'):
+                            print(' ')
+                        else:
+                            Errores.insertar(Nodo_Error('22023', 'invalid_parameter_value', self.fila, self.columna))
+                            return '22023 : invalid_parameter_value'
+
+                respuesta = jm.insert(bd,self.table_id,val)
+                if respuesta == 2:  # noexisteDB
+                    Errores.insertar(Nodo_Error('08003', 'connection_does_not_exist', self.fila, self.columna))
+                    return '08003: ' + str(bd) + ' connection_does_not_exist\n'
+                elif respuesta == 3:  # noexisteTB
+                    Errores.insertar(Nodo_Error('42P01', 'undefined_table', self.fila, self.columna))
+                    return '42P01: ' + str(self.table_id)  +' undefined_table \n'
+                elif respuesta == 5: #noColDiferente
+                    Errores.insertar(Nodo_Error('HV008', 'fdw_invalid_column_number', self.fila, self.columna))
+                    return 'HV008: fdw_invalid_column_number \n'
+                elif respuesta == 4: #Pk_duplicada
+                    Errores.insertar(Nodo_Error('42710', 'duplicate_object', self.fila, self.columna))
+                    return '42710: duplicate_object  \n'
+                elif respuesta == 1:  # error
+                    Errores.insertar(Nodo_Error('XX000', 'internal_error', self.fila, self.columna))
+                    return 'XX000: internal_error \n'
+                else:
+                    return 'Se ingresaron los registros exitosamente \n'
+            else :
+                Errores.insertar(Nodo_Error('HV008', 'fdw_invalid_column_number', self.fila, self.columna))
+                return 'HV008: fdw_invalid_column_number \n'
 
     def getC3D(self, TS):
         return ""
 
     def graficarasc(self, padre, grafica):
         super().graficarasc(padre, grafica)
-        grafica.node("nombre_TB%s" % self.mi_id, 'id: %s' % self.table_id)
+        grafica.node("nombre_TB%s" % self.mi_id, 'TB: %s' % self.table_id)
         grafica.edge(self.mi_id, "nombre_TB" + self.mi_id) 
 
         if self.col != None:
@@ -121,6 +204,19 @@ class Insert(Node.Nodo):
                 col_id = "%selem%s" % (str(i), self.mi_id)
                 grafica.node(col_id, elem)
                 grafica.edge(lista_col, col_id)
+
+        lista_valores = "valores%s" % self.mi_id
+        grafica.node(lista_valores,'valores')
+        grafica.edge(self.mi_id,lista_valores)
+        c = 0
+        for n in self.values:
+            grafica.node("%sValores%s" % (str(c),self.mi_id),str(n.val))
+            grafica.edge(lista_valores,"%sValores%s" % (str(c),self.mi_id))
+            c += 1
+
+
+
+
 
 class Update(Node.Nodo):
     def __init__(self, table_id, list_id, list_values, file, col):

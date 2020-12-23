@@ -126,6 +126,7 @@ class Interfaz:
     def limpiar(self):
         self.txtarea.delete(1.0, END)
         self.archivoactgual = "v"
+        self.consola.delete(1.0,END)
 
 
     def abriarchivo(self):
