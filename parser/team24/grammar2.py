@@ -1350,7 +1350,7 @@ def p_offsetEmpty(t):
 
 def p_error(t):
     if t:
-        descript = 'error sintactico at token ' + str(t.type)
+        descript = 'error sintactico en el token ' + str(t.type)
         linea = str(t.lineno)
         columna = str(find_column(t))
         nuevo_error = CError(linea,columna,descript,'Sintactico')
