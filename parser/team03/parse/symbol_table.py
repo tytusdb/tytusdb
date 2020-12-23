@@ -73,7 +73,16 @@ class SymbolTable:
         self.symbols = symbols
 
     def add(self, symbol):
-        match = next((sym for sym in self.symbols if sym.name == symbol.name and sym.type == symbol.type), None)
+        match = None
+        if symbol.type == SymbolType.FIELD:
+            match = next((sym for sym in self.symbols if sym.name == symbol.name and sym.type == symbol.type
+                          and sym.table_name == symbol.table_name), None)
+        elif symbol.type == SymbolType.TABLE:
+            match = next((sym for sym in self.symbols if sym.name == symbol.name and sym.type == symbol.type
+                          and sym.db_id == symbol.db_id), None)
+        else:
+            match = next((sym for sym in self.symbols if sym.name == symbol.name and sym.type == symbol.type), None)
+
         if match is None:
             self.symbols.append(symbol)
         else:
