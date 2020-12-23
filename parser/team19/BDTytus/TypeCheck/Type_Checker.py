@@ -185,14 +185,14 @@ def dropTable(database: str, table:str) -> int:
     if respuesta == 0:
         baseActual = obtenerBase(database)
         if baseActual is not None:
-            return baseActual.ListaTablas.eliminarTabla(table)
+            return baseActual.listaTablas.eliminarTabla(table)
         return 2
     return respuesta
 
 def addConstraint(database:str,table:str,nombreColumna:str,nuevo:Constraint):
     # 0:operación exitosa, 1:error en la operación, 2: base inexistente, 3: tabla inexistente, 4: columna inexistente, 5: propiedad ya existente
     actualBase = obtenerBase(database)
-    if(actualBase!=None):
+    if actualBase is not None:
         # Verificamos si la tabla existe
         if actualBase.listaTablas.existeTabla(table):
             actualTabla = actualBase.listaTablas.obtenerTabla(table)
@@ -230,23 +230,23 @@ def dropConstraint(database:str,table:str,nombreColumna:str, nameConstraint:str)
 
 def alterAddPK(database:str,table:str,nombreConstraint:str,columns:list):
     #0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:llave primaria existente, 5:columnas fuera de límites
-    respuesta = JM.alterAddPK(database,table,columns)
-    if respuesta == 0:
-        baseActual = obtenerBase(database)
-        if(baseActual!=None):
-            actualTabla = baseActual.listaTablas.obtenerTabla(table)
-            if(actualTabla!=None):
-                if actualTabla.primary is None:
-                    actualTabla.primary = ConstraintPrimary.Primary(nombreConstraint,columns)
-                    return 0
-                else:
-                    return 4
+    baseActual = obtenerBase(database)
+    if(baseActual!=None):
+        actualTabla = baseActual.listaTablas.obtenerTabla(table)
+        if(actualTabla!=None):
+            if actualTabla.primary is None:
+                lista_numeros_columnas = actualTabla.obtener_lista_numeros_columnas(columns)
+                respuesta = JM.alterAddPK(database, table, lista_numeros_columnas)
+                if respuesta != 0:
+                    return respuesta
+                actualTabla.primary = ConstraintPrimary.Primary(nombreConstraint,columns)
+                return 0
             else:
-                return 3
+                return 4
         else:
-            return 2
+            return 3
     else:
-        return respuesta
+        return 2
 
 def alterDropPk(database:str,table:str):
     # 0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:pk no existente
@@ -354,10 +354,68 @@ def alterDropFK(database:str,table:str,nombreConstraint:str):
         return 2
 
 
+def addInheritsToTable(database:str, table:str, inherits:str):
+    #0 operacion existosa, 1:error interno, 2:database no existente, 3:table no existente, 4:table inherits no existente
+    baseActual = obtenerBase(database)
+    if baseActual is not None:
+        actualTabla = baseActual.listaTablas.obtenerTabla(table)
+        if actualTabla is not None:
+            inheritsTabla = baseActual.listaTablas.obtenerTabla(table)
+            if inheritsTabla is not None:
+                if actualTabla.inherits is not None:
+                    return 1
+                actualTabla.inherits = inherits
+                return 0
+            return 4
+        return 3
+    return 2
 
+def getIfTipoColumnaIsReserverd(tipo:str):
+    tipo = tipo.lower()
+    tiposReservados = {
+        'smallint': 0,
+        'integer': 1,
+        'bigint': 2,
+        'decimal': 3,
+        'numeric': 4,
+        'real': 5,
+        'double': 6,
+        'money': 7,
+        'character': 8,
+        'varchar': 9,
+        'character': 10,
+        'charn': 11,
+        'text': 12,
+        'boolean': 13
+    }
+    return tiposReservados.get(tipo, 14)
 
+def create_new_constraint(nombre_constraint, numero_propiedad, extra):
+    if numero_propiedad == 1:#DEFAULT
+        return Constraint.Constraint(nombre_constraint, extra, True, False, None, numero_propiedad)
+    elif numero_propiedad == 2:#ISNULL
+        return Constraint.Constraint(nombre_constraint, None, extra, False, None, numero_propiedad)
+    elif numero_propiedad == 3:#ISUNIQUE
+        return Constraint.Constraint(nombre_constraint, None, True, True, None, numero_propiedad)
+    else:#CHECK
+        return Constraint.Constraint(nombre_constraint, None, True, False, extra, numero_propiedad)
+    
 
-
+def add_constraint_general_check(database:str,table:str,nuevo:Constraint):
+    # 0:operación exitosa, 1:error en la operación, 2: base inexistente, 3: tabla inexistente, 5: nombre constraint ya existente
+    actualBase = obtenerBase(database)
+    if actualBase is not None:
+        # Verificamos si la tabla existe
+        if actualBase.listaTablas.existeTabla(table):
+            actualTabla = actualBase.listaTablas.obtenerTabla(table)
+            for check_general in actualTabla.check_general:
+                if check_general.nombreConstraint == nuevo.nombreConstraint:
+                    return 5
+            actualTabla.check_general.append(nuevo)
+            return 0
+        else:
+            return 3
+    return 2
 
 
 
