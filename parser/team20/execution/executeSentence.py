@@ -1,7 +1,7 @@
 from .AST.sentence import *
 from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType
-# from .executeShow import executeShowDatabases
-# from .executeSelect import executeSelect
+from .executeShow import executeShowDatabases
+from .executeSelect import executeSelect
 from .executeDrop import executeDropDatabase
 from .executeUse import executeUse
 from .executeExpression import executeExpression
@@ -80,6 +80,6 @@ def executeSentence(self, sentence):
     elif isinstance(sentence, InsertAll):
         executeInsertAll(self, sentence)
     # #Resto de sentencias posibles
-    # elif isinstance(sentence,Select):
-    #     executeSelect(self,sentence) 
+    elif isinstance(sentence,Select):
+        executeSelect(self,sentence) 
     
