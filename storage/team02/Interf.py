@@ -2,8 +2,9 @@
 #con .config logramos personalizar cada elemento de la ventana 
 from tkinter import* 
 import sys
-from tkinter import filedialog as FileDialog
+from tkinter import filedialog, messagebox
 from io import open
+from tkinter.filedialog import FileDialog
 
 raiz = Tk()
 VentanaPrincipal = Frame(raiz, width = 1200, height=600)
@@ -69,21 +70,21 @@ LlavePrimariaLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font 
 #---------------CREACIÓN DE CAMPOS PARA LAS Tablas ---------- 
 
 #**************NOMBRE DE LA TABLA****************
-nomTabla = Entry(VentanaPrincipal)
-nomTabla.place( x = 560 , y = 170)
-nomTabla.config(relief = "sunken", borderwidth = 4)
-nomTablaLabel = Label(VentanaPrincipal, text="Nombre Tabla:")
-nomTablaLabel.place (x = 460 , y = 170)
-nomTablaLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
+nomTablaT = Entry(VentanaPrincipal)
+nomTablaT.place( x = 560 , y = 170)
+nomTablaT.config(relief = "sunken", borderwidth = 4)
+nomTablaTLabel = Label(VentanaPrincipal, text="Nombre Tabla:")
+nomTablaTLabel.place (x = 460 , y = 170)
+nomTablaTLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
 
 #*************NOMBRE DE LA BASE DE DATOS ************** 
 
-nomBaseDatos = Entry(VentanaPrincipal)
-nomBaseDatos.place(x = 560 , y = 205)
-nomBaseDatos.config(relief = "sunken", borderwidth = 4)
-nomBaseDatosLabel = Label(VentanaPrincipal, text="Nombre BD:")
-nomBaseDatosLabel.place(x = 460 , y = 205)
-nomBaseDatosLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
+nomBaseDatosT = Entry(VentanaPrincipal)
+nomBaseDatosT.place(x = 560 , y = 205)
+nomBaseDatosT.config(relief = "sunken", borderwidth = 4)
+nomBaseDatosTLabel = Label(VentanaPrincipal, text="Nombre BD:")
+nomBaseDatosTLabel.place(x = 460 , y = 205)
+nomBaseDatosTLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
 
 #***********No de Columna**************
 numeroDeColumna = Entry(VentanaPrincipal)
@@ -100,12 +101,12 @@ numeroDeColumna2Label = Label(VentanaPrincipal, text="No. Columna2:" )
 numeroDeColumna2Label.place (x =460 , y = 270)
 numeroDeColumna2Label.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
 
-renombrar = Entry(VentanaPrincipal)
-renombrar.place (x = 560 ,  y = 300)
-renombrar.config(relief = "sunken", borderwidth = 4)
-renombrar = Label(VentanaPrincipal, text="Renombrar:" )
-renombrar.place (x =460 , y = 300)
-renombrar.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
+renombrarT = Entry(VentanaPrincipal)
+renombrarT.place (x = 560 ,  y = 300)
+renombrarT.config(relief = "sunken", borderwidth = 4)
+renombrarT = Label(VentanaPrincipal, text="Renombrar:" )
+renombrarT.place (x =460 , y = 300)
+renombrarT.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
 
 #------------ENTRADA DE TEXTO PARA CARGA MASIVA --------------------- 
 
@@ -193,18 +194,45 @@ def guardar_como():
         mensaje.set("Guardado cancelado")
         ruta = ""   
 
+       
+#-------------------------------METODO PARA AGREGAR LOS GRÁFICOS 
+
+mensaje2 = StringVar()
+#-------------PARA TABLAS 
+
+
+def GraficasTabla(): 
+
+
+    return None
+#---------------PARA LAS BASES DE DATOS 
+
+def GraficasBD():
+
+  #  mensaje2.set("Crear BAse")
+    mensaje2.set(print ("crear base"))
+    return None  
+
+#.................PARA EL ARBOL B 
+def GraficaArbolB():
+    return None      
+
+
+def Estudiantes(): 
+      messagebox.showinfo(message="  201318564  BRIAN MORALES '\n' 201403770  EDGAR PÉREZ '\n' 201404334  JORGE ARGUETA '\n' 201503431  GLEIMY POLANCO '\n' 201503445  DIEGO FLORES", title='Grupo2')
+#---------------AÑADIENDO SUBMENUS---------------------  
+
 #---------------AÑADIENDO SUBMENUS--------------------- 
 filemenu.add_command(label="Nuevo", command = nuevo)
 filemenu.add_command(label="Abrir", command = abrir)
 filemenu.add_command(label="Guardar", command = guardar)
 filemenu.add_command(label="Cerrar", command = raiz.quit)
 
-editmenu.add_command(label = "Base de Datos")
-editmenu.add_command(label = "Tabla")
-editmenu.add_command(label = "Arbol B")
+editmenu.add_command(label = "Base de Datos", command = GraficasBD)
+editmenu.add_command(label = "Tabla", command = GraficasTabla)
+editmenu.add_command(label = "Arbol B", command = GraficaArbolB)
 
-
-
+helpmenu.add_command(label = "Lista de estudiantes", command = Estudiantes)
 #-------------------------TITULOS DE SECCIONES-------------------
 
 nomTablasLabel = Label(VentanaPrincipal, text="Tablas")
@@ -220,6 +248,7 @@ nomTuplasLabel = Label(VentanaPrincipal, text = "Tuplas")
 nomTuplasLabel.place(x=1000, y = 105)
 nomTuplasLabel.config(background = "#f9e0ae" , foreground = "#c24914", font = ("Helvetica", 15, "bold"))
 
+
 #-----MENU DESPLEGABLE PARA LAS TUPLAS
 
 var = StringVar(VentanaPrincipal)
@@ -232,8 +261,60 @@ opcion.place(x= 1000, y = 350)
 opcion.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "bold"))
 
 
-def print_respuesta():
-    return None
+            #---------------------AQUÍ VAN LOS METODOS PARA LAS TUPLAS 
+
+def InsertarTP(tupla, tupla2, tupla3): 
+   #if la tupla existe 
+    return 'La tupla de la tabla {},'.format(tupla), 'base {},'.format(tupla2), 'Con el registro {}'.format(tupla3) ,'Fue creada' 
+   #else no puede crear nada 
+
+def ActualizarTP(tupla, tupla2 , tupla3, tupla4): 
+    return 'La tupla de la tabla {},'.format(tupla), 'base {},'.format(tupla2), 'Con el registro {}'.format(tupla3) ,'y la llave {}'.format(tupla4),'Fue Actualizada'
+
+def EliminarTP(tupla, tupla2 , tupla3): 
+    return "La tupla de la tabla {},".format(tupla), 'base {}'.format(tupla2), 'Con la llave {}'.format(tupla3), 'Fue eliminada'
+
+def LimpiarTP(tupla, tupla2): 
+    return "La tupla De la base {}".format(tupla) , 'y la columna {}, se limpió'.format(tupla2)
+
+def ExtractTP(tupla, tupla2 , tupla3 ): 
+    return "La tupla de la tabla {},".format(tupla), 'base {}'.format(tupla2), 'Con la llave {}'.format(tupla3), 'Fue Extraida'
+
+def imprimir_TP():
+    resultadoTp = ''
+ 
+
+    if nomBaseDatos.get() != '':
+
+        if var.get() == 'Insertar':
+            resultadoTp = InsertarTP(nomTabla.get(), nomBaseDatos.get(), Registro.get())
+
+
+        elif var.get() == 'Actualizar':
+            resultadoTp = ActualizarTP(nomTabla.get(), nomBaseDatos.get(), Registro.get(), LlavePrimaria.get())
+        
+        elif var.get()== 'Eliminar':
+            resultadoTp = EliminarTP(nomBaseDatos.get(), nomTabla.get(), LlavePrimaria.get())
+        elif var.get() == 'Limpiar':
+            resultadoTp = LimpiarTP(nomBaseDatos.get(), nomTabla.get())
+                
+        else:
+            resultadoTp = ExtractTP(nomBaseDatos.get(), nomTabla.get(), LlavePrimaria.get())
+        
+        messagebox.showinfo(message=resultadoTp, title='Tupla')
+    else:
+        resultadoTp = 'Tupla no reconocida'
+        messagebox.showerror(message=resultadoTp, title='Tupla')
+    
+        return None
+
+
+#---------------Este botón carga lo  que necesitamos 
+BotonAceptarTuplas = Button(VentanaPrincipal, text = '  OK  ', command = imprimir_TP )
+BotonAceptarTuplas.place(x = 1020 , y = 400)
+BotonAceptarTuplas.config(background = "#682c0e", fg="white", font=("Helvetica", 9 , "bold") )
+
+
 
 #-----------MENU DESPLEGABLE PARA LAS BASES DE DATOS
 
