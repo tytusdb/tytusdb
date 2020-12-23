@@ -70,6 +70,16 @@ class Expresion(InstruccionAbstracta):
                 simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,self.valor)
                 simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.boolean)
                 return simboloRetornar
+            elif self.tipoOperacion == tipoSimbolo.TipoSimbolo.NULO:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.nulo,"null")
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.nulo)
+                return simboloRetornar
+            elif self.tipoOperacion == tipoSimbolo.TipoSimbolo.DEFAULT:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.default,"default")
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.default)
+                return simboloRetornar                
             else:
                 return None
                 
@@ -150,6 +160,11 @@ class Expresion(InstruccionAbstracta):
                             simboloEnviar.tipoDatoRetorno = simboloColumna.TiposDatos.columna
                             simboloEnviar.tipoOperacion = tipoSimbolo.TipoSimbolo.IS_NULL
                             return simboloEnviar
+                        elif simboloEnviar.setTipoDatosCasteo == simboloColumna.TiposDatos.nulo:
+                            simboloEnviar.setTipoDatoRetorno(simboloColumna.TiposDatos.boolean)
+                            simboloEnviar.setTipoDatosCasteo(simboloColumna.TiposDatos.boolean)
+                            simboloEnviar.valorRetorno = True                            
+                            return simboloEnviar
                         else:
                             simboloEnviar.setTipoDatoRetorno(simboloColumna.TiposDatos.boolean)
                             simboloEnviar.setTipoDatosCasteo(simboloColumna.TiposDatos.boolean)
@@ -160,6 +175,11 @@ class Expresion(InstruccionAbstracta):
                         if simboloEnviar.tipDatoCasteo == simboloColumna.TiposDatos.columna:
                             simboloEnviar.tipoDatoRetorno = simboloColumna.TiposDatos.columna
                             simboloEnviar.tipoOperacion = tipoSimbolo.TipoSimbolo.IS_NOT_NULL
+                            return simboloEnviar
+                        elif simboloEnviar.tipDatoCasteo == simboloColumna.TiposDatos.nulo:
+                            simboloEnviar.setTipoDatoRetorno(simboloColumna.TiposDatos.boolean)
+                            simboloEnviar.setTipoDatosCasteo(simboloColumna.TiposDatos.boolean)
+                            simboloEnviar.valorRetorno = False
                             return simboloEnviar
                         else:
                             simboloEnviar.setTipoDatoRetorno(simboloColumna.TiposDatos.boolean)
@@ -228,7 +248,71 @@ class Expresion(InstruccionAbstracta):
                         enviarSimbolo.tipoOperacion = self.tipoOperacion
                         return enviarSimbolo
                     else:
+                        #Se evaula si viene algun simbolo tipo nulo o default
+                        if simboloIzquierdo.tipoDatoRetorno == simboloColumna.TiposDatos.nulo:
+                            if self.tipoOperacion == tipoSimbolo.TipoSimbolo.IGUALACION:
+                                if simboloDerecho.tipoDatoRetorno == simboloColumna.TiposDatos.nulo:
+                                    enviarSimbolo = simbolo.Simbolo()
+                                    enviarSimbolo.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,True)
+                                    enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.boolean
+                                    return enviarSimbolo
+                                else:
+                                    enviarSimbolo = simbolo.Simbolo()
+                                    enviarSimbolo.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,False)
+                                    enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.boolean
+                                    return enviarSimbolo
+                                
+                            elif self.tipoOperacion == tipoSimbolo.TipoSimbolo.DISTINTO:
+                                if simboloDerecho.tipoDatoRetorno == simboloColumna.TiposDatos.nulo:
+                                    enviarSimbolo = simbolo.Simbolo()
+                                    enviarSimbolo.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,False)
+                                    enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.boolean
+                                    return enviarSimbolo
+                                else:
+                                    enviarSimbolo = simbolo.Simbolo()
+                                    enviarSimbolo.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,True)
+                                    enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.boolean
+                                    return enviarSimbolo                                      
+
+                            else:
+                                nodoErr = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecución","Operacion no valida con el tipo de dato null")
+                                listaErrores.append(nodoErr)
+                                return None
+
+
+                        elif simboloDerecho.tipoDatoRetorno == simboloColumna.TiposDatos.default:
+                            if self.tipoOperacion == tipoSimbolo.TipoSimbolo.IGUALACION:
+                                if simboloIzquierdo.tipoDatoRetorno == simboloColumna.TiposDatos.default:
+                                    enviarSimbolo = simbolo.Simbolo()
+                                    enviarSimbolo.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,True)
+                                    enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.boolean
+                                    return enviarSimbolo
+                                else:
+                                    enviarSimbolo = simbolo.Simbolo()
+                                    enviarSimbolo.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,False)
+                                    enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.boolean
+                                    return enviarSimbolo
+                                
+                            elif self.tipoOperacion == tipoSimbolo.TipoSimbolo.DISTINTO:
+                                if simboloIzquierdo.tipoDatoRetorno == simboloColumna.TiposDatos.default:
+                                    enviarSimbolo = simbolo.Simbolo()
+                                    enviarSimbolo.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,False)
+                                    enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.boolean
+                                    return enviarSimbolo
+                                else:
+                                    enviarSimbolo = simbolo.Simbolo()
+                                    enviarSimbolo.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,True)
+                                    enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.boolean
+                                    return enviarSimbolo                                      
+
+                            else:
+                                nodoErr = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecución","Operacion no valida con el tipo de dato default")
+                                listaErrores.append(nodoErr)
+                                return None                       
+
+
                         #Se manda a evaluar si la operacion es valida con los tipos de datos obtenidos
+                        
                         fila = simboloIzquierdo.tipoDatoRetorno.value
                         columna = simboloDerecho.tipoDatoRetorno.value
                         nodoRecibido = tabalSimbolos.obtenerTipoDato(fila,columna)

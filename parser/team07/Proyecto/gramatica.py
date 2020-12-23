@@ -1086,6 +1086,24 @@ def p_primitivo_entero(t):
     nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
     t[0] = nodoPri
 
+def p_primitivo_null(t):
+    'primitivo  :   NULL'
+    nNodo = incNodo(numNodo)
+    linea = str(t.lexer.lineno)
+    nodoPri = expresion.Expresion()
+    nodoPri.valorPrimitivo("null",tipoSimbolo.TipoSimbolo.NULO)
+    nodoPri.setearValores(linea, columna, "PRIMITIVO",nNodo,"null",[])
+    t[0] = nodoPri
+
+def p_primitivo_default(t):
+    'primitivo  :   DEFAULT'
+    nNodo = incNodo(numNodo)
+    linea = str(t.lexer.lineno)
+    nodoPri = expresion.Expresion()
+    nodoPri.valorPrimitivo("default",tipoSimbolo.TipoSimbolo.NULO)
+    nodoPri.setearValores(linea, columna, "PRIMITIVO",nNodo,"default",[])
+    t[0] = nodoPri
+
 
 def p_primitivo_decimal(t):
     'primitivo    :   DECIMAL_'

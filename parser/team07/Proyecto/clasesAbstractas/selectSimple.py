@@ -1,4 +1,4 @@
-import funciones
+import jsonMode
 from prettytable import PrettyTable
 from .instruccionAbstracta import InstruccionAbstracta
 
@@ -54,7 +54,7 @@ class selectSimple(InstruccionAbstracta):
 
             for tabla in ListaTablasFrom["Tabla"]:
                 DatosTablas["ID"].append(tabla)
-                DatosTablas["Datos"].append(funciones.extractTable("BD", tabla))
+                DatosTablas["Datos"].append(jsonMode.extractTable("BD", tabla))
 
 
             '''

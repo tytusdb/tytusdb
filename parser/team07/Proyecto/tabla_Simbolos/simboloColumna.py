@@ -19,6 +19,8 @@ class TiposDatos(Enum):
     columna = 15
     interval = 16    
     timestamp = 17
+    nulo = 18
+    default = 19
 
 
 
