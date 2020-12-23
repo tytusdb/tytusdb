@@ -33,7 +33,7 @@ def meterSimbolos():
 def analiz(input):
     meterSimbolos()
     raiz = g.parse(input)
-    #report_errors()
+    report_errors()
     #executeGraphTree(raiz)
     #graphTable(ts)
     results = []
@@ -102,9 +102,9 @@ def Analizar():
     cont = 1
     for res in results:
         consola.insert(str(float(cont)), res)
-        cont += 1
-        consola.insert(str(float(cont)),'\n')
-        cont +=1
+        cont += (res.get_string().count('\n')+2)
+        consola.insert(str(float(cont)), '\n')
+        
 
 """CREACION DE COMPONENTES GRAFICOS"""
 BarraMenu=Menu(root)

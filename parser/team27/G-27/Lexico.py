@@ -1,3 +1,6 @@
+# ======================================================================
+#                          IMPORTES Y PLY
+# ======================================================================
 #importamos la libreria PLY para hacer nuestro analizador lexico.
 import ply.lex as lex
 #importamos la libreria para llamar al parcer de PLY
@@ -8,23 +11,123 @@ import re
 import codecs
 import os
 import sys
+# ======================================================================
+#                          ENTORNO Y PRINCIPAL
+# ======================================================================
+from execution.symbol.environment import Environment
+from execution.main import Main
 
 # ======================================================================
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/execution/querie')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution')
-sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
+#                          INSTRUCCIONES DDL
+# ======================================================================
+from execution.querie.use import Use
+from execution.querie.create import Create
+from execution.querie.show_database import Show_Database
+from execution.querie.drop_database import Drop_Database
+from execution.querie.alter_database import Alter_Database
+from execution.querie.add_column import Add_Column
+from execution.querie.add_constraint import Add_Constraint
+from execution.querie.alter_column import Alter_Column
+from execution.querie.alter_table import Alter_Table
+from execution.querie.case import Case
+from execution.querie.create_t import Create_Table
+from execution.querie.create_type import Create_Type
+from execution.querie.drop_column import Drop_Column
+from execution.querie.drop_constraint import Drop_Constraint
+from execution.querie.drop_database import Drop_Database
+from execution.querie.drop_t import Drop_Table
 
 # ======================================================================
-from environment import Environment
-from create import Create
-from main import Main
-from use import Use
-from show_database import Show_Database
-from drop_database import Drop_Database
-from alter_database import Alter_Database
+#                          INSTRUCCIONES DML
+# ======================================================================
+from execution.querie.insert import Insert
+from execution.querie.update import Update
+from execution.querie.select_ import Select
+from execution.querie.delete import Delete
+
+# ======================================================================
+#                             EXPRESIONES
+# ======================================================================
+from execution.expression.arithmetic import Arithmetic
+from execution.expression.greatest import Greatest
+from execution.expression.id import Id
+from execution.expression.least import Least
+from execution.expression.literal import Literal
+from execution.expression.logic import Logic
+from execution.expression.predicates import Predicates
+from execution.expression.relational import Relational
+from execution.expression.stringop import Stringop
+
+# ======================================================================
+#                        FUNCIONES MATEMATICAS
+# ======================================================================
+from execution.function.mathematical.abs import Abs
+from execution.function.mathematical.cbrt import Cbrt
+from execution.function.mathematical.ceil import Ceil
+from execution.function.mathematical.ceiling import Ceiling
+from execution.function.mathematical.degrees import Degrees
+from execution.function.mathematical.div import Div
+from execution.function.mathematical.exp import Exp
+from execution.function.mathematical.factorial import Factorial
+from execution.function.mathematical.floor import Floor
+from execution.function.mathematical.gcd import Gcd
+from execution.function.mathematical.ln import Ln
+from execution.function.mathematical.log import Log
+from execution.function.mathematical.pi import Pi
+from execution.function.mathematical.power import Power
+from execution.function.mathematical.radians import Radians
+from execution.function.mathematical.random import Randomic
+from execution.function.mathematical.round import Round
+from execution.function.mathematical.sign import Sign
+from execution.function.mathematical.sqrt import Sqrt
+from execution.function.mathematical.trunc import Trunc
+
+# ======================================================================
+#                       FUNCIONES TRIGONOMETRICAS
+# ======================================================================
+from execution.function.trigonometric.acos import Acos
+from execution.function.trigonometric.acosd import Acosd
+from execution.function.trigonometric.acosh import Acosh
+from execution.function.trigonometric.asin import Asin
+from execution.function.trigonometric.asind import Asind
+from execution.function.trigonometric.asinh import Asinh
+from execution.function.trigonometric.atan import Atan
+from execution.function.trigonometric.atan2 import Atan2
+from execution.function.trigonometric.atan2d import Atan2d
+from execution.function.trigonometric.atand import Atand
+from execution.function.trigonometric.atanh import Atanh
+from execution.function.trigonometric.cos import Cos
+from execution.function.trigonometric.cosd import Cosd
+from execution.function.trigonometric.cosh import Cosh
+from execution.function.trigonometric.cot import Cot
+from execution.function.trigonometric.cotd import Cotd
+from execution.function.trigonometric.sin import Sin
+from execution.function.trigonometric.sind import Sind
+from execution.function.trigonometric.sinh import Sinh
+from execution.function.trigonometric.tan import Tan
+from execution.function.trigonometric.tand import Tand
+from execution.function.trigonometric.tanh import Tanh
+
+# ======================================================================
+#                       FUNCIONES DE AGREGADO
+# ======================================================================
+from execution.function.agreggates.avg import Avg
+from execution.function.agreggates.count import Count
+from execution.function.agreggates.max import Max
+from execution.function.agreggates.min import Min
+from execution.function.agreggates.sum import Sum
+
+# ======================================================================
+#                       FUNCIONES BINARIAS
+# ======================================================================
+from execution.function.binary.get_byte import Get_Byte
+from execution.function.binary.length import Length
+from execution.function.binary.md5 import Md5
+from execution.function.binary.set_byte import Set_Byte
+from execution.function.binary.sha256 import Sha256
+from execution.function.binary.substr import Substr
+from execution.function.binary.substring import Substring
+from execution.function.binary.trim import Trim
 
 # creamos la lista de tokens de nuestro lenguaje.
 reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','PRECISION','MONEY',
@@ -231,22 +334,22 @@ def p_instruccion_use(t):
 
 def p_instruccion_show(t):
     '''ins_show : SHOW DATABASES PUNTO_COMA'''
-    t[0] = Show_Database(0, 0)
+    #t[0] = Show_Database(0, 0)
 
 def p_instruccion_create(t):
     '''ins_create : CREATE tipo_create'''
-    t[0] = t[2]  
+    #t[0] = t[2]  
 
 def p_tipo_create(t):
     '''tipo_create : ins_replace DATABASE if_exists ID create_opciones PUNTO_COMA
                    | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA
                    | TYPE ID AS ENUM PARABRE list_vls PARCIERRE PUNTO_COMA'''
-    if t[1] == 'TYPE':
-        print('TYPE')
-    elif t[1] == 'TABLE':
-        print('TABLE')
-    else:
-        t[0] = Create(t[1], 0, t[4], 0, 0)
+    #if t[1] == 'TYPE':
+    #    print('TYPE')
+    #elif t[1] == 'TABLE':
+    #    print('TABLE')
+    #else:
+    #    t[0] = Create(t[1], 0, t[4], 0, 0)
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
@@ -360,34 +463,34 @@ def p_create_opciones(t):
     '''create_opciones : OWNER SIGNO_IGUAL user_name create_opciones
                        | MODE SIGNO_IGUAL NUMERO create_opciones
                        | '''
-    if len(t) == 5:
-        if t[1] == 'MODE':
-            t[0] = t[3]
-        else:
-            t[0] = 0
-    else: 
-        t[0] = 0
+    #if len(t) == 5:
+    #    if t[1] == 'MODE':
+    #        t[0] = t[3]
+    #    else:
+    #        t[0] = 0
+    #else: 
+    #    t[0] = 0
 
 def p_user_name(t):
     '''user_name : ID
                   | CADENA 
                   | CADENASIMPLE'''
-    t[0] = t[1]
+    #t[0] = t[1]
 
 def p_alter(t): 
     '''ins_alter : ALTER tipo_alter ''' 
-    t[0] = t[2]
+    #t[0] = t[2]
 
 def p_tipo_alter(t): 
     '''tipo_alter : DATABASE ID alter_database PUNTO_COMA
                   | TABLE ID alteracion_tabla PUNTO_COMA''' # NO SE SI VAN LOS PUNTO Y COMA
-    if t[1] == 'DATABASE':
-        if t[3] == None:
-            t[0] = Alter_Database(t[2],t[2], 0, 0)
-        else: 
-            t[0] = Alter_Database(t[2],t[3], 0, 0)
-    else: 
-        print('TABLE')
+    #if t[1] == 'DATABASE':
+    #    if t[3] == None:
+    #        t[0] = Alter_Database(t[2],t[2], 0, 0)
+    #    else: 
+    #        t[0] = Alter_Database(t[2],t[3], 0, 0)
+    #else: 
+    #    print('TABLE')
 
 def p_alteracion_tabla(t): 
     '''alteracion_tabla : alteracion_tabla COMA alterar_tabla
@@ -405,20 +508,20 @@ def p_alterar_tabla(t):
 def p_alter_database(t): 
     '''alter_database : RENAME TO ID
                       | OWNER TO ID'''
-    if t[1] == 'RENAME':
-        t[0] = t[3]
-    else:
-        t[0] = None
+    #if t[1] == 'RENAME':
+    #    t[0] = t[3]
+    #else:
+    #    t[0] = None
 
 def p_drop(t): 
     '''ins_drop : DROP tipo_drop'''
-    t[0] = t[2]
+    #t[0] = t[2]
 
 def p_tipo_drop(t): 
     '''tipo_drop : DATABASE if_exists ID PUNTO_COMA
                  | TABLE ID PUNTO_COMA'''
-    if len(t) == 5:
-        t[0] = Drop_Database(t[3], 0, 0)
+    #if len(t) == 5:
+    #    t[0] = Drop_Database(t[3], 0, 0)
 
 def p_ins_insert(t):
     '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA 

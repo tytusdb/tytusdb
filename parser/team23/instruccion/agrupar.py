@@ -18,7 +18,7 @@ class agrupar(instruccion):
         if self.expresiones1 != None:
             self.nodo.hijos.append(expresiones1.nodo)        
         
-    def ejecutar(self):
+    def ejecutar(self, list_db):
         aux = 0
         numero = self.expresiones.valor
         numero1 = 0
