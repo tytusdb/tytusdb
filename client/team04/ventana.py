@@ -46,39 +46,6 @@ def myGET():
         consola.config(state=DISABLED)
     myConnection.close()
 
-
-#Metodo POST para probar peticiones al servidor
-def myPOST():
-    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
-
-    headers = {
-        "Content-type": "application/json"
-    }
-
-    #Data en formato json
-    jsonData = { "username": username, "password": password }
-    myJson = json.dumps(jsonData)
-
-    myConnection.request("POST", "/checkLogin", myJson, headers)
-    response = myConnection.getresponse()
-    global consola
-    print("POST: Status: {} and reason: {}".format(response.status, response.reason))
-    if response.status == 200:       
-        data = response.read()
-        result = data.decode("utf-8")
-        consola.config(state=NORMAL)
-        if result == "true":
-            consola.insert(INSERT,"\nUsuario loggeado correctamente.")
-        else:
-            consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
-        consola.config(state=DISABLED)
-    else:
-        consola.config(state=NORMAL)
-        consola.insert(INSERT,"\nHa ocurrido un error.")
-        consola.config(state=DISABLED)
-    myConnection.close()
-
-
 #Metodo POST para crear usuarios
 def crearUsuario():
     global raiz
