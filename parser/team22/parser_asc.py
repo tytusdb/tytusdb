@@ -1333,24 +1333,47 @@ def p_instrucciones_columnas_error(t) :
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
     id = inc()
-    t[0] = [{'nombre': t[1], 'col': Columna(tipo = t[2]), 'id': id}]
-    print('////////////\n', t[0][0]['col'].printCol())
-    dot.node(str(id), 'ID')
-    dot.edge(str(id), t[1])
+
+    global temp_tabla
+    if temp_tabla == -1:
+        temp_tabla = id
+        dot.node(str(temp_tabla), '')
+        id = inc()
+
+    dot.node(str(id), t[1])
+    dot.edge(str(id), str(t[2]['id']))
+    id_params = inc()
+    dot.node(str(id_params), 'PARAMETROS')
+    dot.edge(str(id), str(id_params))
+
+    col = Columna(tipo = t[2], line = t.lexer.lineno)
     
-    dot.edge(str(id), str(t[2]['id'])) 
-    # for element in t[2]:
-    #     dot.edge(str(id), str(element['id']))
-    dot.edge(str(id), str(t[3]['id'])) 
-    # for element in t[3]:
-    #     dot.edge(str(id), str(element['id']))
+    for parametro in t[3]['parametros']:
+        dot.edge(str(id_params), str(parametro['id'])) 
+        if 'default' in parametro:
+            col.addDefault(parametro['default'])
+        elif 'is_null' in parametro:
+            col.addNull(parametro['is_null'])
+        elif 'is_unique' in parametro:
+            if 'constraint' in parametro:
+                col.addUnique(valor = parametro['is_unique'], constraint = parametro['constraint'])
+            else:
+                col.addUnique(parametro['is_unique'])
+        elif 'is_primary' in parametro:
+            col.addPrimaryKey(parametro['is_primary'])
+        elif 'references' in parametro:
+            col.addReference(parametro['references'])
+
+    col.printCol()
+    t[0] = {'nombre': t[1], 'col': col, 'id': id}
+
 
 def p_instrucciones_columna_parametros_error(t) :
     'crear_tb_columna       : ID error parametros_columna'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
     tabla_errores.agregar(error)
     id = inc()
-    t[0] = [{'nombre':t[1], 'col':Columna(tipo='ERROR'), 'id':id}]
+    t[0] = [{'nombre':t[1], 'col':Columna(tipo='ERROR', line = t.lexer.lineno), 'id':id}]
     dot.node(str(id), 'ID')
     dot.edge(str(id),t[1])
     id2 = inc()
@@ -1370,7 +1393,7 @@ def p_instrucciones_columna_noparam(t) :
     dot.node(str(id), t[1])
     dot.edge(str(id), str(t[2]['id']))
 
-    t[0] = {'nombre': t[1].lower(), 'col': Columna(tipo = t[2]), 'id' : id}
+    t[0] = {'nombre': t[1].lower(), 'col': Columna(tipo = t[2], line = t.lexer.lineno), 'id' : id}
 
 
 def p_instrucciones_columna_pk(t) :
@@ -1426,19 +1449,10 @@ def p_instrucciones_columna_unique(t) :
 
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
-    t[1].update(t[2])
+    t[1]['parametros'].append(t[2])
     #t[1] = {} -> t[0] = {}
-    t[0] = t[1]
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
-    
-    dot.edge(str(id), str(t[1]['id'])) 
-    # for element in t[1]:
-    #     dot.edge(str(id), str(element['id']))
-    dot.edge(str(id), str(t[2]['id'])) 
-    # for element in t[2]:
-    #     dot.edge(str(id), str(element['id']))
+    t[0] = {'id': id, 'parametros': t[1]['parametros']}
 
 def p_instrucciones_lista_params_columnas_error(t) :
     'parametros_columna : parametros_columna error'
@@ -1455,15 +1469,8 @@ def p_instrucciones_lista_params_columnas_error(t) :
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
-    #t[1] = {} -> t[0] = {}
-    t[0] = t[1]
-    id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
-    
-    dot.edge(str(id), str(t[1]['id'])) 
-    # for element in t[1]:
-    #     dot.edge(str(id), str(element['id']))
+    t[0] = {'id': id, 'parametros': [t[1]]}
+
 
 def p_instrucciones_params_columnas_error(t) :
     'parametros_columna : error'
@@ -1479,34 +1486,19 @@ def p_instrucciones_params_columnas_error(t) :
 def p_instrucciones_parametro_columna_default(t) :
     'parametro_columna      : DEFAULT valor'
     #t[1] = {} -> t[0] = {}
-    t[0] = {'default': t[2]}
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
-
-    for element in t[2]:
-        dot.edge(str(id), str(element['id']))
+    t[0] = {'id': id, 'default': t[2]['valor']}
+    dot.node(str(id), 'DEFAULT')
+    dot.edge(str(id), str(t[2]['id']))
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
-    #t[1] = {} -> t[0] = {}
     t[0] = t[1]
-    id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
 
-    dot.edge(str(id), str(t[1]['id'])) 
-    # for element in t[1]:
-    #     dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_parametro_columna_unique(t) :
     'parametro_columna      : unic'
-    id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
-
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    t[0] = t[1]
 
 def p_instrucciones_parametro_columna_checkeo(t) :
     'parametro_columna      : chequeo'
@@ -1520,16 +1512,14 @@ def p_instrucciones_parametro_columna_checkeo(t) :
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
-    t[0] = {'is_primary': 1}
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'is_primary': 1}
     dot.node(str(id), 'PRIMARY KEY')
 
 def p_instrucciones_parametro_columna_fkey(t) :
     'parametro_columna      : REFERENCES ID'
-    t[0] = {'references': t[2]}
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'references': t[2]}
     dot.node(str(id), 'REFERENCES')
     dot.edge(str(id), t[2])
 
@@ -1537,27 +1527,27 @@ def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
     t[0] = {'is_null': TipoNull.NOT_NULL}
     id = inc()
-    t[0] = {'id': id}
+    t[0]['id'] = id
     dot.node(str(id), 'NOT NULL')
 
 def p_instrucciones_unul(t) :
     'unul   : NULL'
     t[0] = {'is_null': TipoNull.NULL}
     id = inc()
-    t[0] = {'id': id}
+    t[0]['id'] = id
     dot.node(str(id), 'NULL')
 
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'CONSTRAINT ' + t[2] + ' CHECK')
+    t[0] = {'id': id, 'is_unique': 1, 'constraint': Constraint(tipo = TipoConstraint.UNIQUE, name = t[2])}
+    dot.node(str(id), 'CONSTRAINT ' + t[2] + ' UNIQUE')
 
 def p_instrucciones_unic(t) :
     'unic   : UNIQUE'
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'UNIQUE ')
+    dot.node(str(id), 'UNIQUE')
+    t[0] = {'id': id, 'is_unique': 1}
 
 def p_instrucciones_chequeo_constraint(t) :
     'chequeo    : CONSTRAINT ID CHECK PARIZQ relacional PARDER'
@@ -2451,7 +2441,7 @@ def p_valor_num(t) :
     '''valor        : ENTERO
                     | DECIMAL  '''
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'valor': t[1]}
     dot.node(str(id), 'NUMERO\n'+ str(t[1]))
     # dot.edge(str(id), ' '+ str(t[1]) )
 
@@ -2459,7 +2449,7 @@ def p_valor(t) :
     '''valor        : CADENA
                     '''
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'valor': t[1]}
     dot.node(str(id), 'CADENA\n'+ str(t[1]))
     # dot.edge(str(id), ' '+ str(t[1]) )
 
@@ -2669,8 +2659,7 @@ def p_predicate_nulls(t) :
 # # Pattern Matching
 # #=======================================================
 def p_matchs(t) :
-    '''state_pattern_match      : aritmetica LIKE CADENA
-                                | aritmetica LIKE CADENA_DOBLE'''
+    '''state_pattern_match      : aritmetica LIKE CADENA'''
     print("LIKE")
     id = inc()
     t[0] = {'id': id}
@@ -2709,7 +2698,6 @@ def p_aliases_table2(t):
 # -------------------------------------------------------
 def p_aliases_field(t):
     ''' state_aliases_field     : AS CADENA
-                                | AS CADENA_DOBLE
                                 | AS ID
                                 | ID
                                 '''
