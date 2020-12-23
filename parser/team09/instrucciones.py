@@ -1,5 +1,6 @@
 import tabla_simbolos as TS
 import Errores as E
+import jsonMode as j
 
 class Instruccion():
     def __init__(self, tipo, instruccion):
@@ -20,20 +21,26 @@ class Select():
         print('ejecutando select')
 
 class AlterTable():
-    def __init__(self, id, cols, constrain, fkey, ref):
+    def __init__(self, id, cols, base):
         self.id = id
         self.cols = cols
-        self.constrain = constrain
-        self.fkey = fkey
-        self.ref = ref
+        self.base = base
 
-    def execute(self):
-        print('ejecutando alter table')
-        print('id : ' + str(self.id))
-        print('cols : ' + str(self.cols))
-        print('constrain : ' + str(self.constrain))
-        print('foreing keys :' + str(self.fkey))
-        print('references : ' + str(self.ref))
+    def execute(self, ts):
+        self.base = ts.get_dbActual().id
+        mensaje = '\n****ALTER TABLE****\n'
+        if str(self.cols[0]).upper() == 'ADDCOL':
+            print('El tipo de la columnas es -> ' + str(self.cols[1].tipo))
+            print('El id de la columnas es -> ' + str(self.cols[1].id))
+            self.cols[1].base = self.base
+            agregar = ts.agregar_columna(self.id, self.base, self.cols[1])
+            if isinstance(agregar, E.Errores):
+                #print('El error es -> ' + agregar.error)
+                mensaje = mensaje + '\tLa columna no se pudo agregar'
+                return mensaje
+            else:
+                mensaje = mensaje + '\tColuma agregada con exito'
+                return mensaje
 
 class CreateDB():
     def __init__(self, replace, ifnot, id, owner, mode):    # boolean, boolean, string, string, integer
@@ -44,7 +51,8 @@ class CreateDB():
         self.mode = mode                                    # modo de almacenamiento
 
     def execute(self, ts_global):
-        print('----> EJECUTAR CREATE DATABASE')
+        ##print('----> EJECUTAR CREATE DATABASE')
+        mensaje = '\n****CREATE DATABASE****\n'
         nueva_base = TS.Simbolo(self.id, TS.tipo_simbolo.DATABASE, None, None, None, None, None, None)
         existe = False                                      # bandera para comprobar si existe
         bases = ts_global.get_databases()                   # obtiene todas las bases de datos
@@ -57,90 +65,135 @@ class CreateDB():
                 if existe:                                  # si existe la base de datos
                     ts_global.drop_db(self.id)              # se elimina, luego
                 ts_global.agregar_simbolo(nueva_base)       # se agrega el nuevo símbolo
+                j.createDatabase(self.id)
+                mensaje = mensaje + '\tBase de datos creada correctamente'
+                return mensaje
             else:                                           # si no viene "OR REPLACE"
                 if existe:                                  # si existe, es un error
                     nuevo_error = E.Errores('Semántico.', 'Ya existe una base de datos con el nombre \'' + self.id + '\'.')
+                    mensaje = mensaje + '\tYa existe una base de datos con el nombre \'' + self.id + '\''
+                    return mensaje
                     #ls_error.append(nuevo_error)            #se agrega el error a la lista
                 else:                                       # si no existe
                     ts_global.agregar_simbolo(nueva_base)   # se agrega el nuevo símbolo
+                    j.createDatabase(self.id)
+                    mensaje = mensaje + '\tBase de datos creada correctamente'
+                    return mensaje
         else:                                               # si sí viene "IF NOT EXISTS"
             if self.replace:                                # si viene "OR REPLACE", es error
                 nuevo_error = E.Errores('Semántico.', 'No pueden venir conjuntamente las cláusulas \'OR REPLACE\' e \'IF NOT EXISTS\'.')
+                mensaje = mensaje + '\tNo pueden venir conjuntamente las cláusulas \'OR REPLACE\' e \'IF NOT EXISTS\'.'
+                return mensaje
                 #ls_error.append(nuevo_error)                #se agrega el error a la lista
             else:                                           # si no viene "OR REPLACE"
                 if not existe:                              # si no existe la base de datos
                     ts_global.agregar_simbolo(nueva_base)   # se agrega el nuevo símbolo, de lo contrario no se hace nada
+                    j.createDatabase(self.id)
+                    mensaje = mensaje + '\tBase de datos creada correctamente'
+                    return mensaje
 
 class UseDB():
     def __init__(self, id):                                 # string
         self.id = id                                        # nombre de la base de datos
 
     def execute(self, ts_global):
+        mensaje = '\n****USE DATABASE****\n'
         base = ts_global.set_dbActual(self.id)              # trato de actualizar la base de datos actual
         if isinstance(base, E.Errores):                     # si no existe, retorna error
             #ls_error.append(base)                           # se agrega el error a la lista
-            print('')
+            mensaje = mensaje + '\tLa base de datos \'' + self.id + '\' no existe'
+            return mensaje
+        else:
+            mensaje = mensaje + '\tSe seleccionó la base de datos \'' + self.id + '\''
+            return mensaje
 
 class ShowDB():
     def __init__(self):
         print('show')
 
     def execute(self, ts_global):
+        respuesta = '\n****SHOW DATABASES****\n' 
         bases = ts_global.get_databases()                   # obtiene todas las bases de datos
         if len(bases) == 0:                                 # si no hay bases de datos
-            return '\n\tNo hay bases de datos creadas.\n'   # se retorna un mensaje
-        respuesta = '\n'                                    # de lo contrario,
+            respuesta = respuesta + '\tNo hay bases de datos creadas.\n'
+            return respuesta                                # se retorna un mensaje
+        # de lo contrario,
         for base in bases:                                  # recorre la lista,
             respuesta = respuesta + '\t' + base.id + '\n'   # se concatenan los nombres
-        return respuesta + '\n'                             # y los retorna
+        j.showDatabases()
+        return respuesta                             # y los retorna
 
-class Drop():
-    def __init__(self, id):
+class DropDB():
+    def __init__(self, id, exist):
         self.id = id
+        self.exist = exist
 
-    def execute(self):
-        print('Ejecutando Drop')
-        print('id : ' + self.id)
+    def execute(self, ts):
+        mensaje = '\n****DROP DATABASE****\n'
+        #print('----> EJECUTAR DROP DATABASE')
+        if self.exist == True:
+            drop = ts.drop_db(self.id)
+            if isinstance(drop, E.Errores):
+                mensaje = mensaje + '\tLa base de datos no existe\n'
+                return mensaje
+            else:
+                mensaje = mensaje + '\tBase de datos eliminada con éxito\n'
+                return mensaje
+        else:
+            drop = ts.drop_db(self.id)
+            if isinstance(drop, E.Errores):
+                mensaje = mensaje + '\tERROR --> La base de datos no existe, se interrumpe\n'
+                return mensaje
+            else:
+                mensaje = mensaje + '\tBase de datos eliminada con éxito\n'
+                return mensaje
 
 class CreateTable():
-    def __init__(self, id, cols, inh,cont_key):
+    def __init__(self, id, base, cols, inh,cont_key):
         self.id = id
+        self.base = base
         self.cols = cols
         self.inh = inh
         self.cont_key = cont_key
         
     def execute(self,ts):
-        print('----> EJECUTAR CREATE TABLE * '+str(self.id))
+        #print('----> EJECUTAR CREATE TABLE * '+str(self.id))
+        mensaje = '\n****CREATE TABLE ' + str(self.id) + '****\n'
         self.base = ts.get_dbActual().id
         if(isinstance(self.base,E.Errores)):
             #no hay base Activa
+            mensaje = mensaje + '\tERROR - No hay base activa\n'
             print('***************************error - no hay base activa********************')
-            return
+            return mensaje
         #creamos la tabla
         new_tabla = TS.Simbolo(self.id,TS.tipo_simbolo.TABLE,None,self.base,None,None,None,None)
         #insertamos la tabla a la ts
         verificar_tabla=ts.agregar_tabla(str(self.base), new_tabla)
         if(isinstance(verificar_tabla,E.Errores)):
-            print('***************************error********************')
+            #print('***************************error********************')
+            mensaje = mensaje + '\tError en creación de tabla'
+            return mensaje
         else:
-            print('se agrego')
-        #agregamos las columnas a la tabla
-        for columna in self.cols:
-            columna.base = self.base
-            print(columna.id +' - '+ str(columna.tipo))
-            for const in columna.valor:
-                if(const.tipo == TS.t_constraint.PRIMARY):
-                    columna.pk = True
-                    columna.valor.remove(const)
-                elif (const.tipo == TS.t_constraint.FOREIGN):
-                    columna.fk = True
-                    columna.referencia = str(const.id)+','+str(const.valor)
-                    columna.valor.remove(const)
+            #print('se agrego')
+            #agregamos las columnas a la tabla
+            for columna in self.cols:
+                columna.base = self.base
+                for const in columna.valor:
+                    if(const.tipo == TS.t_constraint.PRIMARY):
+                        columna.pk = True
+                        columna.valor.remove(const)
+                    elif (const.tipo == TS.t_constraint.FOREIGN):
+                        columna.fk = True
+                        columna.referencia = str(const.id)+','+str(const.valor)
+                        columna.valor.remove(const)
 
-                if columna.longitud == None:
-                    columna.longitud =0
-            
-            ts.agregar_columna(self.id,self.base,columna)
+                    if columna.longitud == None:
+                        columna.longitud =0
+                
+                ts.agregar_columna(self.id,self.base,columna)
+            mensaje = mensaje + '\tTabla creada correctamente\n'
+            j.createTable(self.base, self.id, len(self.cols))
+            return mensaje
 
 class InsertT():
     def __init__(self, tabla, campos, valores):             # string, [string], [string]
