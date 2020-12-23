@@ -8,6 +8,7 @@ from parse.sql_common.sql_general import *
 from parse.sql_ddl.create import *
 from parse.sql_ddl.alter import *
 from parse.sql_dml.insert import *
+from parse.sql_ddl.drop import *
 from treeGraph import *
 from parse.symbol_table import *
 
@@ -374,16 +375,16 @@ def p_statement(t):
                     | stm_show   PUNTOCOMA
                     | stm_create PUNTOCOMA
                     | stm_alter  PUNTOCOMA
-                    | stm_use_db PUNTOCOMA 
+                    | stm_use_db PUNTOCOMA
                     | stm_select PUNTOCOMA
                     | stm_insert PUNTOCOMA
                     | stm_update PUNTOCOMA
+                    | stm_drop   PUNTOCOMA
                     '''
 #                    |    stm_select PUNTOCOMA 
 #
 #
 #                    |    stm_delete PUNTOCOMA
-#                    |    stm_drop   PUNTOCOMA
 #                    |    stm_show   PUNTOCOMA
 #                    |    stm_select UNION all_opt stm_select
 #                    |    stm_select INTERSECT all_opt stm_select
@@ -960,7 +961,6 @@ def p_where_clause(t):
     t[0] = upNodo("token", 0, 0, graph_ref)
     ##### 
 
-#TODO  add parameter for if_not_exists_opt of the first production
 def p_stm_create(t):
     '''stm_create   : CREATE or_replace_opt DATABASE if_not_exists_opt ID owner_opt mode_opt
                     | CREATE TABLE ID PARA tab_create_list PARC inherits_opt
@@ -1267,17 +1267,22 @@ def p_db_owner(t):
 
 def p_stm_drop(t):
     '''stm_drop : DROP DATABASE if_exists_opt ID
-                |    DROP TABLE ID''' 
+                | DROP TABLE ID'''
+    token = t.slice[1]
     if len(t) == 5:
+        tokenID = t.slice[4]
         childsProduction  = addNotNoneChild(t,[3])
-        graph_ref = graph_node(str("STM_DROP"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
+        graph_ref = graph_node(str("stm_drop"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
         addCad("**\<STM_DROP>** ::=  tDrop tDatabase \<IF_EXISTS_OPT> tIdentifier")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        name_db = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
+        t[0] = DropDatabase(name_db , (True if t[3] else False), token.lineno, token.lexpos, graph_ref)
         #####        
-    else:                 
-        graph_ref = graph_node(str("STM_DROP"),    [t[1], t[2] ,t[3]]       ,[])
+    else:
+        tokenID = t.slice[3]
+        graph_ref = graph_node(str("stm_drop"),    [t[1], t[2] ,t[3]]       ,[])
         addCad("**\<STM_DROP>** ::= tDrop tTable tIdentifier  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        name_db = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
+        t[0] = DropTable(name_db, token.lineno, token.lexpos, graph_ref)
         #####  
 
 def p_if_exist_opt(t):
