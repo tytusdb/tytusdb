@@ -39,6 +39,7 @@ class select_normal(instruccion):
         #si viene where
         elif self.donde != None:
             data_were = self.donde.ejecutar(self.list_tables)
+            print(data_were)
             encabezados = data_were.encabezados
             registro=data_were.valor
         
@@ -68,4 +69,4 @@ class select_normal(instruccion):
         add_text(salidaTabla)
         add_text('\n')
 
-        return retorno(registro,tipo_primitivo.TABLA,TRUE,encabezados=encabezados)
+        return retorno(registro,tipo_primitivo.TABLA,True,encabezados=encabezados)

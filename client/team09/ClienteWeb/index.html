@@ -33,52 +33,63 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             File
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#" onclick="createScript()">New Script</a>
-                            <a class="dropdown-item" href="#" onclick="openScript()">Open Script</a>
+                            <a class="dropdown-item" href="/inicio" onclick="createScript()">New Script</a>
+                            <a class="dropdown-item" href="/inicio" onclick="openScript()">Open Script</a>
                            
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Object
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#" onclick="createDatabase()">Create Database</a>         
-                            <a class="dropdown-item" href="#" onclick="deleteDatabase()">Delete Database</a>         
-                            <a class="dropdown-item" href="#" onclick="drop()">Drop</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="createDatabase()">Create Database</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="deleteDatabase()">Delete Database</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="drop()">Drop</a>         
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="/inicio" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Tools
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#" onclick="backup()">Create Backup</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="backup()">Create Backup</a>         
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="/inicio" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Help
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#" onclick="info()">Info</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="info()">Info</a>         
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="/inicio" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Conexion
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item"  onclick="peticion()">Prueba</a>         
                         </div>
                     </li>
                 </ul>
+               
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="logout()">Logout</button>
+                 
             </div>
         </nav>
         <div id = "lateral" class="lateral" style="width: 15%; left: 0px; top: 56px; bottom: 1%; resize: none; overflow: auto;">
 
-            <li class="nav-item dropdown">
+            
                 <a class="nav-link dropdown-toggle" style="color:black" href="#" onclick="server()" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     SERVER
                 </a>
              
-            </li>
+           
         <script>
             $(document).ready(function(){
                 var height = $(window).height();
