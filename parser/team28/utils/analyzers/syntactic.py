@@ -118,7 +118,7 @@ def p_option_create(p):
         p[0] = CreateTB(p[2], p[4], None)
 
     elif len(p) == 10:
-        p[0] = CreateTB(p[2], p[4], p[6]) 
+        p[0] = CreateTB(p[2], p[4], p[8]) 
 
 
 def p_type_list(p):

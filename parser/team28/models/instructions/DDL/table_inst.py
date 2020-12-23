@@ -4,6 +4,7 @@ from controllers.error_controller import ErrorController
 from controllers.symbol_table import SymbolTable
 from models.instructions.Expression.type_enum import *
 from models.instructions.DDL.column_inst import *
+from controllers.data_controller import *
 from models.database import Database
 from models.column import Column
 from models.table import Table
@@ -40,9 +41,21 @@ class CreateTB(Instruction):
         # Genera las tablas ya con todas sus propiedades
         self.generateColumns(nombreTabla,typeChecker)
 
+        # Si tiene inherits la manoseamos
+        if self._inherits_from != None:
+            self.addInherits(nombreTabla,self._inherits_from)
+
         # Si ocurrio algun error en todo el proceso mato la tabla
         if self._can_create_flag == False:
             typeChecker.deleteTable(nombreTabla,0,0)
+            return
+
+        # Verifico si tiene llave primaria la tabla o si le meto una escondida
+        if self.existsPK(nombreTabla) == 0:
+            self.generateHiddenPK(nombreTabla)
+
+        # Agrego llaves primarias a la base de datos si no hubo clavo con la tabla
+        self.addPKToDB(nombreTabla)
 
 
     def numberOfColumns(self, arrayColumns):
@@ -95,11 +108,9 @@ class CreateTB(Instruction):
                     self._can_create_flag = False
                     return
                 
-    
-
     def addPropertyes(self, prop,columnaFinal):
         if prop['default_value'] != None:
-            validation = self.validateType(columnaFinal._dataType,prop['default_value'])
+            validation = self.validateType(columnaFinal._dataType,prop['default_value'], True)
             if validation == None:
                 return
             else:
@@ -238,10 +249,7 @@ class CreateTB(Instruction):
                     if(columna._column_name == whatColumnIs):
                         if columna._properties != None:
                             bandera = True
-                            columna._properties[0]['constraint_check_condition'] = {
-                                                                                '_constraint_alias' : nombreColumna,
-                                                                                '_condition_check' : condicionColumna.alias
-                                                                                }
+                            columna._properties[0]['constraint_check_condition'] = condicionColumna
                             break
             if not bandera:
                 desc = f": Undefined column in constraint check ()"
@@ -268,10 +276,7 @@ class CreateTB(Instruction):
                     if(columna._column_name == whatColumnIs):
                         if columna._properties != None:
                             bandera = True
-                            columna._properties[0]['check_condition'] = {
-                                                                                '_constraint_alias' : None,
-                                                                                '_condition_check' : conditionColumn.alias
-                                                                                }
+                            columna._properties[0]['check_condition'] = conditionColumn
                             break
             if not bandera:
                 desc = f": Undefined column in check ()"
@@ -287,20 +292,23 @@ class CreateTB(Instruction):
             return
 
 
-    def validateType(self,columnInfo,defaulValue):
+    def validateType(self,columnInfo,defaulValue, process_data):
 
         columnType = columnInfo['_tipoColumna']
         paramOne = columnInfo['_paramOne']
         paramTwo = columnInfo['_paramTwo']
 
-        valorDef = defaulValue.process(0)
+        valorDef = None
 
-        
-        if valorDef != None:
-            valorDef = valorDef.value
+        if process_data:
+            valorDef = defaulValue.process(0)
+
+            if valorDef != None:
+                valorDef = valorDef.value
+            else:
+                valorDef = defaulValue.reference_column.value
         else:
-            valorDef = defaulValue.reference_column.value
-
+            valorDef = defaulValue
         #-->
         if columnType == 'ColumnsTypes.BIGINT':
             try:
@@ -310,13 +318,11 @@ class CreateTB(Instruction):
                 else:
                     desc = f": out of range value in bigint"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
             except:
                 desc = f": invalid default value to bigint column"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
 
         #-->
         elif columnType == 'ColumnsTypes.BOOLEAN':
@@ -325,8 +331,7 @@ class CreateTB(Instruction):
             else:
                 desc = f": invalid default value to boolean column"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
 
 
         #-->
@@ -336,14 +341,13 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid length in char column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
             else:
                 if len(valorDef) > 1:
                     desc = f": invalid length in char column, limit is 1"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
+                    
 
         #-->
         elif columnType == 'ColumnsTypes.CHARACTER':
@@ -352,14 +356,12 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid len in character column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
             else:
                 if len(valorDef) > 1:
                     desc = f": invalid length in char column, limit is 1"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
 
         #-->
         elif columnType == 'ColumnsTypes.CHARACTER_VARYING':
@@ -368,8 +370,7 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid len in varying column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
             else:
                 pass
 
@@ -381,8 +382,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format in date column"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
 
         #-->
         elif columnType == 'ColumnsTypes.DECIMAL' or columnType == 'ColumnsTypes.NUMERIC':
@@ -401,8 +401,7 @@ class CreateTB(Instruction):
                         if conteo > paramOne:
                             desc = f": overflow in decimal or numeric column"
                             ErrorController().add(6, 'Execution', desc, 0, 0)
-                            self._can_create_flag = False
-                            return
+                            return False
                 else:
                     strValorDef = str(valorDef)
                     if strValorDef.find('.') != -1:
@@ -411,14 +410,12 @@ class CreateTB(Instruction):
                         if len(str(parteEntera)) > paramOne and parteEntera != 0:
                             desc = f": overflow in decimal or numeric column"
                             ErrorController().add(6, 'Execution', desc, 0, 0)
-                            self._can_create_flag = False
-                            return
+                            return False
 
             except:
                 desc = f": invalid default value in decimal or numeric"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
 
         elif columnType == 'ColumnsTypes.DOUBLE_PRECISION' or columnType == 'ColumnsTypes.REAL':
             try:
@@ -426,8 +423,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in double or real"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
 
         #-->
         elif columnType == 'ColumnsTypes.INTEGER':
@@ -438,13 +434,11 @@ class CreateTB(Instruction):
                 else:
                     desc = f": default value out of range in integer col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
             except:
                 desc = f": invalid default value in integer col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
 
         #-->
         elif columnType == 'ColumnsTypes.INTERVAL':
@@ -457,8 +451,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in money col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
 
         #-->
         elif columnType == 'ColumnsTypes.SMALLINT':
@@ -469,13 +462,11 @@ class CreateTB(Instruction):
                 else:
                     desc = f": default value out of range in small col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
             except:
                 desc = f": invalid default value in smallint col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
         
         #-->
         elif columnType == 'ColumnsTypes.TEXT':
@@ -484,8 +475,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in text col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
         
         #-->
         elif columnType == 'ColumnsTypes.TIMESTAMP':
@@ -495,8 +485,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format timpestamp, yyyy-mm-dd h:m:s"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
         
         #-->
         elif columnType == 'ColumnsTypes.TIME':
@@ -506,8 +495,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format time, h:m:s"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return
+                return False
 
         elif columnType == 'ColumnsTypes.VARCHAR':
             valorDef = str(valorDef)
@@ -515,13 +503,67 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f":  out of range value in varchar col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
-                    self._can_create_flag = False
-                    return
+                    return False
             else:
                 pass
-        #Si llega a este punto todo piola
-        return True        
+        return True
 
+
+    def addInherits(self,nameChildTable,nameParentTable):
+        typeChecker = TypeChecker()
+        tablaPadre = typeChecker.searchTable(SymbolTable().useDatabase, nameParentTable)
+        tablaHija = typeChecker.searchTable(SymbolTable().useDatabase, nameChildTable)
+        
+        #La tabla de la que hereda no existe
+        if tablaPadre == None:
+            desc = f": parent table dont exists"
+            ErrorController().add(27, 'Execution', desc, 0, 0)
+            self._can_create_flag = False
+            return
+
+        for colPar in tablaPadre._colums:
+            #Vamos a insertar en la hija
+            validarCol = typeChecker.createColumnTable(tablaHija,colPar,0,0)
+            #Si es una columna repetida entonces no puede crear la tabla
+            if validarCol == None:
+                self._can_create_flag = False
+                return
+
+    def addPKToDB(self,tableCreated):
+        indicesPrimarios = []
+        typeChecker = TypeChecker()
+        tablaToExtract = typeChecker.searchTable(SymbolTable().useDatabase, tableCreated)    
+
+        for colExt in tablaToExtract._colums:
+            if colExt._primaryKey == True:
+                indicesPrimarios.append(colExt._number)
+            
+        
+        DataController().alterAddPK(tableCreated,indicesPrimarios,0,0)
+
+    def existsPK(self,tableCreated):
+        indicesPrimarios = 0
+        typeChecker = TypeChecker()
+        tablaToExtract = typeChecker.searchTable(SymbolTable().useDatabase, tableCreated)    
+
+        for colExt in tablaToExtract._colums:
+            if colExt._primaryKey == True:
+                indicesPrimarios += 1
+
+        return indicesPrimarios
+
+    def generateHiddenPK(self,nombreTabla):
+        typeChecker = TypeChecker()
+        tipoEscondido = {
+            '_tipoColumna' : 'HIDDEN',
+            '_paramOne' : None,
+            '_paramTwo' : None
+        }
+        columnaEscondida = Column('HIDDEN',tipoEscondido)
+        columnaEscondida._primaryKey = True
+        tableToInsert = typeChecker.searchTable(SymbolTable().useDatabase, nombreTabla)
+        typeChecker.createColumnTable(tableToInsert,columnaEscondida,0,0)
+        print('### SE HA GENERADO UNA LLAVE PRIMARIA ESCONDIDA')
 
 class DropTB(Instruction):
 
