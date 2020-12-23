@@ -1,7 +1,9 @@
 from enum import Enum
+from analizer.abstract import expression
 import analizer.typechecker.Metadata.Struct as S
 from analizer.abstract.expression import Expression
 from analizer.typechecker.Types.Type import Type
+from analizer.typechecker.Types.Type import TypeNumber
 from analizer.typechecker.Types.Validations import Number as N
 from analizer.typechecker.Types.Validations import Character as C
 from analizer.typechecker.Types.Validations import Time as T
@@ -11,7 +13,7 @@ from datetime import datetime
 
 lstErr = []
 dbActual = ""
-
+S.load()
 
 def addError(error):
     if error != None:
@@ -46,12 +48,11 @@ def numeric(col, val):
     addError(N.Error)
 
 
-
 def character(col, val):
     x = col["type"]
     e = None
     try:
-        if x == "VARCHAR":
+        if x == "VARCHAR" :
             e = C.validateVarchar(col["size"], val)
         elif x == "VARYING":
             e = C.validateVarchar(col["size"], val)
@@ -71,7 +72,7 @@ def time(col, val):
     if x == "TIMESTAMP":
         e = T.validateTimeStamp(val)
     elif x == "DATE":
-        e = T.validateTimeStamp(val)
+        e = T.validateDate(val)
     elif x == "TIME":
         e = T.validateTime(val)
     elif x == "INTERVAL":
@@ -85,116 +86,140 @@ def boolean(col, val):
     e = C.validateBoolean(val)
     addError(e)
 
-def types(col,value):
-    values = S.Types.get(col['type'])
+
+def types(col, value):
+    values = S.Types.get(col["type"])
     if values != None:
         if value in values:
             return True
         else:
-            e = "El valor "+ str(value)+" no pertenece a " + col['type']
-            
+            e = "El valor " + str(value) + " no pertenece a " + col["type"]
     else:
-        e = " Type " + col['type'] + " no encontrado"
+        e = " Type " + col["type"] + " no encontrado"
 
     addError(e)
 
+
 def select(col, val):
-    
-    x = Type.get(col['type'])
-    if x == None: #Type type
+    x = Type.get(col["type"])
+    if x == None:  # Type type
         types(col, val.value)
-    elif x == "CHARACTER" and val.type == TYPE.STRING:
+    elif x == TYPE.STRING and val.type == TYPE.STRING:
         character(col, val.value)
-    elif x == "TIME" and val.type == TYPE.STRING:
+    elif x == TYPE.DATETIME and val.type == TYPE.STRING:
         time(col, val.value)
-    elif x == "BOOLEAN" and val.type == TYPE.BOOLEAN:
+    elif x == TYPE.DATETIME and val.type == TYPE.DATETIME:
+        time(col, val.value)
+    elif x == TYPE.BOOLEAN and val.type == TYPE.BOOLEAN:
         boolean(col, val.value)
-    elif x == "NUMERIC" and val.type == TYPE.NUMBER:
+    elif x == TYPE.NUMBER and val.type == TYPE.NUMBER:
         numeric(col, val.value)
-    elif col['type'] == "MONEY" and val.type == TYPE.STRING:
+    elif col["type"] == "MONEY" and val.type == TYPE.STRING:
         numeric(col, val.value)
     else:
-        addError(str(val.value) + " no es del tipo :"+ col['type'])
-
-def check(dbName, tableName, colName, val):
-    col = S.extractColmn(dbName, tableName, colName)
-    select(col, val)
+        addError(str(val.value) + " no es del tipo : " + col["type"])
 
 
-def checkInsert(dbName, tableName, values):
+def checkValue(dbName, tableName):
     lstErr.clear()
-    S.load()
+    table = S.extractTable(dbName,tableName)
+    if table ==0 and table == 1: return
+    for col in table['columns']:
+        if col['Default'] !=None:
+            if col['Default'][1] != 9:
+                value = expression.Primitive(TypeNumber.get(col['Default'][1]), col['Default'][0], 0, 0)
+                select(col,value)
+            else:
+                col['Default'] =None
+    
+    return listError()
+
+    
+
+
+def checkInsert(dbName, tableName, columns, values):
+    lstErr.clear()
+    
+
+    if columns != None:
+        if len(columns) != len(values):
+            return ["Columnas fuera de los limites 1"]
+
     table = S.extractTable(dbName, tableName)
+    values = S.getValues(table, columns, values)
+
     if table == 0:
-        return "No existe la base de datos"
+        return ["No existe la base de datos"]
     elif table == 1:
-        return "No existe la tabla"
-    elif len(table['columns']) != len(values):
-        return "Columnas fuera de los limites"
+        return ["No existe la tabla"]
+    elif len(table["columns"]) != len(values):
+        return ["Columnas fuera de los limites 2"]
     else:
         pass
 
     indexCol = 0
     for value in values:
-        value_ = value.execute(0)
         column = table["columns"][indexCol]
-        
-        if column['Unique'] or column['PK']:
-            validateUnique(dbName, tableName,value_.value,indexCol)
+        x = Type.get(column["type"])
+        if not isinstance(value, expression.Primitive):
+            value = expression.Primitive(x, value, 0, 0)
+            values[indexCol] = value
+        if value != None and value.type != TYPE.NULL:
+            if column["Unique"] or column["PK"]:
+                validateUnique(dbName, tableName, value.value, indexCol)
+            if column["FK"] != None:
+                validateForeign(dbName, column["FK"], value.value)
+            if column["Constraint"] != None:
+                validateConstraint(
+                    column["Constraint"], values, dbName, tableName, column["type"]
+                )
+            select(column, value)
+        else:
+            validateNotNull(column["NN"], column["name"])
+        indexCol += 1
+    return [listError(), values]
 
-        if column['FK'] != None:
-            validateForeign(dbName,column['FK'],value_.value)
-        
-        if column['Constraint'] != None:
-            validateConstraint(column['Constraint'],values,dbName,tableName,column['type'])
-            
-        select(column,value_ )
-
-        indexCol +=1
-
-    return listError()
 
 def listError():
     if len(lstErr) == 0:
         return None
-    return lstErr
+    return lstErr.copy()
 
 
-def validateUnique(database,table,value,index):
-    
-    records = jsonMode.extractTable(database,table)
-    
+def validateUnique(database, table, value, index):
+
+    records = jsonMode.extractTable(database, table)
+
     if records == []:
         return
 
     for record in records:
         if value == record[index]:
-            lstErr.append("El Valor "+ str(value)+" ya existe dentro de la tabla")
+            lstErr.append("El Valor " + str(value) + " ya existe dentro de la tabla")
             break
-    
 
-def validateForeign(database,values,value):
+
+def validateForeign(database, values, value):
     # values = [references,column]
-    references =  values[0]
+    references = values[0]
     column = values[1]
-    
 
-    records = jsonMode.extractTable(database,references)
-    
+    records = jsonMode.extractTable(database, references)
+
     if records == []:
-        lstErr.append("El Valor "+ str(value)+" no es una llave foranea")
+        lstErr.append("El Valor " + str(value) + " no es una llave foranea")
         return
-    
-    index = S.getIndex(database,references,column)
+
+    index = S.getIndex(database, references, column)
 
     for record in records:
         if value == record[index]:
             return
-    lstErr.append("El Valor "+ str(value)+" no es una llave primaria")
-            
-        
-def validateConstraint(values,record,database,table,type_):
-    #values = [name,[exp1,exp2,op,type1,type2]]
+    lstErr.append("El Valor " + str(value) + " no es una llave primaria")
+
+
+def validateConstraint(values, record, database, table, type_):
+    # values = [name,[exp1,exp2,op,type1,type2]]
     # record = [val1,val2,...,valn]
     name = values[0]
     value1 = values[1][0]
@@ -205,18 +230,18 @@ def validateConstraint(values,record,database,table,type_):
     type1 = values[1][3]
     type2 = values[1][4]
 
-    index1  = 0
-    index1  = 0
-    
+    index1 = 0
+    index1 = 0
+
     if type1 == "ID":
-        index1 = S.getIndex(database,table,value1)
-        value1 = record[index1].execute(0).value
-    print("hola")
+        index1 = S.getIndex(database, table, value1)
+        value1 = record[index1].value
+
     if type2 == "ID":
-        index2 = S.getIndex(database,table,value2)
-        value2 = record[index2].execute(0).value
-    print("hola")
-    insert = CheckOperation(value1,value2,type_,op)
+        index2 = S.getIndex(database, table, value2)
+        value2 = record[index2].value
+
+    insert = CheckOperation(value1, value2, type_, op)
 
     try:
         if not insert:
@@ -230,7 +255,7 @@ def validateConstraint(values,record,database,table,type_):
         lstErr.append(insert)
 
 
-def CheckOperation(value1, value2, type_,operator):
+def CheckOperation(value1, value2, type_, operator):
     if type_ == "MONEY":
         value1 = str(value1)
         value2 = str(value2)
@@ -248,9 +273,12 @@ def CheckOperation(value1, value2, type_,operator):
         }
         value = comps.get(operator, None)
         if value == None:
-            return Expression.ErrorBinaryOperation(
-                value1, value1, 0, 0
-            )
+            return Expression.ErrorBinaryOperation(value1, value1, 0, 0)
         return value
     except:
         return "Error fatal CHECK"
+
+
+def validateNotNull(notNull, name):
+    if notNull:
+        lstErr.append("La columna " + name + "  no puede ser nula")

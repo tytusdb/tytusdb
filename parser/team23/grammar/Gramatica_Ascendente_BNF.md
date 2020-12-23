@@ -133,3 +133,65 @@ queries
 	| LIMIT ALL
 	| OFFSET ENTERO
 
+\<list_expression\>  := \<list_expression\> t_COMA \<expression\>
+                    | \<expression\>
+
+\<expression\> := \<expression\> MAYOR \<expression\>
+            | \<expression\> MENOR \<expression\>
+            | \<expression\> MAYOR_IGUAL \<expression\>
+            | \<expression\> MENOR_IGUAL \<expression\>
+            | \<expression\> AND \<expression\>
+            | \<expression\> OR \<expression\>
+            | NOT \<expression\>
+            | \<expression\> IGUAL \<expression\>
+            | \<expression\> NO_IGUAL \<expression\>
+            | \<expression\> DIFERENTE \<expression\>
+            | PAR_ABRE \<expression\> PAR_CIERRA
+            | \<expression\> BETWEEN \<expression\> AND \<expression\>
+            | \<expression\> NOT BETWEEN \<expression\> AND \<expression\> 
+            | \<expression\> BETWEEN SYMMETRIC \<expression\> AND \<expression\>
+            | \<expression\> NOT BETWEEN SYMMETRIC \<expression\> AND \<expression\>
+            | \<expression\> IS DISTINCT FROM \<expression\>
+            | \<expression\> IS NOT DISTINCT FROM \<expression\>
+            | \<expression\> PUNTO \<expression\>
+            | \<expression\> IS NULL
+            | \<expression\> IS NOT NULL
+            | \<expression\> ISNULL
+            | \<expression\> NOTNULL
+            | \<expression\> IS TRUE
+            | \<expression\> IS NOT TRUE
+            | \<expression\> IS FALSE
+            | \<expression\> IS NOT FALSE
+            | \<expression\> IS UNKNOWN
+            | \<expression\> IS NOT UNKNOWN
+            | SUBSTRING PAR_ABRE \<expression\> COMA \<expression\> COMA \<expression\>PAR_CIERRA
+            | \<funciones_math\>
+            | ID
+            | CADENA
+            | DECIMAL
+            | ENTERO
+            | ASTERISCO
+            | \<seleccionar\>
+
+\<funciones_math\> := SUM PAR_ABRE \<expression\> PAR_CIERRA
+            | COUNT PAR_ABRE \<expression\> PAR_CIERRA
+            | AVG PAR_ABRE \<expression\> PAR_CIERRA
+            | MAX PAR_ABRE \<expression\> PAR_CIERRA
+            | MIN PAR_ABRE \<expression\> PAR_CIERRA
+            | ABS PAR_ABRE \<expression\> PAR_CIERRA
+            | CBRT PAR_ABRE \<expression\> PAR_CIERRA
+            | CEIL PAR_ABRE \<expression\> PAR_CIERRA
+            | CEILING PAR_ABRE \<expression\> PAR_CIERRA 
+            | DEGREES PAR_ABRE \<expression\> PAR_CIERRA
+            | DIV PAR_ABRE \<expression\> PAR_CIERRA
+            | EXP PAR_ABRE \<expression\> PAR_CIERRA
+            | FACTORIAL PAR_ABRE \<expression\> PAR_CIERRA 
+            | FLOOR PAR_ABRE \<expression\> PAR_CIERRA
+            | GCD PAR_ABRE \<expression\> PAR_CIERRA
+            | LN PAR_ABRE \<expression\> PAR_CIERRA
+            | LOG PAR_ABRE \<expression\> PAR_CIERRA
+            | MOD PAR_ABRE \<expression\> PAR_CIERRA
+            | PI PAR_ABRE \<expression\> PAR_CIERRA
+            | POWER PAR_ABRE \<expression\> PAR_CIERRA
+            | RADIANS PAR_ABRE \<expression\> PAR_CIERRA
+            | ROUND PAR_ABRE \<expression\> PAR_CIERRA 

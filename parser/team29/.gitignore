@@ -4,3 +4,7 @@ parsetab.py
 storage
 data
 **/*.csv
+**/*.sql
+Databases.json
+Types.json
+ReporteGramatica.bnf

@@ -9,6 +9,7 @@ class Tablas():
     def __init__(self, nombre, lista_de_campos):
         self.nombreDeTabla = nombre
         self.lista_de_campos = []
+        self.lista_de_data = []
         self.orden = 0
 
     def agregarColumna(self,nombre1,tipo1,pk1, constraint):
@@ -20,4 +21,13 @@ class Tablas():
         for x in range(0,len(self.lista_de_campos)):
             if(self.lista_de_campos[x].nombre == nombre_ide):
                 return self.lista_de_campos[x].orden
+        return 0
+
+    def devolverTodasLasColumnas(self):
+        return self.lista_de_campos
+
+    def devolverTipo(self,nombre_ide):
+        for x in range(0,len(self.lista_de_campos)):
+            if(self.lista_de_campos[x].nombre == nombre_ide):
+                return self.lista_de_campos[x].tipo
         return 0

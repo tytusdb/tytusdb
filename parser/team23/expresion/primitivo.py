@@ -15,5 +15,5 @@ class primitivo(expresion):
         #Gramatica
         self.grammar_ = '<TR><TD> PRIMITIVO ::= ' + str(valor) +' </TD><TD> PRIMITIVO = new primitivo(' + str(valor) + '); </TD></TR>'
 
-    def ejecutar(self):
+    def ejecutar(self, list_tb):
         return retorno(self.valor, self.tipo)
