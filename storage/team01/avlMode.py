@@ -1,7 +1,9 @@
-import avl
+
+
 from graphviz import Digraph, nohtml
 import pickle
 from typing import Any
+from team01 import avl as avl
 
 mBBDD = avl.AVL()
 
@@ -775,3 +777,7 @@ def graficaREG(database: str, table: str) -> int:
             return 1 #Error en la operación
     else:
         return 1 #Error en la operación
+
+def showCollection():
+    from team01 import Principal as interfaz
+    mostrar = interfaz.Application()
