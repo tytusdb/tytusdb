@@ -796,18 +796,20 @@ def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
+    lista_union = []
     if len(p) == 2:
         p[0] = p[1]
     elif len(p) == 5:
-        type_combine_query = TypeQuerySelect(p[2], p[3],p.lineno(2), find_column(p.slice[2]))
-        p[1].append(type_combine_query)
-        p[1].append(p[4])
-        p[0] = p[1]
+        lista_union.append(p[1])
+        lista_union.append(p[2])
+        lista_union.append(p[3])
+        lista_union.append(p[4])
+        p[0] = TypeQuerySelect(lista_union , p.lineno(3), find_column(p.slice[3]))
     elif len(p) == 4:
-        type_combine_query = TypeQuerySelect(p[2], None,p.lineno(2), find_column(p.slice[2]))
-        p[1].append(type_combine_query)
-        p[1].append(p[3])
-        p[0] = p[1]
+        lista_union.append(p[1])
+        lista_union.append(p[2])
+        lista_union.append(p[3])
+        p[0] = TypeQuerySelect(lista_union, 0, 0)
     
 
 
@@ -828,7 +830,7 @@ def p_selectq(p):
     if len(p) == 4:
         p[0] = SelectQ(None, p[2], p[3], None, p.lineno(1), find_column(p.slice[1]))
     elif len(p) == 5:
-        if ("ALL" in p[2] or 'DISTINCT' in p[2] or 'UNIQUE' in p[2]):
+        if (p.slice[2].type == "TYPESELECT"):
             p[0] = SelectQ(p[2], p[3], p[4], None,p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = SelectQ(None, p[2], p[3], p[4], p.lineno(1), find_column(p.slice[1]))
@@ -1292,7 +1294,7 @@ def p_mathematical_functions(p):
         p[0] = Random(p[1],p.lineno(1), find_column(p.slice[1]))
 
 def p_binary_string_functions(p):
-    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
                                | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
                                | TRIM LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
                                | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS

@@ -1049,7 +1049,105 @@ class OperadoresSelect(Instruccion):
         self.arg2 = arg2
 
     def execute(self,data):
+        try:
+            argumento = self.arg1.execute()
+        except:
+            argumento = self.arg1.execute(data, valoresTabla)
+
+        if isinstance(argumento, Error):
+            return argumento
+
+        if self.tipoOperador == 'square':
+            if argumento.type == 'integer' or argumento.type == 'float' :
+                return Primitive('float', math.pow(float(argumento.val),2))
+            else:
+                error = Error('Semántico', 'Error de tipos en |, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif self.tipoOperador == 'cube':
+            if argumentotype == 'integer' or argumento.type == 'float' :
+                return Primitive('float', math.pow(float(argumento.val),3))
+            else:
+                error = Error('Semántico', 'Error de tipos en ||, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif self.tipoOperador == 'and':
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+                
+            if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
+                return Primitive('float', float(argumento.val & argumento2.val))
+            else:
+                error = Error('Semántico', 'Error de tipos en ||, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif self.tipoOperador == 'or':
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+                
+            if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
+                return Primitive('float', float(argumento.val | argumento2.val))
+            else:
+                error = Error('Semántico', 'Error de tipos en ||, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif self.tipoOperador == 'xor':
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+                
+            if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
+                return Primitive('float', float(argumento.val ^ argumento2.val))
+            else:
+                error = Error('Semántico', 'Error de tipos en #, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif self.tipoOperador == 'not':
+            if (argumento.type == 'integer' or argumento.type == 'float'):
+                return Primitive('float', float(~argumento.val))
+            else:
+                error = Error('Semántico', 'Error de tipos en ~, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif self.tipoOperador == 'sl':
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+                
+            if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
+                return Primitive('float', float(argumento.val << argumento2.val))
+            else:
+                error = Error('Semántico', 'Error de tipos en <<, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif self.tipoOperador == 'sr':
+            try:
+                argumento2 = self.arg2.execute()
+            except:
+                argumento2 = self.arg2.execute(data, valoresTabla)
+
+            if isinstance(argumento, Error):
+                return argumento
+                
+            if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
+                return Primitive('float', float(argumento.val >> argumento2.val))
+            else:
+                error = Error('Semántico', 'Error de tipos en >>, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        
         return self
+
 
     def __repr__(self):
         return str(self.__dict__)

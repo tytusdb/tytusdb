@@ -4,7 +4,7 @@ from os.path import dirname as dir
 path.append(dir(path[0]))
 import analizer.ply.yacc as yacc
 from analizer.tokens import *
-
+from analizer.reports import Nodo
 # Prueba para dataframe:
 import analizer.abstract.select_data as data
 
@@ -16,7 +16,7 @@ import analizer.ply.lex as lex
 
 lexer = lex.lex()
 # Asociación de operadores y precedencia
-
+listInst = []
 repGrammar = []
 precedence = (
     ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
@@ -83,6 +83,7 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
+    listInst.append(t[1].dot())
     try:
         t[0] = t[1].execute(None)
     except:
@@ -292,7 +293,7 @@ def p_createConstraint(t):
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
-    t[0] = [t[1], t[3],None]
+    t[0] = [t[1], t[3], None]
     repGrammar.append(t.slice)
 
 
@@ -306,15 +307,7 @@ def p_createForeign(t):
     """
     createForeign : constrName R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
     """
-    t[0] = [t[2], t[5], t[8], t[10],t[1]]
-    repGrammar.append(t.slice)
-
-
-def p_createForeign_op2(t):
-    """
-    createForeign : constrName R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID
-    """
-    t[0] = [t[1], t[4], t[7]]
+    t[0] = [t[2], t[5], t[8], t[10], t[1]]
     repGrammar.append(t.slice)
 
 
@@ -490,10 +483,7 @@ def p_constraintOpt_unique(t):
     """
     constraintOpt : constrName R_UNIQUE
     """
-    if t[1] == None:
-        t[0] = [t[2]]
-    else:
-        t[0] = None
+    t[0] = [t[2], t[1]]
     repGrammar.append(t.slice)
 
 
@@ -1077,7 +1067,7 @@ def p_alterStmt(t):
     if t[2] == "DATABASE":
         t[0] = instruction.AlterDataBase(t[4][0], t[3], t[4][1])
     else:
-        t[0] = instruction.AlterTable(t[3],t[4])
+        t[0] = instruction.AlterTable(t[3], t[4])
     repGrammar.append(t.slice)
 
 
@@ -1105,7 +1095,7 @@ def p_alterTableList(t):
     alterTableList : alterTableList S_COMA alterTable
     """
     t[1].append(t[3])
-    t[0]= t[1]
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -1113,7 +1103,7 @@ def p_alterTableList_u(t):
     """
     alterTableList : alterTable
     """
-    t[0]=[t[1]]
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -1122,9 +1112,9 @@ def p_alterTable(t):
     alterTable : R_ADD alterAdd
     | R_ALTER alterAlter
     | R_DROP alterDrop
-    | R_RENAME alterRename 
+    | R_RENAME alterRename
     """
-    t[0] = [t[1],t[2]]
+    t[0] = [t[1], t[2]]
     repGrammar.append(t.slice)
 
 
@@ -1132,7 +1122,7 @@ def p_alterAdd_column(t):
     """
     alterAdd : R_COLUMN ID types
     """
-    t[0]=[False,t[2],t[3],None]
+    t[0] = [False, t[2], t[3], None]
     repGrammar.append(t.slice)
 
 
@@ -1150,7 +1140,7 @@ def p_alterAdd_unique(t):
     """
     alterAdd : constrName R_UNIQUE S_PARIZQ ID S_PARDER
     """
-    t[0]=[True,[t[2],[t[4]],t[1]]]
+    t[0] = [True, [t[2], [t[4]], t[1]]]
     repGrammar.append(t.slice)
 
 
@@ -1160,7 +1150,7 @@ def p_alterAlter(t):
     | R_COLUMN ID R_SET defaultVal
     | R_COLUMN ID R_TYPE types
     """
-    t[0]=[t[3],t[2],t[4]]
+    t[0] = [t[3], t[2], t[4]]
     repGrammar.append(t.slice)
 
 
@@ -1169,7 +1159,7 @@ def p_alterDrop(t):
     alterDrop : R_CONSTRAINT ID
     | R_COLUMN ID
     """
-    t[0]=[t[1],t[2]]
+    t[0] = [t[1], t[2]]
     repGrammar.append(t.slice)
 
 
@@ -1177,7 +1167,7 @@ def p_alterRename(t):
     """
     alterRename : R_COLUMN ID R_TO ID
     """
-    t[0]=[t[2],t[4]]
+    t[0] = [t[2], t[4]]
     repGrammar.append(t.slice)
 
 
@@ -1698,6 +1688,21 @@ def returnPostgreSQLErrors():
 def returnSemanticErrors():
     return instruction.semanticErrors
 
+def InitTree():
+    init = Nodo.Nodo("INSTRUCTION_LIST")
+    Tree(init)
+    makeAst(init)
+
+def Tree(n):
+    if len(listInst)>0:
+        l = listInst.pop()
+        n.addNode(l)
+        inst = Nodo.Nodo("INST")
+        n.addNode(inst)
+        Tree(inst)
+
+def makeAst(root):
+    instruction.makeAst(root)
 
 def getRepGrammar():
     return repGrammar

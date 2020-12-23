@@ -24,7 +24,7 @@ def validar_Usuario(user_val):
     user_val_ = user_val.split('-')
     user_validado = [user for user in usuarios if user['name'] == user_val_[0] and user['password'] == user_val_[1] ]
     if (len(user_validado) > 0):
-        return jsonify({"Usuario": "Exito"})
+        return jsonify({"mensaje": "Exito"})
     return jsonify({"mensaje": "Error"})
 
 #Insercion de usuarios a la lista

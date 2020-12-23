@@ -1,6 +1,7 @@
 from abstract.instruccion import *
 from tools.tabla_tipos import *
 from tools.console_text import *
+from abstract.retorno import *
 
 class order_by(instruccion):
     def __init__(self,expresiones, asc_desc, nulls_f_l, line, column, num_nodo):
@@ -14,7 +15,7 @@ class order_by(instruccion):
         if nulls_f_l != None:
             self.nodo.hijos.append(nodo_AST(nulls_f_l,num_nodo+3))
         
-         
+        self.grammar_ = ' '
         
     def ejecutar(self):
-        pass 
+        return retorno(self.expresiones,self.asc_desc)
