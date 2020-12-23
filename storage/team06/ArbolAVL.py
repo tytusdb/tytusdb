@@ -408,7 +408,7 @@ class ArbolAVL:
         cadena = ""
         if tmp != None:
             for i in columnas:
-                cadena += str(tmp.campos[i])+","
+                cadena += str(tmp.campos[int(i)])+","
             cadena = cadena[0:len(cadena)-1]
             tmp.valor = cadena
             self.cambiardatos(tmp.izq, columnas)
@@ -454,7 +454,7 @@ class ArbolAVL:
     def _contadorRp(self, tmp, columnas):
         cadena = ""
         for i in columnas:
-            cadena +=str(tmp.campos[i])+","
+            cadena +=str(tmp.campos[int(i)])+","
         cadena = cadena[0:len(cadena)-1]
         bandera = False
         if tmp.izq == None and tmp.der == None:
@@ -485,7 +485,7 @@ class ArbolAVL:
         if tmp.izq == None and tmp.der == None:
             cadena = ""
             for i in columnas:
-                cadena += str(tmp.campos[i]) + ","
+                cadena += str(tmp.campos[int(i)]) + ","
             cadena = cadena[0:len(cadena) - 1]
 
             if cadena == valor:
@@ -495,7 +495,7 @@ class ArbolAVL:
             contador += self._buscarRep(valor, tmp.der, columnas)
             cadena = ""
             for i in columnas:
-                cadena += str(tmp.campos[i]) + ","
+                cadena += str(tmp.campos[int(i)]) + ","
             cadena = cadena[0:len(cadena) - 1]
             if cadena == valor:
                 contador += 1
@@ -504,7 +504,7 @@ class ArbolAVL:
             contador += self._buscarRep(valor, tmp.izq, columnas)
             cadena = ""
             for i in columnas:
-                cadena += str(tmp.campos[i]) + ","
+                cadena += str(tmp.campos[int(i)]) + ","
             cadena = cadena[0:len(cadena) - 1]
             if cadena == valor:
                 contador += 1
@@ -513,7 +513,7 @@ class ArbolAVL:
             contador += self._buscarRep(valor, tmp.der, columnas)
             cadena = ""
             for i in columnas:
-                cadena += str(tmp.campos[i]) + ","
+                cadena += str(tmp.campos[int(i)]) + ","
             cadena = cadena[0:len(cadena) - 1]
             if cadena == valor:
                 contador += 1

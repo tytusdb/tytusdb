@@ -1,63 +1,63 @@
 digraph grafica{
     rankdir=TB;
     node [shape = record, style=filled, fillcolor=lightcyan2];
-    nodo17 [ label ="<AI>|17|<AD>"];
-    nodo14 [ label ="<AI>|14|<AD>"];
-    nodo11 [ label ="<AI>|11|<AD>"];
-    nodo10 [ label ="<AI>|10|<AD>"];
-    nodo1 [ label ="1"];
-    nodo10:AI->nodo1
-    nodo11:AI->nodo10
-    nodo13 [ label ="<AI>|13|<AD>"];
-    nodo12 [ label ="12"];
-    nodo13:AI->nodo12
-    nodo11:AD->nodo13
-    nodo14:AI->nodo11
-    nodo16 [ label ="<AI>|16|<AD>"];
-    nodo15 [ label ="15"];
-    nodo16:AI->nodo15
-    nodo14:AD->nodo16
-    nodo17:AI->nodo14
-    nodo27 [ label ="<AI>|27|<AD>"];
-    nodo23 [ label ="<AI>|23|<AD>"];
-    nodo2 [ label ="<AI>|2|<AD>"];
-    nodo18 [ label ="<AI>|18|<AD>"];
-    nodo19 [ label ="19"];
-    nodo18:AD->nodo19
-    nodo2:AI->nodo18
-    nodo21 [ label ="<AI>|21|<AD>"];
-    nodo20 [ label ="20"];
-    nodo21:AI->nodo20
-    nodo22 [ label ="22"];
-    nodo21:AD->nodo22
-    nodo2:AD->nodo21
-    nodo23:AI->nodo2
-    nodo25 [ label ="<AI>|25|<AD>"];
-    nodo24 [ label ="24"];
-    nodo25:AI->nodo24
-    nodo26 [ label ="26"];
-    nodo25:AD->nodo26
-    nodo23:AD->nodo25
-    nodo27:AI->nodo23
-    nodo4 [ label ="<AI>|4|<AD>"];
-    nodo29 [ label ="<AI>|29|<AD>"];
-    nodo28 [ label ="28"];
-    nodo29:AI->nodo28
-    nodo3 [ label ="<AI>|3|<AD>"];
-    nodo30 [ label ="30"];
-    nodo3:AD->nodo30
-    nodo29:AD->nodo3
-    nodo4:AI->nodo29
-    nodo6 [ label ="<AI>|6|<AD>"];
-    nodo5 [ label ="5"];
-    nodo6:AI->nodo5
-    nodo8 [ label ="<AI>|8|<AD>"];
-    nodo7 [ label ="7"];
-    nodo8:AI->nodo7
-    nodo9 [ label ="9"];
-    nodo8:AD->nodo9
-    nodo6:AD->nodo8
-    nodo4:AD->nodo6
-    nodo27:AD->nodo4
-    nodo17:AD->nodo27
+    nodoa16,1 [ label ="<AI>|a16,1|<AD>"];
+    nodoa13,1 [ label ="<AI>|a13,1|<AD>"];
+    nodoa10,1 [ label ="<AI>|a10,1|<AD>"];
+    nodoa9,1 [ label ="<AI>|a9,1|<AD>"];
+    nodoa0,1 [ label ="a0,1"];
+    nodoa9,1:AI->nodoa0,1
+    nodoa10,1:AI->nodoa9,1
+    nodoa12,1 [ label ="<AI>|a12,1|<AD>"];
+    nodoa11,1 [ label ="a11,1"];
+    nodoa12,1:AI->nodoa11,1
+    nodoa10,1:AD->nodoa12,1
+    nodoa13,1:AI->nodoa10,1
+    nodoa15,1 [ label ="<AI>|a15,1|<AD>"];
+    nodoa14,1 [ label ="a14,1"];
+    nodoa15,1:AI->nodoa14,1
+    nodoa13,1:AD->nodoa15,1
+    nodoa16,1:AI->nodoa13,1
+    nodoa26,1 [ label ="<AI>|a26,1|<AD>"];
+    nodoa22,1 [ label ="<AI>|a22,1|<AD>"];
+    nodoa1,1 [ label ="<AI>|a1,1|<AD>"];
+    nodoa17,1 [ label ="<AI>|a17,1|<AD>"];
+    nodoa18,1 [ label ="a18,1"];
+    nodoa17,1:AD->nodoa18,1
+    nodoa1,1:AI->nodoa17,1
+    nodoa20,1 [ label ="<AI>|a20,1|<AD>"];
+    nodoa19,1 [ label ="a19,1"];
+    nodoa20,1:AI->nodoa19,1
+    nodoa21,1 [ label ="a21,1"];
+    nodoa20,1:AD->nodoa21,1
+    nodoa1,1:AD->nodoa20,1
+    nodoa22,1:AI->nodoa1,1
+    nodoa24,1 [ label ="<AI>|a24,1|<AD>"];
+    nodoa23,1 [ label ="a23,1"];
+    nodoa24,1:AI->nodoa23,1
+    nodoa25,1 [ label ="a25,1"];
+    nodoa24,1:AD->nodoa25,1
+    nodoa22,1:AD->nodoa24,1
+    nodoa26,1:AI->nodoa22,1
+    nodoa3,1 [ label ="<AI>|a3,1|<AD>"];
+    nodoa28,1 [ label ="<AI>|a28,1|<AD>"];
+    nodoa27,1 [ label ="a27,1"];
+    nodoa28,1:AI->nodoa27,1
+    nodoa2,1 [ label ="<AI>|a2,1|<AD>"];
+    nodoa29,1 [ label ="a29,1"];
+    nodoa2,1:AD->nodoa29,1
+    nodoa28,1:AD->nodoa2,1
+    nodoa3,1:AI->nodoa28,1
+    nodoa5,1 [ label ="<AI>|a5,1|<AD>"];
+    nodoa4,1 [ label ="a4,1"];
+    nodoa5,1:AI->nodoa4,1
+    nodoa7,1 [ label ="<AI>|a7,1|<AD>"];
+    nodoa6,1 [ label ="a6,1"];
+    nodoa7,1:AI->nodoa6,1
+    nodoa8,1 [ label ="a8,1"];
+    nodoa7,1:AD->nodoa8,1
+    nodoa5,1:AD->nodoa7,1
+    nodoa3,1:AD->nodoa5,1
+    nodoa26,1:AD->nodoa3,1
+    nodoa16,1:AD->nodoa26,1
     }
