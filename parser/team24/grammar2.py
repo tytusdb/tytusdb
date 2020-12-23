@@ -256,7 +256,7 @@ def t_DEC(t):
         descript = 'error lexico at token ' + str(t.value)
         linea = str(t.lineno)
         columna = str(find_column(t))
-        nuevo_error = CError(linea,columna,descript)
+        nuevo_error = CError(linea,columna,descript,'Lexico')
         insert_error(nuevo_error)
         print("Error no se puede convertir %d", t.value)
         t.value = 0
@@ -271,7 +271,7 @@ def t_INT(t):
         descript = 'error lexico at token ' + str(t.value)
         linea = str(t.lineno)
         columna = str(find_column(t))
-        nuevo_error = CError(linea,columna,descript)
+        nuevo_error = CError(linea,columna,descript,'Lexico')
         insert_error(nuevo_error)
         print("Valor numerico incorrecto %d", t.value)
         t.value = 0
@@ -310,7 +310,7 @@ def t_error(t):
     descript = 'error lexico at token ' + str(t.value[0])
     linea = str(t.lineno)
     columna = str(find_column(t))
-    nuevo_error = CError(linea,columna,descript)
+    nuevo_error = CError(linea,columna,descript,'Lexico')
     insert_error(nuevo_error)
     t.lexer.skip(1)
 
@@ -1350,10 +1350,10 @@ def p_offsetEmpty(t):
 
 def p_error(t):
     if t:
-        descript = 'error sintactico at token ' + str(t.type)
+        descript = 'error sintactico en el token ' + str(t.type)
         linea = str(t.lineno)
         columna = str(find_column(t))
-        nuevo_error = CError(linea,columna,descript)
+        nuevo_error = CError(linea,columna,descript,'Sintactico')
         insert_error(nuevo_error)
         parser.errok()
     else:
