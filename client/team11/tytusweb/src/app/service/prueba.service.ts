@@ -13,4 +13,8 @@ export class PruebaService {
     return this.http.get(`http://localhost:5000/prueba`);
   }
 
+  aboutUs(){
+    return this.http.get(`http://localhost:5000/grupo5`);
+  }
+
 }
