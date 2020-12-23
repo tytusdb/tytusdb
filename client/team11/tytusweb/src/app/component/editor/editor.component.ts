@@ -1,7 +1,12 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { PruebaService } from 'src/app/service/prueba.service'
 import Swal from 'sweetalert2';
-
+import 'brace';
+import 'brace/mode/sql';
+/*const THEME = 'ace/theme/nord_dark';
+const LANG = 'ace/mode/typescript';
+const LANG2 = 'ace/mode/c_cpp';
+*/
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
