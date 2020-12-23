@@ -148,12 +148,17 @@ class SymbolTable:
                 self.add(DatabaseSymbol(dbd, None, 6))#TODO change the mode for phase II
 
     def drop_data_base(self, name_db):
-        index = 0;
         for s in self.symbols:
             if s.type == SymbolType.DATABASE and str(s.name).lower() == str(name_db).lower():
                 self.symbols.remove(s)
                 break
-            index+=1
+
+    def drop_table(self, name_table):
+        for s in self.symbols:
+            if s.type == SymbolType.TABLE and str(s.name).lower() == str(name_table).lower():
+                self.symbols.remove(s)
+                break
+
 # BLOCK TO TEST SYMBOL TABLE
 # db = DatabaseSymbol('test_db', None, 6)
 # table = TableSymbol(db.name, 'test_table')
