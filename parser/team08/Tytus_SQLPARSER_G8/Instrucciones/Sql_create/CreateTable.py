@@ -6,6 +6,7 @@ from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
 from storageManager.jsonMode import *
 from Instrucciones.Tablas.Tablas import Tablas
+from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 
 class CreateTable(Instruccion):
     def __init__(self, tabla, tipo, campos, herencia, linea, columna):
@@ -19,7 +20,7 @@ class CreateTable(Instruccion):
         super().ejecutar(tabla,arbol)
         # Ambito para la tabla
         tablaLocal = Tabla(tabla)
-
+        compuesta = True
         #SE VALIDA QUE SE HAYA SELECCIONADO UN BD
         if arbol.bdUsar != None:
             for camp in self.campos:
@@ -33,10 +34,10 @@ class CreateTable(Instruccion):
                                     if  self.campos[self.campos.index(ct)].constraint == None:
                                         self.campos[self.campos.index(ct)].constraint=[]
                                         if tc.tipo == Tipo_Dato_Constraint.UNIQUE:
-                                            self.campos[self.campos.index(ct)].constraint.append(Tipo_Constraint(None, Tipo_Dato_Constraint.UNIQUE, None))
+                                            self.campos[self.campos.index(ct)].constraint.append(Tipo_Constraint(self.tabla+"_"+ct.nombre+"_pkey", Tipo_Dato_Constraint.UNIQUE, None))
                                         if tc.tipo == Tipo_Dato_Constraint.PRIMARY_KEY:
-                                            
-                                            self.campos[self.campos.index(ct)].constraint.append(Tipo_Constraint(None, Tipo_Dato_Constraint.PRIMARY_KEY, None))
+                                            compuesta = False
+                                            self.campos[self.campos.index(ct)].constraint.append(Tipo_Constraint(self.tabla+"_pkey", Tipo_Dato_Constraint.PRIMARY_KEY, None))
                                         #if tc.tipo == Tipo_Dato_Constraint.FOREIGN_KEY:
                                             #self.campos[self.campos.index(ct)].constraint.append(Tipo_Constraint(None, Tipo_Dato_Constraint.UNIQUE, None))
                                     bid=True
@@ -84,7 +85,7 @@ class CreateTable(Instruccion):
                         for s in camp.constraint:
                             if s.tipo == Tipo_Dato_Constraint.PRIMARY_KEY:
                                 listaPrimarias.append(camp)
-            if len(listaPrimarias) > 1:
+            if len(listaPrimarias) > 1 and compuesta:
                 error = Excepcion("42P16","Semantico","No se permiten múltiples llaves primarias para la tabla «"+self.tabla+"»",self.linea,self.columna)
                 arbol.excepciones.append(error)
                 arbol.consola.append(error.toString())
@@ -98,18 +99,30 @@ class CreateTable(Instruccion):
                     if camp.constraint != None:
                         for s in camp.constraint:
                             if s.tipo == Tipo_Dato_Constraint.CHECK:
+                                arbol.comprobacionCreate = True
                                 objeto = Declaracion(camp.nombre, camp.tipo, s.expresion)
                                 checkBueno = objeto.ejecutar(tablaLocal, arbol)
                                 if not isinstance(checkBueno,Excepcion):
+                                    if s.id == None:
+                                        s.id = self.tabla+"_"+camp.nombre+"_"+"check1"
                                     #tablaNueva.agregarColumna(camp.nombre,camp.tipo.toString(),None, camp.constraint)
                                     #continue
                                     pass
                                 else:
                                     #arbol.consola.append(checkBueno.toString())
                                     return
+                            elif s.tipo == Tipo_Dato_Constraint.PRIMARY_KEY:
+                                if s.id == None:
+                                    s.id = self.tabla+"_pkey"
+                            elif s.tipo == Tipo_Dato_Constraint.UNIQUE:
+                                if s.id == None:
+                                    s.id = self.tabla+"_"+camp.nombre+"_pkey"
                     tablaNueva.agregarColumna(camp.nombre,camp.tipo,None, camp.constraint)
+                    #tablaNueva.lista_constraint.append(camp.constraint)
                 else:
                     tablaNueva.agregarColumna(camp.nombre,camp.tipo,None, camp.constraint) 
+                    #tablaNueva.lista_constraint.append(camp.constraint)
+            arbol.comprobacionCreate = False
             #SE CREA LA TABLA EN DISCO
             ctable = createTable(arbol.bdUsar,self.tabla,len(self.campos))
 
@@ -162,10 +175,3 @@ class CreateTable(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
-
-
-'''
-instruccion = CreateTable("hola mundo",None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
