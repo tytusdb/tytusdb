@@ -11,8 +11,7 @@ class ShowDatabases(ASTNode):
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        result_name = self.name.execute(table, tree)
-        # SymbolTable.get_all_db() # if methods doesn't exist probably
+        #result_name = self.name.execute(table, tree) #To not execute because we show data bases without filters
         return showDB()  # add filter using name_like_regex... this has to be stored on TS or comes from function?
 
 

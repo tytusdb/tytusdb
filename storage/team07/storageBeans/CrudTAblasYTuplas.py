@@ -219,6 +219,109 @@ class listaS:
         except:
            return 1 #Error en la operacion
     
+    def showTables(self,basedatos):
+        try:
+            if basedatos in self.listabase:
+       #         data = t.getDataBase(basedatos)  # get the database
+                resultado = self.buscarBase(basedatos)
+                if resultado != None: #vesrificando si la lista esta vacia
+                   self.imprimirLista(basedatos)
+                else:
+                   print()
+              
+            else:
+               return None #basa de datos no existente
+        
+        except:
+           return None
+    #Error en la operacion
+    
+    def extractRangeTable(self,database, table, columnNumber, lower, upper):
+        try:
+            verificar=0
+            datoscolumna = []
+            if database in self.listabase:
+                buscandobase = self.buscarBase(database) #buscando base
+                if buscandobase != None:
+                    buscandotabla = self.buscar(table)
+                    if buscandotabla != None:
+                            for j in range(len(self.listaRegistros)): 
+                                Verificartabla = self.listaRegistros[j][0]
+                                if table == Verificartabla:
+                                    columnaa=int(columnNumber)
+                                    Acolumna= columnaa+1
+                                    Adatoscolumna = self.listaRegistros[j][Acolumna]
+                                    datoscolumna.append(Adatoscolumna)
+                                    verificar=1
+                                else:
+                                    
+                                    listaVacia=[]
+                                    f=listaVacia
+                                    print(f)
+                            if verificar ==1:
+                                inferior=int(lower) 
+                                superior=int(upper)
+                                superiorF= superior+1
+                                for m in range (inferior,superiorF):
+                                    print(datoscolumna[m])
+                    else:
+                        return None # tabla no existe
+                else:
+                    return None
+            else:
+                return None #base no existente
+        except :
+             return None #Error en la operacion
+    def alterAddColumn(self,database, table, default):
+        try:
+            verificar=0
+            if database in self.listabase:
+                buscandobase = self.buscarBase(database) #buscando base
+                if buscandobase != None:
+                    buscandotabla = self.buscar(table)
+                    if buscandotabla != None:
+                         buscandoColumna = int(self.buscarcolumna(table))
+                         buscandoColumna=buscandoColumna+1
+                         buscandodtos = self.buscandoelemento(table)
+                         nod = Nodo(database, table, buscandoColumna,buscandodtos)
+                         self.modificar(table, nod)
+                         for j in range(len(self.listaRegistros)):
+                             Verificartabla = self.listaRegistros[j][0]
+                             print(Verificartabla)
+                             if Verificartabla==table:
+
+                                 self.listaRegistros[j].append(default)
+                                 verificar=1
+                                  
+                                        #return 
+                         if verificar ==1:
+                            print(self.listaRegistros)
+                            return 0;   
+                            
+                    else:
+                        return 3 # tabla no existe
+                else:
+                    return 2
+            else:
+                return 2 #base no existente
+        except :
+             return 1 #Error en la operacion
+    
+    def dropTable(self, database, table): 
+        try:
+            buscandobase = self.buscarBase(database) #buscando base
+            if buscandobase != None: 
+                buscandoTabla = self.buscar(table)
+                if buscandoTabla is not None:
+                   if (self.eliminar(table)):
+                       return 0 # operacion exitosa
+                else:
+                    return 3 #tabla no existente
+            else:
+                return 2 #basa de datos no existente
+        
+        except:
+            return 1 #Error en la operacion
     #Funciones TUPLAS
     def insert(self,database, table, register):
         try:
@@ -273,4 +376,33 @@ class listaS:
         except:
             self.ListaRegistroTabla= []
             return 1 #Error en la operacion
+    def truncate(self, database, table):
+        try:
+            verificar =0
+            if database in self.listabase:
+                buscandobase = self.buscarBase(database) #buscando base
+                if buscandobase != None:
+                    buscandotabla = self.buscar(table)
+                    if buscandotabla != None:
+                        for i in range(len(self.listaRegistros)):
+                        
+                            for j in range(len(self.listaRegistros[i])):
+                                Verificartabla = self.listaRegistros[i][0]
+                                if Verificartabla==table:
+                                    self.listaRegistros.pop(i)
+                                    print("elimine")
+                                
+                                    verificar=1
+                                
+                        if verificar==1:
+                             return 0
+                        
+                    else:
+                        return 3 # tabla no existe
+                else:
+                    return 2
+            else:
+                return 2 #base no existente
+        except :
+             return 1 #Error en la operacion    
 

@@ -61,8 +61,8 @@ class Environment:
                 break
 
     
-    def guardarVariable(self,name,tipo,value):
-        self.simbolos.append(Symbol(name,tipo,value))
+    def guardarVariable(self,name,tipo,value,father):
+        self.simbolos.append(Symbol(name,tipo,value, father))
 
     def deleteVariable(self, name):
         env = self
@@ -73,18 +73,21 @@ class Environment:
                     break
             env = env.father    
 
-    def vaciarVariables(self, name):
+    def vaciarVariables(self):
         env = self
         env.simbolos = []
 
     
-    def buscarVariable(self, name):
+    def buscarVariable(self, name, father):
+        env = self
+        while env.father != None:
+            for i in range(0,len(env.simbolos)):
+                if env.simbolos[i].name == name and env.simbolos[i].father == father:
+                    return {'value': env.simbolos[i].value , 'tipo':env.simbolos[i].tipo,'name':env.simbolos[i].name}
+            env = env.father
         env = self
         while env.father != None:
             for i in range(0,len(env.simbolos)):
                 if env.simbolos[i].name == name:
                     return {'value': env.simbolos[i].value , 'tipo':env.simbolos[i].tipo,'name':env.simbolos[i].name}
             env = env.father
-        return None     
-
-Symbol('nombre','d','d')

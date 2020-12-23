@@ -165,7 +165,33 @@ class ExpresionAritmetica(Expresion):
             else:
                 
                 return 0
-
+            
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        izq = self.exp1.evaluacionCheck(ts)
+        der = self.exp2.evaluacionCheck(ts)
+        if (izq != 1) or (der != 1):
+            return 5
+        return 1  # no importa que operacion realice va regresar un numero
+    def getExpresionToString(self) -> str:
+        izq  = self.exp1.getExpresionToString()
+        der  = self.exp2.getExpresionToString()
+        op = ''
+        if self.operador == OPERACION_ARITMETICA.MAS:
+            op = '+' # si fuera != le pone <>
+        elif self.operador == OPERACION_ARITMETICA.MENOS:
+            op = '-'
+        elif self.operador == OPERACION_ARITMETICA.POR:
+            op = '*'
+        elif self.operador == OPERACION_ARITMETICA.DIVIDO:
+            op = '/'
+        elif self.operador == OPERACION_ARITMETICA.MODULO:
+            op = '%'
+        elif self.operador == OPERACION_ARITMETICA.EXPONENTE:
+            op = '^'
+        else:
+            op = 'DESCONOCIDO'
+        return str(izq + f' { op } '+der)
+    
 # Clase de expresión negativa
 
 
@@ -192,7 +218,15 @@ class ExpresionNegativa(Expresion):
             return ExpresionNumero(-unario.val, unario.tipo, self.linea)          
         except:
             return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "-"' ,self.linea)  
-
+        
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        value = self.exp.evaluacionCheck(ts)
+        if value != 1 and value != 2:
+            return 5
+        return value
+    def getExpresionToString(self) -> str:
+        sint = self.exp.getExpresionToString()
+        return str('-' + sint)
 
 class ExpresionPositiva(Expresion):
     def __init__(self, exp, linea):
@@ -219,7 +253,15 @@ class ExpresionPositiva(Expresion):
             return ExpresionNumero(unario.val, unario.tipo, self.linea)                       
         except:
             return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "+"' ,self.linea)
-
+    
+    def evaluacionCheck(self ,ts) -> int:
+        value = self.exp.evaluacionCheck(ts)
+        if value != 1 and value != 2: # o si ya fuera error lo sube
+            return 5
+        return value
+    def getExpresionToString(self) -> str:
+        sint = self.exp.getExpresionToString()
+        return str('+' + sint)
 # Clase de expresión numero
 
 
@@ -238,6 +280,11 @@ class ExpresionNumero(Expresion):
     
     def ejecutar(self, ts):
         return self
+    
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = numero , 2 = cadena , 3 = cadenaDate , 4 = id , 5 = Error  , 6 = error Por formato de fecha
+        return 1
+    def getExpresionToString(self) -> str:
+        return str(self.val)
         
 
 class ExpresionID(Expresion):
@@ -254,7 +301,37 @@ class ExpresionID(Expresion):
         return nodo
     def ejecutar(self ,ts):
         return self
+    
+    
+    def evaluacionCheck(self ,ts)-> int:
+        try:
+            symbol = ts.buscarSimbolo(self.val)
+            return self.__comprobarTipo(symbol.tipo)
+        except:
+            return 5
 
+    def getExpresionToString(self) -> str:
+        return str(self.val)
+
+    def __comprobarTipo(self,tipo: str) -> int:
+        if tipo == 'SMALLINT' \
+        or tipo == 'BIGINT' \
+        or tipo == 'INTEGER'\
+        or tipo == 'DECIMAL' \
+        or tipo == 'NUMERIC' \
+        or tipo == 'REAL' \
+        or tipo == 'DOUBLE_PRECISION' \
+        or tipo == 'MONEY':
+            return 1
+        elif tipo == 'CHAR' \
+        or tipo == 'VARCHAR' \
+        or tipo == 'TEXT':
+            return 2
+        elif tipo == 'BOOLEAN':
+            return 0
+        elif tipo == 'DATE':
+            return 3
+        return 5
 
 
 
@@ -308,6 +385,38 @@ class ExpresionComparacion(Expresion):
                 return ExpresionBooleano(izq.val == der.val, self.linea)      
         else:
             return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)
+    
+    def evaluacionCheck(self ,ts)-> int: 
+        izq  = self.exp1.evaluacionCheck(ts)
+        der  = self.exp2.evaluacionCheck(ts)
+
+        if izq == 3 and der == 3: # SI AMBOS SON CADENAS DE TIPO FECHA ES VALIDA SU COMPARACION Y RETORNA UN BOOL 
+            return 0
+        elif (self.operador == OPERACION_RELACIONAL.IGUAL or self.operador == OPERACION_RELACIONAL.DESIGUAL) and (izq == 2 or izq == 3) and (der == 2 or der ==3):
+            return 0       
+        elif izq == 1 and der == 1:
+            return 0
+        else:
+            return 5
+    def getExpresionToString(self) -> str:
+        izq  = self.exp1.getExpresionToString()
+        der  = self.exp2.getExpresionToString()
+        op = ''
+        if self.operador == OPERACION_RELACIONAL.DESIGUAL:
+            op = '<>' # si fuera != le pone <>
+        elif self.operador == OPERACION_RELACIONAL.IGUAL:
+            op = '='
+        elif self.operador == OPERACION_RELACIONAL.MAYOR:
+            op = '>'
+        elif self.operador == OPERACION_RELACIONAL.MENOR:
+            op = '<'
+        elif self.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+            op = '>='
+        elif self.operador == OPERACION_RELACIONAL.MENORIGUAL:
+            op = '<='
+        else:
+            op = 'DESCONOCIDO'
+        return str(izq + f' { op } '+der)
 
 
 class ExpresionLogica(Expresion):
@@ -345,6 +454,17 @@ class ExpresionLogica(Expresion):
                 return ExpresionBooleano(izq.val or der.val, self.linea)
         else:
             return ErrorReport('semantico', 'Error , se esta operando con valores No booleanos' ,self.linea)
+    
+    def evaluacionCheck(self ,ts)-> int: 
+        izq  = self.exp1.evaluacionCheck(ts)
+        der  = self.exp1.evaluacionCheck(ts)
+        if izq != 0 or der != 0:
+            return 5
+        return 0
+    def getExpresionToString(self) -> str:
+        izq  = self.exp1.getExpresionToString()
+        der  = self.exp1.getExpresionToString()
+        return str(izq + f' {self.operador.name} ' + der)
 
 # Expresion negada
 class ExpresionNegada(Expresion):
@@ -368,6 +488,14 @@ class ExpresionNegada(Expresion):
         else:
             print('Error semántico, operador no admitido para not', self.exp.tipo)
 
+    def evaluacionCheck(self ,ts)-> int: 
+        sintetizado = self.exp.evaluacionCheck(ts)
+        if sintetizado != 0:
+            return 5
+        return 0
+    def getExpresionToString(self) -> str:
+        sint = self.exp.getExpresionToString()
+        return str('not' + sint)
 # Expresión booleana (Valor puro)
 class ExpresionBooleano(Expresion):
     def __init__(self, val, linea):
@@ -384,6 +512,11 @@ class ExpresionBooleano(Expresion):
     
     def ejecutar(self, ts):
         return self
+    
+    def evaluacionCheck(self ,ts)-> int: 
+        return 0
+    def getExpresionToString(self) -> str:
+        return str(self.val)
 
 # Expresión Between: Contempla tanto al Between como al Between Symmetric, asi como las versiones negadas
 
@@ -462,10 +595,11 @@ class ExpresionIs(Expresion):
 
 # ------EXPRESIONES DE CADENAS
 class ExpresionCadena(Expresion):
-    def __init__(self, valor , tipo, linea):
+    def __init__(self, valor , tipo, linea , isFecha = False):
         self.tipo = tipo 
         self.val = str(valor)
         self.linea = linea
+        self.isFecha = isFecha
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -479,6 +613,13 @@ class ExpresionCadena(Expresion):
         return nodo
     def ejecutar(self,ts):
         return self
+    
+    def evaluacionCheck(self ,ts)-> int: 
+        if self.isFecha == True:
+            return 3
+        return 2
+    def getExpresionToString(self) -> str:
+        return str('\''+self.val+'\'')
 
 class ExpresionUnariaIs(Expresion):
     def __init__(self, exp, linea, tipo):
@@ -541,3 +682,21 @@ class ExpresionBinariaIs(Expresion):
                 return ExpresionBooleano(izq.val != der.val, self.linea)
         else:
             return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)
+        
+
+    
+class ExpresionAgrupacion(Expresion):
+    def __init__(self, exp):
+        self.exp = exp
+
+    def dibujar(self):
+        return self.exp.dibujar()
+    def ejecutar(self, ts):
+        return self.exp.ejecutar(ts)
+    
+    def evaluacionCheck(self ,ts)-> int: 
+        return self.exp.evaluacionCheck(ts)
+    
+    def getExpresionToString(self) -> str:
+        sint = self.exp.getExpresionToString()
+        return str('(' + sint +')')
