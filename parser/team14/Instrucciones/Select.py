@@ -17,8 +17,7 @@ class Select(Instruccion):
     encabezado = []
     nombreres = ''
 
-    def __init__(self, distinct=None, exps=None, froms=None, where=None, group=None, having=None, combinging=None,
-                 order=None, limit=None):
+    def __init__(self, distinct=None, exps=None, froms=None, where=None, group=None, having=None, combinging=None,order=None, limit=None):
         self.distinct = distinct
         self.exps = exps
         self.froms = froms
@@ -29,7 +28,7 @@ class Select(Instruccion):
         self.limit = limit
         self.combinig = combinging
 
-    def ejecutar(self, ent: Entorno):
+    def ejecutar(self, ent: Entorno,imp=1):
         tablas = []
         result = []
         self.encabezado = []
@@ -100,7 +99,13 @@ class Select(Instruccion):
             # filtros
             if self.where != None:
                 result = self.execwhere(ent, tablas,result)
-
+            #combining(union,intersect,except)
+            if self.combinig!=None:
+                datos2=self.combinig.select.ejecutar(ent,0)
+                enc2=datos2[0]
+                res2=datos2[1]
+                result=self.m_combining(self.combinig,self.encabezado,result,enc2,res2)
+                aber=result
             #limitar resultados
             if self.limit!=None:
                 a=self.limit
@@ -109,7 +114,8 @@ class Select(Instruccion):
             # acceder a columnas
             if len(self.exps) == 1:
                 if self.exps[0].getval(ent) == '*':
-                    self.mostarresult(result,self.encabezado, self.nombreres)
+                    if imp==1:
+                        self.mostarresult(result,self.encabezado, self.nombreres)
                 elif self.exps[0].tipo.tipo == 'identificador':
                     newenc=[]
                     'obtengo  solo columnas pedidas'
@@ -122,8 +128,9 @@ class Select(Instruccion):
                                 result[x]=[valcol]
                                 if(len(newenc)==0):
                                     newenc.append(self.encabezado[i])
-
-                    self.mostarresult(result, newenc,self.nombreres)
+                    self.encabezado=newenc
+                    if imp==1:
+                        self.mostarresult(result, newenc,self.nombreres)
                 else:
                     'pendientes subconsultas y funciones'
             else:
@@ -142,9 +149,11 @@ class Select(Instruccion):
                                         newres.append([valcol])
                                     else:
                                         newres[x].append(valcol)
-
-                self.mostarresult(newres, newenc, self.nombreres)
-
+                result=newres
+                self.encabezado=newenc
+                if imp==1:
+                    self.mostarresult(newres, newenc, self.nombreres)
+        return [self.encabezado,result]
 
     def mostarresult(self, result,enc, nomresult):
         if not len(result) > 0:
@@ -419,10 +428,57 @@ class Select(Instruccion):
 
 
 
-    def combining(self):
-        'Ejecucucion de combining'
+    def m_combining(self,combi,enc1,res1,enc2,res2):
+        if len(enc1) == len(enc2):
+            if combi.combi.lower() == 'union':
+                if combi.all == 'all':
+                    if len(enc1) == len(enc2):
+                        return res1 + res2
+
+                else:
+                    result=[]
+                    for i in range(0, len(res1)):
+                        result.append(res1[i])
+                    esta = False
+                    for i in range(0, len(res2)):
+                        for j in range(0, len(result)):
+                            if result[j] == res2[i]:
+                                esta = True
+                        if not esta:
+                            result.append(res2[i])
+                    return result
+
+
+            elif combi.combi.lower() == 'intersect':
+                result = []
+                for i in range(0, len(res1)):
+                    for j in range(0, len(res2)):
+                        if res1[i] == res2[j]:
+                            result.append(res1[i])
+                return result
+
+            elif combi.combi.lower() == 'except':
+                result = []
+
+                for i in range(0, len(res1)):
+                    esta = False
+                    for j in range(0, len(res2)):
+                        if res1[i] == res2[j]:
+                            esta = True
+                    if esta==False:
+                        result.append(res1[i])
+                return result
+        else:
+            'Error union,intersect, solo se puede hacer con la misma cantidad de columnas'
+
 
 class Limit():
     def __init__(self,limit=-1,off=-1):
         self.limit=limit
         self.off=off
+
+class Combi():
+    def __init__(self,combi,select,all=''):
+        self.combi=combi
+        self.select=select
+        self.all=all
