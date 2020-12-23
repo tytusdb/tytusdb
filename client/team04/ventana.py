@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
+from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END, Entry, Label
 from tkinter import messagebox as MessageBox
-from tkinter import ttk,filedialog, INSERT
+from tkinter import ttk,filedialog, INSERT, PhotoImage
 import os
 import pathlib
 from campo import Campo, MyDialog
@@ -117,6 +117,15 @@ def crearUsuario():
             MessageBox.showerror("Error", "Uno de los campos está vacío")
 
 
+def LogIn():
+    ###ventana para el log
+    global raiz
+    d = MyDialog(raiz)
+    if d.accept is True:
+        Username = d.result[0]
+        Password = d.result[1]
+        print(Username+" "+Password)
+
 def CrearMenu(masterRoot):
 
     ########### menu ############
@@ -159,6 +168,8 @@ def CrearMenu(masterRoot):
     tools.add_command(label="GET", command = myGET)
     tools.add_command(label="POST", command = myPOST)
     tools.add_command(label="CREATE USER", command = crearUsuario)
+    #Log In sera parte de la barra de herramientas
+    tools.add_command(label="Log In", command = LogIn)
 
     #se agrega ayuda
     ayuda=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
