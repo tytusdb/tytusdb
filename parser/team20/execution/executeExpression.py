@@ -347,7 +347,7 @@ def executeExpression(self, expression):
             # FUNCIONES MATEMATICAS
             elif isinstance(expression, MathFunction):
                 e = 0
-                if(expression.function != 'PI'): e = executeExpression(self,expression.expression)
+                if(expression.function != 'PI' or expression.function != 'RANDOM'): e = executeExpression(self,expression.expression)
                 if isinstance(e, Error):
                     return e
                 else:
@@ -467,10 +467,10 @@ def executeExpression(self, expression):
                             value = float(e.value)
                             if(e.type == 1 or e.type == 2):
                                 if(value < 0):
-                                    s.value = '-'
+                                    s.value = -1
                                 else:
-                                    s.value = '+'
-                                s.type = 3
+                                    s.value = 1
+                                s.type = 1
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar el signo del type ' + self.types[e.type], 0, 0)
@@ -488,12 +488,12 @@ def executeExpression(self, expression):
                                 return Error('Semantico', 'No se puede sacar la raiz cuadrada del type ' + self.types[e.type], 0, 0)
                         elif(expression.function == 'RANDOM'):
                             # DEVOLVER NUMERO ENTRE 0 Y 1
-                            s.value = float(random.randrange(0, 1))
+                            s.value = float(random.uniform(0,1))
                             s.type = 2
                             return s
                     except Exception as e:
                         return Error('Semantico', 'Error : ' + str(e), 0, 0)
-                    #Faltan funciones matematicas DIV, GCD, MOD, POWER, ROUND. WITH_BUCKET, TRUNC
+                    
             # FUNCIONES TRIGONOMETRICAS
             elif isinstance(expression, TrigonometricFunction):
                 e = executeExpression(self,expression.expression)
@@ -512,5 +512,92 @@ def executeExpression(self, expression):
                     except Exception as e:
                         return Error('Semantico', 'Error : ' + str(e), 0, 0)
                     #Falta el resto de funciones trigonometricas
-        
-    
+
+            # FUNCIONES MATEMATICAS Y TRIGONOMETRICAS CON UNA LISTA DE EXPRESIONES
+            elif isinstance(expression, ArgumentListFunction):
+                if(len(expression.expressions) == 1):
+                    e1 = executeExpression(self,expression.expressions[0])
+                    if isinstance(e1, Error):
+                        return e1
+                    else:
+                        try:
+                            if(expression.function == 'ROUND'):
+                                # REDONDEAR
+                                if(e1.type == 1 or e1.type == 2):
+                                    s.value = round(e1.value)
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'Error en los argumentos para redondear un numero de los types' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.function == 'TRUNC'):
+                                # REDONDEAR
+                                if(e1.type == 1 or e1.type == 2):
+                                    s.value = math.trunc(e1.value)
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'Error en los argumentos para redondear un numero de los types' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                        except Exception as e:
+                            return Error('Semantico', 'Error : ' + str(e), 0, 0)
+                elif(len(expression.expressions) != 2):
+                    return Error('Semantico', 'No se puede sacar la funcion porque la cantidad de argumentos es incorrecta', 0, 0)
+                else:
+                    e1 = executeExpression(self,expression.expressions[0])
+                    e2 = executeExpression(self,expression.expressions[1])
+                    if isinstance(e1, Error):
+                        return e1
+                    elif isinstance(e2, Error):
+                        return e2
+                    else:
+                        try:
+                            if(expression.function == 'DIV'):
+                                # DIVISION
+                                if((e1.type == 1 or e1.type == 2) and (e2.type == 1 or e2.type == 2)):
+                                    s.value = float(e1.value) / float(e2.value)
+                                    s.type = 2
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se pueden dividir los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.function == 'GCD'):
+                                # MAXIMO COMUN DIVISOR
+                                if(e1.type == 1 and e2.type == 1):
+                                    s.value = int(math.gcd((e1.value),(e2.value)))
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se puede sacar el maximo comun divisor de los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.function == 'MOD'):
+                                if((e1.type == 1 or e1.type == 2) and (e2.type == 1 or e2.type == 2)):
+                                    s.value = float(math.fmod(e1.value,e2.value))
+                                    s.type = 2
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se puede sacar el modulo de la division de los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.function == 'POWER'):
+                                # ELEVAR UN NUMERO 
+                                if((e1.type == 1 or e1.type == 2) and (e2.type == 1 or e2.type == 2)):
+                                    s.value = float(math.pow(e1.value,e2.value))
+                                    s.type = 2
+                                    return s
+                                else:
+                                    return Error('Semantico', 'Error en los argumentos para elevar un numero de los types' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.function == 'ROUND'):
+                                # REDONDEAR
+                                if((e1.type == 1 or e1.type == 2) and (e2.type == 1)):
+                                    s.value = round(e1.value,e2.value)
+                                    s.type = 2
+                                    return s
+                                else:
+                                    return Error('Semantico', 'Error en los argumentos para redondear un numero de los types' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.function == 'TRUNC'):
+                                # TRUNCAR NUMERO
+                                if((e1.type == 1 or e1.type == 2) and (e2.type == 1)):
+                                    stepper = 10.0 ** e2.value
+                                    s.value = float(math.trunc(stepper*e1.value)/stepper)
+                                    s.type = 2
+                                    return s
+                                else:
+                                    return Error('Semantico', 'Error en los argumentos para truncar un numero de los types' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                        except Exception as e:
+                            return Error('Semantico', 'Error : ' + str(e), 0, 0)
+                        #Falta funcion matematica width_bucket

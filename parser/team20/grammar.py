@@ -11,7 +11,8 @@ from console import print_error
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
 # 201612154 André Mendoza Torres
-# 
+# 201612139 Jeralmy Alejandra de León Samayoa
+# 201612276 Carlos Manuel Garcia Gonzalez
 # 
 # DIC 2020
 #
@@ -125,6 +126,10 @@ reservedwords = (
     'POWER',
     'RADIANS',
     'ROUND',
+    'SIGN',
+    'SQRT',
+    'TRUNC',
+    'RANDOM',
     'AND',
     'OR',
     'COUNT',
@@ -1104,18 +1109,16 @@ def p_expression_mathfunctions(t):
                   | CEIL BRACKET_OPEN expression BRACKET_CLOSE 
                   | CEILING BRACKET_OPEN expression BRACKET_CLOSE 
                   | DEGREES BRACKET_OPEN expression BRACKET_CLOSE 
-                  | DIV BRACKET_OPEN expression BRACKET_CLOSE 
                   | EXP BRACKET_OPEN expression BRACKET_CLOSE 
                   | FACTORIAL BRACKET_OPEN expression BRACKET_CLOSE 
                   | FLOOR BRACKET_OPEN expression BRACKET_CLOSE 
-                  | GCD BRACKET_OPEN expression BRACKET_CLOSE 
                   | LN BRACKET_OPEN expression BRACKET_CLOSE 
-                  | LOG BRACKET_OPEN expression BRACKET_CLOSE 
-                  | MOD BRACKET_OPEN expression BRACKET_CLOSE
-                  | POWER BRACKET_OPEN expression BRACKET_CLOSE 
+                  | LOG BRACKET_OPEN expression BRACKET_CLOSE  
                   | RADIANS BRACKET_OPEN expression BRACKET_CLOSE
-                  | ROUND BRACKET_OPEN expression BRACKET_CLOSE
-                  | PI BRACKET_OPEN BRACKET_CLOSE   
+                  | SIGN BRACKET_OPEN expression BRACKET_CLOSE
+                  | SQRT BRACKET_OPEN expression BRACKET_CLOSE
+                  | PI BRACKET_OPEN BRACKET_CLOSE 
+                  | RANDOM BRACKET_OPEN BRACKET_CLOSE   
                   '''
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = MathFunction('"+t[1]+"',expression.val) }\n" + grammarreport
@@ -1150,6 +1153,19 @@ def p_expression_trigonometricfunctions(t):
     t[0] = TrigonometricFunction(t[1],t[3])
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = TrigonometricFunction('"+t[1]+"',expression.val) }\n" + grammarreport
+
+#MATH AND TRIGONOMETRIC FUNCTIONS, EXPRESSION LIST
+def p_expression_argumentlistfunctions(t):
+    '''expression : DIV BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | GCD BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | MOD BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | POWER BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | ROUND BRACKET_OPEN expressionList BRACKET_CLOSE
+                  | TRUNC BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  '''
+    t[0] = ArgumentListFunction(t[1],t[3])
+    global grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expressionList> ')' { expression.val = ArgumentListFunction('"+t[1]+"',expressionList.val) }\n" + grammarreport
 
 def p_expression_aggfunctions(t):
     '''expression : COUNT BRACKET_OPEN expression BRACKET_CLOSE

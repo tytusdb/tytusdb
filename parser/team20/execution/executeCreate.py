@@ -325,7 +325,8 @@ def executeCreateType(self, typeEnum):
                 i=i+1
         #print(array)
     return TCcreateType(data,typeEnum.name,array) 
-        
+
+   
 
 
     
