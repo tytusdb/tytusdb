@@ -53,6 +53,9 @@ class SimboloColumna():
 
     def setPropiedadNull(self):
         self.null = True
+        
+    def setPropiedadNotNull(self):
+        self.null = False
     
     def setPropiedadUnique(self):
         self.unique = True
@@ -66,7 +69,8 @@ class SimboloColumna():
     def setTipoDato(self, tipoDato):
         self.tipoDato = tipoDato
     
-
+    def setCheck(self,check):
+        self.check = check
     
 
 
