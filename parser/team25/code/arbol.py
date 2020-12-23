@@ -1,4 +1,5 @@
 
+from useDB.instanciaDB import DB_ACTUAL
 from reporteErrores.errorReport import ErrorReport
 from reporteErrores.instance import listaErrores
 class Arbol:
@@ -10,12 +11,13 @@ class Arbol:
         ts = [] #por el momento , pero deberia de ser otro tipo de tabla de simbolos
         for instruccion in self.instrucciones:
             nodoSintetizado = instruccion.ejecutar(ts)
-            print(nodoSintetizado.val)
+            #print(DB_ACTUAL.getName())
             if isinstance(nodoSintetizado , ErrorReport):
                 listaErrores.addError(nodoSintetizado)
                 print(nodoSintetizado.description)
             else:
                 print("instruccion OK")
+                
     
     def dibujar(self):# no se como se inicia a graficar :v 
         g = "digraph g {" +'\n'

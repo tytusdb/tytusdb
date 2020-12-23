@@ -276,6 +276,34 @@
             "Constraint": null
           }
         ]
+      },
+      {
+        "name": "mierda",
+        "inherits": null,
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "size": null,
+            "PK": true,
+            "FK": null,
+            "NN": true,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "name",
+            "type": "TEXT",
+            "size": null,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          }
+        ]
       }
     ]
   }

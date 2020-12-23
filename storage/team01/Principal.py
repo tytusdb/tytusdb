@@ -1,19 +1,18 @@
 from tkinter import *
 from tkinter import Frame, ttk, messagebox
-from os import listdir, sep
-from os.path import isdir, join, abspath
+from os.path import isdir
 from tkinter.constants import BOTH, HORIZONTAL, RAISED, VERTICAL
-import avlMode as crud
-
+from team01 import avlMode as crud
+import pathlib
 
 class Application(Frame):
-      
+    
     def __init__(self, master=None):        
         super().__init__(master)
         master.title("TytusDB")
         self.master = master        
-        self.create_tree()  
-    
+        self.create_tree() 
+       
     def create_tree(self):              
         self.treeView = ttk.Treeview(self)
         self.treeView.grid(row=0, column=0, sticky="nsew")
@@ -25,10 +24,11 @@ class Application(Frame):
             w.columnconfigure(0,weight=1)
         self.grid(row=0,column=0,sticky="nsew")
         self.fsobjects={}
-        #Seleccion de imagenes para el treeView
-        self.file_image = PhotoImage(file="Imagenes/imagenesBaseDatos/file.png")
-        self.folder_image = PhotoImage(file="Imagenes/imagenesBaseDatos/database.png")
-        self.table_image = PhotoImage(file="Imagenes/imagenesBaseDatos/table.png") 
+        #Seleccion de imagenes para el treeView          
+        url=str(pathlib.Path().absolute())+"/team01/"        
+        self.file_image = PhotoImage(file=url +"Imagenes/imagenesBaseDatos/file.png")
+        self.folder_image = PhotoImage(file=url +"Imagenes/imagenesBaseDatos/database.png")
+        self.table_image = PhotoImage(file=url +"Imagenes/imagenesBaseDatos/table.png") 
         self.load_tree(crud.showDatabases()) 
 
     def get_icon(self, tipo):
@@ -76,6 +76,8 @@ def creditos():
     messagebox.showinfo(message=" Edwin Mauricio Mazariegos -> 9213640 \n Edgar Enrique Patzan Yoc -> 200915715 \n Gabriel Orlando Ajsivinac Xicay -> 201213212 \n Walter Manono Martinez Mateo -> 201213212 \n Karen Elisa Lopez Pinto -> 201313996 ", title="Creditos")
 
 #Configuracion de la ventan principal
+
+ruta =str(pathlib.Path().absolute())+"/team01/"
 root = Tk()
 pw = ttk.PanedWindow(orient='horizontal')
 root.geometry("1024x800")
@@ -89,7 +91,7 @@ def imagenDataBase():
     newWindow = Toplevel(root)
     newWindow.title("Arbol Avl Base de Datos")
     newWindow.geometry("800x800")   
-    fondo = PhotoImage(file="Imagenes/graficaArboles/BBDD.png")
+    fondo = PhotoImage(file=ruta+"Imagenes/graficaArboles/BBDD.png")
     bot2 = Label(newWindow,image=fondo)
     bot2.pack(side=TOP)
     newWindow.add(bot2)
@@ -98,7 +100,7 @@ def imagenTable():
     newWindow = Toplevel(root)
     newWindow.title("Arbol Avl Tablas")
     newWindow.geometry("800x800")   
-    fondo = PhotoImage(file="Imagenes/graficaArboles/Tablas.png")
+    fondo = PhotoImage(file=ruta+"Imagenes/graficaArboles/Tablas.png")
     bot2 = Label(newWindow,image=fondo)
     bot2.pack(side=TOP)
     newWindow.add(bot2)
@@ -106,7 +108,7 @@ def imagenFile():
     newWindow = Toplevel(root)
     newWindow.title("Arbol Avl Registros")
     newWindow.geometry("800x800")   
-    fondo = PhotoImage(file="Imagenes/graficaArboles/Registros.png")
+    fondo = PhotoImage(file=ruta+"Imagenes/graficaArboles/Registros.png")
     bot2 = Label(newWindow,image=fondo)
     bot2.pack(side=TOP)
     newWindow.add(bot2) 
@@ -121,7 +123,7 @@ menubar.add_cascade(label="Imagenes",menu=imagen_menu)
 app = Application(master=root)
 pw.add(app)
 #Imagen de inicio
-fondo = PhotoImage(file="Temp.png")
+fondo = PhotoImage(file=ruta+"Temp.png")
 bot = Label(pw,image=fondo)
 bot.pack(side = TOP)
 pw.add(bot) 

@@ -2,11 +2,11 @@
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
-import AVLTree
-import BplusTree
+from team18 import AVLTree
+from team18 import BplusTree
 import os
 import pickle
-import Serializable as serializable
+from team18 import Serializable as serializable
 import re
 import shutil
 

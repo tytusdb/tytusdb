@@ -14,6 +14,8 @@ import { EditorComponent } from './component/editor/editor.component';
 import { AceEditorModule } from 'ng2-ace-editor';
 import { ConsoleComponent } from './component/console/console.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import { HttpClientModule } from '@angular/common/http';
+import * as ace from 'ace-builds';
 
 @NgModule({
   declarations: [
@@ -33,7 +35,8 @@ import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
     MatButtonModule,
     MatGridListModule,
     AceEditorModule,
-    SweetAlert2Module
+    SweetAlert2Module,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

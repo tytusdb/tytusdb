@@ -6,7 +6,7 @@ class ListaAtributos:
         self.ultimo=None
 
     def agregarAtributo(self,nuevo:Atributo):
-        self.columnNumber = self.numero + 1
+        self.columnNumber = self.columnNumber + 1
         nuevo.numero = self.columnNumber
         if self.primero is None:
             self.primero=nuevo
