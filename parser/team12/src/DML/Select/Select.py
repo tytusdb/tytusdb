@@ -14,17 +14,6 @@ tc = TypeChecker()
 from Where import Where
 
 
-class Info_Tabla():
-    def __init__(self, nameTable,aliasTabla = None):
-        self.nameTable = nameTable
-        self.aliasTabla = aliasTabla
-        self.lista = {}
-
-class Info_Column():
-    def __init__(self, nameColumn, typeColumn):
-        self.nameColumn = nameColumn
-        self.typeColumn = typeColumn
-        self.valueColumn = None
 
 class Select():
     
@@ -56,7 +45,15 @@ class Select():
         insert(self.dbUse,db,[4,2])
         insert(self.dbUse,db,[5,1])
 
+
+    def __init__(self):
+        self.dbUse = None
+        self.matriz3DData = []
+        self.listaTablas = []
+        self.listaColumnas = []
+    
     def verificarDBActiva(self):
+        # Verifica si hay una base de datos activa, se utiliza para cualquier instrucción
         with open('src/Config/Config.json') as file:
             config = json.load(file)
         dbUse = config['databaseIndex']
@@ -65,14 +62,10 @@ class Select():
             return None
         return dbUse.upper()
 
-    def __init__(self):
-        self.listaTablas = {}
-        self.dbUse = None
-        self.columnas = None
-        self.listaTablasStorage = None
-        self.listaTablasDatos = []
-        
     def obtenerColumnasDictionary(self, tabla):
+        # Se obtiene el diccionario de columnas para la tabla del Storage,
+        # Solo se utiliza para selects de tablas, hay casos en los que se pueden
+        # Recibir tablas como parámetros, en las subconsultas, por ejemplo.
         listTemp = tc.return_columnsJSON(self.dbUse, tabla)
         listaCols = []
         if listTemp != None:
@@ -80,37 +73,58 @@ class Select():
                 listaCols.append([col['name'], col['type']])
             return listaCols
         return []
+    
+    def llenarListaTablaDatosStorage(self, listaTablas):
+        # Este método se llama para llenar la matriz de matrices de datos
+        # Solo se utiliza para el storage también.
+        listaTablasDatos=[]
+        for tab in listaTablas:
+            listaTablasDatos.append(extractTable(self.dbUse, tab[0]))
+        return listaTablasDatos
 
-    def llenarEstructura(self, parent):
-        # Recorrer cada uno de los nodos del padre.
-        # Siempre se va a recibir una TABLE_EXPRESION
-        # 1. Si el nodo es TABLE, se debe de verificar que exista dentro de las tablas
-        #    almacenadas dentro de la DB. Si existe, crear una Info_Tabla con alias.
-        # 2. Si el nodo es IDENTIFICADOR, se debe de verificar que exista dentro de las 
-        #    tablas almacenadas dentro de la DB. Si existe, crear una Info_Tabla con alias.
-
+    def llenarListadoTablasAlias(self,parent, listaTablasStorage):
+        # Se llena un listado de tablas que vienen del storage
+        listaTablas=[]
         for hijo in parent.hijos:
             if hijo.nombreNodo == "TABLE":
-                if not  (hijo.hijos[0].valor.upper() in self.listaTablasStorage):
+                if not  (hijo.hijos[0].valor.upper() in listaTablasStorage):
                     print("Error, no se encuentra en la DB")
-                    return
-                nuevaTablaInfo = Info_Tabla(hijo.hijos[0].valor.upper(), hijo.hijos[1].valor.upper())
-                self.listaTablas[hijo.hijos[0].valor.upper()] = nuevaTablaInfo
+                    return None
+                listaTablas.append([hijo.hijos[0].valor.upper(),hijo.hijos[1].valor.upper()])
             else:
-                if not  (hijo.valor.upper() in self.listaTablasStorage):
+                if not  (hijo.valor.upper() in listaTablasStorage):
                     print("Error, no se encuentra en la DB")
-                    return
-                nuevaTablaInfo = Info_Tabla(hijo.valor.upper())
-                self.listaTablas[hijo.valor.upper()] = nuevaTablaInfo
-        for tabla in self.listaTablas:
-            colDict = self.obtenerColumnasDictionary(tabla)
-            for col in colDict:
-                self.listaTablas[tabla].lista[col[0]] = Info_Column(col[0], col[1])
+                    return None
+                listaTablas.append([hijo.valor.upper(),hijo.valor.upper()])
+        return listaTablas
 
-    def llenarListaTablaDatos(self):
-        for tab in self.listaTablas:
-            self.listaTablasDatos.append(extractTable(self.dbUse, tab))
-        
+    def llenarTablasStorage(self):
+        return showTables(self.dbUse)
+
+    def llenarDataNormal(self, parent):
+        # Pasos para llenar las tablas con los datos del storage (Forma Normal)
+        # 1. Obtener todas las tablas del storage.
+        # 2. Obtener todas las tablas involucradas
+        # 3. Obtener todas las columnas de las tablas involucradas
+        # 4. Obtener toda la data del storage.
+        for hijo in parent.hijos:
+            if hijo.nombreNodo == "TABLE_EXPRESION":
+                # 1.
+                listaTablas = self.llenarTablasStorage()
+                # 2.
+                listaTablasInvolucradas = self.llenarListadoTablasAlias(hijo,listaTablas)
+                # 3.
+                listaColumnas = []
+                for tabla in listaTablasInvolucradas:
+                    listaColumnas.append(self.obtenerColumnasDictionary(tabla[0]))
+                cuboStorage = self.llenarListaTablaDatosStorage(listaTablasInvolucradas)
+                self.listaTablas = listaTablasInvolucradas
+                self.listaColumnas = listaColumnas
+                self.matriz3DData = cuboStorage
+
+    def llenarDataSubConsulta(self, enviroment):
+        print("Subconsulta")
+
     def execute(self, parent, enviroment = None):
         # Se verifican las variables, si esta seleccionada la base de datos 
         # Se llenan las tablas del storage, serán utilizadas mas adelante para
@@ -119,87 +133,19 @@ class Select():
         if self.dbUse == None:
             print("Error, db no seleccionada")
             return
-        self.listaTablasStorage = showTables(self.dbUse)
-
-        # Pasos para llenar las tablas con los datos del storage, realizar producto
-        # y realizar producto cartesiano
-        # 1. Recorrer todos los hijos, cuando se encuentre TABLE_EXPRESION se debe de realizar
-        #    el llenado de los datos
-        # 1.1. Llenar las tablas con el método llenarEstructura, esto va a llenar la estructura
-        #    que se va a utilizar para la expresión, aunque todavía no se llena ningun valor.
-        # 1.2. Llenar listaTablaDatos con los datos del Storage. Se extraen los datos y se le hace append
-        #    lo que construye una lista de matrices.
-        # 1.3. Realizar producto cartesiano de estas tablas (listaTablasDatos) con la función
-
         # Datos de Prueba
         self.insertaDatos()
 
+        # Llena dependiendo del modo en el que sea invocado
+        if enviroment == None : #Select normal
+            self.llenarDataNormal(parent)
+        else: #Subconsulta
+            self.llenarDataSubConsulta(enviroment)
 
-        matrizResultado = []
+        # Recorre.
         for hijo in parent.hijos:
-            if hijo.nombreNodo == "TABLE_EXPRESION":
-                self.llenarEstructura(hijo)
-                self.llenarListaTablaDatos()
-                matrizResultado = self.cartesiano(self.listaTablasDatos)
-        #self.mostrarResultado(matrizResultado)
-
-        list_exp = parent.hijos[0]
-
-        for exp in list_exp.hijos:
-            exp.execute(self.listaTablas)
-
-
-
-    def mostrarResultado(self, matrizPivote):
-        matResult = []
-        for x in matrizPivote:
-            for j in range(0, len(x)):
-                rowPivot = []
-                for i in range(0,len(self.listaTablas)):
-                    rowPivot =  rowPivot + self.listaTablasDatos[i][j]
-                matResult.append(rowPivot)
-        for x in matResult:
-            print(x)
-        #for i in range(0,len(matrizPivote)):
-        #    rowPivot = []
-        #    for j in range(1,len(matrizPivote[i])):
-                
-
+            if hijo.nombreNodo == "SENTENCIA_WHERE":
+                nuevoWhere = Where()
+                listaResult = nuevoWhere.execute(hijo,self.matriz3DData, self.listaTablas, self.listaColumnas)
 
         
-
-    def agregarTabla(self, parent):
-        nuevaTabla = Info_Tabla(parent.valor)
-        # Buscar la tabla en el diccionario y en Storage
-        self.listaTablas[parent.valor.upper()]=nuevaTabla
-
-
-    def agregarTablaAlias(self, parent):
-        nuevaTabla = Info_Tabla(parent.hijos[0].valor, parent.hijos[1].valor)
-        self.listaTablas[parent.hijos[0].valor.upper()]=nuevaTabla
-
-
-    def cartesiano(self, listaMatrices):
-        array = []
-        for i in range(0,len(listaMatrices[0])):
-            array.append([True,i])
-        return self.funcionNXN(listaMatrices,1,array)
-    
-
-    def funcionNXN(self, listaMatrices, indice, matrizInicial):
-        if indice<len(listaMatrices) :
-            matrizPivote = listaMatrices[indice]
-            result = []
-            for i in range(0,len(matrizInicial)):
-                for j in range(0,len(matrizPivote)):
-                    a = matrizInicial[i][:]
-                    a.append(j)
-                    result.append(a)
-            return self.funcionNXN(listaMatrices,indice+1,result)
-        else:
-            return matrizInicial
-        
-
-
-        
-
