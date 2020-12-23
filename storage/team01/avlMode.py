@@ -1,5 +1,3 @@
-
-
 from graphviz import Digraph, nohtml
 import pickle
 from typing import Any
@@ -48,7 +46,7 @@ def alterDatabase(databaseOld: str, databaseNew) -> int:
 #Elimina por completo la base de datos indicada en database. (DELETE)
 def dropDatabase(database: str) -> int:
     try:
-        if not databaseOld.isidentifier() or not databaseNew.isidentifier():
+        if not database.isidentifier():
             raise Exception()
         res = mBBDD.quitar(database)
         if res == 0:
@@ -732,7 +730,6 @@ def leerREG():
 #Guarda pickles a disco
 def serializar(archivo, modo, data):
     with open(archivo, modo) as f:
-        # Pickle the 'data' dictionary using the highest protocol available.
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
 
 #Lee pickles desde disco
@@ -749,7 +746,7 @@ def deserializar(archivo) -> list:
 #Grafica la estructura que contiene las Bases de Datos
 def graficaBD() -> int:
     if mBBDD.raiz:
-        mBBDD.armararbol(mBBDD.raiz, "Bases de Datos", "BBDD")
+        mBBDD.armararbol(mBBDD.raiz, "Bases de Datos", "BBDD.jpg")
         return 0 #Operación exitosa
     else:
         return 1 #Error en la operación
@@ -758,20 +755,18 @@ def graficaBD() -> int:
 def graficaTBL(database: str) -> int:
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
-        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Tablas: " + nodoBD.clave, "Tablas")
+        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Base de Datos: " + nodoBD.clave, nodoBD.clave+'.jpg')
         return 0 #Operación exitosa
     else:
         return 1 #Error en la operación
     
 #Grafica la estructura que contiene los Registros que pertenecen a una Tabla dentro de una Base de Datos
-def graficaREG(database: str, table: str) -> int:    
+def graficaREG(database: str, table: str) -> int:
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
         nodoTBL = nodoBD.datos.obtener(table)
         if nodoTBL:
-            lista = []  
-            nodoTBL.extraer(nodoTBL.datos.raiz,lista)                          
-            nodoTBL.datos.armararbol(lista[0], "Tabla: " + nodoTBL.clave, "Registros",tipo="registro")
+            nodoTBL.datos.armararbol(nodoTBL.datos.raiz, "Tabla: " + nodoTBL.clave, nodoTBL.clave+'.jpg')
             return 0 #Operación exitosa
         else:
             return 1 #Error en la operación
