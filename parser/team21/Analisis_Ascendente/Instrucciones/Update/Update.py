@@ -294,3 +294,101 @@ def Varchar(valor, longitud) -> bool:
             return False
     except:
         return False
+
+
+#where
+def WhereUp(where, tabla, campos, ts, consola, exceptions, updateinst) -> list:
+    if isinstance(where, Expresion):
+        if isinstance(where.iz, Id):
+            ix = 0 #el indice del campo a filtar
+            bandera = False
+            for c in campos:
+                if c == where.iz.id:
+                    print(str(ix), 'aqui esta el campo id')
+                    bandera = True
+                    break
+                ix = ix + 1
+            expre = Expresion.Resolver(where.dr, ts, consola, exceptions)
+            if bandera:
+                tf = Filtrar(tabla, ix, where.operador, expre)
+                print('filtrado')
+                print(tf)
+                return tf
+            else:
+                print('el campo no existe')
+                consola.append(f"La tabla {updateinst.id} no puede actualizarse, el campo no existe\n")
+                exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, el campo no existe -{updateinst.fila}-{updateinst.columna}")
+
+                return []
+        ##------------
+        elif where.operador == 'or' or where.operador == 'and':
+            tf1 = []
+            tf2 = []
+            if isinstance(where.iz, Expresion):
+                tf1 = WhereUp(where.iz, tabla, campos, ts, consola, exceptions, updateinst)
+                print('tf1')
+                print(tf1)
+            if isinstance(where.dr, Expresion):
+                tf2 = WhereUp(where.dr, tabla, campos, ts, consola, exceptions, updateinst)
+                print('tf2')
+                print(tf2)
+            if where.operador == 'and':
+                tabla = AndManual(tf1, tf2)
+                print('filtrado and')
+                print(tabla)
+                return tabla
+            elif where.operador == 'or':
+                if len(tf1) != 0 and len(tf2) != 0:
+                    tabla = tf1 + tf2
+                    print('filtrado or')
+                    print(tabla)
+                    return tabla
+                else:
+                    return []
+        else:
+            print('error el campo no existe')
+            consola.append(f"La tabla {updateinst.id} no puede actualizarse, el campo no existe\n")
+            exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, el campo no existe -{updateinst.fila}-{updateinst.columna}")
+
+            return []
+    else:
+        print('error')
+        consola.append(f"La tabla {updateinst.id} no puede actualizarse, where no contemplado semanticamente\n")
+        exceptions.append(
+            f"Error semantico-42P01- 42P01	undefined_table, where no contemplado semanticamente -{updateinst.fila}-{updateinst.columna}")
+
+        return []
+
+
+def Filtrar(tabla, indice, operador, expre) -> list:
+    nueva = []
+    for tupla in tabla:
+        if operador == '=' or operador == '==':
+            if tupla[indice] == expre:
+                nueva.append(tupla)
+        elif operador == '<':
+            if tupla[indice] < expre:
+                nueva.append(tupla)
+        elif operador == '<=':
+            if tupla[indice] <= expre:
+                nueva.append(tupla)
+        elif operador == '>':
+            if tupla[indice] > expre:
+                nueva.append(tupla)
+        elif operador == '>=':
+            if tupla[indice] >= expre:
+                nueva.append(tupla)
+        elif operador == '!=':
+            if tupla[indice] != expre:
+                nueva.append(tupla)
+
+    return nueva
+
+def AndManual(tf1, tf2) -> list:
+    unif = []
+    if len(tf1) != 0 and len(tf2) != 0:
+        for t1 in tf1:
+            for t2 in tf2:
+                if t1 == t2:
+                    unif.append(t1)
+    return unif
