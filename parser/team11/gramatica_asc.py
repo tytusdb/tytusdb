@@ -2,6 +2,7 @@ import ply.yacc as yacc
 import ply.lex as lex
 
 from Ast import *
+from creacionArbol import *
 
 from graphviz import render
 
@@ -446,18 +447,29 @@ def p_inst_alter(t):
                         | ALTER TABLE ID RENAME COLUMN ID TO ID
                         | ALTER TABLE ID DROP COLUMN listtablas
                         | ALTER TABLE ID list_alter_column'''
+    t[0] = getAlterTableNode(t)
     
 def p_list_alter_column_r(t):
     'list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column'
+    g = '<list_alter_column> ::= <list_alter_column> \"COMA\" \"ALTER\" \"COLUMN\" ID \"TYPE\" <type_column>\n'
+    t[1].append( Nodo('Columna',t[5],[t[7]],t.lexer.lineno,0,g) )
+    t[0] = t[1]
     
 def p_list_alter_column(t):
     'list_alter_column : ALTER COLUMN ID TYPE type_column'
+    g = '<list_alter_column> ::= \"ALTER\" \"COLUMN\" ID \"TYPE\" <type_column>\n'
+    t[0] = [ Nodo('Columna',t[3],[t[5]],t.lexer.lineno,0,g) ]
     
 def p_list_columns_r(t):
     'list_columns       : list_columns COMA ID type_column'
+    g = '<list_columns> ::= <list_columns> \"COMA\" ID <type_column>\n'
+    t[1].append( Nodo('Columna','',[Nodo('ID',t[3],[],t.lexer.lineno), t[4]],t.lexer.lineno,0,g) )
+    t[0] = t[1]
 
 def p_list_columns_(t):
     'list_columns       : ID type_column'
+    g = '<list_columns> ::= ID <type_column>'
+    t[0] = [Nodo('Columna','',[Nodo('ID',t[1],[],t.lexer.lineno),t[2]],t.lexer.lineno,0,g)]
 
 # Tipos de datos para columnas/campos
 def p_type_column(t):
@@ -485,6 +497,7 @@ def p_type_column(t):
                       | ID
                       | TIME PARIZQ ENTERO PARDER
                       | INTERVAL field'''
+    t[0] = getColumnTypeNode(t)
  
 # Campos para intervalos de tiempo   
 def p_field(t) :
@@ -494,6 +507,8 @@ def p_field(t) :
                       | HOUR
                       | MINUTE
                       | SECOND'''
+    g = '<field> ::= \"'+str(t[1]).upper()+'\"'
+    t[0] = Nodo('Campo',t[1],[],t.lexer.lineno,0,g)
 
 # --------- PRODUCCIONES PARA CREATE TABLE -------------
 
@@ -550,18 +565,26 @@ def p_check_unique(t):
 
 def p_create_enum(t):
     'create_enum : CREATE TYPE ID AS ENUM PARIZQ list_string PARDER PTCOMA'
+    g = '<create_enum> ::= \"CREATE\" \"TYPE\" ID \"AS\" \"ENUM\" \"PARIZQ\" <list_string> \"PARDER\" \"PTCOMA\"'
+    t[0] = Nodo('CREATE ENUM',t[3],t[7],t.lexer.lineno,0,g)
     
 def p_list_strings_r(t):
     'list_string : list_string COMA cualquiercadena'
+    t[3].gramatica = '<list_string> ::= <list_string> \"COMA\" <cualquiercadena>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
     
 def p_list_strings(t):
     'list_string : cualquiercadena'
+    t[1].gramatica = '<list_string> ::= <cualquiercadena>'
+    t[0] = [t[1]]
     
 # ------------ PRODUCCION PARA DROP TABLE ------------
 
 def p_drop_table(t):
     'drop_table : DROP TABLE ID PTCOMA'
-
+    g = '<drop_table> ::= \"DROP\" \"TABLE\" ID \"PTCOMA\"\n'
+    t[0] = Nodo('DROP TABLE',t[3],[],t.lexer.lineno,0,g)
 
 ## ------------------------------------- gramatica para el manejo de tuplas -----------------------------------------
 
