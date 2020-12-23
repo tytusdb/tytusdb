@@ -300,8 +300,31 @@ class ExpresionID(Expresion):
 
         return nodo
     def ejecutar(self ,ts):
-        return self
-    
+        try:
+            symbol = ts.buscarSimbolo(self.val)
+
+            if symbol.tipo == 'SMALLINT' \
+            or symbol.tipo == 'BIGINT' \
+            or symbol.tipo == 'INTEGER':
+                return ExpresionNumero(symbol.valor, TIPO_DE_DATO.ENTERO, self.linea)
+            elif symbol.tipo == 'DECIMAL' \
+            or symbol.tipo == 'NUMERIC' \
+            or symbol.tipo == 'REAL' \
+            or symbol.tipo == 'DOUBLE_PRECISION' \
+            or symbol.tipo == 'MONEY':
+                return ExpresionNumero(symbol.valor, TIPO_DE_DATO.DECIMAL, self.linea)
+            elif symbol.tipo == 'CHAR' \
+            or symbol.tipo == 'VARCHAR' \
+            or symbol.tipo == 'TEXT' \
+            or symbol.tipo == 'ENUM':
+                return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea)
+            elif symbol.tipo == 'BOOLEAN':
+                return ExpresionBooleano(symbol.valor, self.linea)
+            elif symbol.tipo == 'DATE':
+                return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea, isFecha=True)
+            return Exception()
+        except:
+            return Exception()    
     
     def evaluacionCheck(self ,ts)-> int:
         try:
@@ -312,6 +335,7 @@ class ExpresionID(Expresion):
 
     def getExpresionToString(self) -> str:
         return str(self.val)
+
 
     def __comprobarTipo(self,tipo: str) -> int:
         if tipo == 'SMALLINT' \
@@ -325,7 +349,8 @@ class ExpresionID(Expresion):
             return 1
         elif tipo == 'CHAR' \
         or tipo == 'VARCHAR' \
-        or tipo == 'TEXT':
+        or tipo == 'TEXT' \
+        or tipo == 'ENUM':
             return 2
         elif tipo == 'BOOLEAN':
             return 0
@@ -457,14 +482,14 @@ class ExpresionLogica(Expresion):
     
     def evaluacionCheck(self ,ts)-> int: 
         izq  = self.exp1.evaluacionCheck(ts)
-        der  = self.exp1.evaluacionCheck(ts)
+        der  = self.exp2.evaluacionCheck(ts)
         if izq != 0 or der != 0:
             return 5
         return 0
     def getExpresionToString(self) -> str:
         izq  = self.exp1.getExpresionToString()
-        der  = self.exp1.getExpresionToString()
-        return str(izq + f' {self.operador.name} ' + der)
+        der  = self.exp2.getExpresionToString()
+        return str(izq + f' {self.operador.name.lower()} ' + der)
 
 # Expresion negada
 class ExpresionNegada(Expresion):
