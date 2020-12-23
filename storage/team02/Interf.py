@@ -326,6 +326,72 @@ opciones2 = OptionMenu(VentanaPrincipal, var2, *opciones2)
 opciones2.place(x=800 , y = 350 )
 opciones2.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "bold"))
 
+#-----------------------------AQUÍ VAN LOS METODOS PARA CREAR LAS BASES DE DATOS --------------- 
+
+def CrearDB(base):
+
+    #if 1==2: aquí busca la base de datos
+    #  
+    
+        return  "Base {} creada".format(base) #1
+    #else:
+    #    return 0 #'Error en conexion'
+
+
+def MostarDB(base):
+    return "Base {} mostrada".format(base)
+
+def RenombrarDB(base):
+    return "Base {} renombrada".format(base)
+
+def EliminarDB(base):
+    return "Base {} Eliminada".format(base)
+
+
+def BuscarDB(base):
+    return "Base {} Encontrada".format(base)
+
+def RenombrarDB(base):
+    return "Base {} Renombrada".format(base)
+
+def print_respuesta():
+    resultado = ''
+
+
+
+
+#----------------Acciones de las opciones de las bases de datos --------------
+    if nomBaseDatos2.get() != '':
+        if var2.get() == 'Crear':
+            resultado = CrearDB(nomBaseDatos2.get())
+           # if resultado == 1:
+             #   messagebox.showinfo(message=resultado, title='prueba')
+            #else:
+              #  messagebox.showerror(message=resultado, title='prueba')
+        elif var2.get() == 'Mostrar BD':
+            resultado = MostarDB(nomBaseDatos2.get())
+        
+        elif var2.get()== 'Buscar':
+            resultado = BuscarDB(BuscarBaseDatos2.get())
+        elif var2.get() == 'Renombrar':
+            resultado = RenombrarDB(RenomBaseDatos2.get())
+                
+        else:
+            resultado = EliminarDB(nomBaseDatos2.get())
+        
+        messagebox.showinfo(message=resultado, title='prueba')
+    else:
+        resultado = 'Nombre de base no ingresada'
+        messagebox.showerror(message=resultado, title='prueba')
+    
+    return None
+
+
+#---------------Este botón carga lo  que necesitamos 
+BotonAceptarBases = Button(VentanaPrincipal, text = '  OK  ', command = print_respuesta )
+BotonAceptarBases.place(x = 820 , y = 400)
+BotonAceptarBases.config(background = "#682c0e", fg="white", font=("Helvetica", 9 , "bold") )
+
 
 #----------------------MENU DESPLEGABLE PARA TABLAS 
 
