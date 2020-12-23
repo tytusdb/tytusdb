@@ -51,11 +51,6 @@ class funcion(InstruccionAbstracta):
     def funcionBinariaStrUnitaria(self, TipoFuncion, Parametro):
         self.TipoFuncion = TipoFuncion
         self.Parametro = Parametro
-    
-    def funcionTrigonometricaBinaria(self, TipoFuncion, Param1, Param2):
-        self.TipoFuncion = TipoFuncion
-        self.Param1 = Param1
-        self.Param2 = Param2
 
     def funcionTrigonometricaTriple(self, TipoFuncion, Param1, Param2, Param3):
         self.TipoFuncion = TipoFuncion
