@@ -14,13 +14,20 @@ if dropAll:
 
 
 s = """ 
-
-USE db1;
-
-select  caca.name, count(mierda.name) from mierda, (select name from mierda where id<5) as caca group by 2;
-
+USE test;
+select E.*,
+  estado,
+  I.identificacion,
+  tipoidentificacion
+from tbempleado E,
+  tbestado ES,
+  tbempleadoidentificacion I,
+  tbidentificaciontipo IT
+where ES.idestado = E.idestado
+  and I.idempleado = E.idempleado
+  and IT.ididentificaciontipo = I.ididentificaciontipo;
 """
 result = grammar.parse(s)
 print(result)
 
-BnfGrammar.grammarReport()
+# BnfGrammar.grammarReport()

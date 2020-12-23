@@ -120,7 +120,7 @@ class Relop(Expression):
                             data = f'{value1[1]} {self.op}= "{str(value2.value)}"'
                             return data
                         else:
-                            data = f'{value1[1]} {self.op} {str(value2.value)}'
+                            data = f'{value1[1]} {self.op} "{str(value2.value)}"'
                             return data
                 elif isinstance(value2, list):
                     if isinstance(value1.value, int):
@@ -135,7 +135,7 @@ class Relop(Expression):
                             data = f'{value2[1]} {self.op}= "{str(value1.value)}"'
                             return data
                         else:
-                            data = f'{value2[1]} {self.op} {str(value1.value)}'
+                            data = f'{value2[1]} {self.op} "{str(value1.value)}"'
                             return data
         except TypeError:
             print("Error de tipo")
