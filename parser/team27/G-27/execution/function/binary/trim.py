@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from bstring_functions import trim
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.bstring_functions import trim
 
 class Trim(Function):
     def __init__(self, input, row, column):

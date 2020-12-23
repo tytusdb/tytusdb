@@ -1,6 +1,4 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-from expression import *
+from execution.abstract.expression import *
 
 class Literal(Expression):
     """

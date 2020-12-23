@@ -27,15 +27,17 @@ class condicion_simple(instruccion):
     def ejecutar(self, dato, pos_col):
         try:
             if self.comando.lower() == 'default':
-                if dato.lower() == 'null':
-                    valor = self.expresion.ejecutar()
-                    return valor.valor
+                if isinstance(dato, str):
+                    if dato.lower() == 'null':
+                        valor = self.expresion.ejecutar([])
+                        return valor.valor
             elif self.comando.lower() == 'not':
-                if dato.lower() == 'null':
-                    return nodo_error(self.line, self.column, 'ERROR - Restricción violada, no puede insertar NULL', 'Semántico')
+                if isinstance(dato, str):
+                    if dato.lower() == 'null':
+                        return nodo_error(self.line, self.column, 'E-23502 not null violation: cannot insert NULL', 'Semántico')
 
             return None
         except:
-            return nodo_error(self.line, self.column, 'ERROR - No se pudo validar restricción ' + self.comando, 'Semántico')
+            return nodo_error(self.line, self.column, 'E-22005 error in assignment: Could not validate restriction ' + self.comando, 'Semántico')
 
         

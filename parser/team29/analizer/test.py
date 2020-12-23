@@ -14,20 +14,28 @@ if dropAll:
 
 
 s = """ 
+
+CREATE OR REPLACE DATABASE db1;
 USE db1;
---SELECT hint, count(*) FROM demo5 WHERE id <5 GROUP BY 1;
---SELECT caca.i FROM (SELECT 3+3 as d, 8-8 i) AS caca;
---SELECT 3+3 as d, 8-8 i;
---SELECT name, hint FROM demo5 d5, demo1 as d1 WHERE d5.id = d1.id;
---SELECT d.name, d.hint FROM demo1 d;
---SELECT a.name as feca, md5(a.hint) as put FROM demo1 a;
---SELECT a.id as feca, a.hint as puta FROM demo5 a WHERE a.id < 5 and a.hint = 'Su puta madre';
---(SELECT d.name, d.hint FROM demo1 d) UNION (SELECT f.name, f.hint FROM demo5 f);
+CREATE TABLE cities (
+ id integer primary key,
+ Fecha date 
+);
 
---(SELECT name FROM demo1 WHERE id < 7) EXCEPT (SELECT name FROM demo1 WHERE id > 7);
+CREATE TABLE country (
+ id integer primary key,
+ id2 integer check (id > 2),
+ Foreign key (id2) references cities (id),
+ Unique (id,id2)
+);
 
---SELECT 3+3 as d, 8-8 i;
-SELECT caca.d, name FROM demo5, (SELECT 3+3 as d, 8-8 i) AS caca;
+Alter Table country DROP CONSTRAINT id2_UQ, DROP CONSTRAINT id2_ck, DROP CONSTRAINT id2_fk ;
+
+Alter Table country ALTER COLUMN id SET DEFAULT 0;
+
+ALTER TABLE country ADD COLUMN mood mood;
+
+ALTER TABLE country RENAME COLUMN mood TO modosexo;
 """
 result = grammar.parse(s)
 print(result)
