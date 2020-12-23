@@ -32,5 +32,5 @@ class Asin(Function):
             if value['value'] < -1 or value['value'] > 1:
                 return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [1,infinito] que son aceptados por la funcion asin()", 'linea':self.row,'columna':self.column }
 
-            return [{'value':asin(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':asin(value['value']), 'typ': Type.DECIMAL}
             
