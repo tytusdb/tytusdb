@@ -1,9 +1,10 @@
+#D:\Usuarios\ayapa\Escritorio\U\2020\VD\EDD\PR
 from graphviz import Digraph
 import pickle
 import sys
 import os
 import GeneralesAVL as gA
-import AVLtablas as ta
+import Tablas as ta
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin'
 
 class nodoBase:
@@ -21,9 +22,10 @@ class AVLBases:
     
     def __init__(self):
         self.root = None
+        self.graf = None
     
     def guardar(self):
-        gA.g.commitBase(self)
+        gA.g.commitBase(self, nodoBase.index)
 
     #index nodo
     def indexNodo(self):
@@ -131,7 +133,6 @@ class AVLBases:
             value = gA.g.jalarValN(nomDTB)
             if self.buscarBase(value):
                 tablas = ta.t.showTables(nomDTB)
-                print(tablas)
                 if tablas is None:
                     self._dropDatabase(value ,self.root)
                     return 0
@@ -187,8 +188,27 @@ class AVLBases:
             
         return tmp
 
-
-
-
+    def generarGraphvizBases(self):
+        self.graf = Digraph(
+            format='svg', filename = 'Bases Árbol', 
+            node_attr={'shape': 'circle', 'height': '1', 'size': '8'})
+        #agregar raíz 
+        self.graf.node(self.root.nomDTB)
+        #generar el resto
+        self._generarGraphvizBases(self.root)
+        self.graf.attr(rank='same')
+        #mostrar
+        self.graf.view()
+    
+    def _generarGraphvizBases(self, tmp):
+        if tmp != None:
+            if tmp.izquierda != None:
+                self.graf.node(tmp.izquierda.nomDTB)
+                self.graf.edge(tmp.nomDTB, tmp.izquierda.nomDTB)
+            if tmp.derecha != None:
+                self.graf.node(tmp.derecha.nomDTB)
+                self.graf.edge(tmp.nomDTB, tmp.derecha.nomDTB)
+            self._generarGraphvizBases(tmp.izquierda)
+            self._generarGraphvizBases(tmp.derecha)
 
 b = AVLBases()

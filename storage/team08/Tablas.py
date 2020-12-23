@@ -2,12 +2,13 @@ from graphviz import Digraph
 import sys
 import os
 import GeneralesAVL as gA
-import AVLbase as ba
+import Bases as ba
+import Tuplas as tu
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin'
 
 class nodoTabla:
     index = 0
-    grafica = 'digraph G {\n'
+    grafica = ''
     def __init__(self, nomDTB, nomTBL, numCOL, index, value):
         self.nomDTB = nomDTB
         self.nomTBL = nomTBL
@@ -17,13 +18,14 @@ class nodoTabla:
         self.index = index
         self.value = value
         self.nivel = 0
-
+    
 class AVLTablas:
     def __init__(self):
         self.root = None
+        self.graf = None
     
     def guardar(self):
-        gA.g.commitTabla(self)
+        gA.g.commitTabla(self, nodoTabla.index)
     
     #index nodo
     def indexNodo(self):
@@ -80,7 +82,7 @@ class AVLTablas:
 
     def _mostrarTablasConsola(self, tmp):
         if tmp != None:
-            print('Base = %s, Tabla = %s, Columnas = %d, Nivel = %d, Index: %d, Valor: %d'%(tmp.nomDTB, tmp.nomTBL, tmp.numCOL, tmp.nivel, tmp.index, tmp.value))
+            print('Base = %s, Tabla = %s, Columnas = %s, Nivel = %d, Index: %d, Valor: %d'%(tmp.nomDTB, tmp.nomTBL, tmp.numCOL, tmp.nivel, tmp.index, tmp.value))
             self._mostrarTablasConsola(tmp.izquierda)
             self._mostrarTablasConsola(tmp.derecha)
 
@@ -112,8 +114,12 @@ class AVLTablas:
     def _extractTable(self, base, tabla, lstTBL,  h, tmp):
         if tmp:
             if tmp.nomDTB == base and tmp.nomTBL == tabla:
-                lstTBL += [tmp.nomTBL]
-                h = True
+                for n in range(0,tu.u.cantiKey()+1):
+                    val = tu.u.mandarDatosTBL(n, base, tabla)
+                    if val is not None:
+                        lstTBL += [val]
+                        h = True
+
             self._extractTable(base, tabla, lstTBL,  h, tmp.izquierda)
             self._extractTable(base, tabla, lstTBL,  h, tmp.derecha)
         
@@ -123,27 +129,34 @@ class AVLTablas:
             return lstTBL
 
     #devolver lista con un rango de la tabla
-    def extractRangeTable(self, base, tabla, lower, upper):
-        lstTBL = []
-        h = False
+    def extractRangeTable(self, base, tabla,col,lower, upper):
         if self.root == None:
             return None
         else:
-            return self._extractRangeTable(base, tabla, lstTBL, h, self.root)
+            lst = tu.u.extractRowRange(base,tabla,col,lower,upper)
+            if lst == []:
+                return lst
+            elif lst is None:
+                return None
+            else:
+                return lst
+            #return self._extractRangeTable(base, tabla, lstTBL, col, lower, upper, h, self.root)
         
-    def _extractRangeTable(self, base, tabla, lstTBL,  h, tmp):
-        if tmp:
-            if tmp.nomDTB == base and tmp.nomTBL == tabla:
-                lstTBL += [tmp.nomTBL] #aquí se llama la función que devuelve el rango de datos
-                h = True
-            self._extractRangeTable(base, tabla, lstTBL,  h, tmp.izquierda)
-            self._extractRangeTable(base, tabla, lstTBL,  h, tmp.derecha)
-        
-        if lstTBL == [] and h == False:
+    #buscar columna
+    def buscarCol(self, value, nomDTB):
+        if self.root == None:
             return None
         else:
-            return lstTBL
-    
+            return self._buscarCol(value, nomDTB, self.root)
+        
+    def _buscarCol(self, value, nomDTB, tmp):
+        if value == tmp.value and nomDTB == tmp.nomDTB:
+            return tmp.numCOL
+        elif value > tmp.value and tmp.derecha != None:
+            return self._buscarCol(value, nomDTB, tmp.derecha)
+        elif value < tmp.value and tmp.izquierda != None:
+            return self._buscarCol(value, nomDTB, tmp.izquierda)
+
     #eliminar tabla ---------------------
     def buscar(self, value, nomDTB):
         if self.root == None:
@@ -253,32 +266,28 @@ class AVLTablas:
         except:
             return 1
     
-'''#iniciar
-#mostrar
-t.mostrarTablasConsola()
-#t.crearGraphviz()
-
-#buscar tablas en base de datos
-busc = 'Base 2'
-print('Se va a buscar: ' + busc)
-print(t.showTables(busc))
-
-#extraer una tabla de una base
-extraerB = 'Base 1'
-extraerT = 'Tabla 1'
-print('Se va a extraer: ' + extraerT + ' de ' + extraerB)
-print(t.extractTable(extraerB,extraerT))
-
-#extraer rango
-xtraerB = 'Base 2'
-xtraerT = 'Tabla 2'
-up = 5
-lo = 6
-print('Se va a extraer: ' + xtraerT + ' de ' + xtraerB + ' desde ' + str(lo) + ' hasta ' + str(up))
-print(t.extractRangeTable(extraerB,extraerT,lo,up))
-eliB = 'Base 1'
-eliT = 'Tabla 555'
-print(t.dropTable(eliB,eliT))
-t.mostrarTablasConsola()'''
+    def generarGraphvizTablas(self):
+        self.graf = Digraph(
+            format='svg', filename = 'Tablas Árbol', 
+            node_attr={'shape': 'circle', 'height': '1', 'size': '8'})
+        #agregar raíz 
+        self.graf.node(self.root.nomDTB + ' | ' + self.root.nomTBL + ' | ' + self.root.numCOL)
+        #generar el resto
+        self._generarGraphvizTablas(self.root)
+        self.graf.attr(rank='same')
+        #mostrar
+        self.graf.view()
+    
+    def _generarGraphvizTablas(self, tmp):
+        if tmp != None:
+            if tmp.izquierda != None:
+                self.graf.node(tmp.izquierda.nomDTB + ' | '  + tmp.izquierda.nomTBL)
+                self.graf.edge(tmp.nomDTB + ' | '  + tmp.nomTBL, tmp.izquierda.nomDTB + ' | '  +  tmp.izquierda.nomTBL)
+            if tmp.derecha != None:
+                self.graf.node(tmp.derecha.nomDTB + ' | ' + tmp.derecha.nomTBL)
+                self.graf.edge(tmp.nomDTB  + ' | ' + tmp.nomTBL, tmp.derecha.nomDTB + ' | ' + tmp.derecha.nomTBL)
+            self._generarGraphvizTablas(tmp.izquierda)
+            self._generarGraphvizTablas(tmp.derecha)
+    
 
 t = AVLTablas()
