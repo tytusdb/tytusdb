@@ -66,8 +66,9 @@ def agregarSalida(listaMensajes):
                 cuadroTxtSalida.insert('end',txt,"error")
             elif(msg.tipo=='table'):
                 txt=msg.mensaje
+                cuadroTxtSalida.insert('end','\n',"table")
                 cuadroTxtSalida.insert('end',txt,"table")
-                cuadroTxtSalida.insert('end','\n\n',"table")
+                cuadroTxtSalida.insert('end','\n',"table")
             else:
                 txt='\n> '+msg.mensaje
                 cuadroTxtSalida.insert('end',txt,"normal")

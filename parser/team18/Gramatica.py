@@ -603,18 +603,20 @@ def p_lista_select(t):
 def p_value_select(t):
      '''value_select : columna_name alias_name
                      | ID PUNTO ASTERISCO alias_name
-                     | funcion_math alias_name
-                     | funcion_date alias_name
                      | PAR_A seleccionar PAR_C alias_name'''
-     if len(t) == 2:
+     if len(t) == 3:
           t[0] = Valor_Select(t[1],'normal',t[2],None)
-     elif len(t) == 3:
-          t[0] = Valor_Select(None,'funcion',t[2],t[1])
      else:
           if t[1] == "(":
                t[0] = Valor_Select(None,'subquery',t[4],t[2])
           else:
                t[0] = t[0] = Valor_Select(Operando_ID(t[1]),'*',t[4],None)
+
+
+def p_value_select_funtion(t):
+     '''value_select : funcion_math alias_name
+                     | funcion_date alias_name'''
+     t[0] = Valor_Select(None,'funcion',t[2],t[1])
 
 
 def p_value_select_case(t):

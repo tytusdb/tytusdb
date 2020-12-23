@@ -2229,7 +2229,7 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
 
 def ejecutar_select(instr,ts):
     global outputTxt
-    print("Ejecutando select")
+    agregarMensjae('normal','Select','')
     for val in instr.funcion_alias:
         if(isinstance (val,Funcion_Alias)):
             result = resolver_operacion(val.nombre,ts)
@@ -2252,19 +2252,19 @@ def ejecutar_select(instr,ts):
                 tablaresult.field_names = [ str(val.nombre.operador) ]
 
             tablaresult.add_row([ str(result) ])
-            outputTxt.append(tablaresult)
+            agregarMensjae('table',tablaresult,'')
 
 
 def select_table(instr,ts):
     print('cantidad ',instr.cantida,' parametros ',instr.parametros,' cuerpo ',instr.cuerpo,' funcion_alias',instr.funcion_alias)
-    agregarMensjae('normal','Select\n','')
+    agregarMensjae('normal','Select','')
     if instr.cantida==True: # Distinct
-        ' '
+        cuerpo_select_parametros(True,instr.parametros,instr.cuerpo,ts)
     else: # No Distinct
         if instr.parametros=="*": # All
             cuerpo_select(instr.cuerpo,ts)
         else: # Algunas
-            ' '
+            cuerpo_select_parametros(False,instr.parametros,instr.cuerpo,ts)
 
 def cuerpo_select(cuerpo,ts):
     ltablas=[] # tablas seleccionadas
@@ -2274,12 +2274,18 @@ def cuerpo_select(cuerpo,ts):
     tablastmp = EDD.showTables(baseActiva)
     # FROM ---------------------------------------------------------
     for tabla in cuerpo.b_from:
-        splited=tabla.nombre.split()
-        name=splited[0]
-        alias=splited[1]
+        name=''
+        alias=''
+        if ' ' in tabla.nombre:  
+            splited=tabla.nombre.split()  # puede venir ID ID en gramatica se concatenan
+            name=splited[0]
+            alias=splited[1]
+        else:
+            name=tabla.nombre
         if name in tablastmp: # tabla registrada
             ltablas.append(name)
-            lalias.append(alias)
+            if alias != '':
+                lalias.append(alias)
             tb = buscarTabla(baseActiva,name).atributos
             for col in tb:
                 lcabeceras.append(col.nombre)
@@ -2295,6 +2301,54 @@ def cuerpo_select(cuerpo,ts):
                 for j in i:
                     fila.append(j)
             result.add_row(fila)
+        agregarMensjae('table',result,'')
+    else: # con where
+        ' '
+
+def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
+    ltablas=[] # tablas seleccionadas
+    lalias=[] # alias de tablas seleccionadas
+    lcabeceras=[] # cabeceras tablas
+    lcolumnas=[] # columnas a mostrar
+    lalias_colum=[] # alias columnas
+    lregistros=[] # registros tablas
+    tablastmp = EDD.showTables(baseActiva)
+    # FROM ---------------------------------------------------------
+    for tabla in cuerpo.b_from:
+        name=''
+        alias=''
+        if ' ' in tabla.nombre:  
+            splited=tabla.nombre.split()  # puede venir ID ID en gramatica se concatenan
+            name=splited[0]
+            alias=splited[1]
+        else:
+            name=tabla.nombre
+        if name in tablastmp: # tabla registrada
+            ltablas.append(name)
+            if alias != '':
+                lalias.append(alias)
+            tb = buscarTabla(baseActiva,name).atributos
+            for col in tb:
+                lcabeceras.append(col.nombre)
+        lregistros.append(EDD.extractTable(baseActiva,name))
+    # Campos Select ------------------------------------------------
+    for campo in parametros:  #nombre tipo alias fun_exp
+        nm = resolver_operacion(campo.nombre,ts)
+        ali = resolver_operacion(campo.alias,ts)
+        lcolumnas.append(nm)
+        lalias_colum.append(ali)
+    # JOINS --------------------------------------------------------
+    # WHERE --------------------------------------------------------
+    if cuerpo.b_where == False: # sin where
+        result = PrettyTable()
+        result.field_names = lcabeceras
+        for registro in itertools.product(*lregistros): #producto cartesiano
+            fila=[]
+            for i in registro:
+                for j in i:
+                    fila.append(j)
+            result.add_row(fila)
+        result = result.get_string(fields=lcolumnas) 
         agregarMensjae('table',result,'')
     else: # con where
         ' '
