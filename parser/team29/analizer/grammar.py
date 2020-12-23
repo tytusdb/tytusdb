@@ -4,7 +4,7 @@ from os.path import dirname as dir
 path.append(dir(path[0]))
 import analizer.ply.yacc as yacc
 from analizer.tokens import *
-
+from analizer.reports import Nodo
 # Prueba para dataframe:
 import analizer.abstract.select_data as data
 
@@ -16,7 +16,7 @@ import analizer.ply.lex as lex
 
 lexer = lex.lex()
 # Asociación de operadores y precedencia
-
+listInst = []
 repGrammar = []
 precedence = (
     ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
@@ -83,6 +83,7 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
+    listInst.append(t[1].dot())
     try:
         t[0] = t[1].execute(None)
     except:
@@ -1687,6 +1688,21 @@ def returnPostgreSQLErrors():
 def returnSemanticErrors():
     return instruction.semanticErrors
 
+def InitTree():
+    init = Nodo.Nodo("INSTRUCTION_LIST")
+    Tree(init)
+    makeAst(init)
+
+def Tree(n):
+    if len(listInst)>0:
+        l = listInst.pop()
+        n.addNode(l)
+        inst = Nodo.Nodo("INST")
+        n.addNode(inst)
+        Tree(inst)
+
+def makeAst(root):
+    instruction.makeAst(root)
 
 def getRepGrammar():
     return repGrammar
