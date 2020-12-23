@@ -292,7 +292,7 @@ def p_createConstraint(t):
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
-    t[0] = [t[1], t[3]]
+    t[0] = [t[1], t[3],None]
     repGrammar.append(t.slice)
 
 
@@ -304,15 +304,15 @@ def p_createPrimary(t):
 
 def p_createForeign(t):
     """
-    createForeign : R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
+    createForeign : constrName R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
     """
-    t[0] = [t[1], t[4], t[7], t[9]]
+    t[0] = [t[2], t[5], t[8], t[10],t[1]]
     repGrammar.append(t.slice)
 
 
 def p_createForeign_op2(t):
     """
-    createForeign : R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID
+    createForeign : constrName R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID
     """
     t[0] = [t[1], t[4], t[7]]
     repGrammar.append(t.slice)
@@ -1076,6 +1076,8 @@ def p_alterStmt(t):
     """
     if t[2] == "DATABASE":
         t[0] = instruction.AlterDataBase(t[4][0], t[3], t[4][1])
+    else:
+        t[0] = instruction.AlterTable(t[3],t[4])
     repGrammar.append(t.slice)
 
 
@@ -1101,38 +1103,81 @@ def p_ownerOpts(t):
 def p_alterTableList(t):
     """
     alterTableList : alterTableList S_COMA alterTable
-    | alterTable
     """
+    t[1].append(t[3])
+    t[0]= t[1]
+    repGrammar.append(t.slice)
+
+
+def p_alterTableList_u(t):
+    """
+    alterTableList : alterTable
+    """
+    t[0]=[t[1]]
     repGrammar.append(t.slice)
 
 
 def p_alterTable(t):
     """
-    alterTable : R_ADD alterConstraint
-    | alterCol
-    | R_DROP R_CONSTRAINT ID
-    | R_DROP R_COLUMN ID
-    | R_RENAME R_COLUMN ID R_TO ID
+    alterTable : R_ADD alterAdd
+    | R_ALTER alterAlter
+    | R_DROP alterDrop
+    | R_RENAME alterRename 
     """
+    t[0] = [t[1],t[2]]
     repGrammar.append(t.slice)
 
 
-def p_alterConstraint(t):
+def p_alterAdd_column(t):
     """
-    alterConstraint : R_CHECK S_PARIZQ booleanCheck S_PARDER
-    | R_CONSTRAINT ID R_UNIQUE S_PARIZQ ID S_PARDER
+    alterAdd : R_COLUMN ID types
+    """
+    t[0]=[False,t[2],t[3],None]
+    repGrammar.append(t.slice)
+
+
+def p_alterAdd_constraint(t):
+    """
+    alterAdd : createConstraint
+    | createPrimary
     | createForeign
-    | R_COLUMN ID types
     """
+    t[0] = [True, t[1]]
     repGrammar.append(t.slice)
 
 
-def p_alterCol(t):
+def p_alterAdd_unique(t):
     """
-    alterCol : R_ALTER R_COLUMN ID R_SET R_NOT R_NULL
-    | R_ALTER R_COLUMN ID R_SET R_NULL
-    | R_ALTER R_COLUMN ID R_TYPE types
+    alterAdd : constrName R_UNIQUE S_PARIZQ ID S_PARDER
     """
+    t[0]=[True,[t[2],[t[4]],t[1]]]
+    repGrammar.append(t.slice)
+
+
+def p_alterAlter(t):
+    """
+    alterAlter : R_COLUMN ID R_SET nullOpt
+    | R_COLUMN ID R_SET defaultVal
+    | R_COLUMN ID R_TYPE types
+    """
+    t[0]=[t[3],t[2],t[4]]
+    repGrammar.append(t.slice)
+
+
+def p_alterDrop(t):
+    """
+    alterDrop : R_CONSTRAINT ID
+    | R_COLUMN ID
+    """
+    t[0]=[t[1],t[2]]
+    repGrammar.append(t.slice)
+
+
+def p_alterRename(t):
+    """
+    alterRename : R_COLUMN ID R_TO ID
+    """
+    t[0]=[t[2],t[4]]
     repGrammar.append(t.slice)
 
 
