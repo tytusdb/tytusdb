@@ -306,7 +306,7 @@ t_ptComa = r';'
 # tk_queries
 t_barra = r'\|'
 t_barraDoble = r'\|\|'
-t_amp = r'&'
+t_amp = r'\&'
 t_numeral = r'\#'
 t_virgulilla = r'~'
 t_mayormayor = r'>>'
@@ -1614,7 +1614,7 @@ def p_EXPR_BINARIAS(p):
     if len(p) == 3:
         p[0] = SFuncBinary(p[1], p[2])
     if len(p) == 4:
-        p[0] = SFuncBinary2(p[1], p[2], p[3])
+        p[0] = SFuncBinary2(p[2], p[1], p[3])
     elif len(p) == 7:
         p[0] = SFuncBinary3(p[1], p[3], p[4], p[5])
     elif len(p) == 10:

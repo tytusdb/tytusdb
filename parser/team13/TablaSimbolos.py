@@ -57,19 +57,19 @@ class SimboloTabla:
         self.padre = padre
 
     def comprobarNulas(self, listaColumnas):
-        #VERIFICAMOS SI EXISTE EN LA TABLA
+        # VERIFICAMOS SI EXISTE EN LA TABLA
         for col in listaColumnas:
             if col.valor not in self.columnas:
                 return {"cod": 1, "col": col.valor}
-        #VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
+        # VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
         for col in self.columnas:
             if self.columnas[col].nombre not in listaColumnas:
-                if self.columnas[col].null != True and self.columnas[col].default == None and self.columnas[col].primary_key==True:
+                if self.columnas[col].null != True and self.columnas[col].default == None and self.columnas[
+                    col].primary_key == True:
                     return {"cod": 2, "col": self.columnas[col].nombre}
-        return {"cod":0}
+        return {"cod": 0}
 
-
-    #MÉTODO PARA OBTENER LOS ÍNDICES DE LAS LLAVES PRIMARIAS
+    # MÉTODO PARA OBTENER LOS ÍNDICES DE LAS LLAVES PRIMARIAS
     def get_pk_index(self):
 
         i = 0
@@ -80,18 +80,18 @@ class SimboloTabla:
             i += 1
         return lista
 
-
     def comprobarNulas2(self, listaColumnas):
-        #VERIFICAMOS SI EXISTE EN LA TABLA
+        # VERIFICAMOS SI EXISTE EN LA TABLA
         for col in listaColumnas:
             if col not in self.columnas:
                 return {"cod": 1, "col": col}
-        #VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
+        # VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
         for col in self.columnas:
             if self.columnas[col].nombre not in listaColumnas:
-                if self.columnas[col].null != True and self.columnas[col].default == None and self.columnas[col].primary_key == True:
+                if self.columnas[col].null != True and self.columnas[col].default == None and self.columnas[
+                    col].primary_key == True:
                     return {"cod": 2, "col": self.columnas[col].nombre}
-        return {"cod":0}
+        return {"cod": 0}
 
     def deleteColumn(self, id):
         val = 0
@@ -188,18 +188,30 @@ class SimboloTabla:
         else:
             return None
 
-class colsConsulta: 
-    def __init__(self,nombre,alias,tipo,param,tabla):
+
+class colsConsulta:
+    def __init__(self, nombre, alias, tipo, param, tabla, cindice):
         self.nombre = nombre
         self.alias = alias
         self.tipo = tipo
         self.param = param
         self.tabla = tabla
+        self.cindice = cindice
 
-class colsTabla: 
-    def __init__(self,nombre,alias):
+
+class Grupo:
+    def __init__(self, indice, indiceCol, tabla, valor):
+        self.indice = indice
+        self.indiceCol = indiceCol
+        self.tabla = tabla
+        self.valor = valor
+
+
+class colsTabla:
+    def __init__(self, nombre, alias):
         self.nombre = nombre
         self.alias = alias
+
 
 class SimboloColumna:
     ''' Clase Para Almacenar Información Sobre Las Columnas de Una Tabla '''
