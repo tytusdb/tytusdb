@@ -243,10 +243,7 @@ def TCcreateType(database: str, typeEnum: str, Values:None) -> int:
     if dump:
         with open('data/json/TypeChecker', 'w') as file:
             json.dump(data, file)
-        """dataTable = {}
-        with open('data/json/'+database+'-'+table, 'w') as file:
-            json.dump(dataTable, file)
-        return 0"""
+        return 0 
     else:
         return 1
 '''def TCgetPrimarys(database:str,table:str)->str:
