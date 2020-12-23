@@ -12,12 +12,17 @@ class Length(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-
-        if isinstance(self.valor, Primitivo):
-            if self.valor.tipo.tipo== Tipo_Dato.CHAR or self.valor.tipo.tipo== Tipo_Dato.VARCHAR or self.valor.tipo.tipo== Tipo_Dato.VARYING or self.valor.tipo.tipo== Tipo_Dato.CHARACTER or self.valor.tipo.tipo== Tipo_Dato.TEXT:
-                return len(str(self.valor.valor)) 
-        elif isinstance(self.valor, Identificador):
-            print("HAY QUE PROGRAMAR LO DE IDENTIFICADOR LENGTH")
+        resultado = self.valor.ejecutar(tabla,arbol)
+        if isinstance(resultado, Excepcion):
+            return resultado
+        #print("RESULTADO:",resultado)
+        #if isinstance(resultado, Primitivo):
+        #if self.valor.tipo.tipo== Tipo_Dato.CHAR or self.valor.tipo.tipo== Tipo_Dato.VARCHAR or self.valor.tipo.tipo== Tipo_Dato.VARYING or self.valor.tipo.tipo== Tipo_Dato.CHARACTER or self.valor.tipo.tipo== Tipo_Dato.TEXT:
+        if self.valor.tipo.tipo== Tipo_Dato.CHAR or self.valor.tipo.tipo== Tipo_Dato.CHARACTER:
+                self.tipo = Tipo(Tipo_Dato.INTEGER)
+                return len(str(resultado)) 
+        #elif isinstance(resultado, Identificador):
+        #    print("HAY QUE PROGRAMAR LO DE IDENTIFICADOR LENGTH")
         error = Excepcion('42883',"Semántico",f"No existe la función LENGTH({self.valor.tipo.toString()})",self.linea,self.columna)
         arbol.excepciones.append(error)
         arbol.consola.append("HINT: Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos.")

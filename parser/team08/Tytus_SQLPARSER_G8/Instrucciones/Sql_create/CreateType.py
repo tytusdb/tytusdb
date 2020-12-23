@@ -1,5 +1,6 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Expresiones.Primitivo import Primitivo
+from Instrucciones.Expresiones.Enum import Enum
 from storageManager.jsonMode import *
 
 class CreateType(Instruccion):
@@ -10,7 +11,7 @@ class CreateType(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-
+        enum1 = Enum(self.valor, None, self.linea, self.columna)
         lista = []
         if(self.listaExpre):
             print("------VALORES------")
@@ -22,6 +23,8 @@ class CreateType(Instruccion):
                     print(valor)
         
         print(lista)
+        enum1.listaValores = lista
+        arbol.lEnum.append(enum1)
         print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
 '''
 instruccion = CreateType("hola mundo",None, 1,2)

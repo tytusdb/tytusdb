@@ -118,7 +118,7 @@ def p_option_create(p):
         p[0] = CreateTB(p[2], p[4], None)
 
     elif len(p) == 10:
-        p[0] = CreateTB(p[2], p[4], p[6]) 
+        p[0] = CreateTB(p[2], p[4], p[8]) 
 
 
 def p_type_list(p):
@@ -496,16 +496,25 @@ def p_add_alter(p):
     '''addalter : COLUMN ID typecol
                 | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
                 | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+                | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
     '''
     if len(p) == 4:
-        p[0] = AlterTableAdd(CreateCol(p[2],p[3],None))
+        p[0] = AlterTableAdd(CreateCol(p[2],p[3],[{
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
+        'check_condition' : None,
+        'pk_option' : None,
+        'fk_references_to' : None
+    }]))
     elif len(p) == 5:
         p[0] = AlterTableAdd(Check(p[4]))
     elif len(p) == 7:
         p[0] = AlterTableAdd(Constraint(p[2],Unique(p[5]))) #TODO revisar esta asignacion
     else:
-        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   
+        p[0] = AlterTableAdd(ForeignKey(p[4],p[7],p[9]))   
 
 
 def p_alter_alter(p):
@@ -583,11 +592,11 @@ def p_update_statement(p):
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
     if(len(p) == 8):
-        p[0] = Update(p[2],p[5],p[6])
+        p[0] = Update(p[2],p[5],p[6], p.lineno(1), find_column(p.slice[1]))
     elif(len(p) == 7):
-        p[0] = Update(p[2],p[4],p[5])
+        p[0] = Update(p[2],p[4],p[5], p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Update(p[2],p[4],None)
+        p[0] = Update(p[2],p[4],None, p.lineno(1), find_column(p.slice[1]))
 
 def p_set_list(p):
     '''SETLIST : SETLIST COMMA COLUMNVALUES
@@ -657,9 +666,9 @@ def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
     if (len(p) == 6):
-        p[0] = Delete(p[3],p[4])
+        p[0] = Delete(p[3],p[4],p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Delete(p[3],None)
+        p[0] = Delete(p[3],None,p.lineno(1), find_column(p.slice[1]))
 
 def p_options_list(p):
     '''OPTIONSLIST : OPTIONS1 OPTIONS2 WHERECLAUSE OPTIONS4
@@ -744,9 +753,9 @@ def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
     if(len(p) == 12):
-        p[0] = Insert(p[3],p[5],p[9])
+        p[0] = Insert(p[3],p[5],p[9], p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Insert(p[3],None,p[6])
+        p[0] = Insert(p[3],None,p[6], p.lineno(1), find_column(p.slice[1]))
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
