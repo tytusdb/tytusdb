@@ -1,7 +1,7 @@
 from enum import Enum
 from reporteErrores.errorReport import ErrorReport # EN EL AMBITO MAS EXTERIOR SE INGRESAN A LA LISTA , EN ESTAS SUB CLASES SOLO SE SUBE EL ERROR
 # Enumeraciones para identificar expresiones que comparten clase
-
+import sqlErrors
 class TIPO_DE_DATO(Enum):
     ENTERO = 1
     DECIMAL = 2
@@ -300,32 +300,58 @@ class ExpresionID(Expresion):
 
         return nodo
     def ejecutar(self ,ts):
-        try:
-            symbol = ts.buscarSimbolo(self.val)
+        if isinstance(ts , TuplaCompleta):# PARA VALIDACIONES DE WHERE Y SELECT 
+            valorYtipo = ts.getValue(self.val)
+            if valorYtipo == None:
+                return ErrorReport('Semantico','no se encontro esa columna', self.linea)
+            else:
+                if valorYtipo['tipo'] == 'SMALLINT' \
+                or valorYtipo['tipo'] == 'BIGINT' \
+                or valorYtipo['tipo'] == 'INTEGER':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.ENTERO, self.linea)
+                elif valorYtipo['tipo'] == 'DECIMAL' \
+                or valorYtipo['tipo'] == 'NUMERIC' \
+                or valorYtipo['tipo'] == 'REAL' \
+                or valorYtipo['tipo']== 'DOUBLE_PRECISION' \
+                or valorYtipo['tipo'] == 'MONEY':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea)
+                elif valorYtipo['tipo'] == 'CHAR' \
+                or valorYtipo['tipo'] == 'VARCHAR' \
+                or valorYtipo['tipo'] == 'TEXT' \
+                or valorYtipo['tipo'] == 'ENUM':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea)
+                elif valorYtipo['tipo'] == 'BOOLEAN':
+                    return ExpresionBooleano(valorYtipo['val'], self.linea)
+                elif valorYtipo['tipo'] == 'DATE':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea, isFecha=True)
+                return Exception()
+            
+        else:# supongo que es para lo del check :v 
+            try:
+                symbol = ts.buscarSimbolo(self.val)
 
-            if symbol.tipo == 'SMALLINT' \
-            or symbol.tipo == 'BIGINT' \
-            or symbol.tipo == 'INTEGER':
-                return ExpresionNumero(symbol.valor, TIPO_DE_DATO.ENTERO, self.linea)
-            elif symbol.tipo == 'DECIMAL' \
-            or symbol.tipo == 'NUMERIC' \
-            or symbol.tipo == 'REAL' \
-            or symbol.tipo == 'DOUBLE_PRECISION' \
-            or symbol.tipo == 'MONEY':
-                return ExpresionNumero(symbol.valor, TIPO_DE_DATO.DECIMAL, self.linea)
-            elif symbol.tipo == 'CHAR' \
-            or symbol.tipo == 'VARCHAR' \
-            or symbol.tipo == 'TEXT' \
-            or symbol.tipo == 'ENUM':
-                return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea)
-            elif symbol.tipo == 'BOOLEAN':
-                return ExpresionBooleano(symbol.valor, self.linea)
-            elif symbol.tipo == 'DATE':
-                return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea, isFecha=True)
-            return Exception()
-        except:
-            return Exception()    
-    
+                if symbol.tipo == 'SMALLINT' \
+                or symbol.tipo == 'BIGINT' \
+                or symbol.tipo == 'INTEGER':
+                    return ExpresionNumero(symbol.valor, TIPO_DE_DATO.ENTERO, self.linea)
+                elif symbol.tipo == 'DECIMAL' \
+                or symbol.tipo == 'NUMERIC' \
+                or symbol.tipo == 'REAL' \
+                or symbol.tipo == 'DOUBLE_PRECISION' \
+                or symbol.tipo == 'MONEY':
+                    return ExpresionNumero(symbol.valor, TIPO_DE_DATO.DECIMAL, self.linea)
+                elif symbol.tipo == 'CHAR' \
+                or symbol.tipo == 'VARCHAR' \
+                or symbol.tipo == 'TEXT' \
+                or symbol.tipo == 'ENUM':
+                    return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea)
+                elif symbol.tipo == 'BOOLEAN':
+                    return ExpresionBooleano(symbol.valor, self.linea)
+                elif symbol.tipo == 'DATE':
+                    return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea, isFecha=True)
+                return Exception()
+            except:
+                return Exception()    
     def evaluacionCheck(self ,ts)-> int:
         try:
             symbol = ts.buscarSimbolo(self.val)
@@ -725,3 +751,28 @@ class ExpresionAgrupacion(Expresion):
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
         return str('(' + sint +')')
+    
+    
+
+
+
+class TuplaCompleta:
+    def __init__(self, tupla):
+        self.tupla = tupla
+        
+    def getValue(self, id , referciaTabla = None): # a veces no viene
+        # VALIDAR QUE NO HAYA AMBIGUEDAD PRIMERO , aun no lo tengo :v 
+        for columna in self.tupla:
+            if referciaTabla == None:
+                if self.quitarRef(columna['id']) == id:
+                    return columna
+            else:
+                if columna['id'] == id:
+                    return columna
+                elif self.quitarRef(columna['id']) == id:
+                    return columna 
+        return None
+    
+    def quitarRef(self,cadena):# le quito la referencia de su tabla 
+        cadena = cadena.split('.')
+        return cadena[1]

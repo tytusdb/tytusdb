@@ -423,3 +423,45 @@ def graphTable(db, table):
 
     except:
         print("error")
+
+def graphDB():
+    BasesdeDatos = [] ##Esto agrega las bases de datos de tytus
+    for l in databases:
+        BasesdeDatos.append(l.name)
+    g = Digraph('G', filename='db.gv')
+    g.graph_attr['rankdir'] = 'LR'
+    g.attr('node', shape='box') ##Aqui creo mis nodos
+    cont=0
+    for i in BasesdeDatos:
+        g.node(i)
+        if cont>0:
+            g.edge(BasesdeDatos[cont-1],i)
+        else:
+            pass
+        cont+=1
+    g.attr(label=r'\n\nLista de \nBases de Datos')
+    g.attr(fontsize='20')
+    g.view()
+
+def graphTBL(db):
+    Tablas=[] 
+    try:
+        for i in showTables(db): ##metodo para imprimir tablas segun la base de datos mandando lo que hay en el drop1
+            Tablas.append(i)
+    except:
+        pass    
+ 
+    g = Digraph('G', filename='db.gv')
+    g.graph_attr['rankdir'] = 'LR'
+    g.attr('node', shape='box') ##Aqui creo mis nodos
+    cont=0
+    for i in Tablas:
+        g.node(i)
+        if cont>0:
+            g.edge(Tablas[cont-1],i)
+        else:
+            pass
+        cont+=1
+    g.attr(label=r'\n\nLista de \nTablas')
+    g.attr(fontsize='20')
+    g.view()
