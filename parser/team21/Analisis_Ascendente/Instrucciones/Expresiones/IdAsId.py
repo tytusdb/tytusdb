@@ -1,4 +1,4 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+Rfrom Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
