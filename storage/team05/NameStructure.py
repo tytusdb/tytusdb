@@ -661,4 +661,45 @@ class HashTable:
             self.insert(database, table, t)
         
         self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+        
+    #Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla
+    def extractTable(self, database: str, table: str):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        if ne.searchDatabase(database) is False:
+            return None
+
+        if ne.buscarTablaDatabase(database, table) is False:
+            return None
+
+        tuplas = []
+        #Obtiene todos los registros que están en la tabla
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tuplas.append(r.get(k))
+        return tuplas
+    
+    #Devuelve una lista con los elementos que corresponden a un rango de registros
+    def extractRangeTable(self, database: str, table: str, columnNumber: int, lower, upper):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        if ne.searchDatabase(database) is False:
+            return None
+
+        if ne.buscarTablaDatabase(database, table) is False:
+            return None
+
+        if columnNumber > ne.numeroDeColumnas(database, table):
+            return None
+
+        if lower < 0 or upper > len(self.__order_keys):
+            return None
+
+        lista_datos = []
+
+        for t in range(lower, upper):
+            llave = self.__order_keys[t][:-1].split("_")
+            lista_datos.append(self.extractRow(database, table, llave)[columnNumber])
+
+        return lista_datos
 
