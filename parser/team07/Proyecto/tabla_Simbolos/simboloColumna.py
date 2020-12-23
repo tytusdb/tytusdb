@@ -27,9 +27,39 @@ class TiposDatos(Enum):
 class SimboloColumna():
 
     def __init__(self,indice,nombre,tipoDat):
+        if (tipoDat.lower()=="smallint"):
+            self.tipoDato = TiposDatos.smallInt
+        elif tipoDat.lower() ==  "integer":
+            self.tipoDato = TiposDatos.integer
+        elif tipoDat.lower() == "biginit":
+            self.tipoDato = TiposDatos.bigInit
+        elif tipoDat.lower() == "decimal":
+            self.tipoDato = TiposDatos.decimal
+        elif tipoDat.lower() == "numeric":
+            self.tipoDato = TiposDatos.numeric
+        elif tipoDat.lower() == "real":
+            self.tipoDato = TiposDatos.real
+        elif tipoDat.lower() == "double":
+            self.tipoDato = TiposDatos.double_precision
+        elif tipoDat.lower() == "money":
+            self.tipoDato = TiposDatos.money
+        elif tipoDat.lower() == "varchar":
+            self.tipoDato = TiposDatos.varchar
+        elif tipoDat.lower() == "character":
+            self.tipoDato = TiposDatos.character
+        elif tipoDat.lower() == "text":
+            self.tipoDato = TiposDatos.text
+        elif tipoDat.lower() == "timestamp":
+            self.tipoDato = TiposDatos.time_si_zone
+        elif tipoDat.lower() == "time":
+            self.tipoDato = TiposDatos.time_No_zone
+        elif tipoDat.lower() == "date":
+            self.tipoDato = TiposDatos.date
+        else:
+            self.tipoDato = TiposDatos.boolean
+
         self.indice = indice
-        self.nombre = nombre
-        self.tipoDato = tipoDat
+        self.nombre = nombre        
         self.defaultValue = None            # DefaultValue = None -->> Columna no tiene un valor por default
         self.null = False                   # null = false --->> NO acepta valores null
         self.primaryKey = False             # primaryKey = false --->> NO es llavaPrimaria

@@ -6,3 +6,5 @@ create table estudiante(
     nombre varchar not null,
     apellido varchar not null
 );
+
+insert into estudiante values (1,'jorge','Perez');

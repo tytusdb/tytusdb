@@ -31,9 +31,9 @@ class createTable(InstruccionAbstracta):
                         numColumnas = numColumnas + 1
                 except:
                     pass
-            #respuesta = jsonMode.createTable(tabalSimbolos.useDataBase,self.identificador,numColumnas)
+            respuesta = jsonMode.createTable(tabalSimbolos.useDataBase,self.identificador,numColumnas)
             #Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos inexistente, 3 tabla existente.
-            respuesta = 0
+            
             if respuesta == 2:
                 errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error, base de datos inexistente")
                 listaErrores.append(errorEnviar)
@@ -77,6 +77,7 @@ class createTable(InstruccionAbstracta):
                                     errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error 42703")
                                     listaErrores.append(errorEnviar)
                                     print("Id de columna llamado en llave no existe: " + nodoId.valor.lower())
+                                    return
                                 elif encontro == True:
                                     encontro = False  
                                         

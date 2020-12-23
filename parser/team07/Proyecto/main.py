@@ -27,3 +27,6 @@ procesar_instrucciones(instrucciones.hijos,miTablaSimbolos,miListaErrores)
 
 grafica = GraphArbol(instrucciones)
 grafica.crearArbol()
+print("******************************** ERRORES *******************************************")
+for nodoError in miListaErrores:
+    print(nodoError.descripcion)
