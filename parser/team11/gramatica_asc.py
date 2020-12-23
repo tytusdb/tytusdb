@@ -1,3 +1,10 @@
+import ply.yacc as yacc
+import ply.lex as lex
+
+from Ast import *
+
+from graphviz import render
+
 reservadas = {
     'smallint'  : 'SMALLINT',          'integer'  : 'INTEGER',   
     'bigint'    : 'BIGINT',            'numeric'  : 'NUMERIC',   
@@ -82,7 +89,8 @@ reservadas = {
     'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
     'random': 'RANDOM',             'true': 'TRUE',
     'false': 'FALSE',               'use' : 'USE',
-    'decimal': 'RDECIMAL'
+    'decimal': 'RDECIMAL',          'union': 'UNION',
+    'intersect': 'INTERSECT',       'except': 'EXCEPT'
 }
 
 tokens  = [
@@ -212,15 +220,21 @@ precedence = (
 )
 
 
-###################################### Definición de la gramática #######################################
+###################################### ENTRADA GENERAL DE LAS INSTRUCCIONES #################################
+
 def p_init(t) :
     'init             : instrucciones'
+    t[0] = Nodo('INSTRUCCIONES','',t[1],t.lexer.lineno)
 
 def p_lista_instrucciones(t) :
     'instrucciones    : instrucciones instruccion'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_salida_instrucciones(t) :
     'instrucciones    : instruccion'
+    t[0] = [t[1]]
+
 
 def p_instruccion(t) :
     '''instruccion    : createDB_instr
@@ -238,199 +252,189 @@ def p_instruccion(t) :
                       | delete_instr
                       | truncate_instr
                       | select_instr'''
+    t[0] = t[1]
+
+
+######################################################################################################################
+########################################### GRAMATICA PARA LAS DEFINICIONES ##########################################
+######################################################################################################################
+
+## ---------------------------------- gramatica para el manejo de base de datos ------------------------------------
 
 ##CREATE DATABASE
 def p_create_db(t):
     'createDB_instr   : CREATE DATABASE existencia'
     #print("ESTA ES UNA SIMPLE CREACION DATABASE con existencia")
+    if t[3] != None:
+        gramatica = '<createDB_instr> ::= CREATE DATABASE  <existencia>'
+        t[0] = Nodo('CREATE DATABASE', '', [t[3]], t.lexer.lineno, 0 , gramatica)       
+    else :
+        gramatica = '<createDB_instr> ::= CREATE DATABASE'
+        t[0] = Nodo('CREATE DATABASE', '', [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_db2(t):
     'createDB_instr   : CREATE DATABASE ID state_owner'
     #print("ESTA ES UNA SIMPLE CREACION sin existencia alguna DATABASE")
+    if t[4] != None:
+        gramatica = '<createDB_instr> ::= CREATE DATABASE \"' +t[3] + '\"  <state_owner>'
+        t[0] = Nodo('CREATE DATABASE', t[3], [t[4]], t.lexer.lineno, 0 ,gramatica)
+    else :
+        gramatica = '<createDB_instr> ::= CREATE DATABASE \"' +t[3] + '\" '
+        t[0] = Nodo('CREATE DATABASE', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 ##REPLACE DATABASE
 def p_replace_db(t):
     'replaceDB_instr   : REPLACE DATABASE existencia'
     #print("ESTA ES UNA SIMPLE CREACION con existencia DATABASE")
+    if t[3] != None:
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE <existencia>'
+        t[0] = Nodo('REPLACE DATABASE', '', [t[3]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE '
+        t[0] = Nodo('REPLACE DATABASE', '', [], t.lexer.lineno, 0, gramatica)
 
 def p_replace_db2(t):
     'replaceDB_instr   : REPLACE DATABASE ID state_owner'
     #print("ESTA ES UNA SIMPLE CREACION sin existencia DATABASE")
+    if t[4] != None:
+        gramatica = '<replaceDB_instr> ::= REPLACE DATABASE \"' +t[3] + '\" <state_owner>'
+        t[0] = Nodo('REPLACE DATABASE', t[3], [t[4]], t.lexer.lineno,0, gramatica)
+    else :
+        gramatica = '<replaceDB_instre> ::= REPLACE DATABASE \"' +t[3] + '\" '
+        t[0] = Nodo('REPLACE DATABASE', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 
 ##ESTADOS A LOS REPLACE Y CREATE CONTIENEN LO MISMO
 def p_create_replace_existencia(t):
     'existencia   : IF NOT EXISTS ID state_owner'
     #print("Existencia 1")
+    if t[5] != None:
+        gramatica = '<existencia> ::= IF NOT EXISTS \"' + t[4] +'\"  <state_owner>'
+        t[0] = Nodo('IF NOT EXISTS', t[4], [t[5]], t.lexer.lineno, 0 , gramatica)
+    else :
+        gramatica = '<existencia> ::= IF NOT EXISTS \"' + t[4] + '\" '
+        t[0] = Nodo('IF NOT EXISTS', t[4], [], t.lexer.lineno)
 
 def p_create_replace_state_owner(t):
     'state_owner   : OWNER IGUAL ID state_mode'
     #print("Estado owner con igual")
+    if t[4] != None:
+        gramatica = '<state_owner> ::= OWNER IGUAL \" ' + t[3] + '\"  <state_mode>'
+        t[0] = Nodo('OWNER', t[3], [t[4]], t.lexer.lineno, 0 , gramatica)
+    else :
+        gramatica = '<state_owner> ::= OWNER IGUAL \" ' + t[3] + '\" '
+        t[0] = Nodo('OWNER', t[3], [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_owner2(t):
-    'state_owner   : OWNER ID state_mode'
+    '''state_owner   : OWNER ID state_mode
+                     | OWNER CADENASIMPLE state_mode'''
     #print("Estado owner sin igual")
+    if t[3] != None:
+        gramatica = '<state_owner> ::= OWNER \" ' + t[2] + '\"  <state_mode>'
+        t[0] = Nodo('OWNER', t[2], [t[3]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<state_owner> ::= OWNER \" ' + t[2] + '\" '
+        t[0] = Nodo('OWNER', t[2], [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_owner3(t):
     'state_owner   : state_mode'
     #print("Estado owner sentencia de escape a mode")
+    t[1].gramatica = '<state_owner> ::= <state_mode>\n' + t[1].gramatica
+    #print("Estado owner sentencia de escape a mode")
+    t[0] = t[1]
 
 def p_create_replace_state_mode(t):
     'state_mode   : MODE IGUAL ENTERO PTCOMA'
     #print("Estado mode con igual")
+    gramatica = '<state_mode> ::= MODE IGUAL \"'+ str(t[3]) + '\"  PTCOMA'
+    t[0] = Nodo('MODE', str(t[3]), [], t.lexer.lineno, 0, gramatica)
 
 def p_create_replace_state_mode2(t):
     'state_mode   : MODE ENTERO PTCOMA'
     #print("Estado mode sin igual")
+    gramatica = '<state_mode> ::= MODE \"'+ str(t[2]) + '\" PTCOMA'
+    t[0] = Nodo('MODE', str(t[3]), [], t.lexer.lineno, 0 , gramatica)
 
 def p_create_replace_state_mode3(t):
     'state_mode   : PTCOMA'
+    gramatica = '<state_mode> ::= PTCOMA'
     #print("Estado mode sentencia de escape ptcoma")
+    t[0] = Nodo('', t[1], [], t.lexer.lineno, 0 , gramatica)
 
 
 ##ALTER DATABASE
 def p_alter_state(t):
     'alterDB_instr    : ALTER DATABASE ID RENAME TO ID PTCOMA'
     #print("ALTERAR NOMBRE DE DATABASE A: " + t[6])
+    gramatica = '<alterDB_instr> ::= ALTER DATABASE \"' +t[3] + '\"  RENAME TO \" ' + t[6]+'\"  PTCOMA'
+    t[0] = Nodo('ALTER DATABASE', str(t[3]) + '\n RENAME TO ' + str(t[6]), [], t.lexer.lineno,0,gramatica)
 
 def p_alter_state2(t):
     'alterDB_instr    : ALTER DATABASE ID OWNER TO owner_users PTCOMA'
     #print("ALTERAR DUEÑO DE BASE DE DATOS")
+    gramatica = '<alterDB_instr> ::= ALTER DATABASE \"' +t[3] + '\"  OWNER TO <owner_users> PTCOMA'
+    t[0] = Nodo('ALTER DATABASE', str(t[3]), [t[6]], t.lexer.lineno, 0, gramatica)
+
 
 def p_owner_users(t):
     '''owner_users  : ID
                     | CURRENT_USER
                     | SESSION_USER'''   
 
-    #if t[1] == 'CURRENT_USER':
-        #print("-----CURRENT_USER-----")
-    #elif t[1] == 'SESSION_USER':
-        #print("-----SESSION_USER-----")
-    #else:
-        #print("-----USUARIO NUEVO----- " + t[1] + "-----------------")
+    gramatica = '<owner_users> ::= ' + t[1]
+    t[0] = Nodo('Modify owner to', str(t[1]), [], t.lexer.lineno, 0, gramatica)
+
 
 ###DROP DATABASE
 
 def p_dropDB_instr(t):
     'dropDB_instr : DROP DATABASE ID PTCOMA'
     #print("DROP DATABASE SIN CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[3])
+    gramatica = '<dropDB_instr> ::= DROP DATABASE \"' +t[3] + '\"  PTCOMA'
+    t[0] = Nodo('DROP DATABASE', str(t[3]), [], t.lexer.lineno, 0 , gramatica)
 
 def p_dropDB_instr2(t):
     'dropDB_instr : DROP DATABASE IF EXISTS ID PTCOMA'
-    #print("DROP DATABASE CON CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[5])
-
+    gramatica = '<dropDB_instr> ::= DROP DATABASE IF EXISTS \"' +t[5] + '\" PTCOMA'
+    t[0] = Nodo('DROP DATABASE', str(t[5]), [], t.lexer.lineno, 0 , gramatica)
 
 ##SHOW DATABASES
 def p_showDB_instr(t):
     'showDB_instr   : SHOW DATABASES PTCOMA'
     #print("Show DATABASE sencillo")
+    gramatica = '<showDB_instr> ::= SHOW DATABASES PTCOMA'
+    t[0] = Nodo('SHOW DATABASES','', [], t.lexer.lineno, 0, gramatica)
 
 def p_showDB_instr2(t):
     'showDB_instr   : SHOW DATABASES LIKE regexpr PTCOMA'
     #print("Show DATABASE con LIKE")
+    gramatica = '<showDB_instr> ::= SHOW DATABASES LIKE <regexpr> PTCOMA'
+    t[0] = Nodo('SHOW DATABASES', 'LIKE', [t[4]], t.lexer.lineno, 0, gramatica)
 
 def p_showDB_regexp(t):
     '''regexpr      : MODULO ID
                     | MODULO ID MODULO
-                    | ID MODULO
                     | MODULO ENTERO
-                    | MODULO ENTERO MODULO
+                    | MODULO ENTERO MODULO'''
+    gramatica = '<regexpr> ::= MODULO \" ' + str(t[2]) + '\"'
+    t[0] = Nodo('EXPRESION REGULAR', str(t[2]), [], t.lexer.lineno, 0, gramatica)
+
+def p_showDB_regexp2(t):
+    '''regexpr      : ID MODULO
                     | ENTERO MODULO'''
+    gramatica = '<regexpr> ::= \"' + t[1] + '\" MODULO'
+    t[0] = Nodo('EXPRESION REGULAR', str(t[1]), [], t.lexer.lineno, 0, gramatica)
 
 def p_use_instr(t):
     'use_instr      : USE DATABASE ID PTCOMA'
-##########################################################################################
+    gramatica = '<use_instr> ::= USE DATABASE \"' + t[3] + '\"  PTCOMA'
+    t[0] = Nodo('USE DATABASE', str(t[3]), [], t.lexer.lineno, 0, gramatica)
 
-# --------------------------------- FUNCIONES MÁTEMÁTICAS ------------------------------------
 
-# Select | Where
-def p_funciones_matematicas1(t):
-    '''funcion_matematica_ws    : ABS PARIZQ expresionaritmetica PARDER
-                                | CBRT PARIZQ expresionaritmetica PARDER
-                                | CEIL PARIZQ expresionaritmetica PARDER
-                                | CEILING PARIZQ expresionaritmetica PARDER'''
 
-# Select
-def p_funciones_matematicas2(t):
-    '''funcion_matematica_s     : DEGREES PARIZQ expresionaritmetica PARDER
-                                | DIV PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
-                                | EXP PARIZQ expresionaritmetica PARDER
-                                | FACTORIAL PARIZQ expresionaritmetica PARDER
-                                | FLOOR PARIZQ expresionaritmetica PARDER
-                                | GCD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
-                                | LN PARIZQ expresionaritmetica PARDER
-                                | LOG PARIZQ expresionaritmetica PARDER
-                                | MOD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
-                                | PI PARIZQ PARDER
-                                | POWER PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
-                                | RADIANS PARIZQ expresionaritmetica PARDER
-                                | ROUND PARIZQ expresionaritmetica PARDER
-                                | SIGN PARIZQ expresionaritmetica PARDER
-                                | SQRT PARIZQ expresionaritmetica PARDER
-                                | WBUCKET PARIZQ explist PARDER
-                                | TRUNC PARIZQ expresionaritmetica PARDER
-                                | RANDOM PARIZQ expresionaritmetica PARDER'''
-    
-# Lista de expresiones para la función Width Bucket
-def p_wbucket_exp(t):
-    'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
-    
-# ------------------------------- FUNCIONES TRIGONOMETRICAS ----------------------------------
+## ----------------------------------- gramatica para el manejo de tablas ---------------------------------------
 
-def p_funciones_trigonometricas(t):
-    '''funcion_trigonometrica  : ACOS PARIZQ expresionaritmetica PARDER
-                               | ACOSD PARIZQ expresionaritmetica PARDER
-                               | ASIN PARIZQ expresionaritmetica PARDER
-                               | ASIND PARIZQ expresionaritmetica PARDER
-                               | ATAN PARIZQ expresionaritmetica PARDER
-                               | ATAND PARIZQ expresionaritmetica PARDER
-                               | ATAN2 PARIZQ expresionaritmetica PARDER
-                               | ATAN2D PARIZQ expresionaritmetica PARDER
-                               | COS PARIZQ expresionaritmetica PARDER
-                               | COSD PARIZQ expresionaritmetica PARDER
-                               | COT PARIZQ expresionaritmetica PARDER
-                               | COTD PARIZQ expresionaritmetica PARDER
-                               | SIN PARIZQ expresionaritmetica PARDER
-                               | SIND PARIZQ expresionaritmetica PARDER
-                               | TAN PARIZQ expresionaritmetica PARDER
-                               | TAND PARIZQ expresionaritmetica PARDER
-                               | SINH PARIZQ expresionaritmetica PARDER
-                               | COSH PARIZQ expresionaritmetica PARDER
-                               | TANH PARIZQ expresionaritmetica PARDER
-                               | ASINH PARIZQ expresionaritmetica PARDER
-                               | ACOSH PARIZQ expresionaritmetica PARDER
-                               | ATANH PARIZQ expresionaritmetica PARDER'''
-    
-# ---------------------------- FUNCIONES BINARIAS SOBRE CADENAS ------------------------------
-
-# Select | Where
-def p_fbinarias_cadenas_1(t):
-    'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
-    
-# Select | Insert | Update | Where
-def p_fbinarias_cadenas_2(t):
-    '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
-                            | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
-                            | TRIM PARIZQ cadena PARDER'''
-    
-# Insert | Update                            
-def p_fbinarias_cadenas_3(t):
-    'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
-
-# Select
-def p_fbinarias_cadenas_4(t):
-    '''func_bin_strings_4   : GET_BYTE PARIZQ cadena COMA ENTERO PARDER
-                            | SET_BYTE PARIZQ cadena COMA ENTERO COMA ENTERO PARDER
-                            | ENCODE PARIZQ cadena COMA cadena PARDER
-                            | DECODE PARIZQ cadena COMA cadena PARDER
-                            | SHA256 PARIZQ cadena PARDER
-                            | CONVERT PARIZQ alias PARDER'''
-
-def p_cadena(t):
-    '''cadena   : cualquiercadena
-                | cualquieridentificador'''
-    
-# ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
+# ------ PRODUCCIONES PARA ALTER TABLE --------
 
 def p_inst_alter(t):
     '''alter_instr      : ALTER TABLE ID ADD COLUMN list_columns
@@ -491,7 +495,7 @@ def p_field(t) :
                       | MINUTE
                       | SECOND'''
 
-# ------------------------------- PRODUCCIONES PARA CREATE TABLE ------------------------------------
+# --------- PRODUCCIONES PARA CREATE TABLE -------------
 
 def p_create_table(t):
     'create_table : CREATE TABLE ID PARIZQ list_columns_x PARDER end_create_table'
@@ -541,7 +545,8 @@ def p_check_unique(t):
                     | CHECK PARIZQ condiciones PARDER
                     | empty'''
 
-# ------------------------------- PRODUCCIONES PARA CREATE ENUMS ------------------------------------
+
+# -------- PRODUCCIONES PARA CREATE ENUMS ------------
 
 def p_create_enum(t):
     'create_enum : CREATE TYPE ID AS ENUM PARIZQ list_string PARDER PTCOMA'
@@ -552,14 +557,13 @@ def p_list_strings_r(t):
 def p_list_strings(t):
     'list_string : cualquiercadena'
     
-# ------------------------------- PRODUCCION PARA DROP TABLE ----------------------------------------
+# ------------ PRODUCCION PARA DROP TABLE ------------
 
 def p_drop_table(t):
     'drop_table : DROP TABLE ID PTCOMA'
 
-#----------------------------------------------------------------------------------------------------
 
-#####################################################################################################
+## ------------------------------------- gramatica para el manejo de tuplas -----------------------------------------
 
 ## INSERT 
 def p_insert_sinorden(t) :
@@ -587,50 +591,98 @@ def p_parametro (t) :
 ## UPDATE
 def p_update_sinwhere(t) : 
     'update_instr     : UPDATE ID SET asignaciones PTCOMA'
+    g = '<update_instr> ::= \"UPDATE\" ID \"SET\" <asignaciones> \"PTCOMA\"\n'
+    t[0] = Nodo('UPDATE',t[2],t[4],t.lexer.lineno,0,g)
 
 def p_update_conwhere(t) : 
     'update_instr     : UPDATE ID SET asignaciones WHERE condiciones PTCOMA'  
-    
+    g = '<update_instr> ::= \"UPDATE\" ID \"SET\" <asignaciones> \"WHERE\" <condiciones> \"PTCOMA\"\n'
+    t[0] = Nodo('UPDATE',t[2],t[4],t.lexer.lineno,0,g)
+
 def p_lista_asignaciones(t): 
     'asignaciones     : asignaciones COMA asignacion'
+    t[3].gramatica = '<asignaciones> ::= <asignaciones> \"COMA\" <asignacion>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lista_asignacion_salida(t) :
     'asignaciones     : asignacion'
+    t[1].gramatica = '<asignaciones> ::= <asignacion>\n'
+    t[0] = [t[1]]
 
 def p_asignacion(t) :
     'asignacion       : ID IGUAL expresion'
-    
+    t[0] = getAssignNode(t)
+
 ## DELETE
 def p_delete_sinwhere(t):
     'delete_instr     : DELETE FROM ID PTCOMA'
+    g = '<delete_instr> ::= \"DELETE\" \"FROM\" ID \"PTCOMA\"\n'
+    t[0] = Nodo('DELETE',t[3],[],t.lexer.lineno,0,g)
 
 def p_delete_conwhere(t):
     'delete_instr     : DELETE FROM ID WHERE condiciones PTCOMA'
-    
+    g = '<delete_instr> ::= \"DELETE\" \"FROM\" ID \"WHERE\" <condiciones> \"PTCOMA\"\n'
+    t[0] = Nodo('DELETE',t[3],[t[5]],t.lexer.lineno,0,g)
+
 ## TRUNCATE
 def p_truncate_simple(t):
     'truncate_instr   : TRUNCATE listtablas PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" <listtablas> \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','',t[2],t.lexer.lineno,0,g)
 
 def p_truncate_simple_cascade(t):
     'truncate_instr   : TRUNCATE listtablas CASCADE PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" <listtablas> \"CASCADE\" \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','CASCADE',t[2],t.lexer.lineno,0,g)
 
 def p_truncate_table(t) :
     'truncate_instr   : TRUNCATE TABLE listtablas PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" \"TABLE\" <listtablas> \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','TABLE',t[3],t.lexer.lineno,0,g)
 
 def p_truncate_table_cascade(t) :
     'truncate_instr   : TRUNCATE TABLE listtablas CASCADE PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" \"TABLE\" <listtablas> \"CASCADE\" \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','TABLE CASCADE',t[3],t.lexer.lineno,0,g)
 
 def p_listatablas(t) : 
     'listtablas       : listtablas COMA ID'
+    g = '<listtablas> ::= <listtablas> \"COMA\" ID\n'
+    t[1].append(Nodo('ID',t[3],[],t.lexer.lineno,0,g))
+    t[0] = t[1]
 
 def p_listatablas_salida(t) :
     'listtablas       : ID'
+    g = '<listtablas> ::= ID\n'
+    t[0] = [Nodo('ID',t[1],[],t.lexer.lineno,0,g)]
 
-## ################################# GRAMATICA DE QUERYS ########################################
+
+
+######################################################################################################################
+###################################### GRAMATICA PARA EL MANEJO DE QUERYS ############################################
+######################################################################################################################
 
 def p_select(t):
-    'select_instr     :  select_instr1 PTCOMA'
+    'select_instr     :  select_instr1 second_query PTCOMA'
     t[0] = t[1]
+
+def p_second_query(t):
+    '''second_query     : UNION ALL select_instr1
+                        | INTERSECT ALL select_instr1
+                        | EXCEPT ALL select_instr1 '''
+    t[0] =  [t[3]]
+    t[0] = Nodo('COMBINING QUERY ALL',[], [t[3]], t.lexer.lineno)
+
+def p_second_query2(t):
+    '''second_query     : UNION select_instr1
+                        | INTERSECT select_instr1
+                        | EXCEPT select_instr1 '''
+    t[0] =  [t[2]]
+    t[0] = Nodo('COMBINING QUERY', t[1], [t[2]], t.lexer.lineno)
+
+def p_second_query3(t):
+    'second_query     : empty '
 
 def p_select_simple(t):
     'select_instr1    : SELECT termdistinct selectlist selectfrom'
@@ -641,7 +693,7 @@ def p_fromselect(t) :
 def p_fromselect2(t) :
     'selectfrom       : empty'  
 
-# ---------------------- Producciones para el manejo del Select -------------------------
+# ------- Producciones para el manejo del Select -----------
 
 def p_termdistinct(t):
     '''termdistinct   : DISTINCT
@@ -656,6 +708,11 @@ def p_listaselect(t):
 
 def p_listaselect_salida(t):
     'listaselect      : valselect'
+
+def p_valselect_10_2(t):
+    'valselect      : CASE case_state END'
+    gramatica = '<valselect> ::= CASE <case_state> END'
+    t[0] = t[2]
 
 def p_valselect_1(t):
     'valselect      : ID alias'
@@ -702,7 +759,7 @@ def p_funcionagregacion(t):
                        | MAX
                        | MIN'''
 
-## ------------------------- tablas que se piden en el from  ----------------------------------
+## ---------- tablas que se piden en el from  -----------------
 
 def p_listatablasselect(t):
     'listatablasselect : listatablasselect COMA tablaselect'
@@ -727,7 +784,7 @@ def p_asignar_alias(t):
 
 
 
-# -------------------- Producciones para el manejo del where, incluyendo subquerys --------------------
+# -------- Producciones para el manejo del where, incluyendo subquerys ----------
 
 def p_whereselect_1(t):
     'whereselect       : WHERE condicioneswhere'
@@ -793,7 +850,8 @@ def p_cadenas(t):
                        | cualquieridentificador'''
 
 
-# -------- Producciones para el manejo del group by, incluyendo Having ----------------------
+# ----- Producciones para el manejo del group by, incluyendo Having --------
+
 def p_gruopby(t):
     'groupby          : GROUP BY listagroupby' 
 
@@ -837,7 +895,9 @@ def p_expresionhaving(t):
 def p_condicionhavingagregacion(t):
     'condicionhavingagregacion  : agregacion PARIZQ cualquieridentificador PARDER'
 
-# ------- Producciones para el manejo del Order by, incluyendo ASC y DESC  ----------------------
+
+# ----- Producciones para el manejo del Order by, incluyendo ASC y DESC --------
+
 def p_orderby(t):
     'orderby          : ORDER BY listaorderby'
 
@@ -880,7 +940,7 @@ def p_instroffset_2(t):
     'instroffset     : empty'
 
 
-## -------------------------------- EXPRESIONES ------------------------------------------    
+## ------------------------- EXPRESIONES --------------------------    
 
 ## expresiones logicas (condiciones)
 def p_lista_condicion(t): 
@@ -900,8 +960,15 @@ def p_condicion (t):
                       | expresion DIFERENTE expresion'''
     
 def p_expresion(t) : 
-    '''expresion          : cualquiercadena
-                      | expresionaritmetica'''
+    '''expresion      : cualquiercadena
+                      | funcion_matematica_ws
+                      | expresionaritmetica
+                      | func_bin_strings_1
+                      | func_bin_strings_2
+                      | vallogico'''
+
+def p_expresion_2(t):
+    'expresion        : PARIZQ select_instr1 PARDER'
 
 ## expresiones aritmeticas
 def p_expresion_aritmetica (t):
@@ -934,53 +1001,55 @@ def p_culquieridentificador (t):
     '''cualquieridentificador    : ID
                                  | ID PUNTO ID'''
 
-######################################################
-#-----------------------------case--------------------
+def p_valorlogico(t):
+    '''vallogico    : FALSE
+                    | TRUE'''
+
+
+#----------------------------- Case ---------------------------------
 def p_estadocase(t):
-    '''case_state   : case_state casestate2 END
-                    | casestate2 END
-                    | empty'''
-#################################################################################################################################################
-def p_estadorelacional(t):
-    '''estadorelacional : expresionaritmetica MENQUE expresionaritmetica
-                        | expresionaritmetica MAYQUE expresionaritmetica
-                        | expresionaritmetica IGUAL IGUAL expresionaritmetica
-                        | expresionaritmetica MENIGUAL expresionaritmetica
-                        | expresionaritmetica MAYIGUAL expresionaritmetica
-                        | expresionaritmetica DIFERENTE expresionaritmetica
-                        | estadorelacional AND estadorelacional
-                        | estadorelacional OR estadorelacional '''
-    
-def p_estadorelacional2(t):
-    '''estadorelacional : expresionaritmetica
-                        | between_state
-                        | predicates_state
-                        | is_distinct_state '''
-    t[0] = t[1]
+    'case_state         : list_case '
+    t[0] = [t[1]]
 
-def p_casestate2(t):
-    'casestate2   : WHEN estadorelacional THEN CADENASIMPLE'
+def p_estadocase2(t):
+    '''list_case        : list_case s_case_state
+                        | s_case_state case_else
+                        | s_case_state
+                        | list_case case_else '''
+    if len(t) == 2:
+       t[0] = t[1]
+    else:
+        t[0] = [t[1], t[2]] 
 
-def p_casestate22(t):
-    'casestate2    : ELSE CSIMPLE ID CSIMPLE'
+def p_estadocase3(t):
+    's_case_state       : WHEN condiciones THEN valores'
+    t[2].append(t[4])
+    t[0] =t[2]
 
-def p_casestate22_(t):
-    'casestate2    : empty'
+def p_estadocase4(t):
+    'case_else       : ELSE valores'
+    t[0] = [t[2]]
 
-######################################################################################################
-# --------------Between------------------------------------------------------------------------
+
+
+# --------------Between-----------------
+
 def p_between_state(t):
     '''between_state    : valores BETWEEN valores AND valores
                         | valores NOT BETWEEN valores AND valores'''
 
-# --------------PREDICATES NULLS---------------------------------------------------------------
+# ---------PREDICATES NULLS-----------
+
 def p_predicates_state(t):
     '''predicates_state : valores IS NULL
                         | valores IS NOT NULL
                         | valores ISNULL
                         | valores NOTNULL'''
     #t[0] = Nodo('COMPARISON PREDICATES','', [t[1]], t.lexer.lineno)
-#---------------IS DISTINCT ----------------------------------------------------------------
+
+
+#---------------IS DISTINCT -------------
+
 def p_is_distinct_state(t):
     'is_distinct_state : valores IS DISTINCT FROM valores'
     #t[0] = Nodo('DISTINCT', str(t[1]), [t[5]], t.lexer.lineno)
@@ -989,7 +1058,7 @@ def p_is_distinct_state2(t):
     'is_distinct_state : valores IS NOT DISTINCT FROM valores'
     #t[0] = Nodo('NOT DISTINCT', str(t[1]), [t[6]], t.lexer.lineno)
 
-def p_is_distinct_state(t):
+def p_is_distinct_state3(t):
     'is_distinct_state : empty'
     
 
@@ -999,6 +1068,99 @@ def p_valores(t):
                 | cualquieridentificador'''
    # t[0] = t[1]
 
+
+# -------------- FUNCIONES MÁTEMÁTICAS ----------------------
+
+# Select | Where
+def p_funciones_matematicas1(t):
+    '''funcion_matematica_ws    : ABS PARIZQ expresionaritmetica PARDER
+                                | CBRT PARIZQ expresionaritmetica PARDER
+                                | CEIL PARIZQ expresionaritmetica PARDER
+                                | CEILING PARIZQ expresionaritmetica PARDER'''
+
+# Select
+def p_funciones_matematicas2(t):
+    '''funcion_matematica_s     : DEGREES PARIZQ expresionaritmetica PARDER
+                                | DIV PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | EXP PARIZQ expresionaritmetica PARDER
+                                | FACTORIAL PARIZQ expresionaritmetica PARDER
+                                | FLOOR PARIZQ expresionaritmetica PARDER
+                                | GCD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | LN PARIZQ expresionaritmetica PARDER
+                                | LOG PARIZQ expresionaritmetica PARDER
+                                | MOD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | PI PARIZQ PARDER
+                                | POWER PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | RADIANS PARIZQ expresionaritmetica PARDER
+                                | ROUND PARIZQ expresionaritmetica PARDER
+                                | SIGN PARIZQ expresionaritmetica PARDER
+                                | SQRT PARIZQ expresionaritmetica PARDER
+                                | WBUCKET PARIZQ explist PARDER
+                                | TRUNC PARIZQ expresionaritmetica PARDER
+                                | RANDOM PARIZQ expresionaritmetica PARDER'''
+    
+# Lista de expresiones para la función Width Bucket
+def p_wbucket_exp(t):
+    'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
+    
+# ------------------------------- FUNCIONES TRIGONOMETRICAS ----------------------------------
+
+def p_funciones_trigonometricas(t):
+    '''funcion_trigonometrica  : ACOS PARIZQ expresionaritmetica PARDER
+                               | ACOSD PARIZQ expresionaritmetica PARDER
+                               | ASIN PARIZQ expresionaritmetica PARDER
+                               | ASIND PARIZQ expresionaritmetica PARDER
+                               | ATAN PARIZQ expresionaritmetica PARDER
+                               | ATAND PARIZQ expresionaritmetica PARDER
+                               | ATAN2 PARIZQ expresionaritmetica PARDER
+                               | ATAN2D PARIZQ expresionaritmetica PARDER
+                               | COS PARIZQ expresionaritmetica PARDER
+                               | COSD PARIZQ expresionaritmetica PARDER
+                               | COT PARIZQ expresionaritmetica PARDER
+                               | COTD PARIZQ expresionaritmetica PARDER
+                               | SIN PARIZQ expresionaritmetica PARDER
+                               | SIND PARIZQ expresionaritmetica PARDER
+                               | TAN PARIZQ expresionaritmetica PARDER
+                               | TAND PARIZQ expresionaritmetica PARDER
+                               | SINH PARIZQ expresionaritmetica PARDER
+                               | COSH PARIZQ expresionaritmetica PARDER
+                               | TANH PARIZQ expresionaritmetica PARDER
+                               | ASINH PARIZQ expresionaritmetica PARDER
+                               | ACOSH PARIZQ expresionaritmetica PARDER
+                               | ATANH PARIZQ expresionaritmetica PARDER'''
+    
+# ----------- FUNCIONES BINARIAS SOBRE CADENAS ---------------
+
+# Select | Where
+def p_fbinarias_cadenas_1(t):
+    'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
+    
+# Select | Insert | Update | Where
+def p_fbinarias_cadenas_2(t):
+    '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
+                            | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
+                            | TRIM PARIZQ cadena PARDER'''
+    
+# Insert | Update                            
+def p_fbinarias_cadenas_3(t):
+    'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
+
+# Select
+def p_fbinarias_cadenas_4(t):
+    '''func_bin_strings_4   : GET_BYTE PARIZQ cadena COMA ENTERO PARDER
+                            | SET_BYTE PARIZQ cadena COMA ENTERO COMA ENTERO PARDER
+                            | ENCODE PARIZQ cadena COMA cadena PARDER
+                            | DECODE PARIZQ cadena COMA cadena PARDER
+                            | SHA256 PARIZQ cadena PARDER
+                            | CONVERT PARIZQ alias PARDER'''
+
+def p_cadena(t):
+    '''cadena   : cualquiercadena
+                | cualquieridentificador'''
+
+
+############################################## PRODUCCIONES ESPECIALES #################################################
+
 ##Epsilon 
 def p_empty(t) :
     'empty            : '
@@ -1007,7 +1169,7 @@ def p_empty(t) :
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
-#------------------------------------------------------------------------------
+
 
 #Analizador sintactico
 import ply.yacc as yacc

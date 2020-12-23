@@ -1,3 +1,5 @@
+from numpy.core.records import array
+from numpy.lib.arraysetops import isin
 from views.data_window import DataWindow
 from models.instructions.shared import *
 from models.instructions.Expression.expression import *
@@ -22,6 +24,7 @@ class Select(Instruction):
         self.instrs = instrs
         self.order_option = order_option
         self.limit_option = limit_option
+        self.alias = f'{self.instrs.alias}'
     def __repr__(self):
         return str(vars(self))
     
@@ -33,23 +36,20 @@ class Select(Instruction):
             instr = self.instrs.process(instrucction)
             order = self.order_option.process(instrucction, instr)
             limit = self.limit_option.process(instrucction, order)
-            return DataWindow().consoleText(format_df(limit))
+            return limit
         elif self.instrs != None and self.order_option != None and self.limit_option == None:
             instr = self.instrs.process(instrucction)
             order = self.order_option.process(instrucction,instr)
-            return DataWindow().consoleText(format_df(order))
+            return order
         elif self.instrs != None  and self.order_option == None and self.limit_option != None:
             instr = self.instrs.process(instrucction)
             limit = self.limit_option.process(instrucction, instr)
-            return DataWindow().consoleText(format_df(limit))
+            return limit
         elif self.instrs != None and self.order_option == None and self.limit_option == None:
             instr = self.instrs.process(instrucction)
-        if isinstance(instr, DataFrame):
-            return DataWindow().consoleText(format_df(instr))
-        elif isinstance(instr, list):
-            return DataWindow().consoleText(format_table_list(instr))
+            return instr
         return None 
-
+    
 class TypeQuerySelect(Instruction):
     '''
     TypeQuerySelect recibe si va a ser 
@@ -82,6 +82,7 @@ class SelectQ(Instruction):
         self.select_list = select_list
         self.from_clause = from_clause
         self.where_or_grouphaving = where_or_grouphaving
+        self.alias = f'{from_clause.alias}'
         self.line = line
         self.column = column
 
@@ -90,6 +91,7 @@ class SelectQ(Instruction):
     
     def process(self, instrucction):
         list_select = None
+        print(self.alias)
         if self.type_select == None and self.from_clause == None and self.where_or_grouphaving == None and self.select_list != None:
             list_select = list_expressions(self.select_list, instrucction)
             return list_select
@@ -98,20 +100,43 @@ class SelectQ(Instruction):
         elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
             pass
         elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
-            pass 
+            list_from = self.from_clause.process(instrucction)
+            if len(list_from) > 1:
+                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                    list_select = loop_list(self.select_list, instrucction)
+                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    return where_table
+                else:
+                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                    return list_select
+            else:
+                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                    list_select = loop_list(self.select_list, instrucction)
+                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    return where_table
+                else:
+                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], self.alias)
+                    list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
+                    return list_select
+            
         elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
             list_from = self.from_clause.process(instrucction)
-            
-            if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1 and len(list_from) == 1:
-                list_select = loop_list(self.select_list, instrucction)
-                tabla_all = select_all(list_from, self.line, self.column)
-                return tabla_all
+                ## Esto es para selects simples 
+            if len(list_from) > 1:
+                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                    list_select = loop_list(self.select_list, instrucction)
+                    return list_from[0]
+                else:
+                    list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                    return list_select
             else:
-            # elif  len(list_from) == 1:
-                table_i = select_all(list_from, self.line, self.column)
-                list_select = loop_list_with_columns(self.select_list, list_from[0], instrucction)
-            # table_f = select_with_columns(list_select, table_i)
-                return list_select
+                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                    list_select = loop_list(self.select_list, instrucction)
+                    return list_from[0]
+                else:
+                    list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
+                    return list_select
         
         return None
             
@@ -192,79 +217,8 @@ class JoinClause(Instruction):
     def process(self, instrucction):
         pass
     
-class ExistsClause(Instruction):
-    '''
-    ExistsClause recibe de parametro
-    un subquery 
-    '''
-    def __init__(self, subquery,line, column):
-        self.subquery = subquery
-        self.line = line
-        self.column = column 
-        
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
 
-class NotOption(Instruction):
-    '''
-    NotClause recibe una lista 
-    de instrucciones a ser negadas
-    '''
-    def __init__(self, arr_not,line, column):
-        self.arr_not = arr_not
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
     
-    def process(self, instrucction):
-        pass
-
-class InClause(Instruction):
-    '''
-    InClause
-    '''
-    def __init__(self, arr_lista,line, column):
-        self.arr_lista = arr_lista
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
-class LikeClause(Instruction):
-    '''
-        LikeClause
-    '''
-    def __init__(self, arr_list,line, column):
-        self.arr_list = arr_list
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
-class isClause(Instruction):
-    '''
-        IsClause
-    '''
-    def __init__(self, arr_list,line, column):
-        self.arr_list = arr_list
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
 class AgreggateFunctions(Instruction):
     '''
         AgreggateFunctions

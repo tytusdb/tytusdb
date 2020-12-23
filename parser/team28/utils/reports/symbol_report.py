@@ -7,13 +7,6 @@ class SymbolTableReport(object):
     def __init__(self):
         self._symbolTable = SymbolTable()
         self._data = ''
-        self.generateReport()
-
-        report = open('symbolTable.dot', 'w')
-        report.write(self._data)
-        report.close()
-        os.system('dot -Tpdf symbolTable.dot -o symbolTable.pdf')
-        # os.startfile('symbolTable.pdf')
 
     def generateReport(self):
         self._data = 'digraph {\n\ttbl [\n\tshape=plaintext\n\tlabel=<'
@@ -25,6 +18,8 @@ class SymbolTableReport(object):
         self.generateHeaders()
 
         self._data += '\n\t\t</table>\n\t>];\n}'
+
+        return self._data
 
     def generateHeaders(self):
         self._data += '\n\t\t\t<tr>'

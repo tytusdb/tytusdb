@@ -327,22 +327,22 @@ class Application(ttk.Frame):
         # PESTAniAS ----------------------------------------------------------------------------
         PanelPestania = tk.Frame()
         PanelPestania.config(
-            bg="SteelBlue1", relief=tk.RAISED, width="700", bd=2)
+            bg="SteelBlue1", relief=tk.RAISED, height="400", bd=2)
 
         self.tab_control = ttk.Notebook(PanelPestania)
-        self.tab_control.config(width="600")
+        self.tab_control.config(height="300")
 
         self.f_nuevaPestania()
 
         # CONSOLA-------------------------------------------------------------------------------
         Consola = tk.Frame()
-        Consola.config(bg="SteelBlue1", relief=tk.RAISED, width="700", bd=2)
+        Consola.config(bg="SteelBlue1", relief=tk.RAISED, height="700", bd=2)
 
         S = tk.Scrollbar(Consola)
-        self.T = tk.Text(Consola, height=4, width=70,
+        self.T = tk.Text(Consola, height=70, width=4,
                          bg="black", fg="chartreuse2")
         S.pack(side=tk.RIGHT, fill=tk.Y)
-        self.T.pack(side=tk.LEFT, fill=tk.Y)
+        self.T.pack(side=tk.TOP, fill=tk.X)
         S.config(command=self.T.yview)
         self.T.config(yscrollcommand=S.set)
         quote = """>>>\n"""
@@ -367,8 +367,8 @@ class Application(ttk.Frame):
         # metodos extras-------------------------------------------------------
 
         BarraH.pack(side=tk.TOP, fill=tk.X)
-        PanelPestania.pack(side=tk.LEFT, fill=tk.Y, pady=10, padx=10)
-        Consola.pack(side=tk.LEFT, fill=tk.Y, pady=10, padx=10)
+        PanelPestania.pack(side=tk.TOP, fill=tk.X, pady=10, padx=10)
+        Consola.pack(side=tk.TOP, fill=tk.X, pady=10, padx=10)
         ventana.config(menu=menu)
         ventana.mainloop()
 
@@ -401,7 +401,7 @@ class Application(ttk.Frame):
         numberLines.attach(T1)
         S1.pack(side=tk.RIGHT, fill=tk.Y)
         numberLines.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
-        T1.pack(side=tk.LEFT, fill='both')
+        T1.pack(side=tk.TOP, fill='both')
 
         S1.config(command=T1.yview)
         T1.config(yscrollcommand=S1.set)
@@ -566,29 +566,29 @@ class Application(ttk.Frame):
 
     def f_abrirBNFdescendente(self):
         try:
-            wb.open_new(r'../Analisis_Descendente/reporteGramatical.html')
+            wb.open_new(r'')
 
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_abrirAST(self):
         try:
-            wb.open_new(r'AST.png')
+            wb.open_new(r'AST.svg')
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_abrirtablaSimbolos(self):
         try:
-            wb.open_new(r'')
+            wb.open_new(r'Simbolos.html')
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_parsear(self, texto):
-       self.T.insert(tk.END,'')
+       self.T.delete(1.0,tk.END)
        salida= parser.ejecutarAnalisis(texto)
 
        for output in salida:
-        self.T.insert(tk.END, output)
+        self.T.insert(tk.END,"\n>>>"+ output)
 
     def f_correr(self):
         lista = []

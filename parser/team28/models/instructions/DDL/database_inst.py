@@ -96,7 +96,7 @@ class ShowDatabase(Instruction):
         columnsData = []
         for db in databases:
             columnsData.append([db])
-        DataWindow().consoleTable(['Tables'], columnsData)
+        DataWindow().consoleTable(['Databases'], columnsData)
 
     def __repr__(self):
         return str(vars(self))
