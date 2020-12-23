@@ -41,8 +41,11 @@ class select(query):
         self.offset = offset
         if having is not None and condition is not None:
             self.condition.append(having)
+        
+        
 
     def ejecutar(self):
+
         gro = self.group
         #Obtener la lista de tablas
         tables = {}
@@ -244,6 +247,10 @@ class exp_id(exp_query):
                 registros = s.extractTable(default_db,t)
                 #Buscamos los encabezados
                 encabezados = ts.getColumns(default_db,t)
+                if registros ==[] and encabezados == []:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 #Devolvemos todas las columnas
                 cols = []
                 #llenamos vacio
@@ -262,17 +269,34 @@ class exp_id(exp_query):
                 
             #Verificamos si es *
             
-            tupla = ts.getTabla(self.val)
+            #Tenemos que tener la tabla
+            c=0
+            while True: 
+                tupla = ts.getTabla(self.val,c)
+                if tupla is None:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
+                if tupla[0] not in tables and tupla[0] not in tables.values():
+                    c+=1
+                    tupla = ts.getTabla(self.val,c)
+                else:
+                    break
+            
+            
             
             #Este devuelve la base de datos y la
             # tabla
-            if tupla is None : return #Error semántico
+            if tupla is None : 
+                e = errores.CError(0,0,"La tabla buscada no está en el from",'Semantico')
+                errores.insert_error(e)
+                return e
             #Ahora obtenemos los registros de la columna
-            registros = s.extractTable(tupla.db,tupla.tabla)
+            registros = s.extractTable(tupla[1],tupla[0])
 
             #Obtener el indice de la columna
 
-            indice = ts.getIndice(tupla.db,tupla.tabla,self.val)
+            indice = ts.getIndice(tupla[1],tupla[0],self.val)
 
             # Obtener la columna de los registros
 
@@ -281,7 +305,7 @@ class exp_id(exp_query):
                 columna.append(reg[indice])
             dict = {
                 "valores":columna,
-                "columna":[{"nombre":self.val,"indice":indice,"tabla":tupla.table}]
+                "columna":[{"nombre":self.val,"indice":indice,"tabla":tupla[0]}]
             }
             return dict
         else:
@@ -314,6 +338,10 @@ class exp_id(exp_query):
                     return dict
 
                 indice = ts.getIndice(default_db,self.table,self.val)
+                if registros ==[] and indice == -1:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 col = []
                 for reg in registros:
                     col.append(reg[indice])
@@ -327,12 +355,18 @@ class exp_id(exp_query):
 
             else:
                 #Obtenemos el nombre basado en el alias
-                table = getKeyFromValue(self.table,tables)     
+                table = getKeyFromValue(self.table,tables)
+                if isinstance(table,CError):
+                    return table    
                 #Obtenemos la tabla
                 registros = s.extractTable(default_db,table)
 
                 if self.val == '*':
                     encabezados = ts.getColumns(default_db,table)
+                    if registros ==[] and encabezados == []:
+                        e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     cols = []
                     #llenamos vacio
                     cont = len(registros[0])
@@ -349,6 +383,10 @@ class exp_id(exp_query):
                     return dict
                 #Obtenemos el indice de esa tabla
                 indice = main.ts.getIndice(default_db,table,self.val)
+                if indice == -1:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 #Obtenemos la columan que queremos
                 col = []
                 for reg in registros:
@@ -450,7 +488,9 @@ class exp_suma(exp_query):
 
                         result.append(float(col)+float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -519,7 +559,9 @@ class exp_resta(exp_query):
 
                         result.append(float(col)-float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -584,7 +626,9 @@ class exp_multiplicacion(exp_query):
 
                         result.append(float(col)*float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     
                 newdict = {
                     'valores':result,
@@ -650,7 +694,9 @@ class exp_division(exp_query):
 
                         result.append(float(col)/float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -3925,7 +3971,9 @@ def getKeyFromValue(value,d):
         if alias == value:
             return table
 
-    return None
+    e = errores.CError(0,0,"Imposible obtener la tabla.",'Semantico')
+    errores.insert_error(e)
+    return e
 
 def getInstance(col):
     if isinstance(col,fun_count):
@@ -4127,7 +4175,9 @@ class condition(exp_query):
 def ejecutar_conditions(tables,lcond):
     condition = lcond
     if len(condition) == 0:
-        return None
+        e = errores.CError(0,0,"Error en la ejecucion de condiciones.",'Semantico')
+        errores.insert_error(e)
+        return e
     elif len(condition) == 1:
         return condition[0].exp.ejecutar(tables)
     else:

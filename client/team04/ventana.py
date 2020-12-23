@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
+from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END, Entry, Label
 from tkinter import messagebox as MessageBox
-from tkinter import ttk,filedialog, INSERT
+from tkinter import ttk,filedialog, INSERT, PhotoImage
 import os
 import pathlib
 from campo import Campo, MyDialog
@@ -15,11 +15,13 @@ control=0
 notebook= None
 consola = None
 raiz = None
+tools = None
+loginOn = False
 
 
 #Variables para simular credenciales
-username = "admin"
-password = "admin"
+ActiveUsername = ""
+ActivePassword = ""
 
 #Metodo GET para probar peticiones al servidor
 def myGET():
@@ -43,39 +45,6 @@ def myGET():
         consola.insert(INSERT,"\nHa ocurrido un error.")
         consola.config(state=DISABLED)
     myConnection.close()
-
-
-#Metodo POST para probar peticiones al servidor
-def myPOST():
-    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
-
-    headers = {
-        "Content-type": "application/json"
-    }
-
-    #Data en formato json
-    jsonData = { "username": username, "password": password }
-    myJson = json.dumps(jsonData)
-
-    myConnection.request("POST", "/checkLogin", myJson, headers)
-    response = myConnection.getresponse()
-    global consola
-    print("POST: Status: {} and reason: {}".format(response.status, response.reason))
-    if response.status == 200:       
-        data = response.read()
-        result = data.decode("utf-8")
-        consola.config(state=NORMAL)
-        if result == "true":
-            consola.insert(INSERT,"\nUsuario loggeado correctamente.")
-        else:
-            consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
-        consola.config(state=DISABLED)
-    else:
-        consola.config(state=NORMAL)
-        consola.insert(INSERT,"\nHa ocurrido un error.")
-        consola.config(state=DISABLED)
-    myConnection.close()
-
 
 #Metodo POST para crear usuarios
 def crearUsuario():
@@ -114,11 +83,79 @@ def crearUsuario():
                 consola.config(state=DISABLED)
             myConnection.close()
         else:
-            MessageBox.showerror("Error", "Uno de los campos está vacío")
+            MessageBox.showerror("Error", "Es necesario llenar ambos campos!")
 
+def changeToLogout():
+    global tools
+    global loginOn
+    loginOn = True
+    tools.entryconfig(5, label="LOGOUT")
+
+def changeToLogin():
+    global tools
+    global loginOn
+    loginOn = False
+    tools.entryconfig(5, label="LOGIN")
+
+def LimpiarConsola():
+    global consola
+    consola.config(state=NORMAL)
+    consola.delete("1.0", tk.END)
+    consola.insert(1.0,"Consola de Salida:")
+    consola.config(state=DISABLED)
+
+def LogIn():
+    ###ventana para el log
+    global raiz
+    global loginOn
+    global ActiveUsername
+    if loginOn is False:
+        d = MyDialog(raiz)
+        if d.accept is True:
+            myUsername = d.result[0]
+            myPassword = d.result[1]
+            
+            if not "".__eq__(myUsername) and not "".__eq__(myPassword):
+                myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+                headers = {
+                    "Content-type": "application/json"
+                }
+
+                #Data en formato json
+                jsonData = { "username": myUsername, "password": myPassword }
+                myJson = json.dumps(jsonData)
+
+                myConnection.request("POST", "/checkLogin", myJson, headers)
+                response = myConnection.getresponse()
+                global consola
+                print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+                if response.status == 200:       
+                    data = response.read()
+                    result = data.decode("utf-8")
+                    consola.config(state=NORMAL)
+                    if result == "true":
+                        ActiveUsername = myUsername
+                        consola.insert(INSERT,"\nUsuario " + ActiveUsername + " loggeado correctamente.")
+                        changeToLogout()
+                    else:
+                        consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
+                    consola.config(state=DISABLED)
+                else:
+                    consola.config(state=NORMAL)
+                    consola.insert(INSERT,"\nHa ocurrido un error.")
+                    consola.config(state=DISABLED)
+                myConnection.close()
+            else:
+                MessageBox.showerror("Error", "Es necesario llenar ambos campos!")
+    else:
+        changeToLogin()
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nUsuario " + ActiveUsername + " ha cerrado sesión exitosamente.")
+        consola.config(state=DISABLED)
 
 def CrearMenu(masterRoot):
-
+    global tools
     ########### menu ############
     #Se crea la barra
     barraDeMenu=Menu(masterRoot, tearoff=0,relief=FLAT, font=("Verdana", 12),activebackground='gray59')
@@ -155,10 +192,12 @@ def CrearMenu(masterRoot):
     #se agrega su lista
     tools.add_command(label="Configuración")
     tools.add_command(label="Utilidades")
+    tools.add_command(label="Limpiar consola", command = LimpiarConsola)
     #Temporary tools to test client-server connection
-    tools.add_command(label="GET", command = myGET)
-    tools.add_command(label="POST", command = myPOST)
+    tools.add_command(label="GET USERS", command = myGET)
     tools.add_command(label="CREATE USER", command = crearUsuario)
+    #Log In sera parte de la barra de herramientas
+    tools.add_command(label="LOGIN", command = LogIn)
 
     #se agrega ayuda
     ayuda=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
@@ -253,9 +292,10 @@ def añadir(titulo):
     global consola
     global control
     global notebook
-    consola.config(state=NORMAL)
-    consola.insert(INSERT,"\nSe creo una nueva Pestaña")
-    consola.config(state=DISABLED)
+    if control > 0:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nSe creo una nueva Pestaña")
+        consola.config(state=DISABLED)
     formularios.append(Frame(notebook,bg="white"))
     contador=control
     notebook.add(formularios[contador], text=titulo)

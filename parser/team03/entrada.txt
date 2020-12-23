@@ -22,3 +22,7 @@ CREATE TABLE tbusuario (
 	password varchar(15) NOT NULL,
 	fechacreacion date 
 );
+INSERT INTO tbusuario(idusuario, nombre, apellido, usuario, password, fechacreacion)
+VALUES (1,'Aug','LH','vkslax','pass','2020-12-12');
+INSERT INTO tbusuario(idusuario, nombre, apellido, usuario, password, fechacreacion)
+VALUES (2,'Vic','L','vkslax','pass','2020-12-12');

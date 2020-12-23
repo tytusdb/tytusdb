@@ -126,7 +126,6 @@ tokens = [
              'ptcoma',
              'para',
              'coma',
-             'punto',
              'int',
              'decimales',
              'cadena',
@@ -244,7 +243,7 @@ from Expresion.Terminal import Terminal
 from Expresion.Logica import Logica
 from Expresion.Unaria import Unaria
 from Instrucciones.CreateTable import *
-from Instrucciones.Select import Select
+from Instrucciones.Select import *
 from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
 from Instrucciones.Insert import *
@@ -804,7 +803,16 @@ def p_LIMIT(t):
                | limit all offset int
                | offset int limit all
                | '''
-
+    if len(t) == 3:
+        if str(t[1]).lower() == 'limit':
+            t[0] = Limit(t[2], -1)
+        elif str(t[1]).lower() == 'offset':
+            t[0] = Limit(-1, t[2])
+    elif len(t) == 5:
+        if str(t[1]).lower() == 'limit':
+            t[0] = Limit(t[2], t[4])
+        elif str(t[1]).lower() == 'offset':
+            t[0] = Limit(t[4], t[2])
 
 def p_WHERE(t):
     ''' WHERE : where EXP '''
@@ -822,10 +830,12 @@ def p_COMBINING(t):
     '''COMBINING :  union EXP
                 | union all EXP
                 | intersect EXP
-                | intersect all EXP
                 | except EXP
-                | except all EXP
 	            | '''
+    if len(t) == 3:
+        t[0] = Combi(t[1], t[2], '')
+    elif len(t) == 4:
+        t[0] = Combi(t[1], t[3], t[2])
 
 
 def p_GROUP(t):
