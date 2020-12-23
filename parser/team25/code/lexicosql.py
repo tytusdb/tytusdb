@@ -241,7 +241,7 @@ tokens = [
     'CADENA_NOW',
     'CADENA_INTERVAL',
     'DOBLE_PUNTO',
-    'CADENA_BOOLEANA_TRUE'
+    'NOT_IN'
 ] + list(palabrasReservadas.values())
 
 
@@ -278,6 +278,10 @@ t_DOBLE_PUNTO= r'[:][:]'
 def t_NOTBETWEEN(t):
     r'[Nn][Oo][tT][ ]+[Bb][eE][tT][wW][eE][eE][nN]'
     t.type = 'NOTBETWEEN'
+    return t
+def t_NOT_IN(t):
+    r'[Nn][Oo][tT][ ]+[iI][nN]'
+    t.type = 'NOT_IN'
     return t
 # funcion para id, aca tambien se reconocen las palabras reservadas
 def t_ID(t):

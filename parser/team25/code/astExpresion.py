@@ -1,7 +1,7 @@
 from enum import Enum
 from reporteErrores.errorReport import ErrorReport # EN EL AMBITO MAS EXTERIOR SE INGRESAN A LA LISTA , EN ESTAS SUB CLASES SOLO SE SUBE EL ERROR
 # Enumeraciones para identificar expresiones que comparten clase
-
+import sqlErrors
 class TIPO_DE_DATO(Enum):
     ENTERO = 1
     DECIMAL = 2
@@ -166,9 +166,9 @@ class ExpresionAritmetica(Expresion):
                 
                 return 0
             
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
-        izq = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
-        der = self.exp2.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        izq = self.exp1.evaluacionCheck(ts)
+        der = self.exp2.evaluacionCheck(ts)
         if (izq != 1) or (der != 1):
             return 5
         return 1  # no importa que operacion realice va regresar un numero
@@ -219,8 +219,8 @@ class ExpresionNegativa(Expresion):
         except:
             return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "-"' ,self.linea)  
         
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
-        value = self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        value = self.exp.evaluacionCheck(ts)
         if value != 1 and value != 2:
             return 5
         return value
@@ -254,8 +254,8 @@ class ExpresionPositiva(Expresion):
         except:
             return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "+"' ,self.linea)
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int:
-        value = self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts) -> int:
+        value = self.exp.evaluacionCheck(ts)
         if value != 1 and value != 2: # o si ya fuera error lo sube
             return 5
         return value
@@ -281,7 +281,7 @@ class ExpresionNumero(Expresion):
     def ejecutar(self, ts):
         return self
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = numero , 2 = cadena , 3 = cadenaDate , 4 = id , 5 = Error  , 6 = error Por formato de fecha
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = numero , 2 = cadena , 3 = cadenaDate , 4 = id , 5 = Error  , 6 = error Por formato de fecha
         return 1
     def getExpresionToString(self) -> str:
         return str(self.val)
@@ -300,16 +300,89 @@ class ExpresionID(Expresion):
 
         return nodo
     def ejecutar(self ,ts):
-        return self
-    
-    
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int:
-        if self.val.lower() == idCol.lower():
-            return tipoColumna
-        return 5 # sino NO ES EL ID DE LA COLUMNA QUE MANDE Y MARCA ERROR
+        if isinstance(ts , TuplaCompleta):# PARA VALIDACIONES DE WHERE Y SELECT 
+            valorYtipo = ts.getValue(self.val)
+            if valorYtipo == None:
+                return ErrorReport('Semantico','no se encontro esa columna', self.linea)
+            else:
+                if valorYtipo['tipo'] == 'SMALLINT' \
+                or valorYtipo['tipo'] == 'BIGINT' \
+                or valorYtipo['tipo'] == 'INTEGER':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.ENTERO, self.linea)
+                elif valorYtipo['tipo'] == 'DECIMAL' \
+                or valorYtipo['tipo'] == 'NUMERIC' \
+                or valorYtipo['tipo'] == 'REAL' \
+                or valorYtipo['tipo']== 'DOUBLE_PRECISION' \
+                or valorYtipo['tipo'] == 'MONEY':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea)
+                elif valorYtipo['tipo'] == 'CHAR' \
+                or valorYtipo['tipo'] == 'VARCHAR' \
+                or valorYtipo['tipo'] == 'TEXT' \
+                or valorYtipo['tipo'] == 'ENUM':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea)
+                elif valorYtipo['tipo'] == 'BOOLEAN':
+                    return ExpresionBooleano(valorYtipo['val'], self.linea)
+                elif valorYtipo['tipo'] == 'DATE':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea, isFecha=True)
+                return Exception()
+            
+        else:# supongo que es para lo del check :v 
+            try:
+                symbol = ts.buscarSimbolo(self.val)
+
+                if symbol.tipo == 'SMALLINT' \
+                or symbol.tipo == 'BIGINT' \
+                or symbol.tipo == 'INTEGER':
+                    return ExpresionNumero(symbol.valor, TIPO_DE_DATO.ENTERO, self.linea)
+                elif symbol.tipo == 'DECIMAL' \
+                or symbol.tipo == 'NUMERIC' \
+                or symbol.tipo == 'REAL' \
+                or symbol.tipo == 'DOUBLE_PRECISION' \
+                or symbol.tipo == 'MONEY':
+                    return ExpresionNumero(symbol.valor, TIPO_DE_DATO.DECIMAL, self.linea)
+                elif symbol.tipo == 'CHAR' \
+                or symbol.tipo == 'VARCHAR' \
+                or symbol.tipo == 'TEXT' \
+                or symbol.tipo == 'ENUM':
+                    return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea)
+                elif symbol.tipo == 'BOOLEAN':
+                    return ExpresionBooleano(symbol.valor, self.linea)
+                elif symbol.tipo == 'DATE':
+                    return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea, isFecha=True)
+                return Exception()
+            except:
+                return Exception()    
+    def evaluacionCheck(self ,ts)-> int:
+        try:
+            symbol = ts.buscarSimbolo(self.val)
+            return self.__comprobarTipo(symbol.tipo)
+        except:
+            return 5
+
     def getExpresionToString(self) -> str:
         return str(self.val)
 
+
+    def __comprobarTipo(self,tipo: str) -> int:
+        if tipo == 'SMALLINT' \
+        or tipo == 'BIGINT' \
+        or tipo == 'INTEGER'\
+        or tipo == 'DECIMAL' \
+        or tipo == 'NUMERIC' \
+        or tipo == 'REAL' \
+        or tipo == 'DOUBLE_PRECISION' \
+        or tipo == 'MONEY':
+            return 1
+        elif tipo == 'CHAR' \
+        or tipo == 'VARCHAR' \
+        or tipo == 'TEXT' \
+        or tipo == 'ENUM':
+            return 2
+        elif tipo == 'BOOLEAN':
+            return 0
+        elif tipo == 'DATE':
+            return 3
+        return 5
 
 
 
@@ -364,9 +437,9 @@ class ExpresionComparacion(Expresion):
         else:
             return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
-        izq  = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
-        der  = self.exp2.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts)-> int: 
+        izq  = self.exp1.evaluacionCheck(ts)
+        der  = self.exp2.evaluacionCheck(ts)
 
         if izq == 3 and der == 3: # SI AMBOS SON CADENAS DE TIPO FECHA ES VALIDA SU COMPARACION Y RETORNA UN BOOL 
             return 0
@@ -433,16 +506,16 @@ class ExpresionLogica(Expresion):
         else:
             return ErrorReport('semantico', 'Error , se esta operando con valores No booleanos' ,self.linea)
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
-        izq  = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
-        der  = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts)-> int: 
+        izq  = self.exp1.evaluacionCheck(ts)
+        der  = self.exp2.evaluacionCheck(ts)
         if izq != 0 or der != 0:
             return 5
         return 0
     def getExpresionToString(self) -> str:
         izq  = self.exp1.getExpresionToString()
-        der  = self.exp1.getExpresionToString()
-        return str(izq + f' {self.operador.name} ' + der)
+        der  = self.exp2.getExpresionToString()
+        return str(izq + f' {self.operador.name.lower()} ' + der)
 
 # Expresion negada
 class ExpresionNegada(Expresion):
@@ -466,8 +539,8 @@ class ExpresionNegada(Expresion):
         else:
             print('Error semántico, operador no admitido para not', self.exp.tipo)
 
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
-        sintetizado = self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts)-> int: 
+        sintetizado = self.exp.evaluacionCheck(ts)
         if sintetizado != 0:
             return 5
         return 0
@@ -491,7 +564,7 @@ class ExpresionBooleano(Expresion):
     def ejecutar(self, ts):
         return self
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
+    def evaluacionCheck(self ,ts)-> int: 
         return 0
     def getExpresionToString(self) -> str:
         return str(self.val)
@@ -592,7 +665,7 @@ class ExpresionCadena(Expresion):
     def ejecutar(self,ts):
         return self
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
+    def evaluacionCheck(self ,ts)-> int: 
         if self.isFecha == True:
             return 3
         return 2
@@ -672,9 +745,34 @@ class ExpresionAgrupacion(Expresion):
     def ejecutar(self, ts):
         return self.exp.ejecutar(ts)
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
-        return self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts)-> int: 
+        return self.exp.evaluacionCheck(ts)
     
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
         return str('(' + sint +')')
+    
+    
+
+
+
+class TuplaCompleta:
+    def __init__(self, tupla):
+        self.tupla = tupla
+        
+    def getValue(self, id , referciaTabla = None): # a veces no viene
+        # VALIDAR QUE NO HAYA AMBIGUEDAD PRIMERO , aun no lo tengo :v 
+        for columna in self.tupla:
+            if referciaTabla == None:
+                if self.quitarRef(columna['id']) == id:
+                    return columna
+            else:
+                if columna['id'] == id:
+                    return columna
+                elif self.quitarRef(columna['id']) == id:
+                    return columna 
+        return None
+    
+    def quitarRef(self,cadena):# le quito la referencia de su tabla 
+        cadena = cadena.split('.')
+        return cadena[1]

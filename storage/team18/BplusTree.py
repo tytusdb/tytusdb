@@ -578,6 +578,10 @@ class BPlusTree:
             if len(self.PKey):
                 return 4
             else:
+                maximun = max(Pk)
+                minimun = min(Pk)
+                if not (minimun >= 0 and maximun < self.columns):
+                    return 5
                 for x in Pk:
                     if type(x) != int:
                         return 1
@@ -617,6 +621,8 @@ class BPlusTree:
             if column in self.PKey or self.columns==1:
                 return 4
             else:
+                if column < 0 or column >= self.columns:
+                    return 5
                 self.columns-=1
                 lista = list(self.lista().values())
                 for l in lista:

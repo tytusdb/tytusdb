@@ -6,14 +6,14 @@ from storage import jsonMode as funciones
 from tools.console_text import *
 
 class unique_simple(instruccion):
-    def __init__(self, constrain, dato, line, column, num_nodo):
+    def __init__(self, constraint, dato, line, column, num_nodo):
         super().__init__(line,column)
-        self.constrain = constrain
+        self.constraint = constraint
         self.dato = dato
 
         self.nodo = nodo_AST('condition_column',num_nodo)
-        if constrain != None:
-            self.nodo.hijos.append(constrain.nodo)
+        if constraint != None:
+            self.nodo.hijos.append(constraint.nodo)
         self.nodo.hijos.append(nodo_AST('UNIQUE',num_nodo+1))
         if len(dato) > 0:
             self.nodo.hijos.append(nodo_AST('(', num_nodo + 2))
@@ -29,20 +29,17 @@ class unique_simple(instruccion):
         try:
             id_db = get_actual_use()
 
-            lista_cols = []
-            lista_cols.append(pos_col)
-
             #Extraer registros en dicha columna
             tabla = funciones.extractTable(id_db, tb_id)
 
             #Validar si existe un registro igual
             for registro in tabla:
-                if dato == registro[0]:
+                if dato == registro[pos_col]:
                     return nodo_error(self.line, self.column, 'ERROR - Restricción UNIQUE violada, no se puede insertar duplicado: ' + str(dato), 'Semántico')
-
+            
             return None
         except:
-            return nodo_error(self.line, self.column, 'ERROR - No se puede validar restricción UNIQUE', 'Semántico')
+            return nodo_error(self.line, self.column, 'E-22005 error in assignment: Unable to validate UNIQUE constraint', 'Semántico')
 
     def cargar_unique(self, tb_id):
         try:
@@ -51,8 +48,8 @@ class unique_simple(instruccion):
             for col in self.dato:
                 columna = ts.get_col(id_db, tb_id, col)
                 columna.condiciones = [] 
-                columna.condiciones.append(unique_simple(self.constrain, col, self.line, self.column, 0))
+                columna.condiciones.append(unique_simple(self.constraint, col, self.line, self.column, 0))
         except:
-            errores.append(nodo_error(self.line, self.column, 'ERROR - No se puede asignar restricción UNIQUE', 'Semántico'))
-            add_text('ERROR - No se puede asignar restricción UNIQUE\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Unable to validate UNIQUE constraint', 'Semántico'))
+            add_text('E-22005 error in assignment: Unable to validate UNIQUE constraint\n')
 

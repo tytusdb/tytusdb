@@ -1,3 +1,5 @@
+from numpy.core.records import array
+from numpy.lib.arraysetops import isin
 from views.data_window import DataWindow
 from models.instructions.shared import *
 from models.instructions.Expression.expression import *
@@ -22,6 +24,7 @@ class Select(Instruction):
         self.instrs = instrs
         self.order_option = order_option
         self.limit_option = limit_option
+        self.alias = f'{self.instrs.alias}'
     def __repr__(self):
         return str(vars(self))
     
@@ -33,23 +36,20 @@ class Select(Instruction):
             instr = self.instrs.process(instrucction)
             order = self.order_option.process(instrucction, instr)
             limit = self.limit_option.process(instrucction, order)
-            return DataWindow().consoleText(format_df(limit))
+            return limit
         elif self.instrs != None and self.order_option != None and self.limit_option == None:
             instr = self.instrs.process(instrucction)
             order = self.order_option.process(instrucction,instr)
-            return DataWindow().consoleText(format_df(order))
+            return order
         elif self.instrs != None  and self.order_option == None and self.limit_option != None:
             instr = self.instrs.process(instrucction)
             limit = self.limit_option.process(instrucction, instr)
-            return DataWindow().consoleText(format_df(limit))
+            return limit
         elif self.instrs != None and self.order_option == None and self.limit_option == None:
             instr = self.instrs.process(instrucction)
-        if isinstance(instr, DataFrame):
-            return DataWindow().consoleText(format_df(instr))
-        elif isinstance(instr, list):
-            return DataWindow().consoleText(format_table_list(instr))
+            return instr
         return None 
-
+    
 class TypeQuerySelect(Instruction):
     '''
     TypeQuerySelect recibe si va a ser 
@@ -58,16 +58,54 @@ class TypeQuerySelect(Instruction):
     EXCEPT
     Y si va a ir con la opcion ALL 
     '''
-    def __init__(self, typeQuery, optionAll,line, column):
-        self.typeQuery = typeQuery
-        self.optionAll = optionAll
+    def __init__(self, arr_select, line, column):
+        self.arr_select = arr_select
         self.line = line
         self.column = column
+        self.alias = f'{arr_select[0].alias}'
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
-        pass
+        select1 = None
+        select2 = None
+        table_result = None
+        ## ALL OPTION
+        try:
+            if len(self.arr_select) == 4:
+                type_query = self.arr_select[1]
+                select1 = self.arr_select[0]
+                select2 = self.arr_select[3]
+                if isinstance(select1, Select):
+                        select1 = select1.process(instrucction)
+                if isinstance(select2, Select):
+                        select2 = select2.process(instrucction)
+                if type_query.lower() == "union":
+                    table_result = pd.concat([select1, select2])
+                elif type_query.lower() == 'intersect':
+                    table_result = pd.merge(select1, select2, how='inner')
+                elif type_query.lower() == 'except':
+                    table_result = select1.merge(select2, how='outer', indicator = True).query("_merge == 'left_only'").drop('_merge', 1)
+        ## SIN ALL OPTION 
+            else:
+                type_query = self.arr_select[1]
+                select1 = self.arr_select[0]
+                select2 = self.arr_select[2]
+                if isinstance(select1, Select):
+                    select1 = select1.process(instrucction)
+                if isinstance(select2, Select):
+                    select2 = select2.process(instrucction)
+                    
+                if type_query.lower() == "union":
+                    table_result = pd.concat([select1, select2]).drop_duplicates()
+                elif type_query.lower() == 'intersect':
+                    table_result = pd.merge(select1, select2, how='inner')
+                elif type_query.lower() == 'except':
+                    table_result = select1.merge(select2, how='outer', indicator = True).query("_merge == 'left_only'").drop('_merge', 1)
+            return table_result
+        except:
+            print('error en la clase TypeQuerySelect')
+            
 class Table:
     def __init__(self, headers, values):
         self.headers = headers
@@ -82,6 +120,10 @@ class SelectQ(Instruction):
         self.select_list = select_list
         self.from_clause = from_clause
         self.where_or_grouphaving = where_or_grouphaving
+        if self.from_clause == None:
+            self.alias = None
+        else:
+            self.alias = f'{from_clause.alias}'
         self.line = line
         self.column = column
 
@@ -90,6 +132,7 @@ class SelectQ(Instruction):
     
     def process(self, instrucction):
         list_select = None
+        # print(self.alias)
         if self.type_select == None and self.from_clause == None and self.where_or_grouphaving == None and self.select_list != None:
             list_select = list_expressions(self.select_list, instrucction)
             return list_select
@@ -98,21 +141,82 @@ class SelectQ(Instruction):
         elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
             pass
         elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
-            pass 
+            list_from = self.from_clause.process(instrucction)
+            where_table = None
+            group_by = None
+            if len(list_from) > 1:
+                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                    list_select = loop_list(self.select_list, instrucction)
+                    # print(type(self.where_or_grouphaving))
+                    if isinstance(self.where_or_grouphaving, GroupBy):
+                        list_select = list_expressions_groupby(self.select_list, instrucction)
+                        group_by = self.where_or_grouphaving.process(instrucction,list_select)
+                        return group_by
+                    elif isinstance(self.where_or_grouphaving, Where):
+                        where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                        return where_table
+                    elif isinstance(self.where_or_grouphaving, list):
+                        where_table = self.where_or_grouphaving[0]
+                        where_table = where_table.process(instrucction, list_from[0], list_from[1])
+                        list_select = list_expressions_groupby(self.select_list, instrucction)
+                        group_by = self.where_or_grouphaving[1]
+                        group_by = group_by.process(instrucction,list_select)
+                        return group_by
+                else:
+                    if isinstance(self.where_or_grouphaving, GroupBy):
+                        list_select = list_expressions_groupby(self.select_list, instrucction)
+                        group_by = self.where_or_grouphaving.process(instrucction,list_select)
+                        return group_by
+                    elif isinstance(self.where_or_grouphaving, Where):
+                        where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                        list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                        return list_select
+                    elif isinstance(self.where_or_grouphaving, list):
+                        where_table = self.where_or_grouphaving[0]
+                        where_table = where_table.process(instrucction, list_from[0], list_from[1])
+                        list_select = list_expressions_groupby(self.select_list, instrucction)
+                        group_by = self.where_or_grouphaving[1]
+                        group_by = group_by.process(instrucction,list_select)
+                        return group_by
+            else:
+                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                    list_select = loop_list(self.select_list, instrucction)
+                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    return where_table
+                elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    # list_select = loop_list(self.select_list, instrucction)
+                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    return where_table
+                else:
+                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], self.alias)
+                    list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
+                    return list_select
+            
+        ###################################### SELECTS SIMPLES #######################################################################
         elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
             list_from = self.from_clause.process(instrucction)
-            
-            if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1 and len(list_from) == 1:
-                list_select = loop_list(self.select_list, instrucction)
-                tabla_all = select_all(list_from, self.line, self.column)
-                return tabla_all
+                ## Esto es para selects simples 
+            if len(list_from) > 1:
+                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                    list_select = loop_list(self.select_list, instrucction)
+                    return list_from[0]
+                elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    # list_select = loop_list(self.select_list, instrucction)
+                    return list_from[0]
+                else:
+                    list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                    return list_select
             else:
-            # elif  len(list_from) == 1:
-                table_i = select_all(list_from, self.line, self.column)
-                list_select = loop_list_with_columns(self.select_list, list_from[0], instrucction)
-            # table_f = select_with_columns(list_select, table_i)
-                return list_select
-        
+                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                    list_select = loop_list(self.select_list, instrucction)
+                    return list_from[0]
+                elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    # list_select = loop_list(self.select_list, instrucction) 
+                    return list_from[0]
+                else:
+                    list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
+                    return list_select
+        ######################################################################################################################################
         return None
             
 
@@ -192,79 +296,8 @@ class JoinClause(Instruction):
     def process(self, instrucction):
         pass
     
-class ExistsClause(Instruction):
-    '''
-    ExistsClause recibe de parametro
-    un subquery 
-    '''
-    def __init__(self, subquery,line, column):
-        self.subquery = subquery
-        self.line = line
-        self.column = column 
-        
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
 
-class NotOption(Instruction):
-    '''
-    NotClause recibe una lista 
-    de instrucciones a ser negadas
-    '''
-    def __init__(self, arr_not,line, column):
-        self.arr_not = arr_not
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
     
-    def process(self, instrucction):
-        pass
-
-class InClause(Instruction):
-    '''
-    InClause
-    '''
-    def __init__(self, arr_lista,line, column):
-        self.arr_lista = arr_lista
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
-class LikeClause(Instruction):
-    '''
-        LikeClause
-    '''
-    def __init__(self, arr_list,line, column):
-        self.arr_list = arr_list
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
-class isClause(Instruction):
-    '''
-        IsClause
-    '''
-    def __init__(self, arr_list,line, column):
-        self.arr_list = arr_list
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
 class AgreggateFunctions(Instruction):
     '''
         AgreggateFunctions
@@ -273,13 +306,40 @@ class AgreggateFunctions(Instruction):
         self.type_agg = type_agg
         self.cont_agg = cont_agg
         self.opt_alias = opt_alias
+        self.alias = f'{self.type_agg}({cont_agg.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
-        pass
+        data = None
+        result = self.cont_agg.process(instrucction)
+        if isinstance(result, list):
+            if self.type_agg.lower() == "avg":
+                data = {str(self.alias): 'mean'}
+            elif self.type_agg.lower() == 'sum':
+                data = {str(self.alias): 'sum'}
+            elif self.type_agg.lower() == 'count':
+                data = {str(self.alias): 'size'}
+            elif self.type_agg.lower() == 'max':
+                data = {str(self.alias): 'max'}
+            elif self.type_agg.lower() == 'min':
+                data = {str(self.alias): 'min'}
+                    #dict  # column  # encambezado
+            return [result[0], result[1], data]
+        else:
+            if self.type_agg.lower() == "avg":
+                data = {str(self.alias.lower()): 'mean'}
+            elif self.type_agg.lower() == 'sum':
+                data = {str(self.alias.lower()): 'sum'}
+            elif self.type_agg.lower() == 'count':
+                data = {str(self.alias.lower()): 'size'}
+            elif self.type_agg.lower() == 'max':
+                data = {str(self.alias.lower()): 'max'}
+            elif self.type_agg.lower() == 'min':
+                data = {str(self.alias.lower()): 'min'}
+            return [data, result.value, self.type_agg]
 
 class Case(Instruction):
     '''

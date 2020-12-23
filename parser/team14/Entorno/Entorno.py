@@ -1,4 +1,5 @@
 from Entorno.Simbolo import Simbolo
+from graphviz import Digraph
 
 class Entorno:
     def __init__(self, anterior = None):
@@ -49,7 +50,7 @@ class Entorno:
         ent = self
 
         #nombre,tipoSym,baseDatos,tabla,valor
-        salida = "digraph G {shortName [shape=record label=<<TABLE><TR><TD>NOMBRE</TD><TD>TIPO</TD><TD>BASE DE DATOS</TD><TD>TABLA</TD><TD>VALOR</TD></TR>"
+        salida = "<<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\"><TR><TD>NOMBRE</TD><TD>TIPO</TD><TD>BASE DE DATOS</TD><TD>TABLA</TD><TD>VALOR</TD></TR>"
         while ent != None:
             for x in ent.tablaSimbolo.values():
                 if x != None:
@@ -57,7 +58,8 @@ class Entorno:
                 
             ent = ent.anterior
         
-        salida += "</TABLE>>]}"
+        salida += "</TABLE>>"
+
         return salida
 
     def getDataBase(self):
@@ -70,3 +72,47 @@ class Entorno:
             ent = ent.anterior
         
         return None
+
+    def eliminarDataBase(self,basedatos):
+        ent = self
+
+        while ent != None:
+            x = 0
+            for x in ent.tablaSimbolo.copy():
+                db:str = ent.tablaSimbolo[x].baseDatos
+                if db == basedatos:
+                    ent.tablaSimbolo.pop(x)
+
+            ent = ent.anterior
+        
+        return None
+
+    def renombrarDatabase(self,viejaDB,nuevaDB):
+        ent = self
+
+        while ent != None:
+            x = 0
+            for x in ent.tablaSimbolo.copy():
+                db:str = ent.tablaSimbolo[x].baseDatos
+                if db == viejaDB:
+                    ent.tablaSimbolo[x].baseDatos = nuevaDB
+
+            ent = ent.anterior
+    
+    def eliminarSymTabla(self,tabla):
+        ent = self
+
+        while ent != None:
+            for x in ent.tablaSimbolo.copy():
+                table:str = ent.tablaSimbolo[x].tabla
+                if table == tabla:
+                    ent.tablaSimbolo.pop(x)
+
+            ent = ent.anterior
+  
+    def eliminarTodo(self):
+        ent = self
+        while ent != None:
+            del ent.tablaSimbolo
+
+            ent = ent.anterior

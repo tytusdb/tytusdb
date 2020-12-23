@@ -256,7 +256,7 @@ def t_DEC(t):
         descript = 'error lexico at token ' + str(t.value)
         linea = str(t.lineno)
         columna = str(find_column(t))
-        nuevo_error = CError(linea,columna,descript)
+        nuevo_error = CError(linea,columna,descript,'Lexico')
         insert_error(nuevo_error)
         print("Error no se puede convertir %d", t.value)
         t.value = 0
@@ -271,7 +271,7 @@ def t_INT(t):
         descript = 'error lexico at token ' + str(t.value)
         linea = str(t.lineno)
         columna = str(find_column(t))
-        nuevo_error = CError(linea,columna,descript)
+        nuevo_error = CError(linea,columna,descript,'Lexico')
         insert_error(nuevo_error)
         print("Valor numerico incorrecto %d", t.value)
         t.value = 0
@@ -310,7 +310,7 @@ def t_error(t):
     descript = 'error lexico at token ' + str(t.value[0])
     linea = str(t.lineno)
     columna = str(find_column(t))
-    nuevo_error = CError(linea,columna,descript)
+    nuevo_error = CError(linea,columna,descript,'Lexico')
     insert_error(nuevo_error)
     t.lexer.skip(1)
 
@@ -817,6 +817,11 @@ def p_queryP(t):
     t[0] =  select(t[2],t[3],t[5],t[6],t[7],t[8],t[9],t[10],t[11])
     insertProduction(t.slice, len(t.slice))
 
+def p_queryPF(t):
+    'queryp : SELECT funciones_sis'
+    t[0] =  select_func(t[2])
+    insertProduction(t.slice, len(t.slice))
+
 def p_distinct(t):
     'distinct : DISTINCT'
     t[0] = True
@@ -856,6 +861,26 @@ def p_column(t):
         t[0] = exp_id(t[1],None)
     else:
         t[0] = exp_id(t[2],t[1])
+    insertProduction(t.slice, len(t.slice))
+
+def p_fun_sis(t):
+    '''funciones_sis : funciones_sis COMA fsis aliascol'''
+    t[3].alias = t[4]
+    t[1].append(t[3])
+    t[0]=t[1]
+    insertProduction(t.slice, len(t.slice))
+
+def p_fun_sisa(t):
+    '''funciones_sis : fsis aliascol'''
+    t[1].alias = t[2]
+    t[0] = [t[1]]
+    insertProduction(t.slice, len(t.slice))
+
+def p_fsis(t):
+    '''fsis : trig
+            | math
+            | function '''
+    t[0]=t[1]
     insertProduction(t.slice, len(t.slice))
 
 def p_columnFunc(t):
@@ -1060,6 +1085,8 @@ def p_aliascol(t):
     'aliascol : AS ID'
     t[0] = t[2]
     insertProduction(t.slice, len(t.slice))
+
+
 
 def p_aliascolEmpty(t):
     'aliascol : empty'
@@ -1350,10 +1377,10 @@ def p_offsetEmpty(t):
 
 def p_error(t):
     if t:
-        descript = 'error sintactico at token ' + str(t.type)
+        descript = 'error sintactico en el token ' + str(t.type)
         linea = str(t.lineno)
         columna = str(find_column(t))
-        nuevo_error = CError(linea,columna,descript)
+        nuevo_error = CError(linea,columna,descript,'Sintactico')
         insert_error(nuevo_error)
         parser.errok()
     else:
