@@ -18,7 +18,10 @@ class Insert(Instruccion):
     def execute(self, data):
         valoresTabla = []
         for val in self.values:
-            valor = val.execute()
+            try:
+                valor = val.execute()
+            except:
+                valor = val.execute(data, None)
             valoresTabla.append(valor.val)
 
         listaColumnas = data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.tableid.upper()]['columns']
