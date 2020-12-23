@@ -3,8 +3,6 @@ import jsonMode as Master
 import interprete as Inter
 from six import string_types
 from errores import *
-from expresiones import *
-from prettytable import PrettyTable
 from random import *
 from expresiones import *
 
@@ -18,9 +16,12 @@ ListaTablasG = []
 baseN = []
 baseActual = ""
 Ejecucion = ">"
-
 listaGeneral = {}
 
+listaGeneralSubQuery = []
+
+#Lista los datos retornados pode cada una de las posibles condiciones
+Modificaciones={}
 
 
 
@@ -50,6 +51,7 @@ def imprir(string):
 
 def mostrarConsulta(resultado):
     tabla = PrettyTable()
+
     for key, val in resultado.items():
         tabla.add_column(key, val)
 
@@ -60,6 +62,7 @@ def mostrarConsulta(resultado):
 def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
     global ts_global, baseActual
     global LisErr
+    listaGeneral ={}
     r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
     if r is not None:
@@ -79,8 +82,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
 
                         for ii in Lista_Campos:
 
-                            if (isinstance(ii,
-                                           Campo_AccedidoSinLista)):  # nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
+                            if (isinstance(ii,Campo_AccedidoSinLista)):  # nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
                                 # *  , nombrecampo,  nombrecampo alias
                                 # listaGeneral
                                 for ele in x.cuerpo:  # recorremos lista de columnas
@@ -103,10 +105,10 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 lista = []
                                                 for gg in ts_global.Datos:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
-
+                                                    listaGeneralSubQuery.append(t)
                                                     if (str(t.columna) == str(ii.Columna)):
                                                         print(str(t.valor))
-
+                                                        listaGeneralSubQuery.append(t)
                                                         lista.append(str(t.valor))
                                                 listaGeneral[ii.Columna] = lista
                                             else:
@@ -121,7 +123,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
 
                                                 if (str(t.columna) == str(ii.Columna)):
                                                     print(str(t.valor))
-
+                                                    listaGeneralSubQuery.append(t)
                                                     lista.append(str(t.valor))
                                             listaGeneral[ii.Columna] = lista
 
@@ -143,6 +145,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
                                                             print(str(t.valor))
+                                                            listaGeneralSubQuery.append(t)
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[pp.id] = Lista2
 
@@ -157,15 +160,13 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (pp.id == t.columna):
                                                         print(str(t.valor))
+                                                        listaGeneralSubQuery.append(t)
                                                         Lista2.append(str(t.valor))
                                                 listaGeneral[pp.id] = Lista2
-
-
                                     else:
                                         print("")
 
-                            elif (isinstance(ii,
-                                             Campo_Accedido)):  # nombre alias ssj      #nombretabla.nombrecampo alias  tss
+                            elif (isinstance(ii,Campo_Accedido)):  # nombre alias ssj      #nombretabla.nombrecampo alias  tss
 
                                 # listaGeneral
                                 for ele in x.cuerpo:
@@ -194,7 +195,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
 
                                                     if (str(t.columna) == str(ii.Columna)):
                                                         print(str(t.valor))
-
+                                                        listaGeneralSubQuery.append(t)
                                                         lista.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = lista
                                             else:
@@ -207,6 +208,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
 
                                                 if (str(t.columna) == str(ii.Columna)):
                                                     print(str(t.valor))
+                                                    listaGeneralSubQuery.append(t)
                                                     lista.append(str(t.valor))
                                             listaGeneral[str(nuevoNave)] = lista
 
@@ -233,6 +235,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
                                                             print(str(t.valor))
+                                                            listaGeneralSubQuery.append(t)
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = Lista2
 
@@ -247,6 +250,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (pp.id == t.columna):
                                                         print(str(t.valor))
+                                                        listaGeneralSubQuery.append(t)
                                                         Lista2.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = Lista2
                                     else:
@@ -267,7 +271,10 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                     elif (isinstance(sub, SubSelect4)):
                                         sub.Ejecutar()
                                     else:
-                                        print("viene otro tipo de subconsulta")
+
+                                        imprir("SELECT : Tipo Distinto de Subconsulta")
+                                        er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                        LisErr.agregar(er)
                                 else:
                                     print("Bamos a ver el cuerpo de cada subconsulta")
                                     # Cuerpo de Tipo Subconsulta
@@ -281,9 +288,21 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                     elif (isinstance(sub, SubSelect4)):
                                         sub.Ejecutar()
                                     else:
-                                        print("viene otro tipo de subconsulta")
+                                        imprir("SELECT : Tipo Distinto de Subconsulta")
+                                        er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                        LisErr.agregar(er)
+
+# ============================ Agregamos la produccion de Cases en los campos
+                            elif (isinstance(ii, CaseCuerpo)):
+                                lis = {}
+                                lis = VerificaciontipoWhen(ii.Lista_When)
+                                Modificaciones.update(lis)
+                                print(Modificaciones)
+# ============================ Termina Instruccion de Cases en los campos
                             else:
-                                print("Otros posibles tipos ")
+                                imprir("SELECT : Tipo Distinto de Ejecucion")
+                                er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+                                LisErr.agregar(er)
                     else:
                         print("")
 
@@ -305,8 +324,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                         # si es la tabla validamos que tipo de campo viene
                         for ii in Lista_Campos:
 
-                            if (isinstance(ii,
-                                           Campo_AccedidoSinLista)):  # nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
+                            if (isinstance(ii,Campo_AccedidoSinLista)):  # nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
                                 # *  , nombrecampo,  nombrecampo alias
                                 # listaGeneral
                                 for ele in x.cuerpo:  # recorremos lista de columnas
@@ -325,6 +343,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (str(t.columna) == str(ii.Columna)):
                                                         print(str(t.valor))
+                                                        listaGeneralSubQuery.append(t)
                                                         lista.append(str(t.valor))
 
                                                 listaGeneral[ii.Columna] = lista
@@ -339,6 +358,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 t: DatoInsert = ts_global.obtenerDato(gg)
                                                 if (str(t.columna) == str(ii.Columna)):
                                                     print(str(t.valor))
+                                                    listaGeneralSubQuery.append(t)
                                                     lista.append(str(t.valor))
                                             listaGeneral[ii.Columna] = lista
 
@@ -358,6 +378,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
                                                             print(str(t.valor))
+                                                            listaGeneralSubQuery.append(t)
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[pp.id] = Lista2
                                         # viene sin referencia a tabla
@@ -371,13 +392,13 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (pp.id == t.columna):
                                                         print(str(t.valor))
+                                                        listaGeneralSubQuery.append(t)
                                                         Lista2.append(str(t.valor))
                                                 listaGeneral[pp.id] = Lista2
                                     else:
                                         print("")
 
-                            elif (isinstance(ii,
-                                             Campo_Accedido)):  # nombre alias ssj      #nombretabla.nombrecampo alias  tss
+                            elif (isinstance(ii,Campo_Accedido)):  # nombre alias ssj      #nombretabla.nombrecampo alias  tss
 
                                 # listaGeneral
                                 for ele in x.cuerpo:
@@ -403,6 +424,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (str(t.columna) == str(ii.Columna)):
                                                         print(str(t.valor))
+                                                        listaGeneralSubQuery.append(t)
                                                         lista.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = lista
                                             else:
@@ -414,6 +436,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 t: DatoInsert = ts_global.obtenerDato(gg)
                                                 if (str(t.columna) == str(ii.Columna)):
                                                     print(str(t.valor))
+                                                    listaGeneralSubQuery.append(t)
                                                     lista.append(str(t.valor))
                                             listaGeneral[str(nuevoNave)] = lista
 
@@ -437,6 +460,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
                                                             print(str(t.valor))
+                                                            listaGeneralSubQuery.append(t)
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = Lista2
                                         # viene sin referencia a tabla
@@ -450,6 +474,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (pp.id == t.columna):
                                                         print(str(t.valor))
+                                                        listaGeneralSubQuery.append(t)
                                                         Lista2.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = Lista2
                                     else:
@@ -472,7 +497,9 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                     elif (isinstance(sub, SubSelect4)):
                                         sub.Ejecutar()
                                     else:
-                                        print("viene otro tipo de subconsulta")
+                                        imprir("SELECT : Tipo Distinto de Subconsulta")
+                                        er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                        LisErr.agregar(er)
 
                                 else:
                                     print("Bamos a ver el cuerpo de cada subconsulta")
@@ -487,9 +514,21 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                     elif (isinstance(sub, SubSelect4)):
                                         sub.Ejecutar()
                                     else:
-                                        print("viene otro tipo de subconsulta")
+                                        imprir("SELECT : Tipo Distinto de Subconsulta")
+                                        er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                        LisErr.agregar(er)
+
+ # ============================ Agregamos la produccion de Cases en los campos
+                            elif (isinstance(ii, CaseCuerpo)):
+                                lis = {}
+                                lis = VerificaciontipoWhen(ii.Lista_When)
+                                Modificaciones.update(lis)
+                                print(Modificaciones)
+# ============================ Termina Instruccion de Cases en los campos
                             else:
-                                print("Otros posibles tipos ")
+                                imprir("SELECT : Tipo Distinto de Ejecucion")
+                                er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+                                LisErr.agregar(er)
                     else:
                         print("")
 
@@ -511,7 +550,9 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                     elif (isinstance(sub, SubSelect4)):
                         sub.Ejecutar()
                     else:
-                        print("viene otro tipo de subconsulta")
+                        imprir("SELECT : Tipo Distinto de Subconsulta")
+                        er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                        LisErr.agregar(er)
 
                 else:
                     print("Bamos a ver el cuerpo de cada subconsulta")
@@ -526,32 +567,91 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                     elif (isinstance(sub, SubSelect4)):
                         sub.Ejecutar()
                     else:
-                        print("viene otro tipo de subconsulta")
+                        imprir("SELECT : Tipo Distinto de Subconsulta")
+                        er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                        LisErr.agregar(er)
             else:
-                imprir("Viene otro tipo de accion ")
+                imprir("SELECT : Viene otro tipo de Funcion ")
+                er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                LisErr.agregar(er)
     else:
         imprir("SELECT : No existe la base de datos acual")
+        er = ErrorRep('Semantico', 'No Existe la Base de Datos Actual', 0)
+        LisErr.agregar(er)
     print(listaGeneral)
-    mostrarConsulta(listaGeneral)
+#    mostrarConsulta(listaGeneral)
 
     return listaGeneral
+
+
 
 
 #filtra un diccionario
 def FiltrarCuerpo(listaGeneral,Cuerpo):
     # ====================================================================   Proceso del cuerpo para editar valores en la tabla
     # procesando el cuerpo General de las tablas al insertar correctamente
-
-
     for tiposCuerpo in Cuerpo:
         if (isinstance(tiposCuerpo, Cuerpo_TipoWhere)):
+
             print("Vamos a ver condiciones y luego a mostrar datos de las condiciones")
             resultado = Inter.procesar_expresion_select(tiposCuerpo.Cuerpo, ts_global)
+
             if resultado is None:
-                imprir("SELECT: No existen registros.")
+                print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.")
             else:
+                print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.2222")
                 for r in resultado:
-                    print(">>" + str(r.valor))
+                    print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
+
+            titulos = []
+
+
+
+            for campo in listaGeneral:
+                titulos.append(str(campo))
+
+
+            lis = []
+            for t in titulos:
+                for res in resultado:
+
+                    for item in ts_global.Datos:
+
+                        x: DatoInsert = ts_global.obtenerDato(item)
+                        if t == x.columna and x.fila == res.fila:
+                            lis.append(x)
+
+
+            nuevoDicc = {}
+            # ingreso lista final FALTA
+            contador=0
+
+            for t in titulos:
+                lis2 = []
+                for u in lis:
+                    if u.columna == t:
+                        lis2.append(u.valor)
+                #name = t+str(contador)
+
+                nuevoDicc[t] = lis2
+
+
+                #por si trae variaas listas y tiene solo una consulta
+                dicci = {}
+                dicci.update(nuevoDicc)
+                for nn in nuevoDicc:
+                    if (len(nuevoDicc.get(nn)) > 0):
+                        print("")
+                    else:
+                        del dicci[nn]
+
+                listaGeneral.update(dicci)
+                dicci.clear()
+
+
+            print("ESte es El Resultado <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+            print(nuevoDicc)
+            #mostrarConsulta(nuevoDicc)
 
         elif (isinstance(tiposCuerpo, GroupBy)):
             print("Vamos a ver los tipos de grupos a realizar ")
@@ -689,13 +789,21 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                     listak.append(contadorlist)
                     contadorlist += 1
                 print(listak)
-                # ==============  Renombramos los datos
+# ==============  Renombramos los datos
+
+                diccionarioN2 = {}
+                diccionarioN2.update(diccionario2)
+
                 contadoraa = 0
                 for n in diccionario2:
-                    diccionario2[str(listak[contadoraa])] = diccionario2.pop(n)
+                    diccionarioN2[str(listak[contadoraa])] = diccionarioN2.pop(n)
                     contadoraa += 1
-                print(diccionario2)
-                # ============== Regresamos los datos a su posicion inicial
+                print(diccionarioN2)
+
+                diccionario2.clear()
+                diccionario2.update(diccionarioN2)
+
+# ============== Regresamos los datos a su posicion inicial
                 diccionariof = {}
                 # primero llenamos el nuevo diccionario  amarrando las tuplas
                 for campo in diccionario2:
@@ -710,14 +818,22 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                             diccionariof[str(contador333)].append(datos)
                             contador333 += 1
                 print(diccionariof)
-                # ============== Ahora ordenamos Asignamos los nombres de las claves o columnas como son
+# ============== Ahora ordenamos Asignamos los nombres de las claves o columnas como son
+
                 contadornn = 0
+                diccionarioN = {}
+                diccionarioN.update(diccionariof)
+
                 for n in diccionariof:
-                    diccionariof[listaColumnas[contadornn]] = diccionariof.pop(n)
+                    diccionarioN[listaColumnas[contadornn]] = diccionarioN.pop(n)
                     contadornn += 1
                 # imprimimos  la lista haber si hace lo que se piensa
-                mostrarConsulta(diccionariof)
-                return diccionariof
+                listaGeneral.clear()
+                listaGeneral.update(diccionarioN)
+
+                return listaGeneral
+
+
 
                 #diccionariof.clear
 
@@ -784,12 +900,12 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                 print(str(colN))
                 print(ListaN)
                 for n in ListaN:
-                    listita.append(ListaN.get(n)[colN - 1])
+                    listita.append(int(ListaN.get(n)[colN - 1]))
                 listt = sorted(listita)
                 print(listita)
                 # Recorremos la lista ordenada
                 for n2 in listt:
-                    diccionario2[gets(ListaN, n2, colN - 1)] = ListaN.get(gets(ListaN, n2, colN - 1))
+                    diccionario2[gets(ListaN, str(n2), colN - 1)] = ListaN.get(gets(ListaN,str(n2), colN - 1))
                 print(diccionario2)
             # Si viene la palabra reservada Descendente
             elif (str(tipo.Estado).upper() == 'DESC'):
@@ -815,13 +931,13 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                 print(ListaN)
 
                 for n in ListaN:
-                    listita.append(ListaN.get(n)[colN - 1])
+                    listita.append(int(ListaN.get(n)[colN - 1]))
                 listt = sorted(listita, reverse=True)
                 print(listt)
 
                 # Recorremos la lista ordenada
                 for n2 in listt:
-                    diccionario2[gets(ListaN, n2, colN - 1)] = ListaN.get(gets(ListaN, n2, colN - 1))
+                    diccionario2[gets(ListaN, str(n2), colN - 1)] = ListaN.get(gets(ListaN,str(n2), colN - 1))
                 print(diccionario2)
 
             # Si no viene ordenamos ascendentemente
@@ -847,12 +963,12 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                 print(str(colN))
                 print(ListaN)
                 for n in ListaN:
-                    listita.append(ListaN.get(n)[colN - 1])
+                    listita.append(int(ListaN.get(n)[colN - 1]))
                 listt = sorted(listita)
                 print(listita)
                 # Recorremos la lista ordenada
                 for n2 in listt:
-                    diccionario2[gets(ListaN, n2, colN - 1)] = ListaN.get(gets(ListaN, n2, colN - 1))
+                    diccionario2[gets(ListaN, str(n2), colN - 1)] = ListaN.get(gets(ListaN,str(n2), colN - 1))
                 print(diccionario2)
 
             # =============  Hacemos un contador  para gravar su numero de columnas
@@ -862,13 +978,19 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                 listak.append(contadorlist)
                 contadorlist += 1
             print(listak)
-            # ==============  Renombramos los datos
+# ==============  Renombramos los datos
+            diccionarioN2 = {}
+            diccionarioN2.update(diccionario2)
+
             contadoraa = 0
             for n in diccionario2:
-                diccionario2[str(listak[contadoraa])] = diccionario2.pop(n)
+                diccionarioN2[str(listak[contadoraa])] = diccionarioN2.pop(n)
                 contadoraa += 1
-            print(diccionario2)
-            # ============== Regresamos los datos a su posicion inicial
+            print(diccionarioN2)
+
+            diccionario2.clear()
+            diccionario2.update(diccionarioN2)
+# ============== Regresamos los datos a su posicion inicial
             diccionariof = {}
             # primero llenamos el nuevo diccionario  amarrando las tuplas
             for campo in diccionario2:
@@ -883,52 +1005,33 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                         diccionariof[str(contador333)].append(datos)
                         contador333 += 1
             print(diccionariof)
-            # ============== Ahora ordenamos Asignamos los nombres de las claves o columnas como son
+# ============== Ahora ordenamos Asignamos los nombres de las claves o columnas como son
+
             contadornn = 0
+            diccionarioN = {}
+            diccionarioN.update(diccionariof)
+
             for n in diccionariof:
-                diccionariof[listaColumnas[contadornn]] = diccionariof.pop(n)
+                diccionarioN[listaColumnas[contadornn]] = diccionarioN.pop(n)
                 contadornn += 1
             # imprimimos  la lista haber si hace lo que se piensa
+            listaGeneral.clear()
+            listaGeneral.update(diccionarioN)
 
-            mostrarConsulta(diccionariof)
-            return diccionariof
+            return listaGeneral
 
 
         elif (isinstance(tiposCuerpo, AccesoLimit)):
             print("Bamos a elegir el limite ")
-            if (str(tiposCuerpo.Reservada).lower() == "offset"):
-                # codigo de offset
-                # Recorremos la lista General
-                print("Estoy entrando al Offset")
-                for nn in listaGeneral:
-                    l = listaGeneral.get(nn)
-                    # Recorro la lista dentro del diccionario
-                    indice = 0
-                    for dato in l:
-                        if (indice < int(tiposCuerpo.Expresion_Numerica)):
-                            print(">>>" + l.pop(0))
-                            indice += 1
-            elif (str(tiposCuerpo.Reservada).lower() == "limit"):
-                # Codigo de limit
-                if (str(tiposCuerpo.Expresion_Numerica).lower() == "all"):
-                    print("Voy a retornar todo sin limite")
-                else:
-                    # Recorremos la lista General
-                    for nn in listaGeneral:
-                        l = listaGeneral.get(nn)
 
-                        # Recorro la lista dentro del diccionario
-                        indice = 0
-                        for dato in l:
-                            if (indice < int(tiposCuerpo.Expresion_Numerica)):
-                                print(">>>" + l.pop())
-                                indice += 1
+            lista = Limites(listaGeneral, tiposCuerpo)
+            listaGeneral.update(lista)
 
         elif (isinstance(tiposCuerpo, AccesoSubConsultas)):
             print("Bamos a ver el cuerpo de cada subconsulta")
         #print(ListaN)
 
-        mostrarConsulta(listaGeneral)
+#        mostrarConsulta(listaGeneral)
         return listaGeneral
 
 
@@ -1052,6 +1155,369 @@ def DefinicionUnion(unionn):
 
 
 
+
+#Con este Bamos a Procesar las Expresiones y vamos a devolver una lista de las coincidencias
+def ProcesoExpresion(Expresion):
+    global ts_global
+    ListaGenerica =[]
+    ListaGenerica_ = []
+
+    ListaGenerica = Inter.procesar_expresion_select(Expresion, ts_global)
+    ListaGenerica_ = set(ListaGenerica)
+
+    if ListaGenerica_ is None:
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.")
+        return None
+    else:
+        return ListaGenerica_
+
+
+def VerificaciontipoWhen(Lista_When):
+    ValorSust=""
+    retorno ={}
+
+    listaResultado=[]
+    list=[]
+
+    for sss in Lista_When:
+        if (isinstance(sss, TiposWhen)):
+            # When ListaExpresiones1 then listaExpresiones3
+            if ((sss.Reservada != "")  and (sss.ListaExpresiones1 != False) and
+                (sss.Reservada2 == "") and (sss.ListaExpresiones2 == False) and
+                (sss.Reservada3 != "") and (sss.ListaExpresiones3 != False)):
+
+                print("El primer tipo de when <<<<<<<<<<<<<<<<<<<<<<<")
+                # Procesando la primera lista de instrucciones
+                listaResultado = ProcesoExpresion(sss.ListaExpresiones1)
+                # Procesando la Segunda lista de instrucciones valor a sustituir
+
+                list = []
+                if listaResultado is None:
+                    print("No hay coincidencias")
+                else:
+                    for r in listaResultado:
+                        print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
+                        list.append(r.valor)
+
+
+                li:ExpresionValor = sss.ListaExpresiones3
+                ValorSust += str(li.val)
+
+                retorno[li.val]=list
+
+
+                #return listaResultado,ValorSust
+
+            # ========================================   AQUI BAMOS sacar el valor y setearle el nombre de la tabl a nombre.campo
+            # When ListaExpresiones1 Else listaExpresiones2 then ListaExpresiones3
+            elif ((sss.Reservada != "") and (sss.ListaExpresiones1 != False) and
+                  (sss.Reservada2 != "") and (sss.ListaExpresiones2 != False) and
+                  (sss.Reservada3 != "") and (sss.ListaExpresiones3 != False)):
+                print("El Segundo tipo de when <<<<<<<<<<<<<<<<<<<<<<<<<")
+                print("El primer tipo de when <<<<<<<<<<<<<<<<<<<<<<<")
+                # Procesando la primera lista de instrucciones
+                listaResultado = ProcesoExpresion(sss.ListaExpresiones1)
+                # Procesando la Segunda lista de instrucciones valor a sustituir
+                list = []
+                if listaResultado is None:
+                    print("No hay coincidencias")
+                else:
+                    for r in listaResultado:
+                        print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
+                        list.append(r.valor)
+
+                li = sss.ListaExpresiones3
+                ValorSust += str(li.val)
+
+                retorno[li.val] = list
+
+
+
+            # When ListaExpresiones1
+            elif ((sss.Reservada != "") and (sss.ListaExpresiones1 != False) and
+                  (sss.Reservada2 == "") and (sss.ListaExpresiones2 == False) and
+                  (sss.Reservada3 == "") and (sss.ListaExpresiones3 == False)):
+                print("El Tercer tipo de when <<<<<<<<<<<<<<<<<<<<<<<<<<<")
+                print("El primer tipo de when <<<<<<<<<<<<<<<<<<<<<<<")
+                # Procesando la primera lista de instrucciones
+                listaResultado = ProcesoExpresion(sss.ListaExpresiones1)
+                list = []
+                if listaResultado is None:
+                    print("No hay coincidencias")
+                else:
+                    for r in listaResultado:
+                        print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
+                        list.append(r.valor)
+
+
+                retorno[0] = list
+
+
+            # When ListaExpresiones1 Else listaExpresiones2
+            elif ((sss.Reservada != "") and (sss.ListaExpresiones1 != False) and
+                  (sss.Reservada2 != "") and (sss.ListaExpresiones2 != False) and
+                  (sss.Reservada3 == "") and (sss.ListaExpresiones3 == False)):
+                print("El Cuarto tipo de when <<<<<<<<<<<<<<<<<<<<<<<<<<")
+                # Procesando la primera lista de instrucciones
+                listaResultado = ProcesoExpresion(sss.ListaExpresiones1)
+                # Procesando la Segunda lista de instrucciones valor a sustituir
+                list = []
+                if listaResultado is None:
+                    print("No hay coincidencias")
+                else:
+                    for r in listaResultado:
+                        print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
+                        list.append(r.valor)
+
+
+                li = sss.ListaExpresiones2
+                ValorSust += str(li.val)
+                retorno[ValorSust] = list
+
+            else:
+                print("Verificar Errores Sintacticos")
+                return  False,"None"
+                retorno[li.val] = list
+        else:
+            imprir("CASE: Error de tipo ")
+
+    return  retorno
+
+
+#Alineamos la cantidad de datos si una lista trae menos
+def AlinearDatos(listaGeneral):
+    nes ={}
+    dataa=0
+    p = "Null"
+    list=[]
+
+#Calculamos la talla maxima de los datos
+    for data in listaGeneral:
+        maxi = 0
+        for jo in listaGeneral.get(data):
+            maxi+=1
+        list.append(maxi)
+    dataa = max(list)
+
+#Rellenamos si no tiene la norma General
+    for date in listaGeneral:
+        for jo in listaGeneral.get(date):
+            if(len(listaGeneral.get(date))<dataa):
+                listaGeneral.get(date).append(p)
+
+    print(listaGeneral)
+
+    return listaGeneral
+
+
+#Interseccion entre dos tablas
+def Interseccion(listaGeneral):
+
+    # Recorremos cada dato en los diccionarios opcion2
+    listi  =[]  #datos1
+    listi2 =[]  #datos2
+    listR =[]
+    contador=0
+
+    # sacamos las dos listas de cada tabla a intersectar
+    for ni in listaGeneral:
+        if(contador==0):
+            listi = listaGeneral.get(ni)[:]
+        else:
+            listi2 = listaGeneral.get(ni)[:]
+        contador += 1
+
+    print(listi)
+    print(listi2)
+    #comparamos y los que sean igual los metemos a una lista aparte
+    for kl in listi:
+        for km in listi2:
+            if(kl==km):
+                listR.append(km)
+
+    print(listR)
+    #ahora seteamos el nuevo valor a la lista general
+    for ji in listaGeneral:
+        listaGeneral[ji]=listR
+
+    print(listaGeneral)
+
+    return  listaGeneral
+
+
+#Excepcion de tablas
+def Excepcion(listaGeneral):
+
+    # Recorremos cada dato en los diccionarios opcion2
+    listi  =[]  #datos1
+    listi2 =[]  #datos2
+    listR =[]
+
+    listNone=[]
+    contador=0
+
+    # sacamos las dos listas de cada tabla a intersectar
+    for ni in listaGeneral:
+        if(contador==0):
+            listi = listaGeneral.get(ni)[:]
+        else:
+            listi2 = listaGeneral.get(ni)[:]
+        contador += 1
+
+    print(listi)
+    print(listi2)
+    banderita=False
+    #comparamos y los que sean igual los metemos a una lista aparte
+    for kl in listi:
+        banderita = False
+        for km in listi2:
+            if(kl==km):
+                banderita=True
+        if(banderita==False):
+            listR.append(kl)
+
+    #llenamos lista none
+    for ii in listR:
+        listNone.append("Null")
+
+
+    print(listR)
+    #ahora seteamos el nuevo valor a la lista general
+    conta2=0
+    for ji in listaGeneral:
+        if(conta2==0):
+            listaGeneral[ji]=listR
+        else:
+            listaGeneral[ji] =listNone
+        conta2+=1
+    print(listaGeneral)
+
+
+    return  listaGeneral
+
+
+
+def ProcesoSub(Cuerpo,ts):
+
+    global listaGeneralSubQuery
+
+    ii=Cuerpo
+    if (isinstance(ii, AccesoSubConsultas)):
+        listaQ = {}
+        if (ii.Lista_Alias != False):
+            print("Bamos a ver el cuerpo de cada subconsulta")
+            li2 = ii.Lista_Alias[0]
+            # Cuerpo de Tipo Subconsulta
+            sub = ii.Query
+            if (isinstance(sub, SubSelect)):
+                listaQ= sub.Ejecutar()
+            elif (isinstance(sub, SubSelect2)):
+                listaQ=sub.Ejecutar()
+            elif (isinstance(sub, SubSelect3)):
+                listaQ=sub.Ejecutar()
+            elif (isinstance(sub, SubSelect4)):
+                listaQ=sub.Ejecutar()
+            else:
+                imprir("SELECT : Tipo Distinto de Subconsulta")
+                er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                LisErr.agregar(er)
+        else:
+            print("Bamos a ver el cuerpo de cada subconsulta")
+            # Cuerpo de Tipo Subconsulta
+            sub = ii.Query
+            if (isinstance(sub, SubSelect)):
+                listaQ=sub.Ejecutar()
+
+
+            elif (isinstance(sub, SubSelect2)):
+                listaQ=sub.Ejecutar()
+            elif (isinstance(sub, SubSelect3)):
+                listaQ=sub.Ejecutar()
+            elif (isinstance(sub, SubSelect4)):
+                listaQ=sub.Ejecutar()
+            else:
+                imprir("SELECT : Tipo Distinto de Subconsulta")
+                er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                LisErr.agregar(er)
+    else:
+        imprir("SELECT : Tipo Distinto de Ejecucion")
+        er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+        LisErr.agregar(er)
+
+
+    for n in listaQ:
+        n2= listaQ.get(n)
+
+
+
+    return  listaGeneralSubQuery
+
+
+
+
+#Proceso Limit
+def Limites(listaGeneral,tiposCuerpo):
+
+    if (str(tiposCuerpo.Reservada).lower() == "offset"):
+        # codigo de offset
+        # Recorremos la lista General
+        print("Estoy entrando al Offset")
+        for nn in listaGeneral:
+            l = listaGeneral.get(nn)
+            # Recorro la lista dentro del diccionario
+            indice = 0
+            listan = l[:]
+
+            for dato in l:
+                if (indice > int(tiposCuerpo.Expresion_Numerica)-1):
+                    print(">>>" + str(dato)+"<<<<<<<< Dato Pasado ")
+                    indice+=1
+                    print(str(indice)+"<< Este indice va")
+                else:
+                    print("><><><><> DAto Eliminado >>>> "+str(dato))
+                    listan.remove(dato)
+                    indice += 1
+
+            listaGeneral[nn]=listan
+
+        return listaGeneral
+
+
+
+    elif (str(tiposCuerpo.Reservada).lower() == "limit"):
+        # Codigo de limit
+        if (str(tiposCuerpo.Expresion_Numerica).lower() == "all"):
+            print("Voy a retornar todo sin limite")
+            return listaGeneral
+        else:
+            # Recorremos la lista General
+            print("ESTA es la lista wey >>???>??>   ")
+            print(listaGeneral)
+
+            for nn in listaGeneral:
+                l = listaGeneral.get(nn)
+
+                # Recorro la lista dentro del diccionario
+                indice = 0
+                listan = l[:]
+
+                for dato in l:
+                    if (indice > int(tiposCuerpo.Expresion_Numerica)-1):
+                        print(">>>" + str(dato)+"<<<<<<<< Dato eliminado ")
+                        listan.remove(dato)
+                        indice+=1
+                        print(str(indice)+"<< Este indice va")
+                    else:
+                        print("><><><><> DAto paso >>>> "+str(dato))
+                        indice += 1
+
+                listaGeneral[nn]=listan
+
+            return listaGeneral
+
+
+
+
 #----------------------------------------------------------
 #           TABLA DE SIMBOLOS
 #----------------------------------------------------------
@@ -1076,6 +1542,16 @@ def tabla_simbolos():
         fun:DatoTipo = ts.obtenerTipo(fn)
         cadena4 += '<TR><TD>' + str(fun.bd) + '</TD>' + '<TD>' + str(fun.tipo) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + '</TD>' + '<TD>' + '</TD></TR>'
 
+    cadena5 = ''
+    for fn in ts.Validaciones:
+        fun = ts.Validaciones.get(fn)
+        if isinstance(fun, constraintTabla):
+            print("ESTE SI LO IMPRIMEEEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+            cadena5 += '<TR><TD>' + str(fun.idRef) + '</TD>' + '<TD>' + str(fun.listas_id) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD></TR>'
+        else:
+            cadena5 += '<TR><TD>' + str(fun.tabla) + '</TD>' + '<TD>' + str(fun.campo) + '</TD>' + '<TD>' + str(fun.validacion) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD></TR>'
+
+
     cadena = ''
     for fn in ts.Datos:
         fun = ts.obtenerDato(fn)
@@ -1086,12 +1562,15 @@ def tabla_simbolos():
     cadena2=''
     for fn in ts.Tablas:
         fun=ts.obtenerTabla(fn)
-        for cuerpos in fun.cuerpo:
-            if isinstance(cuerpos.tipo,valorTipo):
-                cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo.valor)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
-            else:
-                cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
 
+        for cuerpos in fun.cuerpo:
+            if isinstance(cuerpos, CampoTabla):
+                if isinstance(cuerpos.tipo, valorTipo):
+                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo.valor)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+                else:
+                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+            else:
+                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> UN C")
     cadena3=''
     for fn in ts.BasesDatos:
         fun=ts.obtenerBasesDatos(fn)
@@ -1112,6 +1591,25 @@ def tabla_simbolos():
                             </TR>
                             '''
                             +cadena+
+                            ''' <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>VALIDACIONES</B> </TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">TABLA</TD>
+                                <TD bgcolor="#BEF781">CAMPO</TD>
+                                <TD bgcolor="#BEF781">TIPO</TD>
+                                <TD bgcolor="#BEF781">ID</TD>
+                                <TD bgcolor="#BEF781"> </TD>
+                            </TR>
+                            '''
+                            +cadena5+
                             ''' <TR>
                                 <TD></TD>
                                 <TD></TD>
@@ -1228,10 +1726,11 @@ class Select(Instruccion) :
 
     def Ejecutar(self):
 
-        global ts_global, baseActual
+        global ts_global, baseActual, ListaTablasG
         global LisErr
-        r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
+        r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
+        casee =False
 
         if r is not None:
 
@@ -1253,7 +1752,7 @@ class Select(Instruccion) :
                           #si es la tabla validamos que tipo de campo viene
 
 
-
+                            numeroExpresion = 1
                             for ii in self.Lista_Campos:
 
                                 if(isinstance(ii,Campo_AccedidoSinLista)): #nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
@@ -1338,7 +1837,18 @@ class Select(Instruccion) :
 
 
                                         else:
-                                            print("")
+                                            if not isinstance(ii.Columna, string_types):
+                                                print("Se intentara procesar una expresion")
+
+                                                result = Inter.procesar_expresion_columna(ii.Columna, ts_global)
+                                                if isinstance(result, list):
+                                                    listaGeneral["Expresion" + str(numeroExpresion)] = result
+                                                    print('resultado expresion')
+                                                else:
+                                                    listaGeneral["Expresion"+str(numeroExpresion)] = [result]
+                                                numeroExpresion += 1
+                                                break
+
 
                                 elif(isinstance(ii,Campo_Accedido)): # nombre alias ssj      #nombretabla.nombrecampo alias  tss
 
@@ -1425,6 +1935,18 @@ class Select(Instruccion) :
                                                     listaGeneral[str(nuevoNave)] = Lista2
                                         else:
                                             print("")
+                                            if not isinstance(ii.Columna, string_types):
+                                                print("Se intentara procesar una expresion")
+                                                nuevoNave = ii.Lista_Alias.Alias
+
+                                                result = Inter.procesar_expresion_columna(ii.Columna, ts_global)
+                                                if isinstance(result, list):
+                                                    listaGeneral[nuevoNave] = result
+                                                    print('resultado expresion')
+                                                else:
+                                                    listaGeneral[nuevoNave] = [result]
+
+                                                break
                                 elif (isinstance(ii, AccesoSubConsultas)):
                                     listaQ = {}
                                     if (ii.Lista_Alias != False):
@@ -1441,7 +1963,9 @@ class Select(Instruccion) :
                                         elif (isinstance(sub, SubSelect4)):
                                             sub.Ejecutar()
                                         else:
-                                            print("viene otro tipo de subconsulta")
+                                            imprir("SELECT : Tipo Distinto de Subconsulta")
+                                            er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                            LisErr.agregar(er)
                                     else:
                                         print("Bamos a ver el cuerpo de cada subconsulta")
                                         # Cuerpo de Tipo Subconsulta
@@ -1455,11 +1979,25 @@ class Select(Instruccion) :
                                         elif (isinstance(sub, SubSelect4)):
                                             sub.Ejecutar()
                                         else:
-                                            print("viene otro tipo de subconsulta")
+                                            imprir("SELECT : Tipo Distinto de Subconsulta")
+                                            er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                            LisErr.agregar(er)
+
+# ============================ Agregamos la produccion de Cases en los campos
+                                elif (isinstance(ii, CaseCuerpo)):
+                                    lis={}
+                                    lis  = VerificaciontipoWhen(ii.Lista_When)
+                                    Modificaciones.update(lis)
+                                    print(Modificaciones)
+                                    casee = True
+# ============================ Termina Instruccion de Cases en los campos
                                 else:
-                                    print("Otros posibles tipos ")
+                                    imprir("SELECT : Viene otro tipo de Ejecucion ")
+                                    er = ErrorRep('Semantico','No es un tipo Correcto de ejecucion', 0)
+                                    LisErr.agregar(er)
                        else:
                            print("")
+
 
 
 #============================================================================   Acceso a las tablas con alias
@@ -1658,9 +2196,23 @@ class Select(Instruccion) :
                                        elif (isinstance(sub, SubSelect4)):
                                            sub.Ejecutar()
                                        else:
-                                           print("viene otro tipo de subconsulta")
+                                           imprir("SELECT : Tipo Distinto de Subconsulta")
+                                           er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                           LisErr.agregar(er)
+
+# ============================ Agregamos la produccion de Cases en los campos
+                               elif (isinstance(ii, CaseCuerpo)):
+                                   lis = {}
+                                   lis = VerificaciontipoWhen(ii.Lista_When)
+                                   Modificaciones.update(lis)
+                                   print(Modificaciones)
+                                   casee = True
+# ============================ Termina Instruccion de Cases en los campos
                                else:
-                                   print("Otros posibles tipos ")
+                                   print("")
+                                   #imprir("SELECT : Tipo Distinto de Ejecucion")
+                                   #er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+                                   #LisErr.agregar(er)
                        else:
                            print("")
 
@@ -1682,8 +2234,9 @@ class Select(Instruccion) :
                        elif (isinstance(sub, SubSelect4)):
                            sub.Ejecutar()
                        else:
-                           print("viene otro tipo de subconsulta")
-
+                           imprir("SELECT : Tipo Distinto de Subconsulta")
+                           er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                           LisErr.agregar(er)
                    else:
                        print("Bamos a ver el cuerpo de cada subconsulta")
                        # Cuerpo de Tipo Subconsulta
@@ -1697,18 +2250,61 @@ class Select(Instruccion) :
                        elif (isinstance(sub, SubSelect4)):
                            sub.Ejecutar()
                        else:
-                           print("viene otro tipo de subconsulta")
+                           imprir("SELECT : Tipo Distinto de Subconsulta")
+                           er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                           LisErr.agregar(er)
                else:
-                    imprir("Viene otro tipo de accion ")
+                   imprir("SELECT : Tipo Distinto de Ejecucion")
+                   er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+                   LisErr.agregar(er)
         else:
             imprir("SELECT : No existe la base de datos acual")
-        print(listaGeneral)
-        mostrarConsulta(listaGeneral)
-        #listaGeneral.clear()
+            er = ErrorRep('Semantico', 'No Existe la Base de Datos Actual', 0)
+            LisErr.agregar(er)
+
+
+# ========================================================================== Proceso para Sustituir datos en las lista
+        if(casee == True):
+            #recorremos Lista General
+            diccAux = {}
+            contador = 0
+
+            for uni in listaGeneral:
+                print("Entre 1")
+                for ele2 in listaGeneral.get(uni): #lista de data de el diccionario
+                    contador+=1
+                    print("Entre 2")
+
+                    for ene in Modificaciones:   #Recorremos el diccionario con los datos que llevaran cambio
+                        print("Entre 3")
+                        for ele3 in Modificaciones.get(ene):
+                            print("Entre 4")
+                            print("este>" + str(ele2) + "ESTOS TENGO ACTUALMENTE" + str(ele3))
+                            print("y le bamos a poner este>>>>" + str(ene))
+
+                            if(ele2==ele3):
+                                print("este >>>>>"+str(ele2)+"Se va a reemplazar por este >>>>>"+str(ene))
+                                listaGeneral.get(uni)[contador-1] = ene
+
+            diccAux.update(listaGeneral)
+            listaGeneral.clear()
+            listaGeneral.update(diccAux)
+        else:
+            print("Nada")
+
+
+
+
+
+
+
+
 
 #============================================================================ PROCESO UNION
+
         for uni in self.unionn:
             if(isinstance(uni,CamposUnions)):
+
                 if(str(uni.Reservada).upper()=="ALL"):
                     print("Viene  ALL")
                     if(str(uni.Comportamiento).upper() =="UNION"):
@@ -1727,45 +2323,109 @@ class Select(Instruccion) :
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
                         else:
-                                print("viene otro tipo de funcion")
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
                     elif(str(uni.Comportamiento).upper()=="INTERSECT"):
                         print("Viene un Intersect")
                         ank = uni.Consulta
-                        if(isinstance(ank,Select)):
+                        if (isinstance(ank, Select)):
                             print("viene un tipo de select normal unido")
                             ank.Ejecutar()
-                        elif(isinstance(ank,Select2)):
+                            print("Tenemos el diccionario ya unido ")
+                            print(listaGeneral)
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+
+                        elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                        elif(isinstance(ank,Select3)):
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+                        elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                        elif(isinstance(ank,Select4)):
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+                        elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
                         else:
-                            print("viene otro tipo de funcion")
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
+
                     elif(str(uni.Comportamiento).upper()=="EXCEPT"):
+
                         print("Viene un Except")
                         ank = uni.Consulta
                         if(isinstance(ank,Select)):
                             print("viene un tipo de select normal unido")
                             ank.Ejecutar()
+                            print("Tenemos el diccionario ya unido ")
+                            print(listaGeneral)
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
                         elif(isinstance(ank,Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+
                         elif(isinstance(ank,Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
                         elif(isinstance(ank,Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
                         else:
-                            print("viene otro tipo de funcion")
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
                     else:
-                        print("vino una palabra diferente")
-                elif(str(uni.Reservada)==","):
-                    print("Viene una Coma")
+                        imprir("SELECT : Viene otro tipo de Funcion ")
+                        er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                        LisErr.agregar(er)
+
+
+                elif(str(uni.Reservada)==";"):
+                    print("Fin ")
                 else:
                     if(str(uni.Comportamiento).upper() =="UNION"):
                         print("Viene un union")
@@ -1783,44 +2443,114 @@ class Select(Instruccion) :
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
                         else:
-                                print("viene otro tipo de funcion")
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
                     elif(str(uni.Comportamiento).upper()=="INTERSECT"):
+
                         print("Viene un Intersect")
                         ank = uni.Consulta
                         if(isinstance(ank,Select)):
                             print("viene un tipo de select normal unido")
                             ank.Ejecutar()
+                            print("Tenemos el diccionario ya unido ")
+                            print(listaGeneral)
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+
                         elif(isinstance(ank,Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
                         elif(isinstance(ank,Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
                         elif(isinstance(ank,Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
                         else:
-                            print("viene otro tipo de funcion")
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
                     elif(str(uni.Comportamiento).upper()=="EXCEPT"):
+
                         print("Viene un Except")
                         ank = uni.Consulta
                         if(isinstance(ank,Select)):
                             print("viene un tipo de select normal unido")
                             ank.Ejecutar()
+                            print("Tenemos el diccionario ya unido ")
+                            print(listaGeneral)
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
                         elif(isinstance(ank,Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+
                         elif(isinstance(ank,Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
                         elif(isinstance(ank,Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 =Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
                         else:
-                            print("viene otro tipo de funcion")
-                    else:
-                        print("vino una palabra diferente")
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
 
+                    else:
+                        imprir("SELECT : Palabra Reservada No encontrada")
+                        er = ErrorRep('Semantico', 'No Se Encontro la Palabra reservada', 0)
+                        LisErr.agregar(er)
+
+
+
+        print(listaGeneral)
+        print("<<<<<<<<<<<<<<<<<<<<<<<<  estaaaa")
+
+        liste = AlinearDatos(listaGeneral)
+        mostrarConsulta(liste)
 
 
 
@@ -1856,8 +2586,7 @@ class Select2(Instruccion) :
 
                             for ii in self.Lista_Campos:
 
-                                if (isinstance(ii,
-                                               Campo_AccedidoSinLista)):  # nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
+                                if (isinstance(ii, Campo_AccedidoSinLista)):  # nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
                                     # *  , nombrecampo,  nombrecampo alias
                                     # listaGeneral
                                     for ele in x.cuerpo:  # recorremos lista de columnas
@@ -1937,12 +2666,10 @@ class Select2(Instruccion) :
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[pp.id] = Lista2
 
-
                                         else:
                                             print("")
 
-                                elif (isinstance(ii,
-                                                 Campo_Accedido)):  # nombre alias ssj      #nombretabla.nombrecampo alias  tss
+                                elif (isinstance(ii,Campo_Accedido)):  # nombre alias ssj      #nombretabla.nombrecampo alias  tss
 
                                     # listaGeneral
                                     for ele in x.cuerpo:
@@ -2028,6 +2755,7 @@ class Select2(Instruccion) :
                                                     listaGeneral[str(nuevoNave)] = Lista2
                                         else:
                                             print("")
+
                                 elif (isinstance(ii, AccesoSubConsultas)):
                                     listaQ = {}
                                     if (ii.Lista_Alias != False):
@@ -2044,7 +2772,9 @@ class Select2(Instruccion) :
                                         elif (isinstance(sub, SubSelect4)):
                                             sub.Ejecutar()
                                         else:
-                                            print("viene otro tipo de subconsulta")
+                                            imprir("SELECT : Tipo Distinto de Subconsulta")
+                                            er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                            LisErr.agregar(er)
                                     else:
                                         print("Bamos a ver el cuerpo de cada subconsulta")
                                         # Cuerpo de Tipo Subconsulta
@@ -2058,12 +2788,23 @@ class Select2(Instruccion) :
                                         elif (isinstance(sub, SubSelect4)):
                                             sub.Ejecutar()
                                         else:
-                                            print("viene otro tipo de subconsulta")
+                                            imprir("SELECT : Tipo Distinto de Subconsulta")
+                                            er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                            LisErr.agregar(er)
+
+# ============================ Agregamos la produccion de Cases en los campos
+                                elif (isinstance(ii, CaseCuerpo)):
+                                    lis = {}
+                                    lis = VerificaciontipoWhen(ii.Lista_When)
+                                    Modificaciones.update(lis)
+                                    print(Modificaciones)
+
                                 else:
-                                    print("Otros posibles tipos ")
+                                    imprir("SELECT : Tipo Distinto de Ejecucion")
+                                    er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+                                    LisErr.agregar(er)
                         else:
                             print("")
-
 
                 # ============================================================================   Acceso a las tablas con alias
                 elif (isinstance(ee, AccesoTabla)):  # viene con un alias
@@ -2082,8 +2823,7 @@ class Select2(Instruccion) :
                             # si es la tabla validamos que tipo de campo viene
                             for ii in self.Lista_Campos:
 
-                                if (isinstance(ii,
-                                               Campo_AccedidoSinLista)):  # nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
+                                if (isinstance(ii, Campo_AccedidoSinLista)):  # nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
                                     # *  , nombrecampo,  nombrecampo alias
                                     # listaGeneral
                                     for ele in x.cuerpo:  # recorremos lista de columnas
@@ -2153,8 +2893,7 @@ class Select2(Instruccion) :
                                         else:
                                             print("")
 
-                                elif (isinstance(ii,
-                                                 Campo_Accedido)):  # nombre alias ssj      #nombretabla.nombrecampo alias  tss
+                                elif (isinstance(ii,Campo_Accedido)):  # nombre alias ssj      #nombretabla.nombrecampo alias  tss
 
                                     # listaGeneral
                                     for ele in x.cuerpo:
@@ -2249,7 +2988,9 @@ class Select2(Instruccion) :
                                         elif (isinstance(sub, SubSelect4)):
                                             sub.Ejecutar()
                                         else:
-                                            print("viene otro tipo de subconsulta")
+                                            imprir("SELECT : Tipo Distinto de Subconsulta")
+                                            er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                            LisErr.agregar(er)
 
                                     else:
                                         print("Bamos a ver el cuerpo de cada subconsulta")
@@ -2264,9 +3005,21 @@ class Select2(Instruccion) :
                                         elif (isinstance(sub, SubSelect4)):
                                             sub.Ejecutar()
                                         else:
-                                            print("viene otro tipo de subconsulta")
+                                            imprir("SELECT : Tipo Distinto de Subconsulta")
+                                            er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                                            LisErr.agregar(er)
+# ============================ Agregamos la produccion de Cases en los campos
+                                elif (isinstance(ii, CaseCuerpo)):
+                                    lis = {}
+                                    lis = VerificaciontipoWhen(ii.Lista_When)
+                                    Modificaciones.update(lis)
+                                    print(Modificaciones)
+
+# ============================ Finaliza la produccion de Cases en los campos
                                 else:
-                                    print("Otros posibles tipos ")
+                                    imprir("SELECT : Tipo Distinto de Ejecucion")
+                                    er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+                                    LisErr.agregar(er)
                         else:
                             print("")
 
@@ -2287,7 +3040,9 @@ class Select2(Instruccion) :
                         elif (isinstance(sub, SubSelect4)):
                             sub.Ejecutar()
                         else:
-                            print("viene otro tipo de subconsulta")
+                            imprir("SELECT : Tipo Distinto de Subconsulta")
+                            er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                            LisErr.agregar(er)
 
                     else:
                         print("Bamos a ver el cuerpo de cada subconsulta")
@@ -2302,14 +3057,18 @@ class Select2(Instruccion) :
                         elif (isinstance(sub, SubSelect4)):
                             sub.Ejecutar()
                         else:
-                            print("viene otro tipo de subconsulta")
+                            imprir("SELECT : Tipo Distinto de Subconsulta")
+                            er = ErrorRep('Semantico', 'No es un tipo Correcto de Subconsulta', 0)
+                            LisErr.agregar(er)
+
                 else:
-                    imprir("Viene otro tipo de accion ")
+                    imprir("SELECT : Tipo Distinto de Ejecucion")
+                    er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+                    LisErr.agregar(er)
         else:
             imprir("SELECT : No existe la base de datos acual")
-        print(listaGeneral)
-        mostrarConsulta(listaGeneral)
-
+            er = ErrorRep('Semantico', 'No Existe la Base de Datos Actual', 0)
+            LisErr.agregar(er)
 
 
 
@@ -2319,8 +3078,10 @@ class Select2(Instruccion) :
 
         for tiposCuerpo in self.Cuerpo:
             if (isinstance(tiposCuerpo, Cuerpo_TipoWhere)):
+
                 print("Vamos a ver condiciones y luego a mostrar datos de las condiciones")
                 resultado = Inter.procesar_expresion_select(tiposCuerpo.Cuerpo, ts_global)
+
                 if resultado is None:
                     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.")
                 else:
@@ -2328,9 +3089,13 @@ class Select2(Instruccion) :
                     for r in resultado:
                         print(str(r.valor)+" "+str(r.tabla)+" "+str(r.fila))
 
+
                 titulos = []
                 for campo in listaGeneral:
                     titulos.append(str(campo))
+
+
+
 
                 lis = []
                 for t in titulos:
@@ -2340,8 +3105,11 @@ class Select2(Instruccion) :
                             if t == x.columna and x.fila == res.fila:
                                 lis.append(x)
 
+
+
                 nuevoDicc = {}
                 # ingreso lista final FALTA
+                #counter = 0
                 for t in titulos:
                     lis2 = []
                     for u in lis:
@@ -2349,8 +3117,22 @@ class Select2(Instruccion) :
                             lis2.append(u.valor)
                     nuevoDicc[t] = lis2
 
+
+                    dicci={}
+                    dicci.update(nuevoDicc)
+
+                    for nn in nuevoDicc:
+                        if(len(nuevoDicc.get(nn))>0):
+                            print("")
+                        else:
+                            del dicci[nn]
+                    listaGeneral.update(dicci)
+                    dicci.clear()
+
+
+                print("Aqui vienee la salida <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
                 print(nuevoDicc)
-                mostrarConsulta(nuevoDicc)
+                #mostrarConsulta(nuevoDicc)
 
             elif (isinstance(tiposCuerpo, GroupBy)):
                 print("Vamos a ver los tipos de grupos a realizar ")
@@ -2414,7 +3196,7 @@ class Select2(Instruccion) :
                         listt = sorted(listita)
                         print(listita)
                         # Recorremos la lista ordenada
-                        for n2 in listt:
+                        for n2 in sorted(listita):
                             diccionario2[gets(ListaN, n2, colN - 1)] = ListaN.get(gets(ListaN, n2, colN - 1))
                         print(diccionario2)
                     # Si viene la palabra reservada Descendente
@@ -2446,7 +3228,7 @@ class Select2(Instruccion) :
                         print(listt)
 
                         # Recorremos la lista ordenada
-                        for n2 in listt:
+                        for n2 in sorted(listita, reverse=True):
                             diccionario2[gets(ListaN, n2, colN - 1)] = ListaN.get(gets(ListaN, n2, colN - 1))
                         print(diccionario2)
 
@@ -2488,12 +3270,24 @@ class Select2(Instruccion) :
                         listak.append(contadorlist)
                         contadorlist += 1
                     print(listak)
-                    # ==============  Renombramos los datos
+# ==============  Renombramos los datos
+
+
+                    diccionarioN2 = {}
+                    diccionarioN2.update(diccionario2)
+
+
                     contadoraa = 0
                     for n in diccionario2:
-                        diccionario2[str(listak[contadoraa])] = diccionario2.pop(n)
+                        diccionarioN2[str(listak[contadoraa])] = diccionarioN2.pop(n)
                         contadoraa += 1
-                    print(diccionario2)
+                    print(diccionarioN2)
+
+                    diccionario2.clear()
+                    diccionario2.update(diccionarioN2)
+
+
+
 # ============== Regresamos los datos a su posicion inicial
                     diccionariof = {}
                     # primero llenamos el nuevo diccionario  amarrando las tuplas
@@ -2515,19 +3309,14 @@ class Select2(Instruccion) :
                     diccionarioN = {}
                     diccionarioN.update(diccionariof)
 
-                    print(diccionariof)
-                    print("ESTA ES <<<<<<<<<<<<<<<<<<<<<<<<< El que cambiamos de nombre")
-                    print(listaColumnas)
-                    print("ESTA ES <<<<<<<<<<<<<<<<<<<<<<<<< Estas son las columnas")
-
                     for n in diccionariof:
                         diccionarioN[listaColumnas[contadornn]] = diccionarioN.pop(n)
                         contadornn += 1
                     # imprimimos  la lista haber si hace lo que se piensa
-                    listaGeneral.clear()
-                    listaGeneral.update(diccionarioN)
-
-                    #mostrarConsulta(diccionarioN)
+                    #listaGeneral.clear()
+                    #listaGeneral.update(diccionarioN)
+                    imprir("SELECT: Operacion Group by ")
+                    mostrarConsulta(diccionarioN)
                     # diccionariof.clear
 
                 else:
@@ -2573,6 +3362,9 @@ class Select2(Instruccion) :
                 if(str(tipo.Estado).upper()=='ASC'):
                     #Recorremos la fila de las columnas para ver que numero tenemos la solicitada
                     #tenemos el contador de columnas
+
+
+                    print("ESTOY  En ASC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
                     colN = 0
                     for nombre in listaColumnas:
                         print(nombre)
@@ -2592,17 +3384,20 @@ class Select2(Instruccion) :
                     print(str(colN))
                     print(ListaN)
                     for n in ListaN:
-                        listita.append(ListaN.get(n)[colN-1])
+                        listita.append(int(ListaN.get(n)[colN-1]))
                     listt = sorted(listita)
                     print(listita)
                     #Recorremos la lista ordenada
-                    for n2 in listt:
-                        diccionario2[gets(ListaN,n2,colN-1)] = ListaN.get(gets(ListaN,n2,colN-1))
+
+                    for n2 in sorted(listita):
+                        diccionario2[gets(ListaN,str(n2),colN-1)] = ListaN.get(gets(ListaN,str(n2),colN-1))
                     print(diccionario2)
                 # Si viene la palabra reservada Descendente
                 elif(str(tipo.Estado).upper()=='DESC'):
                     #Recorremos la fila de las columnas para ver que numero tenemos la solicitada
                     #tenemos el contador de columnas
+
+                    print("ESTOY  En DESC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
                     colN = 0
                     for nombre in listaColumnas:
                         print(nombre)
@@ -2623,13 +3418,13 @@ class Select2(Instruccion) :
                     print(ListaN)
 
                     for n in ListaN:
-                        listita.append(ListaN.get(n)[colN-1])
+                        listita.append(int(ListaN.get(n)[colN-1]))
                     listt = sorted(listita, reverse=True)
                     print(listt)
 
                     #Recorremos la lista ordenada
-                    for n2 in listt:
-                        diccionario2[gets(ListaN,n2,colN-1)] = ListaN.get(gets(ListaN,n2,colN-1))
+                    for n2 in sorted(listita, reverse=True):
+                        diccionario2[gets(ListaN,str(n2),colN-1)] = ListaN.get(gets(ListaN,str(n2),colN-1))
                     print(diccionario2)
 
                 # Si no viene ordenamos ascendentemente
@@ -2651,16 +3446,20 @@ class Select2(Instruccion) :
                     listita = []
                     indices = 0
                     #Agarramos los datos con los que se van a ordenar los datos
-                    print("Aqui estan las cosas <<<<<<")
+                    print("Aqui Vienen listas A Ordenat <<<<<<")
                     print(str(colN))
                     print(ListaN)
+
                     for n in ListaN:
-                        listita.append(ListaN.get(n)[colN-1])
+                        listita.append(int(ListaN.get(n)[colN-1]))
                     listt = sorted(listita)
                     print(listita)
+
+                    print("ESTA  ES LA LISTA ORDENADA ----->    ")
+                    print(listt)
                     #Recorremos la lista ordenada
                     for n2 in listt:
-                        diccionario2[gets(ListaN,n2,colN-1)] = ListaN.get(gets(ListaN,n2,colN-1))
+                        diccionario2[gets(ListaN,str(n2),colN-1)] = ListaN.get(gets(ListaN,str(n2),colN-1))
                     print(diccionario2)
 
 
@@ -2673,11 +3472,19 @@ class Select2(Instruccion) :
                     contadorlist+=1
                 print(listak)
 #==============  Renombramos los datos
+
+                diccionarioN2 = {}
+                diccionarioN2.update(diccionario2)
+
                 contadoraa = 0
                 for n in diccionario2:
-                    diccionario2[str(listak[contadoraa])] = diccionario2.pop(n)
+                    diccionarioN2[str(listak[contadoraa])] = diccionarioN2.pop(n)
                     contadoraa += 1
-                print(diccionario2)
+                print(diccionarioN2)
+
+                diccionario2.clear()
+                diccionario2.update(diccionarioN2)
+
 #============== Regresamos los datos a su posicion inicial
                 diccionariof = {}
                 # primero llenamos el nuevo diccionario  amarrando las tuplas
@@ -2699,48 +3506,21 @@ class Select2(Instruccion) :
                 diccionarioN={}
                 diccionarioN.update(diccionariof)
 
-                print(diccionariof)
-                print("ESTA ES <<<<<<<<<<<<<<<<<<<<<<<<< El que cambiamos de nombre")
-                print(listaColumnas)
-                print("ESTA ES <<<<<<<<<<<<<<<<<<<<<<<<< Estas son las columnas")
-
                 for n in diccionariof:
                     diccionarioN[listaColumnas[contadornn]] = diccionarioN.pop(n)
                     contadornn += 1
                 #imprimimos  la lista haber si hace lo que se piensa
-                listaGeneral.clear()
-                listaGeneral.update(diccionarioN)
+                #listaGeneral.clear()
+                #listaGeneral.update(diccionarioN)
+                imprir("ESTO SALE AL HACER EL ORDER BY ")
+                mostrarConsulta(diccionarioN)
                 #diccionariof.clear
 
             elif (isinstance(tiposCuerpo, AccesoLimit)):
                 print("Bamos a elegir el limite ")
-                if (str(tiposCuerpo.Reservada).lower() == "offset"):
-                    # codigo de offset
-                    # Recorremos la lista General
-                    print("Estoy entrando al Offset")
-                    for nn in listaGeneral:
-                        l = listaGeneral.get(nn)
-                        # Recorro la lista dentro del diccionario
-                        indice = 0
-                        for dato in l:
-                            if (indice < int(tiposCuerpo.Expresion_Numerica)):
-                                print(">>>" + l.pop(0))
-                                indice += 1
-                elif (str(tiposCuerpo.Reservada).lower() == "limit"):
-                    # Codigo de limit
-                    if (str(tiposCuerpo.Expresion_Numerica).lower() == "all"):
-                        print("Voy a retornar todo sin limite")
-                    else:
-                        # Recorremos la lista General
-                        for nn in listaGeneral:
-                            l = listaGeneral.get(nn)
 
-                            # Recorro la lista dentro del diccionario
-                            indice = 0
-                            for dato in l:
-                                if (indice < int(tiposCuerpo.Expresion_Numerica)):
-                                    print(">>>"+l.pop())
-                                    indice += 1
+                lista = Limites(listaGeneral,tiposCuerpo);
+                mostrarConsulta(lista)
 
             elif (isinstance(tiposCuerpo, AccesoSubConsultas)):
                 print("Bamos a ver el cuerpo de cada subconsulta")
@@ -2756,128 +3536,264 @@ class Select2(Instruccion) :
                         sub.Ejecutar(sub.Lista_Campos,sub.Nombres_Tablas)
                     else:
                         print("viene otro tipo de subconsulta")
-
+            else:
+                imprir("SELECT : Tipo Distinto de Ejecucion")
+                er = ErrorRep('Semantico', 'No es un tipo Correcto de Ejecucion', 0)
+                LisErr.agregar(er)
 
 #aqui le agrega a general las listas que se generan
-#=================================================================================== PROCESO UNION
-            for uni in self.unionn:
-                if (isinstance(uni, CamposUnions)):
-                    if (str(uni.Reservada).upper() == "ALL"):
-                        print("Viene  ALL")
-                        if (str(uni.Comportamiento).upper() == "UNION"):
-                            print("Viene un union")
-                            ank = uni.Consulta
-                            if (isinstance(ank, Select)):
-                                print("viene un tipo de select normal unido")
-                                ank.Ejecutar()
-                            elif (isinstance(ank, Select2)):
-                                ank.Ejecutar()
-                                print("viene un tipo de select normal con cuerpo")
-                            elif (isinstance(ank, Select3)):
-                                ank.Ejecutar()
-                                print("Viene un tipo de Select normal con distinct")
-                            elif (isinstance(ank, Select4)):
-                                ank.Ejecutar()
-                                print("viene un tipo de Select normal con cuerpo y distinct")
-                            else:
-                                print("viene otro tipo de funcion")
-                        elif (str(uni.Comportamiento).upper() == "INTERSECT"):
-                            print("Viene un Intersect")
-                            ank = uni.Consulta
-                            if (isinstance(ank, Select)):
-                                print("viene un tipo de select normal unido")
-                                ank.Ejecutar()
-                            elif (isinstance(ank, Select2)):
-                                ank.Ejecutar()
-                                print("viene un tipo de select normal con cuerpo")
-                            elif (isinstance(ank, Select3)):
-                                ank.Ejecutar()
-                                print("Viene un tipo de Select normal con distinct")
-                            elif (isinstance(ank, Select4)):
-                                ank.Ejecutar()
-                                print("viene un tipo de Select normal con cuerpo y distinct")
-                            else:
-                                print("viene otro tipo de funcion")
-                        elif (str(uni.Comportamiento).upper() == "EXCEPT"):
-                            print("Viene un Except")
-                            ank = uni.Consulta
-                            if (isinstance(ank, Select)):
-                                print("viene un tipo de select normal unido")
-                                ank.Ejecutar()
-                            elif (isinstance(ank, Select2)):
-                                ank.Ejecutar()
-                                print("viene un tipo de select normal con cuerpo")
-                            elif (isinstance(ank, Select3)):
-                                ank.Ejecutar()
-                                print("Viene un tipo de Select normal con distinct")
-                            elif (isinstance(ank, Select4)):
-                                ank.Ejecutar()
-                                print("viene un tipo de Select normal con cuerpo y distinct")
-                            else:
-                                print("viene otro tipo de funcion")
-                        else:
-                            print("vino una palabra diferente")
-                    elif (str(uni.Reservada) == ","):
-                        print("Viene una Coma")
-                    else:
-                        if (str(uni.Comportamiento).upper() == "UNION"):
-                            print("Viene un union")
-                            ank = uni.Consulta
-                            if (isinstance(ank, Select)):
-                                print("viene un tipo de select normal unido")
-                                ank.Ejecutar()
-                            elif (isinstance(ank, Select2)):
-                                ank.Ejecutar()
-                                print("viene un tipo de select normal con cuerpo")
-                            elif (isinstance(ank, Select3)):
-                                ank.Ejecutar()
-                                print("Viene un tipo de Select normal con distinct")
-                            elif (isinstance(ank, Select4)):
-                                ank.Ejecutar()
-                                print("viene un tipo de Select normal con cuerpo y distinct")
-                            else:
-                                print("viene otro tipo de funcion")
-                        elif (str(uni.Comportamiento).upper() == "INTERSECT"):
-                            print("Viene un Intersect")
-                            ank = uni.Consulta
-                            if (isinstance(ank, Select)):
-                                print("viene un tipo de select normal unido")
-                                ank.Ejecutar()
-                            elif (isinstance(ank, Select2)):
-                                ank.Ejecutar()
-                                print("viene un tipo de select normal con cuerpo")
-                            elif (isinstance(ank, Select3)):
-                                ank.Ejecutar()
-                                print("Viene un tipo de Select normal con distinct")
-                            elif (isinstance(ank, Select4)):
-                                ank.Ejecutar()
-                                print("viene un tipo de Select normal con cuerpo y distinct")
-                            else:
-                                print("viene otro tipo de funcion")
-                        elif (str(uni.Comportamiento).upper() == "EXCEPT"):
-                            print("Viene un Except")
-                            ank = uni.Consulta
-                            if (isinstance(ank, Select)):
-                                print("viene un tipo de select normal unido")
-                                ank.Ejecutar()
-                            elif (isinstance(ank, Select2)):
-                                ank.Ejecutar()
-                                print("viene un tipo de select normal con cuerpo")
-                            elif (isinstance(ank, Select3)):
-                                ank.Ejecutar()
-                                print("Viene un tipo de Select normal con distinct")
-                            elif (isinstance(ank, Select4)):
-                                ank.Ejecutar()
-                                print("viene un tipo de Select normal con cuerpo y distinct")
-                            else:
-                                print("viene otro tipo de funcion")
-                        else:
-                            print("vino una palabra diferente")
 
-        #print(ListaN)
-        print(listaGeneral)
-        mostrarConsulta(listaGeneral)
-        listaGeneral.clear
+
+#=================================================================================== PROCESO UNION
+
+        for uni in self.unionn:
+            if (isinstance(uni, CamposUnions)):
+
+                if (str(uni.Reservada).upper() == "ALL"):
+                    print("Viene  ALL")
+                    if (str(uni.Comportamiento).upper() == "UNION"):
+                        print("Viene un union")
+                        ank = uni.Consulta
+                        if (isinstance(ank, Select)):
+                            print("viene un tipo de select normal unido")
+                            ank.Ejecutar()
+                        elif (isinstance(ank, Select2)):
+                            ank.Ejecutar()
+                            print("viene un tipo de select normal con cuerpo")
+                        elif (isinstance(ank, Select3)):
+                            ank.Ejecutar()
+                            print("Viene un tipo de Select normal con distinct")
+                        elif (isinstance(ank, Select4)):
+                            ank.Ejecutar()
+                            print("viene un tipo de Select normal con cuerpo y distinct")
+                        else:
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+                    elif (str(uni.Comportamiento).upper() == "INTERSECT"):
+                        print("Viene un Intersect")
+                        ank = uni.Consulta
+                        if (isinstance(ank, Select)):
+                            print("viene un tipo de select normal unido")
+                            ank.Ejecutar()
+                            print("Tenemos el diccionario ya unido ")
+                            print(listaGeneral)
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+
+                        elif (isinstance(ank, Select2)):
+                            ank.Ejecutar()
+                            print("viene un tipo de select normal con cuerpo")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+                        elif (isinstance(ank, Select3)):
+                            ank.Ejecutar()
+                            print("Viene un tipo de Select normal con distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+                        elif (isinstance(ank, Select4)):
+                            ank.Ejecutar()
+                            print("viene un tipo de Select normal con cuerpo y distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+                        else:
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
+
+                    elif (str(uni.Comportamiento).upper() == "EXCEPT"):
+
+                        print("Viene un Except")
+                        ank = uni.Consulta
+                        if (isinstance(ank, Select)):
+                            print("viene un tipo de select normal unido")
+                            ank.Ejecutar()
+                            print("Tenemos el diccionario ya unido ")
+                            print(listaGeneral)
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+                        elif (isinstance(ank, Select2)):
+                            ank.Ejecutar()
+                            print("viene un tipo de select normal con cuerpo")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+
+                        elif (isinstance(ank, Select3)):
+                            ank.Ejecutar()
+                            print("Viene un tipo de Select normal con distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+                        elif (isinstance(ank, Select4)):
+                            ank.Ejecutar()
+                            print("viene un tipo de Select normal con cuerpo y distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+                        else:
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
+                    else:
+                        imprir("SELECT : Viene otro tipo de Funcion ")
+                        er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                        LisErr.agregar(er)
+
+
+                elif (str(uni.Reservada) == ";"):
+                    print("Fin ")
+                else:
+                    if (str(uni.Comportamiento).upper() == "UNION"):
+                        print("Viene un union")
+                        ank = uni.Consulta
+                        if (isinstance(ank, Select)):
+                            print("viene un tipo de select normal unido")
+                            ank.Ejecutar()
+                        elif (isinstance(ank, Select2)):
+                            ank.Ejecutar()
+                            print("viene un tipo de select normal con cuerpo")
+                        elif (isinstance(ank, Select3)):
+                            ank.Ejecutar()
+                            print("Viene un tipo de Select normal con distinct")
+                        elif (isinstance(ank, Select4)):
+                            ank.Ejecutar()
+                            print("viene un tipo de Select normal con cuerpo y distinct")
+                        else:
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
+                    elif (str(uni.Comportamiento).upper() == "INTERSECT"):
+
+                        print("Viene un Intersect")
+                        ank = uni.Consulta
+                        if (isinstance(ank, Select)):
+                            print("viene un tipo de select normal unido")
+                            ank.Ejecutar()
+                            print("Tenemos el diccionario ya unido ")
+                            print(listaGeneral)
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+
+                        elif (isinstance(ank, Select2)):
+                            ank.Ejecutar()
+                            print("viene un tipo de select normal con cuerpo")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+                        elif (isinstance(ank, Select3)):
+                            ank.Ejecutar()
+                            print("Viene un tipo de Select normal con distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+                        elif (isinstance(ank, Select4)):
+                            ank.Ejecutar()
+                            print("viene un tipo de Select normal con cuerpo y distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Interseccion(list)
+                            imprir("SELECT: Comando INTERSECT con Exito")
+                            mostrarConsulta(list2)
+
+                        else:
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
+                    elif (str(uni.Comportamiento).upper() == "EXCEPT"):
+
+                        print("Viene un Except")
+                        ank = uni.Consulta
+                        if (isinstance(ank, Select)):
+                            print("viene un tipo de select normal unido")
+                            ank.Ejecutar()
+                            print("Tenemos el diccionario ya unido ")
+                            print(listaGeneral)
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+                        elif (isinstance(ank, Select2)):
+                            ank.Ejecutar()
+                            print("viene un tipo de select normal con cuerpo")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+
+                        elif (isinstance(ank, Select3)):
+                            ank.Ejecutar()
+                            print("Viene un tipo de Select normal con distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+                        elif (isinstance(ank, Select4)):
+                            ank.Ejecutar()
+                            print("viene un tipo de Select normal con cuerpo y distinct")
+                            list = AlinearDatos(listaGeneral)
+                            mostrarConsulta(list)
+                            list2 = Excepcion(list)
+                            imprir("SELECT: Comando Except con Exito")
+                            mostrarConsulta(list2)
+                        else:
+                            imprir("SELECT : Viene otro tipo de Funcion ")
+                            er = ErrorRep('Semantico', 'No Es el correcto tipo de funcion ', 0)
+                            LisErr.agregar(er)
+
+                    else:
+                        imprir("SELECT : Palabra Reservada No encontrada")
+                        er = ErrorRep('Semantico', 'No Se Encontro la Palabra reservada', 0)
+                        LisErr.agregar(er)
+
+        list = AlinearDatos(listaGeneral)
+        print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
+        print(list)
+
+        mostrarConsulta(list)
+
 
 
 
@@ -3573,7 +4489,6 @@ class Select3(Instruccion):
 
         return resultado
 
-
 #---------------------------------------------------------------------------------------------------
 class Select4(Instruccion) :
     def __init__(self,distinct,  unionn,Cuerpo, Lista_Campos=[], Nombres_Tablas=[] ) :
@@ -4062,7 +4977,6 @@ class Select4(Instruccion) :
         print(listaGeneral)
         mostrarConsulta(listaGeneral)
 
-
 class SelectExpresion(Instruccion):
     def __init__(self, listaCampos = []):
         self.listaCampos = listaCampos
@@ -4102,6 +5016,8 @@ class SelectExpresion(Instruccion):
         listaGeneral.clear()
 
 
+
+
 #subSelect sin cuerpo
 #---------------------------------------------------------------------------------------------------
 class SubSelect(Instruccion) :
@@ -4115,6 +5031,10 @@ class SubSelect(Instruccion) :
         Lista = GenerarTablaQuery(self.Lista_Campos, self.Nombres_Tablas)
         print(Lista)
         listaGeneral.update(Lista)
+
+
+
+        return Lista
         imprir("Ejecute una Subconsulta <<<<<<<<<<<<<")
 
 
@@ -4130,12 +5050,24 @@ class SubSelect2(Instruccion) :
     def Ejecutar(self):
         Lista = {}
 
+        #Generamos el Query
         Lista = GenerarTablaQuery(self.Lista_Campos, self.Nombres_Tablas)
-        print(Lista)
-        listaGeneral.update(Lista)
+        #Filtramos el cuerpo
+        print("Esto devuelve la Generacion de Tabla ")
         print(Lista)
 
+        listi = FiltrarCuerpo(Lista, self.Cuerpo)
 
+        print(listi)
+
+        listaGeneral.update(listi)
+        #Rellenamos campos si no son suficientes
+        list = AlinearDatos(listaGeneral)
+
+        print(list)
+        print("<<<<<<<<<<<<<<<<<<<<<<<<  estaaaa otra")
+
+        return Lista
 
 
 
@@ -4339,10 +5271,15 @@ class CaseCuerpo(Instruccion):
     def __init__(self,Cuerpo,Lista_When=[]):
         self.Lista_When = Lista_When
         self.Cuerpo     = Cuerpo
+
+
 class ExpresionesCase(Instruccion):
     def __init__(self,Reservada,ListaExpresiones=[]):
         self.Reservada            = Reservada
         self.ListaExpresiones     = ListaExpresiones
+
+
+
 
 class TiposWhen(Instruccion):
     def __init__(self,Reservada,Reservada2,Reservada3,ListaExpresiones1=[],ListaExpresiones2=[],ListaExpresiones3=[]):
@@ -4366,14 +5303,13 @@ class DatoInsert(Instruccion):
         self.fila = fila
 
 
-
-
 class Insert_Datos(Instruccion):
     def __init__(self, id_table, valores):
         self.id_table = id_table
         self.valores = valores
 
     def Ejecutar(self):
+        print("ENTRA AL INSERT -----------------------------------------------------------------------")
         FilaG = randint(1,500)
         print("Ejecucion")
         global ts_global, baseActual
@@ -4383,25 +5319,24 @@ class Insert_Datos(Instruccion):
         if r is None:
             imprir("INSERT BD:  No existe la BD para insertar.")
         else:
-            imprir("INSERT BD:  Si existe la BD para insertar. " + str(self.id_table[0].val))
-
             r2:CreateTable = ts_global.obtenerTabla(self.id_table[0].val)
             if r2 is None:
                 imprir("INSERT BD:  No existe la Tabla para insertar.")
             else:
-
-                imprir("INSERT BD:  Si existe la Tabla para insertar. ")
-
                 # Obtener tabla actual
                 rT:CreateTable = ts_global.obtenerTabla(self.id_table[0].val)
                 #print(">>>>>>>"+str(rT.id))
 
                 temporal:CampoTabla = rT.cuerpo
+                print("ENTRA AL INSERT 2-----------------------------------------------------------------------")
+                # borre un for incesesario de impresion
 
                 cC = 0
                 for c in rT.cuerpo:
-                    
-                    cC += 1
+                    if isinstance(c, constraintTabla):
+                        pass
+                    else:
+                        cC += 1
 
                 cV = 0
                 for v in self.valores:
@@ -4469,6 +5404,12 @@ class Inherits(Instruccion):
     def __init__(self, id):
         self.id = id
 
+class ObjetoValidacion():
+    def __init__(self, tabla, campo, validacion, id):
+        self.tabla = tabla
+        self.campo = campo
+        self.validacion = validacion
+        self.id = id
 
 class CreateTable(Instruccion):
     def __init__(self, id, cuerpo, inhe):
@@ -4490,12 +5431,38 @@ class CreateTable(Instruccion):
             columnas = 0
 
             for campos in self.cuerpo:
-                columnas += 1
-            print("---------------")
-            print(baseActual)
-            print(columnas)
+                if isinstance(campos, constraintTabla):
+                    pass
+                else:
+                    columnas += 1
 
             rM = Master.createTable(baseActual, self.id, columnas)
+
+            #Insertamos las validaciones que tengan.
+            for v in self.cuerpo:
+                x:CampoTabla = v
+                if isinstance(v, CampoTabla):
+                    print(">>>> ES CAMPO TABLA")
+                    for vali in x.validaciones:
+                            print(" Si es constraint")
+                            if isinstance(vali, CampoValidacion):
+                                val: CampoValidacion = vali
+                                if val is None:
+                                    pass
+                                else:
+                                    print(str(val.id) + str(val.valor))
+
+                            elif isinstance(vali, constraintTabla):
+                                val: constraintTabla = vali
+                                if val is None:
+                                    pass
+                                else:
+                                    print(val.valor+val.id+val.listas_id+val.idRef)
+                else:
+                    print(">>> ES OTRO TIPO DE CAMPO")
+                    vv: constraintTabla = v
+                    Vcion = ObjetoValidacion(self.id, vv.id, vv.valor, vv.id)
+                    ts_global.agregarValidacion(Vcion)
 
             if rM == 0:
                 ts_global.agregarTabla(self)
@@ -4561,6 +5528,7 @@ class Delete_Datos(Instruccion):
                 # recorrer lista de valores a eliminar.
                 if len(resultado) is 0:
                     imprir("DELETE: No existen registros.")
+
                     er = ErrorRep('Semantico', 'No existen registros que cumplan la condicion para eliminar.', 0)
                     LisErr.agregar(er)
                 else:
@@ -4598,9 +5566,6 @@ class constraintTabla(Instruccion):
         self.listas_id = listas_id
         self.referencia = referencia
         self.idRef = idRef
-
-
-
 
 
 class CreateDataBase(Instruccion):
@@ -4652,8 +5617,6 @@ class CreateDataBase(Instruccion):
                 Lista.append(Ejecucion)
                 print("Si encontre la BD. Bamos a Reemplazar la Misma! ")
 
-
-
 class ShowDatabases(Instruccion):
     def __init__(self, cadenaLike):
         self.cadenaLike = cadenaLike
@@ -4672,9 +5635,6 @@ class ShowDatabases(Instruccion):
             imprir("SHOW DB: No se encontro la BD")
             er = ErrorRep('Semantico', 'No Encontre la Base de Datos', 0)
             LisErr.agregar(er)
-
-
-
 
 
 class AlterDataBase(Instruccion):
@@ -4728,9 +5688,6 @@ class AlterDataBase(Instruccion):
             imprir("ALTER DB:  No se encontro la base de datos! :( ")
             er = ErrorRep('Semantico', error, 0)
             LisErr.agregar(er)
-
-
-
 
 
 class DropDataBase(Instruccion):
@@ -4818,7 +5775,6 @@ class CreacionEnum(Instruccion):
 
 
 # Crear funciones de ejecucion ----------------------------------
-
 #Prueba clase errores
 class ErrorSintactico():
     def __init__(self, valor, error, linea):
@@ -4894,9 +5850,6 @@ class Update_Datos(Instruccion):
                             else:
                                 pass
                 imprir("UPDATE: Se actualizaron los registros.")
-
-
-
 
 #Clase para el Alter Table----------------------------
 class Alter_Table_AddColumn(Instruccion):
@@ -5035,7 +5988,6 @@ class Alter_Table_AddColumn(Instruccion):
         else:
             imprir("ALTER TABLE:   La Base de datos no existe")
 
-
 class Alter_COLUMN(Instruccion):
     def __init__(self, idtabla,columnas):
         self.idtabla = idtabla
@@ -5092,8 +6044,6 @@ class Alter_COLUMN(Instruccion):
             else:
                 imprir("ALTER TABLE:   La Base de datos no existe")
                 # colocar error semantico
-
-
 
 class Alter_Table_Drop_Column(Instruccion):
     def __init__(self, id_table, columnas):
@@ -5229,7 +6179,6 @@ class Alter_Table_Rename_Column(Instruccion):
             imprir("ALTER TABLE:   La Base de datos no existe")
             # colocar error semantico
 
-
 class Alter_Table_Drop_Constraint(Instruccion):
     def __init__(self, id_table, id_constraint):
         self.id_tabla = id_table
@@ -5345,23 +6294,23 @@ class Alter_Table_Drop_Constraint(Instruccion):
             imprir("ALTER TABLE:   La Base de datos no existe")
             # colocar error semantico
 
-
 class Alter_table_Alter_Column_Set(Instruccion):
     def __init__(self, id_table, id_column):
         self.id_tabla = id_table
         self.id_column = id_column
     def Ejecutar(self):
+        print(">>>>> SI HACE EL COLUMN SET")
         global ts_global, baseActual
         global LisErr
 
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
         if r is not None:
 
-            r2:CreateTable = ts_global.obtenerTabla(self.id_table)
+            r2:CreateTable = ts_global.obtenerTabla(self.id_tabla)
 
             if r2 is not None:
-
-                elementoo  = self.id_constraint
+                print("!!! SI EXISTE TABLA ALTER TABLE SET COLUMN")
+                elementoo = self.id_column
 
                 if isinstance(elementoo, ExpresionValor):
 
@@ -5371,7 +6320,7 @@ class Alter_table_Alter_Column_Set(Instruccion):
                             if x.id == self.id_tabla:
                                 for ele in x.cuerpo:
                                     y: CampoTabla = ele
-                                    print(y.id + "<<<<<<<<<<<<<<<<<<<<<<")
+                                    print(y.id + "<<<<COLUMN SETT SI ENTRA....")
                                     if (y.id == elementoo.val):
 
                                         bandera = False
@@ -5385,6 +6334,7 @@ class Alter_table_Alter_Column_Set(Instruccion):
                                         if(bandera==False):
                                             # Se ingreso correctamente el valor
                                             temporal2 = CampoValidacion("NOT", "NULL")
+
                                             y.validaciones.append(temporal2)
                                             imprir("ALTER TABLE: SE SETEO NOT NULL CORRECTAMENTE")
                                     else:
@@ -5420,13 +6370,15 @@ class Alter_table_Alter_Column_Set(Instruccion):
 
 
 class Alter_table_Add_Foreign_Key(Instruccion):
-    def __init__(self, id_table, id_column, id_column_references):
+    def __init__(self, id_table, id_column, id_column_references, idforeign):
         self.id_table = id_table
         self.id_column = id_column
+        self.idforeign = idforeign
         self.id_column_references = id_column_references
 
 
     def Ejecutar(self):
+        print("por que entra aca.")
         #Verificar que existe la base de datos
         #Verificar que existe la tabla
         #Verificar que existe la columna en la tabla
@@ -5441,38 +6393,55 @@ class Alter_table_Add_Foreign_Key(Instruccion):
 
 
             if r2 is not None:
-
                     elemento       = self.id_column
                     elemento2      = self.id_column_references
                     tipoReferencia = ""
 
-
                     if isinstance(elemento,ExpresionValor) and isinstance(elemento,ExpresionValor):
-
-
                         bandera = False
                         bandera2 = False
+
 
                         for elemento22 in ts_global.Tablas:
                             x: CreateTable = ts_global.obtenerTabla(elemento22)
 
                             if x.id == self.id_table:
                                 for ele in x.cuerpo:
-                                    y: CampoTabla = ele
+                                    if isinstance(ele, constraintTabla):
+                                        pass
+                                    else:
+                                        y: CampoTabla = ele
 
-                                    if y.id != elemento2.val:
-                                        bandera=True
-                                    if y.id == elemento.val:
-                                        bandera2=True
-                                        tipoReferencia=y.tipo
+                                        if y.id != elemento2.val:
+                                            bandera=True
+                                        if y.id == elemento.val:
+                                            bandera2=True
+                                            tipoReferencia=y.tipo
 
 
                                 if (bandera==True) and (bandera2 ==True):
                                         # Se ingreso correctamente el valor
                                         #validar que exista ese esa columna en alguna tabla
-                                        temporal2 = constraintTabla("FOREIGN KEY",elemento.val,None,None, None,elemento2.val)
-                                        temporal = CampoTabla(elemento2.val,tipoReferencia, temporal2)
-                                        r2.cuerpo.append(temporal)
+
+                                        #### PRUEBA CAMBIO A INSERTAR TIPO CONSTRAIN AL CUERPO DE LA TABLA
+                                        temporal2 = constraintTabla("FOREIGN KEY", self.idforeign, None, elemento.val, None, self.id_table)
+                                        ts_global.agregarValidacion(temporal2)
+
+                                        print(ts_global.Validaciones)
+
+                                        #EN LA TABLA PEDIDA QUE ES elemento2.val
+                                        laTabla:CreateTable = ts_global.obtenerTabla(self.id_table)
+
+                                        #por cada campo que tenga hasta que encontremos elemento.val
+                                        for campo in laTabla.cuerpo:
+                                            if isinstance(campo, constraintTabla):
+                                                pass
+                                            else:
+                                                tt: CampoTabla = campo
+                                                if elemento.val == tt.id:
+                                                    tt.validaciones.append(temporal2)
+
+                                        #r2.cuerpo.append(temporal)
                                         imprir("ALTER TABLE: En Hora Buena Se Ingreso la Llave Foranea Correctamente")
                                 else:
                                     imprir("ALTER TABLE: No se Ejecuto la Accion ")
@@ -5488,7 +6457,6 @@ class Alter_table_Add_Foreign_Key(Instruccion):
         else:
             imprir("ALTER TABLE:   La Base de datos no existe")
             #colocar error semantico
-
 
 class Alter_Table_Add_Constraint(Instruccion):
     def __init__(self, id_table, id_constraint, id_column):
@@ -5539,9 +6507,20 @@ class Alter_Table_Add_Constraint(Instruccion):
                                 if (bandera==True) and (bandera2 ==True):
                                         # Se ingreso correctamente el valor
                                         #validar que exista ese esa columna en alguna tabla
-                                        temporal2 = constraintTabla("UNIQUE",elemento2.val,None,None, None,elemento.val)
-                                        temporal = CampoTabla(elemento.val,tipoReferencia, temporal2)
-                                        r2.cuerpo.append(temporal)
+                                        temporal2 = constraintTabla("UNIQUE",self.id_constraint.val,None, elemento.val, None, self.id_table)
+                                        ts_global.agregarValidacion(temporal2)
+
+                                        # EN LA TABLA PEDIDA QUE ES elemento2.val
+                                        laTabla: CreateTable = ts_global.obtenerTabla(self.id_table)
+
+                                        # por cada campo que tenga hasta que encontremos elemento.val
+                                        for campo in laTabla.cuerpo:
+                                            if isinstance(campo, constraintTabla):
+                                                pass
+                                            else:
+                                                tt: CampoTabla = campo
+                                                if elemento.val == tt.id:
+                                                    tt.validaciones.append(temporal2)
                                         imprir("ALTER TABLE: En Hora Buena Se Ingreso El Constraint UNIQUE")
 
                                 else:
@@ -5559,7 +6538,6 @@ class Alter_Table_Add_Constraint(Instruccion):
 class useClase(Instruccion):
     def __init__(self,id):
         self.id = id
-
 
 class DatoTipo(Instruccion):
     def __init__(self, bd, tipo, valor):
