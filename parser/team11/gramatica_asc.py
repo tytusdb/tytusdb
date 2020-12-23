@@ -591,44 +591,72 @@ def p_parametro (t) :
 ## UPDATE
 def p_update_sinwhere(t) : 
     'update_instr     : UPDATE ID SET asignaciones PTCOMA'
+    g = '<update_instr> ::= \"UPDATE\" ID \"SET\" <asignaciones> \"PTCOMA\"\n'
+    t[0] = Nodo('UPDATE',t[2],t[4],t.lexer.lineno,0,g)
 
 def p_update_conwhere(t) : 
     'update_instr     : UPDATE ID SET asignaciones WHERE condiciones PTCOMA'  
-    
+    g = '<update_instr> ::= \"UPDATE\" ID \"SET\" <asignaciones> \"WHERE\" <condiciones> \"PTCOMA\"\n'
+    t[0] = Nodo('UPDATE',t[2],t[4],t.lexer.lineno,0,g)
+
 def p_lista_asignaciones(t): 
     'asignaciones     : asignaciones COMA asignacion'
+    t[3].gramatica = '<asignaciones> ::= <asignaciones> \"COMA\" <asignacion>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lista_asignacion_salida(t) :
     'asignaciones     : asignacion'
+    t[1].gramatica = '<asignaciones> ::= <asignacion>\n'
+    t[0] = [t[1]]
 
 def p_asignacion(t) :
     'asignacion       : ID IGUAL expresion'
-    
+    t[0] = getAssignNode(t)
+
 ## DELETE
 def p_delete_sinwhere(t):
     'delete_instr     : DELETE FROM ID PTCOMA'
+    g = '<delete_instr> ::= \"DELETE\" \"FROM\" ID \"PTCOMA\"\n'
+    t[0] = Nodo('DELETE',t[3],[],t.lexer.lineno,0,g)
 
 def p_delete_conwhere(t):
     'delete_instr     : DELETE FROM ID WHERE condiciones PTCOMA'
-    
+    g = '<delete_instr> ::= \"DELETE\" \"FROM\" ID \"WHERE\" <condiciones> \"PTCOMA\"\n'
+    t[0] = Nodo('DELETE',t[3],[t[5]],t.lexer.lineno,0,g)
+
 ## TRUNCATE
 def p_truncate_simple(t):
     'truncate_instr   : TRUNCATE listtablas PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" <listtablas> \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','',t[2],t.lexer.lineno,0,g)
 
 def p_truncate_simple_cascade(t):
     'truncate_instr   : TRUNCATE listtablas CASCADE PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" <listtablas> \"CASCADE\" \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','CASCADE',t[2],t.lexer.lineno,0,g)
 
 def p_truncate_table(t) :
     'truncate_instr   : TRUNCATE TABLE listtablas PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" \"TABLE\" <listtablas> \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','TABLE',t[3],t.lexer.lineno,0,g)
 
 def p_truncate_table_cascade(t) :
     'truncate_instr   : TRUNCATE TABLE listtablas CASCADE PTCOMA'
+    g = '<truncate_instr> ::= \"TRUNCATE\" \"TABLE\" <listtablas> \"CASCADE\" \"PTCOMA\"\n'
+    t[0] = Nodo('TRUNCATE','TABLE CASCADE',t[3],t.lexer.lineno,0,g)
 
 def p_listatablas(t) : 
     'listtablas       : listtablas COMA ID'
+    g = '<listtablas> ::= <listtablas> \"COMA\" ID\n'
+    t[1].append(Nodo('ID',t[3],[],t.lexer.lineno,0,g))
+    t[0] = t[1]
 
 def p_listatablas_salida(t) :
     'listtablas       : ID'
+    g = '<listtablas> ::= ID\n'
+    t[0] = [Nodo('ID',t[1],[],t.lexer.lineno,0,g)]
+
 
 
 ######################################################################################################################
@@ -636,8 +664,25 @@ def p_listatablas_salida(t) :
 ######################################################################################################################
 
 def p_select(t):
-    'select_instr     :  select_instr1 PTCOMA'
+    'select_instr     :  select_instr1 second_query PTCOMA'
     t[0] = t[1]
+
+def p_second_query(t):
+    '''second_query     : UNION ALL select_instr1
+                        | INTERSECT ALL select_instr1
+                        | EXCEPT ALL select_instr1 '''
+    t[0] =  [t[3]]
+    t[0] = Nodo('COMBINING QUERY ALL',[], [t[3]], t.lexer.lineno)
+
+def p_second_query2(t):
+    '''second_query     : UNION select_instr1
+                        | INTERSECT select_instr1
+                        | EXCEPT select_instr1 '''
+    t[0] =  [t[2]]
+    t[0] = Nodo('COMBINING QUERY', t[1], [t[2]], t.lexer.lineno)
+
+def p_second_query3(t):
+    'second_query     : empty '
 
 def p_select_simple(t):
     'select_instr1    : SELECT termdistinct selectlist selectfrom'
@@ -663,6 +708,11 @@ def p_listaselect(t):
 
 def p_listaselect_salida(t):
     'listaselect      : valselect'
+
+def p_valselect_10_2(t):
+    'valselect      : CASE case_state END'
+    gramatica = '<valselect> ::= CASE <case_state> END'
+    t[0] = t[2]
 
 def p_valselect_1(t):
     'valselect      : ID alias'
@@ -958,35 +1008,29 @@ def p_valorlogico(t):
 
 #----------------------------- Case ---------------------------------
 def p_estadocase(t):
-    '''case_state   : case_state casestate2 END
-                    | casestate2 END
-                    | empty'''
+    'case_state         : list_case '
+    t[0] = [t[1]]
 
-def p_estadorelacional(t):
-    '''estadorelacional : expresionaritmetica MENQUE expresionaritmetica
-                        | expresionaritmetica MAYQUE expresionaritmetica
-                        | expresionaritmetica IGUAL IGUAL expresionaritmetica
-                        | expresionaritmetica MENIGUAL expresionaritmetica
-                        | expresionaritmetica MAYIGUAL expresionaritmetica
-                        | expresionaritmetica DIFERENTE expresionaritmetica
-                        | estadorelacional AND estadorelacional
-                        | estadorelacional OR estadorelacional '''
-    
-def p_estadorelacional2(t):
-    '''estadorelacional : expresionaritmetica
-                        | between_state
-                        | predicates_state
-                        | is_distinct_state '''
-    t[0] = t[1]
+def p_estadocase2(t):
+    '''list_case        : list_case s_case_state
+                        | s_case_state case_else
+                        | s_case_state
+                        | list_case case_else '''
+    if len(t) == 2:
+       t[0] = t[1]
+    else:
+        t[0] = [t[1], t[2]] 
 
-def p_casestate2(t):
-    'casestate2   : WHEN estadorelacional THEN CADENASIMPLE'
+def p_estadocase3(t):
+    's_case_state       : WHEN condiciones THEN valores'
+    t[2].append(t[4])
+    t[0] =t[2]
 
-def p_casestate22(t):
-    'casestate2    : ELSE CSIMPLE ID CSIMPLE'
+def p_estadocase4(t):
+    'case_else       : ELSE valores'
+    t[0] = [t[2]]
 
-def p_casestate22_(t):
-    'casestate2    : empty'
+
 
 # --------------Between-----------------
 
