@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
-from Funciones import *
+from BPlusMode import *
 from PIL import Image
 
 
