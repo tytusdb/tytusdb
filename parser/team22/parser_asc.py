@@ -435,6 +435,13 @@ def p_instruccion_selects2(t) :
 def p_instruccion_selects3(t) :
     '''selects      : fun_trigonometrica state_aliases_field 
                     '''
+    print(t[1]['funcion'].upper() )
+    if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
+        resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
+    else:
+        resultado = type_checker.Funciones_Trigonometricas_2(t[1]['funcion'], t[1]['valor1'], t[1]['valor1'], line = t.lexer.lineno)
+  
+    print("================================>", resultado)
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'SELECT')
@@ -2364,14 +2371,23 @@ def p_aritmetica(t) :
                     | aritmetica DIVISION aritmetica
                     | aritmetica MODULO aritmetica
                     | aritmetica EXP aritmetica
+                    | MENOS aritmetica 
                     | valor'''
     id = inc()
-    t[0] = {'id': id}
     dot.node(str(id), 'Valor aritmetico' )
 
     if len(t) == 2:
+        t[0] = {'id': id, 'valor': str(t[1]['valor'])}
         dot.edge(str(id), str(t[1]['id'])) 
+
+    elif len(t) == 3:
+        valor = type_checker.Validando_Operaciones_Aritmeticas((t[2]['valor']), (t[2]['valor']), 'NEGATIVO')
+        t[0] = {'id': id, 'valor': valor}
+        dot.edge(str(id), 'NEGATIVO')
+        dot.edge(str(id), str(t[2]['id'])) 
     else:
+        valor = type_checker.Validando_Operaciones_Aritmeticas((t[1]['valor']), (t[3]['valor']), str(t[2]))
+        t[0] = {'id': id, 'valor': valor}
         dot.edge(str(id), str(t[1]['id'])) 
         dot.edge(str(id), t[2])
         dot.edge(str(id), str(t[3]['id'])) 
@@ -2438,12 +2454,13 @@ def p_valor_id(t) :
     '''valor        : ID
                     | ID PUNTO ID'''
     id = inc()
-    t[0] = {'id': id}
 
     if len(t) == 2:
+        t[0] = {'id': id, 'valor': str(t[1])}
         dot.node(str(id), 'IDENTIFICADOR\n' + str(t[1]))
         # dot.edge(str(id), ' '+ str(t[1]) )
     else:
+        t[0] = {'id': id, 'valor': str(t[1] + t[2] + t[3])}
         dot.node(str(id), 'FIELD\n' + t[1] + t[2] + t[3])
         # dot.edge(str(id), t[1] + t[2] + t[3])
 
@@ -2451,7 +2468,7 @@ def p_valor_num(t) :
     '''valor        : ENTERO
                     | DECIMAL  '''
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'valor': str(t[1])}
     dot.node(str(id), 'NUMERO\n'+ str(t[1]))
     # dot.edge(str(id), ' '+ str(t[1]) )
 
@@ -2459,7 +2476,7 @@ def p_valor(t) :
     '''valor        : CADENA
                     '''
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'valor': str(t[1])}
     dot.node(str(id), 'CADENA\n'+ str(t[1]))
     # dot.edge(str(id), ' '+ str(t[1]) )
 
@@ -2636,9 +2653,9 @@ def p_is_distinct(t) :
         dot.edge(str(id), str(t[5]['id'])) 
         # dot.edge(str(id), t[5] + ' [table]')
 
-        # dot.edge(str(id), str(t[6]['id'])) 
-        # for element in t[6]:
-        #     dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), str(t[6]['id'])) 
+        for element in t[6]:
+            dot.edge(str(id), str(element['id']))
 #=======================================================
 
 
@@ -3096,8 +3113,8 @@ def p_instrucciones_funcion_trigonometrica_acos(t) :
     'fun_trigonometrica : ACOS PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ACOS')
     id = inc()
-    t[0] = {'id': id}
-
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
+    # print(">>>" + str(t[3]['valor']))
     dot.node(str(id), 'ACOS')
     dot.edge(str(id), str(t[3]['id'])) 
 
@@ -3105,7 +3122,7 @@ def p_instrucciones_funcion_trigonometrica_asin(t) :
     'fun_trigonometrica : ASIN PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ASIN')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'ASIN')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3114,7 +3131,7 @@ def p_instrucciones_funcion_trigonometrica_atan(t) :
     'fun_trigonometrica : ATAN PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ATAN')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'ATAN')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3123,7 +3140,7 @@ def p_instrucciones_funcion_trigonometrica_atan2(t) :
     'fun_trigonometrica : ATAN2 PARIZQ aritmetica COMA aritmetica PARDER'
     print('Ejecuta Funcion ATAN2')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor1': str(t[3]['valor']), 'valor2': str(t[3]['valor'])}
 
     dot.node(str(id), 'ATAN2')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3133,7 +3150,7 @@ def p_instrucciones_funcion_trigonometrica_cos(t) :
     'fun_trigonometrica : COS PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COS')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'COS')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3142,7 +3159,7 @@ def p_instrucciones_funcion_trigonometrica_cot(t) :
     'fun_trigonometrica : COT PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COT')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'COT')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3151,7 +3168,7 @@ def p_instrucciones_funcion_trigonometrica_sin(t) :
     'fun_trigonometrica : SIN PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion SIN')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'SIN')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3160,7 +3177,7 @@ def p_instrucciones_funcion_trigonometrica_tan(t) :
     'fun_trigonometrica : TAN PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion TAN')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'TAN')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3169,7 +3186,7 @@ def p_instrucciones_funcion_trigonometrica_acosd(t) :
     'fun_trigonometrica : ACOSD PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ACOSD')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'ACOSD')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3178,7 +3195,7 @@ def p_instrucciones_funcion_trigonometrica_asind(t) :
     'fun_trigonometrica : ASIND PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ASIND')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'ASIND')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3187,7 +3204,7 @@ def p_instrucciones_funcion_trigonometrica_atand(t) :
     'fun_trigonometrica : ATAND PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ATAND')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'ATAND')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3196,7 +3213,7 @@ def p_instrucciones_funcion_trigonometrica_atan2d(t) :
     'fun_trigonometrica : ATAN2D PARIZQ aritmetica COMA aritmetica PARDER'
     print('Ejecuta Funcion ATAN2D')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor1': str(t[3]['valor']), 'valor2': str(t[3]['valor'])}
 
     dot.node(str(id), 'ACATAN2DOS')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3206,7 +3223,7 @@ def p_instrucciones_funcion_trigonometrica_cosd(t) :
     'fun_trigonometrica : COSD PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COSD')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'COSD')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3215,7 +3232,7 @@ def p_instrucciones_funcion_trigonometrica_cotd(t) :
     'fun_trigonometrica : COTD PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COTD')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'COTD')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3224,7 +3241,7 @@ def p_instrucciones_funcion_trigonometrica_sind(t) :
     'fun_trigonometrica : SIND PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion SIND')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'SIND')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3233,7 +3250,7 @@ def p_instrucciones_funcion_trigonometrica_tand(t) :
     'fun_trigonometrica : TAND PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion TAND')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'TAND')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3242,7 +3259,7 @@ def p_instrucciones_funcion_trigonometrica_sinh(t) :
     'fun_trigonometrica : SINH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion SINH')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'SINH')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3251,7 +3268,7 @@ def p_instrucciones_funcion_trigonometrica_cosh(t) :
     'fun_trigonometrica : COSH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COSH')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'COSH')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3260,7 +3277,7 @@ def p_instrucciones_funcion_trigonometrica_tanh(t) :
     'fun_trigonometrica : TANH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion TANH')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'TANH')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3269,7 +3286,7 @@ def p_instrucciones_funcion_trigonometrica_asinh(t) :
     'fun_trigonometrica : ASINH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ASINH')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'ASINH')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3278,7 +3295,7 @@ def p_instrucciones_funcion_trigonometrica_acosh(t) :
     'fun_trigonometrica : ACOSH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ACOSH')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'ACOSH')
     dot.edge(str(id), str(t[3]['id'])) 
@@ -3287,7 +3304,7 @@ def p_instrucciones_funcion_trigonometrica_atanh(t) :
     'fun_trigonometrica : ATANH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ATANH')
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'funcion': str(t[1].upper()), 'valor': str(t[3]['valor'])}
 
     dot.node(str(id), 'ATANH')
     dot.edge(str(id), str(t[3]['id'])) 
