@@ -56,6 +56,11 @@ class Select_Expresion(Expresion):
             #SENTENCIA_SELECT_DISTINCT
             functionSelect = Select()
             result = functionSelect.execute(nodoSelect)
+            
+            responseSelect = Response()
+
+
+
             if self.nombreNodo == "SENTENCIA_SELECT_DISTINCT":
                 resultDistinct = {}
                 for r in result:
@@ -67,8 +72,11 @@ class Select_Expresion(Expresion):
             
             print(encab)
             print(result)
+            responseSelect.encabezados = encab 
+            responseSelect.data = result
+            responseSelect.tipos = functionSelect.listaTiposColumnas
             
 
-        print(dataSelect.encabezados)
-        print(dataSelect.dataRow)
+        #print(dataSelect.encabezados)
+        #print(dataSelect.dataRow)
 

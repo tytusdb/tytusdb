@@ -2,4 +2,5 @@ class Response():
 
     def __init__(self):
         self.encabezados = []
-        self.dataRow = []
+        self.data = []
+        self.tipos = []

@@ -303,6 +303,8 @@ class Select():
         self.listaColumnas = []
         self.listaEstructuras = {}
         self.resultEncabezado = []
+        self.listaTiposColumnas = []
+        
     #region Llenado de variables iniciales
     def verificarDBActiva(self):
         # Verifica si hay una base de datos activa, se utiliza para cualquier instrucción
