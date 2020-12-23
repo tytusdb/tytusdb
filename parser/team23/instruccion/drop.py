@@ -36,13 +36,13 @@ class drop(instruccion):
             # Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente.
 
             if (drop_aux == 2):
-                add_text("Base de datos no existe, con nombre "+ self.id + "\n")
+                add_text("E-42602 invalid name: the database with the following name does not exist "+ self.id + "\n")
             elif (drop_aux == 0):
                 ts.delete_db(self.id)
-                add_text("Base de datos eliminada, con nombre "+ self.id + "\n")
+                add_text("M-57P04 database dropped with the following name "+ self.id + "\n")
             else:
-                add_text("ERROR - Base de datos no se pudo eliminar, con nombre "+ self.id + "\n")
-                errores.append(nodo_error(self.line,self.column,'Error en drop DataBase','Semantico'))
+                add_text("E-22005 error_in_assignment: The database with the following name could not be dropped "+ self.id + "\n")
+                errores.append(nodo_error(self.line,self.column,'E-22005 error_in_assignment: The database with the following name could not be dropped','Semantico'))
         except:
-            errores.append(nodo_error(self.line,self.column,'ERROR - No se pudo ejecutar drop DataBase','Semantico'))
-            add_text("ERROR - Base de datos no se pudo eliminar, con nombre "+ self.id + "\n")
+            errores.append(nodo_error(self.line,self.column,'E-22005 error_in_assignment: The database with the following name could not be dropped','Semantico'))
+            add_text("E-22005 error_in_assignment: The database with the following name could not be dropped "+ self.id + "\n")

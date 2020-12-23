@@ -3,7 +3,6 @@ from tools.console_text import *
 from tools.tabla_tipos import *
 from storage import jsonMode as funcioens
 from error.errores import *
-from error.errores import *
 from tools.tabla_simbolos import *
 from instruccion.P_Key import *
 from instruccion.F_Key import *
@@ -55,8 +54,8 @@ class create_column(instruccion):
         try:
             #Validar duplicado de columna
             if ts.existe_col(use_actual_db, id_tb, self.id_column):
-                errores.append(nodo_error(self.line, self.column, 'ERROR - Columna: ' + self.id_column + ' ya existe en la tabla ' + id_tb, 'Semántico'))
-                add_text('ERROR - Columna: ' + self.id_column + ' ya existe en la tabla ' + id_tb + '\n')
+                errores.append(nodo_error(self.line, self.column, 'E-42701 duplicate column: The column ' + self.id_column + ' already exists in the table ' + id_tb, 'Semántico'))
+                add_text('E-42701 duplicate column: \n The column ' + self.id_column + ' already exists in the table ' + id_tb + '\n')
                 return
 
             #Crear columna
@@ -93,8 +92,8 @@ class create_column(instruccion):
                         
             #add_text('Columna ' + self.id_column + ' creada en tabla: ' + id_tb + '\n')
         except:
-            errores.append(nodo_error(self.line, self.column, 'Error al crear la columna con id - ' + self.id_column + '- en la tabla ' + id_tb, 'Semántico'))
-            add_text('Error al crear la columna con id - ' + self.id_column + '- en la tabla ' + id_tb + '\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment to create a column with ID - ' + self.id_column + '- in the table  ' + id_tb, 'Semántico'))
+            add_text('E-22005 error in assignment to create a column with ID - ' + self.id_column + '- in the table ' + id_tb + '\n')
 
     def get_str_tipo(self, tipo):
         if tipo == tipo_primitivo.SMALLINT:
