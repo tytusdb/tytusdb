@@ -2300,7 +2300,6 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
 #--Select
 
 def ejecutar_select(instr,ts):
-    global outputTxt
     agregarMensjae('normal','Select','')
     for val in instr.funcion_alias:
         if(isinstance (val,Funcion_Alias)):
@@ -2312,7 +2311,6 @@ def ejecutar_select(instr,ts):
             elif isinstance (val.alias,Operando_Cadena):
                 alias = str(val.alias.valor)
             print("CABECERA",alias,"RESULTADO",result)
-
             print(val.nombre)
 
             tablaresult = PrettyTable()
@@ -2328,7 +2326,7 @@ def ejecutar_select(instr,ts):
 
 
 def select_table(instr,ts):
-    print('cantidad ',instr.cantida,' parametros ',instr.parametros,' cuerpo ',instr.cuerpo,' funcion_alias',instr.funcion_alias)
+    #print('cantidad ',instr.cantida,' parametros ',instr.parametros,' cuerpo ',instr.cuerpo,' funcion_alias',instr.funcion_alias)
     agregarMensjae('normal','Select','')
     if instr.cantida==True: # Distinct
         cuerpo_select_parametros(True,instr.parametros,instr.cuerpo,ts)
@@ -2378,6 +2376,16 @@ def cuerpo_select(cuerpo,ts):
     
     #mostrar el resultado
     agregarMensjae('table',result,'')
+    #agregar reporteTS
+    agregarTSRepor('SELECT','','','','')
+    for tab in ltablas:
+        #obtener la tabla
+        res=buscarTabla(baseActiva,tab)
+        if(res!=None):
+            for col in res.atributos:
+                tip=col.tipo
+                nom=col.nombre
+                agregarTSRepor('',nom,tip,tab,'1')
 
 def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
     ltablas=[] # tablas seleccionadas
@@ -2413,8 +2421,8 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
         lalias_colum.append(ali)
     # JOINS --------------------------------------------------------
     # WHERE --------------------------------------------------------
-    print(lcolumnas)
-    print(lcabeceras)
+    #print(lcolumnas)
+    #print(lcabeceras)
     colEx=True
     for col in lcolumnas:
         if(col not in lcabeceras):
@@ -2438,12 +2446,24 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
         #filtro col a mostrar    
         result = result.get_string(fields=lcolumnas)
         agregarMensjae('table',result,'')
+        #agregar reporteTS
+        agregarTSRepor('SELECT','','','','')
+        for tab in ltablas:
+            #obtener la tabla
+            res=buscarTabla(baseActiva,tab)
+            if(res!=None):
+                for col in res.atributos:
+                    if(col.nombre in lcolumnas):
+                        tip=col.tipo
+                        nom=col.nombre
+                        agregarTSRepor('',nom,tip,tab,'1')
+
+
+
 
 def filtroWhere(tabla,filtro,ts):
-    print('--------------------where--------------------')
     listaEliminar=[]
     filtroOK=True
-    print(filtro)
     if isinstance(filtro,Operacion_Relacional):
         op1=resolver_operacion(filtro.op1,ts)
         op2=resolver_operacion(filtro.op2,ts)
