@@ -1,8 +1,10 @@
 from abstract.instruccion import *
 from tools.tabla_tipos import *
 from tools.console_text import *
+from tools.tabla_simbolos import *
 from abstract.retorno import *
 from prettytable import PrettyTable
+from abstract.columnaID import*
 
 class select_normal(instruccion):
     def __init__(self,distinto,listaO,expresiones,fin, line, column, num_nodo):
@@ -41,12 +43,18 @@ class select_normal(instruccion):
     
     def ejecutar(self):    
         salidaTabla = PrettyTable()
-        ejecucion = []
+        tabla=[]
         for dato in self.expresiones:
-            auxDato=dato.ejecutar()
-            ejecucion.append(auxDato)
+            auxDato=dato.ejecutar([])
             salidaTabla.add_rows(auxDato.valor)
         add_text('\n')
         add_text(salidaTabla)
         add_text('\n')
+
         return retorno('0,0',0)
+
+    def finM(self):
+        for elemento in self.fin:
+            print(str(elemento))
+            ##if elemento.tipo=='WHERE':
+            ##    pass

@@ -9,6 +9,23 @@ import codecs
 import os
 import sys
 
+# ======================================================================
+sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
+sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
+sys.path.append('../tytus/parser/team27/G-27/execution/querie')
+sys.path.append('../tytus/parser/team27/G-27/execution/expression')
+sys.path.append('../tytus/parser/team27/G-27/execution')
+sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
+
+# ======================================================================
+from environment import Environment
+from create import Create
+from main import Main
+from use import Use
+from show_database import Show_Database
+from drop_database import Drop_Database
+from alter_database import Alter_Database
+
 # creamos la lista de tokens de nuestro lenguaje.
 reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','PRECISION','MONEY',
               'VARYING','VARCHAR','CHARACTER','CHAR','TEXT',
@@ -183,10 +200,18 @@ precedence = (
 # Definición de la gramática
 def p_inicio(t):
     '''inicio : instrucciones '''
+    envGlobal = Environment(None)
+    iniciarEjecucion = Main(t[1])
+    iniciarEjecucion.execute(envGlobal)
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
                      | instruccion '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_instrucciones_evaluar(t):
     '''instruccion : ins_use
@@ -198,23 +223,30 @@ def p_instrucciones_evaluar(t):
                    | ins_select
                    | ins_update
                    | ins_delete'''
+    t[0] = t[1]
 
 def p_instruccion_use(t):
     '''ins_use : USE ID PUNTO_COMA'''
-    print('INSTRUCCION USE')
+    t[0] = Use(t[2], 0, 0)
 
 def p_instruccion_show(t):
     '''ins_show : SHOW DATABASES PUNTO_COMA'''
-    print('INSTRUCCION SHOW')
+    t[0] = Show_Database(0, 0)
 
 def p_instruccion_create(t):
     '''ins_create : CREATE tipo_create'''
-    print('INSTRUCCION CREATE')   
+    t[0] = t[2]  
 
 def p_tipo_create(t):
     '''tipo_create : ins_replace DATABASE if_exists ID create_opciones PUNTO_COMA
                    | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA
                    | TYPE ID AS ENUM PARABRE list_vls PARCIERRE PUNTO_COMA'''
+    if t[1] == 'TYPE':
+        print('TYPE')
+    elif t[1] == 'TABLE':
+        print('TABLE')
+    else:
+        t[0] = Create(t[1], 0, t[4], 0, 0)
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
@@ -314,6 +346,10 @@ def p_tipo_default(t): #ESTE NO SE SI SON RESERVADAS O LOS VALORES
 def p_ins_replace(t): 
     '''ins_replace : OR REPLACE
                | '''#EPSILON
+    if len(t) ==3:
+        t[0] = True
+    else: 
+        t[0] = False
 
 def p_if_exists(t): 
     '''if_exists :  IF NOT EXISTS
@@ -324,20 +360,34 @@ def p_create_opciones(t):
     '''create_opciones : OWNER SIGNO_IGUAL user_name create_opciones
                        | MODE SIGNO_IGUAL NUMERO create_opciones
                        | '''
+    if len(t) == 5:
+        if t[1] == 'MODE':
+            t[0] = t[3]
+        else:
+            t[0] = 0
+    else: 
+        t[0] = 0
 
 def p_user_name(t):
     '''user_name : ID
                   | CADENA 
                   | CADENASIMPLE'''
-
+    t[0] = t[1]
 
 def p_alter(t): 
     '''ins_alter : ALTER tipo_alter ''' 
-
+    t[0] = t[2]
 
 def p_tipo_alter(t): 
     '''tipo_alter : DATABASE ID alter_database PUNTO_COMA
                   | TABLE ID alteracion_tabla PUNTO_COMA''' # NO SE SI VAN LOS PUNTO Y COMA
+    if t[1] == 'DATABASE':
+        if t[3] == None:
+            t[0] = Alter_Database(t[2],t[2], 0, 0)
+        else: 
+            t[0] = Alter_Database(t[2],t[3], 0, 0)
+    else: 
+        print('TABLE')
 
 def p_alteracion_tabla(t): 
     '''alteracion_tabla : alteracion_tabla COMA alterar_tabla
@@ -355,16 +405,20 @@ def p_alterar_tabla(t):
 def p_alter_database(t): 
     '''alter_database : RENAME TO ID
                       | OWNER TO ID'''
+    if t[1] == 'RENAME':
+        t[0] = t[3]
+    else:
+        t[0] = None
 
 def p_drop(t): 
     '''ins_drop : DROP tipo_drop'''
+    t[0] = t[2]
 
 def p_tipo_drop(t): 
     '''tipo_drop : DATABASE if_exists ID PUNTO_COMA
                  | TABLE ID PUNTO_COMA'''
-
-
-
+    if len(t) == 5:
+        t[0] = Drop_Database(t[3], 0, 0)
 
 def p_ins_insert(t):
     '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA 
