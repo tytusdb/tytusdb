@@ -1,0 +1,845 @@
+<html><head>
+  <meta charset="utf-8">
+  <title>/home/odra/Escritorio/Manual Tecnico/ManualTecnico.md* --- Mango</title>
+  <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <style type="text/css">
+    /*
+
+    Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-license.org/
+
+    */
+
+
+    .hljs {
+      display: block;
+      overflow-x: auto;
+      padding: 0.5em;
+      background: #23241f;
+      -webkit-text-size-adjust: none;
+    }
+
+    .hljs,
+    .hljs-tag,
+    .css .hljs-rule,
+    .css .hljs-value,
+    .aspectj .hljs-function,
+    .css .hljs-function
+    .hljs-preprocessor,
+    .hljs-pragma {
+      color: #f8f8f2;
+    }
+
+    .hljs-strongemphasis,
+    .hljs-strong,
+    .hljs-emphasis {
+      color: #a8a8a2;
+    }
+
+    .hljs-bullet,
+    .hljs-blockquote,
+    .hljs-horizontal_rule,
+    .hljs-number,
+    .hljs-regexp,
+    .alias .hljs-keyword,
+    .hljs-literal,
+    .hljs-hexcolor {
+      color: #ae81ff;
+    }
+
+    .hljs-tag .hljs-value,
+    .hljs-code,
+    .hljs-title,
+    .css .hljs-class,
+    .hljs-class .hljs-title:last-child {
+      color: #a6e22e;
+    }
+
+    .hljs-link_url {
+      font-size: 80%;
+    }
+
+    .hljs-strong,
+    .hljs-strongemphasis {
+      font-weight: bold;
+    }
+
+    .hljs-emphasis,
+    .hljs-strongemphasis,
+    .hljs-class .hljs-title:last-child,
+    .hljs-typename {
+      font-style: italic;
+    }
+
+    .hljs-keyword,
+    .ruby .hljs-class .hljs-keyword:first-child,
+    .ruby .hljs-function .hljs-keyword,
+    .hljs-function,
+    .hljs-change,
+    .hljs-winutils,
+    .hljs-flow,
+    .nginx .hljs-title,
+    .tex .hljs-special,
+    .hljs-header,
+    .hljs-attribute,
+    .hljs-symbol,
+    .hljs-symbol .hljs-string,
+    .hljs-tag .hljs-title,
+    .hljs-value,
+    .alias .hljs-keyword:first-child,
+    .css .hljs-tag,
+    .css .unit,
+    .css .hljs-important {
+      color: #f92672;
+    }
+
+    .hljs-function .hljs-keyword,
+    .hljs-class .hljs-keyword:first-child,
+    .hljs-aspect .hljs-keyword:first-child,
+    .hljs-constant,
+    .hljs-typename,
+    .hljs-name,
+    .css .hljs-attribute {
+      color: #66d9ef;
+    }
+
+    .hljs-variable,
+    .hljs-params,
+    .hljs-class .hljs-title,
+    .hljs-aspect .hljs-title {
+      color: #f8f8f2;
+    }
+
+    .hljs-string,
+    .css .hljs-id,
+    .hljs-subst,
+    .hljs-type,
+    .ruby .hljs-class .hljs-parent,
+    .hljs-built_in,
+    .django .hljs-template_tag,
+    .django .hljs-variable,
+    .smalltalk .hljs-class,
+    .django .hljs-filter .hljs-argument,
+    .smalltalk .hljs-localvars,
+    .smalltalk .hljs-array,
+    .hljs-attr_selector,
+    .hljs-pseudo,
+    .hljs-addition,
+    .hljs-stream,
+    .hljs-envvar,
+    .apache .hljs-tag,
+    .apache .hljs-cbracket,
+    .tex .hljs-command,
+    .hljs-prompt,
+    .hljs-link_label,
+    .hljs-link_url {
+      color: #e6db74;
+    }
+
+    .hljs-comment,
+    .hljs-javadoc,
+    .hljs-annotation,
+    .hljs-decorator,
+    .hljs-pi,
+    .hljs-doctype,
+    .hljs-deletion,
+    .hljs-shebang,
+    .apache .hljs-sqbracket,
+    .tex .hljs-formula {
+      color: #75715e;
+    }
+
+    .coffeescript .javascript,
+    .javascript .xml,
+    .tex .hljs-formula,
+    .xml .javascript,
+    .xml .vbscript,
+    .xml .css,
+    .xml .hljs-cdata,
+    .xml .php,
+    .php .xml {
+      opacity: 0.5;
+    }
+
+
+    
+
+    a {
+      text-decoration:none;
+    }
+
+    .md_result{
+        font-family:Arial;
+        font-size:105%;
+        color: #2c3f51;
+        box-sizing:border-box;
+        background-color: #ffffff;
+        padding:10px 10px 13px 10px;
+        /*margin:0;*/
+        height:100%;
+    }
+
+    pre {
+        background-color: #23241f;
+        border-width: 0;
+        border-radius: 0;
+        padding: 10px;
+    }
+
+    pre code {
+      font-size: 14px;
+    }
+
+    code {
+      font-family: Courier New;
+      padding: 2px 4px;
+      font-size: 90%;
+      color: #2c3f51;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+    }
+
+    /*p code {
+        color: #2c3f51;
+        background-color: #e0e0e0;
+        font-size: 14px;
+        padding: 3px;
+        border-radius: 3px;
+    }
+
+
+    ul code {
+        color: #2c3f51;
+        background-color: #e0e0e0;
+        padding: 3px;
+        font-size: 14px;
+        border-radius: 3px;
+    }
+    ol code {
+        color: #2c3f51;
+        background-color: #e0e0e0;
+        padding: 3px;
+        font-size: 14px;
+        border-radius: 3px;
+    }*/
+
+    h1, h2, h3, h4, h5, h6 {
+        /*color: #2c3f51;*/
+        font-weight: bold;
+    }
+
+    p {
+        /*color: #2c3f51;*/
+        font-size: 17px;
+        font-weight: 500;
+    }
+
+    ol, ul {
+        font-size: 17px;
+        font-weight: 500;
+    }
+
+    h1 {
+        font-size: 46px;
+        margin-bottom: 36px;
+        margin-top: 36px;
+        /*margin: 0.67em 0;*/
+    }
+    h2 {
+        font-size: 36px;
+    }
+    h3 {
+        font-size: 28px;
+    }
+    h4 {
+        font-size: 24px;
+    }
+    h5 {
+        font-size: 21px;
+    }
+    h6 {
+        font-size: 18px;
+    }
+
+    h2, h3 {
+        margin-bottom: 30px;
+        margin-top: 30px;
+    }
+
+    h4, h5, h6 {
+        margin-bottom: 24px;
+        margin-top: 24px;
+    }
+
+    blockquote {
+      background: #f9f9f9;
+      border-left: 10px solid #2196f3;
+      border-right: 1px solid  #2196f3;
+      font-family: Georgia, serif;
+      font-size: 16px;
+      line-height: 1.4;
+      color: #757575;
+      text-align: justify;
+      margin: 1.5em 10px;
+      padding: 0.5em 10px;
+      quotes: "\201C""\201D""\2018""\2019";
+    }
+    blockquote:before {
+      color: #ccc;
+      content: "\201C";
+      font-size: 4em;
+      line-height: 0.1em;
+      margin-right: 0.25em;
+      vertical-align: -0.4em;
+    }
+
+
+    blockquote p {
+      display: inline;
+    }
+
+    blockquote a{
+      text-decoration: none;
+      background: #eee;
+      cursor: pointer;
+      padding: 0 3px;
+      color: #2196f3;
+    }
+
+    blockquote a:hover{
+     color: #757575;
+    }
+
+    blockquote em{
+      font-style: italic;
+    }
+
+    table {
+      border-collapse:collapse;
+    }
+
+    table, th, td {
+
+        border: 1px solid #e0e0e0;
+
+    }
+
+    table th {
+
+        font-weight: bold;
+        padding: 10px;
+        color: #2c3f51;
+
+    }
+
+    table td {
+        
+        padding: 10px;
+        color: #2c3f51;
+    }
+
+
+    img {
+        max-width: 100%;
+    }
+
+    hr {
+      width: 90%;
+      height: 0;
+      -webkit-box-sizing: content-box;
+         -moz-box-sizing: content-box;
+              box-sizing: content-box;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      border: 0;
+      border-top: 1px solid #eee;
+    }
+
+
+
+
+  </style>
+	<link rel="stylesheet" type="text/css" href="./css/base.css" media="screen">
+  <!-- <link rel="stylesheet" type="text/css" href="./js/highlight/styles/monokai_sublime.css" media="screen" /> -->
+  <!-- <link rel="stylesheet" type="text/css" href="./css/preview.css" media="screen" /> -->
+
+  
+  <!-- <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/styles/monokai_sublime.min.css"> -->
+
+  
+	<script src="./js/jquery/jquery.min.js" type="text/javascript"></script>
+  <script type="text/javascript" src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="./js/highlight/highlight.pack.js"></script>
+  <!-- <script type="text/javascript" src="./js/evernote/evernote-sdk-minified.js"></script> -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script> -->
+	<script type="text/javascript" src="./js/main.js"></script>
+  <script type="text/javascript" src="./js/editor.js"></script>
+  <!-- <script type="text/javascript" src="./js/sync.js"></script> -->
+  <script type="text/javascript" src="./js/menu.js"></script>
+	<script type="text/javascript" src="./js/taboverride/taboverride.min.js"></script>
+    <script type="text/x-mathjax-config;executed=true">
+      MathJax.Hub.Config({
+        showProcessingMessages: false,
+        // messageStyle: "none",
+        tex2jax: { inlineMath: [['$','$'],['\\(','\\)']] },
+        TeX: { equationNumbers: {autoNumber: "AMS"} }
+      });
+    </script>
+    <!-- <script type="text/javascript" src="./node_modules/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+    <!-- <script type="text/javascript" src="./js/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML" id=""></script>
+	<script type="text/javascript">
+		global.window = window;
+		global.$ = $;
+		global.gui = require('nw.gui');
+    hljs.initHighlightingOnLoad();
+		init();
+	</script>
+
+<style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+<body class=""><div id="MathJax_Message" style="display: none;"></div>
+  <div class="toolbar" style="display: none;">
+    <div class="image-background1" title=" Create a new file " style="margin-left: 5px;">
+      <input type="image" src="./img/mango_new_42.png" onclick="newFile()">
+    </div>
+    <div class="image-background1" title=" Open a file " style="margin-left: 8px;">
+      <input type="image" src="./img/mango_open_42.png" onclick="openFile()">
+    </div>
+    <div class="image-background1" title=" Save the current file " style="margin-left: 10px;">
+      <input type="image" src="./img/mango_save_42.png" onclick="saveFile()">
+    </div>
+    <div class="image-background1" title=" Undo the last action " style="margin-left: 28px;">
+      <input type="image" src="./img/mango_undo_42.png" onclick="undo()">
+    </div>
+    <div class="image-background1" title=" Redo the last undone action " style="margin-left: 10px;">
+      <input type="image" src="./img/mango_redo_42.png" onclick="redo()">
+    </div>
+    <div class="image-background1" title=" Edit mode " style="margin-left: 28px;">
+      <input type="image" src="./img/mango_edit_42.png" onclick="editMode()">
+    </div>
+    <div class="image-background1" title=" Preview mode " style="margin-left: 10px;">
+      <input type="image" src="./img/mango_preview_42.png" onclick="previewMode()">
+    </div>
+    <div class="image-background3" title=" Export to PDF ">
+      <input type="image" src="./img/mango_pdf_42.png" onclick="exportToPDF()">
+    </div>
+    <div class="image-background3" title=" Export to HTML ">
+      <input type="image" src="./img/mango_html_42.png" onclick="exportToHTML()">
+    </div>
+    <!-- <button style="background: url(./img/Mango1_48.png)"  /> -->
+  </div>
+	<input style="display:none;" id="openFileDialog" type="file">
+	<input style="display:none;" type="file" id="saveFileDialog" nwsaveas="file.md">
+  <input style="display:none;" type="file" id="saveasFileDialog" nwsaveas="">
+  <input style="display:none;" type="file" id="pdfFileDialog" nwsaveas="file.pdf">
+  <input style="display:none;" type="file" id="htmlFileDialog" nwsaveas="file.html">
+  <input style="display:none;" type="file" id="pdf2FileDialog" nwsaveas="file.pdf">
+  <input style="display:none;" type="file" id="html2FileDialog" nwsaveas="file.html">
+  <div class="background" style="top: 0px; background-color: rgb(255, 255, 255);">
+    <textarea name="markdown" id="editor" class="md_editor" data-taboverride-enabled="true" style="display: none; float: left; width: 49.7%; margin-left: 5px;"></textarea>
+    <div class="md_result" id="preview" style="width: 99%; float: right; display: inline; margin-left: 0px;"><p>Universidad de San Carlos de Guatemala</p>
+<p>Ingeniería en Ciencias y Sistemas</p>
+<p>Organización de Lenguajes y Compiladores 2</p>
+<p>Ing. Luis Espino</p>
+<p>Aux. Juan Carlos Maeda </p>
+<h1 id="manual-tecnico-sql-parser">Manual Tecnico SQL Parser</h1>
+<p>Grupo 29</p>
+<p>Quetzaltenango, diciembre 2020</p>
+<h2 id="introducci-n">Introducción</h2>
+<p>El siguiente manual muestra una descripción clara y precisa de los procesos y herramientas que se utilizaron al momento de desarrollar el componente SQL parser de Tytus, un proyecto Open Source para desarrollar un administrador de bases de datos , así como también las funciones que tiene dicha aplicación, realizando un análisis, el cual recopila todos los requerimientos necesarios para su correcta funcionalidad.</p>
+<p>Además se incluye una descripción y explicación del analisis lexico, sintactico y semantico el cual fue utilizado para la correcta manipulación de la información (inserción, actualización, eliminación,visualización), de esta forma se presenta un documento más completo para que facilite al programador su comprensión y futuro mantenimiento.</p>
+<p>El objetivo del desarrollo de SQL parser, es interpretar sentencias SQL para manipular de manera correcta y eficaz la información.</p>
+<h2 id="objetivos">Objetivos</h2>
+<p>El objetivo del presente manual es entregar herramientas apropiadas para el futuro mantenimiento y mejoramiento de SQL parser</p>
+<h3 id="objetivos-de-sql-parser">Objetivos de SQL Parser</h3>
+<ul>
+<li>Interpretar sentencias SQL</li>
+</ul>
+<h3 id="objetivos-espec-ficos-de-sql-parser">Objetivos específicos de SQL Parser</h3>
+<ul>
+<li>Invocar las funciones proporcionadas por el administrador de almacenamiento, para realizar operaciones sobre la base de datos.</li>
+<li>Manipular el resultado de las funciones para restringir y mostrar los resultados indicados por la/las consulta/s.</li>
+<li>Retornar información detallada de la consulta al servidor.</li>
+</ul>
+<h3 id="dirigido-a">Dirigido a</h3>
+<p>Personas que darán un futuro mantenimiento  a la aplicación, o personas que desean comprender el funcionamiento básico del mismo al momento de la ejecución.</p>
+<h2 id="herramientas-utilizadas-para-el-desarrollo">Herramientas utilizadas para el desarrollo</h2>
+<h3 id="python">Python</h3>
+<p>Python es un lenguaje de programación interpretado cuya filosofía hace hincapié en la legibilidad de su código.​ Se trata de un lenguaje de programación multiparadigma, ya que soporta orientación a objetos, programación imperativa y, en menor medida, programación funcional.</p>
+<h3 id="visual-studio-code">Visual Studio Code</h3>
+<p>Visual Studio Code es un editor de código fuente desarrollado por Microsoft para Windows, Linux y macOS. Incluye soporte para la depuración, control integrado de Git, resaltado de sintaxis, finalización inteligente de código, fragmentos y refactorización de código.</p>
+<h3 id="ply">Ply</h3>
+<p>PLY es una herramienta de análisis escrita exclusivamente en Python. Es, en esencia, una reimplementación de Lex y Yacc originalmente en lenguaje C. Fue escrito por David M. Beazley. PLY utiliza la misma técnica de análisis LALR que Lex y Yacc.  </p>
+<h3 id="github">GitHub</h3>
+<p>GitHub es una plataforma de desarrollo colaborativo de software para alojar proyectos utilizando el sistema de control de versiones Git. GitHub aloja un repositorio de código y brinda herramientas muy útiles para el trabajo en equipo, dentro de un proyecto. Además de eso, se puede contribuir a mejorar el software de los demás contribuidores. Para poder alcanzar esta meta, GitHub provee de funcionalidades para hacer un fork y solicitar pulls. Realizar un fork es simplemente clonar un repositorio ajeno (genera una copia en tu cuenta), para eliminar algún bug o modificar cosas de él. Una vez realizadas las modificaciones se puede enviar un pull al dueño del proyecto. Éste podrá analizar los cambios que se ha realizado fácilmente, y si considera interesante la contribución, adjuntarlo con el repositorio original. </p>
+<h2 id="descripci-n">Descripción</h2>
+<p>SQL Parser al ser un componente de Tytus, proporciona la servidor una función la cual se encarga de interpretar sentencias del subconjunto del lenguaje SQL especificado en la documentación especificada en el siguiente <a href="https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax">enlace</a></p>
+<p>SQL parser está compuesto por 3 subcomponentes:</p>
+<ul>
+<li><p>Query Tool: es una herramienta gráfica en la cual se ingresan las consultas y se muestran los resultados, además de proporcionar mensajes de error si las consultas lo poseen.
+  <strong>Nota: La consulta abarca todo el contenido ingresado en el área de texto. (Ver figura 4)</strong></p>
+</li>
+<li><p>Type Checker: Este subcomponente es un apoyo a SQL parser para la comprobación de tipos.</p>
+</li>
+<li>SQL Parser: este subcomponente es el intérprete de las sentencias y consultas SQL y el que se conectara con el componente de administración de datos.</li>
+</ul>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/Relacion.png" alt="Figura 1. Descripción de la relación entre componentes"></p>
+<p>Figura 1. Descripción de la relación entre componentes</p>
+<h2 id="gram-tica">Gramática</h2>
+<p>Para el desarrollo de SQL parser se crearon 2 gramaticas una <a href="https://github.com/tytusdb/tytus/blob/main/parser/team29/docs/Gram%C3%A1ticas/gramaticaDESC.bnf">descendente</a>  y una  <a href="https://github.com/tytusdb/tytus/blob/main/parser/team29/docs/Gram%C3%A1ticas/gramaticaASC.bnf">ascendente</a>.Se realizó un análisis de cada una verificando sus ventajas y desventajas de cada una, donde se llegó a la conclusión que la ascendente es la opción más viable debido a lo siguiente:</p>
+<ul>
+<li>Según la documentación de <a href="https://www.dabeaz.com/ply/">PLY</a> esta librería realiza un parseo LR, por lo que solo es compatible con gramáticas ascendentes.</li>
+<li>La gramática ascendente tiene menos producciones que la descendente, esto tiene como consecuencia:<ul>
+<li>Un tiempo de implementación más corto.</li>
+<li>Un tiempo de parseo menor.</li>
+<li>Menos nodos del AST, lo cual se traduce en menos espacio de memoria ocupado por el programa y un menor tiempo de ejecución.    </li>
+<li>Menor probabilidad de errores en la implementación.</li>
+</ul>
+</li>
+<li>La gramática ascendente presenta un menor nivel de complejidad, al no tener que acceder a la pila.</li>
+<li>La mayoría de los integrantes del grupo, poseen más experiencia implementando gramáticas ascendentes que descendentes. </li>
+</ul>
+<h2 id="diagramas-de-modelamiento">Diagramas de Modelamiento</h2>
+<h3 id="diagrama-de-paquetes">Diagrama de paquetes</h3>
+<p>SQL Parser posee los paquetes de UI, este posee un conjunto de ventanas las cuales sirven para recibir las consultas y mostrar la información procesada, y el paquete Analizador el cual recibe las consultas enviadas por el paquete UI, las procesa y ejecuta funciones  proporcionadas por la  interrelación con el administrador de almacenamiento, este  proporcionará los datos que se deberán manipular y ya manipulados serán mostrados por el paquete UI.</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/DiagramaPaquetes.png" alt="Figura 2. Diagramas de paquetes"></p>
+<p>Figura 2. Diagramas de paquetes</p>
+<h3 id="diagrama-de-clases">Diagrama de clases</h3>
+<p>El diagrama de clases está compuesto de las entidades y atributos que se crearon para el procesamiento de consultas y la manipulación de la información.</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/DiagramaClases.png" alt="Figura 3. Diagramas de clases"></p>
+<p>Figura 3. Diagramas de clases</p>
+<h4 id="analizador">Analizador</h4>
+<ul>
+<li>Gramática</li>
+<li>Tokens</li>
+</ul>
+<h4 id="funciones">Funciones</h4>
+<ul>
+<li>Funciones Agregadas</li>
+<li>Funciones Matemáticas</li>
+<li>Funciones Trigonométricas</li>
+<li>Funciones De Cadena</li>
+</ul>
+<h4 id="reporte">Reporte</h4>
+<ul>
+<li>AST</li>
+<li>Nodo</li>
+<li>Gramática BNF</li>
+</ul>
+<h4 id="clases-abstractas">Clases Abstractas</h4>
+<ul>
+<li>Expresión</li>
+<li>Instrucción</li>
+</ul>
+<h4 id="verificador-de-tipo">Verificador de tipo</h4>
+<ul>
+<li>Checker</li>
+<li>Tipos<ul>
+<li>Validaciones<ul>
+<li>Carácter</li>
+<li>Número</li>
+<li>Fecha</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="dise-o-de-reportes-y-pantallas">Diseño  de reportes y pantallas</h2>
+<h3 id="pantalla-principal">Pantalla Principal</h3>
+<p>La pantalla principal cuenta con 3 secciones las cuales son:</p>
+<ul>
+<li>Barra de menús</li>
+<li>Área de Consultas</li>
+<li>Área de Visualización de Resultados y Errores</li>
+</ul>
+<p><strong>Barra de menús</strong></p>
+<p>Esta sección contiene 3 menús:</p>
+<ul>
+<li>Tabla de Símbolos: Se redirigirá a la pantalla de Tabla de símbolos</li>
+<li>AST: Se mostrará el AST generado</li>
+<li>Reporte de errores: Se mostrará la pantalla con los errores léxicos, sintácticos y semánticos</li>
+</ul>
+<p><strong>Area de Consultas y Visualización de Resultados y Errores</strong></p>
+<p>Contiene un panel de entrada en la cual se ingresa la consulta, y con el botón consultar se enviará la consulta al Analizador para que este posteriormente envíe los resultados y estos se visualizarán en el área de visualización de resultados y errores.</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/PantallaPrincipal.png" alt="Figura 4. Pantalla principal"></p>
+<p>Figura 4. Pantalla principal</p>
+<p><strong>Pantalla de Reporte de Errores</strong></p>
+<p>Los errores léxicos, semánticos y sintácticos se mostrarán en 3 tablas diferentes con una breve descripción y la línea en donde fueron encontrados</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/PantallaReporteErrores.png" alt="Figura 5. Pantalla de Reporte de Errores"></p>
+<p>Figura 5. Pantalla de Reporte de Errores</p>
+<p><strong>Pantalla de Tabla de Símbolos</strong></p>
+<p>En esta pantalla se muestran los datos de identificador, tipo, dimensión, ámbito de declaración y la referencia de las variables, funciones y procedimientos.</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/PantallaTS.png" alt="Figura 6. Pantalla de Tabla de Símbolos"></p>
+<p>Figura 6. Pantalla de Tabla de Símbolos</p>
+<p><strong>Pantalla AST</strong></p>
+<p>En esta pantalla se muestra una imagen del árbol de sintaxis abstracta, realizado mediante la herramienta de Graphviz</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/PantallaAST.png" alt="Figura 7. Pantalla AST"></p>
+<p>Figura 7. Pantalla AST</p>
+</div>
+    <div id="buffer" style="display:none;
+              position:absolute; 
+              top:0; left: 0"><p>Universidad de San Carlos de Guatemala</p>
+<p>Ingeniería en Ciencias y Sistemas</p>
+<p>Organización de Lenguajes y Compiladores 2</p>
+<p>Ing. Luis Espino</p>
+<p>Aux. Juan Carlos Maeda </p>
+<h1 id="manual-tecnico-sql-parser">Manual Tecnico SQL Parser</h1>
+<p>Grupo 29</p>
+<p>Quetzaltenango, diciembre 2020</p>
+<h2 id="introducci-n">Introducción</h2>
+<p>El siguiente manual muestra una descripción clara y precisa de los procesos y herramientas que se utilizaron al momento de desarrollar el componente SQL parser de Tytus, un proyecto Open Source para desarrollar un administrador de bases de datos , así como también las funciones que tiene dicha aplicación, realizando un análisis, el cual recopila todos los requerimientos necesarios para su correcta funcionalidad.</p>
+<p>Además se incluye una descripción y explicación del analisis lexico, sintactico y semantico el cual fue utilizado para la correcta manipulación de la información (inserción, actualización, eliminación,visualización), de esta forma se presenta un documento más completo para que facilite al programador su comprensión y futuro mantenimiento.</p>
+<p>El objetivo del desarrollo de SQL parser, es interpretar sentencias SQL para manipular de manera correcta y eficaz la información.</p>
+<h2 id="objetivos">Objetivos</h2>
+<p>El objetivo del presente manual es entregar herramientas apropiadas para el futuro mantenimiento y mejoramiento de SQL parser</p>
+<h3 id="objetivos-de-sql-parser">Objetivos de SQL Parser</h3>
+<ul>
+<li>Interpretar sentencias SQL</li>
+</ul>
+<h3 id="objetivos-espec-ficos-de-sql-parser">Objetivos específicos de SQL Parser</h3>
+<ul>
+<li>Invocar las funciones proporcionadas por el administrador de almacenamiento, para realizar operaciones sobre la base de datos.</li>
+<li>Manipular el resultado de las funciones para restringir y mostrar los resultados indicados por la/las consulta/s.</li>
+<li>Retornar información detallada de la consulta al servidor.</li>
+</ul>
+<h3 id="dirigido-a">Dirigido a</h3>
+<p>Personas que darán un futuro mantenimiento  a la aplicación, o personas que desean comprender el funcionamiento básico del mismo al momento de la ejecución.</p>
+<h2 id="herramientas-utilizadas-para-el-desarrollo">Herramientas utilizadas para el desarrollo</h2>
+<h3 id="python">Python</h3>
+<p>Python es un lenguaje de programación interpretado cuya filosofía hace hincapié en la legibilidad de su código.​ Se trata de un lenguaje de programación multiparadigma, ya que soporta orientación a objetos, programación imperativa y, en menor medida, programación funcional.</p>
+<h3 id="visual-studio-code">Visual Studio Code</h3>
+<p>Visual Studio Code es un editor de código fuente desarrollado por Microsoft para Windows, Linux y macOS. Incluye soporte para la depuración, control integrado de Git, resaltado de sintaxis, finalización inteligente de código, fragmentos y refactorización de código.</p>
+<h3 id="ply">Ply</h3>
+<p>PLY es una herramienta de análisis escrita exclusivamente en Python. Es, en esencia, una reimplementación de Lex y Yacc originalmente en lenguaje C. Fue escrito por David M. Beazley. PLY utiliza la misma técnica de análisis LALR que Lex y Yacc.  </p>
+<h3 id="github">GitHub</h3>
+<p>GitHub es una plataforma de desarrollo colaborativo de software para alojar proyectos utilizando el sistema de control de versiones Git. GitHub aloja un repositorio de código y brinda herramientas muy útiles para el trabajo en equipo, dentro de un proyecto. Además de eso, se puede contribuir a mejorar el software de los demás contribuidores. Para poder alcanzar esta meta, GitHub provee de funcionalidades para hacer un fork y solicitar pulls. Realizar un fork es simplemente clonar un repositorio ajeno (genera una copia en tu cuenta), para eliminar algún bug o modificar cosas de él. Una vez realizadas las modificaciones se puede enviar un pull al dueño del proyecto. Éste podrá analizar los cambios que se ha realizado fácilmente, y si considera interesante la contribución, adjuntarlo con el repositorio original. </p>
+<h2 id="descripci-n">Descripción</h2>
+<p>SQL Parser al ser un componente de Tytus, proporciona la servidor una función la cual se encarga de interpretar sentencias del subconjunto del lenguaje SQL especificado en la documentación especificada en el siguiente <a href="https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax">enlace</a></p>
+<p>SQL parser está compuesto por 3 subcomponentes:</p>
+<ul>
+<li><p>Query Tool: es una herramienta gráfica en la cual se ingresan las consultas y se muestran los resultados, además de proporcionar mensajes de error si las consultas lo poseen.
+  <strong>Nota: La consulta abarca todo el contenido ingresado en el área de texto. (Ver figura 4)</strong></p>
+</li>
+<li><p>Type Checker: Este subcomponente es un apoyo a SQL parser para la comprobación de tipos.</p>
+</li>
+<li>SQL Parser: este subcomponente es el intérprete de las sentencias y consultas SQL y el que se conectara con el componente de administración de datos.</li>
+</ul>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/Relacion.png" alt="Figura 1. Descripción de la relación entre componentes"></p>
+<p>Figura 1. Descripción de la relación entre componentes</p>
+<h2 id="gram-tica">Gramática</h2>
+<p>Para el desarrollo de SQL parser se crearon 2 gramaticas una <a href="https://github.com/tytusdb/tytus/blob/main/parser/team29/docs/Gram%C3%A1ticas/gramaticaDESC.bnf">descendente</a>  y una  <a href="https://github.com/tytusdb/tytus/blob/main/parser/team29/docs/Gram%C3%A1ticas/gramaticaASC.bnf">ascendente</a>.Se realizó un análisis de cada una verificando sus ventajas y desventajas de cada una, donde se llegó a la conclusión que la ascendente es la opción más viable debido a lo siguiente:</p>
+<ul>
+<li>Según la documentación de <a href="https://www.dabeaz.com/ply/">PLY</a> esta librería realiza un parseo LR, por lo que solo es compatible con gramáticas ascendentes.</li>
+<li>La gramática ascendente tiene menos producciones que la descendente, esto tiene como consecuencia:<ul>
+<li>Un tiempo de implementación más corto.</li>
+<li>Un tiempo de parseo menor.</li>
+<li>Menos nodos del AST, lo cual se traduce en menos espacio de memoria ocupado por el programa y un menor tiempo de ejecución.    </li>
+<li>Menor probabilidad de errores en la implementación.</li>
+</ul>
+</li>
+<li>La gramática ascendente presenta un menor nivel de complejidad, al no tener que acceder a la pila.</li>
+<li>La mayoría de los integrantes del grupo, poseen más experiencia implementando gramáticas ascendentes que descendentes. </li>
+</ul>
+<h2 id="diagramas-de-modelamiento">Diagramas de Modelamiento</h2>
+<h3 id="diagrama-de-paquetes">Diagrama de paquetes</h3>
+<p>SQL Parser posee los paquetes de UI, este posee un conjunto de ventanas las cuales sirven para recibir las consultas y mostrar la información procesada, y el paquete Analizador el cual recibe las consultas enviadas por el paquete UI, las procesa y ejecuta funciones  proporcionadas por la  interrelación con el administrador de almacenamiento, este  proporcionará los datos que se deberán manipular y ya manipulados serán mostrados por el paquete UI.</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/DiagramaPaquetes.png" alt="Figura 2. Diagramas de paquetes"></p>
+<p>Figura 2. Diagramas de paquetes</p>
+<h3 id="diagrama-de-clases">Diagrama de clases</h3>
+<p>El diagrama de clases está compuesto de las entidades y atributos que se crearon para el procesamiento de consultas y la manipulación de la información.</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/DiagramaClases.png" alt="Figura 3. Diagramas de clases"></p>
+<p>Figura 3. Diagramas de clases</p>
+<h4 id="analizador">Analizador</h4>
+<ul>
+<li>Gramática</li>
+<li>Tokens</li>
+</ul>
+<h4 id="funciones">Funciones</h4>
+<ul>
+<li>Funciones Agregadas</li>
+<li>Funciones Matemáticas</li>
+<li>Funciones Trigonométricas</li>
+<li>Funciones De Cadena</li>
+</ul>
+<h4 id="reporte">Reporte</h4>
+<ul>
+<li>AST</li>
+<li>Nodo</li>
+<li>Gramática BNF</li>
+</ul>
+<h4 id="clases-abstractas">Clases Abstractas</h4>
+<ul>
+<li>Expresión</li>
+<li>Instrucción</li>
+</ul>
+<h4 id="verificador-de-tipo">Verificador de tipo</h4>
+<ul>
+<li>Checker</li>
+<li>Tipos<ul>
+<li>Validaciones<ul>
+<li>Carácter</li>
+<li>Número</li>
+<li>Fecha</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="dise-o-de-reportes-y-pantallas">Diseño  de reportes y pantallas</h2>
+<h3 id="pantalla-principal">Pantalla Principal</h3>
+<p>La pantalla principal cuenta con 3 secciones las cuales son:</p>
+<ul>
+<li>Barra de menús</li>
+<li>Área de Consultas</li>
+<li>Área de Visualización de Resultados y Errores</li>
+</ul>
+<p><strong>Barra de menús</strong></p>
+<p>Esta sección contiene 3 menús:</p>
+<ul>
+<li>Tabla de Símbolos: Se redirigirá a la pantalla de Tabla de símbolos</li>
+<li>AST: Se mostrará el AST generado</li>
+<li>Reporte de errores: Se mostrará la pantalla con los errores léxicos, sintácticos y semánticos</li>
+</ul>
+<p><strong>Area de Consultas y Visualización de Resultados y Errores</strong></p>
+<p>Contiene un panel de entrada en la cual se ingresa la consulta, y con el botón consultar se enviará la consulta al Analizador para que este posteriormente envíe los resultados y estos se visualizarán en el área de visualización de resultados y errores.</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/PantallaPrincipal.png" alt="Figura 4. Pantalla principal"></p>
+<p>Figura 4. Pantalla principal</p>
+<p><strong>Pantalla de Reporte de Errores</strong></p>
+<p>Los errores léxicos, semánticos y sintácticos se mostrarán en 3 tablas diferentes con una breve descripción y la línea en donde fueron encontrados</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/PantallaReporteErrores.png" alt="Figura 5. Pantalla de Reporte de Errores"></p>
+<p>Figura 5. Pantalla de Reporte de Errores</p>
+<p><strong>Pantalla de Tabla de Símbolos</strong></p>
+<p>En esta pantalla se muestran los datos de identificador, tipo, dimensión, ámbito de declaración y la referencia de las variables, funciones y procedimientos.</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/PantallaTS.png" alt="Figura 6. Pantalla de Tabla de Símbolos"></p>
+<p>Figura 6. Pantalla de Tabla de Símbolos</p>
+<p><strong>Pantalla AST</strong></p>
+<p>En esta pantalla se muestra una imagen del árbol de sintaxis abstracta, realizado mediante la herramienta de Graphviz</p>
+<p><img src="/home/odra/Escritorio/Manual Tecnico/img/PantallaAST.png" alt="Figura 7. Pantalla AST"></p>
+<p>Figura 7. Pantalla AST</p>
+</div>
+  </div>
+    
+
+  <script type="text/javascript">
+      var $divs = $('textarea#editor, div#preview');
+      var sync = function(e){
+          var $other = $divs.not(this).off('scroll'), other = $other.get(0);
+          var percentage = this.scrollTop / (this.scrollHeight - this.offsetHeight);
+          other.scrollTop = percentage * (other.scrollHeight - other.offsetHeight);
+          setTimeout( function(){ $other.on('scroll', sync ); },200);
+      }
+      $divs.on('scroll', sync);
+
+      // var win = global.gui.Window.get();
+      // win.on('new-win-policy', function (frame, url, policy) {
+      //     global.gui.Shell.openExternal(url);
+      //     policy.ignore();
+      // });
+      $("html").on('click', 'a', function (e) {
+
+          e.preventDefault();
+          console.log("asd");
+          // Open URL with default browser.
+          global.gui.Shell.openExternal(e.target.href);
+
+      });
+  </script>
+  <script type="text/javascript" src="./node_modules/bootbox/bootbox.min.js"></script>
+  
+
+
+</body></html>
