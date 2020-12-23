@@ -38,15 +38,41 @@ def reporte_tabla(tabla):
 
     cadena += "<tr>\n"
     cadena += "<th><center>#</center></th>\n"
-    cadena += "<th><center>Nombre</center></th>\n"
-    cadena += "<th><center>Tipo</center></th>\n"
-    cadena += "<th><center>Valor</center></th>\n"
-    cadena += "<th><center>Fila</center></th>\n"
-    cadena += "<th><center>Columna</center></th>\n"
+    cadena += "<th><center>Database</center></th>\n"
+    cadena += "<th><center>Table</center></th>\n"
+    cadena += "<th><center>ID</center></th>\n"
+    cadena += "<th><center>Type</center></th>\n"
+    cadena += "<th><center>Size</center></th>\n"
+    cadena += "<th><center>Restriction</center></th>\n"
     cadena += "</tr>\n"
 
     # Recorrido
     contador = 0
+    for db in tabla.listaBd:
+        for t in db.tablas:
+            for c in t.lista_de_campos:
+                cadena += "<tr>\n"
+                cadena += "<td><center>" + str(contador) + "</center></td>\n"
+                cadena += "<td><center>" + db.nombreTabla + "</center></td>\n"
+                cadena += "<td><center>" + t.nombreDeTabla + "</center></td>\n"
+                cadena += "<td><center>" + c.nombre + "</center></td>\n"
+                cadena += "<td><center>" + c.tipo.toString() + "</center></td>\n"
+                if c.tipo.dimension != None:
+                    cadena += "<td><center>" + str(c.tipo.dimension) + "</center></td>\n"
+                else:
+                    cadena += "<td><center> - </center></td>\n"
+                if c.constraint != None:
+                    listaC = []
+                    for i in c.constraint:
+                        listaC.append(i.toString()+":"+str(i.id))
+                    cadena += "<td><center>" + ",".join(listaC) + "</center></td>\n"
+                else:
+                    cadena += "<td><center> - </center></td>\n"
+                cadena += "</tr>\n"
+                contador += 1
+                #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
+
+    '''
     while tabla != None:
         for s in tabla.variables:
             cadena += "<tr>\n"
@@ -59,7 +85,7 @@ def reporte_tabla(tabla):
             cadena += "</tr>\n"
             contador += 1
         tabla = tabla.anterior
-
+    '''
     cadena += "</table>\n"
     cadena += "</body>\n"
     cadena += "</html>"

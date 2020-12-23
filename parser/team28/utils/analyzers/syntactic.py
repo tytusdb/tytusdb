@@ -573,7 +573,7 @@ def p_drop_table(p):
 def p_dml(p):
     '''DML : QUERYSTATEMENT
            | INSERTSTATEMENT
-           | DELETESTATEMENT
+           | STATEMENT
            | UPDATESTATEMENT'''
     p[0] = p[1]
 
@@ -583,11 +583,11 @@ def p_update_statement(p):
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
     if(len(p) == 8):
-        p[0] = Update(p[2],p[5],p[6])
+        p[0] = Update(p[2],p[5],p[6], p.lineno(1), find_column(p.slice[1]), p.lineno(1), find_column(p.slice[1]))
     elif(len(p) == 7):
-        p[0] = Update(p[2],p[4],p[5])
+        p[0] = Update(p[2],p[4],p[5], p.lineno(1), find_column(p.slice[1]), p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Update(p[2],p[4],None)
+        p[0] = Update(p[2],p[4],None, p.lineno(1), find_column(p.slice[1]), p.lineno(1), find_column(p.slice[1]))
 
 def p_set_list(p):
     '''SETLIST : SETLIST COMMA COLUMNVALUES
@@ -744,9 +744,9 @@ def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
     if(len(p) == 12):
-        p[0] = Insert(p[3],p[5],p[9])
+        p[0] = Insert(p[3],p[5],p[9], p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Insert(p[3],None,p[6])
+        p[0] = Insert(p[3],None,p[6], p.lineno(1), find_column(p.slice[1]))
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
