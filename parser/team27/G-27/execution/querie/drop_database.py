@@ -1,10 +1,7 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/storage')
-from querie import * 
+from execution.abstract.querie import * 
 from storageManager import jsonMode as admin
 
-class drop_database(Querie):
+class Drop_Database(Querie):
     """
     name: id de la base de datos a eliminar
     """

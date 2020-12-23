@@ -1,11 +1,8 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/storage')
-from querie import * 
+from execution.abstract.querie import * 
 from storageManager import jsonMode as admin
 from prettytable import PrettyTable
 
-class drop_database(Querie):
+class Show_Database(Querie):
     '''
      row = numero de fila(int)
      column = numero de columna(int)
@@ -14,7 +11,7 @@ class drop_database(Querie):
         Querie.__init__(self,column, row)
     #Valor de retorno: lista de strings con los nombres de las bases de datos, si ocurrió un error o no hay bases de datos devuelve una lista vacía [].
     def execute(self, environment):              
-        result = showDatabases()  #<---------------------------
+        result = admin.showDatabases()   #<---------------------------
         
         if not isinstance(result,list):
             return {'Error': 'La funcion showdatabase(), no retorna un objeto lista', 'Fila':self.row, 'Columna': self.column }
