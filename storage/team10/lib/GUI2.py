@@ -1,10 +1,12 @@
+
 import os
 from tkinter import *
 from tkinter import Menu
 from tkinter import filedialog
+import GUI as gui
 import sys
 import io
-import Tytus as tytus
+import HashMode as tytus
 
 class GUI:
     extensionArchivo = None#guarda la extensión del archivo abierto
@@ -23,8 +25,9 @@ class GUI:
 
         #START MENU BAR
         self.menuBar = Menu(self.window)
-        self.menuBar.add_cascade(label = "Abrir CSV", command = self.abrirArchivo)
-        self.menuBar.add_cascade(label = "Reportes")
+        self.menuBar.add_cascade(label = "Abrir CSV", command = self.abrirArchivo)        
+        self.menuBar.add_cascade(label = "Cargar persistencia", command = tytus.chargePersistence)
+        self.menuBar.add_cascade(label = "Reportes", command = gui.gui2)
         self.menuBar.add_cascade(label = "Salir", command = self.salir)
         self.window.config(menu = self.menuBar)
         #END MENU BAR
@@ -316,23 +319,8 @@ class GUI:
         self.btnextractRangeTable = Button(self.window, text="Ejecutar", width=20, bg = "#a48f60", fg="#ffffff", command=lambda: tytus.extractRangeTable(self.e1extractRangeTable.get(), self.e2extractRangeTable.get(), self.e3extractRangeTable.get(), self.e4extractRangeTable.get()))
         self.btnextractRangeTable.place(x=620, y = 845)
 
-
         #lanza la ventana (la muestra en pantalla)
         self.window.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     #Permite abrir un archivo de texto y mostrar su contenido en el ScrolledText de entrada
     def abrirArchivo(self):
@@ -352,11 +340,5 @@ class GUI:
     def salir(self):
         self.window.destroy()
 
-
-
-
-
-
 #inicia la clase GUI
 start = GUI()
-
