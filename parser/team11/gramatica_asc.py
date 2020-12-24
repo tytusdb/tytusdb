@@ -3,6 +3,7 @@ import ply.lex as lex
 
 from Ast import *
 from creacionArbol import *
+from reporteEnEjecucion import *
 
 from graphviz import render
 
@@ -91,7 +92,10 @@ reservadas = {
     'random': 'RANDOM',             'true': 'TRUE',
     'false': 'FALSE',               'use' : 'USE',
     'decimal': 'RDECIMAL',          'union': 'UNION',
-    'intersect': 'INTERSECT',       'except': 'EXCEPT'
+    'intersect': 'INTERSECT',       'except': 'EXCEPT',
+    'extract': 'EXTRACT',           'date_part': 'DATE_PART',
+    'current_date': 'CURRENT_DATE', 'current_time': 'CURRENT_TIME',
+    'now': 'NOW'
 }
 
 tokens  = [
@@ -829,12 +833,17 @@ def p_valselect_13(t):
     'valselect      : func_bin_strings_4 alias'
     t[0] = getValSelect(t, 'funcbinstring4')
 
+def p_valselect_15(t):
+    'valselect  :  nowinstr'
+    t[0] = t[1]
+
 def p_valselect_14(t):
-    '''valselect      : extract_instr 
-                      | datepart_instr
-                      | current
-                      | timestampnow
-                      | nowinstr'''
+    '''valselect      : extract_instr alias
+                      | datepart_instr alias
+                      | current alias
+                      | timestampnow alias'''
+    if t[2] != None :
+        t[1].hijos.append(t[2])
     t[0] = t[1]
 
 def p_funcionagregacion(t):
@@ -1334,6 +1343,40 @@ def p_cadena(t):
     '''cadena   : cualquiercadena
                 | cualquieridentificador'''
     t[0] = t[1]
+
+# ----------------------------------- EXTRACT, DATEPART, NOW-------------------------------------------
+def p_extract(t):
+    'extract_instr      :  EXTRACT PARIZQ valdate FROM TIMESTAMP CADENASIMPLE PARDER'
+    a = Nodo('FROM TIMESTAMP', t[6], [], t.lexer.lineno)
+    t[0] = Nodo('EXTRACT', '',[t[3], a], t.lexer.lineno )
+
+def p_valdate1(t):
+    '''valdate   : YEAR
+                 | HOUR
+                 | MINUTE
+                 | SECOND
+                 | MONTH
+                 | DAY'''
+    t[0] = Nodo(str(t[1]), '', [], t.lexer.lineno, 0, '')
+
+def p_datepart(t):
+    'datepart_instr    :  DATE_PART PARIZQ CADENASIMPLE COMA INTERVAL CADENASIMPLE PARDER'
+    a = Nodo('CADENA', t[3], [], t.lexer.lineno)
+    b = Nodo('INTERVAL', t[6], [], t.lexer.lineno)
+    t[0] = Nodo('DATE PART', '',[a, b], t.lexer.lineno)
+
+def p_current(t):
+    '''current     :  CURRENT_DATE
+                   | CURRENT_TIME'''
+    t[0] = Nodo(str(t[1]), '', [], t.lexer.lineno)
+
+def p_timestamp(t):
+    'timestampnow     :  TIMESTAMP CADENASIMPLE'
+    t[0] = Nodo('TIMESTAMP', str(t[2]), [], t.lexer.lineno)
+
+def p_nowinstr(t):
+    'nowinstr     :  NOW PARIZQ PARDER'
+    t[0] = Nodo('NOW', '', [], t.lexer.lineno)
 
 ############################################## PRODUCCIONES ESPECIALES #################################################
 

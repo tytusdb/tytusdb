@@ -6,8 +6,9 @@ class Tipo(Enum):
     SEMANTICO = 3
 
 class Error():
-    def __init__(self, tipo : Tipo, descripcion, linea):
+    def __init__(self, tipo : Tipo, descripcion, linea, columna = 0):
         self.tipo = tipo
         self.descripcion = descripcion
         self.linea = linea
+        self.columna = columna
 
