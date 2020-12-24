@@ -89,3 +89,27 @@ class TablasArboles:
         else:                                                                     
             #return ("BD inexistente")
             return None 
+
+#Funcion 9 - cambiar nombre a la tabla
+# def alterTable(database: str, tableOld: str, tableNew: str) -> int:  
+    def alterT(self,database,tableOld,tableNew) :
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :                                            
+            if bdEncontrada.tablas.buscar(tableNew) == None :
+                if bdEncontrada.tablas.buscar(tableOld) == True :
+                    r = bdEncontrada.tablas.modificar(tableOld,tableNew)
+                    if r==0 :
+                        #return ("Operacion exitosa")
+                        return (0) 
+                    else:
+                        #return ("Error en la operacion")
+                        return (1)
+                else:
+                    #return("tableOld no existente")
+                    return(3)
+            else:
+                #return("tableNew existente")
+                return(4)
+        else:                                                                     
+            #return ("BD inexistente")
+            return (2)                                                            
