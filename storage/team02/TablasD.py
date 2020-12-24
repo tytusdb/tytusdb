@@ -49,3 +49,24 @@ class TablasArboles:
             return bdEncontrada.tablas.verNodos()
         else:                                                                    
             return None                                                         
+
+#Funcion 3 - mostrar el contenido de la tabla
+# def extractTable(database: str, table: str) -> list:
+    def extractT(self, database, table) :
+        list = []
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 : 
+            tablaEncontrada =  bdEncontrada.tablas.buscar(table)                                          
+            if tablaEncontrada != None :
+                for i in range(len(tablaEncontrada.elementosAB.listRegister)):
+                    list.append(tablaEncontrada.elementosAB.listRegister[i].register)
+                    #para confirmar
+                    #print(p.extractTable("bd1","tabla1"))
+                    #print(objetoClaseTabla.extractTable("Nombre de la base de datos","Nombre de la tabla"))
+                return list            
+            else:
+                #return("tableNew existente")
+                return None
+        else:                                                                     
+            #return ("BD inexistente")
+            return None 
