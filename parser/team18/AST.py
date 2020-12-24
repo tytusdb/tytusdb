@@ -1317,16 +1317,16 @@ def AlterDBF(instr,ts):
             agregarMensjae('normal',outputTxt,"")
             print ("La base de datos se ha renombrado exitosamente")
         elif retorno==1:
-            outputTxt='Hubo un error durante la modificacion de la bd  '
-            agregarMensjae('normal',outputTxt,"")
-            print ("Hubo un error durante la modificacion de la bd")  
+            outputTxt='42P16:Hubo un error durante la modificacion de la bd  '
+            agregarMensjae('error',outputTxt,"42P16")
+            print ("42704:Hubo un error durante la modificacion de la bd")  
         elif retorno==2:
-            outputTxt='La base de datos :'+NombreBaseDatos +' ,no existe '
-            agregarMensjae('normal',outputTxt,"")
-            print ("La base de datos no existe")
+            outputTxt='42P16:La base de datos :'+NombreBaseDatos +' ,no existe '
+            agregarMensjae('error',outputTxt,"42P16")
+            print ("42704:La base de datos no existe")
         elif retorno==3:
-            outputTxt='El nombre de la base de datos :'+ValorInstruccion +' ,ya esta en uso '
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P16:El nombre de la base de datos :'+ValorInstruccion +' ,ya esta en uso '
+            agregarMensjae('error',outputTxt,"42P16")
             print ("El nombre de la bd ya esta en uso")
             
     else:
@@ -1432,6 +1432,8 @@ def AlterTBF(instr,ts):
                 #comprueba que el nombre columna exista en la tabla
                 Constraint_Resuelve(Obj_Extras,tablab,ID)
             else:
+                outputTxt='42P01:la tabla '+NombreTabla+' no existe en la base de datos'
+                agregarMensjae('error',outputTxt,"42P01")
                 print("la tabla no existe en la base de datos")
 
 
@@ -1481,16 +1483,18 @@ def AlterTBF(instr,ts):
                     ' '
                     #existe la columna no la crea
                     print("la columna YA existe")
-                    outputTxt='La columna:'+ID+" ya Existe en la tabla:"+NombreTabla
-                    agregarMensjae('normal',outputTxt,"")
+                    outputTxt='42701:La columna:'+ID+" ya Existe en la tabla:"+NombreTabla
+                    agregarMensjae('error',outputTxt,"42701")
             else:
                 ' '
                 #la tabla no existe
                 print("la tabla no existe")
-                outputTxt='La tabla:'+NombreTabla+" no Existe"
-                agregarMensjae('normal',outputTxt,"")
+                outputTxt='42P01:La tabla:'+NombreTabla+" no Existe"
+                agregarMensjae('error',outputTxt,"42P01")
         else:
             ' '
+            outputTxt='Operacion desconocida'
+            agregarMensjae('normal',outputTxt,"")
             print("Operacion desconocida")
             
 
@@ -1532,11 +1536,11 @@ def Mostrar_TB(operacion,ts):
         agregarMensjae('normal',outputTxt,"")
     except:
         if listaR==None:
-            outputTxt='La base de datos no Existe, ShowTables'
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P16:La base de datos no Existe, ShowTables'
+            agregarMensjae('error',outputTxt,"42P16")
         else:
-            outputTxt='La tabla no existe en la bd, ShowTables'
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P01:La tabla no existe en la bd, ShowTables'
+            agregarMensjae('error',outputTxt,"42P01")
 
 
 
@@ -1691,6 +1695,15 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                     pre_con=((((tablab[0]).atributos)[subCont]).constraint).unique
                     print("BOOL ASDF:",(pre_con==None))
                     print(pre_con)
+                    if (pre_con!=None):
+                        outputTxt='23505:Ya se asigno previamente UNIQUE a esta columna'
+                        agregarMensjae('error',outputTxt,"23505")
+                    if ((DatoRepetido)):
+                        outputTxt='23505:Hay registros Repetidos en la tabla,no se puede asignar unique'
+                        agregarMensjae('error',outputTxt,"23505")
+                    if ((DatoRepetidoQuery)):
+                        outputTxt='23505:Hay columnas Repetidas dentro del query UNIQUE'
+                        agregarMensjae('error',outputTxt,"23505")
 
                     if (ID!=0 and ID!=None and ID!="") and (pre_con==None) and not(DatoRepetido) and not(DatoRepetidoQuery):
                         print("INGRESO ID TIENE:")
@@ -1722,6 +1735,8 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                 #Transfiere el valor, para no guardar informacion, o si guardarla 
                 #existenCols=copy.deepcopy(existeC)
                 if existeC==0:
+                    outputTxt="La columna:",col_rev," no existe en la tabla"
+                    agregarMensjae('normal',outputTxt,"")
                     print("La columna:",col_rev," no existe en la tabla")
                     break
                 
@@ -1743,9 +1758,12 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
             print("pre_con3:",pre_con3)
             print("pre_con4:",pre_con4)
             listaTablas[tablab[1]]=copy.deepcopy(tab_Temp[0])
-            
+            outputTxt="Se ha guardado exitosamente Constraint UNIQUE en la tabla"
+            agregarMensjae('normal',outputTxt,"")
             ' '
         else:
+            outputTxt="23505:Error no se puede guardar en la tabla Constraint UNIQUE"
+            agregarMensjae('error',outputTxt,"23505")
             print("Error no se puede guardar la tabla constraint")
 
 
@@ -1785,6 +1803,24 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                     print("BOOL ASDF:",(pre_con==None))
                     print(pre_con)
 
+
+                    if not(pre_con):
+                        outputTxt="23505:Ya existe una Llave primaria en la tabla"
+                        agregarMensjae('error',outputTxt,"23505")
+                    if (DatoRepetido):
+                        outputTxt="23505:Hay registros repetidos en la columna "
+                        agregarMensjae('error',outputTxt,"23505")
+                    if (DatoRepetidoQuery):
+                        outputTxt="23505:Hay columnas Repetidas en query primary"
+                        agregarMensjae('error',outputTxt,"23505")
+                    if (nulosR):
+                        outputTxt="23502:Hay registros Nulos en la columna "
+                        agregarMensjae('error',outputTxt,"23502")
+
+                    
+                    
+
+                        
                     if (ID!=0 and ID!=None and ID!="") and (pre_con) and not(DatoRepetido) and not(DatoRepetidoQuery) and not(nulosR):
                         print("INGRESO ID TIENE:")
                         #SI UNIQUE NO HA SIDO ASIGNADO, y SI  le puso ID , y si NO REGISTROS REPETIDOS
@@ -1820,6 +1856,8 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                 #Transfiere el valor, para no guardar informacion, o si guardarla 
                 #existenCols=copy.deepcopy(existeC)
                 if existeC==0:
+                    outputTxt="42703:La columna:",col_rev," no existe en la tabla"
+                    agregarMensjae('error',outputTxt,"42703")
                     print("La columna:",col_rev," no existe en la tabla")
                     break
                 
@@ -1841,9 +1879,13 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
             print("pre_con3:",pre_con3)
             print("pre_con4:",pre_con4)
             listaTablas[tablab[1]]=copy.deepcopy(tab_Temp[0])
+            outputTxt="Se ha guardado exitosamente primary key en la tabla"
+            agregarMensjae('normal',outputTxt,"")
             
             ' '
         else:
+            outputTxt="23000:Error no se puede guardar constraint primary key en la tabla"
+            agregarMensjae('error',outputTxt,"23000")
             print("Error no se puede guardar la tabla constraint")
 
 
@@ -1917,6 +1959,25 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
         #que no hallan columnas Repetidas en querys
         #que no se autoreferencie
         #que no exista el name constraint
+        if not(lonI):
+            outputTxt="23000:Error las columnas en el query Foreing son disparejas"
+            agregarMensjae('error',outputTxt,"23000")
+        if not(ExiT):
+            outputTxt="42P01:Error la tabla Ref Foranea No existe"
+            agregarMensjae('error',outputTxt,"42P01")
+        if not(RepQuery):
+            outputTxt="23505:Error hay columnas repetidas dentro del query"
+            agregarMensjae('error',outputTxt,"23505")
+        if not(NomTabDif):
+            outputTxt="23000:Error se esta autoreferenciado la misma tabla"
+            agregarMensjae('error',outputTxt,"23000")
+        if (veriConstName):
+            outputTxt="23000:Error el nombre de constraint ya esta en uso"
+            agregarMensjae('error',outputTxt,"23000")
+
+
+
+
         if (lonI)and(ExiT)and(RepQuery)and(NomTabDif)and not(veriConstName):
             #Procede a Buscar cada Columna y hacer sus validaciones Individual y dual
             conta=0
@@ -1971,8 +2032,28 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                     #false error, True bien
                     AsociaKeys=B_AsociarForanea((Colum_P[2]),(Colum_F[2]))
 
+                    if not(ComTipC):
+                        outputTxt="42804:Error las columas son de distinto tipo"
+                        agregarMensjae('error',outputTxt,"42804")
+                    if not(SiPriKeyFora):
+                        outputTxt="23503:Error la columna referencia no es primaria"
+                        agregarMensjae('error',outputTxt,"23503")
+                    if not(AsociaKeys):
+                        outputTxt="23505:Error algunos registros no coinciden con las llaves Foraneas"
+                        agregarMensjae('error',outputTxt,"23505")
+                    if not(DifForeKey):
+                        outputTxt="23000:Error ya se asigno llave foranea a esta columna"
+                        agregarMensjae('error',outputTxt,"23000")
+                    if not(prim_Igu):
+                        outputTxt="42830:Error la llave foranea debe ser compuesta"
+                        agregarMensjae('error',outputTxt,"42830")    
+                    
+                    
+
+
+
                     #compara Desti no primary , Fora si primary , mismo tipo dato, asocia llaves
-                    if(ComTipC) and (DifPriKey)and (SiPriKeyFora)and(AsociaKeys) and (DifForeKey):
+                    if(ComTipC) and (DifPriKey)and (SiPriKeyFora)and(AsociaKeys) and (DifForeKey) and(prim_Igu):
                         print("Si se puede guardar")    
                         #crea la llave foranea y desvincula objetos
                         New_Foranea=[copy.deepcopy((tablaF[0]).nombre),copy.deepcopy((Colum_F[0]).nombre)]
@@ -1997,6 +2078,9 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                 else:
                     ' '
                     print("NO   se puede guardar2")
+
+                    outputTxt="42703:Error una de las columnas asignadas o a asignar no existe"
+                    agregarMensjae('error',outputTxt,"42703")
                     GuardaF=False
                     break
                     #Comparacion Lon columnas
@@ -2013,6 +2097,8 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
             #multiple comparaciones for
 
         if GuardaF:
+            outputTxt="Se ha guardado exitosamente la llave Foranea"
+            agregarMensjae('normal',outputTxt,"")
             listaTablas[tablab[1]]=copy.deepcopy(tabla_Temp)
 
     else:
@@ -2158,13 +2244,13 @@ def Msg_Alt_Add_Column(NombreTabla,ID,retorno):
         agregarMensjae('normal',outputTxt,"")
     elif retorno==1:
         outputTxt='Hubo un error durante la eliminacion de la columna  '
-        agregarMensjae('normal',outputTxt,"")
+        agregarMensjae('error',outputTxt,"42P01")
     elif retorno==2:
-        outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16;La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==3:
-        outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P01:La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('error',outputTxt,"42P01")
     else:
         print("operacion desconocida 0")
 
@@ -2179,20 +2265,20 @@ def Msg_Alt_Drop(NombreTabla,ID,retorno):
         outputTxt='Se elimino exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
         agregarMensjae('normal',outputTxt,"")
     elif retorno==1:
-        outputTxt='Hubo un error durante la eliminacion de la columna  '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P01:Hubo un error durante la eliminacion de la columna  '
+        agregarMensjae('error',outputTxt,"42P01")
     elif retorno==2:
-        outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==3:
-        outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P01:La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('error',outputTxt,"42P01")
     elif retorno==4:
-        outputTxt='La Tabla no puede quedar vacia o se trata eliminar Primary Key '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:La Tabla no puede quedar vacia o se trata eliminar Primary Key '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==5:
-        outputTxt='El valor de columna esta fuera de la tabla'
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:El valor de columna esta fuera de la tabla'
+        agregarMensjae('error',outputTxt,"42P16")
     else:
         print("operacion desconocida 0")
 
@@ -2208,17 +2294,17 @@ def Msg_Alt_Rename(NombreTabla,ID1,retorno):
         outputTxt='Se Renombro la Tabla exitosamente,'+NombreTabla +' TO '+ID1 
         agregarMensjae('normal',outputTxt,"")
     elif retorno==1:
-        outputTxt='Hubo un error durante la modificacion de la Tabla  '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:Hubo un error durante la modificacion de la Tabla  '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==2:
-        outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==3:
-        outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P01:La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('error',outputTxt,"42P01")
     elif retorno==4:
-        outputTxt='El nombre de la Tabla :'+ ID1 +' ,ya esta en uso '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P07:El nombre de la Tabla :'+ ID1 +' ,ya esta en uso '
+        agregarMensjae('error',outputTxt,"42P07")
     else:
         print("operacion desconocida 0")
 
@@ -2291,8 +2377,8 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                         else:
                             ' '
                             #hay registros con contenido nulo
-                            msg='Hay registros Nulos en la columna:'+ID
-                            agregarMensjae('normal',msg,'')
+                            msg='23502:Hay registros Nulos en la columna:'+ID
+                            agregarMensjae('error',msg,'23502')
                             print("hay registros nulos")
                         
                         
@@ -2331,8 +2417,8 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                             ' '
                             #hay registros con contenido nulo
                             print("un registro no puede ser casteado")
-                            msg='El nuevo tipo de dato es incompatible'
-                            agregarMensjae('normal',msg,'')
+                            msg='42804:El nuevo tipo de dato es incompatible'
+                            agregarMensjae('error',msg,'42804')
 
 
 
@@ -2381,16 +2467,16 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                     ' '
                     #la columna no existe
                     print("columna no existe")
-                    msg='La columna:'+ID+' no existe '
-                    agregarMensjae('normal',msg,'')
+                    msg='42703:La columna:'+ID+' no existe '
+                    agregarMensjae('error',msg,'42703')
 
                 
         else:
             ' '
             #La tabla no existe
             print("tabla no existe")
-            msg='La tabla:'+NombreTabla+' no existe '
-            agregarMensjae('normal',msg,'')
+            msg='42P01:La tabla:'+NombreTabla+' no existe '
+            agregarMensjae('error',msg,'42P01')
 
 
 
@@ -2407,6 +2493,8 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
         ' '
 
         RenomForanConstraint(NombreTabla,ID1,ID2)
+        outputTxt="Se renombro exitosamente Constraint"+ID1+" por:"+ID2
+        agregarMensjae('normal',outputTxt,"")
 
 
     elif OPERACION.upper()=="TO":
@@ -2422,7 +2510,8 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
             conta=0
             for tab_t in listaTablas:
                 if (tab_t.nombre)==NombreTabla:
-
+                    outputTxt="Se renombro la tabla exitosamente por:"+ID1
+                    agregarMensjae('normal',outputTxt,"")
                     #Renombra las Tablas Foraneas
                     RenomForanTab(NombreTabla,ID1)
                     #Renombra la tabla
@@ -2469,18 +2558,18 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
                     agregarMensjae('normal',outputTxt,"")
                     #print("el nombre existe col")
                 else:
-                    outputTxt='El nombre:'+ID2+' ya existe en la tabla:'+NombreTabla
-                    agregarMensjae('normal',outputTxt,"")
+                    outputTxt='42P07:El nombre:'+ID2+' ya existe en la tabla:'+NombreTabla
+                    agregarMensjae('error',outputTxt,"42P07")
                     print("el nombre existe col")
                     #el nombre Nuevo de la columna ya existe
             else:
-                outputTxt='La columna:'+ID1+' no existe en la Tabla:'+NombreTabla
-                agregarMensjae('normal',outputTxt,"")
+                outputTxt='42703:La columna:'+ID1+' no existe en la Tabla:'+NombreTabla
+                agregarMensjae('error',outputTxt,"42703")
                 print("la col no existe")
                 #la columna a modificar no existe
         else:
-            outputTxt='La tabla:'+NombreTabla+' no existe en la bd:'+baseActiva
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P01:La tabla:'+NombreTabla+' no existe en la bd:'+baseActiva
+            agregarMensjae('error',outputTxt,"42P01")
             print("la tabla no existe")
             #la tabla a modificar no existe
 
@@ -2706,20 +2795,24 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
                     ' '
                     posicion=ColumnInfo[1]
                     del ((listaTablas[tablaB[1]]).atributos)[posicion]
+                    outputTxt="Se ha eliminado satisfactoriamente la columna"
+                    agregarMensjae('normal',outputTxt,"")
 
                 Msg_Alt_Drop(NombreTabla,ID,retorno)
 
 
             else:
-                outputTxt='La tabla debe tener al menos 1 columna'
-                agregarMensjae('normal',outputTxt,"")
+                outputTxt='42P16:La tabla debe tener al menos 1 columna'
+                agregarMensjae('error',outputTxt,"42P16")
         else:
-            outputTxt='La tabla '+NombreTabla +' no existe en la base de datosc'
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P01:La tabla '+NombreTabla +' no existe en la base de datosc'
+            agregarMensjae('error',outputTxt,"42P01")
             #la tabla no existe en cabeceras o cuerpo
     elif INSTRUCCION.upper()=="CONSTRAINT":
         ' '
         DropForanConstraint(NombreTabla,ID)
+        outputTxt="Se ha eliminado satisfactoriamente Constraint:"+ID
+        agregarMensjae('normal',outputTxt,"")
 
     else:
         ' '#Error
