@@ -40,13 +40,16 @@ class TypeChecker():
     def showDatabase(self, like: str = ''):
         query_result = jsonMode.showDatabases()
         if like == '':
-            self.salida.append(query_result)
+            sal = [['DATABASES']]
+            for base in query_result:
+                sal.append([base])
+            self.salida.append(sal)
         else:
             pattern = '^' + like.replace('%','.+').replace('_','(.){0,1}') + '$'
-            filtrada = []
+            filtrada = [['DATABASES']]
             for base in query_result:
                 if re.match(pattern, base):
-                    filtrada.append(base)
+                    filtrada.append([base])
             self.salida.append(filtrada)
         self.consola.append(Codigos().successful_completion('SHOW DATABASE'))
 
@@ -112,21 +115,26 @@ class TypeChecker():
         query_result = jsonMode.createTable(self.actual_database, table, contador)
         if query_result == 0:
             self.consola.append(Codigos().table_successful(table))
-            self.tabla_simbolos.agregar(Simbolo(self.actual_database + '.' +table, 'TABLE', '', line))
+            self.tabla_simbolos.agregar(Simbolo(self.actual_database + '.' + table, 'TABLE', '', line))
             self.type_checker[self.actual_database][table] = {}
             for columna in columns:
-                print(columna)
                 if 'nombre' in columna:
                     self.type_checker[self.actual_database][table][columna['nombre']] = columna['col']
+                    self.tabla_simbolos.agregar(Simbolo(self.actual_database + '.' + table + '.' + columna['nombre'], 'COLUMN', columna['col'].tipo['tipo'].name, columna['col'].line))
                 elif 'primary' in columna:
                     for primaria in columna['primary']:
-                        self.type_checker[self.actual_database][table][primaria['valor']].addPrimaryKey(1)
+                        const = self.type_checker[self.actual_database][table][primaria].addPrimaryKey(1)
+                        self.tabla_simbolos.agregar(Simbolo(const.name, 'CONSTRAINT', '', const.line))
                 elif 'foreign' in columna:
                     temp = 0
                     for foranea in columna['foreign']:
-                        self.type_checker[self.actual_database][table][foranea['valor']].addReference(columna['table'] + '.' + columna['references'][temp]['valor'])
+                        const = self.type_checker[self.actual_database][table][foranea].addReference(columna['table'] + '.' + columna['references'][temp])
                         temp += 1
-                        self.type_checker[self.actual_database][table][foranea['valor']].printCol()
+                        self.tabla_simbolos.agregar(Simbolo(const.name, 'CONSTRAINT', '', const.line))
+                elif 'unique' in columna:
+                    for unique in columna['unique']:
+                        const = self.type_checker[self.actual_database][table][unique].addUnique(1)
+                        self.tabla_simbolos.agregar(Simbolo(const.name, 'CONSTRAINT', '', const.line))
 
             #self.saveTypeChecker()
         elif query_result == 1:
@@ -146,6 +154,14 @@ class TypeChecker():
         if query_result == 0:
             self.consola.append(Codigos().successful_completion('DROP TABLE «' + table + '»'))
             self.type_checker[self.actual_database].pop(table)
+            self.tabla_simbolos.simbolos.pop(self.actual_database + '.' + table)
+            delete = []
+            for symbol in self.tabla_simbolos.simbolos:
+                array = symbol.split('.')
+                if len(array) > 1 and array[1] == table:
+                    delete.append(symbol)
+            for element in delete:
+                self.tabla_simbolos.simbolos.pop(element)
         elif query_result == 1:
             self.addError(Codigos().database_internal_error(table), line)
         elif query_result == 2:

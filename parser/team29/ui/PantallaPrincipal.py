@@ -18,6 +18,7 @@ class Pantalla:
         self.syntacticErrors = list()
         self.semanticErrors = list()
         self.postgreSQL = list()
+        self.ts = list()
         self.inicializarScreen()
 
     def inicializarScreen(self):
@@ -39,7 +40,7 @@ class Pantalla:
         self.frame_entrada.pack()
         # Definicion del menu de items
         navMenu = Menu(self.window)
-        navMenu.add_command(label="table de Simbolos", command=self.open_ST)
+        navMenu.add_command(label="Tabla de Simbolos", command=self.open_ST)
         navMenu.add_command(label="AST", command=self.open_AST)
         navMenu.add_command(
             label="Reporte de errores",
@@ -87,6 +88,10 @@ class Pantalla:
                     table.pack(side=LEFT, fill=BOTH)
                     frame.pack(fill=BOTH)
                     self.tabControl.add(frame, text="Consulta " + str(i))
+                else:
+                    self.text_Consola.insert(
+                        INSERT, "Error: Consulta sin resultado" + "\n"
+                    )
         self.tabControl.pack()
 
     def parse(self):
@@ -118,6 +123,7 @@ class Pantalla:
         self.syntacticErrors = result["syntax"]
         self.semanticErrors = result["semantic"]
         self.postgreSQL = result["postgres"]
+        self.ts = result["symbols"]
         if (
             len(self.lexicalErrors)
             + len(self.syntacticErrors)
@@ -157,6 +163,7 @@ class Pantalla:
         self.syntacticErrors.clear()
         self.lexicalErrors.clear()
         self.postgreSQL.clear()
+        self.ts.clear()
 
     def fill_table(
         self, columns, rows, table
@@ -187,7 +194,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        windowTableS = Pantalla_TS(self.window)
+        windowTableS = Pantalla_TS(self.window, self.ts)
 
     def open_AST(self):  # Abre la pantalla del AST
         windowTableS = Pantalla_AST(self.window)

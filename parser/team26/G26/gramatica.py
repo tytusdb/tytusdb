@@ -629,7 +629,7 @@ def p_lista_de_seleccionados(t):
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         grafo.newchildrenE(t[4])
         reporte = "<listadeseleccionados> ::= CASE <cases> END " + t[4].upper() + "\n" + t[2]['reporte']
-        t[0] = {'ast' : select.ListaDeSeleccionadosConOperador(t[1].lower(),t[3]['ast'],t[4]) ,'graph' : grafo.index , 'reporte': reporte}
+        t[0] = {'ast' : select.ListaDeSeleccionadosConOperador(t[1].lower(),t[2]['ast'],t[4]) ,'graph' : grafo.index , 'reporte': reporte}
     elif t[1] == '*' :
         grafo.newchildrenE(t[1])
         reporte ="<listadeseleccionados> ::= ASTERISCTO\n"
@@ -663,7 +663,7 @@ def p_lista_de_argumentos(t):
     grafo.newnode('LIST_ARG')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    t[1]['ast'].append({'ast': t[3]['ast'] , 'graph' : grafo.index})
+    t[1]['ast'].append(t[3]['ast'])
     reporte = "<listadeargumentos> ::= <listadeargumentos> COMA <argument>\n" + t[1]['reporte'] + t[3]['reporte']
     t[0] = {'ast': t[1]['ast'], 'graph': grafo.index , 'reporte': reporte}
 
@@ -681,7 +681,7 @@ def p_casos(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    t[1]['ast'].append( {'ast' : select.Casos(t[2]['ast'],t[3]['ast']), 'graph' : grafo.index} )
+    t[1]['ast'].append(select.Casos(t[2]['ast'],t[3]['ast']))
     reporte = "<cases> := <cases> <case> <elsecase>\n" + t[1]['reporte'] + t[2]['reporte'] + t[3]['reporte']
     t[0] = {'ast': t[1]['ast'], 'graph': grafo.index , 'reporte': reporte}
 

@@ -56,7 +56,7 @@ def p_instruccion(t) :
                         | INSERT insercion
                         | DROP dropear
                         '''
-    if t[1].upper() == 'CREATE' or t[1].upper() == 'SHOW' or t[1].upper() == 'DROP':
+    if t[1].upper() == 'CREATE' or t[1].upper() == 'SHOW' or t[1].upper() == 'DROP' or t[1].upper() == 'USE' or t[1].upper() == 'SELECT':
         t[0] = t[2]
     elif t[1].upper() == 'ALTER' and t[2].upper() == 'DATABASE':
         t[0] = t[3]
@@ -72,7 +72,7 @@ def p_instruccion_creacion(t) :
                     | TABLE crear_tb
                     | TYPE crear_type'''
 
-    if t[1].upper() == 'DATABASE':
+    if t[1].upper() == 'DATABASE' or t[1].upper() == 'TABLE':
         t[0] = t[2]
     elif t[1].upper() == 'OR':
         t[0] = t[4]
@@ -115,7 +115,7 @@ def p_instruccion_crear_TB_herencia(t):
 
 def p_instruccion_crear_TB(t):
     '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA'''
-
+    t[0] = Crear_TB(t[1].lower(), t[3], t.lexer.lineno - 1)
 
 
 def p_isntruccion_crear_TYPE(t) :
@@ -162,6 +162,7 @@ def p_def_alter_db(t) :
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
     'cambio_bd     : ID PTCOMA'
+    t[0] = Cambio_BD(t[1].upper(), t.lexer.lineno - 1)
 
 #========================================================
 
@@ -181,13 +182,13 @@ def p_instruccion_selects2(t) :
 def p_instruccion_selects3(t) :
     '''selects      : fun_trigonometrica state_aliases_field 
                     '''
-
+    t[0] = Select({'objeto': t[1], 'alias': t[2]}, t.lexer.lineno - 1)
 
 
 def p_instruccion_selects4(t) :
     '''selects      : fun_trigonometrica state_aliases_field FROM ID state_aliases_table 
                     '''
-  
+    
 
 
 def p_instruccion_selects5(t) :
@@ -346,7 +347,7 @@ def p_instruccion_Drop_BD(t) :
 def p_instruccion_Drop_TB(t) :
     '''dropear      : TABLE ID PTCOMA
                     '''
-
+    t[0] = Drop_TB(t[2].lower(), t.lexer.lineno - 1)
 
 #========================================================
 
@@ -466,60 +467,83 @@ def p_parametro_sin_tabla(t) :
 # CONTENIDO DE TABLAS EN CREATE TABLE
 def p_instrucciones_lista_columnas(t) :
     'crear_tb_columnas      : crear_tb_columnas COMA crear_tb_columna'
-
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_instrucciones_columnas(t) :
     'crear_tb_columnas      : crear_tb_columna'
+    t[0] = [t[1]]
 
 
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
+    col = Columna(tipo = t[2], line = t.lexer.lineno)
+    
+    for parametro in t[3]:
+        if 'default' in parametro:
+            col.addDefault(parametro['default'])
+        elif 'is_null' in parametro:
+            col.addNull(parametro['is_null'])
+        elif 'is_unique' in parametro:
+            if 'constraint' in parametro:
+                col.addUnique(valor = parametro['is_unique'], constraint = parametro['constraint'])
+            else:
+                col.addUnique(parametro['is_unique'])
+        elif 'is_primary' in parametro:
+            col.addPrimaryKey(parametro['is_primary'])
+        elif 'references' in parametro:
+            col.addReference(parametro['references'])
 
+    col.printCol()
+    t[0] = {'nombre': t[1].lower(), 'col': col}
 
 
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
-
+    t[0] = {'nombre': t[1].lower(), 'col': Columna(tipo = t[2], line = t.lexer.lineno - 1)}
 
 
 def p_instrucciones_columna_pk(t) :
     'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
-
+    t[0] = {'primary': t[4]}
 
 def p_instrucciones_columna_fk(t) :
     'crear_tb_columna       : FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'
-
-
-
+    if len(t[4]) != len(t[9]):
+        error = Error('Semántico', "El número de columnas referencias es distinto al número de columnas foráneas", t.lexer.lineno - 1)
+        tabla_errores.agregar(error)
+    else:
+        t[0] = {'foreign': t[4], 'table': t[7].lower(), 'references': t[9]}
+    
 def p_instrucciones_columna_check(t) :
     'crear_tb_columna   : chequeo'
 
 
 def p_instrucciones_columna_unique(t) :
     'crear_tb_columna   : UNIQUE PARIZQ lista_id PARDER'
-
+    t[0] = {'unique': t[3]}
 
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
-
-    
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
-
+    t[0] = [t[1]]
 
 def p_instrucciones_parametro_columna_default(t) :
     'parametro_columna      : DEFAULT valor'
-
+    t[0] = {'default': t[2]}
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
-
+    t[0] = t[1]
 
 def p_instrucciones_parametro_columna_unique(t) :
     'parametro_columna      : unic'
-  
+    t[0] = t[1]
 
 def p_instrucciones_parametro_columna_checkeo(t) :
     'parametro_columna      : chequeo'
@@ -527,27 +551,28 @@ def p_instrucciones_parametro_columna_checkeo(t) :
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
-
+    t[0] = {'is_primary': 1}
 
 def p_instrucciones_parametro_columna_fkey(t) :
     'parametro_columna      : REFERENCES ID PARIZQ ID PARDER'
-
+    t[0] = {'references': t[2] + '.' + t[4]}
 
 def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
-
+    t[0] = {'is_null': TipoNull.NOT_NULL}
 
 def p_instrucciones_unul(t) :
     'unul   : NULL'
-
+    t[0] = {'is_null': TipoNull.NULL}
 
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
+    t[0] = {'is_unique': 1, 'constraint': Constraint(tipo = TipoConstraint.UNIQUE, name = t[2], line = t.lexer.lineno)}
 
 
 def p_instrucciones_unic(t) :
     'unic   : UNIQUE'
-
+    t[0] = {'is_unique': 1}
 
 def p_instrucciones_chequeo_constraint(t) :
     'chequeo    : CONSTRAINT ID CHECK PARIZQ relacional PARDER'
@@ -563,11 +588,12 @@ def p_instrucciones_chequeo(t) :
 # LISTA DE ELEMENTOS REUTILIZABLES
 def p_instrucciones_lista_ids(t) :
     'lista_id   : lista_id COMA ID'
-
+    t[1].append(t[3].lower())
+    t[0] = t[1]
 
 def p_instrucciones_lista_id(t) :
     'lista_id   : ID'
-
+    t[0] = [t[1].lower()]
     
 
 def p_instrucciones_lista_objetos(t) :
@@ -657,53 +683,73 @@ def p_tipos_1(t) :
                     | TIME
                     | BOOLEAN
                     | INTERVAL'''      
-
+    if len(t) == 2:
+        t[0] = {'tipo': TipoColumna[t[1].upper()]}
+    else:
+        t[0] = {'tipo': TipoColumna['DOUBLE_PRECISION']}
 
 def p_tipos_2(t) :
     '''tipos        : CHARACTER VARYING PARIZQ ENTERO PARDER'''
-
+    t[0] = {'tipo': TipoColumna['CHARACTER_VARYING'], 'n': t[4]}
 
 def p_tipos_3(t) :
     '''tipos        : VARCHAR PARIZQ ENTERO PARDER
                     | CHARACTER PARIZQ ENTERO PARDER
                     | CHAR PARIZQ ENTERO PARDER'''   
-
+    t[0] = {'tipo': TipoColumna[t[1].upper()], 'n': t[3]}
 
 def p_tipos_4(t) :
     '''tipos        : TIMESTAMP def_dt_types
                     | TIME def_dt_types'''
-
+    sufix = t[2]['w'] if 'w' in t[2] else ''
+    t[0] = {'tipo': TipoColumna[t[1].upper() + sufix]}
+    if 'p' in t[2]:
+        t[0]['p'] = t[2]['p'] 
 
 def p_tipos_5(t) :
     '''tipos        : INTERVAL def_interval'''
-
+    t[0] = t[2]
+    t[0].update({'tipo': TipoColumna[t[1].upper()]})
 
 
 def p_def_dt_types_1(t) :
     '''def_dt_types : PARIZQ ENTERO PARDER WITHOUT TIME ZONE
                     | PARIZQ ENTERO PARDER WITH TIME ZONE
                     | PARIZQ ENTERO PARDER'''
+    t[0] = {'p': t[2]}
 
+    if len(t) > 4:
+        if t[4].lower() == 'without':
+            t[0]['w'] = '_WO' 
+        else:
+            t[0]['w'] = '_W' 
 
                     
 def p_def_dt_types_2(t) :
     '''def_dt_types : WITHOUT TIME ZONE
                     | WITH TIME ZONE'''
-
+    if t[1].lower() == 'without':
+        t[0] = {'w': '_WO'}
+    else:
+        t[0] = {'w': '_W'}
 
 def p_def_interval_1(t) :
     '''def_interval : def_fld_to PARIZQ ENTERO PARDER
                     | def_fld_to'''
-
+    t[0] = {'field': t[1]}
+    if len(t) == 5:
+        t[0]['p'] = t[3]
 
 def p_def_interval_2(t) :
     '''def_interval : PARIZQ ENTERO PARDER'''
-
+    t[0] = {'p': t[2]}
 
 def p_def_fld_to(t) :
     '''def_fld_to   : def_fields TO def_fields
                     | def_fields'''
-     
+    t[0] = t[1]
+    if len(t) > 2:
+        t[0]['destino'] = t[3]['origen']
 
 
 def p_def_fields(t) :
@@ -713,7 +759,7 @@ def p_def_fields(t) :
                     | HOUR
                     | MINUTE
                     | SECOND'''
-
+    t[0] = {'origen': TipoFields[t[1].upper()]}
 
 def p_relacional_op(t) :
     '''relacional   : aritmetica MENOR aritmetica
@@ -732,7 +778,7 @@ def p_relacional_op(t) :
 
 def p_relacional_val(t) :
     'relacional   : aritmetica'
-
+    t[0] = t[1]
 
 
 def p_relacional(t) :
@@ -768,7 +814,8 @@ def p_aritmetica(t) :
                     | aritmetica EXP aritmetica
                     | MENOS aritmetica 
                     | valor'''
-
+    if len(t) == 2:
+        t[0] = t[1]
 
 def p_aritmetica2(t) :
     '''aritmetica   : funciones_math_esenciales
@@ -779,7 +826,7 @@ def p_aritmetica2(t) :
 def p_aritmetica1_2(t) :
     '''aritmetica   : lista_funciones
                     '''
-
+    t[0] = t[1]
 
 def p_aritmetica3(t) :
     '''aritmetica   : fun_trigonometrica'''
@@ -793,11 +840,12 @@ def p_valor_id(t) :
 def p_valor_num(t) :
     '''valor        : ENTERO
                     | DECIMAL  '''
-
+    t[0] = t[1]
 
 def p_valor(t) :
     '''valor        : CADENA
                     '''
+    t[0] = t[1]
 
 def p_valor2(t) :
     '''valor        : lista_funciones_where
@@ -810,7 +858,7 @@ def p_valor2(t) :
 def p_valor3(t) :
     '''valor        : fun_trigonometrica
                     '''
-
+    t[0] = t[1]
 
 def p_valor4(t) :
     '''valor        : date_functions
@@ -900,11 +948,14 @@ def p_aliases_field(t):
                                 | AS ID
                                 | ID
                                 '''
-
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = t[2]
 
 def p_aliases_field2(t):
     ' state_aliases_field     : '
-
+    t[0] = ''
 # -------------------------------------------------------
 # #=======================================================
 
@@ -956,7 +1007,7 @@ def p_lista_instrucciones_funcion_math2(t):
 #SOLO ESTOS SE PUEDEN USAR EN EL WHERE
 def p_instrucciones_funcion_abs_where(t) :
     'lista_funciones_where    : ABS PARIZQ funcion_math_parametro PARDER'
-    
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_cbrt_where(t) :
     'lista_funciones_where    : CBRT PARIZQ funcion_math_parametro PARDER'
@@ -973,7 +1024,7 @@ def p_instrucciones_funcion_cieling_where(t) :
 #ESTOS SE USAN EN EL SELECT
 def p_instrucciones_funcion_abs_select(t) :
     'lista_funciones    : ABS PARIZQ funcion_math_parametro PARDER'
-
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_cbrt_select(t) :
     'lista_funciones    : CBRT PARIZQ funcion_math_parametro PARDER'
@@ -1061,18 +1112,23 @@ def p_instrucciones_funcion_random(t) :
 
 def p_instrucciones_funcion_math_parametro(t) :
     '''funcion_math_parametro   : ENTERO
-                                | ID
                                 | DECIMAL
                                 '''
-    
+    t[0] = t[1]
+
+def p_instrucciones_funcion_math_parametro_3(t) :
+    '''funcion_math_parametro   : ID
+                                '''
+    t[0] = t[1].lower()
 
 def p_instrucciones_funcion_math_parametro2(t) :
     '''funcion_math_parametro   : funcion_math_parametro_negativo'''
-    
+    t[0] = t[1]
 
 def p_instrucciones_funcion_math_parametro_negativo(t) :
     '''funcion_math_parametro_negativo  : MENOS DECIMAL
                                         | MENOS ENTERO'''
+    t[0] = 1 - float(t[2])
     
 
 #========================================================
@@ -1083,90 +1139,91 @@ def p_instrucciones_funcion_math_parametro_negativo(t) :
 #El unico valor que aceptan es double y devuelven un double
 def p_instrucciones_funcion_trigonometrica_acos(t) :
     'fun_trigonometrica : ACOS PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_asin(t) :
     'fun_trigonometrica : ASIN PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_atan(t) :
     'fun_trigonometrica : ATAN PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_atan2(t) :
     'fun_trigonometrica : ATAN2 PARIZQ aritmetica COMA aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica2(t[1].upper(), t[3], t[5], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_cos(t) :
     'fun_trigonometrica : COS PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
+
 def p_instrucciones_funcion_trigonometrica_cot(t) :
     'fun_trigonometrica : COT PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_sin(t) :
     'fun_trigonometrica : SIN PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_tan(t) :
     'fun_trigonometrica : TAN PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_acosd(t) :
     'fun_trigonometrica : ACOSD PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_asind(t) :
     'fun_trigonometrica : ASIND PARIZQ aritmetica PARDER'
-     
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_atand(t) :
     'fun_trigonometrica : ATAND PARIZQ aritmetica PARDER'
-     
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_atan2d(t) :
     'fun_trigonometrica : ATAN2D PARIZQ aritmetica COMA aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica2(t[1].upper(), t[3], t[5], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_cosd(t) :
     'fun_trigonometrica : COSD PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_cotd(t) :
     'fun_trigonometrica : COTD PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_sind(t) : 
     'fun_trigonometrica : SIND PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_tand(t) :
     'fun_trigonometrica : TAND PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_sinh(t) :
     'fun_trigonometrica : SINH PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_cosh(t) :
     'fun_trigonometrica : COSH PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_tanh(t) :
     'fun_trigonometrica : TANH PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_asinh(t) :
     'fun_trigonometrica : ASINH PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_acosh(t) :
     'fun_trigonometrica : ACOSH PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 
 def p_instrucciones_funcion_trigonometrica_atanh(t) :
     'fun_trigonometrica : ATANH PARIZQ aritmetica PARDER'
-    
+    t[0] = FuncionTrigonometrica1(t[1].upper(), t[3], t.lexer.lineno - 1)
 #========================================================
 
 #========================================================

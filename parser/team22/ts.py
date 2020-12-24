@@ -35,3 +35,9 @@ class TablaDeSimbolos():
             print('Error: variable ', simbolo.id, ' no definida.')
         else:
             self.simbolos[simbolo.id] = simbolo
+
+    def eliminar(self, id):
+        if not id in self.simbolos:
+            print('Error : variable ', id, ' no definida.')
+        else:
+            self.simbolos.pop(id)
