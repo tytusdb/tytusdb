@@ -301,7 +301,7 @@ class Application(ttk.Frame):
         button8_ttp = CreateToolTip(bot8, 'REPORTE LEXICO')
 
         bot9 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command=self.f_abrirtablaSimbolos)
+                         height=50, width=50, command=self.f_abrirtablaSemanticos)
         bot9.pack(side=tk.LEFT, padx=3, pady=3)
         button9_ttp = CreateToolTip(bot9, 'REPORTE SEMANTICO')
 
@@ -321,6 +321,12 @@ class Application(ttk.Frame):
                          height=50, width=50, command=self.f_abrirBNFdescendente)
         bot12.pack(side=tk.LEFT, padx=3, pady=3)
         button12_ttp = CreateToolTip(bot12, 'REPORTE BNF DESCENDENTE')
+
+        imgBoton10 = tk.PhotoImage(file=iconos[9])
+        bot13 = tk.Button(BarraH, image=imgBoton10,
+                          height=50, width=50, command=self.f_abrirtablaSimbolos)
+        bot13.pack(side=tk.LEFT, padx=3, pady=3)
+        button13_ttp = CreateToolTip(bot13, 'REPORTE TABLA DE SIMBOLOS')
 
 
 
@@ -583,6 +589,12 @@ class Application(ttk.Frame):
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
+    def f_abrirtablaSemanticos(self):
+        try:
+            wb.open_new(r'ErroresSemanticos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
     def f_parsear(self, texto):
        self.T.delete(1.0,tk.END)
        salida= parser.ejecutarAnalisis(texto)
@@ -624,7 +636,8 @@ def main():
               img_carpeta + "play.png",
               img_carpeta + "reporte.png",
               img_carpeta + "arbol.png",
-              img_carpeta + "bnf.png"
+              img_carpeta + "bnf.png",
+              img_carpeta + "tabla.png"
               )
     app = Application(ventana, iconos)
 
