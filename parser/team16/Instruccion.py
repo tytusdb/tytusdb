@@ -62,7 +62,6 @@ def mostrarConsulta(resultado):
 def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
     global ts_global, baseActual
     global LisErr
-    print("generando reporteria")
     listaGeneral ={}
     r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
@@ -1574,7 +1573,7 @@ def tabla_simbolos():
         for cuerpos in fun.cuerpo:
             if isinstance(cuerpos, CampoTabla):
                 if isinstance(cuerpos.tipo, valorTipo):
-                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo.valor)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo.valor)+'('+str(cuerpos.tipo.expresion.val)+')'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
                 else:
                     cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
             else:
@@ -1697,10 +1696,38 @@ class DropTable(Instruccion):
             r2 = ts_global.obtenerTabla(self.id[0].val)
             if r2 is not None:
                 #Eliminar Tabla
-                res = Master.dropTable(baseActual,self.id[0].val)
+                res = Master.dropTable(baseActual, self.id[0].val)
                 if res ==0:
                     #se Elimino exitosamente
                     ts_global.EliminarTabla(self.id[0].val)
+
+                    #por cada dato que tenga el valor tabla eliminarlo.
+                    listaE = []
+                    for dato in ts_global.Datos:
+                        actual:DatoInsert = ts_global.obtenerDato(dato)
+                        if actual.tabla == self.id[0].val:
+                            listaE.append(dato)
+
+                    for d in listaE:
+                        ts_global.EliminarDato(d)
+
+                    listaV = []
+                    for vali in ts_global.Validaciones:
+                        actual = ts_global.Validaciones.get(vali)
+                        if isinstance(actual ,constraintTabla):
+                            if actual.idRef == self.id[0].val:
+                                listaV.append(vali)
+                        else:
+                            if actual.tabla == self.id[0].val:
+                                listaV.append(vali)
+
+                    for d in listaE:
+                        ts_global.EliminarDato(d)
+
+                    for v in listaV:
+                        del ts_global.Validaciones[v]
+
+
                     imprir("DROP TABLE:   Exito al Eliminar ")
                 elif res ==1:
                     #Error all eliminar
@@ -6840,6 +6867,7 @@ class Alter_Table_AddColumn(Instruccion):
             """
 
     def Ejecutar(self):
+        print("EJECUTAR ALTER TABLE ADD COLUMN")
         # Verificar que existe la base de datos
         # Verificar que existe la tabla
         # Verificar que existe la columna en la tabla
@@ -6860,19 +6888,20 @@ class Alter_Table_AddColumn(Instruccion):
                         bandera = False
                         for elemento2 in ts_global.Tablas:
                             x: CreateTable = ts_global.obtenerTabla(elemento2)
-
-                            if(x.id == self.id_table):
-
+                            print(str(x.id) + " ÑÑÑ " +str(self.id_table))
+                            if (x.id == self.id_table):
                                 for ele in x.cuerpo:
                                     y: CampoTabla = ele
-                                    if (y.id != elemento.val):
+                                    print(str(y.id) + str(elemento.val))
+                                    if y.id != elemento.val:
+                                        print("BANDERA ES TRUE")
                                         bandera = True
                             else:
                                 print(y.id + "<<<<<<<<<<<<<<<<<<<<<<")
 
 
                         if bandera == True:
-
+                            print("SI ES TRUE")
                             rc = Master.alterAddColumn(baseActual, self.id_table, elemento.val)
 
                             if rc == 0:
@@ -6881,14 +6910,8 @@ class Alter_Table_AddColumn(Instruccion):
                                 temporal = CampoTabla(elemento.val, elemento.tipo, temporal2)
                                 r2.cuerpo.append(temporal)
 
-                                # Recorrido de elementos
-                                for elemento in ts_global.Tablas:
-                                    x: CreateTable = ts_global.obtenerTabla(elemento)
-                                    for ele in x.cuerpo:
-                                        y: CampoTabla = ele
-                                        print(y.id + "<<<<<<<<<<<<<<<<<<<<<<")
-
                                 imprir("ALTER TABLE: Se Agrego correctamente la Columna")
+
                             elif rc == 1:
                                 # Error al escribir en la base de datos
                                 imprir("ALTER TABLE: Error al Escribir en la Base de Datos")
@@ -6901,16 +6924,14 @@ class Alter_Table_AddColumn(Instruccion):
                             else:
                                 # Error logico
                                 imprir("ALTER TABLE: Error logico en la operacion")
-
                         else:
                             imprir("ALTER TABLE: La columna a insertar ya existe ")
-
                     else:
-                        imprir("ALTER TABLE: ERROR DE TIPO")
+                        imprir("ALTER TABLE: Error de tipo.")
             else:
-                imprir("ALTER TABLE:   La tabla no existe!   ")
+                imprir("ALTER TABLE:   La tabla no existe.")
         else:
-            imprir("ALTER TABLE:   La Base de datos no existe")
+            imprir("ALTER TABLE:   La Base de datos no existe.")
 
 class Alter_COLUMN(Instruccion):
     def __init__(self, idtabla,columnas):
@@ -6963,11 +6984,11 @@ class Alter_COLUMN(Instruccion):
 
                     else:
                         imprir("ALTER TABLE: ERROR DE TIPO")
-                else:
-                    imprir("ALTER TABLE:   La tabla no existe!   ")
             else:
-                imprir("ALTER TABLE:   La Base de datos no existe")
-                # colocar error semantico
+                    imprir("ALTER TABLE:   La tabla no existe!   ")
+        else:
+            imprir("ALTER TABLE:   La Base de datos no existe")
+            # colocar error semantico
 
 class Alter_Table_Drop_Column(Instruccion):
     def __init__(self, id_table, columnas):
@@ -7467,6 +7488,10 @@ class Alter_Table_Add_Constraint(Instruccion):
 class useClase(Instruccion):
     def __init__(self,id):
         self.id = id
+
+    def Ejecutar(self):
+        imprir("USE: Se usara la base de datos " + str(self.id))
+
 
 class DatoTipo(Instruccion):
     def __init__(self, bd, tipo, valor):
