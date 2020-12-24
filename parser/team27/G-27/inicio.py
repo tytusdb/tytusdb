@@ -4,12 +4,17 @@ from tkinter import *
 from Lexico import analizarLex ,analizarSin
 from gramatica import analizarASTLex, analizarASTSin
 from bnf import analizarBNFLex, analizarBNFSin
+from execution.symbol.environment import Environment
+from execution.main import Main
 
 # creamos una nueva ventana
 ventana = Tk()
 # funcion para darle tamaño a la ventana
 ventana.geometry("900x600")
 ventana.configure(bg = "gray")
+
+consola = []
+env = Environment(None)
 
 # creamos una etiqueta para mostrar
 etiqueta = Label(ventana, text = "SQL PARSER", bg = "green")
@@ -30,9 +35,12 @@ etiqueta2.place(x = 100 , y = 350)
 # Metodo de analisis de gramatica
 def analizar_texto():
     result= txt_consultas.get("1.0","end")
-    salida_Lexico = analizarLex(result)  # se envia el texto a el analizador lexico
-    analizarSin(result)  # se envia el texto a el analizador sintactico
-    print(salida_Lexico)
+    entorno = analizarSin(result)  # se envia el texto a el analizador sintactico
+    iniciarEjecucion = Main(entorno)
+    _res = iniciarEjecucion.execute(env)
+    for item in _res:
+        txt_salida.insert('end',item+'\n')
+        
 
 # Metodo para limpiar la salida de gramatica
 def limpiar():
