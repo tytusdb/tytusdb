@@ -535,13 +535,13 @@ def loadCSV(file: str, database: str, table: str) -> list:
                     return valores
 
             else:
-                return 3
+                return []
 
         else:
-            return 2
+            return []
             
     except:
-        return 1
+        return []
         
 
 def extractRow(database: str, table: str, columns: list) -> list:
