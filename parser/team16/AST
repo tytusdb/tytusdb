@@ -260,162 +260,76 @@ digraph AST {
 	Node0 -> Node152
 	Node153 [label=SELECT]
 	Node152 -> Node153
-	Node154 [label=distinct]
+	Node154 [label=LISTA_CAMPOS]
 	Node152 -> Node154
-	Node155 [label=LISTA_CAMPOS]
-	Node152 -> Node155
-	Node156 [label=ACCESO_CAMPO]
+	Node155 [label=ACCESO_CAMPO]
+	Node154 -> Node155
+	Node156 [label=carne]
 	Node155 -> Node156
-	Node157 [label=carne]
-	Node156 -> Node157
-	Node158 [label=ACCESO_CAMPO]
-	Node155 -> Node158
-	Node159 [label=apellido]
-	Node158 -> Node159
-	Node160 [label=ACCESO_CAMPO]
-	Node155 -> Node160
-	Node161 [label=bandera]
+	Node157 [label=ACCESO_CAMPO]
+	Node154 -> Node157
+	Node158 [label=apellido]
+	Node157 -> Node158
+	Node159 [label=FROM]
+	Node152 -> Node159
+	Node160 [label=LISTA_TABLAS]
+	Node152 -> Node160
+	Node161 [label=Nombre_Tabla]
 	Node160 -> Node161
-	Node162 [label=FROM]
-	Node152 -> Node162
-	Node163 [label=LISTA_TABLAS]
+	Node162 [label=profesional]
+	Node161 -> Node162
+	Node163 [label=CUERPO]
 	Node152 -> Node163
-	Node164 [label=Nombre_Tabla]
+	Node164 [label=Cuerpo]
 	Node163 -> Node164
-	Node165 [label=profesional]
+	Node165 [label=Where]
 	Node164 -> Node165
-	Node166 [label=Uniones]
-	Node152 -> Node166
-	Node167 [label=Final_Instruccion]
-	Node166 -> Node167
-	Node168 [label=""]
-	Node167 -> Node168
-	Node169 [label=INSTRUCCION_SELECT]
-	Node0 -> Node169
-	Node170 [label=SELECT]
-	Node169 -> Node170
-	Node171 [label=distinct]
-	Node169 -> Node171
-	Node172 [label=LISTA_CAMPOS]
-	Node169 -> Node172
-	Node173 [label=ACCESO_CAMPO]
-	Node172 -> Node173
-	Node174 [label=carne]
-	Node173 -> Node174
-	Node175 [label=FROM]
-	Node169 -> Node175
-	Node176 [label=LISTA_TABLAS]
-	Node169 -> Node176
-	Node177 [label=Nombre_Tabla]
-	Node176 -> Node177
-	Node178 [label=profesional]
-	Node177 -> Node178
-	Node179 [label=Uniones]
-	Node169 -> Node179
-	Node180 [label=Final_Instruccion]
-	Node179 -> Node180
-	Node181 [label=""]
-	Node180 -> Node181
-	Node182 [label=INSTRUCCION_SELECT]
-	Node0 -> Node182
-	Node183 [label=SELECT]
-	Node182 -> Node183
-	Node184 [label=distinct]
-	Node182 -> Node184
-	Node185 [label=LISTA_CAMPOS]
-	Node182 -> Node185
-	Node186 [label=FROM]
-	Node182 -> Node186
-	Node187 [label=LISTA_TABLAS]
-	Node182 -> Node187
-	Node188 [label=Nombre_Tabla]
-	Node187 -> Node188
-	Node189 [label=profesional]
+	Node166 [label=CONDICION]
+	Node164 -> Node166
+	167 [label=ExpresionLogica]
+	168 [label=exp1]
+	167 -> 168
+	168 -> 169
+	169 [label=ExpresionRelacional]
+	170 [label=exp1]
+	169 -> 170
+	170 -> 171
+	171 [label="ExpresionValor ID punto ID"]
+	171 -> 172
+	172 [label="profesional.carne"]
+	173 [label="=="]
+	169 -> 173
+	174 [label=exp2]
+	169 -> 174
+	174 -> 175
+	175 [label=ExpresionValor]
+	175 -> 176
+	176 [label=80]
+	177 [label=AND]
+	167 -> 177
+	178 [label=exp2]
+	167 -> 178
+	178 -> 179
+	179 [label=ExpresionRelacional]
+	180 [label=exp1]
+	179 -> 180
+	180 -> 181
+	181 [label="ExpresionValor ID punto ID"]
+	181 -> 182
+	182 [label="profesional.carne"]
+	183 [label="=="]
+	179 -> 183
+	184 [label=exp2]
+	179 -> 184
+	184 -> 185
+	185 [label=ExpresionValor]
+	185 -> 186
+	186 [label=150]
+	Node166 -> 167
+	Node188 [label=Uniones]
+	Node152 -> Node188
+	Node189 [label=Final_Instruccion]
 	Node188 -> Node189
-	Node190 [label=Uniones]
-	Node182 -> Node190
-	Node191 [label=Final_Instruccion]
-	Node190 -> Node191
-	Node192 [label=""]
-	Node191 -> Node192
-	Node193 [label=INSTRUCCION_SELECT]
-	Node0 -> Node193
-	Node194 [label=SELECT]
-	Node193 -> Node194
-	Node195 [label=distinct]
-	Node193 -> Node195
-	Node196 [label=LISTA_CAMPOS]
-	Node193 -> Node196
-	Node197 [label=FROM]
-	Node193 -> Node197
-	Node198 [label=LISTA_TABLAS]
-	Node193 -> Node198
-	Node199 [label=Nombre_Tabla]
-	Node198 -> Node199
-	Node200 [label=profesional]
-	Node199 -> Node200
-	Node201 [label=Uniones]
-	Node193 -> Node201
-	Node202 [label=Final_Instruccion]
-	Node201 -> Node202
-	Node203 [label=""]
-	Node202 -> Node203
-	Node204 [label=INSTRUCCION_SELECT]
-	Node0 -> Node204
-	Node205 [label=SELECT]
-	Node204 -> Node205
-	Node206 [label=distinct]
-	Node204 -> Node206
-	Node207 [label=LISTA_CAMPOS]
-	Node204 -> Node207
-	Node208 [label=ACCESO_CAMPO]
-	Node207 -> Node208
-	Node209 [label=carne]
-	Node208 -> Node209
-	Node210 [label=ACCESO_CAMPO]
-	Node207 -> Node210
-	Node211 [label=apellido]
-	Node210 -> Node211
-	Node212 [label=FROM]
-	Node204 -> Node212
-	Node213 [label=LISTA_TABLAS]
-	Node204 -> Node213
-	Node214 [label=Nombre_Tabla]
-	Node213 -> Node214
-	Node215 [label=profesional]
-	Node214 -> Node215
-	Node216 [label=Uniones]
-	Node204 -> Node216
-	Node217 [label=Final_Instruccion]
-	Node216 -> Node217
-	Node218 [label=""]
-	Node217 -> Node218
-	Node219 [label=INSTRUCCION_SELECT]
-	Node0 -> Node219
-	Node220 [label=SELECT]
-	Node219 -> Node220
-	Node221 [label=LISTA_CAMPOS]
-	Node219 -> Node221
-	Node222 [label=ACCESO_CAMPO]
-	Node221 -> Node222
-	Node223 [label=carne]
-	Node222 -> Node223
-	Node224 [label=ACCESO_CAMPO]
-	Node221 -> Node224
-	Node225 [label=nombre]
-	Node224 -> Node225
-	Node226 [label=FROM]
-	Node219 -> Node226
-	Node227 [label=LISTA_TABLAS]
-	Node219 -> Node227
-	Node228 [label=Nombre_Tabla]
-	Node227 -> Node228
-	Node229 [label=profesional]
-	Node228 -> Node229
-	Node230 [label=Uniones]
-	Node219 -> Node230
-	Node231 [label=Final_Instruccion]
-	Node230 -> Node231
-	Node232 [label=""]
-	Node231 -> Node232
+	Node190 [label=""]
+	Node189 -> Node190
 }
