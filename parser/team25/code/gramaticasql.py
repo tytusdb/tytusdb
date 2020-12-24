@@ -11,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectFilter, SelectFrom, ITEM_ALIAS
+from astSelect import SelectSimple, SelectFrom, ITEM_ALIAS
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -399,6 +399,7 @@ def p_select28(p):
 
 def p_select30(p):
     'select : SELECT select_list'
+    p[0] = SelectSimple(p[2])
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list>')
 
 def p_select31(p):
@@ -2087,7 +2088,7 @@ def analizarEntrada(entrada):
 
 arbolParser = analizarEntrada('''
 use test;
-select * from tb2 as alv;
+select 5*5 as x, 9*9 as y;
 ''')
 arbolParser.ejecutar()
 
