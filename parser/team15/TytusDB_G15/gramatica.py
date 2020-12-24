@@ -318,13 +318,6 @@ def t_ID(t):
      return t
 
 
-
-def t_CADENA(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] # remuevo las comillas
-    return t 
-
-
 def t_ESCAPE(t):
     r'\'(?i)escape\'' #ignore case
     t.value = t.value[1:-1] # remuevo las comillas
@@ -338,7 +331,15 @@ def t_BASE64(t):
 def t_HEX(t):
     r'\'(?i)hex\''
     t.value = t.value[1:-1] # remuevo las comillas
-    return t  
+    return t
+
+def t_CADENA(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t 
+
+
+
 
 
 # Comentario de múltiples líneas /* .. */
@@ -425,6 +426,10 @@ def p_instruccion(t) :
 def p_instruccion_f_select(t):
     'instruccion : select_insrt PTCOMA'
     t[0] = t[1]
+
+def p_instruccion_f_select_union(t):
+    'instruccion : select_uniones PTCOMA'   
+    t[0] = t[1]  
 
 def p_instruccion_error(t) :
     '''instruccion      : createDB_insrt error
@@ -894,7 +899,7 @@ def p_createDB_dosParam_Owner(t):
             temp.append(t[2])
             temp.append(ExpresionNumeroSimple(t[5]))
         else: 
-            temp.append([2])
+            temp.append(t[2])
             temp.append(ExpresionNumeroSimple(t[4]))
     elif t[1].upper() == 'OWNER' and t[4].upper() == 'MODE':
         if t[5] == '=':
@@ -2117,10 +2122,10 @@ def p_funciones_select(t):
                         | RANDOM PAR_A PAR_C 
                         | ACOS PAR_A expresion PAR_C
                         | ASIND PAR_A expresion PAR_C
-                        | ATAN PAR_A expresion COMA expresion PAR_C
-                        | ATAND PAR_A expresion COMA expresion PAR_C
-                        | ATAN2 PAR_A expresion PAR_C
-                        | ATAN2D PAR_A expresion PAR_C
+                        | ATAN2 PAR_A expresion COMA expresion PAR_C
+                        | ATAN2D PAR_A expresion COMA expresion PAR_C
+                        | ATAN PAR_A expresion PAR_C
+                        | ATAND PAR_A expresion PAR_C
                         | COS PAR_A expresion PAR_C
                         | COT PAR_A expresion PAR_C 
                         | COTD PAR_A expresion PAR_C 
@@ -2139,7 +2144,7 @@ def p_funciones_select(t):
                         | ACOSD PAR_A expresion PAR_C
                         | LENGTH PAR_A string_type PAR_C
                         | SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
-                        | TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
+                        | TRIM PAR_A string_type PAR_C
                         | SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
                         | GET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO PAR_C
                         | SET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO COMA ENTERO PAR_C
@@ -2191,7 +2196,7 @@ def p_funciones_select(t):
         t[0] = Expresiondatos(OPERACION_ARITMETICA.WIDTH_BUCKET, t[3],t[5],t[7],t[9])
     elif t[1].upper() == 'TRUNC' and t[4] == ',':
         t[0] = Expresiondatos(OPERACION_ARITMETICA.TRUNC, t[3],ExpresionEntero(TIPO_VALOR.NUMERO,t[5]),None,None)
-    elif t[1].upper() == 'TRUNC_1':
+    elif t[1].upper() == 'TRUNC':
         t[0] = Expresiondatos(OPERACION_ARITMETICA.S_TRUNC, t[3],None,None,None) 
     elif t[1].upper() == 'RANDOM':
         t[0] = Expresiondatos(OPERACION_ARITMETICA.RANDOM, t[3],None,None,None)
@@ -2199,14 +2204,14 @@ def p_funciones_select(t):
         t[0] = Expresiondatos(OPERACION_ARITMETICA.ACOS, t[3],None,None,None)
     elif t[1].upper() == 'ASIND':
         t[0] = Expresiondatos(OPERACION_ARITMETICA.ASIND, t[3],None,None,None)
-    elif t[1].upper() == 'ATAN':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN, t[3],t[5],None,None)
-    elif t[1].upper() == 'ATAND':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAND, t[3],t[5],None,None)
     elif t[1].upper() == 'ATAN2':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN2, t[3],None,None,None)
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN2, t[3],t[5],None,None)
     elif t[1].upper() == 'ATAN2D':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN2D, t[3],None,None,None)
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN2D, t[3],t[5],None,None)
+    elif t[1].upper() == 'ATAN':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN, t[3],None,None,None)
+    elif t[1].upper() == 'ATAND':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAND, t[3],None,None,None)
     elif t[1].upper() == 'COS':
         t[0] = Expresiondatos(OPERACION_ARITMETICA.COS, t[3],None,None,None)
     elif t[1].upper() == 'COT':
@@ -2244,7 +2249,7 @@ def p_funciones_select(t):
     elif t[1].upper() == 'SUBSTRING':
         t[0] = Expresiondatos(CADENA_BINARIA.SUBSTRING, t[3],t[5],t[7],None)
     elif t[1].upper() == 'TRIM':
-        t[0] = Expresiondatos(CADENA_BINARIA.TRIM, t[3],t[7],None,None) 
+        t[0] = Expresiondatos(CADENA_BINARIA.TRIM, t[3],None,None,None) 
     elif t[1].upper() == 'SUBSTR':
         t[0] = Expresiondatos(CADENA_BINARIA.SUBSTR, t[3],ExpresionEntero(TIPO_VALOR.NUMERO,t[5]),ExpresionEntero(TIPO_VALOR.NUMERO,t[7]),None) 
     elif t[1].upper() == 'GET_BYTE':
@@ -2453,7 +2458,7 @@ def p_expresion_logica_w3(t):
 def p_error(t):
     #print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(entradaa), t))
     global reporte_sintactico
-    reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
+    #reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
     errorSintactico = Error(str(t.value),int(t.lineno),int(find_column(str(entradaa),t)), "Error Sintactico")
     listaErrores.append(errorSintactico) 
 
