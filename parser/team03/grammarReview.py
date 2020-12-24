@@ -389,14 +389,9 @@ def p_statement(t):
                     '''
 
 #                    |    stm_select PUNTOCOMA
-<<<<<<< HEAD
 #                    |    stm_select UNION all_opt stm_select
 #                    |    stm_select INTERSECT all_opt stm_select
 #                    |    stm_select EXCEPT all_opt 
-=======
-#                    |    stm_show   PUNTOCOMA
-#                    |    stm_use_db PUNTOCOMA
->>>>>>> e1a5f12c357d26cf23f86c8cdf0299240e77f006
     try:
         punteroinicio(t[1].graph_ref)
     except:
