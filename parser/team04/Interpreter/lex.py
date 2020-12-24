@@ -90,6 +90,7 @@ reserved = {
     'show': 'SHOW',
     'drop': 'RDROP',
     'delete': 'RDELETE',
+    'truncate': 'RTRUNCATE',
     'primary': 'PRIMARY',
     'foreign': 'FOREIGN',
     'key': 'KEY',

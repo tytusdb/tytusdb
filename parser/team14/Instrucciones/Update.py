@@ -41,27 +41,30 @@ class Update(Instruccion):
                     resexp = self.resolver(self.where, ent, result, tabla, i)
                     try:
                         if resexp.valor:
+                            dic={}
                             'busco la columna y le asigno el nuevo valor'
                             for i in range(0, len(self.listaCampos)):
                                nombrecol = self.listaCampos[i].columna
                                expresion = self.listaCampos[i].exp
                                contenido=expresion.getval(ent).valor
-                               dic={}
                                for nocol in range(0, len(columnas)):
                                    if nombrecol==columnas[nocol].nombre:
                                         dic.update({nocol:contenido})
                             'envio datos par update'
+                            llavePrim = []
+                            for column in tabla.valor:
+                                prim:Simbolo = ent.buscarSimbolo(column.atributos.get('primary'))
+                                llavePrim = prim.valor
+                                break
+                            
+                            r = DBMS.update(dbActual,self.tabla,dic,llavePrim)
+                            if r == 0:
+                                variables.consola.insert(INSERT, 'Se ha actualizado un registro \n')
 
 
                     except:
-                        reporteerrores.append(Lerrores("Error Semantico",
-                                                       'Error el resultado del where no es booleano',
-                                                       0, 0))
+                        reporteerrores.append(Lerrores("Error Semantico",'Error el resultado del where no es booleano',0, 0))
                         variables.consola.insert(INSERT, 'Error el resultado del where no es booleano \n')
-
-
-
-
 
             else:
                 variables.consola.insert(INSERT,"La tabla '" + self.tabla + "' que desea actualizar no existe\n")
@@ -102,10 +105,7 @@ class Update(Instruccion):
                         if expresion.getval(entorno).valor == nombrecol:
                             dato = result[fila][i]
                             tipo = None
-                            if len(nombrediv) > 1:
-                                tipo = self.gettipo(entorno, tabla, nombrediv[0], nombrediv[1])
-                            else:
-                                tipo = self.gettipo(entorno, tabla, nombrediv[0])
+                            tipo = self.gettipo(entorno, tabla, nombrediv[0])
                             term = Terminal(tipo, dato)
                             return term
                 elif expresion.tipo.tipo == 'acceso':
@@ -117,10 +117,7 @@ class Update(Instruccion):
                         if expresion.getval(entorno).valor == nombrecol:
                             dato = result[fila][i]
                             tipo = None
-                            if len(nombrediv) > 1:
-                                tipo = self.gettipo(entorno, tabla, nombrediv[0], nombrediv[1])
-                            else:
-                                tipo = self.gettipo(entorno, tabla, nombrediv[0])
+                            tipo = self.gettipo(entorno, tabla, nombrediv[0])
                             term = Terminal(tipo, dato)
                             return term.getval(entorno)
 
@@ -140,10 +137,7 @@ class Update(Instruccion):
                             nombrecol = nombrediv[0]
                             if val == nombrecol:
                                 tipo = None
-                                if len(nombrediv) > 1:
-                                    tipo = self.gettipo(entorno, tabla, val, nombrediv[1])
-                                else:
-                                    tipo = self.gettipo(entorno, tabla, val)
+                                tipo = self.gettipo(entorno, tabla, val)
                                 dato = result[fila][i]
                                 tempexp[j] = Terminal(tipo, dato)
                     func = FuncionesNativas(expresion.identificador, tempexp)
