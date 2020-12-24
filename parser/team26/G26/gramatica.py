@@ -1438,6 +1438,7 @@ def p_tablekey(t):#--------------------------------------------------CUIDAAAAAAA
         reporte = "<tablekey> ::= PRIMARY KEY <tabledefault>\n" + t[3]['reporte']
         t[0] = {'ast': create.TableDescription('primary', None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'references' :
+        grafo.newchildrenE(t[2])
         grafo.newchildrenE(t[4])
         grafo.newchildrenF(grafo.index, t[6]['graph'])
         reporte = "<tablekey> ::= REFERENCES ID PARENIZQ ID PARENDER <tabledefault>\n" + t[6]['reporte']
@@ -1783,16 +1784,25 @@ def p_fieldsE(t):
 
 ###########USE
 def p_use(t):
-    '''use    : DATABASE ID PTCOMA
-              | error PTCOMA'''
+    '''use  : DATABASE ID PTCOMA
+            | ID PTCOMA'''
     grafo.newnode('USE')
     grafo.newchildrenE(t[2])
     reporte = "<use> ::= "
     if t[1].lower() == "database":
         reporte += "DATABASE ID PTCOMA\n"
-    else:
-        reporte += "<error> PTCOMA"
-    t[0] = {'ast' : use.Use(ident.Identificador(None, t[2])), 'graph' : grafo.index, 'reporte': reporte}
+        grafo.newchildrenE(t[2])
+        t[0] = {'ast' : use.Use(ident.Identificador(None, t[2])), 'graph' : grafo.index, 'reporte': reporte}
+    else: 
+        reporte += "ID PTCOMA\n"
+        grafo.newchildrenE(t[1])
+        t[0] = {'ast' : use.Use(ident.Identificador(None, t[1])), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_useE(t):
+    'use    : error PTCOMA'
+    reporte = "<use> ::= "
+    reporte += "<error> PTCOMA"
+    t[0] = {'ast' : t[1], 'graph' : grafo.index, 'reporte': reporte}
 
 ##########SHOW
 def p_show(t):
