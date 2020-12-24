@@ -65,13 +65,15 @@ class createTable(InstruccionAbstracta):
                             
                             #Es un tipo de dato no primitivo
                             if nuevaColumna.tipoDato == simboloColumna.TiposDatos.enum:
-                                simboloNuevo = tabalSimbolos.useDataBase.obtenerTipoDatoNoPrimitivo()
+                                simboloNuevo = baseDatos.obtenerTipoDatoNoPrimitivo(columna.hijos[1].valor)
                                 if simboloNuevo != None:
                                     # seteas la instancia de nodo simboloNuevoTipo
                                     nuevaColumna.tipoDatoNOprimitivo = simboloNuevo                                
                                 else:
                                     #mandas error
-
+                                    errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error 42704: Tipo de dato no existe")
+                                    listaErrores.append(errorEnviar)
+                                    return
                                     pass
 
 

@@ -3,6 +3,7 @@ import random
 from tabla_Simbolos import simbolo
 from tabla_Simbolos import simboloColumna
 from .instruccionAbstracta import InstruccionAbstracta
+from trigonometricas import *
 
 
 class funcion(InstruccionAbstracta):
@@ -67,7 +68,7 @@ class funcion(InstruccionAbstracta):
         self.parametro = Parametro
 
     def ejecutar(self, tabalSimbolos, listaErrores):
-#----------------------------------------------------------FUNCIONES MATEMATICAS----------------------------------------------------------
+        # ----------------------------------------------------------FUNCIONES MATEMATICAS----------------------------------------------------------
 
         if str.lower(self.TipoFuncion.valor) == "abs":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -146,7 +147,8 @@ class funcion(InstruccionAbstracta):
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
             Res2 = self.Param2.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.bigInit or Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.double_precision or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
-                Res.valorRetorno = math.gcd(Res.valorRetorno, Res2.valorRetorno)
+                Res.valorRetorno = math.gcd(
+                    Res.valorRetorno, Res2.valorRetorno)
                 return Res
             else:
                 print("El parametro no es un numero")
@@ -178,7 +180,8 @@ class funcion(InstruccionAbstracta):
 
         elif str.lower(self.TipoFuncion.valor) == "pi":
             simboloRetornar = simbolo.Simbolo()
-            simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.double_precision, float(math.pi))
+            simboloRetornar.crearSimboloPrimitivo(
+                simboloColumna.TiposDatos.double_precision, float(math.pi))
             return simboloRetornar
 
         elif str.lower(self.TipoFuncion.valor) == "power":
@@ -212,11 +215,13 @@ class funcion(InstruccionAbstracta):
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.bigInit or Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.double_precision or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 if Res.valorRetorno > 0:
                     simboloRetornar = simbolo.Simbolo()
-                    simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.double_precision, int(1))
+                    simboloRetornar.crearSimboloPrimitivo(
+                        simboloColumna.TiposDatos.double_precision, int(1))
                     return simboloRetornar
                 else:
                     simboloRetornar = simbolo.Simbolo()
-                    simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.double_precision, int(-1))
+                    simboloRetornar.crearSimboloPrimitivo(
+                        simboloColumna.TiposDatos.double_precision, int(-1))
                     return simboloRetornar
             else:
                 print("El parametro no es un numero")
@@ -229,11 +234,12 @@ class funcion(InstruccionAbstracta):
             else:
                 print("El parametro no es un numero")
 
-        elif str.lower(self.TipoFuncion.valor) == "width_bucket": #Pendiente
+        elif str.lower(self.TipoFuncion.valor) == "width_bucket":  # Pendiente
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.bigInit or Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.double_precision or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 simboloRetornar = simbolo.Simbolo()
-                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.double_precision, int(1))
+                simboloRetornar.crearSimboloPrimitivo(
+                    simboloColumna.TiposDatos.double_precision, int(1))
                 return simboloRetornar
             else:
                 print("El parametro no es un numero")
@@ -248,11 +254,206 @@ class funcion(InstruccionAbstracta):
 
         elif str.lower(self.TipoFuncion.valor) == "random":
             simboloRetornar = simbolo.Simbolo()
-            simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.double_precision, random.random())
+            simboloRetornar.crearSimboloPrimitivo(
+                simboloColumna.TiposDatos.double_precision, random.random())
             return simboloRetornar
 
 
-#---------------------------------------------------FUNCIONES TRIGONOMETRICAS----------------------------------------------------------
-
-
-        
+# ---------------------------------------------------FUNCIONES TRIGONOMETRICAS----------------------------------------------------------
+        elif str.lower(self.TipoFuncion.valor) == "acos":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = cosenoinv(Res.valorRetorno)
+                if res.valorRetorno == None:
+                    # agregar a lista de errores en ejecucion
+                    print("Error de dominio")
+                else:
+                    return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "acosd":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = cosenoinvd(Res.valorRetorno)
+                if res.valorRetorno == None:
+                    # agregar a lista de errores en ejecucion
+                    print("Error de dominio")
+                else:
+                    return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "asin":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = senoinv(Res.valorRetorno)
+                if res.valorRetorno == None:
+                    # agregar a lista de errores en ejecucion
+                    print("Error de dominio")
+                else:
+                    return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "asind":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = senoinvd(Res.valorRetorno)
+                if res.valorRetorno == None:
+                    # agregar a lista de errores en ejecucion
+                    print("Error de dominio")
+                else:
+                    return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "atan":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = tangenteinv(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "atand":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = tangenteinvd(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "atan2":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            Res2 = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if (Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal) and (Res2.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res2.tipoDatoRetorno == simboloColumna.TiposDatos.decimal):
+                Res.valorRetorno = tangenteinv2(
+                    Res.valorRetorno, Res2.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "atan2d":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            Res2 = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if (Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal) and (Res2.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res2.tipoDatoRetorno == simboloColumna.TiposDatos.decimal):
+                Res.valorRetorno = tangenteinv2d(
+                    Res.valorRetorno, Res2.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "cos":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = coseno(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "cosd":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = cosenod(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "cot":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = coseno(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "cot":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = cotangente(Res.valorRetorno)
+                if res.valorRetorno == None:
+                    # agregar a lista de errores en ejecucion
+                    print("Error de dominio")
+                else:
+                    return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "cotd":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = cotangented(Res.valorRetorno)
+                if res.valorRetorno == None:
+                    # agregar a lista de errores en ejecucion
+                    print("Error de dominio")
+                else:
+                    return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "sin":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = seno(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "sind":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = senod(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "tan":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = tangente(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "tand":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = tangented(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "sinh":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = senohiper(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "cosh":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = cosenohiper(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "tanh":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = tangentehiper(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "asinh":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = senoinversohiper(Res.valorRetorno)
+                return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "acosh":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = cosenoinversohiper(Res.valorRetorno)
+                if res.valorRetorno == None:
+                    # agregar a lista de errores en ejecucion
+                    print("Error de dominio")
+                else:
+                    return Res
+            else:
+                print("El parametro no es un numero")
+        elif str.lower(self.TipoFuncion.valor) == "atanh":
+            Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
+            if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
+                Res.valorRetorno = tangenteinversahiper(Res.valorRetorno)
+                if res.valorRetorno == None:
+                    # agregar a lista de errores en ejecucion
+                    print("Error de dominio")
+                else:
+                    return Res
+            else:
+                print("El parametro no es un numero")
