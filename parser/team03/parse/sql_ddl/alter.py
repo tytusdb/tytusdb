@@ -55,11 +55,11 @@ class AlterTableAddColumn(ASTNode):
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        result_table_name = self.table_name.execute(table, tree)
-        result_field_name = self.field_name.execute(table, tree)
-        result_field_type = self.field_type.execute(table, tree)
-        result_field_length = self.field_length.execute(table, tree)
-        result = alterAddColumn(table.get_current_db().name, result_field_name, None)
+        result_table_name = self.table_name
+        result_field_name = self.field_name
+        result_field_type = self.field_type.val
+        result_field_length = self.field_length
+        result = alterAddColumn(table.get_current_db().name, result_table_name, None)
         if result == 1:
             raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
@@ -84,6 +84,7 @@ class AlterTableAddColumn(ASTNode):
             return True
 
 
+# TODO Pending to add checks
 class AlterTableAddCheck(ASTNode):
     def __init__(self, table_name, validation, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -109,12 +110,12 @@ class AlterTableDropColumn(ASTNode):
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        result_table_name = self.table_name.execute(table, tree)
-        result_field_name = self.field_name.execute(table, tree)
+        result_table_name = self.table_name
+        result_field_name = self.field_name
         # Obtaining all fields because are gonna be needed to get correct field and update indexes later
         all_fields_symbol = table.get_fields_from_table(result_table_name)
         column_symbol = next((sym for sym in all_fields_symbol if sym.field_name == result_field_name), None)
-        result = alterDropColumn(table.get_current_db(), result_field_name, column_symbol.field_index)
+        result = alterDropColumn(table.get_current_db().name, result_table_name, column_symbol.field_index)
         if result == 1:
             raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
@@ -132,7 +133,7 @@ class AlterTableDropColumn(ASTNode):
         else:
             for field in all_fields_symbol:
                 # Update indexes for higher fields
-                if field.field_index > column_symbol:
+                if field.field_index > column_symbol.field_index:
                     field.field_index -= 1
                     table.update(field)
             # TODO just realized it's needed to check for FKs in other tables
@@ -141,6 +142,7 @@ class AlterTableDropColumn(ASTNode):
             return True
 
 
+# TODO add constraint
 class AlterTableAddConstraint(ASTNode):
     def __init__(self, table_name, cons_name, field_name, line, column, graph_ref):  # Unique is the only allowed
         ASTNode.__init__(self, line, column)
@@ -154,6 +156,7 @@ class AlterTableAddConstraint(ASTNode):
         return True
 
 
+# TODO add fk
 class AlterTableAddFK(ASTNode):
     def __init__(self, table_name, table_column, table_reference, column_reference, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -192,8 +195,8 @@ class AlterTableNotNull(ASTNode):
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        result_field_name = self.field_name.execute(table, tree)
-        result_table_name = self.table_name.execute(table, tree)
+        result_field_name = self.field_name
+        result_table_name = self.table_name
         # Obtaining all fields because are gonna be needed to get correct field
         all_fields_symbol = table.get_fields_from_table(result_table_name)
         column_symbol = next((sym for sym in all_fields_symbol if sym.field_name == result_field_name), None)
@@ -201,7 +204,7 @@ class AlterTableNotNull(ASTNode):
         table.update(column_symbol)
         return True
 
-
+# TODO drop constraint
 class AlterTableDropConstraint(ASTNode):
     def __init__(self, table_name, cons_name, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -224,13 +227,14 @@ class AlterTableRenameColumn(ASTNode):
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        result_field_name = self.old_name.execute(table, tree)
-        result_new_name = self.new_name.execute(table, tree)
-        result_table_name = self.table_name.execute(table, tree)
+        result_field_name = self.old_name
+        result_new_name = self.new_name
+        result_table_name = self.table_name
         # Obtaining all fields because are gonna be needed to get correct field
         all_fields_symbol = table.get_fields_from_table(result_table_name)
         column_symbol = next((sym for sym in all_fields_symbol if sym.field_name == result_field_name), None)
         column_symbol.field_name = result_new_name
+        column_symbol.name = result_new_name
         table.update(column_symbol)
         return True
 
@@ -246,10 +250,10 @@ class AlterTableChangeColumnType(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_table_name = self.table_name.execute(table, tree)
-        result_field_name = self.field_name.execute(table, tree)
-        result_field_type = self.field_type.execute(table, tree)
-        result_field_length = self.field_length.execute(table, tree)
+        result_table_name = self.table_name
+        result_field_name = self.field_name
+        result_field_type = self.field_type.val
+        result_field_length = self.field_length
         # Obtaining all fields because are gonna be needed to get correct field
         all_fields_symbol = table.get_fields_from_table(result_table_name)
         column_symbol = next((sym for sym in all_fields_symbol if sym.field_name == result_field_name), None)

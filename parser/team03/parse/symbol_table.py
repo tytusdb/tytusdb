@@ -168,6 +168,7 @@ class SymbolTable:
             if s.type == SymbolType.TABLE and str(s.name).lower() == str(name_table).lower():
                 self.symbols.remove(s)
                 break
+
     def report_symbols(self):
         result2 = ["NOMBRE", "TIPO", "PERTENECE A"]
         result = []
