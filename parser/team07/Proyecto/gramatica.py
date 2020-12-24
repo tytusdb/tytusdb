@@ -2523,7 +2523,7 @@ def p_op_exists_empty(t):
 
 
 def p_op_database(t):
-    '''opDatabase : OWNER opIgual ID mode
+    '''opDatabase : OWNER opIgual CADENA mode
                   | mode'''
     if len(t) > 2:
         linea = str(t.lexer.lineno)
