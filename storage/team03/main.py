@@ -813,3 +813,507 @@ def ventanaTabla2():
     Label(ventanaTab2, text="Nombre de Tabla: ").place(x=500, y=270)
     cajaNombreTablaAlterDropPK= Entry(ventanaTab2, textvariable=textoNombreTablaAlterDropPK, width="35" ).place(x=500, y=290)
     
+
+    
+#ventana5----------------------------------
+def ventanaTupla():
+    ventanaTup=Toplevel()
+    ventanaTup.geometry("900x500")
+    ventanaTup.title="Funciones de Tuplas"
+    informacion=StringVar()
+    Label(ventanaTup, text="...", fg="red", textvariable=informacion).pack()
+    def modificarURL(url):
+        i=0
+        nuevaCadena=""
+        for i in range (0, len(url),1):
+            if url[i]=="/":
+                nuevaCadena+="\\"
+            else:
+                nuevaCadena+=url[i]
+       
+        return nuevaCadena
+
+    def urlCSV():
+
+        if textoBDSCV.get()!="" and textoTablaSCV.get()!="":
+            f = open (filedialog.askopenfilename(title="Seleccione el archivo", filetypes=(("Archivos CSV", "*.csv"),("Todos", "*.*"))),'r', encoding="utf8", errors='ignore')
+            print(modificarURL(f.name))
+            informacion.set("")
+            salida=bp.loadCSV(modificarURL(f.name), textoBDSCV.get(),textoTablaSCV.get())
+            if salida==[]:
+                informacion.set("Ocurrio un error o Lista Vacia")
+            else:
+                informacion.set("CSV cargado correctamente")
+
+        else:
+            informacion.set("Colocar BD y tabla antes de cargar el CSV")
+            
+    def insertTupla():
+        ventanaTup=Toplevel()
+        ventanaTup.geometry("425x600")
+        ventanaTup.title="INSERTAR TUPLA"
+        def eliminarElemento():
+            my_listbox.delete(ANCHOR)
+
+        def agregarTupla():
+
+            if textoBaseDatos.get()!="" and textoTabla.get()!="":
+                listaTupla=[]
+                for cont in range (0,my_listbox.size(),1):
+                    listaTupla+=[my_listbox.get(cont)]
+                x=bp.insert(textoBaseDatos.get(),textoTabla.get(), listaTupla)
+                if x==0:
+                    textoInfo.set("Tupla agregada correctamente")
+
+                    my_listbox.delete(0,tk.END)
+                elif x==1:
+                    textoInfo.set("Error al agregar Tupla")
+                elif x==2:
+                    textoInfo.set("La Base de datos no Existe")
+                elif x==3:
+                    textoInfo.set("La Tabla no existe")
+                elif x==4:
+                    textoInfo.set("Llave primaria Duplicada")
+                elif x==5:
+                    textoInfo.set("Columnas fuera de los limites")
+            else:
+                textoInfo.set("Debe colocar una BD y una tabla")
+
+
+        def agregarListBox():
+            if textoItem.get()!="":
+                my_listbox.insert(END, textoItem.get())
+                textoItem.set("")
+            else:
+                None
+
+        textoBaseDatos = StringVar()
+        Label(ventanaTup, text="Nombre de BD").place(x=10, y=10)
+        cajaBasedatos= Entry(ventanaTup, textvariable=textoBaseDatos, width="30" ).place(x=10, y=30)
+
+        textoTabla = StringVar()
+        Label(ventanaTup, text="Nombre de TABLA").place(x=215, y=10)
+        cajaBasedatos= Entry(ventanaTup, textvariable=textoTabla, width="30" ).place(x=215, y=30)
+
+        botonAgregarLista=Button(ventanaTup, text="AGREGAR A LA LISTA", command=agregarListBox, bg="green", fg="white", width="55").place(x=10,  y=50+40)
+        botonEliminarElemento=Button(ventanaTup, text="ELIMINAR ELEMENTO", command=eliminarElemento, bg="red", fg="white", width="55").place(x=10, y=280+40)
+        botonAgregarTupla=Button(ventanaTup, text="AGREGAR TUPLA", command=agregarTupla, bg="yellow", width="55").place(x=10, y=305+40) 
+
+        textoItem = StringVar()
+        Label(ventanaTup, text="ITEM: ").place(x=10,y=10+55)
+        cajaItem= Entry(ventanaTup, textvariable=textoItem, width="58" ).place(x=50, y=10+55)
+
+
+        my_listbox=Listbox(ventanaTup, width=64)
+        my_listbox.place(x=15, y =100+40)
+
+        textoInfo=StringVar()
+        Label(ventanaTup, fg="blue", textvariable=textoInfo).place(x=10,y=400)
+        
+    def extractRow():
+        ventanaExtractRow=Toplevel()
+        ventanaExtractRow.geometry("600x600")
+        ventanaExtractRow.title="EXTRACT ROW"
+        def eliminarElemento():
+            my_listbox.delete(ANCHOR)
+
+        def agregarListBox():
+            if textoItem.get()!="":
+                my_listbox.insert(END, textoItem.get())
+                textoItem.set("")
+            else:
+                None
+
+        def ejecutarExtractRow():
+
+            if textoBaseDatosExtractRow.get()!="" and textoTablaExtractRow.get()!="":
+                listaKey=[]
+                for cont in range (0,my_listbox.size(),1):
+                    listaKey+=[my_listbox.get(cont)]
+                
+                salidaExtractRow=bp.extractRow(textoBaseDatosExtractRow.get(),textoTablaExtractRow.get(), listaKey)
+                print(textoBaseDatosExtractRow.get())
+                print(textoTablaExtractRow.get())
+                print(listaKey)
+                
+                print (salidaExtractRow)
+                if salidaExtractRow==[]:
+                    textoInfo.set("Ocurrio un Error o no hay registros que mostrar...")
+
+                else:
+                    my_listbox.delete(0,tk.END)
+                    textoInfo.set("Extract Row ejecutado correctamente")
+                    informacion.set("")
+                    ventanaExtract=Toplevel()
+                    ventanaExtract.geometry("800x300")
+                    ventanaExtract.title="EXTRACT TABLE"
+
+                    #Frame para acoplarlo con el dataGrid
+                    miFrame3=Frame(ventanaExtract)
+                    miFrame3.pack()
+                    miFrame3.config(width="300", height="200")
+
+                    Label(miFrame3, text="BD: " + textoBaseDatosExtractRow.get() + " TABLA: " + textoTablaExtractRow.get(), fg="blue").pack()
+                    #Lista de Listas
+                    arreglo=salidaExtractRow
+                    #Averiguando cuantas columnas tiene la primera Lista(el resto tiene las mismas)
+                    listaCol=[]
+                    for x in range(0, len(arreglo[0]), 1):
+                        listaCol += [x+1]
+
+                    #creando el DataGrid y agregandolo al Frame
+                    datagrid=ttk.Treeview(miFrame3, columns=(listaCol), show="headings")
+                    datagrid.pack()
+
+                    #Scrollbar horizontal y agregandolo a la ventana
+                    scrollbar_horizontal = ttk.Scrollbar(ventanaExtract, orient='horizontal', command = datagrid.xview)
+                    scrollbar_horizontal.pack(side='bottom', fill=X)
+                    datagrid.configure(xscrollcommand=scrollbar_horizontal.set)
+                    
+                    #Agregando las cabeceras
+                    for i in listaCol:
+                        datagrid.heading(i, text="Columna"+ str(i))
+
+                    #insertando todos los registros de la lista de listas
+                    for x in arreglo:
+                        datagrid.insert('', 'end', values=x)
+                        
+            else:
+                textoInfo.set("Debe colocar una BD y una tabla")
+
+        textoBaseDatosExtractRow = StringVar()
+        Label(ventanaExtractRow, text="Nombre de BD").place(x=10, y=10)
+        cajaBasedatos= Entry(ventanaExtractRow, textvariable=textoBaseDatosExtractRow, width="30" ).place(x=10, y=30)
+
+        textoTablaExtractRow = StringVar()
+        Label(ventanaExtractRow, text="Nombre de TABLA").place(x=215, y=10)
+        cajaBasedatosExtractRow= Entry(ventanaExtractRow, textvariable=textoTablaExtractRow, width="30" ).place(x=215, y=30)
+
+        botonAgregarLlave=Button(ventanaExtractRow, text="AGREGAR LLAVE", command=agregarListBox, bg="green", fg="white", width="55").place(x=10,  y=50+40)
+        botonEliminarLlave=Button(ventanaExtractRow, text="ELIMINAR LLAVE", command=eliminarElemento, bg="red", fg="white", width="55").place(x=10, y=280+40)
+        botonAgregarKey=Button(ventanaExtractRow, text="ExtractRow", command=ejecutarExtractRow, bg="yellow", width="55").place(x=10, y=305+40) 
+
+        textoItem = StringVar()
+        Label(ventanaExtractRow, text="Llave: ").place(x=10,y=10+55)
+        cajaItem= Entry(ventanaExtractRow, textvariable=textoItem, width="58" ).place(x=50, y=10+55)
+
+
+        my_listbox=Listbox(ventanaExtractRow, width=64)
+        my_listbox.place(x=15, y =100+40)
+
+        textoInfo=StringVar()
+        Label(ventanaExtractRow, fg="blue", textvariable=textoInfo).place(x=10,y=400)
+    
+    def update():
+        ventanaUpdate=Toplevel()
+        ventanaUpdate.geometry("875x450")
+        ventanaUpdate.title="UPDATE"
+
+        #variables mas globales
+        diccionario={}
+        lista=[]
+
+        def eliminarDiccionario():
+            my_listbox.delete(0,tk.END)
+            diccionario.clear()
+            print(diccionario)
+
+        def eliminarColumna():
+            my_listbox2.delete(ANCHOR)
+            lista.clear()
+            for cont in range (0,my_listbox2.size(),1):
+                lista.append(my_listbox2.get(cont))
+            print(lista)    
+            
+        def agregarAlDiccionario():
+            if textoClave.get()!="" and textoValor.get()!="":
+                try:
+                    
+                    my_listbox.delete(0,tk.END)
+                    numero=int(textoClave.get())
+                    dicAux={numero:textoValor.get()}
+                    diccionario.update(dicAux)
+                    #
+                    for clave, valor in diccionario.items():
+                        my_listbox.insert(END, str(clave) +":"+ valor)
+
+                    print(diccionario)
+                    textoInfo.set("")
+                    textoClave.set("")
+                    textoValor.set("")
+                except:
+                    textoInfo.set("Debe ingresar un numero en la CLAVE!")
+
+            else:
+                textoInfo.set("Debe ingresar una clave y valor primero")
+
+        def agregarListBox():
+            if textoColumna.get()!="":
+                my_listbox2.insert(END, textoColumna.get())
+                textoColumna.set("")
+                lista.clear()
+                for cont in range (0,my_listbox2.size(),1):
+                    lista.append(my_listbox2.get(cont))
+                print(lista)    
+            else:
+                None
+
+        def ejecutarUpdate():
+            if textoBaseDatos.get()!="" and textoTabla.get()!="":
+                if diccionario!={}:
+                    if lista!=[]:
+                        print(textoBaseDatos.get())
+                        print(textoTabla.get())
+                        print(diccionario)
+                        print(lista)
+                        salidaUpdate=bp.update(textoBaseDatos.get(),textoTabla.get(), diccionario, lista)
+                        if salidaUpdate==0:
+                            textoInfo.set("Update ejecutado correctamente")
+                            my_listbox2.delete(0,tk.END)
+                            lista.clear()
+                            eliminarDiccionario()
+                        elif salidaUpdate==1:
+                            textoInfo.set("Error al realizar el Update")
+                        elif salidaUpdate==2:
+                            textoInfo.set("La Base de datos NO existe")
+                        elif salidaUpdate==3:
+                            textoInfo.set("La Tabla NO existe")
+                        elif salidaUpdate==4:
+                            textoInfo.set("La llave primaria no existe")
+                        print(salidaUpdate)
+                    else:
+                        textoInfo.set("Lista vacia, colocar valores")
+                        print(lista)
+                        print(diccionario)
+                else:
+                    textoInfo.set("Diccionario vacio, colocar valores")
+            else:
+                textoInfo.set("No dejar vacio el Campo de BD y Tabla")
+        #COLUMNA 1-----------------------------------------------------------------------------------------------------------------
+
+        textoBaseDatos = StringVar()
+        Label(ventanaUpdate, text="Nombre de BD").place(x=10, y=10)
+        cajaBasedatos= Entry(ventanaUpdate, textvariable=textoBaseDatos, width="30" ).place(x=10, y=30)
+
+        textoTabla = StringVar()
+        Label(ventanaUpdate, text="Nombre de TABLA").place(x=215, y=10)
+        cajaBasedatos= Entry(ventanaUpdate, textvariable=textoTabla, width="30" ).place(x=215, y=30)
+
+        botonAgregarDiccionario=Button(ventanaUpdate, text="AGREGAR AL DICCIONARIO", command=agregarAlDiccionario, bg="yellow", width="55").place(x=10,  y=50+40)
+        botonEliminarDiccionario=Button(ventanaUpdate, text="Borrar todo el Diccionario", command=eliminarDiccionario, bg="red", fg="white", width="55").place(x=10, y=280+40)
+
+
+        textoClave = StringVar()
+        Label(ventanaUpdate, text="CLAVE: ").place(x=10,y=10+55)
+        cajaClave= Entry(ventanaUpdate, textvariable=textoClave, width="23" ).place(x=50, y=10+55)
+
+        textoValor = StringVar()
+        Label(ventanaUpdate, text="VALOR: ").place(x=215,y=10+55)
+        cajaValor= Entry(ventanaUpdate, textvariable=textoValor, width="23" ).place(x=260, y=10+55)
+
+
+        my_listbox=Listbox(ventanaUpdate, width=64)
+        my_listbox.place(x=15, y =100+40)
+
+        textoInfo=StringVar()
+        Label(ventanaUpdate, fg="blue", textvariable=textoInfo).place(x=10,y=400)
+        #COLUMNA 2-----------------------------------------------------------------------------------------------------------------
+
+
+
+
+        botonAgregarColumna=Button(ventanaUpdate, text="AGREGAR COLUMNA", command=agregarListBox, bg="yellow", width="55").place(x=10+450,  y=50+40)
+        botonEliminarColumna=Button(ventanaUpdate, text="ELIMINAR COLUMNA", command=eliminarColumna, bg="red", fg="white", width="55").place(x=10+450, y=280+40)
+
+        botonAgregarColumna=Button(ventanaUpdate, text="UPDATE!", command=ejecutarUpdate, bg="green", fg="white", width="120").place(x=10, y=305+45) 
+
+        textoColumna = StringVar()
+        Label(ventanaUpdate, text="Columna: ").place(x=10+450,y=10+55)
+        cajaColumna= Entry(ventanaUpdate, textvariable=textoColumna, width="55" ).place(x=50+470, y=10+55)
+
+        my_listbox2=Listbox(ventanaUpdate, width=64)
+        my_listbox2.place(x=15+450, y =100+40)
+
+
+    def delete():
+        ventanaDelete=Toplevel()
+        ventanaDelete.geometry("600x600")
+        ventanaDelete.title="DELETE"
+        def eliminarElemento():
+            my_listbox.delete(ANCHOR)
+
+        def agregarListBox():
+            if textoItem.get()!="":
+                my_listbox.insert(END, textoItem.get())
+                textoItem.set("")
+            else:
+                None
+
+        def ejecutarDelete():
+
+            if textoBaseDatosDelete.get()!="" and textoTablaDelete.get()!="":
+                listaKey=[]
+                for cont in range (0,my_listbox.size(),1):
+                    listaKey+=[my_listbox.get(cont)]
+                
+                salidaDelete=bp.delete(textoBaseDatosDelete.get(),textoTablaDelete.get(), listaKey)
+                print(salidaDelete)
+                #print(textoBaseDatosDelete.get())
+                #print(textoTablaDelete.get())
+                #print(listaKey)
+                #print (salidaDelete)
+
+                if salidaDelete==0:
+                    textoInfo.set("Registro eliminado correctamente")
+                    my_listbox.delete(0,tk.END)
+
+                elif salidaDelete==1:
+                    textoInfo.set("Error al eliminar el registro")
+                elif salidaDelete==2:
+                    textoInfo.set("La Base de datos NO existe")
+                elif salidaDelete==3:
+                    textoInfo.set("La tabla NO existe")
+                    
+
+                   
+            else:
+                textoInfo.set("Debe colocar una BD y una tabla")
+
+        textoBaseDatosDelete = StringVar()
+        Label(ventanaDelete, text="Nombre de BD").place(x=10, y=10)
+        cajaBasedatosDelete= Entry(ventanaDelete, textvariable=textoBaseDatosDelete, width="30" ).place(x=10, y=30)
+
+        textoTablaDelete = StringVar()
+        Label(ventanaDelete, text="Nombre de TABLA").place(x=215, y=10)
+        cajaBasedatosDelete= Entry(ventanaDelete, textvariable=textoTablaDelete, width="30" ).place(x=215, y=30)
+
+        botonAgregarLlave=Button(ventanaDelete, text="AGREGAR LLAVE", command=agregarListBox, bg="green", fg="white", width="55").place(x=10,  y=50+40)
+        botonEliminarLlave=Button(ventanaDelete, text="ELIMINAR LLAVE", command=eliminarElemento, bg="red", fg="white", width="55").place(x=10, y=280+40)
+        botonAgregarKey=Button(ventanaDelete, text="DELETE!", command=ejecutarDelete, bg="yellow", width="55").place(x=10, y=305+40) 
+
+        textoItem = StringVar()
+        Label(ventanaDelete, text="Llave: ").place(x=10,y=10+55)
+        cajaItem= Entry(ventanaDelete, textvariable=textoItem, width="58" ).place(x=50, y=10+55)
+
+
+        my_listbox=Listbox(ventanaDelete, width=64)
+        my_listbox.place(x=15, y =100+40)
+
+        textoInfo=StringVar()
+        Label(ventanaDelete, fg="blue", textvariable=textoInfo).place(x=10,y=400)
+
+    def truncate():
+        if textoNombreBDTruncate.get()!="" and textoTablaTruncate.get()!="":
+
+            salidaTruncate=bp.truncate(textoNombreBDTruncate.get(), textoTablaTruncate.get())
+            if salidaTruncate==0:
+                informacion.set("Operacion Exitosa")
+                textoNombreBDTruncate.set("")
+                textoTablaTruncate.set("")
+
+            elif salidaTruncate==1:
+                informacion.set("Error al ejecutar el Truncate")
+            elif salidaTruncate==2:
+                informacion.set("La Base de datos NO existe")
+            elif salidaTruncate==3:
+                informacion.set("La tabla NO existe")
+        else:
+            informacion.set("No dejar campos vacios, BD y tabla..")
+    
+        #label informacion
+    informacion=StringVar()
+    Label(ventanaTup, text="...", fg="red", textvariable=informacion).pack()
+
+    #BOTONES PARA LA VENTANA DE TUPLAS---------------------------------------------------------------------------
+    botonInsertTupla=Button(ventanaTup, text="INSERTAR TUPLA", command=insertTupla,bg="#3300FF", fg="white", width="20").place(x=10, y=100)
+
+    #SEPARADOR_____________________________________________________________________________________________
+    separador1 = ttk.Separator(ventanaTup, orient='horizontal').place(y=140, relwidth=1.2, relheight=1)
+
+    #CARGAR ARCHIVO-------------------------------------
+    BotonSeleccionarArchivo=Button(ventanaTup, text="Cargar CSV", bg="#3300CC", fg="white",command=urlCSV, width="20").place(x=10, y=160)
+
+          #textbox NOMBRE BASE
+    textoBDSCV = StringVar()
+    Label(ventanaTup, text="Nombre BD: ").place(x=250, y=160-15)
+    cajaBDSCV= Entry(ventanaTup, textvariable=textoBDSCV, width="35" ).place(x=250, y=5 + 160)
+
+    textoTablaSCV = StringVar()
+    Label(ventanaTup, text="Tabla ya creada: ").place(x=500, y=160-15)
+    cajaTablaSCV= Entry(ventanaTup, textvariable=textoTablaSCV, width="35" ).place(x=500, y=5 + 160)
+
+          # _________________________________________separador ________________________________________________________
+    separador2 = ttk.Separator(ventanaTup, orient='horizontal').place(y=200, relwidth=1.2, relheight=1)
+    botonExtractTable=Button(ventanaTup, text="EXTRACT ROW", command=extractRow,bg="#330099", fg="white", width="20").place(x=10, y=220)
+    
+
+    
+     # _________________________________________separador ________________________________________________________
+    separador7 = ttk.Separator(ventanaTup, orient='horizontal').place(y=260, relwidth=1.2, relheight=1)
+            #EXTRACT RANGE TABLE
+    botonUpdate=Button(ventanaTup, text="UPDATE", command=update,bg="#330066", fg="white", width="20").place(x=10, y=280)
+    
+    
+        # _________________________________________separador ________________________________________________________
+    separador8 = ttk.Separator(ventanaTup, orient='horizontal').place(y=330, relwidth=1.2, relheight=1)
+
+
+    botonDelete=Button(ventanaTup, text="DELETE", command=delete,bg="#330033", fg="white", width="20").place(x=10, y=360)
+    
+     # _________________________________________separador ________________________________________________________
+    separador9 = ttk.Separator(ventanaTup, orient='horizontal').place(y=410, relwidth=1.2, relheight=1)
+
+    botonalterAddColumn=Button(ventanaTup, text="TRUNCATE", command=truncate,bg="#330000", fg="white", width="20").place(x=10, y=440)
+    
+    textoNombreBDTruncate = StringVar()
+    Label(ventanaTup, text="Nombre BD: ").place(x=250, y=440-20)
+    cajaNombreBDTruncate= Entry(ventanaTup, textvariable=textoNombreBDTruncate, width="35" ).place(x=250, y= 440)
+
+    
+    textoTablaTruncate= StringVar()
+    Label(ventanaTup, text="Tabla: ").place(x=500, y=440-20)
+    cajaTablaTruncate= Entry(ventanaTup, textvariable=textoTablaTruncate, width="35" ).place(x=500, y=440)
+
+def serializar():
+    print("Se ha serializado")
+    bp.server.serializar()
+
+def on_closing():
+    serializar()
+    messagebox.showinfo("INFORMACION", "Guardando todos los cambios....")
+    ventana.destroy()
+
+
+#-------------FIN VENTANAS-----------------    
+
+#---------------VENTANA PRINCIPAL-------------------
+ventana=tk.Tk()
+ventana.title("STORAGE MANAGER - GROUP3")
+ventana.resizable(0,0) 
+
+#ventana.geometry('1400x780')
+
+#creando el frame para poder colocar cosas dentro
+miFrame=Frame()
+miFrame.pack()
+
+miFrame.config(width="575", height="300")
+miFrame.config(bd=12)
+miFrame.config(cursor="plus")
+
+imagen =PhotoImage(file="logoTytus.png")
+fondo=Label(miFrame, image=imagen).place(x=100,y=0)
+
+
+boton1=Button(miFrame, text="BASES DE DATOS", command=ventanaBD,width = 30, bg="#01C3FF", fg="#FFFFFF").place(x=170, y=100+20)
+botonFunBD=Button(miFrame, text="FUNCIONES DE BD", command=ventanaFuncionesBD, width = 30, bg="#03A6D7", fg="#FFFFFF").place(x=170, y=125+20)
+botonFunTable1=Button(miFrame, text="FUNCIONES DE TABLAS 1", command=ventanaTabla1, width = 30, bg="#0380A6", fg="#FFFFFF").place(x=170, y=150+20)
+botonFunTable2=Button(miFrame, text="FUNCIONES DE TABLAS 2", command=ventanaTabla2, width = 30, bg="#005A75", fg="#FFFFFF").place(x=170, y=175+20)
+botonFunTuplas=Button(miFrame, text="FUNCIONES DE TUPLAS", command=ventanaTupla, width = 30, bg="#004D64", fg="#FFFFFF").place(x=170, y=200+20)
+botonSerializar=Button(miFrame, text="GUARDAR CAMBIOS", command=serializar, width = 30, bg="#FF003A", fg="#FFFFFF").place(x=170, y=225+20)
+
+
+
+ventana.protocol("WM_DELETE_WINDOW", on_closing)
+ventana.mainloop()
+#--------------- FIN VENTANA PRINCIPAL-------------------
