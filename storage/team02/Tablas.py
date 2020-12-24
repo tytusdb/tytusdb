@@ -80,3 +80,11 @@ class ListaDobledeArboles :
         else:
             #return("BD vacia")
             return(4)
+
+    def modificar(self,nombreViejo,nombreNuevo):
+        aux = self.inicio
+        while aux != None :
+            if aux.nombre == nombreViejo :
+                aux.nombre = nombreNuevo
+                return 0
+            aux = aux.siguiente
