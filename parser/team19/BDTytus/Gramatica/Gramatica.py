@@ -352,8 +352,8 @@ def p_Sentencias_DML(p):
     '''Sentencias_DML : t_select Lista_EXP Select_SQL Condiciones GRP ORD pyc
                     | t_select asterisco Select_SQL Condiciones GRP ORD pyc
                     | t_insert t_into id Insert_SQL pyc
-                    | t_update id t_set Lista_EXP Condiciones pyc
-                    | t_delete t_from id Condiciones pyc
+                    | t_update id t_set Lista_EXP Condiciones1 pyc
+                    | t_delete t_from id Condiciones1 pyc
                     | t_use id pyc'''
     vaciar_lista()
     if p[1] == 'select':
@@ -421,6 +421,17 @@ def p_Condiciones(p):
     else:
         p[0] = []
         concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
+
+def p_Condiciones1(p):
+    '''Condiciones1 : t_where EXP
+            | empty'''
+    if len(p) == 3:
+        p[0] = p[2]
+        concatenar_gramatica('\n <TR><TD> CONDICIONES ::= where EXP  </TD>  <TD> condiciones.val = exp.val </TD></TR>')
+    else:
+        p[0] = p[1]
+        concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
+
 
 # ---------------------------- Group, having and order by --------------
 def p_GRP(p):
@@ -1100,6 +1111,7 @@ def p_funciones_Trigonometricas(p):
             | t_sind par1 EXP par2
             | t_tan par1 EXP par2
             | t_tand par1 EXP par2 '''
+    p[0] = Expression(p[1], p[3],  p.slice[1].lineno, find_column(input, p.slice[1]), 'trigo')
     concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + '( EXP ) </TD> <TD> { exp.val = ' + str(p[1]) + ' ( exp1.val )}  </TD></TR>')
 
 def p_funciones_Trigonometricas1(p):

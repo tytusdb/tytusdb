@@ -57,6 +57,13 @@ class Expression(Node.Nodo):
                 self.column = args[3]
                 self.op_type = 'math'
                 self.type = None
+            elif args[4] == 'trigo':
+                self.val = args[1]
+                self.function = args[0]
+                self.line = args[2]
+                self.column = args[3]
+                self.op_type = 'trigo'
+                self.type = None
         elif len(args) == 4:
             self.line = args[1]
             self.column = args[2]
@@ -127,6 +134,32 @@ class Expression(Node.Nodo):
                 self.val = m.log10(self.val.val)
             elif self.function == 'pi':
                 self.val = m.pi
+            return self
+        elif self.op_type == 'trigo':
+            if self.function == 'acos':
+                self.val = m.acos(self.val.val)
+            elif self.function == 'acosd':
+                self.val = m.degrees(m.acos(self.val.val))
+            elif self.function == 'asin':
+                self.val = m.asin(self.val.val)
+            elif self.function == 'asind':
+                self.val = m.degrees(m.asin(self.val.val))
+            elif self.function == 'atan':
+                self.val = m.atan(self.val.val)
+            elif self.function == 'atand':
+                self.val = m.degrees(m.atan(self.val.val))
+            elif self.function == 'cos':
+                self.val = m.cos(self.val.val)
+            elif self.function == 'cosd':
+                self.val = m.cos(m.radians(self.val.val))
+            elif self.function == 'sin':
+                self.val = m.sin(self.val.val)
+            elif self.function == 'sind':
+                self.val = m.sin(m.radians(self.val.val))
+            elif self.function == 'tan':
+                self.val = m.tan(self.val.val)
+            elif self.function == 'tand':
+                self.val = m.tan(m.radians(self.val.val))
             return self
         elif self.op_type == 'iden':
             return self
