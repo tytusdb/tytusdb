@@ -538,34 +538,10 @@ def p_ddl_drop_database(t):
 def p_select(t):
     '''
         select  : SELECT listavalores FROM listavalores listawhere
-                | SELECT EXTRACT PARIZQ time FROM TIMESTAMP exp PARDER
-                | SELECT DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
-                | SELECT NOW PARIZQ PARDER
-                | SELECT CURRENT_DATE
-                | SELECT CURRENT_TIME
-                | SELECT TIMESTAMP CADENA
     '''
     if len(t) == 6:
         # SELECT listavalores FROM listavalores listawhere
         t[0] = select(t[2], t[4], t[5], 1, 1)
-    elif t[2].lower() == "extract":
-        # SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
-        t[0] = Select_simples_date(t.lineno, 0, 'extract', t[4], t[7])
-    elif t[2].lower() == "date_part":
-        # SELECT DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
-        t[0] = Select_simples_date(t.lineno, 0, 'date_part', t[4], t[7])
-    elif t[2].lower() == "now":
-        # SELECT NOW PARIZQ PARDER
-        t[0] = Select_simples_date(t.lineno, 0, 'now')
-    elif t[2].lower() == "current_date":
-        # SELECT CURRENT_DATE
-        t[0] = Select_simples_date(t.lineno, 0, 'current_date')
-    elif t[2].lower() == "current_time":
-        # SELECT CURRENT_TIME
-        t[0] = Select_simples_date(t.lineno, 0, 'current_time')
-    elif t[2].lower() == "timestamp":
-        # SELECT TIMESTAMP CADENA
-        t[0] = Select_simples_date(t.lineno, 0, 'timestamp')
 
 def p_select_simple(t):
     '''
@@ -799,12 +775,6 @@ def p_exp_pi(t):
         exp   : PI PARIZQ PARDER
     '''
     t[0] = Select_simples(None, "PI", 1, 1)
-    pass
-
-def p_exp_now(t):
-    '''
-        exp   : NOW PARIZQ PARDER
-    '''
     pass
 
 def p_exp_power(t):
@@ -1133,7 +1103,7 @@ def p_exp_case(t):
 
 def p_exp_between(t):
     '''
-        exp : exp BETWEEN exp AND exp
+        exp : exp BETWEEN exp
     '''
     pass
 
@@ -1178,6 +1148,7 @@ def p_exp(t):
               | exp AND         exp
               | exp OR          exp
               | expSimple
+              | dateFunction
               | exp NOT IN exp
     '''
     if len(t) == 4:
@@ -1281,6 +1252,34 @@ def p_expSimples(t):
                     | DISTINCT exp
     '''
     t[0] = t[1]
+
+def p_dateFunction(t):
+    '''
+        dateFunction : EXTRACT PARIZQ time FROM TIMESTAMP exp PARDER
+                     | DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
+                     | NOW PARIZQ PARDER
+                     | CURRENT_DATE
+                     | CURRENT_TIME
+                     | TIMESTAMP CADENA
+    '''
+    if t[1].lower() == "extract":
+        # SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
+        t[0] = Select_simples_date(t.lineno, 0, 'extract', t[3], t[6])
+    elif t[1].lower() == "date_part":
+        # SELECT DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
+        t[0] = Select_simples_date(t.lineno, 0, 'date_part', t[3], t[6])
+    elif t[1].lower() == "now":
+        # SELECT NOW PARIZQ PARDER
+        t[0] = Select_simples_date(t.lineno, 0, 'now')
+    elif t[1].lower() == "current_date":
+        # SELECT CURRENT_DATE
+        t[0] = Select_simples_date(t.lineno, 0, 'current_date')
+    elif t[1].lower() == "current_time":
+        # SELECT CURRENT_TIME
+        t[0] = Select_simples_date(t.lineno, 0, 'current_time')
+    elif t[1].lower() == "timestamp":
+        # SELECT TIMESTAMP CADENA
+        t[0] = Select_simples_date(t.lineno, 0, 'timestamp')
 
 def p_expSimples_ACCESO_TYPE(t):
     '''
