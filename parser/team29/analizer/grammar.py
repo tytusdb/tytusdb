@@ -85,7 +85,7 @@ def p_stmt(t):
     """
     listInst.append(t[1].dot())
     try:
-        t[0] = t[1].execute(None)
+        t[0] = t[1]
     except:
         return
     repGrammar.append(t.slice)
@@ -1654,7 +1654,7 @@ def p_useStmt(t):
 # endregion
 
 
-listErrors = list()
+lexical_errors = list()
 PostgreSQL = list()
 
 
@@ -1662,8 +1662,8 @@ def p_error(t):
     try:
         print(t)
         print("Error sintáctico en '%s'" % t.value)
-        listErrors.insert(
-            len(listErrors), ["Error sintáctico en '%s'" % t.value, t.lineno]
+        lexical_errors.insert(
+            len(lexical_errors), ["Error sintáctico en '%s'" % t.value, t.lineno]
         )
         PostgreSQL.insert(
             len(PostgreSQL), "ERROR: 42601: error de sintaxis en '%s'" % t.value
@@ -1675,14 +1675,15 @@ def p_error(t):
 parser = yacc.yacc()
 
 
-def returnSintacticErrors():
-    return listErrors
+def returnSyntacticErrors():
+    return lexical_errors
 
 
 def returnPostgreSQLErrors():
-    expression.list_errors += PostgreSQL
-    instruction.sintaxPostgreSQL += expression.list_errors
-    return instruction.sintaxPostgreSQL
+    errors =  expression.returnExpErrors()
+    errors += PostgreSQL
+    errors += instruction.returnErrors()
+    return errors
 
 
 def returnSemanticErrors():
@@ -1710,11 +1711,11 @@ def getRepGrammar():
 
 def parse(input):
     try:
-        global listErrors, PostgreSQL
-        listErrors = list()
+        global lexical_errors, PostgreSQL
+        lexical_errors = list()
         PostgreSQL = list()
         expression.list_errors = list()
-        instruction.sintaxPostgreSQL = list()
+        instruction.syntaxPostgreSQL = list()
         instruction.semanticErrors = list()
         lexer.lineno = 1
         result = parser.parse(input)
