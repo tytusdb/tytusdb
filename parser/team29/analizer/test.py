@@ -6,6 +6,7 @@ path.append(dir(path[0]))
 
 from analizer import grammar
 from analizer.reports import BnfGrammar
+from analizer.interpreter import symbolReport
 
 dropAll = 0
 if dropAll:
@@ -15,19 +16,14 @@ if dropAll:
 
 s = """ 
 USE test;
-select E.*,
-  estado,
-  I.identificacion,
-  tipoidentificacion
-from tbempleado E,
-  tbestado ES,
-  tbempleadoidentificacion I,
-  tbidentificaciontipo IT
-where ES.idestado = E.idestado
-  and I.idempleado = E.idempleado
-  and IT.ididentificaciontipo = I.ididentificaciontipo;
+
+SELECT distinct caca.primernombre FROM tbempleado de1, (SELECT de2.primernombre FROM tbempleado de2 WHERE de1.idempleado = de2.idempleado) AS caca;
+
+
 """
 result = grammar.parse(s)
 print(result)
+
+#print(symbolReport())
 #grammar.InitTree()
-# BnfGrammar.grammarReport()
+BnfGrammar.grammarReport()

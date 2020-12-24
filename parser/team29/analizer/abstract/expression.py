@@ -141,6 +141,10 @@ class TableAll(Expression):
             env = env.previous
         return lst
 
+    # TODO: hacer dot
+    def dot(self):
+        nod = Nodo.Nodo("tableAll")
+        return nod
 
 class UnaryArithmeticOperation(Expression):
     """
@@ -505,22 +509,25 @@ class ExistsRelationalOperation(Expression):
         self.temp = "EXISTS( subquery )"
 
     def execute(self, environment):
-        df1 = environment.dataFrame.copy()
-        names = {}
+        try:
+            df1 = environment.dataFrame.copy()
+            names = {}
+            
+            for n in list(df1.columns):
+                names[n] = n.split('.')[1]
 
-        for n in list(df1.columns):
-            names[n] = n.split(".")[1]
+            df1.rename(columns=names, inplace=True)
 
-        df1.rename(columns=names, inplace=True)
+            df2 = self.subquery.execute(environment)[0]
 
-        df2 = self.subquery.execute(environment)[0]
-
-        y = df1.columns.intersection(df2.columns)
-        lst = list(y)
-        if len(lst) < 1:
-            raise Exception("No hay columnas en comun")
-        value = df1[lst].apply(tuple, 1).isin(df2[lst].apply(tuple, 1))
-        return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
+            y =	df1.columns.intersection(df2.columns)
+            lst = list(y)
+            if len(lst) < 1:
+                raise Exception("No hay columnas en comun en el EXISTS")
+            value = (df1[lst].apply(tuple, 1).isin(df2[lst].apply(tuple, 1)))
+            return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
+        except:
+            raise
 
     def dot(self):
         n1 = "exists"
@@ -531,6 +538,35 @@ class ExistsRelationalOperation(Expression):
         return new
 
 
+class InRelationalOperation(Expression):
+    def __init__(self, colData, optNot, subquery, row, column) -> None:
+        super().__init__(row, column)
+        self.colData = colData
+        self.subquery = subquery
+        self.optNot = optNot
+        self.temp = colData.temp + optNot + " IN ( subquery )" 
+    
+    def execute(self, environment):
+        col = self.colData.execute(environment)
+        df = self.subquery.execute(environment)[0]
+
+        # TODO: Falta agregar la verificacion de types
+        
+        if len(list(df.columns)) != 1:
+            raise Exception("La subquery no tiene exactamente una columna")
+        value = col.value.isin(df.iloc[:, 0])
+        if self.optNot == 'NOT':
+            value = ~value
+        return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
+
+    def dot(self):
+        n1 = self.optNot + " IN"
+        new = Nodo.Nodo("select")
+        new.addNode(n1)
+        global root
+        root = new
+        return new
+        
 class BinaryLogicalOperation(Expression):
     """
     Esta clase contiene las expresiones booleanas binarias.
@@ -1331,6 +1367,10 @@ class AggregateFunction(Expression):
 
         return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
 
+    # TODO: hacer dot
+    def dot(self):
+        new = Nodo.Nodo("Aggregate")
+        return new
 
 def makeAst():
     ast.makeAst(root)

@@ -716,6 +716,27 @@ def p_datatype_operadores_binarios2(t):
     repGrammar.append(t.slice)
 
 
+def p_datatype_case_when(t):
+    """
+    datatype : R_CASE caseList optElse R_END
+    """
+
+
+def p_case_list(t):
+    """
+    caseList : caseList caseWhen
+            | caseWhen
+    """
+
+def p_caseWhen(t):
+    """ caseWhen : R_WHEN expBool R_THEN literal
+    """
+
+def p_caseWhen_2(t):
+    """ optElse : R_ELSE literal
+                |
+    """
+
 def p_datatype_operadores_unarios(t):
     """
     datatype : O_RESTA datatype %prec UO_RESTA
@@ -892,6 +913,7 @@ def p_boolean_2(t):
     """
     boolean : datatype R_IN S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = expression.InRelationalOperation(t[1], "", t[4], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -899,6 +921,7 @@ def p_boolean_3(t):
     """
     boolean : datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = expression.InRelationalOperation(t[1], t[2], t[5], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1221,7 +1244,10 @@ def p_ifExists(t):
 
 
 def p_selectStmt_1(t):
-    """selectStmt : R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl limitCl"""
+    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl"""
+    t[0] = instruction.Select(
+        t[3].params, t[4], t[5], t[6][0], t[6][1], t[7], True, t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -1229,9 +1255,23 @@ def p_selectStmt_1(t):
 def p_selectStmt_2(t):
     """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl"""
     t[0] = instruction.Select(
-        t[2].params, t[3], t[4], t[5][0], t[5][1], t[6], t.slice[1].lineno, t.slice[1].lexpos
+        t[2].params, t[3], t[4], t[5][0], t[5][1], t[6], False, t.slice[1].lineno, t.slice[1].lexpos
     )
     repGrammar.append(t.slice)
+
+def p_selectStmt__1(t):
+    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl orderByCl limitCl"""
+    repGrammar.append(t.slice)
+
+def p_selectStmt__2(t):
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
+    repGrammar.append(t.slice)
+
+def p_selectStmt__3(t):
+    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl limitCl"""
+    repGrammar.append(t.slice)
+
+
 
 
 def p_selectStmt_union(t):
@@ -1389,22 +1429,20 @@ def p_tableexp_subq(t):
 
 def p_joinList(t):
     """joinList : joinList2
-    |
     """
-
     repGrammar.append(t.slice)
 
 
-def p_joinList2(t):
+def p_joinList_2(t):
     """joinList2 : joinList2 joinCl
     | joinCl"""
     repGrammar.append(t.slice)
 
 
 def p_joinCl(t):
-    """joinCl : joinOpt R_JOIN columnName R_ON expBool
-    | joinOpt R_JOIN columnName R_USING S_PARIZQ nameList S_PARDER
-    | R_NATURAL joinOpt R_JOIN columnName
+    """joinCl : joinOpt R_JOIN columnName optAlias R_ON expBool
+    | joinOpt R_JOIN columnName optAlias R_USING S_PARIZQ nameList S_PARDER
+    | R_NATURAL joinOpt R_JOIN columnName optAlias
     """
 
     repGrammar.append(t.slice)
@@ -1493,7 +1531,6 @@ def p_havingCl_2(t):
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList
-    |
     """
     repGrammar.append(t.slice)
 
@@ -1506,8 +1543,12 @@ def p_orderList(t):
 
 
 def p_orderByElem(t):
-    """orderByElem : columnName orderOpts orderNull"""
+    """
+    orderByElem : columnName orderOpts orderNull
+                | INTEGER orderOpts orderNull
+    """
     repGrammar.append(t.slice)
+
 
 
 def p_orderOpts(t):
