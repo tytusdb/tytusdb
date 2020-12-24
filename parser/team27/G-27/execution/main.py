@@ -28,11 +28,12 @@ class Main(object):
                         for tupla in res['data']:
                             x.add_row(tupla)
                         arreglo.append(x.get_string())
+                        print(x.get_string())
                 elif isinstance(res,list):
                     arreglo.append(str(res))
             return [arreglo,errores]
         else:
-            return []
+            return [arreglo,errores]
             
 
 
