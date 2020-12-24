@@ -1,6 +1,6 @@
 ### Universidad de San Carlos de Guatemala
-Facultad de Ingeniería
-Laboratorio de Estructuras de Datos
+### Facultad de Ingeniería
+### Laboratorio de Estructuras de Datos
 
 # MANUAL DE TECNICO
 
