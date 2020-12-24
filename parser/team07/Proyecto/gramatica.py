@@ -3153,13 +3153,13 @@ def p_add_instr_constraint_UPF(t):
 
         GenerarRepGram.AgregarTexto("'unique_primary_fore ::= UNIQUE PARIZQUIERDO ID PARDERECHO'\n\
         \t linea = str(t.lexer.lineno)\n\
-        \t nodoColumna = crear_nodo_general("unique_primary_fore","",linea,columna)\n\
-        \t nodoFK = crear_nodo_general("FOREIGN","FOREIGN KEY",linea,columna)\n\
+        \t nodoColumna = crear_nodo_general(\"unique_primary_fore\",\"\",linea,columna)\n\
+        \t nodoFK = crear_nodo_general(\"FOREIGN\",\"FOREIGN KEY\",linea,columna)\n\
         \t nodoFK.hijos = []\n\
         \t listaId1 = t[4]\n\
-        \t nodoReferences = crear_nodo_general("REFERENCES","REFERENCES",linea,columna)\n\
+        \t nodoReferences = crear_nodo_general(\"REFERENCES","REFERENCES\",linea,columna)\n\
         \t nodoReferences.hijos = []\n\
-        \t nodoId = crear_nodo_general("ID",t[7],linea,columna)\n\
+        \t nodoId = crear_nodo_general(\"ID\",t[7],linea,columna)\n\
         \t listaId2 = t[9]\n\
         \t nodoColumna.hijos = []\n\
         \t nodoColumna.hijos.append(nodoFK)\n\
