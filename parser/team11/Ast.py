@@ -496,6 +496,116 @@ class AST:
 
 ###################################################### Ejecucion de Querys ###############################################
 
+    def Select(self, nodo):
+        if len(nodo.hijos) == 1:
+            self.querySimple(nodo.hijos[0])
+        elif len(nodo.hijos) > 1:
+            self.queryCompleta(nodo)
+    
+
+    def queryCompleta(self, nodo):
+        tablas = []
+        distinct = None
+        Asterisco = None
+        Rows = None
+        Where = None
+        Groupby = None
+        Orderby = None 
+
+        for nodo in nodo.hijos:
+            if nodo.etiqueta == 'DISTINC':
+                distinct = nodo
+            elif nodo.etiqueta == 'ASTERISCO':
+                Asterisco = nodo
+            elif nodo.etiqueta == 'ROWS':
+                Rows = nodo
+            elif nodo.etiqueta == 'FROM':
+                if self.getTablas(nodo, tablas)  == -1: 
+                    return           
+            elif nodo.etiqueta == 'WHERE':
+                Where = nodo
+            elif nodo.etiqueta == 'GROUPBY':
+                Groupby = nodo
+            elif nodo.etiqueta == 'ORDERBY':
+                Orderby = nodo
+        
+        if Asterisco and not Rows and not distinct and not Where and not Groupby and not Orderby:
+            if len(tablas) == 1:
+                db = self.ts[self.usingDB]
+                tb = db.tables[tablas[0]['Tabla']]
+                names = []
+                self.getfieldnames(tb, names)
+                x = PrettyTable()
+                x.field_names = names
+                x.add_rows(tablas[0]['Tuplas'])
+                self.output.append(x.get_string())
+
+        elif not Asterisco and Rows and not distinct and not Where and not Groupby and not Orderby:
+            if len(tablas) == 1:
+                db = self.ts[self.usingDB]
+                tb = db.tables[tablas[0]['Tabla']]
+                names = []
+                index = []
+                if self.getnamesIndex(tb, index, names, Rows) == -1:
+                    return
+                
+                tupla = tablas[0]['Tuplas']
+                rows = []
+                for tup in tupla:
+                    a = []
+                    for i in index:
+                        a.append(tup[i])
+                    rows.append(a)
+
+                x = PrettyTable()
+                x.field_names = names
+                x.add_rows(rows)
+                self.output.append(x.get_string())
+        
+        elif Asterisco and not Rows and not distinct and Where and not Groupby and not Orderby:
+            if len(tablas) == 1:
+                db = self.ts[self.usingDB]
+                tb = db.tables[tablas[0]['Tabla']]
+                names = []
+                self.getfieldnames(tb, names)
+                resultado = []
+                for tup in tablas[0]['Tuplas']:
+                    if self.expresion_logica(Where.hijos[0], tup, names, tablas):
+                        resultado.append(tup)
+
+                x = PrettyTable()
+                x.field_names = names
+                x.add_rows(resultado)
+                self.output.append(x.get_string())
+
+        elif not Asterisco and Rows and not distinct and Where and not Groupby and not Orderby:
+            if len(tablas) == 1:
+                db = self.ts[self.usingDB]
+                tb = db.tables[tablas[0]['Tabla']]
+                names = []
+                self.getfieldnames(tb, names)
+                resultado = []
+                for tup in tablas[0]['Tuplas']:
+                    if self.expresion_logica(Where.hijos[0], tup, names, tablas):
+                        resultado.append(tup)
+ 
+                names1 = []
+                index = []
+                if self.getnamesIndex(tb, index, names1, Rows) == -1:
+                    return
+                
+                rows = []
+                for tup in resultado:
+                    a = []
+                    for i in index:
+                        a.append(tup[i])
+                    rows.append(a)
+
+                x = PrettyTable()
+                x.field_names = names1
+                x.add_rows(rows)
+                self.output.append(x.get_string())
+
     def getfieldnames(self, tb, names,):
         for col in tb:
             names.append(col)
@@ -791,7 +901,6 @@ def resolverFuncionTrigonometrica(self, nodo, resultado):
             resultado.append(c)
 
 ########################################################  expresiones ###################################################
-    
     def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
         if nodo.etiqueta == 'OPLOG':
             exp1 = self.expresion_logica(nodo.hijos[0], tupla, names, tablas)
