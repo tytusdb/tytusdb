@@ -1702,8 +1702,8 @@ def procesar_expresion_select(expresiones, ts):
         return procesar_variable(expresiones, ts)
     elif isinstance(expresiones, UnitariaAritmetica):
         return procesar_unitaria_aritmetica_select(expresiones, ts)
-    # elif isinstance(expresiones, ExpresionFuncion):
-    #     return procesar_funcion_columna(expresiones, ts)
+    elif isinstance(expresiones, ExpresionFuncion):
+        return procesar_funcion_select(expresiones, ts)
 
     elif isinstance(expresiones, AccesoSubConsultas):
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ENtre sub where")
@@ -2140,7 +2140,7 @@ def procesar_NotBB_select(instr, ts):
 
 
 def procesar_variable_select(tV, ts):
-    global ListaTablasG
+    global  ListaTablasG, baseN
     variable: CAMPO_TABLA_ID_PUNTO_ID = tV
     listaRes = []
     for item in ts.Datos:
@@ -2189,6 +2189,87 @@ def procesar_unitaria_aritmetica_select(expresion, ts):
             agregarErrorDatosOperacion(val, "", "||", "numerico", 0,0)
             return None
 
+
+def procesar_funcion_select(expresion, ts):
+    if expresion.exp1 is not None:
+        val1 = procesar_expresion_select(expresion.exp1, ts)
+
+
+        if expresion.id_funcion == FUNCION_NATIVA.ABS:
+            if isinstance(val1, list):
+                result = []
+                for v in val1:
+                    if isinstance(v, int) or isinstance(v, float):
+                        result.append(abs(v))
+                    else:
+                        result.append(0)
+                        agregarErrorFuncion(v, None,None, None, "ABS", "numerico", 0, 0)
+                return result.copy()
+
+            if isinstance(val1, int) or isinstance(val1, float):
+                return abs(val1)
+            else:
+                agregarErrorFuncion(val1, None,None, None, "ABS", "numerico", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.CBRT:
+            if isinstance(val1, list):
+                result = []
+                for v in val1:
+                    if isinstance(v, int) or isinstance(v, float):
+                        result.append(v ** (1/3))
+                    else:
+                        result.append(0)
+                        agregarErrorFuncion(v, None, None, None, "CBRT", "numerico", 0, 0)
+                return result.copy()
+
+            if isinstance(val1, int) or isinstance(val1, float):
+                return val1 ** (1/3)
+            else:
+                agregarErrorFuncion(val1, None,None, None, "CBRT", "numerico", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.CEIL:
+            if isinstance(val1, list):
+                result = []
+                for v in val1:
+                    if isinstance(v, int) or isinstance(v, float):
+                        result.append(math.ceil(v))
+                    else:
+                        result.append(0)
+                        agregarErrorFuncion(v, None, None, None, "CEIL", "numerico", 0, 0)
+                return result.copy()
+
+            if isinstance(val1, int) or isinstance(val1, float):
+                return math.ceil(val1)
+            else:
+                agregarErrorFuncion(val1, None,None, None, "CEIL", "numerico", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.CEILING:
+            if isinstance(val1, list):
+                result = []
+                for v in val1:
+                    if isinstance(v, float):
+                        if val1 > 0:
+                            return result.append(int(v) + 1)
+                        else:
+                            return result.append(int(v))
+                    elif isinstance(v, int):
+                        return result.append(v)
+                    else:
+                        result.append(0)
+                        agregarErrorFuncion(v, None, None, None, "CEILING", "numerico", 0, 0)
+                return result.copy()
+
+            if isinstance(val1, float):
+                if val1 > 0:
+                    return int(val1) + 1
+                else:
+                    return int(val1)
+            elif isinstance(val1, int):
+                return val1
+            else:
+                agregarErrorFuncion(val1, None,None, None, "CEILING", "numerico", 0, 0)
+                return None
+
 def procesar_expresion_columna(expresiones, ts):
 
     if isinstance(expresiones, ExpresionAritmetica):
@@ -2208,6 +2289,8 @@ def procesar_expresion_columna(expresiones, ts):
     #     return procesar_NotBB(expresiones, ts)
     elif isinstance(expresiones, ExpresionValor):
         return expresiones.val
+    elif isinstance(expresiones, CAMPO_TABLA_ID_PUNTO_ID):   #  WHERE Profesional.Id = Trabajo.Codigo
+        return procesar_variable_columna2(expresiones, ts)
     elif isinstance(expresiones, Variable):
         return procesar_variable_columna(expresiones, ts)
     elif isinstance(expresiones, UnitariaAritmetica):
@@ -2251,6 +2334,24 @@ def procesar_negAritmetica_columna(expresion, ts):
         # newErr=ErrorRep('Semantico','No se pudo realizar la neg aritmetica ',indice)
         # LisErr.agregar(newErr)
         return None
+
+def procesar_variable_columna2(tV, ts):
+    global  ListaTablasG, baseN
+    variable: CAMPO_TABLA_ID_PUNTO_ID = tV
+    listaRes = []
+    for item in ts.Datos:
+        v: DatoInsert = ts.obtenerDato(item)
+        # Se obtienen los datos de la columna.
+        if str(v.columna) == str(variable.campoid) and str(v.bd) == str(baseN[0]) and str(v.tabla) == str(
+                variable.tablaid):
+            print(" <> En listar: " + str(v.valor))
+            listaRes.append(v.valor)
+    print(" <><>")
+    if listaRes.__len__() == 0:
+        print(" >>> No hay datos para esta validación.")
+        return None
+    else:
+        return listaRes
 
 
 def procesar_variable_columna(tV, ts):
