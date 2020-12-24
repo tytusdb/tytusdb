@@ -4,8 +4,11 @@ from tkinter.filedialog import askopenfilename
 from tkinter import messagebox as mb
 from tkinter import Tk, Menu, messagebox, filedialog, ttk, Label, scrolledtext, INSERT, END, Button, Scrollbar, RIGHT, Y, Frame, Canvas, HORIZONTAL, VERTICAL, simpledialog, font
 import tkinter as tk
+from tabulate import tabulate
+import os
 
-from main import *
+from grammarReview import *
+
 
 class query_tool:
     def __init__(self, window):
@@ -43,7 +46,7 @@ class query_tool:
         self.frame2.place(relx=0, rely=0, relwidth=1, relheight=1)
 
         #TextArea
-        self.entrada = tk.Text(self.frame1, font=("Courier New", 12), foreground ="#154360")
+        self.entrada = tk.Text(self.frame1, font=("Courier New", 10), foreground ="#154360")
         self.entrada.place(relx=0.02, rely=0.05, relwidth=0.96, relheight=0.9)
         
         self.scrollbarEntradaX = tk.Scrollbar(self.entrada, orient=tk.HORIZONTAL)
@@ -57,7 +60,7 @@ class query_tool:
         self.scrollbarEntradaX.config(command = self.entrada.xview)
 
         #Consola
-        self.consola = tk.Text(self.frame2, font=("Courier New", 12), background="black", foreground = "yellow")
+        self.consola = tk.Text(self.frame2, font=("Courier New", 9), background="black", foreground = "yellow")
         self.consola.place(relx=0.02, rely=0.05, relwidth=0.96, relheight=0.9)
 
         self.scrollbarConsolaX = tk.Scrollbar(self.consola, orient=tk.HORIZONTAL)
@@ -83,13 +86,27 @@ class query_tool:
         # Menu Run
         self.runMenu = Menu(self.barraMenu, tearoff=0)
         self.runMenu.add_command(label = "Run", command = self.Run)
+        # Menu Archivo
+        self.reportsMenu = Menu(self.barraMenu, tearoff=0)
+        self.reportsMenu.add_command(label = "Symbol Table", command=self.getST)
+        self.reportsMenu.add_separator()
+        self.reportsMenu.add_command(label = "Errors", command=self.openErrors)
+        self.reportsMenu.add_separator()
+        self.reportsMenu.add_command(label = "AST", command=self.openAST)
+        self.reportsMenu.add_separator()
+        self.reportsMenu.add_command(label = "DDS", command= self.openBNF)
+        self.reportsMenu.add_separator()
+        self.reportsMenu.add_command(label = "Asc Grammar", command= self.openBNFasc)
+        self.reportsMenu.add_command(label = "Desc Grammar", command= self.openBNFdesc)
         #Menu Help
         self.helpMenu = Menu(self.barraMenu, tearoff=0)
         self.helpMenu.add_command(label = "About",command = self.seeAbout)
         # Barra de Menú
-        self.barraMenu.add_cascade(label = "File",  menu = self.archivoMenu)
-        self.barraMenu.add_cascade(label = "Run",      menu = self.runMenu)
-        self.barraMenu.add_cascade(label = "Help",     menu = self.helpMenu)
+        self.barraMenu.add_cascade(label = "File",      menu = self.archivoMenu)
+        self.barraMenu.add_cascade(label = "Run",       menu = self.runMenu)
+        self.barraMenu.add_cascade(label = "Reports",   menu = self.reportsMenu)
+        self.barraMenu.add_cascade(label = "Help",      menu = self.helpMenu)
+        
 
         self.vp.columnconfigure(0, weight=0)
         self.vp.columnconfigure(1, weight=1)
@@ -122,6 +139,7 @@ class query_tool:
         self.texto =""
         self.extension = ""
         self.entrada.delete(1.0, END)
+        self.consola.delete(1.0,END)
 
     def OpenFile(self):
         '''
@@ -165,11 +183,40 @@ class query_tool:
         '''
         Llamada a la clase main del proyecto, envía el texto que está en el área de entrada
         '''
+        self.consola.delete(1.0,END)
         self.inputText = self.entrada.get("1.0","end")
-        #TODO LLamada al método de la clase main para ejecutar el codigo
+        grammarReview(self.inputText)
+
+    def openErrors(self):
+        ST0 = '\n\n\n============== ERROR REPORT ==============\n'
+        ST1 = grammarReview.report_errors(self)
+        ST2 = '\n'
+        self.consola.insert(INSERT,ST0)
+        self.consola.insert(INSERT,ST1)
+        self.consola.insert(INSERT,ST2)
+
+    def getST(self):
+        ST0 = '\n\n\n+------------- SYMBOL TABLE REPORT --------------+\n'
+        ST1 = grammarReview.getTablaTabulada(self)
+        ST2 = '\n'
+        self.consola.insert(INSERT,ST0)
+        self.consola.insert(INSERT,ST1)
+        self.consola.insert(INSERT,ST2)
 
     def seeAbout(self):
         mb.showinfo("About", "TYTUS\n Universidad de San Carlos de Guatemala \nOLC 2\nCuso de vacaciones \nDiciembre \nAño 2020\nCoautores: \n\t201020126 - Sandy Fabiola Merida Hernandez  \n\t201020252 - Sergio Ariel Ramirez Castro \n\t201020260 - Victor Augusto Lopez Hernandez \n\t201020697 - Esteban Palacios Kestler ")
+
+    def openAST(self):
+        a=os.popen('grap.png')
+
+    def openBNF(self):
+        a=os.popen('reportGrammar.md')
+
+    def openBNFasc(self):
+        a=os.popen('docs\gramatica-ascendente.md')
+
+    def openBNFdesc(self):
+        a=os.popen('docs\gramatica-descendente.md')
 
 def getNameAndExtensionFile(self):
         rutaSpliteada = self.rutaArchivo.split("/")
