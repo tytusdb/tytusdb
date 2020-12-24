@@ -1,0 +1,18 @@
+select * from prueba;
+select * from prueba2 WHERE a=b;
+
+select * from prueba2 WHERE City = "London" AND Country = "UK";
+
+CREATE TABLE marcos(
+
+id_c Int,
+ass VARCHAR(30)
+
+);
+
+insert into tabla (campo1,campo2,campo3,campo4) values (valor1, valor2, valor3, valor4);
+
+SELECT MIN(Price) - MIN(CategoryID)
+FROM Products; 
+
+
