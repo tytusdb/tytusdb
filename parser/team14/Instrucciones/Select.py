@@ -45,8 +45,8 @@ class Select(Instruccion):
                         res = exp.getval(ent)
 
                         resultados.append(res.valor)
-                variables.consola.insert(INSERT,str(res.valor))
-                variables.consola.insert(INSERT, '\n')
+                    variables.consola.insert(INSERT,str(res.valor))
+                    variables.consola.insert(INSERT, '\n')
                 return resultados
             elif self.froms != None and self.exps != None:
 
@@ -297,12 +297,13 @@ class Select(Instruccion):
         return tipo
 
 
-    def group(self):
+    '''def group(self):
         'Ejecucucion del group'
     def having(self):
         'Ejecucucion del having'
     def order(self):
-        'Ejecucucion del order'
+        'Ejecucucion del order'''
+
     def m_limit(self,result,limit,off):
         if str(limit).lower=='all':
             limit=len(result)

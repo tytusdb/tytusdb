@@ -114,6 +114,40 @@ def createAtributo(database:str,table:str,nuevo:Atributo):
     else:
         return 2
 
+def showColumns(database:str,table:str):
+    # retorna un diccionario clave,valor = columna,tipo. o vacio
+    diccionario = {}
+    actualBase = obtenerBase(database)
+    if actualBase is not None:
+        if not actualBase.listaTablas.existeTabla(table):
+            return diccionario
+        else:
+            actualTabla = actualBase.listaTablas.obtenerTabla(table)
+            actualAtributo = actualTabla.listaAtributos.primero
+            while actualAtributo is not None:
+                diccionario[actualAtributo.nombre] = actualAtributo.tipo
+                actualAtributo = actualAtributo.siguiente
+            return diccionario
+    else:
+        return diccionario
+
+def showPrimaryKeys(database:str,table:str) -> list:
+    #retorna un list con los nombres de las columnas que son llaves primarias o la lista vacia
+    lista = []
+    actualBase = obtenerBase(database)
+    if actualBase is not None:
+        if not actualBase.listaTablas.existeTabla(table):
+            return lista
+        else:
+            actualTabla = actualBase.listaTablas.obtenerTabla(table)
+            if actualTabla.primary is not None:
+                lista = actualTabla.primary.columnas
+                return lista
+            else:
+                return lista
+    else:
+        return lista
+
 def obtenerTipoColumna(database:str,table:str,nombreColumna:str):
     # Retorna el tipo de la columna, sino retorna None
     actualBase = obtenerBase(database)
@@ -385,7 +419,8 @@ def getIfTipoColumnaIsReserverd(tipo:str):
         'character': 10,
         'charn': 11,
         'text': 12,
-        'boolean': 13
+        'boolean': 13,
+        'date': 15
     }
     return tiposReservados.get(tipo, 14)
 
