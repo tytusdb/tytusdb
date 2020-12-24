@@ -125,3 +125,117 @@ class CrudTuplas:
     def truncateRaiz(self):
         self.tabla.truncateRoot()
     
+    ##########################################################################################################
+    ############                                FUNCIONES  AUX CRUD  TABLAS                       ############ 
+    ##########################################################################################################
+    #FUNCION 1 : NO RECIBE PARAMETROS, DEVULVE UNA LISTA CON LOS REGISTROS O LISTA VACIA
+    def extractTable(self):
+        registros = self.tabla.ListaEnlazada(None,None,None)
+        return registros
+    
+    # FUNCION 2: EXTRACT RANGE  RECIBE COMO PARAMETRO COLUMN INT= INDICE DE COLUMNA A RESTRINGIR  LOWER: INFERIOR UPPER:SUPERIOR
+    # LISTA CON PARAMETRO 
+    # LISTA VACIA
+    def  extractRangeTable(self,columns,lower,upper ):
+        registros = self.tabla.ListaEnlazada(columns,lower,upper)
+        return registros
+
+    #FUNCION 3: def alterAddPK  RECIBE COMO PARAMETRO LA LISTA DE LOS INDICES DE LA LLAVE PRIMARIA
+    # 0 OPERACION EXITOSA
+    # 1 ERROR EN LA OPERACION
+    # 4 LLAVE PRIMARIA EXISTENTE
+    # 5 COLUMNAS FUERA DE LIMITE
+    def alterAddPK(self,keys ):
+        # llaves primarias existentes
+        if self.pk:
+            return 4
+        else:
+            # llaves fuera de columna
+            for k in keys:
+                if k>self.tamCol:
+                    return 5
+            # comprobamos si hay valores en la lista:
+            listado = self.tabla.Claves_Hojas()
+            
+            if len(listado) == 0:   # no hay registros en el arbol
+                self.pk = keys
+                return 0
+            else:                   # si hay registros en la tabla
+                # se ingresa las keys en el listado de llaves
+                self.pk = keys
+                # se comprueba si hay registros con llaves repetidas
+                pktemp=[] # contiene las llaves primarias temporales
+
+                # se crean las llaves temporales
+                try:
+                    for d in listado:
+                        pkey = ""
+                        for k in self.pk:
+                            pkey +=str(d.data[k])+"_"
+
+                        pkey=pkey[:-1]
+                        if pkey in pktemp:  # corrobora si existe la llave genera en el listado temporal
+                            return 1
+                        else: 
+                            pktemp.append(pkey)                       
+                except (IndexError): 
+                    return 5                                     
+                # se elimina cada registro
+                for c in listado:
+                    # se elimina primero el registro 
+                    self.delete([c.clave])
+                    # se inserta el nuevo valor
+                    self.insert(c.data)
+                return 0
+                
+
+    #FUNCION 4: def alterDropPK
+    def alterDropPK(self):
+        try:
+            if len(self.pk)==0:
+                return 4
+            else:
+                self.pk=[]
+                return 0
+        except TypeError:
+            return 1
+
+
+    #FUNCION 5: ALTER ADD COLUMN, AGREGA UNA COLUMNA AL FINAL DE CADA REGISTRO : REIBE COMO PARAMETRO: DEFAULT: ANY
+    def alterAddColumn( self,default):
+        result = self.tabla.AlterCol("Add",default)
+        if result ==0:
+            self.tamCol +=1
+
+        return result
+
+    #FUNCION 5: ALTER ADD COLUMN, ElIMINA UNA COLUMNA EN CADA REGISTRO : REIBE COMO PARAMETRO: INDICE DE COLUMNA
+    def alterDropColumn( self,col):
+        try: 
+            ingresar = True
+            col = int(col)
+            if ingresar:
+                if self.tamCol-1 <= 0 :
+                    return 4
+                elif col > self.tamCol  :
+                    return 5
+                elif self.pk:
+                    if col in self.pk:
+                        return 4
+                    else:
+                        result = self.tabla.AlterCol("Drop",col)
+                        self.tamCol -=1
+                    return result
+                else:
+                    result = self.tabla.AlterCol("Drop",col)
+                    self.tamCol -=1
+                    return result
+            else:
+                return 4
+           
+        except (ValueError):
+            return 4
+
+    def graficar(self):
+        self.tabla.graphviz()
+    
