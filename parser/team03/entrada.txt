@@ -1,4 +1,16 @@
-CREATE DATABASE 
+use test;
+CREATE TYPE area AS ENUM ('CONTABILIDAD','ADMINISTRACION','VENTAS','TECNOLOGIA','FABRICA');
+
+CREATE TABLE tbempleadopuesto
+(
+	idempleado integer not null,
+	idpuesto   integer not null,
+	departamento area
+);
+insert into tbempleadopuesto (idempleado, idpuesto,	departamento) values(1,1,'ADMINISTRACION45');
+//select 2*3*4 as mult;
+//select subq.mult as newMult * from (select 2*3*4 as mult) as subq;
+/*CREATE DATABASE 
 IF NOT EXISTS test
     OWNER = 'root'
     MODE = 1;
@@ -42,7 +54,7 @@ from tbusuario as u,
  	tbrol  as r
 where 	u.idusuario = ur.idusuario_ 
 		and ur.idrol_ = r.idrol;
-
+*/
 /*select 1+1 as 'suma', now() as 'fecha', u.nombre, 
 u.apellido, u.usuario, u.password, u.fechacreacion 
 from tbusuario as u;*/

@@ -351,7 +351,7 @@ precedence = (
     ('left', 'OR'),
     ('left', 'AND'),
     ('right', 'NOT'),
-
+    ('left', 'AS')
 )
 
 
@@ -546,6 +546,7 @@ def p_table(t):
 def p_table0(t):
     '''table    :  PARA stm_select PARC
                 |  PARA stm_select PARC AS TEXTO
+                |  PARA stm_select PARC AS ID
                 '''
     if len(t) == 4:
         childsProduction  = addNotNoneChild(t,[2])
@@ -1010,8 +1011,8 @@ def p_stm_create(t):
             childsProduction.append(lista.graph_ref)
         graph_ref = graph_node(str("stm_create"), [t[1],t[2],t[3],t[4],t[5],t[6],lista,t[8]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=   tCreate tType tIdentifier tAs tEnum '(' \<EXP_LIST> ')' ")
-        t[0] = CreateEnum(t[3], token.lineno, token.lexpos, graph_ref)
-        ##### 
+        t[0] = CreateEnum(t[3], t[7], token.lineno, token.lexpos, graph_ref)
+        
 
 
 def p_if__not_exist_opt(t):
@@ -1320,7 +1321,8 @@ def p_type(t):
                 | DATE
                 | TIME
                 | INTERVAL
-                | BOOLEAN'''
+                | BOOLEAN
+                | ID'''
     token = t.slice[1]
 
     if token.type == "DOUBLE":
@@ -1332,6 +1334,11 @@ def p_type(t):
         graph_ref = graph_node(str(str(t[1])+" "+str(t[2])))
         addCad("**\<TYPE>** ::= CARACTER VARYING")
         t[0] = TypeDef(token.type, 0, t[3], token.lineno, token.lexpos, graph_ref)
+
+    elif token.type == "ID":
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<TYPE>** ::= " + str(token.value).upper())
+        t[0] = TypeDef(str(token.value).upper(), None, None, token.lineno, token.lexpos, graph_ref)
 
     else:
         graph_ref = graph_node(str(t[1]))
@@ -2086,7 +2093,7 @@ class grammarReview:
         return ST.report_symbols()
 
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     f = open("./entrada.txt", "r")
     input = f.read()
     print("Input: " + input +"\n")
@@ -2109,4 +2116,4 @@ if __name__ == "__main__":
 
     for e in errorsList:
         print(e,"\n")
-    ST.report_symbols() 
+    ST.report_symbols() '''

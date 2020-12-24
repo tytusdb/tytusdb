@@ -26,19 +26,26 @@ class Select(ASTNode):
         if self.tables:            
             
             for t in self.tables:
+                columns = []
+                data = []
+                if t.subquery is not None:
+                    r = t.execute(table, tree)
+                    if len(r) > 0:
+                        columns = r[0]
+                        data = r[1]
+                else:
+                    ####for non subquery
+                    #get all columnaes and add into header array
+                    columns = table.get_fields_from_table(t.name)
+                    columns.sort(key = lambda x: x.field_index)
+                    for c in columns:
+                        if t.alias is None:
+                            header.append(str(c.field_name))
+                        else:
+                            header.append(str((t.alias) + '.' + str(c.field_name)))
                 
-                ####for non subquery
-                #get all columnaes and add into header array
-                columns = table.get_fields_from_table(t.name)
-                columns.sort(key = lambda x: x.field_index)
-                for c in columns:
-                    if t.alias is None:
-                        header.append(str(c.field_name))
-                    else:
-                        header.append(str((t.alias) + '.' + str(c.field_name)))
-            
-                data = extractTable(table.get_current_db().name, t.name)
-                #####for non subquery
+                    data = extractTable(table.get_current_db().name, t.name)
+                    #####for non subquery
                 if len(megaunion) > 0 and len(data) > 0:
                     megaunion = doBinaryUnion(megaunion,data)
                 elif len(megaunion) == 0:
@@ -127,7 +134,7 @@ class Table(ASTNode):
         if self.subquery:
             if self.alias is None:
                 self.alias = 'subq'+str(id(self))
-            if self.name is None
+            if self.name is None:
                 self.name = 'subq'+str(id(self))
 
     def execute(self, table, tree):
