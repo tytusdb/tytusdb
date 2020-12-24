@@ -20,8 +20,37 @@ class Select():
         #Llamar metodo que realizara el select
         print('ejecutando select')
 
+class AlterDB():
+    def __init__(self, oldid, newid):
+        self.oldid = oldid
+        self.newid = newid
+
+    def execute(self, ts):
+        db = ts.get_simbol(self.oldid)
+        mensaje = '\n****ALTER DATABASE****\n'
+        if isinstance(db, E.Errores):
+            mensaje = mensaje + '\tBase de datos no encontrada'
+            return mensaje
+        else:
+            actual = ts.get_dbActual()
+            if actual.id == self.oldid:
+                actual.id = self.newid
+                #recorer ts para cambiar el nomnre
+                for sim in ts.lis_simbolos:
+                    if sim.base == self.oldid:
+                        #cabiamos el id a la tabla
+                        sim.base = self.newid
+                        #recorremos sus columnas para cambiar el nombre de la base
+                        for col in sim.valor:
+                            col.base = self.newid
+
+            db.id = self.newid
+
+            mensaje = mensaje + '\tLa base de datos \'' + self.oldid + '\' cambio a \'' + self.newid + '\''
+            return mensaje
+
 class AlterTable():
-    def __init__(self, id, cols, base):
+    def __init__(self, id, cols, base): # id = nombre de la tabla, cols = las instrucciones que debe realizar, base = el nombre de la base de datos
         self.id = id
         self.cols = cols
         self.base = base
@@ -29,9 +58,9 @@ class AlterTable():
     def execute(self, ts):
         self.base = ts.get_dbActual().id
         mensaje = '\n****ALTER TABLE****\n'
+        #Agregar una columna nueva a la tabla
         if str(self.cols[0]).upper() == 'ADDCOL':
-            print('El tipo de la columnas es -> ' + str(self.cols[1].tipo))
-            print('El id de la columnas es -> ' + str(self.cols[1].id))
+            mensaje = mensaje + '---->ADD COLUMN\n'
             self.cols[1].base = self.base
             agregar = ts.agregar_columna(self.id, self.base, self.cols[1])
             if isinstance(agregar, E.Errores):
@@ -41,6 +70,82 @@ class AlterTable():
             else:
                 mensaje = mensaje + '\tColuma agregada con exito'
                 return mensaje
+        #Cambiar el tipo de dato de una columna
+        elif str(self.cols[0]).upper() == 'TYPE':
+            mensaje = mensaje + '---->ALTER TYPE\n'
+            columna = ts.get_column(self.base, self.id, self.cols[1])
+            #Verifica si la columna retorna un error
+            if isinstance(columna, E.Errores):
+                mensaje = mensaje + '\t' + columna.error + '\n'
+                return mensaje
+            else:
+                if columna.tipo == self.cols[2]:
+                    columna.longitud = self.cols[3]
+                    mensaje = mensaje + '\tColumna \'' + self.cols[1] + '\' modificada con éxito'
+                    return mensaje
+                else:
+                    mensaje = mensaje + '\tEl tipo no coincide'
+                    return mensaje
+        #Set constraint
+        elif str(self.cols[0]).upper() == 'SET':
+            mensaje = mensaje + '---->SET\n'
+            columna = ts.get_column(self.base, self.id, self.cols[1])
+            #Verifica si la columna retorna un error
+            if isinstance(columna, E.Errores):
+                mensaje = mensaje + '\t' + columna + '\n'
+                return mensaje
+            else:
+                columna.valor.append(self.cols[2])
+                mensaje = mensaje + '\tSe ha realizado el SET correctamente'
+                return mensaje
+        #Eliminar columna
+        elif str(self.cols[0]).upper() == 'DCOL':
+            mensaje = mensaje + '---->DROP COLUMN\n'
+            col = ts.drop_colum(self.base, self.id, self.cols[1])
+            if col == True:
+                mensaje = mensaje + '\tColumna eliminada correctamente'
+                return mensaje
+            else:
+                mensaje = mensaje + '\tNo se pudo eliminar la columna'
+                return mensaje
+        #Eliminar constraint
+        elif str(self.cols[0]).upper() == 'DCONS':
+            mensaje = mensaje + '---->DROP CONSTRAINT\n'
+            c = ts.drop_const(self.base, self.id, self.cols[1])
+            if c == True:
+                mensaje = mensaje + '\tConstraint eliminado correctamente'
+                return mensaje
+            else:
+                mensaje = mensaje + '\tNo se pudo eliminar el constraint'
+                return mensaje
+        #Agrega un constraint
+        elif str(self.cols[0]).upper() == 'CONST':
+            const = self.cols[1]
+            mensaje = mensaje + '---->ADD CONSTRAINT\n'
+            if const[0].columna == None:
+                mensaje = mensaje + '\tNo es posible agregar el constraint'
+                return mensaje
+            else:
+                ag = ts.get_column(self.base, self.id, const[0].columna)
+                if not isinstance(ag, E.Errores):
+                    if const[0].tipo == TS.t_constraint.FOREIGN:
+                        ag.fk = True
+                        ag.referencia = const[0].valor
+                        if const[0].id != None:
+                            ag.valor.append(const[0])
+                    elif const[0].tipo == TS.t_constraint.PRIMARY:
+                        ag.pk = True
+                        if const[0].id != None:
+                            ag.valor.append(const[0])
+                    else:
+                        print('---->Entró a otros')
+                        ag.valor.append(const[0])
+                    mensaje = mensaje + '\tSe agregó el constraint correctamente'
+                    return mensaje
+                else:
+                    mensaje = mensaje + '\tNo se pudo agregar el constraint'
+                    return mensaje
+
 
 class CreateDB():
     def __init__(self, replace, ifnot, id, owner, mode):    # boolean, boolean, string, string, integer
@@ -148,6 +253,22 @@ class DropDB():
                 mensaje = mensaje + '\tBase de datos eliminada con éxito\n'
                 return mensaje
 
+class DropTable():
+    def __init__(self, id, base):
+        self.id = id
+        self.base = base
+    
+    def execute(self, ts):
+        mensaje = '\n****DROP TABLE****\n'
+        self.base = ts.get_dbActual().id
+        drop = ts.drop_table(self.base, self.id)
+        if drop == True:
+            mensaje = mensaje + '\tTabla \'' + self.id + '\' eliminada con exito'
+            return mensaje
+        else:
+            mensaje = mensaje + '\tNo se pudo eliminar la tabla'
+            return mensaje
+
 class CreateTable():
     def __init__(self, id, base, cols, inh,cont_key):
         self.id = id
@@ -191,6 +312,30 @@ class CreateTable():
                         columna.longitud =0
                 
                 ts.agregar_columna(self.id,self.base,columna)
+
+            '''
+            if self.cont_key != '':
+                for c in self.cont_key:
+                    ag = ts.get_column(self.base, self.id, c.columna)
+                    if not isinstance(ag, E.Errores):
+                        if const[0].tipo == TS.t_constraint.FOREIGN:
+                            ag.fk = True
+                            ag.referencia = const[0].valor
+                            if const[0].id != None:
+                                ag.valor.append(const[0])
+                        elif const[0].tipo == TS.t_constraint.PRIMARY:
+                            ag.pk = True
+                            if const[0].id != None:
+                                ag.valor.append(const[0])
+                        else:
+                            #print('---->Entró a otros')
+                            ag.valor.append(const[0])
+                        #mensaje = mensaje + '\tSe agregó el constraint correctamente'
+                        #return mensaje
+                    else:
+                        mensaje = mensaje + '\tNo se pudo agregar el constraint'
+                        #return mensaje
+            '''
             mensaje = mensaje + '\tTabla creada correctamente\n'
             j.createTable(self.base, self.id, len(self.cols))
             return mensaje
