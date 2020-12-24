@@ -1,8 +1,12 @@
+from enum import Enum
 from prettytable import PrettyTable
 from datetime import date
 from datetime import datetime
 import math
 import random
+
+from storageManager import jsonMode as jsonMode
+import re
 
 
 class Nodo:
@@ -23,3 +27,189 @@ class Nodo:
         return cadena
 
 #---------------------------------------------------------------------------------------------------------------
+class EType(Enum):
+    LEXICO      = 1
+    SINTACTICO  = 2
+    SEMANTICO   = 3
+
+class Error:
+    '''
+    Clase utilizada para el manero de errores
+    Atributos:
+        code        - codigo de error (según errores definidos pos SQL)
+        error_type  - tipo de error (EType)
+        description - descripción del error
+        line        - linea en la cual ocurrió
+        column      - columna en la cual ocurrió
+    '''
+    def __init__(self,code,error_type,description = '',line = -1,column = -1):
+        self.code = code
+        self.error_type = error_type
+        self.description = description
+        self.line = line
+        self.column = column
+    
+    def toString(self):
+        return str(self.code)+'\t'+str(self.error_type.name)+'\t'+str(self.description)+'\tL: '+str(self.line)
+
+#---------------------------------------------------------------------------------------------------------------
+
+class Database:
+    '''
+    Clase que define la estructura de una base de datos
+    compuesta por un diccionario de <Tablas>
+    Atrbutos:
+        owner  - nombre del propietario
+        mode   - valor tipo entero que define el modo de la DB
+        tables - diccionario de tablas [key:'...', value: {...}]
+    '''
+    def __init__(self,owner = '',mode = -1,tables = {}):
+        self.owner = owner 
+        self.mode = mode
+        self.tables = {}
+
+    def toString(self):
+        return 'Owner: '+str(self.owner)+' | Mode: '+str(self.mode)+' | Tables Count: '+str(len(self.tables))
+
+#---------------------------------------------------------------------------------------------------------------
+
+class Constraint:
+    '''
+    Clase que define la Restriccion de una columna
+    Atributos:
+        name  -  nombre que recibe la restriccion.
+        value -  nodo que contiene la porción del árbol con la condición a evaluar.  
+    '''
+    def __init__(self,name,value):
+        self.name = name
+        self.value = value
+
+#---------------------------------------------------------------------------------------------------------------
+
+class Types(Enum):
+    SMALLINT            = 1
+    INTEGER             = 2
+    BIGINT              = 3
+    DECIMAL             = 4
+    NUMERIC             = 5
+    REAL                = 6
+    FLOAT               = 7
+    INT                 = 8
+    DOUBLE              = 9
+    MONEY               = 10
+    VARCHAR             = 11
+    CHARACTER_VARYING   = 12
+    CHARACTER           = 13
+    CHAR                = 14
+    TEXT                = 15
+    TIMESTAMP           = 16
+    DATE                = 17
+    TIME                = 18
+    BOOLEAN             = 19
+    INTERVAL            = 20
+    ENUM                = 21
+
+class ColType:
+    '''
+    Clase define el tipo una columna
+    Atributos:
+        col_type - enum Types 
+        value    - valor (int) para tipos numericos con limite o 
+                   valor (string) para tipos definidos por el usuario (nombre)
+    '''
+    def __init__(self, col_type, value):
+        self.col_type = col_type
+        self.value = value
+    
+    def getType(self) -> str:
+        if isinstance(self.value, int) and self.value > 0:
+            return str(self.col_type.name) + '('+str(self.value)+')'
+        elif isinstance(self.value, str):
+            return str(self.col_type.name) + '('+str(self.value)+')'
+        return str(self.col_type.name)
+    
+#---------------------------------------------------------------------------------------------------------------
+
+class Column:
+    '''
+    Clase que define los atributos de una columna
+    Atributos:
+        index           - indice de la columna
+        columnType      - instancia de la clase <ColType>
+        isPrimaryKey    - valor (bool) para indicar si una columna es llave primaria
+        defaultValue    - valor por defecto para una columna
+        isNull          - valor (bool) para indicar si una columna puede ser nula
+        constraindValue - instancia de (Constraint) almacena la restriccion de una columna
+        isUnique        - valor (bool) para indicar si los valores en la columna deben ser únicos
+        line            - línea de la instrucción
+    '''
+    def __init__(self,name,index,columnType:ColType = None,isPrimaryKey = False,defaultValue = None,isNull = False, constraintValue = '',isUnique = False,line = 0):
+        self.name = name
+        self.index = index
+        self.columnType = columnType
+        self.isPrimaryKey = isPrimaryKey
+        self.defaultValue = defaultValue
+        self.isNull = isNull
+        self.isUnique = isUnique
+        self.line = line
+
+    def toString(self) -> str:
+        return 'Columna \"'+self.name+'\"\nTipo: '+str(self.columnType.col_type.name)+'\nPrimary Key: '+str(self.isPrimaryKey)+ '\nNull: '+str(self.isNull) + '\nUnique: '+str(self.isUnique)
+
+#---------------------------------------------------------------------------------------------------------------
+
+class AST:
+    '''
+    Clase que contendrá todo lo referente al AST
+    Atributos:
+        raiz      - nodo del árbol de las instrucciones
+        usingDB   - almacenará el NOMBRE de la DB en en uso
+        ts        - diccionario de la Tabla de Simbolos
+        userTypes - diccionario para Tipo definido por el usuario (Enums)
+        output    - lista de datos que se enviarán a la consola de salida
+        errors    - lista que almacena objetos tipo (Error) para reporte
+    '''
+    def __init__(self,raiz,usingDB = '',ts = {},userTypes = {},output = [],errors = []):
+        self.raiz = raiz 
+        self.usingDB = usingDB
+        self.ts = ts
+        self.userTypes = userTypes
+        self.output = output
+        self.errors = errors
+        jsonMode.dropAll() 
+
+    def executeAST(self):
+        for nodo in self.raiz.hijos:
+            if nodo.etiqueta == 'CREATE DATABASE':
+                self.createDB(nodo)
+            elif nodo.etiqueta == 'USE DATABASE':
+                self.useDB(nodo)
+            elif nodo.etiqueta == 'REPLACE DATABASE':
+                pass
+            elif nodo.etiqueta == 'ALTER DATABASE':
+                self.alterDB(nodo)
+            elif nodo.etiqueta == 'DROP DATABASE':
+                self.dropDB(nodo)
+            elif nodo.etiqueta == 'CREATE TABLE':
+                self.crearTabla(nodo)
+            elif nodo.etiqueta == 'DROP TABLE':
+                self.eliminarTabla(nodo)
+            elif nodo.etiqueta == 'SHOW DATABASES':
+                self.showDB(nodo)
+            elif nodo.etiqueta == 'INSERT INTO':
+                self.insertarDatos(nodo)
+            elif nodo.etiqueta == 'UPDATE':
+                self.update(nodo)
+            elif nodo.etiqueta == 'CREATE ENUM':
+                self.crearEnum(nodo)
+            elif nodo.etiqueta == 'ALTER TABLE':
+                pass
+            elif nodo.etiqueta == 'DELETE':
+                #self.delete()
+                pass
+            elif nodo.etiqueta == 'TRUNCATE':
+                self.truncate(nodo)
+            elif nodo.etiqueta == 'SELECT':
+                self.Select(nodo)
+            else:
+                print('[!] Valor de etiqueta ('+nodo.etiqueta+') no corresponde, en L: '+str(nodo.linea))
