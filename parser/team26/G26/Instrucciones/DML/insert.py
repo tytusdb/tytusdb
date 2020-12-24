@@ -62,6 +62,7 @@ class Insert(Instruccion):
                 #print('ERROR INDEX')
 
             if dentroRango:
+                
                 if columna.type == 'smallint':
                     if isinstance(valoresTabla[posColumna], int):
                         if valoresTabla[posColumna] >= -32768 and valoresTabla[posColumna] <= 32767:
@@ -138,7 +139,7 @@ class Insert(Instruccion):
                             return error
                 elif columna.type == 'money':
                     if isinstance(valoresTabla[posColumna], str):
-                        if isinstance(valoresTabla[posColumna][0] == '$'):
+                        if (valoresTabla[posColumna][0] == '$'):
                             if isinstance(valoresTabla[posColumna][1], int):
                                 ''
                             else:
@@ -159,7 +160,12 @@ class Insert(Instruccion):
                                 return error
                 elif columna.type == 'character' or columna.type == 'varchar' or columna.type == 'char': #-------------FALTA EL CHAR
                     if isinstance(valoresTabla[posColumna], str):
-                        if columna.size >= len(valoresTabla[posColumna]):
+                        valor = 0
+                        if columna.type == 'character' : 
+                            valor = columna.size.varying
+                        else :
+                            valor = columna.size
+                        if valor >= len(valoresTabla[posColumna]):
                             ''
                         else:
                             if tamanioInferior:

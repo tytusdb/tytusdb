@@ -1,6 +1,7 @@
 #libreria importada para la creacion de ventanas en nuestro escritorio
 #import tkinter
 from tkinter import *
+import tkinter
 from Lexico import analizarLex ,analizarSin
 from gramatica import analizarASTLex, analizarASTSin
 from bnf import analizarBNFLex, analizarBNFSin
@@ -38,9 +39,15 @@ def analizar_texto():
     entorno = analizarSin(result)  # se envia el texto a el analizador sintactico
     iniciarEjecucion = Main(entorno)
     _res = iniciarEjecucion.execute(env)
-    for item in _res:
+    txt_salida.insert('end','>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+    for item in _res[0]:
         txt_salida.insert('end',item+'\n')
-        
+    
+    txt_salida.insert('end','=========================================ERRORES==============================================\n')
+    for item in _res[1]:
+        txt_salida.insert('end',item+'\n')
+    txt_salida.insert('end','>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n\n\n')
+            
 
 # Metodo para limpiar la salida de gramatica
 def limpiar():
@@ -110,8 +117,10 @@ txt_consultas = Text(ventana,height = 20,width = 110,bg = "black",fg = "white")
 txt_consultas.place(x = 100 , y = 60)
 
 # TEXTAREA Salida
-txt_salida = Text(ventana,height = 15,width = 110,bg = "black",fg = "white")
+txt_salida = Text(ventana,height = 15,width = 110,bg = "black",fg = "green")
 txt_salida.place(x = 100 , y = 380)
+scrollb = tkinter.Scrollbar( command=txt_salida.yview)
+txt_salida['yscrollcommand'] = scrollb.set
 
 
 # loop para mostrar nuestra venatana

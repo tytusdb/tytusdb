@@ -882,7 +882,7 @@ class UpdateTable(Instruccion):
 
         for asignacion in self.asignaciones:
             nodo += "\nSET" + identificador + " -> " + str(hash(asignacion)) + ";"
-            nodo += asignacion.dibujar()
+            nodo += "\n" + str(hash(asignacion)) + "[ label = \" " + asignacion + " = " + str(self.asignaciones[asignacion].val) + "\" ];"
 
         if self.condiciones:
             nodo += "\nWHERE" + identificador + "[ label = \"WHERE\" ];"

@@ -92,10 +92,3 @@ class ColCase(Instruccion):
         self.fila = fila
         self.columna = columna
 
-#TYPE
-class CreateType(Instruccion):
-    def __init__(self, id, lista,fila,columna):
-        self.id = id
-        self.lista = lista
-        self.fila = fila
-        self.columna = columna

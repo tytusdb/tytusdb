@@ -129,7 +129,6 @@ class Select(Instruccion):
             elif tablasSeleccionadas.asop == None:
                 directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': '', 'temporal': False}
             else:
-                print(nombreColumna)
                 directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': tablasSeleccionadas.asop.upper(), 'temporal': False}
 
         try:
