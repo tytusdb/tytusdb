@@ -1,7 +1,6 @@
 from enum import Enum
 from parse.errors import ErrorType, Error
 from jsonMode import showDatabases as showDB
-from tabulate import tabulate
 
 index = 0
 
@@ -74,23 +73,14 @@ class SymbolTable:
         self.symbols = symbols
 
     def add(self, symbol):
-        match = None
-        if symbol.type == SymbolType.FIELD:
-            match = next((sym for sym in self.symbols if sym.name == symbol.name and sym.type == symbol.type
-                          and sym.table_name == symbol.table_name), None)
-        elif symbol.type == SymbolType.TABLE:
-            match = next((sym for sym in self.symbols if sym.name == symbol.name and sym.type == symbol.type
-                          and sym.db_id == symbol.db_id), None)
-        else:
-            match = next((sym for sym in self.symbols if sym.name == symbol.name and sym.type == symbol.type), None)
-
+        match = next((sym for sym in self.symbols if sym.name == symbol.name and sym.type == symbol.type), None)
         if match is None:
             self.symbols.append(symbol)
         else:
             raise Error(0, 0, ErrorType.RUNTIME, f'[TS]{symbol.name} ya ha sido declarado previamente')
         return True
 
-    def get_by_id(self, symbol_id):
+    def get(self, symbol_id):
         result = next((sym for sym in self.symbols if sym.id == symbol_id), None)
         if result is None:
             raise Error(0, 0, ErrorType.RUNTIME, f'[TS]Simbolo id:{symbol_id} no pudo ser encontrado')
@@ -109,29 +99,29 @@ class SymbolTable:
         return result
 
     def update(self, symbol):
-        result = self.get_by_id(symbol.id)
+        result = self.get(symbol.id)
         self.symbols[self.symbols.index(result)] = symbol
         return True
 
     def delete(self, symbol_id):
-        result = self.get_by_id(symbol_id)
+        result = self.get(symbol_id)
         self.symbols.remove(result)
         return True
 
     def get_current_db(self):
-        result = next((sym for sym in self.symbols if sym.type == SymbolType.DATABASE and sym.selected is True), None)
+        result = next((sym for sym in self.symbols if sym.type == SymbolType.DATABASE and sym.selected == True), None)
         if result is None:
             raise Error(0, 0, ErrorType.RUNTIME, 'No se ha seleccionado base de datos')
         return result
 
     def set_current_db(self, db_name):
         db_to_select = self.get(db_name, SymbolType.DATABASE)        
-        allDB = self.get_all_db(None)  # get the other databases and unselect them
-        if len(allDB) > 0:
+        allDB = self.get_all_db(None)#get the other databases and unselect them
+        if (len(allDB)>0):
             for db in allDB:
                 db.selected = False
         db_to_select.selected = True
-        # self.update(db_to_select) comment this line for test
+        #self.update(db_to_select) commet this line for test
         
         return True
 
@@ -153,35 +143,17 @@ class SymbolTable:
         db_memory = self.get_all_db(None)
         db_disk = showDB()
         for dbd in db_disk:
-            db_memory = list(filter(lambda sym: sym.type == SymbolType.DATABASE and str(sym.name).lower() == str(dbd).lower(), self.symbols))
+            db_memory =  list(filter(lambda sym: sym.type == SymbolType.DATABASE and str(sym.name).lower() == str(dbd).lower(), self.symbols))
             if len(db_memory) == 0:
-                self.add(DatabaseSymbol(dbd, None, 6))  # TODO change the mode for phase II
+                self.add(DatabaseSymbol(dbd, None, 6))#TODO change the mode for phase II
 
     def drop_data_base(self, name_db):
+        index = 0;
         for s in self.symbols:
             if s.type == SymbolType.DATABASE and str(s.name).lower() == str(name_db).lower():
                 self.symbols.remove(s)
                 break
-
-    def drop_table(self, name_table):
-        for s in self.symbols:
-            if s.type == SymbolType.TABLE and str(s.name).lower() == str(name_table).lower():
-                self.symbols.remove(s)
-                break
-
-    def report_symbols(self):
-        result2 = ["NOMBRE", "TIPO", "PERTENECE A"]
-        result = []
-        for symbol in self.symbols:
-            belongs_to = 'Root'
-            if symbol.type == SymbolType.TABLE:
-                belongs_to = f'BD: {next((sym for sym in self.symbols if sym.id == symbol.db_id), None).name}'
-            elif symbol.type == SymbolType.FIELD:
-                belongs_to = f'Tabla: {symbol.table_name}'
-            result.append([symbol.name, symbol.type, belongs_to])
-        print(tabulate(result, result2, tablefmt="psql"))
-        return tabulate(result, result2, tablefmt="psql")
-
+            index+=1
 # BLOCK TO TEST SYMBOL TABLE
 # db = DatabaseSymbol('test_db', None, 6)
 # table = TableSymbol(db.name, 'test_table')

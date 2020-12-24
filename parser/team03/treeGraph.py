@@ -4,8 +4,7 @@ import subprocess
 
 s="\n"
 i = 0
-gram=""
-childslist="inicio -> {"
+gram="# REPORTE DE GRAMATICA EN EJECUCION \n\n"
 
 def inc():
     global i
@@ -40,13 +39,9 @@ def graph_node(value, arreglo=[], child_indices=[]):
                 listahijos=listahijos +"A"+ str(idhijo) + ","
                 hijo= "A"+str(idhijo)+'[label = "'+str(child)+'" width = 1.5 style = filled, fillcolor = lightskyblue];\n'
                 allhijos = allhijos + hijo
-    temp = len(listahijos)       
-    if listahijos[temp-1] == ",": 
-        listahijos = listahijos[:temp - 1]
-        listahijos = listahijos +"}\n"
-    elif listahijos[temp-1] == "{":
-        listahijos = listahijos +"}\n" 
-
+    temp = len(listahijos)        
+    listahijos = listahijos[:temp - 1]
+    listahijos = listahijos +"}\n"
     if len(arreglo) ==0:
         s = padre +s
         return "A"+str(graph_id)
@@ -57,29 +52,18 @@ def graph_node(value, arreglo=[], child_indices=[]):
 
 
 def createFile():
-    global gram
-    gram="# REPORTE DE GRAMATICA EN EJECUCION \n\n" +gram
     archivo = open('reportGrammar.md', 'w')
     archivo.write(gram)
     archivo.close()
 
 def creategrafo():
     global s
-    global childslist
-    temp = len(childslist)       
-    if childslist[temp-1] == ",": 
-        childslist = childslist[:temp - 1]
-        childslist = childslist +"}\n"
-    elif childslist[temp-1] == "{":
-        childslist = childslist +"}\n"
-    s="digraph Matrix { graph [dpi=300]; \n node [shape=box] e0[ shape = point, width = 0 ];\n inicio[label = \"Inicio\" width = 1.5 style = filled, fillcolor = firebrick1];  "+childslist+s+"}"
-
-   
-    archivo = open('grap.dot', 'w')
+    s="digraph Matrix { node [shape=box] e0[ shape = point, width = 0 ];\n"+s+"}"
+    archivo = open('grap.txt', 'w')
     archivo.write(s)
     archivo.close()
 
-    comando = "dot -Tpng "+ "grap" +".dot -o "+ "grap" +".png"
+    comando = "dot -Tpng "+ "grap" +".txt -o "+ "grap" +".png"
     resultado = subprocess.Popen(comando,shell=True,stdout=subprocess.PIPE)   #manda a consola la instruccion
     for salida in resultado.stdout:
         print(salida.decode(sys.getdefaultencoding()).rstrip())            #imprime algun posible error que pueda suceder
@@ -87,15 +71,13 @@ def creategrafo():
     comando2 = "start "+ "grap" +".png"
     resultado2 = subprocess.Popen(comando2,shell=True,stdout=subprocess.PIPE)
     for salida2 in resultado2.stdout:
-        print(salida2.decode(sys.getdefaultencoding()).rstrip()) 
+        print(salida2.decode(sys.getdefaultencoding()).rstrip())
 
-def punteroinicio(nombre):
-    global childslist
-    childslist = childslist + nombre + ","
+
 
 def addCad(cadena):
     global gram
-    gram =  cadena + "\n"+"<br>"+"\n\n" + gram
+    gram = gram + cadena + "\n"+"<br>"+"\n\n" 
 
 
 #recibo un arreglo y devuelve solamento los indices que quiero
@@ -113,17 +95,7 @@ def addNotNoneChild(arregloT, cualesVerifico=[]):
             childs.append(str(arregloT[i].graph_ref))
     return childs        
 
-def generateReports():
-    createFile()
-    creategrafo()
-    global s
-    s="\n"
-    global i
-    i = 0
-    global gram
-    gram=""
-    global childslist
-    childslist="inicio -> {"
+
 
 
 

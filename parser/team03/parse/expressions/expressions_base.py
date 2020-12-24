@@ -93,25 +93,10 @@ class ColumnName(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-
-        fullname = ''
         if self.tName is None or self.tName == "":
-            fullname = self.cName
+            return self.cName
         else:
-            fullname = self.tName + "." + self.cName  # TODO check if is necesary go to symbol table to get the value or check if the object exists
-
-        #yes we have to get the value of colname
-        # if this AST have tree  == list it means the execute have to search for the value of colunn
-        # in this case table have a row to evaluate where exp and tree has the columns header
-        if isinstance(tree,list):                            
-            try:
-                index = tree.index(fullname)
-                return table[index]
-            except:
-                raise Error(self.line, self.column, ErrorType.RUNTIME, f'[AST] the name {fullname} is not belong of the selected table(s)')
-        else:
-            return fullname
-            
+            return self.tName + "." + self.cName  # TODO check if is necesary go to symbol table to get the value or check if the object exists
 
 
 class Now(ASTNode):

@@ -4,11 +4,10 @@ use database comp2;
 false is false;
 show databases like 'compiladores2';
 use database compiladores2;
-select width_bucket(3, 1, 12, 3) as histo1;
-select width_bucket(5, 1, 12, 3) as histo2;
-select width_bucket(9, 1, 12, 3) as histo3;
-select 3+5*2 as multi;
-select * from (select 1 as valor);
+width_bucket(3, 1, 12, 3);
+width_bucket(5, 1, 12, 3);
+width_bucket(9, 1, 12, 3);
+
 CREATE DATABASE /*IF NOT EXISTS*/ test
     OWNER = 'root'
     MODE = 1;
@@ -23,14 +22,7 @@ CREATE TABLE tbusuario (
 	password varchar(15) NOT NULL,
 	fechacreacion date 
 );
-
-CREATE TABLE tbusuario2 (
-	adicional varchar(50)
-) INHERITS (tbusuario);
-
 INSERT INTO tbusuario(idusuario, nombre, apellido, usuario, password, fechacreacion)
 VALUES (1,'Aug','LH','vkslax','pass','2020-12-12');
-INSERT INTO tbusuario2(idusuario, nombre, apellido, usuario, password, fechacreacion, adicional)
-VALUES (2,'Vic','L','vkslax','pass','2020-12-12', 'meh');
-//select idusuario, nombre, apellido, usuario, password, fechacreacion from tbusuario;
-select * from tbusuario;
+INSERT INTO tbusuario(idusuario, nombre, apellido, usuario, password, fechacreacion)
+VALUES (2,'Vic','L','vkslax','pass','2020-12-12');
