@@ -8,21 +8,23 @@ import Errores.Nodo_Error as error
 import Errores.ListaErrores as lista_err
 from Reportes.ReporteError import ReporteError
 from Reportes.ReporteGramatical import ReporteGramatical
+from Reportes.ReporteTS import ReporteTS
 from tkinter import *
 from tkinter import filedialog
 from tkinter import scrolledtext
 from tkinter import messagebox
-from tkinter import font
 from tkinter import ttk
+import os, shutil
+
 
 if __name__=='__main__':
     from LineNumber import LineMain
     from Graphics import Tkinter
     from ColorLight import ColorLight
 else:
-    from .LineNumber import LineMain
-    from .Graphics import Tkinter
-    from .ColorLight import ColorLight
+    from LineNumber import LineMain
+    from Graphics import Tkinter
+    from ColorLight import ColorLight
 
 class Connect:
     def __init__(self, pad):
@@ -54,19 +56,20 @@ class TextPad(Tkinter.Text):
 class Interfaz:
     def __init__(self):
         os.environ['DB'] = 'None'
+        self.borrarArchivos()
         self.root = Tk()
         #self.root.attributes('-zoomed', True)
         self.root.title('TytusDB - Team 19')
         self.root.geometry("1100x700")
         self.root.resizable(1, 1)
         self.txtarea = TextPad(self.root, pady=5)
-        self.consola = scrolledtext.ScrolledText(self.root, width=150, height=15, font=("Consolas", 10))
+        self.consola = scrolledtext.ScrolledText(self.root, width=300, height=15, font=("Consolas", 11))
         self.frame = ttk.Frame(self.root)
         self.frame.pack(fill=X, side='left')
-        self.tree_consultas = ttk.Treeview(self.frame)
+        #self.tree_consultas = ttk.Treeview(self.frame)
         #self.tree_consultas["columns"] = ("Tipo", "Descripcion", "Fila", "Columna")
         #self.tree_consultas.grid(column=1, row=2, sticky=S)
-        self.tree_consultas.column("#0", width=600, stretch=NO)
+        #self.tree_consultas.column("#0", width=600, stretch=NO)
         #self.tree_consultas.column("Tipo", width=50, minwidth=20, stretch=NO)
         #self.tree_consultas.column("Descripcion", width=50, minwidth=20)
         #self.tree_consultas.column("Fila", width=50, minwidth=20)
@@ -76,9 +79,13 @@ class Interfaz:
         #self.tree_consultas.heading("Tipo", text="Tipo", anchor=W)
         #self.tree_consultas.heading("Fila", text="Fila", anchor=W)
         #self.tree_consultas.heading("Columna", text="Columna", anchor=W)
-        #lbl = Label(self.root, text="Consola de Salida:", font=("Consolas", 9))
-        # lbl.pack(side=TOP, fill=Y, anchor=E)
-        self.tree_consultas.pack(side=LEFT, fill=X, pady=5, padx=5)
+        self.v = StringVar()
+        lab = Label(self.root, textvariable=self.v, font=("Helvetica", 11, "bold"))
+        self.v.set('Base de Datos: ' + os.environ['DB'])
+        lab.pack(side=TOP, anchor=E)
+        lbl = Label(self.root, text="Consola de Salida:", font=("Helvetica", 11))
+        lbl.pack(side=TOP, anchor=W)
+        #self.tree_consultas.pack(side=LEFT, fill=X, pady=5, padx=5)
         self.consola.pack(side=RIGHT)
         self.consola.config(foreground='white', bg = 'black')
         self.menubar = Menu(self.root)
@@ -107,7 +114,7 @@ class Interfaz:
         reportes.add_command(label='Reporte Errores', command=self.errores_r)
         reportes.add_command(label='Reporte Errores HTML', command=self.mostrar_reporte_errores)
         reportes.add_separator()
-        reportes.add_command(label='Tabla de Simbolos', command=self.mostrar_reporte_errores)
+        reportes.add_command(label='Tabla de Simbolos', command=self.mostrar_reporte_TS)
         self.menubar.add_cascade(label="Reportes", menu=reportes)
         opciones = Menu(self.menubar, tearoff=0)
         opciones.add_command(label="Acerca de...")
@@ -115,10 +122,10 @@ class Interfaz:
         opciones.add_command(label="Manual de Usuario")
         opciones.add_command(label="Manual Tecnico")
         self.menubar.add_cascade(label="Opciones", menu=opciones)
-        info = Menu(self.menubar, tearoff=0)
-        self.menubar.add_cascade(label="Base de Datos: " + os.environ['DB'], menu=info)
+
         self.errors = None
         self.raizAST = None
+        self.TS:ts.TabladeSimbolos = None
         entrada = self.txtarea.get("1.0", END)
         self.root.mainloop()
 
@@ -126,7 +133,7 @@ class Interfaz:
     def limpiar(self):
         self.txtarea.delete(1.0, END)
         self.archivoactgual = "v"
-
+        self.consola.delete(1.0,END)
 
     def abriarchivo(self):
         filename = filedialog.askopenfilename(
@@ -181,11 +188,13 @@ class Interfaz:
         entrada = entrada1.lower()
         self.raizAST = g.parse(entrada, self.errors)
         self.consola.delete(1.0, "end")
-        TS = ts.TabladeSimbolos("global")
+        self.TS = ts.TabladeSimbolos()
         if self.errors.principio is None:
-            respuestaConsola = str(self.raizAST.ejecutar(TS, self.errors))
+            respuestaConsola = str(self.raizAST.ejecutar(self.TS, self.errors))
+            #respuestaConsola = 'Si paso'
         else:
             respuestaConsola = "Hubieron errores ve a Reporte -> Errores"
+        self.v.set('Base de Datos: ' + os.environ['DB'])
         self.consola.insert("1.0", respuestaConsola)
 
     def entorno(self):
@@ -201,7 +210,7 @@ class Interfaz:
             self.my_text.insert(END, stuff)
             self.update_line_numbers()
             text_file.close()
-            self.raizAST = self.errors = None
+            self.TS = self.raizAST = self.errors = None
         except FileNotFoundError:
             messagebox.showinfo("Informacion", "No se seleccionó un archivo")
 
@@ -220,7 +229,10 @@ class Interfaz:
         else:
             messagebox.showinfo("Informacion", "No hay arbol para mostrar presione ejecutar primero...")
 
-
+    def mostrar_reporte_TS(self):
+        reporteTS = ReporteTS(self.TS)
+        reporteTS.open_file_on_my_computer()
+            
 
 
     def errores_r(self):
@@ -267,6 +279,17 @@ class Interfaz:
         self.line_number_bar.delete('1.0', 'end')
         self.line_number_bar.insert('1.0', line_numbers)
         self.line_number_bar.config(state='disabled')
+
+    def borrarArchivos(self):
+        folder = 'data/json'
+        for the_file in os.listdir(folder):
+            file_path = os.path.join(folder, the_file)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+                # elif os.path.isdir(file_path): shutil.rmtree(file_path)
+            except Exception as e:
+                print(e)
 
 Interfaz()
 

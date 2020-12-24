@@ -1,4 +1,6 @@
 # from generate_ast import GraficarAST
+from models.instructions.Expression.trigonometric_functions import ExpressionsTrigonometric
+from models.instructions.Expression.extract_from_column import ExtractFromIdentifiers
 from re import L
 
 import libs.ply.yacc as yacc
@@ -1397,6 +1399,7 @@ def p_sql_alias(p):
 
 def p_expressions_time(p):
     '''EXPRESSIONSTIME : EXTRACT LEFT_PARENTHESIS DATETYPES FROM TIMESTAMP SQLNAME RIGHT_PARENTHESIS
+                       | EXTRACT LEFT_PARENTHESIS DATETYPES FROM SQLNAME RIGHT_PARENTHESIS
                        | NOW LEFT_PARENTHESIS RIGHT_PARENTHESIS
                        | DATE_PART LEFT_PARENTHESIS SQLNAME COMMA INTERVAL SQLNAME RIGHT_PARENTHESIS
                        | CURRENT_DATE
@@ -1409,6 +1412,8 @@ def p_expressions_time(p):
             p[0] = ExpressionsTime(SymbolsTime.DATE_PART, p[3], p[6], p[1],p.lineno(1), find_column(p.slice[1]))
     elif (len(p) == 3):
         p[0] = ExpressionsTime(SymbolsTime.TIMESTAMP, None, p[2], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif (len(p) == 7):
+        p[0] = ExtractFromIdentifiers(SymbolsTime.EXTRACT, p[3], p[5], p[1], p.lineno(1), find_column(p.slice[1]))
     else:
         if p.slice[1].type.upper() == 'CURRENT_DATE':
             p[0] = ExpressionsTime(SymbolsTime.CURRENT_DATE, None, None, p[1],p.lineno(1), find_column(p.slice[1]))
