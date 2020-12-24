@@ -390,7 +390,19 @@ class AST:
                         cont += check if col.isUnique else notck
                         cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(col.line)+'</font></td>\n'
                         cont += '</tr>\n'
-        # Se añade la información
+        # Tabla para mostrar los Enums
+        cont += '</table>\n<br>\n'
+        cont += '<h3 ALIGN=CENTER>ENUM TYPE</h3>\n'
+        cont += '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
+        cont += '<tr>\n'
+        cont += '<td bgcolor="#e82a2a" width="200" style="text-align:center"><font face="Roboto" color="white" size="4">NOMBRE</font></td>\n'
+        cont += '<td bgcolor="#e82a2a" width="660" style="text-align:center"><font face="Roboto" color="white" size="4">VALORES</font></td>\n'
+        cont += '</tr>'
+        for e_name,e_vals in self.userTypes.items():
+            cont += '<tr>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+e_name+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(e_vals)+'</font></td>\n'
+            cont += '</tr>\n'
         cont += '</table>\n</body>\n</HTML>\n'
         file = open("repoteTS.html", "w")
         file.write(header)
@@ -398,8 +410,8 @@ class AST:
         file.write(cont)
         file.close()
         
-   #-----------------------------------------------------------------------------------------------------------------------------------------
-    
+#-----------------------------------------------------------------------------------------------------------------------------------------
+
     def crearEnum(self,nodo):
         nombre = nodo.valor
         valores = []
@@ -408,12 +420,47 @@ class AST:
         # Almacenar el tipo 
         self.userTypes[nombre] = valores
         
-   #-----------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------
+# I N S E R T  -  I N T O
+    def insertarDatos(self,nodo):
+        tb_name = nodo.valor
+        if not(self.usingDB in self.ts):
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+            return
+        # Recuperar la base de datos
+        db_obj = self.ts[self.usingDB]
+        # Recuperar la tabla
+        if not(tb_name in db_obj.tables):
+            self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
+            return
+        # tb_obj = db_obj.tables[tb_name]
+        # Lista de tipos de las columnas de la tabla
+        # tbcoltypelist = self.getColsTypeList(tb_obj)
+        # Obtener lista de tipos entrante
+        valores = []
+        for p in nodo.hijos:
+            valores.append(p.hijos[0].valor)
+        result = jsonMode.insert(self.usingDB,tb_name,valores)
+        if result == 0: # Operación Exitosa
+            self.output.append('Registros en \"'+tb_name+'\" ingresados correctamente.')
+        elif result == 1: # Error en la operación
+            self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+        elif result == 2: # Base de datos no existente
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+        elif result == 3: # Tabla no existente
+            self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
+        elif result == 4: # Llave primaria duplicada
+            self.errors.append(Error('-----', EType.SEMANTICO, 'duplicate_pk',nodo.linea))
+        elif result == 5: # Columnas fuera de límits
+            self.errors.append(Error('54011', EType.SEMANTICO, 'too_many_columns',nodo.linea))
+    
+    def getColsTypeList(self,tabla):
+        tipos = []
+        for c in tabla:
+            tipos.append(tabla[c].columnType)
+        return tipos
 
-
-
-
-
+#-----------------------------------------------------------------------------------------------------------------------------------------
 
 
 
