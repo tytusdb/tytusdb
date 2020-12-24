@@ -3184,7 +3184,25 @@ def p_asigna(t):
 #-----------------------------------------------------DELETE IN BD--------------------------------------------------------------------
 def p_deleteinBD_1(t):
     'deleteinBD         : DELETE FROM ID PUNTOYCOMA'
-    #no especificado en enunciado
+    nodeFather = nodeAst()
+    nodeFather.token = 'deleteinBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DELETE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'FROM'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ID'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+    
+    t[0] = nodeFather
 
 def p_deleteinBD_2(t):
     'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
@@ -3697,7 +3715,7 @@ def p_tipo(t):
         t[0] = nodeFather
 
     # -------------------------------------------------------------------------------------------------------------- 
-    elif t[1].upper()=="BEGIN":
+    elif t[1].upper() =="BIGINT":
         nodeFather = nodeAst()
         nodeFather.token = 'tipo'
 

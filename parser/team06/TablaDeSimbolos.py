@@ -298,15 +298,77 @@ class TablaDeSimbolos() :
             #print(self.simbolos[simb].id," ",self.simbolos[simb].nombre," ",self.simbolos[simb].BD," ",self.simbolos[simb].tabla)
         print("la columna no existe")
         return 0
+    def numerodeColumnas(self,BD,tabla):
+        cont = 0
+        for simb in self.simbolos:
+            if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == BD:
+                cont=cont+1
+        return cont
+
+    def numerodeDatosenColumna(self,nombre,BD,tabla):
+        clave = str(nombre)+str(BD)+str(tabla)
+        if self.simbolos[clave].valor == None:
+            return 0
+        return len(self.simbolos[clave].valor)
+
+
+    def actualizandoDefaultColumna(self,nombre,BD,tabla):
+        clave = str(nombre)+str(BD)+str(tabla)
+        if self.simbolos[clave].valor == None:
+            if self.simbolos[clave].default != None:
+                self.simbolos[clave].valor = [self.simbolos[clave].default]
+            else:
+                self.simbolos[clave].valor = ["NULL"]
+        else:
+            if self.simbolos[clave].default != None:
+                self.simbolos[clave].valor.append(self.simbolos[clave].defualt)
+            else:
+                self.simbolos[clave].valor.append("NULL")
+
+    
+
     #-----------------------------------------------------------------------------------------------------------------------
     #Inicia Insert en Tabla
 
-    def obtenerColumna(self,nombre,BD,id):
+    #se llama cuando en el insert solo colocan los registros a ingresar a la columna
+    def obtenersinNombreColumna(self,nombre,BD,id):
         for simb in self.simbolos:
-            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == BD and self.simbolos[simb].id == id:
+            if self.simbolos[simb].tabla == nombre and self.simbolos[simb].BD == BD and self.simbolos[simb].id == id:
                 return self.simbolos[simb]
         return 0
+    
+    #se llama cuando en insert se especifica el id de la columna
+    def obtenerconNombreColumna(self,nombre,BD,tabla):
+        clave = str(nombre) + str(BD) + str(tabla)
+        for simb in self.simbolos:
+            if simb == clave:
+                if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == BD and self.simbolos[simb].tabla == tabla:
+                    return self.simbolos[simb]
+        return 0
 
+    #se utiliza para actualizar los datos en la tabla de simbolos
+    def actualizarValorColumna(self,nombre,BD,tabla,dato):
+        clave = str(nombre) + str(BD) + str(tabla)
+        for simb in self.simbolos:
+            if simb == clave:
+                if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == BD and self.simbolos[simb].tabla == tabla:
+                    if self.simbolos[simb].valor == None:
+                        self.simbolos[simb].valor = [dato]
+                    else:
+                        self.simbolos[simb].valor.append(dato)
+                    print("se agrego un dato a la columna: ",nombre," en tabla: ",tabla)
+                    return
+            #print(self.simbolos[simb].id," ",self.simbolos[simb].nombre," ",self.simbolos[simb].BD," ",self.simbolos[simb].tabla)
+        print("la columna no existe")
+        return 0
+
+
+#--------------Delete de registro
+    def eliminarRegistroTabla(self,BD,tabla,posvalor):
+        for simb in self.simbolos:
+            if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == BD:
+                self.simbolos[simb].valor.pop(posvalor)
+        return 0
 
     def printcontsimbolos(self):
         tm = 0
@@ -337,7 +399,6 @@ class TablaDeSimbolos() :
 # --------------------CREAR, ALTER USE Y DROP BD---------------------------------------------------------------------
     def agregarCrearBD(self, simbolo) :
         self.simbolos[simbolo.nombre] = simbolo
-
     
     def verificacionCrearBD(self, nombre) :
         for simb in self.simbolos:            
