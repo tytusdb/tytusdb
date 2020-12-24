@@ -3,7 +3,7 @@ from .instruccionAbstracta import InstruccionAbstracta
 
 class DeleteTable(InstruccionAbstracta):
 
-    def __init__(self, nombreTabla, condicion):
+    def __init__(self, nombreTabla, condicion): #nombreColuna > 1
         self.nombreTabla = nombreTabla
         self.condicion = condicion
 
@@ -12,5 +12,8 @@ class DeleteTable(InstruccionAbstracta):
 
     def ejecutar(self, tabalSimbolos, listaErrores):
          
+         
+
+
         pass   
 

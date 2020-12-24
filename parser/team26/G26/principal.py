@@ -108,4 +108,4 @@ def reporteTabla():
     f.write("</html>\n")
     f.close()
 
-reporteTabla()
+#reporteTabla()

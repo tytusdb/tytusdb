@@ -3,6 +3,9 @@ class Table(object):
         self._name = name
         self._colums = []
 
+    def __str__(self):
+        return self._name
+
     @property
     def name(self):
         return self._name

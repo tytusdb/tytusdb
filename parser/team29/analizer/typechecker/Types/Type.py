@@ -1,24 +1,35 @@
 from enum import Enum
+from analizer.abstract.expression import TYPE
 
-class Type(Enum):
-    Numeric = 1
-    Character = 2 
-    Time = 3
-    Boolean = 4  
-    smallint = 5
-    integer = 6
-    bigint = 7
-    decimal = 8
-    numeric = 9
-    real = 10
-    doublePrecision = 11
-    money = 12
-    varchar = 13
-    char = 14
-    text = 15
-    timestamp = 16 
-    date = 17
-    time = 18
-    interval = 19 
-    boolean = 20
 
+Type = {
+    "SMALLINT": TYPE.NUMBER,
+    "INTEGER": TYPE.NUMBER,
+    "BIGINT": TYPE.NUMBER,
+    "DECIMAL": TYPE.NUMBER,
+    "NUMERIC": TYPE.NUMBER,
+    "REAL": TYPE.NUMBER,
+    "DOUBLE": TYPE.NUMBER,
+    "MONEY": TYPE.NUMBER,
+    "CHARACTER": TYPE.STRING,
+    "VARYING": TYPE.STRING,
+    "VARCHAR": TYPE.STRING,
+    "CHAR": TYPE.STRING,
+    "TEXT": TYPE.STRING,
+    "DATE": TYPE.DATETIME,
+    "TIME": TYPE.DATETIME,
+    "BOOLEAN": TYPE.BOOLEAN,
+    "TIMESTAMP": TYPE.DATETIME,
+}
+
+
+class Column:
+    def __init__(self, name, type_, value):
+        self.name = name
+        self.type = type_
+        self.value = value
+        if self.type == None:
+            self.type = TYPE.TYPE
+
+    def get(self):
+        return self

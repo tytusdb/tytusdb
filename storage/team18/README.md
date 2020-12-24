@@ -1,1 +1,15 @@
+## UNIVERSIDAD DE SAN CARLOS DE GUATEMALA
+VACACIONES DICIEMBRE 2020
+ESTRUCTURA DE DATOS - A
+GRUPO 18
+###  Esctructura : Arbol B+
+|Carné|Integrantes|
+|-|--|
+|201903872|RUDY AARÓN GOPAL MARROQUÍN GARCIA
+|201903895|JOSÉ MARCOS GARCÍA OLMINO|
+|201906552|ERICK DANIEL ANTILLÓN CHINCHILLA|
+|201907774|DYLLAN JOSÉ RODRIGO GARCÍA MEJÍA|
 
+## Documentación
+- [Manual técnico](<docs/techManual_doc.md>)
+- [Manual de usuario](<docs/userManual_doc.md>)
