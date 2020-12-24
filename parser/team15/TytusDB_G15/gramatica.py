@@ -216,7 +216,10 @@ reservadas = {
     'full' : 'FULL',
     'natural' : 'NATURAL',
     'outer' : 'OUTER',
-    'bytea' : 'BYTEA'
+    'bytea' : 'BYTEA',    
+    'trunc' : 'TRUNC',
+    'greatest' : 'GREATEST',
+    'least' : 'LEAST'
 
 }
 
@@ -227,6 +230,9 @@ tokens = [
     'PAR_A',
     'PAR_C',
     'FLOTANTE',
+    'ESCAPE',
+    'HEX',
+    'BASE64',
     'ENTERO',
     'CADENA',
     'ID',
@@ -243,15 +249,14 @@ tokens = [
     'IGUAL',
     'SUMA',
     'RESTA',
-    'MULTI',
     'DIVISION',
     'MODULO',
     'Y',
     'S_OR',
     'HASHTAG',
     'CEJILLA',
-    'D_OR',
-    'D_DOSPTS'
+    'D_DOSPTS',
+    'D_OR'
 
     
 ] + list(reservadas.values())
@@ -313,11 +318,27 @@ def t_ID(t):
      return t
 
 
+def t_ESCAPE(t):
+    r'\'(?i)escape\'' #ignore case
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t
+
+def t_BASE64(t):
+    r'\'(?i)base64\''
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t  
+
+def t_HEX(t):
+    r'\'(?i)hex\''
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t
 
 def t_CADENA(t):
     r'\'.*?\''
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
+
+
 
 
 
@@ -362,7 +383,8 @@ precedence = (
     ('left','AND','OR'),
     ('left','SUMA','RESTA'),
     ('left','ASTERISCO','DIVISION'),
-    ('nonassoc', 'IS')
+    ('nonassoc', 'IS'),
+    ('right','UMINUS'),
     )
 
 
@@ -400,6 +422,14 @@ def p_instruccion(t) :
                         | TIPO_ENUM_INSRT
                         | delete_insrt'''
     t[0] = t[1]
+
+def p_instruccion_f_select(t):
+    'instruccion : select_insrt PTCOMA'
+    t[0] = t[1]
+
+def p_instruccion_f_select_union(t):
+    'instruccion : select_uniones PTCOMA'   
+    t[0] = t[1]  
 
 def p_instruccion_error(t) :
     '''instruccion      : createDB_insrt error
@@ -533,7 +563,7 @@ def p_Table_alter(t):
         t[0] = Crear_tipodato(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[3]),ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[5][0]),t[5][1],t[5][2])
     elif t[5][0] == 'NUMERIC':
         t[0] = Crear_tipodato(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[3]),ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[5][0]),t[5][1],t[5][2])
-    elif t[5][0] == 'VARING':
+    elif t[5][0] == 'VARYING':
         t[0] = Crear_tipodato(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[3]),ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[5][0]),t[5][1],None)
     elif t[5][0] == 'CHAR':
         t[0] = Crear_tipodato(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[3]),ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[5][0]),t[5][1],None)
@@ -578,7 +608,7 @@ def p_alterTable_add_tipodato(t):
         t[0] = Crear_tipodato(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1]),ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[2][0]),t[2][1],t[2][2])
     elif t[2][0] == 'NUMERIC':
         t[0] = Crear_tipodato(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1]),ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[2][0]),t[2][1],t[2][2])
-    elif t[2][0] == 'VARING':
+    elif t[2][0] == 'VARYING':
         t[0] = Crear_tipodato(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1]),ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[2][0]),t[2][1],None)
     elif t[2][0] == 'CHAR':
         t[0] = Crear_tipodato(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1]),ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[2][0]),t[2][1],None)
@@ -669,143 +699,18 @@ def p_parametro_update(t):
     ' parametro_update : ID IGUAL expresion'
     t[0] = Create_Parametro_update(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1]),t[3])
 
-def p_cond_where(t):
+'''def p_cond_where(t):
     'cond_where : WHERE expresion_where'
-    t[0] = Create_hijo_select(OPCIONES_SELECT.WHERE,None,None,t[2])
+    t[0] = Create_hijo_select(OPCIONES_SELECT.WHERE,None,None,t[2])'''
 
-def p_expresion_where2(t):
-    'expresion_where : expresion_logica_w'
-    t[0] = t[1]
-
-def p_expresion_where(t):
-    ''' expresion_where : expresion_dato IS DISTINCT FROM expresion_dato
-                        | expresion_dato IS NOT DISTINCT FROM expresion_dato 
-                        | expresion_dato LIKE CADENA
-                        | expresion_dato NOT LIKE expresion
-                        | expresion_dato BETWEEN expresion
-                        '''
-
-    if t[3].upper() == 'DISTINCT':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.ISDISTINCT, t[1],t[5],None,None)
-    elif t[3].upper() == 'NOT':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_DISTINCT, t[1],t[6],None,None)
-    elif t[2].upper() == 'LIKE':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.LIKE, t[1],t[3],None,None)
-    elif t[3].upper() == 'LIKE':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_LIKE, t[1],t[4],None,None)
-    elif t[2].upper() == 'NOT' and t[3].upper() == 'IN':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_IN, t[1],t[5],None,None)
-    elif t[2].upper() == 'NOT' and t[3].upper() == 'LIKE':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_LIKE,t[1],t[4],None,None)
-    elif t[2].upper() == 'BETWEEN':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.BETWEEN,t[1],t[3],None,None)
-    elif t[2].upper() == 'IN':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.INN,t[1],t[4],None,None)
-    elif t[1].upper() == 'NOT' and t[2].upper() == 'EXISTS':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_EXISTS,t[4],None,None,None)
-    else:
-        t[0] = t[1]
-
-def p_expresion_where_3(t):
-    ''' expresion_where : expresion_dato IS NOT DISTINCT FROM expresion_dato AND expresion_dato
-                        | expresion_dato BETWEEN expresion_dato AND expresion_dato 
-                        | expresion_dato NOT BETWEEN expresion_dato AND expresion_dato
-                        | expresion_dato BETWEEN SYMMETRIC expresion_dato AND expresion_dato
-                        | expresion_dato NOT BETWEEN SYMMETRIC expresion_dato AND expresion_dato
-                        '''
-    if t[4].upper() == 'DISTINCT':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_DISTINCT,t[1],t[6],t[8],None)
-    elif t[2].upper() == 'BETWEEN':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.BETWEEN,t[1],t[3],t[5],None)
-    elif t[3].upper() == 'BETWEEN':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.N_BETWEEN,t[1],t[4],t[6],None)
-    elif t[3].upper() == 'SYMMETRIC':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.BETWEEN_SYMETRIC,t[1],t[4],t[6],None)
-    elif t[2].upper() == 'NOT' and t[4].upper() == 'SYMMETRIC':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_BETWEEN_SYMETRIC,t[1],t[5],t[7],None)
-
-def p_expresion_where_fin(t):
-    ''' expresion_where : expresion_whereb IS NULL
-                        | expresion_whereb IS NOT NULL
-                        | expresion_whereb ISNULL
-                        | expresion_whereb NOTNULL
-                        | expresion_whereb IS TRUE
-                        | expresion_whereb IS FALSE
-                        | expresion_whereb IS NOT TRUE
-                        | expresion_whereb IS NOT FALSE
-                        | expresion_whereb IS UNKNOWN
-                        | expresion_whereb IS NOT UNKNOWN 
-                        '''
-
-    if t[3].upper() == 'NULL':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NULL, t[1],None,None,None)
-    elif t[4].upper() == 'NULL':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.N_NULL, t[1],None,None,None)
-    elif t[2].upper() == 'ISNULL':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.ISNULL, t[1],None,None,None)
-    elif t[2].upper() == 'NOTNULL':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.NOTNULL, t[1],None,None,None)
-    elif t[3].upper() == 'TRUE':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.TRUE, t[1],None,None,None)
-    elif t[3].upper() == 'FALSE':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.FALSE, t[1],None,None,None)
-    elif t[4].upper() == 'TRUE':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.N_TRUE, t[1],None,None,None)
-    elif t[4].upper() == 'FALSE':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.N_FALSE, t[1],None,None,None)
-    elif t[3].upper() == 'UNKNOWN':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.UNKNOWN, t[1],None,None,None)
-    elif t[4].upper() == 'UNKNOWN':
-        t[0] = Expresiondatos(OPCION_VERIFICAR.N_UNKNOWN, t[1],None,None,None)
-
-def p_expresion_wherea2(t):
-    ' expresion_wherea : expresion '
-    t[0] = t[1]
-
-def p_expresion_wherea(t):
-    '''expresion_wherea :  ABS PAR_A expresion PAR_C
-                        | LENGTH PAR_A string_type PAR_C
-                        | CBRT PAR_A expresion PAR_C
-                        | CEIL PAR_A expresion PAR_C 
-                        | CEILING PAR_A expresion PAR_C 
-                        | SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
-                        | TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-                        | SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
-                        | EXTRACT PAR_A extract_time FROM string_type PAR_C '''
-
-    if t[1].upper() == 'ABS':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.ABS, t[3],None,None,None)
-    elif t[1].upper() == 'LENGTH':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.LENGTH, t[3],None,None,None)
-    elif t[1].upper() == 'CBRT':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.CBRT, t[3],None,None,None)
-    elif t[1].upper() == 'CEIL':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.CEIL, t[3],None,None,None)
-    elif t[1].upper() == 'CEILING':
-        t[0] = Expresiondatos(OPERACION_ARITMETICA.CEILING, t[3],None,None,None)
-    elif t[1].upper() == 'SUBSTRING':
-        t[0] = Expresiondatos(OPCIONES_DATOS.SUBSTRING, t[3],t[5],t[7],None)
-    elif t[1].upper() == 'TRIM':
-        t[0] = Expresiondatos(OPCIONES_DATOS.TRIM, t[3],t[7],None,None)
-    elif t[1].upper() == 'SUBSTR':
-        t[0] = Expresiondatos(OPCIONES_DATOS.SUBSTR, t[3],t[5],t[7],None)
-    elif t[1].upper() == 'EXTRACT':
-        t[0] = Expresiondatos(OPCIONES_DATOS.EXTRACT, t[3],t[5],None,None)
-    elif t[1].upper() == 'SOME':
-        t[0] = Expresiondatos(OPCIONES_DATOS.SOME, t[3],None,None,None)
-    elif t[1].upper() == 'ANY':
-        t[0] = Expresiondatos(OPCIONES_DATOS.ANY, t[3],None,None,None)
-    else:
-        t[0] = t[1]
 
 def p_expresion_dato(t):
     ''' expresion_dato : string_type '''
     t[0] = t[1]
 
 def p_expresion_dato2(t):
-    ' expresion_dato : RESTA ENTERO '
-    t[0] = ExpresionIdentificadorDoble(TIPO_VALOR.NEGATIVO,t[1],t[2])
-    # PREGUNTAR SI SE GUARDA ASI
+    ' expresion_dato : RESTA ENTERO %prec UMINUS '
+    t[0] = ExpresionNegativo(TIPO_VALOR.NEGATIVO,-t[2])
 
 def p_expresion_dato3(t):
     ' expresion_dato : ID PUNTO ID'
@@ -841,53 +746,10 @@ def p_usuarioDB4(t):
     ' usuariosDB : CADENA '
     t[0] = ExpresionComillaSimple(TIPO_VALOR.CADENA,t[1])
 
-def p_expresion_whereb(t):
-    '''expresion_whereb :     expresion_wherea MAYQUE expresion_wherea
-                             | expresion_wherea MENQUE expresion_wherea
-                             | expresion_wherea MAYIGQUE expresion_wherea
-                             | expresion_wherea MENIGQUE expresion_wherea
-                             | expresion_wherea DOBLEIG expresion_wherea
-                             | expresion_wherea IGUAL expresion_wherea
-                             | expresion_wherea NOIG expresion_wherea
-                             | expresion_wherea NOIGUAL expresion_wherea '''
 
-    if t[2] == '>':
-        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYQUE)
-    elif t[2] == '<':
-        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENQUE)
-    elif t[2] == '>=':
-        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYIGQUE)
-    elif t[2] == '<=':
-        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENIGQUE)
-    elif t[2] == '==':
-        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.DOBLEIGUAL)
-    elif t[2] == '=':
-        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.IGUAL)
-    elif t[2] == '<>':
-        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.NOIG)
-    elif t[2] == '!=':
-        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.DIFERENTE)
-
-def p_expresion_whereb2(t):
-    ' expresion_whereb : expresion_wherea '
-    t[0] = t[1]
-
-def p_expresion_logica_w(t):
-    ''' expresion_logica_w : expresion_whereb AND expresion_whereb
-                            | expresion_whereb OR expresion_whereb '''
-    if t[2].upper() == 'AND':
-        t[0] = ExpresionLogica(t[1],t[3],OPERACION_LOGICA.AND)
-    elif t[2].upper() == 'OR':
-        t[0] = ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR)
-
-def p_expresion_logica_w_not(t):
-    ' expresion_logica_w : NOT expresion_logica_w '
-#    t[0].append(ExpresionLogica(t[2],None,OPERACION_LOGICA.NOT)) 
-
-
-def p_expresion_logica_w2(t):
-    ' expresion_logica_w : expresion_whereb '
-    t[0] = [t[1]]
+#--------------------------------------------------------------
+'----------- TERMINA LA INSTRUCCION ALTER DATABASE ---------'
+#--------------------------------------------------------------
 #---------------------------------------------------------------------
 ' -----------GRAMATICA PARA LA INSTRUCCION DROP DATABASES------------'
 #---------------------------------------------------------------------
@@ -1037,7 +899,7 @@ def p_createDB_dosParam_Owner(t):
             temp.append(t[2])
             temp.append(ExpresionNumeroSimple(t[5]))
         else: 
-            temp.append([2])
+            temp.append(t[2])
             temp.append(ExpresionNumeroSimple(t[4]))
     elif t[1].upper() == 'OWNER' and t[4].upper() == 'MODE':
         if t[5] == '=':
@@ -1114,7 +976,7 @@ def p_create_table(t):
     if t[7] == ';' :
         t[0] = Create_Table(t[3], None , t[5])
     else:
-        t[0] = Create_Table(t[3], t[7], t[5])
+        t[0] = Create_Table(t[3], t[9], t[5])
 
 
 def p_cuerpo_createTable_lista(t):
@@ -1453,7 +1315,7 @@ def p_tipo_dato_DEF(t):
 
 def p_tipo_dato_character_varying_DEF(t):
     ' TIPO_DATO_DEF : CHARACTER VARYING PAR_A ENTERO PAR_C'
-    t[0] = Expresion_Caracter(TIPO_DE_DATOS.character, t[4])
+    t[0] = Expresion_Caracter(TIPO_DE_DATOS.varying, t[4])
 
 def p_tipo_dato_varchar_DEF(t):
     ' TIPO_DATO_DEF : VARCHAR PAR_A ENTERO PAR_C'
@@ -1476,6 +1338,574 @@ def p_tipo_dato_character_no_esp_DEF(t):
     t[0] = Etiqueta_tipo(TIPO_DE_DATOS.character)
 
 
+#--------------------------------------------------------------
+' ------------- GRAMATICA PARA LA INSTRUCCION SELECT --------------'
+#--------------------------------------------------------------
+def p_instruccion_select_insrt(t):
+    ' select_insrt : SELECT opcion_select_tm'  
+    t[0] = t[2]
+
+
+def p_instruccion_select_insrt_union(t):
+    ''' select_uniones : select_uniones tipo_union select_insrt'''
+    temp = []
+    if t[2].upper() == 'UNION':
+        temp.append(OPCIONES_UNIONES.UNION)
+        t[1].append(t[3])
+        temp.append(t[1])
+    elif t[2].upper() == 'INTERSECT':
+        temp.append(OPCIONES_UNIONES.INTERSECT)
+        t[1].append(t[3])
+        temp.append(t[1])
+    elif t[2].upper() == 'EXCEPT':
+        temp.append(OPCIONES_UNIONES.EXCEPTS)
+        t[1].append(t[3])
+        temp.append(t[1])
+    t[0] = temp
+
+def p_instruccion_select_insrt_union2(t):
+    ' select_uniones : select_insrt '
+    t[0] = [t[1]]
+
+def p_instruccion_select_uniones(t):
+    ''' tipo_union : UNION
+                    | INTERSECT 
+                    | EXCEPT'''
+    t[0] = t[1]
+
+def p_opcion_select_tm3(t):
+    'opcion_select_tm : greatest_insrt' #YA ESTA
+    t[0] = t[1]
+
+def p_select_lista(t):
+    ''' opcion_select_lista : DISTINCT campos_c '''
+    t[0] = Create_select_uno(OPCIONES_SELECT.DISTINCT,None,None,None,None,t[2],None) #YA ESTA
+
+def p_select_lista2(t):
+    ' opcion_select_lista : opciones_select_lista'
+    t[0] = Create_select_uno(OPCIONES_SELECT.SUBCONSULTA,None,None,None,t[1],None,None)
+
+def p_opciones_select_lista(t):
+    ''' opciones_select_lista : opciones_select_lista COMA opcion_select '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_opciones_select_lista2(t):
+    ' opciones_select_lista : opcion_select'
+    t[0] = [t[1]]
+
+def p_opcion_select_tm1(t):
+    'opcion_select_tm :  opcion_select_lista  FROM opciones_sobrenombres '
+    t[0] = Create_select_general(OPCIONES_SELECT.SELECT,t[1],None,None,None,t[3])
+
+def p_opcion_select_tm2(t):
+    'opcion_select_tm :  opcion_select_lista  FROM opciones_sobrenombres opcion_from '
+    t[0] = Create_select_general(OPCIONES_SELECT.SELECT,t[1],t[4],None,None,t[3])
+
+def p_opciones_sobrenombre(t):
+    '''opciones_sobrenombres : opciones_sobrenombres COMA opcion_sobrenombre '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_opciones_sobrenombre2(t):
+    ' opciones_sobrenombres : opcion_sobrenombre '
+    t[0] = [t[1]]
+
+def p_opcion_select_tm_op1(t):
+    'opcion_select_tm : opcion_select_lista seguir_sobrenombre FROM otros_froms '
+    t[0] = Create_select_general(OPCIONES_SELECT,None,t[1],t[2],t[4],None)
+
+def p_otros_from(t):
+    '''otros_froms : otros_froms COMA otro_from'''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_otros_from2(t):
+    'otros_froms : otro_from'
+    t[0] = [t[1]]
+
+def p_opcion_select_tm(t):
+    'opcion_select_tm :  opcion_select_lista  FROM opciones_from opcion_from'
+    t[0] = Create_select_general(OPCIONES_SELECT.SELECT,t[1],None,t[4],t[3],None)
+
+def p_opciones_from(t):
+    '''opciones_from : opciones_from COMA from_s'''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_opciones_from2(t):
+    'opciones_from : from_s'
+    t[0] = [t[1]]
+
+def p_ins_1(t):
+    'opcion_select_tm : varias_funciones'
+    t[0] = Create_select_general(OPCIONES_SELECT.SELECT,None,None,None,None,t[1])
+
+def p_varias_funciones(t):
+    'varias_funciones : varias_funciones COMA funcion'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_varias_funciones1(t):
+    'varias_funciones : funcion'
+    t[0] = [t[1]]
+
+def p_funcion(t):
+    'funcion : funciones_select seguir_sobrenombre'
+    t[0] = Create_select_uno(OPCIONES_SELECT.FUNCIONES,None,t[1],t[2],None,None,None)
+
+def p_funcion1(t):
+    'funcion : funciones_select'
+    t[0] = Create_select_uno(OPCIONES_SELECT.FUNCIONES,None,t[1],None,None,None,None)
+
+def p_opcion_select_tm_op2(t):
+    '''otro_from : from_s '''
+    t[0] = Create_select_general(OPCIONES_SELECT.SELECT,t[1],None,None,None,None)
+
+def p_opcion_select_tm_op3(t):
+    'otro_from : from_s opcion_from'
+    t[0] = Create_select_general(OPCIONES_SELECT.SELECT,t[1],t[2],None,None,None)
+
+def p_opcion_s(t):
+    ''' from_s : ID'''
+    t[0] = ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1])
+
+def p_opcion_s2(t):
+    ' from_s : PAR_A'
+    t[0] = t[1]
+
+def p_sobre_Nombre(t):
+    ''' opcion_sobrenombre : ID seguir_sobrenombre'''
+    if t[2][0] == TIPO_VALOR.AS_ID:
+        t[0] = ExpresionIdentificadorDoble(t[2][0],t[1],t[2][1])
+    elif t[2][0] == TIPO_VALOR.DOBLE:
+        t[0] = ExpresionIdentificadorDoble(t[2][0],t[1],t[2][1])
+    else:
+        t[0] = ExpresionIdentificadorDoble(TIPO_VALOR.IDENTIFICADOR,t[1],t[2])
+    
+def p_sobre_Nombre2(t):
+    ' opcion_sobrenombre : ID '
+    t[0] = ExpresionIdentificadorDoble(TIPO_VALOR.IDENTIFICADOR,t[1],None)
+
+def p_as_ID(t):
+    ''' as_ID : ID '''
+    t[0] = ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1])
+
+def p_as_ID2(t):
+    'as_ID : CADENA'
+    t[0] = ExpresionComillaSimple(TIPO_VALOR.NUMERO,t[1])
+#---------------------------------------------------------
+
+def p_alias(t):
+    ''' seguir_sobrenombre : AS as_ID'''
+    temp = []
+    temp.append(TIPO_VALOR.AS_ID)
+    temp.append(t[2])
+    t[0] = temp
+
+def p_alias2(t):
+    'seguir_sobrenombre : ID'
+    t[0] = t[1]
+
+def p_alias3(t):
+    'seguir_sobrenombre : PUNTO ID'
+    temp = []
+    temp.append(TIPO_VALOR.DOBLE)
+    temp.append(t[2])
+    t[0] = temp
+
+def p_opcion_select_tm_extract(t):
+    'opcion_select_tm : EXTRACT PAR_A extract_time FROM TIMESTAMP CADENA  PAR_C '
+    t[0] = Create_select_time(SELECT_TIME.EXTRACT,t[3],t[6])
+
+def p_opcion_select_tm_date(t):
+    'opcion_select_tm : DATE_PART PAR_A CADENA COMA INTERVAL CADENA PAR_C  '
+    t[0] = Create_select_time(SELECT_TIME.DATE_PART,t[3],t[6])
+
+def p_opcion_select_tm_now(t):
+    'opcion_select_tm : NOW PAR_A PAR_C '
+    t[0] = Create_select_time(SELECT_TIME.NOW,None,None)
+
+def p_opcion_select_tm_current(t):
+    'opcion_select_tm : CURRENT_DATE '
+    t[0] = Create_select_time(SELECT_TIME.CURRENT_DATE,None,None)
+
+def p_opcion_select_tm_crtm(t):
+    'opcion_select_tm : CURRENT_TIME '
+    t[0] = Create_select_time(SELECT_TIME.CURRENT_TIME,None,None)
+
+def p_opcion_select_tm_timestamp(t):
+    'opcion_select_tm : TIMESTAMP CADENA '
+    t[0] = Create_select_time(SELECT_TIME.TIMESTAMP,t[2],None)
+
+#def p_opcion_select_tm_extract(t):
+#    'opcion_select_tm : tiempo'
+#    t[0] = t[1]
+    
+#def p_tiempo(t):
+#    '''tiempo : EXTRACT PAR_A extract_time FROM string_type  PAR_C 
+#              | DATE_PART PAR_A CADENA COMA INTERVAL CADENA PAR_C  
+#              | NOW PAR_A PAR_C 
+#              | CURRENT_DATE 
+#              | CURRENT_TIME 
+#              | TIMESTAMP CADENA '''
+#-----------------------------------------------------------
+#
+#             OFFSETS
+# -----------------------------------------------------------
+def p_opcion_from_0_0_1_1_1_1_1_0(t):
+    'opcion_from : cond_where cond_gb cond_having cond_ob orden cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],t[2],t[3],t[4],t[5],t[6],t[7],None)
+
+def p_opcion_from_0_0_0_1_1_1_1_0(t):
+    'opcion_from :  cond_gb cond_having cond_ob orden cond_limit cond_offset'
+    t[0] = Create_padre_select(None,t[1],t[2],t[3],t[4],t[5],t[6],None)
+    
+def p_opcion_from_0_0_1_0_1_1_1_0(t):
+    'opcion_from : cond_where cond_having cond_ob orden cond_limit OFFSET ENTERO'
+    t[0] = Create_padre_select(t[1],None,t[2],t[3],t[4],t[5],None,t[7])
+
+def p_opcion_from_0_0_0_0_1_1_1_0(t):
+    'opcion_from :  cond_having cond_ob orden cond_limit cond_offset'
+    t[0] = Create_padre_select(None,None,t[1],t[2],t[3],t[4],t[5],None)
+
+def p_opcion_from_0_0_1_1_0_1_1_0(t):
+    'opcion_from : cond_where cond_gb cond_ob orden cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],t[2],None,t[3],t[4],t[5],t[6],None)
+
+def p_opcion_from_0_0_0_1_0_1_1_0(t):
+    'opcion_from :  cond_gb cond_ob orden cond_limit cond_offset'
+    t[0] = Create_padre_select(None,t[1],None,t[2],t[3],t[4],t[5],None)
+
+def p_opcion_from_0_0_1_0_0_1_1_0(t):
+    'opcion_from : cond_where cond_ob orden cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],None,None,t[2],t[3],t[4],t[5],None)
+
+def p_opcion_from_0_0_0_0_0_1_1_0(t):
+    'opcion_from :  cond_ob orden cond_limit cond_offset'
+    t[0] = Create_padre_select(None,None,None,t[1],t[2],t[3],t[4],None)
+
+def p_opcion_from_0_0_1_1_1_1_1_0_ordeno(t):
+    'opcion_from : cond_where cond_gb cond_having cond_ob cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],t[2],t[3],t[4],None,t[5],t[6],None)
+
+def p_opcion_from_0_0_0_1_1_1_1_0_ordeno(t):
+    'opcion_from : cond_gb cond_having cond_ob cond_limit cond_offset'
+    t[0] = Create_padre_select(None,t[1],t[2],t[3],None,t[4],t[5],None)
+
+def p_opcion_from_0_0_1_0_1_1_1_0_ordeno(t):
+    'opcion_from : cond_where cond_having cond_ob cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],None,t[2],t[3],None,t[4],t[5],None)
+
+def p_opcion_from_0_0_0_0_1_1_1_0_ordeno(t):
+    'opcion_from :  cond_having cond_ob cond_limit cond_offset'
+    t[0] = Create_padre_select(None,None,t[1],t[2],None,t[3],t[4],None)
+
+def p_opcion_from_0_0_1_1_0_1_1_0_ordeno(t):
+    'opcion_from : cond_where cond_gb  cond_ob cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],t[2],None,t[3],None,t[4],t[5],None)
+
+def p_opcion_from_0_0_0_1_0_1_1_0_ordeno(t):
+    'opcion_from :  cond_gb cond_ob cond_limit cond_offset'
+    t[0] = Create_padre_select(None,t[1],None,t[2],None,t[3],t[4],None)
+
+def p_opcion_from_0_0_1_0_0_1_1_0_ordeno(t):
+    'opcion_from : cond_where cond_ob cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],None,None,t[2],None,t[3],t[4],None)
+
+def p_opcion_from_0_0_0_0_0_1_1_0_ordeno(t):
+    'opcion_from :  cond_ob cond_limit cond_offset'
+    t[0] = Create_padre_select(None,None,None,t[1],None,t[2],t[3],None)
+
+def p_opcion_from_0_0_1_1_1_0_1_0(t):
+    'opcion_from : cond_where cond_gb cond_having cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],t[2],t[3],None,None,t[4],t[5],None)
+
+def p_opcion_from_0_0_0_1_1_0_1_0(t):
+    'opcion_from :  cond_gb cond_having cond_limit cond_offset'
+    t[0] = Create_padre_select(None,t[1],t[2],None,None,t[3],t[4],None)
+
+def p_opcion_from_0_0_1_0_1_0_1_0(t):
+    'opcion_from : cond_where cond_having cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],None,t[2],None,None,t[3],t[4],None)
+
+def p_opcion_from_0_0_0_0_1_0_1_0(t):
+    'opcion_from :  cond_having cond_limit cond_offset'
+    t[0] = Create_padre_select(None,None,t[1],None,None,t[2],t[3],None)
+
+def p_opcion_from_0_0_1_1_0_0_1_0(t):
+    'opcion_from : cond_where cond_gb cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],t[2],None,None,None,t[3],t[4],None)
+
+def p_opcion_from_0_0_0_1_0_0_1_0(t):
+    'opcion_from :  cond_gb cond_limit cond_offset'
+    t[0] = Create_padre_select(None,t[1],None,None,None,t[2],t[3],None)
+
+def p_opcion_from_0_0_1_0_0_0_1_0(t):
+    'opcion_from : cond_where cond_limit cond_offset'
+    t[0] = Create_padre_select(t[1],None,None,None,None,t[2],t[3],None)
+
+def p_opcion_from_0_0_0_0_0_0_1_0(t):
+    'opcion_from :  cond_limit cond_offset'
+    t[0] = Create_padre_select(None,None,None,None,None,t[1],t[2],None)
+
+def p_opcion_from_0_0_1_1_1_1_1_0_offno(t):
+    'opcion_from : cond_where cond_gb cond_having cond_ob orden cond_limit'
+    t[0] = Create_padre_select(t[1],t[2],t[3],t[4],t[5],t[6],None,None)
+
+def p_opcion_from_0_0_0_1_1_1_1_0_offno(t):
+    'opcion_from :  cond_gb cond_having cond_ob orden cond_limit'
+    t[0] = Create_padre_select(None,t[1],t[2],t[3],t[4],t[5],None,None)
+
+def p_opcion_from_0_0_1_0_1_1_1_0_offno(t):
+    'opcion_from : cond_where cond_having cond_ob orden cond_limit'
+    t[0] = Create_padre_select(t[1],None,t[2],t[3],t[4],t[5],None,None)
+
+def p_opcion_from_0_0_0_0_1_1_1_0_offno(t):
+    'opcion_from :  cond_having cond_ob orden cond_limit'
+    t[0] = Create_padre_select(None,None,t[1],t[2],t[3],t[4],None,None)
+
+def p_opcion_from_0_0_1_1_0_1_1_0_offno(t):
+    'opcion_from : cond_where cond_gb cond_ob orden cond_limit'
+    t[0] = Create_padre_select(t[1],t[2],None,t[3],t[4],t[5],None,None)
+
+def p_opcion_from_0_0_0_1_0_1_1_0_offno(t):
+    'opcion_from :  cond_gb cond_ob orden cond_limit'
+    t[0] = Create_padre_select(None,t[1],None,t[2],t[3],t[4],None,None)
+
+def p_opcion_from_0_0_1_0_0_1_1_0_offno(t):
+    'opcion_from : cond_where cond_ob orden cond_limit'
+    t[0] = Create_padre_select(t[1],None,None,t[2],t[3],t[4],None,None)
+
+def p_opcion_from_0_0_0_0_0_1_1_0_offno(t):
+    'opcion_from :  cond_ob orden cond_limit'
+    t[0] = Create_padre_select(None,None,None,t[1],t[2],t[3],None,None)
+
+def p_opcion_from_0_0_1_1_1_1_1_0_offno_ordeno(t):
+    'opcion_from : cond_where cond_gb cond_having cond_ob cond_limit'
+    t[0] = Create_padre_select(t[1],t[2],t[3],t[4],None,t[5],None,None)
+
+def p_opcion_from_0_0_0_1_1_1_1_0_offno_ordeno(t):
+    'opcion_from :  cond_gb cond_having cond_ob cond_limit'
+    t[0] = Create_padre_select(None,t[1],t[2],t[3],None,t[4],None,None)
+
+def p_opcion_from_0_0_1_0_1_1_1_0_offno_ordeno(t):
+    'opcion_from : cond_where cond_having cond_ob cond_limit'
+    t[0] = Create_padre_select(t[1],None,t[2],t[3],None,t[4],None,None)
+
+def p_opcion_from_0_0_0_0_1_1_1_0_offno_ordeno(t):
+    'opcion_from :  cond_having cond_ob cond_limit'
+    t[0] = Create_padre_select(None,None,t[1],t[2],None,t[3],None,None)
+
+def p_opcion_from_0_0_1_1_0_1_1_0_offno_ordeno(t):
+    'opcion_from : cond_where cond_gb cond_ob cond_limit'
+    t[0] = Create_padre_select(t[1],t[2],None,t[3],None,t[4],None,None)
+
+def p_opcion_from_0_0_0_1_0_1_1_0_offno_ordeno(t):
+    'opcion_from :  cond_gb cond_ob cond_limit'
+    t[0] = Create_padre_select(None,t[1],None,t[2],None,t[3],None,None)
+
+def p_opcion_from_0_0_1_0_0_1_1_0_offno_ordeno(t):
+    'opcion_from : cond_where cond_ob cond_limit'
+    t[0] = Create_padre_select(t[1],None,None,t[2],None,t[3],None,None)
+
+def p_opcion_from_0_0_0_0_0_1_1_0_offno_ordeno(t):
+    'opcion_from :  cond_ob cond_limit'
+    t[0] = Create_padre_select(None,None,None,t[1],None,t[2],None,None)
+
+def p_opcion_from_0_0_1_1_1_0_1_0_offno(t):
+    'opcion_from :  cond_where cond_gb cond_having cond_limit'
+    t[0] = Create_padre_select(t[1],t[2],t[3],None,None,t[4],None,None)
+
+def p_opcion_from_0_0_0_1_1_0_1_0_offno(t):
+    'opcion_from :  cond_gb cond_having cond_limit'
+    t[0] = Create_padre_select(None,t[1],t[2],None,None,t[3],None,None)
+
+def p_opcion_from_0_0_1_0_1_0_1_0_offno(t):
+    'opcion_from :  cond_where cond_having cond_limit'
+    t[0] = Create_padre_select(t[1],None,t[2],None,None,t[3],None,None)
+
+def p_opcion_from_0_0_0_0_1_0_1_0_offno(t):
+    'opcion_from :  cond_having cond_limit'
+    t[0] = Create_padre_select(None,None,t[1],None,None,t[2],None,None)
+
+def p_opcion_from_0_0_1_1_0_0_1_0_offno(t):
+    'opcion_from :  cond_where cond_gb cond_limit'
+    t[0] = Create_padre_select(t[1],t[2],None,None,None,t[3],None,None)
+
+def p_opcion_from_0_0_0_1_0_0_1_0_offno(t):
+    'opcion_from :  cond_gb  cond_limit'
+    t[0] = Create_padre_select(None,t[1],None,None,None,t[2],None,None)
+
+def p_opcion_from_0_0_1_0_0_0_1_0_offno(t):
+    'opcion_from :  cond_where cond_limit'
+    t[0] = Create_padre_select(t[1],None,None,None,None,t[2],None,None)
+
+def p_opcion_from_0_0_0_0_0_0_1_0_offno(t):
+    'opcion_from :  cond_limit'
+    t[0] = Create_padre_select(None,None,None,None,None,t[1],None,None)
+
+def p_opcion_from_0_0_1_1_1_1_0_0(t):
+    'opcion_from :  cond_where cond_gb cond_having cond_ob orden'
+    t[0] = Create_padre_select(t[1],t[2],t[3],t[4],t[5],None,None,None)
+
+def p_opcion_from_0_0_0_1_1_1_0_0(t):
+    'opcion_from :  cond_gb cond_having cond_ob orden'
+    t[0] = Create_padre_select(None,t[1],t[2],t[3],t[4],None,None,None)
+
+def p_opcion_from_0_0_1_0_1_1_0_0(t):
+    'opcion_from :  cond_where cond_having cond_ob orden'
+    t[0] = Create_padre_select(t[1],None,t[2],t[3],t[4],None,None,None)
+
+def p_opcion_from_0_0_0_0_1_1_0_0(t):
+    'opcion_from :  cond_having cond_ob orden'
+    t[0] = Create_padre_select(None,None,t[1],t[2],t[3],None,None,None)
+
+def p_opcion_from_0_0_1_1_0_1_0_0(t):
+    'opcion_from :  cond_where cond_gb cond_ob orden'
+    t[0] = Create_padre_select(t[1],t[2],None,t[3],t[4],None,None,None)
+
+def p_opcion_from_0_0_0_1_0_1_0_0(t):
+    'opcion_from :  cond_gb  cond_ob orden'
+    t[0] = Create_padre_select(None,t[1],None,t[2],t[3],None,None,None)
+
+def p_opcion_from_0_0_1_0_0_1_0_0(t):
+    'opcion_from :  cond_where cond_ob orden'
+    t[0] = Create_padre_select(t[1],None,None,t[2],t[3],None,None,None)
+
+def p_opcion_from_0_0_0_0_0_1_0_0(t):
+    'opcion_from :  cond_ob'
+    t[0] = Create_padre_select(None,None,None,t[1],None,None,None,None)
+
+def p_opcion_from_0_0_1_1_1_1_0_0_ordeno(t):
+    'opcion_from :  cond_where cond_gb cond_having cond_ob'
+    t[0] = Create_padre_select(t[1],t[2],t[3],t[4],None,None,None,None)
+
+def p_opcion_from_0_0_0_1_1_1_0_0_ordeno(t):
+    'opcion_from :  cond_gb cond_having cond_ob'
+    t[0] = Create_padre_select(None,t[1],t[2],t[3],None,None,None,None)
+
+def p_opcion_from_0_0_1_0_1_1_0_0_ordeno(t):
+    'opcion_from :  cond_where cond_having cond_ob'
+    t[0] = Create_padre_select(t[1],None,t[2],t[3],None,None,None,None)
+
+def p_opcion_from_0_0_0_0_1_1_0_0_ordeno(t):
+    'opcion_from :  cond_having cond_ob'
+    t[0] = Create_padre_select(None,None,t[1],t[2],None,None,None,None)
+
+def p_opcion_from_0_0_1_1_0_1_0_0_ordeno(t):
+    'opcion_from :  cond_where cond_gb cond_ob'
+    t[0] = Create_padre_select(t[1],t[2],None,t[4],None,None,None,None)
+
+def p_opcion_from_0_0_0_1_0_1_0_0_ordeno(t):
+    'opcion_from :  cond_gb cond_ob'
+    t[0] = Create_padre_select(None,t[1],None,t[2],None,None,None,None)
+
+def p_opcion_from_0_0_1_0_0_1_0_0_ordeno(t):
+    'opcion_from :  cond_where cond_ob'
+    t[0] = Create_padre_select(t[1],None,None,t[2],None,None,None,None)
+
+#def p_opcion_from_0_0_0_0_0_1_0_0_ordeno(t):
+ #   'opcion_from :  cond_ob'
+
+def p_opcion_from_0_0_1_1_1_0_0_0(t):
+    'opcion_from : cond_where cond_gb cond_having'
+    t[0] = Create_padre_select(t[1],t[2],t[3],None,None,None,None,None)
+
+def p_opcion_from_0_0_0_1_1_0_0_0(t):
+    'opcion_from :  cond_gb cond_having'
+    t[0] = Create_padre_select(None,t[1],t[2],None,None,None,None,None)
+
+def p_opcion_from_0_0_1_0_1_0_0_0(t):
+    'opcion_from : cond_where cond_having'
+    t[0] = Create_padre_select(t[1],None,t[2],None,None,None,None,None)
+
+def p_opcion_from_0_0_0_0_1_0_0_0(t):
+    'opcion_from :  cond_having'
+    t[0] = Create_padre_select(None,None,t[1],None,None,None,None,None)
+
+def p_opcion_from_0_0_1_1_0_0_0_0(t):
+    'opcion_from : cond_where cond_gb '
+    t[0] = Create_padre_select(t[1],t[2],None,None,None,None,None,None)
+
+def p_opcion_from_0_0_0_1_0_0_0_0(t):
+    'opcion_from :  cond_gb '
+    t[0] = Create_padre_select(None,t[1],None,None,None,None,None,None)
+
+def p_opcion_from_0_0_1_0_0_0_0_0(t):
+    'opcion_from : cond_where'
+    t[0] = Create_padre_select(t[1],None,None,None,None,None,None,None)
+
+def p_opcion_from_2(t):
+    'opcion_from :   select_insrt PAR_C ID '
+    t[0] = Create_hijo_select(OPCIONES_SELECT.SUBCONSULTA,t[1],t[3])
+
+def p_opcion_from_3(t):
+    'opcion_from :   select_insrt PAR_C'
+    t[0] = Create_hijo_select(OPCIONES_SELECT.SUBCONSULTA,t[1],None)
+
+def p_cond_where(t):
+    'cond_where : WHERE expresion_where'
+    t[0] = Create_hijo_select(OPCIONES_SELECT.WHERE,t[2],None)
+
+def p_cond_GB(t):
+    'cond_gb : GROUP BY campos_c '
+    t[0] = Create_hijo_select(OPCIONES_SELECT.GROUP_BY,t[3],None)
+
+def p_cond_Having(t):
+    'cond_having : HAVING expresion_logica'
+    t[0] = Create_hijo_select(OPCIONES_SELECT.HAVING,t[1],None)
+
+def p_cond_OB(t):
+    'cond_ob : ORDER BY campos_c'  #######
+    t[0] = Create_hijo_select(OPCIONES_SELECT.ORDER_BY,t[3],None)
+
+def p_cond_limit(t):
+    'cond_limit : LIMIT opc_lim'
+    t[0] = Create_hijo_select(OPCIONES_SELECT.LIMIT,t[2],None)
+
+def p_cond_offset(t):
+    'cond_offset : OFFSET ENTERO'
+    t[0] = Create_hijo_select(OPCIONES_SELECT.OFFSET,ExpresionEntero(TIPO_VALOR.NUMERO,t[2]),None)
+#----------------------------------------------------
+#
+#               TERMINO SELECT TABLE 
+#
+#----------------------------------------------------
+
+def p_opc_lim(t):
+    '''opc_lim : ENTERO'''
+    t[0] = ExpresionEntero(TIPO_VALOR.NUMERO,t[1])
+
+def p_opc_lim2(t):
+    ' opc_lim : ASTERISCO '
+    t[0] = ExpresionIdentificador(TIPO_VALOR.ASTERISCO,t[1])
+
+def p_ORDER(t):
+    ''' orden : DESC
+              | ASC '''
+    t[0] = ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1])
+
+
+' ---------- GRAMATICA PARA LA INSTRUCCION DE CASE --------------'
+def p_case_insrt(t):
+    ' case_insrt : CASE estructura_when_lista ELSE expresion END '
+    t[0] = Create_select_uno(OPCIONES_SELECT.CASE,None,t[4],None,None,None,t[2])
+
+def p_estructura_when_lista(t):
+    ' estructura_when_lista : estructura_when_lista estructura_when '
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_opcion_estructura_when(t):
+    ' estructura_when_lista : estructura_when'
+    t[0] = t[1]
+
+def p_estructura_when(t):
+    ' estructura_when : WHEN expresion_logica THEN expresion'
+    t[0] =  [ExpresionRelacional(t[2],t[4],OPERACION_LOGICA.THEN)]
+
+
 ##################################EXPRESIONES#####################################
 
 def p_agrupacion_expresion(t):
@@ -1484,25 +1914,84 @@ def p_agrupacion_expresion(t):
       
 
 def p_expresion(t):
-    '''expresion : expresion SUMA expresion 
-                 | expresion RESTA expresion
-                 | expresion DIVISION expresion
-                 | expresion ASTERISCO expresion '''
-    
-    if t[2] == '+' : t[0] = ExpresionBinaria(t[1],t[3], OPERACION_ARITMETICA.MAS)
-    if t[2] == '-' : t[0] = ExpresionBinaria(t[1],t[3], OPERACION_ARITMETICA.MENOS)
-    if t[2] == '*' : t[0] = ExpresionBinaria(t[1],t[3], OPERACION_ARITMETICA.ASTERISCO)
-    if t[2] == '/' : t[0] = ExpresionBinaria(t[1],t[3], OPERACION_ARITMETICA.DIVIDIDO)
+    ''' expresion :    expresion SUMA expresion
+                     | expresion RESTA expresion
+                     | expresion ASTERISCO expresion
+                     | expresion DIVISION expresion
+                     | expresion MODULO expresion
+                     | expresion MAYMAY expresion
+                     | expresion MENMEN expresion
+                     | CEJILLA expresion
+                     | expresion HASHTAG expresion
+                     | S_OR expresion
+                     | D_OR expresion
+                     | expresion Y expresion           
+                     | AVG PAR_A expresion PAR_C 
+                     | MAX PAR_A expresion PAR_C
+                     | MIN PAR_A expresion PAR_C             
+                     | ALL PAR_A select_insrt PAR_C
+                     | SOME PAR_A select_insrt PAR_C '''
+
+    if t[2] == '+':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.MAS)
+    elif t[2] == '-':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.MENOS)
+    elif t[2] == '*':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.ASTERISCO)
+    elif t[2] == '/':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.DIVIDIDO)
+    elif t[2] == '%':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.MODULO)
+    elif t[2] == '>>':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.MAYMAY)
+    elif t[2] == '<<':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.MENMEN)
+    elif t[1] == '~':
+        t[0] = ExpresionBinaria(t[2],None,OPERACION_ARITMETICA.CEJILLA)
+    elif t[2] == '#':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.HASTAG)
+    elif t[1] == '|':
+        t[0] = ExpresionBinaria(t[2],None,OPERACION_ARITMETICA.S_OR)
+    elif t[1] == '||':
+        t[0] = ExpresionBinaria(t[2],None,OPERACION_ARITMETICA.D_OR)
+    elif t[2] == '&':
+        t[0] = ExpresionBinaria(t[1],t[3],OPERACION_ARITMETICA.AMPERSON)
+    elif t[1] == 'AVG':
+        t[0] = ExpresionBinaria(t[3],None,OPERACION_ARITMETICA.AVG)
+    elif t[1] == 'MAX':
+        t[0] = ExpresionBinaria(t[3],None,OPERACION_ARITMETICA.MAX)
+    elif t[1] == 'MIN':
+        t[0] = ExpresionBinaria(t[3],None,OPERACION_ARITMETICA.MIN)
+    elif t[1] == 'ALL':
+        t[0] = ExpresionBinaria(t[3],None,OPERACION_ARITMETICA.ALL)
+    elif t[1] == 'SOME':
+        t[0] = ExpresionBinaria(t[3],None,OPERACION_ARITMETICA.SOME)
+    else:
+        t[0] = t[1]
    
+def p_expresion3(t):
+    ' expresion : PAR_A expresion_logica PAR_C '
+    t[0] = t[2]
 
 def p_expresion_boolean(t):
     ''' expresion :  TRUE
                     | FALSE'''
-    t[0] = ExpresionBooleana(t[1])
-                         
+    if t[1].upper() == 'TRUE':
+        t[0] = ExpresionBooleana(OPERACION_LOGICA.TRUE,t[1])
+    elif t[1].upper() == 'FALSE':
+        t[0] = ExpresionBooleana(OPERACION_LOGICA.FALSE,t[1])
+
+def p_sin_some_any(t):
+    '''sin_some_any : SOME
+                    | ANY  '''
+    t[0] = ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1])      
+
 def p_string_type(t):
-    ''' string_type : CADENA
-                     | ID '''
+    ''' string_type : CADENA '''
+    t[0] = ExpresionComillaSimple(TIPO_VALOR.IDENTIFICADOR,t[1])
+
+def p_string_type2(t):
+    ' string_type : ID'
     t[0] = ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1])
 
 ' --------------- EXPRESIONES -----------------------'
@@ -1515,30 +2004,39 @@ def p_expresion_relacional(t):
                              | expresion IGUAL expresion
                              | expresion NOIG expresion
                              | expresion NOIGUAL expresion'''
-    
-    if t[2] == '>' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.MAYQUE)
-    if t[2] == '<' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.MENQUE)
-    if t[2] == '>=' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.MAYIGQUE)
-    if t[2] == '<=' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.MENIGQUE)
-    if t[2] == '==' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.DOBLEIGUAL)
-    if t[2] == '<>' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.NOIG)
-    if t[2] == '!=' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.DIFERENTE)
+
+    if t[2] == '>':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYQUE)
+    elif t[2] == '<':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENQUE)
+    elif t[2] == '>=':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYIGQUE)
+    elif t[2] == '<=':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENIGQUE)
+    elif t[2] == '==':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.DOBLEIGUAL)
+    elif t[2] == '=':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.IGUAL)
+    elif t[2] == '<>':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.NOIG)
+    elif t[2] == '!=':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.DIFERENTE)    
 
 def p_expresion_relacional_exp(t):
     ' expresion_relacional : expresion '
     t[0] = t[1]
 
-def p_expresion_logica_AND(t):
-    ' expresion_logica : expresion_relacional AND expresion_relacional'
-    t[0] = ExpresionLogica(t[1],t[3], OPERACION_LOGICA.AND) 
-
-def p_expresion_logica_OR(t):
-    ' expresion_logica : expresion_relacional OR expresion_relacional'
-    t[0] = ExpresionLogica(t[1],t[3], OPERACION_LOGICA.OR) 
+def p_expresion_logica(t):
+    ''' expresion_logica : expresion_relacional AND expresion_logica
+                        |  expresion_relacional OR expresion_logica'''
+    if t[2].upper() == 'AND':
+        t[0] = ExpresionLogica(t[1],t[3],OPERACION_LOGICA.AND)
+    elif t[2].upper() == 'OR':
+        t[0] == ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR)
 
 def p_expresion_logica_not(t):
-    ''' expresion_logica : NOT expresion_relacional'''
-    t[0] = ExpresionLogica(t[1],'', OPERACION_LOGICA.NOT)
+    ''' expresion_logica : NOT expresion_logica'''
+    t[0] = ExpresionLogica(t[2],None,OPERACION_LOGICA.NOT)
 
 def p_expresion_logica_rel(t):
     ''' expresion_logica : expresion_relacional''' 
@@ -1546,6 +2044,7 @@ def p_expresion_logica_rel(t):
 
 def p_expresion2(t):
     ''' expresion :   expresion_dato 
+                    | select_insrt
                     | sum_insrt
                     | count_insrt '''
     t[0] = t[1]
@@ -1558,13 +2057,408 @@ def p_sum_insert(t):
 def p_count_insrt(t):
     ' count_insrt : COUNT agrupacion_expresion '
 
-##################################EXPRESIONES#####################################
 
+
+def p_opcion_select(t):
+    ' opcion_select : case_insrt '
+    t[0] = t[1]
+def p_opcion_select1(t):
+    ' opcion_select :  PAR_A select_insrt PAR_C '
+    t[0] = t[2]
+def p_opcion_select2(t):
+    ' opcion_select :   expresion '
+    t[0] = t[1]
+def p_opcion_select3(t):
+    'opcion_select :  funciones_select '
+    t[0] = t[1]
+def p_opcion_select4(t):
+    'opcion_select :  ASTERISCO '
+    t[0] = ExpresionIdentificador(TIPO_VALOR.ASTERISCO,t[1])
+def p_opcion_select5(t):
+    ' opcion_select : ID PUNTO ASTERISCO '
+    t[0] = ExpresionIdentificadorDoble(TIPO_VALOR.ID_ASTERISCO,t[1],t[3])
+
+def p_greatest_insrt(t):
+    ''' greatest_insrt : GREATEST PAR_A greatest_val PAR_C
+                        | LEAST PAR_A greatest_val PAR_C'''
+    if t[1].upper() == 'GREATEST':
+        t[0] = Create_select_uno(OPCIONES_SELECT.GREATEST,None,None,None,t[3],None,None)
+    elif t[1].upper() == 'LEAST':
+        t[0] = Create_select_uno(OPCIONES_SELECT.LEAST,None,None,None,t[3],None,None)
+
+def p_greatest_insrt1(t):
+    ' greatest_val : greatest_val COMA expresion_dato '
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_greatest_insrt2(t):
+    ' greatest_val : expresion_dato'
+    t[0] = [t[1]]
+
+##################################EXPRESIONES#####################################
+def p_funciones_select(t):
+    ''' funciones_select : ABS PAR_A expresion PAR_C
+                        | CBRT PAR_A expresion PAR_C
+                        | CEIL PAR_A expresion PAR_C 
+                        | CEILING PAR_A expresion PAR_C 
+                        | DEGREES PAR_A expresion PAR_C 
+                        | DIV PAR_A expresion COMA expresion PAR_C 
+                        | EXP PAR_A expresion PAR_C 
+                        | FACTORIAL PAR_A expresion PAR_C 
+                        | FLOOR PAR_A expresion PAR_C 
+                        | GCD PAR_A expresion COMA expresion PAR_C
+                        | LN PAR_A expresion PAR_C 
+                        | LOG PAR_A expresion PAR_C 
+                        | MOD PAR_A expresion COMA expresion PAR_C 
+                        | PI PAR_A PAR_C 
+                        | POWER PAR_A expresion COMA expresion PAR_C 
+                        | RADIANS PAR_A expresion PAR_C 
+                        | ROUND PAR_A expresion PAR_C 
+                        | SIGN PAR_A expresion PAR_C 
+                        | SQRT PAR_A expresion PAR_C
+                        | WIDTH_BUCKET PAR_A expresion COMA expresion COMA expresion COMA expresion PAR_C 
+                        | TRUNC PAR_A expresion COMA ENTERO PAR_C
+                        | TRUNC PAR_A expresion PAR_C 
+                        | RANDOM PAR_A PAR_C 
+                        | ACOS PAR_A expresion PAR_C
+                        | ASIND PAR_A expresion PAR_C
+                        | ATAN2 PAR_A expresion COMA expresion PAR_C
+                        | ATAN2D PAR_A expresion COMA expresion PAR_C
+                        | ATAN PAR_A expresion PAR_C
+                        | ATAND PAR_A expresion PAR_C
+                        | COS PAR_A expresion PAR_C
+                        | COT PAR_A expresion PAR_C 
+                        | COTD PAR_A expresion PAR_C 
+                        | SIN PAR_A expresion PAR_C 
+                        | SIND PAR_A expresion PAR_C 
+                        | TAN PAR_A expresion PAR_C 
+                        | TAND PAR_A expresion PAR_C 
+                        | SINH PAR_A expresion PAR_C 
+                        | COSH PAR_A expresion PAR_C
+                        | TANH PAR_A expresion PAR_C 
+                        | ASINH PAR_A expresion PAR_C
+                        | ATANH PAR_A expresion PAR_C
+                        | COSD PAR_A expresion PAR_C
+                        | ACOSH PAR_A expresion PAR_C  
+                        | ASIN PAR_A expresion PAR_C
+                        | ACOSD PAR_A expresion PAR_C
+                        | LENGTH PAR_A string_type PAR_C
+                        | SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
+                        | TRIM PAR_A string_type PAR_C
+                        | SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+                        | GET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO PAR_C
+                        | SET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO COMA ENTERO PAR_C
+                        | SHA256 PAR_A string_type PAR_C
+                        | ENCODE PAR_A string_type D_DOSPTS BYTEA COMA formato_texto PAR_C
+                        | DECODE PAR_A string_type D_DOSPTS BYTEA COMA formato_texto PAR_C
+                        | CONVERT PAR_A string_type AS TIPO_DATO PAR_C 
+                        '''
+    
+    if t[1].upper() == 'ABS':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ABS, t[3],None,None,None)
+    elif t[1].upper() == 'CBRT':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.CBRT, t[3],None,None,None)
+    elif t[1].upper() == 'CEIL':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.CEIL, t[3],None,None,None)
+    elif t[1].upper() == 'CEILING':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.CEILING, t[3],None,None,None)
+    elif t[1].upper() == 'DEGREES':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.DEGREES, t[3],None,None,None)
+    elif t[1].upper() == 'DIV':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.E_DIV, t[3],t[5],None,None)
+    elif t[1].upper() == 'EXP':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.EXP, t[3],None,None,None)
+    elif t[1].upper() == 'FACTORIAL':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.FACTORIAL, t[3],None,None,None)
+    elif t[1].upper() == 'FLOOR':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.FLOOR, t[3],None,None,None)
+    elif t[1].upper() == 'GCD':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.GCD, t[3],t[5],None,None)
+    elif t[1].upper() == 'LN':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.LN, t[3],None,None,None)
+    elif t[1].upper() == 'LOG':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.LOG, t[3],None,None,None)
+    elif t[1].upper() == 'MOD':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.MOD, t[3],t[5],None,None)
+    elif t[1].upper() == 'PI':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.PI, None,None,None,None)
+    elif t[1].upper() == 'POWER':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.POWER, t[3],t[5],None,None)
+    elif t[1].upper() == 'RADIANS':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.RADIANS, t[3],None,None,None)
+    elif t[1].upper() == 'ROUND':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ROUND, t[3],None,None,None)
+    elif t[1].upper() == 'SIGN':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.SIGN, t[3],None,None,None)
+    elif t[1].upper() == 'SQRT':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.SQRT, t[3],None,None,None)
+    elif t[1].upper() == 'WIDTH_BUCKET':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.WIDTH_BUCKET, t[3],t[5],t[7],t[9])
+    elif t[1].upper() == 'TRUNC' and t[4] == ',':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.TRUNC, t[3],ExpresionEntero(TIPO_VALOR.NUMERO,t[5]),None,None)
+    elif t[1].upper() == 'TRUNC':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.S_TRUNC, t[3],None,None,None) 
+    elif t[1].upper() == 'RANDOM':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.RANDOM, t[3],None,None,None)
+    elif t[1].upper() == 'ACOS':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ACOS, t[3],None,None,None)
+    elif t[1].upper() == 'ASIND':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ASIND, t[3],None,None,None)
+    elif t[1].upper() == 'ATAN2':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN2, t[3],t[5],None,None)
+    elif t[1].upper() == 'ATAN2D':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN2D, t[3],t[5],None,None)
+    elif t[1].upper() == 'ATAN':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAN, t[3],None,None,None)
+    elif t[1].upper() == 'ATAND':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATAND, t[3],None,None,None)
+    elif t[1].upper() == 'COS':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.COS, t[3],None,None,None)
+    elif t[1].upper() == 'COT':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.COT, t[3],None,None,None)
+    elif t[1].upper() == 'COTD':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.COTD, t[3],None,None,None)
+    elif t[1].upper() == 'SIN':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.SIN, t[3],None,None,None)
+    elif t[1].upper() == 'SIND':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.SIND, t[3],None,None,None)
+    elif t[1].upper() == 'TAN':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.TAN, t[3],None,None,None)
+    elif t[1].upper() == 'TAND':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.TAND, t[3],None,None,None)
+    elif t[1].upper() == 'SINH':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.SINH, t[3],None,None,None)
+    elif t[1].upper() == 'COSH':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.COSH, t[3],None,None,None)
+    elif t[1].upper() == 'TANH':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.TANH, t[3],None,None,None)
+    elif t[1].upper() == 'ASINH':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ASINH, t[3],None,None,None)
+    elif t[1].upper() == 'ATANH':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ATANH, t[3],None,None,None)
+    elif t[1].upper() == 'COSD':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.COSD, t[3],None,None,None)
+    elif t[1].upper() == 'ACOSH':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ACOSH, t[3],None,None,None)
+    elif t[1].upper() == 'ASIN':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ASIN, t[3],None,None,None)
+    elif t[1].upper() == 'ACOSD':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ACOSD, t[3],None,None,None)
+    elif t[1].upper() == 'LENGTH':
+        t[0] = Expresiondatos(CADENA_BINARIA.LENGTH, t[3],None,None,None)
+    elif t[1].upper() == 'SUBSTRING':
+        t[0] = Expresiondatos(CADENA_BINARIA.SUBSTRING, t[3],t[5],t[7],None)
+    elif t[1].upper() == 'TRIM':
+        t[0] = Expresiondatos(CADENA_BINARIA.TRIM, t[3],None,None,None) 
+    elif t[1].upper() == 'SUBSTR':
+        t[0] = Expresiondatos(CADENA_BINARIA.SUBSTR, t[3],ExpresionEntero(TIPO_VALOR.NUMERO,t[5]),ExpresionEntero(TIPO_VALOR.NUMERO,t[7]),None) 
+    elif t[1].upper() == 'GET_BYTE':
+        t[0] = Expresiondatos(CADENA_BINARIA.GET_BYTE, t[3],ExpresionEntero(TIPO_VALOR.NUMERO,t[7]),None,None)
+    elif t[1].upper() == 'SET_BYTE':
+        t[0] = Expresiondatos(CADENA_BINARIA.SET_BYTE, t[3],ExpresionEntero(TIPO_VALOR.NUMERO,t[7]),ExpresionEntero(TIPO_VALOR,t[9]),None)
+    elif t[1].upper() == 'SHA256':
+        t[0] = Expresiondatos(CADENA_BINARIA.SHA256, t[3],None,None,None)
+    elif t[1].upper() == 'ENCODE':
+        t[0] = Expresiondatos(CADENA_BINARIA.ENCODE, t[3],t[7],None,None)
+    elif t[1].upper() == 'DECODE':
+        t[0] = Expresiondatos(CADENA_BINARIA.DECODE, t[3],t[7],None,None)
+    elif t[1].upper() == 'CONVERT':
+        t[0] = Expresiondatos(CADENA_BINARIA.CONVERT, t[3],t[5],None,None)
+   
+
+def p_formato_texto(t):
+    ''' formato_texto : ESCAPE
+                      | HEX '''
+    t[0] = t[1]
+
+def p_formato_texto_base64(t):
+    ' formato_texto : BASE64'
+    t[0] = t[1]
+                 
+
+def p_expresion_where2(t):
+    'expresion_where : expresion_logica_w'
+    t[0] = t[1]
+
+def p_expresion_where(t):
+    ''' expresion_where : expresion_dato NOT IN PAR_A select_insrt PAR_C
+                        | expresion_dato IN PAR_A select_insrt PAR_C
+                        | NOT EXISTS PAR_A select_insrt PAR_C
+                        '''
+
+    if t[2].upper() == 'NOT' and t[3].upper() == 'IN':
+        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_IN, t[1],t[5],None,None)
+    elif t[2].upper() == 'IN':
+        t[0] = Expresiondatos(OPCION_VERIFICAR.INN,t[1],t[4],None,None)
+    elif t[1].upper() == 'NOT' and t[2].upper() == 'EXISTS':
+        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_EXISTS,t[4],None,None,None)
+
+
+def p_expresion_where_3(t):
+    ''' expresion_where : expresion_dato NOT BETWEEN SYMMETRIC expresion_dato AND expresion_dato
+                        '''
+    
+    if t[2].upper() == 'NOT' and t[4].upper() == 'SYMMETRIC':
+        t[0] = Expresiondatos(OPCION_VERIFICAR.NOT_BETWEEN_SYMETRIC,t[1],t[5],t[7],None)
+
+
+def p_expresion_wherea(t):
+    '''expresion_wherea :  ABS PAR_A expresion PAR_C
+                        | LENGTH PAR_A string_type PAR_C
+                        | CBRT PAR_A expresion PAR_C
+                        | CEIL PAR_A expresion PAR_C 
+                        | CEILING PAR_A expresion PAR_C 
+                        | SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
+                        | TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
+                        | SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+                        | sin_some_any PAR_A select_insrt PAR_C
+                        | EXTRACT PAR_A extract_time FROM string_type PAR_C '''
+
+    if t[1].upper() == 'ABS':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.ABS, t[3],None,None,None)
+    elif t[1].upper() == 'LENGTH':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.LENGTH, t[3],None,None,None)
+    elif t[1].upper() == 'CBRT':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.CBRT, t[3],None,None,None)
+    elif t[1].upper() == 'CEIL':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.CEIL, t[3],None,None,None)
+    elif t[1].upper() == 'CEILING':
+        t[0] = Expresiondatos(OPERACION_ARITMETICA.CEILING, t[3],None,None,None)
+    elif t[1].upper() == 'SUBSTRING':
+        t[0] = Expresiondatos(OPCIONES_DATOS.SUBSTRING, t[3],t[5],t[7],None)
+    elif t[1].upper() == 'TRIM':
+        t[0] = Expresiondatos(OPCIONES_DATOS.TRIM, t[3],t[7],None,None)
+    elif t[1].upper() == 'SUBSTR':
+        t[0] = Expresiondatos(OPCIONES_DATOS.SUBSTR, t[3],t[5],t[7],None)
+    elif t[1].upper() == 'EXTRACT':
+        t[0] = Expresiondatos(OPCIONES_DATOS.EXTRACT, t[3],t[5],None,None)
+    elif t[1].upper() == 'SOME':
+        t[0] = Expresiondatos(OPCIONES_DATOS.SOME, t[3],None,None,None)
+    elif t[1].upper() == 'ANY':
+        t[0] = Expresiondatos(OPCIONES_DATOS.ANY, t[3],None,None,None)
+
+def p_expresion_wherea2(t):
+    ''' expresion_wherea : expresion '''
+    t[0] = t[1]
+
+def p_expresion_isnull_(t):
+    ''' expresion_whereb : expresion_dato IS NULL '''
+    t[0] = ExpresionRelacional(t[1],'',OPCION_VERIFICAR.NULL)
+        
+def p_experesion_isnull_2(t):
+    ' expresion_whereb : expresion_dato ISNULL'
+    t[0] = ExpresionRelacional(t[1],'',OPCION_VERIFICAR.ISNULL)
+
+def p_expresion_notnull(t):
+    ' expresion_whereb : expresion_dato NOTNULL'
+    t[0] = ExpresionRelacional(t[1],'',OPCION_VERIFICAR.NOTNULL)
+
+def p_expresion_true(t):
+    ' expresion_whereb : expresion_dato IS TRUE'
+    print('en entra')
+    t[0] = ExpresionRelacional(t[1],'',OPCION_VERIFICAR.TRUE)
+
+def p_expresion_not_true(t):
+    ' expresion_whereb : expresion_dato IS NOT TRUE'
+    t[0] = ExpresionRelacional(t[1],'',OPCION_VERIFICAR.N_TRUE)
+
+def p_expresion_false(t):
+    ' expresion_whereb : expresion_dato IS FALSE'
+    t[0] = ExpresionRelacional(t[1],'',OPCION_VERIFICAR.FALSE)
+
+def p_expresion_UNKNOWN(t):
+    ' expresion_whereb : expresion_dato IS UNKNOWN'
+    t[0] = ExpresionRelacional(t[1],'',OPCION_VERIFICAR.UNKNOWN)
+
+def p_expresion_UNKNOWN_(t):
+    ' expresion_whereb : expresion_dato IS NOT UNKNOWN'
+    t[0] = ExpresionRelacional(t[1],'',OPCION_VERIFICAR.UNKNOWN)
+
+
+def p_expresion_whereb(t):
+    '''expresion_whereb :     expresion_wherea MAYQUE expresion_wherea
+                             | expresion_wherea MENQUE expresion_wherea
+                             | expresion_wherea MAYIGQUE expresion_wherea
+                             | expresion_wherea MENIGQUE expresion_wherea
+                             | expresion_wherea DOBLEIG expresion_wherea
+                             | expresion_wherea IGUAL expresion_wherea
+                             | expresion_wherea NOIG expresion_wherea
+                             | expresion_wherea NOIGUAL expresion_wherea '''
+
+    if t[2] == '>':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYQUE)
+    elif t[2] == '<':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENQUE)
+    elif t[2] == '>=':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYIGQUE)
+    elif t[2] == '<=':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENIGQUE)
+    elif t[2] == '==':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.DOBLEIGUAL)
+    elif t[2] == '=':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.IGUAL)
+    elif t[2] == '<>':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.NOIG)
+    elif t[2] == '!=':
+        t[0] = ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.DIFERENTE)
+
+def p_expresion_whereb2(t):
+    ' expresion_whereb : expresion_wherea '
+    t[0] = t[1]
+
+def p_expresion_logica_w(t):
+    ''' expresion_logica_w :  expresion_logica_w AND expresion_whereb
+                            | expresion_logica_w OR expresion_whereb ''' 
+
+
+    if t[2].upper() == 'AND':
+        t[0] = ExpresionLogica(t[1],t[3],OPERACION_LOGICA.AND)
+    elif t[2].upper() == 'OR':
+        t[0] = ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR) 
+
+def p_expresion_logica_between(t):
+    ' expresion_logica_w :  expresion_logica_w BETWEEN expresion_whereb'
+    if t[2].upper() == 'BETWEEN' : t[0] = ExpresionLogica(t[1],t[3],OPCION_VERIFICAR.BETWEEN)
+
+def p_expresion_logica_between_1(t):
+    ' expresion_logica_w :  expresion_wherea BETWEEN expresion_wherea AND expresion_wherea'
+    if t[2].upper() == 'BETWEEN' and t[4].upper() == 'AND' : t[0] = ExpresionLogica(ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYQUE),ExpresionRelacional(t[1],t[5],OPERACION_RELACIONAL.MENQUE),OPCION_VERIFICAR.BETWEEN_1)
+
+
+def p_expresion_logica_between_NOT(t):
+    ' expresion_logica_w : expresion_dato NOT BETWEEN expresion_dato AND expresion_dato'
+    if t[3].upper() == 'BETWEEN' and t[2].upper() == 'NOT' : t[0] = ExpresionLogica(ExpresionRelacional(t[1],t[4],OPERACION_RELACIONAL.MAYQUE),ExpresionRelacional(t[1],t[6],OPERACION_RELACIONAL.MENQUE),OPCION_VERIFICAR.N_BETWEEN)
+
+def p_expresion_logica_between_distict(t):
+    ' expresion_logica_w : expresion_dato IS DISTINCT FROM expresion_dato'
+    if t[3].upper() == 'DISTINCT' : t[0] = ExpresionLogica(ExpresionRelacional(t[1],t[5],OPERACION_RELACIONAL.DIFERENTE), ExpresionRelacional(t[1],t[5],OPERACION_RELACIONAL.DIFERENTE), OPCION_VERIFICAR.ISDISTINCT)
+
+
+def p_expresion_logica_between_notdistict(t):
+    ' expresion_logica_w :  expresion_dato IS NOT DISTINCT FROM expresion_dato'
+    if t[3].upper() == 'NOT' and t[4].upper() == 'DISTINCT' : t[0] = ExpresionLogica(ExpresionRelacional(t[1],t[6],OPERACION_RELACIONAL.DOBLEIGUAL), ExpresionRelacional(t[1],t[6],OPERACION_RELACIONAL.DOBLEIGUAL), OPCION_VERIFICAR.NOT_DISTINCT)
+
+
+def p_expresion_logica_between_like(t):
+    'expresion_logica_w : expresion_dato LIKE CADENA'
+    if t[2].upper() == 'LIKE' : t[0] = ExpresionLogica(ExpresionRelacional(t[1],ExpresionComillaSimple(TIPO_VALOR.NUMERO,t[3]),OPERACION_RELACIONAL.DOBLEIGUAL), ExpresionRelacional(t[1],ExpresionComillaSimple(TIPO_VALOR.NUMERO,t[3]),OPERACION_RELACIONAL.DOBLEIGUAL), OPCION_VERIFICAR.LIKE)
+
+def p_expresion_logica_between_NOTLIKE(t):
+    'expresion_logica_w : expresion_dato NOT LIKE CADENA'
+    if t[3].upper() == 'LIKE' and t[2].upper() == 'NOT' : t[0] = ExpresionLogica(ExpresionRelacional(t[1],ExpresionComillaSimple(TIPO_VALOR.NUMERO,t[4]),OPERACION_RELACIONAL.DIFERENTE), ExpresionRelacional(t[1],ExpresionComillaSimple(TIPO_VALOR.NUMERO,t[4]),OPERACION_RELACIONAL.DIFERENTE), OPCION_VERIFICAR.NOT_LIKE)
+
+def p_expresion_logica_w2(t):
+    ' expresion_logica_w : NOT expresion_logica_w '
+    t[0] = ExpresionLogica(t[2],None,OPERACION_LOGICA.NOT)
+
+def p_expresion_logica_w3(t):
+    ' expresion_logica_w : expresion_whereb '
+    t[0] = t[1]
 
 def p_error(t):
     #print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(entradaa), t))
     global reporte_sintactico
-    reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
+    #reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
     errorSintactico = Error(str(t.value),int(t.lineno),int(find_column(str(entradaa),t)), "Error Sintactico")
     listaErrores.append(errorSintactico) 
 

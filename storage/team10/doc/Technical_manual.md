@@ -27,6 +27,7 @@ En está solución se utilizó como modo de almacenamiento para las tablas, una 
 Todas las funciones referentes a TytusDB, se manejan a través de un paquete (Tytus.py) por medio del cual se hace la llamada a los métodos.
 &nbsp;
 ## DIAGRAMA DE CLASES
+!["Ilustración"](ClassTytus.png)
 &nbsp;
 ## DESCRIPCIÓN DE MÉTODOS
 #### **createDatabase**

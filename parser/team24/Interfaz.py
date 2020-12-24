@@ -9,6 +9,7 @@ from reportAST import *
 from reportError import *
 from reportBNF import *
 from reportTable import *
+import prettytable as pt
 import os
 
 default_db = 'DB1'
@@ -31,6 +32,7 @@ def analiz(input):
 
 
 root = Tk()
+cont = 1
 
 """PROPIEDADES DE LA VENTANA"""
 root.geometry("1100x650")
@@ -81,12 +83,17 @@ def LimpiarTexto():
     texto.delete('1.0',END)
 def LimpiarConsola():
     consola.delete('1.0',END)
+    global cont
+    cont = 1
 def Analizar():
     results = analiz(texto.get("1.0", "end-1c"))
-    cont = 1
+    global cont
     for res in results:
         consola.insert(str(float(cont)), res)
-        cont += (res.get_string().count('\n')+2)
+        if isinstance(res,pt.PrettyTable):
+            cont += (res.get_string().count('\n')+2)
+        else:
+            cont += (res.count('\n')+2)
         consola.insert(str(float(cont)), '\n')
         
 

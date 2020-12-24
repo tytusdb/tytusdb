@@ -2088,8 +2088,7 @@ def analizarEntrada(entrada):
 
 arbolParser = analizarEntrada('''
 use test;
-
-select   LENGTH('CADENAAAAAA') * 9 * random() + pi() * cos(cos(7))  , TIMESTAMP 'now' from tb1;
+select *, cos(tb2.numerica) from tb1, tb2;
 
 ''')
 arbolParser.ejecutar()

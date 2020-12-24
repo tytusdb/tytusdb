@@ -1,5 +1,5 @@
 import ast
-from Manager import Manager
+import AVLMode as Manager
 import tkinter as Tkinter
 import webbrowser
 from tkinter import *
@@ -14,7 +14,7 @@ from PIL import Image,ImageTk
 contenidoCSV = ""
 class GUI: 
     def __init__(self):
-        self.control = Manager()
+        self.control = Manager
         self.window = tk.Tk()
         self.window.title("Proyecto EDD Grupo 11")
         self.window.geometry('1250x650') 
@@ -1067,7 +1067,7 @@ class GUI:
 # CREA LA VENTANA  CON LAS TABLAS  
 class vdialogo:    
     def __init__(self, ventanaprincipal,modo,nombredb,nombretabla):
-        self.mostrar = Manager()
+        self.mostrar = Manager
         columnas=None
         c=None
         if modo == "modo1":

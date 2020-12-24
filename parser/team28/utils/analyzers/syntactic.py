@@ -1,4 +1,6 @@
 # from generate_ast import GraficarAST
+from models.instructions.Expression.trigonometric_functions import ExpressionsTrigonometric
+from models.instructions.Expression.extract_from_column import ExtractFromIdentifiers
 from re import L
 
 import libs.ply.yacc as yacc
@@ -519,7 +521,7 @@ def p_add_alter(p):
             'fk_references_to': None
         }]))
     elif len(p) == 5:
-        p[0] = AlterTableAdd(Check(p[3]))
+        p[0] = AlterTableAdd(Check(p[4]))
     elif len(p) == 7:
         # TODO revisar esta asignacion
         p[0] = AlterTableAdd(Constraint(p[2], Unique(p[5])))
@@ -1506,6 +1508,7 @@ def p_sql_alias(p):
 
 def p_expressions_time(p):
     '''EXPRESSIONSTIME : EXTRACT LEFT_PARENTHESIS DATETYPES FROM TIMESTAMP SQLNAME RIGHT_PARENTHESIS
+                       | EXTRACT LEFT_PARENTHESIS DATETYPES FROM SQLNAME RIGHT_PARENTHESIS
                        | NOW LEFT_PARENTHESIS RIGHT_PARENTHESIS
                        | DATE_PART LEFT_PARENTHESIS SQLNAME COMMA INTERVAL SQLNAME RIGHT_PARENTHESIS
                        | CURRENT_DATE

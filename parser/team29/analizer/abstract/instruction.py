@@ -19,6 +19,7 @@ import analizer
 ast = AST.AST()
 root = None
 
+envVariables = []
 
 class SELECT_MODE(Enum):
     ALL = 1
@@ -66,7 +67,7 @@ class SelectParams(Instruction):
 
 class Select(Instruction):
     def __init__(
-        self, params, fromcl, wherecl, groupbyCl, havingCl, limitCl, row, column
+        self, params, fromcl, wherecl, groupbyCl, havingCl, limitCl, distinct, row, column
     ):
         Instruction.__init__(self, row, column)
         self.params = params
@@ -75,10 +76,13 @@ class Select(Instruction):
         self.groupbyCl = groupbyCl
         self.havingCl = havingCl
         self.limitCl = limitCl
+        self.distinct = distinct
 
     def execute(self, environment):
         try:
             newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
             self.fromcl.execute(newEnv)
             if self.wherecl != None:
                 self.wherecl.execute(newEnv)
@@ -129,6 +133,13 @@ class Select(Instruction):
                                 groupEmpty = False
                             else:
                                 groupDf = pd.concat([groupDf, val], axis=1)
+                    if groupEmpty:
+                        countGr = newEnv.groupCols
+                        # Obtiene las ultimas columnas metidas (Las del group by)
+                        df = newEnv.dataFrame.iloc[:, -countGr:]
+                        cols = list(df.columns)
+                        groupDf = df.groupby(cols).sum().reset_index()
+                        groupEmpty = False
                 else:
                     value = [p.execute(newEnv) for p in params]
                     for j in range(len(labels)):
@@ -143,6 +154,8 @@ class Select(Instruction):
                     df_ = newEnv.dataFrame.filter(labels)
                     if self.limitCl:
                         df_ = self.limitCl.execute(df_, newEnv)
+                    if self.distinct:
+                        return [df_.drop_duplicates(), newEnv.types]
                     return [df_, newEnv.types]
                 w2 = newEnv.dataFrame.filter(labels)
                 # Si la clausula WHERE devuelve un dataframe vacio
@@ -151,6 +164,8 @@ class Select(Instruction):
                 df_ = w2
                 if self.limitCl:
                     df_ = self.limitCl.execute(df_, newEnv)
+                if self.distinct:
+                    return [df_.drop_duplicates(), newEnv.types]
                 return [df_, newEnv.types]
             else:
                 newNames = {}
@@ -162,6 +177,8 @@ class Select(Instruction):
                 df_ = groupDf
                 if self.limitCl:
                     df_ = self.limitCl.execute(df_, newEnv)
+                if self.distinct:
+                    return [df_.drop_duplicates(), newEnv.types]
                 return [df_, newEnv.types]
         except:
             raise
@@ -170,6 +187,9 @@ class Select(Instruction):
         new = Nodo.Nodo("SELECT")
         paramNode = Nodo.Nodo("PARAMS")
         new.addNode(paramNode)
+        if self.distinct:
+            dis = Nodo.Nodo("DISTINCT")
+            new.addNode(dis)
         if len(self.params) == 0:
             asterisco = Nodo.Nodo("*")
             paramNode.addNode(asterisco)
@@ -179,6 +199,20 @@ class Select(Instruction):
         new.addNode(self.fromcl.dot())
         if self.wherecl != None:
             new.addNode(self.wherecl.dot())
+
+        if self.groupbyCl != None:
+            gb = Nodo.Nodo("GROUP_BY")
+            new.addNode(gb)
+            for g in self.groupbyCl:
+                gb.addNode(g.dot())
+            if self.havingCl != None:
+                hv = Nodo.Nodo("HAVING")
+                new.addNode(hv)
+                hv.addNode(self.havingCl.dot())
+
+        if self.limitCl != None:
+            new.addNode(self.limitCl.dot())
+
         return new
 
 
@@ -241,7 +275,10 @@ class FromClause(Instruction):
             else:
                 tempDf = self.crossJoin([tempDf, data])
             environment.dataFrame = tempDf
-            environment.types.update(types)
+            try:
+                environment.types.update(types)
+            except:
+                raise Exception("Error en la clausula FROM")
         return
 
     def dot(self):
@@ -319,6 +356,8 @@ class SelectOnlyParams(Select):
     def execute(self, environment):
         try:
             newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
             labels = []
             values = {}
             for i in range(len(self.params)):
@@ -356,6 +395,8 @@ class Delete(Instruction):
             if len(self.fromcl.tables) > 1:
                 return "Error: syntax error at or near ','"
             newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
             self.fromcl.execute(newEnv)
             value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
             labels = [p for p in newEnv.dataFrame]
@@ -409,6 +450,8 @@ class Update(Instruction):
             if len(self.fromcl.tables) > 1:
                 return "Error: syntax error at or near ','"
             newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
             self.fromcl.execute(newEnv)
             value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
             labels = [p for p in newEnv.dataFrame]
@@ -707,11 +750,16 @@ class InsertInto(Instruction):
         new = Nodo.Nodo("INSERT_INTO")
         t = Nodo.Nodo(self.tabla)
         par = Nodo.Nodo("PARAMS")
-
+        new.addNode(t)
         for p in self.parametros:
             par.addNode(p.dot())
 
-        new.addNode(t)
+        if self.columns != None:
+            colNode = Nodo.Nodo("COLUMNS")
+            for c in self.columns:
+                colNode.addNode(Nodo.Nodo(str(c)))
+            new.addNode(colNode)
+             
         new.addNode(par)
         # ast.makeAst(root)
         return new
@@ -899,7 +947,6 @@ class CreateTable(Instruction):
         new.addNode(c)
 
         for cl in self.columns:
-            print(cl)
             if not cl[0]:
                 id = Nodo.Nodo(cl[1])
                 c.addNode(id)
@@ -916,7 +963,6 @@ class CreateTable(Instruction):
                         parl1 = Nodo.Nodo(str(parl))
                         params.addNode(parl1)
 
-                print(cl[3])
                 colOpts = cl[3]
                 if colOpts != None:
                     coNode = Nodo.Nodo("OPTIONS")
@@ -966,6 +1012,7 @@ class CreateTable(Instruction):
                         primNode.addNode(nl)
                 if cl[1][0] == "FOREIGN":
                     forNode = Nodo.Nodo("FOREIGN_KEY")
+                    c.addNode(forNode)
                     idlist = cl[1][1]
                     for il in idlist:
                         nl = Nodo.Nodo(str(il))
@@ -985,9 +1032,6 @@ class CreateTable(Instruction):
             inhNode2 = Nodo.Nodo(str(self.inherits))
             inhNode.addNode(inhNode2)
 
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -1091,7 +1135,99 @@ class AlterTable(Instruction):
             alter = "Tabla alterada"
 
         return alter
+    
+    def dot(self):
+        
+        new = Nodo.Nodo("ALTER_TABLE")
+        idNode = Nodo.Nodo(str(self.table))
+        new.addNode(idNode)
 
+        for p in self.params:
+            operacion = Nodo.Nodo(p[0])
+            new.addNode(operacion)
+            if p[0] == "ADD":
+                if not p[1][0]:
+                    col = Nodo.Nodo(p[1][1]) 
+                    operacion.addNode(col)
+                    typ = Nodo.Nodo(str(p[1][2][0]))
+                    operacion.addNode(typ)
+                    if p[1][2][1][0] != None:
+                        parNode = Nodo.Nodo("PARAMS")
+                        typ.addNode(parNode)
+                        for p2 in p[1][2][1]:
+                            lit = Nodo.Nodo(str(p2))
+                            parNode.addNode(lit)
+                else:
+                    if p[1][1][0] == "PRIMARY":
+                        primNode = Nodo.Nodo("PRIMARY_KEY")
+                        operacion.addNode(primNode)
+                        idlist = p[1][1][1]
+                        for il in idlist:
+                            nl = Nodo.Nodo(str(il))
+                            primNode.addNode(nl)
+                    elif p[1][1][0] == "FOREIGN":
+                        forNode = Nodo.Nodo("FOREIGN_KEY")
+                        operacion.addNode(forNode)
+                        idlist = p[1][1][1]
+                        for il in idlist:
+                            nl = Nodo.Nodo(str(il))
+                            forNode.addNode(nl)
+                        refNode = Nodo.Nodo("REFERENCES")
+                        forNode.addNode(refNode)
+                        idNode = Nodo.Nodo(str(p[1][1][2]))
+                        refNode.addNode(idNode)
+                        idlist2 = p[1][1][3]
+                        for il2 in idlist2:
+                            nl2 = Nodo.Nodo(str(il2))
+                            refNode.addNode(nl2)
+                    elif p[1][1][0] =="UNIQUE":
+                        uniqueNode = Nodo.Nodo("UNIQUE")
+                        operacion.addNode(uniqueNode)
+                        if p[1][1][2] != None:
+                            const = Nodo.Nodo("CONSTRAINT")
+                            uniqueNode.addNode(const)
+                            idcont = Nodo.Nodo(str(p[1][1][2]))
+                            const.addNode(idcont)
+                        id2const = Nodo.Nodo(str(p[1][1][1][0]))
+                        uniqueNode.addNode(id2const)
+            elif p[0] == "DROP":
+                subOper = Nodo.Nodo(str(p[1][0]))
+                idDrop = Nodo.Nodo(str(p[1][1]))
+                operacion.addNode(subOper)
+                operacion.addNode(idDrop)
+            elif p[0] == "RENAME":
+                rename1 = Nodo.Nodo(str(p[1][0]))
+                rename2 = Nodo.Nodo(str(p[1][1]))
+                operacion.addNode(rename1)
+                operacion.addNode(rename2)
+            elif p[0] == "ALTER":
+                idAlter = Nodo.Nodo(str(p[1][1]))
+                operacion.addNode(idAlter)
+                if p[1][0] == "SET":
+                    setNode = Nodo.Nodo("SET")
+                    operacion.addNode(setNode)
+                    if p[1][2][0] == "DEFAULT":
+                        defNode = Nodo.Nodo("DEFAULT")
+                        defNode.addNode(p[1][2][1].dot())
+                        setNode.addNode(defNode)
+                    elif p[1][2][1]:
+                        notnullN = Nodo.Nodo("NOT_NULL")
+                        setNode.addNode(notnullN)
+                    elif not p[1][2][1]:
+                        nullN = Nodo.Nodo("NULL")
+                        setNode.addNode(nullN)
+                elif p[1][0] == "TYPE":
+                    typeNode = Nodo.Nodo("TYPE")
+                    typ2 = Nodo.Nodo(str(p[1][2][0]))
+                    typeNode.addNode(typ2)
+                    operacion.addNode(typeNode)
+                    if p[1][2][1][0] != None:
+                        parNode2 = Nodo.Nodo("PARAMS")
+                        typ2.addNode(parNode2)
+                        for p3 in p[1][2][1]:
+                            lit2 = Nodo.Nodo(str(p3))
+                            parNode2.addNode(lit2)
+        return new
 
 class limitClause(Instruction):
     def __init__(self, num, offset, row, column) -> None:
@@ -1107,7 +1243,17 @@ class limitClause(Instruction):
             return temp
         return temp.head(self.num)
 
+    def dot(self):
+        new = Nodo.Nodo("LIMIT")
+        numN = Nodo.Nodo(str(self.num))
+        new.addNode(numN)
+        if self.offset != None:
+            off = Nodo.Nodo("OFFSET")
+            new.addNode(off)
+            offId = Nodo.Nodo(str(self.offset))
+            off.addNode(offId)
 
+        return new
 class Union(Instruction):
     """
     Clase encargada de la instruccion CHECK que almacena la condicion
@@ -1121,6 +1267,8 @@ class Union(Instruction):
 
     def execute(self, environment):
         newEnv = Environment(environment, dbtemp)
+        global envVariables
+        envVariables.append(newEnv)
         s1 = self.s1.execute(newEnv)
         s2 = self.s2.execute(newEnv)
         df1 = s1[0]
@@ -1135,6 +1283,11 @@ class Union(Instruction):
         df = pd.concat([df1, df2], ignore_index=True)
         return df
 
+    def dot(self):
+        new = Nodo.Nodo("UNION")
+        new.addNode(self.s1.dot())
+        new.addNode(self.s2.dot())
+        return new
 
 class Intersect(Instruction):
     """
@@ -1149,6 +1302,8 @@ class Intersect(Instruction):
 
     def execute(self, environment):
         newEnv = Environment(environment, dbtemp)
+        global envVariables
+        envVariables.append(newEnv)
         s1 = self.s1.execute(newEnv)
         s2 = self.s2.execute(newEnv)
         df1 = s1[0]
@@ -1163,6 +1318,11 @@ class Intersect(Instruction):
         df = df1.merge(df2).drop_duplicates(ignore_index=True)
         return df
 
+    def dot(self):
+        new = Nodo.Nodo("INTERSECT")
+        new.addNode(self.s1.dot())
+        new.addNode(self.s2.dot())
+        return new
 
 class Except_(Instruction):
     """
@@ -1177,6 +1337,8 @@ class Except_(Instruction):
 
     def execute(self, environment):
         newEnv = Environment(environment, dbtemp)
+        global envVariables
+        envVariables.append(newEnv)
         s1 = self.s1.execute(newEnv)
         s2 = self.s2.execute(newEnv)
         df1 = s1[0]
@@ -1193,3 +1355,8 @@ class Except_(Instruction):
         ]
         del df["_merge"]
         return df
+    def dot(self):
+        new = Nodo.Nodo("EXCEPT")
+        new.addNode(self.s1.dot())
+        new.addNode(self.s2.dot())
+        return new

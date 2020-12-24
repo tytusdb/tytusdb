@@ -14,19 +14,6 @@ class Instruction:
         ''' metodo para la ejecucion '''
         pass
 
-class Alias(Instruction):
-    '''
-        Alias recibe el ID original y su ALIAS
-    '''
-    def __init__(self, id, alias) :
-        self.id = id
-        self.alias = alias
-    
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
 
 class From(Instruction):
     '''
@@ -63,7 +50,8 @@ class From(Instruction):
                     else:
                         return [lista1[0], lista2[0]]
         except:
-            print('murio en el from clause xD')
+            desc = "FATAL ERROR, murio en From, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
             
     def union_tables(self, right: list):
         if len(right) < 1:
@@ -98,7 +86,8 @@ class TableReference(Instruction):
             name_column = self.tabla.process(instrucction)
             return name_column
         except:
-            print(f'error en linea {self.line} y columna {self.column}')
+            desc = "FATAL ERROR, murio en TableReference, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Where(Instruction):
     '''
@@ -136,7 +125,8 @@ class Where(Instruction):
             storage_table(table.values.tolist(), table.columns.tolist(), name, 0, 0)
             return table
         except:
-            print('error la colunma no existe')
+            desc = "FATAL ERROR, murio en Where, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
         
 class LikeClause(Instruction):
     '''
@@ -155,22 +145,25 @@ class LikeClause(Instruction):
     def process(self, instrucction):
         print(type(self.arr_list))
         not_option = self.not_option
-        if not_option:
-            column = self.valor.process(instrucction)
-            column = column[1]
-            cadena = self.arr_list.process(instrucction).value
-            cadena = str(cadena)
-            new_cadena = cadena.replace("%", "")
-            cadena = f'~{column}.str.contains("{new_cadena}")'
-            return cadena  
-        else:
-            column = self.valor.process(instrucction)
-            column = column[1]
-            cadena = self.arr_list.process(instrucction).value
-            new_cadena = cadena.replace("%", "")
-            cadena = f'{column}.str.contains("{new_cadena}")'
-            return cadena  
-    
+        try:
+            if not_option:
+                column = self.valor.process(instrucction)
+                column = column[1]
+                cadena = self.arr_list.process(instrucction).value
+                cadena = str(cadena)
+                new_cadena = cadena.replace("%", "")
+                cadena = f'~{column}.str.contains("{new_cadena}")'
+                return cadena  
+            else:
+                column = self.valor.process(instrucction)
+                column = column[1]
+                cadena = self.arr_list.process(instrucction).value
+                new_cadena = cadena.replace("%", "")
+                cadena = f'{column}.str.contains("{new_cadena}")'
+                return cadena  
+        except:
+            desc = "FATAL ERROR, murio en LikeClause, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 class GroupBy(Instruction):
     '''
         * The GROUP BY statement groups rows 
@@ -204,9 +197,29 @@ class GroupBy(Instruction):
                     table_p = table_p.groupby(group_by).agg(funcs).reset_index()
                     return table_p
             else:
-                pass
+                table_p = agg_f[0]
+                funcs = self.convert_all_dictionary(agg_f[1])
+                check = self.check_asterisk(funcs)
+                if check:
+                    headers = agg_f[2]
+                    group_by = self.recorrer_lista(self.column_names, instrucction)
+                    table_p = table_p.groupby(group_by).size().reset_index()
+                    table_p.columns = headers 
+                    value = self.having_expression.process(instrucction)
+                    table = table_p.query(value)
+                    return table
+                else:
+                    headers = agg_f[2]
+                    group_by = self.recorrer_lista(self.column_names, instrucction)
+                    table_p.columns = headers
+                    storage_columns(table_p.values.tolist(), table_p.columns.tolist(),0, 0)
+                    table_p = table_p.groupby(group_by).agg(funcs).reset_index()
+                    value = self.having_expression.process(instrucction)
+                    table = table_p.query(value)
+                    return table
         except:
-            print('Error en Group By Functions')
+            desc = "FATAL ERROR, murio en GroupBy, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
         
     def convert_all_dictionary(self, lista):
         dictionary_f = {}
@@ -274,18 +287,22 @@ class Between(Instruction):
         value1 = self.value1.process(instrucction).value
         value2 = self.value2.process(instrucction).value
         data = ""
-        if self.opt_not and self.opt_simmetric:
-            data = f'~({str(value1)} <= {name_column} <= {str(value2)})'
-            return data
-        elif self.opt_not:
-            data = f'~({str(value1)} <= {name_column} <= {str(value2)})'
-            return data
-        elif self.opt_simmetric:
-            data = f'{str(value1)} <= {name_column} <= {str(value2)}'
-            return data
-        else:
-            data = f'{str(value1)} <= {name_column} <= {str(value2)}'
-            return data
+        try:
+            if self.opt_not and self.opt_simmetric:
+                data = f'~({str(value1)} <= {name_column} <= {str(value2)})'
+                return data
+            elif self.opt_not:
+                data = f'~({str(value1)} <= {name_column} <= {str(value2)})'
+                return data
+            elif self.opt_simmetric:
+                data = f'{str(value1)} <= {name_column} <= {str(value2)}'
+                return data
+            else:
+                data = f'{str(value1)} <= {name_column} <= {str(value2)}'
+                return data
+        except:
+            desc = "FATAL ERROR, murio en Between, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class isClause(Instruction):
     '''
@@ -300,34 +317,38 @@ class isClause(Instruction):
         return str(vars(self))
     
     def process(self, instrucction):
-        name_column = self.name_column.process(instrucction)
-        name_column = name_column[1]
-        array = self.arr_list
-        data = ""
-        if len(array) == 1:
-            name = array[0].upper()
-            if name == "ISNULL" or name == "NULL" or name == "FALSE" or name == "UNKNOWN":
-                data = f'{name_column} != {name_column}'
-                return data
-            elif name == "NOTNULL" or name == "TRUE":
-                data = f'{name_column} == {name_column}'
-                return data
-        elif len(array) == 2:
-            name1 = array[0].upper()
-            name2 = array[1].upper()
-            name_f = name1 + " " + name2
-            if name_f == "NOT NULL" or name_f == "NOT FALSE" or name_f == "NOT UNKNOWN":
-                data = f'{name_column} == {name_column}'
-                return data
-            elif name_f == "NOT TRUE":
+        try:
+            name_column = self.name_column.process(instrucction)
+            name_column = name_column[1]
+            array = self.arr_list
+            data = ""
+            if len(array) == 1:
+                name = array[0].upper()
+                if name == "ISNULL" or name == "NULL" or name == "FALSE" or name == "UNKNOWN":
+                    data = f'{name_column} != {name_column}'
+                    return data
+                elif name == "NOTNULL" or name == "TRUE":
+                    data = f'{name_column} == {name_column}'
+                    return data
+            elif len(array) == 2:
+                name1 = array[0].upper()
+                name2 = array[1].upper()
+                name_f = name1 + " " + name2
+                if name_f == "NOT NULL" or name_f == "NOT FALSE" or name_f == "NOT UNKNOWN":
+                    data = f'{name_column} == {name_column}'
+                    return data
+                elif name_f == "NOT TRUE":
+                    data = f'{name_column} != {name_column}'
+                    return data 
+            elif len(array) == 3:
                 data = f'{name_column} != {name_column}'
                 return data 
-        elif len(array) == 3:
-            data = f'{name_column} != {name_column}'
-            return data 
-        elif len(array) == 4:
-            data = f'{name_column} == {name_column}'
-            return data
+            elif len(array) == 4:
+                data = f'{name_column} == {name_column}'
+                return data
+        except:
+            desc = "FATAL ERROR, murio en isClause, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class InClause(Instruction):
     '''
@@ -343,31 +364,35 @@ class InClause(Instruction):
         return str(vars(self))
     
     def process(self, instrucction):
-        column_name = self.column_name.process(instrucction)
-        column_name = column_name[1]
-        # para listas 
-        if isinstance(self.arr_lista, list):
-            aux_data = ""
-            list_values = loop_list(self.arr_lista, instrucction)
-            if self.opt_not: 
-                aux_data = f'~({column_name}.isin({list_values}))'
-            else: 
-                aux_data = f'{column_name}.isin({list_values})'
-            return aux_data
-        # subquerys 
-        else:
-            print(type(self.arr_lista))
-            aux_data = ""
-            list_values = self.arr_lista.process(0)
-            list_values = list_values.values.tolist()
-            lista_aux = []
-            for data in list_values:
-                lista_aux.append(data[0])
-            if self.opt_not:  
-                aux_data = f'~({column_name}.isin({lista_aux}))'
+        try:
+            column_name = self.column_name.process(instrucction)
+            column_name = column_name[1]
+            # para listas 
+            if isinstance(self.arr_lista, list):
+                aux_data = ""
+                list_values = loop_list(self.arr_lista, instrucction)
+                if self.opt_not: 
+                    aux_data = f'~({column_name}.isin({list_values}))'
+                else: 
+                    aux_data = f'{column_name}.isin({list_values})'
+                return aux_data
+            # subquerys 
             else:
-                aux_data = f'{column_name}.isin({lista_aux})'
-            return aux_data
+                print(type(self.arr_lista))
+                aux_data = ""
+                list_values = self.arr_lista.process(0)
+                list_values = list_values.values.tolist()
+                lista_aux = []
+                for data in list_values:
+                    lista_aux.append(data[0])
+                if self.opt_not:  
+                    aux_data = f'~({column_name}.isin({lista_aux}))'
+                else:
+                    aux_data = f'{column_name}.isin({lista_aux})'
+                return aux_data
+        except:
+           desc = "FATAL ERROR, murio en inClause, F"
+           ErrorController().add(34, 'Execution', desc, self.line, self.column) 
 
 class ExistsClause(Instruction):
     '''
@@ -385,19 +410,23 @@ class ExistsClause(Instruction):
         return str(vars(self))
     
     def process(self, instrucction):
-        column_name = self.value
-        print(type(self.subquery))
-        aux_data = ""
-        list_values = self.subquery.process(instrucction)
-        list_values = list_values.values.tolist()
-        lista_aux = []
-        for data in list_values:
-            lista_aux.append(data[0])
-        if self.opt_not:  
-            aux_data = f'~({column_name}.isin({lista_aux}))'
-        else:
-            aux_data = f'{column_name}.isin({lista_aux})'
-        return aux_data
+        try:
+            column_name = self.value
+            print(type(self.subquery))
+            aux_data = ""
+            list_values = self.subquery.process(instrucction)
+            list_values = list_values.values.tolist()
+            lista_aux = []
+            for data in list_values:
+                lista_aux.append(data[0])
+            if self.opt_not:  
+                aux_data = f'~({column_name}.isin({lista_aux}))'
+            else:
+                aux_data = f'{column_name}.isin({lista_aux})'
+            return aux_data
+        except:
+            desc = "FATAL ERROR, murio en ExistsClause, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column) 
     
 class ObjectReference(Instruction):
     '''
