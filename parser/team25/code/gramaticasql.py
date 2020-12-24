@@ -11,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectFilter, SelectFrom
+from astSelect import SelectFilter, SelectFrom, ITEM_ALIAS
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -276,10 +276,10 @@ def p_tablas(p):
         p[0] = p[1]
         bnf.addProduccion('\<tabla> ::= "ID"')
     elif len(p) == 3:
-        p[0] = p[1]
+        p[0] = ITEM_ALIAS(p[1], p[2])
         bnf.addProduccion('\<tabla> ::= "ID" \<alias>')
     else:
-        p[0] = p[1]
+        p[0] = ITEM_ALIAS(p[1], p[3])
         bnf.addProduccion('\<tabla> ::= "ID" "AS" \<alias>')
 def p_tablas2(p):
     '''tabla : subquery
@@ -2088,7 +2088,7 @@ def analizarEntrada(entrada):
 
 arbolParser = analizarEntrada('''
 use test;
-select *, cos(tb2.numerica) from tb1, tb2;
+select cos(TABLA2.numerica) from tb1 as TABLAUNO, tb2 as TABLA2;
 
 ''')
 arbolParser.ejecutar()
