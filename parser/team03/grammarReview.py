@@ -421,13 +421,15 @@ def p_all_opt(t):
 
 def p_stm_select(t):
     '''stm_select : SELECT distinct_opt list_names FROM table_list where_clause_opt group_clause_opt having_clause_opt order_by_opt limit_opt offset_opt
-                  '''
+                  | SELECT distinct_opt list_names  '''
     #| SELECT list_names  '
-    if len(t) == 3:
-        childsProduction  = addNotNoneChild(t,[2])
-        graph_ref = graph_node(str("stm_select"),    [t[1], t[2]]       ,childsProduction)
+    if len(t) == 4:
+        #childsProduction  = addNotNoneChild(t,[2])
+        #graph_ref = graph_node(str("stm_select"),    [t[1], t[2]]       ,childsProduction)
+        graph_ref = None
         addCad("**\<DISTINCT_OPT>** ::= tSelect \<LIST_NAMES> ")
-        t[0] = Select(false, t[2], None, None, None, None, None, None, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        #t[0] = Select(False, t[2], None, None, None, None, None, None, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        t[0] = Select(False, t[3], None, None, None, None, None, None, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     else:    
         #childsProduction  = addNotNoneChild(t,[2,3,5,6,7,8,9,10,11])
         #graph_ref = graph_node(str("stm_select"),    [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]]       ,childsProduction)
@@ -677,48 +679,60 @@ def p_outer_join_type(t):
 
 def p_list_names(t):
     '''list_names   : list_names COMA names AS TEXTO
+                    | list_names COMA names AS ID
                     | list_names COMA names
+                    | POR
                     '''
     if len(t) == 6:
         childsProduction  = addNotNoneChild(t,[1,3])
         graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
         addCad("**\<LIST_NAMES>** ::=  \<LIST_NAMES>  ',' tNames tAs tTexto  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####                
+        t.slice[3].alias = t[5]
+        t[1].append(t[3])
+        t[0] = t[1]
+                     
     elif len(t) == 4:
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("list_names"),    [t[1]]       ,childsProduction)
         addCad("**\<LIST_NAMES>** ::=   \<LIST_NAMES>  ',' tNames ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ####   
+        t[1].append(t[3])
+        t[0] = t[1]
+        
+    elif len(t) == 2:
+        
+        graph_ref = graph_node(str("tPor"),    [t[1]], [])
+        addCad("**\<LIST_NAMES>** ::=   tPor ")
+        t[0] = [Names(True, None, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)]
 
 
 
 def p_list_names0(t):
     '''list_names   : names AS TEXTO
+                    | names AS ID
                     | names'''
 
     if len(t) == 4:
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3]]       ,childsProduction)
         addCad("**\<LIST_NAMES>** ::=  \<NAMES> tAs tTexto  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####                
+        t[1].alias = t[3]
+        t[0] = [t[1]]
+        
     elif len(t) == 2:
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("list_names"),    [t[1]]       ,childsProduction)
         addCad("**\<LIST_NAMES>** ::=  \<NAMES> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #### 
+        t[0] = [t[1]]
+        
 
 
-def p_names(t):
-    '''names    : POR
-                       '''
-    graph_ref = graph_node(str(t[1]) )
-    addCad("**\<NAMES>** ::=  '*'  ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    ##### 
+#def p_names(t):
+#    '''names    : POR
+#                       '''
+#    graph_ref = graph_node(str(t[1]) )
+#    addCad("**\<NAMES>** ::=  '*'  ")
+#    t[0] = upNodo("token", 0, 0, graph_ref)
+#    ##### 
 
 
 def p_names(t):
@@ -731,7 +745,7 @@ def p_names(t):
     childsProduction  = addNotNoneChild(t,[1])
     graph_ref = graph_node(str("names"),    [t[1]]       ,childsProduction)
     addCad("**\<NAMES>** ::=  \<"+ cadena.upper() +" >"     )
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    t[0] = Names(False,t[1], None, t[1].line, t[1].column, graph_ref)
 
 
 

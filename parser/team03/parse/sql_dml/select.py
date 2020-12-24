@@ -54,6 +54,20 @@ class Select(ASTNode):
             if self.having:
                 pass
 
+        if not self.col_names[0].is_asterisk: #return specific columns
+            rrow = [] #only one result or row
+            lrows = [] #the list of rows
+            resutCols = []
+            if self.tables: #there are rows to process                
+                for selCol in col_names:
+                    resutCols.append(selCol.alias)#for header
+                    cellValue = seCol
+            else: #there are no rows but could be a select of fuctions
+                for selCol in self.col_names:
+                    resutCols.append(selCol.alias)#for header
+                    rrow.append (selCol.execute(table, tree))
+                return [resutCols, [rrow]]
+
 
 
         return [header, megaunion]
@@ -70,6 +84,8 @@ class Names(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
+        if self.exp:
+            return self.exp.execute(table, tree)
         return True
 
 
