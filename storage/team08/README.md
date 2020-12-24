@@ -20,7 +20,7 @@ Toda la información generada se guarda en archivos "**.bin**" para poder hacer 
  1. **Carga de datos**  
  Se debe cargar los datos de la aplicación, si en dado caso no hay datos cargados, se le indicará y podrá continuar con el uso normal de la aplicación, pero deberá ingresar los datos manualmente.  
 <p align="center">
- <img src="img/Loadbin.PNG" width="400"
+ <img src="img/Loadbin.png" width="400"
  alt="Load Bin">
 </p>  
 

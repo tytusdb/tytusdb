@@ -34,7 +34,10 @@ class From(Instruction):
     '''
     def __init__(self,  tables) :
         self.tables = tables
-        self.alias = f'{self.tables[0].alias}'
+        if self.tables is None:
+            self.alias = None
+        else:
+            self.alias = f'{self.tables[0].alias}'  
     
     def __repr__(self):
         return str(vars(self))
@@ -174,28 +177,56 @@ class GroupBy(Instruction):
             that have the same values into summary rows
         * Recibe una lista de nombres de columnas
     '''
-    def __init__(self,  column_names) :
+    def __init__(self,  column_names, having_expression) :
         self.column_names = column_names
+        self.having_expression = having_expression
+        # self.alias = f'{column_names.alias}'
     
     def __repr__(self):
         return str(vars(self))
+    # nota si no hay funciones agregadas F xd 
+    def process(self, instrucction, agg_f: list):
+        try:
+            if self.having_expression == None:
+                table_p = agg_f[0]
+                funcs = self.convert_all_dictionary(agg_f[1])
+                check = self.check_asterisk(funcs)
+                if check:
+                    headers = agg_f[2]
+                    group_by = self.recorrer_lista(self.column_names, instrucction)
+                    table_p = table_p.groupby(group_by).size().reset_index()
+                    table_p.columns = headers 
+                    return table_p
+                else:
+                    headers = agg_f[2]
+                    group_by = self.recorrer_lista(self.column_names, instrucction)
+                    table_p.columns = headers
+                    table_p = table_p.groupby(group_by).agg(funcs).reset_index()
+                    return table_p
+            else:
+                pass
+        except:
+            print('Error en Group By Functions')
+        
+    def convert_all_dictionary(self, lista):
+        dictionary_f = {}
+        for data in lista:
+            dictionary_f.update(data)
+        return dictionary_f
     
-    def process(self, instrucction):
-        pass
+    def recorrer_lista(self, array, enviroment):
+        lista1 = []
+        for data in array:
+            valor = data.process(enviroment)
+            lista1.append(valor[1])
+        return lista1
     
-class Having(Instruction):
-    '''
-        HAVING recibe una condicion logica
-    '''
-    def __init__(self,  condition) :
-        self.condition = condition
-    
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
+    def check_asterisk(self, dicti):
+        for data in dicti:
+            if 'count(*)' in data:
+                return True
+        return False
+        
 class Using(Instruction):
     '''
         USING recibe un array con ids

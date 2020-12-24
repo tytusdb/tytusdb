@@ -2,6 +2,9 @@
 from useDB.instanciaDB import DB_ACTUAL
 from reporteErrores.errorReport import ErrorReport
 from reporteErrores.instance import listaErrores
+import os
+path = 'data/Reportes/'
+
 class Arbol:
     def __init__(self  , instrucciones):
         self.instrucciones = instrucciones
@@ -16,21 +19,32 @@ class Arbol:
                 listaErrores.addError(nodoSintetizado)
                 print(nodoSintetizado.description)
             else:
-                print("instruccion OK")
+                print("instruccion OK")# SUBIR ESTE ARCHIVOOOOOOOOOOOOOOOOOOOOOOOOO
                 
     
-    def dibujar(self):# no se como se inicia a graficar :v 
+    def dibujar(self)->str:# no se como se inicia a graficar :v 
         g = "digraph g {" +'\n'
+        g+='style = filled;'+'\n'
+        g+='bgcolor = black;'+'\n'
+        g+='node[fillcolor = black , fontcolor = white ,style = filled , penwidth = 1.1 , color = gold1 , shape = invhouse];'+'\n'
+        g+='edge[arrowhead = "empty" color = "white"];'+'\n'+'\n'+'\n'
         identificador = str(hash(self))
         g+=identificador + "[ label = \"Init\"];"
         
         for instruccion in self.instrucciones:
-            print(instruccion)
             g+= '\n' + identificador + "->" + str(hash(instruccion))
             g+= instruccion.dibujar()
 
         
         
         g+='\n'+"}"
-        print(g)
-        
+        return g
+    
+    def reporteAst(self):
+        archivo = open(path+'dot.txt' ,'w')# w es escritura, si no existe lo crea
+        archivo.write(self.dibujar())
+        archivo.close()
+        os.system(f'dot -Tsvg data/Reportes/dot.txt -o data/Reportes/arbol.svg')
+        os.system('cd data/Reportes & arbol.svg')
+        # os.system(f'dot -Tpdf data/Reportes/dot.txt -o data/Reportes/arbol.pdf')
+        # os.system('cd data/Reportes & arbol.pdf')

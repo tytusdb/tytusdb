@@ -40,6 +40,10 @@ import { RenamedatabaseComponent } from './renamedatabase/renamedatabase.compone
 import { RenametableComponent } from './renametable/renametable.component';
 import { DeletetableComponent } from './deletetable/deletetable.component';
 
+
+import {MatTreeModule,MatIconModule,MatButtonModule} from '@angular/material';
+ 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -70,7 +74,10 @@ import { DeletetableComponent } from './deletetable/deletetable.component';
     ReactiveFormsModule,
     NgMultiSelectDropDownModule.forRoot(),
     CommonModule,
-    FormsModule
+    FormsModule,
+    MatTreeModule,
+    MatIconModule,
+    MatButtonModule,
     //NgModule,
     //FileSelectDirective,
     

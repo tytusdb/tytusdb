@@ -12,4 +12,4 @@ class group_by(instruccion):
         self.grammar_ = ' '
         
     def ejecutar(self):
-        pass 
+        return self.expresiones

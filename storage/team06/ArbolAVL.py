@@ -404,15 +404,35 @@ class ArbolAVL:
         else:
            return None
 
-    def cambiardatos(self, tmp, columnas):
+    def cambiardatos(self, tmp, columnas,db,tabla,arbol):
         cadena = ""
         if tmp != None:
-            for i in columnas:
-                cadena += str(tmp.campos[i])+","
-            cadena = cadena[0:len(cadena)-1]
-            tmp.valor = cadena
-            self.cambiardatos(tmp.izq, columnas)
-            self.cambiardatos(tmp.der, columnas)
+            if tmp.izq == None and tmp.der == None:
+                for i in columnas:
+                    cadena += str(tmp.campos[int(i)]) + "_"
+                cadena = cadena[0:len(cadena) - 1]
+                arbol.agregar(cadena, tmp.campos)
+            if tmp.izq != None and tmp.der !=None:
+                for i in columnas:
+                    cadena += str(tmp.campos[int(i)]) + "_"
+                cadena = cadena[0:len(cadena) - 1]
+                arbol.agregar(cadena, tmp.campos)
+                self.cambiardatos(tmp.izq, columnas, db, tabla, arbol)
+                self.cambiardatos(tmp.der, columnas, db, tabla, arbol)
+            if tmp.izq != None and tmp.der ==None:
+                for i in columnas:
+                    cadena += str(tmp.campos[int(i)]) + "_"
+                cadena = cadena[0:len(cadena) - 1]
+                arbol.agregar(cadena, tmp.campos)
+                self.cambiardatos(tmp.izq, columnas, db, tabla, arbol)
+            if tmp.izq == None and tmp.der !=None:
+                for i in columnas:
+                    cadena += str(tmp.campos[int(i)]) + "_"
+                cadena = cadena[0:len(cadena) - 1]
+                arbol.agregar(cadena, tmp.campos)
+                self.cambiardatos(tmp.der, columnas, db, tabla, arbol)
+        return arbol
+
 
     def graficar(self):
         contenido = "digraph grafica{\n    rankdir=TB;\n    node [shape = record, style=filled, fillcolor=lightcyan2];\n    "
@@ -434,15 +454,14 @@ class ArbolAVL:
     def _graficar(self, tmp):
         contenido = ""
         if tmp.izq == None and tmp.der == None:
-            contenido = "nodo" + str(tmp.valor) + " [ label =\"" + str(tmp.valor) + "\"];\n    ";
+            contenido = "nodo" + str(tmp.valor) + " [ label =\"" + str(tmp.valor) + "\"];\n    "
         else:
-            contenido = "nodo" + str(tmp.valor) + " [ label =\"<AI>|" + str(tmp.valor) + "|<AD>\"];\n    ";
+            contenido = "nodo" + str(tmp.valor) + " [ label =\"<AI>|" + str(tmp.valor) + "|<AD>\"];\n    "
         if tmp.izq != None:
-            contenido += self._graficar(tmp.izq) + "nodo" + str(tmp.valor) + ":AI->nodo" + str(
-                tmp.izq.valor) + "\n    ";
+            contenido += self._graficar(tmp.izq) + "nodo" + str(tmp.valor) + ":AD->nodo" + str(tmp.izq.valor) + "\n    "
 
         if tmp.der != None:
-            contenido += self._graficar(tmp.der) + "nodo" + str(tmp.valor) + ":AD->nodo" + str(tmp.der.valor) + "\n    "
+            contenido += self._graficar(tmp.der) + "nodo" + str(tmp.valor) + ":AI->nodo" + str(tmp.der.valor) + "\n    "
 
         return contenido
 
@@ -454,7 +473,7 @@ class ArbolAVL:
     def _contadorRp(self, tmp, columnas):
         cadena = ""
         for i in columnas:
-            cadena +=str(tmp.campos[i])+","
+            cadena +=str(tmp.campos[int(i)])+","
         cadena = cadena[0:len(cadena)-1]
         bandera = False
         if tmp.izq == None and tmp.der == None:
@@ -485,7 +504,7 @@ class ArbolAVL:
         if tmp.izq == None and tmp.der == None:
             cadena = ""
             for i in columnas:
-                cadena += str(tmp.campos[i]) + ","
+                cadena += str(tmp.campos[int(i)]) + ","
             cadena = cadena[0:len(cadena) - 1]
 
             if cadena == valor:
@@ -495,7 +514,7 @@ class ArbolAVL:
             contador += self._buscarRep(valor, tmp.der, columnas)
             cadena = ""
             for i in columnas:
-                cadena += str(tmp.campos[i]) + ","
+                cadena += str(tmp.campos[int(i)]) + ","
             cadena = cadena[0:len(cadena) - 1]
             if cadena == valor:
                 contador += 1
@@ -504,7 +523,7 @@ class ArbolAVL:
             contador += self._buscarRep(valor, tmp.izq, columnas)
             cadena = ""
             for i in columnas:
-                cadena += str(tmp.campos[i]) + ","
+                cadena += str(tmp.campos[int(i)]) + ","
             cadena = cadena[0:len(cadena) - 1]
             if cadena == valor:
                 contador += 1
@@ -513,7 +532,7 @@ class ArbolAVL:
             contador += self._buscarRep(valor, tmp.der, columnas)
             cadena = ""
             for i in columnas:
-                cadena += str(tmp.campos[i]) + ","
+                cadena += str(tmp.campos[int(i)]) + ","
             cadena = cadena[0:len(cadena) - 1]
             if cadena == valor:
                 contador += 1
@@ -656,9 +675,10 @@ class ArbolAVL:
 
                             t2 = i.lista
                             if t2.contadorRep(columnas):
-                                i.campos[0] = columnas
-                                i.lista.cambiardatos(i.lista.raiz, columnas)
-                                i.lista.validaEliminacion(i.lista.raiz)
+                                i.campos[0]=columnas
+                                arbol = ArbolAVL()
+                                a = i.lista.cambiardatos(i.lista.raiz,columnas,db,tabla,arbol)
+                                i.lista = a
                             else:
                                 return 1
                         return 0

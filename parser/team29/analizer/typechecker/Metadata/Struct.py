@@ -1,6 +1,8 @@
+from os import error
 from analizer.typechecker.Metadata import File
 from storage.storageManager import jsonMode
 from analizer.typechecker.Types import Type as TYPE
+from datetime import datetime
 
 
 Types = {}
@@ -27,14 +29,13 @@ def createDatabase(name, mode, owner):
 
 
 def alterDatabaseRename(databaseOld, databaseNew):
-    
+
     for data in Databases:
         if data["name"] == databaseOld:
             data["name"] = databaseNew
             File.exportFile(Databases, "Databases")
             return
     return
-    
 
 
 # TODO: Establecer los parametros CURRENT_USER and SESSION_USER
@@ -78,12 +79,12 @@ def replaceDatabase(name, mode, owner):
 def insertTable(dbName, tableName, columns, inherits):
     Error.clear()
     createTable(dbName, tableName, inherits)
-    insert = insertColumns(dbName, tableName, columns)
-
-    if insert == None:
+    table = extractTable(dbName, tableName)
+    if table != 0 and table != 1:
+        insert = insertColumns(dbName, table, columns)
+    else:
         insert = 0
-        
-    return [ListError(),insert]
+    return [ListError(), insert]
 
 
 def ListError():
@@ -97,16 +98,17 @@ def createTable(dbName, tableName, inherits):
     table["name"] = tableName
     table["inherits"] = inherits
 
-    columns = getInherits(dbName,inherits)
-    if columns ==0 or columns ==1:return
+    columns = getInherits(dbName, inherits)
+    if columns == 0 or columns == 1:
+        return
 
     table["columns"] = columns
-    
+
     for db in Databases:
         if db["name"] == dbName:
             db["tables"].append(table)
             break
-        
+
     File.exportFile(Databases, "Databases")
 
 
@@ -115,7 +117,6 @@ def alterTable(dbName, tableOld, tableNew):
         if db["name"] == dbName:
             for table in db["tables"]:
                 if table["name"] == tableOld:
-                    
                     break
             break
 
@@ -146,25 +147,122 @@ def extractTable(dbName, tableName):
 
 
 # ---------------------------Columns------------------------------
-def getInherits(dbName,Inherits):
-    if Inherits == None:  return []
+
+
+def alterColumnsTable(dbName, tName, params):
+    table = extractTable(dbName, tName)
+    if table == 1 or table == 0:
+        return ListError()
+    nInit = len(table["columns"])
+    for p in params:
+        if p[0] == "ADD":
+            p.remove("ADD")
+            nCol = insertColumns(dbName, table, p)
+            if nCol - nInit == 1:
+                jsonMode.alterAddColumn(dbName, tName, None)
+                nInit += 1
+        elif p[0] == "RENAME":
+
+            renameColumn(table, p[1][0], p[1][1])
+        elif p[0] == "DROP":
+            if p[1][0] == "COLUMN":
+                alterDrop(table, p[1][1])
+            else:
+                dropConstraint(table, p[1][1])
+                File.exportFile(Databases, "Databases")
+        else:
+            type_ = p[1][0]
+            col = p[1][1]
+            value = p[1][2]
+            if type_ == "SET":
+                setColumn(table, col, value)
+            else:
+                alterType(table, col, value)
+    return ListError()
+
+
+def dropConstraint(table, value):
+    for column in table["columns"]:
+
+        if column["FK"] != None and column["FK"][2] == value:
+            column["FK"] = None
+            return
+
+        elif column["Unique"] == value:
+            column["Unique"] = None
+            return
+
+        elif column["Constraint"] != None and column["Constraint"][0] == value:
+            column["Constraint"] = None
+            return
+
+    Error.append("No se ha encontrado el Constraint")
+
+
+def setColumn(table, name, value):
+    type_ = value[0]
+    value = value[1]
+    for column in table["columns"]:
+
+        if column["name"] == name:
+            if type_ == "NULL":
+                column["NN"] = value
+            if type_ == "DEFAULT":
+                column["Default"] = [value.value, value.type.value]
+            else:
+                Error.append("Set desconocido")
+            break
+
+    File.exportFile(Databases, "Databases")
+
+
+def alterType(table, name, value):
+    for column in table["columns"]:
+        if column["name"] == name:
+            if column["type"] == "TEXT":
+                Error.append("No se puede modificar el type")
+            else:
+                if column["size"] == None or value[1][0] == None:
+                    Error.append("No se puede modificar el type")
+                else:
+                    if value[1][0] < column["size"]:
+                        Error.append("No se puede modificar el type")
+                    else:
+                        column["size"] = value[1][0]
+                        column["type"] = value[0]
+            break
+
+    File.exportFile(Databases, "Databases")
+
+
+def renameColumn(table, name, newName):
+    for col in table["columns"]:
+        if col["name"] == name:
+            col["name"] = newName
+            File.exportFile(Databases, "Databases")
+            return
+    Error.append("No se encontro la colunma")
+
+
+def getInherits(dbName, Inherits):
+    if Inherits == None:
+        return []
     table = extractTable(dbName, Inherits)
     if table != 1 and table != 0:
-        return table['columns'].copy()
+        return table["columns"].copy()
     return table
 
 
 def extractColumns(database, table):
     List = []
-    tbl = extractTable(database,table)
+    tbl = extractTable(database, table)
 
-    if tbl == 0 or tbl ==1: return None
+    if tbl == 0 or tbl == 1:
+        return None
 
     for column in tbl["columns"]:
         type_ = TYPE.Type.get(column["type"])
-        newColumn = TYPE.Column(
-            column["name"], type_, column["type"]
-        ).get()
+        newColumn = TYPE.Column(column["name"], type_, column["type"]).get()
         List.append(newColumn)
     return List
 
@@ -214,6 +312,7 @@ def getValues(table, colNames, params):
 
     if len(colNames) == 0:
         return List
+    Error.append("Columnas no identificadas")
     return None
 
 
@@ -232,18 +331,16 @@ def createCol(name, type_, pk, fk, nn, inc, size, cnt, un):
     return col
 
 
-def insertColumns(dbName, tName, columns):
-    table = extractTable(dbName,tName)
-    if table == 0 or table == 1: return None
+def insertColumns(dbName, table, columns):
     for column in columns:
         if column[0]:
             constraint(table, column, dbName)
         else:
             table["columns"].append(getCol(column))
+
     File.exportFile(Databases, "Databases")
-    
-    return len(table['columns'])
-    
+
+    return len(table["columns"])
 
 
 Error = []
@@ -252,35 +349,42 @@ Error = []
 def constraint(table, column, dbName):
     type_ = column[1][0]
     colList = column[1][1]
+    found = False
     if type_ == "CHECK":
-       
+
         for colTem in table["columns"]:
-            
+
             if colList == colTem["name"]:
                 # column[1][1] = nombre de la columna
                 # column[1][2] = restriccion
                 colTem["Constraint"] = [colList, column[1][2]]
+                found = True
                 break
 
     elif type_ == "UNIQUE":
         for colTem in table["columns"]:
             for col in colList:
                 if col == colTem["name"]:
-                    colTem["Unique"] = True
-                    
+                    name = column[1][2]
+                    if name == None:
+                        name = col + "_uq"
+                    colTem["Unique"] = name
+                    found = True
 
     elif type_ == "PRIMARY":
         for colTem in table["columns"]:
             for col in colList:
                 if col == colTem["name"]:
                     colTem["PK"] = True
-                    
+                    colTem["NN"] = True
+                    found = True
 
     elif type_ == "FOREIGN":
 
         n = len(colList)
         tableReference = column[1][2]
         colReference = column[1][3]
+
         for colTem in table["columns"]:
             for i in range(n):
                 if colList[i] == colTem["name"]:
@@ -288,8 +392,13 @@ def constraint(table, column, dbName):
                         colTem, dbName, tableReference, colReference[i]
                     )
                     if colValidate:
-                        colTem["FK"] = [tableReference, colReference[i]]
-
+                        name = column[1][4]
+                        if name == None:
+                            name = colList[i] + "_fk"
+                        colTem["FK"] = [tableReference, colReference[i], name]
+                        found = True
+    if not found:
+        Error.append("No se encontro la colunma")
 
 
 def validateColunm(col, dbName, tableReference, colReference):
@@ -323,7 +432,7 @@ def getCol(col):
     nn = False
     df = None
     cnt = None
-    un = False
+    un = None
     if type_ == "DECIMAL" or type_ == "NUMERIC":
         size = col[2][1]
     else:
@@ -340,49 +449,54 @@ def getCol(col):
             elif campo[0] == "NULL":
                 nn = campo[1]
             elif campo[0] == "DEFAULT":
-                df = [campo[1].value , campo[1].type.value]
+                df = [campo[1].value, campo[1].type.value]
             elif campo[0] == "UNIQUE":
-                un = True
+                if campo[1] == None:
+                    campo[1] = name + "_uq"
+                un = campo[1]
             elif campo[0] == "CHECK":
                 if campo[1] == None:
-                    campo[1]= name
+                    campo[1] = name + "_ck"
                 cnt = [campo[1], campo[2]]
     col = createCol(name, type_, pk, fk, nn, df, size, cnt, un)
     return col
 
 
-def alterDrop(dbName, tableName, colName):
+def alterDrop(table, colName):
     clm = {}
-    for db in Databases:
-        if db["name"] == dbName:
-            for table in db["tables"]:
-                if table["name"] == tableName:
-                    for col in table["columns"]:
-                        if col["name"] == colName:
-                            clm = col
-                    if clm != {}:
-                        table["columns"].remove(clm)
-                        File.exportFile(Databases, "Databases")
-                    return
+    for col in table["columns"]:
+        if col["name"] == colName:
+            clm = col
+            break
+
+    if clm != {}:
+        table["columns"].remove(clm)
+        File.exportFile(Databases, "Databases")
+        return
+
+    Error.append("No se encontró la columna")
 
 
 def extractColmn(dbName, tableName, colName):
-    table = extractTable(dbName,tableName)
-    if table == 0 or table == 1: return None
+    table = extractTable(dbName, tableName)
+    if table == 0 or table == 1:
+        return None
     for col in table["columns"]:
         if col["name"] == colName:
             return col
     return None
 
+
 def getIndex(dbName, tableName, colName):
-    table = extractTable(dbName,tableName)
-    if table == 0 or table == 1: return None
+    table = extractTable(dbName, tableName)
+    if table == 0 or table == 1:
+        return None
     n = len(table["columns"])
     for i in range(n):
         col = table["columns"][i]
         if col["name"] == colName:
             return i
-    return None       
+    return None
 
 
 # ---------------------------Type-----------------------------------
@@ -405,3 +519,7 @@ def existType(name):
     if exists != None:
         return True
     return False
+
+
+def save():
+    File.exportFile(Databases, "Databases")
