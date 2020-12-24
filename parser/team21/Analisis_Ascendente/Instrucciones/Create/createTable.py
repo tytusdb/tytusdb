@@ -1,19 +1,19 @@
 # from Instrucciones.instruccion import Instruccion
 # from storageManager.jsonMode import *
 # import Tabla_simbolos.TablaSimbolos as TS
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.Campo import Campo
-from Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import Simbolo
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Create.Campo import Campo
+from tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import Simbolo
 
 
 # CREATE TABLE
 #from Instrucciones.instruccion import Instruccion
 #from storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as TS
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 
 #from Instrucciones.instruccion import Instruccion
 tipos_de_dato = {

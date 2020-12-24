@@ -1,15 +1,15 @@
 import  math
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select import Select
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math_
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import  Expresion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select1 import  selectTime
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.Select2 as Selectp3
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.Select3 import Selectp4
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.selectInst import Select_inst
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import Time
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.select import Select
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math_
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import  Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.select1 import  selectTime
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.Select2 as Selectp3
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.Select3 import Selectp4
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.selectInst import Select_inst
 
 class Where(Instruccion):
     '''#1 not boolean

@@ -1,9 +1,9 @@
 import  math
 import random
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-import  Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as  Trigonometrica
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
+import  tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as  Trigonometrica
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
 import hashlib
 class Math_(Instruccion):
     def __init__(self, nombre, E1, E2,fila,columna):
