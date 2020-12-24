@@ -375,7 +375,7 @@ def check_checks(columns_, values_) -> str:
                         else:
                             return_ += "\"" + str(check_value) + "\"."
                         error_encontrado = True
-                elif str(check_operation) == "==":
+                elif str(check_operation) == "==" or str(check_operation) == "=":
                     if not(str(value) == str(check_value)):
                         return_ = "Argument " + str((i+1)) + " must be " + str(check_operation) + " to "
                         is_int_or_float_ = is_int_or_float(check_value)
@@ -384,7 +384,7 @@ def check_checks(columns_, values_) -> str:
                         else:
                             return_ += "\"" + str(check_value) + "\"."
                         error_encontrado = True
-                elif str(check_operation) == "!=":
+                elif str(check_operation) == "!=" or str(check_operation) == "<>":
                     if not(str(value) != str(check_value)):
                         return_ = "Argument " + str((i+1)) + " must be " + str(check_operation) + " to "
                         is_int_or_float_ = is_int_or_float(check_value)

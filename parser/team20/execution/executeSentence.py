@@ -1,6 +1,7 @@
 from .AST.sentence import *
 from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType
 from .executeShow import executeShowDatabases
+from .executeUpdate import executeUpdate
 from .executeSelect import executeSelect
 from .executeDrop import executeDropDatabase,executeDropTable
 from .executeUse import executeUse, executeUseAlter
@@ -114,5 +115,6 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR","Database "+sentence.newname+" already exist")
         else:
             print_error("SEMANTIC ERROR",'error in the operation')
-
+    elif isinstance(sentence,Update):
+        executeUpdate(self,sentence)
     

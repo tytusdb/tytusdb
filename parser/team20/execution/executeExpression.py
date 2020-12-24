@@ -159,142 +159,147 @@ def executeExpression(self, expression):
                     return e2
                 else:
                     try:
-                        if(expression.type == '='):
-                            # IGUAL IGUAL
-                            if(e1.type == 1 and e2.type == 1):
-                                s.value = int(int(e1.value) == int(e2.value))
-                                s.type = 1
-                                return s
-                            elif(e1.type == 2 and e2.type == 2):
-                                s.value = int(float(e1.value) == float(e2.value))
-                                s.type = 1
-                                return s
+                        if e1.type != 4:
+                            if(expression.type == '='):
+                                # IGUAL IGUAL
+                                if(e1.type == 1 and e2.type == 1):
+                                    s.value = int(int(e1.value) == int(e2.value))
+                                    s.type = 1
+                                    return s
+                                elif(e1.type == 2 and e2.type == 2):
+                                    s.value = int(float(e1.value) == float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
-                                s.value = int(float(e1.value) == float(e2.value))
-                                s.type = 1
-                                return s
+                                elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
+                                    s.value = int(float(e1.value) == float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif(e1.type == 3 and e2.type == 3):
-                                s.value = int(str(e1.value) == str(e2.value))
-                                s.type = 1
-                                return s
-                            else:
-                                return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                                elif(e1.type == 3 and e2.type == 3):
+                                    s.value = int(str(e1.value) == str(e2.value))
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.type == '!=' or expression.type == '<>'):
+                                # DIFERENTE
+                                if(e1.type == 1 and e2.type == 1):
+                                    s.value = int(int(e1.value) != int(e2.value))
+                                    s.type = 1
+                                    return s
+                                elif(e1.type == 2 and e2.type == 2):
+                                    s.value = int(float(e1.value) != float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                        elif(expression.type == '!=' or expression.type == '<>'):
-                            # DIFERENTE
-                            if(e1.type == 1 and e2.type == 1):
-                                s.value = int(int(e1.value) != int(e2.value))
-                                s.type = 1
-                                return s
-                            elif(e1.type == 2 and e2.type == 2):
-                                s.value = int(float(e1.value) != float(e2.value))
-                                s.type = 1
-                                return s
+                                elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
+                                    s.value = int(float(e1.value) != float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
-                                s.value = int(float(e1.value) != float(e2.value))
-                                s.type = 1
-                                return s
+                                elif(e1.type == 3 and e2.type == 3):
+                                    s.value = int(str(e1.value) != str(e2.value))
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.type == '>='):
+                                # MAYOR IGUAL
+                                if(e1.type == 1 and e2.type == 1):
+                                    s.value = int(int(e1.value) >= int(e2.value))
+                                    s.type = 1
+                                    return s
+                                elif(e1.type == 2 and e2.type == 2):
+                                    s.value = int(float(e1.value) >= float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif(e1.type == 3 and e2.type == 3):
-                                s.value = int(str(e1.value) != str(e2.value))
-                                s.type = 1
-                                return s
-                            else:
-                                return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
-                        elif(expression.type == '>='):
-                            # MAYOR IGUAL
-                            if(e1.type == 1 and e2.type == 1):
-                                s.value = int(int(e1.value) >= int(e2.value))
-                                s.type = 1
-                                return s
-                            elif(e1.type == 2 and e2.type == 2):
-                                s.value = int(float(e1.value) >= float(e2.value))
-                                s.type = 1
-                                return s
+                                elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
+                                    s.value = int(float(e1.value) >= float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
-                                s.value = int(float(e1.value) >= float(e2.value))
-                                s.type = 1
-                                return s
+                                elif(e1.type == 3 and e2.type == 3):
+                                    s.value = int(str(e1.value) >= str(e2.value))
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.type == '<='):
+                                # MENO IGUAL
+                                if(e1.type == 1 and e2.type == 1):
+                                    s.value = int(int(e1.value) <= int(e2.value))
+                                    s.type = 1
+                                    return s
+                                elif(e1.type == 2 and e2.type == 2):
+                                    s.value = int(float(e1.value) <= float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif(e1.type == 3 and e2.type == 3):
-                                s.value = int(str(e1.value) >= str(e2.value))
-                                s.type = 1
-                                return s
-                            else:
-                                return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
-                        elif(expression.type == '<='):
-                            # MENO IGUAL
-                            if(e1.type == 1 and e2.type == 1):
-                                s.value = int(int(e1.value) <= int(e2.value))
-                                s.type = 1
-                                return s
-                            elif(e1.type == 2 and e2.type == 2):
-                                s.value = int(float(e1.value) <= float(e2.value))
-                                s.type = 1
-                                return s
+                                elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
+                                    s.value = int(float(e1.value) <= float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
-                                s.value = int(float(e1.value) <= float(e2.value))
-                                s.type = 1
-                                return s
+                                elif(e1.type == 3 and e2.type == 3):
+                                    s.value = int(str(e1.value) <= str(e2.value))
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
 
-                            elif(e1.type == 3 and e2.type == 3):
-                                s.value = int(str(e1.value) <= str(e2.value))
-                                s.type = 1
-                                return s
-                            else:
-                                return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.type == '>'):
+                                # MAYOR
+                                if(e1.type == 1 and e2.type == 1):
+                                    s.value = int(int(e1.value) > int(e2.value))
+                                    s.type = 1
+                                    return s
+                                elif(e1.type == 2 and e2.type == 2):
+                                    s.value = int(float(e1.value) > float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                        elif(expression.type == '>'):
-                            # MAYOR
-                            if(e1.type == 1 and e2.type == 1):
-                                s.value = int(int(e1.value) > int(e2.value))
-                                s.type = 1
-                                return s
-                            elif(e1.type == 2 and e2.type == 2):
-                                s.value = int(float(e1.value) > float(e2.value))
-                                s.type = 1
-                                return s
+                                elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
+                                    s.value = int(float(e1.value) > float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
-                                s.value = int(float(e1.value) > float(e2.value))
-                                s.type = 1
-                                return s
+                                elif(e1.type == 3 and e2.type == 3):
+                                    s.value = int(str(e1.value) > str(e2.value))
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
 
-                            elif(e1.type == 3 and e2.type == 3):
-                                s.value = int(str(e1.value) > str(e2.value))
-                                s.type = 1
-                                return s
-                            else:
-                                return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                            elif(expression.type == '<'):
+                                # MENOR
+                                if(e1.type == 1 and e2.type == 1):
+                                    s.value = int(int(e1.value) < int(e2.value))
+                                    s.type = 1
+                                    return s
+                                elif(e1.type == 2 and e2.type == 2):
+                                    s.value = int(float(e1.value) < float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                        elif(expression.type == '<'):
-                            # MENOR
-                            if(e1.type == 1 and e2.type == 1):
-                                s.value = int(int(e1.value) < int(e2.value))
-                                s.type = 1
-                                return s
-                            elif(e1.type == 2 and e2.type == 2):
-                                s.value = int(float(e1.value) < float(e2.value))
-                                s.type = 1
-                                return s
+                                elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
+                                    s.value = int(float(e1.value) < float(e2.value))
+                                    s.type = 1
+                                    return s
 
-                            elif((e1.type == 1 and e2.type == 2) or (e1.type == 2 and e2.type == 1)):
-                                s.value = int(float(e1.value) < float(e2.value))
-                                s.type = 1
-                                return s
-
-                            elif(e1.type == 3 and e2.type == 3):
-                                s.value = int(str(e1.value) < str(e2.value))
-                                s.type = 1
-                                return s
-                            else:
-                                return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
-
+                                elif(e1.type == 3 and e2.type == 3):
+                                    s.value = int(str(e1.value) < str(e2.value))
+                                    s.type = 1
+                                    return s
+                                else:
+                                    return Error('Semantico', 'No se pueden comparar los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
+                        else:
+                            s.value=e2.value 
+                            s.type=e2.value 
+                            s.id=e1.value 
+                            s.op = expression.type
+                            return s
                     except Exception as e:
                         return Error('Semantico', 'Error : ' + str(e), 0, 0)
             
