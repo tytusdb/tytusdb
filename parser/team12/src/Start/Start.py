@@ -33,11 +33,13 @@ class Start(Nodo):
         self.hijos.append(nuevo)
 
     def tabular_data(self, encabezados : list, data : list) -> str: 
+        print(encabezados)
         index = 0
         for i in encabezados:
             if i == "?column?":
                 encabezados[index] = "?column?"+str(index)
-                index += 1
+            index += 1
+
         x = PrettyTable()
         x.field_names = encabezados
         for item in data:
@@ -68,8 +70,8 @@ class Start(Nodo):
                 nuevoEnum.execute(hijo)
             elif hijo.nombreNodo == 'SENTENCIA_SELECT' or hijo.nombreNodo == 'SENTENCIA_SELECT_DISTINCT':
                 respuesta = hijo.execute(enviroment)
-                print(respuesta.data)
-                self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(respuesta.encabezados, respuesta.data)})
+                if respuesta.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(respuesta.encabezados, respuesta.data)})
             elif hijo.nombreNodo == 'E':
                 hijo.execute(enviroment)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))

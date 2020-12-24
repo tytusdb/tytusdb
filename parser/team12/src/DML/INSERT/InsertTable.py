@@ -114,9 +114,10 @@ class InsertTable():
                 return resp      
             for h in l_col:
                 tmp_col_actual = Column()
-                tmp_col_insert = columnasI[contador].upper()
+                if len(columnasI) > contador:
+                    tmp_col_insert = columnasI[contador].upper()
+                    tmp_valor = valoresI[contador]
                 tmp_col_actual = h
-                tmp_valor = valoresI[contador]
 
                 # Validar que sea la misma columna
                 if tmp_col_actual.name == tmp_col_insert:
