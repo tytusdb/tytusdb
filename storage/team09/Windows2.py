@@ -5,33 +5,61 @@ from tkinter import filedialog
 from tkinter import messagebox  # message box
 import WindowMain
 import Windows3
+import ISAM as m
 
 class Ventana2(tk.Toplevel):
 
     def __init__(self, parent):
         super().__init__(parent)
-        
+        self.basesdatos=[]
+        self.tablasbase=[]
+        self.b()
         self.parent = parent
         self.protocol("WM_DELETE_WINDOW", self.close)
      
      #label3.place(x=0,y=0,relwidth=1.0,relheight=1.0)
-        label1=Label(self, text="LOADING DATA BASE")
+        label1=Label(self, text="Cargando Datos a Tuplas ")
         label1.config(font=("Verdana",50))
         label1.grid(row=1, column=3)
-        label2=Label(self, text=" serch your data base  ")
-        label2.config(font=("Verdana",15))
-        label2.grid(row=7, column=3)
+        self.bases=tk.StringVar(self)
+        self.bases.set("seleccione bases")
+        menub = tk.OptionMenu(self, self.bases, *self.basesdatos)
+        menub.config(width=20)
+        menub.grid(row = 7, column = 1, padx = 30, pady = 30)
+        button6 = tk.Button(self, text= 'actualizar', padx= 15, pady=6, bg= 'grey',fg='white',command=self.actualizar)
+        button6.grid(row=8, column=2)
         
         
         button1 = Button(self, text= 'Atras', padx= 15, pady=6, bg= 'grey',fg='white',command=self.ventana1)
         button1.grid(row=15, column=0)
-        button5 = Button(self, text= 'Serch', padx= 15, pady=6, bg= 'grey',fg='white',command=self.Open_Archive)
-        button5.grid(row=15, column=3)
-      
-        # Expandir verticalmente la fila 0.
+
+
+        
+
 
         self.parent.withdraw()
 
+
+    def actualizar(self):
+        self.bio()
+        self.tablas=tk.StringVar(self)
+        self.tablas.set("seleccione tabla")
+        
+        menu = tk.OptionMenu(self, self.tablas, *self.tablasbase)
+        menu.config(width=20)
+        menu.grid(row = 7, column = 3, padx = 30, pady = 30)
+
+        self.ruta= Entry(self)
+        self.ruta.grid(row=8, column=3)
+
+        act = Button(self, text= 'Cargar CSV', padx= 15, pady=6, bg= 'grey',fg='white',command=self.cargarcsv)
+        act.grid(row=8, column=4)
+
+
+    def cargarcsv(self):
+        print(self.ruta.get()+" "+self.bases.get()+ " "+ self.tablas.get())
+        print(m.loadCSV(self.ruta.get(),self.bases.get(),self.tablas.get()))
+        print(m.extractTable(self.bases.get(),self.tablas.get()))
        
     def ventana1(self):
         self.parent.deiconify()
@@ -50,10 +78,20 @@ class Ventana2(tk.Toplevel):
         Label7=tk.Label(image=image)
         Label7.pack()
 
-    def Open_Archive(self):
-        archive = filedialog.askopenfilename(initialdir="/home/msaban/descargas",
-                                             title="seleccione Archivo", filetypes=(("jpeg files", "*jpg"),
-                                                                                    ("all files", "*.*")))
-        print(archive)
-        messagebox.showinfo("Loading data", "DATA SAVED IN TYTUS")
-        self.Ventana3()
+
+            
+    def b(self):
+        self.basesdatos.clear()
+        if len(m.showDatabases())!=0:
+            for k in m.showDatabases():
+                self.basesdatos.append(k)
+        elif len(self.basesdatos)==0:
+            self.basesdatos.append("vacio")
+
+    def bio(self):
+        self.tablasbase.clear()
+        if len(m.showTables(self.bases.get()))!=0:
+            for k in m.showTables(self.bases.get()):
+                self.tablasbase.append(k)
+        elif len(self.tablasbase)==0:
+            self.tablasbase.append("vacio")
