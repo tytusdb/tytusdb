@@ -583,16 +583,16 @@ def p_insert_ops(t):
             lista=t[4][0]
             childsProduction.append(lista.graph_ref)
 
-        graph_ref = graph_node(str("insert_ops"),    [t[1],t[2],t[3],lista,t[5]]       ,childsProduction)
+        graph_ref = graph_node(str("insert_ops"),    [t[1], t[2], t[3], lista, t[5]], childsProduction)
         addCad("**\<INSERT_OPS>** ::=  \<COLUMN_LIST>  tValues  '(' \<EXP_LIST> ')' ")
-        # t[0] = upNodo(t[1], 0, 0, graph_ref)
         token_ops = t.slice[2]
-        t[0] = InsertItem(t[1].val, t[4], token_ops.lineno, token_ops.lexpos, graph_ref)
-    else: 
-        childsProduction  = addNotNoneChild(t, [1, 2])
+        t[0] = InsertItem(t[1].val if t[1] is not None else None, t[4], token_ops.lineno, token_ops.lexpos, graph_ref)
+    else:
+        token_ops = t.slice[1]
+        childsProduction = addNotNoneChild(t, [1, 2])
         graph_ref = graph_node(str("insert_ops"), [t[1], t[2]], childsProduction)
         addCad("**\<INSERT_OPS>** ::=  \<COLUMN_LIST>  \<STM_SELECT>  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = InsertItem(t[1].val, t[2], 0, 0, graph_ref)
 
 
 def p_table_list(t):
