@@ -1,0 +1,31 @@
+from execution.abstract.querie import * 
+from execution.symbol.environment import *
+from execution.symbol.table import *
+from execution.symbol.column import *
+from execution.symbol.typ import *
+from storageManager import jsonMode as admin
+from TypeChecker.checker import check
+
+from datetime_functions import current_date
+
+class Select_Func(Querie):
+
+    def init(self,funcion , row, column):
+        Querie.init(self, row, column)
+        self.funcion = funcion
+
+    def execute(self, environment):
+
+        rasult = self.funcion.execute(environment)
+
+        if isinstance(result,dict):
+            if 'Error' in result:
+                return result
+            else:
+                if 'value' in result:
+                    if isinstance(result['value'],str):
+                        return result['value']
+                    else:
+                        return str(result['value'])
+
+        return{'Error':'Error desconocido en el select function.','row':self.row,'column':self.column}
