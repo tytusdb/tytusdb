@@ -8,11 +8,9 @@ class Node:
 
     def insert(self, dato, key):
         self.array.append((key,dato)) #ahora recibe el parametro key 
-        lista = self.array.copy()
+        lista = self.array[:]
         lista_ordenada= self.quick_sorted(lista)
-        self.array.clear()
-        for i in lista_ordenada:
-            self.array.append(i)
+        self.array = lista_ordenada[:]
 
     def buscarDato_binary(self, dato):
         inicio = 0
@@ -37,12 +35,12 @@ class Node:
             arreglo = self.array[mid]
             # if int(arreglo[0]) == int(dato):
             if int(arreglo[0]) == int(dato):
-                return arreglo
+                return arreglo[1]
             elif int(dato) < int(arreglo[0]):
                 final = mid -1 
             else:
                 inicio = mid +1
-        return None
+        return []
 
     def quick_sorted(self, sequencia):
         lista = sequencia
@@ -144,10 +142,18 @@ class Node:
         else:
             return None
 
-    def imp_column(self,subnodo,columnNumber,lower,upper): 
-        if isinstance(lower, int) == True:       
-            return self.Numbervalidation(columnNumber,subnodo,lower,upper)      
+    def NumbervalidationFloat(self,columnNumber,valor,lower,upper):       
+        if float(valor[columnNumber]) <= upper and float(valor[columnNumber]) >= lower :
+                return valor
         else:
+            return None        
+
+    def imp_column(self,subnodo,columnNumber,lower,upper): 
+        if isinstance(lower, int) == True:       ##para enteros
+            return self.Numbervalidation(columnNumber,subnodo,lower,upper)  
+        elif isinstance(lower, float) == True:       ##para float
+            return self.NumbervalidationFloat(columnNumber,subnodo,lower,upper)  
+        else:                                       ##para string
             if self.obtenerLower(columnNumber,subnodo,lower) == True and self.obtenerUpper(columnNumber,subnodo,upper) == True: ##
                 return subnodo
             else:
@@ -157,14 +163,15 @@ class Node:
         if isinstance(lower, int) == True:
             for i in self.array:     
                 return self.Numbervalidation(columnNumber,i[1],lower,upper)      
+        elif isinstance(lower, float) == True:       ##para float
+            for i in self.array:     
+                return self.NumbervalidationFloat(columnNumber,i[1],lower,upper)          
         else:
             for i in self.array:
                 if self.obtenerLower(columnNumber,i[1],lower) == True and self.obtenerUpper(columnNumber,i[1],upper) == True:
                     return i[1]
                 else:
-                    return None               
-    
-                    
+                    return None
 
     #agrega una columna y registra un dato
     def alterAddColumn(self, dato):
@@ -177,4 +184,3 @@ class Node:
             print("en el nodo")
             print(e)
             print("########")
-
