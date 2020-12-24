@@ -81,7 +81,7 @@ class Identificador(Instruccion):
                 for columnaActual in columnasTablaActual:
                     columnaSelect = []
                     for filaActual in datosTablas:
-                        columnaSelect.append(filaActual[contador])
+                        columnaSelect.append([filaActual[contador]])
                     texto = tablas + '.' + columnaActual.name
                     columnasSelect[texto] = {'columnas': columnaSelect, 'tipo': columnaActual.type}
                     contador = contador + 1

@@ -900,3 +900,8 @@
               | RIGHTSHIFT <expresion_aritmetica> <expresion_aritmetica>'
               | ϵ
 ```
+
+## Analisis
+
+Al iniciar el analisis al lenguaje postgresql pudimos comprender que en varios casos en lo que ibamos a utilizar producciones dadas por una gramatica descendente se pudo notar que se podrian tener complicaciones al momento de generar tanto el arbol sintactico como tambien conflicto con la herramienta PLY, ya que de por si PLY utiliza gramaticas ascendentes de tipo LALR entonces llegamos a la conclusion que al tratar con valores heredados era muy dificil poder estructurar de una manera correcta el arbol de ejecucion por lo que utilizando un analisis ascendente se facilito la manera de poder ejecutar, graficar apoyados por el patron interprete, en algunos casos nos vimos en la obligacion de utilizar producciones epsilon ya que el lenguaje sql es muy variante respecto a la estructura de sus comandos y al no tratar estas producciones antes mencionadas ibamos a conseguir el problema de una gramatica muy extensa ya que al momento de programar lo antes mencionado como lo es la ejecucion y la generacion de la grafica se nos hacia muy complicado por ejemplo: en los comandos select optamos por no utilizar las producciones epsilon y seguir las reglas de un analisis ascendente se extendio mucho el trabajo no aprovechando la herramienta como lo es la recursividad.
+

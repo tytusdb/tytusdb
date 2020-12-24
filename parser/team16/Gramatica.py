@@ -197,7 +197,10 @@ reservadas = {
     'width_bucket': 'WIDTH_BUCKET',
     'trunc': 'TRUNC',
     'random': 'RANDOM',
-    'power': 'POWER'
+    'power': 'POWER',
+    #AGREGADAS
+    'notexist':'NOTEXIST',
+    'notin':'NOTIN'
 }
 
 tokens = [
@@ -344,7 +347,7 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 def t_COMENTARIOMULTI(t):
-    r'/\*(.|\n)*?\*/'
+    r'/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
     t.lexer.lineno += t.value.count("\n")
     return t
 
@@ -448,8 +451,11 @@ def p_instrucciones_instruccion(t) :
 def p_instruccion(t):
     '''INSTRUCCION  : DQL_COMANDOS
                     | DDL_COMANDOS
-                    | DML_COMANDOS'''
-    t[0] = t[1]
+                    | DML_COMANDOS
+                    | COMENTARIOMULTI
+                    | COMENTARIONORMAL '''
+    if t[1] != 'COMENTARIONORMAL' and t[1] != 'COMENTARIOMULTI':
+        t[0] = t[1]
 
 
 
@@ -458,6 +464,7 @@ def p_instruccion_Use_database(t):
     'DQL_COMANDOS       : USE ID PUNTOCOMA'
     global baseActual
     baseActual = str(t[2])
+    t[0] = useClase(t[2])
     rep_gramatica('\n <TR><TD> DQL_COMANDOS → USE ID PUNTOCOMA </TD><TD> DQL_COMANDOS=t[2] </TD></TR>')
 
 # ===================  DEFINICIONES DE LOS TIPOS DE SELECT
@@ -2286,22 +2293,29 @@ def p_expresion_logica_predicados_4(t):
 
 def p_expresion_logica_exists_sub(t):
     '''expresion_logica : EXISTS expresion_aritmetica'''
-    t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS)
+    t[0]=UnitariaLogicaEXIST(t[2])
+
+   # t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS)
     rep_gramatica('\n <TR><TD> expresion_logica →  EXISTS expresion_aritmetica   </TD><TD>  t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS) </TD></TR>')
 
 def p_expresion_logica_not_exists_sub(t):
     '''expresion_logica : NOT EXISTS '''
+
     t[0] = ExpresionLogica(None, None, OPERACION_LOGICA.NOT_EXISTS)
     rep_gramatica('\n <TR><TD> expresion_logica → NOT EXISTS   </TD><TD>  t[0] = ExpresionLogica(None, None, OPERACION_LOGICA.NOT_EXISTS) </TD></TR>')
 
 
 
+
+
+
 def p_expresion_logica_in(t):
     '''expresion_logica : expresion_aritmetica IN expresion_aritmetica
-                        | expresion_aritmetica NOT IN expresion_aritmetica'''
+                        | expresion_aritmetica NOTIN expresion_aritmetica'''
     if t[2] == 'IN':
         t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.IN)
-    elif t[2] == 'NOT':
+    elif t[2] == 'NOTIN':
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   estoy entrando <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.NOT_IN)
     rep_gramatica('\n <TR><TD> expresion_logica → expresion_aritmetica IN -OR-NOT IN   </TD><TD>   t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.IN) </TD></TR>')
 
@@ -2566,13 +2580,16 @@ def p_funciones_math(t):
 
 def p_expresion_binario(t):
     '''expresion_aritmetica : expresion_aritmetica AMPERSAND expresion_aritmetica
+                |   expresion_aritmetica PLECA expresion_aritmetica
                 |   expresion_aritmetica NUMERAL expresion_aritmetica
                 |   expresion_aritmetica LEFTSHIFT expresion_aritmetica
                 |   expresion_aritmetica RIGHTSHIFT expresion_aritmetica'''
     if t[2] == "&":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.AND)
-    if t[2] == "#":
+    if t[2] == "|":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.OR)
+    if t[2] == "#":
+        t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.XOR)
     if t[2] == "<<":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.SHIFT_IZQ)
     if t[2] == ">>":
@@ -2582,6 +2599,7 @@ def p_expresion_binario(t):
 
 def p_expresion_binario_n(t):
     'expresion_aritmetica : VIRGULILLA expresion_aritmetica'
+    t[0] = UnitariaAritmetica(t[2], OPERACION_BIT_A_BIT.COMPLEMENTO)
 
 # def p_expresion_subquery(t):
 #     expresion_aritmetica : QUE_SUBS

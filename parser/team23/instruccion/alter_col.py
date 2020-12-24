@@ -63,7 +63,7 @@ class alter_col(instruccion):
             nodo_simbolo = ts.get_col(id_db, tb_id, id_col)
             tipo_dominante = tipos_tabla[tipo.value][nodo_simbolo.tipo.value]
 
-            if tipo_dominante == tipo:
+            if tipo_dominante != tipo:
                 errores.append(nodo_error(self.line, self.column, 'ERROR - No puedes cambiar tipo de dato: ' + self.get_str_tipo(nodo_simbolo.tipo) + ' por: ' + self.get_str_tipo(tipo), 'Semántico'))
                 add_text('ERROR - No puedes cambiar tipo de dato: ' + self.get_str_tipo(nodo_simbolo.tipo) + ' por: ' + self.get_str_tipo(tipo) + '\n')
                 return

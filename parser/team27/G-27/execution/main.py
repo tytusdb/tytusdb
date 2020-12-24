@@ -7,11 +7,16 @@ class Main(object):
 
     
     def execute(self, environment):
-        
+        arreglo = []
+        errores = []
         for item in self.queryArray:
             env = Environment(environment)
-            print(item.execute(env))
-        
+            res = item.execute(env)
+            if isinstance(res,str):
+                arreglo.append(res)
+            elif isinstance(res,dict) or isinstance(res,list):
+                errores.append(str(res))
+        return [arreglo,errores]
             
 
 
