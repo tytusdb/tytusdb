@@ -344,11 +344,12 @@ class TypeChecker(object):
         :param name: The name of column
         :return: Returns the primary column
         """
+        columns = []
         if table:
             for col in table.columns:
                 if col.primaryKey == True:
-                    return col
-        return None
+                    columns.append(col)
+        return columns
 
     def searchColumnHeadings(self, table: Table):
         """

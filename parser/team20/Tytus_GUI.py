@@ -221,7 +221,7 @@ def print_messages_(messages):
     while i<len(messages):
         if(i!=0):
             print_ += "\n"
-        print_ += messages[i].toString()
+        print_ += messages[i]
         i += 1
     print_messages("Message", print_)
 
@@ -266,16 +266,15 @@ menubar.add_cascade(menu=filemenu, label="Reports")
 text = CustomText_follow_line_and_column_in_text()
 text.pack(fill="both", expand=1)
 text.configure(bg="#000000", fg="#FFFFFF", insertbackground='#FFFFFF')
-text.config(bd=0, padx=6, pady=4, font=("consoles",12))
+text.config(bd=0, padx=6, pady=4, font=("consolas",12))
 text.bind("<<CursorChange>>", _on_change)
 
 # Console
 console = scrolledtext.ScrolledText(root, width=100, height=20)
 console.pack(fill="both", expand=1)
 console.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
-console.config(bd=0, padx=6, pady=4, font=("consoles",12))
+console.config(bd=0, padx=6, pady=4, font=("consolas",12))
 console.configure(state="disabled")
-
 # Lower monitor
 message = StringVar()
 message.set("Welcome to Tytus")

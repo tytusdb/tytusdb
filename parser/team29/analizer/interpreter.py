@@ -17,15 +17,14 @@ def execution(input):
     messages = []
     result = grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
-    if len(lexerErrors) + len(syntaxErrors) == 0:
+    syntaxErrors = grammar.returnSyntacticErrors()
+    if len(lexerErrors) + len(syntaxErrors) == 0 and result:
         for v in result:
             if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
                 r = v.execute(None)
                 if r:
                     list_ = r[0].values.tolist()
                     labels = r[0].columns.tolist()
-                    print(list_)
                     querys.append([labels, list_])
                 else:
                     querys.append(None)
@@ -34,6 +33,7 @@ def execution(input):
                 messages.append(r)
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
+    symbols = symbolReport()
     obj = {
         "messages": messages,
         "querys": querys,
@@ -41,7 +41,10 @@ def execution(input):
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
+        "symbols": symbols,
     }
+    astReport()
+    BnfGrammar.grammarReport()
     return obj
 
 
@@ -51,25 +54,45 @@ def parser(input):
     """
     grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
     obj = {
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
     }
-    print(obj)
+    astReport()
+    BnfGrammar.grammarReport()
     return obj
 
 
-s = """ 
-USE test*;
-select *
-from tbrol WHERE idrol > 0;
-"""
-r = """ 
-USE test[];
-select *
-from tbrol WHERE idrol > 0;
-"""
-# parser(s)
-# execution(r)
+def astReport():
+    grammar.InitTree()
+
+
+def symbolReport():
+    environments = inst.envVariables
+    report = []
+    for env in environments:
+        vars = env.variables
+        types = env.types
+        enc = [["Alias", "Nombre", "Tipo", "Fila", "Columna"]]
+        filas = []
+        for (key, symbol) in vars.items():
+            r = [
+                key,
+                symbol.value,
+                symbol.type if not symbol.type else "Tabla",
+                symbol.row,
+                symbol.column,
+            ]
+            filas.append(r)
+
+        for (key, symbol) in types.items():
+            r = [key, key, str(symbol) if not symbol else "Columna", "-", "-"]
+            filas.append(r)
+        enc.append(filas)
+        report.append(enc)
+    inst.envVariables = []
+    return report
+
+
 # BnfGrammar.grammarReport()
