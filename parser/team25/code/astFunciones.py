@@ -25,7 +25,6 @@ class FuncionNumerica(Expresion):
             nodo += "\n" + identificador + " -> " + \
                 str(hash(self.parametro2)) + ";"
             nodo += self.parametro2.dibujar()
-
         return nodo
     
     def getTipo(self , valorNumerico):
@@ -731,19 +730,30 @@ class FuncionCadena(Expresion):
         nodo += "\n" + identificador + " -> " + \
             str(hash(self.parametro1)) + ";"
         nodo += "\n" + str(hash(self.parametro1)) + \
-            "[label = \"" + self.parametro1 + "\"];"
+            "[label = \"" + str(self.parametro1) + "\"];"
 
         if self.parametro2:
             if isinstance(self.parametro2, str):
                 nodo += "\n" + identificador + " -> " + \
                     str(hash(self.parametro2)) + ";"
                 nodo += "\n" + str(hash(self.parametro2)) + \
-                    "[label = \"" + self.parametro2 + "\"];"
+                    "[label = \"" + str(self.parametro2) + "\"];"
             else:
                 nodo += "\n" + identificador + " -> " + \
                     str(hash(self.parametro2)) + ";"
                 nodo += "\n" + str(hash(self.parametro2)) + \
                     "[label = \"" + str(self.parametro2) + "\"];"
+        if (self.parametro1,Expresion):
+            if (self.parametro1,Expresion):
+                nodo += "\n" + self.parametro1.dibujar()
+        
+        if self.parametro2:
+            if (self.parametro2,Expresion):
+                nodo += "\n" + self.parametro2.dibujar()
+
+        if self.parametro3:
+            if (self.parametro3,Expresion):
+                nodo += "\n" + self.parametro3.dibujar()
 
         return nodo
     def ejecutar(self, ts):
@@ -965,12 +975,12 @@ class FuncionCadena(Expresion):
                     return ErrorReport('semantico', 'error de tipo' ,self.linea)
             elif self.funcion == "MD5":
                 if  isinstance(nodoSimplificado , ExpresionCadena):
-                    return '\''+str(hashlib.md5(nodoSimplificado.val.encode()).hexdigest())+'\''
+                    return str(hashlib.md5(nodoSimplificado.val.encode()).hexdigest())
                 else:
                     return ErrorReport('semantico', 'error de tipo' ,self.linea)
             elif self.funcion == "SHA256":
                 if  isinstance(nodoSimplificado , ExpresionCadena):
-                    return '\''+str(hashlib.sha256(nodoSimplificado.val.encode()).hexdigest())+'\''
+                    return str(hashlib.sha256(nodoSimplificado.val.encode()).hexdigest())
             return str('FUNCION DESCONOCIDA')
 
 class FuncionAgregacion(Expresion):
@@ -1104,8 +1114,34 @@ class FuncionTime(Expresion):# 0 , 1 y 2
         self.linea = linea
 
     def dibujar(self):
-        pass
+        identificador = str(hash(self))
 
+        nodo = "\n" + identificador + "[ label = \"" + self.funcion + "\" ];"
+        nodo += "\n" + identificador + " -> " + \
+            str(hash(self.parametro1)) + ";"
+        nodo += "\n" + str(hash(self.parametro1)) + \
+            "[label = \"" + str(self.parametro1) + "\"];"
+
+        if self.parametro2:
+            if isinstance(self.parametro2, str):
+                nodo += "\n" + identificador + " -> " + \
+                    str(hash(self.parametro2)) + ";"
+                nodo += "\n" + str(hash(self.parametro2)) + \
+                    "[label = \"" + str(self.parametro2) + "\"];"
+            else:
+                nodo += "\n" + identificador + " -> " + \
+                    str(hash(self.parametro2)) + ";"
+                nodo += "\n" + str(hash(self.parametro2)) + \
+                    "[label = \"" + str(self.parametro2) + "\"];"
+        if (self.parametro1,Expresion):
+            if (self.parametro1,Expresion):
+                nodo += "\n" + self.parametro1.dibujar()
+        
+        if self.parametro2:
+            if (self.parametro2,Expresion):
+                nodo += "\n" + self.parametro2.dibujar()
+
+                
     def ejecutar(self, ts):#los que pueden venir en el select 
         if self.parametro1 != None and self.parametro2 != None:        
             if self.funcion == "EXTRACT":
