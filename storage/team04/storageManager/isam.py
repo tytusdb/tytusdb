@@ -1003,7 +1003,7 @@ class Isam:
     
     def get_in_range(self,min,max):
         nodes = []
-        aux = self.leftmost:
+        aux = self.leftmost
         while aux != None:
             if aux.left_node != None:
                 if aux.left_node.node_id > min.node_id and aux.left_node.node_id < max.node_id:

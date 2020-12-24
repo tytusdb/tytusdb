@@ -4,9 +4,9 @@
 # -- Para: USAC -> Ingeniería -> Estructuras De Datos -> Team04   -- #
 # ------------------------------------------------------------------ #
 
-from Nodo import *
-from Lista import *
-from binario import *
+from storageManager.Nodo import *
+from storageManager.Lista import *
+from storageManager.binario import *
 
 class DB():
 

@@ -4,8 +4,8 @@
 # -- Para: USAC -> Ingeniería -> Estructuras De Datos -> Team04   -- #
 # ------------------------------------------------------------------ #
 
-from Nodo import *
-from isam import *
+from storageManager.Nodo import *
+from storageManager.isam import *
 
 class Lista():
 

@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import Tk
 import tkinter as tk
 from tkinter import ttk
-from binario import *
+from storageManager.binario import *
 
 base_actual = None
 tabla_actual = None
