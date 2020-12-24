@@ -1,5 +1,5 @@
 from datetime import datetime
-
+syntaxPostgreSQL = []
 
 def validateTimeStamp(val):
     try:
@@ -10,6 +10,9 @@ def validateTimeStamp(val):
        
         return None
     except:
+        syntaxPostgreSQL.append(
+                 "Error: 22007: Formato de fecha invalido "+str(val)
+                )
         return {"Type": "timeStamp", "Descripción": "Formato desconocido"}
 
 
@@ -22,6 +25,9 @@ def validateDate(val):
             dateTime = datetime.strptime(val, "%Y/%m/%d")
         return None
     except:
+        syntaxPostgreSQL.append(
+                 "Error: 22007: Formato de fecha invalido "+str(val)
+                )
         return {"Type": "date", "Descripción": "Formato desconocido"}
 
 
@@ -34,6 +40,9 @@ def validateTime(val):
        
         return None
     except:
+        syntaxPostgreSQL.append(
+                 "Error: 22007: Formato de fecha invalido "+str(val)
+                )
         return {"Type": "time", "Descripción": "Formato desconocido"}
 
 
@@ -72,7 +81,13 @@ def validateInterval(val):
                 error.append(
                     {"Type": "interval", "Descripción": "Parametro desconocido"}
                 )
+                syntaxPostgreSQL.append(
+                 "Error: 22007:sintaxis de entrada no válida para el tipo \'interval\' "
+                )
         except:
             # save err
+            syntaxPostgreSQL.append(
+                 "Error: 22007:sintaxis de entrada no válida para el tipo \'interval\' "
+                )
             error.append({"Type": "interval", "Descripción": "Parametro invalido"})
     return error
