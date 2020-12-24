@@ -50,7 +50,7 @@ class Select_Expresion(Expresion):
                     else :
                         dataSelect.encabezados.append('?column?')
                     
-                    dataSelect.dataRow.append(value)
+                    dataSelect.data.append(value)
                 
         else :
             #SENTENCIA_SELECT_DISTINCT

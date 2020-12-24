@@ -15,6 +15,10 @@ from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Current_Date
 from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Timestamp import *
 from EXPRESION.EXPRESIONES_TERMINALES.ACCESO.NODE_ACCESO.Node_Access import *
 from EXPRESION.EXPRESIONES_TERMINALES.ALIAS.NODE_ALIAS.Node_Alias import *
+from EXPRESION.EXPRESIONES_TERMINALES.CASE.Case import *
+from EXPRESION.EXPRESIONES_TERMINALES.CASE.Sentencia_Case import *
+from EXPRESION.EXPRESIONES_TERMINALES.CASE.Lista_Case import *
+from EXPRESION.EXPRESIONES_TERMINALES.CASE.Else import *
 from DDL.DROP.Drop import *
 from DDL.SHOW.Show import *
 from ERROR.Error import *
@@ -560,7 +564,7 @@ def p_select_tables_elements(t):
     t[0] = Start("Identificador",t.lineno(1),t.lexpos(1),t[1])
 
 def p_select_tables_elements_2(t):
-    'elements : IDENTIFICADOR IDENTIFICADOR'
+    'elements : IDENTIFICADOR IDENTIFICADOR' 
     reportebnf.append(bnf["p_select_tables_elements_2"])  
     t[0] = Start("TABLE",-1,-1,None)
     tabla = Start("Name Table",t.lineno(1),t.lexpos(1),t[1])
@@ -572,6 +576,14 @@ def p_select_tables_elements_3(t):
     'elements : PARENTESISIZQ sentencia_select PARENTESISDER'
     reportebnf.append(bnf["p_select_tables_elements_3"])  
     t[0] = t[2]
+
+def p_select_tables_elements_4(t):
+    'elements : PARENTESISIZQ sentencia_select PARENTESISDER IDENTIFICADOR'
+    reportebnf.append(bnf["p_select_tables_elements_4"])  
+    identificador = Identificator_Expresion("Identificador",t.lineno(4),t.lexpos(4)+1,t[4])
+    t[0] = Start("SUBQUERY_TABLE",t.lineno(1),t.lexpos(1)+1,None)    
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(identificador)
 #-------------------------------------------------------------------------------------------
 #------------------------------ Funciones Fechas -------------------------------------------
 def p_funciones_fechas(t):
@@ -1494,38 +1506,41 @@ def p_sentencia_use(t):
 
 #---------------------------------CASE-----------------------------------
 def p_sentencia_case(t):
-    '''sentencia_case :  CASE listaExpCase caseElse END'''
+    '''sentencia_case :  CASE listaExpCase END'''
     reportebnf.append(bnf["p_sentencia_case"])    
-    t[0] = Start("SENTENCIA_CASE", t.lineno(1))
-    for hijo in t[2].hijos:
-        t[0].addChild(hijo)
+    t[0] = Sentencia_Case("SENTENCIA_CASE",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
+
+def p_sentenca_Case_1(t):
+    '''sentencia_case :  CASE listaExpCase caseElse END'''
+    reportebnf.append(bnf["p_sentencia_case_1"])    
+    t[0] = Sentencia_Case("SENTENCIA_CASE",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[3])
 
 def p_listaExpCase(t):
-    '''listaExpCase : listaExpCase WHEN Exp THEN Exp
-                    | WHEN Exp THEN Exp'''
-    reportebnf.append(bnf["p_listaExpCase"])                    
-    t[0] = Start("LISTA_EXP_CASE", t.lineno(2))
-    if len(t) == 6:
-        for hijo in t[1].hijos:
-            t[0].addChild(hijo)
-        hijoTemp = Start("WHEN_THEN")
-        hijoTemp.addChild(t[3])
-        hijoTemp.addChild(t[5])
-        t[0].addChild(hijoTemp)
-    else:
-        hijoTemp = Start("WHEN_THEN")
-        hijoTemp.addChild(t[2])
-        hijoTemp.addChild(t[4])
-        t[0].addChild(hijoTemp)
+    '''listaExpCase : listaExpCase WHEN Exp THEN Exp'''
+    reportebnf.append(bnf["p_listaExpCase"])             
+    t[0] = t[1]
+    sentCase = Sentencia_Case("WHEN_THEN",t.lineno(2),t.lexpos(2)+1,None)
+    sentCase.hijos.append(t[3])
+    sentCase.hijos.append(t[5])
+    t[0].hijos.append(sentCase)
 
+def p_listaExpCase_1(t):
+    'listaExpCase : WHEN Exp THEN Exp'
+    reportebnf.append(bnf["p_listaExpCase_1"])
+    t[0] = Lista_Case("LISTA_CASE",-1,-1,None)
+    sentCase = Sentencia_Case("WHEN_THEN",t.lineno(1),t.lexpos(1)+1,None)
+    sentCase.hijos.append(t[2])
+    sentCase.hijos.append(t[4])
+    t[0].hijos.append(sentCase)
 
 def p_caseElse(t):
-    '''caseElse : ELSE Exp
-                | '''
+    '''caseElse : ELSE Exp'''
     reportebnf.append(bnf["p_caseElse"])                
-    if len(t) == 3:
-        t[0]=Start("CASE_ELSE")
-        t[0].addChild(t[2])
+    t[0] = Else_Expresion("ELSE",t.lineno(1),t.lexpos(1),None)
+    t[0].hijos.append(t[2])
 
 
 #---------------Termina las sentencias con la palabra reservada SELECT.---------------------
@@ -2036,6 +2051,12 @@ def p_exp_funcion(t):
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
 
+def p_exp_case(t):
+    'Exp : sentencia_case '
+    reportebnf.append(bnf["p_exp_case"])
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    
 # *********************************************************************************
 # ----------------------------------  Access --------------------------------------
 def p_option_exp_access(t):

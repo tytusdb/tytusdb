@@ -58,7 +58,7 @@ class mainWindow:
     def reportar_ast(self):
         if self.resp is not None:
             arbol = Arbol()
-            print(arbol.generar_dot(self.resp))
+            #print(arbol.generar_dot(self.resp))
             generar_img(arbol.generar_dot(self.resp))
 
     def reportar_ts(self):

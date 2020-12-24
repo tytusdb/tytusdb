@@ -1,7 +1,9 @@
-digraph Arbol_AST{ node[shape="box"]n1[label = "S"];n1 -> n2;
-n2[label = "SENTENCIA_USE"];n2 -> n3;
-n3[label = "IDENTIFICADOR\nPRUEBA"];n1 -> n4;
-n4[label = "SENTENCIA_INSERT"];n4 -> n5;
-n5[label = "Tabla\nUSUARIO_PRUEBA"];n4 -> n6;
-n6[label = "PARAM_INSERT"];n6 -> n7;
-n7[label = "Entero\n1"];}
+digraph Arbol_AST{ node[shape="box"]n10[label = "S"];n10 -> n11;
+n11[label = "SENTENCIA_SELECT"];n11 -> n12;
+n12[label = "LISTA_EXP"];n12 -> n13;
+n13[label = "E"];n13 -> n14;
+n14[label = "E"];n14 -> n15;
+n15[label = "Entero\n2"];n13 -> n16;
+n16[label = "*"];n13 -> n17;
+n17[label = "E"];n17 -> n18;
+n18[label = "Entero\n2"];}
