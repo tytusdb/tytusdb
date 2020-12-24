@@ -3,7 +3,7 @@ import random
 from tabla_Simbolos import simbolo
 from tabla_Simbolos import simboloColumna
 from .instruccionAbstracta import InstruccionAbstracta
-from trigonometricas import *
+from .trigonometricas import *
 
 
 class funcion(InstruccionAbstracta):

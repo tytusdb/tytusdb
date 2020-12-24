@@ -470,7 +470,6 @@ herencia : empty
 
 columnas ::= columnas COMA columna
 
-    	 linea = str(t.lexer.lineno)
     	 nodoColumnas = t[1]
     	 nodoColumna = t[3]
     	 nodoColumnas.hijos.append(nodoColumna)
@@ -481,6 +480,7 @@ columna ::= ID tipos opcional
     	 linea = str(t.lexer.lineno)
     	 nodoColumna = crear_nodo_general("columna",,linea,columna)
     	 nodoId = crear_nodo_general("ID",t[1],linea,columna)
+    	 nodoId.hijos = []
     	 nodoTipo = t[2]
     	 nodoOpcional = t[3]
     	 nodoColumna.hijos = []
@@ -522,10 +522,15 @@ opConstraint ::= opUniqueCheck
 opUniqueCheck ::= empty
 
     	 t[0] = None
+
+'tipos ::= varchar' 
+
+    	 nodoType = crear_nodo_general("TYPE", t[1], str(t.lexer.lineno), columna)
+    	 nodoType.hijos = []
+    	 t[0] = nodoType
 
 columnas ::= columnas COMA columna
 
-    	 linea = str(t.lexer.lineno)
     	 nodoColumnas = t[1]
     	 nodoColumna = t[3]
     	 nodoColumnas.hijos.append(nodoColumna)
@@ -536,6 +541,7 @@ columna ::= ID tipos opcional
     	 linea = str(t.lexer.lineno)
     	 nodoColumna = crear_nodo_general("columna",,linea,columna)
     	 nodoId = crear_nodo_general("ID",t[1],linea,columna)
+    	 nodoId.hijos = []
     	 nodoTipo = t[2]
     	 nodoOpcional = t[3]
     	 nodoColumna.hijos = []
@@ -577,6 +583,12 @@ opConstraint ::= opUniqueCheck
 opUniqueCheck ::= empty
 
     	 t[0] = None
+
+'tipos ::= varchar' 
+
+    	 nodoType = crear_nodo_general("TYPE", t[1], str(t.lexer.lineno), columna)
+    	 nodoType.hijos = []
+    	 t[0] = nodoType
 
 columnas ::= columna
 
@@ -592,6 +604,7 @@ columna ::= ID tipos opcional
     	 linea = str(t.lexer.lineno)
     	 nodoColumna = crear_nodo_general("columna",,linea,columna)
     	 nodoId = crear_nodo_general("ID",t[1],linea,columna)
+    	 nodoId.hijos = []
     	 nodoTipo = t[2]
     	 nodoOpcional = t[3]
     	 nodoColumna.hijos = []
@@ -635,6 +648,12 @@ opUniqueCheck ::= PRIMARY KEY
     	 nodoOpPrimary.hijos = []
     	 nodoOpPrimary.hijos.append(nodoPrimary)
     	 t[0] = nodoOpPrimary
+
+'tipos ::= numeric' 
+
+    	 nodoType = crear_nodo_general("TYPE", t[1], str(t.lexer.lineno), columna)
+    	 nodoType.hijos = []
+    	 t[0] = nodoType
 
 instrucciones  ::=   instrucciones instruccion
 
