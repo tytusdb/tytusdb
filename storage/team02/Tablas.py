@@ -38,3 +38,14 @@ class ListaDobledeArboles :
             tablas.append(aux.nombre)
             aux = aux.siguiente
         return tablas 
+
+    def insertar(self,nombreTabla,numCol) :
+        nuevo = nodo(nombreTabla,numCol)
+        # lista vacia
+        if self.inicio == None :
+            self.inicio=self.fin=nuevo
+        else:
+            self.fin.siguiente = nuevo
+            nuevo.anterior = self.fin
+            self.fin = nuevo
+        return self.inicio
