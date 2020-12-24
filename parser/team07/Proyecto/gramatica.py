@@ -3004,6 +3004,36 @@ def p_alter_table_instr_drop(t):
     \t nodoAlter.hijos.append(nodoId)\n\
     \t t[0] = nodoAlter\n\n")
 
+def p_add_instr_column(t):
+    'add_instr : COLUMN ID tipos'
+    linea = str(t.lexer.lineno)
+    nodoAdd = crear_nodo_general("add_instr","",linea,columna)
+    nodoAdd.hijos = []
+    nodoColumn = crear_nodo_general("COLUMN","COLUMN",linea,columna)
+    nodoColumn.hijos = []
+    nodoId = crear_nodo_general("ID",t[2],linea,columna)
+    nodoId.hijos = []
+    nodoTipo = t[3]
+    nodoAdd.append(nodoColumn)
+    nodoAdd.append(nodoId)
+    nodoAdd.append(nodoTipo)
+    t[0] = nodoAdd
+    
+    GenerarRepGram.AgregarTexto("'add_instr ::= COLUMN ID tipos'\n\n\
+    \t linea = str(t.lexer.lineno)\n\
+    \t nodoAdd = crear_nodo_general(\"add_instr\",\"\",linea,columna)\n\
+    \t nodoAdd.hijos = []\n\
+    \t nodoColumn = crear_nodo_general(\"COLUMN\",\"COLUMN\",linea,columna)\n\
+    \t nodoColumn.hijos = []\n\
+    \t nodoId = crear_nodo_general(\"ID\",t[2],linea,columna)\n\
+    \t nodoId.hijos = []\n\
+    \t nodoTipo = t[3]\n\
+    \t nodoAdd.append(nodoColumn)\n\
+    \t nodoAdd.append(nodoId)\n\
+    \t nodoAdd.append(nodoTipo)\n\
+    \t t[0] = nodoAdd\n\n")
+    
+    
 def p_add_instr(t):
     'add_instr : CHECK PARIZQUIERDO condicion_check PARDERECHO'
     linea = str(t.lexer.lineno)
