@@ -1180,9 +1180,9 @@ class AST:
             
             if instruccion.instr2.expwhere != None:
                 self.crearNodoExpresion(temp1,instruccion.instr2.expwhere.etiqueta)
-                self.crearNodoExpresion(temp1,instruccion.instr2.expwhere.expresion.etiqueta)
-                if instruccion.instr2.expwhere.expresion.etiqueta != None:
-                    self.VerificarWhere(temp1,instruccion.instr2.expwhere.expresion.etiqueta,instruccion.instr2.expwhere.expresion)
+                self.crearNodoExpresion(temp1,instruccion.instr2.expwhere.expresion.operador)
+                if instruccion.instr2.expwhere.expresion.operador != None:
+                    self.VerificarWhere(temp1,instruccion.instr2.expwhere.expresion.operador,instruccion.instr2.expwhere.expresion)
             if instruccion.instr2.expgb != None:
                 self.crearNodoExpresion(temp1,instruccion.instr2.expgb.etiqueta)
                 for datos in instruccion.instr2.expgb.expresion:

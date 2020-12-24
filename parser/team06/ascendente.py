@@ -20,6 +20,12 @@ from datetime import date
 import tkinter
 from tkinter import messagebox
 baseActual = ""
+import hashlib as ha
+
+#jossie
+from storageManager import jsonMode as j
+import pandas as pd
+import time
 
 from decimal import Decimal, getcontext
 getcontext().prec = 8
@@ -60,30 +66,56 @@ def procesar_select(query,ts):
     if query.tipo==1:
         print("entra al select de TIPO 1")
         print(query.operacion)
-        if isinstance(query.operacion,list):
-            if len(query.operacion)==1:
-                print("entra al if de tamaño 1")
-                if isinstance(query.operacion[0], ExpresionFuncionBasica): 
-                    if procesar_operacion_basica(query.operacion[0],ts)==None:
-                        h.textosalida+="TYTUS>> La tabla consultada no existe\n"
-                    else:
-                        h.textosalida+="TYTUS>>"  + str(procesar_operacion_basica(query.operacion[0],ts)) +"\n"
-                elif isinstance(query.operacion[0],Asignacion):
-                    print("entra al select de asignaciones")
-                    h.textosalida+="TYTUS>>"  + str(procesar_asignacion(query.operacion[0], ts))  +"\n"
+        if query.bandera==2:
+            if isinstance(query.operacion,list):
+                if len(query.operacion)==1:
+                    print("entra al if de tamaño 1")
+                    if isinstance(query.operacion[0], ExpresionFuncionBasica): 
+                        if procesar_operacion_basica(query.operacion[0],ts)==None:
+                            h.textosalida+="TYTUS>> La tabla consultada no existe\n"
+                        else:
+                            a=str(procesar_operacion_basica(query.operacion[0],ts))
+                            print("---------------------------------------------RESULTADO SELECT 1A-------------------------------------------------")
+                            print(a)
+                            print(h.bd_enuso)
+                            b=j.extractTable(h.bd_enuso, a)
+                            resultado=pd.DataFrame(b,columns=['ID','Nombre','Apellido', 'Edad','Pais'])
+                            print(str(resultado))
+                            h.textosalida+="TYTUS>>El resultado de su consulta es \n"
+                            h.textosalida+=str(resultado)+"\n"
+                    elif isinstance(query.operacion[0],Asignacion):
+                        print("entra al select de asignaciones")
+                        a=str(procesar_asignacion(query.operacion[0], ts))
+                        print("---------------------------------------------RESULTADO SELECT 1B-------------------------------------------------")
+                        print(a)
+                        h.textosalida+="TYTUS>>"  + a  +"\n"
+                else:
+                    print("--------SELECT TIPO 2-------------")
+                    print("en este select se obtienen todos los campos de la lista de tablas")
+                    a=procesar_select2_obtenerTablas(query.operacion,ts)
+                    print("---------------------------------------------RESULTADO SELECT 2D--------------------------------------------------")
+                    print("LAS TABLAS SERAN: ",a)
+                    print("LAS COLUMNAS SERAN: todas")
+                    
+                    h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
             else:
-                print("--------SELECT TIPO 2-------------")
-                print("en este select se obtienen todos los campos de la lista de tablas")
-                print("obtener tablas: ",procesar_select2_obtenerTablas(query.operacion,ts))
-        else:
-            print("no es array")
-            print("entra al if de tamaño 1")
-            if isinstance(query.operacion, ExpresionFuncionBasica): 
-                print(procesar_operacion_basica(query.operacion, ts))
-                h.textosalida+="TYTUS>>"  + str(procesar_operacion_basica(query.operacion,ts)) +"\n"
-            elif isinstance(query.operacion,Asignacion):
-                print("entra al select de asignaciones")
-                h.textosalida+="TYTUS>>"  + str(procesar_asignacion(query.operacion, ts))  +"\n"
+                print("no es array")
+                print("entra al if de tamaño 1")
+                if isinstance(query.operacion, ExpresionFuncionBasica): 
+                    print(procesar_operacion_basica(query.operacion, ts))
+                    h.textosalida+="TYTUS>>"  + str(procesar_operacion_basica(query.operacion,ts)) +"\n"
+                elif isinstance(query.operacion,Asignacion):
+                    print("entra al select de asignaciones")
+                    h.textosalida+="TYTUS>>"  + str(procesar_asignacion(query.operacion, ts))  +"\n"
+        elif query.bandera==1:
+            print("--------SELECT TIPO 2-------------")
+            print("en este select se obtienen todos los campos de la lista de columnas")
+            a=procesar_select2_obtenerColumnas(query.operacion,ts)
+            print("---------------------------------------------RESULTADO SELECT 2E--------------------------------------------------")
+            print("LAS COLUMNAS SERAN: ",a)
+            print("NO TIENE TABLAS")
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta:  "+str(a)+"\n"
+        
     
 def procesar_select_Tipo2(query,ts):
     print("************************ENTRO AL 2DO SELECT*********************")
@@ -94,39 +126,92 @@ def procesar_select_Tipo2(query,ts):
         print("+++++++++++TABLA+++++++++++")
         print(query.operacion2[0])
         if isinstance(query.operacion2[0],Asignacion):
-            print(procesar_asignacion(query.operacion2[0],ts))
-            print("LAS TABLAS SERAN: ",str(procesar_asignacion(query.operacion2[0],ts)))
-            print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+            a=str(procesar_asignacion(query.operacion2[0],ts))
+            b=procesar_select2_obtenerColumnas(query.operacion1,ts)
+            print("---------------------------------------------RESULTADO SELECT 2A--------------------------------------------------")
+            print("LAS TABLAS SERAN: ",a)
+            print("LAS COLUMNAS SERAN: ",b)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
         else:
             if procesar_operacion_basica(query.operacion2[0],ts)==None:
                 h.textosalida+="TYTUS>> La tabla consultada no existe\n"
             else:
-                print("LAS TABLAS SERAN: ",str(procesar_operacion_basica(query.operacion2[0],ts)))
-                print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+                a=str(procesar_operacion_basica(query.operacion2[0],ts))
+                b=procesar_select2_obtenerColumnas(query.operacion1,ts)
+                print("---------------------------------------------RESULTADO SELECT 2B--------------------------------------------------")
+                print("LAS TABLAS SERAN: ",a)
+                print("LAS COLUMNAS SERAN: ",b)
+                c=j.extractTable(h.bd_enuso, a)
+                resultado=pd.DataFrame(c,columns=['ID','Nombre','Apellido', 'Edad','Pais'])
+                resultado1=pd.DataFrame(resultado,columns=b)
+                print(str(resultado1))
+                h.textosalida+="TYTUS>>El resultado de su consulta es \n"
+                h.textosalida+=str(resultado1)+"\n"
+
+                
        
     else:
         print("vienen mas tablas*******************************")
-        print("LAS TABLAS SERAN: ",procesar_select2_obtenerTablas(query.operacion2,ts))
-        print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+        a=procesar_select2_obtenerTablas(query.operacion2,ts)
+        b=procesar_select2_obtenerColumnas(query.operacion1,ts)
+        print(query.operacion1)
+        print(query.operacion2)
+        print("---------------------------------------------RESULTADO SELECT 2C--------------------------------------------------")
+        print("LAS TABLAS SERAN: ",a)
+        print("LAS COLUMNAS SERAN: ",b)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
     
     
 
 
 def procesar_select2_obtenerColumnas(query,ts):
-    print("Entra a OBTENER COLUMNAS")
+    print("Entra a OBTENER COLUMNAS++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     print(query)
     columnas=[]
     if isinstance(query,list):
         for x in range(len(query)) :
-            if isinstance(query[x], ExpresionFuncionBasica): 
-                #print("entra a la opcion funcionBasica del else")
-                columnas.append(query[x].id.id)
-            elif isinstance(query[x],Asignacion):
-                print("entra a la opcion de la lista//////////////////////////////////////////")
-                columnas.append(procesar_asignacion(query[x],ts))
-            elif isinstance(query[x],ExpresionIdentificador):
-                #print("entra a la opcion de identificador del lse")
-                columnas.append(query[x].id)
+            if x==0:
+                print("++++++++++++++++++++++++++++++++entra: ",x,"+++++++++++++++++++++++++++++++")
+                print(query[x])
+                if isinstance(query[0],Asignacion):
+                    print("trae una asignacionA")
+                    columnas.append(procesar_asignacion(query[x],ts))
+                if isinstance(query[0],ExpresionFuncionBasica):
+                    print("trae una funcion basicaA")
+                    print(query[0].id)
+                    if isinstance(query[0].id,ExpresionLlamame):
+                        print("trae una expresion llamameA")
+                        columnas.append(query[x].id.id+"-"+(query[x].id.id1))
+                    if isinstance(query[0].id,ExpresionIdentificador):
+                        print("trae una expresion identificadorA")
+                        columnas.append(ts.obtener2(query[x].id.id).valor)
+                        
+                    else:
+                        print("trae otra cosaA")
+                        print(query[0].id)
+                        a=procesar_operacion_basica(query[0],ts)
+                        columnas.append(a)
+                        #return a
+                if isinstance(query[0],ExpresionLlamame):
+                    print("trae una expresion llamameB")
+                    columnas.append(query[0].id+"-"+(query[x].id1))
+               
+            else:
+                print("++++++++++++++++++++++++++++++++entra: ",x,"+++++++++++++++++++++++++++++++")
+                print(query[x])
+                if isinstance(query[x], ExpresionFuncionBasica): 
+                    #print("entra a la opcion funcionBasica del else")
+                    columnas.append(query[x].id)
+                elif isinstance(query[x],Asignacion):
+                    print("entra a la opcion de la lista//////////////////////////////////////////")
+                    columnas.append(procesar_asignacion(query[x],ts))
+                elif isinstance(query[x],ExpresionIdentificador):
+                    #print("entra a la opcion de identificador del lse")
+                    columnas.append(query[x].id)
+                elif isinstance(query[x],ExpresionLlamame):
+                    #print("entra a la opcion de identificador del lse")
+                    columnas.append(query[x].id+"-"+(query[x].id1))
+
             if x==len(query)-1:
                 #print(columnas)
                 return columnas 
@@ -179,8 +264,10 @@ def procesar_select_Tipo3(query,ts):
         print("+++++++++++TABLA+++++++++++")
         a=procesar_operacion_basica(query.operacion1[0],ts)
         b=procesar_where(query.operacion2,ts,1,procesar_operacion_basica(query.operacion1[0],ts))
+        print("---------------------------------------------RESULTADO SELECT 3 --------------------------------------------------")
         print("LAS TABLAS SERAN: ",a)
         print("EL OBJETO WHERE: ",b)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
     else:
         if isinstance(query.operacion1,Asignacion):
             print("vienen mas tablas*******************************2")
@@ -189,18 +276,22 @@ def procesar_select_Tipo3(query,ts):
             print([query.operacion1])
             a=procesar_select2_obtenerTablas([query.operacion1],ts)
             b=procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas([query.operacion1],ts))
+            print("---------------------------------------------RESULTADO SELECT 3--------------------------------------------------")
             print("LAS TABLAS SERAN: ",a)
             print("LAS COLUMNAS SERAN: todas")
             print("EL WHERE SERA: ",b)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
         else:
             print("vienen mas tablas*******************************")
             print(query.operacion1)
             print(query.operacion2)
             a=procesar_select2_obtenerTablas(query.operacion1,ts)
             b=procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas(query.operacion1,ts))
+            print("---------------------------------------------RESULTADO SELECT 3--------------------------------------------------")
             print("LAS TABLAS SERAN: ",a)
             print("LAS COLUMNAS SERAN: todas")
             print("EL WHERE SERA: ",b)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
             
             
 
@@ -213,10 +304,11 @@ def procesar_select_Tipo4(query,ts):
     a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas
     b=procesar_select2_obtenerColumnas(query.operacion1,ts) #columnas
     c=procesar_where(query.operacion3,ts,b,a)
-    print("-------------RESULTADO SELECT 4------------------")
+    print("---------------------------------------------RESULTADO SELECT 4--------------------------------------------------")
     print("LAS TABLAS SERAN: ",a)
     print("Las columnas seran: ",b)
     print("La sentencia Where sera ",c)
+    h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
     
 
 
@@ -228,20 +320,22 @@ def procesar_select_Tipo5(query,ts):
         a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas    
         c=procesar_where(query.operacion3,ts,"todo",a)
         d=procesar_extras(query.operacion4,ts,c)
-        print("-------------RESULTADO SELECT 5 * ------------------")
+        print("--------------------------------RESULTADO SELECT 5 * --------------------------------")
         print("LAS TABLAS SERAN: ",a)
         print("las columas seran: Todas")
         print("La sentencia Where sera ",c)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
     else:
         print("trae una lista de columnas")
         a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas
         b=procesar_select2_obtenerColumnas(query.operacion1,ts) #columnas
         c=procesar_where(query.operacion3,ts,b,a)
         d=procesar_extras(query.operacion4,ts,c)
-        print("-------------RESULTADO SELECT 5------------------")
+        print("---------------------------------------------RESULTADO SELECT 5--------------------------------------------------")
         print("LAS TABLAS SERAN: ",a)
-        print("EL OBJETO WHERE: ",b)
+        print("LAS COLUMNAS SERAN: ",b)
         print("La sentencia Where sera ",c)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
         
 
 def procesar_extras(query,ts,donde):
@@ -251,14 +345,19 @@ def procesar_extras(query,ts,donde):
     for x in range(0,len(query)):
         if isinstance(query[x],ExpresionLimit):
             print("trae una limitante")
+            print(query[x])
         elif isinstance(query[x],ExpresionLimitOffset):
             print("trae una limitante con offset")
+            print(query[x])
         elif isinstance(query[x],ExpresionGroup):
             print("trae para agrupar")
+            print(query[x])
         elif isinstance(query[x],ExpresionHaving):
             print("trae condicion adicional")
+            print(query[x])
         elif isinstance(query[x],ExpresionOrder):
             print("trae expresion de ordenamiento")
+            print(query[x])
     return 1
 
 
@@ -362,7 +461,16 @@ def operar_where(query,ts):
         print("NEGATIVO")
         print("EXP_NUM:",query.id)
         return query.id * -1
-
+    elif isinstance(query, ExpresionNegativo) :
+        print("NEGATIVO")
+        print("EXP_NUM:",query.id)
+        return query.id * -1
+    elif isinstance(query, ExpresionNotIn) :
+        print("TRAE UN NOT IN")
+        print("ID: ",query.valor1)
+        print("select: ", query.valor2)
+        procesar_queries(query.valor2,ts)
+        return 0
 def procesar_createdb(query,ts):
     verificacion =  ts.verificacionCrearBD(query.variable)
     if verificacion==0:
@@ -660,9 +768,9 @@ def procesar_alterwithparametersdb(query,ts):
 def procesar_dropdb(query,ts):
     if ts.destruirBD(query.id)==1:
         if store.dropDatabase(query.id) == 0:
-            h.textosalida+="TYTUS>> "+"Se elimino la BD " +str(query.variable) +" en memoria estatica"+"\n"
+            h.textosalida+="TYTUS>> "+"Se elimino la BD " +str(query.id) +" en memoria estatica"+"\n"
         elif store.dropDatabase(query.id) == 2:
-            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " no existe"+"\n"
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.id) + " no existe"+"\n"
         elif store.dropDatabase(query.id) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
         else:
@@ -700,6 +808,8 @@ def procesar_dropifdb(query,ts):
 
 # --------------------------------------EXPRESION ARITMETICA-----------------------------------------------------------
 def resolver_expresion_aritmetica(expNum, ts) :
+    print("entra a expresion aritmetica")
+    print(expNum)
     try:
         if isinstance(expNum, ExpresionAritmetica) :
             exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
@@ -952,7 +1062,9 @@ def resolver_expresion_aritmetica(expNum, ts) :
             exp4= resolver_expresion_aritmetica(expNum.exp4, ts)
             return 0
         elif isinstance(expNum,ExpresionACOS):
+            print("entro al acos")
             exp= resolver_expresion_aritmetica(expNum.exp, ts)
+            print("entro al acos")
             return mt.acos(exp)
         elif isinstance(expNum,ExpresionACOSD):
             exp= resolver_expresion_aritmetica(expNum.exp, ts)
@@ -1019,6 +1131,91 @@ def resolver_expresion_aritmetica(expNum, ts) :
         elif isinstance(expNum,ExpresionATANH):
             exp= resolver_expresion_aritmetica(expNum.exp, ts)
             return mt.atanh(exp)
+
+
+        elif isinstance(expNum,ExpresionLENGTH):
+            exp= resolver_expresion_aritmetica(expNum.exp1, ts)
+            return len(exp)
+        elif isinstance(expNum,ExpresionSUBSTR):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            ex2= resolver_expresion_aritmetica(expNum.exp3, ts)
+            return ex[ex1:ex2]
+        elif isinstance(expNum,ExpresionSUBSTRINGA):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            ex2= resolver_expresion_aritmetica(expNum.exp3, ts)
+            return ex[ex1:ex2]
+        elif isinstance(expNum,ExpresionSUBSTRINGB):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            return ex[ex1:]
+        elif isinstance(expNum,ExpresionSUBSTRINGC):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            return ex[:ex1]
+        elif isinstance(expNum,ExpresionSHA256):
+            exp= resolver_expresion_aritmetica(expNum.exp1, ts)
+            print(exp)
+            return str(ha.sha256(exp.encode()))
+        elif isinstance(expNum,ExpresionMD5):
+            exp= resolver_expresion_aritmetica(expNum.exp1, ts)
+            return str(ha.md5(exp.encode()))
+        elif isinstance(expNum,ExpresionTRIM):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            ex2= resolver_expresion_aritmetica(expNum.exp3, ts)
+            print(ex)
+            print(ex1)
+            print(ex2)
+            if ex=="1":
+                res=ex2.lstrip(ex1)
+                print(res)
+                return res
+            elif ex=="2":
+                res=ex2.rstrip(ex1)
+                return res
+            elif ex=="3":
+                res=ex2.strip(ex1)
+                return res
+        elif isinstance(expNum,ExpresionCurrentTime):
+            print(datetime.datetime.now().strftime("%H:%M:%S"))
+            return str(datetime.datetime.now().strftime("%H:%M:%S"))
+        elif isinstance(expNum,ExpresionCurrentDate):
+            print(datetime.datetime.now().strftime("%Y-%m-%d"))
+            return str(datetime.datetime.now().strftime("%Y-%m-%d"))
+        elif isinstance(expNum,ExpresionEXTRACT):
+            print("entro al extract")
+            ex1= resolver_expresion_aritmetica(expNum.exp1, ts)
+            print(ex1)
+            ex2= resolver_expresion_aritmetica(expNum.exp2, ts)
+            print(ex2)
+            ex3=time.strptime(ex2,"%Y-%m-%d %H:%M:%S")
+            print(str(ex3))
+            if ex1=="1":
+                res=ex3.tm_year
+                print(str(res))
+                return str(res)
+            elif ex1=="2":
+                res=ex3.tm_mon
+                print(str(res))
+                return str(res)
+            elif ex1=="3":
+                res=ex3.tm_mday
+                print(str(res))
+                return str(res)
+            elif ex1=="4":
+                res=ex3.tm_hour
+                print(str(res))
+                return str(res)
+            elif ex1=="5":
+                res=ex3.tm_min
+                print(str(res))
+                return str(res)
+            elif ex1=="6":
+                res=ex3.tm_sec
+                print(str(res))
+                return str(res)
         elif isinstance(expNum, ExpresionNumero) :
             return expNum.id
         elif isinstance(expNum, ExpresionIdentificador) :
@@ -1664,20 +1861,31 @@ def procesar_updateinBD(query,ts):
 
 
 def procesar_select2_obtenerTablas(query,ts):
-    print("Entra al else del select")
-    #print(query)
+    print("Entra al else del select-------------------------------------------------------------------------------------------")
+    print(query)
+    print(len(query))
     tablas=[]
-    for x in range(len(query)) :
+    for x in range(0,len(query)) :
+        print("***********************************************Itera: ",x,"******************************************************")
         if isinstance(query[x], ExpresionFuncionBasica): 
-            #print("entra a la opcion funcionBasica del else")
+            print("***********************************************BASICA******************************************************")
+            a=query[x]
+            print(a)
             tablas.append(query[x].id.id)
         elif isinstance(query[x],Asignacion):
-            print("entra a la opcion select del else")
-            print(procesar_asignacion(query[x],ts))
-            tablas.append(procesar_asignacion(query[x].campo,ts))
-            tablas.append(procesar_asignacion(query[x].alias,ts))
+            print("***********************************************ASIGNACION******************************************************")
+            #print(procesar_asignacion(query[x],ts))
+            a=query[x]
+            print(a.campo)
+            print(a.alias)
+            b=procesar_asignacion(query[x],ts)
+            tablas.append(b)
+            #tablas.append(procesar_asignacion(query[x].campo,ts))
+            #tablas.append(procesar_asignacion(query[x].alias,ts))
         elif isinstance(query[x],ExpresionIdentificador):
-            #print("entra a la opcion de identificador del lse")
+            print("***********************************************IDENTIFICADOR******************************************************")
+            a=query[x]
+            print(a)
             tablas.append(query[x].id)
         if x==len(query)-1:
             print(tablas)
@@ -1692,6 +1900,9 @@ def procesar_operacion_basica(query,ts):
     print("entra a operacion basica")
     print(query.id)
     if isinstance(query.id,ExpresionABS): return resolver_expresion_aritmetica(query.id, ts)
+    elif isinstance(query.id,ExpresionLlamame):
+        print("trae una expresion llamameO")
+        return (query.id.id+"-"+query.id.id1)
     elif isinstance(query.id,ExpresionCBRT): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionCEIL): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionCEILING): return resolver_expresion_aritmetica(query.id,ts)
@@ -1739,9 +1950,28 @@ def procesar_operacion_basica(query,ts):
     elif isinstance(query.id,ExpresionLEAST): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionNOW): return resolver_expresion_aritmetica(query.id,ts)
 
+    elif isinstance(query.id,ExpresionLENGTH): 
+        print("pasa opr lenght de operaciones basicas")
+        return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionTRIM): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSUBSTR): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSUBSTRINGA): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSUBSTRINGB): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSUBSTRINGC): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSHA256): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionMD5): return resolver_expresion_aritmetica(query.id,ts)
+
+    elif isinstance(query.id,ExpresionCurrentTime): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionCurrentDate): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionEXTRACT): return resolver_expresion_aritmetica(query.id,ts)
+    
+    
+
     elif isinstance(query.id,ExpresionIdentificador): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionCadenas): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionAritmetica): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.campo,ExpresionLlamame): print("777777777 LLEGO A LLAMAME 77777777777777777777777")
+    
     
     else:
         print("error en operaciones basicas")
@@ -1752,8 +1982,7 @@ def procesar_operacion_basica(query,ts):
 # ---------------------------------------------------------------------------------------------------------------------
 def procesar_asignacion(query, ts) :  
     print("entra a procesar asignacion")
-    print(query.campo)
-    print(query.alias)
+    print(query)
     if isinstance(query.campo,Asignacion):
         print("***-------aun hay instancias por baja----------------")
         print(query.campo)
@@ -1815,6 +2044,8 @@ def procesar_asignacion(query, ts) :
         print(query.id)
     elif isinstance(query.campo,ExpresionAritmetica):
         return guardar_asignacion(resolver_expresion_aritmetica(query.campo,ts),query.alias.id,ts)
+    elif isinstance(query.campo,ExpresionLlamame):
+        print("777777777 LLEGO A LLAMAME 77777777777777777777777")
     else :
         print("-------------estos datos se asignan con operacion--------------")
         print(query.campo.exp)
@@ -2034,6 +2265,7 @@ def procesar_createTale(query,ts):
                 print("id: ",lc.id)
                 if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
                     print("La columna especificada no existe, no se creo restriccion unique")
+                    h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La columna especificada no existe, no se creo restriccion unique</td></tr>\n"
                     return
                 else:
                     ts.actualizauniqueColumna(lc.id,h.bd_enuso,idtab)
@@ -2049,6 +2281,8 @@ def procesar_createTale(query,ts):
             else:
                 print("La columna especificada no existe")
             #ts.printcontsimbolos()
+                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La columna especificada no existe</td></tr>\n"
+            #ts.printcontsimbolos()
 
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
@@ -2058,6 +2292,7 @@ def procesar_createTale(query,ts):
                 ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab,None,i.objAtributo.condCheck)
             else:
                 print("La columna especificada no existe")
+                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La columna especificada no existe</td></tr>\n"
             #ts.printcontsimbolos()
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
@@ -2070,6 +2305,8 @@ def procesar_createTale(query,ts):
                     print("se actualizo llave primaria en: ",lc.id)
                 else:
                     print("La columna especificada no existe, no se creo llave primaria")
+                    h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La columna especificada no existe, no se creo llave primaria</td></tr>\n"
+
             #ts.printcontsimbolos()
 
     # -------------------------------------------------------------------------------------------------------------- 
@@ -2085,13 +2322,16 @@ def procesar_createTale(query,ts):
                         ts.actualizafkcolumna(i.objAtributo.idForanea[conttemp].id,h.bd_enuso,idtab,i.objAtributo.idLlaveF[conttemp],i.objAtributo.idTable)
                     else:
                         print("la columna especificada no existe para crear llave foranea")
+                        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>la columna especificada no existe para crear llave foranea</td></tr>\n"
                 else:
                     print("la columna referenciada en la tabla no existe")
+                    h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>la columna referenciada en la tabla no existe</td></tr>\n"
                 conttemp = conttemp+1
             #ts.printcontsimbolos()
     # -------------------------------------------------------------------------------------------------------------- 
         else:
             print("No se encontraron columnas a crear")
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontraron columnas a crear</td></tr>\n"
 
     print("----------se creara en storage------------")
     print("Base de datos: ",h.bd_enuso)
@@ -2356,7 +2596,8 @@ def alter_table(query,ts):
 # ---------------------------------------------------------------------------------------------------------------------
 def procesar_queries(queries, ts) :
     ## lista de instrucciones recolectadas
-    print(queries)
+    datos_de_prueba(ts)
+    print("Entra a procesar queries",queries)
     for query in queries :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query, Select) : procesar_select(query, ts)
@@ -2393,6 +2634,7 @@ def procesar_queries(queries, ts) :
         elif isinstance(query,DropTable): drop_table(query,ts)
         elif isinstance(query,AlterTable): alter_table(query,ts)
         elif isinstance(query,UseDatabases): procesar_useBD(query,ts)
+        elif isinstance(query, Tipo) : procesar_tipo(query, ts)
         else : 
             print('Error: instrucción no válida')
             h.errores+=  "<tr><td>"+str(query)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La consulta no es valida.</td></tr>\n"  
@@ -2406,6 +2648,7 @@ def ejecucionAscendente(input):
     #print(input)
 
     print("--------------------------------Archivo Ejecucion---------------------------------------")
+
     prueba =g.parse(input)
     arbol =gt.parse(input)
     ts_global=TS.TablaDeSimbolos()
@@ -2452,7 +2695,9 @@ def generarReporteSimbolos(ruta):
         val+="<td>"+str(ts_global.simbolos[simbolo].condicionCheck)+"</td>"
         val+="<td>"+str(ts_global.simbolos[simbolo].idCheck)+"</td>"
         val+="<td>"+str(ts_global.simbolos[simbolo].valor)+"</td>"
-        val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>"    
+        val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>" 
+        val+="<td>"+str(ts_global.simbolos[simbolo].idConstraintFK)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>"   
         val+="</tr>\n"
     #construyo el archivo html
     print("manda los datos")
@@ -2700,3 +2945,38 @@ def convertiraMoney(valor):
     except:
         print("El dato no es valido para tipo MONEY")
         return False
+def datos_de_prueba(ts):
+    #CREO ALGUNAS TABLAS
+    simbolo = TS.Simbolo(None,"personas",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "personas",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"pais",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "pais",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"idiomas",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "idiomas",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    #CREO ALGUNAS COLUMNAS DE PRUEBA
+    simbolo = TS.Simbolo(None,"ID",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "ID",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"Nombre",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "Nombre",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"Apellido",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "Apellido",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"Edad",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "Edad",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"Pais",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "Pais",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+
+
+def procesar_tipo(query,ts):
+    
+    try:
+        print("llega al metodo del type")
+        print(query.operacion1.id)
+        print(query.operacion2)
+        a=procesar_retorno_lista_valores(query.operacion2,ts)
+        print(a)
+        simbolo = TS.Simbolo(None,query.operacion1.id,None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None, a,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregar(simbolo)
+        h.textosalida+="TYTUS>> se creo el TYPE:  "+query.operacion1.id+"\n"
+    except:
+        h.errores+=  "<tr><td>"+str(query.operacion1.id)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Se genero un error en la creacion</td></tr>\n"  
+        h.textosalida+="TYTUS>> Se genero un error en la creacion del type\n"
