@@ -1,3 +1,4 @@
+instruciones/**/*__pycache__
 /parser.out
 /parsetab.py
 /__pycache__/lexico.cpython-39.pyc
@@ -27,6 +28,7 @@ __pycache__/parsetab.cpython-39.pyc
 /ambiente_de_instalacion.txt
 ambiente_de_instalacion.txt
 Reporte_Errores.html
+/Tabla_Simbolos.html
 Tabla_Simbolos.html
 archivos_entrada
 /archivos_entrada
@@ -34,3 +36,8 @@ archivos_entrada
 ply
 data
 /data
+/.idea
+.idea
+TablaSimbolos.html
+Reporte_Gramatical/Reporte_Gramatical.html
+TablaSimbolos.html

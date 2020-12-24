@@ -103,6 +103,17 @@ class FuncionTrigonometrica2(Instruccion) :
         self.valor2 = valor2
         self.line = line
 
+class FuncionAritmetica(Instruccion) :
+    '''
+        Esta clase representa las funciones aritmetica con 2 parámetros.
+    '''
+
+    def __init__(self, operacion, valor1, valor2, line) :
+        self.operacion = operacion
+        self.valor1 = valor1
+        self.valor2 = valor2
+        self.line = line
+
 class FuncionMatematica1(Instruccion) :
     '''
         Esta clase representa las funciones matemáticas con 1 parámetro.

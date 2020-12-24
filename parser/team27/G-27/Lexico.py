@@ -19,7 +19,7 @@ from TypeChecker.Database_Types import *
 from execution.symbol.typ import *
 from execution.main import Main
 from execution.symbol.error import *
-TokenError = []
+TokenError = list()
 
 # ======================================================================
 #                          INSTRUCCIONES DDL
@@ -40,6 +40,7 @@ from execution.querie.drop_column import Drop_Column
 from execution.querie.drop_constraint import Drop_Constraint
 from execution.querie.drop_database import Drop_Database
 from execution.querie.drop_t import Drop_Table
+from execution.querie.select_fun import Select_Func
 
 from execution.symbol.column import Column
 
@@ -285,8 +286,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 # expresion regular para reconocer errores
 def t_error(t):
-    print ("caracter desconocido '%s'" % t.value[0])
-    err = T_error('LEXICO', t.value, 'TOKEN DESCONOCIDO', t.lineno, t.lexpos)
+    err = T_error('LEXICO', t.value, 'TOKEN DESCONOCIDO', str(t.lineno), str(t.lexpos))
     TokenError.append(err)
     t.lexer.skip(1)
 
@@ -746,6 +746,8 @@ def p_tipo_drop(t):
                  | TABLE ID PUNTO_COMA'''
     if len(t) == 5:
         t[0] = Drop_Database(t[3], t.slice[1].lexpos, t.slice[1].lineno)
+    else:
+        t[0] = Drop_Table(t[2], t.slice[1].lexpos, t.slice[1].lineno)
 
 def p_ins_insert(t):
     '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA 
@@ -810,14 +812,16 @@ def p_ins_select(t):
                     |    ins_select EXCEPT option_all ins_select PUNTO_COMA
                     |    SELECT arg_distict colum_list FROM table_list arg_where arg_having arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
                     |    SELECT functions as_id'''
-                    
     #t[0] = Select()
+    if len(t) == 13:
+        t[0] = Select(t[2], t[3]['id'], t[5], t[6], t[8], t[3]['aggregates'], t[7], t[9], t.slice[1].lexpos, t.slice[1].lineno)
+    elif len(t) == 4:
+        t[0] = Select_Func(t[2], t.slice[1].lexpos, t.slice[1].lineno)
     
 # TODO: PENDIENTE
 def p_option_all(t):
     '''option_all   :   ALL
                     |    '''
-
 
 def p_arg_distict(t):
     '''arg_distict :    DISTINCT
@@ -840,13 +844,27 @@ def p_s_list(t):
     '''s_list   :   s_list COMA columns as_id
                 |   columns as_id'''
     if len(t) == 5:
-        t[0] = t[1].append()
+        if 'aggregates' in t[3]:
+            t[1]['aggregates'].append(t[3]['aggregates'])
+            t[1]['id'].append({'name': t[3]['id'], 'father': None, 'as': t[4]})
+            t[0] = t[1]
+        elif 'father' in t[3]:
+            t[1]['id'].append({'name': t[3]['name'], 'father': t[3]['father'], 'as': t[4]})
+            t[0] = t[1]
     else:
+        if 'aggregates' in t[1]:
+            t[0] = {'aggregates': [t[1]['aggregates']], 'id': [t[1]['id']]}
+        elif 'father' in t[1]:
+            t[0] = {'aggregates': [], 'id':[{'name': t[1]['name'], 'father': t[1]['father'], 'as': t[2]}]}
 
 def p_columns(t):
     '''columns   : ID dot_table
                     |   aggregates '''
-
+    if len(t) == 3:
+        t[0] = {'father': t[1], 'name': t[2]}
+    else:
+        t[0] = t[1]
+                
 def p_dot_table(t):
     '''dot_table    :   PUNTO ID
                     |    '''
@@ -875,15 +893,15 @@ def p_aggregates(t):
                     |   MAX PARABRE param PARCIERRE
                     |   MIN PARABRE param PARCIERRE ''' 
     if t.slice[1] == 'COUNT':
-        t[0] = Count(t[3])
+        t[0] = {'funcion':Count(t[3]), 'id': 'COUNT(' + t[3].id + ')'}
     if t.slice[1] == 'SUM':
-        t[0] = Sum(t[3]) 
+        t[0] = {'funcion':Sum(t[3]), 'id': 'SUM(' + t[3].id + ')'}
     if t.slice[1] == 'AVG':
-        t[0] = Avg(t[3])
+        t[0] = {'funcion':Avg(t[3]), 'id': 'AVG(' + t[3].id + ')'}
     if t.slice[1] == 'MAX':
-        t[0] = Max(t[3])
+        t[0] = {'funcion':Max(t[3]), 'id': 'MAX(' + t[3].id + ')'}
     if t.slice[1] == 'MIN':
-        t[0] = Min(t[3])
+        t[0] = {'funcion':Min(t[3]), 'id': 'MIN(' + t[3].id + ')'}
 
 def p_functions(t):
     '''functions    :   math
@@ -1136,7 +1154,7 @@ def p_param(t):
                 |   SIGNO_POR '''
     if t.slice[1].type == 'ID':
         if t[1] != None:
-            t[0] = t[1] + '.' + t[1]
+            t[0] = Id(t[2], t[1],t.slice[1].lexpos,t.slice[1].lineno)
         else:
             t[0] = t[1]
     else: 
@@ -1147,7 +1165,8 @@ def p_table_list(t):
     '''table_list   :   table_list COMA ID as_id
                     |   ID as_id'''
     if len(t) == 5:
-        t[0] = t[1].append({'name': t[3], 'as': t[4]})
+        t[1].append({'name': t[3], 'as': t[4]})
+        t[0] = t[1]
     else:
         t[0] = [{'name': t[1], 'as': t[2]}]
 
@@ -1331,7 +1350,8 @@ def p_g_list(t):
     '''g_list    : g_list COMA g_item
                  | g_item ''' 
     if len(t) == 4:
-        t[0] = t[1].append(t[3])
+        t[1].append(t[3])
+        t[0] = t[1]
     else:
         t[0] = [t[1]]
 
@@ -1362,7 +1382,8 @@ def p_o_list(t):
     '''o_list    : o_list COMA o_item
                  | o_item ''' 
     if len(t) == 4:
-        t[0] = t[1].append(t[3])
+        t[1].append(t[3])
+        t[0] = t[1]
     else:
         t[0] = [t[1]]
 
@@ -1438,13 +1459,12 @@ def p_ins_delete(t):
     t[0] = Delete(t[3], t[5], t.slice[2].lexpos, t.slice[2].lineno)
 
 def p_error(t):
-    if not t:
-        print("End of File!")
-        return
-
     err = T_error('SINTACTICO', t.value, 'ERROR SINTÁCTICO', str(t.lexpos), str(t.lineno))
     TokenError.append(err)
-    print(err.toString())
+
+def get_errores():
+    return TokenError
+    TokenError.clear()
 
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar

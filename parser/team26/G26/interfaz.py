@@ -30,8 +30,8 @@ def openFile():
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
-def analisis(): 
-    global datos 
+def analisis():
+    global datos
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
     instrucciones = g.parse(texto)
@@ -42,9 +42,9 @@ def analisis():
     except:
         print("")
 
-    
+
     for instr in instrucciones['ast'] :
-        
+
             if instr != None:
                 result = instr.execute(datos)
                 print(result)
@@ -57,8 +57,8 @@ def analisis():
                     escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
                 else:
                     escribirEnSalidaFinal(str(result))
-        
-    
+
+
     errores = g.getMistakes()
     recorrerErrores(errores)
     Rerrores(errores, erroresSemanticos)
@@ -156,17 +156,59 @@ def reporteTabla():
         for table in datos.tablaSimbolos[a]['tablas']:
                 columnas = []
                 for column in datos.tablaSimbolos[a]['tablas'][table]['columns']:
-                    nombre = column.name
-                    tipo = column.type
-                    size = column.size
+                    cc = ""
+                    try:
+                        cc = column['name']
+                    except:
+                        cc = column.name
+                    nombre = cc
+
+                    tt = ""
+                    try:
+                        tt = column.type
+                    except:
+                        tt = column['type']
+                    tipo = tt
+
+                    yy = ""
+                    try:
+                        yy = column.size
+                    except:
+                        yy = column['size']
+                    size = yy
+
                     c = fila(nombre, tipo, size)
-                    if column.pk != None:
+
+                    ff = ""
+                    try:
+                        ff = column['pk']
+                    except:
+                        ff = column.pk
+                    if ff != None:
                         c.setPK()
-                    if column.fk != None:
+
+                    gg = ""
+                    try:
+                        gg = column['fk']
+                    except:
+                        gg = column.fk
+                    if gg != None:
                         c.setFK()
-                    if column.unique != None:
+
+                    aa = ""
+                    try:
+                        aa = column['unique']
+                    except:
+                        aa = column.unique
+                    if aa != None:
                         c.setUnique()
-                    if column.default == None:
+
+                    bb = ""
+                    try:
+                        bb = column['default']
+                    except:
+                        bb = column.default
+                    if bb == None:
                         c.setDefault('None')
                     else:
                         c.setDefault(column.default)
@@ -213,11 +255,11 @@ def escribirEnSalidaInicio(texto): #borra lo que hay y escribe al inicio
 
 def escribirEnSalidaFinal(texto): # no borra y escribe al final de lo que ya estaACTIVE
     text = texto + "\n"
-    salida.insert("end", text) 
+    salida.insert("end", text)
 #root
 ################################Configuracion#################################
 root = Tk()
-root.title("TytusDB_Manager")#titulo 
+root.title("TytusDB_Manager")#titulo
 root.resizable(0,0)
 root.geometry("1300x700")#ajustar tamaño
 root.config(bg="black", cursor="pirate")
@@ -233,13 +275,13 @@ barra.add_cascade(label="Archivo", menu=archivoMenu)
 herramientaMenu=Menu(barra, tearoff=0)
 herramientaMenu.add_command(label="Ejecutar Analisis", command=analisis)
 barra.add_cascade(label="Analisis", menu=herramientaMenu)
- 
+
 reporteMenu = Menu(barra, tearoff=0)
 reporteMenu.add_command(label="Reporte errores", command=mistakes)
 reporteMenu.add_command(label="Tabla de simbolos", command=tabla)
 reporteMenu.add_command(label="Reporte AST", command=ast)
 reporteMenu.add_command(label="Reporte Gramatical", command=gramatica)
-barra.add_cascade(label="Reportes", menu=reporteMenu) 
+barra.add_cascade(label="Reportes", menu=reporteMenu)
 
 ayudaMenu=Menu(barra, tearoff=0)
 ayudaMenu.add_command(label="Ayuda", command=ayuda)
@@ -257,6 +299,3 @@ salida.place(x=300, y=380)
 
 
 root.mainloop() #mostrar interfaz
-
-
-

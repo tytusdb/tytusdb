@@ -1257,7 +1257,7 @@ def p_create_instruccion(t) :
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<create> ::= DATABASE <createdatabase>\n" + t[2]['reporte']
         t[0] = {'ast' : create.Create('database', None, t[2]['ast']), 'graph' : grafo.index, 'reporte' : reporte}
-    
+
 def p_create_instruccion_err(t):
     "create : problem"
     reporte = "<create> ::= <problem>\n" + t[1]['reporte']
@@ -1804,7 +1804,7 @@ def p_use(t):
         reporte += "DATABASE ID PTCOMA\n"
         grafo.newchildrenE(t[2])
         t[0] = {'ast' : use.Use(ident.Identificador(None, t[2])), 'graph' : grafo.index, 'reporte': reporte}
-    else: 
+    else:
         reporte += "ID PTCOMA\n"
         grafo.newchildrenE(t[1])
         t[0] = {'ast' : use.Use(ident.Identificador(None, t[1])), 'graph' : grafo.index, 'reporte': reporte}
@@ -1856,7 +1856,7 @@ def p_drop(t):
         grafo.newchildrenE(t[2])
         reporte += "TABLE " + t[2].upper() + " PTCOMA\n"
         t[0] = {'ast' : drop.Drop(ident.Identificador(None, t[2]), False), 'graph' : grafo.index, 'reporte': reporte}
-    
+
 def p_drop_e(t):
     '''drop : problem'''
     reporte = "<drop> ::= <problem>\n"+ t[1]['reporte']
@@ -2105,7 +2105,7 @@ def p_instrucciones_delete(t) :
 def p_instruccionesdelete_e(t):
     '''delete : problem'''
     reporte = "<delete> ::= <problem>\n" + t[1]['reporte']
-    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index} 
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
 #-------------------------------------------------------INSERT------------------------------------------
 def p_instrucciones_insert(t):
     '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
@@ -2359,7 +2359,7 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
             #grafo.newchildrenF(grafo.index, t[5]['graph'])
             #t[0] = {'ast' : condicion.Condicionales(t[1], t[5], 'not in', None), 'graph' : grafo.index}
             reporte = "<condicions> ::= <argument> NOT IN  PARENIZQ <select> PARENDER\n" + t[1]['reporte'] + t[5]['reporte']
-            t[0] = {'ast' : condicion.Condicionales(t[1], None, 'not in', None), 'graph' : grafo.index, 'reporte': reporte}
+            t[0] = {'ast' : condicion.Condicionales(t[1]['ast'], t[5]['ast'], 'not in', None), 'graph' : grafo.index, 'reporte': reporte}
     elif t[2].lower() == 'isnull' :
         grafo.newchildrenE('ISNULL')
         reporte = "<condicions> ::= <argument> ISNULL\n" + t[1]['reporte']
@@ -2384,7 +2384,7 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
         t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
     else :
         reporte = "<condicions> ::= <argument> IN  PARENIZQ <select> PARENDER\n" + t[1]['reporte'] +t[4]['reporte']
-        t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : condicion.Condicionales(t[1]['ast'], t[4]['ast'], 'in', None), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicionsP(t):
     'condicions : EXISTS PARENIZQ select PARENDER'

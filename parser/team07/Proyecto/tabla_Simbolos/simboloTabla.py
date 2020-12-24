@@ -94,10 +94,46 @@ class SimboloTablas():
                         self.columnas.pop(indice)
                         return 1
                 
-                indice = indice + +1
+                indice = indice + 1
             return 0
     
+    def obtenerSimboloColumna(self, nombreColumna):
+        if len(self.columnas) == 0:
+            return None
+        else:
+            for nodoColumna in self.columnas:
+                if(nodoColumna.nombre.lower()==nombreColumna.lower()):
+                    return nodoColumna
 
+            return None
+
+    # valida si el nombre de una columna ya existe dentro de la tabla
+    def obtenerColumna(self, nombreColumna):
+        # return Columna -->> Si existe
+        # return None -->> si NO existe
+
+        if len(self.columnas) == 0:
+            return None
+        else:
+            for nodoColumna in self.columnas:
+                if(nodoColumna.nombre.lower()==nombreColumna.lower()):
+                    return nodoColumna
+
+            return None
+    
+
+            
+
+    def obtenerUltimoIndice(self):
+        #retorna numero entero
+        if len(self.columnas) == 0:
+            return 0
+        else:
+            indice = 0
+            for nodoColumn in self.columnas:
+                indice = nodoColumn.indice
+            
+            return indice
 
 
         

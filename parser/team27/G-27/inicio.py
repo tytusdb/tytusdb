@@ -2,11 +2,12 @@
 #import tkinter
 from tkinter import *
 import tkinter
-from Lexico import analizarLex ,analizarSin
 from gramatica import analizarASTLex, analizarASTSin
 from bnf import analizarBNFLex, analizarBNFSin
 from execution.symbol.environment import Environment
 from execution.main import Main
+from Lexico import analizarLex ,analizarSin, get_errores
+from execution.symbol.error import T_error
 
 # creamos una nueva ventana
 ventana = Tk()
@@ -44,8 +45,14 @@ def analizar_texto():
         txt_salida.insert('end',item+'\n')
     
     txt_salida.insert('end','=========================================ERRORES==============================================\n')
+    
     for item in _res[1]:
         txt_salida.insert('end',item+'\n')
+    
+    for item in get_errores():
+        txt_salida.insert('end',item.toString()+'\n')
+    txt_salida.insert('end','=====================================TABLA DE SIMBOLOS=========================================\n')
+    txt_salida.insert('end', env.tsString()+'\n')
     txt_salida.insert('end','>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n\n\n')
             
 
