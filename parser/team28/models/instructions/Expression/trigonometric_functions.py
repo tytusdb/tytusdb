@@ -24,7 +24,7 @@ class ExpressionsTrigonometric(Expression):
         result = 0
         lista1 = []
         try:
-            if isinstance(self.expression1, ObjectReference):
+            if isinstance(self.expression1, Identifiers):
                 if isinstance(self.optional_expression2, PrimitiveData):
                     exp2 = self.optional_expression2.process(expression)
                     exp1 = self.expression1.process(expression)
