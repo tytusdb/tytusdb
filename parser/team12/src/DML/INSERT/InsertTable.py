@@ -113,10 +113,17 @@ class InsertTable():
                 resp = Response("42P12",err_resp)
                 return resp      
             for h in l_col:
+                print('contador ', contador )
                 tmp_col_actual = Column()
-                tmp_col_insert = columnasI[contador].upper()
+                if len(columnasI) > contador:
+                    tmp_col_insert = columnasI[contador].upper()
+                    tmp_valor = valoresI[contador]
                 tmp_col_actual = h
-                tmp_valor = valoresI[contador]
+                
+                print('actual ', tmp_col_insert)
+                print('insert ', tmp_col_insert)
+                print('valor ', tmp_valor)
+                
 
                 # Validar que sea la misma columna
                 if tmp_col_actual.name == tmp_col_insert:
