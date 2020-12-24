@@ -13,6 +13,7 @@ from Primitivo import *
 from datetime import *
 from TablaSimbolos import *
 from prettytable import *
+from operator import itemgetter
 
 import math
 import random
@@ -512,8 +513,78 @@ class ListaDeSeleccionadosConOperador(Instruccion):
         self.arg1 = arg1
         self.arg2 = arg2
 
-    def execute(self,data):
-        return self
+    def execute(self,data, valoresTabla):
+        print(self)
+        print(valoresTabla)
+        if self.operador.upper() == 'CASE' :
+            left = ''
+            for arg in self.arg1 :
+                condit = arg.caso.whenCase.execute(data, valoresTabla)
+
+                if isinstance(condit, Error):
+                    return condit
+                
+                if condit :
+                    return Primitive(str(arg.caso.thenCase.type), arg.caso.thenCase.val)
+            
+                if arg.elsecase != None :
+                    left = arg.elsecase.elseopcional
+
+            return left
+        else :
+            ''
+            items = []
+            tipo = None
+            tipofecha = False
+            for arg in self.arg1 :
+                try:
+                    resp = arg.execute(data, valoresTabla)
+                except:
+                    resp = arg.execute()
+
+                if isinstance(resp, Error):
+                    return resp
+
+                if tipo == None :
+                    tipo = resp.type
+                elif tipo != resp.type :
+                    error = Error('Semántico', 'Error(????): Error de tipos.', 0, 0)
+                    return error
+                
+                if resp.type == 'string' :
+                    try :
+                        dextraccion = resp
+                        fechacopleta = datetime.strptime(dextraccion.val,'%Y-%m-%d %H:%M:%S')
+                        tipofecha = True
+                    except :
+                        try:
+                            dextraccion = resp
+                            fechacopleta = datetime.strptime(dextraccion.val,'%H:%M:%S')
+                            tipofecha = True
+                        except :
+                            try :
+                                dextraccion = resp
+                                fechacopleta = datetime.strptime(dextraccion.val,'%Y-%m-%d')
+                                tipofecha = True
+                            except :
+                                if tipofecha :
+                                    error = Error('Semántico', 'Error(????): Error de tipos.', 0, 0)
+                                    return error
+
+                    
+
+                items.append(resp.val)
+
+            if  self.operador.upper() == 'GREATEST' :
+                
+                try:
+                    return Primitive('integer', int(max(items)))
+                except:
+                    return Primitive('string', max(items))
+                
+            else : 
+                'LEAST'
+                return Primitive('string', min(items))
 
     def __repr__(self):
         return str(self.__dict__)

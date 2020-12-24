@@ -814,7 +814,6 @@ class Main(tk.Tk):
                         out += '... TABLA VACIA ...' + '\n\n'
                 self.new_output(out)
 
-
     def search_table(self, listado, tabla):
         for item in listado:
             if item == tabla:
