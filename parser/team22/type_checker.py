@@ -211,32 +211,39 @@ class TypeChecker():
     def Validando_Operaciones_Aritmeticas(self, valor1, valor2, operando):
         v1 = float(valor1)
         v2 = float(valor2)
-
+        
         if operando == '+':
+            self.consola.append(Codigos().successful_completion(' SUMA (' + str(v1) + ', ' + str(v2) + ')'))
             val = v1 + v2
             return val
 
         elif operando == '-':
+            self.consola.append(Codigos().successful_completion(' RESTA (' + str(v1) + ', ' + str(v2) + ')'))
             val = v1 - v2
             return val
 
         elif operando == '*':
+            self.consola.append(Codigos().successful_completion(' MULTIPLICACION (' +str(v1) + ', ' + str(v2) + ')'))
             val = v1 * v2
             return val
 
         elif operando == '/':
+            self.consola.append(Codigos().successful_completion(' DIVISION (' + str(v1) + ', ' + str(v2)+ ')'))
             val = v1 / v2
             return val
 
         elif operando == '%':
+            self.consola.append(Codigos().successful_completion(' MODULO (' + str(v1) + ', ' + str(v2) + ')'))
             val = v1 % v2
             return val
 
         elif operando == '^':
+            self.consola.append(Codigos().successful_completion(' POTENCIA (' + str(v1) + ', ' + str(v2) + ')'))
             val = v1 ** v2
             return val
 
         elif operando == 'NEGATIVO':
+            self.consola.append(Codigos().successful_completion(' NEGATIVO (' + str(v1) + ', ' + str(v2) + ')'))
             val = -1 * v1
             return val
 

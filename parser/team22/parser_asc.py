@@ -631,7 +631,7 @@ def p_instruccion_selects2(t) :
 
 def p_instruccion_selects3(t) :
     '''selects      : fun_trigonometrica state_aliases_field 
-                    '''
+                    | aritmetica state_aliases_field  '''
     # print(t[1]['funcion'].upper() )
     '''if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
         resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
@@ -666,7 +666,7 @@ def p_instruccion_selects3(t) :
 
 def p_instruccion_selects4(t) :
     '''selects      : fun_trigonometrica state_aliases_field FROM ID state_aliases_table 
-                    '''
+                    | aritmetica state_aliases_field FROM ID state_aliases_table  '''
     '''if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
         resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
     else:
