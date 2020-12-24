@@ -28,13 +28,17 @@ class Update(Instruccion):
 
         for asignacion in self.asignaciones:
             #valor del argumento
-            arg = asignacion.argument.execute()
+            try:
+                arg = asignacion.argument.execute()
+            except:
+                arg = asignacion.argument.execute(data, None)
+            
             if isinstance(arg, Error):
                 return arg
             #validar si existe columna
             found = False #para saber si encontré la columna
             colPosition = 0 #var para guardar la posición de la columna
-            for columna in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.tableid.table]['columns'] :
+            for columna in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.tableid.table.upper()]['columns'] :
                 if asignacion.columnid.column.upper() == columna.name :
                     found = True
                     #validar tipo de dato argumento vs tipo de columna
@@ -71,25 +75,31 @@ class Update(Instruccion):
             contp += 1
 
 
-        if pks == [] :
-            error = Error('Semántico', 'Error(???): La tabla ' + self.tableid.table.upper()+' no tiene primary key definida.', 0, 0)
-            return error
-        #print(pks)
         
         if self.condiciones == None :
             'Se cambian todas los campos que vienen en el set'
             print(register)
+            index = 0
             for fila in filas :
                 rowlist = []
-                for pk in pks :
-                    rowlist.append(fila[pk])
+                if not pks == [] :
+                    for pk in pks :
+                        rowlist.append(fila[pk])
+                else :
+                    rowlist.append(index)
+                    index += 1
 
                 print(rowlist)
 
+            index = 0
             for fila in filas :
                 rowlist = []
-                for pk in pks :
-                    rowlist.append(fila[pk])
+                if not pks == [] :
+                    for pk in pks :
+                        rowlist.append(fila[pk])
+                else :
+                    rowlist.append(index)
+                    index += 1
 
                 reto = update(data.databaseSeleccionada, self.tableid.table.upper(), register, rowlist)
 
@@ -114,7 +124,7 @@ class Update(Instruccion):
             #dicciPrueba = {'NombreTabla1': {'fila': [1, 3, "f"], 'alias': 'nombre'}, 'NombreTabla2': {'fila': [], 'alias': None}}
 
             print(register)
-
+            index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
                 
@@ -125,13 +135,18 @@ class Update(Instruccion):
                 
                 rowlist = []
                 if toadd :
-                    for pk in pks :
-                        rowlist.append(fila[pk])
-
+                    if not pks == [] :
+                        for pk in pks :
+                            rowlist.append(fila[pk])
+                    else :
+                        rowlist.append(index)
+                        
                     print(rowlist)
 
-            
+                index += 1
 
+            
+            index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
                 
@@ -142,8 +157,11 @@ class Update(Instruccion):
                 
                 rowlist = []
                 if toadd :
-                    for pk in pks :
-                        rowlist.append(fila[pk])
+                    if not pks == [] :
+                        for pk in pks :
+                            rowlist.append(fila[pk])
+                    else :
+                        rowlist.append(index)
 
                     reto = update(data.databaseSeleccionada, self.tableid.table.upper(), register, rowlist)
 
@@ -161,6 +179,8 @@ class Update(Instruccion):
                     else :
                         error = Error('Storage', 'Error(4): Llave primaria inexistente', 0, 0)
                         return error
+
+                index += 1
 
         #return self.tableid
 
@@ -217,12 +237,14 @@ class Update(Instruccion):
             if isinstance(arg.val, str):
                 if isinstance(arg.val[0] == '$'):
                     if isinstance(arg.val[1], int):
+                        arg.val = arg.val.replace("$", "")
+                        arg.val = int(arg.val)
                         return 'correcto'
                     else:
                         return error
             else:
                 if arg.val >= -92233720368547758.08 and arg.val <= 92233720368547758.07:
-                    arg.val = '$' + str(arg.val)
+                    arg.val = int(arg.val)
                     return arg
                 else :
                     return error

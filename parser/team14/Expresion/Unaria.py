@@ -13,10 +13,12 @@ class Unaria(Expresion) :
         self.operador = operador
 
     def getval(self,entorno):
-        if (self.exp1.tipo.tipo == 'identificador'):
-            return self
+        if isinstance(self.exp1,Terminal):
+            if (self.exp1.tipo.tipo == 'identificador'):
+                return self
 
         valexp=self.exp1.getval(entorno)
+        valexp=valexp.valor
         if isinstance(valexp, Terminal):
             valexp = valexp.getval(entorno)
 
@@ -31,6 +33,6 @@ class Unaria(Expresion) :
             self.valor =  not valexp
 
         print(self.valor)
-        return self.valor
+        return self
 
 

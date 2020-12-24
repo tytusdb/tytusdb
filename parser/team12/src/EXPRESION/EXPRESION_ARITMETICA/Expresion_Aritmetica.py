@@ -10,7 +10,7 @@ def suma(exp1, exp2, expRes, enviroment):
     val1 = exp1.execute(enviroment)
     val2 = exp2.execute(enviroment)
 
-    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric.numeric :
+    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
         expRes.tipo = exp1.tipo
         expRes.valorExpresion = val1 + val2
     else:
@@ -24,7 +24,7 @@ def resta(exp1, exp2, expRes, enviroment):
     val1 = exp1.execute(enviroment)
     val2 = exp2.execute(enviroment)
     
-    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric.numeric :
+    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
         expRes.tipo = exp1.tipo
         expRes.valorExpresion = val1 - val2
     else:
@@ -38,7 +38,7 @@ def mult(exp1, exp2, expRes, enviroment):
     val1 = exp1.execute(enviroment)
     val2 = exp2.execute(enviroment)
     
-    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric.numeric :
+    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
         expRes.tipo = exp1.tipo
         expRes.valorExpresion = val1 * val2
     else:
@@ -52,7 +52,7 @@ def div(exp1, exp2, expRes, enviroment):
     val1 = exp1.execute(enviroment)
     val2 = exp2.execute(enviroment)
 
-    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric.numeric :
+    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
         
         if val2 == 0:
             expRes.tipo.data_type = Data_Type.error
@@ -72,7 +72,7 @@ def mod(exp1, exp2, expRes, enviroment):
     val1 = exp1.execute(enviroment)
     val2 = exp2.execute(enviroment)
 
-    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric.numeric :
+    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
         
         if val2 == 0:
             expRes.tipo.data_type = Data_Type.error
@@ -92,7 +92,7 @@ def pot(exp1, exp2, expRes, enviroment):
     val1 = exp1.execute(enviroment)
     val2 = exp2.execute(enviroment)
     
-    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric.numeric :
+    if exp1.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
         expRes.tipo = exp1.tipo
         expRes.valorExpresion = val1 ** val2
     else:

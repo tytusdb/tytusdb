@@ -1,10 +1,15 @@
 import ply.yacc as yacc
 import ply.lex as lex
+import webbrowser
 
+# Para AST
 from Ast import *
 from creacionArbol import *
-
+from reporteEnEjecucion import *
 from graphviz import render
+
+
+Errores = []
 
 reservadas = {
     'smallint'  : 'SMALLINT',          'integer'  : 'INTEGER',   
@@ -91,7 +96,11 @@ reservadas = {
     'random': 'RANDOM',             'true': 'TRUE',
     'false': 'FALSE',               'use' : 'USE',
     'decimal': 'RDECIMAL',          'union': 'UNION',
-    'intersect': 'INTERSECT',       'except': 'EXCEPT'
+    'intersect': 'INTERSECT',       'except': 'EXCEPT',
+    'extract': 'EXTRACT',           'date_part': 'DATE_PART',
+    'current_date': 'CURRENT_DATE', 'current_time': 'CURRENT_TIME',
+    'now': 'NOW'
+
 }
 
 tokens  = [
@@ -151,6 +160,7 @@ def t_DECIMAL(t):
         t.value = 0
     return t
 
+
 def t_ENTERO(t):
     r'\d+'
     try:
@@ -160,22 +170,33 @@ def t_ENTERO(t):
         t.value = 0
     return t
 
+
 def t_ID(t):
-     r'[a-zA-Z_][a-zA-Z_0-9]*'
-     t.type = reservadas.get(t.value.lower(),'ID')   
-     return t
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reservadas.get(t.value.lower(), 'ID')
+    return t
+
 
 def t_CADENADOBLE(t):
     r'\".*?\"'
-    t.value = t.value[1:-1] 
-    return t 
+    t.value = t.value[1:-1]
+    return t
+
+
+def t_CADENALIKE(t):
+    r'\'%%.*?%\''
+    t.value = t.value[1:-1]
+    return t
+
 
 def t_CADENASIMPLE(t):
     r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
+    t.value = t.value[1:-1]
+    return t
 
 # Comentario de múltiples líneas /* .. */
+
+
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
@@ -192,14 +213,16 @@ t_ignore = " \t"
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
-    
+
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
+    Errores.append(Error('-----', EType.LEXICO, "   Caracter desconocido '%s'" % t.value[0],t.lexer.lineno))
+    #    ast.errors.append(Error('-----', EType.LEXICO, "Caracter desconocido '%s'" % t.value[0],t.lexer.lineno))
     t.lexer.skip(1)
 
 
+
 # Analizador léxico
-import ply.lex as lex
 lexer = lex.lex()
 
 # Asociación de operadores y precedencia
@@ -220,9 +243,7 @@ precedence = (
     ('right', 'UMENOS')
 )
 
-
 ###################################### ENTRADA GENERAL DE LAS INSTRUCCIONES #################################
-
 def p_init(t) :
     'init             : instrucciones'
     t[0] = Nodo('INSTRUCCIONES','',t[1],t.lexer.lineno)
@@ -829,12 +850,17 @@ def p_valselect_13(t):
     'valselect      : func_bin_strings_4 alias'
     t[0] = getValSelect(t, 'funcbinstring4')
 
+def p_valselect_15(t):
+    'valselect  :  nowinstr'
+    t[0] = t[1]
+
 def p_valselect_14(t):
-    '''valselect      : extract_instr 
-                      | datepart_instr
-                      | current
-                      | timestampnow
-                      | nowinstr'''
+    '''valselect      : extract_instr alias
+                      | datepart_instr alias
+                      | current alias
+                      | timestampnow alias'''
+    if t[2] != None :
+        t[1].hijos.append(t[2])
     t[0] = t[1]
 
 def p_funcionagregacion(t):
@@ -1197,41 +1223,37 @@ def p_estadocase4(t):
 
 
 
-# --------------Between-----------------
-
+# --------------Between------------------------------------------------------------------------
 def p_between_state(t):
-    '''between_state    : valores BETWEEN valores AND valores
-                        | valores NOT BETWEEN valores AND valores'''
+    '''between_state    : cualquiernumero BETWEEN valores AND valores
+                        | cadenastodas BETWEEN valores AND valores'''
+    t[0] = getBetween(t)
+    
+def p_between_state1(t):
+    '''not_between_state   : cualquiernumero NOT BETWEEN valores AND valores
+                          | cadenastodas NOT BETWEEN valores AND valores'''
+    t[0] = getBetween(t)
 
-# ---------PREDICATES NULLS-----------
-
+# --------------PREDICATES NULLS---------------------------------------------------------------
 def p_predicates_state(t):
     '''predicates_state : valores IS NULL
                         | valores IS NOT NULL
                         | valores ISNULL
                         | valores NOTNULL'''
-    #t[0] = Nodo('COMPARISON PREDICATES','', [t[1]], t.lexer.lineno)
+    t[0] = getPredicates(t)
 
-
-#---------------IS DISTINCT -------------
-
+#---------------IS DISTINCT ----------------------------------------------------------------
 def p_is_distinct_state(t):
-    'is_distinct_state : valores IS DISTINCT FROM valores'
-    #t[0] = Nodo('DISTINCT', str(t[1]), [t[5]], t.lexer.lineno)
-
-def p_is_distinct_state2(t):
-    'is_distinct_state : valores IS NOT DISTINCT FROM valores'
-    #t[0] = Nodo('NOT DISTINCT', str(t[1]), [t[6]], t.lexer.lineno)
-
-def p_is_distinct_state3(t):
-    'is_distinct_state : empty'
-    
+    '''is_distinct_state : valores IS DISTINCT FROM valores
+                         | valores IS NOT DISTINCT FROM valores'''
+    t[0] = getDistinctFrom(t)  
 
 def p_valores(t):
     '''valores  : cualquiernumero
                 | cualquiercadena
                 | cualquieridentificador'''
-   # t[0] = t[1]
+    t[1].gramatica = '<valores> ::= <cualquieridentificador>\n' + t[1].gramatica
+    t[0] = t[1]
 
 
 # -------------- FUNCIONES MATEMÁTICAS ----------------------
@@ -1270,7 +1292,7 @@ def p_funciones_matematicas2(t):
 # Lista de expresiones para la función Width Bucket
 def p_wbucket_exp(t):
     'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
-    
+    t[0] = Nodo('VALORES','',[t[1],t[3],t[5],t[7]],t.lexer.lineno)
 # ------------------------------- FUNCIONES TRIGONOMETRICAS ----------------------------------
 
 def p_funciones_trigonometricas(t):
@@ -1330,10 +1352,54 @@ def p_fbinarias_cadenas_4(t):
                             | CONVERT PARIZQ alias PARDER'''
     t[0] = getStringFunctionNode4(t)
 
+def p_opbin_cadenas(t):
+    '''op_bin_strings       : op_bin_strings CONCAT op_bin_strings
+                            | op_bin_strings BITWAND op_bin_strings
+                            | op_bin_strings BITWOR op_bin_strings
+                            | op_bin_strings BITWXOR op_bin_strings
+                            | op_bin_strings BITWNOT op_bin_strings
+                            | op_bin_strings BITWSHIFTL op_bin_strings
+                            | op_bin_strings BITWSHIFTR op_bin_strings 
+                            | cadena'''
+
 def p_cadena(t):
     '''cadena   : cualquiercadena
                 | cualquieridentificador'''
     t[0] = t[1]
+
+# ----------------------------------- EXTRACT, DATEPART, NOW-------------------------------------------
+def p_extract(t):
+    'extract_instr      :  EXTRACT PARIZQ valdate FROM TIMESTAMP CADENASIMPLE PARDER'
+    a = Nodo('FROM TIMESTAMP', t[6], [], t.lexer.lineno)
+    t[0] = Nodo('EXTRACT', '',[t[3], a], t.lexer.lineno )
+
+def p_valdate1(t):
+    '''valdate   : YEAR
+                 | HOUR
+                 | MINUTE
+                 | SECOND
+                 | MONTH
+                 | DAY'''
+    t[0] = Nodo(str(t[1]), '', [], t.lexer.lineno, 0, '')
+
+def p_datepart(t):
+    'datepart_instr    :  DATE_PART PARIZQ CADENASIMPLE COMA INTERVAL CADENASIMPLE PARDER'
+    a = Nodo('CADENA', t[3], [], t.lexer.lineno)
+    b = Nodo('INTERVAL', t[6], [], t.lexer.lineno)
+    t[0] = Nodo('DATE PART', '',[a, b], t.lexer.lineno)
+
+def p_current(t):
+    '''current     :  CURRENT_DATE
+                   | CURRENT_TIME'''
+    t[0] = Nodo(str(t[1]), '', [], t.lexer.lineno)
+
+def p_timestamp(t):
+    'timestampnow     :  TIMESTAMP CADENASIMPLE'
+    t[0] = Nodo('TIMESTAMP', str(t[2]), [], t.lexer.lineno)
+
+def p_nowinstr(t):
+    'nowinstr     :  NOW PARIZQ PARDER'
+    t[0] = Nodo('NOW', '', [], t.lexer.lineno)
 
 ############################################## PRODUCCIONES ESPECIALES #################################################
 
@@ -1345,9 +1411,56 @@ def p_empty(t) :
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
+    Errores.append(Error('42601', EType.SINTACTICO, 'syntax_error',t.lexer.lineno))
+    #ast.errors.append(Error('42601', EType.SINTACTICO, 'syntax_error',t.lexer.lineno)
+    #webbrowser.open("file:/Errores Lexicos.html", new=2, autoraise=True)
 
-
-#Analizador sintactico
-import ply.yacc as yacc
+# Analizador sintactico
 parser = yacc.yacc()
+
+def parse(input) :
+    global output2
+    global errors2
+    retorno = parser.parse(input)
+    graficarAST(retorno)
+    # Se instancia un AST y se ejecutan las instruccion
+    ast = AST(retorno)
+    ast.executeAST()
+    ast.printOutputs()
+    ast.printErrors()
+    ast.generateTSReport()
+    ast.errors += Errores
+    ast.erroresHTML()
+    
+    # Se crear el reporte gramatical en formato BNF
+    crearReporte(retorno)
+    return ast
+
+
+# Funciones para generar el codigo DOT del AST---------------------------------------
+c = 0
+def recorrerNodos(nodo):
+    global c
+    c += 1
+    codigo = ""
+    padre = 'nodo'+str(c)
+    codigo = padre + '[label = \"' + nodo.etiqueta + '\\n' + nodo.valor + '\"];\n'
+    for hijo in nodo.hijos: 
+        codigo += padre + '->' + 'nodo' + str(c+1) + '\n'
+        codigo += recorrerNodos(hijo)
+    return codigo
+
+def graficarAST(raiz):
+
+    file = open("ast.dot", "w")
+    file.write(
+            'digraph G {\n'
+            + 'rankdir=TB; '
+            + 'node[fillcolor=\"darkturquoise:darkslategray2\", shape=record ,fontname = \"Berlin Sans FB\" ,style = filled]  \n'
+            + 'edge[arrowhead=none]; \n'
+        )
+    file.write(recorrerNodos(raiz))
+    file.write('}\n')
+    file.close()
+    render('dot','svg','ast.dot')
 
