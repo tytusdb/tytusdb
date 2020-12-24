@@ -38,8 +38,8 @@ El documento tiene la más clara intención de apoyar al usuario desarrollador, 
 # Guía Rápida
 ## Ejecucion de aplicación
 Se tienen 2 archivos ejecutables de tipo formularios, los cuales pertenecen a:<br>
-- &nbsp;&nbsp;[Cliente Formulario TytusDB](Cliente Formulario)
-- &nbsp;&nbsp;[Cliente De Reportes Gráficos](Cliente Reportes)
+- &nbsp;&nbsp;Cliente Formulario TytusDB
+- &nbsp;&nbsp;Cliente De Reportes Gráficos
 &nbsp;
 ## Ejecución de Carga Masiva
 Se puede tener un archivo externo en el cual la información almacenada quiera ser cargada al sistema de almacenamiento, para esto, se tiene el soporte de archivos con extensión .csv. Un archivo CSV (valores separados por comas) es un archivo de texto que tiene un formato específico que permite guardar los datos en un formato de tabla estructurada. Gracias a esto, podemos evitar la digitalización de datos y convertir cualquier hoja .xlsx, xls, etc. En .csv para ser operado en el administrador.
