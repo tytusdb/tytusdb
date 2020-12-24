@@ -34,13 +34,13 @@ class Logic(Expression):
                 return {'Error':"No se puede operar logicamente " + str(op1['value']) + " y " + str(op2['value']), 'Linea':self.row, 'Columna': self.column }
         if op2 != None:
             switcher ={
-                'or':  {'value': op1['value'] or op2['value'], 'typ': Type.BOOLEAN},
-                'and': {'value': op1['value'] and op2['value'], 'typ': Type.BOOLEAN},
+                'OR':  {'value': op1['value'] or op2['value'], 'typ': Type.BOOLEAN},
+                'AND': {'value': op1['value'] and op2['value'], 'typ': Type.BOOLEAN},
                 
             }
             return switcher.get(self.logicOperator,"Error: operador no encontrado.")
         else:
             switcher ={
-                'not': {'value': not op1['value'] , 'typ': Type.BOOLEAN},             
+                'NOT': {'value': not op1['value'] , 'typ': Type.BOOLEAN},             
             }
             return switcher.get(self.logicOperator,"Error: operador no encontrado.")

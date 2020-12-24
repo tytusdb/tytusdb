@@ -23,4 +23,4 @@ class Md5(Function):
             value = self.input.execute(environment)
             if value['typ'] != Type.STRING:
                 return {'Error':"El valor " + value['value'] + " no es String", 'linea':self.row,'columna':self.column }
-            return [{'value':md5(value['value']), 'typ': Type.STRING}]
+            return {'value':md5(value['value']), 'typ': Type.STRING}

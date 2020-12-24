@@ -12,17 +12,16 @@ class Logica(Binaria):
 
 
     def getval(self, entorno):
-        if (self.exp1.tipo.tipo == 'identificador' or self.exp2.tipo.tipo == 'identificador'):
-            return self
+        if isinstance(self.exp1, Terminal) and isinstance(self.exp2, Terminal):
+            if (self.exp1.tipo.tipo == 'identificador' or self.exp2.tipo.tipo == 'identificador'):
+                return self
 
-        valizq = self.exp1.getval(entorno);
-        valder = self.exp2.getval(entorno);
-        if (isinstance(valizq, Terminal)):
-            valizq = valizq.getval(entorno)
-        if (isinstance(valder, Terminal)):
-            valder = valder.getval(entorno)
+        valizq=self.exp1.getval(entorno);
+        valder=self.exp2.getval(entorno);
+        valizq=valizq.valor
+        valder=valder.valor
 
-        if valizq not in('true','false') or valder not in('true','false') :
+        if str(valizq).lower() not in('true','false') or str(valder).lower() not in('true','false') :
             reporteerrores.append(Lerrores("Error Semantico",
                                            'Error los operandos deben ser booleanos \n',
                                            0, 0))
@@ -32,9 +31,9 @@ class Logica(Binaria):
             return
 
         if self.operador == 'and':
-            self.val = valizq and valder;
+            self.valor = valizq and valder;
         elif self.operador == 'or':
-            self.val = valizq or valder;
+            self.valor = valizq or valder;
 
         self.tipo='boolean'
-        return self.val
+        return self

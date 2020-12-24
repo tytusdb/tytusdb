@@ -50,6 +50,13 @@ class AST:
                 self.crearNodoEnum("node2",instruccion)
             elif isinstance(instruccion, Definicion_delete):
                 self.crearNodoDelete("node2",instruccion)
+            # SELECT
+            elif isinstance(instruccion, Create_select_general):
+                self.crearNodo_SelectTable("node2",instruccion)
+            elif isinstance(instruccion, Create_select_time):
+                self.crearNode_SelectTime("node2",instruccion)
+            '''elif isinstance(instruccion, Create_select_uno):
+                self.crearNode_SelectGL("node2",instruccion)'''
             indice = indice +1
         dot.view('reportes/AST', cleanup=True)
 
@@ -60,7 +67,7 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
         self.crearNodoNombreDatabase(temp1,instruccion)
-        if instruccion.usuario.id != "":
+        if instruccion.usuario.val != "":
             self.crearNodoUsuarioDatabase(temp1,instruccion)
         self.crearNodoModoDatabase(temp1,instruccion)
 
@@ -91,9 +98,9 @@ class AST:
     def crearNodoExpresion(self, padre, expresion):
         global contadorNodos, dot
         if isinstance(expresion, ExpresionIdentificador):
-            if expresion.id != "":
+            if expresion.val != "":
                 contadorNodos = contadorNodos + 1
-                dot.node("node" + str(contadorNodos), str(expresion.id))
+                dot.node("node" + str(contadorNodos), str(expresion.val))
                 dot.edge(padre, "node" + str(contadorNodos))
         elif isinstance(expresion, ExpresionNumeroSimple):
             contadorNodos = contadorNodos + 1
@@ -155,7 +162,7 @@ class AST:
     def crearNodoNombreTablaID(self, padre, instruccion):
         global  contadorNodos, dot
         contadorNodos = contadorNodos + 1
-        dot.node("node" + str(contadorNodos), instruccion.id)
+        dot.node("node" + str(contadorNodos), instruccion.val)
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
 
@@ -176,7 +183,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'NOMBRE COLUMNA')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodoDefinicionTipoDato(self, padre, instruccion):
         global  contadorNodos, dot
@@ -232,7 +239,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'ID')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodoConstraintLlaveForanea(self, padre, instruccion):
         global  contadorNodos, dot
@@ -316,7 +323,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)  
         if instruccion.identificadores != []:
             for ids in instruccion.identificadores:
-                self.crearNodoExpresion(temp1,ids.id)
+                self.crearNodoExpresion(temp1,ids.val)
 
     def crearNodoConstraint(self, padre, instruccion):
         global  contadorNodos, dot
@@ -341,7 +348,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'ID CONSTRAINT')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos) 
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodoConstraintTipoConstraint(self, padre, instruccion):
         global  contadorNodos, dot
@@ -372,7 +379,7 @@ class AST:
         if instruccion.tipo == 'UNIQUE':
             if instruccion.opciones_constraint != []:
                 for ids in instruccion.opciones_constraint:
-                    self.crearNodoExpresion(temp1,ids.id)
+                    self.crearNodoExpresion(temp1,ids.val)
         
     def crearNodoConstraintForaneaId(self, padre, instruccion):
         global  contadorNodos, dot
@@ -417,9 +424,9 @@ class AST:
             if instruccion.opciones_constraint != []:
                 for ids in instruccion.opciones_constraint:
                     if type(ids.exp1) == ExpresionIdentificador:
-                        self.crearNodoExpresion(temp1,ids.exp1.id)
+                        self.crearNodoExpresion(temp1,ids.exp1.val)
                     else: 
-                        self.crearNodoExpresion(temp1,ids.exp2.id)
+                        self.crearNodoExpresion(temp1,ids.exp2.val)
 
     def crearNodoshowDatabases(self, padre, instruccion):
         global  contadorNodos, dot
@@ -449,7 +456,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'ID')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodo_useDatabase(self, padre, instruccion):
         global  contadorNodos, dot
@@ -465,7 +472,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'ID')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodo_alterDatabase(self, padre, instruccion):
         global  contadorNodos, dot
@@ -512,7 +519,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'Nombre Tabla')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.identificador.id)
+        self.crearNodoExpresion(temp1,instruccion.identificador.val)
 
     def Crear_lista_parametros(self,padre,instruccion):
         global  contadorNodos, dot
@@ -522,7 +529,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)
         if instruccion.lista_update != []:
             for datos in instruccion.lista_update:
-                self.crearNodoExpresion(temp1,datos.ids.id)
+                self.crearNodoExpresion(temp1,datos.ids.val)
                 self.crearNodoExpresion(temp1,"=")
                 self.crearNodoExpresion(temp1,datos.expresion.val)
         self.crearNodoWhere(temp1, instruccion)
@@ -582,7 +589,7 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos) 
         if instruccion.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR:
-            self.crearNodoExpresion(temp1,instruccion.expresion.exp1.id)
+            self.crearNodoExpresion(temp1,instruccion.expresion.exp1.val)
 
           
     def Valores2(self, padre, instruccion):
@@ -611,7 +618,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)
         if instruccion.lista_ids != []:
             for datos in instruccion.lista_ids:
-                self.crearNodoExpresion(temp1,datos.id)
+                self.crearNodoExpresion(temp1,datos.val)
 
             
     def crearNodoAlterTable(self,padre,instruccion):
@@ -681,7 +688,7 @@ class AST:
         self.crearNodoExpresion(temp1,instruccion.identificador)
         if instruccion.lista_campos != []:
             for datos in instruccion.lista_campos:
-                self.crearNodoExpresion(temp1,datos.id)
+                self.crearNodoExpresion(temp1,datos.val)
 
     def crearAlterTable_Column(self,padre,instruccion):
         global  contadorNodos, dot
@@ -692,8 +699,8 @@ class AST:
         self.crearNodoExpresion(temp1,instruccion.identificador)
         if instruccion.lista_campos != []:
             for datos in instruccion.lista_campos:
-                self.crearNodoExpresion(temp1,datos.identificador.id)
-                self.crearNodoExpresion(temp1,datos.tipo.id)
+                self.crearNodoExpresion(temp1,datos.identificador.val)
+                self.crearNodoExpresion(temp1,datos.tipo.val)
                 if datos.par1 != None:
                     self.crearNodoExpresion(temp1,datos.par1)
                 if datos.par2 != None:
@@ -776,16 +783,16 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
         if instruccion.expresionlogica.operador == OPERACION_LOGICA.AND or instruccion.expresionlogica.operador == OPERACION_LOGICA.OR: 
-            self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.exp1.id)
+            self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.exp1.val)
             self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.exp2.val)
             self.crearNodoExpresion(temp1,instruccion.expresionlogica.operador)
-            self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.exp1.id)
+            self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.exp1.val)
             self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.exp2.val)
         else:
             if isinstance(instruccion.expresionlogica.exp1,ExpresionIdentificador):
-                self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.id)
+                self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.val)
             elif isinstance(instruccion.expresionlogica.exp2,ExpresionIdentificador):
-                self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.id)
+                self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.val)
 
     
     def crearNodoInsert(self,padre,instruccion):
@@ -804,7 +811,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'TABLA')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1, instruccion.id)
+        self.crearNodoExpresion(temp1, instruccion.val)
 
     def crearNodoLISTA_PARAMETROS(self,padre,instruccion):
         global  contadorNodos, dot
@@ -816,7 +823,7 @@ class AST:
         if instruccion.etiqueta == TIPO_INSERT.CON_PARAMETROS:
             if instruccion.lista_parametros != []:
                 for parametros in instruccion.lista_parametros:
-                    self.crearNodoExpresion(temp1,parametros.id)
+                    self.crearNodoExpresion(temp1,parametros.val)
 
     def CrearNodoLista_VALORES(self, padre, instruccion):
         global  contadorNodos, dot
@@ -827,7 +834,7 @@ class AST:
 
         if instruccion.lista_datos != []:
             for parametros in instruccion.lista_datos:
-                 self.crearNodoExpresion(temp1,parametros.val)
+                self.crearNodoExpresion(temp1,parametros)
         
 
     #ENUM TYPE
@@ -837,7 +844,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'Enum')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.identificador.id)
+        self.crearNodoExpresion(temp1,instruccion.identificador.val)
         self.crearNodoEnum_lista(temp1,instruccion)
 
     def crearNodoEnum_lista(self,padre,instruccion):
@@ -861,17 +868,17 @@ class AST:
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_RETURNING:
             self.crearNodoDelete_returning(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_EXIST:
-            self.crearNodoExpresion(temp1,instruccion.id)
+            self.crearNodoExpresion(temp1,instruccion.val)
             self.crearNodoWhereDelete(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_EXIST_RETURNING:
             self.Nombre_existes_returning(temp1, instruccion)
             self.crearNodoDelete_returning(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_USING:
-            self.crearNodoExpresion(temp1, instruccion.id)
+            self.crearNodoExpresion(temp1, instruccion.val)
             self.crearNodO_USING(temp1, instruccion)
             self.crearNodoWhereDelete(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_USING_returnin:
-            self.crearNodoExpresion(temp1, instruccion.id)
+            self.crearNodoExpresion(temp1, instruccion.val)
             self.crearNodO_USING(temp1, instruccion)
             self.crearNodoWhereDelete(temp1, instruccion)
 
@@ -890,7 +897,7 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)    
         if instruccion.etiqueta == TIPO_DELETE.DELETE_NORMAL:
-            self.crearNodoExpresion(temp1,instruccion.id)
+            self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodoDelete_returning(self,padre,instruccion):
         global  contadorNodos, dot
@@ -900,7 +907,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)  
         
         if instruccion.etiqueta == TIPO_DELETE.DELETE_RETURNING:
-            self.crearNodoExpresion(temp1, instruccion.id)
+            self.crearNodoExpresion(temp1, instruccion.val)
             self.NombreTabla_returning(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_USING_returnin:
             self.NombreTabla_returning(temp1, instruccion)
@@ -1028,7 +1035,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)  
 
         if instruccion.etiqueta == TIPO_DELETE.DELETE_EXIST_RETURNING:
-            self.crearNodoExpresion(temp1, instruccion.id)
+            self.crearNodoExpresion(temp1, instruccion.val)
             self.NombreTabla_returning(temp1, instruccion)
 
     def NombreTabla_returning(self, padre, instruccion):
@@ -1058,7 +1065,7 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos) 
         if instruccion.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR:
-            self.crearNodoExpresion(temp1,instruccion.expresion.exp1.id)
+            self.crearNodoExpresion(temp1,instruccion.expresion.exp1.val)
 
     def Valores2Delete(self, padre, instruccion):
         global  contadorNodos, dot
@@ -1077,12 +1084,600 @@ class AST:
         temp1 = "node" + str(contadorNodos)
         if instruccion.lista_campos != []:
             for datos in instruccion.lista_campos:
-                self.crearNodoExpresion(temp1,datos.identificador.id)
-                self.crearNodoExpresion(temp1,datos.tipo.id)
+                self.crearNodoExpresion(temp1,datos.identificador.val)
+                self.crearNodoExpresion(temp1,datos.tipo.val)
                 if datos.par1 != None:
                     self.crearNodoExpresion(temp1,datos.par1)
                 if datos.par2 != None:
                     self.crearNodoExpresion(temp1,datos.par2)
+
+
+
+#SELECTTTTTTTTTTTTTTTTTTTT
+
+    def crearNodo_SelectTable(self,padre,instruccion):
+        global  contadorNodos, dot
+        contadorNodos = contadorNodos + 1
+        dot.node("node" + str(contadorNodos), 'Select Table')
+        dot.edge(padre, "node" + str(contadorNodos))
+        temp1 = "node" + str(contadorNodos)
+        if  instruccion.instr1 != None and instruccion.instr2 == None and instruccion.instr3 == None and instruccion.listains == None and instruccion.listanombres != None:
+            if instruccion.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
+                for datos in instruccion.instr1.listac:
+                    self.crearNodoExpresion(temp1,datos.val)
+
+            if instruccion.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
+                for datos in instruccion.instr1.lista_extras:
+                    if datos.etiqueta == OPCIONES_SELECT.CASE:
+                        for objs in datos.listacase:
+                            self.crearNodoExpresion(temp1,objs.exp1.exp1.exp1.val) #SOLO ETIQUETAS
+                            self.crearNodoExpresion(temp1,objs.exp1.exp1.operador) #SOLO ETIQUETAS
+                            self.crearNodoExpresion(temp1,objs.exp1.exp1.exp2.val) #SOLO ETIQUETAS
+                            self.crearNodoExpresion(temp1,objs.exp1.operador) #operador logico
+                            self.crearNodoExpresion(temp1,objs.exp1.exp2.exp1.val)
+                            self.crearNodoExpresion(temp1,objs.exp1.exp2.operador)
+                            self.crearNodoExpresion(temp1,objs.exp1.exp2.exp2.val)
+                            self.crearNodoExpresion(temp1,objs.operador)
+                        self.crearNodoExpresion(temp1,datos.expresion.val)
+
+                    elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                        self.crearNodoExpresion(temp1,datos.val)
+                    elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                        self.crearNodoExpresion(temp1,datos.val+'.*')
+                    else:
+                        self.crearNodoExpresion(temp1,datos.etiqueta) #RESTO DE ETIQUETAS
+
+            if instruccion.listanombres != []:
+                for datos in instruccion.listanombres:
+                    if datos.etiqueta == TIPO_VALOR.DOBLE:
+                        self.crearNodoExpresion(temp1,datos.val+'.'+datos.val1)
+                    elif datos.etiqueta == TIPO_VALOR.AS_ID:
+                        self.crearNodoExpresion(temp1,datos.val)
+                        self.crearNodoExpresion(temp1,datos.val1.val)
+                    elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None:
+                        self.crearNodoExpresion(temp1,datos.val)
+                        self.crearNodoExpresion(temp1,datos.val1)
+                    elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
+                        self.crearNodoExpresion(temp1,datos.val)
+
+        
+        elif instruccion.instr1 != None and instruccion.instr2 != None and instruccion.instr3 == None and instruccion.listains == None and instruccion.listanombres != None:
+            if instruccion.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
+                for datos in instruccion.instr1.listac:
+                    self.crearNodoExpresion(temp1,datos.val)
+            if instruccion.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
+                for datos in instruccion.instr1.lista_extras:
+                    if datos.etiqueta == OPCIONES_SELECT.CASE:
+                        for objs in datos.listacase:
+                            self.crearNodoExpresion(temp1,objs.exp1.exp1.exp1.val) #SOLO ETIQUETAS
+                            self.crearNodoExpresion(temp1,objs.exp1.exp1.etiqueta) #SOLO ETIQUETAS
+                            self.crearNodoExpresion(temp1,objs.exp1.exp1.exp2.val) #SOLO ETIQUETAS
+                            self.crearNodoExpresion(temp1,objs.exp1.etiqueta) #operador logico
+                            self.crearNodoExpresion(temp1,objs.exp1.exp2.exp1.val)
+                            self.crearNodoExpresion(temp1,objs.exp1.exp2.etiqueta)
+                            self.crearNodoExpresion(temp1,objs.exp1.exp2.exp2.val)
+                            self.crearNodoExpresion(temp1,objs.etiqueta)
+                        self.crearNodoExpresion(temp1,datos.expresion.val)
+                    elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                        self.crearNodoExpresion(temp1,datos.val)
+                    elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                        self.crearNodoExpresion(temp1,datos.val+'.*')
+                    else:
+                        self.crearNodoExpresion(temp1,datos.etiqueta) #RESTO DE ETIQUETAS
+        
+            if instruccion.listanombres != []:
+                for datos in instruccion.listanombres:
+                    if datos.etiqueta == TIPO_VALOR.DOBLE:
+                        self.crearNodoExpresion(temp1,datos.val+'.'+datos.val1)
+                    elif datos.etiqueta == TIPO_VALOR.AS_ID:
+                        self.crearNodoExpresion(temp1,datos.val)
+                        self.crearNodoExpresion(temp1,datos.val1.val)
+                    elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None:
+                        self.crearNodoExpresion(temp1,datos.val)
+                        self.crearNodoExpresion(temp1,datos.val1)
+                    elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
+                        self.crearNodoExpresion(temp1,datos.val)
+            
+            if instruccion.instr2.expwhere != None:
+                self.crearNodoExpresion(temp1,instruccion.instr2.expwhere.etiqueta)
+                self.crearNodoExpresion(temp1,instruccion.instr2.expwhere.expresion.operador)
+                if instruccion.instr2.expwhere.expresion.operador != None:
+                    self.VerificarWhere(temp1,instruccion.instr2.expwhere.expresion.operador,instruccion.instr2.expwhere.expresion)
+            if instruccion.instr2.expgb != None:
+                self.crearNodoExpresion(temp1,instruccion.instr2.expgb.etiqueta)
+                for datos in instruccion.instr2.expgb.expresion:
+                    self.crearNodoExpresion(temp1,datos.id)
+            if instruccion.instr2.expob != None:
+                self.crearNodoExpresion(temp1,instruccion.instr2.expob.etiqueta)
+                for datos in instruccion.instr2.expob.expresion:
+                    self.crearNodoExpresion(temp1,datos.val)
+            if instruccion.instr2.exphav != None:
+                self.crearNodoExpresion(temp1,instruccion.instr2.exphav.etiqueta)
+                self.crearNodoExpresion(temp1,instruccion.instr2.exphav.expresion)
+            if instruccion.instr2.exporden != None:
+                self.crearNodoExpresion(temp1,instruccion.instr2.exporden.etiqueta)
+                self.crearNodoExpresion(temp1,instruccion.instr2.exporden.expresion.id)
+            if instruccion.instr2.explimit != None:
+                self.crearNodoExpresion(temp1,instruccion.instr2.explimit.etiqueta)
+                if instruccion.instr2.explimit.expresion.etiqueta == TIPO_VALOR.NUMERO:
+                    self.crearNodoExpresion(temp1,instruccion.instr2.explimit.expresion.val)
+                else:
+                    self.crearNodoExpresion(temp1,instruccion.instr2.explimit.expresion.val)
+            if instruccion.instr2.expoffset != None:
+                self.crearNodoExpresion(temp1,instruccion.instr2.expoffset.etiqueta)
+                self.crearNodoExpresion(temp1,instruccion.instr2.expoffset.expresion.val)
+            if instruccion.instr2.valor != None:
+                self.crearNodoExpresion(temp1,instruccion.instr2.valor)
+    
+        elif instruccion.instr1 == None and instruccion.instr2 != None and instruccion.instr3 != None and instruccion.listains != None and instruccion.listanombres == None:
+            if instruccion.instr2.etiqueta == OPCIONES_SELECT.DISTINCT:
+                for datos in instruccion.instr2.listac:
+                    self.crearNodoExpresion(temp1,datos.val)
+            if instruccion.instr2.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
+                for datos in instruccion.instr2.lista_extras:
+                    if datos.etiqueta == OPCIONES_SELECT.CASE:
+                        for objs in datos.listacase:
+                            self.crearNodoExpresion(temp1,objs.operador) #SOLO ETIQUETAS
+                        self.crearNodoExpresion(temp1,datos.expresion.etiqueta)
+                    elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                        self.crearNodoExpresion(temp1,datos.val)
+                    elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                        self.crearNodoExpresion(temp1,datos.val+'.*')
+                    else:
+                        self.crearNodoExpresion(temp1,datos.etiqueta) #RESTO DE ETIQUETAS 
+    
+                if instruccion.instr3[0] == TIPO_VALOR.AS_ID:
+                    self.crearNodoExpresion(temp1,instruccion.instr3[1].val)
+                elif instruccion.instr3[0] == TIPO_VALOR.DOBLE:
+                    self.crearNodoExpresion(temp1,instruccion.instr3[1])
+                else:
+                    self.crearNodoExpresion(temp1,instruccion.instr3)   
+
+                for objs in instruccion.listains:
+                    if objs.instr2 != None:
+                        self.crearNodoExpresion(temp1,objs.instr1.val)
+                        if objs.instr2.expwhere != None:
+                            self.crearNodoExpresion(temp1,objs.instr2.expwhere.etiqueta)
+                            self.crearNodoExpresion(temp1,objs.instr2.expwhere.expresion.etiqueta)
+                            if objs.instr2.expwhere.expresion.etiqueta != None:
+                                self.VerificarWhere(temp1,objs.instr2.expwhere.expresion.etiqueta,objs.instr2.expwhere.expresion)
+                        if objs.instr2.expgb != None:
+                            self.crearNodoExpresion(temp1,objs.instr2.expgb.etiqueta)
+                            for datos in objs.instr2.expgb.expresion:
+                                self.crearNodoExpresion(temp1,datos.id)
+                        if objs.instr2.expob != None:
+                            self.crearNodoExpresion(temp1,objs.instr2.expob.etiqueta)
+                            for datos in objs.instr2.expob.expresion:
+                                self.crearNodoExpresion(temp1,datos.val)
+                        if objs.instr2.exphav != None:
+                            self.crearNodoExpresion(temp1,objs.instr2.exphav.etiqueta)
+                            self.crearNodoExpresion(temp1,objs.instr2.exphav.expresion)
+                        if objs.instr2.exporden != None:
+                            self.crearNodoExpresion(temp1,objs.instr2.exporden.etiqueta)
+                            self.crearNodoExpresion(temp1,objs.instr2.exporden.expresion.id)
+                        if objs.instr2.explimit != None:
+                            self.crearNodoExpresion(temp1,objs.instr2.explimit.etiqueta)
+                            if objs.instr2.explimit.expresion.etiqueta == TIPO_VALOR.NUMERO:
+                                self.crearNodoExpresion(temp1,objs.instr2.explimit.expresion.val)
+                            else:
+                                self.crearNodoExpresion(temp1,objs.instr2.explimit.expresion.val)
+                        if objs.instr2.expoffset != None:
+                            self.crearNodoExpresion(temp1,objs.instr2.expoffset.etiqueta)
+                            self.crearNodoExpresion(temp1,objs.instr2.expoffset.expresion.val)
+                        if objs.instr2.valor != None:
+                            self.crearNodoExpresion(temp1,objs.instr2.valor)
+                    elif objs.instr2 == None:
+                        self.crearNodoExpresion(temp1,objs.instr1.val)
+
+        elif instruccion.instr1 != None and instruccion.instr2 == None and instruccion.instr3 != None and instruccion.listains != None and instruccion.listanombres == None:
+            if instruccion.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
+                for datos in instruccion.instr1.listac:
+                    self.crearNodoExpresion(temp1,datos.val)
+
+            if instruccion.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
+                for datos in instruccion.instr1.lista_extras:
+                    if datos.etiqueta == OPCIONES_SELECT.CASE:
+                        for objs in datos.listacase:
+                            self.crearNodoExpresion(temp1,objs.operador) #SOLO ETIQUETAS
+                        self.crearNodoExpresion(temp1,datos.expresion.etiqueta)
+                    elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                        self.crearNodoExpresion(temp1,datos.val)
+                    elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                        self.crearNodoExpresion(temp1,datos.val+'.*')
+                    else:
+                        self.crearNodoExpresion(temp1,datos.etiqueta) #RESTO DE ETIQUETAS
+                        
+
+            for objs in instruccion.listains:
+                self.crearNodoExpresion(temp1,objs.val)
+
+            if instruccion.instr3.expwhere != None:
+                self.crearNodoExpresion(temp1,instruccion.instr3.expwhere.etiqueta)
+                if instruccion.instr3.expwhere.expresion.operador != None:
+                    self.crearNodoExpresion(temp1,instruccion.instr3.expwhere.expresion.operador)
+                    self.VerificarWhere(temp1,instruccion.instr3.expwhere.expresion.operador,instruccion.instr3.expwhere.expresion)
+            if instruccion.instr3.expgb != None:
+                self.crearNodoExpresion(temp1,instruccion.instr3.expgb.etiqueta)
+                for datos in instruccion.instr3.expgb.expresion:
+                    self.crearNodoExpresion(temp1,datos.id)
+            if instruccion.instr3.expob != None:
+                self.crearNodoExpresion(temp1,instruccion.instr3.expob.etiqueta)
+                for datos in instruccion.instr3.expob.expresion:
+                    self.crearNodoExpresion(temp1,datos.val)
+            if instruccion.instr3.exphav != None:
+                self.crearNodoExpresion(temp1,instruccion.instr3.exphav.etiqueta)
+                self.crearNodoExpresion(temp1,instruccion.instr3.exphav.expresion)
+            if instruccion.instr3.exporden != None:
+                self.crearNodoExpresion(temp1,instruccion.instr3.exporden.etiqueta)
+                self.crearNodoExpresion(temp1,instruccion.instr3.exporden.expresion.id)
+            if instruccion.instr3.explimit != None:
+                self.crearNodoExpresion(temp1,instruccion.instr3.explimit.etiqueta)
+                if instruccion.instr3.explimit.expresion.etiqueta == TIPO_VALOR.NUMERO:
+                    self.crearNodoExpresion(temp1,instruccion.instr3.explimit.expresion.val)
+                else:
+                    self.crearNodoExpresion(temp1,instruccion.instr3.explimit.expresion.val)
+            if instruccion.instr3.expoffset != None:
+                self.crearNodoExpresion(temp1,instruccion.instr3.expoffset.etiqueta)
+                self.crearNodoExpresion(temp1,instruccion.instr3.expoffset.expresion.val)
+            if instruccion.instr3.valor != None:
+                self.crearNodoExpresion(temp1,instruccion.instr3.valor)
+    
+        elif instruccion.instr1 == None and instruccion.instr2 == None and instruccion.instr3 == None and instruccion.listains == None and instruccion.listanombres != None:
+            for datos in instruccion.listanombres:
+                #CON IDENTIFICADOR 
+                if datos.expresion != None and datos.asterisco != None:
+                    if datos.expresion.operador == OPERACION_ARITMETICA.WIDTH_BUCKET:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp3.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp4.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.E_DIV:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.GCD:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.MOD:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.POWER:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.TRUNC:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2D:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.SUBSTRING:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp3.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.TRIM:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.SUBSTR:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp3.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.GET_BYTE:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.SET_BYTE:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp3.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.ENCODE:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.DECODE:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    else:
+                        self.crearNodoExpresion(temp1,datos.expresion.operador)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                    
+                    if datos.asterisco[0] == TIPO_VALOR.AS_ID:
+                        self.crearNodoExpresion(temp1,datos.asterisco[1].val)
+                    elif datos.asterisco[0] == TIPO_VALOR.DOBLE:
+                        self.crearNodoExpresion(temp1,datos.asterisco[1])
+                    else:
+                        self.crearNodoExpresion(temp1,datos.asterisco)
+                #SIN IDENTIFICADOR
+                if datos.expresion != None and datos.asterisco == None:
+                    if datos.expresion.operador == OPERACION_ARITMETICA.WIDTH_BUCKET:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp3.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp4.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.E_DIV:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.GCD:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.MOD:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.POWER:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.TRUNC:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2D:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.SUBSTRING:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp3.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.TRIM:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.SUBSTR:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp3.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.GET_BYTE:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.SET_BYTE:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp3.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.ENCODE:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    elif datos.expresion.operador == CADENA_BINARIA.DECODE:
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp2.val)
+                    else:
+                        self.crearNodoExpresion(temp1,datos.expresion.operador)
+                        self.crearNodoExpresion(temp1,datos.expresion.exp1.val)
+        
+
+    def VerificarWhere(self,padre,etiqueta,objeto):
+        if etiqueta == OPCION_VERIFICAR.N_BETWEEN:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp2))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp2))
+        elif etiqueta == OPCION_VERIFICAR.ISDISTINCT: #estoy aca
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp2))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp2))
+        elif etiqueta == OPCION_VERIFICAR.NOT_DISTINCT:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp2))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp2))
+        elif etiqueta == OPCION_VERIFICAR.LIKE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp2))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp2))
+        elif etiqueta == OPCION_VERIFICAR.NOT_LIKE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1.exp2))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2.exp2))
+        elif etiqueta == OPCION_VERIFICAR.NULL:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPCION_VERIFICAR.ISNULL:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPCION_VERIFICAR.NOTNULL:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPCION_VERIFICAR.TRUE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPCION_VERIFICAR.N_TRUE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPCION_VERIFICAR.FALSE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPCION_VERIFICAR.N_FALSE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPCION_VERIFICAR.UNKNOWN:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPCION_VERIFICAR.N_UNKNOWN:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+        elif etiqueta == OPERACION_ARITMETICA.ABS:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+        elif etiqueta == OPERACION_ARITMETICA.LENGTH:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+        elif etiqueta == OPERACION_ARITMETICA.CBRT:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+        elif etiqueta == OPERACION_ARITMETICA.CEIL:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+        elif etiqueta == OPERACION_ARITMETICA.CEILING:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+        elif etiqueta == OPCIONES_DATOS.SUBSTRING:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val2))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val3))
+        elif etiqueta == OPCIONES_DATOS.TRIM:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+        elif etiqueta == OPCIONES_DATOS.SUBSTR:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val2))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val3))
+        elif etiqueta == OPCIONES_DATOS.EXTRACT:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val2))
+        elif etiqueta == OPCION_VERIFICAR.NOT_IN:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+            #procesar_select_general(objeto.val2)
+        elif etiqueta == OPCION_VERIFICAR.INN:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+            #procesar_select_general(objeto.val2)
+        elif etiqueta == OPCION_VERIFICAR.NOT_EXISTS: #NO FUNCIONA ACTUALMENTE
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+            #procesar_select_general(objeto.val2)
+        elif etiqueta == OPCION_VERIFICAR.NOT_BETWEEN_SYMETRIC:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val2))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.val3))
+        elif etiqueta == OPERACION_RELACIONAL.MAYQUE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2))
+        elif etiqueta == OPERACION_RELACIONAL.MENQUE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2))
+        elif etiqueta == OPERACION_RELACIONAL.MAYIGQUE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2))
+        elif etiqueta == OPERACION_RELACIONAL.MENIGQUE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2))
+        elif etiqueta == OPERACION_RELACIONAL.DOBLEIGUAL:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2))
+        elif etiqueta == OPERACION_RELACIONAL.IGUAL:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2))
+        elif etiqueta == OPERACION_RELACIONAL.NOIG:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2))
+        elif etiqueta == OPERACION_RELACIONAL.DIFERENTE:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp1))
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto.exp2))
+        else:
+            self.crearNodoExpresion(padre,self.returnobjeto(objeto))
+
+    def returnobjeto(self,cadena):
+        try:
+            if cadena.etiqueta == TIPO_VALOR.NUMERO:
+                return cadena.val
+            elif  cadena.etiqueta == TIPO_VALOR.IDENTIFICADOR:
+                return cadena.val
+            elif cadena.etiqueta == TIPO_VALOR.NEGATIVO:
+                return cadena.val+cadena.val1
+            elif cadena.etiqueta == TIPO_VALOR.DOBLE:
+                return cadena.val+cadena.val1
+            elif cadena.etiqueta == OPERACION_LOGICA.TRUE:
+                return cadena.val
+            elif cadena.etiqueta == OPERACION_LOGICA.FALSE:
+                return cadena.val
+            else:
+                return None
+        except:
+            return None
+
+    def crearNode_SelectTime(self,padre,instruccion):
+        global  contadorNodos, dot
+        contadorNodos = contadorNodos + 1
+        dot.node("node" + str(contadorNodos), 'Select_Time')
+        dot.edge(padre, "node" + str(contadorNodos))
+        temp1 = "node" + str(contadorNodos)
+        if instruccion.etiqueta == SELECT_TIME.EXTRACT:
+            self.crearNodoExpresion(temp1,instruccion.etiqueta)
+            self.crearNodoExpresion(temp1,instruccion.val1.val)
+            self.crearNodoExpresion(temp1,instruccion.val2)
+        elif instruccion.etiqueta == SELECT_TIME.DATE_PART:
+            self.crearNodoExpresion(temp1,instruccion.etiqueta)
+            self.crearNodoExpresion(temp1,instruccion.val1)
+            self.crearNodoExpresion(temp1,instruccion.val2)
+        elif instruccion.etiqueta == SELECT_TIME.NOW:
+            self.crearNodoExpresion(temp1,instruccion.etiqueta)
+        elif instruccion.etiqueta == SELECT_TIME.CURRENT_TIME:
+            self.crearNodoExpresion(temp1,instruccion.etiqueta)
+        elif instruccion.etiqueta == SELECT_TIME.CURRENT_DATE:
+            self.crearNodoExpresion(temp1,instruccion.etiqueta)
+        elif instruccion.etiqueta == SELECT_TIME.TIMESTAMP:
+            self.crearNodoExpresion(temp1,instruccion.etiqueta)
+            self.crearNodoExpresion(temp1,instruccion.val1)
+
+    def crearNode_SelectGL(self,padre,instruccion):
+        global  contadorNodos, dot
+        contadorNodos = contadorNodos + 1
+        dot.node("node" + str(contadorNodos), 'Select_Greatest_Or_Least')
+        dot.edge(padre, "node" + str(contadorNodos))
+        temp1 = "node" + str(contadorNodos)
+        if instruccion.etiqueta == OPCIONES_SELECT.GREATEST:
+            self.crearNodoExpresion(temp1,instruccion.etiqueta)
+            if instruccion.lista_extras != []:
+                for datos in instruccion.lista_extras:
+                    if datos.etiqueta == TIPO_VALOR.DOBLE:
+                        self.crearNodoExpresion(temp1,datos.val+'.'+datos.val1)
+                    elif datos.etiqueta == TIPO_VALOR.NUMERO:
+                        self.crearNodoExpresion(temp1,datos.val)
+                    elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR:
+                        self.crearNodoExpresion(temp1,datos.val)
+                    elif datos.etiqueta == TIPO_VALOR.NEGATIVO:
+                        self.crearNodoExpresion(temp1,datos.val+''+str(datos.val1))
+
+        elif instruccion.etiqueta == OPCIONES_SELECT.LEAST:
+            self.crearNodoExpresion(temp1,instruccion.etiqueta)
+            if instruccion.lista_extras != []:
+                for datos in instruccion.lista_extras:
+                    if datos.etiqueta == TIPO_VALOR.DOBLE:
+                        self.crearNodoExpresion(temp1,datos.val+'.'+datos.val1)
+                    elif datos.etiqueta == TIPO_VALOR.NUMERO:
+                        self.crearNodoExpresion(temp1,datos.val)
+                    elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR:
+                        self.crearNodoExpresion(temp1,datos.val)
+                    elif datos.etiqueta == TIPO_VALOR.NEGATIVO:
+                        self.crearNodoExpresion(temp1,datos.val+''+str(datos.val1))
+  
+    def crearNodo_SelectDistinct(self,padre,instruccion):
+        global  contadorNodos, dot
+        contadorNodos = contadorNodos + 1
+        dot.node("node" + str(contadorNodos), 'Distinct')
+        dot.edge(padre, "node" + str(contadorNodos))
+        temp1 = "node" + str(contadorNodos)
+        for datos in instruccion.instr1.listac:
+            self.crearNodoExpresion(temp1,datos.val)
+        
+    def crearNodo_SelectSubconsulta(self,padre,instruccion):
+        global  contadorNodos, dot
+        contadorNodos = contadorNodos + 1
+        dot.node("node" + str(contadorNodos), 'Subconsulta')
+        dot.edge(padre, "node" + str(contadorNodos))
+        temp1 = "node" + str(contadorNodos)
+        for datos in instruccion.instr1.lista_extras:
+                if datos.etiqueta == OPCIONES_SELECT.CASE:
+                    for objs in datos.listacase:
+                        self.crearNodoExpresion(temp1,objs.exp1.exp1.exp1.val) #SOLO ETIQUETAS
+                        self.crearNodoExpresion(temp1,objs.exp1.exp1.etiqueta) #SOLO ETIQUETAS
+                        self.crearNodoExpresion(temp1,objs.exp1.exp1.exp2.val) #SOLO ETIQUETAS
+                        self.crearNodoExpresion(temp1,objs.exp1.etiqueta) #operador logico
+                        self.crearNodoExpresion(temp1,objs.exp1.exp2.exp1.val)
+                        self.crearNodoExpresion(temp1,objs.exp1.exp2.etiqueta)
+                        self.crearNodoExpresion(temp1,objs.exp1.exp2.exp2.val)
+                        self.crearNodoExpresion(temp1,objs.etiqueta)
+                    self.crearNodoExpresion(temp1,datos.expresion.etiqueta)
+                elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                    self.crearNodoExpresion(temp1,datos.val)
+                elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                    self.crearNodoExpresion(temp1,datos.val+'.*')
+                else:
+                    self.crearNodoExpresion(temp1,datos.etiqueta) #RESTO DE ETIQUETAS
+
+
+
+    def crearNodo_SelectTipoValores(self,padre,instruccion):
+        global  contadorNodos, dot
+        contadorNodos = contadorNodos + 1
+        dot.node("node" + str(contadorNodos), 'Tipo Valores')
+        dot.edge(padre, "node" + str(contadorNodos))
+        temp1 = "node" + str(contadorNodos)
+        for datos in instruccion.listanombres:     
+            if datos.etiqueta == TIPO_VALOR.DOBLE:
+                self.crearNodoExpresion(temp1,datos.val+'.'+datos.val1)
+            elif datos.etiqueta == TIPO_VALOR.AS_ID:
+                self.crearNodoExpresion(temp1,datos.val)
+                self.crearNodoExpresion(temp1,datos.val1.val)
+            elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None:
+                self.crearNodoExpresion(temp1,datos.val)
+                self.crearNodoExpresion(temp1,datos.val1)
+            elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
+                self.crearNodoExpresion(temp1,datos.val)
+
+   
 
 
 

@@ -1,7 +1,7 @@
 import hashlib
-from models.instructions.Expression.expression import Expression, PrimitiveData, DATA_TYPE
-
-#TODO: REVISAR QUE NO MUERA CON .VALUE, DECODE, UNCODE, GETBYTE, SETBYTE, CONVERT
+from models.instructions.Expression.expression import Expression, PrimitiveData, DATA_TYPE, Identifiers
+from controllers.error_controller import ErrorController
+#TODO: REVISAR QUE NO MUERA CON DECODE, UNCODE, GETBYTE, SETBYTE, CONVERT
 class Length(Expression):
     '''
         La función se usa para devolver el valor después de 
@@ -18,14 +18,26 @@ class Length(Expression):
 
     def process(self, environment):
         try:
-            l = len(self.value.process().alias)
-            return PrimitiveData(DATA_TYPE.NUMBER, l, self.line, self.column)
+            val = None
+            result = 0
+            lista1 = []
+            if isinstance(self.value, Identifiers):
+                val = self.value.process(environment)
+                result = [len(columns) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                val = self.value.process(environment).value
+                l = len(val)
+                return PrimitiveData(DATA_TYPE.NUMBER, l, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Length"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Substring(Expression):
     '''
@@ -45,17 +57,69 @@ class Substring(Expression):
 
     def process(self, environment):
         try:
-            i = self.down.process().value
-            j = self.up.process().value
-            cadena = self.value.process().value
-            substr = cadena[i:j]
-            return PrimitiveData(DATA_TYPE.STRING, substr, self.line, self.column)
+            val = None
+            result = 0
+            lista1 = []
+            i = self.down.process(environment).value
+            j = self.up.process(environment).value
+            if isinstance(self.value, Identifiers):
+                val = self.value.process(environment)
+                result = [columns[i:j] for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                substr = cadena[i:j]
+                return PrimitiveData(DATA_TYPE.STRING, substr, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Substring"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+class Substr(Expression):
+    '''
+        La función se usa para devolver el valor después de 
+        redondear un número hasta un decimal específico, 
+        proporcionado en el argumento.
+    '''
+    def __init__(self, value, down, up, line, column) :
+        self.value = value
+        self.alias = f'SUBSTR({self.value.alias})'
+        self.up = up
+        self.down = down
+        self.line = line
+        self.column = column
+    def __repr__(self):
+        return str(vars(self))
+
+    def process(self, environment):
+        try:
+            val = None
+            result = 0
+            lista1 = []
+            i = self.down.process(environment).value
+            j = self.up.process(environment).value
+            if isinstance(self.value, Identifiers):
+                val = self.value.process(environment)
+                result = [columns[i:j] for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                substr = cadena[i:j]
+                return PrimitiveData(DATA_TYPE.STRING, substr, self.line, self.column)
+        except TypeError:
+            desc = "Tipo de dato invalido para Substring"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
+            return
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Trim(Expression):
     '''
@@ -65,7 +129,7 @@ class Trim(Expression):
     '''
     def __init__(self, value, line, column) :
         self.value = value
-        self.alias = f'SUBSTRING({self.value.alias})'
+        self.alias = f'TRIM({self.value.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
@@ -73,15 +137,24 @@ class Trim(Expression):
 
     def process(self, environment):
         try:
-            cadena = self.value.process().value
-            trim_str = cadena.strip()
-            return PrimitiveData(DATA_TYPE.STRING, trim_str, self.line, self.column)
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [columns.strip() for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                trim_str = cadena.strip()
+                return PrimitiveData(DATA_TYPE.STRING, trim_str, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Trim"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class MD5(Expression):
     '''
@@ -91,7 +164,7 @@ class MD5(Expression):
     '''
     def __init__(self, value, line, column) :
         self.value = value
-        self.alias = f'SUBSTRING({self.value.alias})'
+        self.alias = f'MD5({self.value.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
@@ -99,15 +172,24 @@ class MD5(Expression):
 
     def process(self, environment):
         try:
-            cadena = self.value.process().value
-            result = hashlib.md5(cadena.encode()) 
-            return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [hashlib.md5(columns.encode()).hexdigest() for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                result = hashlib.md5(cadena.encode()) 
+                return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para md5"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class SHA256(Expression):
     '''
@@ -117,7 +199,7 @@ class SHA256(Expression):
     '''
     def __init__(self, value, line, column) :
         self.value = value
-        self.alias = f'SUBSTRING({self.value.alias})'
+        self.alias = f'SHA256({self.value.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
@@ -125,15 +207,24 @@ class SHA256(Expression):
 
     def process(self, environment):
         try:
-            cadena = self.value.process().value
-            result = hashlib.sha256(cadena.encode()) 
-            return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [hashlib.sha256(columns.encode()).hexdigest() for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                result = hashlib.sha256(cadena.encode()) 
+                return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para sha256"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class GetByte(Expression):
     '''
@@ -141,9 +232,10 @@ class GetByte(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, line, column) :
+    def __init__(self, value, pos, line, column) :
         self.value = value
-        self.alias = f'SUBSTRING({self.value.alias})'
+        self.pos = pos
+        self.alias = f'GETBYTE({self.value.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
@@ -151,13 +243,25 @@ class GetByte(Expression):
 
     def process(self, environment):
         try:
-            pass
+            index = self.pos.process(environment).value
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [ord(columns[index]) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                result = ord(cadena[index])
+                return PrimitiveData(DATA_TYPE.STRING, result, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para GetByte"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class SetByte(Expression):
     '''
@@ -165,9 +269,11 @@ class SetByte(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, line, column) :
+    def __init__(self, value, pos, no_char, line, column) :
         self.value = value
-        self.alias = f'SUBSTRING({self.value.alias})'
+        self.pos = pos
+        self.no_char = no_char
+        self.alias = f'SETBYTE({self.value.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
@@ -175,13 +281,26 @@ class SetByte(Expression):
 
     def process(self, environment):
         try:
-            pass
+            index = self.pos.process(environment).value
+            char = self.no_char.process(environment).value
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [(columns[:index] + chr(char) + columns[index + 1:]) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                result = cadena[:index] + chr(char) + cadena[index + 1:]
+                return PrimitiveData(DATA_TYPE.STRING, result, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para SetByte"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Convert(Expression):
     '''
@@ -191,8 +310,8 @@ class Convert(Expression):
     '''
     def __init__(self, value, data_type, line, column) :
         self.value = value
-        self.value = data_type
-        self.alias = f'SUBSTRING({self.value.alias})'
+        self.data_type = data_type
+        self.alias = f'CONVERT({self.value.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
@@ -200,13 +319,35 @@ class Convert(Expression):
 
     def process(self, environment):
         try:
-            pass
+            if self.data_type.lower() == "integer":
+                if isinstance(self.value, Identifiers):
+                    lista1 = []
+                    val = self.value.process(environment)
+                    result = [ int(columns) for columns in val[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    cadena = self.value.process(environment).value
+                    return PrimitiveData(DATA_TYPE.NUMBER, int(cadena) , self.line, self.column)
+            else:
+                if isinstance(self.value, Identifiers):
+                    lista1 = []
+                    val = self.value.process(environment)
+                    result = [ str(columns) for columns in val[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    cadena = self.value.process(environment).value
+                    return PrimitiveData(DATA_TYPE.STRING, cadena, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Convert"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Encode(Expression):
     '''
@@ -217,7 +358,7 @@ class Encode(Expression):
     def __init__(self, value, format_text, line, column) :
         self.value = value
         self.value = format_text
-        self.alias = f'SUBSTRING({self.value.alias})'
+        self.alias = f'ENCODE({self.value.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
@@ -225,13 +366,23 @@ class Encode(Expression):
 
     def process(self, environment):
         try:
-            pass
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [ str(columns) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                return PrimitiveData(DATA_TYPE.STRING, cadena, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Encode"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Decode(Expression):
     '''
@@ -242,7 +393,7 @@ class Decode(Expression):
     def __init__(self, value, format_text, line, column) :
         self.value = value
         self.value = format_text
-        self.alias = f'SUBSTRING({self.value.alias})'
+        self.alias = f'DECODE({self.value.alias})'
         self.line = line
         self.column = column
     def __repr__(self):
@@ -250,10 +401,20 @@ class Decode(Expression):
 
     def process(self, environment):
         try:
-            pass
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [ str(columns) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                return PrimitiveData(DATA_TYPE.STRING, cadena, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Decode"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- StringFuncs")
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)

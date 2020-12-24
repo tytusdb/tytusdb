@@ -49,4 +49,4 @@ insert into tbestado values(4,'Inactivo2');
 insert into tbestado values(5,'Activo1');
 
 
-select idestado + 4 from tbestado;
+select * from tbestado where LENGTH(estado) > 4;
