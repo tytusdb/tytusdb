@@ -96,10 +96,13 @@ def func_sha256(exp):
 
 
 def func_get_byte(exp, num):
+    print(exp)
     byte = bytes(exp, "utf-8")
     if len(byte) > num:
         return byte[num]
 
+
+#print(func_get_byte('Th\000omas', 4))
 
 def func_set_byte(exp, num, num2):
     byte = bytes(exp, "utf-8")

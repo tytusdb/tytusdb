@@ -435,7 +435,7 @@ def p_all_opcional(t):
 def p_all_opcional_null(t):
     'allopcional : '
     grafo.newnode('ALL')
-    reporte = "<allopcional> ::= ε\n"
+    reporte = "<allopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 #aqui
@@ -469,7 +469,7 @@ def p_from_opcional_2(t):
 def p_from_opcional_null(t):
     'fromopcional : '
     grafo.newnode('FROM')
-    reporte = "<fromopcional> ::= ε\n"
+    reporte = "<fromopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_where_opcional(t):
@@ -483,7 +483,7 @@ def p_where_opcional(t):
 def p_where_opcional_null(t):
     'whereopcional :   '
     grafo.newnode('WHERE')
-    reporte = "<whereopcional> ::= ε\n"
+    reporte = "<whereopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -513,7 +513,7 @@ def p_having(t):
 def p_having_null(t):
     'havings : '
     grafo.newnode('HAVING')
-    reporte = "<havings> ::= ε\n"
+    reporte = "<havings> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -537,7 +537,7 @@ def p_listanumeros(t):
 def p_group_by_opcional_null(t):
     'groupbyopcional  : '
     grafo.newnode('GROUPBY')
-    reporte = "<groupbyopcional> ::= ε\n"
+    reporte = "<groupbyopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -711,7 +711,7 @@ def p_else_case(t):
 def p_else_case_null(t):
     'elsecase  : '
     grafo.newnode('ELSE')
-    reporte = "<elsecase> ::= ε\n"
+    reporte = "<elsecase> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph': grafo.index, 'reporte': reporte}
 
 
@@ -994,7 +994,7 @@ def p_tipo_de_round(t):
 def p_tipo_de_round_null(t):
     'tipoderound  :'
     grafo.newnode('T_ROUND')
-    reporte ="<tipoderound> ::= ε\n"
+    reporte ="<tipoderound> ::= EPSILON\n"
     t[0]= {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -1198,7 +1198,7 @@ def p_asopcional_argumentS(t):
 def p_asopcional_null(t):
     'asopcional  : '
     grafo.newnode('ASOPCIONAL')
-    reporte = "<asopcional> ::= ε\n"
+    reporte = "<asopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -1556,7 +1556,7 @@ def p_tableconstraintcheck(t):
 def p_tableconstraintcheckE(t):
     'tableconstraintcheck : '
     grafo.newnode('TABLECONSCHECK')
-    reporte = "<tableconstraintcheck> ::= ε\n"
+    reporte = "<tableconstraintcheck> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_finalconstraintcheck(t):
@@ -1751,7 +1751,7 @@ def p_precision(t):
 
 def p_precisionE(t):
     'precision  :'
-    reporte = "<precision> := ε\n"
+    reporte = "<precision> := EPSILON\n"
     t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_fields(t):
@@ -2227,7 +2227,7 @@ def p_instrucciones_update_condsops(t):
 def p_instrucciones_update_condsopsE(t):
     'condicionesops    : '
     grafo.newnode('CONDSOPS')
-    reporte = "<condicionesops> ::= ε\n"
+    reporte = "<condicionesops> ::= EPSILON\n"
     t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 #------------------------------------------------------CONDICIONES-----------------------------------------

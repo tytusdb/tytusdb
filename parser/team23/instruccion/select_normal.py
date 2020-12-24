@@ -2,10 +2,12 @@ from abstract.instruccion import *
 from tools.tabla_tipos import *
 from tools.console_text import *
 from tools.tabla_simbolos import *
+from error.errores import *
 from abstract.retorno import *
 from prettytable import PrettyTable
 from abstract.columnaID import*
 from storage import jsonMode as funciones
+from instruccion.alias_item import *
 import operator
 
 class select_normal(instruccion):
@@ -139,6 +141,10 @@ class select_normal(instruccion):
                 self.grammar_ += limite.grammar_
 
     def ejecutar(self, imprimir=None):
+        for id_item in self.list_tables:
+            if isinstance(id_item, alias_item):
+                id_item.ejecutar([])
+
         id_db = get_actual_use()
         salidaTabla = PrettyTable()
         encabezados=[]
@@ -147,16 +153,20 @@ class select_normal(instruccion):
         registro_aux = []
 
         if self.donde == None:
-
             for tabla in self.list_tables:
                 data_table = funciones.extractTable(id_db,tabla)
                 registro=data_table
                 encabezados=ts.field_names(id_db,tabla)
         #si viene where
         else:
-            data_were = self.donde.ejecutar(self.list_tables)
-            encabezados = data_were.encabezados
-            registro=data_were.valor
+            data_were = self.donde.ejecutar(self.list_tables)            
+            print(data_were)
+            if data_were.tipo != tipo_primitivo.ERROR:
+                encabezados = data_were.encabezados
+                registro=data_were.valor
+            else:
+                errores.append(nodo_error(self.line, self.column, 'ERROR - No se pudo ejecutar select', 'Semántico'))
+                add_text('ERROR - No se pudo ejecutar select\n')
 
         #Si viene GroupBy
 
@@ -183,36 +193,39 @@ class select_normal(instruccion):
             print(registro_columnas)
             registro=registro_columnas
 
+        #Si viene OrderBy
+        if self.orderby != None:
+            auxOrder_by = self.orderby.ejecutar()
+            indexG=self.retornador_index(auxOrder_by.valor[0],encabezados)
+
+            if auxOrder_by.tipo == 'ASC':
+                registro = sorted(registro, key=lambda i: str(i[indexG]).lower())
+            elif auxOrder_by.tipo == 'DESC':
+                registro = sorted(registro, key=lambda i: str(i[indexG]).lower(), reverse=True)
+
         if self.lista_cols != '*':
             listCampos2 = []
+            auxEncabezados=[]
             for col in self.lista_cols:
                 contador = -1
-                for campo in encabezados:  # RECORRO LOS NOMBRES DE LOS CAMPOS DE LA TS
-                    listCampos2.clear()  # LIMPIO LA LISTA DONDE ALMACENARE LOS DATOS DE CADA COLUMNA
-                    contador += 1  # INDICA LA POSICION DE LA COLUMNA DONDE OBTENGO LOS VALORES
+                for campo in encabezados:  
+                    listCampos2.clear()  
+                    contador += 1  
                     if (col.valor == campo):
-                        for col2 in registro:  # RECORRO LOS DATOS DE LA TABLA DE SIMBOLOS
+                        auxEncabezados.append(col.valor)
+                        aux = columnaId([],col.valor)
+                        for col2 in registro:  
                             listCampos2.append(col2[contador])
-                            registro_aux.append(col2[contador])
+                            aux.lista.append(col2[contador])
                         salidaTabla.add_column(campo, listCampos2)
-                      
+                        registro_aux.append(aux)
+            registro=self.metodo_sis(registro_aux)
+            encabezados=auxEncabezados
         else:
             salidaTabla.field_names = encabezados
             if len(registro) > 0:
                 salidaTabla.add_rows(registro)
-
-        if self.orderby != None:
-            auxOrder_by = self.orderby.ejecutar()
-            print(str(auxOrder_by.valor[0]))
-            
-            if auxOrder_by.tipo == 'ASC':
-                add_text('\n')
-                add_text(salidaTabla.get_string(sort_key=operator.itemgetter(1, 0), sortby=str(auxOrder_by.valor[0])))
-                add_text('\n')
-            elif auxOrder_by.tipo == 'DESC':
-                add_text('\n')
-                add_text(salidaTabla.get_string(sort_key=operator.itemgetter(1, 0), reversesort=True, sortby=str(auxOrder_by.valor[0])))
-                add_text('\n')
+                        
 
         if imprimir==None :
             add_text('\n')
@@ -220,6 +233,15 @@ class select_normal(instruccion):
             add_text('\n')
 
         return retorno(registro,encabezados)
+
+
+    def OrderByBurbuja(self,lista,index):
+        print('Index '+str(index))
+        
+        
+
+        return sorted_rank
+        
 
     def retornador_index(self, id, lista_campo):
 
@@ -244,4 +266,18 @@ class select_normal(instruccion):
                 contadorG+=1
 
         return True
+
+    def metodo_sis(self,lista):
+        lista_original = []
+        contador = 0
+
+        for recorido in lista[0].lista:
+            lista_aux = []
+            for columna in lista:
+                lista_aux.append(columna.lista[contador])
+            contador+=1
+            lista_original.append(lista_aux)    
+
+        return lista_original
+
 
