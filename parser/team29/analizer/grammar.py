@@ -1759,7 +1759,6 @@ def p_error(t):
 parser = yacc.yacc()
 
 
-
 def returnSyntacticErrors():
     return syntax_errors
 

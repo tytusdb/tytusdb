@@ -24,7 +24,7 @@ class Insert(Querie):
         if not isinstance(self.tableName,str):
             return {'Error': 'El nombre indicado de la tabla no es una cadena.', 'Fila':self.row, 'Columna': self.column }
         
-        if self.idList == None:
+        if not isinstance(self.idList,list):
 
             db_name = environment.getActualDataBase()
             database = environment.readDataBase(db_name)

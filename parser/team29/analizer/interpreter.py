@@ -7,7 +7,6 @@ path.append(dir(path[0]))
 from analizer.abstract import instruction as inst
 from analizer import grammar
 from analizer.reports import BnfGrammar
-from analizer.abstract.instruction import envVariables as environments
 
 
 def execution(input):
@@ -19,7 +18,7 @@ def execution(input):
     result = grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
     syntaxErrors = grammar.returnSyntacticErrors()
-    if len(lexerErrors) + len(syntaxErrors) == 0:
+    if len(lexerErrors) + len(syntaxErrors) == 0 and result:
         for v in result:
             if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
                 r = v.execute(None)
@@ -42,10 +41,10 @@ def execution(input):
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
-        "symbols": symbols
+        "symbols": symbols,
     }
-    symbols = symbolReport()
-    print(symbols)
+    astReport()
+    BnfGrammar.grammarReport()
     return obj
 
 
@@ -60,7 +59,8 @@ def parser(input):
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
     }
-    print(obj)
+    astReport()
+    BnfGrammar.grammarReport()
     return obj
 
 
@@ -69,9 +69,8 @@ def astReport():
 
 
 def symbolReport():
-    global environments
+    environments = inst.envVariables
     report = []
-
     for env in environments:
         vars = env.variables
         types = env.types
@@ -90,22 +89,10 @@ def symbolReport():
         for (key, symbol) in types.items():
             r = [key, key, str(symbol) if not symbol else "Columna", "-", "-"]
             filas.append(r)
-
         enc.append(filas)
         report.append(enc)
+    inst.envVariables = []
     return report
 
 
-s = """ 
-USE test*;
-select *
-from tbrol WHERE idrol > 0;
-"""
-r = """ 
-USE test[];
-select *
-from tbrol WHERE idrol > 0;
-"""
-# parser(s)
-# execution(r)
 # BnfGrammar.grammarReport()

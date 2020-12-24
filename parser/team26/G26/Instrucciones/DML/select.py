@@ -13,6 +13,7 @@ from Primitivo import *
 from datetime import *
 from TablaSimbolos import *
 from prettytable import *
+from operator import itemgetter
 
 import math
 import random
@@ -28,11 +29,47 @@ class Select(Instruccion):
 
     def execute(self, data):
         fromData = self.fromopcional
+        if fromData == None:
+            diccionarioColumnasAceptadas = {}
+            nuevaColumna = []
+            i = 0
+            contadorNombre = 0
+            nombreTabla = ''
+            select = self.parametros
+            columnasImprimir = select.listadeseleccion
+            for columnasSeleccionadas in columnasImprimir:
+                nombreColumna = columnasSeleccionadas.listaseleccionados
+                try:
+                    if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionmatematica
+                    else: nombreTabla = nombreColumna.tipofuncionmatematica + str(contadorNombre)
+                except:
+                    try:
+                        if nombreColumna.operador == 'md5':
+                            return Error('Sintactico', 'El md5 solamente puede venir en el insert y update', 0, 0)
+                        if contadorNombre == 0: nombreTabla = nombreColumna.operador
+                        else: nombreTabla = nombreColumna.operador + str(contadorNombre)
+                    except:
+                        if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
+                        else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+
+                comprobar = nombreColumna.execute(data, None)
+                if isinstance(comprobar, Error):
+                    return comprobar
+
+                diccionarioColumnasAceptadas[nombreTabla] = {'columnas': [], 'tipo': ''}
+
+                diccionarioColumnasAceptadas[nombreTabla]['columnas'].append([comprobar.val])
+                diccionarioColumnasAceptadas[nombreTabla]['tipo'] = comprobar.type
+
+            return diccionarioColumnasAceptadas
+
+
         tablas = fromData.execute(data).execute(data)
         where = tablas.whereopcional
         directorioTablas = {}
         tablasFromTemporales = []
         columnasFromTemporales = {}
+
         for tablasSeleccionadas in tablas.parametros:
             if isinstance(tablasSeleccionadas.parametros.operador, Select):
                 tablas = tablasSeleccionadas.parametros.operador.execute(data)
@@ -92,6 +129,7 @@ class Select(Instruccion):
             elif tablasSeleccionadas.asop == None:
                 directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': '', 'temporal': False}
             else:
+                print(nombreColumna)
                 directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': tablasSeleccionadas.asop.upper(), 'temporal': False}
 
         try:
@@ -207,10 +245,11 @@ class Select(Instruccion):
             duplicadas = 0
             for route in routes:
                 if tuple(route) in dups:
-                    nuevoArregloDistinct.append(route)
+                    #nuevoArregloDistinct.append(route)
                     juntarValores.pop(contador)
                     duplicadas = duplicadas + 1
                 else:
+                    nuevoArregloDistinct.append(route)
                     dups.add(tuple(route))
             contador = contador + 1
 
@@ -226,9 +265,132 @@ class Select(Instruccion):
                 diccionarioColumnasAceptadas[tablas]['columnas'] = columnaSelect
                 contador = contador + 1
 
-        print('****************')
-        print(self)
-        print('****************')
+        whereOpcional = True
+        groupByOpcional = False
+        groupByData = None
+        if self.fromopcional.whereopcional == None and self.fromopcional.groupbyopcional == None:
+            ''
+        else:
+            if self.fromopcional.groupbyopcional == None:
+                groupByData = self.fromopcional.whereopcional.groupbyopcional
+                groupByOpcional = True
+            else:
+                groupByData = self.fromopcional.groupbyopcional
+                whereOpcional = False
+                groupByOpcional = True
+
+        if groupByData == None:
+            ''
+        else:
+            if len(diccionarioColumnasAceptadas.keys()) == len(groupByData.lista):
+                for keys in groupByData.lista:
+                    if keys.column.upper() in diccionarioColumnasAceptadas:
+                        ''
+                    else:
+                        return Error('Semantico', 'No se reconoce la columna ' + keys.column + '.', 0, 0)
+            else:
+                return Error('Semantico', 'Faltan columnas para agrupar en el group by.', 0, 0)
+
+            columnasMostrar = diccionarioColumnasAceptadas
+            juntarValoresN = []
+            inicio = 0
+            for keys in columnasMostrar.keys():
+                contador = 0
+                for val in columnasMostrar[keys]['columnas']:
+                    if inicio == 0:
+                        s = val.copy()
+                        juntarValoresN.append(s)
+                    else:
+                        juntarValoresN[contador].append(val[0])
+                    contador = contador + 1
+                inicio = inicio + 1
+
+            diccionarioAgrupacion = {}
+
+            pos = 0
+            for fila in juntarValoresN:
+                nombre = ''
+                for valorIndividual in fila:
+                    nombre = nombre + str(valorIndividual)
+
+                if nombre in diccionarioAgrupacion:
+                    diccionarioAgrupacion[nombre].append(pos)
+                else:
+                    diccionarioAgrupacion[nombre] = []
+                    diccionarioAgrupacion[nombre].append(pos)
+                pos = pos + 1
+
+
+            cambiarValores = False
+            for keys in diccionarioColumnasAceptadas.keys():
+                if len(diccionarioAgrupacion.keys()) < len(diccionarioColumnasAceptadas[keys]['columnas']):
+                    cambiarValores = True
+                break
+
+            agregarColumnas = False
+            columnasGNuevas = []
+
+            for agregacion in columnasAgregacion:
+                val = agregacion.execute(data, diccionarioAgrupacion, diccionarioColumnasAceptadas, columnasAceptadas)
+
+                if isinstance(val, Error):
+                    for borrarTemporales in columnasFromTemporales.keys():
+                        del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
+                    return val
+
+                columnasGNuevas.append(val)
+                agregarColumnas = True
+
+            if agregarColumnas or cambiarValores:
+                juntarValores = []
+                inicio = 0
+
+                for keys in diccionarioColumnasAceptadas.keys():
+                    contador = 0
+                    for val in diccionarioColumnasAceptadas[keys]['columnas']:
+                        if inicio == 0:
+                            s = val.copy()
+                            juntarValores.append(s)
+                        else:
+                            juntarValores[contador].append(val[0])
+                        contador = contador + 1
+                    inicio = inicio + 1
+
+                contador = 0
+                nuevoArregloDistinct = []
+
+                routes = juntarValores
+                dups = set()
+
+                duplicadas = 0
+                for route in routes:
+                    if tuple(route) in dups:
+                        juntarValores.pop(contador)
+                        duplicadas = duplicadas + 1
+                    else:
+                        nuevoArregloDistinct.append(route)
+                        dups.add(tuple(route))
+                contador = contador + 1
+
+                if duplicadas == 0:
+                    nuevoArregloDistinct = juntarValores
+
+                contador = 0
+                for tablas in diccionarioColumnasAceptadas.keys():
+                    datosTablas = diccionarioColumnasAceptadas[tablas]
+                    columnaSelect = []
+                    for filaActual in nuevoArregloDistinct:
+                        columnaSelect.append([filaActual[contador]])
+                    diccionarioColumnasAceptadas[tablas]['columnas'] = columnaSelect
+                    contador = contador + 1
+
+                for nuevas in columnasGNuevas:
+                    cont = 0
+                    for col in nuevas['val'].keys():
+                        if cont == 0:
+                            diccionarioColumnasAceptadas[nuevas['name']] = {'columnas': [], 'tipo': nuevas['type']}
+                        diccionarioColumnasAceptadas[nuevas['name']]['columnas'].append(nuevas['val'][col])
+                        cont = cont + 1
 
         for borrarTemporales in columnasFromTemporales.keys():
             del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
@@ -351,8 +513,78 @@ class ListaDeSeleccionadosConOperador(Instruccion):
         self.arg1 = arg1
         self.arg2 = arg2
 
-    def execute(self,data):
-        return self
+    def execute(self,data, valoresTabla):
+        print(self)
+        print(valoresTabla)
+        if self.operador.upper() == 'CASE' :
+            left = ''
+            for arg in self.arg1 :
+                condit = arg.caso.whenCase.execute(data, valoresTabla)
+
+                if isinstance(condit, Error):
+                    return condit
+                
+                if condit :
+                    return Primitive(str(arg.caso.thenCase.type), arg.caso.thenCase.val)
+            
+                if arg.elsecase != None :
+                    left = arg.elsecase.elseopcional
+
+            return left
+        else :
+            ''
+            items = []
+            tipo = None
+            tipofecha = False
+            for arg in self.arg1 :
+                try:
+                    resp = arg.execute(data, valoresTabla)
+                except:
+                    resp = arg.execute()
+
+                if isinstance(resp, Error):
+                    return resp
+
+                if tipo == None :
+                    tipo = resp.type
+                elif tipo != resp.type :
+                    error = Error('Semántico', 'Error(????): Error de tipos.', 0, 0)
+                    return error
+                
+                if resp.type == 'string' :
+                    try :
+                        dextraccion = resp
+                        fechacopleta = datetime.strptime(dextraccion.val,'%Y-%m-%d %H:%M:%S')
+                        tipofecha = True
+                    except :
+                        try:
+                            dextraccion = resp
+                            fechacopleta = datetime.strptime(dextraccion.val,'%H:%M:%S')
+                            tipofecha = True
+                        except :
+                            try :
+                                dextraccion = resp
+                                fechacopleta = datetime.strptime(dextraccion.val,'%Y-%m-%d')
+                                tipofecha = True
+                            except :
+                                if tipofecha :
+                                    error = Error('Semántico', 'Error(????): Error de tipos.', 0, 0)
+                                    return error
+
+                    
+
+                items.append(resp.val)
+
+            if  self.operador.upper() == 'GREATEST' :
+                
+                try:
+                    return Primitive('integer', int(max(items)))
+                except:
+                    return Primitive('string', max(items))
+                
+            else : 
+                'LEAST'
+                return Primitive('string', min(items))
 
     def __repr__(self):
         return str(self.__dict__)
@@ -1866,7 +2098,96 @@ class FuncionMatematicaSimple(Instruccion):
         self.argumento = argumento
         self.operador = operador
 
-    def execute(self,data):
+    def execute(self, data, diccionarioAgrupacion, diccionarioColumnasAceptadas, columnasAceptadas):
+        diccionarioRetorno = {'val': {}, 'type': None, 'name': ''}
+        contador = 0
+        noEncontrado = True
+        columnaImprimir = None
+        tablaAceptada = None
+        for keys in columnasAceptadas:
+            contador = 0
+            for columnas in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][keys]['columns']:
+                if columnas.name == self.argumento.column.upper():
+                    noEncontrado = False
+                    tablaAceptada = keys
+                    columnaImprimir = columnas
+                    diccionarioRetorno['type'] = columnas.type
+                    break;
+                else:
+                    contador = contador + 1
+        if noEncontrado:
+            if self.operador == 'count':
+                if self.argumento.column == '*':
+                    contador = 0
+                else:
+                    return Error('Semantico', 'La columna ' + self.argumento.column.upper() + ' no existe.', 0, 0)
+            else:
+                return Error('Semantico', 'La columna ' + self.argumento.column.upper() + ' no existe.', 0, 0)
+        diccionarioRetorno['name'] = self.operador
+        if self.operador == 'avg':
+            if columnaImprimir.type == 'integer' or columnaImprimir.type == 'float':
+                val = 0
+                cont = 0
+
+                for key in diccionarioAgrupacion:
+                    val = 0
+                    cont = 0
+                    for pos in diccionarioAgrupacion[key]:
+                        val = val + columnasAceptadas[tablaAceptada][pos][contador]
+                        cont = cont + 1
+                    res = val/cont
+                    diccionarioRetorno['val'][key] = [res]
+
+                return diccionarioRetorno
+            else:
+                return Error('Semantico', 'El tipo para AVG debe ser numerico o float.', 0, 0)
+
+        elif self.operador == 'sum':
+            if columnaImprimir.type == 'integer' or columnaImprimir.type == 'float':
+                val = 0
+
+                for key in diccionarioAgrupacion:
+                    val = 0
+                    for pos in diccionarioAgrupacion[key]:
+                        val = val + columnasAceptadas[tablaAceptada][pos][contador]
+                    diccionarioRetorno['val'][key] = [val]
+
+                    return diccionarioRetorno
+            else:
+                return Error('Semantico', 'El tipo para SUM debe ser numerico o float.', 0, 0)
+        elif self.operador == 'count':
+            val = 0
+            for key in diccionarioAgrupacion:
+                val = len(diccionarioAgrupacion[key])
+                diccionarioRetorno['val'][key] = [val]
+
+            return diccionarioRetorno
+
+        elif self.operador == 'max':
+            val = 0
+            valComp = []
+            for key in diccionarioAgrupacion:
+                val = 0
+                valComp = []
+                for pos in diccionarioAgrupacion[key]:
+                    valComp.append(columnasAceptadas[tablaAceptada][pos][contador])
+                r = max(valComp)
+                diccionarioRetorno['val'][key] = [r]
+
+            return diccionarioRetorno
+
+        elif self.operador == 'min':
+            val = 0
+            valComp = []
+            for key in diccionarioAgrupacion:
+                val = 0
+                valComp = []
+                for pos in diccionarioAgrupacion[key]:
+                    valComp.append(columnasAceptadas[tablaAceptada][pos][contador])
+                r = min(valComp)
+                diccionarioRetorno['val'][key] = [r]
+
+            return diccionarioRetorno
         return self
 
     def __repr__(self):
