@@ -340,4 +340,72 @@ class AST:
                 
             #     print("====================================")
             self.output.append(filtrada)
-       
+      
+ #----------------------------------------------------------------------------------------------------------------   
+    def printOutputs(self):
+        global output2
+        print('\n--- SALIDAS ('+str(len(self.output))+') -----------------------------------------')
+        for s in self.output:
+            print(str(s))
+            output2 = str(s)
+
+    def printErrors(self):
+        global errors2
+        print('\n--- ERRORES ('+str(len(self.errors))+') -----------------------------------------')
+        for e in self.errors:
+            print(e.toString())
+            errors2 = e.toString()
+
+            
+    def generateTSReport(self):
+        now = datetime.now()
+        fecha = 'Fecha: '+str(now.day)+'/'+str(now.month)+'/'+str(now.year)
+        hora = 'Hora: '+str(now.hour)+':'+str(now.minute)
+        header = '<html><head><br><title>REPORTE TABLA DE SIMBOLOS</title></head><body>\n<H1 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">REPORTE TABLA DE SIMBOLOS</font></b></H1>\n<H4 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">'+fecha+' | '+hora+'</font></b></H4>\n'
+        tbhead = '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
+        tbhead += '<tr>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">DB/TABLA</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">NOMBRE COLUMNA</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">TIPO</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">PRIMARY KEY</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">NULL</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">UNIQUE</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">LINEA</font></td>\n'
+        tbhead += '</tr>\n'
+        cont = ''
+        check = '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="#83c95b" size="3">&#x2714</font></td>\n'
+        notck = '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="#f04d4d" size="3">&#x2718</font></td>\n'
+        # Iteración en la base de datos
+        for name_db,obj_db in self.ts.items():
+            # Iteración sobre las tablas de la DB
+            for name_tb,table in obj_db.tables.items():
+                # Iteración sobre las columnas de la tabla
+                    for col_name,col in table.items():
+                        cont += '<tr>\n'
+                        cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+name_db+'/'+name_tb+'</font></td>\n'
+                        cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+col_name+'</font></td>\n'
+                        cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+col.columnType.getType()+'</font></td>\n'
+                        cont += check if col.isPrimaryKey else notck
+                        cont += check if col.isNull else notck
+                        cont += check if col.isUnique else notck
+                        cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(col.line)+'</font></td>\n'
+                        cont += '</tr>\n'
+        # Se añade la información
+        cont += '</table>\n</body>\n</HTML>\n'
+        file = open("repoteTS.html", "w")
+        file.write(header)
+        file.write(tbhead)
+        file.write(cont)
+        file.close()
+        
+   #-----------------------------------------------------------------------------------------------------------------------------------------
+    
+    def crearEnum(self,nodo):
+        nombre = nodo.valor
+        valores = []
+        for v in nodo.hijos:
+            valores.append(v.valor)
+        # Almacenar el tipo 
+        self.userTypes[nombre] = valores
+        
+   #-----------------------------------------------------------------------------------------------------------------------------------------
