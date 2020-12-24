@@ -11,11 +11,10 @@
 2. Objetivos
 3. Alcances del proyecto
 4. Requerimientos
-5. Estructura del proyecto
-6. Justificación de la gramática
-7. Funciones relevantes
-8. Diagramas
-9. Glosario
+5. Justificación de la gramática
+6. Diagramas
+7. Estructura
+8. Glosario
 ---
 ## INTRODUCCIÓN
 El presente documento detalla una los elementos basicos de Tytus DBMS, el cual fue desarrollado por alumnos del curso de compiladores 2. Documentado de la mejor manera posible
@@ -49,7 +48,56 @@ Para el proyecto, se opto por implementar una gramatica descendente. Las gramati
 
 ## Diagramas
 
-![alt text](https://github.com/tytusdb/tytus/tree/main/parser/team12/Manuales/d.png "EncenderR")
+![alt text](https://github.com/tytusdb/tytus/blob/main/parser/team12/Manuales/d.png "EncenderR")
+
+
+## ESTRUCTURA
+#### Carpeta ARBOL_AST
+* En esta carpeta se encuentra ubicado todo lo referente a la generación del arbol AST
+
+#### Carpeta AST
+* En esta carpeta se encuentra el nodo, el cual es la base del arbol.
+
+### Carpeta  DDL
+* En esta carpeta se encuentran todos las instrucciones referente a la instrucciones de DDL:
+   * CREATE table y database
+   * DROP table y database
+   * SHOW table y database
+   * USE database
+
+### Carpeta DML
+* En esta carpeta se encuentran todos las instrucciones referente a la instrucciones de DML:
+   * Sentencia Alter
+   * Sentencia Delete
+   * Sentencia Insert
+   * Sentencia Update
+   * Sentencia Select
+
+### Carpeta DML
+* En esta carpeta se encuentra la clase que maneja el entorno de la gramatica, esto para poder llevar un contexto de donde se encuentran las variables definida, etc.
+
+### Carpeta Error
+* En esta carpeta se encuentral a clase que sirve de apoyo para llevar el control de los errores.
+
+### Carpeta Expresión
+* En esta carpeta se encuentra el manejo de las expresiones logicas, aritmeticas y relacionales.
+
+### Carpeta Funciones Nativas
+* En esta carpeta se encuentra los archivos correspondientes al manejo de las funciones nativas definidase para Tytus.
+
+### Carpeta Start
+* En esta carpeta se encuentra el archivo que recorre el arbol para su respectiva ejecución
+
+### Carpeta typeChecker
+* En esta carpeta se encuentran los archivos que llevan el control local de las tabals y base de datos creadas, asi como el tipo de las columnas.
+
+### Archivo gramatica.py
+* En este archivo se encuentra definido lo que es la gramatica a implementar para el proyecto
+
+### Archivo main.py
+* en este archivo se hace uso del parser para implementarlo con la interfaz grafica.
+
+
 
 ## GLOSARIO
 1. COMPILADOR: Es un Software que traduce un programa escrito en un lenguaje de programación de alto nivel (C / C ++, COBOL, etc.) en lenguaje de máquina. Un compilador generalmente genera lenguaje ensamblador primero y luego traduce el lenguaje ensamblador al lenguaje máquina.
