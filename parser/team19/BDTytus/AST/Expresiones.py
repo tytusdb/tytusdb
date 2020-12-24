@@ -96,6 +96,7 @@ class Expression(Node.Nodo):
         elif self.op_type == 'as' or self.op_type == 'in' or self.op_type == 'agg':
             self.val.ejecutar(TS, Errores)
             self.asid.ejecutar(TS, Errores)
+            self.asid = self.asid.id
             return self
         elif self.op_type == 'math':
             if self.function == 'ceil' or self.function == 'ceiling':
@@ -450,6 +451,17 @@ class Expression(Node.Nodo):
                 else:
                     return TIPO_DATOS.ERROR
             return TIPO_DATOS.ERROR
+        elif self.op_type == 'Logica':
+            val1 = self.exp1.ejecutar(TS, Errores)
+            val2 = self.exp2.ejecutar(TS, Errores)
+            if isinstance(val1.val, bool):
+                if isinstance(val2.val, bool):
+                    if self.op == 'and':
+                        self.val = val1.val and val2.val
+                    elif self.op == 'or':
+                        self.val = val1.val or val2.val
+                    return self
+
 
     def getC3D(self, TS):
         codigo = ""
