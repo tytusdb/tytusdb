@@ -66,7 +66,21 @@ class alterTable(InstruccionAbstracta):
                     if respuesta == 0:
                         #no existe la tabla
                         indice = tabla.obtenerUltimoIndice()
-                        nuevaColumna = simboloColumna.SimboloColumna(indice,nodoAdd[1].valor,nodoAdd[2].valor)
+                        respJson = jsonMode.alterAddColumn(baseDatos.nombre,self.nombre,None)
+                        if respJson == 0:
+                            nuevaColumna = simboloColumna.SimboloColumna(indice,nodoAdd[1].valor,nodoAdd[2].valor)
+                        elif respJson == 1:
+                            errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error en la operacion")
+                            listaErrores.append(errorEnviar)
+                            return
+                        elif respJson == 2:
+                            errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Base de datos no existente")
+                            listaErrores.append(errorEnviar)
+                            return
+                        elif respJson == 3:
+                            errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Tabla no existente")
+                            listaErrores.append(errorEnviar)
+                            return
 
                         #Es un tipo de dato no primitivo
                         if nuevaColumna.tipoDato == simboloColumna.TiposDatos.enum:
@@ -80,7 +94,7 @@ class alterTable(InstruccionAbstracta):
                                 errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error 42704: Tipo de dato no existe")
                                 listaErrores.append(errorEnviar)
                                 return
-                            tabla.agregarColumna(nuevaColumna)
+                        tabla.agregarColumna(nuevaColumna)
                     elif respuesta == 1:
                         #si existe la columna
                         errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","La columna ya existe")
@@ -141,25 +155,35 @@ class alterTable(InstruccionAbstracta):
                             return
                     elif nodoLista[0].nombreNodo == "DROP":
                         #Eliminar columna
-                        respuesta = tabla.eliminarColumna(nodoLista[2].valor)
-                        if respuesta == 0:
+                        respuesta = tabla.obtenerColumna(nodoLista[2].valor)
+                        if respuesta == None:
                             errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Columna " + str(nodoLista[2].valor) + " no existe")
                             listaErrores.append(errorEnviar)
                             return
-                        elif respuesta == 1:
-                            print("Columna eliminada")
-                        elif respuesta == 2:
-                            errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Columna Llave Primarina no se puede eliminar")
-                            listaErrores.append(errorEnviar)
-                            return
-                        elif respuesta == 3:
-                            errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Columna es llave foranea, se debe eliminar primero el constraint de llave foránea")
-                            listaErrores.append(errorEnviar)
-                            return
-                        elif respuesta == 4:
-                            errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Tiene un Constraint se debe eliminar primero el constraint")
-                            listaErrores.append(errorEnviar)
-                            return
+                        else:
+                            respJson = jsonMode.alterDropColumn(baseDatos.nombre,self.nombre,respuesta.indice)
+                            if respJson == 0:
+                                tabla.eliminarColumna(nodoLista[2].valor)
+                            elif respJson == 1:
+                                errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion"," error en la operación")
+                                listaErrores.append(errorEnviar)
+                                return
+                            elif respJson == 2:
+                                errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","database no existente")
+                                listaErrores.append(errorEnviar)
+                                return
+                            elif respJson == 3:
+                                errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","table no existente")
+                                listaErrores.append(errorEnviar)
+                                return
+                            elif respJson == 4:
+                                errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","llave no puede eliminarse o tabla quedarse sin columna")
+                                listaErrores.append(errorEnviar)
+                                return
+                            elif respJson == 5:
+                                errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","columna fuera de límites")
+                                listaErrores.append(errorEnviar)
+                                return
 
         else:
             #Tabla no existe
