@@ -35,6 +35,11 @@ class CreateDB(Instruction):
 
         # TODO Verificar permisos y modo
         database = Database(self._properties['id'])
+
+        for permits in self._properties['listpermits']:
+            if 'MODE' in permits:
+                database.mode = permits['MODE']
+
         typeChecker.createDatabase(database, self._noLine,
                                    self._noColumn)
 

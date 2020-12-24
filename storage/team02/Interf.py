@@ -5,7 +5,13 @@ import sys
 from tkinter import filedialog as FileDialog
 from tkinter import messagebox
 from io import open
+from DataBaseLista import *
+from TablasD import *
 
+#----Creando objeto para bases de datos
+DB = ListaDOBLE()
+#---Creando objeto para TablasD
+Td = TablasArboles()
 raiz = Tk()
 VentanaPrincipal = Frame(raiz, width = 1200, height=600)
 VentanaPrincipal.config(background = "#f9e0ae")
@@ -210,7 +216,7 @@ def GraficasTabla():
 def GraficasBD():
 
   #  mensaje2.set("Crear BAse")
-    mensaje2.set(print ("crear base"))
+    mensaje2.set(DB.GraficarConArchivo())
     return None  
 
 #.................PARA EL ARBOL B 
@@ -328,32 +334,41 @@ opciones2.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "b
 
 #-----------------------------AQUÍ VAN LOS METODOS PARA CREAR LAS BASES DE DATOS --------------- 
 
+
 def CrearDB(base):
 
     #if 1==2: aquí busca la base de datos
     #  
     
+        res_1 = DB.agregarLista(base)
+        print(res_1)
         return  "Base {} creada".format(base) #1
     #else:
     #    return 0 #'Error en conexion'
 
 
 def MostarDB(base):
-    return "Base {} mostrada".format(base)
+    res_2 = DB.imprimir()
+    print(res_2)
+    return "Base {} mostrada".format(res_2)
 
 def RenombrarDB(base):
-    return "Base {} renombrada".format(base)
+    res_3 = DB.modificarNodo(base, nuevo)
+    print(res_3)
+    return "Base {} renombrada".format(nuevo)
 
 def EliminarDB(base):
+    res_4 = DB.eliminarNodo(base)
+    print(res_4)
     return "Base {} Eliminada".format(base)
 
 
 def BuscarDB(base):
     return "Base {} Encontrada".format(base)
-
+"""
 def RenombrarDB(base):
     return "Base {} Renombrada".format(base)
-
+"""
 def print_respuesta():
     resultado = ''
 
@@ -418,9 +433,13 @@ def ERange (base1, tabla, columna, columna2, columna3):
     return " La base {}, ".format(base1), "con la tabla {},".format(tabla), "columna {},".format(columna), "{},".format(columna2), "{}".format(columna3), "Extract range"
 
 def ADrop (base1 , tabla): 
+	res_5 = Td.alterDPK(base1 , tabla)
+	print(res_5)
     return "La base {} ".format(base1), "con la tabla {}".format(tabla),"A. DROP"
 
 def AddPK(base1, tabla, columna): 
+	res_6 = Td.alterPK(base1, tabla, columna)
+	print(res_6)
     return "El nombre de la base{},".format(base1), "Tabla {},".format(tabla), "y columna {}".format(columna), "Agregada la PK"
 
 def RenombrarTB(base1, tabla, rename):

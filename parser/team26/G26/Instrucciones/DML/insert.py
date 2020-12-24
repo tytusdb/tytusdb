@@ -8,6 +8,7 @@ from instruccion import *
 from Lista import *
 from TablaSimbolos import *
 from datetime import *
+from Error import *
 
 class Insert(Instruccion):
 
@@ -23,6 +24,10 @@ class Insert(Instruccion):
             except:
                 valor = val.execute(data, None)
             valoresTabla.append(valor.val)
+
+        if not self.tableid.upper() in data.tablaSimbolos[data.databaseSeleccionada]['tablas'] : 
+            error = Error('Semántico', 'Error(23503): La tabla ' + self.tableid.upper() + ' no existe.', 0, 0)
+            return error
 
         listaColumnas = data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.tableid.upper()]['columns']
 
@@ -42,7 +47,8 @@ class Insert(Instruccion):
                 if len(valoresTabla) < len(listaColumnas):
                     tamanioInferior = True
                 elif len(valoresTabla) > len(listaColumnas):
-                    return 'Error(54023): too_many_arguments'
+                    error = Error('Semántico', 'Error(54023): too_many_arguments.', 0, 0)
+                    return error
 
             dentroRango = True
             valExtra = False
@@ -79,7 +85,8 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                            return error
 
                 elif columna.type == 'bigint':
                     if isinstance(valoresTabla[posColumna], int):
@@ -92,7 +99,8 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                            return error
 
                 elif columna.type == 'decimal':
                     if isinstance(valoresTabla[posColumna], int): valoresTabla[posColumna] = float(valoresTabla[posColumna])
@@ -106,7 +114,8 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                            return error
                 elif columna.type == 'real':
                     if isinstance(valoresTabla[posColumna], int) or isinstance(valoresTabla[posColumna], float):
                         round(valoresTabla[posColumna], 6)
@@ -115,7 +124,8 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                            return error
                 elif columna.type == 'double':
                     if isinstance(valoresTabla[posColumna], int) or isinstance(valoresTabla[posColumna], float):
                         round(valoresTabla[posColumna], 15)
@@ -124,7 +134,8 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                            return error
                 elif columna.type == 'money':
                     if isinstance(valoresTabla[posColumna], str):
                         if isinstance(valoresTabla[posColumna][0] == '$'):
@@ -134,7 +145,8 @@ class Insert(Instruccion):
                                 if tamanioInferior:
                                     comprobarNull = True
                                 else:
-                                    return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                                    error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                                    return error
                     else:
                         if valoresTabla[posColumna] >= -92233720368547758.08 and valoresTabla[posColumna] <= 92233720368547758.07:
                             valoresTabla[posColumna] = '$' + str(valoresTabla[posColumna])
@@ -143,7 +155,8 @@ class Insert(Instruccion):
                             if tamanioInferior:
                                 comprobarNull = True
                             else:
-                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                                error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                                return error
                 elif columna.type == 'character' or columna.type == 'varchar' or columna.type == 'char': #-------------FALTA EL CHAR
                     if isinstance(valoresTabla[posColumna], str):
                         if columna.size >= len(valoresTabla[posColumna]):
@@ -152,7 +165,8 @@ class Insert(Instruccion):
                             if tamanioInferior:
                                 comprobarNull = True
                             else:
-                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                                error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                                return error
                     else:
                         mensajeError = 'Error(???): El tipo de dato insertado en la columna ' + columna.name + ' es incorrecto.'
                         comprobarNull = True
@@ -163,7 +177,8 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                            return error
                 elif columna.type == 'time':
                     try:
                         hora = valoresTabla[posColumna]
@@ -173,7 +188,8 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                            return error
                 elif columna.type == 'date':
                     try:
                         fecha = valoresTabla[posColumna]
@@ -190,8 +206,9 @@ class Insert(Instruccion):
                             if tamanioInferior:
                                 comprobarNull = True
                             else:
-                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
-                elif columna.type == 'boleano':
+                                error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                                return error
+                elif columna.type == 'boolean':
                     if isinstance(valoresTabla[posColumna], str):
                         if valoresTabla[posColumna].lower() == 'true' or valoresTabla[posColumna].lower() == 'yes' or valoresTabla[posColumna].lower() == 'on' or valoresTabla[posColumna].lower() == 'false' or valoresTabla[posColumna].lower() == 'no' or valoresTabla[posColumna].lower() == 'off':
                             ''
@@ -199,7 +216,8 @@ class Insert(Instruccion):
                             if tamanioInferior:
                                 comprobarNull = True
                             else:
-                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                                error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                                return error
                     elif bool(valoresTabla[posColumna]):
                         ''
                     else:
@@ -209,7 +227,8 @@ class Insert(Instruccion):
                             if tamanioInferior:
                                 comprobarNull = True
                             else:
-                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                                error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                                return error
                 else:
                     saltarValor = True
                     for valoresEnum in data.tablaSimbolos[data.databaseSeleccionada]['enum'][columna.type]:
@@ -220,14 +239,16 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            error = Error('Semántico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
+                            return error
 
             compDefault = False
             if columna.unique != None:
                 tablaExtraida = extractTable(data.databaseSeleccionada, self.tableid.upper())
                 for fila in tablaExtraida:
                     if fila[posColumna] == valoresTabla[posColumna]:
-                        return 'Error(???): Debe insertarse un valor unico en ' + columna.name
+                        error = Error('Semántico', 'Error(???): Debe insertarse un valor unico en ' + columna.name, 0, 0)
+                        return error
 
             nullInsertado = False
             if columna.null != None and comprobarNull and tamanioInferior:
@@ -256,7 +277,8 @@ class Insert(Instruccion):
                     if chk.val.executeInsert(data, diccionarioTabla) :
                         ''
                     else:
-                        return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
+                        error = Error('Semántico', 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.', 0, 0)
+                        return error
 
              #validando foreign keys
             for fk in columna.fk :
@@ -282,6 +304,14 @@ class Insert(Instruccion):
                     return error
 
             posColumna += 1
+
+        if len(valoresTabla) != len(listaColumnas):
+            if len(valoresTabla) < len(listaColumnas):
+                error = Error('Semántico', 'Error(54023): not_enough_arguments.', 0, 0)
+                return error
+            elif len(valoresTabla) > len(listaColumnas):
+                error = Error('Semántico', 'Error(54023): too_many_arguments.', 0, 0)
+                return error
 
         valRetorno = insert(data.databaseSeleccionada, self.tableid.upper(), valoresTabla)
 
