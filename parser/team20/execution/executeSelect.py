@@ -17,7 +17,7 @@ def executeSelect(self,select):
     columns = []
 
     if(select.tables==None): #SELECT SOME FUNCTIONS 
-        print(select.columns)
+        #print(select.columns)
         columnsNames = []
         columnsValues = []
 

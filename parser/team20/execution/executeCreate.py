@@ -17,7 +17,7 @@ def executeCreateDatabase(self, database):
     if(database.OwnerMode[1]!= None):
         res = executeExpression(self,database.OwnerMode[1])
         if(isinstance(res,Error)): 
-            print_error("SEMANTIC ERROR",r)
+            print_error("SEMANTIC ERROR",res.toSring())
         else: mode = res.value
         
     if(database.ifNotExistsFlag and not(database.OrReplace)):
@@ -41,7 +41,7 @@ def executeCreateDatabase(self, database):
             if(database.OwnerMode[1]!= None ):
                 res = executeExpression(self,database.OwnerMode[1])
                 if(isinstance(res,Error)): 
-                    print_error("SEMANTIC ERROR",r)
+                    print_error("SEMANTIC ERROR",res.toString())
                 else: mode = res.value
             if mode==1:
                 return jsonMode.createDatabase(database.name)
@@ -72,7 +72,7 @@ def executeCreateDatabase(self, database):
             if(database.OwnerMode[1]!= None ):
                 res = executeExpression(self,database.OwnerMode[1])
                 if(isinstance(res,Error)): 
-                    print_error("SEMANTIC ERROR",r)
+                    print_error("SEMANTIC ERROR",res.toString())
                 else: mode = res.value
             if mode==1:
                 return jsonMode.createDatabase(database.name)
