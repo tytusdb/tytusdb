@@ -3014,9 +3014,9 @@ def p_add_instr_column(t):
     nodoId = crear_nodo_general("ID",t[2],linea,columna)
     nodoId.hijos = []
     nodoTipo = t[3]
-    nodoAdd.append(nodoColumn)
-    nodoAdd.append(nodoId)
-    nodoAdd.append(nodoTipo)
+    nodoAdd.hijos.append(nodoColumn)
+    nodoAdd.hijos.append(nodoId)
+    nodoAdd.hijos.append(nodoTipo)
     t[0] = nodoAdd
     
     GenerarRepGram.AgregarTexto("'add_instr ::= COLUMN ID tipos'\n\n\
@@ -3028,9 +3028,9 @@ def p_add_instr_column(t):
     \t nodoId = crear_nodo_general(\"ID\",t[2],linea,columna)\n\
     \t nodoId.hijos = []\n\
     \t nodoTipo = t[3]\n\
-    \t nodoAdd.append(nodoColumn)\n\
-    \t nodoAdd.append(nodoId)\n\
-    \t nodoAdd.append(nodoTipo)\n\
+    \t nodoAdd.hijos.append(nodoColumn)\n\
+    \t nodoAdd.hijos.append(nodoId)\n\
+    \t nodoAdd.hijos.append(nodoTipo)\n\
     \t t[0] = nodoAdd\n\n")
     
     
