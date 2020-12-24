@@ -88,3 +88,27 @@ class ListaDobledeArboles :
                 aux.nombre = nombreNuevo
                 return 0
             aux = aux.siguiente
+
+    def graficar(self):
+        f = open("listadoble.dot", "w")            
+        f.write("digraph G {\n")
+        f.write("node [shape = rect, width=1, height=0.4];\n")     
+        f.write("rankdir=LR;\n")  
+        
+        n=self.inicio
+        while (n.siguiente!=None):
+            #la linea siguiente es para mostrar el nombre de la tabla por separadao, por el momento no es necesario
+            #f.write(str(n.nombre)+"[label="+"\""+str.(n.nombre)+"\""+"];")
+            f.write("\""+str(n.nombre)+"\"->"+"\""+str(n.siguiente.nombre)+"\";\n")
+            f.write("\n")
+            n=n.siguiente
+
+        n=self.fin
+        while n.anterior!=None :
+            f.write("\""+str(n.nombre)+"\"->"+"\""+str(n.anterior.nombre)+"\";\n")
+            f.write("\n")
+            n=n.anterior
+
+        f.write("}")
+        f.close()
+        os.system("dot -Tjpg listadoble.dot -o listadoble.png")
