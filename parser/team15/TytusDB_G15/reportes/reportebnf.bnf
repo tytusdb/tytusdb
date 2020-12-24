@@ -2,345 +2,35 @@
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <select_insrt> PTCOMA
+<instruccion> ::= <select_uniones> PTOCOMA
+ 
+<select_uniones> ::= <select_uniones> <tipo_union> ALL <select_insrt>
  
 <select_insrt> ::= SELECT <opcion_select_tm>
  
-<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres> <opcion_from>
- 
-<opcion_from> ::= <cond_where>
- 
-<cond_where> ::= WHERE <expresion_where>
- 
-<expresion_where> ::= <expresion_logica_w>
- 
-<expresion_logica_w> ::= <expresion_logica_w> AND <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> DOBLEIG <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <expresion_numero>
- 
-<expresion_numero> ::= ENTERO
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_logica_w> ::= <expresion_logica_w> AND <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> DOBLEIG <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <string_type>
- 
-<string_type> ::= CADENA
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_logica_w> ::= <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> IGUAL <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_sobrenombres> ::= <opciones_sobrenombres> COMA <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
  
 <opciones_sobrenombres> ::= <opcion_sobrenombre>
  
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_sobrenombre> ::= ID
  
 <opcion_select_lista> ::= <opciones_select_lista>
  
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
- 
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
- 
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
 <opciones_select_lista> ::= <opcion_select>
  
-<opcion_select> ::= <expresion>
+<opcion_select> ::= ASTERISCO
  
-<expresion> ::= <expresion_dato>
+<tipo_union> ::= UNION
  
-<expresion_dato> ::= ID PUNTO ID
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <select_insrt> PTCOMA
+<select_uniones> ::= <select_insrt>
  
 <select_insrt> ::= SELECT <opcion_select_tm>
  
-<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres> <opcion_from>
- 
-<opcion_from> ::= <cond_where>
- 
-<cond_where> ::= WHERE <expresion_where>
- 
-<expresion_where> ::= <expresion_logica_w>
- 
-<expresion_logica_w> ::= <expresion_logica_w> AND <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> DOBLEIG <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <expresion_numero>
- 
-<expresion_numero> ::= ENTERO
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_logica_w> ::= <expresion_logica_w> AND <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> DOBLEIG <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <string_type>
- 
-<string_type> ::= CADENA
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_logica_w> ::= <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> IGUAL <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_sobrenombres> ::= <opciones_sobrenombres> COMA <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
  
 <opciones_sobrenombres> ::= <opcion_sobrenombre>
  
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
- 
-<opcion_select_lista> ::= <opciones_select_lista>
- 
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
- 
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
- 
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_select_lista> ::= <opcion_select>
- 
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <select_insrt> PTCOMA
- 
-<select_insrt> ::= SELECT <opcion_select_tm>
- 
-<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres> <opcion_from>
- 
-<opcion_from> ::= <cond_where>
- 
-<cond_where> ::= WHERE <expresion_where>
- 
-<expresion_where> ::= <expresion_logica_w>
- 
-<expresion_logica_w> ::= <expresion_logica_w> AND <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> DOBLEIG <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <string_type>
- 
-<string_type> ::= CADENA
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_logica_w> ::= <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> IGUAL <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_sobrenombres> ::= <opciones_sobrenombres> COMA <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
- 
-<opciones_sobrenombres> ::= <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
- 
-<opcion_select_lista> ::= <opciones_select_lista>
- 
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
- 
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
- 
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_select_lista> ::= <opcion_select>
- 
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <select_insrt> PTCOMA
- 
-<select_insrt> ::= SELECT <opcion_select_tm>
- 
-<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres> <opcion_from>
- 
-<opcion_from> ::= <cond_where>
- 
-<cond_where> ::= WHERE <expresion_where>
- 
-<expresion_where> ::= <expresion_logica_w>
- 
-<expresion_logica_w> ::= <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> IGUAL <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_sobrenombres> ::= <opciones_sobrenombres> COMA <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
- 
-<opciones_sobrenombres> ::= <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_sobrenombre> ::= ID
  
 <opcion_select_lista> ::= <opciones_select_lista>
  
@@ -352,203 +42,155 @@
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <select_insrt> PTCOMA
+<instruccion> ::= <select_uniones> PTOCOMA
+ 
+<select_uniones> ::= <select_uniones> <tipo_union> <select_insrt>
  
 <select_insrt> ::= SELECT <opcion_select_tm>
  
-<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres> <opcion_from>
- 
-<opcion_from> ::= <cond_where>
- 
-<cond_where> ::= WHERE <expresion_where>
- 
-<expresion_where> ::= <expresion_logica_w>
- 
-<expresion_logica_w> ::= <expresion_logica_w> AND <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> DOBLEIG <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <string_type>
- 
-<string_type> ::= CADENA
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_logica_w> ::= <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> IGUAL <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_sobrenombres> ::= <opciones_sobrenombres> COMA <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
  
 <opciones_sobrenombres> ::= <opcion_sobrenombre>
  
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_sobrenombre> ::= ID
  
 <opcion_select_lista> ::= <opciones_select_lista>
  
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
+<opciones_select_lista> ::= <opcion_select>
  
-<opcion_select> ::= <expresion>
+<opcion_select> ::= ASTERISCO
  
-<expresion> ::= <expresion_dato>
+<tipo_union> ::= UNION
  
-<expresion_dato> ::= ID PUNTO ID
+<select_uniones> ::= <select_insrt>
  
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
+<select_insrt> ::= SELECT <opcion_select_tm>
  
-<opcion_select> ::= <expresion>
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
  
-<expresion> ::= <expresion_dato>
+<opciones_sobrenombres> ::= <opcion_sobrenombre>
  
-<expresion_dato> ::= ID PUNTO ID
+<opcion_sobrenombre> ::= ID
+ 
+<opcion_select_lista> ::= <opciones_select_lista>
  
 <opciones_select_lista> ::= <opcion_select>
  
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
+<opcion_select> ::= ASTERISCO
  
 <init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <select_insrt> PTCOMA
+<instruccion> ::= <select_uniones> PTOCOMA
+ 
+<select_uniones> ::= <select_uniones> <tipo_union> <select_insrt>
  
 <select_insrt> ::= SELECT <opcion_select_tm>
  
-<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres> <opcion_from>
- 
-<opcion_from> ::= <cond_where>
- 
-<cond_where> ::= WHERE <expresion_where>
- 
-<expresion_where> ::= <expresion_logica_w>
- 
-<expresion_logica_w> ::= <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> IGUAL <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_sobrenombres> ::= <opciones_sobrenombres> COMA <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
  
 <opciones_sobrenombres> ::= <opcion_sobrenombre>
  
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_sobrenombre> ::= ID
  
 <opcion_select_lista> ::= <opciones_select_lista>
  
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
+<opciones_select_lista> ::= <opcion_select>
  
-<opcion_select> ::= <expresion>
+<opcion_select> ::= ASTERISCO
  
-<expresion> ::= <expresion_dato>
+<tipo_union> ::= INTERSECT
  
-<expresion_dato> ::= ID PUNTO ID
+<select_uniones> ::= <select_insrt>
  
-<opciones_select_lista> ::= <opciones_select_lista> COMA <opcion_select>
+<select_insrt> ::= SELECT <opcion_select_tm>
  
-<opcion_select> ::= <expresion>
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
  
-<expresion> ::= <expresion_dato>
+<opciones_sobrenombres> ::= <opcion_sobrenombre>
  
-<expresion_dato> ::= ID PUNTO ID
+<opcion_sobrenombre> ::= ID
+ 
+<opcion_select_lista> ::= <opciones_select_lista>
  
 <opciones_select_lista> ::= <opcion_select>
  
-<opcion_select> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
+<opcion_select> ::= ASTERISCO
  
 <init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <select_insrt> PTCOMA
+<instruccion> ::= <select_uniones> PTOCOMA
+ 
+<select_uniones> ::= <select_uniones> <tipo_union> <select_insrt>
  
 <select_insrt> ::= SELECT <opcion_select_tm>
  
-<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres> <opcion_from>
- 
-<opcion_from> ::= <cond_where>
- 
-<cond_where> ::= WHERE <expresion_where>
- 
-<expresion_where> ::= <expresion_logica_w>
- 
-<expresion_logica_w> ::= <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea> IGUAL <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= ID PUNTO ID
- 
-<opciones_sobrenombres> ::= <opciones_sobrenombres> COMA <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
- 
-<seguir_sobrenombre> ::= ID
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
  
 <opciones_sobrenombres> ::= <opcion_sobrenombre>
  
-<opcion_sobrenombre> ::= ID <seguir_sobrenombre>
+<opcion_sobrenombre> ::= ID
  
-<seguir_sobrenombre> ::= ID
+<opcion_select_lista> ::= <opciones_select_lista>
+ 
+<opciones_select_lista> ::= <opcion_select>
+ 
+<opcion_select> ::= ASTERISCO
+ 
+<tipo_union> ::= EXCEPT
+ 
+<select_uniones> ::= <select_insrt>
+ 
+<select_insrt> ::= SELECT <opcion_select_tm>
+ 
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
+ 
+<opciones_sobrenombres> ::= <opcion_sobrenombre>
+ 
+<opcion_sobrenombre> ::= ID
+ 
+<opcion_select_lista> ::= <opciones_select_lista>
+ 
+<opciones_select_lista> ::= <opcion_select>
+ 
+<opcion_select> ::= ASTERISCO
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <select_uniones> PTOCOMA
+ 
+<select_uniones> ::= <select_uniones> <tipo_union> <select_insrt>
+ 
+<select_insrt> ::= SELECT <opcion_select_tm>
+ 
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
+ 
+<opciones_sobrenombres> ::= <opcion_sobrenombre>
+ 
+<opcion_sobrenombre> ::= ID
+ 
+<opcion_select_lista> ::= <opciones_select_lista>
+ 
+<opciones_select_lista> ::= <opcion_select>
+ 
+<opcion_select> ::= ASTERISCO
+ 
+<tipo_union> ::= EXCEPT
+ 
+<select_uniones> ::= <select_insrt>
+ 
+<select_insrt> ::= SELECT <opcion_select_tm>
+ 
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
+ 
+<opciones_sobrenombres> ::= <opcion_sobrenombre>
+ 
+<opcion_sobrenombre> ::= ID
  
 <opcion_select_lista> ::= <opciones_select_lista>
  
@@ -584,21 +226,15 @@
  
 <string_type> ::= CADENA
  
-<lista_datos> ::= <exclusiva_insert>
+<lista_datos> ::= <lista_datos> COMA <expresion>
  
 <exclusiva_insert> ::= <expresion>
  
 <expresion> ::= <expresion_dato>
  
-<expresion_dato> ::= <expresion_numero>
+<expresion_dato> ::= <string_type>
  
-<expresion_numero> ::= ENTERO
- 
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<instruccion> ::= <insert_insrt>
- 
-<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+<string_type> ::= CADENA
  
 <lista_datos> ::= <lista_datos> COMA <expresion>
  
@@ -606,9 +242,9 @@
  
 <expresion> ::= <expresion_dato>
  
-<expresion_dato> ::= <expresion_numero>
+<expresion_dato> ::= <string_type>
  
-<expresion_numero> ::= ENTERO
+<string_type> ::= CADENA
  
 <lista_datos> ::= <lista_datos> COMA <expresion>
  
@@ -656,21 +292,25 @@
  
 <string_type> ::= CADENA
  
-<lista_datos> ::= <exclusiva_insert>
+<lista_datos> ::= <lista_datos> COMA <expresion>
  
 <exclusiva_insert> ::= <expresion>
  
 <expresion> ::= <expresion_dato>
  
-<expresion_dato> ::= <expresion_numero>
+<expresion_dato> ::= <string_type>
  
-<expresion_numero> ::= ENTERO
+<string_type> ::= CADENA
  
-<instrucciones> ::= <instrucciones><instruccion>
+<lista_datos> ::= <lista_datos> COMA <expresion>
  
-<instruccion> ::= <insert_insrt>
+<exclusiva_insert> ::= <expresion>
  
-<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
  
 <lista_datos> ::= <lista_datos> COMA <expresion>
  
@@ -697,6 +337,442 @@
 <instruccion> ::= <insert_insrt>
  
 <insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<instrucciones> ::= <instrucciones><instruccion>
+ 
+<instruccion> ::= <insert_insrt>
+ 
+<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<instrucciones> ::= <instrucciones><instruccion>
+ 
+<instruccion> ::= <insert_insrt>
+ 
+<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<instrucciones> ::= <instrucciones><instruccion>
+ 
+<instruccion> ::= <insert_insrt>
+ 
+<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<instrucciones> ::= <instrucciones><instruccion>
+ 
+<instruccion> ::= <insert_insrt>
+ 
+<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<instrucciones> ::= <instrucciones><instruccion>
+ 
+<instruccion> ::= <insert_insrt>
+ 
+<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<instrucciones> ::= <instrucciones><instruccion>
+ 
+<instruccion> ::= <insert_insrt>
+ 
+<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= CADENA
  
 <lista_datos> ::= <lista_datos> COMA <expresion>
  
@@ -726,10 +802,6 @@
  
 <cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
  
-<cuerpo_createTable> ::= FOREIGN KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
- 
-<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
- 
 <campos_c> ::= ID <TIPO_DATO_DEF>
  
 <TIPO_DATO_DEF> ::= INTEGER
@@ -738,11 +810,35 @@
  
 <campos_c> ::= ID <TIPO_DATO_DEF>
  
-<TIPO_DATO_DEF> ::= TEXT
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
  
 <cuerpo_createTable_lista> ::= <cuerpo_createTable>
  
-<campos_c> ::= ID <TIPO_DATO_DEF>
+<cuerpo_createTable> ::= ID <TIPO_DATO_DEF> <createTable_options>
+ 
+<createTable_options> ::= <cT_options>
+ 
+<cT_options> ::= <llave>
+ 
+<llave> ::= PRIMARY KEY
  
 <TIPO_DATO_DEF> ::= INTEGER
  
@@ -756,7 +852,31 @@
  
 <campos_c> ::= ID <TIPO_DATO_DEF>
  
-<TIPO_DATO_DEF> ::= TEXT
+<TIPO_DATO_DEF> ::= INTEGER
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
  
 <cuerpo_createTable_lista> ::= <cuerpo_createTable>
  
