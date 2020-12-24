@@ -1,4 +1,5 @@
 import jsonMode
+from Errores import errorReportar
 from prettytable import PrettyTable
 from .instruccionAbstracta import InstruccionAbstracta
 
@@ -25,7 +26,8 @@ class selectSimple(InstruccionAbstracta):
             if self.selectTablas is None: 
                 for elemento in self.selectColumnas.hijos:
                     Res = elemento.hijos[0].ejecutar(tabalSimbolos, listaErrores)
-                    print(Res.valorRetorno) 
+                    if Res != None:
+                        print(Res.valorRetorno) 
 
             #Select con tablas en el FROM  
             else:
@@ -85,6 +87,7 @@ class selectSimple(InstruccionAbstracta):
                     #No vienen ninguna condicion where
                     if self.selectCondiciones == None:
                         TablaPrint = PrettyTable()
+                        rownum = 1
 
                         for elemento in self.selectColumnas.hijos:
                             #La columna es solo un campo simple
@@ -101,17 +104,38 @@ class selectSimple(InstruccionAbstracta):
                                         if TablasDatosCompletos["Campos"][i][j] == nombrecampo:
                                             for k in range(0, len(TablasDatosCompletos["Datos"][i])):
                                                 datoscolumnatmp.append(TablasDatosCompletos["Datos"][i][k][j])
+                                                if k > rownum:
+                                                    rownum = k
 
                                 TablaPrint.add_column(nombrecampo, datoscolumnatmp)
 
-
-                                
                             #la columna es una funcion
                             else:
-                                TablaPrint.add_column("Funcion",[1,2,3,4])
+                                resfuncion = elemento.hijos[0].ejecutar(tabalSimbolos, listaErrores)
+
+                                if resfuncion != None:
+                                    res = []
+                                    for i in range(0,rownum+1):
+                                        res.append(resfuncion.valorRetorno)
+
+                                    TablaPrint.add_column(elemento.hijos[0].hijos[0].valor,res)
 
                         print(TablaPrint)
                     
                     #Se aplican las condiciones en el where
                     else:
-                        print("Requiere filtrado de condiciones where")
+                        for clausula in self.selectCondiciones.hijos:
+                            if str.lower(clausula.hijos[0].valor) == "where":
+
+                                
+                                print("vino un where")
+                            elif str.lower(clausula.hijos[0].valor) == "group":
+                                print("vino un group")
+                            elif str.lower(clausula.hijos[0].valor) == "having":
+                                print("vino un having")
+                            elif str.lower(clausula.hijos[0].valor) == "order":
+                                print("vino un order")
+                            elif str.lower(clausula.hijos[0].valor) == "limit":
+                                print("vino un limit")
+                            else:
+                                print("vino desconocido")

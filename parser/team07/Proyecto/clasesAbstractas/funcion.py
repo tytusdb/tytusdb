@@ -1,5 +1,6 @@
 import math
 import random
+from Errores import errorReportar
 from tabla_Simbolos import simbolo
 from tabla_Simbolos import simboloColumna
 from .instruccionAbstracta import InstruccionAbstracta
@@ -26,7 +27,7 @@ class funcion(InstruccionAbstracta):
 
     def funcionMateUnitaria(self, TipoFuncion, Parametro):
         self.TipoFuncion = TipoFuncion
-        self.Parametro = Parametro
+        self.Param1 = Parametro
 
     def funcionMateBinaria(self, TipoFuncion, Param1, Param2):
         self.TipoFuncion = TipoFuncion
@@ -76,7 +77,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = abs(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "cbrt":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -84,7 +87,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = Res.valorRetorno ** (1/3)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "ceil":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -92,7 +97,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.ceil(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "ceiling":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -100,7 +107,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.ceil(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "degrees":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -108,7 +117,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.degrees(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "div":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -117,7 +128,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = Res.valorRetorno / Res2.valorRetorno
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "exp":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -125,7 +138,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.exp(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "factorial":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -133,7 +148,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.factorial(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "floor":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -141,7 +158,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.floor(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "gcd":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -151,7 +170,9 @@ class funcion(InstruccionAbstracta):
                     Res.valorRetorno, Res2.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "ln":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -159,7 +180,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.log(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "log":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -167,7 +190,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.log10(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "mod":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -176,7 +201,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = Res.valorRetorno % Res2.valorRetorno
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "pi":
             simboloRetornar = simbolo.Simbolo()
@@ -191,7 +218,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = Res.valorRetorno ** Res2.valorRetorno
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "radians":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -199,7 +228,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.radians(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "round":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -208,7 +239,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = round(Res.valorRetorno, Res2.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "sign":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -224,7 +257,9 @@ class funcion(InstruccionAbstracta):
                         simboloColumna.TiposDatos.double_precision, int(-1))
                     return simboloRetornar
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "sqrt":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -232,7 +267,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.sqrt(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "width_bucket":  # Pendiente
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -242,7 +279,9 @@ class funcion(InstruccionAbstracta):
                     simboloColumna.TiposDatos.double_precision, int(1))
                 return simboloRetornar
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "trunc":
             Res = self.Param1.ejecutar(tabalSimbolos, listaErrores)
@@ -250,7 +289,9 @@ class funcion(InstruccionAbstracta):
                 Res.valorRetorno = math.trunc(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
 
         elif str.lower(self.TipoFuncion.valor) == "random":
             simboloRetornar = simbolo.Simbolo()
@@ -270,7 +311,9 @@ class funcion(InstruccionAbstracta):
                 else:
                     return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "acosd":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
@@ -281,7 +324,9 @@ class funcion(InstruccionAbstracta):
                 else:
                     return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "asin":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
@@ -292,7 +337,9 @@ class funcion(InstruccionAbstracta):
                 else:
                     return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "asind":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
@@ -303,21 +350,27 @@ class funcion(InstruccionAbstracta):
                 else:
                     return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "atan":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = tangenteinv(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "atand":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = tangenteinvd(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "atan2":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             Res2 = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
@@ -326,7 +379,9 @@ class funcion(InstruccionAbstracta):
                     Res.valorRetorno, Res2.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "atan2d":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             Res2 = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
@@ -335,28 +390,36 @@ class funcion(InstruccionAbstracta):
                     Res.valorRetorno, Res2.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "cos":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = coseno(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "cosd":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = cosenod(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "cot":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = coseno(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "cot":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
@@ -367,7 +430,9 @@ class funcion(InstruccionAbstracta):
                 else:
                     return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "cotd":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
@@ -378,63 +443,81 @@ class funcion(InstruccionAbstracta):
                 else:
                     return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "sin":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = seno(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "sind":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = senod(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "tan":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = tangente(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "tand":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = tangented(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "sinh":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = senohiper(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "cosh":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = cosenohiper(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "tanh":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = tangentehiper(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "asinh":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
                 Res.valorRetorno = senoinversohiper(Res.valorRetorno)
                 return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "acosh":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
@@ -445,7 +528,9 @@ class funcion(InstruccionAbstracta):
                 else:
                     return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
         elif str.lower(self.TipoFuncion.valor) == "atanh":
             Res = self.Parametro.ejecutar(tabalSimbolos, listaErrores)
             if Res.tipoDatoRetorno == simboloColumna.TiposDatos.integer or Res.tipoDatoRetorno == simboloColumna.TiposDatos.decimal:
@@ -456,4 +541,6 @@ class funcion(InstruccionAbstracta):
                 else:
                     return Res
             else:
-                print("El parametro no es un numero")
+                nodoError = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecucion","El parametro de la funcion no es un numero")
+                listaErrores.append(nodoError)
+                return None
