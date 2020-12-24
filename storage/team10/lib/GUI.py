@@ -1,10 +1,9 @@
 from tkinter import *
 from tkinter import ttk ##Para combobox
-import Tytus as tytus
+import HashMode as tytus
 import DataBase as database
 Tablas2=[]
 Tuplas2=[]
-
 
 ##Clase Objetos########################################################################################################
 
@@ -28,7 +27,7 @@ def gui2():
                 AuxTablas.append(i)
         except :
             print("No hay tablas ingresadas")
-         
+
         myCombo2['values'] = AuxTablas
         myCombo2.pack(side='left',padx=0,pady=0) ##Para que imprima este dropdown
         myCombo2.set('')
@@ -49,9 +48,6 @@ def gui2():
                         print("Aqeui es")              
                         AuxTuplas.append(i2.Nombre)
         return AuxTuplas    
-        
-                  
-
     
         #myCombo3['values'] = AuxTuplas
     
@@ -70,7 +66,7 @@ def gui2():
         tabla = ttk.Treeview(root2,columns=2)##El marco sera mi misma ventana
         tabla.place(x=10, y=0)##Trabajammos por filas
         tabla.heading("#0",text="ID",anchor=CENTER) ##ANCHOR ES PARA CENTRAR
-        tabla.heading("#1",text="Nombre",anchor=CENTER)
+        tabla.heading("#1",text="Nombre",anchor=CENTER) 
 
     
     def borarOmostrar():
@@ -108,7 +104,7 @@ def gui2():
 ##Boton2
     myButton2 = Button(root, text="Mostrar Tabla Hash", command=lambda : tytus.graphTable(myCombo.get(),myCombo2.get()))
     myButton2.pack() 
-    myButton2.place(x=370, y=190)
+    myButton2.place(x=400, y=150)
 
 ##Boton3
     myButton3 = Button(root, text="Mostrar Bases de Datos", command=lambda : tytus.graphDB())
