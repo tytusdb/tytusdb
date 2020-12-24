@@ -133,3 +133,24 @@ class TablasArboles:
         else:                                                                   
             #return ("BD inexistente")
             return (2)
+
+#Funcion 11 - eliminar columna
+# def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
+    def alterDC(self, database, table, columnNumber) :
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :
+            tablaEncontrada =  bdEncontrada.tablas.buscar(table)
+            if tablaEncontrada != None :
+                if self.eliminarColumna(columnNumber,tablaEncontrada) == True :
+                    #return ("Operacion exitosa")
+                    return 0
+                else:
+                    #return ("Error en la operacion")
+                    return (1)
+            else:
+                #return ("Tabla inexistente")
+                return (3)
+        else:                                                                   
+            #return ("BD inexistente")
+            return (2) 
+     
