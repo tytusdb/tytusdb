@@ -4,7 +4,7 @@ from tkinter import filedialog as FileDialog
 from tkinter import colorchooser as ColorChooser
 from tkinter import messagebox as MessageBox
 
-#import Graficar as graficando
+import Graficar as graficando
 import principal as principal
 import os
 from tkinter import filedialog
@@ -219,13 +219,13 @@ if __name__ == "__main__":
 
             if len(g.errores_sintacticos) == 0:
                 imprimir_consola("") 
-                #raiz = graficando.analizador(entrada)
+                raiz = graficando.analizador(entrada)
                 data=principal.interpretar_sentencias(arbol,tablaSimbolos)
                 #tablaSimbolos.mostrar()
                 imprimir_consola(data)
                 #append_consola(tablaSimbolos.mostrar_tabla())
-                #graficando.GraficarAST(raiz)
-                #graficando.ReporteGramatical()
+                graficando.GraficarAST(raiz)
+                graficando.ReporteGramatical()
             else:
 
                 imprimir_consola('Se detectaron algunos errores sintácticos')

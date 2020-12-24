@@ -210,13 +210,15 @@ class SimboloTabla:
 
 
 class colsConsulta:
-    def __init__(self, nombre, alias, tipo, param, tabla, cindice):
+    def __init__(self, nombre, alias, tipo, param, tabla, cindice,vtipo,nodo):
         self.nombre = nombre
         self.alias = alias
         self.tipo = tipo
         self.param = param
         self.tabla = tabla
         self.cindice = cindice
+        self.vtipo=vtipo
+        self.nodo=nodo
 
 
 class Grupo:
