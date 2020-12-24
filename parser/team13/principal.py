@@ -8,6 +8,7 @@ import math
 from random import random
 from datetime import datetime
 from datetime import date
+from datetime import time
 import hashlib
 from prettytable import PrettyTable
 from hashlib import sha256
@@ -132,7 +133,11 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 break
 
                         if not bandera:
-                            valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
+                            if hasattr(tipos[z],'dato'):
+                                valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
+                            else:
+                                valores.append(SExpresion(actualizar[x][z],tipos[z].tipo))
+                            
 
                     validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x])
                     valores.clear()
@@ -1198,6 +1203,12 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
         # se validan tipos
         for i in range(len(columnas)):
             col = tabla.getColumna(columnas[i])
+            print("============== DENTRO DEL UPDATE ==============")
+            print("============== tupla ==============")
+            print(tupla[i])
+            print("============== tabla ==============")
+            print(tabla)
+            
             val = Interpreta_Expresion(tupla[i],tablaSimbolos,tabla)
             if col.tipo.tipo == TipoDato.NUMERICO:
                 result = validarTiposNumericos(
@@ -1317,12 +1328,14 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
 def validarDefault(listaC, listaV, tabla, tablaSimbolos):
     tupla = []
     indice = 0
-    encontrado = False
+    
 
     for i in tabla.columnas:
+        encontrado = False
+        print(tabla.columnas[i].index,indice)
 
         if tabla.columnas[i].index == indice:
-
+            
             for j in range(len(listaC)):
 
                 if tabla.columnas[i].nombre == listaC[j].valor:
@@ -1341,6 +1354,8 @@ def validarDefault(listaC, listaV, tabla, tablaSimbolos):
                 else:
 
                     tupla.append(None)
+
+                indice += 1
 
             if (len(tabla.columnas) == len(tupla) ):
                 
@@ -1407,23 +1422,26 @@ def validarFK(col, val, tabla, tablaSimbolos):
 # MÉTODO PARA VALIDAR LOS CHECKS
 def validaCheck(col, val, columnas, valores):
     if col.check != None:
-        # print("==================================================")
-        # print(str(col.check))
+
         tipo = col.check["condicion"].opDer.tipo
         if tipo == Expresion.ID:
             for i in range(len(columnas)):
-                if columnas[i] == col.check["condicion"].opDer.valor:
+                if columnas[i].valor == col.check["condicion"].opDer.valor:
 
                     nuevo = SOperacion(val, valores[i], col.check["condicion"].operador)
+
                     if Interpreta_Expresion(nuevo, None, None).valor:
                         return 0
                     else:
                         return 1
             return 2
         else:
+            
             nuevo = SOperacion(val, col.check["condicion"].opDer, col.check["condicion"].operador)
 
-            if Interpreta_Expresion(nuevo, None, None).valor:
+            r = Interpreta_Expresion(nuevo, None, None)
+
+            if r.valor:
                 return 0
             else:
                 return 1
@@ -1564,32 +1582,30 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         if (expresion.operador == Relacionales.MENORIGUAL_QUE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor <= opDer.valor
-                return SExpresion(result, opIzq.tipo)
+
+            result = opIzq.valor <= opDer.valor
+            return SExpresion(result, opIzq.tipo)
 
         if (expresion.operador == Relacionales.MAYORIGUAL_QUE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor >= opDer.valor
-                return SExpresion(result, opIzq.tipo)
+
+            result = opIzq.valor >= opDer.valor
+            return SExpresion(result, opIzq.tipo)
+
         if (expresion.operador == Relacionales.MENOR_QUE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor < opDer.valor
-                return SExpresion(result, opIzq.tipo)
+
+            result = opIzq.valor < opDer.valor
+            return SExpresion(result, opIzq.tipo)
+
         if (expresion.operador == Relacionales.MAYOR_QUE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor > opDer.valor
-                return SExpresion(result, opIzq.tipo)
+            
+            result = opIzq.valor > opDer.valor
+            return SExpresion(result, opIzq.tipo)
 
         # Aritmetica
         if (expresion.operador == Aritmetica.MAS):
@@ -1951,7 +1967,15 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
             result = expresion.valor.valor * -1
             return SExpresion(result, Expresion.NEGATIVO)
 
-        if expresion.tipo == Expresion.ID:
+        elif expresion.tipo == Expresion.ID:
+
+            # print("")
+            # print("==============================================")
+            # print("|            Estamos en el ID                |")
+            # print("==============================================")
+            # print("|              El ID es: '%s'                |" % expresion.valor)
+            # print("==============================================")
+
             for i in range(len(tabla["nombreC"])):
 
                 if tabla["nombreC"][i] == expresion.valor:
@@ -1959,12 +1983,167 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
                     valor = tabla["valor"][i]
 
                     return SExpresion(valor, tipo)
+
+        elif expresion.tipo == Expresion.FECHA:
+
+            valor = datetime.strptime(str(expresion.valor),'%Y-%m-%d').date()
+            return SExpresion(valor, expresion.tipo)
+
+
+        elif expresion.tipo == Expresion.FECHA_HORA:
+
+            valor = datetime.strptime(expresion.valor,'%Y-%m-%d %H:%M:%S')
+            return SExpresion(valor, expresion.tipo)
+
+        elif expresion.tipo == Expresion.HORA:
+
+            valor = datetime.strptime(expresion.valor,'%H:%M:%S').time()
+            return SExpresion(valor, expresion.tipo)
+
+    elif isinstance(expresion,SAny):
+
+        print("================== ENTRÓ AL ANY ==================")
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+        qr = expresion.consulta
+        pT = PrettyTable()
+        for tb in tabla["tablas"]:
+            qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+        
+        print(expresion.operador)
+        if expresion.operador == '=':
+            for rs in resultado_sub:
+                if str(rs[0]) == str(columna.valor):
+                    return SExpresion(True,Expresion.BOOLEAN)
+            return SExpresion(False,Expresion.BOOLEAN)
+
+        elif expresion.operador == '<':
+            for rs in resultado_sub:
+                if float(rs[0]) < float(columna.valor):
+                    return SExpresion(True,Expresion.BOOLEAN)
+            return SExpresion(False,Expresion.BOOLEAN)
+
+
+        elif expresion.operador == '>':
+            for rs in resultado_sub:
+                if float(rs[0]) > float(columna.valor):
+                    return SExpresion(True,Expresion.BOOLEAN)
+            return SExpresion(False,Expresion.BOOLEAN)
+
+
+        elif expresion.operador == '<=':
+            for rs in resultado_sub:
+                if float(rs[0]) <= float(columna.valor):
+                    return SExpresion(True,Expresion.BOOLEAN)
+            return SExpresion(False,Expresion.BOOLEAN)
+
+
+        elif expresion.operador == '>=':
+            for rs in resultado_sub:
+                if float(rs[0]) >= float(columna.valor):
+                    return SExpresion(True,Expresion.BOOLEAN)
+            return SExpresion(False,Expresion.BOOLEAN)
+
+
+        elif expresion.operador == '<>':
+            for rs in resultado_sub:
+                if float(rs[0]) != float(columna.valor):
+                    return SExpresion(True,Expresion.BOOLEAN)
+            return SExpresion(False,Expresion.BOOLEAN)
+        
+        print("=================== FIN AL ANY ===================")
+        return SExpresion(False,Expresion.BOOLEAN)
+
+    elif isinstance(expresion,SAll):
+
+        print("================== ENTRÓ AL ALL ==================")
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+        qr = expresion.consulta
+        pT = PrettyTable()
+        for tb in tabla["tablas"]:
+            qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+        
+        print(expresion.operador)
+        if expresion.operador == '=':
+            for rs in resultado_sub:
+                if str(rs[0]) != str(columna.valor):
+                    return SExpresion(False,Expresion.BOOLEAN)
+            return SExpresion(True,Expresion.BOOLEAN)
+
+        elif expresion.operador == '<':
+            for rs in resultado_sub:
+                if float(rs[0]) >= float(columna.valor):
+                    return SExpresion(False,Expresion.BOOLEAN)
+            return SExpresion(True,Expresion.BOOLEAN)
+
+
+        elif expresion.operador == '>':
+            for rs in resultado_sub:
+                if float(rs[0]) <= float(columna.valor):
+                    return SExpresion(False,Expresion.BOOLEAN)
+            return SExpresion(True,Expresion.BOOLEAN)
+
+
+        elif expresion.operador == '<=':
+            for rs in resultado_sub:
+                if float(rs[0]) > float(columna.valor):
+                    return SExpresion(False,Expresion.BOOLEAN)
+            return SExpresion(True,Expresion.BOOLEAN)
+
+
+        elif expresion.operador == '>=':
+            for rs in resultado_sub:
+                if float(rs[0]) < float(columna.valor):
+                    return SExpresion(False,Expresion.BOOLEAN)
+            return SExpresion(True,Expresion.BOOLEAN)
+
+
+        elif expresion.operador == '<>':
+            for rs in resultado_sub:
+                if float(rs[0]) == float(columna.valor):
+                    return SExpresion(False,Expresion.BOOLEAN)
+            return SExpresion(True,Expresion.BOOLEAN)
+
+        
+        print("=================== FIN AL ALL ===================")
+        return SExpresion(False,Expresion.BOOLEAN)
+    
+    elif isinstance(expresion,SNotExist):
+
+        qr = expresion.consulta
+        base = tablaSimbolos.get(useActual)
+        pT = PrettyTable()
+        for tb in tabla["tablas"]:
+            qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+
+        if len(resultado_sub) > 0:
+            return SExpresion(False,Expresion.BOOLEAN)
+        return SExpresion(True,Expresion.BOOLEAN)
+
+    elif isinstance(expresion,SExist):
+
+        qr = expresion.consulta
+        base = tablaSimbolos.get(useActual)
+        pT = PrettyTable()
+        for tb in tabla["tablas"]:
+            qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+
+        if len(resultado_sub) > 0:
+            return SExpresion(True,Expresion.BOOLEAN)
+        return SExpresion(False,Expresion.BOOLEAN)
+               
+        
     
     elif isinstance(expresion,SIn):
 
         qr = expresion.consulta
         base = tablaSimbolos.get(useActual)
         pT = PrettyTable()
+        for tb in tabla["tablas"]:
+            qr.ffrom.clist.append(tb)
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
         columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
 
@@ -1978,6 +2157,8 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         qr = expresion.consulta
         base = tablaSimbolos.get(useActual)
         pT = PrettyTable()
+        for tb in tabla["tablas"]:
+            qr.ffrom.clist.append(tb)
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
         columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
 
@@ -2544,12 +2725,12 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
     
 
     else:
-        tupla = {"nombreC": [], "tipo": [], "valor": []}
+        tupla = {"nombreC": [], "tipo": [], "valor": [], "tablas": []}
         registros = []
         columnas = []
         
         for tabs in Qffrom.clist:
-            
+            tupla["tablas"].append(tabs)
             registros.append(jBase.extractTable(useActual,tabs.id))
 
             str_alias = ""

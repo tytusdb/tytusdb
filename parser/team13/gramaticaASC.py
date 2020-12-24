@@ -338,23 +338,27 @@ def t_entero(t):
 # DEFINICION PARA INTERVALO
 def t_intervaloc(t):
     r'\'\d+[\s(Year|Years|Month|Months|day|days|hour|hours|minute|minutes|second|seconds)]+\''
+    t.value = t.value[1:-1]
     return t
 
 # DEFINICIÓN PARA LA HORA
 def t_hora(t):
     r'\'[0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9]\''
+    t.value = t.value[1:-1]
     return t
 
 
 # DEFINICIÓN PARA LA FECHA
 def t_fecha(t):
     r'\'[0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9]\''
+    t.value = t.value[1:-1]
     return t
 
 
 # DEFINICIÓN PARA TIMESTAMP
 def t_fecha_hora(t):
     r'\'([0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9])(\s)([0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])\''
+    t.value = t.value[1:-1]
     return t
 
 
@@ -1823,19 +1827,19 @@ def p_COND2(p):
                 | E_FUNC OPERATOR some parAbre QUERY parCierra
                 | E_FUNC OPERATOR all parAbre QUERY parCierra'''
     if len(p) == 5:
-        p[0] = SWhereCond6(False, p[1], p[3])
+        p[0] = SExist(p[3])
     elif len(p) == 6:
         if p[2].lower() == "exists":
-            p[0] = SWhereCond6(p[1], p[2], p[4])
+            p[0] = SNotExist(p[4])
         else:
-            print("------------------------- Entró en el IN -------------------------")
             p[0] = SIn(p[1],p[4])
     elif len(p) == 7:
         if p[3].lower() == "in":
-            print("------------------------- Entró en el NOT IN -------------------------")
             p[0] = SNotIn(p[1],p[5])
+        elif p[3].lower() == "all":
+            p[0] = SAny(p[1], p[2], p[5])
         else:
-            p[0] = SWhereCond7(False, p[2], p[1], p[4])
+            p[0] = SAll(p[1], p[2], p[5])
 
 
 def p_COND3(p):

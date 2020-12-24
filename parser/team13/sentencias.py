@@ -179,6 +179,9 @@ class STipoDato(Sentencia):
         self.tipo = tipo
         self.cantidad = cantidad
 
+    def __str__(self):
+        return "{ STipoDato | dato: '%s', tipo: '%s', cantidad: '%s' } " % ( str(self.dato), str(self.tipo), str(self.cantidad) )
+
 
 class SShowTable(Sentencia):
     ''' Show table'''
@@ -496,6 +499,10 @@ class SFrom(Sentencia):
     def __init__(self, clist=[]):
         self.clist = clist
 
+    def __str__(self):
+
+        return "{ SFrom | clist: '%s' }" % (self.clist)
+
 
 class SFrom2(Sentencia):
     def __init__(self, id, clist=[]):
@@ -723,3 +730,43 @@ class SNotIn(Sentencia):
 
     def __str__(self):
         return "{ SNotIn | columna: '%s', consulta: '%s' }" %( self.columna, self.consulta )
+
+
+class SExist(Sentencia):
+
+    def __init__(self,consulta):
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SExist | consulta: '%s' }" % (str(self.consulta))
+
+
+class SNotExist(Sentencia):
+
+    def __init__(self,consulta):
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SExist | consulta: '%s' }" % (str(self.consulta))
+
+
+class SAny(Sentencia):
+
+    def __init__(self,columna, operador, consulta):
+        self.columna = columna
+        self.operador = operador
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SAny | columna: '%s', operador: '%s', consulta: '%s' }" % (str(self.columna), str(self.operador),str(self.consulta))
+
+
+class SAll(Sentencia):
+
+    def __init__(self,columna, operador, consulta):
+        self.columna = columna
+        self.operador = operador
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SAll | columna: '%s', operador: '%s', consulta: '%s' }" % (str(self.columna), str(self.operador),str(self.consulta))
