@@ -416,6 +416,104 @@ class AST:
 
 
 ###################################################### Ejecucion de Querys ###############################################
+
+def resolverFuncionMatematica(self, nodo, resultado):
+        if nodo.valor.lower()  == 'degrees':
+            a = math.degrees(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
+            resultado.append(a)
+        elif nodo.valor.lower() == 'div':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            b = self.expresion_aritmetica(nodo.hijos[1], [], [], [])
+            c = math.floor(a / b)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'exp':
+            a = math.exp(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
+            resultado.append(a)
+        elif nodo.valor.lower() == 'factorial':
+            a = math.factorial(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
+            resultado.append(a)
+        elif nodo.valor.lower() == 'floor':
+            a = math.floor(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
+            resultado.append(a)
+        elif nodo.valor.lower() == 'gcd':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            b = self.expresion_aritmetica(nodo.hijos[1], [], [], [])
+            c = math.gcd(a , b)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'ln':
+            a = math.log(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
+            resultado.append(a)
+        elif nodo.valor.lower() == 'log':
+            a = math.log10(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
+            resultado.append(a)
+        elif nodo.valor.lower() == 'mod':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            b = self.expresion_aritmetica(nodo.hijos[1], [], [], [])
+            resultado.append(a%b)
+        elif nodo.valor.lower() == 'pi':
+            resultado.append(math.pi)
+        elif nodo.valor.lower() == 'power':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            b = self.expresion_aritmetica(nodo.hijos[1], [], [], [])
+            c = math.pow(a , b)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'radians':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.radians(a)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'round':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = round(a)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'sign':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            if a < 0:
+                resultado.append(-1)
+            else:
+                resultado.append(1)
+        elif nodo.valor.lower() == 'sqrt':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.sqrt(a)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'width_bucket':
+            nd = nodo.hijos[0]
+            a = self.expresion_aritmetica(nd.hijos[0], [], [], [])
+            b = self.expresion_aritmetica(nd.hijos[1], [], [], [])
+            c = self.expresion_aritmetica(nd.hijos[2], [], [], [])
+            d = self.expresion_aritmetica(nd.hijos[3], [], [], [])
+            e = d
+            cont = 0
+            for i in range(b, c+1):
+                if i == d:
+                    cont +=1
+                    d = d+e
+                    if a <= i:
+                        break
+            resultado.append(cont)    
+        elif nodo.valor.lower() == 'trunc':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.trunc(a)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'random':
+            c = random.random()
+            resultado.append(c)
+        elif nodo.valor.lower() == 'abs': 
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.fabs(a)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'cbrt':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = a ** (1/3)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'ceil':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.ceil(a)
+            resultado.append(c)
+        elif nodo.valor.lower() == 'ceiling':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.ceil(a)
+            resultado.append(c)
+
 def resolverFuncionTrigonometrica(self, nodo, resultado):
         if nodo.valor.lower()  == 'acos':
             a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
@@ -466,8 +564,9 @@ def resolverFuncionTrigonometrica(self, nodo, resultado):
             print(a)
             c = math.atanh(a)
             resultado.append(c)
-            
+
 ########################################################  expresiones ###################################################
+    
     def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
         if nodo.etiqueta == 'OPLOG':
             exp1 = self.expresion_logica(nodo.hijos[0], tupla, names, tablas)
