@@ -42,8 +42,18 @@ class Cambio_BD(Instruccion):
         Esta clase representa la instruccion del Cambio de una BD.
         La instruccion Cambio_BD unicamente tiene como parametro un identificador.
     '''
-    def __init__(self,  id) :
+    def __init__(self,  id, line) :
         self.id = id
+        self.line = line
+
+class Select(Instruccion):
+    '''
+        Esta clase representa la instruccion de select 
+        El objeto es un diccionario con 'objeto' y 'alias'.
+    '''
+    def __init__(self, objeto, line) :
+        self.objeto = objeto
+        self.line = line
 
 
 class Select_All(Instruccion):
@@ -71,6 +81,37 @@ class Delete_condicional(Instruccion) :
     def __init__(self, expLogica, id) :
         self.expLogica = expLogica
         self.id = id
+
+class FuncionTrigonometrica1(Instruccion) :
+    '''
+        Esta clase representa las funciones trigonométricas con 1 parámetro.
+    '''
+
+    def __init__(self, funcion, valor, line) :
+        self.funcion = funcion
+        self.valor = valor
+        self.line = line
+
+class FuncionTrigonometrica2(Instruccion) :
+    '''
+        Esta clase representa las funciones trigonométricas con 1 parámetro.
+    '''
+
+    def __init__(self, funcion, valor1, valor2, line) :
+        self.funcion = funcion
+        self.valor1 = valor1
+        self.valor2 = valor2
+        self.line = line
+
+class FuncionMatematica1(Instruccion) :
+    '''
+        Esta clase representa las funciones matemáticas con 1 parámetro.
+    '''
+
+    def __init__(self, funcion, valor, line) :
+        self.funcion = funcion
+        self.valor = valor
+        self.line = line
 
 class Crear_TB_Herencia(Instruccion) :
     '''

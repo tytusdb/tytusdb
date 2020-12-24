@@ -735,9 +735,8 @@ def procesar_altertable(instr,ts,tc):
                 
                 pos = tc.getPos(useCurrentDatabase,instr.identificador,datos.val)
                 print(pos)
-                #result = j.alterDropColumn('world','countries',1)
-                #print(result)
-                result = 0
+                result = j.alterDropColumn(str(useCurrentDatabase),str(instr.identificador),pos)
+                
                 if result == 0:
                     tc.eliminarID(useCurrentDatabase,instr.identificador,datos.val)
                     temp1 = ts.obtener(instr.identificador,useCurrentDatabase)
@@ -1245,19 +1244,19 @@ def procesar_select_general(instr,ts,tc):
         print('1')
         if instr.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
             for datos in instr.instr1.listac:
-                print(datos.val)
+                print('\n')
         if instr.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
             for datos in instr.instr1.lista_extras:
                 if datos.etiqueta == OPCIONES_SELECT.CASE:
                     for objs in datos.listacase:
-                        print(objs.operador) #SOLO ETIQUETAS
+                        print('\n')
                     print(datos.expresion.etiqueta)
                 elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
                     arrayColumns.append(datos.val)
                     print(datos.val) # * 
 
                 elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
-                    print(datos.val+'.*')
+                    print('\n')
                     return datos.val
                 else:
                     #print(datos.val) #RESTO DE ETIQUETAS
@@ -1266,15 +1265,13 @@ def procesar_select_general(instr,ts,tc):
         if instr.listanombres != []:
             for datos in instr.listanombres:
                 if datos.etiqueta == TIPO_VALOR.DOBLE:
-                    print(datos.val+'.'+datos.val1)
+                    print('\n')
                 elif datos.etiqueta == TIPO_VALOR.AS_ID:
-                    print(datos.val)
-                    print(datos.val1.val)
+                    print('\n')
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None:
-                    print(datos.val)
-                    print(datos.val1)
+                    print('\n')
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
-                    print(datos.val)
+                    print('\n')
                     tables.append(datos.val)
 
         if '*' in arrayColumns:
@@ -1313,19 +1310,19 @@ def procesar_select_general(instr,ts,tc):
         arrayColumnsF = []
         if instr.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
             for datos in instr.instr1.listac:
-                print(datos.val)
+                print('\n')
         if instr.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
             for datos in instr.instr1.lista_extras:
                 if datos.etiqueta == OPCIONES_SELECT.CASE:
                     for objs in datos.listacase:
-                        print(objs.operador) #SOLO ETIQUETAS
-                    print(datos.expresion.etiqueta)
+                        print('\n')
+                    print('\n')
                 elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
                     #print(datos.val)
                     arrayColumnsF.append(datos.val)
 
                 elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
-                    print(datos.val+'.*')
+                    print('\n')
                 else:
                     columnP = str(datos.val)+"."+str(datos.val1)
                     arrayColumnsF.append(columnP)
@@ -1337,8 +1334,8 @@ def procesar_select_general(instr,ts,tc):
                     print(':)')
                     #print(datos.val+'.'+datos.val1)
                 elif datos.etiqueta == TIPO_VALOR.AS_ID: #TABLA AS T
-                    print(datos.val)
-                    print(datos.val1.val)
+                    arrayTablas.append([datos.val,datos.val1.val])
+
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None: #TABLA T
                     arrayTablas.append([datos.val,datos.val1])
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
@@ -2365,6 +2362,7 @@ def procesar_select_for_UNIONES(instr,ts,tc):
                 elif datos.etiqueta == TIPO_VALOR.AS_ID: #TABLA AS T
                     print(datos.val)
                     print(datos.val1.val)
+                    arrayTablas.append([datos.val,datos.val1.val])
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None: #TABLA T
                     arrayTablas.append([datos.val,datos.val1])
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:

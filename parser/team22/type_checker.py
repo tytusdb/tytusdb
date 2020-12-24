@@ -40,13 +40,16 @@ class TypeChecker():
     def showDatabase(self, like: str = ''):
         query_result = jsonMode.showDatabases()
         if like == '':
-            self.salida.append(query_result)
+            sal = [['DATABASES']]
+            for base in query_result:
+                sal.append([base])
+            self.salida.append(sal)
         else:
             pattern = '^' + like.replace('%','.+').replace('_','(.){0,1}') + '$'
-            filtrada = []
+            filtrada = [['DATABASES']]
             for base in query_result:
                 if re.match(pattern, base):
-                    filtrada.append(base)
+                    filtrada.append([base])
             self.salida.append(filtrada)
         self.consola.append(Codigos().successful_completion('SHOW DATABASE'))
 
