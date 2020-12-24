@@ -76,7 +76,10 @@ class NombreEstructuras:
                     if self.searchDatabase(databaseNew) == False: #No tiene que existir el nombre para cambiarlo
                         self.database[databaseNew] = self.database[databaseOld]
                         del self.database[databaseOld]
-                 
+
+                        auxTablas = self.database[databaseNew]
+                        for key in auxTablas:
+                            ht.cambiarNombreArchivo(databaseOld, key, databaseNew, key)
                         #recorrer archivos que correspondan con base anterior y colocar el nuevo nombre
                         directorio='data/tables/'
                         with os.scandir(directorio) as ficheros:
@@ -105,6 +108,10 @@ class NombreEstructuras:
             if self.ComprobarNombre(database) == True: #Comprobamos el nombre
                 if self.searchDatabase(database) == True: #Buscamos la db
                     del self.database[database]
+
+                    auxTablas = self.database[database]
+                    for key in auxTablas:
+                        ht.eliminarTablaHash(database, key)
                     ne.serialize("data/database",self.database)
                     directorio='data/tables/'
                     with os.scandir(directorio) as ficheros:
@@ -179,6 +186,8 @@ class NombreEstructuras:
                     if self.buscarTabla(tableOld, aux) == True: # busca tabla vieja
                         if self.buscarTabla(tableNew, aux) == False: #busca la tabla neuva
                             aux[tableNew] = aux[tableOld] #se inserrta
+                            #Actualiza el nombre del archivo
+                            ht.cambiarNombreArchivo(database, tableOld, database, tableNew)
                             ne.serialize("data/tables/"+str(database)+"-"+str(tableNew),aux[tableNew])
                             del aux[tableOld]
                             os.remove("data/tables/"+str(database)+"-"+str(tableOld))
@@ -205,6 +214,8 @@ class NombreEstructuras:
                     if self.buscarTabla(tableName, aux) == True:
                         del aux[tableName]
                         self.database[database] = aux
+                        #Elimina la tabla
+                        ht.eliminarTablaHash(database, tableName)
                         os.remove("data/tables/"+str(database)+"-"+str(tableName))
                         ne.serialize("data/database",self.database)
                         return 0
@@ -800,7 +811,20 @@ class HashTable:
     def imprimir(self):
         for k in self.__vector:
             print(k)
-            
+
+    #Cambia el nombre de llave en el diccionario
+    def cambiarNombreArchivo(self, databaseOld: str, tableOld: str, database: str, table: str):
+        nombre = str(database)+"_"+str(table)
+        llaveOld = str(databaseOld)+"_"+str(tableOld)
+        if self.DiccionarioTabla.get(llaveOld) != None:
+            self.DiccionarioTabla[nombre] = self.DiccionarioTabla[llaveOld]
+            del self.DiccionarioTabla[llaveOld]
+
+    def eliminarTablaHash(self, database: str, table: str):
+        nombre = str(database)+"_"+str(table)
+        if self.DiccionarioTabla.get(nombre) != None:
+            del self.DiccionarioTabla[nombre]
+
     def graficar(self, database: str, table: str):
         self.IniciarHashTable(database, table)
         s = open('graph.dot', 'w')
