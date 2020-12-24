@@ -22,27 +22,29 @@ def executeSelect(self,select):
         columnsValues = []
 
         for column in select.columns:
+            print(column)
             #Nombre comlumna
-            #if isinstance(column, Alias):
-                #columnsNames.append(column.alias)
+            if isinstance(column, Alias):
+                columnsNames.append(column.alias)
                 #print(column.alias)
 
                 #Valor
-                #res=executeExpression(self,column.expression)
-                #if(not isinstance(res,Error)):
-                    #columnsValues.append(res.value)
-                #else:
-                    #print_error("SEMANTIC ERROR",res.toString())
-            #else:
-            
-            #Valor
-            res=executeExpression(self,column)
-            if(not isinstance(res,Error)):
-                columnsValues.append(res.value)
+                res=executeExpression(self,column.expression)
+                if(not isinstance(res,Error)):
+                    columnsValues.append(res.value)
+                else:
+                    print_error("SEMANTIC ERROR",res.toString())
             else:
-                print_error("SEMANTIC ERROR",res.toString())
+                #Valor
+                res=executeExpression(self,column)
+                if(not isinstance(res,Error)):
+                    columnsNames.append(column.function)
+                    columnsValues.append(res.value)
+                else:
+                    print_error("SEMANTIC ERROR",res.toString())
+            
 
-        #x.field_names = columnsNames
+        x.field_names = columnsNames
         x.add_row(columnsValues) 
         print(x)    
         print_table(x.get_string())
