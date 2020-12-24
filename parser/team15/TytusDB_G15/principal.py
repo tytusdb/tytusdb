@@ -828,7 +828,13 @@ def procesar_altertable(instr,ts,tc):
                     salida = "\nERROR:  relation \"" + str(instr.tipo_id) +"\" does not exist\nSQL state: 42P01"
                 
                 
-
+def f_SIGN(num):
+    if num < 0:
+        return -1
+    elif num > 0:
+        return 1
+    else:
+        return 0
 
 #INSERT
 def procesar_insert(instr,ts,tc):
@@ -1144,6 +1150,9 @@ def procesar_select_general(instr,ts,tc):
     arrayColumns = []
     tables = []
     arrayReturn = []
+    #WHERE
+    arrayWhere = []
+    arrayFilter = []
     
     if  instr.instr1 != None and instr.instr2 == None and instr.instr3 == None and instr.listains == None and instr.listanombres != None:
         global salida
@@ -1166,7 +1175,8 @@ def procesar_select_general(instr,ts,tc):
                     print(datos.val+'.*')
                     return datos.val
                 else:
-                    print(datos.etiqueta) #RESTO DE ETIQUETAS
+                    #print(datos.val) #RESTO DE ETIQUETAS
+                    arrayColumns.append(datos.val)
         
         if instr.listanombres != []:
             for datos in instr.listanombres:
@@ -1182,19 +1192,31 @@ def procesar_select_general(instr,ts,tc):
                     print(datos.val)
                     tables.append(datos.val)
 
-        #print(arrayColumns)
-        #print(tables)
-        
-        columnsTable = tc.obtenerColumns(useCurrentDatabase,tables[0])
-        resultArray = j.extractTable(str(useCurrentDatabase),str(tables[0]))
-        #print(resultArray)
-        #print(columnsTable)
-        arrayReturn.append(columnsTable)
-        for filas in resultArray:
-            #print(filas)
-            arrayReturn.append(filas)
+        if '*' in arrayColumns:
+            columnsTable = tc.obtenerColumns(useCurrentDatabase,tables[0])
+            resultArray = j.extractTable(str(useCurrentDatabase),str(tables[0]))
+            arrayReturn.append(columnsTable)
+            for filas in resultArray:
+                arrayReturn.append(filas)
 
-        salida = arrayReturn
+            salida = arrayReturn
+        else:
+            columnsTable = tc.obtenerColumns(useCurrentDatabase,tables[0])
+            resultArray = j.extractTable(str(useCurrentDatabase),str(tables[0]))
+            arrayReturn.append(arrayColumns)
+            for filasF in resultArray:
+                #print(filasF)
+                arrayTemp = []
+                for colF in arrayColumns:
+                    #print(filasF[columnsTable.index(colF)])
+                    arrayTemp.append(filasF[columnsTable.index(colF)])
+                    #print(colF)
+                arrayReturn.append(arrayTemp)
+
+            salida = arrayReturn
+            print(arrayReturn)
+
+        
 
         
 
@@ -1332,18 +1354,55 @@ def procesar_select_general(instr,ts,tc):
                         print(objs.operador) #SOLO ETIQUETAS
                     print(datos.expresion.etiqueta)
                 elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
-                    print(datos.val)
+                    arrayColumns.append(datos.val) # *
                 elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
                     print(datos.val+'.*')
                 else:
-                    print(datos.etiqueta) #RESTO DE ETIQUETAS
+                    arrayColumns.append(datos.val) #IDS
 
         for objs in instr.listains:
-            print(objs.val)
+            tables.append(objs.val) #tables
+
+
+        columnsTable = tc.obtenerColumns(useCurrentDatabase,tables[0])
+        resultArray = j.extractTable(str(useCurrentDatabase),str(tables[0]))
+        arrayWhere = resultArray
+        arrayWhere.insert(0,columnsTable)           
 
         if instr.instr3.expwhere != None:
-            print(instr.instr3.expwhere.etiqueta)
-           
+            arrayFilter.append(arrayWhere[0])
+            i = 1
+            while i < len(arrayWhere):
+                arrayTS = []
+                arrayTS.append(arrayWhere[0])
+                arrayTS.append(arrayWhere[i])
+                val = resolver_expresion_logica(instr.instr3.expwhere.expresion,arrayTS)
+                if val == 1:
+                    arrayFilter.append(arrayWhere[i])
+                i+=1
+            
+        #print(arrayFilter)
+
+        if '*' in arrayColumns:
+            for filas in arrayFilter:
+                arrayReturn.append(filas)
+
+            salida = arrayReturn
+            print(arrayReturn)
+
+        else:
+            for filasF in arrayFilter:
+                #print(filasF)
+                arrayTemp = []
+                for colF in arrayColumns:
+                    #print(filasF[columnsTable.index(colF)])
+                    arrayTemp.append(filasF[columnsTable.index(colF)])
+                    #print(colF)
+                arrayReturn.append(arrayTemp)
+
+            salida = arrayReturn
+            print(arrayReturn)
+
         if instr.instr3.expgb != None:
             print(instr.instr3.expgb.etiqueta)
             for datos in instr.instr3.expgb.expresion:
@@ -1372,60 +1431,73 @@ def procesar_select_general(instr,ts,tc):
 
 
     elif instr.instr1 == None and instr.instr2 == None and instr.instr3 == None and instr.listains == None and instr.listanombres != None:
-        print('5')
+        print(5)    
         for datos in instr.listanombres:
             #CON IDENTIFICADOR 
             if datos.expresion != None and datos.asterisco != None:
-                if datos.expresion.etiqueta == OPERACION_ARITMETICA.WIDTH_BUCKET:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                    print(datos.expresion.val3.val)
-                    print(datos.expresion.val4.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.E_DIV:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.GCD:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.MOD:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.POWER:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val1.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.TRUNC:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.ATAN:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.ATAND:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.SUBSTRING:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                    print(datos.expresion.val3.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.TRIM:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.SUBSTR:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                    print(datos.expresion.val3.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.GET_BYTE:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.SET_BYTE:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                    print(datos.expresion.val3.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.ENCODE:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.DECODE:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
+                print('hol2')
+                if type(datos.asterisco) == list:
+                    arrayReturn.append([datos.asterisco[1].val])
+                    print(datos.asterisco[1].val)
+                else:
+                    arrayReturn.append([datos.asterisco])
+                    print(datos.asterisco)
+
+
+                if datos.expresion.operador == OPERACION_ARITMETICA.WIDTH_BUCKET:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.E_DIV:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+
+                elif datos.expresion.operador == OPERACION_ARITMETICA.GCD:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.MOD:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.POWER:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.TRUNC:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2D:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SUBSTRING:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SUBSTR:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.GET_BYTE:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SET_BYTE:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.ENCODE:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.DECODE:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                else:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                    print(resolver_expresion_aritmetica(datos.expresion,ts))
                 
                 if datos.asterisco[0] == TIPO_VALOR.AS_ID:
                     print(datos.asterisco[1].val)
@@ -1433,103 +1505,110 @@ def procesar_select_general(instr,ts,tc):
                     print(datos.asterisco[1])
                 else:
                     print(datos.asterisco)
+
             #SIN IDENTIFICADOR
             if datos.expresion != None and datos.asterisco == None:
-                if datos.expresion.etiqueta == OPERACION_ARITMETICA.WIDTH_BUCKET:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                    print(datos.expresion.val3.val)
-                    print(datos.expresion.val4.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.E_DIV:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.GCD:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.MOD:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.POWER:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val1.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.TRUNC:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.ATAN:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == OPERACION_ARITMETICA.ATAND:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.SUBSTRING:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                    print(datos.expresion.val3.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.TRIM:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.SUBSTR:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                    print(datos.expresion.val3.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.GET_BYTE:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.SET_BYTE:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                    print(datos.expresion.val3.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.ENCODE:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
-                elif datos.expresion.etiqueta == CADENA_BINARIA.DECODE:
-                    print(datos.expresion.val1.val)
-                    print(datos.expresion.val2.val)
+                print('hola')
+                if datos.expresion.operador == OPERACION_ARITMETICA.WIDTH_BUCKET:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.E_DIV:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.GCD:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.MOD:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.POWER:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.TRUNC:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+
+                elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2D:
+                    
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SUBSTRING:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SUBSTR:
+                    
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.GET_BYTE:
+                    
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SET_BYTE:
+                    
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.ENCODE:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.DECODE:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
                 else:
-                    print(datos.expresion.etiqueta)
-                    print(datos.expresion.val1.val)
+                    ts = []
+                    print(datos.expresion.operador)
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
 
-    '''ts = []
-    print(instr.listanombres[0].expresion)
-    print(resolver_expresion_logica(instr.listanombres[0].expresion,ts))'''
-
-    
-
-    '''arraySelect = [
-        ['id_usuario','nombre','apellido','curso','asignacion'],
-        [1,'MYNOR','MOLINA','',True],
-        [2,'JORGE','VASQUEZ','',False],
-        [3,'YADIRA','FERRER','Compi2',True],
-        [4,'ANDREA','DUARTE','Compi2',True],
-        [5,'ANDREA','DUARTE','Compi2',True], 
-    ]
-
-    array_salida = []
-    array_salida.append(arraySelect[0])
-  
-    ts = []
-    i = 1
-    while i < len(arraySelect):
-    
-        arrayTS = []
-        arrayTS.append(arraySelect[0])
-        arrayTS.append(arraySelect[i])
-        #print(arrayTS)
-       
-        
-
-        val = resolver_expresion_logica(instr.instr3.expwhere.expresion,arrayTS)
-        
-        if val == 1:
-            array_salida.append(arraySelect[i])
-        i+=1
-
-    print(array_salida)'''
-
+        salida = arrayReturn
+        print(salida)
 
 def getPosition(ts,id):    
     pos = ts[0].index(id)
     return pos
+
+def f_truncate(number, decimals=0):
+    if not isinstance(decimals, int):
+        raise TypeError("decimal places must be an integer.")
+    elif decimals < 0:
+        raise ValueError("decimal places has to be 0 or more.")
+    elif decimals == 0:
+        return math.trunc(number)
+
+    factor = 10.0 ** decimals
+    return math.trunc(number * factor) / factor
+
+def f_width_bucket(num,num2,num3,num4):
+    if num < num2:
+        return 0
+    elif num >= num3:
+        return num4 + 1
+    else:
+        if num >= num2 and num < num3:
+            i = 0
+            j = 0
+            while True:
+                j += 1
+                i += num4+1
+                if not i < num:
+                    break
+            return j
 
 
 def resolver_expresion_aritmetica(expNum,ts):
@@ -1567,17 +1646,35 @@ def resolver_expresion_aritmetica(expNum,ts):
         exp3 = resolver_expresion_aritmetica(expNum.exp4,ts)
         if expNum.operador == OPERACION_ARITMETICA.ABS:
             return abs(exp)
+        elif expNum.operador == OPERACION_ARITMETICA.CBRT:
+            return exp**(1/3)
+        elif expNum.operador == OPERACION_ARITMETICA.WIDTH_BUCKET:
+            return f_width_bucket(exp,exp1,exp2,exp3)
+        elif expNum.operador == OPERACION_ARITMETICA.SIGN:
+            return f_SIGN(exp)
         elif expNum.operador == OPERACION_ARITMETICA.LENGTH:
+            return len(exp)
+        elif expNum.operador == CADENA_BINARIA.LENGTH:
             return len(exp)
         elif expNum.operador == OPERACION_ARITMETICA.CEIL or expNum.operador == OPERACION_ARITMETICA.CEILING:
             return math.ceil(exp)
         elif expNum.operador == OPCIONES_DATOS.SUBSTRING or expNum.operador == OPCIONES_DATOS.SUBSTR:
             expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
             expInicio = resolver_expresion_aritmetica(expNum.exp2,ts)
-            expFin = resolver_expresion_aritmetica(expNum.exp3,ts)
+            expFin = resolver_expresion_aritmetica(expNum.exp3,ts)            
             return  expCadena[expInicio:expFin]
+
+        elif expNum.operador == CADENA_BINARIA.SUBSTRING or expNum.operador == CADENA_BINARIA.SUBSTR:
+            expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
+            expInicio = resolver_expresion_aritmetica(expNum.exp2,ts)
+            expFin = resolver_expresion_aritmetica(expNum.exp3,ts)            
+            return  expCadena[expInicio:expFin]
+
         elif expNum.operador == OPCIONES_DATOS.TRIM:
             expCadena = resolver_expresion_aritmetica(expNum.val1,ts)
+            return expCadena.strip()
+        elif expNum.operador == CADENA_BINARIA.TRIM:
+            expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
             return expCadena.strip()
         elif expNum.operador == OPERACION_ARITMETICA.DEGREES:
             return math.degrees(exp)
@@ -1608,7 +1705,7 @@ def resolver_expresion_aritmetica(expNum,ts):
         elif expNum.operador == OPERACION_ARITMETICA.SQRT:
             return math.sqrt(exp)
         elif expNum.operador == OPERACION_ARITMETICA.TRUNC:
-            return math.trunc(exp,exp1)
+            return f_truncate(exp,exp1)
         elif expNum.operador == OPERACION_ARITMETICA.S_TRUNC:
             return math.trunc(exp)
         elif expNum.operador == OPERACION_ARITMETICA.RANDOM:
@@ -1621,17 +1718,19 @@ def resolver_expresion_aritmetica(expNum,ts):
         elif expNum.operador == OPERACION_ARITMETICA.ATAN:
             return math.atan(exp)
         elif expNum.operador == OPERACION_ARITMETICA.ATAND:
-            return math.atanh(exp)
+            return math.degrees(math.atan(exp))
         elif expNum.operador == OPERACION_ARITMETICA.ACOSD:
             return math.acosh(exp)
         elif expNum.operador == OPERACION_ARITMETICA.ATAN:
             return math.atan(exp)
         elif expNum.operador == OPERACION_ARITMETICA.ATAND:
-            return math.atan2(exp)
+            return math.degrees(math.atan(exp))
         elif expNum.operador == OPERACION_ARITMETICA.ATAN2:
-            return math.atan2(exp)
+            return math.atan2(exp,exp1)
         elif expNum.operador == OPERACION_ARITMETICA.ATAN2:
-            return math.atan2(exp)
+            return math.atan2(exp,exp1)
+        elif expNum.operador == OPERACION_ARITMETICA.ATAN2D:
+            return math.degrees(math.atan2(exp,exp1))
         elif expNum.operador == OPERACION_ARITMETICA.COS:
             return math.cos(exp)
         elif expNum.operador == OPERACION_ARITMETICA.COT:
@@ -1650,6 +1749,8 @@ def resolver_expresion_aritmetica(expNum,ts):
             return math.tan(exp)
         elif expNum.operador == OPERACION_ARITMETICA.SINH:
             return math.sinh(exp)
+        elif expNum.operador == OPERACION_ARITMETICA.ASINH:
+            return math.asinh(exp)
         elif expNum.operador == OPERACION_ARITMETICA.COSH:
             return math.cosh(exp)
         elif expNum.operador == OPERACION_ARITMETICA.TANH:
@@ -1658,8 +1759,7 @@ def resolver_expresion_aritmetica(expNum,ts):
             valor = math.cos(exp)
             return math.degrees(valor)
         elif expNum.operador == OPERACION_ARITMETICA.ATANH:
-            valor= (1/2 * math.log((1 + exp)/(1 - exp))) 
-            return valor
+            return math.atanh(exp)
         elif expNum.operador == OPERACION_ARITMETICA.ACOSH:
             valor = math.log(exp + math.sqrt((exp * exp) - 1))
             return valor
@@ -1885,7 +1985,7 @@ def procesar_instrucciones(instrucciones,ts,tc) :
         return salida 
     except:
         pass
-'''
+
 f = open("./entrada.txt", "r")
 input = f.read()
 instrucciones = g.parse(input)
@@ -1905,4 +2005,4 @@ else:
     erroressss = ErrorHTML()
     erroressss.crearReporte()
     listaErrores = []
-'''
+
