@@ -63,8 +63,8 @@ def check( tipoDato:DBType , primitivo: Type, dato, lenght):
             return 'La fecha indicada no cumple con el formato o sobrepasa el limite: "5874897-12-31"'
         return True
     elif primitivo == Type.TIME:
-        # Limite máximo '5874897-12-31'
-        data = dato.split('-')
+        # Limite máximo '23:59:59'
+        data = dato.split(':')
         hCond = data[0] <= 23 and data[0] >= 0
         mCond = data[1] <= 59 and data[1] >= 0
         sCond = data[2] <= 59 and data[2] >= 0
