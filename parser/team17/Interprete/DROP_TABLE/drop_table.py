@@ -4,6 +4,8 @@ from Interprete.Arbol import Arbol
 from Interprete.Valor.Valor import Valor
 from StoreManager import jsonMode as dbms
 from Interprete.Meta import Meta
+from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
+from Interprete.Manejo_errores import ErroresSintacticos
 
 #################################
 # Patrón intérprete: DROP TABLE #
@@ -29,6 +31,10 @@ class DropTable(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: No se ha seleccionado una base de datos para trabajar.
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("XX00: no se a seleccionado base de datos", self.linea,
+                                                         self.columna,
+                                                         'Drop Database')
+            arbol.ErroresSemanticos.append(Error)
             print('No se ha seleccionado una base de datos para trabajar')
             return
         # Si ya se selecciono una base de datos
@@ -52,6 +58,11 @@ class DropTable(NodoArbol):
                  |______|_|  \_\_|  \_\\____/|_|  \_\
                 Descripcion: Hubo un error en la operacion.
                 '''
+                Error: ErroresSemanticos = ErroresSemanticos("XX00: internal_error ", self.linea,
+                                                             self.columna,
+                                                             'Drop Table')
+
+                arbol.ErroresSemanticos.append(Error)
                 print('Hubo un error en la operacion')
                 return
             # Si la base de datos no existe
@@ -65,6 +76,10 @@ class DropTable(NodoArbol):
                  |______|_|  \_\_|  \_\\____/|_|  \_\
                 Descripcion: La base de datos no existe.
                 '''
+                Error: ErroresSemanticos = ErroresSemanticos("XX00: internal_error db is not exist", self.linea,
+                                                             self.columna,
+                                                             'drop Table')
+                arbol.ErroresSemanticos.append(Error)
                 print('La base de datos no existe')
                 return
             # Si la tabla no existe
@@ -78,5 +93,9 @@ class DropTable(NodoArbol):
                  |______|_|  \_\_|  \_\\____/|_|  \_\
                 Descripcion: La tabla no existe.
                 '''
+                Error: ErroresSemanticos = ErroresSemanticos("XX00: internal_error table is not exist", self.linea,
+                                                             self.columna,
+                                                             'Drop Table')
+                arbol.ErroresSemanticos.append(Error)
                 print('La tabla no existe')
                 return

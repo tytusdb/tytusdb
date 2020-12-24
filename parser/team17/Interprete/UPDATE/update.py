@@ -4,6 +4,8 @@ from Interprete.Arbol import Arbol
 from Interprete.Valor.Valor import Valor
 from StoreManager import jsonMode as dbms
 from Interprete.Meta import Meta
+from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
+
 
 #############################
 # Patrón intérprete: UPDATE #
@@ -31,6 +33,10 @@ class Update(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: No se ha seleccionado una base de datos para trabajar.
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("XX00: no se a seleccionado base de datos", self.linea,
+                                                         self.columna,
+                                                         'Update')
+            arbol.ErroresSemanticos.append(Error)
             print('No se ha seleccionado una base de datos para trabajar')
             return
         # Se verifica que exista la tabla a actualizar
@@ -121,6 +127,10 @@ class Update(NodoArbol):
                 borra el print de abajo o comentalo xd
                 Descripcion: la columna: %nameColumn% No acepta el %value.tipo%
                 '''
+                Error: ErroresSemanticos = ErroresSemanticos("XX45: la columna "+nameColumn+ " no acepta el valor ", self.linea,
+                                                             self.columna,
+                                                             'Drop Database')
+                arbol.ErroresSemanticos.append(Error)
                 print(' la columna: ' + nameColumn + ' No acepta el ' + str(typeValue))
                 result = False
         return result

@@ -5,6 +5,10 @@ from Interprete.Valor.Valor import Valor
 from StoreManager import jsonMode as dbms
 from Interprete.CREATE_TABLE import clases_auxiliares
 from Interprete.Meta import HEAD
+from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
+
+from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
+
 
 ##################################
 # Patrón intérprete: CREATE TABLE#
@@ -47,6 +51,10 @@ class CreateTable(NodoArbol):
 
                                             			Descripcion: ocurrio un error o no existe la base de datos
                                             			'''
+                Error: ErroresSemanticos = ErroresSemanticos("XX00: internal_error db is not exist", self.linea, self.columna,
+                                                             'Create Table')
+                arbol.ErroresSemanticos.append(Error)
+
                 print("error")
                 #return
         # Se utiliza el paquete de almacenamiento para enviar a crear una nueva tabla y se obtiene un retorno
@@ -75,6 +83,10 @@ class CreateTable(NodoArbol):
 
                                         			Descripcion: error en la operacion
                                         			'''
+            Error: ErroresSemanticos = ErroresSemanticos("XX00: internal_error error en la operacion", self.linea,
+                                                         self.columna,
+                                                         'Create Table')
+            arbol.ErroresSemanticos.append(Error)
             print("Nel error")
         elif retorno == 2:  # La base de datos no existe
             '''
@@ -87,7 +99,12 @@ class CreateTable(NodoArbol):
 
                                         			Descripcion: no existe la base de datos
                                         			'''
+            Error: ErroresSemanticos = ErroresSemanticos("XX00: internal_error db is not exist", self.linea,
+                                                         self.columna,
+                                                         'Create Table')
+            arbol.ErroresSemanticos.append(Error)
             print("Nel no existe la bd")
+
         elif retorno == 3:  # La tabla ya existe
             '''
                                         			  ______ _____  _____   ____  _____  
@@ -99,6 +116,10 @@ class CreateTable(NodoArbol):
 
                                         			Descripcion: la tabla 'self.id' ya existe
                                         			'''
+            Error: ErroresSemanticos = ErroresSemanticos("XX01: internal_error id ya existe", self.linea,
+                                                         self.columna,
+                                                         'Create Table')
+            arbol.ErroresSemanticos.append(Error)
             print("Nel ya existe la tabla")
 
     def crear_encabezados(self, bdactual, entorno, arbol):

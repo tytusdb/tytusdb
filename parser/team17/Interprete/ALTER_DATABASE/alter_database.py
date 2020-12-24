@@ -2,7 +2,8 @@ from Interprete.NodoAST import NodoArbol
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from StoreManager import jsonMode as dbms
-
+from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
+from Interprete.Manejo_errores import ErroresSintacticos
 
 class AlterDatabase(NodoArbol):
 
@@ -34,6 +35,9 @@ class AlterDatabase(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: XX000	internal_error (yo creo que seria ese)
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("XX00: internal_error",self.linea,self.columna, 'Alter Table')
+            arbol.ErroresSemanticos.append(Error)
+
             print('XX00: internal_error')
             return
         # Si la base de datos no existe
@@ -47,6 +51,10 @@ class AlterDatabase(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: La base de datos no existe
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("La base de datos no existe", self.linea, self.columna,
+                                                         'Alter Table')
+            arbol.ErroresSemanticos.append(Error)
+
             print('La base de datos no existe')
             return
         # Si el nuevo nombre ya existe
@@ -60,6 +68,10 @@ class AlterDatabase(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: El nuevo nombre ya existe
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("El nuevo nombre ya existe", self.linea, self.columna,
+                                                         'Alter Table')
+            arbol.ErroresSemanticos.append(Error)
+
             print('El nuevo nombre ya existe')
             return
         # Si el retorno fue cualquier otra cosa tambien seria un error
@@ -73,5 +85,9 @@ class AlterDatabase(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: Error desconocido
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("Error desconocido", self.linea, self.columna,
+                                                         'Alter Table')
+            arbol.ErroresSemanticos.append(Error)
+
             print('Error desconocido')
             return

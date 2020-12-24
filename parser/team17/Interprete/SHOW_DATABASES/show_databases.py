@@ -2,7 +2,7 @@ from Interprete.NodoAST import NodoArbol
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from StoreManager import jsonMode as dbms
-
+from Interprete.Manejo_errores.ErroresSemanticos import  ErroresSemanticos
 
 class ShowDatabases(NodoArbol):
 
@@ -23,6 +23,10 @@ class ShowDatabases(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: No hay bases de datos
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("XX00: no hay base de datos", self.linea,
+                                                         self.columna,
+                                                         'show database')
+            arbol.ErroresSemanticos.append(Error)
             print('No hay bases de datos')
             return
         # Si la operacion fue exitosa

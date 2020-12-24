@@ -2,6 +2,8 @@ from Interprete.NodoAST import NodoArbol
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from StoreManager import jsonMode as j
+from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
+from Interprete.Manejo_errores import ErroresSintacticos
 
 #####################################
 # Patrón intérprete: CREATE DATABASE#
@@ -32,6 +34,10 @@ class UseDatabase(NodoArbol):
 
             			Descripcion: BD %databaseName% no existe ("BD " + databaseName + " no existe")
             			'''
+            Error: ErroresSemanticos = ErroresSemanticos("XX00: la base de datos no existe", self.linea,
+                                                         self.columna,
+                                                         'Use database')
+            arbol.ErroresSemanticos.append(Error)
             print("error no existe la bd")
             return
 

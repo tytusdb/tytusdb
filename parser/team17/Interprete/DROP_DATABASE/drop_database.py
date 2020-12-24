@@ -2,6 +2,8 @@ from Interprete.NodoAST import NodoArbol
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from StoreManager import jsonMode as dbms
+from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
+from Interprete.Manejo_errores import ErroresSintacticos
 
 
 class DropDatabase(NodoArbol):
@@ -34,6 +36,10 @@ class DropDatabase(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: XX000	internal_error (yo creo que seria ese)
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("XX01: internal_error", self.linea,
+                                                         self.columna,
+                                                         'Drop Database')
+            arbol.ErroresSemanticos.append(Error)
             print('XX00: internal_error')
             return
         # Si la base de datos no existe
@@ -47,5 +53,9 @@ class DropDatabase(NodoArbol):
              |______|_|  \_\_|  \_\\____/|_|  \_\
             Descripcion: La base de datos no existe
             '''
+            Error: ErroresSemanticos = ErroresSemanticos("XX01: internal_error la db no existe", self.linea,
+                                                         self.columna,
+                                                         'Drop Database')
+            arbol.ErroresSemanticos.append(Error)
             print('La base de datos no existe')
             return

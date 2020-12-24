@@ -2,6 +2,8 @@ from Interprete.NodoAST import NodoArbol
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from StoreManager import jsonMode as dbms
+from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
+from Interprete.Manejo_errores import ErroresSintacticos
 
 #####################################
 # Patrón intérprete: CREATE DATABASE#
@@ -36,6 +38,10 @@ class CreateDatabase(NodoArbol):
 
                             			Descripcion: error en la operacion
                             			'''
+                Error: ErroresSemanticos = ErroresSemanticos("0LP01	invalid_grant_operation", self.linea, self.columna,
+                                                             'create database')
+                arbol.ErroresSemanticos.append(Error)
+
                 print("error en la operacion")
             else:  # LA BASE DE DATOS YA EXISTE
                 '''
@@ -48,6 +54,10 @@ class CreateDatabase(NodoArbol):
 
                             			Descripcion: la BD ya existe ("BD " + databaseName + " ya existe")
                             			'''
+                Error: ErroresSemanticos = ErroresSemanticos("42P04	duplicate_database" , self.linea,
+                                                             self.columna,
+                                                             'create database')
+                arbol.ErroresSemanticos.append(Error)
                 print("ya existe la base de datos")
         elif self.replace is True and self.ifnotexists is False:
             if self.existe(self.id) is True:
@@ -73,6 +83,10 @@ class CreateDatabase(NodoArbol):
 
                                             			Descripcion: la BD ya existe ("BD " + databaseName + " ya existe")
                                             			'''
+                Error: ErroresSemanticos = ErroresSemanticos("42P04	duplicate_database", self.linea,
+                                                             self.columna,
+                                                             'create database')
+                arbol.ErroresSemanticos.append(Error)
                 print("ya existe la base de datos")
 
     def existe(self, database: str) -> bool:
