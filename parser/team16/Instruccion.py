@@ -43,6 +43,16 @@ def gets(Lista, data2, pos):
     return 0
 
 
+
+def ExisteInList(lista,valor):
+    for ss in lista:
+        if(str(ss)==str(valor)):
+            return  False
+
+    return True
+
+
+
 def imprir(string):
     global Ejecucion
     Ejecucion += string + "\n"
@@ -63,6 +73,9 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
     global ts_global, baseActual
     global LisErr
     listaGeneral ={}
+    listaConsultados=[]
+    contadorCol = 0
+
     r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
     if r is not None:
@@ -89,28 +102,49 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                     y: CampoTabla = ele
                                     if (str(y.id) == str(ii.Columna)):
 
-                                        print("LA columan " + str(
-                                            ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
+                                        print("LA columan " + str(ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
                                         # Bamos a sacar todos los datos coincidentes
                                         # recorremos datos
 
                                         # Vallidamos que la no venga sin datos
                                         print(ii.NombreT)
+
                                         if (ii.NombreT != ""):
                                             # hacemos una doble condicion para agarrar la columna que es
-
                                             if (str(x.id) == ii.NombreT):
                                                 print("Estoy entrando <<<<<<<<<<<<<<<<<<<<< ")
                                                 i = ts_global.Datos
                                                 lista = []
+
                                                 for gg in ts_global.Datos:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
-                                                    listaGeneralSubQuery.append(t)
-                                                    if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
-                                                        listaGeneralSubQuery.append(t)
-                                                        lista.append(str(t.valor))
-                                                listaGeneral[ii.Columna] = lista
+
+                                                    if (str(t.columna) == str(ii.Columna) and str(t.tabla) == str(
+                                                            ii.NombreT)):
+
+                                                        print(str(t.columna) + "Estos vienen" + str(t.tabla))
+                                                        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                                                        nombreGen = ""
+                                                        if (ExisteInList(listaConsultados,
+                                                                         t.columna) == False):  # Existe
+
+                                                            print("Campo ya existe se creara un nuevo nombre")
+                                                            nombreGen += str(t.columna) + str(contadorCol)
+                                                            print(str(t.valor))
+                                                            listaGeneralSubQuery.append(t)
+                                                            lista.append(str(t.valor))
+
+                                                        else:
+                                                            listaConsultados.append(t.columna)
+                                                            print(str(t.valor))
+                                                            listaGeneralSubQuery.append(t)
+                                                            lista.append(str(t.valor))
+                                                            nombreGen += str(ii.Columna)
+                                                listaGeneral[nombreGen] = lista
+                                                contadorCol += 1
+
+
                                             else:
                                                 print("")
 
@@ -123,7 +157,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
 
                                                 if (str(t.columna) == str(ii.Columna)):
                                                     print(str(t.valor))
-                                                    listaGeneralSubQuery.append(t)
+
                                                     lista.append(str(t.valor))
                                             listaGeneral[ii.Columna] = lista
 
@@ -143,6 +177,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     i = ts_global.Datos
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
+
                                                         if (pp.id == t.columna):
                                                             print(str(t.valor))
                                                             listaGeneralSubQuery.append(t)
@@ -1177,7 +1212,7 @@ def VerificaciontipoWhen(Lista_When):
     retorno ={}
 
     listaResultado=[]
-    list=[]
+    listwhen=[]
 
     for sss in Lista_When:
         if (isinstance(sss, TiposWhen)):
@@ -1191,19 +1226,19 @@ def VerificaciontipoWhen(Lista_When):
                 listaResultado = ProcesoExpresion(sss.ListaExpresiones1)
                 # Procesando la Segunda lista de instrucciones valor a sustituir
 
-                list = []
+                listwhen = []
                 if listaResultado is None:
                     print("No hay coincidencias")
                 else:
                     for r in listaResultado:
                         print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
-                        list.append(r.valor)
+                        listwhen.append(r.valor)
 
 
                 li:ExpresionValor = sss.ListaExpresiones3
                 ValorSust += str(li.val)
 
-                retorno[li.val]=list
+                retorno[li.val]=listwhen
 
 
                 #return listaResultado,ValorSust
@@ -1218,18 +1253,18 @@ def VerificaciontipoWhen(Lista_When):
                 # Procesando la primera lista de instrucciones
                 listaResultado = ProcesoExpresion(sss.ListaExpresiones1)
                 # Procesando la Segunda lista de instrucciones valor a sustituir
-                list = []
+                listwhen = []
                 if listaResultado is None:
                     print("No hay coincidencias")
                 else:
                     for r in listaResultado:
                         print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
-                        list.append(r.valor)
+                        listwhen.append(r.valor)
 
                 li = sss.ListaExpresiones3
                 ValorSust += str(li.val)
 
-                retorno[li.val] = list
+                retorno[li.val] = listwhen
 
 
 
@@ -1241,16 +1276,16 @@ def VerificaciontipoWhen(Lista_When):
                 print("El primer tipo de when <<<<<<<<<<<<<<<<<<<<<<<")
                 # Procesando la primera lista de instrucciones
                 listaResultado = ProcesoExpresion(sss.ListaExpresiones1)
-                list = []
+                listwhen = []
                 if listaResultado is None:
                     print("No hay coincidencias")
                 else:
                     for r in listaResultado:
                         print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
-                        list.append(r.valor)
+                        listwhen.append(r.valor)
 
 
-                retorno[0] = list
+                retorno[0] = listwhen
 
 
             # When ListaExpresiones1 Else listaExpresiones2
@@ -1261,23 +1296,23 @@ def VerificaciontipoWhen(Lista_When):
                 # Procesando la primera lista de instrucciones
                 listaResultado = ProcesoExpresion(sss.ListaExpresiones1)
                 # Procesando la Segunda lista de instrucciones valor a sustituir
-                list = []
+                listwhen = []
                 if listaResultado is None:
                     print("No hay coincidencias")
                 else:
                     for r in listaResultado:
                         print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
-                        list.append(r.valor)
+                        listwhen.append(r.valor)
 
 
                 li = sss.ListaExpresiones2
                 ValorSust += str(li.val)
-                retorno[ValorSust] = list
+                retorno[ValorSust] = listwhen
 
             else:
                 print("Verificar Errores Sintacticos")
                 return  False,"None"
-                retorno[li.val] = list
+                retorno[li.val] = listwhen
         else:
             imprir("CASE: Error de tipo ")
 
@@ -1289,15 +1324,15 @@ def AlinearDatos(listaGeneral):
     nes ={}
     dataa=0
     p = "Null"
-    list=[]
+    listaling=[]
 
 #Calculamos la talla maxima de los datos
     for data in listaGeneral:
         maxi = 0
         for jo in listaGeneral.get(data):
             maxi+=1
-        list.append(maxi)
-    dataa = max(list)
+        listaling.append(maxi)
+    dataa = max(listaling)
 
 #Rellenamos si no tiene la norma General
     for date in listaGeneral:
@@ -1763,6 +1798,8 @@ class Select(Instruccion) :
 
         global ts_global, baseActual, ListaTablasG
         global LisErr
+        listaConsultados = []
+        contadorCol = 0
 
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
         casee =False
@@ -1784,20 +1821,20 @@ class Select(Instruccion) :
 
 
                        if (str(x.id) == str(ee.NombreT)):
-                          #si es la tabla validamos que tipo de campo viene
+                           ListaTablasG.append(x.id)
+                           #si es la tabla validamos que tipo de campo viene
 
 
-                            numeroExpresion = 1
-                            for ii in self.Lista_Campos:
+                           numeroExpresion = 1
+                           for ii in self.Lista_Campos:
 
                                 if(isinstance(ii,Campo_AccedidoSinLista)): #nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
                                     #*  , nombrecampo,  nombrecampo alias
                                     #listaGeneral
                                     for ele in x.cuerpo: #recorremos lista de columnas
                                         y:CampoTabla = ele
+
                                         if (str(y.id) == str(ii.Columna)):
-
-
                                             print("LA columan "+str(ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
                                             #Bamos a sacar todos los datos coincidentes
                                             #recorremos datos
@@ -1811,19 +1848,38 @@ class Select(Instruccion) :
                                                     print("Estoy entrando <<<<<<<<<<<<<<<<<<<<< ")
                                                     i = ts_global.Datos
                                                     lista = []
+
                                                     for gg in ts_global.Datos:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
-                                                        if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                        if (str(t.columna) == str(ii.Columna) and str(t.tabla)==str(ii.NombreT)):
 
-                                                            lista.append(str(t.valor))
-                                                    listaGeneral[ii.Columna] = lista
+                                                            print(str(t.columna) +"Estos vienen"+str(t.tabla))
+                                                            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                                                            nombreGen = ""
+                                                            if(ExisteInList(listaConsultados,t.columna)==False):  #Existe
+
+                                                                print("Campo ya existe se creara un nuevo nombre")
+                                                                nombreGen += str(t.columna) + str(contadorCol)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+
+                                                            else:
+                                                                listaConsultados.append(t.columna)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+                                                                nombreGen+=str(ii.Columna)
+                                                    listaGeneral[nombreGen] = lista
+                                                    contadorCol += 1
+
+
                                                 else:
                                                     print("")
 
                                             else:
-
                                                 i = ts_global.Datos
                                                 lista = []
                                                 for gg in ts_global.Datos:
@@ -1834,7 +1890,6 @@ class Select(Instruccion) :
 
                                                         lista.append(str(t.valor))
                                                 listaGeneral[ii.Columna] = lista
-
 
                                         elif(str(ii.Columna) == "*"):
                                             print("Vienen todo los datos de la tabla")
@@ -2371,9 +2426,9 @@ class Select(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2383,9 +2438,9 @@ class Select(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                            #mostrarConsulta(list2)
@@ -2394,9 +2449,9 @@ class Select(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2404,9 +2459,9 @@ class Select(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2426,9 +2481,9 @@ class Select(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2436,9 +2491,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2446,9 +2501,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2456,9 +2511,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2507,9 +2562,9 @@ class Select(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2518,9 +2573,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2529,9 +2584,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2539,9 +2594,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2560,9 +2615,9 @@ class Select(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2570,9 +2625,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2580,9 +2635,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2591,9 +2646,9 @@ class Select(Instruccion) :
                         elif(isinstance(ank,Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 =Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 =Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             #mostrarConsulta(list2)
@@ -2628,6 +2683,9 @@ class Select2(Instruccion) :
 
         global ts_global, baseActual
         global LisErr
+        listaConsultados = []
+        contadorCol = 0
+
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
         casee = False
 
@@ -2653,10 +2711,10 @@ class Select2(Instruccion) :
                                     # listaGeneral
                                     for ele in x.cuerpo:  # recorremos lista de columnas
                                         y: CampoTabla = ele
+
                                         if (str(y.id) == str(ii.Columna)):
 
-                                            print("LA columan " + str(
-                                                ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
+                                            print("LA columan " + str(ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
                                             # Bamos a sacar todos los datos coincidentes
                                             # recorremos datos
 
@@ -2669,14 +2727,34 @@ class Select2(Instruccion) :
                                                     print("Estoy entrando <<<<<<<<<<<<<<<<<<<<< ")
                                                     i = ts_global.Datos
                                                     lista = []
+
                                                     for gg in ts_global.Datos:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
-                                                        if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                        if (str(t.columna) == str(ii.Columna) and str(t.tabla)==str(ii.NombreT)):
 
-                                                            lista.append(str(t.valor))
-                                                    listaGeneral[ii.Columna] = lista
+                                                            print(str(t.columna) +"Estos vienen"+str(t.tabla))
+                                                            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                                                            nombreGen = ""
+                                                            if(ExisteInList(listaConsultados,t.columna)==False):  #Existe
+
+                                                                print("Campo ya existe se creara un nuevo nombre")
+                                                                nombreGen += str(t.columna) + str(contadorCol)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+
+                                                            else:
+                                                                listaConsultados.append(t.columna)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+                                                                nombreGen+=str(ii.Columna)
+                                                    listaGeneral[nombreGen] = lista
+                                                    contadorCol += 1
+
+
                                                 else:
                                                     print("")
 
@@ -3668,9 +3746,9 @@ class Select2(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3680,9 +3758,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                         # mostrarConsulta(list2)
@@ -3690,9 +3768,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3700,9 +3778,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3722,9 +3800,9 @@ class Select2(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3732,9 +3810,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3742,9 +3820,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3752,9 +3830,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3803,9 +3881,9 @@ class Select2(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3814,9 +3892,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3825,9 +3903,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3835,9 +3913,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3856,9 +3934,9 @@ class Select2(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3866,9 +3944,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3876,9 +3954,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3887,9 +3965,9 @@ class Select2(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -3903,11 +3981,11 @@ class Select2(Instruccion) :
                         er = ErrorRep('Semantico', 'No Se Encontro la Palabra reservada', 0)
                         LisErr.agregar(er)
 
-        list = AlinearDatos(listaGeneral)
+        listaling = AlinearDatos(listaGeneral)
         print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
-        print(list)
+        print(listaling)
 
-        mostrarConsulta(list)
+        mostrarConsulta(listaling)
 
 
 
@@ -4639,6 +4717,8 @@ class Select4(Instruccion) :
 
         global ts_global, baseActual
         global LisErr
+        listaConsultados = []
+        contadorCol = 0
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
         casee = False
 
@@ -4675,18 +4755,42 @@ class Select4(Instruccion) :
                                             if (ii.NombreT != ""):
                                                 # hacemos una doble condicion para agarrar la columna que es
 
-                                                if (str(x.id) == ii.NombreT):
+
+                                                if(str(x.id)==ii.NombreT):
+
                                                     print("Estoy entrando <<<<<<<<<<<<<<<<<<<<< ")
                                                     i = ts_global.Datos
                                                     lista = []
+
                                                     for gg in ts_global.Datos:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
-                                                        if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                        if (str(t.columna) == str(ii.Columna) and str(t.tabla) == str(
+                                                                ii.NombreT)):
 
-                                                            lista.append(str(t.valor))
-                                                    listaGeneral[ii.Columna] = lista
+                                                            print(str(t.columna) + "Estos vienen" + str(t.tabla))
+                                                            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                                                            nombreGen = ""
+                                                            if (ExisteInList(listaConsultados,
+                                                                             t.columna) == False):  # Existe
+
+                                                                print("Campo ya existe se creara un nuevo nombre")
+                                                                nombreGen += str(t.columna) + str(contadorCol)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+
+                                                            else:
+                                                                listaConsultados.append(t.columna)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+                                                                nombreGen += str(ii.Columna)
+                                                    listaGeneral[nombreGen] = lista
+                                                    contadorCol += 1
+
+
                                                 else:
                                                     print("")
 
@@ -5680,9 +5784,9 @@ class Select4(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5692,9 +5796,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                         # mostrarConsulta(list2)
@@ -5702,9 +5806,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5712,9 +5816,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5734,9 +5838,9 @@ class Select4(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5744,9 +5848,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5754,9 +5858,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5764,9 +5868,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5815,9 +5919,9 @@ class Select4(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5826,9 +5930,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5837,9 +5941,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5847,9 +5951,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Interseccion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Interseccion(listaling)
                             imprir("SELECT: Comando INTERSECT con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5868,9 +5972,9 @@ class Select4(Instruccion) :
                             ank.Ejecutar()
                             print("Tenemos el diccionario ya unido ")
                             print(listaGeneral)
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5878,9 +5982,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select2)):
                             ank.Ejecutar()
                             print("viene un tipo de select normal con cuerpo")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5888,9 +5992,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select3)):
                             ank.Ejecutar()
                             print("Viene un tipo de Select normal con distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5899,9 +6003,9 @@ class Select4(Instruccion) :
                         elif (isinstance(ank, Select4)):
                             ank.Ejecutar()
                             print("viene un tipo de Select normal con cuerpo y distinct")
-                            list = AlinearDatos(listaGeneral)
-                            mostrarConsulta(list)
-                            list2 = Excepcion(list)
+                            listaling = AlinearDatos(listaGeneral)
+                            mostrarConsulta(listaling)
+                            list2 = Excepcion(listaling)
                             imprir("SELECT: Comando Except con Exito")
                             listaGeneral.update(list2)
                             # mostrarConsulta(list2)
@@ -5915,11 +6019,11 @@ class Select4(Instruccion) :
                         er = ErrorRep('Semantico', 'No Se Encontro la Palabra reservada', 0)
                         LisErr.agregar(er)
 
-        list = AlinearDatos(listaGeneral)
+        listaling = AlinearDatos(listaGeneral)
         print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
-        print(list)
+        print(listaling)
 
-        mostrarConsulta(list)
+        mostrarConsulta(listaling)
 
 
 
@@ -6010,9 +6114,9 @@ class SubSelect2(Instruccion) :
 
         listaGeneral.update(listi)
         #Rellenamos campos si no son suficientes
-        list = AlinearDatos(listaGeneral)
+        listaling = AlinearDatos(listaGeneral)
 
-        print(list)
+        print(listaling)
         print("<<<<<<<<<<<<<<<<<<<<<<<<  estaaaa otra")
 
         return Lista
@@ -6303,6 +6407,7 @@ class Insert_Datos(Instruccion):
 
                             resultado = Inter.procesar_expresion(cc, None)
                             print(" Mi proceso: "+str(resultado))
+
                             if isinstance(resultado, string_types) and (str(temporal[index].tipo.valor).upper() == 'VARCHAR' or str(temporal[index].tipo.valor).upper() == 'CHARACTER' or str(temporal[index].tipo.valor).upper() == 'CHAR'):
                                 print(" >>> Parametros correctos, insertar, Validar la exprecion.")
                                 banderaInsert = True

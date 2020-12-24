@@ -1,0 +1,125 @@
+GRAMATICA RECURSIVA POR LA DERECHA
+
+instrucciones : instrucion instrucciones
+			| instrucion
+			
+
+instrucion : CREATE TABLE ID PARIZQ campos PARDER PUNTO_COMA
+			| TRUNCATE TABLE ID PUNTO_COMA
+			| DROP TABLE ID PUNTO_COMA
+			| DROP ID
+			| UPDATE ID SET l_columnas WHERE logicos PUNTO_COMA
+			| DELETE FROM ID WHERE logicos PUNTO_COMA
+			| CREATE FUNCTION ID BEGIN instrucciones END PUNTO_COMA
+			| CREATE FUNCTION ID PARIZQ lcol PARDER BEGIN instrucciones END PUNTO_COMA
+			| CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
+			| DECLARE expresion AS expresion PUNTO_COMA
+			| DECLARE expresion tipo PUNTO_COMA
+			| SET expresion IGUAL logicos PUNTO_COMA
+			| ALTER TABLE ID ADD ID tipo PUNTO_COMA
+			| ALTER TABLE ID DROP lcol ID PUNTO_COMA
+			| INSERT INTO ID PARIZQ lcol PARDER VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
+			| INSERT INTO ID VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
+			| SELECT lcol FROM lcol inners PUNTO_COMA
+			| SELECT POR FROM lcol inners PUNTO_COMA
+			| SELECT lcol FROM lcol inners WHERE logicos PUNTO_COMA
+			| SELECT POR FROM lcol inners WHERE logicos PUNTO_COMA
+
+
+l_columnas : logicos COMA l_columnas
+			| logicos
+			
+inners : INNER JOIN logicos ON logicos
+        | LEFT JOIN logicos ON logicos
+        | FULL OUTER JOIN logicos ON logicos
+        | JOIN logicos ON logicos
+        | RIGHT JOIN logicos ON logicos
+        | 
+
+logicos : lt OR logicos
+		| lt
+
+lt : lf AND lt
+	| lf
+	
+lf : lfp LIKE lf
+	| lfp BETWEEN lf
+	| lfp IN lf
+	| lfp NOT LIKE lf
+	| lfp NOT BETWEEN lf
+	| lfp
+
+lfp : relacional
+	| NOT logicos 
+	| PARIZQ logicos PARDER
+
+relacional : rf IGUAL relacional
+			| rf MAYORQ relacional
+			| rf MENORQ relacional
+			| rf MAYOR_IGUALQ relacional
+			| rf MENOR_IGUALQ relacional
+			| rf DISTINTO relacional
+			| rf
+
+rf : expre
+	| PARIZQ logicos PARDER
+	
+expre : t SUMA expre
+		| t RESTA expre
+		1 t
+
+t : tp MULTIPLICACION t
+	| tp DIVISION t
+	| tp
+	
+tp : tpp MODULO tp
+	| tpp
+
+tpp : expresion AS ID
+	| expresion
+
+expresion : CADENA
+            | CARACTER
+            | ENTERO
+            | FDECIMAL
+            | DOUBLE
+            | ID
+            | ID PUNTO ID
+            | ARROBA ID
+            | ID PARIZQ lcol PARDER	
+			
+campos : ID l_campo COMA campos
+		| ID l_campo
+			
+l_campo : tipo l_campo
+		| tipo
+			 
+l_expresiones : expresion COMA l_expresiones
+				| expresion			
+
+lcol : expre COMA lcol
+        | expre
+
+tipo : INT
+		| DATE
+        | NOT
+        | NULL
+        | PRIMARY KEY
+        | FOREIGN KEY REFERENCES
+        | ID PARIZQ ID PARDER
+		| VARCHAR PARIZQ ENTERO PARDER
+        | CHAR PARIZQ ENTERO PARDER
+		| DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
+        | DOUBLE
+        | DECIMAL
+        | ENTERO
+		| SMALLINT
+		| BIGINT
+		| NUMERIC
+		| REAL
+        | FLOAT PARIZQ ENTERO COMA ENTERO PARDER
+
+
+
+			
+			
