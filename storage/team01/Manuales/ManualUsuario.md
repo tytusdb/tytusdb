@@ -1,4 +1,4 @@
-# MANUAL DE USUARIO
+	x# MANUAL DE USUARIO
 
 UNIVERSIDAD DE SAN CARLOS DE GUATEMALA  
 FACULTAD DE INGENIERÍA  
@@ -24,6 +24,8 @@ ___
 	- [Funcinalidad](#Funcionalidad)
 - [VISUALIZACION DEL SISTEMA](#VISUALIZACIÓN-DEL-SISTEMA)
 	- [Ventana Principal](#Ventana-Principal)
+	- [Visualización del Menú de  Reportes](#Menú-de-Reportes)
+	- [Visualización del Menú Ayuda](#Menú-ayuda)
 - [GLOSARIO](#GLOSARIO)
 - [REFERENCIAS](#REFERENCIAS)
 ___
@@ -45,9 +47,27 @@ ___
 # VISUALIZACIÓN DEL SISTEMA
 
 ## Ventana Principal
-___
+
+<p align="center">
+  <img src="imagenes/ventana1.jpg" width="800" alt="500">
+</p>
+
+## Menú de Reportes
+
+<p align="center">
+  <img src="imagenes/ventanareportes.jpg" width="800" alt="Mreporte">
+</p>
+
+## Menú ayuda
+
+<p align="center">
+  <img src="imagenes/ventanaayuda.jpg" width="800" alt="Mayuda">
+</p>
 
 # GLOSARIO
+
+	- AVL : Árbol binario de busqueda auto-balanceable.
+	- BD : Conjunto de datos pertenecientes a un mismo contexto.
 ___
 
 # REFERENCIAS
