@@ -11,7 +11,7 @@ class Graficar:
             self.graficar_nodos(raiz)
             self.indice = 0
             self.relacionar_nodos(raiz)
-            self.dot.render('proyecto/reports/arbolAst', view=True)
+            self.dot.render('reports/arbolAst', view=True)
 
     def graficar_nodos(self, raiz):
         if(raiz is None):
