@@ -29,11 +29,23 @@ baseActual = ""
 # ----------------------------------------------------------------------------------------------------------------
 
 def procesar_showdb(query,ts):
-    h.textosalida+="TYTUS>> "+str(store.showDatabases())+"\n"
+    verificacion =  ts.verificacionShowBD()
+    if verificacion == 0:
+        h.textosalida+="TYTUS>> " + " No hay BD que mostrar "+"\n"
+    else:
+        h.textosalida+="TYTUS>> "+str(verificacion)+"\n"
     #llamo al metodo de EDD
 
 def procesar_useBD(query,ts):
-    h.bd_enuso = query.bd_id
+    verificacion =  ts.verificacionUseBD(query.bd_id)
+    if verificacion==1:
+        h.bd_enuso = query.bd_id
+        h.textosalida+="TYTUS>> " + " Se esta utilizando la BD "+str(h.bd_enuso)+"\n"
+        return "se usa la bd: "+str(h.bd_enuso)
+    elif verificacion==0:
+        h.textosalida+="TYTUS>> " + "BD "+ +str(query.bd_id) + " no existente, no se puede usar "+"\n"
+        return "Esta BD no existe "+str(query.bd_id)+"\n"
+        
 # ---------------------------------------------------------------------------------------------------------------- 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -348,143 +360,329 @@ def operar_where(query,ts):
         return query.id * -1
 
 def procesar_createdb(query,ts):
-    if ts.verificacionCrearBD(query.variable)==0:
-        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+    verificacion =  ts.verificacionCrearBD(query.variable)
+    if verificacion==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
         ts.agregarCrearBD(base_datos)
-        store.createDatabase(query.variable)
-        ts.printBD()
+        h.textosalida+="TYTUS>> "+"Se creo la BD "+ str(query.variable) +" en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
-    elif ts.verificacionCrearBD(query.variable)==1:
-        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
-        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"
-
+    elif verificacion==1:
+        h.textosalida+="TYTUS>> "+str(query.variable)+" es una BD ya en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la " +str(query.variable) +" BD en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
+        
 def procesar_create_if_db(query,ts):
-    if ts.verificacionCrearBD(query.variable)==0:
-        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+    verificacion =  ts.verificacionCrearBD(query.variable)
+    if verificacion==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
         ts.agregarCrearBD(base_datos)
-        store.createDatabase(query.variable)
-        ts.printBD()
+        h.textosalida+="TYTUS>> "+"Se creo la BD "+ str(query.variable) +" en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
-    elif ts.verificacionCrearBD(query.variable)==1:
-        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
-        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
+    elif verificacion==1:
+        h.textosalida+="TYTUS>> "+str(query.variable)+" es una BD ya en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la " +str(query.variable) +" BD en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n" 
     #llamo al metodo de EDD
 
 def procesar_create_replace_db(query,ts):
-    if ts.verificacionCrearBD(query.variable)==0:
-        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+    verificacion =  ts.verificacionCrearBD(query.variable)
+    if verificacion==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
         ts.agregarCrearBD(base_datos)
-        store.createDatabase(query.variable)
-        ts.printBD()
+        h.textosalida+="TYTUS>> "+"Se creo la BD "+ str(query.variable) +" en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
-    elif ts.verificacionCrearBD(query.variable)==1:
-        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
-        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
-    #llamo al metodo de EDD
+    elif verificacion==1:
+        h.textosalida+="TYTUS>> "+str(query.variable)+" es una BD ya en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la " +str(query.variable) +" BD en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
 
 def procesar_create_replace_if_db(query,ts):
-    if ts.verificacionCrearBD(query.variable)==0:
-        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+    verificacion =  ts.verificacionCrearBD(query.variable)
+    if verificacion==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
         ts.agregarCrearBD(base_datos)
-        store.createDatabase(query.variable)
-        ts.printBD()
+        h.textosalida+="TYTUS>> "+"Se creo la BD "+ str(query.variable) +" en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
-    elif ts.verificacionCrearBD(query.variable)==1:
-        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
-        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
-    #llamo al metodo de EDD
+    elif verificacion==1:
+        h.textosalida+="TYTUS>> "+str(query.variable)+" es una BD ya en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la " +str(query.variable) +" BD en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_createwithparametersdb(query,ts):
-    for q in query.parametros:   
-        if isinstance(q, ExpresionOwner) :
-            print("ID:",query.variable)
-            print("OWNER:",q.owner)
-            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
-        elif isinstance(q, ExpresionMode) :
-            print("ID:",query.variable)
-            print("MODE:",q.mode)
-            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+    verificacion =  ts.verificacionCrearBD(query.variable)
+    if verificacion==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        h.textosalida+="TYTUS>> "+"Se creo la BD "+ str(query.variable) +" en memoria dinamica"+"\n"
+        for q in query.parametros:   
+            if isinstance(q, ExpresionOwner) :
+                print("ID:",query.variable)
+                print("OWNER:",q.owner)
+                print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+            elif isinstance(q, ExpresionMode) :
+                print("ID:",query.variable)
+                print("MODE:",q.mode)
+                print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+            else:
+                print("TIPO INCORRECTO DE QUERY:",query)
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
         else:
-            print("TIPO INCORRECTO DE QUERY:",query)
+            print("ERROR\n")
+        return "se creo una nueva bd: "+str(query.variable)
+    elif verificacion==1:
+        h.textosalida+="TYTUS>> "+str(query.variable)+" es una BD ya en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la " +str(query.variable) +" BD en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
+
 
 def procesar_createwithparameters_if_db(query,ts):
-    for q in query.parametros:   
-        if isinstance(q, ExpresionOwner) :
-            print("IF:",query.iff)
-            print("ID:",query.variable)
-            print("OWNER:",q.owner)
-            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
-        elif isinstance(q, ExpresionMode) :
-            print("IF:",query.iff)
-            print("ID:",query.variable)
-            print("MODE:",q.mode)
-            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+    verificacion =  ts.verificacionCrearBD(query.variable)
+    if verificacion==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        h.textosalida+="TYTUS>> "+"Se creo la BD "+ str(query.variable) +" en memoria dinamica"+"\n"
+        for q in query.parametros:   
+            if isinstance(q, ExpresionOwner) :
+                print("ID:",query.variable)
+                print("OWNER:",q.owner)
+                print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+            elif isinstance(q, ExpresionMode) :
+                print("ID:",query.variable)
+                print("MODE:",q.mode)
+                print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+            else:
+                print("TIPO INCORRECTO DE QUERY:",query)
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
         else:
-            print("TIPO INCORRECTO DE QUERY:",query)
+            print("ERROR\n")
+        return "se creo una nueva bd: "+str(query.variable)
+    elif verificacion==1:
+        h.textosalida+="TYTUS>> "+str(query.variable)+" es una BD ya en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la " +str(query.variable) +" BD en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
+
 
 def procesar_createwithparameters_replace_db(query,ts):
-    for q in query.parametros:   
-        if isinstance(q, ExpresionOwner) :
-            print("REPLACE:",query.replacee)
-            print("ID:",query.variable)
-            print("OWNER:",q.owner)
-            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
-        elif isinstance(q, ExpresionMode) :
-            print("REPLACE:",query.replacee)
-            print("ID:",query.variable)
-            print("MODE:",q.mode)
-            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+    verificacion =  ts.verificacionCrearBD(query.variable)
+    if verificacion==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        h.textosalida+="TYTUS>> "+"Se creo la BD "+ str(query.variable) +" en memoria dinamica"+"\n"
+        for q in query.parametros:   
+            if isinstance(q, ExpresionOwner) :
+                print("ID:",query.variable)
+                print("OWNER:",q.owner)
+                print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+            elif isinstance(q, ExpresionMode) :
+                print("ID:",query.variable)
+                print("MODE:",q.mode)
+                print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+            else:
+                print("TIPO INCORRECTO DE QUERY:",query)
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
         else:
-            print("TIPO INCORRECTO DE QUERY:",query)
+            print("ERROR\n")
+        return "se creo una nueva bd: "+str(query.variable)
+    elif verificacion==1:
+        h.textosalida+="TYTUS>> "+str(query.variable)+" es una BD ya en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la " +str(query.variable) +" BD en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
+
 
 def procesar_createwithparameters_replace_if_db(query,ts):
-    for q in query.parametros:   
-        if isinstance(q, ExpresionOwner) :
-            print("REPLACE:",query.replacee)
-            print("IF:",query.iff)
-            print("ID:",query.variable)
-            print("OWNER:",q.owner)
-            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
-        elif isinstance(q, ExpresionMode) :
-            print("REPLACE:",query.replacee)
-            print("IF:",query.iff)
-            print("ID:",query.variable)
-            print("MODE:",q.mode)
-            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+    verificacion =  ts.verificacionCrearBD(query.variable)
+    if verificacion==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        h.textosalida+="TYTUS>> "+"Se creo la BD "+ str(query.variable) +" en memoria dinamica"+"\n"
+        for q in query.parametros:   
+            if isinstance(q, ExpresionOwner) :
+                print("ID:",query.variable)
+                print("OWNER:",q.owner)
+                print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+            elif isinstance(q, ExpresionMode) :
+                print("ID:",query.variable)
+                print("MODE:",q.mode)
+                print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+            else:
+                print("TIPO INCORRECTO DE QUERY:",query)
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
         else:
-            print("TIPO INCORRECTO DE QUERY:",query)
+            print("ERROR\n")
+        return "se creo una nueva bd: "+str(query.variable)
+    elif verificacion==1:
+        h.textosalida+="TYTUS>> "+str(query.variable)+" es una BD ya en memoria dinamica"+"\n"
+        if store.createDatabase(query.variable) == 0:
+            h.textosalida+="TYTUS>> "+"Se creo la " +str(query.variable) +" BD en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
+        elif store.createDatabase(query.variable) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
+
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_alterdb(query,ts):
-    if ts.verificacionAlterBD(query.id_original)==1:
-        ts.actualizarAlterBD(query.id_original,query.id_alter)
-        #store.alterDatabase(query.id_original, id_alter)
-        ts.printBD()
-        print("se creo actualizo la bd")
-        return "se creo actualizo la bd: "+str(query.id_original) + "por" +str(query.id_alter)
-    elif ts.verificacionAlterBD(query.id_original)==0:
-        print(str(query.id_original),"No se encontro ninguna base de datos con ese nombre")
+    verificacion =  ts.verificacionAlterBD(query.id_original)
+    verificacion2 =  ts.verificacionAlterBD_2(query.id_alter)
+    if verificacion==1:
+        if verificacion2 == 0:
+            ts.actualizarAlterBD(query.id_original,query.id_alter)
+            if store.alterDatabase(query.id_original,query.id_alter) == 0:
+                h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(query.id_original) + " por " +str(query.id_alter) + "en memoria estatica"+"\n"
+            elif store.alterDatabase(query.id_original,query.id_alter) == 3:
+                h.textosalida+="TYTUS>> "+"La BD "+ str(query.id_alter) + " ya existe en memoria estatica, elija otro nombre para reemplazar "+ str(query.id_original) +"\n"
+            elif store.alterDatabase(query.id_original,query.id_alter) == 2:
+                h.textosalida+="TYTUS>> "+"La BD "+ str(query.id_original) + " no existe en memoria estatica"+"\n"
+            elif store.alterDatabase(query.id_original,query.id_alter) == 1:
+                h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            else:
+                print("ERROR\n")
+            h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(query.id_original) + " por " +str(query.id_alter) + "\n"
+            return "se actualizo la bd: "+str(query.id_original) + "por" +str(query.id_alter)
+        elif verificacion2 == 1:
+            h.textosalida+="TYTUS>> " + "La BD "+str(query.id_alter)+" ya existe en memoria dinamica, elija otro nombre por favor" + "\n"
+    elif verificacion==0:
+        h.textosalida+="TYTUS>> " +str(query.id_original) + " No se encontro ninguna base de datos con ese nombre" + "\n"
         return "No se encontro ninguna base de datos con ese nombre"
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_alterwithparametersdb(query,ts):
-    print(query.id_original)
-    print(query.owner)
-    print(query.id_alter)
+    print("ID:",query.id_original)
+    print("OWNER:",query.owner)
+    print("USER:",query.id_alter)
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_dropdb(query,ts):
     if ts.destruirBD(query.id)==1:
-        #store.dropDatabase(query.id)
+        if store.dropDatabase(query.id) == 0:
+            h.textosalida+="TYTUS>> "+"Se elimino la BD " +str(query.variable) +" en memoria estatica"+"\n"
+        elif store.dropDatabase(query.id) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " no existe"+"\n"
+        elif store.dropDatabase(query.id) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        h.textosalida+="TYTUS>> "+ "ELIMINADA BD:"+str(query.id) + "\n"
         return "ELIMINADA BD:"+str(query.id)
     elif ts.destruirBD(query.id)==0:
-        print(str(query.id),"No se encontro ninguna base de datos con ese nombre")
+        h.textosalida+="TYTUS>> "+str(query.id)+" No se encontro ninguna base de datos con ese nombre"+"\n"
         return "No se encontro ninguna base de datos con ese nombre"
 
 def procesar_dropifdb(query,ts):
     if ts.destruirBD(query.id)==1:
-        #store.dropDatabase(query.id)
-        ts.printBD()
+        if store.dropDatabase(query.id) == 0:
+            h.textosalida+="TYTUS>> "+"Se elimino la BD " +str(query.id) +" en memoria estatica"+"\n"
+        elif store.dropDatabase(query.id) == 2:
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.id) + " no existe"+"\n"
+        elif store.dropDatabase(query.id) == 1:
+            h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+        else:
+            print("ERROR\n")
+        h.textosalida+="TYTUS>> "+ "ELIMINADA BD:"+str(query.id) + "\n"
         return "ELIMINADA BD:"+str(query.id)
     elif ts.destruirBD(query.id)==0:
-        print(str(query.id),"No se encontro ninguna base de datos con ese nombre")
+        h.textosalida+="TYTUS>> "+str(query.id)+" No se encontro ninguna base de datos con ese nombre"+"\n"
         return "No se encontro ninguna base de datos con ese nombre"
 # ---------------------------------------------------------------------------------------------------------------- 
 #                                             QUERIES
@@ -1471,7 +1669,7 @@ def procesar_queries(queries, ts) :
         elif isinstance(query, CreateDatabaseswithParameters) : procesar_createwithparametersdb(query, ts)
         elif isinstance(query, Create_Databases_IFwithParameters) : procesar_createwithparameters_if_db(query, ts)
         elif isinstance(query, Create_Replace_DatabaseswithParameters) : procesar_createwithparameters_replace_db(query, ts)
-        elif isinstance(query, Create_Replace_IF_Databases) : procesar_createwithparameters_replace_if_db(query, ts)
+        elif isinstance(query, Create_Replace_Databases_IFwithParameters) : procesar_createwithparameters_replace_if_db(query, ts)
         elif isinstance(query, AlterDB) : procesar_alterdb(query, ts)
         elif isinstance(query, AlterOwner) : procesar_alterwithparametersdb(query, ts)
         elif isinstance(query, DropDB) : procesar_dropdb(query, ts)

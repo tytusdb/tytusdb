@@ -21,6 +21,7 @@ def astFile(fileName, node):
     try:
         state_script_dir = os.getcwd()
         file_path = state_script_dir + "\\AST\\ast"
+        print(file_path)
         file = open(file_path+'.dot', 'w')
         if file:
             file.write('digraph d {\n')
