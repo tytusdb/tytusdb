@@ -118,7 +118,26 @@ class Where(Instruction):
                 table = table.query(value)
             elif isinstance(self.condition, ExistsClause):
                 value = self.condition.process(instrucction)
-                table = table.query(value)
+                try:
+                        value_aux = value
+                        result = table.columns.intersection(value_aux.columns)
+                        list_col = list(result)
+                        table = table[table[list_col].isin(value_aux[list_col])]
+                except:
+                    desc = "FATAL ERROR, murio porque usaste where con columnas de otra tabla, F"
+                    ErrorController().add(34, 'Execution', desc, self.line, self.column)
+            elif isinstance(self.condition, list):
+                not_c = self.condition[0]
+                condition = self.condition[1]
+                value = condition.process(instrucction)
+                try:
+                        value_aux = value
+                        result = table.columns.intersection(value_aux.columns)
+                        list_col = list(result)
+                        table = table[~table[list_col].isin(value_aux[list_col])]
+                except:
+                    desc = "FATAL ERROR, murio porque usaste where con columnas de otra tabla, F"
+                    ErrorController().add(34, 'Execution', desc, self.line, self.column)
             # al fin xd 
             print(table)
             storage_columns(table.values.tolist(), table.columns.tolist(), 0, 0)
@@ -236,7 +255,7 @@ class GroupBy(Instruction):
     
     def check_asterisk(self, dicti):
         for data in dicti:
-            if 'count(*)' in data:
+            if '*' in data:
                 return True
         return False
         
@@ -380,11 +399,18 @@ class InClause(Instruction):
             else:
                 print(type(self.arr_lista))
                 aux_data = ""
+                lista_values = None
                 list_values = self.arr_lista.process(0)
-                list_values = list_values.values.tolist()
+                lista_values = list_values.values.tolist()
                 lista_aux = []
-                for data in list_values:
-                    lista_aux.append(data[0])
+                count = 0
+                while True:
+                    if count > len(list_values.columns) - 1:
+                        break
+                    for data in lista_values:
+                        lista_aux.append(data[count])
+                    count += 1
+                    
                 if self.opt_not:  
                     aux_data = f'~({column_name}.isin({lista_aux}))'
                 else:
@@ -411,19 +437,15 @@ class ExistsClause(Instruction):
     
     def process(self, instrucction):
         try:
-            column_name = self.value
+            # column_name = self.value
             print(type(self.subquery))
-            aux_data = ""
+            # aux_data = ""
             list_values = self.subquery.process(instrucction)
-            list_values = list_values.values.tolist()
             lista_aux = []
-            for data in list_values:
-                lista_aux.append(data[0])
-            if self.opt_not:  
-                aux_data = f'~({column_name}.isin({lista_aux}))'
-            else:
-                aux_data = f'{column_name}.isin({lista_aux})'
-            return aux_data
+            # for data in list_values:
+            #     lista_aux.append(data[0])
+            
+            return list_values
         except:
             desc = "FATAL ERROR, murio en ExistsClause, F"
             ErrorController().add(34, 'Execution', desc, self.line, self.column) 
