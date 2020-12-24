@@ -1,7 +1,7 @@
 import ply.yacc as yacc
 from reporteErrores.errorReport import ErrorReport
 from reporteErrores.instance import listaErrores 
-from astDML import UpdateTable,InsertTable
+from astDML import UpdateTable,InsertTable,DeleteTabla
 from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, BETWEEN,ExpresionPositiva, ExpresionBetween, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano , ExpresionAgrupacion
@@ -11,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectSimple, SelectFrom, ITEM_ALIAS
+from astSelect import SelectSimple, SelectFrom, ITEM_ALIAS , SelectFilter , SelectFromWhere, WHERE,COMBINE_QUERYS, combineQuery
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -302,9 +302,10 @@ def p_filtro(p):
         p[0] = SelectFilter(p[1],p[2],p[3])
     elif len(p) == 3:
         bnf.addProduccion('\<filtro> ::= \<where> \<group_by>')
+        p[0] = SelectFilter(p[1],p[2])
     else:
         bnf.addProduccion('\<filtro> ::= \<where>')
-        p[0] = p[1]
+        p[0] = SelectFilter(p[1])
 
         
 
@@ -312,26 +313,32 @@ def p_filtro(p):
 
 def p_combine_querys1(p):
     'combine_querys : combine_querys UNION ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.UNION, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "UNION" "ALL" \<select>')
 
 def p_combine_querys2(p):
     'combine_querys : combine_querys UNION select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.UNION, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "UNION"  \<select>')
 
 def p_combine_querys3(p):
     'combine_querys : combine_querys INTERSECT ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.INTERSECT, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "INTERSECT" "ALL"  \<select>')
 
 def p_combine_querys4(p):
     'combine_querys : combine_querys INTERSECT select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.INTERSECT, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "INTERSECT"  \<select>')
 
 def p_combine_querys5(p):
     'combine_querys : combine_querys EXCEPT ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.EXCEPT, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "EXCEPT" "ALL" \<select>')
 
 def p_combine_querys6(p):
     'combine_querys : combine_querys EXCEPT select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.EXCEPT, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "EXCEPT"  \<select>')
 
 def p_combine_querys7(p):
@@ -344,6 +351,7 @@ def p_combine_querys7(p):
 def p_select2(p):#_________________________________- select simple con un where
     'select : SELECT select_list FROM lista_tablas filtro'
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list> "FROM"  \<lista_tablas> \<filtro>')
+    p[0] = SelectFromWhere(p[4], p[2] ,p[5])
 
 
 
@@ -1283,6 +1291,11 @@ def p_tipo_20(p):
     'tipo : DECIMAL PABRE NUMERO COMA NUMERO PCIERRA'
     bnf.addProduccion(f'\<tipo> ::="DECIMAL" "(" "NUMERO" "," "NUMERO" ")"')
     p[0] = (TYPE_COLUMN.DECIMAL, (p[3],p[5]))
+
+def p_tipo_21(p):
+    'tipo : NUMERIC PABRE NUMERO COMA NUMERO PCIERRA'
+    bnf.addProduccion(f'\<tipo> ::="NUMERIC" "(" "NUMERO" "," "NUMERO" ")"')
+    p[0] = (TYPE_COLUMN.DECIMAL, (p[3],p[5]))
 # __________________________________________ <INTERVAL>
 # <INTERVAL> ::= 'interval' <FIELDS> ('numero')
 #             |  'interval' <FIELDS>
@@ -1438,12 +1451,12 @@ def p_update(p):
 
 def p_sentenciaInsert(p):
     ''' insert : INSERT INTO ID VALUES PABRE lista_exp PCIERRA'''
-    p[0] = InsertTable(p[3],p[6])
+    p[0] = InsertTable(p[3],p[6],None,p.slice[1].lineno)
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" "VALUES"  "( "\<lista_exp> ")"')
     
 def p_sentenciaInsert2(p):
     ''' insert : INSERT INTO ID parametros VALUES PABRE lista_exp PCIERRA'''
-    p[0] = InsertTable(p[3],p[7],p[4])
+    p[0] = InsertTable(p[3],p[7],p[4],p.slice[1].lineno)
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" \<parametros> "VALUES"  "( "\<lista_exp> ")"') 
 # ___________________________________________PARAMETROS
 
@@ -1475,8 +1488,10 @@ def p_sentenciaDelete(p):
     ''' sentenciaDelete : DELETE FROM ID WHERE expresion
                         | DELETE FROM ID '''
     if len(p) == 6:
+        p[0] = DeleteTabla(p[3],p[5],p.slice[1].lineno)
         bnf.addProduccion('\<delete> ::= "DELETE" "FROM" "ID" "WHERE" <expresion>')
     else:
+        p[0] = DeleteTabla(p[3],None,p.slice[1].lineno)
         bnf.addProduccion('\<delete> ::= "DELETE" "FROM" "ID"')
 
 
@@ -1856,6 +1871,7 @@ def p_subquery(p):
 def p_where(p):
         'where : WHERE expresion'
         bnf.addProduccion('\<where> ::= "WHERE" \<expresion>')
+        p[0] = WHERE(expresion=p[2])
 
 #<GROUP_BY> ::= <LISTA_IDS>
 def p_groupby(p):
@@ -1969,6 +1985,7 @@ def p_select_item9(p):
         
 def p_select_item10(p):
         'select_item : ID PUNTO ASTERISCO'
+        p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno ,tabla = p[1]+"."+p[3])
         bnf.addProduccion('\<select_item> ::= "ID" "." "*"')
 
 #    <COUNT> ::= 'count' '(' '*' ')'  
@@ -2087,8 +2104,8 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada('''
-use test;
-select 5*5 as x, 9*9 as y;
+USE test;
+select * from tb1 except select * from tb2;
 ''')
 arbolParser.ejecutar()
 

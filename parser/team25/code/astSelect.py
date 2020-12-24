@@ -26,6 +26,12 @@ class TABLA_TIPO(Enum):
     UNICA = 1
     SELECCIONADA = 2
     SELECT_SIMPLE = 3
+    TABLAWHERE = 4    
+    TABLAUNION = 5
+    TABLAINTERSECCION = 6
+    TABLAEXCEPT = 7
+
+    
 
 class SelectSimple(Instruccion):
     def __init__(self, campos):
@@ -49,13 +55,12 @@ class SelectSimple(Instruccion):
                 print("Error semántico, solo se aceptan expresiones.")
                 break
             elif isinstance(actual, Expresion):
-                filas.append(actual.item.ejecutar(ts).val)
+                filas.append(actual.ejecutar(ts).val)
                 columnas.append('???')
                 print("Error semántico, solo se aceptan expresiones.")
-                break
+
         salida = matriz(columnas, [filas], TABLA_TIPO.SELECT_SIMPLE, "nueva tabla", None, None)
-        salida.imprimirMatriz()
-        return salida
+        return salida.ejecutar(ts)
 # Select From
 class SelectFrom(Instruccion):
     def __init__(self, fuentes, campos, alias=None):
@@ -95,7 +100,7 @@ class SelectFrom(Instruccion):
                 columnas.append(col)      
         tabla_base = FROM(self.fuentes)
         salida = SELECT(columnas, tabla_base.ejecutar(ts))
-        salida.ejecutar(ts).imprimirMatriz()
+        return salida.ejecutar(ts)
 
 class FROM():
     def __init__(self, fuentes:list):
@@ -484,3 +489,188 @@ class ITEM_ALIAS():
     def __init__(self, item, alias) -> None:
         self.item = item
         self.alias = alias
+
+
+
+
+# Select filter
+class SelectFilter(Instruccion):
+    def __init__(self, where, groupby = None, having = None):
+        self.where = where # ES UNA EXPRESION
+        self.groupby = groupby
+        self.having = having
+
+    def dibujar(self):
+        identificador = str(hash(self))
+
+        nodo = "\n" + identificador + "[ label = \"FILTER\" ];"
+
+        # Para el where
+        nodo += "\nWHERE" + identificador + "[ label = \"WHERE\" ];"
+        nodo += "\n" + identificador + " -> WHERE" + identificador + ";"
+        nodo += "\nWHERE" + identificador + " -> " + str(hash(self.where)) + ";"
+
+        # Para el group by
+        if self.groupby:
+            nodo += "\nGROUPBY" + identificador + "[ label = \"GROUP BY\" ];"
+            nodo += "\n" + identificador + " -> GROUPBY" + identificador + ";"
+            nodo += "\nGROUPBY" + identificador + " -> " + str(hash(self.groupby)) + ";"
+
+        if self.having:
+            nodo += "\nHAVING" + identificador + "[ label = \"HAVING\" ];"
+            nodo += "\n" + identificador + " -> HAVING" + identificador + ";"
+            nodo += "\nHAVING" + identificador + " -> " + str(hash(self.having)) + ";"        
+
+        return nodo
+    def ejecutar(self, ts):
+        if self.groupby == None and self.having == None:
+            if isinstance(self.where , WHERE):
+                return self.where.ejecutar(ts)
+
+class WHERE():
+    def __init__(self, expresion):
+        self.exp = expresion
+
+    
+    def ejecutar(self, ts): # NECESITO LA TABLOTA :v 
+        
+        lista_litas = []
+        MinitablaSimbolos = []
+        filas = ts.filas
+        columnas = ts.columnas
+        i = 0 
+        while(i < len(filas)):
+            indiceColumna = 0
+            while(indiceColumna < len(columnas)): 
+                if len(ts.fuentes)==1:
+                    MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':ts.clm[quitarRef(columnas[indiceColumna])]['Type']})
+                else:
+                    MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':ts.clm[obtenerIndice(ts.fuentes,obtenerRef(columnas[indiceColumna]))][quitarRef(columnas[indiceColumna])]['Type']})
+                indiceColumna+=1
+            tupla = TuplaCompleta(MinitablaSimbolos)
+            casillaResultante = self.exp.ejecutar(tupla)
+            if isinstance(casillaResultante , ErrorReport): 
+                print(casillaResultante.description)
+                
+            if casillaResultante.val:
+                fila = []
+                for t in MinitablaSimbolos:
+                    fila.append(t['val'])    
+                lista_litas.append(fila)
+
+            MinitablaSimbolos.clear()
+            i+=1
+        return matriz(ts.columnas, lista_litas, TABLA_TIPO.TABLAWHERE, "nueva tabla", ts.fuentes, ts.clm)
+
+class SelectFromWhere(Instruccion):
+    def __init__(self, fuentes, campos, filtro):
+        self.fuentes = fuentes
+        self.campos = campos # tal vez que lista de campos viniera como    [ ( item , alias)   , ( item , alias)  , ( item , alias)   ] donde item puede ser una expresion , funcion o algo simple
+        self.filtro = filtro
+    def dibujar(self):
+        pass
+    def ejecutar(self, ts): 
+        columnas = []
+        for col in self.campos:
+            if isinstance (col, ExpresionID):
+                columnas.append(col.val)
+            elif isinstance(col, str):
+                columnas.append(col)
+            elif isinstance(col, Expresion):
+                columnas.append(col)
+            elif isinstance(col, ITEM_ALIAS):
+                columnas.append(col)      
+        tabla_base = FROM(self.fuentes)
+        
+        SALIDA_FILTRADA = self.filtro.ejecutar(tabla_base.ejecutar(ts))
+        if isinstance(SALIDA_FILTRADA , ErrorReport):
+            return SALIDA_FILTRADA
+             
+        salida = SELECT(columnas,SALIDA_FILTRADA) 
+        salida.ejecutar(ts).imprimirMatriz()
+        return salida
+
+class combineQuery(Instruccion):
+    def __init__(self, izq, operador, der):
+        self.izq = izq
+        self.operador = operador
+        self.der = der
+    def ejecutar(self, ts):
+        izquierdo = self.izq.ejecutar(ts)
+        derecho = self.der.ejecutar(ts)
+        if len(izquierdo.filas) == len(derecho.filas) and len(izquierdo.columnas) == len(derecho.columnas):
+            if self.operador == COMBINE_QUERYS.UNION:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 | set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                for actual in lista_final[0]:
+                    nuevas_columnas.append("Union")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAUNION,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+            elif self.operador == COMBINE_QUERYS.INTERSECT:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 & set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                if len(lista_final)>0:
+                    for actual in lista_final[0]:
+                        nuevas_columnas.append("Intersect")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAINTERSECCION,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+            elif self.operador == COMBINE_QUERYS.EXCEPT:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 - set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                for actual in lista_final[0]:
+                    nuevas_columnas.append("Except")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAEXCEPT,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+        else:
+            print("Error semántico, el número de filas de los operandos es diferente.")   

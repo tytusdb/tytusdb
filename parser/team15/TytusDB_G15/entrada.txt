@@ -22,24 +22,5 @@ INSERT INTO tracks VALUES (1, 'This Pretty Planet', 1);
 INSERT INTO tracks VALUES (2, 'Cats in the Cradle', 2);
 
 SELECT * FROM 
-artists A,tracks T
+artists AS 'A',tracks AS 'T'
 WHERE A.id = T.artist;
-
-SELECT A.name,T.traid,T.title FROM 
-artists A,tracks T
-WHERE A.id = T.artist;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
