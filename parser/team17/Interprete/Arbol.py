@@ -6,3 +6,4 @@ class Arbol:
         self.ErroresSemanticos:list = []
         self.ErroresLexicos: list = []
         self.ErroresSintacticos: list = []
+        self.ReporteTS: list = []
