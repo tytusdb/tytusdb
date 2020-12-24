@@ -122,6 +122,11 @@ reservadas = {
     "SUM": "R_SUM",
     "PROM": "R_PROM",
     "COUNT": "R_COUNT",
+    "CASE": "R_CASE",
+    "WHEN": "R_WHEN",
+    "THEN": "R_THEN",
+    "ELSE": "R_ELSE",
+    "END": "R_END"
 }
 
 reservadas.update(r_types)

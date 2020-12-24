@@ -82,7 +82,7 @@ def showTables(database:str):
     respuesta = JM.showTables(database)
     return respuesta
 
-def createColumn(database:str,table:str,nombre:str,tipo:str):
+def createColumn(database:str,table:str,nombre:str,tipo):
     # 0:operación exitosa, 1: error en la operación, 2: base de datos inexistente, 3: tabla inexistente, 4: columna ya existente
     actualBase = obtenerBase(database)
     if(actualBase!=None):
@@ -416,8 +416,8 @@ def getIfTipoColumnaIsReserverd(tipo:str):
         'money': 7,
         'character': 8,
         'varchar': 9,
-        'character': 10,
-        'charn': 11,
+        'character varying': 10,
+        'char': 11,
         'text': 12,
         'boolean': 13,
         'date': 15

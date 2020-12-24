@@ -1,3 +1,12 @@
+# Reporte BNF
+
+La sintaxis de SQL es muy compleja, pero para este proyecto se redujo la sintaxis a las funciones mas importantes, a continuación se muestra dos gramáticas diferentes, una descendente y una ascendente.
+
+
+## Descendente
+
+Esta gramática tiene muchas mas producciones en comparación con la gramática ascendente y no es recomendada utilizarla ya que ply es un analizador ascendente, también en cuanto a pruebas de optimización es un tanto mas lento este método, otro punto en contra es que requiere mucha mas programación para la funcionalidad.
+
 >**'INICIO'** := create **'SENTENCIA_CREATE'**  
 | show **'SENTENCIAS_SHOW'**  
 | alter **'SENCIAS_ALTER'**  
@@ -300,10 +309,10 @@
 >**'CASES'**	:= when VALOR then **'VALOR'** **'CASES'**
 |
 
-**'ELSES'**	:= else **'VALOR'**
+>**'ELSES'**	:= else **'VALOR'**
 |
 
-**'OPERA'**	:= ||  
+>**'OPERA'**	:= ||  
 | &  
 | |  
 | #  
@@ -311,6 +320,237 @@
 | MAYORQUE MAYORQUE  
 | MENORQUE MENORQUE
 
-**'SA'**:= some  
+>**'SA'**:= some  
 | any  
-| all   
+| all
+
+
+## Ascendente
+
+Esta gramática es mas efectiva para trabajar con ply ya que el analizar por defecto recorre y retorna las producciones de forma ascendente, durante las pruebas de efectividad el tiempo es mas rápido en comparación con la gramática descente
+
+>**'ID'** := Identificador
+
+>**'TIPO'** :=   int  
+|  Char  
+|  varchar
+
+>**'COND'** := **'ID'** '**TIPO'**
+
+>**'CREREPDB'** := CREATE DATABASE IF NOT EXISTS **'ID'** **'CREREPDB2'**  
+|  REPLACE DATABASE IF NOT EXISTS **'ID'** **'CREREPDB2'**
+
+>**'CREREPDB2'** : IGUAL OWNER  IGUAL ID MODE IGUAL **'MODE'**
+
+>**'MODE'** := 1  
+|  int
+
+>**'SHOWDB'** := SHOW DATABASES LIKE **'ID'**
+
+>**'ALTERDB'** := ALTER DATABASE **'ID'** **'ALTERDB2'**
+
+>**'ALTERDB2'** := RENAME TO **'ID'**  
+|  OWNER TO **'OWNDB'**
+
+>**'OWNDB'** := { 'ID'  'ID'  'ID' }
+
+>**'DROPDB'** := DROP DATABASE  IF EXISTS  **'ID'**
+
+>**'CREATETB'** := CREATE TABLE **'ID'** ( **'CONTTB'** ); **'HERENCIA'**
+
+>**'HERENCIA'** := INHERITS (**'ID'**);
+
+>**'HERENCIA'** := Є
+
+>**'CONTTB'** := **'CONTRB'** , **'COLUMNA'**
+
+>**'CONTTB'** := **'COLUMNA'**
+
+>**'COLUMNA'** := **'ID'** **'TIPO'** **'PROPCOL'**
+
+>**'PROPCOL'** := **'PROPCOL'**  **'PROPIEDADESCOL'**
+
+>**'PROPCOL'** := **'PROPIEDADESCOL'**
+
+>**'PROPIEDADES'** := DEFAULT **'ID'**  
+|	NOT NULL  
+|	CONSTRAINT **'ID'** UNIQUE  
+|	CONSTRAINT **'ID'** CHECK (**'ID'**)  
+|	PRIMARY KEY  
+|	REFERENCES **'ID'**
+
+>**'DROPTB'** := DROP TABLE **'ID'**;
+
+>**'ALTTB'** := ALTER TABLE **'ID'** **'ALTTB2'**
+
+>**'ALTTB2'** := ADD COLUMN **'ID'** **'TIPO'**;  
+|	DROP COLUMN **'ID'**;  
+|	ADD CONSTRAINT **'ID'** UNIQUE (**'ID'**);  
+|	ADD FOREIGN KEY (**'ID'**) REFERENCES **'ID'**;  
+|	ALTER COLUMN **'ID'** **'PROPIEDADES'**;  
+|	DROP CONSTRAINT **'ID'**;  
+|	RENAME COLUMN **'ID'** TO **'ID'**;
+
+>**'DELETFROM'** := DELETE FROM **'DELETFROM2'**
+
+>**'DELETFROM2'** := [ ONLY ] **'ID'** **'DELETFROM3'**    
+|	**'ID'** **'DELETFROM3'**
+
+>**'DELETFROM3'** := * **'DELETFROM4'**  
+|	**'DELETFROM4'**
+
+>**'DELETFROM4'** := AS **'ID'** **'DELETFROM5'**  
+|	**'DELETFROM5'**
+
+>**'DELETFROM5'** := WHERE **'COND'**
+
+>**'INSERT'** := INSERT INTO **'ID'** VALUES (**'VALORES'**);
+
+>**'VALORES'** := **'VALORES'** , **'TIPO'**
+
+>**'VALORES'** := **'TIPO'**
+
+>**'UPDATE'** := UPDATE **'ID'** SET **'COND'** WHERE **'COND'**;
+
+>**'COND'** := **'ID'** = **'TIPO'**
+
+>**'DELETE'** := DELETE FROM **'ID'** WHERE **'COND'**;
+
+>**'QUERIES'** := **'QUERIES'** **'QUERY'**  
+| **'QUERY'**
+
+>**'QUERY'** := **'QUERY'**' **'COM'** ;
+
+>**'COM'** : = UNION **'QUERY'**  
+| INTERSERCT **'QUERY'**  
+| EXCEPT **'QUERY'**  
+|
+
+>**'QUERY'**' : = select **'DISTINCT'** **'SELECT_LIST'**  from **'TABLE_**'EXP'**RESSION'** CONDITION GROUP ORDER LIM OF
+
+>**'DISTINCT'** : = **'DISTINCT'**  
+|
+
+>**'SELECT_LIST'** := ASTERISCO  
+| **'LIST'**
+
+>**'LIST'** := **'COLUMN'** **'ALIASCOL'**, **'LIST'**
+| **'COLUMN'** **'ALIASCOL'**
+
+>**'COLUMN'** := id **'COLUMNP'**  
+| **'TRIG'**  
+| **'MATH'**
+
+>**'COLUMNP'** := . id  
+|
+
+>**'ALIAS'** := id  
+|
+
+>**'ALIASCOL'** := as id  
+|
+
+>**'TRIG'** := acos ( valor )  
+| acosd ( valor )  
+| asin ( valor )  
+| asind ( valor )  
+| atan ( valor )  
+| atand ( valor )  
+| atan2 ( valor )  
+| atan2d ( valor )  
+| cos ( valor )  
+| cosd ( valor )  
+| cot ( valor )  
+| cotd ( valor )  
+| sin ( valor )  
+| sind ( valor )  
+| tan ( valor )  
+| tand ( valor )  
+| sinh ( valor )  
+| cosh ( valor )  
+| tanh ( valor )  
+| asinh ( valor )  
+| acosh ( valor )  
+| atanh ( valor )
+
+>**'MATH'** : = abs ( valor )  
+| cbrt ( valor )  
+| ceil ( valor )  
+| ceiling ( valor )  
+| degrees ( valor )  
+| div ( valor )  
+| **'EXP'** ( valor )  
+| factorial ( valor )  
+| floor ( valor )  
+| gcd ( valor )  
+| lcm ( valor )  
+| ln ( valor )  
+| log ( valor , valor )  
+| log10 ( valor  )  
+| min_scale  
+| mod (valor, valor)  
+| pi ()  
+| power ( valor,valor )	 	
+| radians ( valor )  
+| round ( valor )  
+| scale ( valor )  
+| sign ( valor )  
+| sqrt ( valor )  
+| trim_scale  
+| trunc ( valor , valor )  
+| width_bucket ( valor , valor , valor , valor )  
+| random ()  
+| setseed ( valor )
+
+>**'TABLE_EXPRESSION'** := id **'ALIAS'** **'TE''**  
+| **'QUERY'**  
+| **'CASEWHEN'**
+
+>**'TE''** := , **'TABLE_**'EXP'**RESSION'**  
+| **'JOIN'** **'TE''**  
+|
+
+>**'JOIN'** := **'JOINTYPE'** **'JOIN'** on **'BOOL_EXP'**
+
+>**'JOINTYPE'** := inner  
+| **'LRF'** **'OUTER'**
+
+>**'LRF'** := left  
+| right  
+| full
+
+>**'OUTER'** := **'OUTER'**  
+|
+
+>**'BOOL_EXP'** := **'EXP'** MAYORQ **'EXP'**  
+| **'EXP'** MENORQ **'EXP'**  
+| **'EXP'** MAYORQ= **'EXP'**  
+| **'EXP'** MENORQ= **'EXP'**  
+| **'EXP'** == **'EXP'**  
+| **'EXP'** != **'EXP'**  
+| **'BOOL_EXP'** AND **'BOOL_EXP'**  
+| **'BOOL_EXP'** OR **'BOOL_EXP'**  
+| ( **'BOOL_EXP'**'** )  
+| not exists (**'QUERY'**)  
+| exists ( **'QUERY'** )  
+| **'EXP'** between **'EXP'** and **'EXP'**
+
+>**'EXP'** : = smallint  
+| integer  
+| bigint  
+| decimal  
+| numeric  
+| real  
+| double precision  
+| money  
+| varchar  
+| char  
+| text  
+| datetime
+
+>**'CASEWHEN'** : = case when **'BOOL_EXP'** then **'EXP'** **'CASES'** **'ELSE'** end **'ALIAS'**
+
+>**'CASES'** := when **'BOOL_EXP'** then **'EXP'** **'CASES'**  
+|
+
+>**'ELSE'** := **'ELSE'** **'EXP'**
