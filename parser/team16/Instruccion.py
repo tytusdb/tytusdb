@@ -632,60 +632,53 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
 
             if resultado is None:
                 print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.")
+            elif isinstance(resultado, list):
+                if len(resultado) == 0:
+                    banderilla = True
             else:
                 print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.2222")
                 for r in resultado:
                     print(str(r.valor) + " " + str(r.tabla) + " " + str(r.fila))
 
             titulos = []
-
-
-
             for campo in listaGeneral:
                 titulos.append(str(campo))
-
 
             lis = []
             for t in titulos:
                 for res in resultado:
-
                     for item in ts_global.Datos:
-
                         x: DatoInsert = ts_global.obtenerDato(item)
                         if t == x.columna and x.fila == res.fila:
                             lis.append(x)
 
-
             nuevoDicc = {}
             # ingreso lista final FALTA
-            contador=0
-
+            # counter = 0
             for t in titulos:
                 lis2 = []
                 for u in lis:
                     if u.columna == t:
                         lis2.append(u.valor)
-                #name = t+str(contador)
-
                 nuevoDicc[t] = lis2
 
-
-                #por si trae variaas listas y tiene solo una consulta
                 dicci = {}
                 dicci.update(nuevoDicc)
+
                 for nn in nuevoDicc:
                     if (len(nuevoDicc.get(nn)) > 0):
                         print("")
                     else:
-                        del dicci[nn]
-
+                        if banderilla:
+                            print("")
+                        else:
+                            del dicci[nn]
                 listaGeneral.update(dicci)
                 dicci.clear()
 
-
-            print("ESte es El Resultado <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+            print("Aqui vienee la salida <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
             print(nuevoDicc)
-            #mostrarConsulta(nuevoDicc)
+            # mostrarConsulta(nuevoDicc)
 
         elif (isinstance(tiposCuerpo, GroupBy)):
             print("Vamos a ver los tipos de grupos a realizar ")
@@ -3242,7 +3235,7 @@ class Select2(Instruccion) :
 
 #====================================================================   Proceso del cuerpo para editar valores en la tabla
        #procesando el cuerpo General de las tablas al insertar correctamente
-
+        banderilla = False
         for tiposCuerpo in self.Cuerpo:
             if (isinstance(tiposCuerpo, Cuerpo_TipoWhere)):
 
@@ -3251,6 +3244,9 @@ class Select2(Instruccion) :
 
                 if resultado is None:
                     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.")
+                elif isinstance(resultado, list):
+                    if len(resultado) == 0:
+                        banderilla = True
                 else:
                     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.2222")
                     for r in resultado:
@@ -3291,7 +3287,10 @@ class Select2(Instruccion) :
                         if(len(nuevoDicc.get(nn))>0):
                             print("")
                         else:
-                            del dicci[nn]
+                            if banderilla:
+                                print("")
+                            else:
+                                del dicci[nn]
                     listaGeneral.update(dicci)
                     dicci.clear()
 
@@ -6757,6 +6756,7 @@ class DatoInsert(Instruccion):
         self.columna = columna
         self.valor = valor
         self.fila = fila
+        self.calculado = valor
 
 class Insert_Datos(Instruccion):
     def __init__(self, id_table, valores):
