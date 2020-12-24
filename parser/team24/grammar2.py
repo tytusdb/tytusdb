@@ -7,6 +7,7 @@ from reportBNF import insertRegla
 entrada = ''
 
 import InstruccionesDGA as inst
+
 reservadas = {
     'now' : 'NOW',
     'smallint' : 'SMALLINT',
@@ -177,9 +178,6 @@ reservadas = {
     'money' :   'MONEY',
     'date'  :   'DATE',
     'varchar'   :   'VARCHAR'
-
-
-    
 }
 
 tokens = [
@@ -212,13 +210,13 @@ tokens = [
             'TEXTO',
             'CHAR',
             'ID',
+            'PUNTOCOMA',
             'PTCOMA',
             'CORCHETEA',
             'CORCHETEC'
 ] + list(reservadas.values())
 
 #Token
-
 t_VIR = r'~'
 t_MAS = r'\+' 
 t_MENOS = r'-'
@@ -242,6 +240,7 @@ t_PARA = r'\('
 t_PARC = r'\)'
 t_DOSPUNTOS=r'\:'
 t_COMA=r'\,'
+t_PUNTOCOMA=r';'
 t_PUNTO=r'\.'
 t_PTCOMA = r'\;'
 t_CORCHETEA=r'\['
@@ -262,7 +261,6 @@ def t_DEC(t):
         t.value = 0
     return t
 
-
 def t_INT(t):
     r'\d+'
     try:
@@ -277,12 +275,15 @@ def t_INT(t):
         t.value = 0
     return t
 
-
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reservadas.get(t.value.lower(), 'ID')  
     return t
 
+def t_TEXTO(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1]  # remuevo las comillas
+    return t
 
 def t_VARCHAR(t):
     r'\'.*?\''
@@ -292,8 +293,6 @@ def t_VARCHAR(t):
 def t_COMENT_SIMPLE(t):
     r'//.*\n'
     t.lexer.lineno += 1
-
-
 
 def t_COMENT_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -305,7 +304,6 @@ def t_nuevalinea(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
 
-
 def t_error(t):
     descript = 'error lexico at token ' + str(t.value[0])
     linea = str(t.lineno)
@@ -313,7 +311,6 @@ def t_error(t):
     nuevo_error = CError(linea,columna,descript,'Lexico')
     insert_error(nuevo_error)
     t.lexer.skip(1)
-
 
 from classesQuerys import *
 import ply.lex as lex
@@ -339,9 +336,6 @@ def p_inicio(p):
     """
     p[1].append(p[2])
     p[0] = p[1]
-    for instrucciones in p[0]:
-        instrucciones.ejecutar()
-    inst.Textoresultado()
     insertProduction(p.slice, len(p.slice))
 
 def p_inicio2(p):
