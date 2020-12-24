@@ -227,7 +227,11 @@ reservadas = {
     'for':'FOR',
     'symmetric':'SYMMETRIC',
     'use' : 'USE',
-    'now' : 'NOW'
+    'now' : 'NOW',
+    'extract' : 'EXTRACT',
+    'date_part' : 'DATE_PART',
+    'current_date' : 'CURRENT_DATE',
+    'current_time' : 'CURRENT_TIME'
 
 
 # revisar funciones de tiempo y fechas
@@ -440,7 +444,8 @@ def p_query(t):
                     | contAdd
                     | contDrop
                     | contAlter                    
-                    | selectData
+                    | selectData PUNTOYCOMA
+                    | tipos
     '''
     h.reporteGramatical1 +="query     ::=      opcion\n"
     h.reporteGramatical2 +="t[0]=t[1]\n"
@@ -951,6 +956,9 @@ def p_funcion_basica(t):
                         | DECODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
                         | AVG PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ID PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA
+                        | ID PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA
+                        | ID PARENTESISIZQUIERDA operacion PARENTESISDERECHA
     '''
     if t[1].upper()=="ABS":
         h.reporteGramatical1 +="funcionBasica    ::=      ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
@@ -1150,18 +1158,28 @@ def p_funcion_basica(t):
 
     elif t[1].upper()=="LENGTH":
         h.reporteGramatical1 +="funcionBasica    ::=      LENGTH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        h.reporteGramatical2 +="t[0]=ExpresionLENGTH(t[3])\n"
+        t[0]=ExpresionLENGTH(t[3])
     elif t[1].upper()=="TRIM":
         h.reporteGramatical1 +="funcionBasica    ::=      TRIM PARENTESISIZQUIERDA opcionTrim operacion FROM operacion PARENTESISDERECHA\n"
-    elif t[1]=="GET_BYTE":
+        h.reporteGramatical2 +="t[0]=ExpresionTRIM(t[3],t[4],t[6])\n"
+        t[0]=ExpresionTRIM(t[3],t[4],t[6])
+    elif t[1].upper()=="GET_BYTE":
         h.reporteGramatical1 +="funcionBasica    ::=      GET_BYTE PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"
     elif t[1].upper()=="MD5":
         h.reporteGramatical1 +="funcionBasica    ::=      MD5 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        h.reporteGramatical2 +="t[0]=ExpresionMD5(t[3])\n"
+        t[0]=ExpresionMD5(t[3])
     elif t[1].upper()=="SET_BYTE":
         h.reporteGramatical1 +="funcionBasica    ::=      SET_BYTE PARENTESISIZQUIERDA operacion COMA operacion COMA operacion PARENTESISDERECHA\n"
     elif t[1].upper()=="SHA256":
         h.reporteGramatical1 +="funcionBasica    ::=      SHA256 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        h.reporteGramatical2 +="t[0]=ExpresionSHA256(t[3])\n"
+        t[0]=ExpresionSHA256(t[3])
     elif t[1].upper()=="SUBSTR":
         h.reporteGramatical1 +="funcionBasica    ::=      SUBSTR PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA\n"
+        h.reporteGramatical2 +="t[0]=ExpresionSUBSTR(t[3],t[5],t[7])\n"
+        t[0]=ExpresionSUBSTR(t[3],t[5],t[7])
     elif t[1].upper()=="CONVERT":
         h.reporteGramatical1 +="funcionBasica    ::=      CONVERT PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA\n"
     elif t[1].upper()=="ENCODE":
@@ -1172,24 +1190,41 @@ def p_funcion_basica(t):
         h.reporteGramatical1 +="funcionBasica    ::=      AVG PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
     elif t[1].upper()=="SUM":
         h.reporteGramatical1 +="funcionBasica    ::=      SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+  
+    elif t[1].upper()=="EXTRACT":
+        h.reporteGramatical1 +="funcionBasica    ::=     EXTRACT  PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA\n"
+        h.reporteGramatical2 +="t[0]=ExpresionEXTRACT(t[3],t[6])\n"
+        t[0]=ExpresionEXTRACT(t[3],t[6])
+    elif t[1].upper()=="DATE_PART":
+        h.reporteGramatical1 +="funcionBasica    ::=      DATE_PART PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA\n"
+    elif t[1].upper()=="CURRENT_DATE":
+        h.reporteGramatical1 +="funcionBasica    ::=      CURRENT_DATE \n"
+        h.reporteGramatical2 +="t[0]=ExpresionCurrentDate(1)\n"
+        t[0]=ExpresionCurrentDate(1)
+    elif t[1].upper()=="CURRENT_TIME":
+        h.reporteGramatical1 +="funcionBasica    ::=      CURRENT_TIME\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCurrentTime(1)\n"
+        t[0]=ExpresionCurrentTime(1)
     else:
         print("no entra a ninguna en funcionBasica")
-
 
 
 
 def p_funcion_basica_1(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion FOR operacion PARENTESISDERECHA'
     h.reporteGramatical1 +="funcionBasica    ::=      SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion FOR operacion PARENTESISDERECHA\n"
-
+    h.reporteGramatical2 +="t[0]=ExpresionSUBSTRINGA(t[3],t[5],t[7])\n"
+    t[0]=ExpresionSUBSTRINGA(t[3],t[5],t[7])
 def p_funcion_basica_2(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA'
     h.reporteGramatical1 +="funcionBasica    ::=      SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA\n"
-   
+    h.reporteGramatical2 +="t[0]=ExpresionSUBSTRINGB(t[3],t[5])\n"
+    t[0]=ExpresionSUBSTRINGB(t[3],t[5])
 def p_funcion_basica_3(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FOR operacion PARENTESISDERECHA'
     h.reporteGramatical1 +="funcionBasica    ::=      SUBSTRING PARENTESISIZQUIERDA operacion FOR operacion PARENTESISDERECHA\n"
-
+    h.reporteGramatical2 +="t[0]=ExpresionSUBSTRINGC(t[3],t[5])\n"
+    t[0]=ExpresionSUBSTRINGC(t[3],t[5])
  
 def p_opcionTrim(t):
     ''' opcionTrim  : LEADING
@@ -1198,6 +1233,52 @@ def p_opcionTrim(t):
     '''    
     h.reporteGramatical1 +="opcionTrim     ::=     "+str(t[1])+"\n"
     # falta mandar a las funciones de fechas y dates y todo eso
+    if t[1].upper()=="LEADING":
+        h.reporteGramatical1 +="funcioopcionTrimnBasica    ::=      LEADING\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(1)\n"
+        t[0]=ExpresionCadenas("1")
+    elif t[1].upper()=="TRAILING":
+        h.reporteGramatical1 +="opcionTrim    ::=      TRAILING\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(2)\n"
+        t[0]=ExpresionCadenas("2")
+    elif t[1].upper()=="BOTH":
+        h.reporteGramatical1 +="opcionTrim    ::=      BOTH\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(3)\n"
+        t[0]=ExpresionCadenas("3")
+    
+def p_opcionTiempo(t):
+    '''opcionTiempo     :   YEAR
+                        |   MONTH
+                        |   DAY
+                        |   HOUR
+                        |   MINUTE
+                        |   SECOND
+    '''
+    if t[1].upper()=="YEAR":
+        h.reporteGramatical1 +="opcionTiempo    ::=      YEAR\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(1)\n"
+        t[0]=ExpresionCadenas("1")
+    elif t[1].upper()=="MONTH":
+        h.reporteGramatical1 +="opcionTiempo    ::=      MONTH\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(2)\n"
+        t[0]=ExpresionCadenas("2")
+    elif t[1].upper()=="DAY":
+        h.reporteGramatical1 +="opcionTiempo    ::=      DAY\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(3)\n"
+        t[0]=ExpresionCadenas("3")
+    elif t[1].upper()=="HOUR":
+        h.reporteGramatical1 +="opcionTiempo    ::=      HOUR\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(4)\n"
+        t[0]=ExpresionCadenas("4")
+    elif t[1].upper()=="MINUTE":
+        h.reporteGramatical1 +="opcionTiempo    ::=      MINUTE\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(5)\n"
+        t[0]=ExpresionCadenas("5")
+    elif t[1].upper()=="SECOND":
+        h.reporteGramatical1 +="opcionTiempo    ::=      SECOND\n"
+        h.reporteGramatical2 +="t[0]=ExpresionCadenas(6)\n"
+        t[0]=ExpresionCadenas("6")
+    
 
 #-----------------------------------------------------PRODUCCIONES TERMINALES--------------------------------------------------------------------
 def p_final(t):
@@ -1219,9 +1300,13 @@ def p_final_invocacion(t):
     'final          : ID PUNTO ID'
     h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+") . ID("+str(t[3])+")\n"
     h.reporteGramatical2 +="t[0] = ExpresionInvocacion(t[1],t[3])\n"
-    t[0] = ExpresionInvocacion(t[1],t[3])
+    t[0] = ExpresionLlamame(t[1],t[3])
 
-
+def p_final_invocacion_2(t):
+    'final          : ID PUNTO POR'
+    h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+") . ID("+str(t[3])+")\n"
+    h.reporteGramatical2 +="t[0] = ExpresionInvocacion(t[1],t[3])\n"
+    t[0] = ExpresionLlamame(t[1],t[3])
 
 def p_final_cadena(t):
     'final          : CADENA'
@@ -1664,11 +1749,11 @@ def p_tipo(t):
 
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
 def p_select(t):
-    '''selectData       : SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
-                        | SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
+    '''selectData       : SELECT select_list FROM select_list WHERE search_condition opcionesSelect 
+                        | SELECT POR FROM select_list WHERE search_condition opcionesSelect 
     '''
     if t[2]=='*':
-        h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
+        h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition opcionesSelect \n"
         print("/////////////////// SELECT CON ASTERISCO ////////////////////////")
         print("Columnas: ",t[2])
         print("Tablas: ",t[4])
@@ -1676,7 +1761,7 @@ def p_select(t):
         print("Extras: ",t[7])
         t[0]=Select5(t[2],t[4],QueryWhere(t[6]),t[7])
     else:
-        h.reporteGramatical1 +="selectData    ::=      SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
+        h.reporteGramatical1 +="selectData    ::=      SELECT select_list FROM select_list WHERE search_condition opcionesSelect \n"
         print("/////////////////// SELECT SIN ASTERISCO ////////////////////////")
         print("Columnas: ",t[2])
         print("Tablas: ",t[4])
@@ -1687,18 +1772,18 @@ def p_select(t):
 
 
 def p_select_1(t):
-    '''selectData       : SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA
-                        | SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA
+    '''selectData       : SELECT select_list FROM select_list WHERE search_condition  
+                        | SELECT POR FROM select_list WHERE search_condition  
     '''
     if t[2]=='*':
-        h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA\n"
+        h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition  \n"
         h.reporteGramatical2 +="t[0]=Select3(t[4],QueryWhere(t[6]))\n"
         print("entra al select con where y asterisco/////////////////")
         t[0]=Select3(t[4],QueryWhere(t[6]))
         print("el objeto que sube")
         print(t[0])
     else:
-        h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA\n"
+        h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list WHERE search_condition  \n"
         h.reporteGramatical2 +=" t[0]=Select4(t[2],t[4],QueryWhere(t[6]))\n"
         print("entra al select con where y campos /////////////////")
         print(t[2])
@@ -1711,29 +1796,33 @@ def p_select_1(t):
 
 # esta full
 def p_select_2(t):
-    '''selectData       : SELECT select_list FROM select_list  PUNTOYCOMA
-                        | SELECT POR FROM select_list  PUNTOYCOMA
+    '''selectData       : SELECT select_list FROM select_list  
+                        | SELECT POR FROM select_list  
     ''' 
     if t[2]=='*':
-        h.reporteGramatical1 +="selectData    ::=      SELECT POR FROM select_list  PUNTOYCOMA\n"
+        h.reporteGramatical1 +="selectData    ::=      SELECT POR FROM select_list  \n"
         h.reporteGramatical2 +=" t[0]=Select(1,t[4])\n"
         print("entra a select_2 A")
-        t[0]=Select(1,t[4])
+        #se le agrega como segundo parametro el 2 que significa que venia asterirsco o todas las tablas
+        t[0]=Select(1,2,t[4])
     
     else:
         # select tipo 4
-        h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list  PUNTOYCOMA\n"
+        h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list  \n"
         h.reporteGramatical2 +=" t[0]=Select2(2,t[2],t[4])\n"
         print("entra a select_2  B")
+        print(t[2])
+        print(t[4])
         t[0]=Select2(2,t[2],t[4])
 
 # esta full
 def p_select_3(t):
-    '''selectData       : SELECT select_list   PUNTOYCOMA
+    '''selectData       : SELECT select_list   
     '''
-    h.reporteGramatical1 +="selectData    ::=      SELECT select_list   PUNTOYCOMA\n"
+    h.reporteGramatical1 +="selectData    ::=      SELECT select_list   \n"
     h.reporteGramatical2 +=" t[0]=Select(1,t[2])\n"
-    t[0]=Select(1,t[2])
+    #se le agrega el 2do 1 si solo vienen datos y no tablas
+    t[0]=Select(1,1,t[2])
 
 
 
@@ -1802,10 +1891,14 @@ def p_ordenamiento(t):
 
 
 def p_search_condition_2(t):
-    'search_condition   : NOT search_condition'
+    'search_condition   : final NOT IN PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
     h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
     print("esta condicion es del not con operacion******************")
-    print(t[2])
+    print(t[1])
+    print(t[5])
+    t[0]=ExpresionNotIn(t[1],t[5])
+
+
 
 # PARA ABAJO YA ESTA
 def p_search_condition_3(t):
@@ -1854,7 +1947,7 @@ def p_select_list_7(t):
     h.reporteGramatical2 +=" t[0]=t[1]\n"
     print(" entra al select_list: asignacion-------------")
     print(t[1])
-    t[0]=t[1]
+    t[0]=[t[1]]
 
 
 def p_select_list_2(t):
@@ -1870,14 +1963,14 @@ def p_asignacion_1(t):
     h.reporteGramatical1 +="select_list    ::=      select_list AS  operacion\n"
     h.reporteGramatical2 +=" t[0]=[Asignacion(t[1],t[3])]\n"
     print("entra a asignacion: operacion AS operacion")
-    t[0]=[Asignacion(t[1],t[3])]
+    t[0]=Asignacion(t[1],t[3])
 
 def p_asignacion_2(t):
     ' asignacion   : final final'
     h.reporteGramatical1 +="select_list    ::=      final final\n"
     h.reporteGramatical2 +=" t[0]=[Asignacion(t[1],t[2])]\n"
     print(" entra al select_list de 2 finales-------------")
-    t[0]=[Asignacion(t[1],t[2])]
+    t[0]=Asignacion(t[1],t[2])
     print(t[0])
 
 def p_funcion_basica_4(t):
@@ -1889,13 +1982,7 @@ def p_funcion_basica_4(t):
     print(t[3])
     t[0]=ExpresionBetween(t[1],t[3])
 
-def p_funcion_basica_5(t):
-    'funcionBasica   :  operacion LIKE CADENA'
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion LIKE CADENA\n"
 
-def p_funcion_basica_6(t):
-    'funcionBasica   : operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA '
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA\n"
 
 
 def p_funcion_basica_7(t):
@@ -1936,6 +2023,14 @@ def p_funcion_basica_11(t):
     print("entra al IS NOT DISTINCT ++++++++++++++++++")
     t[0]=ExpresionIsNotDistinct(t[1],t[6])
 
+def p_tipos(t):
+    '''tipos : CREATE TYPE final AS ENUM PARENTESISIZQUIERDA select_list PARENTESISDERECHA PUNTOYCOMA'''
+    print("entra al enum++++++++++++++++++++++++++++++++")
+    h.reporteGramatical1 +="tipos    ::=     CREATE TYPE final AS ENUM PARENTESISIZQUIERDA select_list PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0]=Tipo(t[3],t[7])\n"
+    print(t[3])
+    print(t[7])
+    t[0]=Tipo(t[3],t[7])
 
 
 #para manejar los errores sintacticos
