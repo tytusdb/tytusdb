@@ -18,7 +18,7 @@ def execution(input):
     messages = []
     result = grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
     if len(lexerErrors) + len(syntaxErrors) == 0:
         for v in result:
             if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
@@ -26,7 +26,6 @@ def execution(input):
                 if r:
                     list_ = r[0].values.tolist()
                     labels = r[0].columns.tolist()
-                    print(list_)
                     querys.append([labels, list_])
                 else:
                     querys.append(None)
@@ -52,7 +51,7 @@ def parser(input):
     """
     grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
     obj = {
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
