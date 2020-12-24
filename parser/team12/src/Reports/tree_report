@@ -1,10 +1,7 @@
 digraph Arbol_AST{ node[shape="box"]n1[label = "S"];n1 -> n2;
-n2[label = "SENTENCIA_SELECT"];n2 -> n3;
-n3[label = "LISTA_EXP"];n3 -> n4;
-n4[label = "E"];n4 -> n5;
-n5[label = "Identificador\nidpuesto"];n2 -> n6;
-n6[label = "TABLE_EXPRESION"];n6 -> n7;
-n7[label = "SENTENCIA_SELECT"];n7 -> n8;
-n8[label = "*"];n7 -> n9;
-n9[label = "TABLE_EXPRESION"];n9 -> n10;
-n10[label = "Identificador\nempleado"];}
+n2[label = "SENTENCIA_USE"];n2 -> n3;
+n3[label = "IDENTIFICADOR\nPRUEBA"];n1 -> n4;
+n4[label = "SENTENCIA_INSERT"];n4 -> n5;
+n5[label = "Tabla\nUSUARIO_PRUEBA"];n4 -> n6;
+n6[label = "PARAM_INSERT"];n6 -> n7;
+n7[label = "Entero\n1"];}
