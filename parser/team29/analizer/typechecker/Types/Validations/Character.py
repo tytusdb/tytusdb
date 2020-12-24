@@ -1,5 +1,6 @@
 syntaxPostgreErrors = []
 
+
 def validateVarchar(n, val):
     if 0 <= len(val) and len(val) <= n:
         return None

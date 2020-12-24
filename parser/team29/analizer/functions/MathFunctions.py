@@ -11,9 +11,9 @@ def absolute(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( abs(column[i]))
+            result.append(abs(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -26,9 +26,9 @@ def cbrt(column):
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
             valor = column[i] ** (1.0 / 3.0)
-            result.append( valor)
+            result.append(valor)
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -41,9 +41,9 @@ def ceil(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.ceil(column[i]))
+            result.append(math.ceil(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -59,9 +59,9 @@ def degrees(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.degrees(column[i]))
+            result.append(math.degrees(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -77,9 +77,9 @@ def exp(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.exp(column[i]))
+            result.append(math.exp(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -91,12 +91,12 @@ def factorial(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            if column[i]>=0:
-                result.append( math.factorial(column[i]))
+            if column[i] >= 0:
+                result.append(math.factorial(column[i]))
             else:
                 result.append(1)
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -108,9 +108,9 @@ def floor(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.floor(column[i]))
+            result.append(math.floor(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -126,18 +126,18 @@ def gcd(column1, column2):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[i], int) or isinstance(column2[i], float)
             ):
-                result.append( math.gcd(column1[i], column2[i]))
+                result.append(math.gcd(column1[i], column2[i]))
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     elif len(column2) == 1:
         while i < len(column1):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[0], int) or isinstance(column2[0], float)
             ):
-                result.append( math.gcd(column1[i], column2[0]))
+                result.append(math.gcd(column1[i], column2[0]))
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
 
     return result
@@ -158,7 +158,7 @@ def lcm(column1, column2):
                     abs(column1[i] * column2[i]) // math.gcd(column1[i], column2[i]),
                 )
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     elif len(column2) == 1:
         while i < len(column1):
@@ -170,7 +170,7 @@ def lcm(column1, column2):
                     abs(column1[i] * column2[0]) // math.gcd(column1[i], column2[0]),
                 )
             else:
-                result.append( column1[i])
+                result.append(column1[i])
 
             i += 1
     return result
@@ -182,13 +182,15 @@ def ln(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            if 0>= column[i]:
-                list_errors_mt.append("Error: 2201E: no se puede calcular el algoritmo de un numero menor o igual a cero ")
+            if 0 >= column[i]:
+                list_errors_mt.append(
+                    "Error: 2201E: no se puede calcular el algoritmo de un numero menor o igual a cero "
+                )
                 result.append("Error de dominio")
-            else:    
-                result.append( math.log(column[i]))
+            else:
+                result.append(math.log(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -204,9 +206,9 @@ def log(column, base=10):
     result = list()
     while i < len(column1):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.log(column[i], base))
+            result.append(math.log(column[i], base))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -227,7 +229,7 @@ def pow(column1, column2):
     result = list()
     if len(column1) == len(column2):
         while i < len(column1):
-            result.append( math.pow(column1[i], column2[i]))
+            result.append(math.pow(column1[i], column2[i]))
             i += 1
 
     return result
@@ -239,9 +241,9 @@ def radians(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.radians(column[i]))
+            result.append(math.radians(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -262,9 +264,9 @@ def round(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( round(column[i]))
+            result.append(round(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -277,14 +279,14 @@ def sqrt(column):
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
             if column[i] >= 0:
-                result.append( math.sqrt(column[i]))
+                result.append(math.sqrt(column[i]))
             else:
-                result.append( "Error en el dominio")
+                result.append("Error en el dominio")
                 list_errors_mt.append(
                     "Error: 2201F: no se puede calcular la raiz cuadrada de un numero negativo"
                 )
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -313,9 +315,9 @@ def truncate_col(column, decimals=0):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( truncate(column[i], decimals))
+            result.append(truncate(column[i], decimals))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -339,18 +341,18 @@ def sum_columns(column1, column2):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[i], int) or isinstance(column2[i], float)
             ):
-                result.append( column1[i] + column2[i])
+                result.append(column1[i] + column2[i])
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     elif len(column2) == 1:
         while i < len(column1):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[0], int) or isinstance(column2[0], float)
             ):
-                result.append( column1[i] + column2[0])
+                result.append(column1[i] + column2[0])
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
 
     return result
@@ -366,18 +368,18 @@ def rest_columns(column1, column2):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[i], int) or isinstance(column2[i], float)
             ):
-                result.append( column1[i] - column2[i])
+                result.append(column1[i] - column2[i])
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     elif len(column2) == 1:
         while i < len(column1):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[0], int) or isinstance(column2[0], float)
             ):
-                result.append( column1[i] - column2[0])
+                result.append(column1[i] - column2[0])
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
 
     return result
@@ -393,18 +395,18 @@ def mult_columns(column1, column2):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[i], int) or isinstance(column2[i], float)
             ):
-                result.append( column1[i] * column2[i])
+                result.append(column1[i] * column2[i])
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     elif len(column2) == 1:
         while i < len(column1):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[0], int) or isinstance(column2[0], float)
             ):
-                result.append( column1[i] * column2[0])
+                result.append(column1[i] * column2[0])
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
 
     return result
@@ -420,26 +422,26 @@ def div_columns(column1, column2):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[i], int) or isinstance(column2[i], float)
             ):
-                if column2[i]!=0:
-                    result.append( column1[i] / column2[i])
+                if column2[i] != 0:
+                    result.append(column1[i] / column2[i])
                 else:
                     list_errors_mt.append("Error: 22012: division por cero")
                     result.append("Error no se puede dividir por cero")
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     elif len(column2) == 1:
         while i < len(column1):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[0], int) or isinstance(column2[0], float)
             ):
-                if column2[0]!=0:
-                    result.append( column1[i] / column2[0])
+                if column2[0] != 0:
+                    result.append(column1[i] / column2[0])
                 else:
                     list_errors_mt.append("Error: 22012: division por cero")
                     result.append("Error no se puede dividir por cero")
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     return result
 
@@ -454,26 +456,26 @@ def mod_columns(column1, column2):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[i], int) or isinstance(column2[i], float)
             ):
-                if column2[i]!=0:
-                    result.append( column1[i] % column2[i])
+                if column2[i] != 0:
+                    result.append(column1[i] % column2[i])
                 else:
                     list_errors_mt.append("Error: 22012: modulo por cero")
                     result.append("Error no se puede modular por cero")
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     elif len(column2) == 1:
         while i < len(column1):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[0], int) or isinstance(column2[0], float)
             ):
-                if column2[0]!=0:
-                    result.append( column1[i] % column2[0])
+                if column2[0] != 0:
+                    result.append(column1[i] % column2[0])
                 else:
                     list_errors_mt.append("Error: 22012: modulo por cero")
                     result.append("Error no se puede modular por cero")
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
 
     return result
@@ -496,18 +498,18 @@ def exp_columns(column1, column2):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[i], int) or isinstance(column2[i], float)
             ):
-                result.append( column1[i] ** column2[i])
+                result.append(column1[i] ** column2[i])
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
     elif len(column2) == 1:
         while i < len(column1):
             if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
                 isinstance(column2[0], int) or isinstance(column2[0], float)
             ):
-                result.append( column1[i] ** column2[0])
+                result.append(column1[i] ** column2[0])
             else:
-                result.append( column1[i])
+                result.append(column1[i])
             i += 1
 
     return result
