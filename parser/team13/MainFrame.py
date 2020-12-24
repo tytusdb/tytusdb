@@ -1,5 +1,9 @@
 import tkinter as tk
 import gramaticaASC as g
+from tkinter import filedialog as FileDialog
+from tkinter import colorchooser as ColorChooser
+from tkinter import messagebox as MessageBox
+
 #import Graficar as graficando
 import principal as principal
 import os
@@ -11,8 +15,9 @@ import TablaSimbolos as TS
 tablaSimbolos = TS.Entorno(None)
 from tkinter import messagebox
 import pickle
-
 from graphviz import Digraph
+
+pathFile=''
 
 #################################### CLASE TextLineNumbers ####################################
 class TextLineNumbers(tk.Canvas):
@@ -135,37 +140,68 @@ if __name__ == "__main__":
     
     # FUNCIÓN PARA CREAR UN NUEVO ARCHIVO
     def __funcion_nuevo():
-        print('Creando...')
-
+        global pathFile
+        pathFile = ""
+        my_editor.text.delete(1.0, "end")
 
     # FUNCIÓN PRIVADA PARA ABRIR UN ARCHIVO DE TEXTO
     def __funcion_abrir():
-
-        input = filedialog.askopenfilename(initialdir="/")
-        f = open(input, "r", encoding="utf8")
-        input2 = f.read()
-        my_editor.text.delete('1.0', END)
-        my_editor.text.insert(INSERT, input2)
+        global pathFile 
+        pathFile = FileDialog.askopenfilename(
+        initialdir='.',
+        filetypes=( 
+            ("All file", "*"),  
+        ), 
+        title="Abrir Archivo"
+        )
+        #input = filedialog.askopenfilename(initialdir="/")
+        if pathFile != "":
+            archivo = open(pathFile, "r", encoding="utf8")
+            contenido = archivo.read()
+            my_editor.text.delete('1.0', END)
+            my_editor.text.insert(INSERT, contenido)
 
 
     # FUNCIÓN PARA GUARDAR UN NUEVO ARCHIVO
     def __funcion_guardar():
         print('Guardando...')
-
+        global pathFile
+        if pathFile != "":
+            contenido = my_editor.text.get('1.0', END)
+            archivo = open(pathFile, 'w+')         
+            archivo.write(contenido)           
+            archivo.close()
+            MessageBox.showinfo("Archivo guardado","El archivo se guardo exitosamente")
+        else :
+            MessageBox.showwarning("Guardar","Abra un archivo primero")
+ 
         # FUNCIÓN PARA GUARDAR COMO
 
 
     def __funcion_guardar_como():
         print('Guardando como...')
+        global pathFile
+        archivo = FileDialog.asksaveasfile(title="Guardar archivo", mode='w',
+        defaultextension=".txt")
+        if archivo is not None:
+             pathFile = archivo.name  
+             contenido = my_editor.text.get('1.0', END)
+             archivo = open(pathFile, 'w+') 
+             archivo.write(contenido) 
+             archivo.close()
+             MessageBox.showinfo("Archivo guardado","El archivo se guardo exitosamente")
+        else:
+             MessageBox.showinfo("Archivo no guardado","El archivo no se guardó")
 
+          
         # FUNCIÓN PARA DETENER EL PROGRAMA
 
-
     def __funcion_cerrar():
+        root.quit()
         print('Cerrando...')
 
 
-    # FUNCIÓN PRIVADA PARA ANALIZAR EL ARCHIVO DE ENTRADA
+
 
     def __funcion_analizar():
 
@@ -185,7 +221,6 @@ if __name__ == "__main__":
                 imprimir_consola("") 
                 #raiz = graficando.analizador(entrada)
                 data=principal.interpretar_sentencias(arbol,tablaSimbolos)
-                
                 #tablaSimbolos.mostrar()
                 imprimir_consola(data)
                 #append_consola(tablaSimbolos.mostrar_tabla())
@@ -239,9 +274,12 @@ if __name__ == "__main__":
         """ entrada = my_editor.text.get('1.0',END)
         gd.parse(entrada) """
     # FUNCIÓN PRIVADA PARA REALIZAR EL REPORTE DE ERRORES SINTÁCTICOS
-    def __funcion_FormatoBnf():
-        os.startfile('gramaticaBNF.txt') 
+    def __funcion_GramaticalEstatico():
+            os.startfile('gramaticaEstatico.txt') 
+    def __funcion_GramaticalDinamico():
+            os.startfile('gramaticaDinamico.txt') 
    
+
     def __funcion_AST():
             os.startfile('arbol.jpg') 
 
@@ -295,8 +333,17 @@ if __name__ == "__main__":
 
             root.destroy()
 
-
-        
+    def __funcion_ManualTecnico():
+        os.startfile('Manual_Tecnico.pdf') 
+   
+    def __funcion_ManualUsuario():
+        os.startfile('Manual_Usuario.pdf') 
+   
+    def __funcion_AcercaDe():
+        MessageBox.showinfo("Ayuda- Grupo13",
+                        '''Interprete DATABASE - USAC. Es un interprete basado en el lenguaje SQL .''')
+ 
+   
 
 ######################################## FIN FUNCIONES ########################################
 
@@ -349,17 +396,30 @@ if __name__ == "__main__":
 
     #SUB MENÚS PARA EL MENÚ ANALIZAR
     menu_reporte.add_command(label="AST", command=__funcion_AST)
-    menu_reporte.add_command(label="FormatoBNF", command=__funcion_FormatoBnf)
+    menu_reporte.add_command(label="Gramatical Estatico", command=__funcion_GramaticalEstatico)
+    menu_reporte.add_command(label="Gramatical Dinamico", command=__funcion_GramaticalDinamico)
     menu_reporte.add_command(label="Tabla de Símbolos", command=__funcion_TS)
-    
+
+       
     menu_reporte.add_separator()
     menu_reporte.add_command(label="Errores Léxicos", command=__funcion_errores_lexicos)
     menu_reporte.add_command(label="Errores Sintácticos", command=__funcion_errores_sintacticos)
     menu_reporte.add_command(label="Errores Semánticos", command=__funcion_analizar)
-
-    # CREACIÓN DEL MENÚ ANALIZAR INCRUSTANDO LOS SUBMENÚS
+     # CREACIÓN DEL MENÚ ANALIZAR INCRUSTANDO LOS SUBMENÚS
     menubar.add_cascade(label="Reportes", menu=menu_reporte)
+   
+    #SUB MENÚS PARA EL MENÚ AYUDA
+    ### MENÚ REPORTES
+    menu_ayuda = tk.Menu(menubar, tearoff=0)
 
+    menu_ayuda.add_command(label="Manual Tecnico", command=__funcion_ManualTecnico)
+    menu_ayuda.add_command(label="Manual Usuario", command=__funcion_ManualUsuario)
+    menu_ayuda.add_command(label="Acerca DE", command=__funcion_AcercaDe)
+    
+     # MENU AYUDA
+   
+    menubar.add_cascade(label="Ayuda",    menu=menu_ayuda)
+     
     # SE AGREGA LA BARRA DE MENÚ A LA RAÍZ
     root.config(menu=menubar)
 
