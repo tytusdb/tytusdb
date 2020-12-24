@@ -1,12 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-from function import *
-from typ import *
-from trigonometric_functions import atan2d
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.trigonometric_functions import atan2d
 
 class Atan2d(Function):
     def __init__(self, divisor, dividend, row, column):
@@ -37,4 +31,4 @@ class Atan2d(Function):
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
             if value2['typ'] != Type.INT and value2['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-            return [{'value':atan2d(value['value'],value2['value']), 'typ': Type.INT}]
+            return {'value':atan2d(value['value'],value2['value']), 'typ': Type.INT}

@@ -87,7 +87,7 @@ class BaseDatos:
                 temp = serealizar.rollback(table, self.main_path)    
                 return temp.extractTable()
             except:
-                return 1
+                return None
         else:
             return None
     

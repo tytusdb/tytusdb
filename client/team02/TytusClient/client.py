@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinter import Tk, Text, BOTH, W, N, E, S, Menu,ttk,messagebox
 from tkinter import filedialog
+from tkinter import simpledialog
 from tkinter.ttk import Frame, Button, Label, Style, Treeview
 import os
+import requests
 
 
 class Example(Frame):
@@ -12,11 +14,13 @@ class Example(Frame):
         super().__init__()
         #self contador numero tab querys
 
+        serverimage = tk.PhotoImage(file="images/server.png")
+
+
         #Creacion de ventana
         self.master.title("TytusDB")
         self.pack(fill=BOTH, expand=True)
-
-
+        
         self.columnconfigure(1, weight=1)
         self.columnconfigure(3, pad=7)
         self.rowconfigure(3, weight=1)
@@ -28,7 +32,7 @@ class Example(Frame):
 
         self.nb = CustomNotebook(self)
         self.fm = Frame(self.nb)
-        self.fm.pack(fill=BOTH, expand=True)
+        self.fm.pack(fill=BOTH, expand=True)        
         self.fm.columnconfigure(1, weight=1)
         self.fm.columnconfigure(3, pad=7)
         self.fm.rowconfigure(3, weight=1)
@@ -65,30 +69,35 @@ class Example(Frame):
         
         # ******************************* ÁRBOL *******************************
         self.treeview = Treeview(self)    
-        self.treeview.grid(row=1, column=0, rowspan=4, sticky=E + W + S + N);                       
-        servers = self.treeview.insert("", tk.END, text="Servidores")
-        srvr1 = self.treeview.insert(servers, tk.END, text="server_vd2020")
-        dbs = self.treeview.insert(srvr1, tk.END, text="Databases")
-        dvdrental = self.treeview.insert(dbs, tk.END, text="dvdrental")
-        funcdvdrental = self.treeview.insert(dvdrental, tk.END, text="Functions")
-        tabldvdrental = self.treeview.insert(dvdrental, tk.END, text="Tables")
-        triggersdvdrental = self.treeview.insert(dvdrental, tk.END, text="Trigger Functions")
-        viewsdvdrental = self.treeview.insert(dvdrental, tk.END, text="Views")
-        sports = self.treeview.insert(dbs, tk.END, text="sports")
-        funcsports = self.treeview.insert(sports, tk.END, text="Functions")
-        tablsport = self.treeview.insert(sports, tk.END, text="Tables")
-        triggersport = self.treeview.insert(sports, tk.END, text="Trigger Functions")
-        viewsport = self.treeview.insert(sports, tk.END, text="Views")
-        logingrp = self.treeview.insert(srvr1, tk.END, text="Login/Group Roles")
-        usr1 = self.treeview.insert(logingrp, tk.END, text="user1")
-        usr2 = self.treeview.insert(logingrp, tk.END, text="user2")
-        usr3 = self.treeview.insert(logingrp, tk.END, text="user3")
-        usr4 = self.treeview.insert(logingrp, tk.END, text="user4")
+        self.treeview.grid(row=1, column=0, columnspan=1, rowspan=4, padx=5, sticky=E + W + S + N);                       
+        self.serverimage = tk.PhotoImage(file="images/server.png")
+        self.databaseimage = tk.PhotoImage(file="images/database.png")
+        self.tableimage = tk.PhotoImage(file="images/table.png")
+        self.functionimage = tk.PhotoImage(file="images/function.png")
+        self.usersimage = tk.PhotoImage(file="images/users.png")
+        self.singleuserimage = tk.PhotoImage(file="images/single_user.png")
+        self.viewimage = tk.PhotoImage(file="images/view.png")
+        self.triggerimage = tk.PhotoImage(file="images/trigger.png")
+        servers = self.treeview.insert("", tk.END, text=" Servidores", image=self.serverimage)
+        srvr1 = self.treeview.insert(servers, tk.END, text=" server_vd2020", image=self.serverimage)
+        dbs = self.treeview.insert(srvr1, tk.END, text=" Databases", image=self.databaseimage)
+        dvdrental = self.treeview.insert(dbs, tk.END, text=" dvdrental", image=self.databaseimage)
+        funcdvdrental = self.treeview.insert(dvdrental, tk.END, text=" Functions", image=self.functionimage)
+        tabldvdrental = self.treeview.insert(dvdrental, tk.END, text=" Tables", image=self.tableimage)
+        triggersdvdrental = self.treeview.insert(dvdrental, tk.END, text="Trigger Functions", image=self.triggerimage)
+        viewsdvdrental = self.treeview.insert(dvdrental, tk.END, text=" Views", image=self.viewimage)
+        sports = self.treeview.insert(dbs, tk.END, text=" sports", image=self.databaseimage)
+        funcsports = self.treeview.insert(sports, tk.END, text=" Functions", image=self.functionimage)
+        tablsport = self.treeview.insert(sports, tk.END, text="Tables", image=self.tableimage)
+        triggersport = self.treeview.insert(sports, tk.END, text=" Trigger Functions", image=self.triggerimage)
+        viewsport = self.treeview.insert(sports, tk.END, text=" Views", image=self.viewimage)
+        logingrp = self.treeview.insert(srvr1, tk.END, text=" Login/Group Roles", image=self.usersimage)
+        usr1 = self.treeview.insert(logingrp, tk.END, text=" user1", image=self.singleuserimage)
+        usr2 = self.treeview.insert(logingrp, tk.END, text=" user2", image=self.singleuserimage)
+        usr3 = self.treeview.insert(logingrp, tk.END, text=" user3", image=self.singleuserimage)
+        usr4 = self.treeview.insert(logingrp, tk.END, text=" user4", image=self.singleuserimage)        
         # *********************************************************************
-
-
-
-        # *********************************************************************
+        
 
     #Metodo agregar QueryTool
     def addQueryTool( self ):
@@ -233,11 +242,41 @@ class CustomNotebook(ttk.Notebook):
         })
     ])
 
+# Metodo para iniciar sesion
+def iniciarSesion(root):
+    usuario = simpledialog.askstring(title="Usuario", prompt="Nombre de usuario:")
+    password = simpledialog.askstring(title="Password", prompt="Password:", show="*")
+    payload = {'user' : usuario, 'password': password}
+    url = "http://localhost:10000/conexionBD"
+    response = requests.post(url, json = payload)
+    if response.status_code == 200:
+        response_json = response.json()
+        print(response_json['msj'])
+        if response_json['msj'] == "Conexion establecida":
+            messagebox.showinfo("TytusDB", "Conexion establecida con exito.")
+            return True
+        else:
+            reintentar = messagebox.askquestion("TytusDB", "Usuario o contraseña invalidos, desea reintentar?")
+            if reintentar == "yes":
+                return iniciarSesion(root)
+            else:
+                root.destroy()
+                return False
+        return False
+    else:
+        messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
+        root.destroy()
+        return False
+
+
+
 def main():
     root = Tk()
-    app = Example()
-    root.geometry("350x300+300+300")
-    root.mainloop()
+    inicio = iniciarSesion(root)
+    if inicio:
+        app = Example()
+        root.geometry("350x300+300+300")
+        root.mainloop()
 
     # *************************** BARRA DE MENÚ ***************************    
     '''menubar = Menu(root)

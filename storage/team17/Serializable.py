@@ -5,12 +5,12 @@ import pickle, os
 
 def commit(objeto, nombre):
     initCheck()
-    file = open("Data/"+nombre + ".bin", "wb+")
+    file = open("Data/"+nombre.lower()+ ".bin", "wb+")
     file.write(pickle.dumps(objeto))
     file.close()
 
 def rollback(nombre):
-    file = open("Data/"+nombre + ".bin", "rb")
+    file = open("Data/"+nombre.lower()+ ".bin", "rb")
     b = file.read()
     file.close()
     return pickle.loads(b)

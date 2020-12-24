@@ -159,7 +159,8 @@ reservadas = {
     'nulls':'t_nulls',
     'all':'t_all',
     'offset':'t_offset',
-    'limit':'t_limit'
+    'limit':'t_limit',
+    'date':'t_date'
 }
 
 tokens = [
@@ -348,22 +349,21 @@ def p_Sentencia_SQL_DDL(p):
 
 # -------------------------------------------------------------SENTENCIAS DML
 def p_Sentencias_DML(p):
-    '''Sentencias_DML : t_select Lista_EXP Select_SQL Condiciones pyc
-                    | t_select asterisco Select_SQL Condiciones pyc
-                    1 t_select Lista_EXP Select_SQL ORD pyc
-                    | t_select Lista_EXP Select_SQL ORD LMT pyc
+    '''Sentencias_DML : t_select Lista_EXP Select_SQL Condiciones GRP ORD pyc
+                    | t_select asterisco Select_SQL Condiciones GRP ORD pyc
                     | t_insert t_into id Insert_SQL pyc
-                    | t_update id t_set Lista_EXP t_where EXP pyc
+                    | t_update id t_set Lista_EXP Condiciones pyc
                     | t_delete t_from id Condiciones pyc
                     | t_use id pyc'''
     vaciar_lista()
     if p[1] == 'select':
-        p[0] = Select(p[2], p[3], p[4], p.slice[2].lineno, find_column(input, p.slice[2]))
+        p[0] = Select(p[2], p[3], p[4], p[5], p[6], p.slice[2].lineno, find_column(input, p.slice[2]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= select' + str(p[2]) + 'SELECT_SQL ; </TD><TD> { sentencias_dml.inst = select(lista_exp.lista, Select_SQL.val,Condiciones.val)}  </TD></TR>')
     elif p[1] == 'insert':
         p[0] = Insert(p[3], p[4]['col'],p[4]['valores'], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= insert into id INSERT_SQL ; </TD> <TD> {sentencias_dml.inst = insert(id,Insert_SQL.inst)}  </TD></TR>')
     elif p[1] == 'update':
+        p[0] = Update(p[2],p[4],p[5],p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= update id set LISTA_EXP where EXP ; </TD> <TD> {sentencias_dml.inst = update(id, lista_exp.list, exp.val)} </TD></TR>')
     elif p[1] == 'delete':
         p[0] = Delete(p[3],p[4],p.slice[1].lineno, find_column(input, p.slice[1]))
@@ -414,54 +414,81 @@ def p_Insert_SQL2(p):
 
 def p_Condiciones(p):
     '''Condiciones : t_where EXP
-            | t_where EXP GRP
             | empty'''
     if len(p) == 3:
-        p[0] = p[2]
+        p[0] = Where(p[2], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> CONDICIONES ::= where EXP  </TD>  <TD> condiciones.val = exp.val </TD></TR>')
     else:
-        p[0] = p[1]
+        p[0] = []
         concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
 
 # ---------------------------- Group, having and order by --------------
 def p_GRP(p):
     '''GRP : t_group t_by Lista_ID
            | t_group t_by Lista_ID HV
-           | t_group t_by '''
+           | empty'''
+    if len(p) == 5:
+        p[0] = p[3] + p[4]
+    elif len(p) == 4:
+        p[0] = p[3]
 
 def p_HV(p):
     '''HV : t_having EXP'''
-
+    p[0] = p[2]
 
 def p_ORD(p):
     '''ORD : t_order t_by LSORT
-           | t_order t_by LSORT LMT'''
+           | t_order t_by LSORT LMT
+           | empty'''
+    if len(p) == 4:
+        p[0] = p[3]
+    elif len(p) == 5:
+        p[0] = p[3] + [p[4]]
 
 
-def p_LSORT(p):
+def p_L_SORT(p):
     '''LSORT : LSORT coma SORT
-             | SORT'''
+                | SORT'''
+    if len(p) == 4:
+        p[0] = p[1] + [p[3]]
+    else:
+        p[0] = [p[1]]
 
 def p_SORT(p):
     '''SORT : EXP AD NFL
             | EXP AD
             | EXP'''
+    if len(p) == 4:
+        p[0] = Order(p[1], p[2], p[3], p.slice[1].lineno, find_column(input, p.slice[1]))
+    elif len(p) == 3:
+        p[0] = Order(p[1], p[2], p.slice[1].lineno, find_column(input, p.slice[1]))
+    else:
+        p[0] = Order(p[1], p.slice[1].lineno, find_column(input, p.slice[1]))
 
 def p_AD(p):
     '''AD : t_asc
           | t_desc'''
+    p[0] = p[1]
+
 
 def p_NFL(p):
     '''NFL : t_nulls t_first
            | t_nulls t_last'''
+    p[0] = p[2]
+
 def p_LMT(p):
     '''LMT : t_limit NAL t_offset entero
            | t_limit NAL
            | t_offset entero '''
+    if len(p) == 5:
+        p[0] = p[1] + ':' + p[2] + ':' + p[3] + ':' + p[4]
+    else:
+        p[0] = p[1] + ':' + p[2]
 
 def p_NAL(p):
     '''NAL : entero
            | t_all '''
+    p[0] = p[1]
 
 # ---------------------------- Sentencias DDL y Enum Type --------------
 def p_Sentencias_DDL(p):
@@ -503,14 +530,14 @@ def p_Enum_Type(p):#Agregado
     p[0] = DDL.CreateType(p.slice[1].lineno, find_column(input, p.slice[1]), p[3].lower(), p[7])
     concatenar_gramatica('\n <TR><TD> ENUM_TYPE ::= create type id as enum ( LISTA_ENUM ) ; </TD>  <TD> { enum_type.inst = createType(id,lista_Enum.val) } </TD></TR>')
 
-def p_Drop(p):
+def p_Drop(p): #Agregado
     '''Drop : t_database DropDB id
             | t_table  id '''
     if p[1].lower() == 'database':
         p[0] = DDL.DropDatabase(p.slice[1].lineno, find_column(input, p.slice[1]), p[3], p[2])
         concatenar_gramatica('\n <TR><TD> DROP ::= database DROPDB id  </TD> <TD> { drop.inst = dropBD( id) } </TD></TR>')
     else:
-        p[0] = None 
+        p[0] = DDL.DropTable(p.slice[1].lineno, find_column(input, p.slice[1]), p[2]) 
         concatenar_gramatica('\n <TR><TD> DROP ::= table  id  </TD>  <TD> {drop.inst = dropTb( id )} </TD></TR>')
    
 def p_DropDB(p): #Agregado
@@ -570,9 +597,9 @@ def p_AlterTB(p):
 
 def p_Add_Opc(p):
     '''Add_Opc : t_column id Tipo
-               | t_foreign t_key par1 id par2 t_references id
-               | t_constraint id t_unique par1 id par2
-               | t_check EXP '''
+               | Constraint_AlterTB t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2
+               | Constraint_AlterTB t_unique par1 id par2
+               | Constraint_AlterTB t_check EXP '''
     if p[1] == 'column':
         concatenar_gramatica('\n <TR><TD> ADD_OPC ::= column id TIPO </TD> <TD> { add_opc.inst = column(id, tipo.type) } </TD></TR>')
     elif p[1] == 'foreign':
@@ -581,6 +608,16 @@ def p_Add_Opc(p):
         concatenar_gramatica('\n <TR><TD> ADD_OPC ::= constraint id unique ( id ) </TD> <TD> { add_opc.inst = constraint(id1,id2)} </TD></TR>')
     elif p[1] == 'check': 
         concatenar_gramatica('\n <TR><TD> ADD_OPC ::= check EXP </TD> <TD> {add_opc.inst = check( exp.val )} </TD></TR>')
+
+def p_Constraint_AlterTB(p):
+    '''Constraint_AlterTB : t_constraint id
+                            | empty'''
+    if p[1].lower() == 'constraint':
+        p[0] = p[2]
+        concatenar_gramatica('\n <TR><TD> CONSTRAINT_ALTERTB ::= constraint id </TD> <TD> { constraint_altertb.inst = id } </TD></TR>')
+    else:
+        p[0] = None
+        concatenar_gramatica('\n <TR><TD> CONSTRAINT_ALTERTB ::= EMPTY </TD> <TD> { constraint_altertb.inst = None } </TD></TR>')
 
 def p_Drop_Opc(p):
     ''' Drop_Opc :  t_column id
@@ -693,86 +730,113 @@ def p_Op_Mode(p):#Agregado
         p[0] = p[1]
         concatenar_gramatica('\n <TR><TD> OP_MODE ::= entero </TD> <TD> { op_mode.val = entero } </TD></TR>')
 
-def p_CreateTB(p):
+def p_CreateTB(p): #Agregado
     'CreateTB : t_table id par1 Columnas par2 Inherits '
+    p[0] = DDL.CreateTable(p.slice[1].lineno, find_column(input, p.slice[1]), p[2], p[4], p[6])
     concatenar_gramatica('\n <TR><TD> CREATETB ::= table id ( COLUMNAS ) INHERITS </TD> <TD> {createtb.inst = createtb(id,columnas.val,inherits.val)} </TD></TR>')
 
-def p_Inherits(p):
+def p_Inherits(p):#Agregado
     ''' Inherits : t_inherits par1 id par2
                | empty '''
     if len(p) == 5:
+        p[0] = p[3]
         concatenar_gramatica('\n <TR><TD> INHERITS ::= inherits ( id ) </TD> <TD> { inherits.inst = inherits(id) } </TD></TR>')
     else:
-        p[0] = p[1]
-        concatenar_gramatica('\n <TR><TD> INHERITS ::= EMPTY </TD>  <TD> { inherits.inst = empty.val } </TD></TR>')
+        p[0] = None
+        concatenar_gramatica('\n <TR><TD> INHERITS ::= EMPTY </TD>  <TD> { inherits.inst = None } </TD></TR>')
     
-def p_Columnas(p):
+def p_Columnas(p): #Agregado
     ''' Columnas : Columnas coma Columna
                 | Columna '''
     if len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
         concatenar_gramatica('\n <TR><TD> COLUMNAS ::= COLUMNAS , COLUMNA </TD> columnas.val = concatenar(columna.aux , columna.val) <TD> </TD></TR>')
     else:
-        p[0] = p[1]
+        p[0] = [p[1]]
         concatenar_gramatica('\n <TR><TD> COLUMNAS ::= COLUMNA </TD> <TD> columnas.aux = columna.val </TD></TR>')
 
-def p_Columna(p):
+def p_Columna(p): #Agregado
     ''' Columna : id Tipo Cond_CreateTB
                 | Constraint'''
     if len(p) == 4:
+        p[0] = DDL.CreateTableColumn(p.slice[1].lineno, find_column(input, p.slice[1]), p[1], p[2], p[3])
         concatenar_gramatica('\n <TR><TD> COLUMNA ::= id TIPO COND_CREATETB </TD> <TD> {columna.val = cond_createtb.val} </TD></TR>')
     else:
         p[0] = p[1]
         concatenar_gramatica('\n <TR><TD> COLUMNA ::= CONSTRAINT </TD> <TD> { columna.val = constraint.val} </TD></TR>')
 
-def p_Cond_CreateTB(p):
-    ''' Cond_CreateTB : t_default id Cond_CreateTB
-                        | t_not t_null Cond_CreateTB
-                        | t_null Cond_CreateTB
-                        | t_constraint id Opc_Constraint Cond_CreateTB
-                        | t_primary t_key Cond_CreateTB
-                        | t_references id Cond_CreateTB
+def p_Cond_CreateTB(p): #Agregado
+    ''' Cond_CreateTB : Constraint_CreateTB t_default id Cond_CreateTB
+                        | Constraint_CreateTB t_not t_null Cond_CreateTB
+                        | Constraint_CreateTB t_null Cond_CreateTB
+                        | Constraint_CreateTB t_unique Cond_CreateTB
+                        | Constraint_CreateTB t_check par1 EXP par2 Cond_CreateTB
+                        | Constraint_CreateTB t_primary t_key Cond_CreateTB
+                        | Constraint_CreateTB t_references id Cond_CreateTB
                         | empty'''
-    if p[1] == 'default':
-        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::= default id COND_CREATETB </TD>  <TD> { cond_createtb.val = id cond_createtb.val } </TD></TR>')
-    elif p[1] == 'not':
-        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::= not null COND_CREATETB </TD>  <TD> { cond_createtb.val = cond_createtb.val }  </TD></TR>')
-    elif p[1] == 'null':
-        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::= null COND_CREATETB </TD> { cond_createtb.val = cond_createtb.val } </TD></TR>')
-    elif p[1] == 'constraint':
-        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::= constraint id OPC_CONSTRAINT COND_CREATETB </TD> { cond_createtb.val = id opc_constraint.val cond_createtb.val }   <TD> </TD></TR>')
-    elif p[1] == 'primary':
-        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  primary key COND_CREATETB </TD>  <TD> { cond_createtb.val = cond_createtb.val } </TD></TR>')
-    elif p[1] == 'references':
-        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  references id COND_CREATETB </TD> <TD> { cond_createtb.val = id cond_createtb.val } </TD></TR>')
-    else: 
+    if len(p) == 2:
+        p[0] = [] 
         concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  EMPTY  </TD>  <TD> { cond_createtb.val = empty.val } </TD></TR>')
+    elif p[2].lower() == 'default':
+        p[4].append(DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 1, p[3]))
+        p[0] = p[4]
+        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  CONSTRAINT_CREATETB default id COND_CREATETB </TD>  <TD> { cond_createtb.val = id cond_createtb.val } </TD></TR>')
+    elif p[2].lower() == 'not':
+        p[4].append(DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 2, False))
+        p[0] = p[4]
+        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  CONSTRAINT_CREATETB not null COND_CREATETB </TD>  <TD> { cond_createtb.val = cond_createtb.val }  </TD></TR>')
+    elif p[2].lower() == 'null':
+        p[3].append(DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 2, True))
+        p[0] = p[3]
+        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  CONSTRAINT_CREATETB null COND_CREATETB </TD> { cond_createtb.val = cond_createtb.val } </TD></TR>')
+    elif p[2].lower() == 'unique':
+        p[3].append(DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 3, None))
+        p[0] = p[3]
+        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  CONSTRAINT_CREATETB t_unique COND_CREATETB </TD> { cond_createtb.val = id opc_constraint.val cond_createtb.val }   <TD> </TD></TR>')
+    elif p[2].lower() == 'check':
+        p[6].append(DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 4, p[4]))
+        p[0] = p[6]
+        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  CONSTRAINT_CREATETB t_check par1 EXP par2 COND_CREATETB </TD> { cond_createtb.val = id opc_constraint.val cond_createtb.val }   <TD> </TD></TR>')
+    elif p[2].lower() == 'primary':
+        p[4].append(DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 6, None))
+        p[0] = p[4]
+        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  CONSTRAINT_CREATETB primary key COND_CREATETB </TD>  <TD> { cond_createtb.val = cond_createtb.val } </TD></TR>')
+    else: #if p[2].lower() == 'references':
+        p[4].append(DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 5, {'nombre_ref': p[3], 'lista_columnas': None, 'lista_columnas_ref': None}))
+        p[0] = p[4]
+        concatenar_gramatica('\n <TR><TD> COND_CREATETB ::=  CONSTRAINT_CREATETB references id COND_CREATETB </TD> <TD> { cond_createtb.val = id cond_createtb.val } </TD></TR>')
 
-def p_Opc_Constraint(p):
-    ''' Opc_Constraint : t_unique
-                       | t_check par1 EXP par2 '''
-    if p[1] == 'unique':
-        concatenar_gramatica('\n <TR><TD> OPC_CONSTRAINT ::=  unique  </TD>  <TD> { opc_constraint.val = unique }</TD></TR>')
-    elif p[1] == 'check':
-        concatenar_gramatica('\n <TR><TD> OPC_CONSTRAINT ::=  check ( EXP )  </TD>  <TD> { opc_constraint.val = check exp.val } </TD></TR>')
+def p_Constraint_CreateTB(p): #Agregado
+    '''Constraint_CreateTB : t_constraint id
+                            | empty'''
+    if p[1].lower() == 'constraint':
+        p[0] = p[2]
+        concatenar_gramatica('\n <TR><TD> CONSTRAINT_CREATETB ::= constraint id </TD> <TD> { constraint_createtb.inst = id } </TD></TR>')
+    else:
+        p[0] = None
+        concatenar_gramatica('\n <TR><TD> CONSTRAINT_CREATETB ::= EMPTY </TD> <TD> { constraint_createtb.inst = None } </TD></TR>')
 
-def p_Constraint(p):
-    ''' Constraint : t_unique par1 Lista_ID par2
-                    | t_constraint id t_check par1 EXP par2
-                    | t_check par1 EXP par2
-                    | t_primary t_key par1 Lista_ID par2
-                    | t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2
+def p_Constraint(p): #Agregado
+    ''' Constraint : Constraint_CreateTB t_unique par1 Lista_ID par2
+                    | Constraint_CreateTB t_check par1 EXP par2
+                    | Constraint_CreateTB t_primary t_key par1 Lista_ID par2
+                    | Constraint_CreateTB t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2
                     | empty '''
-    if p[1] == 'unique':
-        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::=  unique ( LISTA_ID )  </TD>  <TD> {constraint.inst = unique(lista_id.list)}</TD></TR>')
-    elif p[1] == 'constraint':
-        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::=  constraint id check ( EXP )  </TD>  <TD> {constraint.inst = constraint(id,check,exp.val)}</TD></TR>')
-    elif p[1] == 'check':
-        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::=  check ( EXP )  </TD>  <TD> { constraint.inst = check(exp.val)} </TD></TR>')
-    elif p[1] == 'primary':
-        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::=  primary key ( LISTA_ID ) </TD>  <TD> {constraint.inst = primary(lista_id.list)} </TD> </TR>')
-    elif p[1] == 'foreign': 
-        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::=  foreign key ( LISTA_ID ) references id ( LISTA_ID )  </TD>  <TD> { constraint.inst = foreign(lista_id.lista,id,lista_id.lista)} </TD></TR>')
-    else: 
+    if p[2].lower() == 'unique':
+        p[0] = DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 3, p[4])
+        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::= CONSTRAINT_CREATETB unique ( LISTA_ID )  </TD>  <TD> {constraint.inst = unique(lista_id.list)}</TD></TR>')
+    elif p[2].lower() == 'check':
+        p[0] = DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 4, p[4])
+        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::= CONSTRAINT_CREATETB check ( EXP )  </TD>  <TD> { constraint.inst = check(exp.val)} </TD></TR>')
+    elif p[2].lower() == 'primary':
+        p[0] = DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 6, p[5])
+        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::= CONSTRAINT_CREATETB primary key ( LISTA_ID ) </TD>  <TD> {constraint.inst = primary(lista_id.list)} </TD> </TR>')
+    elif p[2].lower() == 'foreign':
+        p[0] = DDL.CreateTableConstraint(p.slice[2].lineno, find_column(input, p.slice[2]), p[1], 5, {'lista_columnas': p[5], 'lista_columnas_ref': p[10], 'nombre_ref': p[8]}) 
+        concatenar_gramatica('\n <TR><TD> CONSTRAINT ::= CONSTRAINT_CREATETB foreign key ( LISTA_ID ) references id ( LISTA_ID )  </TD>  <TD> { constraint.inst = foreign(lista_id.lista,id,lista_id.lista)} </TD></TR>')
+    else:
+        p[0] = None 
         concatenar_gramatica('\n <TR><TD> CONSTRAINT ::=  EMPTY </TD> <TD> { constraint.inst = empty.val } </TD></TR>')
 
 def p_Tipo(p):
@@ -789,7 +853,9 @@ def p_Tipo(p):
               | t_character par1 Valor par2
               | t_charn par1 Valor par2
               | t_text
-              | t_boolean '''
+              | t_boolean
+              | t_date
+            | id'''
     p[0] = p[1]
     concatenar_gramatica('\n <TR><TD> TIPO ::= ' + str(p[1]) + '</TD>  <TD> { tipo.type = ' + str(p[1]) + '  } </TD></TR>')
 
@@ -831,6 +897,14 @@ def p_parentesis(p):
     p[0] = p[2]
     concatenar_gramatica('\n <TR><TD> EXP ::= ( EXP ) </TD>  <TD> { exp.val = exp1.val }  </TD></TR>')
 
+
+def p_funciones(p):
+    'EXP : id par1 Lista_EXP par2'
+    p[0] = p[1]
+    Expression(p[1], p[2], p.slice[2].lineno, find_column(input, p.slice[2]))
+    concatenar_gramatica('\n <TR><TD> EXP ::= ( EXP ) </TD>  <TD> { exp.val = exp1.val }  </TD></TR>')
+
+
 def p_relacionales(p):
     '''EXP : EXP mayor EXP
            | EXP mayori EXP
@@ -854,11 +928,11 @@ def p_unario(p):
            | menos EXP  %prec umenos
            | t_not EXP'''
     if p[1] == 'not': 
-        p[0] = Expression(p.slice[1].value, p[2], p.slice[2].lineno, find_column(input, p.slice[2]), 'Unario')
+        p[0] = Expression(p.slice[1].value, p[2], p.slice[1].lineno, find_column(input, p.slice[1]), 'unario')
         concatenar_gramatica('\n <TR><TD> EXP ::= not EXP </TD>  <TD> { Exp =  Exp1.val  } </TD></TR>')
     else: 
-        p[0] = Expression(p.slice[1].value, p[2], p.slice[2].lineno, find_column(input, p.slice[2]), 'Unario')
-        concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + 'EXP %prec' +  str(p[4]) +'</TD> <TD> { exp = exp1.val  } </TD></TR>')
+        p[0] = Expression(p.slice[1].value, p[2], p.slice[1].lineno, find_column(input, p.slice[1]), 'unario')
+        concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + 'EXP %prec' +  str(p[2]) +'</TD> <TD> { exp = exp1.val  } </TD></TR>')
 
 def p_EXP_Valor(p):
     'EXP : Valor'
@@ -870,15 +944,19 @@ def p_EXP_Indices(p):
     p[0] = Expression(p[1], p[3], p.slice[2].lineno, find_column(input, p.slice[2]), 'indice')
     concatenar_gramatica('\n <TR><TD> EXP ::= id . id </TD>  <TD> { exp.val = id1.val . id2.val } </TD></TR>')
 
+
 def p_EXP_IndicesAS(p):
     '''EXP : EXP t_as EXP'''
     p[0] = Expression(p[1], p[3], p.slice[2].lineno, find_column(input, p.slice[2]), 'as')
-    concatenar_gramatica('\n <TR><TD> EXP ::= EXP as EXP </TD>  <TD> { exp.val = exp1.val as exp2.val } </TD></TR>')
+    concatenar_gramatica('\n <TR><TD> EXP ::= EXP as EXP </TD>  <TD> { exp.val = exp1.val as exp'
+                         '2.val } </TD></TR>')
+
 
 def p_exp_agregacion(p):
     '''EXP :  t_avg par1 EXP par2
             | t_sum par1 EXP par2
             | t_count par1 EXP par2
+            | t_count par1 asterisco par2
             | t_max par1 EXP par2
             | t_min par1 EXP par2'''
     p[0] = Expression(p[1], p[3], p.slice[2].lineno, find_column(input, p.slice[2]), 'aggregate')
@@ -1000,15 +1078,15 @@ def p_Lista_Alias(p):
     '''Lista_Alias : Lista_Alias coma Nombre_Alias
                | Nombre_Alias '''
     if len(p) == 4:
-        p[0] = p[1]+[p[3]]
+        p[0] = p[1] + [p[3]]
         concatenar_gramatica('\n <TR><TD> LISTA_ALIAS ::= LISTA_ALIAS , Nombre_Alias </TD> <TD> { lista_alias.val = concatenar ( lista_alias.aux , lista_alias.val) }</TD></TR>')
     else:
-        p[0] = p[1]
+        p[0] = [p[1]]
         concatenar_gramatica('\n <TR><TD> LISTA_ALIAS ::= Nombre_Alias </TD> <TD> { lista_alias.aux = nombre_alias.val } </TD></TR>')
 
 def p_Nombre_Alias(p):
     '''Nombre_Alias : id id'''
-    p[0] = p[1]
+    p[0] = p[1] + ';' + p[2]
     concatenar_gramatica('\n <TR><TD> NOMBRE_ALIAS ::= id id </TD> <TD> { nombre_alias.val = id1 id2}</TD></TR>')
 
 def p_error(p):
@@ -1033,6 +1111,10 @@ def insert_nodo_exp(nodo):
     global list_exp
     list_exp.append(nodo)
 
+def insert_nodo_alias(nodo):
+    global list_alias
+    list_alias.append(nodo)
+
 
 def vaciar_lista():
     global list_exp
@@ -1043,6 +1125,8 @@ def parse(input1, errores1):
     global ListaErrores
     global reporteg
     global list_exp
+    global list_alias
+    list_alias = []
     list_exp = []
     ListaErrores = errores1
     reporteg = ''

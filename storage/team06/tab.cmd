@@ -1,0 +1,1 @@
+dot -Tpng tab.dot -o tab.png

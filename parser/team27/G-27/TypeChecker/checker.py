@@ -1,8 +1,5 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from Database_Types import DBType
-from typ import Type
+from TypeChecker.Database_Types import DBType
+from execution.symbol.typ import Type
 import math
 
 def check( tipoDato:DBType , primitivo: Type, dato, lenght):
@@ -19,16 +16,16 @@ def check( tipoDato:DBType , primitivo: Type, dato, lenght):
             #-9223372036854775808 to +9223372036854775807
             return rangoNumerico('BIGINT',dato,-9223372036854775808, 9223372036854775807)
         elif tipoDato == DBType.decimal:
-            entera, decimal = math.modf(dato)
-            if math.log10(entera) + 1 > 131072:
+            decimal, entera = math.modf(dato)
+            if entera > 0 and math.log10(entera) + 1 > 131072:
                 return 'El tipo DECIMAL solo admite 131072 digitos en la parte entera.'
-            if math.log(decimal) + 1 > 16383:
+            if decimal > 0 and math.log(decimal) + 1 > 16383:
                 return 'El tipo DECIMAL solo admite 131072 digitos en la parte decimal.'
         elif tipoDato == DBType.numeric:
-            entera, decimal = math.modf(dato)
-            if math.log10(entera) + 1 > 131072:
+            decimal, entera = math.modf(dato)
+            if entera > 0 and math.log10(entera) + 1 > 131072:
                 return 'El tipo NUMERIC solo admite 131072 digitos en la parte entera.'
-            if math.log(decimal) + 1 > 16383:
+            if decimal > 0 and math.log10(decimal) + 1 > 16383:
                 return 'El tipo NUMERIC solo admite 131072 digitos en la parte decimal.'                    
         elif tipoDato == DBType.real:
             entera, decimal = math.modf(dato)
@@ -43,6 +40,7 @@ def check( tipoDato:DBType , primitivo: Type, dato, lenght):
             return rangoNumerico('MONEY', dato, -92233720368547758.08, 92233720368547758.07)
         else:
             return 'El tipo de dato asignado en la columna no es numérico.'
+        return True
     elif primitivo == Type.STRING:
         if not isinstance(dato, str):
             return 'El tipo de la columna es tipo cadena y el valor que se desea insertar'
@@ -65,8 +63,8 @@ def check( tipoDato:DBType , primitivo: Type, dato, lenght):
             return 'La fecha indicada no cumple con el formato o sobrepasa el limite: "5874897-12-31"'
         return True
     elif primitivo == Type.TIME:
-        # Limite máximo '5874897-12-31'
-        data = dato.split('-')
+        # Limite máximo '23:59:59'
+        data = dato.split(':')
         hCond = data[0] <= 23 and data[0] >= 0
         mCond = data[1] <= 59 and data[1] >= 0
         sCond = data[2] <= 59 and data[2] >= 0
