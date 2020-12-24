@@ -34,6 +34,7 @@ def execution(input):
                 messages.append(r)
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
+    symbols = symbolReport()
     obj = {
         "messages": messages,
         "querys": querys,
@@ -41,6 +42,7 @@ def execution(input):
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
+        "symbols": symbols
     }
     return obj
 

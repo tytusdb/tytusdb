@@ -317,7 +317,7 @@ class TableID(Expression):
     def execute(self, environment):
         result = jsonMode.extractTable(dbtemp, self.name)
         if result == None:
-            semanticErrors.append("La tabla "+str(self.name)+" no pertenece a la base de datos "+dbtemp)
+            semanticErrors.append(["La tabla "+str(self.name)+" no pertenece a la base de datos "+dbtemp,self.row])
             syntaxPostgreSQL.append(
                 "Error: 42P01: la relacion "
                 + dbtemp
@@ -1423,8 +1423,11 @@ class Except_(Instruction):
 
 def returnErrors():
     list_ =  Checker.returnErrors()
-    list_+=syntaxPostgreSQL
+    list_+=  syntaxPostgreSQL
     return list_
+
+def returnSemanticErrors():
+    return semanticErrors
 
 def dot(self):
         new = Nodo.Nodo("EXCEPT")

@@ -267,7 +267,7 @@ class BinaryArithmeticOperation(Expression):
                 "Error: XX000: Error interno (Binary Aritmethic Operation)"
                 + "\n En la linea: "+ str(self.row)
                 )
-            raise Exception("Error en BinaryAritmethicOperation")
+            
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -618,11 +618,18 @@ class ExistsRelationalOperation(Expression):
             y =	df1.columns.intersection(df2.columns)
             lst = list(y)
             if len(lst) < 1:
-                raise Exception("No hay columnas en comun en el EXISTS")
+                list_errors.append(
+                "Error: 42P10: Referencia de columnas invalidas EXIST"
+                + "\n En la linea: "+ str(self.row)
+                )
+               
             value = (df1[lst].apply(tuple, 1).isin(df2[lst].apply(tuple, 1)))
             return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except:
-            raise
+            list_errors.append(
+                "Error: XX000: Error interno (Exist Relational Operation)"
+                + "\n En la linea: "+ str(self.row)
+                )
 
     def dot(self):
         new = Nodo.Nodo("EXISTS")
@@ -645,7 +652,10 @@ class InRelationalOperation(Expression):
         # TODO: Falta agregar la verificacion de types
         
         if len(list(df.columns)) != 1:
-            raise Exception("La subquery no tiene exactamente una columna")
+            list_errors.append(
+                "Error: XX000: Error interno (Exist Relational Operation)"
+                + "\n En la linea: "+ str(self.row)
+                )
         value = col.value.isin(df.iloc[:, 0])
         if self.optNot == 'NOT':
             value = ~value
@@ -1518,14 +1528,20 @@ class AggregateFunction(Expression):
                     newDf = c.mean()
                 else:
                     newDf = None
-                    print("error")
+                    list_errors.append(
+                "Error: 42725: Error en la funcion "+str(self.func)
+                + "\n En la linea: "+ str(self.row)
+                )
             else:
                 c = environment.dataFrame.iloc[:, -1:]
                 if self.func == "count":
                     newDf = len(c)
                 else:
                     newDf = None
-                    print("error")
+                    list_errors.append(
+                "Error: 42725: Error en la funcion "+str(self.func)
+                + "\n En la linea: "+ str(self.row)
+                )
             return Primitive(TYPE.NUMBER, newDf, self.temp, self.row, self.column)
         if self.colData != "*":
             # Obtiene las ultimas columnas metidas (Las del group by)
@@ -1547,7 +1563,10 @@ class AggregateFunction(Expression):
                 newDf = df.groupby(cols).mean().reset_index()
             else:
                 newDf = None
-                print("error")
+                list_errors.append(
+                "Error: 42725: Error en la funcion "+str(self.func)
+                + "\n En la linea: "+ str(self.row)
+                )
 
             value = newDf.iloc[:, -1:]
         else:
@@ -1564,7 +1583,10 @@ class AggregateFunction(Expression):
                 newDf = df.groupby(cols).count().reset_index()
             else:
                 newDf = None
-                print("error")
+                list_errors.append(
+                "Error: 42725: Error en la funcion "+str(self.func)
+                + "\n En la linea: "+ str(self.row)
+                )
             value = newDf.iloc[:, -1:]
 
         return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)

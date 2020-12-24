@@ -18,6 +18,7 @@ class Pantalla:
         self.syntacticErrors = list()
         self.semanticErrors = list()
         self.postgreSQL = list()
+        self.ts=list()
         self.inicializarScreen()
 
     def inicializarScreen(self):
@@ -105,6 +106,7 @@ class Pantalla:
         self.syntacticErrors = result['syntax']
         self.semanticErrors = result['semantic']
         self.postgreSQL = result['postgres']
+        self.ts = result['symbols']
         if len(self.lexicalErrors) + len(self.syntacticErrors) + len(self.semanticErrors) + len(self.postgreSQL) > 0:
             tkinter.messagebox.showerror( title="Error", message="La consulta contiene errores" )
             if len(self.postgreSQL)>0:
@@ -166,7 +168,7 @@ class Pantalla:
         
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        windowTableS = Pantalla_TS(self.window)
+        windowTableS = Pantalla_TS(self.window,self.ts)
 
     def open_AST(self):  # Abre la pantalla del AST
         windowTableS = Pantalla_AST(self.window)
