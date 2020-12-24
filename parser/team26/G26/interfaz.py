@@ -8,9 +8,12 @@ from tkinter.filedialog import askopenfilename as files
 import os
 import webbrowser
 from Utils.fila import fila
+from Error import *
+import Instrucciones.DML.select as select
+#from select import *
 
 ##########################################################################
-errores = list()
+
 storage.dropAll()
 datos = l.Lista({}, '')
 ##################################FUNCIONES#################################
@@ -27,26 +30,46 @@ def openFile():
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
-def analisis():
-    global errores 
+def analisis(): 
     global datos 
-
+    salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
     instrucciones = g.parse(texto)
+    erroresSemanticos = []
 
-    hacerReporteGramatica(instrucciones['reporte'])
+    try:
+        hacerReporteGramatica(instrucciones['reporte'])
+    except:
+        print("")
+
+    
     for instr in instrucciones['ast'] :
-        print(instr.execute(datos))
-
+        
+            if instr != None:
+                result = instr.execute(datos)
+                print(result)
+                if isinstance(result, Error):
+                    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                    escribirEnSalidaFinal(str(result.desc))
+                    erroresSemanticos.append(result)
+                elif isinstance(instr, select.Select):
+                    print("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
+                    escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
+                else:
+                    escribirEnSalidaFinal(str(result))
+        
+    
     errores = g.getMistakes()
-    recorrerErrores()
-    Rerrores()
+    recorrerErrores(errores)
+    Rerrores(errores, erroresSemanticos)
     errores.clear()
+    erroresSemanticos.clear()
 
     reporteTabla()
+    del instrucciones
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
 
-def Rerrores():
+def Rerrores(errores, semanticos):
     f = open("./Reportes/Reporte_Errores.html", "w")
     f.write("<!DOCTYPE html>\n")
     f.write("<html>\n")
@@ -63,6 +86,8 @@ def Rerrores():
     f.write("           <tr class='titulo'>   <td><b>Tipo</b></td>   <td><b>Descripcion</b></td>   <td><b>Linea</b></td> </tr>\n")
     for error in errores:
         f.write("           <tr> <td>" + error.getTipo() + "</td> <td>" + error.getDescripcion() + "</td> <td>"+ error.getLinea()  + "</td> </tr>\n")
+    for semantico in semanticos:
+        f.write("           <tr> <td>Semantico"  + "</td> <td>" + semantico.desc + "</td> <td>" + str(semantico.line) + "</td> </tr>\n")
     f.write("       </table>\n")
     f.write("         </div>")
     f.write("   </body>\n")
@@ -89,20 +114,25 @@ def mistakes():
     ruta = ".\\Reportes\\Reporte_Errores.html"
     webbrowser.open(ruta)
 
-def recorrerErrores():
+def recorrerErrores(errores):
     salidaE = ""
     for error in errores:
         salidaE += error.toString() + "\n"
     salida.insert("1.0", salidaE)
 
 def hacerReporteGramatica(gramatica):
-    f = open("./Reportes/GramaticaAutomatica.md", "w")
-    f.write("#Gramatica Generada Automaticamente\n")
-    f.write("La gramatica que se genero en el analisis realizado es la siguiente:\n")
-    f.write("******************************************************************\n")
-    f.write(gramatica)
-    f.write("\n******************************************************************")
-    f.close()
+    if gramatica != None:
+        f = open("./Reportes/GramaticaAutomatica.md", "w")
+        f.write("# Gramatica Generada Automaticamente\n")
+        f.write("La gramatica que se genero en el analisis realizado es la siguiente:\n")
+        f.write("******************************************************************\n")
+        f.write(gramatica)
+        f.write("\n******************************************************************")
+        f.close()
+    else:
+        f = open("./Reportes/GramaticaAutomatica.md", "w")
+        f.write("#Gramatica Generada Automaticamente\n")
+        f.write("No se detecto")
 
 def reporteTabla():
     f = open("./Reportes/Reporte_TablaSimbolos.html", "w")
@@ -178,12 +208,12 @@ def reporteTabla():
     f.write("</html>\n")
     f.close()
 
-
 def escribirEnSalidaInicio(texto): #borra lo que hay y escribe al inicio
     salida.insert("1.0", texto)
 
-def escribirEnSalidaFinal(texto): # no borra y escribe al final de lo que ya esta
-    salida.insert("END", texto) 
+def escribirEnSalidaFinal(texto): # no borra y escribe al final de lo que ya estaACTIVE
+    text = texto + "\n"
+    salida.insert("end", text) 
 #root
 ################################Configuracion#################################
 root = Tk()
