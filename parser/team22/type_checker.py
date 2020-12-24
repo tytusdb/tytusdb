@@ -31,7 +31,7 @@ class TypeChecker():
             self.type_checker[database] = {}
             self.tabla_simbolos.agregar(Simbolo(database, 'DATABASE', '', line))
             self.consola.append(Codigos().database_successful_completion(database))
-            self.saveTypeChecker()
+            #self.saveTypeChecker()
         elif query_result == 1:
             self.addError(Codigos().database_internal_error(database), line)
         else:
@@ -60,7 +60,7 @@ class TypeChecker():
             self.consola.append(Codigos().successful_completion('ALTER DATABASE'))
             self.type_checker[databaseNew] = self.type_checker.pop(databaseOld)
             self.tabla_simbolos.simbolos[databaseNew] = self.tabla_simbolos.simbolos.pop(databaseOld)
-            self.saveTypeChecker()
+            #self.saveTypeChecker()
         elif query_result == 1:
             self.addError(Codigos().database_internal_error(databaseOld), line)
         elif query_result == 2:
@@ -79,7 +79,7 @@ class TypeChecker():
             self.tabla_simbolos.simbolos.pop(database)
             if self.actual_database == database:
                 self.actual_database = ''
-            self.saveTypeChecker()
+            #self.saveTypeChecker()
         elif query_result == 1:
             self.addError(Codigos().database_internal_error(database), line)
         else:
@@ -88,7 +88,7 @@ class TypeChecker():
     def useDatabase(self, database: str, line: int):
         if database in self.type_checker:
             self.actual_database = database
-            self.consola.append(Codigos().successful_completion('USE DATABASE'))
+            self.consola.append(Codigos().successful_completion('USE DATABASE «' + database + '»'))
         else:
             self.addError(Codigos().database_undefined_object(database), line)
 
@@ -97,13 +97,29 @@ class TypeChecker():
         # 1 -> error en la operación
         # 2 -> base de datos inexistente
         # 3 -> tabla existente
-        query_result = jsonMode.createTable(self.actual_database, table, len(columns))
+        contador = 0
+        for columna in columns:
+            if 'nombre' in columna: contador += 1
+        query_result = jsonMode.createTable(self.actual_database, table, contador)
         if query_result == 0:
             self.consola.append(Codigos().table_successful(table))
+            self.tabla_simbolos.agregar(Simbolo(self.actual_database + '.' +table, 'TABLE', '', line))
             self.type_checker[self.actual_database][table] = {}
             for columna in columns:
-                self.type_checker[self.actual_database][table][columna['nombre']] = columna['col']
-            self.saveTypeChecker()
+                print(columna)
+                if 'nombre' in columna:
+                    self.type_checker[self.actual_database][table][columna['nombre']] = columna['col']
+                elif 'primary' in columna:
+                    for primaria in columna['primary']:
+                        self.type_checker[self.actual_database][table][primaria['valor']].addPrimaryKey(1)
+                elif 'foreign' in columna:
+                    temp = 0
+                    for foranea in columna['foreign']:
+                        self.type_checker[self.actual_database][table][foranea['valor']].addReference(columna['table'] + '.' + columna['references'][temp]['valor'])
+                        temp += 1
+                        self.type_checker[self.actual_database][table][foranea['valor']].printCol()
+
+            #self.saveTypeChecker()
         elif query_result == 1:
             self.addError(Codigos().database_internal_error(table), line)
         elif query_result == 2:
@@ -111,6 +127,22 @@ class TypeChecker():
         else:
             self.addError(Codigos().table_duplicate_table(table), line)
 
+
+    def dropTable(self, table:str, line: int):
+        # 0 -> operación exitosa
+        # 1 -> error en la operación
+        # 2 -> base de datos inexistente
+        # 3 -> tabla inexistente
+        query_result = jsonMode.dropTable(self.actual_database, table)
+        if query_result == 0:
+            self.consola.append(Codigos().successful_completion('DROP TABLE «' + table + '»'))
+            self.type_checker[self.actual_database].pop(table)
+        elif query_result == 1:
+            self.addError(Codigos().database_internal_error(table), line)
+        elif query_result == 2:
+            self.addError(Codigos().database_undefined_object(self.actual_database), line)
+        else:
+            self.addError(Codigos().table_undefined_table(table), line)
 
     def initCheck(self):
         if not os.path.exists('data'):
@@ -124,7 +156,7 @@ class TypeChecker():
         else:
             with open('data/json/type_check') as file:
                 data = json.load(file)
-                for database in data:
+                '''for database in data:
                     for tabla in data[database]:
                         for columna in data[database][tabla]:
                             data[database][tabla][columna] = Columna(
@@ -135,9 +167,8 @@ class TypeChecker():
                                 references = data[database][tabla][columna]['references'],
                                 is_unique = data[database][tabla][columna]['is_unique'],
                                 constraints = data[database][tabla][columna]['constraints']
-                                )
-                print('!!!!!!!!!init\n')
-                # data['MODELA']['Tobleta']['columna1'].printCol()
+                                )'''
+                # self.type_checker = data
 
     def saveTypeChecker(self):
         with open('data/json/type_check', 'w') as file:

@@ -1,4 +1,6 @@
 # from generate_ast import GraficarAST
+from models.instructions.Expression.trigonometric_functions import ExpressionsTrigonometric
+from models.instructions.Expression.extract_from_column import ExtractFromIdentifiers
 from re import L
 
 import libs.ply.yacc as yacc
@@ -1295,14 +1297,14 @@ def p_mathematical_functions(p):
 
 def p_binary_string_functions(p):
     '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
-                               | TRIM LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                               | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
-                               | SHA256 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
-                               | SUBSTR LEFT_PARENTHESIS ID COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
+                               | TRIM LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
+                               | MD5 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
+                               | SHA256 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
+                               | SUBSTR LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
-                               | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
+                               | DECODE LEFT_PARENTHESIS SQLNAME COMMA SQLNAME  RIGHT_PARENTHESIS'''
     if p.slice[1].type == "LENGTH":
         p[0] = Length(p[3], p.lineno(1), find_column(p.slice[1]))
     elif p.slice[1].type == "SUBSTRING":
@@ -1314,7 +1316,7 @@ def p_binary_string_functions(p):
     elif p.slice[1].type == "SHA256":
         p[0] = SHA256(p[3], p.lineno(1), find_column(p.slice[1]))
     elif p.slice[1].type == "SUBSTR":
-        p[0] = Substring(p[3], p[5], p[7], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Substr(p[3], p[5], p[7], p.lineno(1), find_column(p.slice[1]))
     elif p.slice[1].type == "CONVERT":
         p[0] = Convert(p[3], p[5], p.lineno(1), find_column(p.slice[1])) 
     else: #p.slice[1].type == "DECODE"
@@ -1397,6 +1399,7 @@ def p_sql_alias(p):
 
 def p_expressions_time(p):
     '''EXPRESSIONSTIME : EXTRACT LEFT_PARENTHESIS DATETYPES FROM TIMESTAMP SQLNAME RIGHT_PARENTHESIS
+                       | EXTRACT LEFT_PARENTHESIS DATETYPES FROM SQLNAME RIGHT_PARENTHESIS
                        | NOW LEFT_PARENTHESIS RIGHT_PARENTHESIS
                        | DATE_PART LEFT_PARENTHESIS SQLNAME COMMA INTERVAL SQLNAME RIGHT_PARENTHESIS
                        | CURRENT_DATE
@@ -1409,6 +1412,8 @@ def p_expressions_time(p):
             p[0] = ExpressionsTime(SymbolsTime.DATE_PART, p[3], p[6], p[1],p.lineno(1), find_column(p.slice[1]))
     elif (len(p) == 3):
         p[0] = ExpressionsTime(SymbolsTime.TIMESTAMP, None, p[2], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif (len(p) == 7):
+        p[0] = ExtractFromIdentifiers(SymbolsTime.EXTRACT, p[3], p[5], p[1], p.lineno(1), find_column(p.slice[1]))
     else:
         if p.slice[1].type.upper() == 'CURRENT_DATE':
             p[0] = ExpressionsTime(SymbolsTime.CURRENT_DATE, None, None, p[1],p.lineno(1), find_column(p.slice[1]))

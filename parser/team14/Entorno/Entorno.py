@@ -113,6 +113,6 @@ class Entorno:
     def eliminarTodo(self):
         ent = self
         while ent != None:
-            del ent.tablaSimbolo
+            ent.tablaSimbolo = {}
 
             ent = ent.anterior

@@ -1,29 +1,23 @@
 
+from TablaSimbolos.Simbolo import Simbolo
+
+
 class TabladeSimbolos:
-    def __init__(self, ambit):
-        self.ambit = ambit
-        self.size = 0
+    def __init__(self):
         self.simbolos = []
 
 
-    def push(self, nuevo):
-        if self.exists(nuevo.nombre):      # antes de insertar, valida si ya existe en la tabla de simbolos
-            return False
-        else:
-            self.simbolos.insert(0, nuevo)
+    def insertar(self, column_name, data_type, size_type, table_name, pos_line, pos_colum, sql_instruction):
+        simboloNuevo = Simbolo(column_name, data_type, size_type, table_name, pos_line, pos_colum, sql_instruction)
+        if self.obtenerSimbolo(simboloNuevo) is None:
+            self.simbolos.append(simboloNuevo)
             return True
-
-
-    def exists(self, nombre):
-        for variable in self.simbolos:
-            if variable.nombre == nombre and variable.ambito == self.ambit:
-                return True
         return False
 
 
-    def get(self, nombre):
-        for simbolo in self.simbolos:
-            if simbolo.nombre == nombre and (simbolo.ambito == self.ambit or simbolo.ambito == 'global'):
+    def obtenerSimbolo(self, simbolo):
+        for simbolo_ in self.simbolos:
+            if simbolo_.column_name == simbolo.column_name and simbolo_.data_type == simbolo.data_type and simbolo_.pos_colum == simbolo.pos_colum and simbolo_.pos_line == simbolo.pos_line and simbolo_.type.size_type == simbolo.size_type and simbolo_.sql_instruction == simbolo.sql_instruction:
                 return simbolo
         return None
 

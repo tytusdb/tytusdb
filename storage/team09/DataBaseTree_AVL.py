@@ -1,7 +1,14 @@
+from .Tables import Tables
+#import ISAM.BinWriter as b
+from .ISAM import BinWriter as b
+import os
+import pickle
+from PIL import Image
+
 class DataBase:
     def __init__(self, value):
         self.value  = value
-        self.tables={}
+        self.tables= Tables(value)
         self.left   = None
         self.right  = None
         self.height = 0   #altura 
@@ -11,20 +18,33 @@ class DataBase:
 class AVLTree:
     def __init__(self):
         self.root = None
+        self.arr=[]
+        self.eliminados=[]
+        self.load()
 
-    #add
+    def load(self):
+        if os.path.exists("data/databases/Bases.b"):
+            var=b.read("data/databases/Bases.b")
+            for i in var:
+                self.add(i)
         
-    def add(self, value,lista):
-        self.root = self._add(value, self.root,lista)
+    def writer(self):
+        b.write(self.arr,"data/databases/Bases.b")
+
+
+    def add(self, value):
+        self.root = self._add(value, self.root)
+        self.arr.append(value)
+        self.writer()
+        
     
-    def _add(self, value, tmp,lista):
+    def _add(self, value, tmp):
         if tmp is None: # SI esta vacio la raiz solola devuelve
             tmp=DataBase(value)
-            tmp.tables=lista
             return tmp      
         elif value>str(tmp.value):  # es mayor que la raiz
             #ingresa al nodo derecho del padre
-            tmp.right=self._add((value), tmp.right,lista)
+            tmp.right=self._add((value), tmp.right)
             #calcula la altura para nivelar
             if (self.height(tmp.right)-self.height(tmp.left))==2: # si es igual a 2 no esta equilibrado
                 if value>tmp.right.value:
@@ -32,7 +52,7 @@ class AVLTree:
                 else:
                     tmp = self.drr(tmp)
         else:
-            tmp.left=self._add(value, tmp.left,lista)
+            tmp.left=self._add(value, tmp.left)
             if (self.height(tmp.left)-self.height(tmp.right))==2:
                 if value<str(tmp.left.value):
                     tmp = self.srl(tmp)
@@ -79,43 +99,16 @@ class AVLTree:
         tmp.right = self.srl(tmp.right)
         return self.srr(tmp)
 
-    #traversals
-
-    def preorder(self):
-        self._preorder(self.root)
-
-    def _preorder(self, tmp):
-        if tmp:
-            print(tmp.value,end = ' ')
-            self._preorder(tmp.left)            
-            self._preorder(tmp.right)
-
-    def inorder(self):
-        self._inorder(self.root)
-
-    def _inorder(self, tmp):
-        if tmp:
-            self._inorder(tmp.left)
-            print(tmp.value,end = ' ')
-            self._inorder(tmp.right)
-
-    def postorder(self):
-        self._postorder(self.root)
-
-    def _postorder(self, tmp):
-        if tmp:
-            self._postorder(tmp.left)            
-            self._postorder(tmp.right)
-            print(tmp.value,end = ' ')
            
     def Eliminar(self,value):
         self.root=self._eliminar(value,self.root)
-    
+        self.arr.remove(value)
+        self.writer()
+        
 
     def _eliminar(self, valor,nodo):
 
         if nodo is None:  # Si el nodo a eliminar no existe, terminar
-            print('El nodo NO existe')
             return nodo
         elif valor < str(nodo.value):  # El valor a eliminar es menor 
             nodo.left= self._eliminar(valor,nodo.left)
@@ -173,31 +166,39 @@ class AVLTree:
 
     def grafo(self):
         if self.root !=None:
-            print("digraph G { ")
-            print('graph [ordering="out"];\n randkdir=TB;\nnode [shape=circule];')
+            g=open("grafo.dot","w")
+            g.write("digraph G { ")
+            g.write('graph [ordering="out"];\n randkdir=TB;\nnode [shape=circule];')
             
-            self._grafo(self.root)
-            print("\n}")
-            
+            g=self._grafo(g,self.root)
+            g.write("\n}")
+            g.close()
+            os.system('dot -Tpng grafo.dot -o AvlData.png')
+            os.system('AvlData.png')
+            img=Image.open("AvlData.png")
+            img.show()
     
 
-    def _grafo(self,actual):
+    def _grafo(self,f,actual):
         if actual:
-            print(str(actual.value)+'[ label ="'+str(actual.value)+'"];\n')
-            self._grafo(actual.left)
-            self._grafo( actual.right )
+            f.write(str(actual.value)+'[ label ="'+str(actual.value)+'"];\n')
+            self._grafo(f,actual.left)
+            self._grafo( f,actual.right )
             if actual.left:
-                print(str(actual.value)+"->"+str(actual.left.value)+";\n")
+                f.write(str(actual.value)+"->"+str(actual.left.value)+";\n")
             if actual.right:
-                print(str(actual.value)+"->"+str(actual.right.value)+";\n")
+                f.write(str(actual.value)+"->"+str(actual.right.value)+";\n")
         
+        return f
+
+
     def modicar(self,name,NewName):
         nodo=DataBase(NewName)
         nodo.tables=self.bus(name)
-        
+  #      self.modwrite(name)
         self.Eliminar(name)
         
-        nodo=self.add(nodo.value,nodo.tables)
+        nodo=self.add(nodo.value)
         
         
             
@@ -211,18 +212,32 @@ class AVLTree:
                 temp = temp.right
             elif valor < str(temp.value):
                 temp = temp.left
-
         return None
 
-    def _imprimir(self,actual):
-        if actual:
-            
-            self._imprimir(actual.left)
-            self._imprimir( actual.right )
-            if actual.left:
-                print(str(actual.value)+"->"+ str(actual.tables)+";\n")
-            if actual.right:
-                print(str(actual.value)+"->"+str(actual.tables)+";\n")
+    
     def imprimir(self):
-        self._imprimir(self.root)
+        
+        if len(self.eliminados)!=0:
+            for i in self.eliminados:
+                for j in self.arr:
+                    if i==j:
+                        self.arr.remove(i)
+        
+        return self.arr
 
+    def verificar(self,valor):
+        band=False
+        temp=self.root
+        while temp is not None:
+            if valor == temp:
+                return 
+            elif valor > str(temp.value):
+                temp = temp.right
+            elif valor < str(temp.value):
+                temp = temp.left
+
+        return band
+    
+d=AVLTree()
+
+print(d.imprimir())

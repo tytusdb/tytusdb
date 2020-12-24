@@ -42,40 +42,42 @@ class Insert(Instruccion):
 
                     for colunique in columnaunique:
                         if nombre==colunique:
-                            #print("UNIQUE",colunique,"colactual",nombre,"valor",self.valores[i].getval(ent),"---")
-                            v=self.validarunique(ent,tabla,colunique,self.valores[i].getval(ent))
+                            #print("UNIQUE",colunique,"colactual",nombre,"valor",self.valores[i].getval(ent).valor,"---")
+                            exp=self.valores[i].getval(ent)
+                            exp=exp.valor
+                            v=self.validarunique(ent,tabla,colunique,exp)
                             #print("-----",v)
                             if v:
-                                #print('Error Violacion de Constraint Unique en:',colunique,' : ',self.valores[i].getval(ent))
-                                variables.consola.insert(INSERT,'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[i].getval(ent))+'\n')
-                                reporteerrores.append(Lerrores("Error Semantico", 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[i].getval(ent)),'',''))
+                                #print('Error Violacion de Constraint Unique en:',colunique,' : ',self.valores[i].getval(ent).valor)
+                                variables.consola.insert(INSERT,'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[i].getval(ent).valor)+'\n')
+                                reporteerrores.append(Lerrores("Error Semantico", 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[i].getval(ent).valor),'',''))
                                 return
                                 
                     if(verificarcheck!=None):
                         check=ent.buscarSimbolo(verificarcheck)
-                        #print("Condicion:",check.valor.exp1.getval(ent),check.valor.simbolo,check.valor.exp2.getval(ent))
-                        condicion1=Terminal(columna.tipo,check.valor.exp1.getval(ent))
-                        condicion2=Terminal(columna.tipo,check.valor.exp2.getval(ent))
+                        #print("Condicion:",check.valor.exp1.getval(ent).valor,check.valor.simbolo,check.valor.exp2.getval(ent).valor)
+                        condicion1=Terminal(columna.tipo,check.valor.exp1.getval(ent).valor)
+                        condicion2=Terminal(columna.tipo,check.valor.exp2.getval(ent).valor)
                         operador=check.valor.simbolo
                         l=0
                         for columna in columnas:
                             #tipo=columna.tipo
-                            if(check.valor.exp1.getval(ent)==columna.nombre):
-                                condicion1=Terminal(columna.tipo,self.valores[l].getval(ent))     
+                            if(check.valor.exp1.getval(ent).valor==columna.nombre):
+                                condicion1=Terminal(columna.tipo,self.valores[l].getval(ent).valor)
                             l=l+1
                         
                         n=0
                         for columna in columnas:
-                            if(check.valor.exp2.getval(ent)==columna.nombre):
+                            if(check.valor.exp2.getval(ent).valor==columna.nombre):
                                 
-                                condicion2=Terminal(columna.tipo,self.valores[n].getval(ent))
+                                condicion2=Terminal(columna.tipo,self.valores[n].getval(ent).valor)
                             n=n+1
                         
                         correcto=False
                         if operador in ('>','<','>=','<=','='):
-                            #print(condicion1.getval(ent),operador,condicion2.getval(ent))
+                            #print(condicion1.getval(ent).valor,operador,condicion2.getval(ent).valor)
                             nuevaop = Relacional(condicion1,condicion2,operador);
-                            if nuevaop.getval(ent):
+                            if nuevaop.getval(ent).valor:
                                 correcto=True
                             else:
                                 variables.consola.insert(INSERT,'Error Registro no cumple con condicion check\n')
@@ -84,14 +86,14 @@ class Insert(Instruccion):
 
                         elif operador in ('or','and','not'):
                             nuevaop = Logica(condicion1,condicion2,operador);
-                            if nuevaop.getval(ent):
+                            if nuevaop.getval(ent).valor:
                                 correcto=True
                             else:
                                 variables.consola.insert(INSERT,'Error Registro no cumple con condicion check\n')
                                 reporteerrores.append(Lerrores("Error Semantico", 'Error Registro no cumple con condicion check','',''))
                                 return
                     
-                    buscado=str('ENUM_'+ent.getDataBase()+'_'+tipo.getTipo())
+                    buscado=str('ENUM_'+ent.getDataBase()+'_'+tipo.tipo)
                     types:Simbolo= ent.buscarSimbolo(buscado)
                     
                     tipocorrecto = False 
@@ -100,11 +102,11 @@ class Insert(Instruccion):
                         tiposenum=types.valor
                         print("Comparando Enum")
                         for valenum in tiposenum:
-                             if str(valenum.getval(ent)).lower() == str(self.valores[i].getval(ent)).lower():
+                             if str(valenum.getval(ent).valor).lower() == str(self.valores[i].getval(ent).valor).lower():
                                   tipocorrecto=True
                         if not tipocorrecto:
-                            variables.consola.insert(INSERT,str('Error Tipo enum no correcto en valor: '+self.valores[i].getval(ent))+'\n')
-                            reporteerrores.append(Lerrores("Error Semantico",str('Error Tipo enum no correcto en valor: '+self.valores[i].getval(ent)),'',''))
+                            variables.consola.insert(INSERT,str('Error Tipo enum no correcto en valor: '+self.valores[i].getval(ent).valor)+'\n')
+                            reporteerrores.append(Lerrores("Error Semantico",str('Error Tipo enum no correcto en valor: '+self.valores[i].getval(ent).valor),'',''))
                             return
 
                             
@@ -129,7 +131,7 @@ class Insert(Instruccion):
                     i=i+1
                 terminales = []
                 for val in self.valores:
-                    terminales.append(val.getval(ent))
+                    terminales.append(val.getval(ent).valor)
 
                 r=DBMS.insert(ent.getDataBase(),self.nombre,terminales)
                 if(r==4):
@@ -207,9 +209,9 @@ class InsertWhitColum(Instruccion):
 
                 if(verificarcheck!=None):
                     check=ent.buscarSimbolo(verificarcheck)
-                    #print("Condicion:",check.valor.exp1.getval(ent),check.valor.simbolo,check.valor.exp2.getval(ent))
-                    condicion1=Terminal(columna.tipo,check.valor.exp1.getval(ent))
-                    condicion2=Terminal(columna.tipo,check.valor.exp2.getval(ent))
+                    #print("Condicion:",check.valor.exp1.getval(ent).valor,check.valor.simbolo,check.valor.exp2.getval(ent).valor)
+                    condicion1=Terminal(columna.tipo,check.valor.exp1.getval(ent).valor)
+                    condicion2=Terminal(columna.tipo,check.valor.exp2.getval(ent).valor)
                     operador=check.valor.simbolo
                     l=0
                     for columna in columnas:
@@ -217,8 +219,8 @@ class InsertWhitColum(Instruccion):
                         if(check.valor.exp1.getval(ent)==columna.nombre):
                             k=0
                             for actual in self.namecolums:
-                                if(check.valor.exp1.getval(ent)==actual.getval(ent)):
-                                    condicion1=Terminal(columna.tipo,self.valores[k].getval(ent))
+                                if(check.valor.exp1.getval(ent)==actual.getval(ent).valor):
+                                    condicion1=Terminal(columna.tipo,self.valores[k].getval(ent).valor)
                                 k=k+1
                         l=l+1
                     
@@ -227,14 +229,14 @@ class InsertWhitColum(Instruccion):
                         if(check.valor.exp2.getval(ent)==columna.nombre):
                             k=0
                             for actual in self.namecolums:
-                                if(check.valor.exp2.getval(ent)==actual.getval(ent)):
-                                    condicion2=Terminal(columna.tipo,self.valores[k].getval(ent))
+                                if(check.valor.exp2.getval(ent)==actual.getval(ent).valor):
+                                    condicion2=Terminal(columna.tipo,self.valores[k].getval(ent).valor)
                                 k=k+1
                         n=n+1
                     
                     correcto=False
                     if operador in ('>','<','>=','<=','='):
-                        #print(condicion1.getval(ent),operador,condicion2.getval(ent))
+                        #print(condicion1.getval(ent).valor,operador,condicion2.getval(ent).valor)
                         nuevaop = Relacional(condicion1,condicion2,operador);
                         if nuevaop.getval(ent):
                             correcto=True
@@ -269,23 +271,23 @@ class InsertWhitColum(Instruccion):
                     nombre=columna.nombre
                     tipo=columna.tipo
                     util=Tipo(None,None,-1,-1)
-                    if(nombre==self.namecolums[j].getval(ent)):
-                        #print("iguales",nombre,":",self.namecolums[j].getval(ent),"J",j,"t",t)
+                    if(nombre==self.namecolums[j].getval(ent).valor):
+                        #print("iguales",nombre,":",self.namecolums[j].getval(ent).valor,"J",j,"t",t)
                         
                         for colunique in columnaunique:
                             if nombre==colunique:
-                                #print("UNIQUE",colunique,"colactual",nombre,"valor",self.valores[j].getval(ent),"---")
-                                v=self.validarunique(ent,tabla,colunique,self.valores[j].getval(ent))
+                                #print("UNIQUE",colunique,"colactual",nombre,"valor",self.valores[j].getval(ent).valor,"---")
+                                v=self.validarunique(ent,tabla,colunique,self.valores[j].getval(ent).valor)
                                 #print("-----",v)
                                 if v:
-                                    variables.consola.insert(INSERT,'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[j].getval(ent))+'\n')
-                                    reporteerrores.append(Lerrores("Error Semantico", 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[j].getval(ent)),'',''))
+                                    variables.consola.insert(INSERT,'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[j].getval(ent).valor)+'\n')
+                                    reporteerrores.append(Lerrores("Error Semantico", 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[j].getval(ent).valor),'',''))
                                     return
                                     
                         if isinstance (self.valores[j],FuncionesNativas):
                             self.valores[j]=self.valores[j].getval(ent)
                         
-                        buscado=str('ENUM_'+ent.getDataBase()+'_'+tipo.getTipo())
+                        buscado=str('ENUM_'+ent.getDataBase()+'_'+tipo.tipo)
                         types:Simbolo= ent.buscarSimbolo(buscado)
                     
                         tipocorrecto = False 
@@ -294,11 +296,11 @@ class InsertWhitColum(Instruccion):
                             tiposenum=types.valor
                             print("Comparando Enum")
                             for valenum in tiposenum:
-                                if str(valenum.getval(ent)).lower() == str(self.valores[j].getval(ent)).lower():
+                                if str(valenum.getval(ent).valor).lower() == str(self.valores[j].getval(ent).valor).lower():
                                     tipocorrecto=True
                             if not tipocorrecto:
-                                variables.consola.insert(INSERT,str('Error Tipo enum no correcto en valor: '+self.valores[j].getval(ent))+'\n')
-                                reporteerrores.append(Lerrores("Error Semantico",str('Tipo enum no correcto en valor: '+self.valores[j].getval(ent)),'',''))
+                                variables.consola.insert(INSERT,str('Error Tipo enum no correcto en valor: '+self.valores[j].getval(ent).valor)+'\n')
+                                reporteerrores.append(Lerrores("Error Semantico",str('Tipo enum no correcto en valor: '+self.valores[j].getval(ent).valor),'',''))
                                 return
 
 
@@ -313,10 +315,10 @@ class InsertWhitColum(Instruccion):
                                 return
                         
                         
-                        terminales.append(self.valores[j].getval(ent))
+                        terminales.append(self.valores[j].getval(ent).valor)
                         j=j+1
                     else: 
-                        #print("diferentes",nombre,":",self.namecolums[j].getval(ent),"J",j,"t",t)
+                        #print("diferentes",nombre,":",self.namecolums[j].getval(ent).valor,"J",j,"t",t)
                         terminales.append('')
                 r=DBMS.insert(ent.getDataBase(),self.nombre,terminales)
                 if(r==4):
