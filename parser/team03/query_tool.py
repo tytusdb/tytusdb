@@ -186,6 +186,8 @@ class query_tool:
         self.consola.delete(1.0,END)
         self.inputText = self.entrada.get("1.0","end")
         grammarReview(self.inputText)
+        gr = grammarReview.get_result(self)
+        self.consola.insert(INSERT,gr)
 
     def openErrors(self):
         ST0 = '\n\n\n============== ERROR REPORT ==============\n'

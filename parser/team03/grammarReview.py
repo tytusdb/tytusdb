@@ -373,8 +373,7 @@ def p_statements2(t):
 
 
 def p_statement(t):
-    '''statement    : predicateExpression PUNTOCOMA
-                    | stm_show   PUNTOCOMA
+    '''statement    : stm_show   PUNTOCOMA
                     | stm_create PUNTOCOMA
                     | stm_alter  PUNTOCOMA
                     | stm_use_db PUNTOCOMA
@@ -385,11 +384,9 @@ def p_statement(t):
                     | stm_drop   PUNTOCOMA
                     '''
 #                    |    stm_select PUNTOCOMA
-#                    |    stm_show   PUNTOCOMA
 #                    |    stm_select UNION all_opt stm_select
 #                    |    stm_select INTERSECT all_opt stm_select
 #                    |    stm_select EXCEPT all_opt 
-#                    |    stm_use_db PUNTOCOMA
     try:
         punteroinicio(t[1].graph_ref)
     except:
@@ -937,7 +934,7 @@ def p_stm_use_db(t):
     '''stm_use_db   : USE DATABASE ID
                     | USE ID'''
     if len(t) == 4:
-        tokenID = t.slice[len(t)-1]
+        tokenID = t.slice[3]
         graph_ref = graph_node(str("stm_use_db"),    [t[1],t[2],t[3]]       ,[])
         addCad("**\<STM_USE_DB>** ::= tUse tDatabase tIdentifier ")
 
@@ -2054,6 +2051,7 @@ from ply.yacc import token
 
 parse = yacc.yacc()
 errorsList = []
+r = []
 
 ST = SymbolTable([])##TODO Check is only one ST.
 
@@ -2061,6 +2059,8 @@ ST = SymbolTable([])##TODO Check is only one ST.
 class grammarReview:
     def __init__(self, texto): 
         print("Executing AST root, please wait ...")
+        global r
+        r = []
         global errorsList
         errorsList = []
         global ST
@@ -2072,6 +2072,7 @@ class grammarReview:
             try:
                 val = instruccion.execute(ST, None)
                 print("AST excute result: ", val)
+                self.set_result(str(val)+'\n\n')
             except our_error as named_error:
                 errorsList.append(named_error)
 
@@ -2079,6 +2080,14 @@ class grammarReview:
             print(e,"\n")
         
         
+    def set_result(self, valor):
+        global r
+        r.append(valor)
+        return r
+
+    def get_result(self):
+        global r
+        return r
 
     def getTablaTabulada(self):
         global ST

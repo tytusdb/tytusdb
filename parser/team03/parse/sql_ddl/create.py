@@ -52,7 +52,7 @@ class CreateDatabase(ASTNode):
         else:
             # return table.add(DatabaseSymbol(result_name, result_owner, result_mode)) #chaged by loadDatabases
             table.LoadDataBases()
-            return True
+            return ['Database \'' + result_name + '\' was created successfully!']
 
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
