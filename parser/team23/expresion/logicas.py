@@ -28,7 +28,7 @@ class logica(expresion):
         else:
             self.grammar_ = '<TR><TD> EXPRESION ::= ' + self.get_str_oper(tipo_oper) + 'EXPRESION2 </TD><TD> EXPRESION = new aritmetica(EXPRESION1, ' + self.get_str_oper(tipo_oper) + '); </TD></TR>\n'
 
-    def ejecutar(self):
+    def ejecutar(self, list_tb):
         left_value = self.left.ejecutar()
         right_value = ""
         tipo_dominante = left_value.tipo

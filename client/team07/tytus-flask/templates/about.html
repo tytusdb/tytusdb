@@ -1,0 +1,31 @@
+{% extends "plantilla.html" %}
+
+{% block content %}
+
+<!--CONTENEDOR PRINCIPAL-->
+<div class="container mt-5">
+    <div class="row bg-light p-3">
+        <div class="col-12">
+            <h1>Administrador de la base de datos</h1>
+            <h5>
+            <p>
+                El administrador de la base de datos se compone de dos componentes:
+            </p>
+            <ul>
+                <li>
+                    <p style="text-align: justify">
+                        Servidor: es un servidor http. Se debe seleccionar un puerto adecuado que no tenga conflictos con otros servidores. En la carpeta de instalación de la base de datos se debe crear una carpeta llamada /data donde se almacenarán las bases de datos. Se debe crear un usuario admin y su contraseña. Además de crear n usuarios configurando el acceso a las bases de datos.
+                    </p>
+                </li>
+                <li>
+                    <p style="text-align: justify">
+                        Cliente: es un cliente que para algunos equipos será web y para otros será una aplicación de escritorio. Este cliente se conectará al servidor y podrá hacer la mayoría de las operaciones que hace pgadmin de PostgreSQL. Dentro del cliente, cuando se navegue dentro de las diferentes bases de datos que existen se puede invocar un editor de queries, el cual invocará la función parser() del SQL Parser para desplegar el resultado. Este editor debe tener la característica de resaltado de sintaxis.
+                    </p>
+                </li>
+            </ul>
+        </h5>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

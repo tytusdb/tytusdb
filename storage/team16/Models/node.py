@@ -1,3 +1,9 @@
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
 class Node:
     def __init__(self, index, content):
         self.__index = index
@@ -6,7 +12,7 @@ class Node:
         self.__right = None
         self.__height = 0
 
-    # region Properties
+    # region properties
     @property
     def index(self):
         return self.__index
