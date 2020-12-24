@@ -2077,9 +2077,10 @@ def p_instrucciones_lista_params_columnas_error(t) :
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
+    id = inc()
     t[0] = {'id': id, 'parametros': [t[1]]}
 
-    id = inc()
+    
     dot.node(str(id), 'PARAMETRO')
     
     dot.edge(str(id), str(t[1]['id'])) 
@@ -2127,8 +2128,7 @@ def p_instrucciones_parametro_columna_unique(t) :
     t[0] = {'id': id}
     dot.node(str(id), 'PARAMETRO')
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id']))
     gramatica = "					| <unic>"
     no_terminal = ["<unic>"]
     terminal = []
