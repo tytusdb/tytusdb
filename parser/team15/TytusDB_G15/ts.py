@@ -6,8 +6,8 @@ class TIPO_DATO(Enum) :
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'
 
-    def __init__(self, id, tipo, valor, ambito) :
-        self.id = id
+    def __init__(self, val, tipo, valor, ambito) :
+        self.val = val
         self.tipo = tipo
         self.valor = valor
         self.ambito = ambito
@@ -24,14 +24,21 @@ class TablaDeSimbolos() :
     def obtenerDb(self, tabla) :
         i = 0
         while i < len(self.simbolos):
-            if self.simbolos[i].id == tabla:
+            if self.simbolos[i].val == tabla:
                 return self.simbolos[i]
             i += 1
 
     def actualizarDB(self, simbolo, idDB) :
         i = 0
         while i < len(self.simbolos):
-            if self.simbolos[i].id == idDB:
+            if self.simbolos[i].val == idDB:
+                self.simbolos[i] = simbolo
+            i += 1
+
+    def actualizarTableNum(self, simbolo, idDB, database) :
+        i = 0
+        while i < len(self.simbolos):
+            if self.simbolos[i].val == idDB and self.simbolos[i].ambito == database:
                 self.simbolos[i] = simbolo
             i += 1
 
@@ -45,25 +52,32 @@ class TablaDeSimbolos() :
     def actualizarValorIdTable(self, simbolo, tabla, ambito) :
         i = 0
         while i < len(self.simbolos):
-            if self.simbolos[i].ambito == ambito and self.simbolos[i].id == tabla:
+            if self.simbolos[i].ambito == ambito and self.simbolos[i].val == tabla:
                 self.simbolos[i] = simbolo
             i += 1
 
     def obtener(self, tabla, ambito) :
         i = 0
         while i < len(self.simbolos):
-            if self.simbolos[i].ambito == ambito and self.simbolos[i].id == tabla:
+            if self.simbolos[i].ambito == ambito and self.simbolos[i].val == tabla:
                 return self.simbolos[i]
+            i += 1
+
+    def obtenerNumColumns(self, database, tabla) :
+        i = 0
+        while i < len(self.simbolos):
+            if self.simbolos[i].ambito == database and self.simbolos[i].val == tabla:
+                return self.simbolos[i].valor
             i += 1
 
 
     def deleteDatabase(self,ambito) :
         for elem in list(self.simbolos):
-            if elem.ambito == ambito or elem.id == ambito:
-                self.deleteTable(elem.id)
+            if elem.ambito == ambito or elem.val == ambito:
+                self.deleteTable(elem.val)
 
         for elem in list(self.simbolos):
-            if elem.ambito == ambito or elem.id == ambito:
+            if elem.ambito == ambito or elem.val == ambito:
                 self.simbolos.remove(elem)
                 
                 
@@ -75,7 +89,7 @@ class TablaDeSimbolos() :
 
     def deleteConstraint(self,id,ambito) :
         for elem in list(self.simbolos):
-            if elem.ambito == ambito and elem.id == id:
+            if elem.ambito == ambito and elem.val == id:
                 self.simbolos.remove(elem)
 
 

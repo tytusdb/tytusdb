@@ -71,6 +71,7 @@ def analizar_select(e):
                 salida_table(2,salida)
         else:
             salida_table(2,"PARSER ERROR")
+            
 
 def generarReporteAST():
     global instrucciones_Global

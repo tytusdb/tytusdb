@@ -1,3 +1,7 @@
+
+import os
+import platform
+import subprocess
 class Nodo:
     def __init__(self, valor, lista):
         self.izquierda = None
@@ -24,6 +28,7 @@ class arbolAVL(object):
         self.raiz = None
         self.pk = None
         self.noColumnas = noColumnas
+        self.grafo = ""
 
     def agregar(self, lista):  # metodo que mandare a llamar para hacer el insert,
         # asumiendo que la lista contiene la cantidad de elementos necesarios
@@ -140,8 +145,50 @@ class arbolAVL(object):
                 cadena += str(i) + " , "
             cadena += "]"
             print(cadena)
-            self.preorden1(aux.izquierda)
-            self.preorden1(aux.derecha)
+    def Grafo(self):
+        f = open('Avl.txt','w')
+        self.grafo+= "digraph G { \n rankdir=LR; style=filled \n size=\"8,5\" \n	node [shape = rectangle];\n"
+        self.Grafo1(self.raiz)
+        self.grafo+="}"
+        f.write(self.grafo)
+        f.close()
+
+        commandfile = 'dot -Tpng Avl.txt -o Avl.png'
+
+        path = 'Avl.png'
+
+        self.start_file(commandfile)
+        self.open_file(path)
+        print(self.grafo)
+
+    def open_file(self,path):
+        if platform.system() == "Windows":
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+
+    def start_file(self,commandfile):
+        if platform.system() == "Windows":
+           os.system(commandfile)
+        elif platform.system() == "Darwin":
+           subprocess.call(commandfile, shell=True)
+        else:
+           os.system(commandfile)
+
+
+    def Grafo1(self, aux):
+        if (aux != None):
+             if(aux.izquierda != None):
+                self.grafo +="\""+ str(aux.tupla)+"\"" + "->" +"\"" +str(aux.izquierda.tupla) +"\""+";\n"
+                self.Grafo1(aux.izquierda)
+             if(aux.derecha != None):
+                self.grafo += "\""+str(aux.tupla)+"\"" + "->" + "\""+str(aux.derecha.tupla) +"\""+ ";\n"
+                self.Grafo1(aux.derecha)
+
+
+
 
     def getTuplas(self):
         self.listamoment = []
@@ -177,13 +224,14 @@ class arbolAVL(object):
 
 
 
-# t = arbolAVL(3)
-#
-# for i in range(10):
-#     t.agregar(["algo","nose","ultimo"])
-#
-# t.preorden()
-# print()
+t = arbolAVL(3)
 
-# Eliminar
-# t.eliminar(1)
+for i in range(20):
+    t.agregar(["algo",i,"ultimo"])
+
+#t.preorden()
+t.Grafo()
+print()
+
+#Eliminar
+#t.eliminar(1)

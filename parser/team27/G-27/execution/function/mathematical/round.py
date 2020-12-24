@@ -29,4 +29,4 @@ class Round(Function):
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
             if value2['typ'] != Type.INT:
                 return {'Error':"El valor del segundo parámetro no es entero.", 'linea':self.row,'columna':self.column }
-            return [{'value':round(value['value'],value2['value']), 'typ': Type.INT}]
+            return {'value':round(value['value'],value2['value']), 'typ': Type.INT}

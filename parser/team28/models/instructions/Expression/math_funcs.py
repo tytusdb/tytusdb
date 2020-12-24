@@ -615,7 +615,8 @@ class Pi(Expression):
         return str(vars(self))
     
     def process(self, environment):
-        return PrimitiveData(DATA_TYPE.NUMBER,round(math.pi,6), self.line, self.column)
+        try:
+            return PrimitiveData(DATA_TYPE.NUMBER,round(math.pi,6), self.line, self.column)
         except:
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
