@@ -2579,13 +2579,16 @@ def p_funciones_math(t):
 
 def p_expresion_binario(t):
     '''expresion_aritmetica : expresion_aritmetica AMPERSAND expresion_aritmetica
+                |   expresion_aritmetica PLECA expresion_aritmetica
                 |   expresion_aritmetica NUMERAL expresion_aritmetica
                 |   expresion_aritmetica LEFTSHIFT expresion_aritmetica
                 |   expresion_aritmetica RIGHTSHIFT expresion_aritmetica'''
     if t[2] == "&":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.AND)
-    if t[2] == "#":
+    if t[2] == "|":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.OR)
+    if t[2] == "#":
+        t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.XOR)
     if t[2] == "<<":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.SHIFT_IZQ)
     if t[2] == ">>":
@@ -2595,6 +2598,7 @@ def p_expresion_binario(t):
 
 def p_expresion_binario_n(t):
     'expresion_aritmetica : VIRGULILLA expresion_aritmetica'
+    t[0] = UnitariaAritmetica(t[2], OPERACION_BIT_A_BIT.COMPLEMENTO)
 
 # def p_expresion_subquery(t):
 #     expresion_aritmetica : QUE_SUBS

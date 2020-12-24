@@ -47,6 +47,7 @@ class OPERACION_BIT_A_BIT(Enum) :
     XOR = 3
     SHIFT_IZQ = 4
     SHIFT_DER = 5
+    COMPLEMENTO = 6
     
 class TIPO_VARIABLE(Enum) :
     TEMPORAL = 1 
