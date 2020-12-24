@@ -1,7 +1,17 @@
+def toASCII2(cadena):
+    cadena = str(cadena)
+    resultado = 0
+    for i in cadena:
+        i = str(i)
+        resultado += ord(i)
+    return resultado
+
+
 class Tabla(object):
     def __init__(self, name, noColumnas):
         from storage.team07.storageBeans.AVLtree import arbolAVL
         self.name = name
+        self.numero = toASCII2(name)
         self.AVLtree = arbolAVL(noColumnas)  # datos de tabla
 
 
@@ -123,6 +133,12 @@ class BHash:
         for i in range(len(self.h)):
             if self.h[i].name != -1:
                 lista.append(self.h[i].name)
+        return lista
+
+    def getDataTables2(self):
+        lista = []
+        for i in range(len(self.h)):
+            lista.append(self.h[i])  # retorno  el objeto tabla
         return lista
 
     def getTable(self, OldName):

@@ -5,6 +5,7 @@ path.append(dir(path[0]))
 import analizer.ply.yacc as yacc
 from analizer.tokens import *
 from analizer.reports import Nodo
+
 # Prueba para dataframe:
 import analizer.abstract.select_data as data
 
@@ -85,7 +86,7 @@ def p_stmt(t):
     """
     listInst.append(t[1].dot())
     try:
-        t[0] = t[1].execute(None)
+        t[0] = t[1]
     except:
         return
     repGrammar.append(t.slice)
@@ -716,6 +717,29 @@ def p_datatype_operadores_binarios2(t):
     repGrammar.append(t.slice)
 
 
+def p_datatype_case_when(t):
+    """
+    datatype : R_CASE caseList optElse R_END
+    """
+
+
+def p_case_list(t):
+    """
+    caseList : caseList caseWhen
+            | caseWhen
+    """
+
+
+def p_caseWhen(t):
+    """caseWhen : R_WHEN expBool R_THEN literal"""
+
+
+def p_caseWhen_2(t):
+    """optElse : R_ELSE literal
+    |
+    """
+
+
 def p_datatype_operadores_unarios(t):
     """
     datatype : O_RESTA datatype %prec UO_RESTA
@@ -884,7 +908,9 @@ def p_boolean_1(t):
     """
     boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
     """
-    t[0] = expression.ExistsRelationalOperation(t[3],  t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.ExistsRelationalOperation(
+        t[3], t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -892,6 +918,7 @@ def p_boolean_2(t):
     """
     boolean : datatype R_IN S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = expression.InRelationalOperation(t[1], "", t[4], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -899,6 +926,7 @@ def p_boolean_3(t):
     """
     boolean : datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = expression.InRelationalOperation(t[1], t[2], t[5], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -936,7 +964,6 @@ def p_expBool_3(t):
     repGrammar.append(t.slice)
 
 
-
 def p_expBool_5(t):
     """
     expBool : expBool optBoolPredicate
@@ -951,6 +978,7 @@ def p_expBool_4(t):
     """
     t[0] = t[1]
     repGrammar.append(t.slice)
+
 
 def p_optBoolPredicate_1(t):
     """
@@ -1221,7 +1249,18 @@ def p_ifExists(t):
 
 
 def p_selectStmt_1(t):
-    """selectStmt : R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl limitCl"""
+    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl"""
+    t[0] = instruction.Select(
+        t[3].params,
+        t[4],
+        t[5],
+        t[6][0],
+        t[6][1],
+        t[7],
+        True,
+        t.slice[1].lineno,
+        t.slice[1].lexpos,
+    )
     repGrammar.append(t.slice)
 
 
@@ -1229,8 +1268,31 @@ def p_selectStmt_1(t):
 def p_selectStmt_2(t):
     """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl"""
     t[0] = instruction.Select(
-        t[2].params, t[3], t[4], t[5][0], t[5][1], t[6], t.slice[1].lineno, t.slice[1].lexpos
+        t[2].params,
+        t[3],
+        t[4],
+        t[5][0],
+        t[5][1],
+        t[6],
+        False,
+        t.slice[1].lineno,
+        t.slice[1].lexpos,
     )
+    repGrammar.append(t.slice)
+
+
+def p_selectStmt__1(t):
+    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl orderByCl limitCl"""
+    repGrammar.append(t.slice)
+
+
+def p_selectStmt__2(t):
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
+    repGrammar.append(t.slice)
+
+
+def p_selectStmt__3(t):
+    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl limitCl"""
     repGrammar.append(t.slice)
 
 
@@ -1388,23 +1450,20 @@ def p_tableexp_subq(t):
 
 
 def p_joinList(t):
-    """joinList : joinList2
-    |
-    """
-
+    """joinList : joinList2"""
     repGrammar.append(t.slice)
 
 
-def p_joinList2(t):
+def p_joinList_2(t):
     """joinList2 : joinList2 joinCl
     | joinCl"""
     repGrammar.append(t.slice)
 
 
 def p_joinCl(t):
-    """joinCl : joinOpt R_JOIN columnName R_ON expBool
-    | joinOpt R_JOIN columnName R_USING S_PARIZQ nameList S_PARDER
-    | R_NATURAL joinOpt R_JOIN columnName
+    """joinCl : joinOpt R_JOIN columnName optAlias R_ON expBool
+    | joinOpt R_JOIN columnName optAlias R_USING S_PARIZQ nameList S_PARDER
+    | R_NATURAL joinOpt R_JOIN columnName optAlias
     """
 
     repGrammar.append(t.slice)
@@ -1492,9 +1551,7 @@ def p_havingCl_2(t):
 
 
 def p_orderByCl(t):
-    """orderByCl : R_ORDER R_BY orderList
-    |
-    """
+    """orderByCl : R_ORDER R_BY orderList"""
     repGrammar.append(t.slice)
 
 
@@ -1506,7 +1563,10 @@ def p_orderList(t):
 
 
 def p_orderByElem(t):
-    """orderByElem : columnName orderOpts orderNull"""
+    """
+    orderByElem : columnName orderOpts orderNull
+                | INTEGER orderOpts orderNull
+    """
     repGrammar.append(t.slice)
 
 
@@ -1528,27 +1588,26 @@ def p_orderNull(t):
 
 def p_limitCl(t):
     """limitCl : R_LIMIT INTEGER offsetLimit
-            | R_LIMIT R_ALL offsetLimit
-    """ 
+    | R_LIMIT R_ALL offsetLimit
+    """
     t[0] = instruction.limitClause(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_limitCl_n(t):
-    """limitCl :
-    """ 
+    """limitCl :"""
     t[0] = None
     repGrammar.append(t.slice)
 
+
 def p_offsetLimit(t):
-    """offsetLimit : R_OFFSET INTEGER
-    """
+    """offsetLimit : R_OFFSET INTEGER"""
     t[0] = t[2]
     repGrammar.append(t.slice)
 
+
 def p_offsetLimit_n(t):
-    """offsetLimit : 
-    """
+    """offsetLimit :"""
     t[0] = None
     repGrammar.append(t.slice)
 
@@ -1671,7 +1730,7 @@ def p_likeOpt(t):
 
 def p_useStmt(t):
     """useStmt : R_USE ID"""
-    t[0] = instruction.useDataBase(t[2])
+    t[0] = instruction.useDataBase(t[2], t.slice[1].lineno, t.slice[1].lexpos)
 
     repGrammar.append(t.slice)
 
@@ -1679,7 +1738,7 @@ def p_useStmt(t):
 # endregion
 
 
-listErrors = list()
+lexical_errors = list()
 PostgreSQL = list()
 
 
@@ -1687,8 +1746,8 @@ def p_error(t):
     try:
         print(t)
         print("Error sintáctico en '%s'" % t.value)
-        listErrors.insert(
-            len(listErrors), ["Error sintáctico en '%s'" % t.value, t.lineno]
+        lexical_errors.insert(
+            len(lexical_errors), ["Error sintáctico en '%s'" % t.value, t.lineno]
         )
         PostgreSQL.insert(
             len(PostgreSQL), "ERROR: 42601: error de sintaxis en '%s'" % t.value
@@ -1700,34 +1759,39 @@ def p_error(t):
 parser = yacc.yacc()
 
 
-def returnSintacticErrors():
-    return listErrors
+def returnSyntacticErrors():
+    return lexical_errors
 
 
 def returnPostgreSQLErrors():
-    expression.list_errors += PostgreSQL
-    instruction.sintaxPostgreSQL += expression.list_errors
-    return instruction.sintaxPostgreSQL
+    errors = expression.returnExpErrors()
+    errors += PostgreSQL
+    errors += instruction.returnErrors()
+    return errors
 
 
 def returnSemanticErrors():
-    return instruction.semanticErrors
+    return instruction.returnSemanticErrors()
+
 
 def InitTree():
     init = Nodo.Nodo("INSTRUCTION_LIST")
     Tree(init)
     makeAst(init)
 
+
 def Tree(n):
-    if len(listInst)>0:
+    if len(listInst) > 0:
         l = listInst.pop()
         n.addNode(l)
         inst = Nodo.Nodo("INST")
         n.addNode(inst)
         Tree(inst)
 
+
 def makeAst(root):
     instruction.makeAst(root)
+
 
 def getRepGrammar():
     return repGrammar
@@ -1735,12 +1799,13 @@ def getRepGrammar():
 
 def parse(input):
     try:
-        global listErrors, PostgreSQL
-        listErrors = list()
+        global lexical_errors, PostgreSQL
+        lexical_errors = list()
         PostgreSQL = list()
         expression.list_errors = list()
-        instruction.sintaxPostgreSQL = list()
+        instruction.syntaxPostgreSQL = list()
         instruction.semanticErrors = list()
+        instruction.syntaxErrors = list()
         lexer.lineno = 1
         result = parser.parse(input)
         return result

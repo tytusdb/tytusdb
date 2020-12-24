@@ -7,6 +7,7 @@ path.append(dir(path[0]))
 from analizer.abstract import instruction as inst
 from analizer import grammar
 from analizer.reports import BnfGrammar
+from analizer.abstract.instruction import envVariables as environments
 
 
 def execution(input):
@@ -17,7 +18,7 @@ def execution(input):
     messages = []
     result = grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
     if len(lexerErrors) + len(syntaxErrors) == 0:
         for v in result:
             if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
@@ -25,7 +26,6 @@ def execution(input):
                 if r:
                     list_ = r[0].values.tolist()
                     labels = r[0].columns.tolist()
-                    print(list_)
                     querys.append([labels, list_])
                 else:
                     querys.append(None)
@@ -42,6 +42,8 @@ def execution(input):
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
     }
+    symbols = symbolReport()
+    print(symbols)
     return obj
 
 
@@ -51,13 +53,45 @@ def parser(input):
     """
     grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
     obj = {
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
     }
     print(obj)
     return obj
+
+
+def astReport():
+    grammar.InitTree()
+
+
+def symbolReport():
+    global environments
+    report = []
+
+    for env in environments:
+        vars = env.variables
+        types = env.types
+        enc = [["Alias", "Nombre", "Tipo", "Fila", "Columna"]]
+        filas = []
+        for (key, symbol) in vars.items():
+            r = [
+                key,
+                symbol.value,
+                symbol.type if not symbol.type else "Tabla",
+                symbol.row,
+                symbol.column,
+            ]
+            filas.append(r)
+
+        for (key, symbol) in types.items():
+            r = [key, key, str(symbol) if not symbol else "Columna", "-", "-"]
+            filas.append(r)
+
+        enc.append(filas)
+        report.append(enc)
+    return report
 
 
 s = """ 
