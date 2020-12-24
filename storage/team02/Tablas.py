@@ -18,3 +18,14 @@ class ListaDobledeArboles :
     #Metodo para saber si la lista esta vacia
     def estaVacia(self) :
         return self.inicio is None
+
+    #Metodo para buscar una tabla
+    def buscar(self,nombreTabla) :
+        aux = self.inicio
+        while aux != None :
+            if aux.nombre == nombreTabla :
+                #print("La tabla existe")
+                return aux
+            aux = aux.siguiente
+        #print("La tabla no existe")
+        return None
