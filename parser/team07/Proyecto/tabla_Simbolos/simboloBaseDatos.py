@@ -183,7 +183,20 @@ class SimboloBaseDatos():
 
             return None
         
+    def eliminarTabla(self, nombreTabla):
+        # return 1 -->> Exito
+        # return 0 -->> Nombre NO existe
 
+        if len(self.tablas) == 0:
+            return 0
+        else:
+            indice = 0
+            for nodoTabla in self.tablas:
+                if nodoTabla.nombre.lower() == nombreTabla.lower():
+                    self.tablas.pop(indice)
+                    return 1
+                indice = indice + 1
+            return 0 
 
 
 
