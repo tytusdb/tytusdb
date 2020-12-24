@@ -768,9 +768,12 @@ def p_list_vls(t):
     '''list_vls : list_vls COMA val_value
                 | val_value '''
     if len(t) == 4:
-        t[0] = t[1].append(t[3])
+        t[1].append(t[3])
+        t[0] = t[1]
     else:
-        t[0] = [t[1]]
+        arreglo = []
+        arreglo.append(t[1])
+        t[0] = arreglo
 
 def p_val_value(t):
     '''val_value : CADENA
@@ -807,6 +810,7 @@ def p_ins_select(t):
                     |    ins_select EXCEPT option_all ins_select PUNTO_COMA
                     |    SELECT arg_distict colum_list FROM table_list arg_where arg_having arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
                     |    SELECT functions as_id'''
+                    
     #t[0] = Select()
     
 # TODO: PENDIENTE
@@ -835,9 +839,9 @@ def p_colum_list(t):
 def p_s_list(t):
     '''s_list   :   s_list COMA columns as_id
                 |   columns as_id'''
-    #if len(t) == 5:
-    #    t[0] = t[1].append()
-    #else:
+    if len(t) == 5:
+        t[0] = t[1].append()
+    else:
 
 def p_columns(t):
     '''columns   : ID dot_table
@@ -865,7 +869,7 @@ def p_as_id(t): #  REVISRA CADENA Y AS CADENA
         t[0] = None
 
 def p_aggregates(t):
-    '''aggregates   :   COUNT PARABRE param PARCIERRE
+    '''aggregates   :   COUNT PARABRE param PARCIERRE 
                     |   SUM PARABRE param PARCIERRE
                     |   AVG PARABRE param PARCIERRE
                     |   MAX PARABRE param PARCIERRE

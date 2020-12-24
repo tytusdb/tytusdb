@@ -10,6 +10,7 @@ from prettytable import *
 
 pt = PrettyTable()
 
+
 class Show(Instruccion):
 
     def __init__(self, cadena, opcion = False):
@@ -17,14 +18,17 @@ class Show(Instruccion):
         self.opcion = opcion
 
     def execute(self,data):
-        pt.field_names = ["BASES DE DATOS"]
+        pt.field_names = ["BASES DE DATOS", 'OWNER', 'MODE']
         basesdedatos = showDatabases()
-        if basesdedatos != [] :
-            for x in range(0,len(basesdedatos)):
-                pt.add_row([basesdedatos[x]])
-        else:
-            error = Error('Error(????)','No hay bases de datos', 0, 0)
-            return error
+        dbarray = []
+        for db in basesdedatos :
+            if db in data.tablaSimbolos :
+                #print(data.tablaSimbolos[db]['owner'])
+                #print(data.tablaSimbolos[db]['mode'])
+                dbarray.append([db, data.tablaSimbolos[db]['owner'], data.tablaSimbolos[db]['mode']])
+        for dba in dbarray :
+            pt.add_row(dba)
+
         print (pt)
         return self
 
