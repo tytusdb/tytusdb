@@ -9,7 +9,7 @@ class dropTable(InstruccionAbstracta):
     
 
     def ejecutar(self, tabalSimbolos, listaErrores):     
-        baseDatos = tabalSimbolos.useDatabase
+        baseDatos =  tabalSimbolos.useDataBase
 
         bandera = baseDatos.comprobarNombreTabla(self.nombre)
         if bandera == 1:
