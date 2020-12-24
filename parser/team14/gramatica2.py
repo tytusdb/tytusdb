@@ -1020,6 +1020,9 @@ def p_TIPO(t):
     if str(t[1]).lower() == 'timestamp':
         tipo = Tipo('timestamp without time zone',None,-1,-1)
         t[0] = tipo
+    elif str(t[1]).lower() == 'time':
+        tipo = Tipo('time without time zone',None,-1,-1)
+        t[0] = tipo
     else : t[0] = Tipo(t[1], None, -1, -1)
 
 

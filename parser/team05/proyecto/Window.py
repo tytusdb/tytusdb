@@ -535,13 +535,13 @@ class Main(tk.Tk):
             if not ins:
                 messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
             else:
-                self.do_body(ins.getInstruccion(), st_global, es_blobal, ct_global)
+                self.do_body(ins.getInstruccion(), st_global, es_global, ct_global)
                 self.raiz_ast = ins.getNodo()
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
     # EJECUCIÓN DE ANÁLISIS - PARSER --------------------------
-    def do_body(self, p_instruccion, p_st, es_blobal, ct_global):
+    def do_body(self, p_instruccion, p_st, es_global, ct_global):
         if not p_instruccion:
             messagebox.showerror("Tytus DB",
                                  "Ha ocurrido un problema en la ejecución del programa. Revisar los reportes de errores. ")
@@ -641,8 +641,7 @@ class Main(tk.Tk):
             createTable(BDD, nTB, cantCol)
 
     # INSERTAR DATOS A TABLA EN BASE DE DATOS
-    def do_insert_tb(inst,p_inst, p_st,p_es):
-        valor1 = 0
+    def do_insert_tb(self,inst,p_inst, p_st,p_es):
         valor2 = 0
         list = []
         listI = []
@@ -671,6 +670,36 @@ class Main(tk.Tk):
             else:
                 error = es.errorSemantico('ITB_' + p_inst.tabla, 'La tabla ' + p_inst.tabla + ' no existe')
                 p_es.agregar(error)
+
+    # DROP A TABLAS EN BASE DE DATOS
+
+    def do_drop_tb(self,inst,p_inst, p_st,p_es):
+        valor2 = 0
+        list = []
+        listI = []
+        for keys, value in p_st.symbols.items():
+            if value.id == p_inst.nombre:
+                BDD = value.value
+
+        for keys, value in p_st.symbols.items():
+            if value.type == 'use':
+                valor2 = 1
+                list.append(value.id)
+        if valor2 == 0:
+            error = es.errorSemantico('DTB_'+p_inst.nombre,'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.nombre)
+            p_es.agregar(error)
+        else:
+            BDDU = list.pop()
+            if BDDU == BDD:
+                key = 'DTB_'+p_inst.nombre
+                simbolo = st.Symbol(key, p_inst.nombre, 'insert table', BDD)
+                p_st.add(simbolo)
+                dropTable(BDD,p_inst.nombre)
+
+            else:
+                error = es.errorSemantico('DTB_' + p_inst.tabla, 'La tabla ' + p_inst.tabla + ' no existe')
+                p_es.agregar(error)
+
 
     # SELECT A TABLAS EN BASE DE DATOS
     def do_select(self, p_inst, p_st):

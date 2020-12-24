@@ -26,4 +26,4 @@ class Cot(Function):
             if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
             
-            return [{'value':cot(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':cot(value['value']), 'typ': Type.DECIMAL}

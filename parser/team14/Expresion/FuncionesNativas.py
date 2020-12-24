@@ -44,39 +44,39 @@ class FuncionesNativas(Expresion):
                     funcion == "cosh" or funcion == "tanh" or funcion == "asinh" or funcion == "acosh" or
                     funcion == "atanh"
             ):
-                valexpresion = self.expresiones[0].getval(entorno)
+                valexpresion = self.expresiones[0].getval(entorno).valor
                 return self.FunctionWithOneParameter(funcion, sizeparametro, valexpresion)
             elif (funcion == "div" or funcion == "gcd" or funcion == "mod" or funcion == "power" or
                   funcion == "round" or funcion == "atan2" or funcion == "atan2d"
             ):
-                val1expresion = self.expresiones[0].getval(entorno)
-                val2expresion = self.expresiones[1].getval(entorno)
+                val1expresion = self.expresiones[0].getval(entorno).valor
+                val2expresion = self.expresiones[1].getval(entorno).valor
                 return self.FunctionWithTwoParameter(funcion, sizeparametro, val1expresion, val2expresion)
             elif (funcion == "width_bucket"):
-                val1expresion = self.expresiones[0].getval(entorno)
-                val2expresion = self.expresiones[1].getval(entorno)
-                val3expresion = self.expresiones[2].getval(entorno)
-                val4expresion = self.expresiones[3].getval(entorno)
+                val1expresion = self.expresiones[0].getval(entorno).valor
+                val2expresion = self.expresiones[1].getval(entorno).valor
+                val3expresion = self.expresiones[2].getval(entorno).valor
+                val4expresion = self.expresiones[3].getval(entorno).valor
                 return self.FunctionWithBucket(funcion, sizeparametro, val1expresion, val2expresion, val3expresion,
                                                val4expresion)
         except:
             return "Error: La función: " + funcion + " solo recibe valores númericos"
 
         if (funcion == "length" or funcion == "md5" or funcion == "sha256" or funcion == "convert"):
-            valexpresion = self.expresiones[0].getval(entorno)
+            valexpresion = self.expresiones[0].getval(entorno).valor
             # print(valexpresion,'valooooor')
             return self.FunctionWithOneParameter(funcion, sizeparametro, valexpresion)
 
         elif (
                 funcion == "get_byte" or funcion == "set_byte" or funcion == "encode" or funcion == "decode" or funcion == "trim" or funcion == "date_part"):
-            val1expresion = self.expresiones[0].getval(entorno)
-            val2expresion = self.expresiones[1].getval(entorno)
+            val1expresion = self.expresiones[0].getval(entorno).valor
+            val2expresion = self.expresiones[1].getval(entorno).valor
             return self.FunctionWithTwoParameter(funcion, sizeparametro, val1expresion, val2expresion)
 
         elif (funcion == "substr" or funcion == "substring"):
-            val1expresion = self.expresiones[0].getval(entorno)
-            val2expresion = self.expresiones[1].getval(entorno)
-            val3expresion = self.expresiones[2].getval(entorno)
+            val1expresion = self.expresiones[0].getval(entorno).valor
+            val2expresion = self.expresiones[1].getval(entorno).valor
+            val3expresion = self.expresiones[2].getval(entorno).valor
             return self.FunctionWithTreeParameter(funcion, sizeparametro, val1expresion, val2expresion, val3expresion)
         else:
             reporteerrores.append(Lerrores("Error Semantico", "La funcion" + funcion + "no existe", 0, 0))
@@ -233,7 +233,7 @@ class FuncionesNativas(Expresion):
                 return Terminal(Tipo('decimal', result, self.l(result), -1), result)
 
             elif (funcion == "convert"):
-                print("convert")
+                return self.expresiones[0]
 
 
 
@@ -308,6 +308,7 @@ class FuncionesNativas(Expresion):
 
             elif (funcion == "date_part"):
                 datepart = Date_Part(exp1, exp2)
+                datepart=datepart.getval()
 
                 return Terminal(Tipo('integer', datepart, self.l(datepart), -1), datepart)
 
@@ -355,7 +356,9 @@ class FuncionesNativas(Expresion):
                     for valores in range(inicio, final):
                         if (exp1 == valores):
                             posbucket = fila + 1
-                            return "El valor de: " + str(exp1) + " esta en el bucket: " + str(posbucket)
+                            msg="El valor de: " + str(exp1) + " esta en el bucket: " + str(posbucket)
+                            tipo =Tipo('varchar',self.l(msg),-1,-1)
+                            return Terminal(tipo,msg)
                     inicio = final
                     final = final + columnas
         else:
@@ -377,13 +380,13 @@ class Date_Part(FuncionesNativas):
         self.field = field
         self.interval = interval
 
-    def getval(self, entorno):
+    def getval(self, entorno=None):
         'spliteo el timestamp'
-        splited = self.interval.getval(entorno).split(' ')
+        splited = self.interval.split(' ')
         cont = 0
         for contenido in splited:
             if contenido == self.field:
-                print(splited[cont - 1])
+
                 return splited[cont - 1]
             cont = cont + 1
         return None
