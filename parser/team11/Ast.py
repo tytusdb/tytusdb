@@ -970,7 +970,7 @@ class AST:
         now = datetime.now()
         resultados.append(str(now))
 
-def resolverFuncionMatematica(self, nodo, resultado):
+    def resolverFuncionMatematica(self, nodo, resultado):
         if nodo.valor.lower()  == 'degrees':
             a = math.degrees(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
             resultado.append(a)
@@ -1067,7 +1067,7 @@ def resolverFuncionMatematica(self, nodo, resultado):
             c = math.ceil(a)
             resultado.append(c)
 
-def resolverFuncionTrigonometrica(self, nodo, resultado):
+    def resolverFuncionTrigonometrica(self, nodo, resultado):
         if nodo.valor.lower()  == 'acos':
             a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
             c = math.acos(a)
@@ -1119,7 +1119,7 @@ def resolverFuncionTrigonometrica(self, nodo, resultado):
             resultado.append(c)
 
 ########################################################  expresiones ###################################################
-def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
+    def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
         if nodo.etiqueta == 'OPLOG':
             exp1 = self.expresion_logica(nodo.hijos[0], tupla, names, tablas)
             exp2 = self.expresion_logica(nodo.hijos[1], tupla, names, tablas)
@@ -1132,7 +1132,7 @@ def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
             return self.expresion_relacional(nodo, tupla, names, tablas)
 
 
-def expresion_relacional(self, nodo, tupla, names, tablas) -> bool:
+    def expresion_relacional(self, nodo, tupla, names, tablas) -> bool:
         if nodo.etiqueta == 'OPREL':
             exp1 = self.expresion_aritmetica(nodo.hijos[0], tupla, names, tablas)
             exp2 = self.expresion_aritmetica(nodo.hijos[1], tupla, names, tablas)
@@ -1149,7 +1149,7 @@ def expresion_relacional(self, nodo, tupla, names, tablas) -> bool:
             elif nodo.valor.replace('\\', '') == '<>':
                 return exp1 != exp2
 
-def expresion_aritmetica(self, nodo, tupla, names, tablas):
+    def expresion_aritmetica(self, nodo, tupla, names, tablas):
         if len(nodo.hijos) <= 1:
             if nodo.etiqueta == 'ENTERO':
                 return int(nodo.valor)
