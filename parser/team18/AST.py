@@ -14,20 +14,29 @@ import tkinter.messagebox
 from prettytable import PrettyTable
 from reporte_g import *
 import copy
+import itertools
+from reportes import *
 
 #---------variables globales
 listaInstrucciones = []
 listaTablas = [] #guarda las cabeceras de las tablas creadas
 outputTxt = [] #guarda los mensajes a mostrar en consola
+outputTS = [] #guarda el reporte tabla simbolos
 baseActiva = "" #Guarda la base temporalmente activa
+
+Errores_Semanticos = []
 #--------Ejecucion Datos temporales-----------
 def reiniciarVariables():
     global outputTxt
     outputTxt=[]
-    global listaTablas
-    listaTablas=[]
-    EDD.dropAll() #eliminar para ir haciendo pruebas, quitarlo al final
-    baseActiva =""#eliminar para ir haciendo pruebas, quitarlo al final
+    global Errores_Semanticos
+    Errores_Semanticos=[]
+    #global listaTablas
+    #listaTablas=[]
+    #global outputTS
+    #outputTS = []
+    #EDD.dropAll() #eliminar para ir haciendo pruebas, quitarlo al final
+    #baseActiva =""#eliminar para ir haciendo pruebas, quitarlo al final
 
 def insertartabla(columnas,nombre):
     global listaTablas
@@ -59,6 +68,16 @@ def agregarMensjae(tipo,mensaje,codigo):
     txtOut.codigo=codigo
     outputTxt.append(txtOut)
 
+def agregarTSRepor(instruccion,identificador,tipo,referencia,dimension):
+    global outputTS
+    tsOut=MensajeTs()
+    tsOut.instruccion=instruccion
+    tsOut.identificador=identificador
+    tsOut.tipo=tipo
+    tsOut.referencia=referencia
+    tsOut.dimension=dimension
+    outputTS.append(tsOut)
+
 def buscarTabla(baseAc,nombre):
     pos=0
     while pos< len(listaTablas):
@@ -74,7 +93,7 @@ def validarTipo(T,valCOL):
     #acepta int
     elif(T=="smallint" or T=="integer" or T=="bigint"):
         try:
-            valCOL=int(float(valCOL))
+            valCOL=int(round(float(valCOL)))
         except:
             valCOL=None
     #acepta float
@@ -90,12 +109,63 @@ def validarTipo(T,valCOL):
         except:
             valCOL=None
     #acepta date
-    elif(T=="date" or T=="timestamp" or T=="time" or T=="interval" or T=="boolean"):
-        print("falta validar las fechas")
+    elif(T=="date" or T=="timestamp" or T=="time" or T=="interval"):
+        try:
+            valCOL=str(valCOL)
+        except:
+            valCOL=None
     #acepta Type
+    elif(T=="boolean"):
+        try:
+            valCOL=str(valCOL)
+            if(valCOL=='1'):
+                valCOL=True
+            elif(valCOL=='0'):
+                valCOL=False
+            else:
+                valCOL=valCOL.lower()
+                if(valCOL=='true' or valCOL=='t' or valCOL=='y' or valCOL=='yes' or valCOL=='on'):
+                    valCOL=True
+                elif(valCOL=='false' or valCOL=='f' or valCOL=='n' or valCOL=='no' or valCOL=='off'):
+                    valCOL=False
+                else:
+                    valCOL=None
+        except:
+            valCOL=None
     else:
-        print("falta validar los Type")
+        tablaType=EDD.extractTable(baseActiva,T)#Extraer valores de la tabla
+        if(tablaType==None):
+            valCOL=None
+        else:
+            if valCOL not in tablaType[0]:
+                valCOL=None
+            
     return valCOL
+
+def validarSizePres(tipo,val,size,presicion):
+    result=True
+    #revisar el valor
+    if(val!=None):
+        if(size!=None):
+            #tipos con (n)
+            if(presicion==None):
+                if(tipo=="character varying" or tipo=="varchar" 
+                or tipo=="text" or tipo=="character" or tipo=="char"):
+                    if(len(val)>size):
+                        result=False
+            #tipos con (n,m)
+            else:
+                ''
+        #tamanio por defecto    
+        else:
+            if(tipo=='char' or tipo=='character'):
+                #size por defecto = 1
+                if(len(val)>1):
+                    result=False
+    #no hay valor
+    else:
+        result=True
+    return result
 
 def use_db(nombre):
     global baseActiva
@@ -134,9 +204,10 @@ def obtenerPKexp(expresion,nombres,ts):
 def getpks(baseAc,nombret):
     tabla=buscarTabla(baseAc,nombret)
     llaves=[]
-    for colum in tabla.atributos:
-        if colum.primary==True:
-            llaves.append(colum.nombre)
+    if tabla is not None:
+        for colum in tabla.atributos:
+            if colum.primary==True:
+                llaves.append(colum.nombre)
     return llaves
 
 def llaves_tabla(exp,llaves,ts):
@@ -283,9 +354,11 @@ def eliminar_Tabla(instr,ts):
             msg='Error en EDD'
             agregarMensjae('error',msg,'')
         elif(result==2):
+            Errores_Semanticos.append("Error Semantico: No Existe la base de datos activa "+baseActiva)
             msg='no existe la base de datos activa:'+baseActiva
             agregarMensjae('error',msg,'')
         elif(result==3):
+            Errores_Semanticos.append("Error Semantico: 42P01: La tabla "+nombreT +" no existe")
             msg='42P01:Tabla no existe:'+nombreT
             agregarMensjae('error',msg,'42P01')
         
@@ -308,17 +381,15 @@ def seleccion_db(instr,ts):
         agregarMensjae('exito',msg,'')
         use_db(nombreDB)
     else: # No encontrada
+        Errores_Semanticos.append("Error Semantico: 42602: La Base de datos  "+ str(nombreDB) +" no existe")
         msg='Base de datos \"'+str(nombreDB)+'\" no registrada'
         agregarMensjae('error',msg,'')
         
 #---------pendientes-----------------------
 def crear_Tabla(instr,ts):
     #Pendiente
-    # -foraneas
-    # -tipo columna TYPE
     # -zonahoraria
     # -check
-    # -herencia
 
     nombreT=resolver_operacion(instr.nombre,ts).lower()
     listaColumnas=[]
@@ -327,12 +398,30 @@ def crear_Tabla(instr,ts):
     msg='Creando Tabla:'+nombreT
     agregarMensjae('normal',msg,'')
     contC=0# variable para contar las columnas a mandar a EDD
-
-    print('padre:',instr.padre)
+    
+    #verificar el padre
+    if(instr.padre!=False):
+        nombPadre=resolver_operacion(instr.padre,ts).lower()
+        herencia=buscarTabla(baseActiva,nombPadre)
+        #error no existe la tabla
+        if(herencia==None):
+            crearOK=False
+            Errores_Semanticos.append("Error Semantico: 42P01: No existe la tabla para la herencia:"+nombPadre)
+            msg='42P01:No existe la tabla para la herencia:'+nombPadre
+            agregarMensjae('error',msg,'42P01')
+        #copiar las columnas
+        else:
+            for col in herencia.atributos:
+                msg='columna herencia:'+col.nombre
+                agregarMensjae('alert',msg,'')
+                listaColumnas.append(col)
+    
     #recorrer las columnas
     for colum in instr.columnas :
         colAux=Columna_run()#columna temporal para almacenar
+        #bloque de llaves primarias o foraneas
         if isinstance(colum, llaveTabla) :
+            #bloque de primarias
             if(colum.tipo==True):
                 if(pkCompuesta==False):
                     pkCompuesta=True#primer bloque pk(list)
@@ -342,23 +431,105 @@ def crear_Tabla(instr,ts):
                         for lcol in listaColumnas:
                             if(lcol.nombre==pkC.lower()):
                                 exCol=True
+                                
+                                new_id=""
+                                for con in colum.columnas:
+                                    if new_id=="":
+                                        new_id=new_id+con
+                                    else:
+                                        new_id=new_id+"_"+con
+
+                                print("saca columnas:",new_id)
+                                (lcol.constraint).primary=new_id
+
                                 if(lcol.primary==None):
                                     lcol.primary=True
                                 else:
                                     crearOK=False
                                     msg='primary key repetida:'+pkC.lower()
-                                    agregarMensjae('error',msg,'42P16')   
+                                    agregarMensjae('error',msg,'42P16') 
+                                    Errores_Semanticos.append("Error Semantico: 42P16: Primary key Repetida "+pkC.lower())
+                                      
                         if(exCol==False):
                             crearOK=False
+                            Errores_Semanticos.append("Error Semantico: 42P16: No se puede asignar como primaria: "+pkC.lower())
                             msg='42P16:No se puede asignar como primaria:'+pkC.lower()
                             agregarMensjae('error',msg,'42P16')
-                else:
+                            
+
+                else: 
                     crearOK=False
                     msg='42P16:Solo puede existir un bloque de PK(list)'
                     agregarMensjae('error',msg,'42P16')
+                    Errores_Semanticos.append("Error Semantico: 42P16:  Solo puede existir un bloque de PK(list)")
+            #bloque de foraneas
             else:
-                #bloque de foraneas
-                print('llaves Primaria:',colum.tipo,'lista:',colum.columnas,'tablaref',colum.referencia,'listaref',colum.columnasRef)
+                refe=colum.referencia.lower()
+                tablaRef=buscarTabla(baseActiva,refe)
+                #no existe la tabla de referencia
+                if(tablaRef==None):
+                    crearOK=False
+                    msg='42P01:no existe la referencia a la Tabla '+refe
+                    agregarMensjae('error',msg,'42P01')
+                    Errores_Semanticos.append("Error Semantico: 42P01: No existe la referencia a la Tabla "+refe)
+                else:
+                    #validar #columnas==#refcolums
+                    if(len(colum.columnas)==len(colum.columnasRef)):
+                        #verificar si existen dentro de la tabla a crear
+                        pos=0#contador para referencias
+                        for fkC in colum.columnas:
+                            exCol=False
+                            for lcol in listaColumnas:
+                                if(lcol.nombre==fkC.lower()):
+                                    exCol=True
+                                    if(lcol.foreign==None):
+                                        #validar si existe en la tabla de referencia
+                                        exPK=False
+                                        for pkC in tablaRef.atributos:
+                                            #validar nombre y Primary
+                                            if(pkC.nombre==colum.columnasRef[pos].lower() and pkC.primary==True):
+                                                exPK=True
+                                                lcol.foreign=True #asignar como foranea
+                                                lcol.refence=[refe,pkC.nombre] #guardar la tabla referencia y la columna
+                                                
+                                                
+                                                new_id=""
+                                                for con in colum.columnasRef:
+                                                    if new_id=="":
+                                                        new_id=new_id+con
+                                                    else:
+                                                        new_id=new_id+"_"+con
+                                                print("saca columnas:",new_id)
+                                                (lcol.constraint).foreign=new_id
+
+                                                if(pkC.tipo!=lcol.tipo):
+                                                    crearOK=False
+                                                    msg='42804:no coicide el tipo de dato:'+colum.columnasRef[pos]
+                                                    agregarMensjae('error',msg,'42804')
+                                                    Errores_Semanticos.append("Error Semantico: no coicide el tipo de dato:"+colum.columnasRef[pos])
+                                                break                                  
+                                        if(exPK==False):
+                                            crearOK=False
+                                            msg='42703:no existe la referencia pk:'+colum.columnasRef[pos]
+                                            agregarMensjae('error',msg,'42703')
+                                            Errores_Semanticos.append("Error Semantico 42703: No existe la referencia pk: "+colum.columnasRef[pos])
+                                    else:
+                                        crearOK=False
+                                        msg='foreign key repetida:'+fkC.lower()
+                                        agregarMensjae('error',msg,'42P16')
+                                        Errores_Semanticos.append("Error Semantico 42P16: foreign key repetida: "+fkC.lower())
+                            if(exCol==False):
+                                crearOK=False
+                                msg='42P16:No se puede asignar como foranea:'+fkC.lower()
+                                agregarMensjae('error',msg,'42P16')
+                                Errores_Semanticos.append('Error Semantico 42P16:No se puede asignar como foranea: '+fkC.lower())
+                            pos=pos+1
+                    else:
+                        crearOK=False
+                        msg='42P16: la cantidad de referencias es distinta: '+str(len(colum.columnas))+'!='+str(len(colum.columnasRef))
+                        agregarMensjae('error',msg,'42P16')
+                        Errores_Semanticos.append('Error Semantico 42P16: la cantidad de referencias es distinta: '+str(len(colum.columnas))+'!='+str(len(colum.columnasRef)))
+        #columna
         elif isinstance(colum, columnaTabla) :
             contC=contC+1
             colAux.nombre=resolver_operacion(colum.id,ts).lower()#guardar nombre col
@@ -371,6 +542,7 @@ def crear_Tabla(instr,ts):
                     colOK=False
                     msg='42701:nombre de columna repetido:'+colAux.nombre
                     agregarMensjae('error',msg,'42701')
+                    Errores_Semanticos.append('Error Semantico 42701:nombre de columna repetido:'+colAux.nombre)
                     break;
                 else:
                     pos=pos+1
@@ -378,14 +550,17 @@ def crear_Tabla(instr,ts):
             if(colOK):
                 if isinstance(colum.tipo,Operando_ID):
                     colAux.tipo=resolver_operacion(colum.tipo,ts).lower()#guardar tipo col
-                    #revisar la lista de Types
-                    crearOK=False
-                    msg='42704:No existe el Type '+colAux.tipo+' en la columna '+colAux.nombre
-                    agregarMensjae('error',msg,'42704')
+                    tablaType=buscarTabla(baseActiva,colAux.tipo)#revisar la lista de Types
+                    if(tablaType==None):
+                        crearOK=False
+                        msg='42704:No existe el Type '+colAux.tipo+' en la columna '+colAux.nombre
+                        agregarMensjae('error',msg,'42704')
+                        Errores_Semanticos.append('Error Semantico 42704:No existe el Type '+colAux.tipo+' en la columna '+colAux.nombre)
+
                 else:
                     colAux.tipo=colum.tipo.lower() #guardar tipo col
                 if(colum.valor!=False):
-                    if(colAux.tipo=='character varying' or colAux.tipo=='varchar' or colAux.tipo=='text' or colAux.tipo=='character' or colAux.tipo=='char'):
+                    if(colAux.tipo=='character varying' or colAux.tipo=='varchar' or colAux.tipo=='character' or colAux.tipo=='char' or colAux.tipo=='interval'):
                         if(len(colum.valor)==1):
                             errT=True;#variable error en p varchar(p)
                             if isinstance(colum.valor[0],Operando_Numerico):
@@ -397,11 +572,13 @@ def crear_Tabla(instr,ts):
                                 crearOK=False
                                 msg='42601:el tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre
                                 agregarMensjae('error',msg,'42601')
+                                Errores_Semanticos.append('Error Semantico: 42601: El tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre)
                         else:
                             crearOK=False
                             msg='42601:el tipo '+colAux.tipo+' solo acepta 1 parametro: '+colAux.nombre
                             agregarMensjae('error',msg,'42601')
-                    elif(colAux.tipo=='decimal' or colAux.tipo=='numeric' or colAux.tipo=='double precision'):
+                            Errores_Semanticos.append('Error Semantico: 42601:el tipo '+colAux.tipo+' solo acepta 1 parametro: '+colAux.nombre)
+                    elif(colAux.tipo=='decimal' or colAux.tipo=='numeric'):
                         if(len(colum.valor)==1):
                             errT=True;#variable error en p varchar(p)
                             if isinstance(colum.valor[0],Operando_Numerico):
@@ -413,6 +590,7 @@ def crear_Tabla(instr,ts):
                                 crearOK=False
                                 msg='42601:el tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre
                                 agregarMensjae('error',msg,'42601')
+                                Errores_Semanticos.append('Error Semantico: 42601:el tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre)
                         elif(len(colum.valor)==2):
                             errT=True;#variable error en p varchar(p)
                             if (isinstance(colum.valor[0],Operando_Numerico) and isinstance(colum.valor[1],Operando_Numerico)):
@@ -426,14 +604,17 @@ def crear_Tabla(instr,ts):
                                 crearOK=False
                                 msg='42601:el tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre
                                 agregarMensjae('error',msg,'42601')
+                                Errores_Semanticos.append('Error Semantico: 42601:el tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre)
                         else:
                             crearOK=False
                             msg='42601:el tipo '+colAux.tipo+' acepta maximo 2 parametro: '+colAux.nombre
                             agregarMensjae('error',msg,'42601')
+                            Errores_Semanticos.append('Error Semantico: 42601:el tipo '+colAux.tipo+' acepta maximo 2 parametro: '+colAux.nombre)
                     else:
                         crearOK=False
                         msg='42601:el tipo '+colAux.tipo+' no acepta parametros:'+colAux.nombre
                         agregarMensjae('error',msg,'42601')
+                        Errores_Semanticos.append('Error Semantico: 42601:el tipo '+colAux.tipo+' no acepta parametros:'+colAux.nombre)
                 if(colum.zonahoraria!=False):
                     '''aca se debe verificar la zonahoraria es una lista'''
                     print('zonahoraria',colum.zonahoraria)
@@ -449,16 +630,19 @@ def crear_Tabla(instr,ts):
                                         crearOK=False
                                         msg='42804:no se puede asignar como default un ID col:'+colAux.nombre
                                         agregarMensjae('error',msg,'42804')
+                                        Errores_Semanticos.append('Error Semantico: 42804:no se puede asignar como default un ID col:'+colAux.nombre)
                                     elif(T==None or isinstance(atributoC.default,Operando_ID)):
                                         T=''
                                         crearOK=False
                                         msg='42804:valor default != '+colAux.tipo+ ' en col:'+colAux.nombre
                                         agregarMensjae('error',msg,'42804')
+                                        Errores_Semanticos.append('Error Semantico: 42804:valor default != '+colAux.tipo+ ' en col:'+colAux.nombre)
                                     colAux.default=T#guardar default
                                 else:
                                     crearOK=False
                                     msg='42P16:atributo default repetido en Col:'+colAux.nombre
                                     agregarMensjae('error',msg,'42P16')
+                                    Errores_Semanticos.append('Error Semantico: 42P16:atributo default repetido en Col:'+colAux.nombre)
                             elif(atributoC.constraint!=None):
                                 if(colAux.constraint==None):
                                     colAux.constraint=atributoC.constraint#guardar constraint
@@ -466,6 +650,7 @@ def crear_Tabla(instr,ts):
                                     crearOK=False
                                     msg='42P16:atributo constraint repetido en Col:'+colAux.nombre
                                     agregarMensjae('error',msg,'42P16')
+                                    Errores_Semanticos.append('Error Semantico: 42P16:atributo constraint repetido en Col:'+colAux.nombre)
                             elif(atributoC.null!=None):
                                 if(colAux.anulable==None):
                                     colAux.anulable=atributoC.null#guardar anulable
@@ -473,6 +658,7 @@ def crear_Tabla(instr,ts):
                                     crearOK=False
                                     msg='42P16:atributo anulable repetido en Col:'+colAux.nombre
                                     agregarMensjae('error',msg,'42P16')
+                                    Errores_Semanticos.append('Error Semantico: 42P16:atributo anulable repetido en Col:'+colAux.nombre)
                             elif(atributoC.unique!=None):
                                 if(colAux.unique==None):
                                     colAux.unique=atributoC.unique#guardar unique
@@ -480,6 +666,7 @@ def crear_Tabla(instr,ts):
                                     crearOK=False
                                     msg='42P16:atributo unique repetido en Col:'+colAux.nombre
                                     agregarMensjae('error',msg,'42P16')
+                                    Errores_Semanticos.append('Error Semantico: 42P16:atributo unique repetido en Col:'+colAux.nombre)
                             elif(atributoC.primary!=None):
                                 if(colAux.primary==None):
                                     colAux.primary=atributoC.primary#guardar primary
@@ -487,18 +674,51 @@ def crear_Tabla(instr,ts):
                                     crearOK=False
                                     msg='42P16:atributo primary repetido en Col:'+colAux.nombre
                                     agregarMensjae('error',msg,'42P16')
+                                    Errores_Semanticos.append('Error Semantico: 42P16:atributo primary repetido en Col:'+colAux.nombre)
                             elif(atributoC.check != None):
                                 #el atributo check trae otra lista
                                 print('check:',atributoC.check)
                                 for exp in atributoC.check:
                                     print('resultado: ',resolver_operacion(exp,ts))
                 listaColumnas.append(colAux)
- 
-                
-            
-
-    #analisas si las columnas estan bien
-    #buscar las tablas de una base de datos retorna una lista de tablas
+    
+    #validar foranea compuesta
+    if(crearOK):
+        listFK=[]
+        #recorrer la tabla nueva para obtener las referencias
+        for col in listaColumnas:
+            if(col.foreign):
+                if col.refence[0] not in listFK:
+                    listFK.append(col.refence[0])
+        lenFK=[]
+        lenPK=[]
+        
+        #obtener longitud de foranea
+        for tab in listFK:
+            lenPK.append(0)
+            lenFK.append(len(getpks(baseActiva,tab)))
+        #obtener la longitud de foranea en tabla actual
+        for col in listaColumnas:
+            if(col.foreign):
+                contFK=0
+                for tab in listFK:
+                    if(col.refence[0]==tab):
+                        lenPK[contFK]+=1
+                        break
+                    contFK=contFK+1
+        #validar #foraneas==#primarias en referencia
+        pos=0
+        while pos<len(listFK):
+            if(lenFK[pos]!=lenPK[pos]):
+                crearOK=False
+                msg='42830:llave foranea debe ser compuesta ref:'+listFK[pos]
+                agregarMensjae('error',msg,'42830')
+                Errores_Semanticos.append('Error Semantico: 42830:llave foranea debe ser compuesta ref:'+listFK[pos])
+            pos+=1
+        #print('lista de Referencias:',listFK)
+        #print('count pk en la  refe:',lenFK)
+        #print('count fk tabla nueva:',lenPK)
+    #crear la tabla
     if(crearOK):
         result=EDD.showTables(baseActiva)
         if(result!=None):
@@ -506,6 +726,7 @@ def crear_Tabla(instr,ts):
                 if tab==nombreT:
                     msg='42P07:Error la tabla ya existe:'+nombreT
                     agregarMensjae('error',msg,'42P07')
+                    Errores_Semanticos.append('Error Semantico: 42P07: Latabla '+ nombreT + ' ya existe')
                     crearOK=False
                     break
             if crearOK:
@@ -525,6 +746,7 @@ def crear_Tabla(instr,ts):
 
         else:
             msg='no existe la base de datos activa:'+baseActiva
+            Errores_Semanticos.append('Error Semantico: no existe la base de datos activa:'+baseActiva)
             agregarMensjae('error',msg,'')
 
 def crear_Type(instr,ts):
@@ -540,6 +762,7 @@ def crear_Type(instr,ts):
             if nombreT in result: # Repetido
                 msg='42P07:Nombre repetido ...'
                 agregarMensjae('error',msg,'42P07')
+                Errores_Semanticos.append('Error Semantico: 42P07 Nombre repetido')
             else:
                 for valor in instr.valores: # Verificacion tipos
                     val=resolver_operacion(valor,ts)
@@ -549,6 +772,7 @@ def crear_Type(instr,ts):
                 if cont != len(instr.valores):
                     msg='42804:No todos los valores son del mismo tipo'
                     agregarMensjae('error',msg,'42804')
+                    Errores_Semanticos.append('Error Semantico: 42804:No todos los valores son del mismo tipo')
                 else:
                     flag=True
             if(flag): # crea e inserta valores
@@ -564,21 +788,27 @@ def crear_Type(instr,ts):
                     elif respuestavalores==1:
                         msg='42P16:Error insertando valores'
                         agregarMensjae('error',msg,'42P16')
+                        Errores_Semanticos.append('Error Semantico: 42P16:Error insertando valores')
                     elif respuestavalores==2:
                         msg='Base de datos no existe'
                         agregarMensjae('error',msg,'')
+                        Errores_Semanticos.append('Error Semantico: 42P16: La base de datos no existe')
                     elif respuestavalores==3:
                         msg='Type no encontrado'
                         agregarMensjae('error',msg,'')
+                        Errores_Semanticos.append('Error Semantico: 42P01: Type no encontrado')
                 elif respuestatype==1:
                     msg='Error al crear type'
                     agregarMensjae('error',msg,'42P16')
+                    Errores_Semanticos.append('Error Semantico: 42P16: Error al crear type')
                 elif respuestatype==2:
                     msg='Base de datos no existe'
                     agregarMensjae('error',msg,'')
+                    Errores_Semanticos.append('Error Semantico: 42P01: La base de datos no existe')
                 elif respuestatype==3:
                     msg='42P07:Nombre repetido ...'
                     agregarMensjae('error',msg,'42P07')
+                    Errores_Semanticos.append('Error Semantico: 42P07: Nombre repetido')
     else:
         msg='No hay una base de datos activa'
         agregarMensjae('alert',msg,'')
@@ -586,8 +816,7 @@ def crear_Type(instr,ts):
 def insertar_en_tabla(instr,ts):
     #pendiente
     # -Datos de tipo fecha
-    # -Datos TYPE
-    # -size and precision
+    # -size and precision para numeric
     # -check
     # -constraint
     insertOK=True
@@ -604,6 +833,7 @@ def insertar_en_tabla(instr,ts):
             insertOK=False
             msg='42P01'+':la tabla no existe en DB:'+baseActiva
             agregarMensjae('error',msg,'42P01')
+            Errores_Semanticos.append('Error Semantico: 42P01'+':la tabla no existe en DB:'+baseActiva)
         else:
             tablaInsert = buscarTabla(baseActiva,nombreT)
     else:
@@ -639,6 +869,7 @@ def insertar_en_tabla(instr,ts):
                     #valores null
                     insertOK=False
                     msg='42804:no se pueden insertar valores de tipo ID:'+resolver_operacion(col,ts)
+                    Errores_Semanticos.append('Error Semantico: 42804:no se pueden insertar valores de tipo ID:'+resolver_operacion(col,ts))
                     agregarMensjae('error',msg,'42804')
                 else:
                     #validar el tipo de dato
@@ -648,6 +879,7 @@ def insertar_en_tabla(instr,ts):
                     if(valCOL==None):
                         insertOK=False
                         msg='42804:La columna '+tablaInsert.atributos[pos].nombre+' es de tipo '+tablaInsert.atributos[pos].tipo
+                        Errores_Semanticos.append('Error Semantico: 42804:La columna '+tablaInsert.atributos[pos].nombre+' es de tipo '+tablaInsert.atributos[pos].tipo)
                         agregarMensjae('error',msg,'42804')
 
                 ValInsert[pos]=valCOL
@@ -655,6 +887,7 @@ def insertar_en_tabla(instr,ts):
         else:
             insertOK=False
             msg='42601:la tabla solo posee '+str(len(tablaInsert.atributos))+' columas'
+            Errores_Semanticos.append('Error Semantico: 42601:la tabla solo posee '+str(len(tablaInsert.atributos))+' columas')
             agregarMensjae('error',msg,'42601')            
     #-entrada con columnas y valores
     else:
@@ -687,6 +920,7 @@ def insertar_en_tabla(instr,ts):
                             #valores null
                             insertOK=False
                             msg='42804:no se pueden insertar valores de tipo ID:'+resolver_operacion(instr.valores[posVal],ts)
+                            Errores_Semanticos.append('Error Semantico: 42804:no se pueden insertar valores de tipo ID:'+resolver_operacion(instr.valores[posVal],ts))
                             agregarMensjae('error',msg,'42804')
                         else:
                             #validar el tipo de dato
@@ -696,6 +930,7 @@ def insertar_en_tabla(instr,ts):
                             if(valCOL==None):
                                 insertOK=False
                                 msg='42804:La columna '+colTab.nombre+' es de tipo '+colTab.tipo
+                                Errores_Semanticos.append('Error semantico: 42804:La columna '+colTab.nombre+' es de tipo '+colTab.tipo)
                                 agregarMensjae('error',msg,'42804')
                         #agregar a la lista de EDD
                         ValInsert[posEDD]=valCOL
@@ -706,6 +941,7 @@ def insertar_en_tabla(instr,ts):
                 if (colEx==False):
                     insertOK=False
                     msg='42703:la columna no existe:'+colList
+                    Errores_Semanticos.append('Error semantico: 42703:la columna no existe:'+colList)
                     agregarMensjae('error',msg,'42703')
                 #cambiar de valor
                 posVal=posVal+1
@@ -715,13 +951,13 @@ def insertar_en_tabla(instr,ts):
         else:
             insertOK=False
             msg='#columas no es igual a #valores, '+str(len(instr.columnas))+'!='+str(len(instr.valores))
+            Errores_Semanticos.append('Error_Semantico: #columas no es igual a #valores, '+str(len(instr.columnas))+'!='+str(len(instr.valores)))
             agregarMensjae('error',msg,'')
             
 
     #validaciones parametros de columna
     if(insertOK):
         #-pendiente
-        # llaves foranes !=none
         # check
         pos=0
         for col in tablaInsert.atributos:
@@ -730,14 +966,22 @@ def insertar_en_tabla(instr,ts):
                 if(col.anulable==False and col.default==None):
                     insertOK=False
                     msg='23502:columna no puede ser null:'+col.nombre
+                    Errores_Semanticos.append('Error Semantico: 23502:columna no puede ser null:'+col.nombre)
                     agregarMensjae('error',msg,'23502')
                 #agregar valores default
                 elif(col.default!=None):
                     ValInsert[pos]=col.default
-
+                #llaves primaria != null
                 if(col.primary):
                     insertOK=False
                     msg='23502:llave primaria no puede ser null:'+col.nombre
+                    Errores_Semanticos.append('Error Semantico: 23502:llave primaria no puede ser null:'+col.nombre)
+                    agregarMensjae('error',msg,'23502')
+                #llaves foranea != null
+                if(col.foreign):
+                    insertOK=False
+                    msg='23502:llave foranea no puede ser null:'+col.nombre
+                    Errores_Semanticos.append('Error Semantico: 23502:llave foranea no puede ser null:'+col.nombre)
                     agregarMensjae('error',msg,'23502')
             #insertaron null desde consola
             elif(ValInsert[pos]==Operando_Booleano):
@@ -746,15 +990,108 @@ def insertar_en_tabla(instr,ts):
                 if(col.anulable==False):
                     insertOK=False
                     msg='23502:columna no puede ser null:'+col.nombre
+                    Errores_Semanticos.append('Error Semantico: 23502:columna no puede ser null:'+col.nombre)
                     agregarMensjae('error',msg,'23502')
                 if(col.primary):
                     insertOK=False
                     msg='23502:llave primaria no puede ser null:'+col.nombre
+                    Errores_Semanticos.append('Error Semantico: 23502:Primary key no puede ser null:'+col.nombre)
                     agregarMensjae('error',msg,'23502')
-
+                #llaves foranea != null
+                if(col.foreign):
+                    insertOK=False
+                    msg='23502:llave foranea no puede ser null:'+col.nombre
+                    Errores_Semanticos.append('Error Semantico: 23502:Foreing key no puede ser null:'+col.nombre)
+                    agregarMensjae('error',msg,'23502')
             pos=pos+1
+    #validaciones llaves foraneas
+    if(insertOK):
+        
+        #obtener las tablas referenciadas
+        listTabRef=[]#guarda las tablas referenciadas 
+        listColFK=[]#guarda las columnas primarias de cada tabla referenciada
+        listValFK=[]#guarda los valores a insertar en esas columnas
+        listPosFk=[]#guarda la pos[x] de la tabla referenciada para los valores
+        for col in tablaInsert.atributos:
+            if (col.foreign and col.refence[0] not in listTabRef):
+                listTabRef.append(col.refence[0])
+        #obtener los valores para cada ref
+        for x in listTabRef:
+            colAux=[]
+            valAux=[]
+            posAux=[]
+            pos=0
+            for col in tablaInsert.atributos:
+                if(col.foreign and col.refence[0]==x):
+                    colAux.append(col.refence[1])
+                    valAux.append(ValInsert[pos])
+                pos+=1
+            listColFK.append(colAux)
+            listValFK.append(valAux)
+            #obtener la posicion segun la tabla original
+            result=buscarTabla(baseActiva,x)
+            if(result==None):
+                insertOK=False
+                msg='la tabla de referencia no existe:'+x
+                agregarMensjae('error',msg,'')
+            else:
+                
+                for i in colAux:
+                    pos=0
+                    for val in result.atributos:
+                        if(val.nombre==i):
+                            posAux.append(pos)
+                            break
+                        pos+=1
+            listPosFk.append(posAux)
+        #validar si existen los valores
+        contx=0
+        for x in listTabRef:
+            result=EDD.extractTable(baseActiva,x)
+            if(result==None):
+                insertOK=False
+                msg='la tabla de referencia no existe:'+x
+                agregarMensjae('error',msg,'')
+            else:
+                #recorrer tabla fila por fila
+                pkExiste=False
+                for y in result:
+                    pos=0
+                    contEx=0
+                    #verificar si cumple toda la llave compuesta
+                    for d in listValFK[contx]:
+                        if(y[listPosFk[contx][pos]]==d):
+                            contEx+=1
+                        pos+=1
+                    if(contEx==len(listValFK[contx])):
+                        pkExiste=True
+                        break
+
+                if(pkExiste==False):
+                    insertOK=False
+                    msg='23503:no existe la llave foranea'+str(listValFK[contx])+' en '+x 
+                    Errores_Semanticos.append('Error Semantico: 23503:no existe la llave foranea'+str(listValFK[contx])+' en '+x)
+                    agregarMensjae('error',msg,'23503')
+            contx+=1
+
+        #print(' Tablas Referenciadas  :',listTabRef)
+        #print(' Columnas de Referencia:',listColFK)
+        #print('     valores a insertar:',listValFK)
+        #print('posicion tabla original:',listPosFk)
+        
+
+
     #validar size, presicion
-    if(True): ''
+    if(insertOK):
+        pos=0
+        for col in tablaInsert.atributos:
+            val=validarSizePres(col.tipo,ValInsert[pos],col.size,col.precision)
+            if(val==False):
+                insertOK=False
+                msg='22001:valor muy grande para la columna:'+col.nombre
+                #Errores_Semanticos.append('Error semantico: 22001:valor muy grande para la columna:'+col.nombre)
+                agregarMensjae('error',msg,'22001')
+            pos=pos+1
     #realizar insert con EDD
     if(insertOK):
         #llamar metodo insertar EDD
@@ -768,6 +1105,29 @@ def insertar_en_tabla(instr,ts):
         if(result==0):
             msg='valores insertados:'+str(ValInsert)
             agregarMensjae('exito',msg,'')
+            #agregar mensaje Tabla simbolos
+            agregarTSRepor('INSERT','','','','')
+            #lista de valores
+            if(instr.columnas==False):
+                pos=0
+                #recorrer los valores
+                for val in instr.valores:
+                    tip=tablaInsert.atributos[pos].tipo
+                    ident=tablaInsert.atributos[pos].nombre
+                    agregarTSRepor('',ident,tip,nombreT,'1')
+                    pos+=1
+            #listado de columnas y valores
+            else:
+                #recorrer las columnas a insertar
+                for colList in instr.columnas:
+                    #recorrer las columnas en la tabla
+                    for colTab in tablaInsert.atributos:
+                        if(colTab.nombre==colList.lower()):
+                            tip=colTab.tipo
+                            ident=colTab.nombre
+                            agregarTSRepor('',ident,tip,nombreT,'1')
+                            break;
+            
         elif (result==1):
             msg='Error en EDD:'
             agregarMensjae('error',msg,'')
@@ -777,8 +1137,10 @@ def insertar_en_tabla(instr,ts):
         elif (result==3):
             msg='42P01:tabla no existe:'+nombreT
             agregarMensjae('error',msg,'42P01')
+            Errores_Semanticos.append('Error Semantico: 42P01:tabla no existe:'+nombreT)
         elif (result==4):
             msg='23505:llave primaria duplicada:'
+            Errores_Semanticos.append('Error Semantico: 23505:llave primaria duplicada:')
             agregarMensjae('error',msg,'23505')
         elif (result==5):
             msg='columnas faltantes para EDD'
@@ -808,6 +1170,7 @@ def update_register(exp,llaves,ts,baseAc,tablenm,nameC,valor):
                             agregarMensjae('error','Base de datos no existe','')
                         elif respuesta==3:
                             agregarMensjae('error','42P01:Tabla '+tablenm+' no registrada','42P01')
+                            Errores_Semanticos.append('Error semantico: 42P01:Tabla '+tablenm+' no registrada')
             else:
                 if all(item in registro for item in pk_value):
                     for i in pk_index:
@@ -823,6 +1186,7 @@ def update_register(exp,llaves,ts,baseAc,tablenm,nameC,valor):
                             agregarMensjae('error','Base de datos no existe','')
                         elif respuesta==3:
                             agregarMensjae('error','42P01:Tabla '+tablenm+' no registrada','42P01')
+                            Errores_Semanticos.append('Error semantico: 42P01:Tabla '+tablenm+' no registrada')
     else:
         agregarMensjae('error','No se encontro la llave primaria','')
 
@@ -852,10 +1216,12 @@ def actualizar_en_tabla(instr,ts):
                                                  update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,value)
                                             else:
                                                 agregarMensjae('error','22001:Valor muy grande para tipo '+colum.tipo+'('+str(colum.size)+')','22001')
+                                                Errores_Semanticos.append('Error semantico: 22001:Valor muy grande para tipo '+colum.tipo+'('+str(colum.size)+')')
                                         else: 
                                             update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,value)
                                     elif colum.tipo in tiponum: # error update
                                         agregarMensjae('error','42804:datatype_mismatch (no coincide el tipo de datos)','42804')
+                                        Errores_Semanticos.append('Error semantico: 42804:datatype_mismatch (no coincide el tipo de datos)')
                                 else: # numero
                                     if colum.tipo in tipostring: # casteo y update
                                         if colum.size != "":
@@ -863,12 +1229,14 @@ def actualizar_en_tabla(instr,ts):
                                                 update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,str(value))
                                             else:
                                                 agregarMensjae('error','22001:Valor muy grande para tipo '+colum.tipo+'('+str(colum.size)+')','22001')
+                                                Errores_Semanticos.append('Error Semantico: 22001:Valor muy grande para tipo '+colum.tipo+'('+str(colum.size)+')')
                                         else:
                                             update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,value)
                                     elif colum.tipo in tiponum: # update normal
                                         update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,value)
         else:
             agregarMensjae('error','42P01:Tabla '+nombreT+' no registrada','42P01')
+            Errores_Semanticos.append('Error semantico: 42P01:Tabla '+nombreT+' no registrada')
     else:
         agregarMensjae('alert','No hay una base de datos activa','')
 
@@ -884,7 +1252,6 @@ def eliminar_de_tabla(instr,ts):
             pk_index = indice_llaves(primarias,baseActiva,nombreT)
             pk_value = list(filter(None, pk_value))
             if pk_value is not None:
-                print('valores ',pk_value,'index ',pk_index)
                 registros=EDD.extractTable(baseActiva,nombreT) 
                 for registro in registros:
                     atributodel=[]
@@ -902,6 +1269,7 @@ def eliminar_de_tabla(instr,ts):
                                 agregarMensjae('error','Base de datos no existe','')
                             elif respuesta==3:
                                 agregarMensjae('error','42P01:Tabla '+nombreT+' no registrada','42P01')
+                                Errores_Semanticos.append('Error semantico: 42P01:Tabla '+nombreT+' no registrada')
                     else:
                         if all(item in registro for item in pk_value):
                             for i in pk_index:
@@ -916,10 +1284,12 @@ def eliminar_de_tabla(instr,ts):
                                 agregarMensjae('error','Base de datos no existe','')
                             elif respuesta==3:
                                 agregarMensjae('error','42P01:Tabla '+nombreT+' no registrada','42P01')
+                                Errores_Semanticos.append('Error semantico: 42P01:Tabla '+nombreT+' no registrada')
             else:
                 agregarMensjae('error','no se encontro pk','')          
         else:
             agregarMensjae('error','42P01:Tabla '+nombreT+' no registrada','42P01')
+            Errores_Semanticos.append('Error semantico: 42P01:Tabla '+nombreT+' no registrada')
     else:
         agregarMensjae('alert','No hay una base de datos activa','')
 
@@ -949,16 +1319,16 @@ def AlterDBF(instr,ts):
             agregarMensjae('normal',outputTxt,"")
             print ("La base de datos se ha renombrado exitosamente")
         elif retorno==1:
-            outputTxt='Hubo un error durante la modificacion de la bd  '
-            agregarMensjae('normal',outputTxt,"")
-            print ("Hubo un error durante la modificacion de la bd")  
+            outputTxt='42P16:Hubo un error durante la modificacion de la bd  '
+            agregarMensjae('error',outputTxt,"42P16")
+            print ("42704:Hubo un error durante la modificacion de la bd")  
         elif retorno==2:
-            outputTxt='La base de datos :'+NombreBaseDatos +' ,no existe '
-            agregarMensjae('normal',outputTxt,"")
-            print ("La base de datos no existe")
+            outputTxt='42P16:La base de datos :'+NombreBaseDatos +' ,no existe '
+            agregarMensjae('error',outputTxt,"42P16")
+            print ("42704:La base de datos no existe")
         elif retorno==3:
-            outputTxt='El nombre de la base de datos :'+ValorInstruccion +' ,ya esta en uso '
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P16:El nombre de la base de datos :'+ValorInstruccion +' ,ya esta en uso '
+            agregarMensjae('error',outputTxt,"42P16")
             print ("El nombre de la bd ya esta en uso")
             
     else:
@@ -990,6 +1360,7 @@ def AlterTBF(instr,ts):
     #RENAME , ALTER_TABLE_SERIE,   ALTER_TABLE_DROP,   ALTER_TABLE_ADD
     ObjetoAnalisis=instr.cuerpo
 
+    global baseActiva
 
     #ANALISIS ALTER RENAME
     if isinstance(ObjetoAnalisis,ALTERTBO_RENAME ):
@@ -1013,7 +1384,7 @@ def AlterTBF(instr,ts):
         
         Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts)
         #CASTEAR INFO DE LA TABLA SI ES QUE SE DEBE CASTEAR
-        
+
     #ANALISIS ALTER DROP
     elif isinstance(ObjetoAnalisis,ALTERTBO_DROP ):
         #Definicion de Instruccion  COLUMN , CONSTRAINT o nula
@@ -1043,26 +1414,93 @@ def AlterTBF(instr,ts):
         INSTRUCCION=ObjetoAnalisis.instruccion
 
         #Recupera posible multiple constraint
-        Obj_Extras=list(ObjetoAnalisis.extra)
-        
-        #clasificacion constraints 
-        Check_Obj = []
-        Unique_Obj = []
-        Primary_Obj = []
-        Foreign_Obj = []
+        Obj_Extras=ObjetoAnalisis.extra
 
-        for val in Obj_Extras:
-            Uptemp=(val.instruccion).upper()
-            if  Uptemp=="CHECK":
-                Check_Obj = (Check_Obj+[val])
-            elif Uptemp =="UNIQUE":
-                Unique_Obj = (Unique_Obj+[val])
-            elif Uptemp =="PRIMARY":
-                Primary_Obj = (Primary_Obj+[val])
-            elif Uptemp =="FOREIGN":
-                Foreign_Obj = (Foreign_Obj+[val])
+        #Para reposicionar valores
+        #if INSTRUCCION.upper()=="C" or INSTRUCCION.upper()=="CONSTRAINT":
+        #elif INSTRUCCION.upper()=="ID" or INSTRUCCION.upper()=="COLUMN":
+        #else:
+
+
+        if INSTRUCCION.upper()=="C" or INSTRUCCION.upper()=="CONSTRAINT":
+            ' '
+            #si trae id agrgar nombre
+            #sino es 0
+            #viene lista de constraints
+            tablab= copy.deepcopy(Get_Table(NombreTabla))
+
+            if len(tablab)>0:
+                #encontro la tabla
+                #comprueba que el nombre columna exista en la tabla
+                Constraint_Resuelve(Obj_Extras,tablab,ID)
             else:
-                print("Instruccion desconocida")
+                outputTxt='42P01:la tabla '+NombreTabla+' no existe en la base de datos'
+                agregarMensjae('error',outputTxt,"42P01")
+                print("la tabla no existe en la base de datos")
+
+
+
+
+        elif INSTRUCCION.upper()=="ID" or INSTRUCCION.upper()=="COLUMN":
+            tablab= copy.copy(Get_Table(NombreTabla))
+
+            if len(tablab)>0:
+                #encontro la tabla
+                #comprueba que el nombre columna no exista en la tabla
+                columnab=copy.copy(Get_Column(ID,(tablab[0]).atributos,tablab[2]))
+                if len(columnab)==0:
+                    #no existe la columna en tabla , la creara
+                    retor=1
+                    try:
+                        #VERFICAR SI DEFAULT ALGUN VALOR XXXXX
+                        retor=EDD.alterAddColumn(baseActiva,NombreTabla,None)
+                    except:
+                        ' '
+                        print("ERROR EN edd")
+                    if retor==0:
+                        #Si se agrego' la columna a la tabla, crea el header COLUMNA
+                        col_new= Columna_run()
+
+                        col_new.nombre=ID
+                        col_new.tipo=TIPO
+                        col_new.constraint=constraint_name()
+
+                        if (VALORTIPO!="") and (VALORTIPO!=None) and (VALORTIPO!=0):
+                            valor= resolver_operacion(VALORTIPO[0],ts)
+                            if valor!=None:
+                                col_new.size=valor
+                            else:
+                                col_new.size=None
+                        else:
+                             col_new.size=None
+
+                        # ((indexo la tabla ).listacolumnas)
+                        cambio=((listaTablas[tablab[1]]).atributos)
+                        cambio+=[col_new]
+                    else:
+                        ' '
+                    #ciclo mensajes
+                    Msg_Alt_Add_Column(NombreTabla,ID,retor)
+                else:
+                    ' '
+                    #existe la columna no la crea
+                    print("la columna YA existe")
+                    outputTxt='42701:La columna:'+ID+" ya Existe en la tabla:"+NombreTabla
+                    agregarMensjae('error',outputTxt,"42701")
+            else:
+                ' '
+                #la tabla no existe
+                print("la tabla no existe")
+                outputTxt='42P01:La tabla:'+NombreTabla+" no Existe"
+                agregarMensjae('error',outputTxt,"42P01")
+        else:
+            ' '
+            outputTxt='Operacion desconocida'
+            agregarMensjae('normal',outputTxt,"")
+            print("Operacion desconocida")
+            
+
+
 
 
 def Table_Reensable_H(tablaB,indice):
@@ -1100,11 +1538,11 @@ def Mostrar_TB(operacion,ts):
         agregarMensjae('normal',outputTxt,"")
     except:
         if listaR==None:
-            outputTxt='La base de datos no Existe, ShowTables'
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P16:La base de datos no Existe, ShowTables'
+            agregarMensjae('error',outputTxt,"42P16")
         else:
-            outputTxt='La tabla no existe en la bd, ShowTables'
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P01:La tabla no existe en la bd, ShowTables'
+            agregarMensjae('error',outputTxt,"42P01")
 
 
 
@@ -1192,7 +1630,635 @@ def Rename_Database(nombreOld,nombreNew):
     listaTablas=copy.copy(tablas)
 
 
+
+
+#Objeto analiza constraint individual
+def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
+
+    #obtiene instrucion: check unique primary foranea
+    Uptemp=(Obj_Add_Const.instruccion).upper()
+    #obtiene contenido,lista de columnas
+    contenido=Obj_Add_Const.contenido
+    #obtiene ID tabla Referencias
+    TabIDRef=Obj_Add_Const.id
+    #obtiene Contenido Referencias ,lista de columnas
+    contenido2=Obj_Add_Const.contenido2
+
+    #servira para escribir los cambios temporalmente
+    tab_Temp=copy.deepcopy(tablab)
+
+
+
+    #Revisa que No exista el nombre constraint si se fuera a poner
+    reviConsName=True
+    if ID!=0 and ID!=None and ID!="":
+        reviConsName=Ver_Exist_Name_Const(ID,(tab_Temp[0]).atributos)
+    else:
+        reviConsName=False
+
+    #NOTA SI SE ELIMINA alguno INDIVIDUAL Nose 
+
+    #Construye el id si no tiene ID
+    new_id=""
+    for con in contenido:
+        if new_id=="":
+            new_id=new_id+con
+        else:
+            new_id=new_id+"_"+con
+
+
+    #INCIA LA VERIFICACION DE TIPO CONSTRAINT
+    if  Uptemp=="CHECK" and not(reviConsName):
+        ' '
+    elif Uptemp =="UNIQUE" and  not(reviConsName):
+
+        existenCols=0
+        #Busca cada columna del query , en las columnas de la Tabla
+        for col_rev in contenido:
+            subCont=0
+            existeC=0
+            for COL_T in ((tablab[0]).atributos):
+                if col_rev == COL_T.nombre:
+                    #((busca e indexa tabla).get columns List)[indexa col].unique=asigna
+                    #(((listaTablas[tablab[1]]).atributos)[subCont]).unique='True'
+                    
+                    
+                    #Obtiene info de la columna para verificar que Registro sean unicos
+                    columnab=copy.copy(Get_Column(col_rev,((tablab[0]).atributos),tablab[2]))
+
+
+                    #Busca columnas Repetidos en el query 
+                    DatoRepetidoQuery=B_Repetidos(contenido)
+
+                    #Busca Regisros Repetidos en la columna 
+                    DatoRepetido=B_Repetidos(columnab[2])
+                    #obitiene Nombre UNIQUE de esa columna
+                    #para ver que sea vacio , sino NO MODIFICA
+                    pre_con=((((tablab[0]).atributos)[subCont]).constraint).unique
+                    print("BOOL ASDF:",(pre_con==None))
+                    print(pre_con)
+                    if (pre_con!=None):
+                        outputTxt='23505:Ya se asigno previamente UNIQUE a esta columna'
+                        agregarMensjae('error',outputTxt,"23505")
+                    if ((DatoRepetido)):
+                        outputTxt='23505:Hay registros Repetidos en la tabla,no se puede asignar unique'
+                        agregarMensjae('error',outputTxt,"23505")
+                    if ((DatoRepetidoQuery)):
+                        outputTxt='23505:Hay columnas Repetidas dentro del query UNIQUE'
+                        agregarMensjae('error',outputTxt,"23505")
+
+                    if (ID!=0 and ID!=None and ID!="") and (pre_con==None) and not(DatoRepetido) and not(DatoRepetidoQuery):
+                        print("INGRESO ID TIENE:")
+                        #SI UNIQUE NO HA SIDO ASIGNADO, y SI  le puso ID , y si NO REGISTROS REPETIDOS
+                        ((((tab_Temp[0]).atributos)[subCont]).constraint).unique=ID
+                        #usara el objeto tempral tablab=tab_Temp ,
+                        #Asigna el valor Verdadero
+                        (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                    elif (ID==0 or ID==None or ID=="") and pre_con==None and not(DatoRepetido) and not(DatoRepetidoQuery):
+                        print("INGRESO NO ID TIENE:")
+                        #SI UNIQUE NO HA SIDO ASIGNADO, y NO se le puso ID , y si NO REGISTROS REPETIDOS
+                        #ID= concatena columnas col_col2_col3_etc
+                        ((((tab_Temp[0]).atributos)[subCont]).constraint).unique=new_id
+                        #Asigna el valor Verdadero
+                        (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                    else:
+                        print("Unique Error")
+                        existenCols=0
+                        break
+
+                    #AREA DE MENSAJES de validaciones
+                    Msg_Alt_Add_CONSTRAINT(pre_con,DatoRepetido,columnab)
+
+                    existeC=1
+                    existenCols=copy.deepcopy(existeC)
+                    break
+                subCont+=1
+            else:
+                #Transfiere el valor, para no guardar informacion, o si guardarla 
+                #existenCols=copy.deepcopy(existeC)
+                if existeC==0:
+                    outputTxt="La columna:",col_rev," no existe en la tabla"
+                    agregarMensjae('normal',outputTxt,"")
+                    print("La columna:",col_rev," no existe en la tabla")
+                    break
+                
+                
+
+        print("existecols:",existenCols)
+        #((((tab_Temp[0]).atributos)[0]).constraint).unique='23'
+        print(((((tab_Temp[0]).atributos)[0]).constraint).unique)
+        if existenCols==1:
+            #procede a actualizar la tabla
+            pre_con=((((tab_Temp[0]).atributos)[0]).constraint).unique
+            pre_con1=((((tablab[0]).atributos)[1]).constraint).unique
+            pre_con2=((((tablab[0]).atributos)[2]).constraint).unique
+            pre_con3=((((tab_Temp[0]).atributos)[3]).constraint).unique
+            pre_con4=((((tablab[0]).atributos)[4]).constraint).unique
+            print("pre_con:",pre_con,"-")
+            print("pre_con1:",pre_con1)
+            print("pre_con2:",pre_con2)
+            print("pre_con3:",pre_con3)
+            print("pre_con4:",pre_con4)
+            listaTablas[tablab[1]]=copy.deepcopy(tab_Temp[0])
+            outputTxt="Se ha guardado exitosamente Constraint UNIQUE en la tabla"
+            agregarMensjae('normal',outputTxt,"")
+            ' '
+        else:
+            outputTxt="23505:Error no se puede guardar en la tabla Constraint UNIQUE"
+            agregarMensjae('error',outputTxt,"23505")
+            print("Error no se puede guardar la tabla constraint")
+
+
+    elif Uptemp =="PRIMARY" and not(reviConsName):
+        existenCols=0
+        #Busca cada columna del query , en las columnas de la Tabla
+        for col_rev in contenido:
+            subCont=0
+            existeC=0
+            for COL_T in ((tablab[0]).atributos):
+                if col_rev == COL_T.nombre:
+                    #((busca e indexa tabla).get columns List)[indexa col].unique=asigna
+                    #(((listaTablas[tablab[1]]).atributos)[subCont]).unique='True'
+                    
+                    
+                    #Obtiene info de la columna para verificar que Registro sean unicos
+                    columnab=copy.copy(Get_Column(col_rev,((tablab[0]).atributos),tablab[2]))
+
+                    #Busca columnas Repetidos en el query 
+                    DatoRepetidoQuery=B_Repetidos(contenido)
+
+                    #Busca nulos en Registros
+                    nulosR=B_Nulos(columnab[2])
+
+                    #Busca Regisros Repetidos en la columna 
+                    DatoRepetido=B_Repetidos(columnab[2])
+                    #obitiene Nombre UNIQUE de esa columna
+
+                    #para No debe haber otra primary key 
+                    pre_con=True
+                    for cb in ((tablab[0]).atributos):
+                        if ((cb.primary))!=None:
+                            pre_con=False
+                            break
+
+                    #pre_con=((((tablab[0]).atributos)[subCont]).constraint).primary
+                    print("BOOL ASDF:",(pre_con==None))
+                    print(pre_con)
+
+
+                    if not(pre_con):
+                        outputTxt="23505:Ya existe una Llave primaria en la tabla"
+                        agregarMensjae('error',outputTxt,"23505")
+                    if (DatoRepetido):
+                        outputTxt="23505:Hay registros repetidos en la columna "
+                        agregarMensjae('error',outputTxt,"23505")
+                    if (DatoRepetidoQuery):
+                        outputTxt="23505:Hay columnas Repetidas en query primary"
+                        agregarMensjae('error',outputTxt,"23505")
+                    if (nulosR):
+                        outputTxt="23502:Hay registros Nulos en la columna "
+                        agregarMensjae('error',outputTxt,"23502")
+
+                    
+                    
+
+                        
+                    if (ID!=0 and ID!=None and ID!="") and (pre_con) and not(DatoRepetido) and not(DatoRepetidoQuery) and not(nulosR):
+                        print("INGRESO ID TIENE:")
+                        #SI UNIQUE NO HA SIDO ASIGNADO, y SI  le puso ID , y si NO REGISTROS REPETIDOS
+                        ((((tab_Temp[0]).atributos)[subCont]).constraint).primary=ID
+                        #usara el objeto tempral tablab=tab_Temp ,
+                        #Asigna el valor Verdadero
+                        (((tab_Temp[0]).atributos)[subCont]).primary='True'
+                        (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                        (((tab_Temp[0]).atributos)[subCont]).anulable='False'
+
+                    elif (ID==0 or ID==None or ID=="") and (pre_con) and not(DatoRepetido) and not(DatoRepetidoQuery) and not(nulosR):
+                        print("INGRESO NO ID TIENE:")
+                        #SI UNIQUE NO HA SIDO ASIGNADO, y NO se le puso ID , y si NO REGISTROS REPETIDOS
+                        #ID= concatena columnas col_col2_col3_etc
+                        ((((tab_Temp[0]).atributos)[subCont]).constraint).primary=new_id
+                        #Asigna el valor Verdadero
+                        (((tab_Temp[0]).atributos)[subCont]).primary='True'
+                        (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                        (((tab_Temp[0]).atributos)[subCont]).anulable='False'
+                    else:
+                        print("Unique Error")
+                        existenCols=0
+                        break
+
+                    #AREA DE MENSAJES de validaciones
+                    Msg_Alt_Add_CONSTRAINT(pre_con,DatoRepetido,columnab)
+
+                    existeC=1
+                    existenCols=copy.deepcopy(existeC)
+                    break
+                subCont+=1
+            else:
+                #Transfiere el valor, para no guardar informacion, o si guardarla 
+                #existenCols=copy.deepcopy(existeC)
+                if existeC==0:
+                    outputTxt="42703:La columna:",col_rev," no existe en la tabla"
+                    agregarMensjae('error',outputTxt,"42703")
+                    print("La columna:",col_rev," no existe en la tabla")
+                    break
+                
+                
+
+        print("existecols:",existenCols)
+        #((((tab_Temp[0]).atributos)[0]).constraint).unique='23'
+        print(((((tab_Temp[0]).atributos)[0]).constraint).primary)
+        if existenCols==1:
+            #procede a actualizar la tabla
+            pre_con=((((tab_Temp[0]).atributos)[0]).constraint).primary
+            pre_con1=((((tablab[0]).atributos)[1]).constraint).primary
+            pre_con2=((((tablab[0]).atributos)[2]).constraint).primary
+            pre_con3=((((tab_Temp[0]).atributos)[3]).constraint).primary
+            pre_con4=((((tablab[0]).atributos)[4]).constraint).primary
+            print("pre_con:",pre_con,"-")
+            print("pre_con1:",pre_con1)
+            print("pre_con2:",pre_con2)
+            print("pre_con3:",pre_con3)
+            print("pre_con4:",pre_con4)
+            listaTablas[tablab[1]]=copy.deepcopy(tab_Temp[0])
+            outputTxt="Se ha guardado exitosamente primary key en la tabla"
+            agregarMensjae('normal',outputTxt,"")
+            
+            ' '
+        else:
+            outputTxt="23000:Error no se puede guardar constraint primary key en la tabla"
+            agregarMensjae('error',outputTxt,"23000")
+            print("Error no se puede guardar la tabla constraint")
+
+
+
+    elif Uptemp =="FOREIGN" and not(reviConsName):
+        ' '
+        #debe cumplir:
+        #ser del mismo tipo
+        #ser primary key
+        #si hay informacion en la tabla que queremos asignarle la llave foranea
+        #debemos ver si la informacion coincide con las llaves foraneas declaradas
+        #si no tiene ninguna foranea no se puede
+        #y si algun registro Padre no coincide con las foraneas tampoco
+        #NOSE si vincula multiples primary keys
+
+        #TabIDRef=Obj_Add_Const.id
+        #obtiene Contenido Referencias ,lista de columnas
+        #contenido2=Obj_Add_Const.contenido2
+
+        #Construye el id si no tiene ID
+        new_id=""
+        for con in contenido:
+            if new_id=="":
+                new_id=new_id+con
+            else:
+                new_id=new_id+"_"+con
+
+
+
+
+        #Longitud columnas Padre
+        longi1=len(contenido)
+        #Longitud columnas Reference Foranea
+        longi2=len(contenido2)
+        #Comparacion Longitudes
+        lonI=(longi1==longi2)
+
+
+        #valores tabla padre
+        tablaP=copy.deepcopy(tablab)
+        #valores tabla foranea, verifica que exista a traves de esta parte
+        tablaF=copy.deepcopy(Get_Table(TabIDRef))
+        print(TabIDRef)
+        #Comparacion Existen las 2 tablas
+        ExiT=(len(tablaP)>0) and (len(tablaF)>0)
+
+
+        #Tabla en donde Guardaremos la info terporalmente
+        tabla_Temp=copy.deepcopy(tablab[0])
+
+
+        #verifica columnas Repetidas
+        DatRepQuery1=B_Repetidos(contenido)
+        #verifica columnas Repetidas
+        DatRepQuery2=B_Repetidos(contenido2)
+        #compara que no Repetidos en ambas filas columnas
+        RepQuery=(not(DatRepQuery1)) and (not(DatRepQuery2))
+
+        #compara que nombre de tablas Diferentes
+        NomTabDif=False
+        if len(tablaF)>0:
+            NomTabDif=(((tablaF[0]).nombre)!=((tablaP[0]).nombre))
+
+        GuardaF=False
+
+        veriConstName=False
+        if (ID!=0 and ID!=None and ID!=""):
+            veriConstName=Ver_Exist_Name_Const(ID,(tablab[0]).atributos)
+
+        #Verifica que exista las dos tablas y que ademas tenga misma cantidad de columnas 
+        #que no hallan columnas Repetidas en querys
+        #que no se autoreferencie
+        #que no exista el name constraint
+        if not(lonI):
+            outputTxt="23000:Error las columnas en el query Foreing son disparejas"
+            agregarMensjae('error',outputTxt,"23000")
+        if not(ExiT):
+            outputTxt="42P01:Error la tabla Ref Foranea No existe"
+            agregarMensjae('error',outputTxt,"42P01")
+        if not(RepQuery):
+            outputTxt="23505:Error hay columnas repetidas dentro del query"
+            agregarMensjae('error',outputTxt,"23505")
+        if not(NomTabDif):
+            outputTxt="23000:Error se esta autoreferenciado la misma tabla"
+            agregarMensjae('error',outputTxt,"23000")
+        if (veriConstName):
+            outputTxt="23000:Error el nombre de constraint ya esta en uso"
+            agregarMensjae('error',outputTxt,"23000")
+
+
+
+
+        if (lonI)and(ExiT)and(RepQuery)and(NomTabDif)and not(veriConstName):
+            #Procede a Buscar cada Columna y hacer sus validaciones Individual y dual
+            conta=0
+            for colT in (contenido):   
+                #Busca Columna Tabla Padre
+                Colum_P=copy.deepcopy(Get_Column(colT ,((tablaP[0]).atributos) ,tablaP[2]))
+                #Busca Columna Tabla Foranea, a travez de conta
+                Colum_F=copy.deepcopy(Get_Column(contenido2[conta] ,((tablaF[0]).atributos) ,tablaF[2]))
+                
+                #Longitud columnas Padre
+                longiC1=len(Colum_P)
+                #Longitud columnas Reference Foranea
+                longiC2=len(Colum_F)
+
+                #Ambas columnas deben existir
+                LonC=(longiC1>0)and (longiC2>0)
+
+
+                #Si ambas columnas a comparar existen
+                if LonC:
+                    #Extrae el tipo para comparar
+                    TipCompC1=(Colum_P[0]).tipo
+                    TipCompC2=(Colum_F[0]).tipo
+                    #Compara los tipos de las 2 columnas
+                    ComTipC=(TipCompC1==TipCompC2)
+
+                    #veficar que primary key ,foranea
+                    #verificar si foranea tiene llaves , 
+                    #si tiene llaves , y TabPadre tiene ver que se puedan asociar
+                    #y llave foranea destino diferente de primary key
+
+                    #Verifica Columna Tabla Padre, no llave primaria
+                    #DifPriKey=((Colum_P[0]).primary)!="True"
+                    DifPriKey=True
+                    
+                    #Verifica Columna Tabla Padre, no llave foranea
+                    DifForeKey=((Colum_P[0]).foreign)!="True"
+
+                    #Verifica Columna Tabla Foranea SI llave primaria
+                    SiPriKeyFora=((Colum_F[0]).primary)!=None
+
+                    #verifica mismo numero de llaves primarias
+                    objetoK=getpks(baseActiva,(tablaF[0].nombre))
+                    cuentaK=len(objetoK)
+                    print("Numero de Primarias",cuentaK)
+
+                    prim_Igu=(cuentaK==longi1)
+                    print(contenido)
+                    print("son igualescols:",prim_Igu)
+                    
+                    #Asocia llaves de padre a foraneas , deben existir
+                    #false error, True bien
+                    AsociaKeys=B_AsociarForanea((Colum_P[2]),(Colum_F[2]))
+
+                    if not(ComTipC):
+                        outputTxt="42804:Error las columas son de distinto tipo"
+                        agregarMensjae('error',outputTxt,"42804")
+                    if not(SiPriKeyFora):
+                        outputTxt="23503:Error la columna referencia no es primaria"
+                        agregarMensjae('error',outputTxt,"23503")
+                    if not(AsociaKeys):
+                        outputTxt="23505:Error algunos registros no coinciden con las llaves Foraneas"
+                        agregarMensjae('error',outputTxt,"23505")
+                    if not(DifForeKey):
+                        outputTxt="23000:Error ya se asigno llave foranea a esta columna"
+                        agregarMensjae('error',outputTxt,"23000")
+                    if not(prim_Igu):
+                        outputTxt="42830:Error la llave foranea debe ser compuesta"
+                        agregarMensjae('error',outputTxt,"42830")    
+                    
+                    
+
+
+
+                    #compara Desti no primary , Fora si primary , mismo tipo dato, asocia llaves
+                    if(ComTipC) and (DifPriKey)and (SiPriKeyFora)and(AsociaKeys) and (DifForeKey) and(prim_Igu):
+                        print("Si se puede guardar")    
+                        #crea la llave foranea y desvincula objetos
+                        New_Foranea=[copy.deepcopy((tablaF[0]).nombre),copy.deepcopy((Colum_F[0]).nombre)]
+                        (tabla_Temp.atributos)[(Colum_P[1])].refence=(New_Foranea)
+                        (tabla_Temp.atributos)[(Colum_P[1])].foreign="True"
+                        #asigna el nombre de la foranea
+                        if (ID!=0 and ID!=None and ID!=""):
+                            ((tabla_Temp.atributos)[(Colum_P[1])].constraint).foreign=ID
+                            GuardaF=True
+                        elif (ID==0 or ID==None or ID==""):
+                            ((tabla_Temp.atributos)[(Colum_P[1])].constraint).foreign=new_id
+                            GuardaF=True
+                        else:
+                            ' '
+                            GuardaF=False
+                    else:
+                        ' '
+                        GuardaF=False
+                        print("NO   se puede guardar3")
+                        #compara Desti no primary , Fora si primary , mismo tipo dato
+                        break
+                else:
+                    ' '
+                    print("NO   se puede guardar2")
+
+                    outputTxt="42703:Error una de las columnas asignadas o a asignar no existe"
+                    agregarMensjae('error',outputTxt,"42703")
+                    GuardaF=False
+                    break
+                    #Comparacion Lon columnas
+
+
+                #para Get colForanea
+                conta+=1
+            
+
+        else:
+            ' ' 
+            print("NO   se puede guardar1")
+            GuardaF=False
+            #multiple comparaciones for
+
+        if GuardaF:
+            outputTxt="Se ha guardado exitosamente la llave Foranea"
+            agregarMensjae('normal',outputTxt,"")
+            listaTablas[tablab[1]]=copy.deepcopy(tabla_Temp)
+
+    else:
+        if reviConsName:
+            print("Nombre constraint Repetido")
+        else:
+            print("Instruccion desconocida")
+
+
+#Verifica pueda asociar llava foranea a Registros Prealmacenados Tabla padre
+def B_AsociarForanea(DP,DF):
+    
+    retorna=False
+
+    sumaComp=True
+    for ver  in DP:
+        bolT=False
+        if ver!=None:
+            for ver2 in DF:
+                if (ver==ver2):
+                    bolT=True
+                    break
+                if ver2==None:
+                    #la tabla foranea no puede tener null en primar key
+                    sumaComp=False
+                    break
+            sumaComp=(sumaComp and bolT)
+        
+    retorna=copy.copy(sumaComp)
+
+    return retorna
+
+
+
+#Verifica que si se va a asignar un UNIQUE la informacion de ella cumpla previamente
+def B_Repetidos(ColumnaInfo_Col):
+    
+    con=0
+    retorna=False
+
+    for ver  in ColumnaInfo_Col:
+        con2=0
+        for ver2 in ColumnaInfo_Col:
+            if (con!=con2) and (ver==ver2) and (ver!=None) and (ver2!=None):
+                retorna=True
+                break
+            con2+=1
+        con+=1
+    return retorna
+
+
+
+#Verifica que si se va a asignar un UNIQUE la informacion de ella cumpla previamente
+def B_Nulos(ColumnaInfo_Col):
+    
+    retorna=False
+
+    for ver in ColumnaInfo_Col:
+        if (ver==None) :
+            retorna=True
+            break
+        
+    return retorna
+
+
+
+
+def Ver_Exist_Name_Const(nameConst,T_head_cols):
+
+    retornaExiste=True
+
+    for c_t in T_head_cols:
+        if (c_t.constraint).unique!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).anulable!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).default!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).primary!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).foreign!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).check!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+    return retornaExiste
+            
+
+
 #Respuestas*********************************
+
+
+def Msg_Alt_Add_CONSTRAINT(pre_con,DatoRepetido,columnab):
+    outputTxt=""
+    global baseActiva
+    #Verifica Respuesta
+    #if retorno==0:
+        #outputTxt='Se agrego exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
+        #agregarMensjae('normal',outputTxt,"")
+    #elif retorno==1:
+        
+    #elif retorno==2:
+        
+    #elif retorno==3:
+        
+    #else:
+    
+    print("Ingreso Mensajes CONSTRIN")
+
+
+
+
+
+def Msg_Alt_Add_Column(NombreTabla,ID,retorno):
+    outputTxt=""
+    global baseActiva
+    #Verifica Respuesta
+    if retorno==0:
+        outputTxt='Se agrego exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==1:
+        outputTxt='Hubo un error durante la eliminacion de la columna  '
+        agregarMensjae('error',outputTxt,"42P01")
+    elif retorno==2:
+        outputTxt='42P16;La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('error',outputTxt,"42P16")
+    elif retorno==3:
+        outputTxt='42P01:La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('error',outputTxt,"42P01")
+    else:
+        print("operacion desconocida 0")
+
+
+
+
 def Msg_Alt_Drop(NombreTabla,ID,retorno):
     outputTxt=""
     global baseActiva
@@ -1201,20 +2267,20 @@ def Msg_Alt_Drop(NombreTabla,ID,retorno):
         outputTxt='Se elimino exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
         agregarMensjae('normal',outputTxt,"")
     elif retorno==1:
-        outputTxt='Hubo un error durante la eliminacion de la columna  '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P01:Hubo un error durante la eliminacion de la columna  '
+        agregarMensjae('error',outputTxt,"42P01")
     elif retorno==2:
-        outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==3:
-        outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P01:La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('error',outputTxt,"42P01")
     elif retorno==4:
-        outputTxt='La Tabla no puede quedar vacia o se trata eliminar Primary Key '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:La Tabla no puede quedar vacia o se trata eliminar Primary Key '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==5:
-        outputTxt='El valor de columna esta fuera de la tabla'
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:El valor de columna esta fuera de la tabla'
+        agregarMensjae('error',outputTxt,"42P16")
     else:
         print("operacion desconocida 0")
 
@@ -1230,17 +2296,17 @@ def Msg_Alt_Rename(NombreTabla,ID1,retorno):
         outputTxt='Se Renombro la Tabla exitosamente,'+NombreTabla +' TO '+ID1 
         agregarMensjae('normal',outputTxt,"")
     elif retorno==1:
-        outputTxt='Hubo un error durante la modificacion de la Tabla  '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:Hubo un error durante la modificacion de la Tabla  '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==2:
-        outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P16:La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('error',outputTxt,"42P16")
     elif retorno==3:
-        outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P01:La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('error',outputTxt,"42P01")
     elif retorno==4:
-        outputTxt='El nombre de la Tabla :'+ ID1 +' ,ya esta en uso '
-        agregarMensjae('normal',outputTxt,"")
+        outputTxt='42P07:El nombre de la Tabla :'+ ID1 +' ,ya esta en uso '
+        agregarMensjae('error',outputTxt,"42P07")
     else:
         print("operacion desconocida 0")
 
@@ -1313,8 +2379,8 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                         else:
                             ' '
                             #hay registros con contenido nulo
-                            msg='Hay registros Nulos en la columna:'+ID
-                            agregarMensjae('normal',msg,'')
+                            msg='23502:Hay registros Nulos en la columna:'+ID
+                            agregarMensjae('error',msg,'23502')
                             print("hay registros nulos")
                         
                         
@@ -1353,8 +2419,8 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                             ' '
                             #hay registros con contenido nulo
                             print("un registro no puede ser casteado")
-                            msg='El nuevo tipo de dato es incompatible'
-                            agregarMensjae('normal',msg,'')
+                            msg='42804:El nuevo tipo de dato es incompatible'
+                            agregarMensjae('error',msg,'42804')
 
 
 
@@ -1403,16 +2469,16 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                     ' '
                     #la columna no existe
                     print("columna no existe")
-                    msg='La columna:'+ID+' no existe '
-                    agregarMensjae('normal',msg,'')
+                    msg='42703:La columna:'+ID+' no existe '
+                    agregarMensjae('error',msg,'42703')
 
                 
         else:
             ' '
             #La tabla no existe
             print("tabla no existe")
-            msg='La tabla:'+NombreTabla+' no existe '
-            agregarMensjae('normal',msg,'')
+            msg='42P01:La tabla:'+NombreTabla+' no existe '
+            agregarMensjae('error',msg,'42P01')
 
 
 
@@ -1423,11 +2489,14 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
 def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
     global listaTablas
 
+    print(NombreTabla," ------")
     #determinar si es RENAME COLUMN , RENAME COLUMN , RENAME CONSTRAINT, RENAME TABLE
     if OPERACION.upper()=="CONSTRAINT":
         ' '
 
-
+        RenomForanConstraint(NombreTabla,ID1,ID2)
+        outputTxt="Se renombro exitosamente Constraint"+ID1+" por:"+ID2
+        agregarMensjae('normal',outputTxt,"")
 
 
     elif OPERACION.upper()=="TO":
@@ -1438,12 +2507,18 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
         #si encuentra la tabla en fisico , procede a buscar header
         if retorno==0:
             #hace copia de las tablas 
-            tablab=copy.copy(Get_Table(NombreTabla))
+            #tablab=copy.copy(Get_Table(copy.deepcopy(NombreTabla)))
             #recorre las tablas para modificar el nombre de la tabla
             conta=0
-            for tab_t in tablab:
-                if tab_t.nombre==NombreTabla:
-                    (listaTablas[conta]).nombre=ID1
+            for tab_t in listaTablas:
+                if (tab_t.nombre)==NombreTabla:
+                    outputTxt="Se renombro la tabla exitosamente por:"+ID1
+                    agregarMensjae('normal',outputTxt,"")
+                    #Renombra las Tablas Foraneas
+                    RenomForanTab(NombreTabla,ID1)
+                    #Renombra la tabla
+                    ((listaTablas[conta]).nombre)=ID1
+                    
                     break
                 conta+=1
         #Verifica Respuesta
@@ -1469,6 +2544,7 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
                     
                 #Si el nombre no existe en la tabla procede a cambiarlo
                 if len(columnaComprueba)==0:
+                    RenomForanCol(NombreTabla,ID1,ID2)
                     head_Tabla_Cols=(tablab[0]).atributos
                     #Renombra la columna
                     (head_Tabla_Cols[columnab[1]]).nombre=ID2
@@ -1484,28 +2560,207 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
                     agregarMensjae('normal',outputTxt,"")
                     #print("el nombre existe col")
                 else:
-                    outputTxt='El nombre:'+ID2+' ya existe en la tabla:'+NombreTabla
-                    agregarMensjae('normal',outputTxt,"")
+                    outputTxt='42P07:El nombre:'+ID2+' ya existe en la tabla:'+NombreTabla
+                    agregarMensjae('error',outputTxt,"42P07")
                     print("el nombre existe col")
                     #el nombre Nuevo de la columna ya existe
             else:
-                outputTxt='La columna:'+ID1+' no existe en la Tabla:'+NombreTabla
-                agregarMensjae('normal',outputTxt,"")
+                outputTxt='42703:La columna:'+ID1+' no existe en la Tabla:'+NombreTabla
+                agregarMensjae('error',outputTxt,"42703")
                 print("la col no existe")
                 #la columna a modificar no existe
         else:
-            outputTxt='La tabla:'+NombreTabla+' no existe en la bd:'+baseActiva
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P01:La tabla:'+NombreTabla+' no existe en la bd:'+baseActiva
+            agregarMensjae('error',outputTxt,"42P01")
             print("la tabla no existe")
             #la tabla a modificar no existe
 
 
 
 
+#Renombra llaves foraneas vinculadas a la tabla, oldName, newname
+def RenomForanTab(NombreTabla,ID1):
+    global baseActiva
+    global listaTablas
 
-           
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #extra las columnas
+            listaCols=tabT.atributos
+            cont=0
+            #recorre las columnas
+            for colT in listaCols:
+                #si columna tiene alguna foranea guardada puede ser None
+                if (colT.refence)!=None:
+                    f_t=(colT.refence)
+                    if f_t[0]==NombreTabla:
+                        #Renombra la tabla foranea
+                        f_t[0]=ID1
+
+                cont+=1
 
 
+#Renombra llaves foraneas vinculadas a la tabla, columna, old columna , new columna
+def RenomForanCol(NombreTabla,ID1,ID2):
+    global baseActiva
+    global listaTablas
+
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #Verifica que tenga la tabla
+
+            #extra las columnas
+            listaCols=tabT.atributos
+            cont=0
+            #recorre las columnas
+            for colT in listaCols:
+                #si columna tiene alguna foranea guardada puede ser None
+                if (colT.refence)!=None:
+                    f_t=(colT.refence)
+                    if (f_t[0]==NombreTabla) and (f_t[1]==ID1):
+                        #Renombra la tabla foranea
+                        f_t[1]=ID2
+                cont+=1
+
+
+#Renombra llaves foraneas vinculadas a la tabla, columna, old columna , new columna
+def RenomForanConstraint(NombreTabla,ID1,ID2):
+    global baseActiva
+    global listaTablas
+
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #Verifica que tenga la tabla
+            if tabT.nombre==NombreTabla:
+                #extra las columnas
+                listaCols=tabT.atributos
+                cont=0
+                #recorre las columnas
+                for colT in listaCols:
+                    #si columna tiene algun constraint puede ser nulo
+                    print("busca:",ID1," cambia por:",ID2)
+                    val1=((colT.constraint).unique)
+                    val2=((colT.constraint).anulable)
+                    val3=((colT.constraint).default)
+                    val4=((colT.constraint).primary)
+                    val5=((colT.constraint).foreign)
+                    val6=((colT.constraint).check)
+                    
+                    if val1==ID1:
+                        ((colT.constraint).unique)=ID2
+                        #Renombra constraint
+                    elif val2==ID1:
+                        ((colT.constraint).anulable)=ID2
+                        #Renombra constraint
+                    elif val3==ID1:
+                        ((colT.constraint).default)=ID2
+                        #Renombra constraint
+                        
+                    elif val4==ID1:
+                        ((colT.constraint).primary)=ID2
+                        #Renombra constraint
+                        
+                    elif val5==ID1:
+                        ((colT.constraint).foreign)=ID2
+                        print("MODIFICA FORRANEAA")
+                        #Renombra constraint
+                    elif val6==ID1:
+                        ((colT.constraint).check)=ID2
+                        #Renombra constraint
+
+                    cont+=1
+
+
+
+#Renombra llaves foraneas vinculadas a la tabla, columna, old columna , new columna
+def DropForanConstraint(NombreTabla,ID1):
+    global baseActiva
+    global listaTablas
+
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #Verifica que tenga la tabla
+            if tabT.nombre==NombreTabla:
+                #extra las columnas
+                listaCols=tabT.atributos
+                cont=0
+                #recorre las columnas
+                for colT in listaCols:
+                    #si columna tiene algun constraint puede ser nulo
+                    print("busca:",ID1," cambia por:",None)
+                    val1=((colT.constraint).unique)
+                    val2=((colT.constraint).anulable)
+                    val3=((colT.constraint).default)
+                    val4=((colT.constraint).primary)
+                    val5=((colT.constraint).foreign)
+                    val6=((colT.constraint).check)
+                    
+                    if val1==ID1:
+                        ((colT.constraint).unique)=None
+                        ((colT).unique)=None
+
+                        #Renombra constraint
+                    elif val2==ID1:
+                        ((colT.constraint).anulable)=None
+                        ((colT).anulable)=None
+
+                        #Renombra constraint
+                    elif val3==ID1:
+                        ((colT.constraint).default)=None
+                        ((colT).default)=None
+                        #Renombra constraint
+                        
+                    elif val4==ID1:
+                        ((colT.constraint).primary)=None
+                        ((colT).primary)=None
+                        #Renombra constraint
+                        
+                    elif val5==ID1:
+                        ((colT.constraint).foreign)=None
+                        ((colT).foreign)=None
+                        ((colT).refence)=None
+
+                        print("MODIFICA FORRANEAA")
+                        #Renombra constraint
+                    elif val6==ID1:
+                        ((colT.constraint).check)=None
+                        ((colT).check)=None
+                        #Renombra constraint
+
+                    cont+=1
+
+
+
+
+#Renombra llaves foraneas vinculadas a la tabla, columna, old columna , new columna
+def BuscForanCol(NombreTabla,ID1):
+    global baseActiva
+    global listaTablas
+
+    retorno=False
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #Verifica que tenga la tabla
+
+            #extra las columnas
+            listaCols=tabT.atributos
+            cont=0
+            #recorre las columnas
+            for colT in listaCols:
+                #si columna tiene alguna foranea guardada puede ser None
+                if (colT.refence)!=None:
+                    f_t=(colT.refence)
+                    if (f_t[0]==NombreTabla) and (f_t[1]==ID1):
+                        retorno=True
+                        break
+                cont+=1
+
+    return retorno
 
 
 def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
@@ -1520,7 +2775,9 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
             #[Objeto_Columna,posicion,[Registros]]
             #def Get_Column(name_c,tabla_H_List,tabla_C_List):
             print (ColumnInfo)
-            if len(ColumnInfo)>0 and len(tablaB[0].atributos)>1:
+            busRefFuera=BuscForanCol(NombreTabla,ID)
+            print("salalsdfkj :",not(busRefFuera))
+            if (len(ColumnInfo)>0) and (len(tablaB[0].atributos)>1) and not(busRefFuera):
                     
                 #obtiene No. de columna del objeto ColumnInfo
                 No_col=ColumnInfo[1]
@@ -1532,33 +2789,43 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
                     print(baseActiva," ",NombreTabla," ",No_col)
                     retorno=EDD.alterDropColumn(baseActiva,NombreTabla,No_col)
                 except:
+                    retorno=0
+                    #VER PORQUE ERRO EN EDD
                     ' '
                 print (retorno)
                 if retorno==0:
                     ' '
-                    listaTablas[tablaB[1]]
+                    posicion=ColumnInfo[1]
+                    del ((listaTablas[tablaB[1]]).atributos)[posicion]
+                    outputTxt="Se ha eliminado satisfactoriamente la columna"
+                    agregarMensjae('normal',outputTxt,"")
 
                 Msg_Alt_Drop(NombreTabla,ID,retorno)
 
 
             else:
-                outputTxt='La tabla debe tener al menos 1 columna'
-                agregarMensjae('normal',outputTxt,"")
+                outputTxt='42P16:La tabla debe tener al menos 1 columna'
+                agregarMensjae('error',outputTxt,"42P16")
         else:
-            outputTxt='La tabla '+NombreTabla +' no existe en la base de datosc'
-            agregarMensjae('normal',outputTxt,"")
+            outputTxt='42P01:La tabla '+NombreTabla +' no existe en la base de datosc'
+            agregarMensjae('error',outputTxt,"42P01")
             #la tabla no existe en cabeceras o cuerpo
     elif INSTRUCCION.upper()=="CONSTRAINT":
         ' '
+        DropForanConstraint(NombreTabla,ID)
+        outputTxt="Se ha eliminado satisfactoriamente Constraint:"+ID
+        agregarMensjae('normal',outputTxt,"")
+
     else:
         ' '#Error
 
 #FIN MIO --------------------------------------------
 
+
 #--Select
 
 def ejecutar_select(instr,ts):
-    print("Ejecutando select")
+    agregarMensjae('normal','Select','')
     for val in instr.funcion_alias:
         if(isinstance (val,Funcion_Alias)):
             result = resolver_operacion(val.nombre,ts)
@@ -1569,9 +2836,360 @@ def ejecutar_select(instr,ts):
             elif isinstance (val.alias,Operando_Cadena):
                 alias = str(val.alias.valor)
             print("CABECERA",alias,"RESULTADO",result)
-            
+            print(val.nombre)
 
+            tablaresult = PrettyTable()
+            #tablaresult.title = 'Resultado'
+            if (alias != None):
+                tablaresult.field_names = [ str(alias) ]
+
+            elif isinstance (val, Operacion_Math_Unaria):
+                tablaresult.field_names = [ str(val.nombre.operador) ]
+
+            tablaresult.add_row([ str(result) ])
+            agregarMensjae('table',tablaresult,'')
+
+
+def select_table(instr,ts):
+    #print('cantidad ',instr.cantida,' parametros ',instr.parametros,' cuerpo ',instr.cuerpo,' funcion_alias',instr.funcion_alias)
+    agregarMensjae('normal','Select','')
+    if instr.cantida==True: # Distinct
+        cuerpo_select_parametros(True,instr.parametros,instr.cuerpo,ts)
+    else: # No Distinct
+        if instr.parametros=="*": # All
+            cuerpo_select(instr.cuerpo,ts)
+        else: # Algunas
+            cuerpo_select_parametros(False,instr.parametros,instr.cuerpo,ts)
+
+def cuerpo_select(cuerpo,ts):
+    ltablas=[] # tablas seleccionadas
+    lalias=[] # alias de tablas seleccionadas
+    lcabeceras=[] # cabeceras tablas
+    lregistros=[] # registros tablas
+    tablastmp = EDD.showTables(baseActiva)
+    # FROM ---------------------------------------------------------
+    for tabla in cuerpo.b_from:
+        name=''
+        alias=''
+        if ' ' in tabla.nombre:  
+            splited=tabla.nombre.split()  # puede venir ID ID en gramatica se concatenan
+            name=splited[0]
+            alias=splited[1]
+        else:
+            name=tabla.nombre
+        if name in tablastmp: # tabla registrada
+            ltablas.append(name)
+            if alias != '':
+                lalias.append(alias)
+            tb = buscarTabla(baseActiva,name).atributos
+            for col in tb:
+                lcabeceras.append(col.nombre)
+        lregistros.append(EDD.extractTable(baseActiva,name))
+    # crearTabla--------------------------------------------------------
+    result = PrettyTable()
+    result.field_names = lcabeceras
+    for registro in itertools.product(*lregistros): #producto cartesiano
+        fila=[]
+        for i in registro:
+            for j in i:
+                fila.append(str(j))
+        result.add_row(fila)
+
+    # WHERE --------------------------------------------------------
+    if cuerpo.b_where != False:
+        result=filtroWhere(result,cuerpo.b_where,ts)
+    # ORDER BY --------------------------------------------------------
+    if cuerpo.b_order != False:
+        result=filtroOrderBy(result,cuerpo.b_order,ts)
+    
+    #mostrar el resultado
+    agregarMensjae('table',result,'')
+    #agregar reporteTS
+    agregarTSRepor('SELECT','','','','')
+    for tab in ltablas:
+        #obtener la tabla
+        res=buscarTabla(baseActiva,tab)
+        if(res!=None):
+            for col in res.atributos:
+                tip=col.tipo
+                nom=col.nombre
+                agregarTSRepor('',nom,tip,tab,'1')
+
+def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
+    ltablas=[] # tablas seleccionadas
+    lalias=[] # alias de tablas seleccionadas
+    lcabeceras=[] # cabeceras tablas
+    lcolumnas=[] # columnas a mostrar
+    lalias_colum=[] # alias columnas
+    lregistros=[] # registros tablas
+    tablastmp = EDD.showTables(baseActiva)
+    # FROM ---------------------------------------------------------
+    for tabla in cuerpo.b_from:
+        name=''
+        alias=''
+        if ' ' in tabla.nombre:  
+            splited=tabla.nombre.split()  # puede venir ID ID en gramatica se concatenan
+            name=splited[0]
+            alias=splited[1]
+        else:
+            name=tabla.nombre
+        if name in tablastmp: # tabla registrada
+            ltablas.append(name)
+            if alias != '':
+                lalias.append(alias)
+            tb = buscarTabla(baseActiva,name).atributos
+            for col in tb:
+                lcabeceras.append(col.nombre)
+        lregistros.append(EDD.extractTable(baseActiva,name))
+    # Campos Select ------------------------------------------------
+    for campo in parametros:  #nombre tipo alias fun_exp
+        nm = resolver_operacion(campo.nombre,ts)
+        ali = resolver_operacion(campo.alias,ts)
+        lcolumnas.append(nm)
+        lalias_colum.append(ali)
+    # JOINS --------------------------------------------------------
+    # WHERE --------------------------------------------------------
+    #print(lcolumnas)
+    #print(lcabeceras)
+    colEx=True
+    for col in lcolumnas:
+        if(col not in lcabeceras):
+            colEx=False
+            msg='42703: No existe columna en tabla:'+str(col)
+            Errores_Semanticos.append('Error semantico: 42703: No existe columna en tabla:'+str(col))
+            agregarMensjae('error',msg,'42703')
+             
+    if colEx:
+        result = PrettyTable()
+        result.field_names = lcabeceras
+        for registro in itertools.product(*lregistros): #producto cartesiano
+            fila=[]
+            for i in registro:
+                for j in i:
+                    fila.append(str(j))
+            result.add_row(fila) 
+        # WHERE --------------------------------------------------------
+        if cuerpo.b_where != False:
+            result=filtroWhere(result,cuerpo.b_where,ts)
+        # ORDER BY --------------------------------------------------------
+        if cuerpo.b_order != False:
+            result=filtroOrderBy(result,cuerpo.b_order,ts)
         
+        #filtro col a mostrar    
+        result = result.get_string(fields=lcolumnas)
+        agregarMensjae('table',result,'')
+        #agregar reporteTS
+        agregarTSRepor('SELECT','','','','')
+        for tab in ltablas:
+            #obtener la tabla
+            res=buscarTabla(baseActiva,tab)
+            if(res!=None):
+                for col in res.atributos:
+                    if(col.nombre in lcolumnas):
+                        tip=col.tipo
+                        nom=col.nombre
+                        agregarTSRepor('',nom,tip,tab,'1')
+
+def filtroWhere(tabla,filtro,ts):
+    listaEliminar=[]
+    filtroOK=True
+    if isinstance(filtro,Operacion_Relacional):
+        op1=resolver_operacion(filtro.op1,ts)
+        op2=resolver_operacion(filtro.op2,ts)
+        #id operador XXX
+        if isinstance(filtro.op1,Operando_ID):
+            if(op1 in tabla.field_names):
+                #id operador id
+                if isinstance(filtro.op2,Operando_ID):
+                    if(op2 in tabla.field_names):
+                        cont=0
+                        for row in tabla:
+                            row.border = False
+                            row.header = False
+                            col1=row.get_string(fields=[op1]).strip()
+                            col2=row.get_string(fields=[op2]).strip()
+                            if(filtro.operador == OPERACION_RELACIONAL.MAYOR_QUE and col1>col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MAYORIGUALQUE and col1>=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENOR_QUE and col1<col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENORIGUALQUE and col1<=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.IGUAL and col1==col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.DIFERENTE and col1!=col2):''
+                            else:
+                                listaEliminar.append(cont)
+                            cont+=1
+                    else:
+                        filtroOK=False
+                        msg='la columna no existe en la consulta:'+op1
+                        Errores_Semanticos.append('Error Semantico: la columna no existe en la consulta:'+op1)
+                        agregarMensjae('error',msg,'42804')
+                #id operador numero,cadena,boleano
+                elif (isinstance(filtro.op2,Operando_Numerico) or 
+                isinstance(filtro.op2,Operacion_Aritmetica) or 
+                isinstance(filtro.op2,Operando_Cadena) or 
+                isinstance(filtro.op2,Operando_Booleano)):
+                    if(op2 != None):
+                        cont=0
+                        for row in tabla:
+                            row.border = False
+                            row.header = False
+                            col1=row.get_string(fields=[op1]).strip()
+                            col2=str(op2)
+                            if(filtro.operador == OPERACION_RELACIONAL.MAYOR_QUE and col1>col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MAYORIGUALQUE and col1>=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENOR_QUE and col1<col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENORIGUALQUE and col1<=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.IGUAL and col1==col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.DIFERENTE and col1!=col2):''
+                            else:
+                                listaEliminar.append(cont)
+                            cont+=1
+                    else:
+                        filtroOK=False
+                        msg='42804:no es posible evaluar el where'
+                        Errores_Semanticos.append('Error semantico: 42804:no es posible evaluar el where')
+                        agregarMensjae('error',msg,'42804')
+                else:
+                    filtroOK=False
+                    msg='42804:no es posible evaluar el where'
+                    Errores_Semanticos.append('Error Semantico: 42804:no es posible evaluar el where')
+                    agregarMensjae('error',msg,'42804')
+            else:
+                filtroOK=False
+                msg='la columna no existe en la consulta:'+op1
+                Errores_Semanticos.append('Error Semantico: la columna no existe en la consulta:'+op1)
+                agregarMensjae('error',msg,'42804')
+        #XXX operador XXX 
+        elif (isinstance(filtro.op1,Operando_Numerico) or 
+                isinstance(filtro.op1,Operacion_Aritmetica) or 
+                isinstance(filtro.op1,Operando_Cadena) or 
+                isinstance(filtro.op1,Operando_Booleano)):
+                if isinstance(filtro.op2,Operando_ID):
+                    if(op2 in tabla.field_names):
+                        cont=0
+                        for row in tabla:
+                            row.border = False
+                            row.header = False
+                            col1=str(op1)
+                            col2=row.get_string(fields=[op2]).strip()
+                            if(filtro.operador == OPERACION_RELACIONAL.MAYOR_QUE and col1>col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MAYORIGUALQUE and col1>=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENOR_QUE and col1<col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENORIGUALQUE and col1<=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.IGUAL and col1==col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.DIFERENTE and col1!=col2):''
+                            else:
+                                listaEliminar.append(cont)
+                            cont+=1
+                    else:
+                        filtroOK=False
+                        msg='la columna no existe en la consulta:'+op1
+                        agregarMensjae('error',msg,'42804')
+                #id operador numero,cadena,boleano
+                elif (isinstance(filtro.op2,Operando_Numerico) or 
+                isinstance(filtro.op2,Operacion_Aritmetica) or 
+                isinstance(filtro.op2,Operando_Cadena) or 
+                isinstance(filtro.op2,Operando_Booleano)):
+                    if(op2 != None):
+                        cont=0
+                        for row in tabla:
+                            row.border = False
+                            row.header = False
+                            col1=str(op1)
+                            col2=str(op2)
+                            if(filtro.operador == OPERACION_RELACIONAL.MAYOR_QUE and col1>col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MAYORIGUALQUE and col1>=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENOR_QUE and col1<col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENORIGUALQUE and col1<=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.IGUAL and col1==col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.DIFERENTE and col1!=col2):''
+                            else:
+                                listaEliminar.append(cont)
+                            cont+=1
+                    else:
+                        filtroOK=False
+                        msg='42804:no es posible evaluar el where'
+                        Errores_Semanticos.append('Error semantico: 42804:no es posible evaluar el where')
+                        agregarMensjae('error',msg,'42804')
+                else:
+                    filtroOK=False
+                    msg='42804:no es posible evaluar el where'
+                    Errores_Semanticos.append('Error semantico: 42804:no es posible evaluar el where')
+                    agregarMensjae('error',msg,'42804')
+
+        else:
+            filtroOK=False
+            msg='42804:no es posible evaluar el where'
+            Errores_Semanticos.append('Error semantico: 42804:no es posible evaluar el where')
+            agregarMensjae('error',msg,'42804')
+    #recursividad        
+    elif isinstance(filtro,Operacion_Logica_Binaria):
+        if(filtro.operador==OPERACION_LOGICA.AND):
+            tabla=filtroWhere(tabla,filtro.op1,ts)
+            tabla=filtroWhere(tabla,filtro.op2,ts)
+        elif(filtro.operador==OPERACION_LOGICA.OR):
+            tabla1=copy.deepcopy(tabla)
+            tabla2=copy.deepcopy(tabla)
+            tabla1=filtroWhere(tabla1,filtro.op1,ts)
+            tabla2=filtroWhere(tabla2,filtro.op2,ts)
+            #unir las tablas
+            for row in tabla2:
+                listInsert=[]
+                row.border = False
+                row.header = False
+                for col in tabla2.field_names:
+                    col1=row.get_string(fields=[col]).strip()
+                    listInsert.append(col1)
+                tabla1.add_row(listInsert)
+
+            tabla=tabla1
+    else:
+        filtroOK=False
+        msg='debe haber una condicion relacional en el where'
+        Errores_Semanticos.append('Error semantico: 42804: Debe haber una condicion relacional en el where')
+        agregarMensjae('error',msg,'42804')
+
+    #realizar eliminacion
+    if(filtroOK):
+        cont=len(listaEliminar)
+        while cont>0:
+            tabla.del_row(listaEliminar[cont-1])
+            cont=cont-1
+    
+
+    return tabla
+
+def filtroOrderBy(tabla,filtro,ts):
+    print('-------------order by-------------')
+    print(filtro)
+    
+    orderOK=True
+    ordernar=[]
+    for x in filtro:
+        nombre=str(resolver_operacion(resolver_operacion(x.nombre,ts),ts))
+        if(nombre not in tabla.field_names):
+            orderOK=False
+            msg="42703:no existe la columnas para order:"+nombre
+            agregarMensjae('error',msg,'42703')
+        else:
+            ordernar.append([nombre,x.direccion,x.rango])
+    
+    #solo aplicar el primer order :D
+    if(orderOK):
+        #ordenar[x][]y]
+        # -[x][0] columna
+        # -[x][1] direccion
+        # -[x][2] anular inicio o fin
+        
+        #agregar orientacion
+        if(ordernar[0][1]!=False):
+            if(ordernar[0][1].lower()=="desc"):
+                tabla.reversesort = True
+        
+        #agregar el orden
+        tabla.sortby=ordernar[0][0]
+        
+
+    return tabla
 
 
 #-------------
@@ -1710,7 +3328,7 @@ def resolver_operacion(operacion,ts):
 
     elif isinstance(operacion,Operacion__Cubos):
         op1 = resolver_operacion(operacion.op1,ts)
-        op2 = resolver_operacion(operacion.op12,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
         op3 = resolver_operacion(operacion.op3,ts)
         op4 = resolver_operacion(operacion.op4,ts)
         if isinstance(op1,(int,float)) and isinstance(op2,(int,float)) and isinstance(op3,(int,float)) and isinstance(op4,(int,float)) :
@@ -1732,6 +3350,7 @@ def resolver_operacion(operacion,ts):
         op1 = resolver_operacion(operacion.op1,ts)
         op2 = resolver_operacion(operacion.op2,ts)
         if isinstance(op1,(str)) and isinstance(op2,(int)):
+            print(op1+ "-->" +str(op2))
             if(operacion.operador == OPERACION_BINARY_STRING.GET_BYTE): return f.func_get_byte(op1,op2)
         elif isinstance(op1,(str)) and isinstance(op2,(str)):
             if (operacion.operador == OPERACION_BINARY_STRING.ENCODE) : return f.func_encode(op1,op2)
@@ -1775,6 +3394,7 @@ def resolver_operacion(operacion,ts):
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
+    global Errores_Semanticos
     global listaInstrucciones 
     listaInstrucciones  = instrucciones
     if instrucciones is not None:
@@ -1794,10 +3414,14 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, MostrarTB) : Mostrar_TB(instr,ts)
             else: 
                 for val in instr:
-                    if(isinstance (val,SELECT)): ejecutar_select(val,ts)
-                    else : print('Error: instrucción no válida')
-    else:
-        agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')
+                    if(isinstance (val,SELECT)): 
+                        if val.funcion_alias is not None:
+                            ejecutar_select(val,ts)
+                        else:
+                            select_table(val,ts)
+                    else : print('Error: instrucción no válida')      
+    else: agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')
+    Reporte_Errores_Sem(Errores_Semanticos)  
 
 
 
@@ -1813,12 +3437,14 @@ def Analisar(input):
     procesar_instrucciones(instrucciones,ts_global)
 
     #crea la consola y muestra el resultado
+    global outputTxt
     '''consola = tkinter.Tk() # Create the object
     consola.geometry('950x200')
     text = tkinter.Text(consola,height=200, width=1280)
     consola.title("Consola")
     text.pack()
     text.insert(END,outputTxt)'''
+    agregarSalida(outputTxt)
     return outputTxt
 
 #Metodos para graficar el ast 
@@ -1847,16 +3473,67 @@ def mostrarTablasTemp():
     for tab in listaTablas:
         texTab=PrettyTable()
         texTab.title='DB:'+tab.basepadre+'\tTABLA:'+tab.nombre
-        texTab.field_names = ["nombre","tipo","size","precision","unique","anulable","default","primary","foreign","refence","check","constraint"]
+        texTab.field_names = ["nombre","tipo","size","precision","unique","anulable","default","primary","foreign","refence","check"]
         #recorrer las columans
         if tab.atributos!=None:
             for col in tab.atributos:
-                texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check,col.constraint])
+                texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check])
         misTablas.append(texTab)
-
+    #agregar tabla de simbolos a los reportes
     return misTablas
 
+def generarTSReporte():
+    global outputTS
+    textTs=PrettyTable()
+    textTs.title='REPORTE TABLA DE SIMBOLOS'
+    textTs.field_names=['instruccion','identificador','tipo','referencia','dimension']
+    for x in outputTS:
+        textTs.add_row([x.instruccion,x.identificador,x.tipo,x.referencia,x.dimension])
+    return textTs
    
+
+def agregarSalida(listaMensajes):
+    consola = tkinter.Tk() # Create the object
+    consola.geometry('1000x350')
+    #crear Scrol
+    scroll_Derecha=Scrollbar(consola)
+    scroll_Derecha.pack(side=RIGHT,fill=Y)
+    Scroll_Abajo=Scrollbar(consola,orient='horizontal')
+    Scroll_Abajo.pack(side=BOTTOM, fill=X)
+    text = tkinter.Text(consola,height=200, width=1280,yscrollcommand=scroll_Derecha.set,wrap="none",xscrollcommand=Scroll_Abajo.set)
+    consola.title("Consola")
+    text.pack()
+    scroll_Derecha.config(command=text.yview)
+    Scroll_Abajo.config(command=text.xview)
+
+    #configuracion de colores de salida
+    text.tag_configure("error",  foreground="red")
+    text.tag_configure("exito",  foreground="green")
+    text.tag_configure("normal", foreground="black")
+    text.tag_configure("alert", foreground="orange")
+    text.tag_configure("table", foreground="blue")
+
+    txt=''
+    for msg in listaMensajes:
+        if isinstance(msg,MensajeOut):
+            if(msg.tipo=='alert'):
+                txt='\n\t'+msg.mensaje
+                text.insert('end',txt,"alert")
+            elif(msg.tipo=='exito'):
+                txt='\n\t'+msg.mensaje
+                text.insert('end',txt,"exito")
+            elif(msg.tipo=='error'):
+                txt='\n\t'+msg.mensaje
+                text.insert('end',txt,"error")
+            elif(msg.tipo=='table'):
+                txt=msg.mensaje
+                text.insert('end','\n',"table")
+                text.insert('end',txt,"table")
+                text.insert('end','\n',"table")
+            else:
+                txt='\n> '+msg.mensaje
+                text.insert('end',txt,"normal")
+
 '''
 #usar las tablas
 table = PrettyTable()

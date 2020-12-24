@@ -1,3 +1,10 @@
+from prettytable import PrettyTable
+from datetime import date
+from datetime import datetime
+import math
+import random
+
+
 class Nodo:
     '''Clase que define la estructura de los nodos del AST.'''
     

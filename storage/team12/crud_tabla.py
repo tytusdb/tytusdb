@@ -261,7 +261,7 @@ class CRUD_Tabla():
         else:
             return 2  
            
-    """def insert(self,database,table,tupla):
+    def insert(self,database,table,tupla):
         self.root = CRUD_DataBase().getRoot()
         self._insert(database, self.root, table,tupla)
         CRUD_DataBase().saveRoot(self.root)
@@ -286,7 +286,7 @@ class CRUD_Tabla():
                     tmp.tables[id].tuples.insertar_(tupla)
                 else:
                     tmp.tables[id].tuples.insertar_(tupla)
-                return tmp"""
+                return tmp
     
     ############################################################################
     def extractRangeTable(self,database,table,columnNumber,lower,upper):
