@@ -32,9 +32,11 @@ class dropDatabase(InstruccionAbstracta):
                 errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error 3D000, no existe la base de datos")
                 listaErrores.append(errorEnviar)
                 return
-        elif bandera == 0:
+        elif bandera == 0 and self.si_existe == False:
             #No existe la db
             errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error 3D000, no existe la base de datos")
             listaErrores.append(errorEnviar)
+            return
+        elif bandera == 0 and self.si_existe == True:
             return
         pass      
