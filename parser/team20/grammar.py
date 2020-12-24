@@ -1288,19 +1288,6 @@ precedence = (
 ```
 ## Gramatica\n'''
 
-# f = open(Path(__file__).parent / "./testCarlos.txt", "r")
-# input = f.read()
-# print(input)
-# parser.parse(input.upper())
-
-# try:
-#     archivobnf = open("bnf.md", "w")
-#     archivobnf.write(grammarreport)
-#     archivobnf.close()
-#     webbrowser.open_new_tab('bnf.md')
-#     #print(grammarreport)
-# except Exception as e:
-#     print('Error reporte gramatical', str(e))
 
 def analyze(input_text: str):
     #clear analyzer data

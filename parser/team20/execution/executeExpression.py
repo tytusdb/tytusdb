@@ -792,6 +792,7 @@ def executeExpression(self, expression):
                             return Error('Semantico', 'Error : ' + str(e), 0, 0)
                         #Falta funcion matematica width_bucket
 
+
             # EXTRACT
             elif isinstance(expression, ExtractFunction):
                 e = executeExpression(self,expression.expression)
@@ -824,4 +825,4 @@ def executeExpression(self, expression):
                             s.type = 3
                             return s
                     except Exception as e:
-                        return Error('Semantico', 'Error : ' + str(e), 0, 0)
+                        return Error('Semantico', 'Error : ' + str(e), 0, 0) 
