@@ -7,7 +7,7 @@ from gramaticasql import analizarEntrada # metodo para ejecutar el parser
 import tkinter.font as tkFont
 import os 
 from reporteErrores.errorReport import ErrorReport
-from reporteErrores.instance import listaErrores
+from reporteErrores.instance import listaErrores , listaShowConsola
 from reporteBnf.reporteBnf import bnf 
 
 class InterfazCompi:
@@ -31,7 +31,7 @@ class InterfazCompi:
         filemenu = Menu(menuPrincipal)
         reporteMenu = Menu(menuPrincipal)
         filemenu.add_command(label="Abrir" , command = self.openFIILE)
-        reporteMenu.add_command(label="Reporte Arbol" , command = self.viewImage)
+        reporteMenu.add_command(label="Reporte Arbol" , command = self.viewThree)
         reporteMenu.add_command(label="Reporte Errores" , command = self.viewErrors)
         reporteMenu.add_command(label="Reporte Gramatica" , command = self.viewGrammar)
         # los agrega a la pantalla principal
@@ -71,13 +71,18 @@ class InterfazCompi:
         print('analizando una entrada')
         result = msg.askyesno("EJECUTANDO", "¿Quiere ejecutar esta entrada?")
         if result==True:
-            try:
-                index = "0.0"
-                print('ENTRADA:', self.entradaTextArea.get(index,END))
-                arbolParser = analizarEntrada(self.entradaTextArea.get(index,END))
-                arbolParser.ejecutar()
-            except:
-                print("NO SE PUDO EJECUTAR :v")
+            # try:
+            self.salidaTextArea.delete(1.0,END) 
+            index = "0.0"
+            print('ENTRADA:', self.entradaTextArea.get(index,END))
+            arbolParser = analizarEntrada(self.entradaTextArea.get(index,END))
+            arbolParser.ejecutar()
+            
+            if len(listaShowConsola) != 0 :
+                for query in listaShowConsola:
+                    self.salidaTextArea.insert(INSERT,query) 
+            # except:
+            #     print("NO SE PUDO EJECUTAR :v")
 
     def viewErrors(self):
     #    error1 = ErrorReport('lexico' , 'ERROR  DESDE LA INTERFAZ ' , '3') 
@@ -86,10 +91,12 @@ class InterfazCompi:
        os.system('cd data/Reportes & reporteErrores.html') # & para ejecutar dos comandos en una sola linea de la terminal
             
     
-    def viewImage(self):
-        # queda mas facil usar el visor de windows 
-        #os.system('arbol.jpg')
-        pass
+    def viewThree(self):
+        index = "0.0"
+        arbolParser = analizarEntrada(self.entradaTextArea.get(index,END))
+        arbolParser.reporteAst()
+
+
     def viewGrammar(self):
         bnf.showReporte()
 

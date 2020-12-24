@@ -1,4 +1,6 @@
 import  math
+
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
@@ -59,6 +61,7 @@ class Expresion(Exp):
                 boole = exp1 > exp2
                 return boole
             elif expr.operador == '<':
+
                 boole = exp1 < exp2
                 return boole
             elif expr.operador == '!=':
@@ -85,4 +88,16 @@ class Expresion(Exp):
             return  Math.Math_.Resolver(expr,ts,Consola,exception)
         elif isinstance(expr,Time):
             return Time.resolverTime(expr)
+        elif isinstance(expr,Binario):
+            return Binario.Resolver(expr,ts,Consola,exception)
+        elif isinstance(expr, Unario):
+            exp1 = Expresion.Resolver(expr.op,ts,Consola,exception)
+            if expr.operador == '-':
+                if isinstance(exp1, int) or isinstance(exp1, float):
+                    return exp1 * -1
+            elif expr.operador == '+':
+                if isinstance(exp1, int) or isinstance(exp1, float):
+                    return exp1
+            elif expr.operador == '!':
+                    return not exp1
 
