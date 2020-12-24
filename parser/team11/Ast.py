@@ -409,3 +409,82 @@ class AST:
         self.userTypes[nombre] = valores
         
    #-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+###################################################### Ejecucion de Querys ###############################################
+
+########################################################  expresiones ###################################################
+    def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
+        if nodo.etiqueta == 'OPLOG':
+            exp1 = self.expresion_logica(nodo.hijos[0], tupla, names, tablas)
+            exp2 = self.expresion_logica(nodo.hijos[1], tupla, names, tablas)
+            if nodo.valor.lower() == 'and':
+                return exp1 and exp2
+            elif nodo.valor.lower() == 'or':
+                return exp1 or exp2
+        
+        if nodo.etiqueta == 'OPREL':
+            return self.expresion_relacional(nodo, tupla, names, tablas)
+
+
+    def expresion_relacional(self, nodo, tupla, names, tablas) -> bool:
+        if nodo.etiqueta == 'OPREL':
+            exp1 = self.expresion_aritmetica(nodo.hijos[0], tupla, names, tablas)
+            exp2 = self.expresion_aritmetica(nodo.hijos[1], tupla, names, tablas)
+            if nodo.valor.replace('\\', '') == '<':
+                return exp1 < exp2
+            elif nodo.valor.replace('\\', '') == '>':
+                return exp1 > exp2
+            elif nodo.valor.replace('\\', '') == '<=':
+                return exp1 <= exp2
+            elif nodo.valor.replace('\\', '') == '>=':
+                return exp1 >= exp2
+            elif nodo.valor.replace('\\', '') == '=':
+                return exp1 == exp2
+            elif nodo.valor.replace('\\', '') == '<>':
+                return exp1 != exp2
+
+    def expresion_aritmetica(self, nodo, tupla, names, tablas):
+        if len(nodo.hijos) <= 1:
+            if nodo.etiqueta == 'ENTERO':
+                return int(nodo.valor)
+            elif nodo.etiqueta == 'DECIMAL':
+                return float(nodo.valor)
+            elif nodo.etiqueta == 'CADENA':
+                return str(nodo.valor)
+            elif nodo.etiqueta == 'LOGICO':
+                return nodo.valor.lower() in ("yes", "true", "t", "1")
+            elif nodo.etiqueta == 'NEGATIVO':
+                exp1 = self.expresion_aritmetica(nodo.hijos[0], tupla, names, tablas)
+                return exp1 * -1
+            elif nodo.etiqueta == 'ID':
+                i = 0
+                for val in names:
+                    if nodo.valor == val:
+                        return tupla[i]
+                    i += 1
+                self.errors.append(Error('42703', EType.SEMANTICO, 'No existe la columna '+str(nodo.valor), nodo.linea))   
+            elif nodo.etiqueta == 'AliasTabla':
+                if tablas[0]['As'] == nodo.valor:
+                    return self.expresion_aritmetica(nodo.hijos[0], tupla, names, tablas)
+                self.errors.append(Error('42P01', EType.SEMANTICO, 'Falta una entrada para -> '+str(nodo.valor), nodo.linea))
+        elif len(nodo.hijos) == 2: 
+            exp1 = self.expresion_aritmetica(nodo.hijos[0], tupla, names, tablas)
+            exp2 = self.expresion_aritmetica(nodo.hijos[1], tupla, names, tablas)
+            if nodo.valor == '+':
+                return exp1 + exp2
+            elif nodo.valor == '-':
+                return exp1 - exp2
+            elif nodo.valor == '/':
+                return exp1 / exp2
+            elif nodo.valor == '*':
+                return exp1 * exp2
+            elif nodo.valor == '%':
+                return exp1 % exp2
+            elif nodo.valor == '^':
+                return exp1 ** exp2
+
