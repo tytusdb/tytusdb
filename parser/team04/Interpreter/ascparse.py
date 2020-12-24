@@ -11,10 +11,18 @@ from Interpreter.Instruction.create_tb import Create_tb
 from Interpreter.Instruction.show_db import Show_db
 from Interpreter.Instruction.drop_db import Drop_db
 from Interpreter.Instruction.alter_db import Alter_db
+from Interpreter.Instruction.alter_tb import Alter_tb
+from Interpreter.Instruction.alter_tb import Alter_tb_AC
+from Interpreter.Instruction.alter_tb import Alter_tb_DC
+from Interpreter.Instruction.alter_tb import Alter_tb_AddCheck
+from Interpreter.Instruction.alter_tb import Alter_tb_AddConstraint
+from Interpreter.Instruction.alter_tb import Alter_tb_AddFK
+from Interpreter.Instruction.alter_tb import Alter_tb_AlterColumn
 from Interpreter.Instruction.usedb import UseDataBase
 from Interpreter.Instruction.union import *
 from Interpreter.Instruction.drop_table import *
 from Interpreter.Instruction.delete import *
+from Interpreter.Instruction.truncate import *
 from Interpreter.Instruction.insert import *
 from Interpreter.Instruction.intersect import *
 from Interpreter.Instruction.iexcept import *
@@ -79,6 +87,7 @@ def p_INST(p):
             | DROPTABLE
             | DELETE
             | INSERT
+            | TRUNCATE
             '''
     p[0] = p[1]
 
@@ -121,6 +130,32 @@ def p_ALTER_DB(p):
                 | ALTER DATABASE E OWNER  TO E
                  '''
     p[0] = Alter_db(p[3], p[6])
+
+
+def p_ALTER_TB(p):
+    '''ALTER_TB : ALTER TABLE E ADD CHECK PARI E DISTINTO E PARD PCOMA
+                | ALTER TABLE E ADD CONSTRAINT E UNIQUE PARI E PARD PCOMA
+                | ALTER TABLE E ADD FOREIGN KEY PARI E PARD REFERENCES E
+                | ALTER TABLE E ADD COLUMN E
+                | ALTER TABLE E ALTER COLUMN E SET E PCOMA
+                | ALTER TABLE E RDROP COLUMN E PCOMA
+                | ALTER TABLE E RDROP CONSTRAINT E PCOMA
+                | ALTER TABLE E RENAME COLUMN E TO E PCOMA
+                | ALTER TABLE E RENAME TO E PCOMA
+        '''
+    if p[4] == 'RENAME':
+        p[0] = Alter_tb(p[3], p[6], p[5])
+    elif p[4] == 'ALTER':
+        p[0] = Alter_tb_AlterColumn(p[3], p[6], p[8])
+    elif p[4] == 'DROP':
+        p[0] = Alter_tb_DC(p[3], p[5], p[6])
+    elif p[4] == 'ADD':
+        if p[5] == 'CHECK':
+            p[0] = Alter_tb_AddCheck(p[3], p[7], p[9])
+        elif p[5] == 'CONSTRAINT':
+            p[0] = Alter_tb_AddConstraint(p[3], p[6], p[9])
+        elif p[5] == 'COLUMN':
+            p[0] = Alter_tb_AC(p[3], p[5], p[6])
 
 
 def p_SHOW_DB(p):
@@ -265,8 +300,17 @@ def p_DROPTABLE(p):
 
 
 def p_DELETE(p):
-    '''DELETE : RDELETE FROM ID'''
-    p[0] = Delete_Reg(Literal(p[3]))
+    '''DELETE : RDELETE FROM ID
+              | RDELETE MULT FROM ID'''
+    if len(p) == 4:
+        p[0] = Delete_Reg(Literal(p[3]))
+    else:
+        p[0] = truncatef(Literal(p[4]))
+
+
+def p_TRUNCATE(p):
+    '''TRUNCATE : RTRUNCATE TABLE ID'''
+    p[0] = truncatef(Literal(p[3]))
 
 
 def p_INSERT(p):
@@ -301,8 +345,6 @@ def p_LITERAL(p):
     '''LITERAL : INT
                | DECIMAL
                | CADENA
-               | BOOL_TRUE
-               | BOOL_FALSE
                | IDENTIFIER'''
     p[0] = Literal(p[1])
 
@@ -352,7 +394,9 @@ def p_E(p):
          | SUMA E %prec UPLUS
          | PARI E PARD
          | CALL
-         | LITERAL'''
+         | LITERAL
+         | BOOL_TRUE
+         | BOOL_FALSE'''
 
     if len(p) == 4:
         if p[2] == 'and':
