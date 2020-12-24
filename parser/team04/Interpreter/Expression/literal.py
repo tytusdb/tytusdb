@@ -14,5 +14,7 @@ class Literal(Expression):
         graph.node(_id, label=_label)
         graph.edge(idParent, _id)
 
-        graph.node(self.value, label=self.value)
-        graph.edge(_id, self.value)
+        str_value = str(self.value)
+        id_value = str(id(self.value))
+        graph.node(id_value, label=str_value)
+        graph.edge(_id, id_value)

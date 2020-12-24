@@ -6,8 +6,35 @@ class Crear_BD(Instruccion):
         Esta clase representa la instruccion de creacion de una BD.
         La instruccion Crear_BD unicamente tiene como parametro un identificador.
     '''
-    def __init__(self,  id) :
+    def __init__(self, id, line, replace = False) :
         self.id = id
+        self.replace = replace
+        self.line = line
+
+class Show_BD(Instruccion):
+    '''
+        Esta clase representa la instruccion de mostrar las BD.
+    '''
+    def __init__(self, line, like = '') :
+        self.line = line
+        self.like = like
+
+class Alter_BD(Instruccion):
+    '''
+        Esta clase representa la instruccion de cambiar nombre de BD.
+    '''
+    def __init__(self, databaseOld, databaseNew, line) :
+        self.databaseOld = databaseOld
+        self.databaseNew = databaseNew
+        self.line = line
+
+class Drop_BD(Instruccion):
+    '''
+        Esta clase representa la instruccion de eliminar  BD.
+    '''
+    def __init__(self, database, line) :
+        self.database = database
+        self.line = line
 
 
 class Cambio_BD(Instruccion):

@@ -16,11 +16,10 @@ def acos(column):
                 valor = str(math.acos(column[i]))
             else:
                 valor = "Error de dominio"
-                list_errors_tg.append( "Error: 22003: la entrada esta fuera del dominio"
-                )
-            result.append( valor)
+                list_errors_tg.append("Error: 22003: la entrada esta fuera del dominio")
+            result.append(valor)
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -41,11 +40,10 @@ def asin(column):
                 valor = str(math.asin(column[i]))
             else:
                 valor = "Error de dominio"
-                list_errors_tg.append( "Error: 22003: la entrada esta fuera del dominio"
-                )
-            result.append( valor)
+                list_errors_tg.append("Error: 22003: la entrada esta fuera del dominio")
+            result.append(valor)
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
 
     return result
@@ -61,9 +59,9 @@ def atan(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.atan(column[i]))
+            result.append(math.atan(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -82,9 +80,9 @@ def atan2(column1, column2):
         if (isinstance(column1[i], int) or isinstance(column1[i], float)) and (
             isinstance(column2[i], int) or isinstance(column2[i], float)
         ):
-            result.append( math.atan2(column1[i], column2[i]))
+            result.append(math.atan2(column1[i], column2[i]))
         else:
-            result.append( column1[i])
+            result.append(column1[i])
         i += 1
     return result
 
@@ -100,9 +98,9 @@ def cos(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.cos(column[i]))
+            result.append(math.cos(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -119,13 +117,12 @@ def cot(column):
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
             if column[i] % math.pi != 0:
-                result.append( (math.cos(column[i]) / math.sin(column[i])))
+                result.append((math.cos(column[i]) / math.sin(column[i])))
             else:
-                result.append( "Error de dominio")
-                list_errors_tg.append( "Error: 22003: la entrada esta fuera del dominio"
-                )
+                result.append("Error de dominio")
+                list_errors_tg.append("Error: 22003: la entrada esta fuera del dominio")
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -141,9 +138,9 @@ def sin(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.sin(column[i]))
+            result.append(math.sin(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -160,13 +157,12 @@ def tan(column):
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
             if (column[i] - (math.pi / 2)) % (math.pi) != 0:
-                result.append( math.tan(column[i]))
+                result.append(math.tan(column[i]))
             else:
-                result.append( "Error de dominio")
-                list_errors_tg.append( "Error: 22003: la entrada esta fuera del dominio"
-                )
+                result.append("Error de dominio")
+                list_errors_tg.append("Error: 22003: la entrada esta fuera del dominio")
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -182,9 +178,9 @@ def sinh(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.sinh(column[i]))
+            result.append(math.sinh(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -195,9 +191,9 @@ def cosh(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.cosh(column[i]))
+            result.append(math.cosh(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -208,9 +204,9 @@ def tanh(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.tanh(column[i]))
+            result.append(math.tanh(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -221,9 +217,9 @@ def asinh(column):
     result = list()
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
-            result.append( math.asinh(column[i]))
+            result.append(math.asinh(column[i]))
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -235,13 +231,12 @@ def acosh(column):
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
             if column[i] >= 1:
-                result.append( math.acosh(column[i]))
+                result.append(math.acosh(column[i]))
             else:
-                result.append( "Error de dominio")
-                list_errors_tg.append( "Error: 22003: la entrada esta fuera del dominio"
-                )
+                result.append("Error de dominio")
+                list_errors_tg.append("Error: 22003: la entrada esta fuera del dominio")
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
 
@@ -253,12 +248,11 @@ def atanh(column):
     while i < len(column):
         if isinstance(column[i], int) or isinstance(column[i], float):
             if column[i] < 1 and column[i] > -1:
-                result.append( math.atanh(column[i]))
+                result.append(math.atanh(column[i]))
             else:
-                result.append( "Error de dominio")
-                list_errors_tg.append( "Error: 22003: la entrada esta fuera del dominio"
-                )
+                result.append("Error de dominio")
+                list_errors_tg.append("Error: 22003: la entrada esta fuera del dominio")
         else:
-            result.append( column[i])
+            result.append(column[i])
         i += 1
     return result
