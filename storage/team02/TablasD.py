@@ -70,3 +70,22 @@ class TablasArboles:
         else:                                                                     
             #return ("BD inexistente")
             return None 
+
+#Funcion 4 - muestra un determinado numero de elementos de la tabla
+# def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
+    def extractRT(self, database, table, columnNumber, lower, upper) :
+        list = []
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :  
+            tablaEncontrada =  bdEncontrada.tablas.buscar(table)                                            
+            if tablaEncontrada == True :
+                for i in range(len(tablaEncontrada.elementosAB.listRegister)):
+                    if str(lower) <= tablaEncontrada.elementosAB.listRegister[i].register[int(columnNumber)] and tablaEncontrada.elementosAB.listRegister[i].register[int(columnNumber)] <= str(upper) :
+                        list.append(tablaEncontrada.elementosAB.listRegister[i].register[columnNumber])
+                return list  
+            else:
+                #return("tableNew existente")
+                return None
+        else:                                                                     
+            #return ("BD inexistente")
+            return None 
