@@ -4,6 +4,7 @@ sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
 sys.path.append('../G26/Expresiones')
 sys.path.append('../G26/Librerias/storageManager')
+sys.path.append('../G26/Librerias/prettytable')
 
 from jsonMode import *
 from instruccion import *
@@ -11,6 +12,7 @@ from Error import *
 from Primitivo import *
 from datetime import *
 from TablaSimbolos import *
+from prettytable import *
 
 import math
 import random
@@ -65,7 +67,6 @@ class Select(Instruccion):
                             if letras == '.':
                                 eliminarPunto = True
 
-                        #nombreNuevo = tablasSeleccionadas.asop.upper() + '.' + nombreNuevo
                         directorioNombres.append({'viejo': keysTemporales, 'nuevo': nombreNuevo})
 
                         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][nombre]['columns'].append(TableData(nombreNuevo, tablas[keysTemporales]['tipo'], None, None, None, None, None, None, None))
@@ -124,8 +125,12 @@ class Select(Instruccion):
         columnasImprimir = select.listadeseleccion
 
         diccionarioColumnasAceptadas = {}
+        columnasAgregacion = []
         for columnasSeleccionadas in columnasImprimir:
             nombreColumna = columnasSeleccionadas.listaseleccionados
+            if isinstance(nombreColumna, FuncionMatematicaSimple):
+                columnasAgregacion.append(nombreColumna)
+                continue
             try:
                 retorno = nombreColumna.obtenerSeleccionado(data, directorioTablas, columnasAceptadas, diccionarioColumnasAceptadas)
                 if isinstance(retorno, Error):
@@ -178,6 +183,7 @@ class Select(Instruccion):
                     diccionarioColumnasAceptadas[nombreTabla]['tipo'] = comprobar.type
                     i = i + 1
 
+
         if select.distinct:
             juntarValores = []
             inicio = 0
@@ -198,15 +204,19 @@ class Select(Instruccion):
             routes = juntarValores
             dups = set()
 
+            duplicadas = 0
             for route in routes:
-               if tuple(route) in dups:
-                   nuevoArregloDistinct.append(route)
-                   juntarValores.pop(contador)
-               else:
-                   dups.add(tuple(route))
+                if tuple(route) in dups:
+                    nuevoArregloDistinct.append(route)
+                    juntarValores.pop(contador)
+                    duplicadas = duplicadas + 1
+                else:
+                    dups.add(tuple(route))
             contador = contador + 1
 
-            print(nuevoArregloDistinct)
+            if duplicadas == 0:
+                nuevoArregloDistinct = juntarValores
+
             contador = 0
             for tablas in diccionarioColumnasAceptadas.keys():
                 datosTablas = diccionarioColumnasAceptadas[tablas]
@@ -216,6 +226,10 @@ class Select(Instruccion):
                 diccionarioColumnasAceptadas[tablas]['columnas'] = columnaSelect
                 contador = contador + 1
 
+        print('****************')
+        print(self)
+        print('****************')
+
         for borrarTemporales in columnasFromTemporales.keys():
             del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
 
@@ -223,7 +237,6 @@ class Select(Instruccion):
 
     def __repr__(self):
         return str(self.__dict__)
-
 
     def funcionPosibilidades(self, data, nombres, columna, nombreAux, ordenTablas, noWhere, columnasAceptadas, temporales, columnasFromTemporales):
         if len(nombres) == 0:
@@ -270,6 +283,28 @@ class Select(Instruccion):
         temporales.append(temporal)
         return 'hola'
 
+    def ImprimirTabla(self, columnasMostrar):
+        juntarValores = []
+        inicio = 0
+        for keys in columnasMostrar.keys():
+            contador = 0
+            for val in columnasMostrar[keys]['columnas']:
+                if inicio == 0:
+                    juntarValores.append(val)
+                else:
+                    juntarValores[contador].append(val[0])
+                contador = contador + 1
+            inicio = inicio + 1
+
+        x = PrettyTable()
+
+        keys = columnasMostrar.keys()
+        x.field_names = keys
+        x.add_rows(
+            juntarValores
+        )
+        return x
+
 class Casos(Instruccion):
 
     def __init__(self, caso,elsecase):
@@ -284,9 +319,10 @@ class Casos(Instruccion):
 
 class FromOpcional(Instruccion):
 
-    def __init__(self,parametros, whereogroup):
+    def __init__(self,parametros, whereogroup, groupbyopcional):
         self.parametros = parametros
         self.whereopcional = whereogroup
+        self.groupbyopcional = groupbyopcional
 
     def execute(self,data):
         return self
@@ -1077,7 +1113,7 @@ class OperadoresSelect(Instruccion):
 
             if isinstance(argumento, Error):
                 return argumento
-                
+
             if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
                 return Primitive('float', float(argumento.val & argumento2.val))
             else:
@@ -1091,7 +1127,7 @@ class OperadoresSelect(Instruccion):
 
             if isinstance(argumento, Error):
                 return argumento
-                
+
             if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
                 return Primitive('float', float(argumento.val | argumento2.val))
             else:
@@ -1105,7 +1141,7 @@ class OperadoresSelect(Instruccion):
 
             if isinstance(argumento, Error):
                 return argumento
-                
+
             if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
                 return Primitive('float', float(argumento.val ^ argumento2.val))
             else:
@@ -1125,7 +1161,7 @@ class OperadoresSelect(Instruccion):
 
             if isinstance(argumento, Error):
                 return argumento
-                
+
             if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
                 return Primitive('float', float(argumento.val << argumento2.val))
             else:
@@ -1139,13 +1175,13 @@ class OperadoresSelect(Instruccion):
 
             if isinstance(argumento, Error):
                 return argumento
-                
+
             if (argumento.type == 'integer' or argumento.type == 'float') and (argumento2.type == 'integer' or argumento2.type == 'float') :
                 return Primitive('float', float(argumento.val >> argumento2.val))
             else:
                 error = Error('Semántico', 'Error de tipos en >>, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
-        
+
         return self
 
 
