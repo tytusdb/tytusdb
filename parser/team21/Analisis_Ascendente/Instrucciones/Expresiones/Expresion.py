@@ -5,8 +5,8 @@ from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import In
 from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import Time
 from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
 
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math
 
 class Expresion(Exp):
     def __init__(self, iz, dr, operador,fila,columna):
