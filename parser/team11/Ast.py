@@ -259,3 +259,85 @@ class AST:
         else:
             # agregar el error semantico con su debido codigo -> DB no existe
             self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+
+##################---DROP DATABASE---################################
+    def dropDB(self, nodo):
+        
+        if nodo.valor in self.ts:
+            result = jsonMode.dropDatabase(nodo.valor)
+            del self.ts[nodo.valor]
+            if result == 0:
+                self.output.append('Base de datos \"'+ nodo.valor+'\" botada exitosamente.')
+            elif result == 1:
+                self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+            elif result == 2:   # Base de datos inexistente
+                self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+
+
+##################---ALTER DATABASE---################################
+    def alterDB(self,nodo):
+        databaseOld = ''
+        databaseNew = ''
+        owner = ''
+        rename = 0
+
+        for hijos in nodo.hijos:
+            databaseNew = hijos.valor
+            if hijos.etiqueta == 'RENAME TO':
+                rename = 1
+            else:
+                owner = hijos.valor
+
+        if nodo.valor != '':
+            databaseOld = nodo.valor
+
+        query_result = jsonMode.alterDatabase(databaseOld, databaseNew)
+
+        if rename == 1:
+            if query_result == 0:
+                if databaseOld in self.ts:
+                    self.ts[databaseNew] = self.ts[databaseOld]
+                    del self.ts[databaseOld]
+                self.output.append('La base de datos \"'+ databaseOld+'\" ha sido renombrada a \"' + databaseNew + '\".')
+            elif query_result == 1:
+                self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+            elif query_result == 2:   # Base de datos inexistente
+                self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+            elif query_result == 3:   # Base de datos existente
+                self.errors.append(Error('42P04', EType.SEMANTICO, 'duplicate_database',nodo.linea))
+            
+            #self.output.append(query_result)
+        else:
+            if query_result == 0:
+                self.ts[databaseOld].owner = owner
+                self.output.append('La base de datos \"'+ databaseOld+'\" ha cambiado de propietario a \"' + owner + '\".')
+            elif query_result == 1:
+                self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+            elif query_result == 2:   # Base de datos inexistente
+                self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+            elif query_result == 3:   # Base de datos existente
+                self.errors.append(Error('42P04', EType.SEMANTICO, 'duplicate_database',nodo.linea))
+            
+
+##################---SHOW DATABASE---################################
+    def showDB(self,nodo):
+        query_result = jsonMode.showDatabases()
+        er = ''
+        veces_mod = 0
+        pos_mod1 = 0
+        pos_mod2 = 0
+
+        if nodo.valor == '':
+            self.output.append(query_result)
+        else:
+            er = nodo.valor
+            er = '^' + er.replace('%','.+').replace('_','(.){0,1}') + '$'
+            # if pos_mod1 == 1 and veces_mod == 1:
+            filtrada = []
+            for base in query_result:
+                if re.match(er, base):
+                    filtrada.append(base)
+                
+            #     print("====================================")
+            self.output.append(filtrada)
+       
