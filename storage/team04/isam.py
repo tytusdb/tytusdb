@@ -403,6 +403,9 @@ class Isam:
             else:
                 return 1
 
+    def update_level(self, level):
+        return self.__update_level(level, self.root)
+
     # Crea un nuevo nivel de páginas hijo para todas las páginas
     # en el último nivel. Aplica sólo cuando el árbol tiene menos de
     # 3 niveles.
@@ -414,6 +417,15 @@ class Isam:
                 return 0
             else:
                 return 1
+
+    # Contrae un nivel del árbol en caso de ser posible.
+    def contract(self):
+        if self.root.contract() == 0:
+            self.height -= 1
+            self.leftmost = self.root.leftmost()
+            return 0
+        else:
+            return 1
 
     def __right_shift_sp(self, node_id, page):
         if not page.leaf:
@@ -940,19 +952,143 @@ class Isam:
                     elif lleno_nivel == 2: #no existe el nivel indicado
                         pass
 
+    def __search(self, node_id, page):
+        if not page.leaf:
+            if node_id < page.left_node.node_id:
+                node = self.__search(node_id, page.left)
+            elif page.right_node != None:
+                if node_id >= page.left_node.node_id and node_id < page.right_node.node_id:
+                    node = self.__search(node_id, page.mid)
+                if node_id >= page.right_node.node_id:
+                    node = self.__search(node_id, page.right)
+            else:
+                node = self.__search(node_id, page.mid)
+            return node
+        else:
+            if page.left_node != None and page.left_node.node_id == node_id:
+                return page.left_node
+            elif page.right_node != None and page.right_node.node_id == node_id:
+                return page.right_node
+            else:
+                aux = page.overflow_page
+                while aux != None:
+                    if aux.left_node != None and aux.left_node.node_id == node_id:
+                        return aux.left_node
+                    elif aux.right_node != None and aux.right_node.node_id == node_id:
+                        return aux.right_node
+                    aux = aux.overflow_page
+                return None
+
     # Retorna el nodo con el id especificado
     def search(self, node_id):
-    	pass
+    	return self.__search(node_id, self.root)
+
+    def __delete(self, node_id, page):
+        if not page.leaf:
+            if node_id < page.left_node.node_id:
+                code = self.__delete(node_id, page.left)
+            elif page.right_node != None:
+                if node_id >= page.left_node.node_id and node_id < page.right_node.node_id:
+                    code = self.__delete(node_id, page.mid)
+                if node_id >= page.right_node.node_id:
+                    code = self.__delete(node_id, page.right)
+            else:
+                code = self.__delete(node_id, page.mid)
+            self.contract()
+            self.update_level(page.level)
+            return code
+        else:
+            code = page.delete(node_id)
+            if code == 0: # Se eliminó el nodo correctamente
+                if page.empty: # La página quedó vacía
+                    nodes = len(self.get_all()) # Cantidad de nodos
+                    with_full_pages = nodes >= 3**page.level # Indica si hay páginas llenas
+                    if page == self.root:
+                        self.root = None
+                        self.leftmost = None
+                    elif with_full_pages: # Tiene al menos una página llena
+                        aux = page
+                        while not aux.left_sister.full: # Mientras no se esté al lado derecho de una página llena
+                            aux.insert(aux.left_sister.left_node, False)
+                            aux.left_sister.delete(aux.left_sister.left_node.node_id)
+                            aux = aux.left_sister
+                        aux.insert(aux.left_sister.right_node, False)
+                        aux.left_sister.delete(aux.left_sister.right_node.node_id)
+                    else: # No tiene páginas llenas
+                        count = 0 # Contador de la posición en la que se encuentra  (de izquierda a derecha)
+                        aux = self.leftmost
+                        while not aux.empty:
+                            aux = aux.right_sister
+                            count += 1
+                        while True:
+                            if aux.right_sister == None or aux.right_sister.empty:
+                                break
+                            else:
+                                aux.insert(aux.right_sister.left_node, False)
+                                aux.right_sister.delete(aux.right_sister.left_node.node_id)
+                                aux = aux.right_sister
+                                count += 1
+                        while count % 3 != 2: # Correr página vacía hacia la izquierda
+                            aux.insert(aux.left_sister.left_node, False)
+                            aux.left_sister.delete(aux.left_sister.left_node.node_id)
+                            aux = aux.left_sister
+                            count -= 1
+                elif not page.full: # La página quedó semillena
+                    nodes = len(self.get_all()) # Cantidad de nodos
+                    with_overflow = nodes >= 3**page.level*2 # Indica si hay páginas de desborde
+                    if with_overflow: # Hay páginas de desborde
+                        right_overflow = False # Indica si a la derecha hay una página con páginas de desborde
+                        aux = page
+                        while aux != None:
+                            if aux.overflow_page != None:
+                                right_overflow = True
+                                break
+                            aux = aux.right_sister
+                        if right_overflow: # Hay páginas de desborde al lado derecho
+                            aux = page
+                            while aux != None:
+                                aux.insert(aux.right_sister.left_node, True)
+                                aux.right_sister.delete(aux.right_sister.left_node.node_id)
+                                if aux.right_sister.full:
+                                    break
+                                aux = aux.right_sister
+                        else: # No hay páginas de desborde al lado derecho
+                            aux = page
+                            while aux != None:
+                                aux.insert(aux.left_sister.right_node, True)
+                                aux.left_sister.delete(aux.left_sister.right_node.node_id)
+                                if aux.left_sister.full:
+                                    break
+                                aux = aux.left_sister
+                    else: # No hay páginas de desborde
+                        if page.right_sister != None and page.right_sister.full: # La hermana derecha está llena
+                            aux = page
+                            while True:
+                                if aux.right_sister == None or not aux.right_sister.full:
+                                    break
+                                aux.insert(aux.right_sister.left_node, False)
+                                aux.right_sister.delete(aux.right_sister.left_node.node_id)
+                                aux = aux.right_sister
+            return code
 
     # Busca y elimina el nodo con el id especificado
     def delete(self, node_id):
-        pass
+        return self.__delete(node_id, self.root)
 
     # Busca un nodo dentro de la estructura y lo sustituye con el
     # nodo especificado. Para la búsqueda utiliza el id del nodo
     # especificado en los parametros
     def modify(self, edited_node):
-    	pass
+        node = self.search(edited_node.node_id)
+        if node != None:
+            node.node_id = edited_node.node_id
+            node.secret_pk = edited_node.secret_pk
+            node.primary_keys = edited_node.primary_keys
+            node.columns = edited_node.columns
+            node.info = edited_node.info
+            return 0
+        else:
+            return 2
 
     # Muestra la estructura de forma gráfica
     def draw(self, name="graph", show=False):
