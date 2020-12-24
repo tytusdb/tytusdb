@@ -1524,6 +1524,9 @@ def p_expressions_time(p):
     elif (len(p) == 3):
         p[0] = ExpressionsTime(SymbolsTime.TIMESTAMP, None,
                                p[2], p[1], p.lineno(1), find_column(p.slice[1]))
+    elif (len(p) == 7):
+        p[0] = ExtractFromIdentifiers(
+            SymbolsTime.EXTRACT, p[3], p[5], p[1], p.lineno(1), find_column(p.slice[1]))
     else:
         if p.slice[1].type.upper() == 'CURRENT_DATE':
             p[0] = ExpressionsTime(SymbolsTime.CURRENT_DATE, None, None, p[1], p.lineno(
