@@ -13,7 +13,7 @@ class Ceil(Function):
             respuesta = []
             for val in self.input:
                 value = val.execute(environment)
-                if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
+                if value['typ'] != Type.INT or value['typ'] != Type.DECIMAL:
                     return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
                 result = ceil(value['value'])
                 respuesta.append({'value':result, 'typ': Type.INT})
@@ -21,6 +21,6 @@ class Ceil(Function):
         #input valor puntual
         else:
             value = self.input.execute(environment)
-            if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
+            if value['typ'] != Type.INT or value['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-            return [{'value':ceil(value['value']), 'typ': Type.INT}]
+            return {'value':ceil(value['value']), 'typ': Type.INT}

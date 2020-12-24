@@ -26,6 +26,55 @@ class exp_type(Enum):
 class query():
     ' Clase abstracta query'
 
+class select_func(query):
+    def __init__(self,lista):
+        self.lista = lista
+    
+    def ejecutar(self):
+        
+        if self.lista == None: 
+            e = errores.CError(0,0,"Error funcion",'Semantico') 
+            errores.insert_error(e)
+            return e
+        else: 
+            if not isinstance(self.lista,list):
+                e = errores.CError(0,0,"Error funcion",'Semantico') 
+                errores.insert_error(e)
+                return e
+            else:
+                tables = {}
+                
+                
+                results = []
+                for col in self.lista:
+                    print(col.alias)
+                    res = col.ejecutar(tables)
+                    
+                    if isinstance(res,errores.CError):
+                        e = errores.CError(0,0,"Error funcion",'Semantico') 
+                        errores.insert_error(e)
+                        return e
+                    results.append(res)
+
+                ptable = pt.PrettyTable()
+                enc = []
+                con = 0
+                for col in self.lista:
+                    if col.alias == None:
+                        enc.append(str(con)+' Funcion')
+                    else: 
+                        enc.append(col.alias)
+                    con += 1
+                ptable.field_names = enc
+                ptable.add_row(results)
+                #print(ptable)
+                return ptable
+            
+                
+
+
+
+
 
 class select(query):
 

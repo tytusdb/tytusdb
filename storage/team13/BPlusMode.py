@@ -326,11 +326,11 @@ def loadCSV(file, database, table):
                         results.append(tabla.bPlus.insert(register))
                     Save(DataBase, "BD")
                     return results
-                return [3]
-            return [2]
-        return [1]
+                return []
+            return []
+        return []
     except:
-        return [1]
+        return []
 
 
 def extractRow(database, table, columns):

@@ -194,26 +194,6 @@ def truncate(database, table):
 # hasta estas funciones interfaz
 
 
-
-
-
-def extractRangeTable(database, table, columnNumber, lower, upper):  # this return a list
-    try:
-        if t.search(database):
-            data = t.getDataBase(database)  # obtengo la base de datos
-            if data.BHash.searchTable(table):
-                tabla = data.BHash.getTable(table)  # obtengo la tabla
-                avl = tabla.AVLtree  # obtengo el arbol que contiene las tuplas ejecutar codigo welmann aqui
-
-                return avl.rangeTable(columnNumber, lower, upper)  # obtengo todas las tuplas registradas
-            else:
-                return None  # table doesn´t exist
-        else:
-            return None  # database doesn´t exist
-    except:
-        return None  # cualquier error
-
-
 def alterDropPK(database, table):
     try:
         if t.search(database):
@@ -241,6 +221,7 @@ def alterAddColumn(database, table, default):
             if data.BHash.searchTable(table):
                 tabla = data.BHash.getTable(table)  # obtengo la tabla
                 avl = tabla.AVLtree
+                avl.noColumnas += 1
                 avl.addNewColumna(default)  # default , es el nuevo valor que todos tendran en sus tuplas
                 return 0
             else:
@@ -279,6 +260,8 @@ def alterDropColumn(database, table, columnNumber):
         return 1  # cualquier error
 
 
+# hasta aqui puedo mandar a llamar , a la interfaz
+
 def loadCSV(file, database, table):
     lista = []
     try:
@@ -286,7 +269,13 @@ def loadCSV(file, database, table):
         contador = 0
         for linea in archivo.readlines():
             linea.split(sep=',')
-            lista.append(insert(database, table, linea))
+            lineaCompleta = ""
+            i = 0
+            for _ in linea:
+                if i > 1:
+                    lineaCompleta += str(linea[i])
+                i += 1
+            lista.append(insert(database, table, lineaCompleta))
             contador += 1
         archivo.close()
         if contador > 0:
@@ -369,4 +358,5 @@ def delete(database, table, columns):
             return 2  # database doesn´t exist
     except:
         return 1  # cualquier error
+
 
