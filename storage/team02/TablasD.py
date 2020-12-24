@@ -113,3 +113,23 @@ class TablasArboles:
         else:                                                                     
             #return ("BD inexistente")
             return (2)                                                            
+
+#Funcion 10 - agregar columna
+# def alterAddColumn(database: str, table: str, default: any) -> int:
+    def alterAC(self, database, table, default) :
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :
+            tablaEncontrada =  bdEncontrada.tablas.buscar(table)
+            if tablaEncontrada != None :
+                if self.agregarColumna(default, tablaEncontrada) == True :
+                    #return ("Operacion exitosa")
+                    return 0
+                else:
+                    #return ("Error en la operacion")
+                    return (1)
+            else:
+                #return ("Tabla inexistente")
+                return (3)
+        else:                                                                   
+            #return ("BD inexistente")
+            return (2)
