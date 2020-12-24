@@ -340,7 +340,43 @@ class AST:
                 
             #     print("====================================")
             self.output.append(filtrada)
-      
+##################---UPDATE---################################
+    def update(self,nodo):
+        #print("=============================")
+        #print(self.usingDB)
+        tb_id = nodo.valor
+        for hijos in nodo.hijos:
+            for hijos2 in hijos.hijos:
+                r = jsonMode.update(self.usingDB, tb_id, hijos2.valor)
+        #print(r)
+        if r == 0:
+            self.output.append('La tabla \"'+ tb_id+'\" de la base de datos \"' + self.usingDB + '\" ha sido actualizada con nuevos datos.')
+        elif r == 1:   # Error en la operación
+            self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+        elif r == 2:   # Base de datos inexistente
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+        elif r == 3:   # Tabla existente
+            self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
+
+        
+
+##################---DELETE---################################
+    def delete(self,nodo):
+        a = ''
+        print(self.usingDB) #BDD
+        tb_id = nodo.valor # id
+        for hijos in nodo.hijos:
+            a = hijos.valor #condiciones
+        result = jsonMode.delete(self.usingDB, tb_id, a)
+        print('>>>>>>>>>>>>>>>>>>>>------',result)
+
+
+##################---TRUNCATE---################################
+    def truncate(self,nodo):
+        tb_name=''
+        for hijos in nodo.hijos:
+            tb_name = hijos.valor
+        result = jsonMode.truncate(self.usingDB, tb_name)   
  #----------------------------------------------------------------------------------------------------------------   
     def printOutputs(self):
         global output2
@@ -1083,7 +1119,7 @@ def resolverFuncionTrigonometrica(self, nodo, resultado):
             resultado.append(c)
 
 ########################################################  expresiones ###################################################
-    def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
+def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
         if nodo.etiqueta == 'OPLOG':
             exp1 = self.expresion_logica(nodo.hijos[0], tupla, names, tablas)
             exp2 = self.expresion_logica(nodo.hijos[1], tupla, names, tablas)
@@ -1096,7 +1132,7 @@ def resolverFuncionTrigonometrica(self, nodo, resultado):
             return self.expresion_relacional(nodo, tupla, names, tablas)
 
 
-    def expresion_relacional(self, nodo, tupla, names, tablas) -> bool:
+def expresion_relacional(self, nodo, tupla, names, tablas) -> bool:
         if nodo.etiqueta == 'OPREL':
             exp1 = self.expresion_aritmetica(nodo.hijos[0], tupla, names, tablas)
             exp2 = self.expresion_aritmetica(nodo.hijos[1], tupla, names, tablas)
@@ -1113,7 +1149,7 @@ def resolverFuncionTrigonometrica(self, nodo, resultado):
             elif nodo.valor.replace('\\', '') == '<>':
                 return exp1 != exp2
 
-    def expresion_aritmetica(self, nodo, tupla, names, tablas):
+def expresion_aritmetica(self, nodo, tupla, names, tablas):
         if len(nodo.hijos) <= 1:
             if nodo.etiqueta == 'ENTERO':
                 return int(nodo.valor)
