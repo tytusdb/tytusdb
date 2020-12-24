@@ -99,9 +99,13 @@ def p_instruccion(t) :
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
                         | DROP dropear
+                        | TABLE
                         '''
     id = inc()
     t[0] = {'id': id}
+
+    if len(t) == 2:
+        type_checker.showTables(line = t.lexer.lineno)
 
     if t[1].upper() == 'CREATE':
         t[0] = t[2]
@@ -5200,5 +5204,5 @@ parser = yacc.yacc()
 
 def parse(input) :
     retorno = parser.parse(input)
-    dot.view()
+    # dot.view()
     return retorno

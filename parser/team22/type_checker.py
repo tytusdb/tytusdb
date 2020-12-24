@@ -92,6 +92,13 @@ class TypeChecker():
         else:
             self.addError(Codigos().database_undefined_object(database), line)
 
+    def showTables(self, line: int):
+        query_result = jsonMode.showTables(self.actual_database)
+        print("====> ", query_result)
+
+    
+
+
     def createTable(self, table: str, columns: [], line: int):
         # 0 -> operación exitosa
         # 1 -> error en la operación
