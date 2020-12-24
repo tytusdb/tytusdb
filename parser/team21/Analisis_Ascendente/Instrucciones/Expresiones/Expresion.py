@@ -1,4 +1,6 @@
 import  math
+
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
@@ -21,8 +23,6 @@ class Expresion(Exp):
             exp2 = Expresion.Resolver(expr.dr,ts,Consola,exception)
 
             if expr.operador == '=':
-                #print('llega exp1 '+str(exp1))
-                #print('llega exp2 '+(exp2))
                 return exp1 == exp2
             elif expr.operador == '*':
 
@@ -88,6 +88,8 @@ class Expresion(Exp):
             return  Math.Math_.Resolver(expr,ts,Consola,exception)
         elif isinstance(expr,Time):
             return Time.resolverTime(expr)
+        elif isinstance(expr,Binario):
+            return Binario.Resolver(expr,ts,Consola,exception)
         elif isinstance(expr, Unario):
             exp1 = Expresion.Resolver(expr.op,ts,Consola,exception)
             if expr.operador == '-':
@@ -98,3 +100,4 @@ class Expresion(Exp):
                     return exp1
             elif expr.operador == '!':
                     return not exp1
+

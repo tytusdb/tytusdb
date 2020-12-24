@@ -1,21 +1,27 @@
 class Exp:
     'clase abstracta'
 
-class Expresion(Exp):
-    def __init__(self, iz, dr, operador):
-        self.iz = iz
-        self.dr = dr
-        self.operador = operador
+
+#EXPRESION
+
 
 class Unario(Exp):
-    def __init__(self, operador, op):
+    def __init__(self, operador, op,fila,columna):
         self.operador = operador
         self.op = op
+        self.fila = fila
+        self.columna = columna
+
 
 class Primitivo(Exp):
-    def __init__(self, valor = 0):
+    def __init__(self, valor,fila,columna):
         self.valor = valor
+        self.fila = fila
+        self.columna = columna
+
 
 class Id(Exp):
-    def __init__(self, id):
+    def __init__(self, id,fila,columna):
         self.id = id
+        self.fila = fila
+        self.columna = columna
