@@ -1571,6 +1571,8 @@ class interprete2:
                 i.Ejecutar()
             elif isinstance(i, Alter_table_Alter_Column_Set):
                 i.Ejecutar()
+            elif isinstance(i, useClase):
+                i.Ejecutar()
             else:
                 print("NO ejecuta")
 
