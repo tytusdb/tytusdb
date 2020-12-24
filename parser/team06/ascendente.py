@@ -1151,7 +1151,7 @@ def procesar_insertBD(query,ts):
         tamlistreg = len(query.listRegistros)
         contcol = 0 
         while contcol < tamlistid:
-            col = ts.obtenerColumna(query.idTable,'BD1',)
+            col = ts.obtenerColumna(query.idTable,h.bd_enuso,)
             print("nombre columna: ",col.nombre)
             contcol=contcol+1
 
@@ -1351,7 +1351,7 @@ def guardar_asignacion(valor, variable,ts):
             return valor
         else:
             print("se agregara la variable")
-            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None)      # inicializamos con 0 como valor por defecto
+            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None,None,None)      # inicializamos con 0 como valor por defecto
             ts.agregar(simbolo)
             print("se creo una nueva variable")
             print(variable)
@@ -1360,7 +1360,7 @@ def guardar_asignacion(valor, variable,ts):
         if isinstance(valor, str) and valor.find("error")>0:
             return valor
         else:
-            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None)
+            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None,None,None)
             ts.actualizar(simbolo)
             print("la variable ya existia, se actualizo")
             print(variable)
@@ -1387,8 +1387,8 @@ def procesar_createTale(query,ts):
     h.textosalida+="TYTUS>>Creando tabla\n"
     cantcol = 0
 
-    if ts.validarTabla(query.idTable,'BD1') == 0:
-        simbolo = TS.Simbolo(None,query.idTable,None,None,'BD1',None,None,None,None,None,None,None,None,None,None,None,None,None)
+    if ts.validarTabla(query.idTable,h.bd_enuso) == 0:
+        simbolo = TS.Simbolo(None,query.idTable,None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None)
         ts.agregarnuevTablaBD(simbolo)
         print("--> Se creo nueva tabla con id: "+query.idTable)
         #return "Se creo Tabla con id: "+str(query.idTable)
@@ -1408,8 +1408,8 @@ def procesar_createTale(query,ts):
            
             if idtipo=="CHARACTER" or idtipo=="VARING" or idtipo=="VARCHAR" or idtipo=="CHAR":
                 idtamcad = i.objAtributo.TipoColumna.longitud 
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
-                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,'BD1',idtab,1,0,0,None,None,0,None,0,None,None,None,None)
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,h.bd_enuso,idtab,1,0,0,None,None,0,None,0,None,None,None,None,None,None)
                     ts.agregarnuevaColumna(simbolo)
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
@@ -1417,8 +1417,8 @@ def procesar_createTale(query,ts):
                    
             else:
                 idtamcad = i.objAtributo.TipoColumna.longitud
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
-                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,'BD1',idtab,1,0,0,None,None,0,None,0,None,None,None,None)
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,h.bd_enuso,idtab,1,0,0,None,None,0,None,0,None,None,None,None,None,None)
                     ts.agregarnuevaColumna(simbolo)
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
@@ -1489,8 +1489,8 @@ def procesar_createTale(query,ts):
 
             if idtipo=="CHARACTER" or idtipo=="VARING" or idtipo=="VARCHAR" or idtipo=="CHAR":
                 idtamcad = i.objAtributo.TipoColumna.longitud 
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
-                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,'BD1',idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df)
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,h.bd_enuso,idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df,None,None)
                     ts.agregarnuevaColumna(simbolo)
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
@@ -1498,8 +1498,8 @@ def procesar_createTale(query,ts):
                    
             else:
                 idtamcad = i.objAtributo.TipoColumna.longitud
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
-                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,'BD1',idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df)
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,h.bd_enuso,idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df,None,None)
                     ts.agregarnuevaColumna(simbolo)
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
@@ -1513,11 +1513,11 @@ def procesar_createTale(query,ts):
             
             for lc in i.objAtributo.listColumn:
                 print("id: ",lc.id)
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
                     print("La columna especificada no existe, no se creo restriccion unique")
                     return
                 else:
-                    ts.actualizauniqueColumna(lc.id,'BD1',idtab)
+                    ts.actualizauniqueColumna(lc.id,h.bd_enuso,idtab)
             ts.printcontsimbolos()
 
     # -------------------------------------------------------------------------------------------------------------- 
@@ -1525,8 +1525,8 @@ def procesar_createTale(query,ts):
             print("Declaracion de constraint check")
             print("Id constraint: ", i.objAtributo.idConstraint)
             print("Condicion check: ",i.objAtributo.condCheck.exp1.id, i.objAtributo.condCheck.operador, i.objAtributo.condCheck.exp2.id)
-            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,'BD1',idtab) == 1:
-                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,'BD1',idtab,i.objAtributo.idConstraint,i.objAtributo.condCheck)
+            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab) == 1:
+                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab,i.objAtributo.idConstraint,i.objAtributo.condCheck)
             else:
                 print("La columna especificada no existe")
             ts.printcontsimbolos()
@@ -1535,8 +1535,8 @@ def procesar_createTale(query,ts):
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
             print("Delaracion de check")
             print("Condicion check: ",i.objAtributo.condCheck.exp1.id, i.objAtributo.condCheck.operador, i.objAtributo.condCheck.exp2.id)
-            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,'BD1',idtab) == 1:
-                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,'BD1',idtab,None,i.objAtributo.condCheck)
+            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab) == 1:
+                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab,None,i.objAtributo.condCheck)
             else:
                 print("La columna especificada no existe")
             ts.printcontsimbolos()
@@ -1546,8 +1546,8 @@ def procesar_createTale(query,ts):
             print("Lista de columnas: ")
             for lc in i.objAtributo.listColumn:
                 print("id: ",lc.id)
-                if ts.verificarcolumnaBD(lc.id,'BD1',idtab) == 1:
-                    ts.actualizapkcolumna(lc.id,'BD1',idtab)
+                if ts.verificarcolumnaBD(lc.id,h.bd_enuso,idtab) == 1:
+                    ts.actualizapkcolumna(lc.id,h.bd_enuso,idtab)
                     print("se actualizo llave primaria en: ",lc.id)
                 else:
                     print("La columna especificada no existe, no se creo llave primaria")
@@ -1561,9 +1561,9 @@ def procesar_createTale(query,ts):
             contidref = len(i.objAtributo.idLlaveF)
             conttemp = 0
             while conttemp < contidfor:
-                if ts.verificarcolumnaBD(i.objAtributo.idLlaveF[conttemp].id,'BD1',i.objAtributo.idTable) == 1:
-                    if ts.verificarcolumnaBD(i.objAtributo.idForanea[conttemp].id,'BD1',idtab)==1:
-                        ts.actualizafkcolumna(i.objAtributo.idForanea[conttemp].id,'BD1',idtab,i.objAtributo.idLlaveF[conttemp],i.objAtributo.idTable)
+                if ts.verificarcolumnaBD(i.objAtributo.idLlaveF[conttemp].id,h.bd_enuso,i.objAtributo.idTable) == 1:
+                    if ts.verificarcolumnaBD(i.objAtributo.idForanea[conttemp].id,h.bd_enuso,idtab)==1:
+                        ts.actualizafkcolumna(i.objAtributo.idForanea[conttemp].id,h.bd_enuso,idtab,i.objAtributo.idLlaveF[conttemp],i.objAtributo.idTable)
                     else:
                         print("la columna especificada no existe para crear llave foranea")
                 else:
@@ -1596,9 +1596,18 @@ def procesar_inheritsBD(query, ts):
 
 
 def drop_table(query,ts):
-    print("voy a imprimir los valores del drop :v")
-    print("aqui viene el id de la tabla a dropear:",query.id)
-    h.textosalida+="TYTUS>> Eliminaré la tabla"+query.id+"\n"
+    #print("voy a imprimir los valores del drop :v")
+    #print("aqui viene el id de la tabla a dropear:",query.id)
+    #h.textosalida+="TYTUS>> Eliminaré la tabla"+query.id+"\n"
+    nombreTab = query.id
+    xd = ts.obtenerColumnas(nombreTab,h.bd_enuso)
+    print("TOTAL DE COLUMNAS")
+    print(len(xd))
+    for x in range(0,len(xd)):
+        ts.destruirColumna(xd[x],h.bd_enuso,nombreTab)
+        print (xd[x])
+    xdd = ts.destruirTabla(nombreTab,h.bd_enuso)
+
 
 def alter_table(query,ts):
     print("voy a imprimir los valores del alter :v")
@@ -1607,24 +1616,124 @@ def alter_table(query,ts):
     temp = query.querys.tipo #TIPO DE OBJETO
     if(temp.upper()=="ADD"):
         contenido = query.querys.contenido #AQUI ESTA EL CONTENIDO DEL ADD - contAdd
+        tablatemp = query.id #AQUI ESTA EL NOMBRE DE LA TABLA A ALTERAR
         if contenido.tipo.upper()=="COLUMN":
+            print("ESTA ES MI TABLA-->: ",tablatemp)
+            columnaNew = contenido.id1
             print("SE AGREGARA UNA COLUMNA")
+            #la cadena a buscar sería query.id + baseactual
+            #por el momento tengo quemada la BD1 al final del nombre de la tabla
+            #resNum = ts.verificarcolumnaBD(columnaNew,"BD1",tablatemp)
+            res = ts.verificarcolumnaBDAT(columnaNew,h.bd_enuso,tablatemp)
+            if res!=0:
+                print("ENCONTRE LA #$%& COLUMNA :V, YA ESTABA CREADA")
+                """x = res.valor
+                if x!=None:
+                    #NO PUEDO CAMBIAR EL TIPO PORQUE YA HAY VALORES ASOCIADOS A LA COLUMNA
+                    print("NO PUEDO CAMBIAR EL TIPO DE LA COLUMNA PORQUE YA TIENE VALORES ASOCIADOS")
+                else:
+                    #PUEDO CAMBIAR EL TIPO PORQUE NO HAY VALORES TODAVÍA
+                    if contenido.tipo2.id.upper()=='VARCHAR': #VIENE UN VARCHAR
+                        print("ESTE ES EL TAMAÑO QUE TRAE-->: ",contenido.tipo2.longitud)
+                        res.tipo = contenido.tipo2.id
+                        res.tamanoCadena = contenido.tipo2.logitud
+                        ts.printcontsimbolos()
+                    else:
+                        #VIENE OTRO TIPO QUE NO SE VARCHAR
+                        res.tipo = contenido.tipo2.id
+                        ts.printcontsimbolos()"""
+                #CODIGO ALTER TYPE ------------------------------------------
+                
+                #TERMINA CODIGO ALTER TYPE ----------------------------------
+            else:#NO ESTA CREADA LA COLUMNA
+                print("NO ENCONTRE LA $#%& columna")
+                tempTab = ts.obtener2(tablatemp+h.bd_enuso)
+                if tempTab == 0:
+                    print("NO EXISSTE LA TABLA, NO PUEDO CREAR LA COLUMNA, F!!")
+                else:
+                    print("EXISTE LA TABLA, PUEDO CREAR LA COLUMNAAAA")
+                    #debo contar que id le toca
+# id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default)
+                    if contenido.tipo2.id.upper()=="VARCHAR":
+                        print("ES UN VARCHARRRRRRRRRRRRRRRRR")
+                        print(contenido.tipo2.id)
+                        print(contenido.id1)
+                        print(contenido.tipo2.longitud)
+                        print(tablatemp)
+                        ahora = TS.Simbolo(None,contenido.id1,contenido.tipo2.id,contenido.tipo2.longitud,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
+                        print("xd")
+                        ts.agregarnuevaColumna(ahora)
+                        ts.printcontsimbolos()
+                    else:
+                        print("POR ACÁ CREO")
+                        ahora = TS.Simbolo(None,contenido.id1,contenido.tipo2.id,None,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
+                        ts.agregarnuevaColumna(ahora)
+                        ts.printcontsimbolos()              
             #METODO PARA ALTERAR LA COLUMNA
+            #h.bde_nuso
             #alterAddColumn(baseActual,contenido.id1,anyxd)
         elif contenido.tipo.upper()=="CHECK":
             print("SE AGREGARA UN CHECK")
+            operacion = contenido.operacion
+            id1byron = contenido.operacion.exp1.id
+            print("exp1: ",id1byron)
+            id2byron = contenido.operacion.exp2.id
+            print("exp2: ",id2byron)
+            ans = ts.actualizarcheckColumna(id1byron,h.bd_enuso,tablatemp,None,operacion)
+            ans = ts.actualizarcheckColumna(id2byron,h.bd_enuso,tablatemp,None,operacion)
+            '''if not id1byron.isnumeric():
+                ans = ts.actualizarcheckColumna(id1byron,h.bd_enuso,tablatemp,None,operacion)
+            else:
+                ans = ts.actualizarcheckColumna(id2byron,h.bd_enuso,tablatemp,None,operacion)
+            '''
+        
         elif contenido.tipo.upper()=="FOREIGN":
-            print("SE AGREGARA UNA LLAVE FORANEA")
+            #print("SE AGREGARA UNA LLAVE FORANEA")
+            #nombre,BD,tabla,idrefcolumna,idreftabla
+            #print(query.querys.contenido.id1)
+            contenidox = query.querys.contenido
+            tabla = query.id
+            #print("nuevamente jejeje: ",contenidox.id1)
+            #print("nuevamente jejeje: ",contenidox.id2)
+            #print(query.id)
+            res = ts.actualizafkcolumna(contenidox.id1,h.bd_enuso,tabla,contenidox.id2,None)
         elif contenido.tipo.upper()=="PRIMARY":
-            print("SE AGREGARA UNA LLAVE PRIMARIA")
+            #print("SE AGREGARA UNA LLAVE PRIMARIA")
+            contenidox = query.querys.contenido
+            tabla = query.id
+            res = ts.actualizapkcolumna(contenidox.id1,h.bd_enuso,tabla)
         elif contenido.tipo.upper()=="CONSTRAINT":
             print("SE VIENE UN CONSTRAINT")
             if contenido.tipo2.upper()=="FOREIGN":
                 print("Y DENTRO VIENE UNA LLAVE FORANEA")
+                contenidox = query.querys.contenido
+                tabla = query.id
+                idConstraint = contenidox.id1
+                print(tabla)
+                print(idConstraint)
+                print(contenidox.id3)
+                print(contenidox.id4)
+                res = ts.actualizafkcolumnaAT(contenidox.id2,h.bd_enuso,tabla,contenidox.id3,contenidox.id4,idConstraint)
             elif contenido.tipo2.upper()=="PRIMARY":
                 print("Y DENTRO VIENE UNA LLAVE PRIMARIA")
+                contenidox = query.querys.contenido
+                tabla = query.id
+                idConstraint = contenidox.id1
+                nombre = contenidox.id2
+                print(tabla)
+                print(idConstraint)
+                print(nombre)
+                res = ts.actualizapkcolumnaAT(nombre,h.bd_enuso,tabla,idConstraint)
             elif contenido.tipo2.upper()=="UNIQUE":
                 print("Y DENTRO VIENE UN UNIQUE")
+                contenidox = query.querys.contenido
+                tabla = query.id
+                idConstraint = contenidox.id1
+                nombre = contenidox.operacion
+                print(tabla)
+                print(idConstraint)
+                print(nombre)
+                rs = ts.actualizauniqueColumnaAT(nombre,h.bd_enuso,tabla,idConstraint)
         #print("VIENE UN ADD, POR TANTO SE AGREGA ALGO A LA TABLA")
         #print("SE AGREGARÁ UNA: ", query.querys.contenido.tipo)
         #print("DE NOMBRE: ",query.querys.contenido.id1)
@@ -1634,15 +1743,81 @@ def alter_table(query,ts):
         contenido = query.querys.contenido #AQUI ESTA EL CONTENIDO DEL DROP - contDrop
         if contenido.tipo.upper() == "COLUMN":
             print("DROPEARÉ UNA COLUMNA: ",contenido.id)
+            contenidox = query.querys.contenido
+            nombreTab = query.id
+            nombreCol = contenidox.id
+            print(nombreTab)
+            print(nombreCol)
+            print(nombreCol+h.bd_enuso+nombreTab)
+            #simbTemp = ts.obtener2(nombreCol+h.bd_enuso+nombreTab)
+            xd = ts.destruirColumna(nombreCol,h.bd_enuso,nombreTab)
         else:
             print("DROPEARÉ UNA CONSTRAINT: ",contenido.id)
-        #print("LO QUE EXPLOTARA SERA: ", query.querys.contenido.tipo)
-        #print("CON EL ID: ", query.querys.contenido.id)
+            print("LO QUE EXPLOTARA SERA: ", contenido.tipo)
+            idConstraint = contenido.id
+            tabla = query.id
+            print(idConstraint)
+            print(tabla)
+            xd = ts.destruirConstraint(idConstraint,h.bd_enuso,tabla)
+
     elif(temp.upper()=="ALTER"):
         print("VIENE UN ALTER DENTRO DE OTRO ALTER")
-        #print("DE TIPO: ", query.querys.contenido.tipo)
-        #print("CON EL ID: ", query.querys.contenido.id)
-        #print("PARA ASIGNAR: ", query.querys.contenido.tipoAsignar)
+        contenido = query.querys.contenido
+        if contenido.tipo.upper()=="SET":
+            print("ES UN SET")
+            print(contenido.tipoAsignar)
+            if contenido.tipoAsignar.upper()=="NOT":
+                print("ES UN NOT NULL")
+                #nuevotipo = contenido.tipoAsignar.id
+                tabla = query.id
+                res = ts.verificarcolumnaBDAT(contenido.id,h.bd_enuso,tabla)
+                if res!=0:
+                    print("ENCONTRE LA COLUMNA")
+                    if res.valor!=None:
+                        print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                    else:
+                        print("NO HAY VALORES, SE PUEDE CAMBIAR EL TIPO")
+                        res.obligatorio = 0
+            else:
+                print("VAMOS A SETEAR EL VALOR DE LA COLUMNA A NULL")
+                res = ts.verificarcolumnaBDAT(contenido.id,h.bd_enuso,tabla)
+                if res!=0:
+                    print("ENCONTRE LA COLUMNA")
+                    if res.valor!=None:
+                        print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                    else:
+                        print("NO HAY VALORES, SE PUEDE CAMBIAR EL TIPO")
+                        res.obligatorio = 1
+        elif contenido.tipo.upper()=="TYPE":
+            print("SE LE ASIGNARA UN VALOR DIFERENTE A NULL Y NOT NULL, ESTE ES : ", contenido.tipoAsignar.id)
+            nuevotipo = contenido.tipoAsignar.id
+            tabla = query.id
+            res = ts.verificarcolumnaBDAT(contenido.id,h.bd_enuso,tabla)
+            if res !=0:
+                print("encontre la columna")
+                if res.valor!=None:
+                    print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                else:
+                    print("NO HAY VALORES, PUEDO CAMBIAR EL TIPO")
+                    if nuevotipo.upper()=="VARCHAR":
+                            longitud = contenido.tipoAsignar.longitud
+                            res.tipo = nuevotipo
+                            res.tamanoCadena = longitud
+                    else:
+                            res.tipo = nuevotipo
+            else:
+                print("NO SE ENCONTRÓ LA TABLA, F")
+                
+
+            #print("ESTE ES EL TIPO NUEVO-->: ",contenido.tipo2.id)
+                #if contenido.tipo2.id.upper()=='VARCHAR': #VIENE UN VARCHAR
+                #    print("ESTE ES EL TAMAÑO QUE TRAE-->: ",contenido.tipo2.longitud)
+                #    res.tipo = contenido.tipo2.id
+                #    res.tamanoCadena = contenido.tipo2.logitud
+                #    ts.printcontsimbolos()
+                #else:#VIENE OTRO TIPO QUE NO SE VARCHAR
+                #    res.tipo = contenido.tipo2.id
+                #    ts.printcontsimbolos()
 
 
         
