@@ -1,3 +1,64 @@
+use test;
+CREATE TYPE area AS ENUM ('CONTABILIDAD','ADMINISTRACION','VENTAS','TECNOLOGIA','FABRICA');
+
+CREATE TABLE tbempleadopuesto
+(
+	idempleado integer not null,
+	idpuesto   integer not null,
+	departamento area
+);
+insert into tbempleadopuesto (idempleado, idpuesto,	departamento) values(1,1,'ADMINISTRACION45');
+//select 2*3*4 as mult;
+//select subq.mult as newMult * from (select 2*3*4 as mult) as subq;
+/*CREATE DATABASE 
+IF NOT EXISTS test
+    OWNER = 'root'
+    MODE = 1;
+USE test;
+CREATE TABLE tbusuario (
+    idusuario integer NOT NULL primary key,
+	nombre varchar(50),
+	apellido varchar(50),
+	usuario varchar(15)  
+	//	UNIQUE NOT NULL
+	,
+	password varchar(15) NOT NULL,
+	fechacreacion date 
+);
+
+INSERT INTO tbusuario(idusuario, nombre, apellido, usuario, password, fechacreacion)
+VALUES (1,'Aug','LH','vkslax','pass','2020-12-12');
+INSERT INTO tbusuario(idusuario, nombre, apellido, usuario, password, fechacreacion)
+VALUES (2,'user1','LH','user1','pass','2010-12-12');
+INSERT INTO tbusuario(idusuario, nombre, apellido, usuario, password, fechacreacion)
+VALUES (3,'user2','LH','2222','222','2020-11-12');
+
+CREATE TABLE tbusuariorol (
+    idusuario_ integer ,
+	idrol_ integer	
+);
+
+CREATE TABLE tbrol (    
+	idrol integer	,
+	nombre varchar(50)
+);
+
+INSERT INTO tbrol(idrol, nombre) VALUES (1,'admin');
+INSERT INTO tbrol(idrol, nombre) VALUES (2,'seller');
+INSERT INTO tbrol(idrol, nombre) VALUES (3,'stat');
+
+INSERT INTO tbusuariorol(idusuario_, idrol_) VALUES (1,3);
+select u.nombre, r.nombre
+from tbusuario as u,
+	tbusuariorol as ur, 
+ 	tbrol  as r
+where 	u.idusuario = ur.idusuario_ 
+		and ur.idrol_ = r.idrol;
+*/
+/*select 1+1 as 'suma', now() as 'fecha', u.nombre, 
+u.apellido, u.usuario, u.password, u.fechacreacion 
+from tbusuario as u;*/
+/*
 create or replace database comp2 mode 6;
 create or replace database compiladores2 mode 6;
 use database comp2;
@@ -8,29 +69,21 @@ select width_bucket(3, 1, 12, 3) as histo1;
 select width_bucket(5, 1, 12, 3) as histo2;
 select width_bucket(9, 1, 12, 3) as histo3;
 select 3+5*2 as multi;
-select * from (select 1 as valor);
-CREATE DATABASE /*IF NOT EXISTS*/ test
-    OWNER = 'root'
-    MODE = 1;
+*/
+//select * from (select 1 as valor);
+/*
 
-USE test;
 
-CREATE TABLE tbusuario (
-    idusuario integer NOT NULL primary key,
-	nombre varchar(50),
-	apellido varchar(50),
-	usuario varchar(15)  /*UNIQUE*/ NOT NULL,
-	password varchar(15) NOT NULL,
-	fechacreacion date 
-);
+
+
 
 CREATE TABLE tbusuario2 (
 	adicional varchar(50)
 ) INHERITS (tbusuario);
 
-INSERT INTO tbusuario(idusuario, nombre, apellido, usuario, password, fechacreacion)
-VALUES (1,'Aug','LH','vkslax','pass','2020-12-12');
+
 INSERT INTO tbusuario2(idusuario, nombre, apellido, usuario, password, fechacreacion, adicional)
 VALUES (2,'Vic','L','vkslax','pass','2020-12-12', 'meh');
-//select idusuario, nombre, apellido, usuario, password, fechacreacion from tbusuario;
+select 1+1 as 'suma', now() as 'fecha', u.nombre, u.apellido, u.usuario, u.password, u.fechacreacion from tbusuario as u;
 select * from tbusuario;
+*/

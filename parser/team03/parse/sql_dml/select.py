@@ -26,16 +26,26 @@ class Select(ASTNode):
         if self.tables:            
             
             for t in self.tables:
-                #get all columnaes and add into header array
-                columns = table.get_fields_from_table(t.name)
-                columns.sort(key = lambda x: x.field_index)
-                for c in columns:
-                    if t.alias is None:
-                        header.append(str(c.field_name))
-                    else:
-                        header.append(str((t.alias) + '.' + str(c.field_name)))
-            
-                data = extractTable(table.get_current_db().name, t.name)
+                columns = []
+                data = []
+                if t.subquery is not None:
+                    r = t.execute(table, tree)
+                    if len(r) > 0:
+                        columns = r[0]
+                        data = r[1]
+                else:
+                    ####for non subquery
+                    #get all columnaes and add into header array
+                    columns = table.get_fields_from_table(t.name)
+                    columns.sort(key = lambda x: x.field_index)
+                    for c in columns:
+                        if t.alias is None:
+                            header.append(str(c.field_name))
+                        else:
+                            header.append(str((t.alias) + '.' + str(c.field_name)))
+                
+                    data = extractTable(table.get_current_db().name, t.name)
+                    #####for non subquery
                 if len(megaunion) > 0 and len(data) > 0:
                     megaunion = doBinaryUnion(megaunion,data)
                 elif len(megaunion) == 0:
@@ -58,10 +68,17 @@ class Select(ASTNode):
             rrow = [] #only one result or row
             lrows = [] #the list of rows
             resutCols = []
-            if self.tables: #there are rows to process                
-                for selCol in col_names:
-                    resutCols.append(selCol.alias)#for header
-                    cellValue = seCol
+            if self.tables: #there are rows to process
+                resutCols = list(map(lambda x: x.alias,self.col_names))
+                #for selCol in col_names:
+                #    resutCols.append(selCol.alias)#for header
+                for row in megaunion:
+                    rrow = []
+                    for col in self.col_names:
+                        rrow.append(col.execute(row, header)) 
+                    lrows.append(rrow)
+                return [resutCols,lrows]
+                    
             else: #there are no rows but could be a select of fuctions
                 for selCol in self.col_names:
                     resutCols.append(selCol.alias)#for header
@@ -79,7 +96,10 @@ class Names(ASTNode):
         ASTNode.__init__(self, line, column)
         self.is_asterisk = is_asterisk
         self.exp = exp
-        self.alias = alias
+        if(alias is None):
+           self.alias = 'C_'+str(id(self))
+        else:
+            self.alias = alias
         self.graph_ref = graph_ref
 
     def execute(self, table, tree):
@@ -111,9 +131,16 @@ class Table(ASTNode):
         self.alias = alias
         self.subquery = subquery
         self.graph_ref = graph_ref
+        if self.subquery:
+            if self.alias is None:
+                self.alias = 'subq'+str(id(self))
+            if self.name is None:
+                self.name = 'subq'+str(id(self))
 
     def execute(self, table, tree):
         super().execute(table, tree)
+        if self.subquery:
+            return self.subquery.execute(table, tree)
         return True
 
 

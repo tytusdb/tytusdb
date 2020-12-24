@@ -34,6 +34,14 @@ class InsertInto(ASTNode):
                     # Run validations only if result is not None
                     value_related_to_match = self.column_list.index(match)
                     if match is not None:
+                        #to ENUM 
+                        StmENUM = None
+                        try:
+                            StmENUM = table.get(field_symbol.field_type.upper(), SymbolType.TYPE)
+                        except:
+                            pass
+                        if  StmENUM and self.insert_list[value_related_to_match].val not in StmENUM.value_list :
+                            raise Error(0, 0, ErrorType.SEMANTIC, f'Field {field_symbol.name} must be a take any of the follow: {str(StmENUM.value_list)}')
                         # TODO ADD HERE TYPE VALIDATIONS PER FIELD, JUST ONE ADDED BY NOW TO GIVE EXAMPLE
                         if field_symbol.field_type.upper() == 'INTEGER' and type(self.insert_list[value_related_to_match].val) != int:
                             raise Error(0, 0, ErrorType.SEMANTIC, f'Field {field_symbol.name} must be an integer type')
