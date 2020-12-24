@@ -61,7 +61,7 @@ class Primitive(Expression):
         self.temp = str(temp)
 
     def execute(self, environment):
-        
+
         return self
 
     def dot(self):
@@ -100,13 +100,14 @@ class Identifiers(Expression):
                     x = environment.getVar(self.name)
                     if not x:
                         list_errors.append(
-                        "Error: 42703: columna  "
-                        + str(self.name)
-                        + " no existe \n En la linea: "+ str(self.row)
+                            "Error: 42703: columna  "
+                            + str(self.name)
+                            + " no existe \n En la linea: "
+                            + str(self.row)
                         )
-                        self.table=""
-                        self.name=""
-                        self.value=""
+                        self.table = ""
+                        self.name = ""
+                        self.value = ""
                     else:
                         self.table = x[0]
                         self.name = x[1]
@@ -154,6 +155,7 @@ class TableAll(Expression):
         new.addNode(punto)
         return new
 
+
 class UnaryArithmeticOperation(Expression):
     """
     Esta clase recibe un parametro de expresion
@@ -172,10 +174,12 @@ class UnaryArithmeticOperation(Expression):
 
         if exp.type != TYPE.NUMBER:
             list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
+                "Error: 42883: la operacion no existe entre: "
                 + str(operator)
                 + " "
-                + str(exp.type)+ "\n En la linea: "+ str(self.row)
+                + str(exp.type)
+                + "\n En la linea: "
+                + str(self.row)
             )
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
@@ -185,10 +189,12 @@ class UnaryArithmeticOperation(Expression):
             value = exp.value * -1
         else:
             list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
+                "Error: 42883: la operacion no existe entre: "
                 + str(operator)
                 + " "
-                + str(exp.type)+ "\n En la linea: "+ str(self.row)
+                + str(exp.type)
+                + "\n En la linea: "
+                + str(self.row)
             )
             return ErrorUnaryOperation(operator, self.row, self.column)
         return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
@@ -220,15 +226,19 @@ class BinaryArithmeticOperation(Expression):
             operator = self.operator
             if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
                 list_errors.append(
-                     "Error: 42883: la operacion no existe entre: "
+                    "Error: 42883: la operacion no existe entre: "
                     + str(exp1.type)
                     + " "
                     + str(operator)
                     + " "
-                    + str(exp2.type)+ "\n En la linea: "+ str(self.row)
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
                 )
-                
-                return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+
+                return ErrorBinaryOperation(
+                    exp1.value, exp2.value, self.row, self.column
+                )
             if operator == "+":
                 value = exp1.value + exp2.value
             elif operator == "-":
@@ -236,7 +246,7 @@ class BinaryArithmeticOperation(Expression):
             elif operator == "*":
                 value = exp1.value * exp2.value
             elif operator == "/":
-                if exp2.value == 0 :
+                if exp2.value == 0:
                     list_errors.append("Error: 22012: No se puede dividir  por cero")
                     value = 0
                 else:
@@ -244,23 +254,24 @@ class BinaryArithmeticOperation(Expression):
             elif operator == "^":
                 value = exp1.value ** exp2.value
             elif operator == "%":
-                if exp2.value == 0 :
+                if exp2.value == 0:
                     list_errors.append("Error: 22012: No se puede modular por cero")
                     value = 0
                 else:
                     value = exp1.value % exp2.value
             else:
                 list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
-                + str(exp1.type)
-                + " "
-                + str(operator)
-                + " "
-                + str(exp2.type)
-                + "\n En la linea: "+ str(self.row)
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
                 )
                 return ErrorOperatorExpression(operator, self.row, self.column)
-          
+
             return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
         except:
             list_errors.append(
@@ -303,9 +314,10 @@ class BinaryStringOperation(Expression):
                 + str(operator)
                 + " "
                 + str(exp2.type)
-                + "\n En la linea: "+ str(self.row)
+                + "\n En la linea: "
+                + str(self.row)
             )
-            
+
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         if isinstance(exp1.value, pd.core.series.Series):
             exp1.value = exp1.value.apply(str)
@@ -325,10 +337,11 @@ class BinaryStringOperation(Expression):
                 + str(operator)
                 + " "
                 + str(exp2.type)
-                + "\n En la linea: "+ str(self.row)
+                + "\n En la linea: "
+                + str(self.row)
             )
             return ErrorOperatorExpression(operator, self.row, self.column)
-        
+
         return Primitive(TYPE.STRING, value, self.temp, self.row, self.column)
 
     def dot(self):
@@ -378,32 +391,35 @@ class BinaryRelationalOperation(Expression):
                 value = exp1.value == exp2.value
             else:
                 list_errors.append(
-                "Error: 22P02: entrada invalida: "
-                + str(exp1.type)
-                + " "
-                + str(operator)
-                + " "
-                + str(exp2.type)
-                + "\n En la linea: "+ str(self.row)
+                    "Error: 22P02: entrada invalida: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
                 )
                 return ErrorOperatorExpression(operator, self.row, self.column)
             return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except TypeError:
             list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
+                "Error: 42883: la operacion no existe entre: "
                 + str(exp1.type)
                 + " "
                 + str(operator)
                 + " "
                 + str(exp2.type)
-                + "\n En la linea: "+ str(self.row)
-                )
+                + "\n En la linea: "
+                + str(self.row)
+            )
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         except:
             list_errors.append(
                 "Error: XX000: Error interno (Binary Relational Operation)"
-                + "\n En la linea: "+ str(self.row)
-                )
+                + "\n En la linea: "
+                + str(self.row)
+            )
             pass
 
     def dot(self):
@@ -467,31 +483,34 @@ class UnaryRelationalOperation(Expression):
                 value = exp.value != None
             else:
                 list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
-                + str(exp.type)
-                + " "
-                + str(operator)
-                + " "
-                + "\n En la linea: "+ str(self.row)
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + "\n En la linea: "
+                    + str(self.row)
                 )
                 return ErrorOperatorExpression(operator, self.row, self.column)
-            
+
             return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except TypeError:
             list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
+                "Error: 42883: la operacion no existe entre: "
                 + str(exp.type)
                 + " "
                 + str(operator)
                 + " "
-                + "\n En la linea: "+ str(self.row)
-                )
+                + "\n En la linea: "
+                + str(self.row)
+            )
             return ErrorUnaryOperation(exp.value, self.row, self.column)
         except:
             list_errors.append(
                 "Error: XX000: Error interno (Unary Relational Operation)"
-                + "\n En la linea: "+ str(self.row)
-                )
+                + "\n En la linea: "
+                + str(self.row)
+            )
             pass
 
     def dot(self):
@@ -544,8 +563,9 @@ class TernaryRelationalOperation(Expression):
                     value = t1 | t2
                 else:
                     list_errors.append(
-                    "Error: 42601: Error sintactico: "
-                    + "\n En la linea: "+ str(self.row)
+                        "Error: 42601: Error sintactico: "
+                        + "\n En la linea: "
+                        + str(self.row)
                     )
                     return ErrorOperatorExpression(operator, self.row, self.column)
             else:
@@ -559,22 +579,24 @@ class TernaryRelationalOperation(Expression):
                     value = t1 or t2
                 else:
                     list_errors.append(
-                    "Error: 42601: Error sintactico: "
-                    + "\n En la linea: "+ str(self.row)
+                        "Error: 42601: Error sintactico: "
+                        + "\n En la linea: "
+                        + str(self.row)
                     )
                     return ErrorOperatorExpression(operator, self.row, self.column)
             return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except TypeError:
             list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
+                "Error: 42883: la operacion no existe entre: "
                 + str(exp1.type)
                 + " "
                 + str(operator)
                 + " "
                 + str(exp2.type)
-                +" y "
+                + " y "
                 + str(exp3.type)
-                + "\n En la linea: "+ str(self.row)
+                + "\n En la linea: "
+                + str(self.row)
             )
             return ErrorTernaryOperation(
                 exp1.value, exp2.value, exp3.value, self.row, self.column
@@ -582,8 +604,9 @@ class TernaryRelationalOperation(Expression):
         except:
             list_errors.append(
                 "Error: XX000: Error interno (Ternary Relational Operation)"
-                + "\n En la linea: "+ str(self.row)
-                )
+                + "\n En la linea: "
+                + str(self.row)
+            )
             pass
 
     def dot(self):
@@ -607,15 +630,15 @@ class ExistsRelationalOperation(Expression):
         try:
             df1 = environment.dataFrame.copy()
             names = {}
-            
+
             for n in list(df1.columns):
-                names[n] = n.split('.')[1]
+                names[n] = n.split(".")[1]
 
             df1.rename(columns=names, inplace=True)
 
             df2 = self.subquery.execute(environment)[0]
 
-            y =	df1.columns.intersection(df2.columns)
+            y = df1.columns.intersection(df2.columns)
             lst = list(y)
             if len(lst) < 1:
                 list_errors.append(
@@ -643,21 +666,21 @@ class InRelationalOperation(Expression):
         self.colData = colData
         self.subquery = subquery
         self.optNot = optNot
-        self.temp = colData.temp + optNot + " IN ( subquery )" 
-    
+        self.temp = colData.temp + optNot + " IN ( subquery )"
+
     def execute(self, environment):
         col = self.colData.execute(environment)
         df = self.subquery.execute(environment)[0]
 
         # TODO: Falta agregar la verificacion de types
-        
+
         if len(list(df.columns)) != 1:
             list_errors.append(
                 "Error: XX000: Error interno (Exist Relational Operation)"
                 + "\n En la linea: "+ str(self.row)
                 )
         value = col.value.isin(df.iloc[:, 0])
-        if self.optNot == 'NOT':
+        if self.optNot == "NOT":
             value = ~value
         return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
 
@@ -668,7 +691,8 @@ class InRelationalOperation(Expression):
         new.addNode(self.colData.dot())
         new.addNode(self.subquery.dot())
         return new
-        
+
+
 class BinaryLogicalOperation(Expression):
     """
     Esta clase contiene las expresiones booleanas binarias.
@@ -688,13 +712,14 @@ class BinaryLogicalOperation(Expression):
 
         if exp1.type != TYPE.BOOLEAN or exp2.type != TYPE.BOOLEAN:
             list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
+                "Error: 42883: la operacion no existe entre: "
                 + str(exp1.type)
                 + " "
                 + str(operator)
                 + " "
                 + str(exp2.type)
-                + "\n En la linea: "+ str(self.row)
+                + "\n En la linea: "
+                + str(self.row)
             )
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
 
@@ -707,14 +732,15 @@ class BinaryLogicalOperation(Expression):
                 value = exp1.value | exp2.value
             else:
                 list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
-                + str(exp1.type)
-                + " "
-                + str(operator)
-                + " "
-                + str(exp2.type)
-                + "\n En la linea: "+ str(self.row)
-            )
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
                 return ErrorOperatorExpression(operator, self.row, self.column)
         else:
             if operator == "AND":
@@ -723,14 +749,15 @@ class BinaryLogicalOperation(Expression):
                 value = exp1.value or exp2.value
             else:
                 list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
-                + str(exp1.type)
-                + " "
-                + str(operator)
-                + " "
-                + str(exp2.type)
-                + "\n En la linea: "+ str(self.row)
-            )
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
                 return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
 
@@ -763,11 +790,12 @@ class UnaryLogicalOperation(Expression):
         # MOMO IF OPERADORES
         if exp.type != TYPE.BOOLEAN:
             list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
+                "Error: 42883: la operacion no existe entre: "
                 + str(exp.type)
                 + " y el operador "
                 + str(operator)
-                + "\n En la linea: "+ str(self.row)
+                + "\n En la linea: "
+                + str(self.row)
             )
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
@@ -788,12 +816,13 @@ class UnaryLogicalOperation(Expression):
                 value = exp.value != None
             else:
                 list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
-                + str(exp.type)
-                + " y el operador "
-                + str(operator)
-                + "\n En la linea: "+ str(self.row)
-            )
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp.type)
+                    + " y el operador "
+                    + str(operator)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
                 return ErrorOperatorExpression(operator, self.row, self.column)
         else:
             if operator == "NOT":
@@ -812,12 +841,13 @@ class UnaryLogicalOperation(Expression):
                 value = exp.value != None
             else:
                 list_errors.append(
-                 "Error: 42883: la operacion no existe entre: "
-                + str(exp.type)
-                + " y el operador "
-                + str(operator)
-                + "\n En la linea: "+ str(self.row)
-            )
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp.type)
+                    + " y el operador "
+                    + str(operator)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
                 return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
 
@@ -1073,17 +1103,20 @@ class FunctionCall(Expression):
                     value = value[0]
                 else:
                     value = pd.Series(value)
-            
+
             return Primitive(type_, value, self.temp, self.row, self.column)
         except TypeError:
             list_errors.append(
-                 "Error: 42883: La funcion "+str(self.function)+"("+str(type_)+") no existe"
-                + "\n En la linea: "+ str(self.row)
+                "Error: 42883: La funcion "
+                + str(self.function)
+                + "("
+                + str(type_)
+                + ") no existe"
+                + "\n En la linea: "
+                + str(self.row)
             )
         except:
-            list_errors.append(
-                 "Error: P0001: Error en funciones"
-            )
+            list_errors.append("Error: P0001: Error en funciones")
 
     def dot(self):
         f = Nodo.Nodo(self.function)
@@ -1124,8 +1157,8 @@ class ExtractDate(Expression):
                     val = self.str[1][6:8]
                 else:
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     # ERROR
                     val = self.str
             elif self.type == "DATE":
@@ -1138,8 +1171,8 @@ class ExtractDate(Expression):
                 else:
                     # ERROR
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     val = self.str
             elif self.type == "TIME":
                 if self.opt == "HOUR":
@@ -1151,8 +1184,8 @@ class ExtractDate(Expression):
                 else:
                     # ERROR
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     val = self.str
             elif self.type == "INTERVAL":
                 if self.opt == "YEAR":
@@ -1176,26 +1209,24 @@ class ExtractDate(Expression):
                 else:
                     # ERROR
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     val = self.str
             else:
                 list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
+                    "Error: 22007: Formato de fecha invalido " + str(self.str)
                 )
                 val = self.str
                 # ERROR
-            
+
             return Primitive(TYPE.NUMBER, int(val), self.temp, self.row, self.column)
         except TypeError:
-            list_errors.append(
-                 "Error: 42804: discrepancia de tipo de datos "
-                )
+            list_errors.append("Error: 42804: discrepancia de tipo de datos ")
             pass
         except ValueError:  # cuando no tiene el valor INTERVAL
             list_errors.append(
-                 "Error: 22007:sintaxis de entrada no válida para el tipo \'interval\' "
-                )
+                "Error: 22007:sintaxis de entrada no válida para el tipo 'interval' "
+            )
             pass
 
     def dot(self):
@@ -1245,8 +1276,8 @@ class ExtractColumnDate(Expression):
                 else:
                     # ERROR
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     val = self.str
             elif valores.type == TYPE.DATE:
                 if self.opt == "YEAR":
@@ -1258,8 +1289,8 @@ class ExtractColumnDate(Expression):
                 else:
                     # ERROR
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     val = self.str
             elif valores.type == TYPE.TIME:
                 if self.opt == "HOUR":
@@ -1271,31 +1302,29 @@ class ExtractColumnDate(Expression):
                 else:
                     # ERROR
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     val = self.str
             else:
                 val = self.str
                 # ERROR
                 list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
+                    "Error: 22007: Formato de fecha invalido " + str(self.str)
                 )
             if isinstance(val, list):
                 if len(val) <= 1:
                     val = val[0]
                 else:
                     val = pd.Series(val)
-            
+
             return Primitive(TYPE.NUMBER, val, self.temp, self.row, self.column)
         except TypeError:
-            list_errors.append(
-                 "Error: 42804: discrepancia de tipo de datos "
-                )
+            list_errors.append("Error: 42804: discrepancia de tipo de datos ")
             pass
         except ValueError:  # cuando no tiene el valor INTERVAL
             list_errors.append(
-                 "Error: 22007:sintaxis de entrada no válida para el tipo \'interval\' "
-                )
+                "Error: 22007:sintaxis de entrada no válida para el tipo 'interval' "
+            )
             pass
 
     def dot(self):
@@ -1338,8 +1367,8 @@ class DatePart(Expression):
                     val = self.str[1][6:8]
                 else:
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     # ERROR
                     val = self.str
             elif self.type == "DATE":
@@ -1351,8 +1380,8 @@ class DatePart(Expression):
                     val = self.str[0][8:10]
                 else:
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     # ERROR
                     val = self.str
             elif self.type == "TIME":
@@ -1364,8 +1393,8 @@ class DatePart(Expression):
                     val = self.str[0][6:8]
                 else:
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     # ERROR
                     val = self.str
             elif self.type == "INTERVAL":
@@ -1389,8 +1418,8 @@ class DatePart(Expression):
                     val = self.str[idx - 1]
                 else:
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     # ERROR
                     val = self.str
             elif self.type == "NOW":
@@ -1409,26 +1438,24 @@ class DatePart(Expression):
                     val = self.str[1][6:8]
                 else:
                     list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
-                )
+                        "Error: 22007: Formato de fecha invalido " + str(self.str)
+                    )
                     # ERROR
                     val = self.str
             else:
                 val = self.str
                 list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
+                    "Error: 22007: Formato de fecha invalido " + str(self.str)
                 )
                 # ERROR
             return Primitive(TYPE.NUMBER, int(val), self.temp, self.row, self.column)
         except TypeError:
-            list_errors.append(
-                 "Error: 42804: discrepancia de tipo de datos "
-                )
+            list_errors.append("Error: 42804: discrepancia de tipo de datos ")
             pass
         except ValueError:  # cuando no tiene el valor INTERVAL
             list_errors.append(
-                 "Error: 22007:sintaxis de entrada no válida para el tipo \'interval\' "
-                )
+                "Error: 22007:sintaxis de entrada no válida para el tipo 'interval' "
+            )
             pass
 
     def dot(self):
@@ -1470,14 +1497,12 @@ class Current(Expression):
             else:
                 # ERROR
                 list_errors.append(
-                 "Error: 22007: Formato de fecha invalido "+str(self.str)
+                    "Error: 22007: Formato de fecha invalido " + str(self.str)
                 )
                 value = self.val
             return Primitive(TYPE.STRING, value, self.temp, self.row, self.column)
         except:
-            list_errors.append(
-                 "Error: P0001: Error en expresiones de fechas"
-            )
+            list_errors.append("Error: P0001: Error en expresiones de fechas")
             pass
 
     def dot(self):
@@ -1591,12 +1616,7 @@ class AggregateFunction(Expression):
 
         return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
 
-def returnExpErrors():
-    mf.list_errors_mt+=trf.list_errors_tg
-    mf.list_errors_mt+=list_errors
-    return mf.list_errors_mt
-
-def dot(self):
+    def dot(self):
         f = Nodo.Nodo(self.func)
         p = Nodo.Nodo("PARAMS")
         new = Nodo.Nodo("CALL")
@@ -1605,6 +1625,18 @@ def dot(self):
 
         p.addNode(self.colData.dot())
         return new
+
+
+def returnExpErrors():
+    global list_errors
+    mf.list_errors_mt += trf.list_errors_tg
+    mf.list_errors_mt += list_errors
+    list_ = mf.list_errors_mt
+    trf.list_errors_tg = list()
+    mf.list_errors_mt = list()
+    list_errors = list()
+    return list_
+
 
 def makeAst():
     ast.makeAst(root)

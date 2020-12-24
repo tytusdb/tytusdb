@@ -5,6 +5,7 @@ path.append(dir(path[0]))
 import analizer.ply.yacc as yacc
 from analizer.tokens import *
 from analizer.reports import Nodo
+
 # Prueba para dataframe:
 import analizer.abstract.select_data as data
 
@@ -728,14 +729,16 @@ def p_case_list(t):
             | caseWhen
     """
 
+
 def p_caseWhen(t):
-    """ caseWhen : R_WHEN expBool R_THEN literal
-    """
+    """caseWhen : R_WHEN expBool R_THEN literal"""
+
 
 def p_caseWhen_2(t):
-    """ optElse : R_ELSE literal
-                |
+    """optElse : R_ELSE literal
+    |
     """
+
 
 def p_datatype_operadores_unarios(t):
     """
@@ -905,7 +908,9 @@ def p_boolean_1(t):
     """
     boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
     """
-    t[0] = expression.ExistsRelationalOperation(t[3],  t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.ExistsRelationalOperation(
+        t[3], t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -959,7 +964,6 @@ def p_expBool_3(t):
     repGrammar.append(t.slice)
 
 
-
 def p_expBool_5(t):
     """
     expBool : expBool optBoolPredicate
@@ -974,6 +978,7 @@ def p_expBool_4(t):
     """
     t[0] = t[1]
     repGrammar.append(t.slice)
+
 
 def p_optBoolPredicate_1(t):
     """
@@ -1246,7 +1251,15 @@ def p_ifExists(t):
 def p_selectStmt_1(t):
     """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl"""
     t[0] = instruction.Select(
-        t[3].params, t[4], t[5], t[6][0], t[6][1], t[7], True, t.slice[1].lineno, t.slice[1].lexpos
+        t[3].params,
+        t[4],
+        t[5],
+        t[6][0],
+        t[6][1],
+        t[7],
+        True,
+        t.slice[1].lineno,
+        t.slice[1].lexpos,
     )
     repGrammar.append(t.slice)
 
@@ -1255,23 +1268,32 @@ def p_selectStmt_1(t):
 def p_selectStmt_2(t):
     """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl"""
     t[0] = instruction.Select(
-        t[2].params, t[3], t[4], t[5][0], t[5][1], t[6], False, t.slice[1].lineno, t.slice[1].lexpos
+        t[2].params,
+        t[3],
+        t[4],
+        t[5][0],
+        t[5][1],
+        t[6],
+        False,
+        t.slice[1].lineno,
+        t.slice[1].lexpos,
     )
     repGrammar.append(t.slice)
+
 
 def p_selectStmt__1(t):
     """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl orderByCl limitCl"""
     repGrammar.append(t.slice)
 
+
 def p_selectStmt__2(t):
     """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
     repGrammar.append(t.slice)
 
+
 def p_selectStmt__3(t):
     """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl limitCl"""
     repGrammar.append(t.slice)
-
-
 
 
 def p_selectStmt_union(t):
@@ -1428,8 +1450,7 @@ def p_tableexp_subq(t):
 
 
 def p_joinList(t):
-    """joinList : joinList2
-    """
+    """joinList : joinList2"""
     repGrammar.append(t.slice)
 
 
@@ -1530,8 +1551,7 @@ def p_havingCl_2(t):
 
 
 def p_orderByCl(t):
-    """orderByCl : R_ORDER R_BY orderList
-    """
+    """orderByCl : R_ORDER R_BY orderList"""
     repGrammar.append(t.slice)
 
 
@@ -1548,7 +1568,6 @@ def p_orderByElem(t):
                 | INTEGER orderOpts orderNull
     """
     repGrammar.append(t.slice)
-
 
 
 def p_orderOpts(t):
@@ -1569,27 +1588,26 @@ def p_orderNull(t):
 
 def p_limitCl(t):
     """limitCl : R_LIMIT INTEGER offsetLimit
-            | R_LIMIT R_ALL offsetLimit
-    """ 
+    | R_LIMIT R_ALL offsetLimit
+    """
     t[0] = instruction.limitClause(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_limitCl_n(t):
-    """limitCl :
-    """ 
+    """limitCl :"""
     t[0] = None
     repGrammar.append(t.slice)
 
+
 def p_offsetLimit(t):
-    """offsetLimit : R_OFFSET INTEGER
-    """
+    """offsetLimit : R_OFFSET INTEGER"""
     t[0] = t[2]
     repGrammar.append(t.slice)
 
+
 def p_offsetLimit_n(t):
-    """offsetLimit : 
-    """
+    """offsetLimit :"""
     t[0] = None
     repGrammar.append(t.slice)
 
@@ -1712,7 +1730,7 @@ def p_likeOpt(t):
 
 def p_useStmt(t):
     """useStmt : R_USE ID"""
-    t[0] = instruction.useDataBase(t[2])
+    t[0] = instruction.useDataBase(t[2], t.slice[1].lineno, t.slice[1].lexpos)
 
     repGrammar.append(t.slice)
 
@@ -1747,30 +1765,34 @@ def returnSyntacticErrors():
 
 
 def returnPostgreSQLErrors():
-    errors =  expression.returnExpErrors()
+    errors = expression.returnExpErrors()
     errors += PostgreSQL
     errors += instruction.returnErrors()
     return errors
 
 
 def returnSemanticErrors():
-    return instruction.semanticErrors
+    return instruction.returnSemanticErrors()
+
 
 def InitTree():
     init = Nodo.Nodo("INSTRUCTION_LIST")
     Tree(init)
     makeAst(init)
 
+
 def Tree(n):
-    if len(listInst)>0:
+    if len(listInst) > 0:
         l = listInst.pop()
         n.addNode(l)
         inst = Nodo.Nodo("INST")
         n.addNode(inst)
         Tree(inst)
 
+
 def makeAst(root):
     instruction.makeAst(root)
+
 
 def getRepGrammar():
     return repGrammar
@@ -1784,6 +1806,7 @@ def parse(input):
         expression.list_errors = list()
         instruction.syntaxPostgreSQL = list()
         instruction.semanticErrors = list()
+        instruction.syntaxErrors = list()
         lexer.lineno = 1
         result = parser.parse(input)
         return result
