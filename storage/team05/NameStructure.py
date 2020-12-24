@@ -107,11 +107,10 @@ class NombreEstructuras:
         try:
             if self.ComprobarNombre(database) == True: #Comprobamos el nombre
                 if self.searchDatabase(database) == True: #Buscamos la db
-                    del self.database[database]
-
                     auxTablas = self.database[database]
                     for key in auxTablas:
                         ht.eliminarTablaHash(database, key)
+                    del self.database[database]
                     ne.serialize("data/database",self.database)
                     directorio='data/tables/'
                     with os.scandir(directorio) as ficheros:
@@ -399,108 +398,114 @@ class NombreEstructuras:
 
     #Grapvhiz para la estructura de la base de datos
     def graficarBaseDato(self):
-        s = open('graphDataBase.dot', 'w')
-        cadena = """digraph g{
-            rankdir = \"LR\"
-            label = \" Diccionario de Base de datos 
-            Grupo #5\"; fontsize=18;
-            node[shape=record]
-            Nodo[label =\""""
-        
-        
-
-        contador = 0
-        longitudKey = len(self.database)
-        for key in self.database:
-            contador = contador +1
+        if len(self.database) == 0:
+            print("No hay datos")
+        else:
+            s = open('graphDataBase.dot', 'w')
+            cadena = """digraph g{
+                rankdir = \"LR\"
+                label = \" Diccionario de Base de datos 
+                Grupo #5\"; fontsize=18;
+                node[shape=record]
+                Nodo[label =\""""
             
-            if longitudKey > contador:
-                cadena = cadena + "key: "+str(key)+"|"
-            else:
-                cadena = cadena + "key: "+str(key)+"\"];\n"
+            
 
-        cadena = cadena +"}"
-        s.write(cadena)
-        s.close()
-        
-        path=os.getcwd()
-        print('path'+path)
-        
-        os.system('dot -Tpdf graphDataBase.dot -o graphDataBase.pdf')
-        os.system('graphDataBase.pdf')
+            contador = 0
+            longitudKey = len(self.database)
+            for key in self.database:
+                contador = contador +1
+                
+                if longitudKey > contador:
+                    cadena = cadena + "key: "+str(key)+"|"
+                else:
+                    cadena = cadena + "key: "+str(key)+"\"];\n"
+
+            cadena = cadena +"}"
+            s.write(cadena)
+            s.close()
+            
+            path=os.getcwd()
+            print('path'+path)
+            
+            os.system('dot -Tpdf graphDataBase.dot -o graphDataBase.pdf')
+            os.system('graphDataBase.pdf')
 
 #Grapvhiz para la estructura de la base de datos
     def graficarTablaBaseDato(self):
-        s = open('graphDataBaseTable.dot', 'w')
-        cadena = """digraph g{
-            rankdir = \"LR\"
-            label = \" Base de datos con sus tablas 
-            Grupo #5\"; fontsize=18;
-            node[shape=record]
-            Nodo[label =\""""
-        
-        
-        cadenaNodos = ""
-        contador = 0
-        longitudKey = len(self.database)
-        uniones = ""
-        for key in self.database:
-            contador = contador +1
-            dictmp = self.database[key]
+        if len(self.database) == 0:
+            print("no hay datos")
+        else:
+            s = open('graphDataBaseTable.dot', 'w')
+            cadena = """digraph g{
+                rankdir = \"LR\"
+                label = \" Base de datos con sus tablas 
+                Grupo #5\"; fontsize=18;
+                node[shape=record]
+                Nodo[label =\""""
             
-            nombretmp = "nodo" + str(key)
             
-            longitudTabla = len(dictmp)
-
-            #Uniones de nodos
-            if longitudTabla > 0:
-                print("longi >", longitudTabla)
-                uniones = uniones + "Nodo:<"+str(key)+"> " + "->" + nombretmp + ";\n"
-
-            if longitudKey > contador:
-                contadorTabla = 0
-                cadena = cadena +"<" +str(key)+">"+str(key)+"|"
-                for key2 in dictmp:
-                    contadorTabla = contadorTabla + 1
-                    if longitudTabla > contadorTabla:
-                        if contadorTabla == 1:
-                            cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"|"
-                        else:
-                            cadenaNodos = cadenaNodos + str(key2) + "|"
-
-                        
-                    else:
-                        if contadorTabla == 1:
-                            cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"\"];\n"
-                        else:
-                            cadenaNodos = cadenaNodos + str(key2) + "\"];\n"
+            cadenaNodos = ""
+            contador = 0
+            longitudKey = len(self.database)
+            uniones = ""
+            for key in self.database:
+                contador = contador +1
+                dictmp = self.database[key]
                 
-            else:
-                contadorTabla = 0
-                cadena = cadena +"<" +str(key)+">"+str(key)+"\"];\n"
-                for key2 in dictmp:
-                    contadorTabla = contadorTabla + 1
-                    if longitudTabla > contadorTabla:
-                        if contadorTabla == 1:
-                            cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"|"
-                        else:
-                            cadenaNodos = cadenaNodos + str(key2) + "|"
-                        
-
-                    else:
-                        if contadorTabla == 1:
-                            cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"\"];\n"
-                        else:
-                            cadenaNodos = cadenaNodos + str(key2) + "\"];\n"
-                        
+                nombretmp = "nodo" + str(key)
                 
+                longitudTabla = len(dictmp)
 
-        uniones = uniones +"\n}"
-        s.write(cadena)
-        s.write(cadenaNodos)
-        s.write(uniones)
-        s.close()
-        
+                #Uniones de nodos
+                if longitudTabla > 0:
+                    print("longi >", longitudTabla)
+                    uniones = uniones + "Nodo:<"+str(key)+"> " + "->" + nombretmp + ";\n"
+
+                if longitudKey > contador:
+                    contadorTabla = 0
+                    cadena = cadena +"<" +str(key)+">"+str(key)+"|"
+                    for key2 in dictmp:
+                        contadorTabla = contadorTabla + 1
+                        if longitudTabla > contadorTabla:
+                            if contadorTabla == 1:
+                                cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"|"
+                            else:
+                                cadenaNodos = cadenaNodos + str(key2) + "|"
+
+                            
+                        else:
+                            if contadorTabla == 1:
+                                cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"\"];\n"
+                            else:
+                                cadenaNodos = cadenaNodos + str(key2) + "\"];\n"
+                    
+                else:
+                    contadorTabla = 0
+                    cadena = cadena +"<" +str(key)+">"+str(key)+"\"];\n"
+                    for key2 in dictmp:
+                        contadorTabla = contadorTabla + 1
+                        if longitudTabla > contadorTabla:
+                            if contadorTabla == 1:
+                                cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"|"
+                            else:
+                                cadenaNodos = cadenaNodos + str(key2) + "|"
+                            
+
+                        else:
+                            if contadorTabla == 1:
+                                cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"\"];\n"
+                            else:
+                                cadenaNodos = cadenaNodos + str(key2) + "\"];\n"
+                            
+                    
+
+            uniones = uniones +"\n}"
+            s.write(cadena)
+            s.write(cadenaNodos)
+            s.write(uniones)
+            s.close()
+            
         path=os.getcwd()
         print('path'+path)
         os.system('dot -Tpdf graphDataBaseTable.dot -o graphDataBaseTable.pdf')
