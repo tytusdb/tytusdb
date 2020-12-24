@@ -221,7 +221,7 @@ class tabla_simbolos():
         if (isinstance(obtener_tabla,E.Errores)):
             #el error viene en obrener tabla
             return obtener_tabla
-        
+
         #si no se elimina de la ts
         self.lis_simbolos.remove(obtener_tabla)
         return True
@@ -238,7 +238,7 @@ class tabla_simbolos():
             if colum.id == id_columna :
                 obtener_tabla.valor.remove(colum)
                 return True
-        
+
         #si llega aqui no se encontro la columna 
         msj_error = 'La columna -'+id_columna+' no existe en la tabla -',table,'-.'
         error = E.Errores('EROOR', msj_error)
@@ -265,7 +265,7 @@ class tabla_simbolos():
         if(isinstance(tabla,E.Errores)):
             #no encontro la tabla 
             return tabla #la variable tabla ya trae el error del metodo al que llamo
-        
+
         #si encuentra la tabla, recorre las columnas y las concatena a una lista
         list_columnas = []
 
@@ -274,6 +274,12 @@ class tabla_simbolos():
 
         return list_columnas
 
+    def get_pos_column(self, table, column):
+        try:
+            return table.valor.index(column)
+        except:
+            return -1
+ 
     def graficar(self):
         cont = 0
         
