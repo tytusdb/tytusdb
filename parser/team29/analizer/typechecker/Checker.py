@@ -116,6 +116,7 @@ def select(col, val):
     elif x == TYPE.NUMBER and val.type == TYPE.NUMBER:
         numeric(col, val.value)
     elif col["type"] == "MONEY" and val.type == TYPE.STRING:
+        val.value = val.value.replace(',','')
         numeric(col, val.value)
     else:
         addError(str(val.value) + " no es del tipo : " + col["type"])
