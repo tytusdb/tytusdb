@@ -250,8 +250,16 @@ def view_alterAddPk():
         if v_table and v_columnas:
             txtTabla.delete(0, END)
             txtColumnas.delete(0, END)
-            lista = v_columnas.split(",")
-            value = CRUD_Tabla().alterAddPK(nombre_BaseDatos, v_table,lista)
+            print("entro")
+            lista_1 = v_columnas.split(",")
+            lista = []
+            for n in lista_1:
+                lista.append(int(n))
+
+
+            table = CRUD_Tabla()
+
+            value = table.alterAddPK(nombre_BaseDatos, v_table,lista)
             #value = 0
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')

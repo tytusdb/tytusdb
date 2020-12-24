@@ -12,7 +12,6 @@ class Tabla():
 class CRUD_Tabla():
     ##note make validations of pk´s
     def alterAddPK(self,database,table,columns):
-        try:
             asd=[]
             search = CRUD_DataBase().searchDatabase(database)
             if search:
@@ -21,8 +20,8 @@ class CRUD_Tabla():
                     return 3
                 else:
                     large = search_table.numberColumns
-                    #print(large)
-                    #print(len(columns))
+                    print(large)
+                    print(len(columns))
                     if len(columns) <= large:
                         tmp = CRUD_DataBase().getRoot()
                         if search_table.PK == asd:
@@ -37,9 +36,8 @@ class CRUD_Tabla():
                         return 5
             else:
                 return 2
-        except:
-            return 1
-            
+
+
     def _alterAddPK(self,name,table,columns,tmp):
         ## recursividad para busqueda e insercion de datos
         if tmp is None:
@@ -58,12 +56,15 @@ class CRUD_Tabla():
             tmp = self._alterAddPK(name,table,columns,tmp.left)
         return tmp
 
+
+
     def subalterAddPK(self,keys,tmp,id):
 
             ## igualamos la lista de pk con keys
             tmp.tables[id].PK = keys
+
             temp_vals = tmp.tables[id].tuples.takeDates()
-            new_tree = CRUD_Tuplas()
+            new_tree = Arbol()
             tmp.tables[id].tuples = None
             tmp.tables[id].tuples = new_tree
 
@@ -76,11 +77,11 @@ class CRUD_Tabla():
 
             else:
                 pk = tmp.tables[id].PK[0]
-                #print(pk)
+                print(pk)
 
                 for n in temp_vals:
                     temp_pos = n[pk]
-                    #print(temp_pos)
+                    print(temp_pos)
                     n.insert(0, temp_pos)
                     tmp.tables[id].tuples.Insertar(n)
 
@@ -88,8 +89,8 @@ class CRUD_Tabla():
 
     def sumatoryStringKey(self,values,keys):
         concatenatePK = ""
-        #print(values)
-        #print(values[2])
+        print(values)
+        print(values[2])
         for n in keys:
             asd = values[n]
             concatenatePK += asd
@@ -111,24 +112,25 @@ class CRUD_Tabla():
                         validation_aproved = self._alterDropPK(database,table,tmp)
                         if validation_aproved:
                             CRUD_DataBase().saveRoot(tmp)
-        except:
-            return 1
 
-    def _alterDropPK(self,database,table,tmp):
+        except:
+            return 2
+    def _alterDropPK(self,name,table,tmp):
         if tmp is None:
             pass
-        elif database == tmp.name:
+        elif name == tmp.name:
             for n in tmp.tables:
                 if n.name == table:
                     id = tmp.tables.index(n)
                     pk = []
                     tmp.tables[id].PK = pk
                     break
-        elif database > tmp.name:
-            tmp = self._alterDropPK(database,table,tmp.right)
+        elif name > tmp.name:
+            tmp = self._alterDropPK(name,table,tmp.right)
         else:
-            tmp = self._alterDropPK(database,table,tmp.left)
+            tmp = self._alterDropPK(name,table,tmp.left)
         return tmp
+
 
     def extractTable(self, database, table):
         temp = CRUD_DataBase().searchDatabase(database)
@@ -178,7 +180,7 @@ class CRUD_Tabla():
             temp = CRUD_DataBase().searchDatabase(database)
             lista_retorno = []
             for item in temp.tables:
-                #print(item.name)
+                print(item.name)
                 lista_retorno.append(item.name)
             return lista_retorno
         except:
@@ -261,7 +263,9 @@ class CRUD_Tabla():
         else:
             return 2  
            
-    """def insert(self,database,table,tupla):
+
+
+    def insert(self,database,table,tupla):
         self.root = CRUD_DataBase().getRoot()
         self._insert(database, self.root, table,tupla)
         CRUD_DataBase().saveRoot(self.root)
@@ -282,71 +286,59 @@ class CRUD_Tabla():
             if n.name == table:
                 id = tmp.tables.index(n)
                 if tmp.tables[id].tuples == None:
-                    tmp.tables[id].tuples = CRUD_Tuplas()
+                    tmp.tables[id].tuples = Arbol()
                     tmp.tables[id].tuples.insertar_(tupla)
                 else:
                     tmp.tables[id].tuples.insertar_(tupla)
-                return tmp"""
-    
-    ############################################################################
+                return tmp
     def extractRangeTable(self,database,table,columnNumber,lower,upper):
-        try:
-            search = self.extractTable(database,table)
-            if search:
-                if search.tuples is None:
-                    return None
-                else:
-                    dates = search.tuples.takeDates()
-                    dates = self._extractRangeTables(columnNumber,lower,upper,dates)
-                    #print("valores")
-                    return dates
+        search = self.extractTable(database,table)
+        if search:
+            if search.tuples is None:
+                return print("tuplas vacias")
             else:
-                return None
-        except:
-            return 1
-        
-    ############################################################################
-    
+                dates = search.tuples.takeDates()
+                dates = self._extractRangeTables(columnNumber,lower,upper,dates)
+                print("valores")
+                return dates
+        else:
+            return print("error no se encontrola base de datos ")
     def _extractRangeTables(self,columnNumber,Lower,upper,dates):
         vals = []
+
         for n in dates:
             if n[columnNumber] >= Lower and n[columnNumber] <= upper:
                 vals.append(n[columnNumber])
         return vals
-    
     def alterDropColumn(self,database, table , columnnumber):
-        try:
-            search = CRUD_DataBase().searchDatabase(database)
-            if search:
-                search_table = self.extractTable(database,table)
-                if search_table:
-                    if columnnumber <search_table.numberColumns-1:
-                        if columnnumber ==search_table.numberColumns:
+        search = CRUD_DataBase().searchDatabase(database)
+        if search:
+            search_table = self.extractTable(database,table)
+            if search_table:
+                if columnnumber <search_table.numberColumns-1:
+                    if columnnumber ==search_table.numberColumns:
+                        return 4
+                    else:
+                        t = True
+                        for n in search_table.PK:
+                            if columnnumber == n:
+                                t = False
+                        if t == True:
+                            tmp = CRUD_DataBase().getRoot()
+                            validation_aproved = self._alterDropColumns(database,table,columnnumber,tmp)
+                            if validation_aproved:
+                                return 0
+                            else:
+                                return 1
+                        else :
                             return 4
-                        else:
-                            t = True
-                            for n in search_table.PK:
-                                if columnnumber == n:
-                                    t = False
-                            if t == True:
-                                tmp = CRUD_DataBase().getRoot()
-                                validation_aproved = self._alterDropColumns(database,table,columnnumber,tmp)
-                                if validation_aproved:
-                                    return 0
-                                else:
-                                    return 1
-                            else :
-                                return 4
-                    else :
-                        return 5
-
                 else :
-                    return 3
-            else:
-                return 2
-        except:
-            return 1
-          
+                    return 5
+
+            else :
+                return 3
+        else:
+            return 2
     def _alterDropColumns(self,name,table,columnumber,tmp):
         if tmp is None:
             pass
@@ -363,11 +355,10 @@ class CRUD_Tabla():
         else:
             tmp = self._alterAddPK(name, table, columnumber, tmp.left)
         return tmp
-   
     def newEstructureColumns(self,tmp,id,columnumber):
         ## igualamos la lista de pk con keys
         temp_vals = tmp.tables[id].tuples.takeDates()
-        new_tree = CRUD_Tuplas()
+        new_tree = Arbol()
         tmp.tables[id].tuples = None
         tmp.tables[id].tuples = new_tree
 
@@ -379,26 +370,26 @@ class CRUD_Tabla():
         return tmp
 
     def alterAddColumn(self,database,table,columns):
-        try:
+
             search = CRUD_DataBase().searchDatabase(database)
             if search:
                 search_table = self.extractTable(database,table)
                 if search_table is None:
                     return 3
-                else:    
-                    tmp = CRUD_DataBase().getRoot()
-                    validation_apoved = self._alterAddColumn(database,table,columns,tmp)
-                    if validation_apoved:
-                        CRUD_DataBase().saveRoot(tmp)
-                        return 0
-                    else:
-                        return 1
+                else:
+
+                            tmp = CRUD_DataBase().getRoot()
+                            validation_apoved = self._alterAddColumn(database,table,columns,tmp)
+                            if validation_apoved:
+                                CRUD_DataBase().saveRoot(tmp)
+                                return 0
+                            else:
+                                return 1
+
+
+
             else:
                 return 2
-        except:
-            return 1
-        
-
     def _alterAddColumn(self,name,table,columnumber,tmp):
         if tmp is None:
             pass
@@ -415,10 +406,9 @@ class CRUD_Tabla():
         else:
             tmp = self._alterAddPK(name,table,columnumber,tmp.left)
         return tmp
-
     def addcolumn(self,tmp,id,columnumber):
         temp_vals = tmp.tables[id].tuples.takeDates()
-        new_tree = CRUD_Tuplas()
+        new_tree = Arbol()
         tmp.tables[id].tuples = None
         tmp.tables[id].tuples = new_tree
 
@@ -428,3 +418,20 @@ class CRUD_Tabla():
             tmp.tables[id].tuples.Insertar(n)
 
         return tmp
+bd = CRUD_DataBase()
+bd.createDatabase("jolines")
+table = CRUD_Tabla()
+table.createTable("jolines","tabla_prueba",10)
+table.shownTables("jolines")
+
+table.insert("jolines","tabla_prueba",["asd","bd","otros"])
+table.insert("jolines","tabla_prueba",["toyo","alv","perro"])
+table.insert("jolines","tabla_prueba",["gato","perro","gato"])
+table.insert("jolines","tabla_prueba",["hostias","qweqwe","joder"])
+table.alterAddPK("jolines","tabla_prueba",[1])
+
+print("impirmiendo")
+table.extractTable("jolines","tabla_prueba").tuples.takeDates()
+
+print("prueba")
+
