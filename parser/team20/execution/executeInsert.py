@@ -25,13 +25,6 @@ def executeInsertAll(self, InsertAll_):
     #     values: [ { type: ('Entero' | 'Decimal' | 'Cadena' | 'Variable' | 'Regex' | 'All'), value: "" } ]
     #     #values: [ { type: (1       | 2         |  3       |  4         | 5       | 6    ), value: "" } ]
     # }
-
-    # Insert : {
-    #     table: "table_name",
-    #     columns: [ "column_name", "column_name" ],
-    #     values: [ { type: ('Entero' | 'Decimal' | 'Cadena' | 'Variable' | 'Regex' | 'All'), value: "" } ]
-    #     #values: [ { type: (1       | 2         |  3       |  4         | 5       | 6    ), value: "" } ]
-    # }
     
     insertAll: InsertAll = InsertAll_
     table_name = insertAll.table
@@ -76,6 +69,7 @@ def executeInsertAll(self, InsertAll_):
                                                     else:
                                                         values_list.append(values[i].value)
                                                     i += 1
+                                                replace_default(values_list, table_.columns)
                                                 result_insert= insert(database_.name, table_.name, values_list)
                                                 if result_insert == 0:
                                                     print_success("QUERY", "Insert in " + str(table_.name) + " table, done successfully")
@@ -124,6 +118,87 @@ def executeInsertAll(self, InsertAll_):
 
     else:
         print_error("SEMANTIC ERROR", check_and_solve_values_)
+
+
+def executeInsert(self, Insert_):
+
+    # Insert : {
+    #     table: "table_name",
+    #     columns: [ "column_name", "column_name" ],
+    #     values: [ { type: ('Entero' | 'Decimal' | 'Cadena' | 'Variable' | 'Regex' | 'All'), value: "" } ]
+    #     #values: [ { type: (1       | 2         |  3       |  4         | 5       | 6    ), value: "" } ]
+    # }
+    
+    insert: Insert = Insert_
+    table_name = insert.table
+    columns = insert.columns
+    values = insert.values
+
+    if len(columns) == len(values):
+
+        TypeChecker_Manager_ = get_TypeChecker_Manager()
+        if  TypeChecker_Manager_ != None:
+        
+            use_: str = get_use(TypeChecker_Manager_)
+            if use_ != None:
+            
+                database_ = get_database(use_, TypeChecker_Manager_)
+                if database_ != None:
+                
+                    table_ = get_table(table_name, database_)
+                    if table_ != None:
+                        
+                            if len(table_.columns) >= len(values):
+                            
+                                table_columns_names = []
+                                i = 0
+                                while i < len(table_.columns):
+                                    table_columns_names.append(table_.columns[i].name)
+                                    i += 1
+
+                                i = 0
+                                columns_exist = True
+                                columns_exist_error = 0
+                                while i < len(columns) and columns_exist == True:
+                                    if not(columns[i] in table_columns_names) == True:
+                                        columns_exist = False
+                                        columns_exist_error = 1
+                                    i += 1
+
+                                if columns_exist == True:     
+                                    new_list_of_values = []
+                                    i = 0
+                                    j = 0
+                                    while i < len(table_columns_names):
+                                        if (table_columns_names[i] in columns) == True:
+                                            new_list_of_values.append(values[j])
+                                            j += 1
+                                        else:
+                                            new_list_of_values.append(None)                                        
+                                        i += 1
+                                    new_InsertAll = InsertAll(table_name, new_list_of_values)
+                                    executeInsertAll(self, new_InsertAll)
+
+                                else:
+                                    print_error("SEMANTIC ERROR", str(columns[columns_exist_error]) + " column in which you want to insert does not exist") 
+                        
+                            else:
+                                print_error("SEMANTIC ERROR", "Number of arguments sent is greater than the number of columns in the table")
+
+                    else:
+                        print_error("SEMANTIC ERROR", "Table does not exist")
+
+                else:
+                    print_error("SEMANTIC ERROR", "Database to use does not exist")
+
+            else:
+                print_error("RUNTIME ERROR", "Undefined database to use")
+        
+        else:
+            print_error("UNKNOWN ERROR", "instruction not executed")
+    
+    else:
+        print_error("SEMANTIC ERROR", "number of columns and values ​​are not the same size")
 
 
 def check_and_solve_values(self, values_):
@@ -324,3 +399,17 @@ def check_checks(columns_, values_) -> str:
         i += 1
 
     return return_
+
+
+def replace_default(values_, columns_):
+
+    return_ = None
+
+    if len(values_) == len(columns_):
+        i = 0
+        while i < len(values_):
+
+            if values_[i] == None:
+                values_[i] = columns_[i].default_
+
+            i += 1

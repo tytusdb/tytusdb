@@ -5,7 +5,7 @@ from .executeSelect import executeSelect
 from .executeDrop import executeDropDatabase,executeDropTable
 from .executeUse import executeUse, executeUseAlter
 from .executeExpression import executeExpression
-from .executeInsert import executeInsertAll
+from .executeInsert import executeInsertAll, executeInsert
 from .executeAlter import executeAlterDatabaseRename
 from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable,TCalterDatabase
 from .AST.error import * 
@@ -80,6 +80,8 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence, InsertAll):
         executeInsertAll(self, sentence)
+    elif isinstance(sentence, Insert):
+        executeInsert(self, sentence)
     # #Resto de sentencias posibles
     elif isinstance(sentence,Select):
         executeSelect(self,sentence) 

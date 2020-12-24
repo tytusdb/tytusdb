@@ -58,3 +58,9 @@ INSERT INTO LOCATION VALUES (0, 'Guatemala', "Petén"); --Semantic Error
 INSERT INTO USER VALUES (0, 0, "First Name", "Second Name", "First Last Name", "Second Last Name", 25);
 INSERT INTO USER VALUES (0, 0, "First Name", "Second Name", "First Last Name", "Second Last Name", 15); --Semantic Error
 INSERT INTO USER VALUES (2+8, 1*1, "First Name" + " Two", "Second Name" + " Two", "First Last Name" + " Two", "Second Last Name" + " Two", 25-4-1+1);
+
+INSERT INTO USER (id, first_name) VALUES (3, 'First Name Three');
+INSERT INTO USER (id, first_name) VALUES (3, 'First Name Three', 'Second Name Three'); --Semantic Error
+INSERT INTO USER (id, first_name, second_name) VALUES (3, 'First Name Three'); --Semantic Error
+INSERT INTO USER (id, first_name_name) VALUES (3, 'First Name Three'); --Semantic Error
+INSERT INTO USER (id, second_last_name) VALUES (4, 'Second Last Name');
