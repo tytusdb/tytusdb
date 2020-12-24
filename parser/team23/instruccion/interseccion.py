@@ -29,8 +29,8 @@ class interseccion(instruccion):
         izquierdaA = self.izquierda.ejecutar(True)
         derechaA = self.derecha.ejecutar(True)
         resultado = []
-        tabla1 = izquierdaA.valor
-        tabla2 = derechaA.valor
+        tabla1 = izquierdaA.query
+        tabla2 = derechaA.query
         salidaTabla = PrettyTable()
         salidaTabla.field_names = izquierdaA.tipo
 

@@ -1071,7 +1071,7 @@ def p_sql_expression(p):
         p[0] = LogicalOperators(
             p[1], p[2], p[3], p.lineno(2), find_column(p.slice[2]))
     elif len(p) == 3:
-        p[0] = p[2]
+        p[0] = [True, p[2]]
     else:
         p[0] = p[1]
 

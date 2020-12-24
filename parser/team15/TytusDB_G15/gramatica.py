@@ -1714,6 +1714,24 @@ def p_instruccion_select_insrt_union(t):
         temp.append(t[1])
     t[0] = temp
 
+def p_instruccion_select_insrt_union_ALL(t):
+    ''' select_uniones : select_uniones tipo_union ALL select_insrt'''
+    reporte_bnf.append("<select_uniones> ::= <select_uniones> <tipo_union> ALL <select_insrt>")
+    temp = []
+    if t[2].upper() == 'UNION':
+        temp.append(OPCIONES_UNIONES.UNION_ALL)
+        t[1].append(t[4])
+        temp.append(t[1])
+    elif t[2].upper() == 'INTERSECT':
+        temp.append(OPCIONES_UNIONES.INTERSECT_ALL)
+        t[1].append(t[4])
+        temp.append(t[1])
+    elif t[2].upper() == 'EXCEPT':
+        temp.append(OPCIONES_UNIONES.EXCEPTS_ALL)
+        t[1].append(t[4])
+        temp.append(t[1])
+    t[0] = temp
+
 def p_instruccion_select_insrt_union2(t):
     ' select_uniones : select_insrt '
     reporte_bnf.append("<select_uniones> ::= <select_insrt>")

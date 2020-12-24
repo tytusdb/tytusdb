@@ -567,10 +567,29 @@ class Main(tk.Tk):
                 self.do_drop_tb(inst,p_st,es_global)
             elif isinstance(inst, CreateTable):
                 self.do_create_tb(inst, p_st, es_global, ct_global)
+            elif isinstance(inst,AlterDB):
+                self.do_alter_db(inst,p_st,es_global)
             else:
                 print(inst)
 
         print("--- ANÁLISIS TERMINADO ---")
+
+    # MODIFICACION NOMBRE BASE DE DATOS
+    def do_alter_db(self,p_inst,p_st,p_es):
+        key = 'CBD_' + p_inst.nombreDB
+        existe = p_st.get(key)
+        if existe:
+            newDB = p_inst.operacion.cadena
+            key = 'ADB_' + p_inst.nombreDB
+            simbolo = st.Symbol(key, p_inst.nombreDB, 'Alter database', newDB)
+            p_st.add(simbolo)
+            alterDatabase(p_inst.nombreDB,newDB)
+
+        else:
+            error = es.errorSemantico('ADB_' + p_inst.nombreDB, 'La base de datos ' + p_inst.nombreDB + ' no existe')
+            p_es.agregar(error)
+
+        print('a')
 
     # USO DE BASE DE DATOS
     def do_use(self, p_inst, p_st, p_es):
