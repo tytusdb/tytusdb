@@ -26,6 +26,16 @@ from Interprete.SELECT.Select_simple_simple import select_simple_simple
 from Interprete.Insert.AccesoType import AccesoType
 from Interprete.SELECT.Select_Trig import Select_Trig
 from Interprete.SELECT.select_simples_binarias import Select_simples_binarias
+from Interprete.SELECT.union import union
+from Interprete.SELECT.intersect import intersect
+from Interprete.SELECT.except_ import except_
+
+from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
+from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
+from graphviz import Digraph
+#import Interprete.Arbol as ArbolErrores
+
+ArbolErrores:Arbol = Arbol(None)
 
 
 reservadas = {
@@ -149,7 +159,7 @@ reservadas = {
     'ceiling' : 'CEILING',
     'degrees' : 'DEGREES',
     'extract' : 'EXTRACT',
-    'div' : 'DIV',  
+    'div' : 'DIV',
     'exp' : 'EXP',
     'trunc' : 'TRUNC',
     'factorial' : 'FACTORIAL',
@@ -259,7 +269,7 @@ reservadas = {
     'greatest' : 'GREATEST',
     'least' : 'LEAST',
 
-    # LIMITE Y OFFSET 
+    # LIMITE Y OFFSET
     'limit' : 'LIMIT',
     'offset' : 'OFFSET',
 
@@ -366,12 +376,12 @@ def t_TKDECIMAL(t):
 def t_CADENA(t):
     r'\'.*?\''
     t.value = t.value[1:-1]
-    return t 
+    return t
 
 def t_CADENADOBLE(t):
     r'\".*?\"'
     t.value = t.value[1:-1]
-    return t 
+    return t
 
 def t_ID(t):
      r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -392,10 +402,15 @@ def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
 
+
 def t_error(t):
-    print("Caracter NO Valido: '%s'" % t.value[0])
+    global ArbolErrores
+    print("Caracter ilegal '%s'" % t.value[0])
+    Error: ErroresLexicos = ErroresLexicos("Caracter ilegal " + t.value[0], int(t.lexer.lineno), 0, 'Lexico')
+    ArbolErrores.ErroresLexicos.append(Error)
     t.lexer.skip(1)
-    print(t.value[0])
+
+
 
 
 # -----------------------------------------------------------------------------------
@@ -407,6 +422,8 @@ def t_error(t):
 import ply.lex as lex
 lexer2 = lex.lex()
 #-----------------------
+
+graph = ''
 precedence = (
     #('left','CONCAT'),
     #('left','MENOR','MAYOR','IGUAL','MENORIGUAL','MAYORIGUAL','DIFERENTE'),
@@ -420,13 +437,17 @@ precedence = (
 
 
 def p_init(t):
-    'init : sentences'
-    t[0] = Arbol(t[1])
+    'init : definitions'
+    aux:Arbol = Arbol(t[1])
+    aux.ErroresLexicos = ArbolErrores.ErroresLexicos
+    aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
+    #t[0] = Arbol(t[1])
+    t[0] = aux
 
-def p_sentences(t):
+def p_definitions(t):
     '''
-        sentences   : sentences setInstruccions
-                    | setInstruccions
+        definitions   : definitions definition
+                    | definition
     '''
     if len(t) == 3:
         t[0] = t[1]
@@ -434,127 +455,162 @@ def p_sentences(t):
     else:
         t[0] = [t[1]]
 
-def p_setInstruccions(t):
+def p_definition(t):
     '''
-        setInstruccions   : sentence PTCOMA
-    '''
-    t[0] = t[1]
-
-def p_sentence(t):
-    '''
-        sentence     : ddl
+        definition   : instruction PTCOMA
     '''
     t[0] = t[1]
 
+def p_instruction(t):
+    '''
+        instruction     : DataManipulationLenguage
+    '''
+    t[0] = t[1]
+    set('<TR> \n <TD> instruction → DataManipulationLenguage : </TD> \n <TD>  instruction = NodoAst(t[0]) </TD> \n </TR> \n')
 # --------------------------------------------------------------------------------------
-# ------------------------------------ DDL ---------------------------------------------
+# ------------------------------------ DataManipulationLenguage ---------------------------------------------
 # --------------------------------------------------------------------------------------
 
-def p_ddl_select(t):
+def p_DataManipulationLenguage_select(t):
     '''
-        ddl  : select
-    '''
-    t[0] = t[1]
-
-def p_ddl_use(t):
-    '''
-        ddl  : use_database
+        DataManipulationLenguage  : select
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → select : </TD> \n <TD>  DataManipulationLenguage = Select() </TD> \n </TR> \n')
 
-def p_ddl_show_databases(t):
+def p_DataManipulationLenguage_use(t):
     '''
-        ddl  : SHOW DATABASES
+        DataManipulationLenguage  : use_database
+    '''
+    t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → use_database : </TD> \n <TD>  DataManipulationLenguage = UseDatabase() </TD> \n </TR> \n')
+
+def p_DataManipulationLenguage_show_databases(t):
+    '''
+        DataManipulationLenguage  : SHOW DATABASES
     '''
     t[0] = ShowDatabases(t.lineno, 0)
+    set('<TR> \n <TD> DataManipulationLenguage → SHOW DATABASES : </TD> \n <TD>  DataManipulationLenguage = ShowDatabases() </TD> \n </TR> \n')
 
 def p_use_database(t):
     '''
         use_database : USE ID
     '''
     t[0] = UseDatabase(t.lineno, 0, t[2])
+    set('<TR> \n <TD> use_database → USE ID : </TD> \n <TD> use_database = UseDatabase(t[2]) </TD> \n </TR> \n')
 
-def p_ddl_table_create(t):
+def p_DataManipulationLenguage_createTB(t):
     '''
-        ddl  : table_create
+        DataManipulationLenguage  : createTB
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → createTB : </TD> \n <TD>  DataManipulationLenguage = CreateTable() </TD> \n </TR> \n')
 
-def p_ddl_insert(t):
+def p_DataManipulationLenguage_insert(t):
     '''
-        ddl  : insert
+        DataManipulationLenguage  : insert
     '''
     t[0]=t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → insert : </TD> \n <TD>  DataManipulationLenguage = Insert() </TD> \n </TR> \n')
 
-
-def p_ddl_update(t):
+def p_DataManipulationLenguage_update(t):
     '''
-        ddl  : update
+        DataManipulationLenguage  : update
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → update : </TD> \n <TD>  DataManipulationLenguage = Update() </TD> \n </TR> \n')
 
-def p_ddl_deletetable(t):
+def p_DataManipulationLenguage_deletetable(t):
     '''
-        ddl  : deletetable
+        DataManipulationLenguage  : deletetable
     '''
-    pass
+    set('<TR> \n <TD> DataManipulationLenguage → deletetable : </TD> \n <TD>  DataManipulationLenguage = DeleteTable() </TD> \n </TR> \n')
 
-def p_ddl_droptable(t):
+def p_DataManipulationLenguage_droptable(t):
     '''
-        ddl  : drop_table
+        DataManipulationLenguage  : drop_table
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → drop_table : </TD> \n <TD>  DataManipulationLenguage = DropTable() </TD> \n </TR> \n')
 
-def p_ddl_create_db(t):
+def p_DataManipulationLenguage_create_db(t):
     '''
-        ddl  : create_db
+        DataManipulationLenguage  : create_db
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → create_db : </TD> \n <TD>  DataManipulationLenguage = CreateDatabase() </TD> \n </TR> \n')
 
-def p_ddl_alter_table(t):
+def p_DataManipulationLenguage_alter_table(t):
     '''
-        ddl  : alter_table
+        DataManipulationLenguage  : alter_table
     '''
-    pass
+    set('<TR> \n <TD> DataManipulationLenguage → alter_table : </TD> \n <TD>  DataManipulationLenguage = AlterTable() </TD> \n </TR> \n')
 
-def p_ddl_create_type(t):
+def p_DataManipulationLenguage_create_type(t):
     '''
-        ddl  : create_type
-    '''
-    pass
-
-def p_ddl_alter_database(t):
-    '''
-        ddl  : alter_database
+        DataManipulationLenguage  : create_type
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → create_type: </TD> \n <TD>  DataManipulationLenguage = Type() </TD> \n </TR> \n')
 
-def p_ddl_drop_database(t):
+def p_DataManipulationLenguage_alter_database(t):
     '''
-        ddl  : drop_database
+        DataManipulationLenguage  : alter_database
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → alter_database : </TD> \n <TD>  DataManipulationLenguage = AlterDatabase() </TD> \n </TR> \n')
+
+def p_DataManipulationLenguage_drop_database(t):
+    '''
+        DataManipulationLenguage  : drop_database
+    '''
+    t[0] = t[1]
+    set('<TR> \n <TD> DataManipulationLenguage → drop_database : </TD> \n <TD>  DataManipulationLenguage = DropDatabase() </TD> \n </TR> \n')
+
+def p_DataManipulationLenguage_UNION(t):
+    '''
+        DataManipulationLenguage  : select UNION select
+    '''
+    t[0] = union(t[1], t[3], 1 , 1)
+    set('<TR> \n <TD> DataManipulationLenguage → select UNION select : </TD> \n <TD>  DataManipulationLenguage = Union() </TD> \n </TR> \n')
+
+def p_DataManipulationLenguage_INTERSECT(t):
+    '''
+        DataManipulationLenguage  : select INTERSECT select
+    '''
+    t[0] = intersect(t[1], t[3], 1 , 1)
+    set('<TR> \n <TD> DataManipulationLenguage → select INTERSECT select : </TD> \n <TD>  DataManipulationLenguage = Intersect() </TD> \n </TR> \n')
+
+def p_DataManipulationLenguage_except(t):
+    '''
+        DataManipulationLenguage  : select EXCEPT select
+    '''
+    t[0] = except_(t[1], t[3], 1, 1)
+    set('<TR> \n <TD> DataManipulationLenguage → select EXCEPT select : </TD> \n <TD>  DataManipulationLenguage = Except() </TD> \n </TR> \n')
 
 def p_select(t):
     '''
-        select  : SELECT listavalores FROM listavalores listawhere
+        select  : SELECT exp_list FROM exp_list conditions
     '''
     if len(t) == 6:
-        # SELECT listavalores FROM listavalores listawhere
+        # SELECT exp_list FROM exp_list conditions
         t[0] = select(t[2], t[4], t[5], 1, 1)
+    set('<TR> \n <TD> select → SELECT exp_list FROM exp_list conditions: </TD> \n <TD>  select = Select(t[2], t[4], t[5]) </TD> \n </TR> \n')
 
 def p_select_simple(t):
     '''
-        select : SELECT listavalores FROM listavalores
+        select : SELECT exp_list FROM exp_list
     '''
     # SELECT SIMPLE
     t[0] = select(t[2], t[4], "N/A", 1, 1)
+    set('<TR> \n <TD> select → SELECT exp_list FROM exp_list: </TD> \n <TD>  select = Select(t[2], N/A, t[5]) </TD> \n </TR> \n')
 
 def p_select_simple_simple(t):
     '''
-        select : SELECT listavalores
+        select : SELECT exp_list
     '''
     t[0] = select_simple_simple(t[2], 1, 1)
+    set('<TR> \n <TD> select → SELECT exp_list: </TD> \n <TD>  select = Select_simple(t[2]) </TD> \n </TR> \n')
 
 def p_time(t):
     '''
@@ -566,34 +622,37 @@ def p_time(t):
              | DAY
     '''
     t[0] = t[1].lower()
+    set('<TR> \n <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> \n <TD>  time = t[1] </TD> \n </TR> \n')
 
-def p_listawhere(t):
+def p_conditions(t):
     '''
-        listawhere  : listawhere atributoselect
-                    | atributoselect
+        conditions  : conditions condition
+                    | condition
     '''
     if len(t) == 3:
         t[0] = t[1]
         t[0].append(t[2])
+        set('\n <TR><TD>  conditions → conditions condition  </TD><TD> t[0] = t[1] </TD> </TR> ')
     else:
         t[0] = [t[1]]
+        set('\n <TR><TD> conditions → condition  </TD><TD> t[0] = [t[1]] </TD> </TR> ')
 
-def p_atributoselecit(t):
+def p_condition(t):
     '''
-        atributoselect  : WHERE exp
-                        | ORDER BY exp ordenamiento
-                        | GROUP BY listavalores
+        condition  : WHERE exp
+                        | ORDER BY exp setOrder
+                        | GROUP BY exp_list
                         | LIMIT exp
                         | HAVING exp
     '''
     if t[1].lower() == "where":
         t[0] = Condicion(t[2], "where", None, 1, 1)
     elif t[1].lower() == "order":
-        # ORDER BY listavalores ordenamiento
+        # ORDER BY exp_list setOrder
         t[0] = Condicion(t[3], "ORDER", t[4], 1, 1)
         pass
     elif t[1].lower() == "group":
-        # GROUP BY listavalores
+        # GROUP BY exp_list
         pass
     elif t[1].lower() == "limit":
         # LIMIT exp
@@ -602,33 +661,38 @@ def p_atributoselecit(t):
     elif t[1].lower() == "having":
         # HAVING exp
         t[0] = Condicion(t[2], "where", None, 1, 1)
-        pass
+
+    set('<TR> \n <TD> condition →  WHERE exp | ORDER BY exp setOrder | GROUP BY exp_list | LIMIT exp | HAVING exp: </TD> \n <TD>  condition = t[1] </TD> \n </TR> \n')
 
 def p_atributoselecit_subquery(t):
     '''
-        atributoselect : subquery
+        condition : subquery
     '''
     # subquery
     t[0] = t[1]
+    set('<TR> \n <TD> condition → subquery: </TD> \n <TD>  condition = Select() </TD> \n </TR> \n')
 
-def p_ordenamiento(t):
+def p_setOrder(t):
     '''
-        ordenamiento   : ASC
+        setOrder   : ASC
                        | DESC
     '''
     t[0] = str(t[1])
+    set('<TR> \n <TD> setOrder → ASC | DESC: </TD> \n <TD>  setOrder = ' + t[0] + ' </TD> \n </TR> \n')
 
-def p_listavalores(t):
+
+def p_exp_list(t):
     '''
-        listavalores   : listavalores COMA exp
+        exp_list   : exp_list COMA exp
                        | exp
     '''
     if len(t) == 4:
         t[0] = t[1]
         t[0].append(t[3])
-
+        set('\n <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> ')
     else:
         t[0] = [t[1]]
+        set('\n <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> ')
 
 # --------------------------------------------------------------------------------------
 # ------------------------------------ EXPRESSION  --------------------------------------------
@@ -640,31 +704,32 @@ def p_exp_count(t):
     '''
     if t[3]=='*':
         #COUNT PARIZQ MULTI PARDER
-        pass
+        set('<TR> \n <TD> exp → COUNT PARIZQ exp PARDER: </TD> \n <TD>  exp = count(t[3]) </TD> \n </TR> \n')
     else:
         #COUNT PARIZQ exp PARDER
-        pass
+        set('<TR> \n <TD> exp → COUNT PARIZQ exp PARDER: </TD> \n <TD>  exp = count(t[3]) </TD> \n </TR> \n')
 
 def p_exp_sum(t):
     '''
         exp   : SUM PARIZQ exp PARDER
     '''
-    pass
+    set('<TR> \n <TD> exp → SUM PARIZQ exp PARDER: </TD> \n <TD>  exp = sum(t[3]) </TD> \n </TR> \n')
+
 def p_exp_avg(t):
     '''
         exp   : AVG PARIZQ exp PARDER
     '''
-    pass
+    set('<TR> \n <TD> exp → AVG PARIZQ exp PARDER: </TD> \n <TD>  exp = avg(t[3]) </TD> \n </TR> \n')
 
 def p_exp_greatest(t):
     '''
-        exp   : GREATEST PARIZQ listavalores PARDER
+        exp   : GREATEST PARIZQ exp_list PARDER
     '''
-    pass
+    set('<TR> \n <TD> exp → GREATEST PARIZQ exp_list PARDER: </TD> \n <TD>  exp = avg(t[3]) </TD> \n </TR> \n')
 
 def p_exp_least(t):
     '''
-        exp   : LEAST PARIZQ listavalores PARDER
+        exp   : LEAST PARIZQ exp_list PARDER
     '''
     pass
 
@@ -691,70 +756,70 @@ def p_exp_cbrt(t):
         exp   : CBRT PARIZQ exp PARDER
     '''
     t[0] = Select_simples(t[3], "CBRT", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → CBRT PARIZQ exp PARDER: </TD> \n <TD>  exp = cbrt(t[3]) </TD> \n </TR> \n')
 
 def p_exp_ceil(t):
     '''
         exp   : CEIL PARIZQ exp PARDER
     '''
     t[0] = Select_simples(t[3], "CEIL", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → CEIL PARIZQ exp PARDER: </TD> \n <TD>  exp = ceil(t[3]) </TD> \n </TR> \n')
 
 def p_exp_ceiling(t):
     '''
         exp   : CEILING PARIZQ exp PARDER
     '''
     t[0] = Select_simples(t[3], "CEIL", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → CEILING PARIZQ exp PARDER: </TD> \n <TD>  exp = ceiling(t[3]) </TD> \n </TR> \n')
 
 def p_exp_degrees(t):
     '''
         exp   : DEGREES PARIZQ exp PARDER
     '''
     t[0] = Select_simples(t[3], "DEGREES", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → DEGREES PARIZQ exp PARDER: </TD> \n <TD>  exp = degrees(t[3]) </TD> \n </TR> \n')
 
 def p_exp_div(t):
     '''
-        exp   : DIV PARIZQ listavalores PARDER
+        exp   : DIV PARIZQ exp_list PARDER
     '''
     t[0] = Select_simples(t[3], "DIV", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → DIV PARIZQ exp_list PARDER: </TD> \n <TD>  exp = div(t[3]) </TD> \n </TR> \n')
 
 def p_exp_tkexp(t):
     '''
         exp   : TKEXP PARIZQ exp PARDER
     '''
     t[0] = Select_simples(t[3], "EXP", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → TKEXP PARIZQ exp PARDER: </TD> \n <TD>  exp = exp(t[3]) </TD> \n </TR> \n')
 
 def p_exp_factorial(t):
     '''
         exp   : FACTORIAL PARIZQ exp PARDER
     '''
     t[0] = Select_simples(t[3],"FACTORIAL", 1,1)
-    pass
+    set('<TR> \n <TD> exp → FACTORIAL PARIZQ exp PARDER: </TD> \n <TD>  exp = factorial(t[3]) </TD> \n </TR> \n')
 
 def p_exp_floor(t):
     '''
         exp   : FLOOR PARIZQ exp PARDER
     '''
     t[0] = Select_simples(t[3], "FLOOR", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → FLOOR PARIZQ exp PARDER: </TD> \n <TD>  exp = floor(t[3]) </TD> \n </TR> \n')
 
 def p_exp_gcd(t):
     '''
-        exp   : GCD PARIZQ listavalores PARDER
+        exp   : GCD PARIZQ exp_list PARDER
     '''
     t[0] = Select_simples(t[3], "GCD", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → GCD PARIZQ exp_list PARDER: </TD> \n <TD>  exp = gcd(t[3]) </TD> \n </TR> \n')
 
 def p_exp_ln(t):
     '''
         exp   : LN PARIZQ exp PARDER
     '''
     t[0] = Select_simples(t[3], "LN", 1, 1)
-    pass
+    set('<TR> \n <TD> exp → LN PARIZQ exp PARDER: </TD> \n <TD>  exp = ln(t[3]) </TD> \n </TR> \n')
 
 def p_exp_log(t):
     '''
@@ -765,7 +830,7 @@ def p_exp_log(t):
 
 def p_exp_mod(t):
     '''
-        exp   : MOD PARIZQ listavalores PARDER
+        exp   : MOD PARIZQ exp_list PARDER
    '''
     t[0] = Select_simples(t[3], "MOD", 1, 1)
     pass
@@ -779,7 +844,7 @@ def p_exp_pi(t):
 
 def p_exp_power(t):
     '''
-        exp   : POWER PARIZQ listavalores PARDER
+        exp   : POWER PARIZQ exp_list PARDER
     '''
     t[0] = Select_simples(t[3], "POWER", 1, 1)
     pass
@@ -1041,7 +1106,7 @@ def p_exp_setbyte(t):
 
 def p_exp_convert(t):
     '''
-        exp   : CONVERT PARIZQ exp AS tipo PARDER
+        exp   : CONVERT PARIZQ exp AS types PARDER
     '''
     t[0] = Select_simples_binarias(t[3], "CONVERT", 1, 1, t[5])
 
@@ -1252,6 +1317,7 @@ def p_expSimples(t):
                     | DISTINCT exp
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> expSimple → subquery </TD> \n <TD>  exp = select() </TD> \n </TR> \n')
 
 def p_dateFunction(t):
     '''
@@ -1281,42 +1347,52 @@ def p_dateFunction(t):
         # SELECT TIMESTAMP CADENA
         t[0] = Select_simples_date(t.lineno, 0, 'timestamp')
 
+    set('<TR> \n <TD> dataFunction → datef: </TD> \n <TD>  exp = dateFUNCTION(t[3]) </TD> \n </TR> \n')
+
+
 def p_expSimples_ACCESO_TYPE(t):
     '''
         expSimple : ID CORIZQ exp CORDER
     '''
     #t[0] = indexador_auxiliar(t[1], t[3], 7)
     t[0] = AccesoType(t[1], t[3], 1, 1)
+    set('<TR> \n <TD> expSimple  → ID CORIZQ exp CORDER : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
 
 def p_expSimples_ALIAS_MULTI(t):
     '''
         expSimple : ID PT MULTI
     '''
     t[0] = indexador_auxiliar(t[1], "MULTI", 6)
+    set('<TR> \n <TD> expSimple  → ID PT MULTI : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
 
 def p_expSimples_MULTI(t):
     '''
         expSimple : MULTI
     '''
     t[0] = indexador_auxiliar("GLOBAL", "MULTI", 5)
+    set('<TR> \n <TD> expSimple  → MULTI : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
+
 
 def p_expSimples_ID(t):
     '''
         expSimple : ID
     '''
     t[0] = indexador_auxiliar(t[1], t[1], 4)
+    set('<TR> \n <TD> expSimple  → ID : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
 
 def p_expSimples_ID_PT_ID(t):
     '''
         expSimple : ID PT ID
     '''
     t[0] = indexador_auxiliar(t[1], t[3], 3)
+    set('<TR> \n <TD> expSimple  → ID PT ID : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
 
 def p_expSimples_ID_ID(t):
     '''
         expSimple : ID ID
     '''
     t[0] = indexador_auxiliar(t[1], t[2], 1)
+    set('<TR> \n <TD> expSimple  → ID ID: </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
 
 def p_expSimples_exp_AS_ID(t):
     '''
@@ -1326,6 +1402,7 @@ def p_expSimples_exp_AS_ID(t):
                   | exp AS CADENADOBLE
     '''
     t[0] = indexador_auxiliar(t[1], t[3], 1)
+    set('<TR> \n <TD> expSimple  →  exp AS CADENA | exp AS ID | exp AS CADENADOBLE : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- SUBQUERY --------------------------------------
@@ -1346,22 +1423,23 @@ def p_subquery(t):
         #PARIZQ select PARDER AS ID
         t[0] = indexador_auxiliar(t[2], t[5], 2)
         pass
+    set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
 
 
 # ---------------CASE---------------
 def p_case(t):
     '''
-     case : CASE WHEN exp THEN exp lista_when ELSE exp END
-          | CASE WHEN exp THEN exp lista_when END
+     case : CASE WHEN exp THEN exp groupwhens ELSE exp END
+          | CASE WHEN exp THEN exp groupwhens END
           | CASE WHEN exp THEN exp ELSE exp END
           | CASE WHEN exp THEN exp END
     '''
     # t[0] = interprete
 
-def p_lista_when(t):
+def p_groupwhens(t):
     '''
-        lista_when : lista_when when_else
-                   | when_else
+        groupwhens : groupwhens onewhen
+                   | onewhen
     '''
     if len(t) == 3:
         t[0] = t[1]
@@ -1369,9 +1447,9 @@ def p_lista_when(t):
     else:
         t[0] = [t[1]]
 
-def p_when_else(t):
+def p_onewhen(t):
     '''
-        when_else : WHEN exp THEN exp
+        onewhen : WHEN exp THEN exp
     '''
 
 def p_expSimples_entero(t):
@@ -1379,24 +1457,31 @@ def p_expSimples_entero(t):
         expSimple   :   ENTERO
     '''
     t[0] = ENTERO(t[1],1,1)
+    set('<TR> \n <TD> expSimples  → ENTERO: </TD> \n <TD> expSimple  = entorno(t[1]) </TD> \n </TR> \n')
+
 
 def p_expSimples_decimal(t):
     '''
         expSimple   :   TKDECIMAL
     '''
     t[0] = DECIMAL(t[1],1,1)
+    set('<TR> \n <TD> expSimples  → DECIMAL: </TD> \n <TD> expSimple  = decimal(t[1]) </TD> \n </TR> \n')
+
 
 def p_expSimples_cadenas(t):
     '''
         expSimple   :   CADENA
     '''
     t[0] = CADENAS(t[1],1,1)
+    set('<TR> \n <TD> expSimples  → CADENA: </TD> \n <TD> expSimple  = cadena(t[1]) </TD> \n </TR> \n')
 
 def p_expSimples_cadenadoble(t):
     '''
         expSimple   :   CADENADOBLE
     '''
     t[0] = CADENAS(t[1],1,1)
+    set('<TR> \n <TD> expSimples  → CADENADOBLE: </TD> \n <TD> expSimple  = cadena(t[1]) </TD> \n </TR> \n')
+
 
 def p_expSimples_true(t):
     '''
@@ -1413,25 +1498,26 @@ def p_expSimples_false(t):
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- TABLE CREATE --------------------------------------
 # --------------------------------------------------------------------------------------
-def p_table_create(t):
+def p_createTB(t):
     '''
-        table_create : CREATE TABLE ID PARIZQ lista_table COMA listadolprimary inherits
-                     | CREATE TABLE ID PARIZQ lista_table inherits
-                     | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
-                     | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
+        createTB : CREATE TABLE ID PARIZQ atributesTable COMA especs inherits
+                     | CREATE TABLE ID PARIZQ atributesTable inherits
+                     | CREATE TABLE IF NOT EXISTS ID PARIZQ atributesTable COMA especs inherits
+                     | CREATE TABLE IF NOT EXISTS ID PARIZQ atributesTable inherits
     '''
     if len(t)==9:
-        # CREATE TABLE ID PARIZQ lista_table COMA listadolprimary inherits
+        # CREATE TABLE ID PARIZQ atributesTable COMA especs inherits
         t[0] = CreateTable(t.lineno, 0, t[3], t[5], t[7], t[8])
     if len(t)==7:
-        # CREATE TABLE ID PARIZQ lista_table inherits
+        # CREATE TABLE ID PARIZQ atributesTable inherits
         t[0] = CreateTable(t.lineno, 0, t[3], t[5], None, t[6])
     if len(t)==12:
         t[0] = CreateTable(t.lineno, 0, t[6], t[8], t[10], t[11])
     if len(t)==10:
-        #CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
+        #CREATE TABLE IF NOT EXISTS ID PARIZQ atributesTable inherits
         t[0] = CreateTable(t.lineno, 0, t[6], t[8], None, t[9])
 
+    set('<TR> \n <TD> creatTB  → CREATE TABLE ID PARIZQ atributesTable COMA especs inherits: </TD> \n <TD> createTB  = t[1] </TD> \n </TR> \n')
 
 #todo:no se que hacer con PARDER FALTA ? O SOLO ASI ES ?
 def p_inherits(t):
@@ -1447,21 +1533,10 @@ def p_inherits_parder(t):
     t[0] = None
 
 
-def p_lista_table(t):
+def p_atributesTable(t):
     '''
-        lista_table  : lista_table COMA atributo_table
-                     | atributo_table
-    '''
-    if len(t) == 4:
-        t[0] = t[1]
-        t[0].append(t[3])
-    else:
-        t[0] = [t[1]]
-
-def p_listadolprimary(t):
-    '''
-        listadolprimary  : listadolprimary COMA lista_primary
-                         | lista_primary
+        atributesTable  : atributesTable COMA atributeTable
+                     | atributeTable
     '''
     if len(t) == 4:
         t[0] = t[1]
@@ -1469,14 +1544,25 @@ def p_listadolprimary(t):
     else:
         t[0] = [t[1]]
 
-
-def p_lista_primary(t):
+def p_especs(t):
     '''
-        lista_primary : PRIMARY KEY PARIZQ listaids PARDER
-                      | FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
+        especs  : especs COMA nextespec
+                         | nextespec
+    '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
+
+def p_nextespec(t):
+    '''
+        nextespec : PRIMARY KEY PARIZQ idlist PARDER
+                      | FOREIGN KEY PARIZQ idlist PARDER REFERENCES ID PARIZQ idlist PARDER
                       | CONSTRAINT ID CHECK PARIZQ exp PARDER
                       | CHECK PARIZQ exp PARDER
-                      | UNIQUE PARIZQ listaids PARDER
+                      | UNIQUE PARIZQ idlist PARDER
     '''
     if len(t)==6:
        t[0] = clases_auxiliares.PrimaryKeyC(t[4])
@@ -1490,19 +1576,20 @@ def p_lista_primary(t):
         t[0] = clases_auxiliares.Check(t[3])
     elif t[1].lower() == 'unique':
         t[0] = clases_auxiliares.UniqueC(t[3])
+    set('<TR> \n <TD> nextespec  → especs : </TD> \n <TD> nextespecs  = t[1] </TD> \n </TR> \n')
 
 
-
-def p_atributo_table(t):
+def p_atributeTable(t):
     '''
-        atributo_table : ID  tipocql listaespecificaciones
-                       | ID tipocql
+        atributeTable : ID  definitionTypes listaespecificaciones
+                       | ID definitionTypes
     '''
     if len(t)==4:
         t[0] = clases_auxiliares.Columna(t[1], t[2], t[3])
     elif len(t)==3:
         t[0] = clases_auxiliares.Columna(t[1], t[2])
 
+    set('<TR> \n <TD> atributeTable  → ID definitionTypes: </TD> \n <TD> atributeTable  = t[1] </TD> \n </TR> \n')
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- ESPECIFICACIONES--------------------------------------
 # --------------------------------------------------------------------------------------
@@ -1514,6 +1601,7 @@ def p_listaespecificaciones(t):
     if len(t) == 3:
         t[0] = t[1]
         t[0].append(t[2])
+        set('<TR><TD> listaespecificaciones → listaespecificaciones especificaciones </TD><TD> listaespecificaciones=t[1].append(t[2]) <BR/> instrucciones=t[1] </TD></TR>')
     else:
         t[0] = [t[1]]
 
@@ -1551,23 +1639,28 @@ def p_especificaciones(t):
     elif t[1].lower() == 'null':
         t[0] = clases_auxiliares.Null()
 
-# --------------------------------------------------------------------------------------
-# -----------------------------------------TIPO--------------------------------------
-# --------------------------------------------------------------------------------------
-def p_tipocql(t):
-    '''
-        tipocql : tipo
-    '''
-    t[0] = t[1]
+    set('<TR> \n <TD> especificaciones → especs: </TD> \n <TD> especificaciones = t[1] </TD> \n </TR> \n')
 
-def p_tipocql_id(t):
+# --------------------------------------------------------------------------------------
+# -----------------------------------------types--------------------------------------
+# --------------------------------------------------------------------------------------
+def p_definitionTypes(t):
     '''
-        tipocql : ID
+        definitionTypes : types
     '''
     t[0] = t[1]
-def p_tipo(t):
+    set('<TR> \n <TD> definitionTypes → types: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
+
+def p_definitionTypes_id(t):
     '''
-         tipo : SMALLINT
+        definitionTypes : ID
+    '''
+    t[0] = t[1]
+    set('<TR> \n <TD> definitionTypes → ID: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
+
+def p_types(t):
+    '''
+         types : SMALLINT
               | INTEGER
               | BIGINT
               | DECIMAL
@@ -1620,9 +1713,11 @@ def p_tipo(t):
     elif t[1].lower() == 'char':
         t[0] = '19'
 
-def p_tipo_character_varying(t):
+    set('<TR> \n <TD> types → TIPOS: </TD> \n <TD> types = t[1] </TD> \n </TR> \n')
+
+def p_types_character_varying(t):
     '''
-        tipo : CHARACTER PARIZQ exp PARDER
+        types : CHARACTER PARIZQ exp PARDER
     '''
     t[0] = '17'
 
@@ -1631,74 +1726,82 @@ def p_tipo_character_varying(t):
 # --------------------------------------------------------------------------------------
 def p_insert(t):
     '''
-        insert : INSERT INTO ID                        VALUES PARIZQ listavalores PARDER
-               | INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
+        insert : INSERT INTO ID                        VALUES PARIZQ exp_list PARDER
+               | INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER
     '''
     if len(t)==8:
-        #INSERT INTO ID VALUES PARIZQ listavalores PARDER
+        #INSERT INTO ID VALUES PARIZQ exp_list PARDER
         t[0]= Insert(t[3],[],t[6],t.lineno,0)
     elif len(t)==11:
-        #INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
+        #INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER
         t[0]= Insert(t[3],t[5],t[9],t.lineno,0)
 
-def p_listaids(t):
+    set('<TR> \n <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> \n <TD> insert = Insert(t[3], t[5], t[9]) </TD> \n </TR> \n')
+
+def p_idlist(t):
     '''
-        listaids : listaids COMA ID
+        idlist : idlist COMA ID
                  | ID
     '''
-    if len(t) == 4:#listaids COMA ID
+    if len(t) == 4:#idlist COMA ID
         t[0] = t[1]
         t[0].append(t[3])
+        set('<TR><TD> idList → idlist COMA ID </TD><TD> iidLista=t[1].append(t[2]) <BR/> idList=t[1] </TD></TR>')
     else:#ID
         t[0] = [t[1]]
+        set('\n <TR><TD> ID </TD><TD> ID(t[1]) </TD></TR>')
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- UPDATE--------------------------------------
 # --------------------------------------------------------------------------------------
 def p_update(t):
     '''
-        update : UPDATE ID SET listaupdate WHERE exp
-               | UPDATE ID SET listaupdate
+        update : UPDATE ID SET setcolumns WHERE exp
+               | UPDATE ID SET setcolumns
     '''
     if len(t)==7:
-        #UPDATE ID SET listaupdate WHERE exp
+        #UPDATE ID SET setcolumns WHERE exp
         t[0] = Update(t.lineno, 0, t[2], t[4], t[6])
     elif len(t)==5:
-        #UPDATE ID SET listaupdate
+        #UPDATE ID SET setcolumns
         pass
+    set('<TR> \n <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> \n <TD> update = Update(t[2], t[4], t[6]) </TD> \n </TR> \n')
 
-def p_listaupdate(t):
+
+def p_setcolumns(t):
     '''
-        listaupdate : listaupdate COMA asignacionupdate
-                   | asignacionupdate
+        setcolumns : setcolumns COMA updateAsign
+                   | updateAsign
     '''
-    if len(t) == 4:#listaupdate COMA asignacionupdate
+    if len(t) == 4:#setcolumns COMA updateAsign
         t[0] = t[1]
         t[0].append(t[3])
-    else:#asignacionupdate
+    else:#updateAsign
         t[0] = [t[1]]
 
-def p_asignacionupdate(t):
+def p_updateAsign(t):
     '''
-        asignacionupdate : ID IGUAL exp
+        updateAsign : ID IGUAL exp
     '''
     t[0] = Opera_Relacionales(t[1], t[3], "u:=", 1, 1)
 
+    set('<TR> \n <TD> updateAsign → ID IGUAL exp: </TD> \n <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> \n </TR> \n')
+
+
 # --------------------------------------------------------------------------------------
-# ------------------------------ ACCESO--------------------------------------
+# ------------------------------ defAcces--------------------------------------
 # --------------------------------------------------------------------------------------
-# TODO: Segun la gramatica, hace falta la produccion 'Variable' cuya exp. reg. es: "@[A-Za-z][_A-Za-z0-9]*"
 def p_acceso(t):
     '''
-        acceso : acceso PT funcioncollection
-               | acceso  CORIZQ exp CORDER
+        defAcces : defAcces PT newInstructions
+               | defAcces  CORIZQ exp CORDER
                | ID
     '''
     if len(t)==4:
-      #acceso PT funcioncollection
+      #defAcces PT newInstructions
         pass
     elif len(t)==5:
-        #acceso  CORIZQ exp CORDER
+        #defAcces  CORIZQ exp CORDER
         pass
     elif len(t)==2:
         #ID
@@ -1707,16 +1810,16 @@ def p_acceso(t):
 
 def p_acceso_ID(t):
     '''
-        acceso : acceso PT ID
+        defAcces : defAcces PT ID
     '''
 
 
 # --------------------------------------------------------------------------------------
-# ------------------------------FUNCION COLLECTION--------------------------------------
+# ------------------------------NEW INSTRUCTIONS--------------------------------------
 # --------------------------------------------------------------------------------------
-def p_funcioncollection(t):
+def p_newInstructions(t):
     '''
-        funcioncollection   : INSERT PARIZQ exp COMA exp PARDER
+        newInstructions   : INSERT PARIZQ exp COMA exp PARDER
                             | INSERT PARIZQ exp PARDER
                             | SET PARIZQ exp COMA exp PARDER
                             | REMOVE PARIZQ exp PARDER
@@ -1762,8 +1865,8 @@ def p_deletetable(t):
     '''
         deletetable : DELETE FROM ID WHERE exp
                     | DELETE FROM ID
-                    | DELETE listaatributos FROM ID WHERE exp
-                    | DELETE listaatributos FROM ID
+                    | DELETE groupatributes FROM ID WHERE exp
+                    | DELETE groupatributes FROM ID
     '''
     if len(t)==6:
         #DELETE FROM ID WHERE exp
@@ -1772,24 +1875,25 @@ def p_deletetable(t):
         #DELETE FROM ID
         pass
     elif len(t) == 7:
-        #DELETE listaatributos FROM ID WHERE exp
+        #DELETE groupatributes FROM ID WHERE exp
         pass
     elif len(t) == 5:
-        # DELETE listaatributos FROM ID
+        # DELETE groupatributes FROM ID
         pass
 
+
 # --------------------------------------------------------------------------------------
-# --------------------------------- LISTAATRIBUTOS--------------------------------------
+# --------------------------------- groupatributes--------------------------------------
 # --------------------------------------------------------------------------------------
-def p_listaatributos(t):
+def p_groupatributes(t):
     '''
-        listaatributos : listaatributos COMA acceso
-                       | acceso
+        groupatributes : groupatributes COMA defAcces
+                       | defAcces
     '''
-    if len(t) == 4:#listaatributos COMA acceso
+    if len(t) == 4:#groupatributes COMA defAcces
         t[0] = t[1]
         t[0].append(t[3])
-    else:#acceso
+    else:#defAcces
         t[0] = [t[1]]
 
 # -------------------------------------------------------------------------------------
@@ -1816,6 +1920,9 @@ def p_create_db(t):
         #CREATE DATABASE createdb_extra
         t[0] = CreateDatabase(t.lineno, 0, t[3], False, False)
 
+    set('<TR> \n <TD> create_db → CREATE DATABASE createdb_extra: </TD> \n <TD>  create_db = CreateDatabase(t[8]) </TD> \n </TR> \n')
+
+
 # -------------------------------------------------------------------------------------
 # ---------------------------------CREATEDB EXTRA--------------------------------------
 # ------------------ESTA PARTE SOLO SE DEBE RECONOCER EN LA GRAMATICA------------------
@@ -1833,6 +1940,7 @@ def p_createdb_extra(t):
                        | ID
     '''
     t[0] = t[1]
+    set('<TR> \n <TD> create_db_extra → ID: </TD> \n <TD>  crate_db_extra = t[1] </TD> \n </TR> \n')
 
 # -------------------------------------------------------------------------------------
 # --------------------------------- DROP TABLE--------------------------------------
@@ -1845,9 +1953,12 @@ def p_drop_table(t):
     if len(t)==6:
         #DROP TABLE IF EXISTS ID
         t[0] = DropTable(t.lineno, 0, t[5])
+
     elif len(t)==4:
         #DROP TABLE ID
         t[0] = DropTable(t.lineno, 0, t[3])
+
+    set('<TR> \n <TD> drop_table → DROP TABLE ID: </TD> \n <TD>  drop_table = DropTable(t[5]) </TD> \n </TR> \n')
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------ALTER TABLE--------------------------------------
@@ -1856,7 +1967,7 @@ def p_alter_table(t):
     '''
         alter_table : ALTER TABLE ID ADD listaespecificaciones
                     | ALTER TABLE ID DROP listaespecificaciones
-                    | ALTER TABLE ID listacolumn
+                    | ALTER TABLE ID groupcolumns
     '''
     if len(t)==6:
         if t[4].lower() == 'add':
@@ -1866,19 +1977,19 @@ def p_alter_table(t):
             #ALTER TABLE ID DROP listaespecificaciones
             pass
     elif len(t)==5:
-        #ALTER TABLE ID listacolumn
+        #ALTER TABLE ID groupcolumns
         pass
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------LISTA COLUMN--------------------------------------
 # -------------------------------------------------------------------------------------
-def p_listacolumn(t):
+def p_groupcolumns(t):
     '''
-        listacolumn : listacolumn COMA column
+        groupcolumns : groupcolumns COMA column
                     | column
     '''
     if len(t) == 4:
-        #listacolumn COMA column
+        #groupcolumns COMA column
         t[0] = t[1]
         t[0].append(t[3])
     else:
@@ -1891,14 +2002,14 @@ def p_listacolumn(t):
 def p_column(t):
     '''
         column : ALTER COLUMN ID listaespecificaciones
-               | ADD COLUMN ID tipo
+               | ADD COLUMN ID types
                | DROP COLUMN ID
     '''
     if t[1].lower()=='alter':
         #ALTER COLUMN ID listaespecificaciones
         pass
     elif t[1].lower() == 'add':
-        #ADD COLUMN ID tipo
+        #ADD COLUMN ID types
         pass
     elif t[1].lower() == 'drop':
         #DROP COLUMN ID
@@ -1909,10 +2020,12 @@ def p_column(t):
 # -------------------------------------------------------------------------------------
 def p_create_type(t):
     '''
-        create_type : CREATE TYPE ID AS ID PARIZQ listavalores PARDER
+        create_type : CREATE TYPE ID AS ENUM PARIZQ exp_list PARDER
     '''
     # t[0] = interprete
     t[0] = type(t[3], t[7], 1, 1)
+
+    set('<TR> \n <TD> create_type → CREATE TYPE ID AS ENUM PARIZQ exp_list PARDER: </TD> \n <TD> create_type = Type(t[3], t[7]) </TD> \n </TR> \n')
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------ALTER DATABASE--------------------------------------
@@ -1930,6 +2043,8 @@ def p_alter_database(t):
         #ALTER DATABASE ID OWNER TO ID <- aqui no hay progra xd
         pass
 
+    set('<TR> \n <TD> alter_database → ALTER DATABASE ID RENAME TO ID: </TD> \n <TD>  alter_database = AlterDatabase(t[3], t[6]) </TD> \n </TR> \n')
+
 # ------------------------------------------------------------------------------------
 # ---------------------------------DROP DATABASE--------------------------------------
 # ------------------------------------------------------------------------------------
@@ -1945,11 +2060,34 @@ def p_drop_database(t):
         #DROP DATABASE ID
         t[0] = DropDatabase(t.lineno, 0, t[3])
 
+    set('<TR> \n <TD> drop_database → DROP DATABASE ID: </TD> \n <TD>  drop_database = DropDatabase(t[3]) </TD> \n </TR> \n')
 
-#---------------ERROR SINTACTICO---------------
+
+def set(string):
+    global graph
+    graph += string
+
+
+dot = Digraph('g', filename='gram_asc.gv', format='png', node_attr={'shape': 'plaintext', 'height': '.1'})
+
+
 def p_error(t):
     print(t)
-    print("Error sintáctico en '%s'" % t.value)
+    if (t != None):
+        print("Error sintáctico en '%s'" % t.value)
+        Error: ErroresSintacticos = ErroresSintacticos("Error Sintactico se esperaba otro caracter " + t.value[0], (t.lineno), 0,
+                                                       'Sintactico')
+        ArbolErrores.ErroresSintacticos.append(Error)
+        while (True):
+            token = parser.token()
+            if not token or token.type == 'PTCOMA' or token.type == 't_PARDER':
+                break
+
+
+        #parser.restart()
+
+
+
 
 
 
@@ -1957,10 +2095,17 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 def parse(input) :
+    global graph,lisErr, dot
+    #parser = yacc.yacc()
+    lexer2.lineno=1
+    par = parser.parse(input)
+    dot.node('table', '<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR>' + graph + '</TABLE>>')
+    dot.view()
+    #print(par)
+    return par
+
+def parse_1(input) :
     global cadena,lisErr, dot
     #parser = yacc.yacc()
     lexer2.lineno=1
-    #par= parser.parse("ADD")
-    #print(par)
-    return parser.parse(input)
-
+    parser.parse(input)
