@@ -33,4 +33,4 @@ class Substr(Function):
             value = self.input1.execute(environment)
             if value['typ'] != Type.STRING:
                 return {'Error':"El valor " + value['value'] + " no es String", 'linea':self.row,'columna':self.column }
-            return [{'value': substr(value['value'],value2['value'],value3['value']), 'typ': Type.STRING}]
+            return {'value': substr(value['value'],value2['value'],value3['value']), 'typ': Type.STRING}
