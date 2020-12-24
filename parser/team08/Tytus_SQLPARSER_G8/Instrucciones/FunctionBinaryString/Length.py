@@ -6,8 +6,8 @@ from Instrucciones.Excepcion import *
 from Instrucciones.Identificador import *
 
 class Length(Instruccion):
-    def __init__(self, valor, tipo, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, valor, tipo, strGram,linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):

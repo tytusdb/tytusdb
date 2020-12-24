@@ -522,10 +522,10 @@ class ListaDeSeleccionadosConOperador(Instruccion):
 
                 if isinstance(condit, Error):
                     return condit
-                
+
                 if condit :
                     return Primitive(str(arg.caso.thenCase.type), arg.caso.thenCase.val)
-            
+
                 if arg.elsecase != None :
                     left = arg.elsecase.elseopcional
 
@@ -549,7 +549,7 @@ class ListaDeSeleccionadosConOperador(Instruccion):
                 elif tipo != resp.type :
                     error = Error('Semántico', 'Error(????): Error de tipos.', 0, 0)
                     return error
-                
+
                 if resp.type == 'string' :
                     try :
                         dextraccion = resp
@@ -570,18 +570,18 @@ class ListaDeSeleccionadosConOperador(Instruccion):
                                     error = Error('Semántico', 'Error(????): Error de tipos.', 0, 0)
                                     return error
 
-                    
+
 
                 items.append(resp.val)
 
             if  self.operador.upper() == 'GREATEST' :
-                
+
                 try:
                     return Primitive('integer', int(max(items)))
                 except:
                     return Primitive('string', max(items))
-                
-            else : 
+
+            else :
                 'LEAST'
                 return Primitive('string', min(items))
 
@@ -621,6 +621,33 @@ class QuerysSelect(Instruccion):
         self.select2 = select2
 
     def execute(self,data):
+        query1 = self.select1.execute(data)
+        if isinstance(query1, Error):
+            return query1
+
+        query2 = self.select2.execute(data)
+        if isinstance(query2, Error):
+            return query2
+
+        if len(query1.keys()) != len(query2.keys()):
+            return Error('Semantico', 'La cantidad de columnas en el ' + self.operador + ' tiene que ser la misma.', 0, 0)
+
+        if self.operador == 'union':
+            keys2 = []
+            for key in query2.keys():
+                keys2.append(key)
+
+            cont = 0
+            for key in query1.keys():
+                query1[key]['columnas'] = query1[key]['columnas'] + query2[keys2[cont]]['columnas']
+                cont = cont + 1
+
+            return query1
+
+        elif self.operador == 'intersect':
+
+            return query1
+
         return self
 
     def __repr__(self):

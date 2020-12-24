@@ -3,17 +3,26 @@ from instrucciones import *
 from ts import *
 from type_checker import *
 
-f = open("./entrada.txt", "r")
-input = f.read()
+#f = open("./entrada.txt", "r")
+#input = f.read()
     
-instrucciones = parser_asc.parse(input)
-
+instrucciones = []
 tabla_simbolos = TablaDeSimbolos()
 tabla_errores = parser_asc.tabla_errores
 consola = []
 salida = []
 
 type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
+
+def parse(input):
+    global instrucciones
+    global consola
+    global tabla_simbolos
+    global tabla_errores
+    global salida    
+    instrucciones = parser_asc.parse(input)
+    leer_instrucciones(instrucciones)
+    return [consola,tabla_simbolos,tabla_errores,salida]
 
 def leer_instrucciones(intrucciones):
     global salida
@@ -48,14 +57,13 @@ def leer_instrucciones(intrucciones):
             type_checker.Validando_Operaciones_Aritmeticas(instruccion.valor1, instruccion.valor1, instruccion.operacion)
        
 
-leer_instrucciones(instrucciones)
-
 print('**************** Consola: ****************')
 for element in consola:
     print(element)
 
 print('**************** Salida: ****************')
-print(salida[len(salida) - 1])
+if len(salida) > 0:
+    print(salida[len(salida) - 1])
 
 print('**************** Tabla de Simbolos: ****************')
 for element in tabla_simbolos.simbolos:

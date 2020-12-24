@@ -1,0 +1,62 @@
+select codigo,nombre,sum(punteo) from alumnos where punteo>40 group by codigo;
+--select codigo,nombre from alumnos where punteo>60 and nombre='Sussan';
+--select nombre from alumnos where punteo>89 and nombre='Sussan';
+--insert into alumnos values(7,'Julio',70);
+--delete from alumnos where codigo = 7;
+--SELECT factorial(17) , EXP(2.0) , LN(5.0) , PI(), POWER(5,2) from tabla;
+--SELECT SIN(1), COS(0), SIND(1), TAN(0), TAND(0), COSD(0) from tabla;
+--select gcd(5,12), LOG(200.0), MOD(38,5),RADIANS(15.0),ROUND(67.756),SIGN(14.321),SQRT(225),TRUNC(67.756) from personas;
+--select RANDOM(),ACOS(0),ACOSD(0),ASIN(0),ASIND(0),ATAN(0),ATAND(0),SINH(2),TANH(2),COSH(2) from alumnos;
+--select length('nombre'), MD5(clav--e') from alumnos;
+--select nombre,sum(punteo) from alumnos where punteo>10 group by nombre ;
+
+--select sum(225) from personas;
+--select a.codigo,a.nombre,a.punteo,b.carrera from alumnos, carrera where codigo = estudiante;
+
+
+
+--select edad,fecha from personas where edad =40 and pais ='Guatemala' group by edad;
+--select distinct puesto,salario from tbempleado; 
+--select EXTRACT(HOUR FROM TIMESTAMP fechastract) from personas;
+--select nombre,apellido,sum(edad),count(telefono),now(), current_date, current_time from personas where edad=10 and nombre='julio'  group by nombre,apellido,fecha;
+--select edad as ed from personas;
+
+
+--select * from tbsujeto where fechanacimiento between '2004-01-01' and '2005-01-01';
+--select * from tbsujeto where edad between 5 and 25;
+--select * from tbcolaborador where nombre is distinct from 'sujeto1';
+--select * from tbcolaborador where substring(a.nombre,1,4) = 'suje';
+--select * from tbcolaborador WHERE codigoLibro IN (3,5,7,9);
+--select * from tbcolaborador WHERE nombreLibro LIKE '%edu%';
+--select * from tbcolaborador WHERE fechanacimiento BETWEEN '2004-01-01' AND '2005-01-01';
+--select * from tbcolaborador WHERE codpais IS NOT NULL;
+--select * from tbcolaborador WHERE fecha = now();
+--select * from tbcolaborador WHERE fechanacimiento NOT BETWEEN '2004-01-01' AND '2005-01-01';
+--select * from tbcolaborador where id>0;
+--select * from tbcolaborador where fechanacimiento IS NOT NULL;
+--select * from alumnos;
+--select * from tbcolaborador WHERE fecha = now() and codigo = 5;
+
+--------select * from tbcolaborador where abc EXTRACT(YEAR from fechanacimiento) = 2020 is false;
+--------select * from tbcolaborador WHERE codpais IS NULL;
+--------select * from tbcolaborador where EXTRACT(YEAR from fechanacimiento) = 2020 is false;
+--------error en select * and I.idempleado = E.idempleado and IT.ididentificaciontipo = I.ididentificaciontipo;
+
+--------error en select * from tbempleado E, bestado ES ,tbempleadoidentificacion I,tbidentificaciontipo IT where ES.idestado = E.idestado
+--------and  I.idempleado = E.idempleado
+--------and  IT.ididentificaciontipo = I.ididentificaciontipo;
+
+
+--------error en select *
+--------from tbempleado E, tbestado ES ,tbempleadoidentificacion I,tbidentificaciontipo IT
+--------where ES.idestado = E.idestado
+--------and  I.idempleado = E.idempleado
+--------and  IT.ididentificaciontipo = I.ididentificaciontipo;
+
+--------select articulo a from tbempleadopuesto group by departamento;
+--------select departamento,count(*) CantEmpleados from tbempleadopuesto group by departamento;
+--------select count(*) T1 from tbempleadopuesto group by departamento;
+--------SELECT t1 a1,t2 a2 from dual;
+--------select * from tbcolaborador where abc EXTRACT(YEAR from fechanacimiento) = 2020 is false;
+
+

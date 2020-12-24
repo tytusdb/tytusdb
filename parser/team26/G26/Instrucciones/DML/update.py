@@ -32,7 +32,7 @@ class Update(Instruccion):
                 arg = asignacion.argument.execute()
             except:
                 arg = asignacion.argument.execute(data, None)
-            
+
             if isinstance(arg, Error):
                 return arg
             #validar si existe columna
@@ -48,11 +48,11 @@ class Update(Instruccion):
 
                     break
                 colPosition += 1
-                
+
             if not found :
                 error = Error('Semántico', 'Error(???): El campo '+asignacion.columnid.column.upper()+' no pertence a la tabla ' + self.tableid.table.upper(), 0, 0)
                 return error
-            
+
             register[colPosition] = arg.val
 
         #mandar a condiciones
@@ -75,7 +75,7 @@ class Update(Instruccion):
             contp += 1
 
 
-        
+
         if self.condiciones == None :
             'Se cambian todas los campos que vienen en el set'
             print(register)
@@ -117,9 +117,9 @@ class Update(Instruccion):
                 else :
                     error = Error('Storage', 'Error(4): Llave primaria inexistente', 0, 0)
                     return error
-                
 
-        else : 
+
+        else :
             #diccionario para mandar a condiciones:
             #dicciPrueba = {'NombreTabla1': {'fila': [1, 3, "f"], 'alias': 'nombre'}, 'NombreTabla2': {'fila': [], 'alias': None}}
 
@@ -127,12 +127,12 @@ class Update(Instruccion):
             index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
-                
+
                 toadd = self.condiciones.execute(data, condObj)
                 if isinstance(toadd, Error):
                     return toadd
-                
-                
+
+
                 rowlist = []
                 if toadd :
                     if not pks == [] :
@@ -140,21 +140,21 @@ class Update(Instruccion):
                             rowlist.append(fila[pk])
                     else :
                         rowlist.append(index)
-                        
+
                     print(rowlist)
 
                 index += 1
 
-            
+
             index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
-                
+
                 toadd = self.condiciones.execute(data, condObj)
                 if isinstance(toadd, Error):
                     return toadd
-                
-                
+
+
                 rowlist = []
                 if toadd :
                     if not pks == [] :
@@ -278,7 +278,7 @@ class Update(Instruccion):
             except ValueError:
                 return error
 
-        elif columna.type == 'boleano':
+        elif columna.type == 'boolean':
             if isinstance(arg.val, str):
                 if arg.val.lower() == 'yes' or arg.val.lower() == 'on' or arg.val.lower() == 'no' or arg.val.lower() == 'off':
                     return arg
@@ -291,7 +291,7 @@ class Update(Instruccion):
                     return arg
                 else:
                     return error
-        
+
         else:
             #print(data.tablaSimbolos[data.databaseSeleccionada]['enum'])
             #for valoresEnum in data.tablaSimbolos[data.databaseSeleccionada]['enum'][columna.type]:
@@ -299,7 +299,7 @@ class Update(Instruccion):
                 for valoresEnum in data.tablaSimbolos[data.databaseSeleccionada]['enum'][columna.type]:
                     if arg.val == valoresEnum.val:
                         return arg
-            
+
             return error
 
 
