@@ -11,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectSimple, SelectFrom, ITEM_ALIAS , SelectFilter , SelectFromWhere, WHERE
+from astSelect import SelectSimple, SelectFrom, ITEM_ALIAS , SelectFilter , SelectFromWhere, WHERE,COMBINE_QUERYS, combineQuery
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -313,26 +313,32 @@ def p_filtro(p):
 
 def p_combine_querys1(p):
     'combine_querys : combine_querys UNION ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.UNION, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "UNION" "ALL" \<select>')
 
 def p_combine_querys2(p):
     'combine_querys : combine_querys UNION select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.UNION, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "UNION"  \<select>')
 
 def p_combine_querys3(p):
     'combine_querys : combine_querys INTERSECT ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.INTERSECT, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "INTERSECT" "ALL"  \<select>')
 
 def p_combine_querys4(p):
     'combine_querys : combine_querys INTERSECT select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.INTERSECT, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "INTERSECT"  \<select>')
 
 def p_combine_querys5(p):
     'combine_querys : combine_querys EXCEPT ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.EXCEPT, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "EXCEPT" "ALL" \<select>')
 
 def p_combine_querys6(p):
     'combine_querys : combine_querys EXCEPT select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.EXCEPT, p[3])
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "EXCEPT"  \<select>')
 
 def p_combine_querys7(p):
@@ -1979,6 +1985,7 @@ def p_select_item9(p):
         
 def p_select_item10(p):
         'select_item : ID PUNTO ASTERISCO'
+        p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno ,tabla = p[1]+"."+p[3])
         bnf.addProduccion('\<select_item> ::= "ID" "." "*"')
 
 #    <COUNT> ::= 'count' '(' '*' ')'  
@@ -2097,23 +2104,8 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada('''
-create database if not exists test;
-use test;
-
-insert into decimalTest values(101,10.55,666698.52,7500.00,'ok');
-insert into decimalTest (id,valDecimal,valNumeric,precio,estado) values(12,10.55,66669.52,8500.00,'happy');
-insert into decimalTest (id,valDecimal,valNumeric,precio,estado) values(13,109898.55,666698.52,9500.00,'ok');
-insert into decimalTest values(14,10989.55,666698.52,9500.00,'happy');
-
-select * from decimalTest;
-
-select * from decimalTest where id>11 and id<13;
-
-delete from decimalTest where id=101;
-
-select * from decimalTest;
-
-
+USE test;
+select * from tb1 except select * from tb2;
 ''')
 arbolParser.ejecutar()
 
