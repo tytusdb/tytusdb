@@ -22,7 +22,7 @@ El documento será elaborado para las personas con conocimiento en desarrollo de
 #### Gui
 En este modulo los usuarios podran realizar las funciones que Tytus db ofrece, de una manera grafica para ser mas accesible y entendible para cualquier usuario que desee utilizar nuestro gestor de bases de datos. Cuenta con diferentes ventanas para la navegabilidad. Cuenta con lector de archivos CSV para agilizar la carga de datos a las bases de datos creadas.
 
-#### MainG
+#### ISAMMode
 En este archivo contenemos todas las funciones que Tytus db ofrece, esto con la finalidad de importar este archivo y acceder a la poderosa capacidad que ofrece nuestro gestor de bases de datos. Este archivo contiene la instancia de las bases de datos para poder ser utilizada sin problemas. Este archivo contiene todas las funciones como lo son la gestion de bases de datos (creacion,eliminacion,actualizacion y vista de bases de datos), también contiene todo el CRUD de las tablas al igual que con las bases de datos, contiene la gestion de tuplas (insercion, delete, update, mostrar una tupla).
 
 #### Bases de Datos
@@ -52,12 +52,12 @@ El software Tytus es una aplicacion de bases de datos que usa tecnologias difere
 Para poder utilizar la aplicacion es necesario importar el archivo llamado MainG para ello es necesario implementar la siguiente linea de codigo:
 
 ```python
-	from team09 import MainG
+	from team09 import ISAMMode
 ```
 Despues de haber incluido la linea de codigo podremos darle un seudonimo a la importacion para hacerlo mas facil de manejar por ejemplo podriamos llamarlo con la letra i 
 
 ```python
-	from team09 import MainG as i
+	from team09 import ISAMMode as i
 ```
 Con esto nos facilitamos el uso de la importacion, despues de haberlo hecho ya podremos utilizar todas las funciones que Tytus Db ofrece. 
 Para ello tendremos que ingresar la funcion que queramos utilizar como por ejemplo crear una base de datos nueva para ello debemos utilizar el import y seguido a ello la funcion a utilizar
