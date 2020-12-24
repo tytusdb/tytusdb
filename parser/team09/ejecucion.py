@@ -267,7 +267,7 @@ def t_ID(t):
 
 def t_CADENA(t):
     r'([\"]|[\']).*?([\"]|[\'])'
-    t.value = t.value[1:-1] # Remueve las comillas
+    t.value = '\'' + t.value[1:-1] '\''
     return t 
 
 def t_DECIMA(t):
@@ -596,7 +596,7 @@ def p_show_db(p):
 def p_alter_db(p):
     '''alter_db : ALTER DATABASE ID al_db PTCOMA'''
     cons = ins.AlterDB(p[3],p[4])
-    lst_instrucciones.append(cons)
+    lst_instrucciones.append(cons) 
 
 def p_al_db(p):
     '''al_db : RENAME TO ID
@@ -828,7 +828,7 @@ def p_const_2(p):
     elif str(p[1]).upper() == 'REFERENCES':
         const = TS.const(p[2], p[4], None, TS.t_constraint.FOREIGN,None) #ID va a ser igual al ID de la tabla y valor = columna de referencia
     elif str(p[1]).upper() == 'CHECK':
-        const = TS.const(None, None, p[3], TS.t_constraint.CHECK,None)
+        const = p[3]
     elif str(p[1]).upper() == 'CONSTRAINT':
         if str(p[3]).upper() == 'UNIQUE':
             
@@ -844,7 +844,8 @@ def p_const_2(p):
                 const = TS.const(str(p[2]),None,None,TS.t_constraint.UNIQUE,None)
 
         elif str(p[3]).upper() == 'CHECK':
-            const = TS.const(p[2], None, p[5], TS.t_constraint.CHECK,None)
+            p[5].id = p[2]
+            const = p[5]
 
     if(creado == False):
         arr.append(const)
@@ -1042,12 +1043,12 @@ def p_expresion(p):
                  | d_part
                  | binary_string
                  | s_select'''
-				 
+
 def p_expresion1(p):
     '''expresion    : ID
                     | ID PUNTO ID '''
     p[0] = p[1]
-    
+
 def p_expresion_p(p):
     '''expresion    : CADENA
 					| ENTERO
@@ -1056,7 +1057,7 @@ def p_expresion_p(p):
 					| FALSE'''
     primitivo = expre.primitivo(p[1])    
     p[0] = primitivo
-					
+
 def p_expresiones_2(p):
     '''expresion    : NOW PARIZQ PARDER
 					| CURRENT_DATE
@@ -1082,7 +1083,7 @@ def p_expresion_3(p):
         expresion_relacional = expre.expresion_relacional(p[1],p[2],'=')
     elif(p[2] == '<>'):
         expresion_relacional = expre.expresion_relacional(p[1],p[2],'<>')
-					
+
 def p_expresion_4(p):
     '''expresion 	: expresion POTEN expresion
 					| expresion MULTI expresion
@@ -1105,8 +1106,8 @@ def p_expresion_4(p):
     elif p[2] == '\^':
         expresion_arit = expre.expresion_aritmetica(p[1],p[2],'\^')
         p[0] = expresion_arit
-    
-		
+
+
 def p_expresion_5(p):
     '''expresion 	: expresion OR expresion
 					| expresion AND expresion
@@ -1117,7 +1118,7 @@ def p_expresion_5(p):
         exp_ñpgica = expre.expresion_logica(p[1],p[3],'AND')
     elif p[2].upper == 'NOT':
         exp_ñpgica = expre.expresion_logica(p[1],None,'NOT')
-    
+
 
 def p_math_sw(p):
     '''math_sw : ABS PARIZQ expresion PARDER
@@ -1229,14 +1230,13 @@ def p_trim1(p):
 
 
 def p_exp_check(p):
-    '''exp_check    : ID MAYOR expresion
-                    | ID MENOR expresion
-                    | ID MAYIG expresion
-                    | ID MENIG expresion
-                    | ID IGUAL expresion
-                    | ID DIFEQ expresion'''
-
-    p[0] = str(p[1]) + ',' + str(p[2]) + ',' + str(p[3])
+    '''exp_check    : ID MAYOR valores
+                    | ID MENOR valores
+                    | ID MAYIG valores
+                    | ID MENIG valores
+                    | ID IGUAL valores
+                    | ID DIFEQ valores'''
+    p[0] = TS.const(None, p[3], p[2], TS.t_constraint.CHECK, p[1])
 
 def p_error(p):
     print('error')
@@ -1260,10 +1260,8 @@ def ejecutar(entrada):
     global parser, ts_global, lst_instrucciones
     consola = ''
     parse_result = parser.parse(entrada)
-
     for cons in lst_instrucciones :
         consola = consola + str(cons.execute(ts_global)) + '\n'
-
     ts_global.graficar()
     
     result = [parse_result, consola]
