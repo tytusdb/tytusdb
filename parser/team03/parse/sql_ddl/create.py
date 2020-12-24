@@ -96,12 +96,11 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
 
         field_index = 0
         for field in result_fields:
-            nuevo = FieldSymbol(table.get_current_db().name, result_name, field_index, field.name, field.field_type,
-                                field.length, field.allows_null, field.is_pk, None, None)
-
+            nuevo = FieldSymbol(table.get_current_db().name, result_name, field_index, field.name, field.field_type, field.length, field.allows_null, field.is_pk, None, None)
             field_index += 1
             table.add(nuevo)
-        return "Table: " + str(result_name) + " created."
+            
+        return "Table: " +str(result_name) +" created."
 
 
 class TableField(ASTNode):  # returns an item, grammar has to add it to a list and synthesize value to table
