@@ -416,7 +416,57 @@ class AST:
 
 
 ###################################################### Ejecucion de Querys ###############################################
-
+def resolverFuncionTrigonometrica(self, nodo, resultado):
+        if nodo.valor.lower()  == 'acos':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.acos(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'asin':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.asin(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'atan':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.atan(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'cos':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.cos(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'sin':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.sin(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'tan':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.tan(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'sinh':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.sinh(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'cosh':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.cosh(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'tanh':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.tanh(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'asinh':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.asinh(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'acosh':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            c = math.acosh(a)
+            resultado.append(c)
+        elif nodo.valor.lower()  == 'atanh':
+            a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
+            print(a)
+            c = math.atanh(a)
+            resultado.append(c)
+            
 ########################################################  expresiones ###################################################
     def expresion_logica(self, nodo, tupla, names, tablas) -> bool:
         if nodo.etiqueta == 'OPLOG':
