@@ -90,7 +90,7 @@ class SymbolTable:
             raise Error(0, 0, ErrorType.RUNTIME, f'[TS]{symbol.name} ya ha sido declarado previamente')
         return True
 
-    def get(self, symbol_id):
+    def get_by_id(self, symbol_id):
         result = next((sym for sym in self.symbols if sym.id == symbol_id), None)
         if result is None:
             raise Error(0, 0, ErrorType.RUNTIME, f'[TS]Simbolo id:{symbol_id} no pudo ser encontrado')
@@ -109,12 +109,12 @@ class SymbolTable:
         return result
 
     def update(self, symbol):
-        result = self.get(symbol.id)
+        result = self.get_by_id(symbol.id)
         self.symbols[self.symbols.index(result)] = symbol
         return True
 
     def delete(self, symbol_id):
-        result = self.get(symbol_id)
+        result = self.get_by_id(symbol_id)
         self.symbols.remove(result)
         return True
 
@@ -168,8 +168,10 @@ class SymbolTable:
             if s.type == SymbolType.TABLE and str(s.name).lower() == str(name_table).lower():
                 self.symbols.remove(s)
                 break
+
     def report_symbols(self):
-        result = [["Nombre", "Tipo", "Pertenece a"]]
+        result2 = ["NOMBRE", "TIPO", "PERTENECE A"]
+        result = []
         for symbol in self.symbols:
             belongs_to = 'Root'
             if symbol.type == SymbolType.TABLE:
@@ -177,8 +179,8 @@ class SymbolTable:
             elif symbol.type == SymbolType.FIELD:
                 belongs_to = f'Tabla: {symbol.table_name}'
             result.append([symbol.name, symbol.type, belongs_to])
-        print(tabulate(result))
-        return result
+        print(tabulate(result, result2, tablefmt="psql"))
+        return tabulate(result, result2, tablefmt="psql")
 
 # BLOCK TO TEST SYMBOL TABLE
 # db = DatabaseSymbol('test_db', None, 6)

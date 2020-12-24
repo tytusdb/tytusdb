@@ -6,6 +6,7 @@ from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
 from parse.sql_common.sql_general import *
 from parse.sql_ddl.create import *
+from parse.sql_ddl.alter import *
 from parse.sql_dml.insert import *
 from parse.sql_ddl.drop import *
 from treeGraph import *
@@ -373,7 +374,8 @@ def p_statement(t):
     '''statement    : predicateExpression PUNTOCOMA
                     | stm_show   PUNTOCOMA
                     | stm_create PUNTOCOMA
-                    | stm_use_db PUNTOCOMA 
+                    | stm_alter  PUNTOCOMA
+                    | stm_use_db PUNTOCOMA
                     | stm_select PUNTOCOMA
                     | stm_insert PUNTOCOMA
                     | stm_update PUNTOCOMA
@@ -383,7 +385,6 @@ def p_statement(t):
 #
 #
 #                    |    stm_delete PUNTOCOMA
-#                    |    stm_alter  PUNTOCOMA
 #                    |    stm_show   PUNTOCOMA
 #                    |    stm_select UNION all_opt stm_select
 #                    |    stm_select INTERSECT all_opt stm_select
@@ -1136,104 +1137,89 @@ def p_or_replace_opt(t):
         t[0] = None
 
 
-
-
 def p_stm_alter(t):
     '''stm_alter    :    ALTER DATABASE ID RENAME TO ID    
                     |    ALTER DATABASE ID OWNER TO db_owner
 '''
-    token = t.slice[4]
-    if token.type == "RENAME":                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,[])
+    token_alter = t.slice[4]
+    if token_alter.type == "RENAME":
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tDatabase tIdentifier tRename tTo tIdentifier        ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####    
-    if token.type == "OWNER":                 
+        t[0] = AlterDatabaseRename(t[3], t[6], token_alter.lineno, token_alter.lexpos, graph_ref)
+    if token_alter.type == "OWNER":
         childsProduction = addNotNoneChild(t,[6])                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tDatabase tIdentifier tOwner tTo \<DB_OWNER>        ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####  
+        t[0] = AlterDatabaseOwner(t[3], t[6], token_alter.lineno, token_alter.lexpos, graph_ref)
+
 
 def p_stm_alter0(t):
     '''stm_alter    :    ALTER TABLE ID DROP CONSTRAINT ID
                     |    ALTER TABLE ID DROP COLUMN ID
 '''
-    token = t.slice[5]
-    if token.type == "CONSTRAINT":                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,[])
+    token_alter = t.slice[5]
+    if token_alter.type == "CONSTRAINT":
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tDrop tIdentifier        ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-        #####    
-    if token.type == "COLUMN":                 
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,[])
+    if token_alter.type == "COLUMN":
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tDrop  tColumn tIdentifier   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####  
-
+        t[0] = AlterTableDropColumn(t[3], t[6], token_alter.lineno, token_alter.lexpos, graph_ref)
 
 
 def p_stm_alter1(t):
-    '''stm_alter    :    ALTER TABLE ID ADD COLUMN ID type param_int_opt
+    '''stm_alter    :    ALTER TABLE ID ADD COLUMN ID type nullable_opt
                     |    ALTER TABLE ID ADD CHECK PARA logicExpression PARC
-                    |    ALTER TABLE ID ALTER COLUMN TYPE type param_int_opt
+                    |    ALTER TABLE ID ALTER COLUMN ID TYPE type param_int_opt
 '''
-    token = t.slice[6]
-    if token.type == "ID":                
-        childsProduction = addNotNoneChild(t,[7,8])                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
-        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tColumn  tIdentifier \<TYPE> \<PARAM_INT_OPT>        ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####    
-    if token.type == "PARA":                 
+    token_alter = t.slice[6]
+    if token_alter.type == "ID" and t[7] != 'TYPE':
+        childsProduction = addNotNoneChild(t, [7, 8])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tColumn  tIdentifier \<TYPE> \<PARAM_INT_OPT>   ")
+        t[0] = AlterTableAddColumn(t[3], t[6], t[7], t[7].max_size, t[8], token_alter.lineno, token_alter.lexpos, graph_ref)
+    if token_alter.type == "PARA":
         childsProduction = addNotNoneChild(t,[7])                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tCheck '('  \<EXP_LOG> ')'   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####  
-    if token.type == "TYPE":                 
-        childsProduction = addNotNoneChild(t,[7,8])                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
+    if token_alter.type == "ID":
+        childsProduction = addNotNoneChild(t, [8, 9])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tType \<TYPE> \<PARAM_INT_OPT>   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####  
+        t[0] = AlterTableChangeColumnType(t[3], t[6], t[8], t[8].max_size, token_alter.lineno, token_alter.lexpos, graph_ref)
 
 
 def p_stm_alter2(t):
     '''stm_alter    :    ALTER TABLE ID RENAME COLUMN ID TO ID
+                    |    ALTER TABLE ID ALTER COLUMN ID SET NULL
                     |    ALTER TABLE ID ALTER COLUMN ID SET NOT NULL 
                     |    ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARA ID PARC
                     |    ALTER TABLE ID ADD FOREIGN KEY PARA ID PARC REFERENCES ID 
 '''
-
-    if len(t) == 9:                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    , [])
+    token_alter = t.slice[1]
+    if len(t) == 9 and t[4] == 'RENAME':
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tRename tColumn tIdentifier tTo tIdentifier     ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
+        t[0] = AlterTableRenameColumn(t[3], t[6], t[8], token_alter.lineno, token_alter.lexpos, graph_ref)
+    elif len(t) == 9 and t[4] == 'ALTER':
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], [])
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tIdentifier tSet tNull     ")
+        t[0] = AlterTableNotNull(t[3], t[6], True, token_alter.lineno, token_alter.lexpos, graph_ref)
     elif len(t) == 10:         
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]]    , [])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tIdentifier tSet tNot tNull     ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
-        
+        t[0] = AlterTableNotNull(t[3], t[6], False, token_alter.lineno, token_alter.lexpos, graph_ref)
     elif len(t) == 11:
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10]]    , [])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tConstraint tIdentifier tUnique '(' tIdentifier ')'    ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
-        
     elif len(t) == 12:
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10],t[11]]    , [])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd  tForeign  tKey '(' tIdentifier ')' tReference tIdentifier ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-        #####         
-
-
-
-
-
-
 
 
 def p_param_int_opt(t):
@@ -1248,50 +1234,45 @@ def p_param_int_opt(t):
         t[0] = None
 
 
-
 def p_db_owner(t):
-    ''' db_owner    : TEXTO
+    ''' db_owner    : ID
                     | CURRENT_USER
                     | SESSION_USER'''
-    if token.type == "TEXTO":
+    token_owner = t.slice[1]
+    if token_owner.type == "ID":
         graph_ref = graph_node(str(t[1]))
         addCad("**\<DB_OWNER>** ::= tTexto ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####                
-
-    elif token.type == "CURRENT_USER":
+        t[0] = Identifier(t[1], token_owner.lineno, token_owner.lexpos, graph_ref)
+    elif token_owner.type == "CURRENT_USER":
         graph_ref = graph_node(str(t[1]))
         addCad("**\<DB_OWNER>** ::= tCurrentUser ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####  
-    
-    elif token.type == "SESSION_USER":
+        t[0] = Identifier(token_owner.value, token_owner.lineno, token_owner.lexpos, graph_ref)
+    elif token_owner.type == "SESSION_USER":
         graph_ref = graph_node(str(t[1]))
         addCad("**\<DB_OWNER>** ::= tSessionUser ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####          
+        t[0] = Identifier(token_owner.value, token_owner.lineno, token_owner.lexpos, graph_ref)
 
 
 def p_stm_drop(t):
     '''stm_drop : DROP DATABASE if_exists_opt ID
                 | DROP TABLE ID'''
-    token = t.slice[1] 
+    token = t.slice[1]
     if len(t) == 5:
         tokenID = t.slice[4]
         childsProduction  = addNotNoneChild(t,[3])
         graph_ref = graph_node(str("stm_drop"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
         addCad("**\<STM_DROP>** ::=  tDrop tDatabase \<IF_EXISTS_OPT> tIdentifier")
-        name_db = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)      
-        t[0] = DropDatabase(name_db , (True if t[3] else False), token.lineno, token.lexpos, graph_ref) 
+        name_db = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
+        t[0] = DropDatabase(name_db , (True if t[3] else False), token.lineno, token.lexpos, graph_ref)
         #####        
-    else:   
-        tokenID = t.slice[3]              
+    else:
+        tokenID = t.slice[3]
         graph_ref = graph_node(str("stm_drop"),    [t[1], t[2] ,t[3]]       ,[])
         addCad("**\<STM_DROP>** ::= tDrop tTable tIdentifier  ")
-        name_db = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None) 
+        name_db = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
         t[0] = DropTable(name_db, token.lineno, token.lexpos, graph_ref)
         #####  
-        
+
 def p_if_exist_opt(t):
     '''if_exists_opt    : IF EXISTS
                         | empty'''
@@ -2062,9 +2043,34 @@ from ply.yacc import token
 parse = yacc.yacc()
 errorsList = []
 
+ST = SymbolTable([])##TODO Check is only one ST.
+
+class grammarReview:
+    def __init__(self, texto): 
+        print("Executing AST root, please wait ...")
+        global ST
+        ST.LoadMETADATA()
+        instrucciones = parse.parse(texto)
+        createFile()
+        creategrafo()
+
+        for instruccion in instrucciones:
+            try:
+                val = instruccion.execute(ST, None)
+                print("AST excute result: ", val)
+            except our_error as named_error:
+                errorsList.append(named_error)
+
+        for e in errorsList:
+            print(e,"\n")
+        
+
+    def getTablaTabulada(self):
+        global ST
+        return ST.report_symbols()
 
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     f = open("./entrada.txt", "r")
     input = f.read()
     print("Input: " + input +"\n")
@@ -2084,4 +2090,4 @@ if __name__ == "__main__":
 
     for e in errorsList:
         print(e,"\n")
-    ST.report_symbols()
+    ST.report_symbols() """
