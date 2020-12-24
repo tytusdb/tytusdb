@@ -153,4 +153,23 @@ class TablasArboles:
         else:                                                                   
             #return ("BD inexistente")
             return (2) 
-     
+           
+#Funcion 12 - eliminar tabla
+# def dropTable(database: str, table: str) -> int:           
+    def dropT(self,database,table) :
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :
+            if bdEncontrada.tablas.buscar(table) != None :
+                r = bdEncontrada.tablas.eliminar(table)
+                if r==0 :
+                    #return ("Operacion exitosa")
+                    return (0)
+                else:
+                    #return ("Error en la operacion")
+                    return (1)
+            else:
+                #return ("Tabla inexistente")
+                return (3) 
+        else:                                                                    
+            #return ("BD inexistente")
+            return (2) 
