@@ -191,7 +191,7 @@ class Insert(Instruccion):
                                 comprobarNull = True
                             else:
                                 return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
-                elif columna.type == 'boleano':
+                elif columna.type == 'boolean':
                     if isinstance(valoresTabla[posColumna], str):
                         if valoresTabla[posColumna].lower() == 'true' or valoresTabla[posColumna].lower() == 'yes' or valoresTabla[posColumna].lower() == 'on' or valoresTabla[posColumna].lower() == 'false' or valoresTabla[posColumna].lower() == 'no' or valoresTabla[posColumna].lower() == 'off':
                             ''
