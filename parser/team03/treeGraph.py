@@ -75,11 +75,11 @@ def creategrafo():
     s="digraph Matrix { graph [dpi=300]; \n node [shape=box] e0[ shape = point, width = 0 ];\n inicio[label = \"Inicio\" width = 1.5 style = filled, fillcolor = firebrick1];  "+childslist+s+"}"
 
    
-    archivo = open('grap.txt', 'w')
+    archivo = open('grap.dot', 'w')
     archivo.write(s)
     archivo.close()
 
-    comando = "dot -Tpng "+ "grap" +".txt -o "+ "grap" +".png"
+    comando = "dot -Tpng "+ "grap" +".dot -o "+ "grap" +".png"
     resultado = subprocess.Popen(comando,shell=True,stdout=subprocess.PIPE)   #manda a consola la instruccion
     for salida in resultado.stdout:
         print(salida.decode(sys.getdefaultencoding()).rstrip())            #imprime algun posible error que pueda suceder
@@ -87,7 +87,7 @@ def creategrafo():
     comando2 = "start "+ "grap" +".png"
     resultado2 = subprocess.Popen(comando2,shell=True,stdout=subprocess.PIPE)
     for salida2 in resultado2.stdout:
-        print(salida2.decode(sys.getdefaultencoding()).rstrip())
+        print(salida2.decode(sys.getdefaultencoding()).rstrip()) 
 
 def punteroinicio(nombre):
     global childslist
@@ -113,7 +113,17 @@ def addNotNoneChild(arregloT, cualesVerifico=[]):
             childs.append(str(arregloT[i].graph_ref))
     return childs        
 
-
+def generateReports():
+    createFile()
+    creategrafo()
+    global s
+    s="\n"
+    global i
+    i = 0
+    global gram
+    gram=""
+    global childslist
+    childslist="inicio -> {"
 
 
 

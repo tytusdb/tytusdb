@@ -2067,8 +2067,7 @@ class grammarReview:
         global ST
         ST.LoadMETADATA()
         instrucciones = parse.parse(texto)
-        createFile()
-        creategrafo()
+        generateReports()
 
         for instruccion in instrucciones:
             try:
