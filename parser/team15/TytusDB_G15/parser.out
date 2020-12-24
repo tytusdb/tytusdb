@@ -461,7 +461,7 @@ Rule 437   funciones_select -> ACOSD PAR_A expresion PAR_C
 Rule 438   funciones_select -> LENGTH PAR_A string_type PAR_C
 Rule 439   funciones_select -> SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
 Rule 440   funciones_select -> TRIM PAR_A string_type PAR_C
-Rule 441   funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+Rule 441   funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
 Rule 442   funciones_select -> GET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO PAR_C
 Rule 443   funciones_select -> SET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO COMA ENTERO PAR_C
 Rule 444   funciones_select -> SHA256 PAR_A string_type PAR_C
@@ -483,7 +483,7 @@ Rule 459   expresion_wherea -> CEIL PAR_A expresion PAR_C
 Rule 460   expresion_wherea -> CEILING PAR_A expresion PAR_C
 Rule 461   expresion_wherea -> SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
 Rule 462   expresion_wherea -> TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-Rule 463   expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+Rule 463   expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
 Rule 464   expresion_wherea -> sin_some_any PAR_A select_insrt PAR_C
 Rule 465   expresion_wherea -> EXTRACT PAR_A extract_time FROM string_type PAR_C
 Rule 466   expresion_wherea -> expresion
@@ -590,7 +590,7 @@ D_OR                 : 350
 ELSE                 : 335
 ENCODE               : 445
 END                  : 335
-ENTERO               : 86 89 112 113 118 119 120 121 122 123 124 125 154 166 166 167 167 176 177 178 179 194 194 195 195 204 205 206 207 255 330 331 413 441 441 442 443 443 463 463
+ENTERO               : 86 89 112 113 118 119 120 121 122 123 124 125 154 166 166 167 167 176 177 178 179 194 194 195 195 204 205 206 207 255 330 331 413 442 443 443
 ENUM                 : 44
 ESCAPE               : 448
 EXCEPT               : 215
@@ -780,7 +780,7 @@ drop_insrt           : 11 26
 estructura_when      : 336 337
 estructura_when_lista : 335 336
 exclusiva_insert     : 52 53
-expresion            : 54 55 55 58 58 84 335 338 339 340 340 341 341 342 342 343 343 344 344 345 345 346 346 347 348 348 349 350 351 351 352 353 354 364 364 365 365 366 366 367 367 368 368 369 369 370 370 371 371 372 385 393 394 395 396 397 398 398 399 400 401 402 402 403 404 405 405 407 407 408 409 410 411 412 412 412 412 413 414 416 417 418 418 419 419 420 421 422 423 424 425 426 427 428 429 430 431 432 433 434 435 436 437 439 439 456 458 459 460 461 461 466
+expresion            : 54 55 55 58 58 84 335 338 339 340 340 341 341 342 342 343 343 344 344 345 345 346 346 347 348 348 349 350 351 351 352 353 354 364 364 365 365 366 366 367 367 368 368 369 369 370 370 371 371 372 385 393 394 395 396 397 398 398 399 400 401 402 402 403 404 405 405 407 407 408 409 410 411 412 412 412 412 413 414 416 417 418 418 419 419 420 421 422 423 424 425 426 427 428 429 430 431 432 433 434 435 436 437 439 439 441 441 456 458 459 460 461 461 463 463 466
 expresion_dato       : 377 391 392 452 453 455 455 455 467 468 469 470 471 472 473 474 488 488 488 489 489 490 490 491 492
 expresion_dato_default : 144
 expresion_logica     : 34 35 36 37 39 40 41 68 70 126 149 150 327 338 357 373 374 375
@@ -1517,7 +1517,7 @@ state 26
     (438) funciones_select -> . LENGTH PAR_A string_type PAR_C
     (439) funciones_select -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (440) funciones_select -> . TRIM PAR_A string_type PAR_C
-    (441) funciones_select -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (441) funciones_select -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (442) funciones_select -> . GET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO PAR_C
     (443) funciones_select -> . SET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO COMA ENTERO PAR_C
     (444) funciones_select -> . SHA256 PAR_A string_type PAR_C
@@ -3226,7 +3226,7 @@ state 133
 
 state 134
 
-    (441) funciones_select -> SUBSTR . PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (441) funciones_select -> SUBSTR . PAR_A string_type COMA expresion COMA expresion PAR_C
 
     PAR_A           shift and go to state 259
 
@@ -4258,7 +4258,7 @@ state 184
     (438) funciones_select -> . LENGTH PAR_A string_type PAR_C
     (439) funciones_select -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (440) funciones_select -> . TRIM PAR_A string_type PAR_C
-    (441) funciones_select -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (441) funciones_select -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (442) funciones_select -> . GET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO PAR_C
     (443) funciones_select -> . SET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO COMA ENTERO PAR_C
     (444) funciones_select -> . SHA256 PAR_A string_type PAR_C
@@ -5005,7 +5005,7 @@ state 200
     (438) funciones_select -> . LENGTH PAR_A string_type PAR_C
     (439) funciones_select -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (440) funciones_select -> . TRIM PAR_A string_type PAR_C
-    (441) funciones_select -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (441) funciones_select -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (442) funciones_select -> . GET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO PAR_C
     (443) funciones_select -> . SET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO COMA ENTERO PAR_C
     (444) funciones_select -> . SHA256 PAR_A string_type PAR_C
@@ -8633,7 +8633,7 @@ state 258
 
 state 259
 
-    (441) funciones_select -> SUBSTR PAR_A . string_type COMA ENTERO COMA ENTERO PAR_C
+    (441) funciones_select -> SUBSTR PAR_A . string_type COMA expresion COMA expresion PAR_C
     (362) string_type -> . CADENA
     (363) string_type -> . ID
 
@@ -13509,7 +13509,7 @@ state 410
 
 state 411
 
-    (441) funciones_select -> SUBSTR PAR_A string_type . COMA ENTERO COMA ENTERO PAR_C
+    (441) funciones_select -> SUBSTR PAR_A string_type . COMA expresion COMA expresion PAR_C
 
     COMA            shift and go to state 555
 
@@ -14835,7 +14835,7 @@ state 481
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -18477,10 +18477,70 @@ state 554
 
 state 555
 
-    (441) funciones_select -> SUBSTR PAR_A string_type COMA . ENTERO COMA ENTERO PAR_C
+    (441) funciones_select -> SUBSTR PAR_A string_type COMA . expresion COMA expresion PAR_C
+    (340) expresion -> . expresion SUMA expresion
+    (341) expresion -> . expresion RESTA expresion
+    (342) expresion -> . expresion ASTERISCO expresion
+    (343) expresion -> . expresion DIVISION expresion
+    (344) expresion -> . expresion MODULO expresion
+    (345) expresion -> . expresion MAYMAY expresion
+    (346) expresion -> . expresion MENMEN expresion
+    (347) expresion -> . CEJILLA expresion
+    (348) expresion -> . expresion HASHTAG expresion
+    (349) expresion -> . S_OR expresion
+    (350) expresion -> . D_OR expresion
+    (351) expresion -> . expresion Y expresion
+    (352) expresion -> . AVG PAR_A expresion PAR_C
+    (353) expresion -> . MAX PAR_A expresion PAR_C
+    (354) expresion -> . MIN PAR_A expresion PAR_C
+    (355) expresion -> . ALL PAR_A select_insrt PAR_C
+    (356) expresion -> . SOME PAR_A select_insrt PAR_C
+    (357) expresion -> . PAR_A expresion_logica PAR_C
+    (358) expresion -> . TRUE
+    (359) expresion -> . FALSE
+    (377) expresion -> . expresion_dato
+    (378) expresion -> . select_insrt
+    (379) expresion -> . sum_insrt
+    (380) expresion -> . count_insrt
+    (85) expresion_dato -> . string_type
+    (86) expresion_dato -> . RESTA ENTERO
+    (87) expresion_dato -> . ID PUNTO ID
+    (88) expresion_dato -> . expresion_numero
+    (210) select_insrt -> . SELECT opcion_select_tm
+    (381) sum_insrt -> . SUM agrupacion_expresion
+    (382) count_insrt -> . COUNT agrupacion_expresion
+    (362) string_type -> . CADENA
+    (363) string_type -> . ID
+    (89) expresion_numero -> . ENTERO
+    (90) expresion_numero -> . FLOTANTE
 
-    ENTERO          shift and go to state 702
+    CEJILLA         shift and go to state 143
+    S_OR            shift and go to state 144
+    D_OR            shift and go to state 145
+    AVG             shift and go to state 146
+    MAX             shift and go to state 147
+    MIN             shift and go to state 148
+    ALL             shift and go to state 149
+    SOME            shift and go to state 150
+    PAR_A           shift and go to state 186
+    TRUE            shift and go to state 151
+    FALSE           shift and go to state 152
+    RESTA           shift and go to state 142
+    ID              shift and go to state 192
+    SELECT          shift and go to state 26
+    SUM             shift and go to state 157
+    COUNT           shift and go to state 158
+    CADENA          shift and go to state 68
+    ENTERO          shift and go to state 106
+    FLOTANTE        shift and go to state 159
 
+    string_type                    shift and go to state 131
+    expresion                      shift and go to state 702
+    select_insrt                   shift and go to state 81
+    expresion_dato                 shift and go to state 153
+    sum_insrt                      shift and go to state 154
+    count_insrt                    shift and go to state 155
+    expresion_numero               shift and go to state 156
 
 state 556
 
@@ -21138,7 +21198,7 @@ state 665
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -21486,7 +21546,7 @@ state 675
 
 state 676
 
-    (463) expresion_wherea -> SUBSTR . PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> SUBSTR . PAR_A string_type COMA expresion COMA expresion PAR_C
 
     PAR_A           shift and go to state 859
 
@@ -22034,9 +22094,27 @@ state 701
 
 state 702
 
-    (441) funciones_select -> SUBSTR PAR_A string_type COMA ENTERO . COMA ENTERO PAR_C
+    (441) funciones_select -> SUBSTR PAR_A string_type COMA expresion . COMA expresion PAR_C
+    (340) expresion -> expresion . SUMA expresion
+    (341) expresion -> expresion . RESTA expresion
+    (342) expresion -> expresion . ASTERISCO expresion
+    (343) expresion -> expresion . DIVISION expresion
+    (344) expresion -> expresion . MODULO expresion
+    (345) expresion -> expresion . MAYMAY expresion
+    (346) expresion -> expresion . MENMEN expresion
+    (348) expresion -> expresion . HASHTAG expresion
+    (351) expresion -> expresion . Y expresion
 
     COMA            shift and go to state 876
+    SUMA            shift and go to state 202
+    RESTA           shift and go to state 203
+    ASTERISCO       shift and go to state 204
+    DIVISION        shift and go to state 205
+    MODULO          shift and go to state 206
+    MAYMAY          shift and go to state 207
+    MENMEN          shift and go to state 208
+    HASHTAG         shift and go to state 209
+    Y               shift and go to state 210
 
 
 state 703
@@ -24480,7 +24558,7 @@ state 830
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -24590,7 +24668,7 @@ state 831
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -24700,7 +24778,7 @@ state 832
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -24937,7 +25015,7 @@ state 839
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25176,7 +25254,7 @@ state 843
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25268,7 +25346,7 @@ state 844
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25360,7 +25438,7 @@ state 845
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25452,7 +25530,7 @@ state 846
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25544,7 +25622,7 @@ state 847
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25636,7 +25714,7 @@ state 848
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25728,7 +25806,7 @@ state 849
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25820,7 +25898,7 @@ state 850
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -25912,7 +25990,7 @@ state 851
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -26297,7 +26375,7 @@ state 858
 
 state 859
 
-    (463) expresion_wherea -> SUBSTR PAR_A . string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> SUBSTR PAR_A . string_type COMA expresion COMA expresion PAR_C
     (362) string_type -> . CADENA
     (363) string_type -> . ID
 
@@ -26954,10 +27032,70 @@ state 875
 
 state 876
 
-    (441) funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA . ENTERO PAR_C
+    (441) funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA . expresion PAR_C
+    (340) expresion -> . expresion SUMA expresion
+    (341) expresion -> . expresion RESTA expresion
+    (342) expresion -> . expresion ASTERISCO expresion
+    (343) expresion -> . expresion DIVISION expresion
+    (344) expresion -> . expresion MODULO expresion
+    (345) expresion -> . expresion MAYMAY expresion
+    (346) expresion -> . expresion MENMEN expresion
+    (347) expresion -> . CEJILLA expresion
+    (348) expresion -> . expresion HASHTAG expresion
+    (349) expresion -> . S_OR expresion
+    (350) expresion -> . D_OR expresion
+    (351) expresion -> . expresion Y expresion
+    (352) expresion -> . AVG PAR_A expresion PAR_C
+    (353) expresion -> . MAX PAR_A expresion PAR_C
+    (354) expresion -> . MIN PAR_A expresion PAR_C
+    (355) expresion -> . ALL PAR_A select_insrt PAR_C
+    (356) expresion -> . SOME PAR_A select_insrt PAR_C
+    (357) expresion -> . PAR_A expresion_logica PAR_C
+    (358) expresion -> . TRUE
+    (359) expresion -> . FALSE
+    (377) expresion -> . expresion_dato
+    (378) expresion -> . select_insrt
+    (379) expresion -> . sum_insrt
+    (380) expresion -> . count_insrt
+    (85) expresion_dato -> . string_type
+    (86) expresion_dato -> . RESTA ENTERO
+    (87) expresion_dato -> . ID PUNTO ID
+    (88) expresion_dato -> . expresion_numero
+    (210) select_insrt -> . SELECT opcion_select_tm
+    (381) sum_insrt -> . SUM agrupacion_expresion
+    (382) count_insrt -> . COUNT agrupacion_expresion
+    (362) string_type -> . CADENA
+    (363) string_type -> . ID
+    (89) expresion_numero -> . ENTERO
+    (90) expresion_numero -> . FLOTANTE
 
-    ENTERO          shift and go to state 1010
+    CEJILLA         shift and go to state 143
+    S_OR            shift and go to state 144
+    D_OR            shift and go to state 145
+    AVG             shift and go to state 146
+    MAX             shift and go to state 147
+    MIN             shift and go to state 148
+    ALL             shift and go to state 149
+    SOME            shift and go to state 150
+    PAR_A           shift and go to state 186
+    TRUE            shift and go to state 151
+    FALSE           shift and go to state 152
+    RESTA           shift and go to state 142
+    ID              shift and go to state 192
+    SELECT          shift and go to state 26
+    SUM             shift and go to state 157
+    COUNT           shift and go to state 158
+    CADENA          shift and go to state 68
+    ENTERO          shift and go to state 106
+    FLOTANTE        shift and go to state 159
 
+    string_type                    shift and go to state 131
+    expresion                      shift and go to state 1010
+    select_insrt                   shift and go to state 81
+    expresion_dato                 shift and go to state 153
+    sum_insrt                      shift and go to state 154
+    count_insrt                    shift and go to state 155
+    expresion_numero               shift and go to state 156
 
 state 877
 
@@ -29995,7 +30133,7 @@ state 1002
 
 state 1003
 
-    (463) expresion_wherea -> SUBSTR PAR_A string_type . COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> SUBSTR PAR_A string_type . COMA expresion COMA expresion PAR_C
 
     COMA            shift and go to state 1099
 
@@ -30158,9 +30296,27 @@ state 1009
 
 state 1010
 
-    (441) funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO . PAR_C
+    (441) funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion . PAR_C
+    (340) expresion -> expresion . SUMA expresion
+    (341) expresion -> expresion . RESTA expresion
+    (342) expresion -> expresion . ASTERISCO expresion
+    (343) expresion -> expresion . DIVISION expresion
+    (344) expresion -> expresion . MODULO expresion
+    (345) expresion -> expresion . MAYMAY expresion
+    (346) expresion -> expresion . MENMEN expresion
+    (348) expresion -> expresion . HASHTAG expresion
+    (351) expresion -> expresion . Y expresion
 
     PAR_C           shift and go to state 1104
+    SUMA            shift and go to state 202
+    RESTA           shift and go to state 203
+    ASTERISCO       shift and go to state 204
+    DIVISION        shift and go to state 205
+    MODULO          shift and go to state 206
+    MAYMAY          shift and go to state 207
+    MENMEN          shift and go to state 208
+    HASHTAG         shift and go to state 209
+    Y               shift and go to state 210
 
 
 state 1011
@@ -31663,7 +31819,7 @@ state 1091
     (460) expresion_wherea -> . CEILING PAR_A expresion PAR_C
     (461) expresion_wherea -> . SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
     (462) expresion_wherea -> . TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> . SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
     (464) expresion_wherea -> . sin_some_any PAR_A select_insrt PAR_C
     (465) expresion_wherea -> . EXTRACT PAR_A extract_time FROM string_type PAR_C
     (466) expresion_wherea -> . expresion
@@ -32051,10 +32207,70 @@ state 1098
 
 state 1099
 
-    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA . ENTERO COMA ENTERO PAR_C
+    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA . expresion COMA expresion PAR_C
+    (340) expresion -> . expresion SUMA expresion
+    (341) expresion -> . expresion RESTA expresion
+    (342) expresion -> . expresion ASTERISCO expresion
+    (343) expresion -> . expresion DIVISION expresion
+    (344) expresion -> . expresion MODULO expresion
+    (345) expresion -> . expresion MAYMAY expresion
+    (346) expresion -> . expresion MENMEN expresion
+    (347) expresion -> . CEJILLA expresion
+    (348) expresion -> . expresion HASHTAG expresion
+    (349) expresion -> . S_OR expresion
+    (350) expresion -> . D_OR expresion
+    (351) expresion -> . expresion Y expresion
+    (352) expresion -> . AVG PAR_A expresion PAR_C
+    (353) expresion -> . MAX PAR_A expresion PAR_C
+    (354) expresion -> . MIN PAR_A expresion PAR_C
+    (355) expresion -> . ALL PAR_A select_insrt PAR_C
+    (356) expresion -> . SOME PAR_A select_insrt PAR_C
+    (357) expresion -> . PAR_A expresion_logica PAR_C
+    (358) expresion -> . TRUE
+    (359) expresion -> . FALSE
+    (377) expresion -> . expresion_dato
+    (378) expresion -> . select_insrt
+    (379) expresion -> . sum_insrt
+    (380) expresion -> . count_insrt
+    (85) expresion_dato -> . string_type
+    (86) expresion_dato -> . RESTA ENTERO
+    (87) expresion_dato -> . ID PUNTO ID
+    (88) expresion_dato -> . expresion_numero
+    (210) select_insrt -> . SELECT opcion_select_tm
+    (381) sum_insrt -> . SUM agrupacion_expresion
+    (382) count_insrt -> . COUNT agrupacion_expresion
+    (362) string_type -> . CADENA
+    (363) string_type -> . ID
+    (89) expresion_numero -> . ENTERO
+    (90) expresion_numero -> . FLOTANTE
 
-    ENTERO          shift and go to state 1154
+    CEJILLA         shift and go to state 143
+    S_OR            shift and go to state 144
+    D_OR            shift and go to state 145
+    AVG             shift and go to state 146
+    MAX             shift and go to state 147
+    MIN             shift and go to state 148
+    ALL             shift and go to state 149
+    SOME            shift and go to state 150
+    PAR_A           shift and go to state 186
+    TRUE            shift and go to state 151
+    FALSE           shift and go to state 152
+    RESTA           shift and go to state 142
+    ID              shift and go to state 192
+    SELECT          shift and go to state 26
+    SUM             shift and go to state 157
+    COUNT           shift and go to state 158
+    CADENA          shift and go to state 68
+    ENTERO          shift and go to state 106
+    FLOTANTE        shift and go to state 159
 
+    string_type                    shift and go to state 131
+    expresion                      shift and go to state 1154
+    select_insrt                   shift and go to state 81
+    expresion_dato                 shift and go to state 153
+    sum_insrt                      shift and go to state 154
+    count_insrt                    shift and go to state 155
+    expresion_numero               shift and go to state 156
 
 state 1100
 
@@ -32228,48 +32444,48 @@ state 1103
 
 state 1104
 
-    (441) funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .
+    (441) funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .
 
-    AS              reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    ID              reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    PUNTO           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    COMA            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    PTCOMA          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    UNION           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    INTERSECT       reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    EXCEPT          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    SUMA            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    RESTA           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    ASTERISCO       reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    DIVISION        reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MODULO          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MAYMAY          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MENMEN          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    HASHTAG         reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    Y               reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    FROM            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    PAR_C           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MAYQUE          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MENQUE          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MAYIGQUE        reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MENIGQUE        reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    DOBLEIG         reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    IGUAL           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    NOIG            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    NOIGUAL         reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    AND             reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    OR              reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    THEN            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    RETURNING       reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    ORDER           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    LIMIT           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    END             reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    BETWEEN         reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    GROUP           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    HAVING          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    ELSE            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    WHEN            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    WHERE           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
+    AS              reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    ID              reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    PUNTO           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    COMA            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    PTCOMA          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    UNION           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    INTERSECT       reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    EXCEPT          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    SUMA            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    RESTA           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    ASTERISCO       reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    DIVISION        reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MODULO          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MAYMAY          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MENMEN          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    HASHTAG         reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    Y               reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    FROM            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    PAR_C           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MAYQUE          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MENQUE          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MAYIGQUE        reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MENIGQUE        reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    DOBLEIG         reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    IGUAL           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    NOIG            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    NOIGUAL         reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    AND             reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    OR              reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    THEN            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    RETURNING       reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    ORDER           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    LIMIT           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    END             reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    BETWEEN         reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    GROUP           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    HAVING          reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    ELSE            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    WHEN            reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    WHERE           reduce using rule 441 (funciones_select -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
 
 
 state 1105
@@ -33280,9 +33496,27 @@ state 1153
 
 state 1154
 
-    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO . COMA ENTERO PAR_C
+    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA expresion . COMA expresion PAR_C
+    (340) expresion -> expresion . SUMA expresion
+    (341) expresion -> expresion . RESTA expresion
+    (342) expresion -> expresion . ASTERISCO expresion
+    (343) expresion -> expresion . DIVISION expresion
+    (344) expresion -> expresion . MODULO expresion
+    (345) expresion -> expresion . MAYMAY expresion
+    (346) expresion -> expresion . MENMEN expresion
+    (348) expresion -> expresion . HASHTAG expresion
+    (351) expresion -> expresion . Y expresion
 
     COMA            shift and go to state 1183
+    SUMA            shift and go to state 202
+    RESTA           shift and go to state 203
+    ASTERISCO       shift and go to state 204
+    DIVISION        shift and go to state 205
+    MODULO          shift and go to state 206
+    MAYMAY          shift and go to state 207
+    MENMEN          shift and go to state 208
+    HASHTAG         shift and go to state 209
+    Y               shift and go to state 210
 
 
 state 1155
@@ -33965,10 +34199,70 @@ state 1182
 
 state 1183
 
-    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA . ENTERO PAR_C
+    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA . expresion PAR_C
+    (340) expresion -> . expresion SUMA expresion
+    (341) expresion -> . expresion RESTA expresion
+    (342) expresion -> . expresion ASTERISCO expresion
+    (343) expresion -> . expresion DIVISION expresion
+    (344) expresion -> . expresion MODULO expresion
+    (345) expresion -> . expresion MAYMAY expresion
+    (346) expresion -> . expresion MENMEN expresion
+    (347) expresion -> . CEJILLA expresion
+    (348) expresion -> . expresion HASHTAG expresion
+    (349) expresion -> . S_OR expresion
+    (350) expresion -> . D_OR expresion
+    (351) expresion -> . expresion Y expresion
+    (352) expresion -> . AVG PAR_A expresion PAR_C
+    (353) expresion -> . MAX PAR_A expresion PAR_C
+    (354) expresion -> . MIN PAR_A expresion PAR_C
+    (355) expresion -> . ALL PAR_A select_insrt PAR_C
+    (356) expresion -> . SOME PAR_A select_insrt PAR_C
+    (357) expresion -> . PAR_A expresion_logica PAR_C
+    (358) expresion -> . TRUE
+    (359) expresion -> . FALSE
+    (377) expresion -> . expresion_dato
+    (378) expresion -> . select_insrt
+    (379) expresion -> . sum_insrt
+    (380) expresion -> . count_insrt
+    (85) expresion_dato -> . string_type
+    (86) expresion_dato -> . RESTA ENTERO
+    (87) expresion_dato -> . ID PUNTO ID
+    (88) expresion_dato -> . expresion_numero
+    (210) select_insrt -> . SELECT opcion_select_tm
+    (381) sum_insrt -> . SUM agrupacion_expresion
+    (382) count_insrt -> . COUNT agrupacion_expresion
+    (362) string_type -> . CADENA
+    (363) string_type -> . ID
+    (89) expresion_numero -> . ENTERO
+    (90) expresion_numero -> . FLOTANTE
 
-    ENTERO          shift and go to state 1199
+    CEJILLA         shift and go to state 143
+    S_OR            shift and go to state 144
+    D_OR            shift and go to state 145
+    AVG             shift and go to state 146
+    MAX             shift and go to state 147
+    MIN             shift and go to state 148
+    ALL             shift and go to state 149
+    SOME            shift and go to state 150
+    PAR_A           shift and go to state 186
+    TRUE            shift and go to state 151
+    FALSE           shift and go to state 152
+    RESTA           shift and go to state 142
+    ID              shift and go to state 192
+    SELECT          shift and go to state 26
+    SUM             shift and go to state 157
+    COUNT           shift and go to state 158
+    CADENA          shift and go to state 68
+    ENTERO          shift and go to state 106
+    FLOTANTE        shift and go to state 159
 
+    string_type                    shift and go to state 131
+    expresion                      shift and go to state 1199
+    select_insrt                   shift and go to state 81
+    expresion_dato                 shift and go to state 153
+    sum_insrt                      shift and go to state 154
+    count_insrt                    shift and go to state 155
+    expresion_numero               shift and go to state 156
 
 state 1184
 
@@ -34300,9 +34594,27 @@ state 1198
 
 state 1199
 
-    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO . PAR_C
+    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion . PAR_C
+    (340) expresion -> expresion . SUMA expresion
+    (341) expresion -> expresion . RESTA expresion
+    (342) expresion -> expresion . ASTERISCO expresion
+    (343) expresion -> expresion . DIVISION expresion
+    (344) expresion -> expresion . MODULO expresion
+    (345) expresion -> expresion . MAYMAY expresion
+    (346) expresion -> expresion . MENMEN expresion
+    (348) expresion -> expresion . HASHTAG expresion
+    (351) expresion -> expresion . Y expresion
 
     PAR_C           shift and go to state 1208
+    SUMA            shift and go to state 202
+    RESTA           shift and go to state 203
+    ASTERISCO       shift and go to state 204
+    DIVISION        shift and go to state 205
+    MODULO          shift and go to state 206
+    MAYMAY          shift and go to state 207
+    MENMEN          shift and go to state 208
+    HASHTAG         shift and go to state 209
+    Y               shift and go to state 210
 
 
 state 1200
@@ -34404,48 +34716,48 @@ state 1207
 
 state 1208
 
-    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .
+    (463) expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .
 
-    PTCOMA          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    UNION           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    INTERSECT       reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    EXCEPT          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    SUMA            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    RESTA           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    ASTERISCO       reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    DIVISION        reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MODULO          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MAYMAY          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MENMEN          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    HASHTAG         reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    Y               reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    COMA            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    FROM            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    AS              reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    ID              reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    PUNTO           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    PAR_C           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MAYQUE          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MENQUE          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MAYIGQUE        reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    MENIGQUE        reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    DOBLEIG         reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    IGUAL           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    NOIG            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    NOIGUAL         reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    AND             reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    OR              reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    THEN            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    RETURNING       reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    ORDER           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    LIMIT           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    END             reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    BETWEEN         reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    GROUP           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    HAVING          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    ELSE            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    WHEN            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
-    WHERE           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C .)
+    PTCOMA          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    UNION           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    INTERSECT       reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    EXCEPT          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    SUMA            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    RESTA           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    ASTERISCO       reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    DIVISION        reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MODULO          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MAYMAY          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MENMEN          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    HASHTAG         reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    Y               reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    COMA            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    FROM            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    AS              reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    ID              reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    PUNTO           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    PAR_C           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MAYQUE          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MENQUE          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MAYIGQUE        reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    MENIGQUE        reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    DOBLEIG         reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    IGUAL           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    NOIG            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    NOIGUAL         reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    AND             reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    OR              reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    THEN            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    RETURNING       reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    ORDER           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    LIMIT           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    END             reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    BETWEEN         reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    GROUP           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    HAVING          reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    ELSE            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    WHEN            reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
+    WHERE           reduce using rule 463 (expresion_wherea -> SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C .)
 
 
 state 1209

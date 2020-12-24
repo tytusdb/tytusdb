@@ -1310,6 +1310,7 @@ def procesar_select_general(instr,ts,tc):
     
     elif instr.instr1 != None and instr.instr2 != None and instr.instr3 == None and instr.listains == None and instr.listanombres != None:
         print('2')
+        arrayColumnsF = []
         if instr.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
             for datos in instr.instr1.listac:
                 print(datos.val)
@@ -1320,29 +1321,116 @@ def procesar_select_general(instr,ts,tc):
                         print(objs.operador) #SOLO ETIQUETAS
                     print(datos.expresion.etiqueta)
                 elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
-                    print(datos.val)
+                    #print(datos.val)
+                    arrayColumnsF.append(datos.val)
+
                 elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
                     print(datos.val+'.*')
                 else:
-                    print(datos.etiqueta) #RESTO DE ETIQUETAS
-        
+                    columnP = str(datos.val)+"."+str(datos.val1)
+                    arrayColumnsF.append(columnP)
+
+        arrayTablas = []
         if instr.listanombres != []:
             for datos in instr.listanombres:
                 if datos.etiqueta == TIPO_VALOR.DOBLE:
-                    print(datos.val+'.'+datos.val1)
-                elif datos.etiqueta == TIPO_VALOR.AS_ID:
+                    print(':)')
+                    #print(datos.val+'.'+datos.val1)
+                elif datos.etiqueta == TIPO_VALOR.AS_ID: #TABLA AS T
                     print(datos.val)
                     print(datos.val1.val)
-                elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None:
-                    print(datos.val)
-                    print(datos.val1)
+                elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None: #TABLA T
+                    arrayTablas.append([datos.val,datos.val1])
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
-                    print(datos.val)
+                    print(':)')
+                    #print(datos.val)
+            #print(arrayTablas)
+            #tc.obtenerColumns(useCurrentDatabase,tables[0])
+            arrayColumnsPrimera = tc.obtenerColumns(useCurrentDatabase,arrayTablas[0][0])
+            arrayColumnsSegunda = tc.obtenerColumns(useCurrentDatabase,arrayTablas[1][0])
+
+            arrayColumnsMerge = []
+            arrC = 0
+            while arrC < len(arrayTablas):
+                if arrC == 0:
+                    for arrCP in arrayColumnsPrimera:
+                        columP = str(arrayTablas[0][1])+"."+str(arrCP)
+                        arrayColumnsMerge.append(columP)
+                if arrC == 1:
+                    for arrCS in arrayColumnsSegunda:
+                        columS = str(arrayTablas[1][1])+"."+str(arrCS)
+                        arrayColumnsMerge.append(columS)
+                arrC +=1
+
+            columnsTable = arrayColumnsMerge
+            #print(arrayColumnsMerge)
+
+            arrayPrimera = j.extractTable(str(useCurrentDatabase),str(arrayTablas[0][0]))
+            arraySegunda = j.extractTable(str(useCurrentDatabase),str(arrayTablas[1][0]))
+            
+
+            arrayMerge = []
+            arrayMerge.append(arrayColumnsMerge)           
+            arrP = 0
+            while arrP < len(arrayPrimera):
+                
+                arrS = 0
+                while arrS < len(arraySegunda):
+                    arrFilas = []
+                    arrPP = 0
+                    while arrPP < len(arrayPrimera[arrP]):
+                        arrFilas.append(arrayPrimera[arrP][arrPP])
+                        arrPP +=1
+                    arrSS = 0
+                    while arrSS < len(arraySegunda[arrS]):
+                        arrFilas.append(arraySegunda[arrS][arrSS])
+                        arrSS +=1
+                    #print(arrayPrimera[arrP],arraySegunda[arrS])
+                    arrayMerge.append(arrFilas)
+                    arrS+=1
+                arrP +=1
+
+            #print(arrayMerge)
+
                     
         if instr.instr2.expwhere != None:
-            print(instr.instr2.expwhere.etiqueta)
-            print(instr.instr2.expwhere.expresion.etiqueta)
-        if instr.instr2.expgb != None:
+            arrayFilterFilter = []
+            arrayFilterFilter.append(arrayMerge[0])
+            i = 1
+            while i < len(arrayMerge):
+                arrayTS = []
+                arrayTS.append(arrayMerge[0])
+                arrayTS.append(arrayMerge[i])
+                val = resolver_expresion_logica(instr.instr2.expwhere.expresion,arrayTS)
+                if val == 1:
+                    arrayFilterFilter.append(arrayMerge[i])
+                i+=1
+        
+            arrayFilter = arrayFilterFilter
+            #print(instr.instr2.expwhere.expresion)
+            #print(instr.instr2.expwhere.etiqueta)
+            #print(instr.instr2.expwhere.expresion.etiqueta)
+
+        if '*' in arrayColumnsF:
+            for filas in arrayFilter:
+                arrayReturn.append(filas)
+
+            salida = arrayReturn
+            print(arrayReturn)
+
+        else:
+            for filasF in arrayFilter:
+                #print(filasF)
+                arrayTemp = []
+                for colF in arrayColumnsF:
+                    arrayTemp.append(filasF[columnsTable.index(colF)])
+                    #print(colF)
+                arrayReturn.append(arrayTemp)
+
+            salida = arrayReturn
+            print(arrayReturn)
+
+        '''if instr.instr2.expgb != None:
             print(instr.instr2.expgb.etiqueta)
             for datos in instr.instr2.expgb.expresion:
                 print(datos.id)
@@ -1366,7 +1454,7 @@ def procesar_select_general(instr,ts,tc):
             print(instr.instr2.expoffset.etiqueta)
             print(instr.instr2.expoffset.expresion.val)
         if instr.instr2.valor != None:
-            print(instr.instr2.valor)
+            print(instr.instr2.valor)'''
 
     elif instr.instr1 == None and instr.instr2 != None and instr.instr3 != None and instr.listains != None and instr.listanombres == None:
         print('3')
@@ -1723,6 +1811,11 @@ def resolver_expresion_aritmetica(expNum,ts):
     elif isinstance(expNum, ExpresionIdentificador) :
         pos = getPosition(ts,expNum.val)
         return ts[1][pos]
+
+    elif isinstance(expNum, ExpresionIdentificadorDoble) :
+        idd = str(expNum.val) + "." + str(expNum.val1)
+        pos = getPosition(ts,idd)
+        return ts[1][pos]
         
     elif isinstance(expNum, Expresiondatos):
         exp = resolver_expresion_aritmetica(expNum.exp1,ts)
@@ -1952,15 +2045,17 @@ def resolver_expresion_relacional(expRel,ts):
             return exp1 <= exp2
         if expRel.operador == OPERACION_RELACIONAL.DOBLEIGUAL:
             return exp1 == exp2
+        if expRel.operador == OPERACION_RELACIONAL.IGUAL:
+            return exp1 == exp2
         if expRel.operador == OPERACION_RELACIONAL.DIFERENTE:
             print('diferente')
             return exp1 != exp2
         if expRel.operador == OPCION_VERIFICAR.NULL or expRel.operador == OPCION_VERIFICAR.UNKNOWN:
-            return exp1 == ''
+            return exp1 == None
         if expRel.operador == OPCION_VERIFICAR.ISNULL:
-            return exp1 == ''
+            return exp1 == None
         if expRel.operador == OPCION_VERIFICAR.NOTNULL:
-            return exp1 != ''
+            return exp1 != None
         if expRel.operador == OPCION_VERIFICAR.TRUE:
             return exp1 == True
         if expRel.operador == OPCION_VERIFICAR.FALSE:
@@ -2106,7 +2201,7 @@ def procesar_instrucciones(instrucciones,ts,tc) :
     except:
         pass
 
-f = open("./entrada.txt", "r")
+'''f = open("./entrada.txt", "r")
 input = f.read()
 instrucciones = g.parse(input)
 
@@ -2124,5 +2219,5 @@ if listaErrores == []:
 else:
     erroressss = ErrorHTML()
     erroressss.crearReporte()
-    listaErrores = []
+    listaErrores = []'''
 
