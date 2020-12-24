@@ -58,12 +58,26 @@ ___
   <img src="imagenes/ventanareportes.jpg" width="800" alt="Mreporte">
 </p>
 
+   | **SubMenú**                         | **Función** |
+   | ----------------------            	 | ------------------------ |
+   | Reportes                            | Esta función nos permite seleccionar los datos que deseamos graficar por medio del método AVL. |
+   | Bases de Datos	                 | Se mostrará en pantalla un árbol AVL con todas las bases de datos ingresadas previamente seleccionadas para graficar. |
+   | Tablas	 	                 | Se mostrará en pantalla un árbol AVL con todas las tablas ingresadas en las bases de datos ingresadas previamente seleccionadas para graficar. |
+   | Registros		                 | Se mostrará en pantalla un árbol AVL con todos los registros ingresados en las tablas que se ingresaron en cada una de las bases de datos ingresadas previamente seleccionadas para graficar. |
+ 
+	
 ## Menú ayuda
 
 <p align="center">
   <img src="imagenes/ventanaayuda.jpg" width="800" alt="Mayuda">
 </p>
 
+   | **SubMenú**                         | **Función** |
+   | ----------------------            	 | ------------------------ |
+   | Acerca De                           | Se muestra en pantalla la información del programa. |
+   | Versión	    	                 | Se muestra en pantalla la información del estado en que se encuentra el programa. |
+   | Creditos	 	                 | Se muestra en pantalla la información de las personas que ayudaron en la creación del programa. |
+   
 # GLOSARIO
 
 	- AVL : Árbol binario de busqueda auto-balanceable.
