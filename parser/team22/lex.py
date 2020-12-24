@@ -223,7 +223,6 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
-    'CADENA_DOBLE',
     'ID',
     'COMILLA_SIMPLE'
 ] + list(reservadas.values())
@@ -281,12 +280,7 @@ def t_ID(t):
      return t
 
 def t_CADENA(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] # remuevo las comillas
-    return t 
-
-def t_CADENA_DOBLE(t):
-    r'\".*?\"'
+    r'(\'.*?\')|(\".*?\")'
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
 
