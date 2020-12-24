@@ -14,3 +14,7 @@ class ListaDobledeArboles :
     def __init__ (self) :
         self.inicio = None
         self.fin = None
+    
+    #Metodo para saber si la lista esta vacia
+    def estaVacia(self) :
+        return self.inicio is None
