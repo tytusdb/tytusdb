@@ -60,7 +60,9 @@ def parser(input):
     print(obj)
     return obj
 
-
+def astReport():
+    grammar.InitTree()
+    
 def symbolReport():
     global environments
     report = []
