@@ -31,9 +31,9 @@ class createTable(InstruccionAbstracta):
                         numColumnas = numColumnas + 1
                 except:
                     pass
-            #respuesta = jsonMode.createTable(tabalSimbolos.useDataBase,self.identificador,numColumnas)
+            respuesta = jsonMode.createTable(tabalSimbolos.useDataBase.nombre,self.identificador,numColumnas)
             #Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos inexistente, 3 tabla existente.
-            respuesta = 0
+            
             if respuesta == 2:
                 errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error, base de datos inexistente")
                 listaErrores.append(errorEnviar)
@@ -62,6 +62,19 @@ class createTable(InstruccionAbstracta):
                     try:
                         if columna.hijos[0].nombreNodo == "ID":
                             nuevaColumna = simboloColumna.SimboloColumna(indice,columna.hijos[0].valor,columna.hijos[1].valor)
+                            
+                            #Es un tipo de dato no primitivo
+                            if nuevaColumna.tipoDato == simboloColumna.TiposDatos.enum:
+                                simboloNuevo = tabalSimbolos.useDataBase.obtenerTipoDatoNoPrimitivo()
+                                if simboloNuevo != None:
+                                    # seteas la instancia de nodo simboloNuevoTipo
+                                    nuevaColumna.tipoDatoNOprimitivo = simboloNuevo                                
+                                else:
+                                    #mandas error
+
+                                    pass
+
+
                             self.especificarColumnas(columna.hijos[2],nuevaColumna,baseDatos,listaErrores)
                             tablaGuardar.agregarColumna(nuevaColumna)
                         elif columna.hijos[0].nombreNodo == "PRIMARY":
@@ -77,6 +90,7 @@ class createTable(InstruccionAbstracta):
                                     errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error 42703")
                                     listaErrores.append(errorEnviar)
                                     print("Id de columna llamado en llave no existe: " + nodoId.valor.lower())
+                                    return
                                 elif encontro == True:
                                     encontro = False  
                                         

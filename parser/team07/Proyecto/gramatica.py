@@ -777,7 +777,7 @@ def p_lista_expresiones_expresion(t):
     'lista_expresiones  :   exp_operacion'
     nodoLista = crear_nodo_general("lista_expresiones","",str(t.lexer.lineno),columna)
     nodoLista.hijos.append(t[1])
-    t[0] = t[1]
+    t[0] = nodoLista
 
     GenerarRepGram.AgregarTexto("lista_expresiones  ::=   exp_operacion\n\n\
     \t nodoLista = crear_nodo_general(\"lista_expresiones\","",str(t.lexer.lineno),columna)\n\

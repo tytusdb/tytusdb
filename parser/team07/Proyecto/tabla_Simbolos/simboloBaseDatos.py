@@ -173,7 +173,15 @@ class SimboloBaseDatos():
 
             return 0  
 
+    def obtenerTipoDatoNoPrimitivo(self, nombreTipo):
+        if len(self.nuevoTipo) == 0:
+            return None
+        else:
+            for nodoTipo in self.nuevoTipo:
+                if(nodoTipo.nombre.lower()==nombreTipo.lower()):
+                    return nodoTipo
 
+            return None
         
 
 

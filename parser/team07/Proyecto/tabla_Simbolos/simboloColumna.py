@@ -21,15 +21,50 @@ class TiposDatos(Enum):
     timestamp = 17
     nulo = 18
     default = 19
+    enum = 20
 
 
 
 class SimboloColumna():
 
     def __init__(self,indice,nombre,tipoDat):
+        if (tipoDat.lower()=="smallint"):
+            self.tipoDato = TiposDatos.smallInt
+        elif tipoDat.lower() ==  "integer":
+            self.tipoDato = TiposDatos.integer
+        elif tipoDat.lower() == "biginit":
+            self.tipoDato = TiposDatos.bigInit
+        elif tipoDat.lower() == "decimal":
+            self.tipoDato = TiposDatos.decimal
+        elif tipoDat.lower() == "numeric":
+            self.tipoDato = TiposDatos.numeric
+        elif tipoDat.lower() == "real":
+            self.tipoDato = TiposDatos.real
+        elif tipoDat.lower() == "double":
+            self.tipoDato = TiposDatos.double_precision
+        elif tipoDat.lower() == "money":
+            self.tipoDato = TiposDatos.money
+        elif tipoDat.lower() == "varchar":
+            self.tipoDato = TiposDatos.varchar
+        elif tipoDat.lower() == "character":
+            self.tipoDato = TiposDatos.character
+        elif tipoDat.lower() == "text":
+            self.tipoDato = TiposDatos.text
+        elif tipoDat.lower() == "timestamp":
+            self.tipoDato = TiposDatos.time_si_zone
+        elif tipoDat.lower() == "time":
+            self.tipoDato = TiposDatos.time_No_zone
+        elif tipoDat.lower() == "date":
+            self.tipoDato = TiposDatos.date
+        elif tipoDat.lower() == "boolean":            
+            self.tipoDato = TiposDatos.boolean
+        elif tipoDat.lower() == "interval":
+            self.tipoDato = TiposDatos.interval
+        else:
+            self.tipoDato = TiposDatos.enum
+
         self.indice = indice
-        self.nombre = nombre
-        self.tipoDato = tipoDat
+        self.nombre = nombre        
         self.defaultValue = None            # DefaultValue = None -->> Columna no tiene un valor por default
         self.null = False                   # null = false --->> NO acepta valores null
         self.primaryKey = False             # primaryKey = false --->> NO es llavaPrimaria
@@ -38,6 +73,7 @@ class SimboloColumna():
         self.columnasForanea = []           # columnaFornea --->> Guarda el nombre de la columnas a la que hace referencia la llave foránea
         self.nombreConstraint = None        # nombre del constraint, si tuviera
         self.check = None                   # instancia de clase expresion
+        self.tipoDatoNOprimitivo = None
 
 
     def crearLlavePrimaria(self):

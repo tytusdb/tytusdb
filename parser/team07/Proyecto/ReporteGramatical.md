@@ -12,6 +12,302 @@ instrucciones  ::=   instrucciones instruccion
     	 nodo.hijos.append(t[2])
     	 t[0] = nodo
 
+instruccion  ::=   use_dabatabase
+
+        	 t[0] = t[1]
+
+delete_table   ::=   DELETE FROM ID PTCOMA
+
+        	 nodoDelete = deleteTable.DeleteTable(t[3], None)
+        	 hijos.append(nodoId)
+        	 nodoDelete.setearValores(linea, columna, "DELETE_FROM", nNodo, , hijos)
+        	 t[0] = nodoDelete
+
+instrucciones  ::=   instrucciones instruccion
+
+    	 nodo = t[1]
+    	 nodo.hijos.append(t[2])
+    	 t[0] = nodo
+
+instruccion  ::=   insert_table
+
+        	 t[0] = t[1]
+
+insert_table   ::=   INSERT INTO ID VALUES lista_valores PTCOMA
+
+        	 instru = insertTable.InsertTable(t[3], [], t[5].hijos)
+        	 hijos.append(nodoId)
+        	 hijos.append(t[5])
+        	 instru.setearValores(str(linea), columna,"Insert_table", nNodo, , hijos)
+        	 t[0] = instru
+
+lista_valores  ::=   lista_valores COMA tupla
+
+        	 nodoLista = t[1]
+        	 nodoLista.hijos.append(t[3])
+        	 t[0] = nodoLista
+
+tupla  ::=   PARIZQUIERDO lista_expresiones PARDERECHO
+
+    	 nodoTupla = crear_nodo_general("Tupla", , str(t.lexer.lineno), columna)
+    	 nodoTupla.hijos.append(t[2])
+    	 t[0] = nodoTupla
+
+lista_expresiones  ::=   lista_expresiones COMA exp_operacion
+
+    	 nodoLista = t[1]
+    	 nodoLista.hijos.append(t[3])
+    	 t[0] = nodoLista
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   CADENA
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+lista_expresiones  ::=   lista_expresiones COMA exp_operacion
+
+    	 nodoLista = t[1]
+    	 nodoLista.hijos.append(t[3])
+    	 t[0] = nodoLista
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   CADENA
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+lista_expresiones  ::=   exp_operacion
+
+    	 nodoLista = crear_nodo_general("lista_expresiones",,str(t.lexer.lineno),columna)
+    	 nodoLista.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   ENTERO
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.ENTERO)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+lista_valores  ::=   lista_valores COMA tupla
+
+        	 nodoLista = t[1]
+        	 nodoLista.hijos.append(t[3])
+        	 t[0] = nodoLista
+
+tupla  ::=   PARIZQUIERDO lista_expresiones PARDERECHO
+
+    	 nodoTupla = crear_nodo_general("Tupla", , str(t.lexer.lineno), columna)
+    	 nodoTupla.hijos.append(t[2])
+    	 t[0] = nodoTupla
+
+lista_expresiones  ::=   lista_expresiones COMA exp_operacion
+
+    	 nodoLista = t[1]
+    	 nodoLista.hijos.append(t[3])
+    	 t[0] = nodoLista
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   CADENA
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+lista_expresiones  ::=   lista_expresiones COMA exp_operacion
+
+    	 nodoLista = t[1]
+    	 nodoLista.hijos.append(t[3])
+    	 t[0] = nodoLista
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   CADENA
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+lista_expresiones  ::=   exp_operacion
+
+    	 nodoLista = crear_nodo_general("lista_expresiones",,str(t.lexer.lineno),columna)
+    	 nodoLista.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   ENTERO
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.ENTERO)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+lista_valores  ::=   tupla
+
+        	 nodoLista = crear_nodo_general("Lista_valores", , str(t.lexer.lineno), columna)
+        	 nodoLista.hijos.append(t[1])
+        	 t[0] = nodoLista
+
+tupla  ::=   PARIZQUIERDO lista_expresiones PARDERECHO
+
+    	 nodoTupla = crear_nodo_general("Tupla", , str(t.lexer.lineno), columna)
+    	 nodoTupla.hijos.append(t[2])
+    	 t[0] = nodoTupla
+
+lista_expresiones  ::=   lista_expresiones COMA exp_operacion
+
+    	 nodoLista = t[1]
+    	 nodoLista.hijos.append(t[3])
+    	 t[0] = nodoLista
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   CADENA
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+lista_expresiones  ::=   lista_expresiones COMA exp_operacion
+
+    	 nodoLista = t[1]
+    	 nodoLista.hijos.append(t[3])
+    	 t[0] = nodoLista
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   CADENA
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+lista_expresiones  ::=   exp_operacion
+
+    	 nodoLista = crear_nodo_general("lista_expresiones",,str(t.lexer.lineno),columna)
+    	 nodoLista.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   ENTERO
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.ENTERO)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+instrucciones  ::=   instrucciones instruccion
+
+    	 nodo = t[1]
+    	 nodo.hijos.append(t[2])
+    	 t[0] = nodo
+
 instruccion  ::=   crear_instr
 
     	 t[0] = t[1]
