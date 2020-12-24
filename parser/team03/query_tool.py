@@ -98,9 +98,13 @@ class query_tool:
         self.reportsMenu.add_separator()
         self.reportsMenu.add_command(label = "Asc Grammar", command= self.openBNFasc)
         self.reportsMenu.add_command(label = "Desc Grammar", command= self.openBNFdesc)
+        self.reportsMenu.add_command(label = "Grammar Analysis", command= self.openBNFanalysis)
         #Menu Help
         self.helpMenu = Menu(self.barraMenu, tearoff=0)
         self.helpMenu.add_command(label = "About",command = self.seeAbout)
+        self.helpMenu.add_separator()
+        self.helpMenu.add_command(label = "Technical Manual", command= self.openTechnical)
+        self.helpMenu.add_command(label = "User Manual", command= self.openUser)
         # Barra de Menú
         self.barraMenu.add_cascade(label = "File",      menu = self.archivoMenu)
         self.barraMenu.add_cascade(label = "Run",       menu = self.runMenu)
@@ -215,10 +219,19 @@ class query_tool:
         a=os.popen('reportGrammar.md')
 
     def openBNFasc(self):
-        a=os.popen('docs\gramatica-ascendente.md')
+        a=os.popen('docs\grammars\gramatica-ascendente.md')
 
     def openBNFdesc(self):
-        a=os.popen('docs\gramatica-descendente.md')
+        a=os.popen('docs\grammars\gramatica-descendente.md')
+
+    def openBNFanalysis(self):
+        a=os.popen('docs\grammars\grammar-analysis.md')
+
+    def openTechnical(self):
+        a=os.popen('docs\\manuals\\technical-manual.md')
+
+    def openUser(self):
+        a=os.popen('docs\\manuals\\user-manual.md')
 
 def getNameAndExtensionFile(self):
         rutaSpliteada = self.rutaArchivo.split("/")
