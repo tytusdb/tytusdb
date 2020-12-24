@@ -90,6 +90,8 @@ class query_tool:
         self.reportsMenu = Menu(self.barraMenu, tearoff=0)
         self.reportsMenu.add_command(label = "Symbol Table", command=self.getST)
         self.reportsMenu.add_separator()
+        self.reportsMenu.add_command(label = "Errors", command=self.openErrors)
+        self.reportsMenu.add_separator()
         self.reportsMenu.add_command(label = "AST", command=self.openAST)
         self.reportsMenu.add_separator()
         self.reportsMenu.add_command(label = "DDS", command= self.openBNF)
@@ -137,6 +139,7 @@ class query_tool:
         self.texto =""
         self.extension = ""
         self.entrada.delete(1.0, END)
+        self.consola.delete(1.0,END)
 
     def OpenFile(self):
         '''
@@ -180,8 +183,17 @@ class query_tool:
         '''
         Llamada a la clase main del proyecto, envía el texto que está en el área de entrada
         '''
+        self.consola.delete(1.0,END)
         self.inputText = self.entrada.get("1.0","end")
         grammarReview(self.inputText)
+
+    def openErrors(self):
+        ST0 = '\n\n\n============== ERROR REPORT ==============\n'
+        ST1 = grammarReview.report_errors(self)
+        ST2 = '\n'
+        self.consola.insert(INSERT,ST0)
+        self.consola.insert(INSERT,ST1)
+        self.consola.insert(INSERT,ST2)
 
     def getST(self):
         ST0 = '\n\n\n+------------- SYMBOL TABLE REPORT --------------+\n'
