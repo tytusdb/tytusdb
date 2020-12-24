@@ -1689,6 +1689,7 @@ def p_ordenar3(t):
 # --------------------------------------------------------------
 # aqui imician los select que vienen sin union intersect o excep
 # select 's
+
 def p_instselect(t):
     '''select2 : SELECT DISTINCT select_list FROM inner orderby
                     '''
@@ -1849,7 +1850,8 @@ def p_instselect6(t):
 
 def p_selectList(t):
     '''select_list  : MULT
-                    | list'''
+                    | list
+                    '''
     t[0] = t[1]
     if t[1] == '*':
         varGramatical.append('select_list ::= MULT')
@@ -1916,6 +1918,7 @@ def p_prim(t):
                 | trig
                 | bina
                 | Time
+                | E
                 '''
     t[0] = t[1]
     varGramatical.append('prim ::=  var')
@@ -1987,7 +1990,6 @@ def p_math2(t):
                 | SIGN PARIZQ E PARDR
                 | SQRT PARIZQ E PARDR
                 | TRUC PARIZQ E PARDR
-                | WIDTH_BUCKET PARIZQ E PARDR
                 | SETSEED PARIZQ E PARDR
                 | SUM PARIZQ E PARDR
                 | MD5 PARIZQ E PARDR
@@ -2000,9 +2002,12 @@ def p_math2(t):
                 | TRUNC PARIZQ E PARDR
                 '''
     global columna
-    t[0] = Math_(t[1].upper(), t[3], None, lexer.lineno, columna)
+    t[0] = Math_(str(t[1]).upper(), t[3], None, lexer.lineno, columna)
     varGramatical.append('math ::= ' + str(t[1]) + ' ' + str(t[2]) + ' E ' + str(t[4]))
     varSemantico.append('math = Math_(' + str(t[1].upper() + '), E, None) '))
+
+
+
 
 def p_mathnotocar(t):
     'math : COUNT PARIZQ MULT PARDR'
@@ -2047,6 +2052,7 @@ def p_math6(t):
     varSemantico.append('math =  Math_(' + str(t[1].upper()) + ', None, None)')
 
 
+
 def p_binarios(t):
     '''bina : LENGTH PARIZQ E PARDR
             | SHA256 PARIZQ E PARDR
@@ -2055,26 +2061,26 @@ def p_binarios(t):
             '''
     global columna
     if t[1].upper() == 'LENGTH':
-        t[0] = Binario(1, t[3], None, None, lexer.lineno, columna)
+        t[0] = Binario(1, t[3], t[1].upper(), None, lexer.lineno, columna)
         varGramatical.append('bina ::= LENGTH PARIZQ E PARDR')
         varSemantico.append('bina =  Binario(1, E, None, None)')
     elif t[1].upper() == 'SHA256':
-        t[0] = Binario(2, t[3], None, None, lexer.lineno, columna)
+        t[0] = Binario(2, t[3], t[1].upper(), None, lexer.lineno, columna)
         varGramatical.append('bina ::= SHA256 PARIZQ E PARDR')
         varSemantico.append('bina =  Binario(2, E, None, None)')
     elif t[1].upper() == 'ENCODE':
-        t[0] = Binario(3, t[3], None, None, lexer.lineno, columna)
+        t[0] = Binario(3, t[3], t[1].upper(), None, lexer.lineno, columna)
         varGramatical.append('bina ::= ENCODE PARIZQ E PARDR')
         varSemantico.append('bina =  Binario(3, E, None, None)')
     elif t[1].upper() == 'DECODE':
-        t[0] = Binario(4, t[3], None, None, lexer.lineno, columna)
+        t[0] = Binario(4, t[3], t[1].upper(), None, lexer.lineno, columna)
         varGramatical.append('bina ::= DECODE PARIZQ E PARDR')
         varSemantico.append('bina =  Binario(4, E, None, None)')
 
 
 def p_binarios2(t):
-    '''bina : SUBSTRING PARIZQ var COMA ENTERO COMA ENTERO PARDR
-            | SUBSTR PARIZQ var COMA ENTERO COMA ENTERO PARDR'''
+    '''bina : SUBSTRING PARIZQ E COMA ENTERO COMA ENTERO PARDR
+            | SUBSTR PARIZQ E COMA ENTERO COMA ENTERO PARDR'''
     global columna
     t[0] = Binario(5, t[3], t[5], t[7], lexer.lineno, columna)
     if t[1].lower() == 'substring':
@@ -2096,7 +2102,7 @@ def p_binarios3(t):
 def p_binarios4(t):
     '''bina : GET_BYTE PARIZQ CADENA COMA ENTERO PARDR'''
     global columna
-    t[0] = Binario(7, t[3], t[5], None, lexer.lineno, columna)
+    t[0] = Binario(7, t[1],t[3], t[5], lexer.lineno, columna)
     varGramatical.append('bina ::= GET_BYTE PARIZQ CADENA COMA ENTERO PARDR')
     varSemantico.append('bina =  Binario(7, CADENA, ENTERO, None)')
 
@@ -2291,6 +2297,7 @@ def procesar_instrucciones(instrucciones, ts):
                 selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
             elif (instr.caso == 4):
                 Selectp3.ejecutar(instr, ts, consola, exceptions,True)
+                print("ejecute select 4")
             elif (instr.caso == 5):
                 Selectp4.ejecutar(instr, ts, consola, exceptions,True)
             elif (instr.caso == 6):

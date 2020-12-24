@@ -1,0 +1,236 @@
+/*SELECT nombre,indentificacion,sum(salario)
+FROM tbsujeto
+where nombre = 'carros' and a.apellido LIKE 'santos' or apellido ILIKE 'compiladores'
+GROUP BY nombre,indentificacion
+HAVING sum(salario)>100000;
+
+
+SELECT a.nombre 'carro',a.indentificacion alias,sum(salario) 'mi salario'
+FROM tbsujeto as a, tabla2 as m
+where not a.nombre != 'carros'
+GROUP BY a.nombre,a.indentificacion
+HAVING sum(salario)>100000;
+
+
+SELECT a.nombre,a.indentificacion as 'dato',sum(salario)  as salario, now() as 'hora actual'
+FROM tbsujeto a, tabla2 m
+where a.nombre = 'carros'
+GROUP BY a.nombre,a.indentificacion
+HAVING sum(salario)<>100000;
+
+SELECT s.id, s.nombre 
+FROM sujeto s
+GROUP BY s.id ASC;
+
+SELECT u.dpi, u.apellido
+FROM usuario u
+GROUP BY u.dpi DESC
+HAVING sum(algo) > 1200;
+*/
+/*
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
+
+CREATE TABLE prueba(
+    id integer,
+    name varchar(10),
+     PRIMARY KEY(contact_id)
+);
+CREATE TABLE usuario(
+    id integer not NULL primary key,
+    email varchar(23) unique not null default 1234,
+    foto VARCHAR(200) DEFAULT '/assets/fotoperfil.png',
+    CONSTRAINT categoriaProductoFK FOREIGN KEY (idCategoria) REFERENCES CATEGORIA (id),
+    CONSTRAINT usuarioProductoFK FOREIGN KEY (idVendedor) REFERENCES USUARIO (id)
+);
+
+INSERT INTO customers(customer_name)
+VALUES('BlueBird Inc');
+
+INSERT INTO contacts(customer_id, contact_name, phone, email)
+VALUES(1,'John Doe','(408)-111-1234','john.doe@bluebird.dev');
+
+INSERT INTO products VALUES (1, 'Cheese', 9.99);
+
+UPDATE products SET price = -10 ^ 6, price = price + !!!10, id = 2 <> 3 WHERE price = 5;
+
+DELETE FROM products WHERE price >= 10 and pr == 'pr' or not false or not d < 9 and id in ('a','b','c') and fechanacimiento between '2004-01-01' and '2005-01-01';
+
+DELETE FROM products WHERE edad BETWEEN 5 and 25;
+
+
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
+SELECT CURRENT_DATE;
+SELECT CURRENT_TIME;
+SELECT TIMESTAMP 'now';
+
+
+create table employees (
+
+id SERIAL PRIMARY KEY,
+
+first_name varchar(30),
+last_name varchar(40),
+birth_date DATE CHECK (birth_date > '1900-01-01'),
+joined_date DATE CHECK (joined_date > birth_date),
+salary numeric CHECK (salary >0)
+
+);
+
+
+
+select *
+from tbsujeto
+where a.edad between 5 and 25;
+
+
+
+select distinct puesto
+from tbempleado;
+select distinct puesto,salario
+from tbempleado;
+select *
+from tbcolaborador
+where nombre is distinct from 'sujeto1';
+select *
+from tbcolaborador
+where nombre is not distinct from 'sujeto1';
+
+
+select *
+from tbcolaborador
+where substring(dato,1,4) = 'sujeto1';
+
+
+select greatest(1,2,3,4,5);
+select greatest('1970-12-10','2000-11-11','2019-01-01');
+select GREATEST('2030-02-20',now());
+select least(1,2,3,3,5);
+select least('a','b','c','aa');
+
+
+select nombre , count (id)
+from tbcolaboradeores c
+inner join tbindentificadorcolaborardor A on A.idcolaborador= C.id
+group by nombre
+having count (id)>1;
+
+
+select nombre , count (id)
+from tbcolaboradeores c
+inner join tbindentificadorcolaborardor A on A.idcolaborador= C.id
+group by nombre;
+
+select id,count(*)
+from columna
+group by id;
+
+
+select cos(0) as 'coseno de cero', ACOS(0) as 'coseno invers',width_bucket(1,23,4,5);
+
+insert into tbusarui values (md5('hola'),3434);
+
+select *
+from (select nombre,fechanacimiento
+ from tbcolaborador
+ where substring(nombre,1,4) = 'suje') A;
+
+
+ (select A.nombre,A.fechanacimiento,(select identificacion from
+tbidentificacioncolaborador B where B.idcolaborador = A.id )
+ from tbcolaborador A
+ where substring(nombre,1,4) = 'suje')
+
+UNION
+
+(select A.nombre,A.fechanacimiento
+ from tbcolaborador A
+ where substring(nombre,1,4) = 'suje'
+ and A.id not in (select idcolaborador from
+tbidentificacioncolaborador B) order by marcos limit 5 offset 9);
+*/
+/*
+select CASE when nombre = 'sujeto3' then 'Juan Carlos'
+ when nombre = 'sujeto4' then 'Luis Espino'
+ end Nombrecambiado
+ from tbcolaborador A
+ where substring(nombre,1,4) = 'suje'
+ and A.id not in (select idcolaborador from
+tbidentificacioncolaborador B) ;
+
+*/
+/*
+alter table nombretabla
+add constraint nombre
+foreign key (nombre)
+references  nombre (campo);
+
+alter table marocs
+add constraint asddasd_asdas_Asd
+unique (documento)
+add constraint nombre
+primary key (hola)
+add column af, sg char(4)
+drop column c1, c3, c4;
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+
+
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20i:38:40');
+SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
+SELECT now();
+SELECT CURRENT_DATE;
+SELECT CURRENT_TIME;
+SELECT TIMESTAMP 'now';
+
+INSERT INTO tbcolaborador values (5,'sujeto5', now());
+
+ALTER DATABASE NAME OWNER TO 'JC';*/
+
+--SELECT TIMESTAMP 'now';
+/*
+select *
+from tbsujeto ;*/
+
+use database basededatos1;
+
+/*select nombre , count (id)
+from tbcolaboradeores c
+inner join tbindentificadorcolaborardor A on A.idcolaborador= C.id
+group by nombre asc;*/
+/*
+drop database db1;
+drop database if exists db2;
+drop table t1;
+INSERT INTO products VALUES (1, 'Cheese', 9.99);
+UPDATE products SET price = -!10 ^ !-6, price = !price + !!10, id = 2 <> 3, unario = !!!u + 8, neg = !!!n WHERE 4 > 5 and e = 3 or f = n or not true
+and p.price IS NOT DISTINCT FROM 32;
+*/
+--insert into tbpuesto values (2,'Asistente Contable','4,500',false);
+/*INSERT INTO products VALUES (1, 'Cheese', 9.99, count(*) + cos(2), tan(id) - factorial(3) * now());
+INSERT INTO products (id, producto, precio) VALUES (1, 'Cheese', 9.99, sum(2), 2 + 2, now());
+
+not false;
+price not in (5,6,7,8);
+price not in (select * from producto);
+price between 5 and 8;
+price = 5;
+p.price is false;
+col like 2;
+exists (3, '23', m);
+exists (select * from producto);*/

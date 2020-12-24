@@ -31,14 +31,9 @@ class selectTime(Instruccion):
         #si pueden ir a buscar la bd actual
 
 
-        #simular
-        insert('test','tblibrosalario',[1,2020,10,1300,10.30])
-        insert('test','tblibrosalario',[2,2020,10,1300,10.30])
-        insert('test','tblibrosalario',[3,2020,10,1300,10.30])
 
 
-        #van usar
-        extractTable('test','tblibrosalario')
+
 
         x = PrettyTable()
 

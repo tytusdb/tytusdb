@@ -1,3 +1,5 @@
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
 from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import *
 from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
 import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
@@ -18,6 +20,9 @@ class Selectp3(Instruccion):
         x = PrettyTable()
         rowpp=[]
         en=[]
+        aux =0
+
+        print(Select.columnas)
 
         for columna in Select.columnas:
             i=0
@@ -43,20 +48,32 @@ class Selectp3(Instruccion):
                     en.append(columna.id2.valor)
                 else:
                     en.append(columna.id2.id)
-
-
                 val = IdAsId.Resolver(columna,Consola)
                 rowpp.append(str(val))
                 #Consola.append('what -- ' + str(val)+ '\n')
             elif isinstance(columna,Math_): #hay que resolver
-                en.append(str(columna.nombre))
+                en.append(str(columna.nombre+str(aux)))
                 val=Math_.Resolver(columna,Consola,Consola,exceptions)
                 rowpp.append(str(val))
+                aux = aux + 1
                 #Consola.append('what -- ' + type(columna).__name__ + '\n')
             elif isinstance(columna,Trigonometrica):  #hay que resolver
-                en.append(str(columna.trig))
+                en.append(str(columna.trig+str(aux)))
                 REST=Trigonometrica.Resolver(columna,ts,Consola,exceptions)
                 rowpp.append(str(REST))
+                aux = aux + 1
+                #Consola.append('what -- ' + str(REST) + '\n')
+            elif isinstance(columna,Expresion):  #hay que resolver
+                en.append(str("col"+str(aux)))
+                REST=Expresion.Resolver(columna,ts,Consola,exceptions)
+                rowpp.append(str(REST))
+                aux = aux+1
+                #Consola.append('what -- ' + str(REST) + '\n')
+            elif isinstance(columna,Binario):  #hay que resolver
+                en.append(str("col"+str(aux)))
+                REST=Binario.Resolver(columna,ts,Consola,exceptions)
+                rowpp.append(str(REST))
+                aux = aux+1
                 #Consola.append('what -- ' + str(REST) + '\n')
             i= i + 1
 

@@ -3,7 +3,7 @@ from graphviz import Digraph
 import ply.lex as lex
 import ply.yacc as yacc
 import re
-import tytus.parser.team21.Analisis_Descendente.ReporteGramatical as ReporteGramatical
+import Compi2RepoAux.team21.Analisis_Descendente.ReporteGramatical as ReporteGramatical
 
 # Analisis lexico
 lista = []
@@ -302,6 +302,7 @@ def p_instruccion_showdatabase(t):
     gramatica = 'instruccion ::= \'SHOW\' \'DATABASES\' opcional3   \';\''
     lista.append(gramatica)
     t[0] = t[1]
+
 
 
 def p_alterfacotizar(t):

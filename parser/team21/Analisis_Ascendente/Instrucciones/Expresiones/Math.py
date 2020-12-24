@@ -28,6 +28,7 @@ class Math_(Instruccion):
                     return random.random()
             else:
 
+
                 if mathe.E2 == None: # operaciones de un valor
                     num1 = Math_.Resolver(mathe.E1,ts,Consola,exceptions)
                     if mathe.nombre == 'LN' or mathe.nombre == 'LOG':
@@ -66,7 +67,31 @@ class Math_(Instruccion):
                     elif mathe.nombre == 'MD5':
                         return hashlib.md5(str(num1).encode("utf-8")).hexdigest()
                     elif mathe.nombre == 'WIDTH_BUCKET':
-                        return 3
+                        print("whidth bucket")
+                        print(mathe.E1)
+                        elementos = mathe.E1
+
+                        valor = elementos[0].valor
+                        min = elementos[1].valor
+                        max = elementos[2].valor
+                        count = elementos[3].valor
+
+
+                        temp = (max - min) / count
+                        contador = float(min)
+                        cubo = 0
+                        if float(valor) == contador:
+                            return 1
+                        while contador < float(max):
+                            if float(valor) < contador:
+                                return cubo
+
+                            contador += temp
+                            cubo += 1
+
+                        return cubo + 1
+
+
                 else:
                     num1 = Math_.Resolver(mathe.E1,ts,Consola,exceptions)
                     num2 = Math_.Resolver(mathe.E2,ts,Consola,exceptions)

@@ -24,6 +24,7 @@ class TIPO_DATO(Enum):
     FUNCIONDEAGREGACION = 20
     BASEDEDATOS = 21
     USE = 22
+    CLASEENUMERADA = 23
 
 
 
@@ -40,6 +41,7 @@ class Simbolo():
         self.tipo = tipo
         self.valor = valor
         self.Entorno = Entorno
+
 
 
 #Aqui se define la tabla de simbolos , cada tabla define un nuevo entorno
