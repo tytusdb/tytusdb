@@ -3034,6 +3034,24 @@ def p_final_invocacion(t):
     nodeFather.son.append(nodeSon3)
     
     t[0] = nodeFather
+def p_final_invocacion_2(t):
+    'final          : ID PUNTO POR'
+    nodeFather = nodeAst()
+    nodeFather.token = 'final'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ID'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'POR'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+    
+    t[0] = nodeFather
+
+
 def p_final_cadena(t):
     'final          : CADENA'
     nodeFather = nodeAst()
@@ -4091,6 +4109,7 @@ def p_select_1(t):
 
         nodeSon11 = nodeAst()
         nodeSon11.token = 'FROM'
+        nodeSon11.lexeme = t[3]
         nodeFather.son.append(nodeSon11)
 
         nodeSon2 = t[4]
@@ -4098,6 +4117,7 @@ def p_select_1(t):
 
         nodeSon111 = nodeAst()
         nodeSon111.token = 'WHERE'
+        nodeSon111.lexeme = t[5]
         nodeFather.son.append(nodeSon111)
 
         nodeSon22 = t[6]
@@ -4116,6 +4136,7 @@ def p_select_1(t):
 
         nodeSon11 = nodeAst()
         nodeSon11.token = 'FROM'
+        nodeSon11.lexeme = t[3]
         nodeFather.son.append(nodeSon11)
 
         nodeSon2 = t[4]
@@ -4123,6 +4144,7 @@ def p_select_1(t):
 
         nodeSon111 = nodeAst()
         nodeSon111.token = 'WHERE'
+        nodeSon111.lexeme = t[5]
         nodeFather.son.append(nodeSon111)
 
         nodeSon22 = t[6]
@@ -4186,7 +4208,6 @@ def p_select_2(t):
 
         nodeSon2 = t[4]
         nodeFather.son.append(nodeSon2)
-
 
         t[0] = nodeFather
         
