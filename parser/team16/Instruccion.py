@@ -635,6 +635,8 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
             elif isinstance(resultado, list):
                 if len(resultado) == 0:
                     banderilla = True
+            elif isinstance(resultado, bool):
+                banderilla = False
             else:
                 print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.2222")
                 for r in resultado:
@@ -645,12 +647,13 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                 titulos.append(str(campo))
 
             lis = []
-            for t in titulos:
-                for res in resultado:
-                    for item in ts_global.Datos:
-                        x: DatoInsert = ts_global.obtenerDato(item)
-                        if t == x.columna and x.fila == res.fila:
-                            lis.append(x)
+            if (isinstance(resultado, list)):
+                for t in titulos:
+                    for res in resultado:
+                        for item in ts_global.Datos:
+                            x: DatoInsert = ts_global.obtenerDato(item)
+                            if t == x.columna and x.fila == res.fila:
+                                lis.append(x)
 
             nuevoDicc = {}
             # ingreso lista final FALTA
@@ -679,6 +682,7 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
             print("Aqui vienee la salida <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
             print(nuevoDicc)
             # mostrarConsulta(nuevoDicc)
+
 
         elif (isinstance(tiposCuerpo, GroupBy)):
             print("Vamos a ver los tipos de grupos a realizar ")
@@ -3247,6 +3251,8 @@ class Select2(Instruccion) :
                 elif isinstance(resultado, list):
                     if len(resultado) == 0:
                         banderilla = True
+                elif isinstance(resultado,bool):
+                        banderilla = False
                 else:
                     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.2222")
                     for r in resultado:
@@ -3257,16 +3263,14 @@ class Select2(Instruccion) :
                 for campo in listaGeneral:
                     titulos.append(str(campo))
 
-
-
-
                 lis = []
-                for t in titulos:
-                    for res in resultado:
-                        for item in ts_global.Datos:
-                            x: DatoInsert = ts_global.obtenerDato(item)
-                            if t == x.columna and x.fila == res.fila:
-                                lis.append(x)
+                if(isinstance(resultado,list)):
+                    for t in titulos:
+                        for res in resultado:
+                            for item in ts_global.Datos:
+                                x: DatoInsert = ts_global.obtenerDato(item)
+                                if t == x.columna and x.fila == res.fila:
+                                    lis.append(x)
 
 
 
@@ -5709,6 +5713,11 @@ class Select4(Instruccion) :
 
                 if resultado is None:
                     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.")
+                elif isinstance(resultado, list):
+                    if len(resultado) == 0:
+                        banderilla = True
+                elif isinstance(resultado,bool):
+                        banderilla = False
                 else:
                     print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++SELECT: No existen registros.2222")
                     for r in resultado:
@@ -5719,16 +5728,14 @@ class Select4(Instruccion) :
                 for campo in listaGeneral:
                     titulos.append(str(campo))
 
-
-
-
                 lis = []
-                for t in titulos:
-                    for res in resultado:
-                        for item in ts_global.Datos:
-                            x: DatoInsert = ts_global.obtenerDato(item)
-                            if t == x.columna and x.fila == res.fila:
-                                lis.append(x)
+                if(isinstance(resultado,list)):
+                    for t in titulos:
+                        for res in resultado:
+                            for item in ts_global.Datos:
+                                x: DatoInsert = ts_global.obtenerDato(item)
+                                if t == x.columna and x.fila == res.fila:
+                                    lis.append(x)
 
 
 
@@ -5742,7 +5749,6 @@ class Select4(Instruccion) :
                             lis2.append(u.valor)
                     nuevoDicc[t] = lis2
 
-
                     dicci={}
                     dicci.update(nuevoDicc)
 
@@ -5750,7 +5756,10 @@ class Select4(Instruccion) :
                         if(len(nuevoDicc.get(nn))>0):
                             print("")
                         else:
-                            del dicci[nn]
+                            if banderilla:
+                                print("")
+                            else:
+                                del dicci[nn]
                     listaGeneral.update(dicci)
                     dicci.clear()
 
@@ -5758,6 +5767,7 @@ class Select4(Instruccion) :
                 print("Aqui vienee la salida <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
                 print(nuevoDicc)
                 #mostrarConsulta(nuevoDicc)
+
 
             elif (isinstance(tiposCuerpo, GroupBy)):
                 print("Vamos a ver los tipos de grupos a realizar ")
