@@ -153,7 +153,36 @@ def procesar_aritmetica(expresion, ts):
         else:
             agregarErrorDatosOperacion(val, val2, "%", "numerico", 0,0)
             return None
-
+    elif expresion.operador == OPERACION_BIT_A_BIT.AND:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val & val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "&", "entero", 0,0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.OR:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val | val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "|", "entero", 0,0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.XOR:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val ^ val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "#", "entero", 0,0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.SHIFT_DER:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val >> val2
+        else:
+            agregarErrorDatosOperacion(val, val2, ">>", "entero", 0,0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.SHIFT_IZQ:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val << val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "<<", "entero", 0,0)
+            return None
 
 def procesar_relacional(expresion, ts):
     val = procesar_expresion(expresion.exp1, ts)
@@ -508,6 +537,13 @@ def procesar_unitaria_aritmetica(expresion, ts):
             return val * val * val
         else:
             agregarErrorDatosOperacion(val, "", "||", "numerico", 0, 0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.COMPLEMENTO:
+
+        if isinstance(val, int):
+            return ~val
+        else:
+            agregarErrorDatosOperacion(val, "", "~", "entero", 0, 0)
             return None
 
 
@@ -1666,6 +1702,8 @@ def procesar_expresion_select(expresiones, ts):
         return procesar_variable(expresiones, ts)
     elif isinstance(expresiones, UnitariaAritmetica):
         return procesar_unitaria_aritmetica_select(expresiones, ts)
+    # elif isinstance(expresiones, ExpresionFuncion):
+    #     return procesar_funcion_columna(expresiones, ts)
 
     elif isinstance(expresiones, AccesoSubConsultas):
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ENtre sub where")
@@ -1731,6 +1769,36 @@ def procesar_aritmetica_select(expresion, ts):
             return pow(val, val2)
         else:
             agregarErrorDatosOperacion(val, val2, "*", "numerico", 0, 0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.AND:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val & val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "&", "entero", 0,0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.OR:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val | val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "|", "entero", 0,0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.XOR:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val ^ val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "#", "entero", 0,0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.SHIFT_DER:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val << val2
+        else:
+            agregarErrorDatosOperacion(val, val2, ">>", "entero", 0,0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.SHIFT_DER:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val >> val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "<<", "entero", 0,0)
             return None
 
 
@@ -2186,13 +2254,18 @@ def procesar_negAritmetica_columna(expresion, ts):
 
 
 def procesar_variable_columna(tV, ts):
-    global ListaTablasG
+    global ListaTablasG, baseN
     variable = tV
     listaRes = []
+
+    print('valores de arreglos')
+    print(len(ListaTablasG))
+    print(len(baseN))
     for item in ts.Datos:
         v: DatoInsert = ts.obtenerDato(item)
+
         # Se obtienen los datos de la columna.
-        if str(v.columna) == str(variable.id) and str(v.bd) == str(baseN[0]):
+        if str(v.columna) == str(variable.id) and str(v.bd) == str(baseN[0]) and str(v.tabla) == str(ListaTablasG[0]):
             print(" <> En listar: " + str(v.valor))
             listaRes.append(v.valor)
     print(" <><>")
@@ -2286,7 +2359,7 @@ def procesar_aritmetica_columna(expresion, ts):
             result = []
             for item in val2:
                 if isinstance(item, int) or isinstance(item, float):
-                    result.append(item - val)
+                    result.append(val - item)
                 else:
                     agregarErrorDatosOperacion(val, item, "-", "numerico", 0, 0)
                     result.append(0)
@@ -2296,7 +2369,7 @@ def procesar_aritmetica_columna(expresion, ts):
             result = []
             for item in val:
                 if isinstance(item, int) or isinstance(item, float):
-                    result.append(val2 - item)
+                    result.append(item - val2)
                 else:
                     agregarErrorDatosOperacion(val, item, "-", "numerico", 0, 0)
                     result.append(0)
@@ -2306,7 +2379,7 @@ def procesar_aritmetica_columna(expresion, ts):
             if len(val2) == len(val):
                 result = []
                 for i, v in enumerate(val):
-                    result.append(val2[i] - v)
+                    result.append(v - val2[i])
                 return result.copy()
             else:
                 agregarErrorDatosOperacion(val, val2, "-", "arreglos numericos de la misma longitud", 0, 0)
@@ -2358,7 +2431,7 @@ def procesar_aritmetica_columna(expresion, ts):
             result = []
             for item in val2:
                 if isinstance(item, int) or isinstance(item, float):
-                    result.append(item / val)
+                    result.append(val / item)
                 else:
                     agregarErrorDatosOperacion(val, item, "/", "numerico", 0, 0)
                     result.append(0)
@@ -2368,7 +2441,7 @@ def procesar_aritmetica_columna(expresion, ts):
             result = []
             for item in val:
                 if isinstance(item, int) or isinstance(item, float):
-                    result.append(val2 / item)
+                    result.append(item/val2)
                 else:
                     agregarErrorDatosOperacion(val, item, "/", "numerico", 0, 0)
                     result.append(0)
@@ -2378,7 +2451,7 @@ def procesar_aritmetica_columna(expresion, ts):
             if len(val2) == len(val):
                 result = []
                 for i, v in enumerate(val):
-                    result.append(val2[i] / v)
+                    result.append(v / val2[i])
                 return result.copy()
             else:
                 agregarErrorDatosOperacion(val, val2, "/", "arreglos numericos de la misma longitud", 0, 0)
@@ -2393,7 +2466,7 @@ def procesar_aritmetica_columna(expresion, ts):
             result = []
             for item in val2:
                 if isinstance(item, int) or isinstance(item, float):
-                    result.append(item % val)
+                    result.append(val % item)
                 else:
                     agregarErrorDatosOperacion(val, item, "%", "numerico", 0, 0)
                     result.append(0)
@@ -2403,7 +2476,7 @@ def procesar_aritmetica_columna(expresion, ts):
             result = []
             for item in val:
                 if isinstance(item, int) or isinstance(item, float):
-                    result.append(val2 % item)
+                    result.append(item % val2)
                 else:
                     agregarErrorDatosOperacion(val, item, "%", "numerico", 0, 0)
                     result.append(0)
@@ -2413,7 +2486,7 @@ def procesar_aritmetica_columna(expresion, ts):
             if len(val2) == len(val):
                 result = []
                 for i, v in enumerate(val):
-                    result.append(val2[i] % v)
+                    result.append(v % val2[i])
                 return result.copy()
             else:
                 agregarErrorDatosOperacion(val, val2, "%", "arreglos numericos de la misma longitud", 0, 0)
@@ -2428,7 +2501,7 @@ def procesar_aritmetica_columna(expresion, ts):
             result = []
             for item in val2:
                 if isinstance(item, int) or isinstance(item, float):
-                    result.append(item ** val)
+                    result.append(val ** item)
                 else:
                     agregarErrorDatosOperacion(val, item, "^", "numerico", 0, 0)
                     result.append(0)
@@ -2438,7 +2511,7 @@ def procesar_aritmetica_columna(expresion, ts):
             result = []
             for item in val:
                 if isinstance(item, int) or isinstance(item, float):
-                    result.append(val2 ** item)
+                    result.append(item ** val2)
                 else:
                     agregarErrorDatosOperacion(val, item, "^", "numerico", 0, 0)
                     result.append(0)
@@ -2448,14 +2521,186 @@ def procesar_aritmetica_columna(expresion, ts):
             if len(val2) == len(val):
                 result = []
                 for i, v in enumerate(val):
-                    result.append(val2[i] ** v)
+                    result.append(v ** val2[i])
                 return result.copy()
             else:
                 agregarErrorDatosOperacion(val, val2, "^", "arreglos numericos de la misma longitud", 0, 0)
         else:
             agregarErrorDatosOperacion(val, val2, "^", "numerico", 0, 0)
             return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.AND:
+        if (isinstance(val, int) and isinstance(val2, int)):
+            return val & val2
+        elif isinstance(val, int) and isinstance(val2, list):
+            result = []
+            for item in val2:
+                if isinstance(item, int):
+                    result.append(val & item)
+                else:
+                    agregarErrorDatosOperacion(val, item, "&", "entero", 0, 0)
+                    result.append(0)
 
+            return result.copy()
+        elif isinstance(val2, int) and isinstance(val, list):
+            result = []
+            for item in val:
+                if isinstance(item, int):
+                    result.append(item & val2)
+                else:
+                    agregarErrorDatosOperacion(val, item, "&", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, list) and isinstance(val, list):
+            if len(val2) == len(val):
+                result = []
+                for i, v in enumerate(val):
+                    result.append(v & val2[i])
+                return result.copy()
+            else:
+                agregarErrorDatosOperacion(val, val2, "&", "arreglos de enteros de la misma longitud", 0, 0)
+        else:
+            agregarErrorDatosOperacion(val, val2, "&", "entero", 0, 0)
+            return None
+
+    elif expresion.operador == OPERACION_BIT_A_BIT.OR:
+        if (isinstance(val, int) and isinstance(val2, int)):
+            return val | val2
+        elif isinstance(val, int) and isinstance(val2, list):
+            result = []
+            for item in val2:
+                if isinstance(item, int):
+                    result.append(val | item)
+                else:
+                    agregarErrorDatosOperacion(val, item, "|", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, int) and isinstance(val, list):
+            result = []
+            for item in val:
+                if isinstance(item, int):
+                    result.append(item | val2)
+                else:
+                    agregarErrorDatosOperacion(val, item, "|", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, list) and isinstance(val, list):
+            if len(val2) == len(val):
+                result = []
+                for i, v in enumerate(val):
+                    result.append(v | val2[i])
+                return result.copy()
+            else:
+                agregarErrorDatosOperacion(val, val2, "|", "arreglos de enteros de la misma longitud", 0, 0)
+        else:
+            agregarErrorDatosOperacion(val, val2, "|", "entero", 0, 0)
+            return None
+
+    elif expresion.operador == OPERACION_BIT_A_BIT.XOR:
+        if (isinstance(val, int) and isinstance(val2, int)):
+            return val ^ val2
+        elif isinstance(val, int) and isinstance(val2, list):
+            result = []
+            for item in val2:
+                if isinstance(item, int):
+                    result.append(val ^ item)
+                else:
+                    agregarErrorDatosOperacion(val, item, "#", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, int) and isinstance(val, list):
+            result = []
+            for item in val:
+                if isinstance(item, int):
+                    result.append(item ^ val2)
+                else:
+                    agregarErrorDatosOperacion(val, item, "#", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, list) and isinstance(val, list):
+            if len(val2) == len(val):
+                result = []
+                for i, v in enumerate(val):
+                    result.append(v ^ val2[i])
+                return result.copy()
+            else:
+                agregarErrorDatosOperacion(val, val2, "#", "arreglos de enteros de la misma longitud", 0, 0)
+        else:
+            agregarErrorDatosOperacion(val, val2, "#", "entero", 0, 0)
+            return None
+
+    elif expresion.operador == OPERACION_BIT_A_BIT.SHIFT_DER:
+        if (isinstance(val, int) and isinstance(val2, int)):
+            return val >> val2
+        elif isinstance(val, int) and isinstance(val2, list):
+            result = []
+            for item in val2:
+                if isinstance(item, int):
+                    result.append(val >> item)
+                else:
+                    agregarErrorDatosOperacion(val, item, ">>", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, int) and isinstance(val, list):
+            result = []
+            for item in val:
+                if isinstance(item, int):
+                    result.append(item >> val2)
+                else:
+                    agregarErrorDatosOperacion(val, item, ">>", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, list) and isinstance(val, list):
+            if len(val2) == len(val):
+                result = []
+                for i, v in enumerate(val):
+                    result.append(v >> val2[i])
+                return result.copy()
+            else:
+                agregarErrorDatosOperacion(val, val2, ">>", "arreglos de enteros de la misma longitud", 0, 0)
+        else:
+            agregarErrorDatosOperacion(val, val2, ">>", "entero", 0, 0)
+            return None
+    elif expresion.operador == OPERACION_BIT_A_BIT.SHIFT_IZQ:
+        if isinstance(val, int) and isinstance(val2, int):
+            return val << val2
+        elif isinstance(val, int) and isinstance(val2, list):
+            result = []
+            for item in val2:
+                if isinstance(item, int):
+                    result.append(val << item)
+                else:
+                    agregarErrorDatosOperacion(val, item, "<<", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, int) and isinstance(val, list):
+            result = []
+            for item in val:
+                if isinstance(item, int):
+                    result.append(item << val2)
+                else:
+                    agregarErrorDatosOperacion(val, item, "<<", "entero", 0, 0)
+                    result.append(0)
+
+            return result.copy()
+        elif isinstance(val2, list) and isinstance(val, list):
+            if len(val2) == len(val):
+                result = []
+                for i, v in enumerate(val):
+                    result.append(v << val2[i])
+                return result.copy()
+            else:
+                agregarErrorDatosOperacion(val, val2, "<<", "arreglos de enteros de la misma longitud", 0, 0)
+        else:
+            agregarErrorDatosOperacion(val, val2, "<<", "entero", 0, 0)
+            return None
 
 def procesar_funcion_columna(expresion, ts):
 
