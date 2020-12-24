@@ -222,8 +222,8 @@ def ValidacionTipos(valor, tipo) -> bool:
     var = tipo.split('-')
     if var[0] == 'CHARACTER' or var[0] == 'VARCHAR' or var[0] == 'CHAR' or var[0] == 'CHARACTERVARYING':
         return Varchar(valor, var[1])
-    elif tipo == 'DATE':
-        return TDate(valor)
+    #elif tipo == 'DATE':
+    #    return TDate(valor)
     elif tipo == 'INTEGER' or tipo == 'BIGINT' or tipo == 'SMALLINT' or tipo == 'NUMERIC' or tipo == 'SERIAL':
         return Entero(valor)
     elif tipo == 'REAL' or tipo == 'DOUBLE':
@@ -240,7 +240,7 @@ def ValidacionTipos(valor, tipo) -> bool:
             return True
         else:
             return False
-    elif tipo == 'TEXT' or tipo == 'TIMESTAMP' or tipo == 'DATE' or tipo == 'DATE' or tipo == 'INTERVAL':
+    elif tipo == 'TEXT' or tipo == 'TIMESTAMP' or tipo == 'DATE' or tipo == 'DATE' or tipo == 'INTERVAL' or tipo == 'DATE':
         if isinstance(valor, str):
             return True
         else:
