@@ -415,7 +415,60 @@ class AST:
 
 
 
+
+
 ###################################################### Ejecucion de Querys ###############################################
+
+
+    def resolverExtract(self, nodo, resultados):
+        try:
+            valfecha, valtiempo = nodo.hijos[1].valor.split(' ')
+            fecha = valfecha.split('-')
+            tiempo = valtiempo.split(':')
+
+            if nodo.hijos[0].etiqueta == 'YEAR':
+                resultados.append(str(fecha[0]))
+            elif nodo.hijos[0].etiqueta == 'MONTH': 
+                resultados.append(str(fecha[1]))
+            elif nodo.hijos[0].etiqueta == 'DAY': 
+                resultados.append(str(fecha[2]))
+            elif nodo.hijos[0].etiqueta == 'HOUR': 
+                resultados.append(str(tiempo[0])) 
+            elif nodo.hijos[0].etiqueta == 'MINUTE': 
+                resultados.append(str(tiempo[1])) 
+            elif nodo.hijos[0].etiqueta == 'SECOND': 
+                resultados.append(str(tiempo[2])) 
+        except:
+            self.errors.append(Error('22008', EType.SEMANTICO, 'El valor de hora/fecha esta fuera de rango '+str(nodo.hijos[1].valor), nodo.linea))
+        
+        
+    def resolverDatepart(self, nodo, resultados):
+        try:
+            datos = nodo.hijos[1].valor.split(' ')
+            cont = 0
+            for dt in datos:
+                if nodo.hijos[0].valor == dt:
+                    resultados.append(datos[cont-1])
+                    return
+                cont = cont + 1
+
+            self.errors.append(Error('22008', EType.SEMANTICO, 'El valor de hora/fecha esta fuera de rango '+str(nodo.hijos[1].valor), nodo.linea))
+        except:
+            self.errors.append(Error('22008', EType.SEMANTICO, 'El valor de hora/fecha esta fuera de rango '+str(nodo.hijos[1].valor), nodo.linea))
+        
+
+    def resolverCurrentDate(self, resultados):
+        today = date.today()
+        resultados.append(str(today))
+    
+    def resolverCurrentTime(self, resultados):
+        now = datetime.now()
+        time = now.time()
+        resultados.append(str(time))
+
+    def resolverTimestampNow(self,  resultados):
+        now = datetime.now()
+        resultados.append(str(now))
 
 def resolverFuncionMatematica(self, nodo, resultado):
         if nodo.valor.lower()  == 'degrees':
