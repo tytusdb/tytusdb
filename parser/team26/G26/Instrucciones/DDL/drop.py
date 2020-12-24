@@ -32,11 +32,13 @@ class Drop(Instruccion):
 
             elif retorno == 1:
                 'Error'
-                return 'Error(???): unknown_error'
+                error = Error('Semántico', 'Error(???): unknown_error', 0, 0)
+                return error
 
             elif retorno == 2:
                 'No existe'
-                return 'Error(???): no existe la base de datos'
+                error = Error('Semántico', 'Error(???): no existe la base de datos', 0, 0)
+                return error
         else :
             #print('eliminar Tabla ' + str(self.id.column.upper()))
             tbname = self.id.column.upper()
