@@ -2055,9 +2055,34 @@ from ply.yacc import token
 parse = yacc.yacc()
 errorsList = []
 
+ST = SymbolTable([])##TODO Check is only one ST.
+
+class grammarReview:
+    def __init__(self, texto): 
+        print("Executing AST root, please wait ...")
+        global ST
+        ST.LoadMETADATA()
+        instrucciones = parse.parse(texto)
+        createFile()
+        creategrafo()
+
+        for instruccion in instrucciones:
+            try:
+                val = instruccion.execute(ST, None)
+                print("AST excute result: ", val)
+            except our_error as named_error:
+                errorsList.append(named_error)
+
+        for e in errorsList:
+            print(e,"\n")
+        
+
+    def getTablaTabulada(self):
+        global ST
+        return ST.report_symbols()
 
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     f = open("./entrada.txt", "r")
     input = f.read()
     print("Input: " + input +"\n")
@@ -2077,4 +2102,4 @@ if __name__ == "__main__":
 
     for e in errorsList:
         print(e,"\n")
-    ST.report_symbols()
+    ST.report_symbols() """

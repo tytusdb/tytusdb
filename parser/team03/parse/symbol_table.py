@@ -169,7 +169,8 @@ class SymbolTable:
                 self.symbols.remove(s)
                 break
     def report_symbols(self):
-        result = [["Nombre", "Tipo", "Pertenece a"]]
+        result2 = ["NOMBRE", "TIPO", "PERTENECE A"]
+        result = []
         for symbol in self.symbols:
             belongs_to = 'Root'
             if symbol.type == SymbolType.TABLE:
@@ -177,8 +178,8 @@ class SymbolTable:
             elif symbol.type == SymbolType.FIELD:
                 belongs_to = f'Tabla: {symbol.table_name}'
             result.append([symbol.name, symbol.type, belongs_to])
-        print(tabulate(result))
-        return result
+        print(tabulate(result, result2, tablefmt="psql"))
+        return tabulate(result, result2, tablefmt="psql")
 
 # BLOCK TO TEST SYMBOL TABLE
 # db = DatabaseSymbol('test_db', None, 6)
