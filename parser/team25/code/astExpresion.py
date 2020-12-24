@@ -782,7 +782,7 @@ class TuplaCompleta:
     def getValue(self, id , referciaTabla = None): # a veces no viene
         # VALIDAR QUE NO HAYA AMBIGUEDAD PRIMERO , aun no lo tengo :v 
         for columna in self.tupla:
-            # 3 POSIBLES CASOS  , TABLA.COLUMNA , ALIAS.COLUMNA , COLUMNA
+            # 3 POSIBLES CASOS  , TABLA.COLUMNA , ALIAS.COLUMNA , COLUMNA 
             if columna['id'] == id:
                 return columna
             # elif self.coincideConAlias(columna['id']):

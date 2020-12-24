@@ -246,15 +246,26 @@ class FROM():
             encabezados = []
             lista = []
             columns = []
+            nuevasFuentes = []
             for tabla in self.fuentes:
-                tb = extractTable(DB_ACTUAL.name,tabla)
-                lista.append(tb)
-                clm = getColumns(DB_ACTUAL.name,tabla)
-                columns.append(clm)
-                for encabezado in clm:
-                    encabezados.append(tabla+"."+encabezado)
+                if isinstance(tabla, ITEM_ALIAS):
+                    tb = extractTable(DB_ACTUAL.name,tabla.item)
+                    lista.append(tb)
+                    clm = getColumns(DB_ACTUAL.name,tabla.item)
+                    columns.append(clm)
+                    for encabezado in clm:
+                        encabezados.append(tabla.alias+"."+encabezado)
+                    nuevasFuentes.append(tabla.alias)
+                else:
+                    tb = extractTable(DB_ACTUAL.name,tabla)
+                    lista.append(tb)
+                    clm = getColumns(DB_ACTUAL.name,tabla)
+                    columns.append(clm)
+                    for encabezado in clm:
+                        encabezados.append(tabla+"."+encabezado)
+                    nuevasFuentes.append(tabla)
             tabla_fuente = productoCruz(lista)
-            resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", self.fuentes, columns)
+            resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", nuevasFuentes, columns)
             return resultado 
         else:
          # SOLO UNA FUENTE 
@@ -424,7 +435,7 @@ class matriz():
         self.tipo = tipo
         self.nombre = nombre
         self.fuentes = fuentes
-        self.clm = clm # SOLO PARA SABER LOS TIPOS EN EL DE EXPRESION :v 
+        self.clm = clm 
 
     def imprimirMatriz(self):
         x = PrettyTable()
@@ -460,9 +471,8 @@ class matriz():
                     MinitablaSimbolos.clear()
                     i+=1
                 if flag:
-                    # nueva fila
                     for k in ColumnaCompleta:
-                        nuevaColumna = [] # FILA
+                        nuevaColumna = [] 
                         nuevaColumna.append(k)
                         resultante.append(nuevaColumna)
                     flag = False
@@ -587,3 +597,8 @@ def obtenerIndice(fuentes, id):
             return i
         else:
             i+=1
+
+class ITEM_ALIAS():
+    def __init__(self, item, alias) -> None:
+        self.item = item
+        self.alias = alias
