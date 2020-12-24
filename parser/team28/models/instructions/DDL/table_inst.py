@@ -664,6 +664,7 @@ class AlterTableAdd(AlterTable):
             
         elif isinstance(self._changeContent,Check):
             print('VAMOS A AGREGAR UN CHECK')
+            self.agregarCheck(self._changeContent._column_condition, instruction)
         
         elif isinstance(self._changeContent,Constraint):
             print('VAMOS A AGREGAR UN CONSTRAINT_UNIQUE')
@@ -697,7 +698,7 @@ class AlterTableAdd(AlterTable):
 
         # the len of the cols must be de same
         if len(listaCols) != len(listaTablasCols):
-            desc = f": cant of params in foreign() != "
+            desc = f": cantidad of params in foreign() != "
             ErrorController().add(36, 'Execution', desc, 0, 0)
             return
 
@@ -728,7 +729,7 @@ class AlterTableAdd(AlterTable):
                                         }
                     break
             if not bandera:
-                desc = f": Undefined column in foreign key ()"
+                desc = f": Undefined column in alter foreign key ()"
                 ErrorController().add(26, 'Execution', desc, 0, 0)
                 return
             bandera = False
@@ -747,12 +748,38 @@ class AlterTableAdd(AlterTable):
                 break
 
         if not bandera:
-            desc = f": Undefined column in Unique ()"
+            desc = f": Undefined column in alter Unique ()"
             ErrorController().add(26, 'Execution', desc, 0, 0)
             return
         bandera = False
         typeChecker.writeFile()
 
+    def agregarCheck(self, conditionColumn, tablaId):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaId)
+
+        #                           L (L|D)*
+        whatColumnIs = re.search('[a-zA-z]([a-zA-z]|[0-9])*',conditionColumn.alias)
+
+        if whatColumnIs != None:
+            whatColumnIs = whatColumnIs.group(0)
+            for columna in tableToAlter.columns:    
+                if(columna._name == whatColumnIs):
+                    bandera = True
+                    columna._check = conditionColumn.alias
+                    break
+            if not bandera:
+                desc = f": Undefined column in alter check ()"
+                ErrorController().add(26, 'Execution', desc, 0, 0)
+                return
+            bandera = False
+
+        else:
+            desc = f": column not given in check()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        typeChecker.writeFile()
 
 class AlterTableAlter(AlterTable):
     '''
@@ -766,6 +793,64 @@ class AlterTableAlter(AlterTable):
     def __repr__(self):
         return str(vars(self))
 
+    #instrucction trae el valor de la tabla
+    def process(self,instrucction):
+
+        if self._changeContent['change'] == 'not_null':
+            print('LE VAMOS A DAR UN SET NOT NULL A LA COLUMNA')
+            self.agregarNotNull(instrucction,self._changeContent['id_column'])
+
+
+        elif self._changeContent['change'] == 'type_column':
+            print('LE VAMOS A DAR UN CAMBIO DE TIPO A LA COLUMNA')
+            self.agregarNuevoTipo(instrucction,self._changeContent['id_column'],self._changeContent['type'])
+
+
+        pass
+
+    def agregarNotNull(self, tablaAMod, colAMod):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaAMod)
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == colAMod):
+                bandera = True
+                columna._notNull = True
+                break
+
+        if not bandera:
+            desc = f": Undefined column in alter not null ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        typeChecker.writeFile()
+        
+
+    def agregarNuevoTipo(self, tablaAMod, colAMod, nuevoTipo):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaAMod)
+
+        tipoFinal = {
+        '_tipoColumna' : str(nuevoTipo._tipoColumna),
+        '_paramOne' : nuevoTipo._paramOne,
+        '_paramTwo' : nuevoTipo._paramTwo
+        }
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == colAMod):
+                bandera = True
+                columna._dataType = tipoFinal
+                break
+
+        if not bandera:
+            desc = f": Undefined column in alter type ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        typeChecker.writeFile()
+        pass
 
 class AlterTableDrop(AlterTable):
     '''
@@ -779,6 +864,32 @@ class AlterTableDrop(AlterTable):
     def __repr__(self):
         return str(vars(self))
 
+    #instrucction trae el valor de la tabla
+    def process(self,instrucction):
+        if self._changeContent['change'] == 'column':
+            print('HARE UNA ELIMINACION DE UNA COLUMNA')
+            self.eliminarColumna(instrucction,self._changeContent['id'])
+
+        elif self._changeContent['change'] == 'constraint':
+            print(' **DEBERIA ESTAR ELIMINANDO ALGUN CONSTRAINT **')
+        
+    def eliminarColumna(self,nombreTabla,nombreColumna):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,nombreTabla)
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == nombreColumna):
+                bandera = True
+                #typeChecker.deleteColumn(tableToAlter,columna,0,0)
+                break
+
+        if not bandera:
+            desc = f": Undefined column in alter drop column ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        pass
 
 class AlterTableRename(AlterTable):
     '''
@@ -792,3 +903,24 @@ class AlterTableRename(AlterTable):
     def __repr__(self):
         return str(vars(self))
 
+    #instrucction tiene el valor de la tabla
+    def process(self,instrucction):
+
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,instrucction)
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == self._oldName):
+                bandera = True
+                columna._name = self._newName
+                break
+
+        if not bandera:
+            desc = f": Undefined column in rename column ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        typeChecker.writeFile()
+
+        
