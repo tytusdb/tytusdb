@@ -1038,7 +1038,7 @@ def p_function(t):
     if t[1].lower() == 'convert' : t[0] = fun_convert(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
     if t[1].lower() == 'greatest' : t[0] = fun_greatest(t[3],None);insertProduction(t.slice, len(t.slice))
     if t[1].lower() == 'least' : t[0] = fun_least(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'NOW' : t[0] = fun_now();insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'now' : t[0] = fun_now(None);insertProduction(t.slice, len(t.slice))
     
 def p_type(t):
     '''
