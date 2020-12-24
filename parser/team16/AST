@@ -624,4 +624,58 @@ digraph AST {
 	364 -> 365
 	365 [label=Activo1]
 	Node363 -> 364
+	Node367 [label=INSTRUCCION_SELECT]
+	Node0 -> Node367
+	Node368 [label=SELECT]
+	Node367 -> Node368
+	Node369 [label=LISTA_CAMPOS]
+	Node367 -> Node369
+	Node370 [label=ACCESO_CAMPO]
+	Node369 -> Node370
+	Node371 [label="*"]
+	Node370 -> Node371
+	Node372 [label=FROM]
+	Node367 -> Node372
+	Node373 [label=LISTA_TABLAS]
+	Node367 -> Node373
+	Node374 [label=Nombre_Tabla]
+	Node373 -> Node374
+	Node375 [label=tbestado]
+	Node374 -> Node375
+	Node376 [label=CUERPO]
+	Node367 -> Node376
+	Node377 [label=Cuerpo]
+	Node376 -> Node377
+	Node378 [label=Where]
+	Node377 -> Node378
+	Node379 [label=CONDICION]
+	Node377 -> Node379
+	380 [label=ExpresionRelacional]
+	381 [label=exp1]
+	380 -> 381
+	381 -> 382
+	382 [label="ExpresionFUNCION NATIVA"]
+	383 [label=LENGTH]
+	382 -> 383
+	384 [label=exp1]
+	382 -> 384
+	384 -> 385
+	385 [label="ExpresionValor ID punto ID"]
+	385 -> 386
+	386 [label="tbestado.estado"]
+	387 [label=">"]
+	380 -> 387
+	388 [label=exp2]
+	380 -> 388
+	388 -> 389
+	389 [label=ExpresionValor]
+	389 -> 390
+	390 [label=4]
+	Node379 -> 380
+	Node392 [label=Uniones]
+	Node367 -> Node392
+	Node393 [label=Final_Instruccion]
+	Node392 -> Node393
+	Node394 [label=""]
+	Node393 -> Node394
 }
