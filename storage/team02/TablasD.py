@@ -14,7 +14,7 @@ class TablasArboles:
         for i in range(len(tabla.elementosAB.listRegister)):
             del tabla.elementosAB.listRegister[i].register[num]
         return True
-        
+
 #Funcion 1 - crear tabla
 # def createTable(database: str, table: str, numberColumns: int) -> int:    
     def createT(self,database,table,numberColumns) :
@@ -39,3 +39,13 @@ class TablasArboles:
         else:                                                                      
             #return ("BD inexistente")
             return (2)  
+
+#Funcion 2 - mostrar tablas
+# def showTables(database: str) -> list:                    
+    def showT(self,database) :
+        #tablas = []
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 : 
+            return bdEncontrada.tablas.verNodos()
+        else:                                                                    
+            return None                                                         
