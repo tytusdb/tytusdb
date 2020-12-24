@@ -1,5 +1,0 @@
-INT = 1
-NDECIMAL = 2
-STRING = 3
-ID = 4
-REGEX = 5
