@@ -29,5 +29,8 @@ class AST:
             self.joinTreeNodes(node)
 
     def drawGraph(self):
-        dot.render("test-output/round-table.gv", view=True)  # doctest: +SKIP
+        dot.render("test-output/round-table.gv", view=True)  
+        "test-output/round-table.gv.jpg"
+        dot.format = "png"
+        dot.render("test-output/round-table.gv", view=False)  
         "test-output/round-table.gv.jpg"

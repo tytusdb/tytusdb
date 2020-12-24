@@ -173,3 +173,88 @@ class TablasArboles:
         else:                                                                    
             #return ("BD inexistente")
             return (2) 
+
+    def insert(self,database,table,register):
+            bdEncontrada=self.bd.buscarNodo(database)
+            if bdEncontrada != None and bdEncontrada != 0 :
+                if bdEncontrada.tablas.buscar(table) != None :
+                    # bdEncontrada.tablas.buscar(table).elementosAB.insert(register)
+                    bdEncontrada.tablas.buscar(table).elementosAB.insert(register)
+                    return 0
+                else:
+                    return 3
+            else:
+                return 2
+    
+    def load(self,filepath, database, table):
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :
+            if bdEncontrada.tablas.buscar(table) != None :
+                # bdEncontrada.tablas.buscar(table).elementosAB.insert(register)
+                return bdEncontrada.tablas.buscar(table).elementosAB.loadCSV(filepath) 
+            else:
+                return []
+        else:
+            return []
+
+    def extract(self,database,table,columns):
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :
+            if bdEncontrada.tablas.buscar(table) != None :
+                return bdEncontrada.tablas.buscar(table).elementosAB.extractRow(columns)
+            else:
+                return []
+        else:
+            return []
+
+    def UP(self,database, table, register, columns):
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :
+            if bdEncontrada.tablas.buscar(table) != None :
+                return bdEncontrada.tablas.buscar(table).elementosAB.update(register, columns)
+            else:
+                return 3
+        else:
+            return 2
+
+    def graphbt(self,database, table):
+        bdEncontrada=self.bd.buscarNodo(database)
+        if bdEncontrada != None and bdEncontrada != 0 :
+            if bdEncontrada.tablas.buscar(table) != None :
+                bdEncontrada.tablas.buscar(table).elementosAB.graphBTree()
+            else:
+                return 3
+        else:
+            return 2
+    
+    #funcion 5 alteraddpk Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas, 
+# esto para anticipar el índice de la estructura de la tabla cuando se inserten registros. (UPDATE)
+    def alterPK(self, database, table, columns):
+        try:
+            bdEncontrada = self.bd.buscarNodo(database)
+            if bdEncontrada != None and bdEncontrada != 0:
+                if bdEncontrada.tablas.buscar(table) != None:
+                    bdEncontrada.tablas.buscar(table).elementosAB.columPK = columns
+                    return 0
+                else:
+                    return 3
+            else:
+                return 2
+        except:
+            return 1
+            
+#funcion 6 Elimina la llave primaria actual en la información de la tabla, 
+# manteniendo el índice actual de la estructura del árbol hasta que se invoque de nuevo el alterAddPK(). (UPDATE)
+    def alterDPK(self, database, table):
+        try:
+            bdEncontrada = self.bd.buscarNodo(database)
+            if bdEncontrada != None and bdEncontrada != 0:
+                if bdEncontrada.tablas.buscar(table) != None:
+                    bdEncontrada.tablas.buscar(table).elementosAB.columPK = []
+                    return 0
+                else:
+                    return 3
+            else:
+                return 2
+        except:
+            return 1

@@ -11,21 +11,21 @@ ___
 # **MANUAL DE USUARIO**
 ## INDICE
 
-- [Introducción](#Introduccion)
-- [Objetivos](#Objetivos)
-- [Guía Rápida](#Guía Rápida)
-- [Reportes y Pantallas](#Reportes y Pantallas)
-- [Glosario](#Glosario)
-- [Información de Contacto](#Información de Contacto)
+- Introducción
+- Objetivos
+- Guía Rápida
+- Reportes y Pantallas
+- Glosario
+- Información de Contacto6
 
 &nbsp;
-#Introduccion
+# Introduccion
 ## DESCRIPCIÓN DE LA SOLUCIÓN CLIENTE DE TYTUSDB
 El Cliente de TytusDB es un conjunto de herramientas disponibles para aquellos desarrolladores que quieran hacer uso sobre dicho sistema de almacenamiento, creado
 con Python y la librería Tkinter para usos visuales, mientras por el fondo trabaja con archivos de tipo binario que ayudan a tener un almacenamiento local dentro del computador y hacer uso de una eficiente persistencia de datos. A su vez un reportador de estructuras de datos, con la librería Graphviz la cual enseña de manera gráfica como están estructurados y jerarquizados los objetos creados a lo largo del uso.
 
 &nbsp;
-#Objetivos
+# Objetivos
 ## General
 El documento tiene la más clara intención de apoyar al usuario desarrollador, con conocimientos en almacenamiento de bases de datos, a utilizar el cliente de TytusDB tanto por medio de la carga masiva de archivos ingreso de datos digitalizados manualmente
 
@@ -35,11 +35,11 @@ El documento tiene la más clara intención de apoyar al usuario desarrollador, 
 - Dar a conocer la persistencia de datos con archivos binarios para evitar la perdida de información.
 
 &nbsp;
-#Guía Rápida
+# Guía Rápida
 ## Ejecucion de aplicación
 Se tienen 2 archivos ejecutables de tipo formularios, los cuales pertenecen a:<br>
-- &nbsp;&nbsp;[Cliente Formulario TytusDB](#Cliente Formulario) <br>
-- &nbsp;&nbsp;[Cliente De Reportes Gráficos](#Cliente Reportes)
+- &nbsp;&nbsp;Cliente Formulario TytusDB
+- &nbsp;&nbsp;Cliente De Reportes Gráficos
 &nbsp;
 ## Ejecución de Carga Masiva
 Se puede tener un archivo externo en el cual la información almacenada quiera ser cargada al sistema de almacenamiento, para esto, se tiene el soporte de archivos con extensión .csv. Un archivo CSV (valores separados por comas) es un archivo de texto que tiene un formato específico que permite guardar los datos en un formato de tabla estructurada. Gracias a esto, podemos evitar la digitalización de datos y convertir cualquier hoja .xlsx, xls, etc. En .csv para ser operado en el administrador.
@@ -49,24 +49,24 @@ Se puede tener un archivo externo en el cual la información almacenada quiera s
 Cuando se ha cargado una cantidad de datos, es guardada automáticamente en un archivo binario. Un archivo binario es un archivo informático que contiene información de cualquier tipo codificada en binario para el propósito de almacenamiento y procesamiento en ordenadores. Por lo cual se puede obtener una recuperación de la misma. [(Ver más detalles)](#Archivos Binarios)
 
 &nbsp;
-#Reportes y Pantallas
-##Cliente Formulario
-##Visualización de Pantalla Principal
+# Reportes y Pantallas
+## Cliente Formulario
+## Visualización de Pantalla Principal
 !["Ilustración"](img/principal_tytus.jpeg)
-####Pantalla Principal, aquí pasaremos los parámetros para ejecutar cualquier función del administrador de bases de datos.
+#### Pantalla Principal, aquí pasaremos los parámetros para ejecutar cualquier función del administrador de bases de datos.
 
-##Visualización de Pantalla de Inputs
+## Visualización de Pantalla de Inputs
 !["Ilustración"](img/principal_inputs.jpeg)
-####Ejemplo de paso de parámetros.
+#### Ejemplo de paso de parámetros.
 
-##Cliente Reportes
-- ###Visualización de Pantallas
-####Pantalla Selección
+## Cliente Reportes
+### Visualización de Pantallas
+#### Pantalla Selección
     - - !["Ilustración"](img/principal_seleccion.jpeg)
     - - Al seleccionar mostrar Reportes nos abrira esta ventana, la cual contiene las bases de datos, junto con sus tablas y los botones respectivos para ver sus graficos.
     - - !["Ilustración"](img/segunda_seleccion.jpeg)
     - - Para obtener un grafico se debe seleccionar una base de datos y una tabla de las respectivas listas. Posteriormente se debe presionar el boton de la grafica a mostrar.    
-####Reporte Gráfico
+#### Reporte Gráfico
     - - !["Ilustración"](img/primera_graphviz.jpeg)
         Al presionar el boton "Mostrar Bases de Datos", nos mostrara el respectivo grafo de Bases de Datos con su estructura especificada en formato .SVG.(Debe poseer un software compatible para abrirlo)
     - - !["Ilustración"](img/segunda_graphviz.jpeg)
@@ -74,11 +74,11 @@ Cuando se ha cargado una cantidad de datos, es guardada automáticamente en un a
     - - !["Ilustración"](img/tercera_graphviz.jpeg)
         Al presionar el boton "Mostrar Tabla Hash", nos mostrara el respectivo grafo de Tabla Hash con su estructura visualmente en formato .SVG.(Debe poseer un software compatible para abrirlo)
 
-##Carga CSV
+## Carga CSV
 !["Ilustración"](img/image_csv.png)
 Como vemos, podemos cargar una ruta, en la cual vamos a abrir un archivo CSV para insertar datos en una base de datos.
 
-##GLOSARIO
+## GLOSARIO
 | Palabra | Definición |
 | ------- | ---------- |
 | CSV | Archivo de texto en el procesamiento de datos con el que se pueden registrar, almacenar y procesar grandes cantidades de datos estructurados. |
@@ -92,7 +92,7 @@ Como vemos, podemos cargar una ruta, en la cual vamos a abrir un archivo CSV par
 | Graphviz | Es una librería que permite generar grafos |
 | Grafo | Representación simbólica de los elementos constituidos de un sistema o conjunto, mediante esquemas gráficos. |
 
-##*Información de Contacto*
+## *Información de Contacto*
 
 - [Cristian Caceres](3741681720501@ingenieria.usac.edu.gt)
 - [Jimmy Larios](2993047280101@ingenieria.usac.edu.gt)

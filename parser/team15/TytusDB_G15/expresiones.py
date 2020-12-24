@@ -151,6 +151,7 @@ class TIPO_DE_DATOS(Enum):
     now = 22
     date_part = 23
     extract = 24
+    boolean = 25
 
 class SELECT_TIME(Enum):
     EXTRACT = 1
@@ -272,6 +273,12 @@ class CADENA_BINARIA(Enum):
     DECODE = 9
     CONVERT = 10
 
+class INSERT_EXCLUSIVA(Enum):
+    SUBSTRING = 1
+    MD5 = 2
+    TRIM = 3
+    NOW = 5
+
 class ExpresionNumerica:
     '''
         Esta clase representa una expresión numérica
@@ -365,9 +372,9 @@ class Expresiondatos():
         self.exp4 = exp4
 
 class ExpresionBooleana():
-    def init(self,etiqueta,val1):
+    def __init__(self,etiqueta,val):
         self.etiqueta = etiqueta
-        self.val1 = val1
+        self.val = val
 
 class ExpresionNumero(ExpresionNumerica) :
     '''
