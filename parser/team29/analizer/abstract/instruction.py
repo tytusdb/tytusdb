@@ -19,6 +19,7 @@ import analizer
 ast = AST.AST()
 root = None
 
+envVariables = []
 
 class SELECT_MODE(Enum):
     ALL = 1
@@ -66,7 +67,7 @@ class SelectParams(Instruction):
 
 class Select(Instruction):
     def __init__(
-        self, params, fromcl, wherecl, groupbyCl, havingCl, limitCl, row, column
+        self, params, fromcl, wherecl, groupbyCl, havingCl, limitCl, distinct, row, column
     ):
         Instruction.__init__(self, row, column)
         self.params = params
@@ -75,10 +76,13 @@ class Select(Instruction):
         self.groupbyCl = groupbyCl
         self.havingCl = havingCl
         self.limitCl = limitCl
+        self.distinct = distinct
 
     def execute(self, environment):
         try:
             newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
             self.fromcl.execute(newEnv)
             if self.wherecl != None:
                 self.wherecl.execute(newEnv)
@@ -129,6 +133,13 @@ class Select(Instruction):
                                 groupEmpty = False
                             else:
                                 groupDf = pd.concat([groupDf, val], axis=1)
+                    if groupEmpty:
+                        countGr = newEnv.groupCols
+                        # Obtiene las ultimas columnas metidas (Las del group by)
+                        df = newEnv.dataFrame.iloc[:, -countGr:]
+                        cols = list(df.columns)
+                        groupDf = df.groupby(cols).sum().reset_index()
+                        groupEmpty = False
                 else:
                     value = [p.execute(newEnv) for p in params]
                     for j in range(len(labels)):
@@ -143,6 +154,8 @@ class Select(Instruction):
                     df_ = newEnv.dataFrame.filter(labels)
                     if self.limitCl:
                         df_ = self.limitCl.execute(df_, newEnv)
+                    if self.distinct:
+                        return [df_.drop_duplicates(), newEnv.types]
                     return [df_, newEnv.types]
                 w2 = newEnv.dataFrame.filter(labels)
                 # Si la clausula WHERE devuelve un dataframe vacio
@@ -151,6 +164,8 @@ class Select(Instruction):
                 df_ = w2
                 if self.limitCl:
                     df_ = self.limitCl.execute(df_, newEnv)
+                if self.distinct:
+                    return [df_.drop_duplicates(), newEnv.types]
                 return [df_, newEnv.types]
             else:
                 newNames = {}
@@ -162,6 +177,8 @@ class Select(Instruction):
                 df_ = groupDf
                 if self.limitCl:
                     df_ = self.limitCl.execute(df_, newEnv)
+                if self.distinct:
+                    return [df_.drop_duplicates(), newEnv.types]
                 return [df_, newEnv.types]
         except:
             raise
@@ -241,7 +258,10 @@ class FromClause(Instruction):
             else:
                 tempDf = self.crossJoin([tempDf, data])
             environment.dataFrame = tempDf
-            environment.types.update(types)
+            try:
+                environment.types.update(types)
+            except:
+                raise Exception("Error en la clausula FROM")
         return
 
     def dot(self):
@@ -319,6 +339,8 @@ class SelectOnlyParams(Select):
     def execute(self, environment):
         try:
             newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
             labels = []
             values = {}
             for i in range(len(self.params)):
@@ -356,6 +378,8 @@ class Delete(Instruction):
             if len(self.fromcl.tables) > 1:
                 return "Error: syntax error at or near ','"
             newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
             self.fromcl.execute(newEnv)
             value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
             labels = [p for p in newEnv.dataFrame]
@@ -409,6 +433,8 @@ class Update(Instruction):
             if len(self.fromcl.tables) > 1:
                 return "Error: syntax error at or near ','"
             newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
             self.fromcl.execute(newEnv)
             value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
             labels = [p for p in newEnv.dataFrame]
@@ -899,7 +925,6 @@ class CreateTable(Instruction):
         new.addNode(c)
 
         for cl in self.columns:
-            print(cl)
             if not cl[0]:
                 id = Nodo.Nodo(cl[1])
                 c.addNode(id)
@@ -916,7 +941,6 @@ class CreateTable(Instruction):
                         parl1 = Nodo.Nodo(str(parl))
                         params.addNode(parl1)
 
-                print(cl[3])
                 colOpts = cl[3]
                 if colOpts != None:
                     coNode = Nodo.Nodo("OPTIONS")
@@ -1091,7 +1115,11 @@ class AlterTable(Instruction):
             alter = "Tabla alterada"
 
         return alter
-
+    
+    # TODO: hacer dot
+    def dot(self):
+        new = Nodo.Nodo("alter table")
+        return new
 
 class limitClause(Instruction):
     def __init__(self, num, offset, row, column) -> None:
@@ -1121,6 +1149,8 @@ class Union(Instruction):
 
     def execute(self, environment):
         newEnv = Environment(environment, dbtemp)
+        global envVariables
+        envVariables.append(newEnv)
         s1 = self.s1.execute(newEnv)
         s2 = self.s2.execute(newEnv)
         df1 = s1[0]
@@ -1149,6 +1179,8 @@ class Intersect(Instruction):
 
     def execute(self, environment):
         newEnv = Environment(environment, dbtemp)
+        global envVariables
+        envVariables.append(newEnv)
         s1 = self.s1.execute(newEnv)
         s2 = self.s2.execute(newEnv)
         df1 = s1[0]
@@ -1177,6 +1209,8 @@ class Except_(Instruction):
 
     def execute(self, environment):
         newEnv = Environment(environment, dbtemp)
+        global envVariables
+        envVariables.append(newEnv)
         s1 = self.s1.execute(newEnv)
         s2 = self.s2.execute(newEnv)
         df1 = s1[0]

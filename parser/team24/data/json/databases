@@ -1,1 +1,1 @@
-{"DB1": {"tbempleado": {"NCOL": 3}, "tbusuario": {"NCOL": 3}}, "DB2": {"tbempleado": {"NCOL": 3}}}
+{"db1": {"tbusuario": {"NCOL": 6, "PKEY": [0]}}}
