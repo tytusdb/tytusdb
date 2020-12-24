@@ -2,15 +2,12 @@ CREATE DATABASE compiladores2;
 
 USE compiladores2;
 
-SELECT ATAN2D(20,10) AS 'Atan2 (0,1)';
-SELECT ATAN2D(20,10);
+CREATE TABLE USUARIO(
+    estado VARCHAR(100)
+);
 
-
-
-
-
-
-
+ALTER TABLE USUARIO ADD COLUMN estado2 VARCHAR(100);
+INSERT INTO USUARIO VALUES ('Julio',MD5('Manuel'));
 
 
 
