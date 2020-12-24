@@ -155,7 +155,7 @@ class InsertTable():
            
         # INSERTAR 
         print('Se va a insertar', valores_insertar)
-        #print('insert code :',insert(useDB, self.name.upper(), valores_insertar))
+        print('insert code :',insert(useDB, self.name.upper(), valores_insertar))
         resp = Response("00000","Se inserto el valor en la tabla")
         return resp
         

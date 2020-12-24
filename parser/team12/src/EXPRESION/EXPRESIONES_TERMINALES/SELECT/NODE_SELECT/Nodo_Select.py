@@ -70,13 +70,10 @@ class Select_Expresion(Expresion):
                     result.append(resultDistinct[res])
             encab = functionSelect.resultEncabezado
             
-            print(encab)
-            print(result)
             responseSelect.encabezados = encab 
             responseSelect.data = result
             responseSelect.tipos = functionSelect.listaTiposColumnas
-            
-
+            return responseSelect
         #print(dataSelect.encabezados)
         #print(dataSelect.dataRow)
 

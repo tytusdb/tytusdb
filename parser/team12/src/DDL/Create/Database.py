@@ -73,10 +73,11 @@ class Database():
                 tc.createDatabase(self.name.upper(), self.owner, self.mode)
         else:
             if not (self.ifNotExists) and self.replaced :
-                if createDatabase(self.name.upper()) == 2:
-                    self.responseCode="0000"
-                    tc.replaceDatabase(self.name.upper(), self.owner, self.mode)
-                    self.responseMessage = "La base de datos fue reemplazada exitosamente"
+                dropDatabase(self.name.upper())
+                createDatabase(self.name.upper())
+                self.responseCode="0000"
+                tc.replaceDatabase(self.name.upper(), self.owner, self.mode)
+                self.responseMessage = "La base de datos fue reemplazada exitosamente"
             else:
                 self.responseCode="42P04"
                 self.responseMessage = "La base de datos "+self.name+" ya existe"

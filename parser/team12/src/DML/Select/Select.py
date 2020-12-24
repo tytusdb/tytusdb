@@ -345,7 +345,7 @@ class Select():
                     print("Error, no se encuentra en la DB")
                     return None
                 listaTablas.append([hijo.hijos[0].valor.upper(),hijo.hijos[1].valor.upper()])
-            else:
+            elif hijo.nombreNodo == "Identificador":
                 if not  (hijo.valor.upper() in listaTablasStorage):
                     print("Error, no se encuentra en la DB")
                     return None
@@ -438,7 +438,7 @@ class Select():
             print("Error, db no seleccionada")
             return
         # Datos de Prueba
-        self.insertaDatos()
+        #self.insertaDatos()
 
         # Llena dependiendo del modo en el que sea invocado
         if enviroment == None : #Select normal

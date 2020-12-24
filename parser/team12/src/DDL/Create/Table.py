@@ -53,8 +53,8 @@ class Column():
         useDB = config['databaseIndex'].upper()
         listaColumnas = tc.return_columnsJSON(useDB,tablaReferencia.upper())
         for columna in listaColumnas:
-            if columna.name.upper() == nombreColumna.upper(): 
-                if columna.specificType == tipoColumna:
+            if columna['name'].upper() == nombreColumna.upper(): 
+                if columna['specificType'] == tipoColumna:
                     return True
         return False
 
