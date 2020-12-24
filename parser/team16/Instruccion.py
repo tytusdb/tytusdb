@@ -62,6 +62,7 @@ def mostrarConsulta(resultado):
 def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
     global ts_global, baseActual
     global LisErr
+    print("generando reporteria")
     listaGeneral ={}
     r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
