@@ -389,7 +389,7 @@ def p_statement(t):
 #                    |    stm_show   PUNTOCOMA
 #                    |    stm_select UNION all_opt stm_select
 #                    |    stm_select INTERSECT all_opt stm_select
-#                    |    stm_select EXCEPT all_opt 
+#                    |    stm_select EXCEPT all_opt stm_select
 #                    |    stm_use_db PUNTOCOMA
     try:
         punteroinicio(t[1].graph_ref)
@@ -534,12 +534,12 @@ def p_table(t):
     if len(t) == 2:
         graph_ref = graph_node(str(str(t[1])))
         addCad("**\<TABLE>** ::=  tIdentificador  ")
-        t[0] = Table(t.slice[1].value, t.slice[1].value, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        t[0] = Table(t[1], t[1], None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         #####        
     else: 
         graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])+" "+ str(t[3])  ))
         addCad("**\<TABLE>** ::=  tIdentificador tAs tTexto  ")
-        t[0] = Table(t.slice[1].value, t.slice[3].value, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        t[0] = Table(t[1], t[3], None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         ##### 
 
 
@@ -550,14 +550,14 @@ def p_table0(t):
     if len(t) == 4:
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("table"),    [t[1],t[2],t[3]]       ,childsProduction)
-        addCad("**\<TABLE>** ::=  '(' \<STM_SELECT> ')' ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####                
+        addCad("**\<TABLE>*[* ::=  '(' \<STM_SELECT> ')' ")
+        t[0] = Table(None, None, t[2], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        
     else: 
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("table"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
         addCad("**\<TABLE>** ::=  '(' \<STM_SELECT> ')' tAs  tTexto ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = Table(t[5], t[5], t[2], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     
 
 
@@ -569,7 +569,7 @@ def p_stm_insert(t):
     # t[0] = upNodo("token", 0, 0, graph_ref)
     token_insert = t.slice[1]
     t[0] = InsertInto(t[3], t[4].column_list, t[4].values_list, token_insert.lineno, token_insert.lexpos, graph_ref)
-    print(t)
+    #print(t)
 
 
 
@@ -684,16 +684,16 @@ def p_list_names(t):
                     | POR
                     '''
     if len(t) == 6:
-        childsProduction  = addNotNoneChild(t,[1,3])
+        childsProduction  = addNotNoneChild(t,[3])
         graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
         addCad("**\<LIST_NAMES>** ::=  \<LIST_NAMES>  ',' tNames tAs tTexto  ")
-        t.slice[3].alias = t[5]
+        t[3].alias = t[5]
         t[1].append(t[3])
         t[0] = t[1]
                      
     elif len(t) == 4:
-        childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("list_names"),    [t[1]]       ,childsProduction)
+        #childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("list_names"),    [t[1]]       ,[])
         addCad("**\<LIST_NAMES>** ::=   \<LIST_NAMES>  ',' tNames ")
         t[1].append(t[3])
         t[0] = t[1]
@@ -2086,7 +2086,7 @@ class grammarReview:
         return ST.report_symbols()
 
 
-""" if __name__ == "__main__":
+if __name__ == "__main__":
     f = open("./entrada.txt", "r")
     input = f.read()
     print("Input: " + input +"\n")
@@ -2094,16 +2094,19 @@ class grammarReview:
     ST = SymbolTable([])##TODO Check is only one ST.
     ST.LoadMETADATA()
     instrucciones = parse.parse(input)
-    createFile()
-    creategrafo()
+    #createFile()
+    #creategrafo()
 
     for instruccion in instrucciones:
         try:
             val = instruccion.execute(ST, None)
-            print("AST excute result: ", val)
+            if isinstance(instruccion, Select):
+                print(tabulate(val[1], val[0], tablefmt="psql"))
+            else:
+                print("AST excute result: ", val)
         except our_error as named_error:
             errorsList.append(named_error)
 
     for e in errorsList:
         print(e,"\n")
-    ST.report_symbols() """
+    ST.report_symbols() 
