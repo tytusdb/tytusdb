@@ -1,6 +1,5 @@
 # Construyendo el analizador léxico
 import ply.lex as lex
-from ts import *
 from lex import *
 from columna import *
 from graphviz import Graph
@@ -13,10 +12,6 @@ dot.node_attr.update(fontname = 'Eras Medium ITC', style='filled', fillcolor="ta
 dot.edge_attr.update(color = 'black')
 
 lexer = lex.lex()
-tabla_simbolos = TablaDeSimbolos()
-consola = []
-salida = []
-
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -36,13 +31,17 @@ from instrucciones import *
 
 def p_init(t) :
     'init            : instrucciones'
+    t[0] = t[1]
     
 def p_instrucciones_lista(t) :
     'instrucciones    : instrucciones instruccion'
+    t[1].append(t[2])
+    t[0] = t[1]
     
 
 def p_instrucciones_instruccion(t) :
     'instrucciones    : instruccion '
+    t[0] = [t[1]]
     
 
 def p_instruccion(t) :
@@ -57,6 +56,10 @@ def p_instruccion(t) :
                         | INSERT insercion
                         | DROP dropear
                         '''
+    if t[1].upper() == 'CREATE' or t[1].upper() == 'SHOW' or t[1].upper() == 'DROP':
+        t[0] = t[2]
+    elif t[1].upper() == 'ALTER' and t[2].upper() == 'DATABASE':
+        t[0] = t[3]
 
 
 #========================================================
@@ -65,26 +68,46 @@ def p_instruccion(t) :
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
     '''creacion     : DATABASE crear_bd
-                    | OR REPLACE DATABASE crear_bd
+                    | OR REPLACE DATABASE replace_bd
                     | TABLE crear_tb
                     | TYPE crear_type'''
-  
+
+    if t[1].upper() == 'DATABASE':
+        t[0] = t[2]
+    elif t[1].upper() == 'OR':
+        t[0] = t[4]
 
 def p_instruccion_crear_BD(t) :
     'crear_bd     : ID PTCOMA'
-
+    t[0] = Crear_BD(t[1].upper(), t.lexer.lineno - 1)
 
 def p_instruccion_crear_BD_Parametros(t) :
     'crear_bd     : ID lista_parametros_bd PTCOMA'
-
+    t[0] = Crear_BD(t[1].upper(), t.lexer.lineno - 1)
 
 def p_instruccion_crear_BD_if_exists(t) :
     'crear_bd       : IF NOT EXISTS ID PTCOMA'
-
+    t[0] = Crear_BD(t[4].upper(), t.lexer.lineno - 1)
 
 def p_instruccion_crear_BD_if_exists_Parametros(t) :
     'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
-    
+    t[0] = Crear_BD(t[4].upper(), t.lexer.lineno - 1)
+
+def p_instruccion_replace_BD(t) :
+    'replace_bd     : ID PTCOMA'
+    t[0] = Crear_BD(t[1].upper(), t.lexer.lineno - 1, True)
+
+def p_instruccion_replace_BD_Parametros(t) :
+    'replace_bd     : ID lista_parametros_bd PTCOMA'
+    t[0] = Crear_BD(t[1].upper(), t.lexer.lineno - 1, True)
+
+def p_instruccion_replace_BD_if_exists(t) :
+    'replace_bd       : IF NOT EXISTS ID PTCOMA'
+    t[0] = Crear_BD(t[4].upper(), t.lexer.lineno - 1, True)
+
+def p_instruccion_replace_BD_if_exists_Parametros(t) :
+    'replace_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
+    t[0] = Crear_BD(t[4].upper(), t.lexer.lineno - 1, True)
 
 def p_instruccion_crear_TB_herencia(t):
     '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA'''
@@ -111,7 +134,10 @@ def p_instruccion_TB_herencia(t) :
 def p_instruccion_show(t) :
     '''show_db      : DATABASES
                     | DATABASES LIKE CADENA''' 
-
+    if len(t) == 2:
+        t[0] = Show_BD(t.lexer.lineno - 1)
+    else:
+        t[0] = Show_BD(t.lexer.lineno - 1, t[3].upper())
 
 #========================================================
 
@@ -120,7 +146,8 @@ def p_instruccion_show(t) :
 def p_instruccion_alter_database(t) :
     '''alter_database   : ID RENAME TO ID
                         | ID OWNER TO def_alter_db'''
-
+    if t[2].upper() == 'RENAME':
+        t[0] = Alter_BD(t[1].upper(), t[4].upper(), t.lexer.lineno - 1)
 
 def p_def_alter_db(t) :
     '''def_alter_db     : ID
@@ -308,12 +335,12 @@ def p_instruccion_insert(t) :
 def p_instruccion_Drop_BD_exists(t) :
     '''dropear      : DATABASE IF EXISTS ID PTCOMA
                     '''
-
+    t[0] = Drop_BD(t[4].upper(), t.lexer.lineno - 1)
 
 def p_instruccion_Drop_BD(t) :
     '''dropear      : DATABASE ID PTCOMA
                     '''
-
+    t[0] = Drop_BD(t[2].upper(), t.lexer.lineno - 1)
 
 
 def p_instruccion_Drop_TB(t) :
@@ -1273,7 +1300,7 @@ def p_error(t):
         tabla_errores.agregar(error)
         print(error.imprimir())
     else:
-        error = Error('Sintáctico', "No se esperaba el caracter '%s'" %t.value, t.lexer.lineno)
+        error = Error('Sintáctico', "No se esperaba el caracter '%s'" %t.value, t.lexer.lineno - 1)
         tabla_errores.agregar(error)
         print(error.imprimir())
 
@@ -1283,5 +1310,5 @@ parser = yacc.yacc()
 
 def parse(input) :
     retorno = parser.parse(input)
-    dot.view()
+    #dot.view()
     return retorno
