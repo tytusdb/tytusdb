@@ -120,7 +120,7 @@ def executeSelect(self,select):
                             temp = {"nombre":tb.value,"columns":fieldnames,"data":rawdata}
                             tables.append(temp)
                             #x.field_names = fieldnames
-                    if(len(tables)==1):#select de una sola tabla
+                    if(len(tables)==1):#select all de una sola tabla
                         # where -> Expression
                         # orderby -> SortExpressionList
                             # sortExpressionList -> lista de expresiones de la forma [Expression,ASC/DESC]
@@ -129,6 +129,38 @@ def executeSelect(self,select):
                             # If both OFFSET and LIMIT appear, then OFFSET rows are skipped before starting to count the LIMIT rows that are returned.
                         # groupby -> ExpressionList
                         # having -> Expression
+                        print(select.options)
+                        try:
+                            select.options['where']
+                            temp = []
+                            where = executeExpression(self,select.options['where'])
+                            pos = fieldnames.index(where.id)
+                            for tup in tables[0]["data"]:
+                                if(where.op == '='):
+                                    if(tup[pos]==where.value):
+                                        temp.append(tup)
+                                elif(where.op == '!=' or where.op == '<>'):
+                                    if(tup[pos]!=where.value):
+                                        temp.append(tup)
+                                elif(where.op == '>'):
+                                    if(tup[pos]>where.value):
+                                        temp.append(tup)
+                                elif(where.op == '<'):
+                                    if(tup[pos]<where.value):
+                                        temp.append(tup)
+                                elif(where.op == '>='):
+                                    if(tup[pos]>=where.value):
+                                        temp.append(tup)
+                                elif(where.op == '<='):
+                                    if(tup[pos]<=where.value):
+                                        temp.append(tup)
+                            tables[0]["data"] = temp
+                        except:
+                            pass
+                        try:
+                            select.options['orderby']
+                        except:
+                            pass
                         try:
                             select.options['limit']
                             select.options['offset']
@@ -156,10 +188,6 @@ def executeSelect(self,select):
                                     del tables[0]["data"][:offset.value]
                             except:
                                 pass
-                        try:
-                            select.options['orderby']
-                        except:
-                            pass
                         x.field_names = tables[0]["columns"]
                         for row in tables[0]["data"]:
                             x.add_row(row)
