@@ -103,6 +103,9 @@ def abrirTS():
     ts_path = "C:\\Users\\mads3\\Desktop\\OLC2 Proyecto G11\\OLC2_Proyecto_G11\\repoteTS.html"
     webbrowser.get('opera').open(ts_path)
 
+def abritSVG():
+    svg_path = "C:\\Users\\mads3\\Desktop\\OLC2 Proyecto G11\\OLC2_Proyecto_G11\\ast.dot.svg"
+    webbrowser.get('opera').open(svg_path)
 
 root = Tk()
 root.title("TytusDB")
@@ -215,7 +218,7 @@ btn4 = Button(frame1, bg="gray93", command = abrirTS, image=img4, text="Tabla", 
 
 fname6 = "./parser/team11/img/AST.png"
 img5 = PhotoImage(file=fname6)
-btn5 = Button(frame1, bg="gray93", image=img5, text="AST", height=70,
+btn5 = Button(frame1, bg="gray93", command = abritSVG,image=img5, text="AST", height=70,
               width=100, font=("Berlin Sans FB", 15)).place(x=138, y=380)
 
 
