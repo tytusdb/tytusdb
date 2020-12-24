@@ -1,74 +1,32 @@
 import os
+import webbrowser
+
 def generarReporte(reporte) :
-    f = open('errorSeman.html','w')
-    html = ''' <!DOCTYPE html>
-                <html>
-                <head>
-                <style>
-                    table {
-                        font-family: arial, sans-serif;
-                        border-collapse: collapse;
-                        width: 100%;
-                    }
-                    td, th {
-                        border: 1px solid #dddddd;
-                        text-align: left;
-                        padding: 8px;
-                    }
-                    tr:nth-child(even) {
-                        background-color: #dddddd;
-                    }
-                    </style>
-                    </head>
-                    <body>
-                    <h2>Reporte de Errores</h2>
-                    <table>
-                        <tr>
-                            <th>Id</th>
-                            <th>Descripcion</th>
-                        </tr>
-            '''
+    f = open('reports/errorSeman.html', 'w')
+
+    file1 = open("reports/inicio_error_semantico.txt", "r")
+    file3 = open("reports/fin_error.txt", "r")
+    html = file1.read()
+    fin = file3.read()
 
     for key, v in reporte.simbolos.items():
         html += '''  <tr>
                     <td>''' + str(v.id) + '''</td>
                     <td>''' + str(v.tipo) + '''</td>
                 </tr>'''
+    html += fin
     f.write(html)
     f.close()
-    os.startfile('errorSeman.html')
+    webbrowser.open('file://' + os.path.realpath("reports/errorSeman.html"))
 
 
 def generarTablaSimbolos(tabladeSimbolos) :
-    f = open('TablaSimbolos.html','w')
-    html = ''' <!DOCTYPE html>
-                <html>
-                <head>
-                <style>
-                    table {
-                        font-family: arial, sans-serif;
-                        border-collapse: collapse;
-                        width: 100%;
-                    }
-                    td, th {
-                        border: 1px solid #dddddd;
-                        text-align: left;
-                        padding: 8px;
-                    }
-                    tr:nth-child(even) {
-                        background-color: #dddddd;
-                    }
-                    </style>
-                    </head>
-                    <body>
-                    <h2>Tabla de simbolos</h2>
-                    <table>
-                        <tr>
-                            <th>Tipo</th>
-                            <th>Id</th>
-                            <th>Valor</th>
-                        </tr>
-            '''
+    f = open('reports/TablaSimbolos.html', 'w')
+
+    file1 = open("reports/inicio_tabla_simbolos.txt", "r")
+    file3 = open("reports/fin_error.txt", "r")
+    html = file1.read()
+    fin = file3.read()
 
     for key, v in tabladeSimbolos.symbols.items():
         html += '''  <tr>
@@ -76,10 +34,10 @@ def generarTablaSimbolos(tabladeSimbolos) :
                     <td>''' + str(v.id) + '''</td>
                     <td>''' + str(v.value) + '''</td>
                 </tr>'''
+    html += fin
     f.write(html)
     f.close()
-    os.startfile('TablaSimbolos.html')
-
+    webbrowser.open('file://' + os.path.realpath("reports/TablaSimbolos.html"))
 
 
 def reporteErrores() :
