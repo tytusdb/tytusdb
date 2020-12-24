@@ -3,8 +3,8 @@ from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 from datetime import datetime 
 
 class CurrentDate(Instruccion):
-    def __init__(self, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         
 
     def ejecutar(self, ts, arbol):
