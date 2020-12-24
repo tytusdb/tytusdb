@@ -1544,5 +1544,6 @@ parser = yacc.yacc()
 def parse(input) :
      global Error_Lex
      global Error_Sin
+     root=parser.parse(input)
      Reporte_Errores(Error_Lex,Error_Sin)
-     return parser.parse(input)
+     return root

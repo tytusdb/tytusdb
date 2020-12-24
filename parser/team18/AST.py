@@ -29,12 +29,14 @@ Errores_Semanticos = []
 def reiniciarVariables():
     global outputTxt
     outputTxt=[]
-    global listaTablas
-    listaTablas=[]
-    global outputTS
-    outputTS = []
-    EDD.dropAll() #eliminar para ir haciendo pruebas, quitarlo al final
-    baseActiva =""#eliminar para ir haciendo pruebas, quitarlo al final
+    global Errores_Semanticos
+    Errores_Semanticos=[]
+    #global listaTablas
+    #listaTablas=[]
+    #global outputTS
+    #outputTS = []
+    #EDD.dropAll() #eliminar para ir haciendo pruebas, quitarlo al final
+    #baseActiva =""#eliminar para ir haciendo pruebas, quitarlo al final
 
 def insertartabla(columnas,nombre):
     global listaTablas
@@ -356,7 +358,7 @@ def eliminar_Tabla(instr,ts):
             msg='no existe la base de datos activa:'+baseActiva
             agregarMensjae('error',msg,'')
         elif(result==3):
-            Errores_Semanticos.append("Error Semantico: 42P01: La tabla "+nombre +" no existe")
+            Errores_Semanticos.append("Error Semantico: 42P01: La tabla "+nombreT +" no existe")
             msg='42P01:Tabla no existe:'+nombreT
             agregarMensjae('error',msg,'42P01')
         
@@ -964,7 +966,7 @@ def insertar_en_tabla(instr,ts):
                 if(col.anulable==False and col.default==None):
                     insertOK=False
                     msg='23502:columna no puede ser null:'+col.nombre
-                    Errores_Semantico.append('Error Semantico: 23502:columna no puede ser null:'+col.nombre)
+                    Errores_Semanticos.append('Error Semantico: 23502:columna no puede ser null:'+col.nombre)
                     agregarMensjae('error',msg,'23502')
                 #agregar valores default
                 elif(col.default!=None):
@@ -3478,8 +3480,6 @@ def mostrarTablasTemp():
                 texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check])
         misTablas.append(texTab)
     #agregar tabla de simbolos a los reportes
-    misTablas.append(generarTSReporte())
-
     return misTablas
 
 def generarTSReporte():
@@ -3495,9 +3495,16 @@ def generarTSReporte():
 def agregarSalida(listaMensajes):
     consola = tkinter.Tk() # Create the object
     consola.geometry('1000x350')
-    text = tkinter.Text(consola,height=200, width=1280)
+    #crear Scrol
+    scroll_Derecha=Scrollbar(consola)
+    scroll_Derecha.pack(side=RIGHT,fill=Y)
+    Scroll_Abajo=Scrollbar(consola,orient='horizontal')
+    Scroll_Abajo.pack(side=BOTTOM, fill=X)
+    text = tkinter.Text(consola,height=200, width=1280,yscrollcommand=scroll_Derecha.set,wrap="none",xscrollcommand=Scroll_Abajo.set)
     consola.title("Consola")
     text.pack()
+    scroll_Derecha.config(command=text.yview)
+    Scroll_Abajo.config(command=text.xview)
 
     #configuracion de colores de salida
     text.tag_configure("error",  foreground="red")
