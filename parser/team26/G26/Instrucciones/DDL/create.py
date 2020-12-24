@@ -101,8 +101,7 @@ class Create(Instruccion):
                             banderaDef = False
                             primary = None
                             references = column.list.execute(data)
-                            if column.extra == None : default = references.list.execute()
-                            else : default = references.extra.execute()
+                            default = references.extra.execute(data)
                         if banderaDef :
                             default = column.list.execute(data)
                             primary = None
