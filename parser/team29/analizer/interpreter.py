@@ -18,7 +18,7 @@ def execution(input):
     messages = []
     result = grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
     if len(lexerErrors) + len(syntaxErrors) == 0:
         for v in result:
             if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
@@ -26,7 +26,6 @@ def execution(input):
                 if r:
                     list_ = r[0].values.tolist()
                     labels = r[0].columns.tolist()
-                    print(list_)
                     querys.append([labels, list_])
                 else:
                     querys.append(None)
@@ -35,6 +34,7 @@ def execution(input):
                 messages.append(r)
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
+    symbols = symbolReport()
     obj = {
         "messages": messages,
         "querys": querys,
@@ -42,7 +42,10 @@ def execution(input):
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
+        "symbols": symbols
     }
+    symbols = symbolReport()
+    print(symbols)
     return obj
 
 
@@ -52,7 +55,7 @@ def parser(input):
     """
     grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
     obj = {
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
@@ -60,32 +63,34 @@ def parser(input):
     print(obj)
     return obj
 
+
 def astReport():
     grammar.InitTree()
-    
+
+
 def symbolReport():
     global environments
     report = []
 
     for env in environments:
-        vars =  env.variables
+        vars = env.variables
         types = env.types
-        enc = [['Alias','Nombre','Tipo','Fila','Columna']]
+        enc = [["Alias", "Nombre", "Tipo", "Fila", "Columna"]]
         filas = []
         for (key, symbol) in vars.items():
             r = [
-                key, symbol.value, symbol.type if not symbol.type
-                else 'Tabla',  symbol.row, symbol.column
-                ]
+                key,
+                symbol.value,
+                symbol.type if not symbol.type else "Tabla",
+                symbol.row,
+                symbol.column,
+            ]
             filas.append(r)
-        
+
         for (key, symbol) in types.items():
-            r = [
-                key, key, str(symbol) if not symbol else 'Columna',  
-                '-', '-'
-                ]
+            r = [key, key, str(symbol) if not symbol else "Columna", "-", "-"]
             filas.append(r)
-        
+
         enc.append(filas)
         report.append(enc)
     return report

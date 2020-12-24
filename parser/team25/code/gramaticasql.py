@@ -11,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectFilter, SelectFrom, ITEM_ALIAS
+from astSelect import SelectSimple, SelectFrom, ITEM_ALIAS , SelectFilter , SelectFromWhere, WHERE
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -302,9 +302,10 @@ def p_filtro(p):
         p[0] = SelectFilter(p[1],p[2],p[3])
     elif len(p) == 3:
         bnf.addProduccion('\<filtro> ::= \<where> \<group_by>')
+        p[0] = SelectFilter(p[1],p[2])
     else:
         bnf.addProduccion('\<filtro> ::= \<where>')
-        p[0] = p[1]
+        p[0] = SelectFilter(p[1])
 
         
 
@@ -344,6 +345,7 @@ def p_combine_querys7(p):
 def p_select2(p):#_________________________________- select simple con un where
     'select : SELECT select_list FROM lista_tablas filtro'
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list> "FROM"  \<lista_tablas> \<filtro>')
+    p[0] = SelectFromWhere(p[4], p[2] ,p[5])
 
 
 
@@ -399,6 +401,7 @@ def p_select28(p):
 
 def p_select30(p):
     'select : SELECT select_list'
+    p[0] = SelectSimple(p[2])
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list>')
 
 def p_select31(p):
@@ -843,10 +846,10 @@ def p_select_list(p):
         p[0] = [p[1]]
         bnf.addProduccion('\<select_list> ::= \<select_item>')
     elif len(p) == 3:
-        p[0] = [p[1]] # considerar que este ya tendria un alias
+        p[0] = [ITEM_ALIAS(p[1], p[2])] # considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_item>  "ID"')
     elif len(p) == 4:
-        p[0] = [p[1]] # considerar que este ya tendria un alias
+        p[0] = [ITEM_ALIAS(p[1], p[3])] # considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_item> "AS" \<alias>')
 
 def p_select_list2(p):
@@ -860,11 +863,11 @@ def p_select_list2(p):
         p[0] = p[1]
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> ')
     elif len(p) == 5:
-        p[1].append(p[3])
+        p[1].append(ITEM_ALIAS(p[3], p[4]))
         p[0] = p[1] # falta considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> "ID"')
     elif len(p) == 6:
-        p[1].append(p[3])
+        p[1].append(ITEM_ALIAS(p[3], p[5]))
         p[0] = p[1] # falta considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> "AS" \<alias>')
 
@@ -1855,6 +1858,7 @@ def p_subquery(p):
 def p_where(p):
         'where : WHERE expresion'
         bnf.addProduccion('\<where> ::= "WHERE" \<expresion>')
+        p[0] = WHERE(expresion=p[2])
 
 #<GROUP_BY> ::= <LISTA_IDS>
 def p_groupby(p):
@@ -2006,8 +2010,8 @@ def p_case(p):
         bnf.addProduccion('\<case> ::= "CASE" \<subcase> \<else_case> "END"')
 #             | 'case' <SUBCASE> 'end'   
 def p_case1(p):
-        'case : CASE subcase END'
-        bnf.addProduccion('\<case> ::= "CASE" \<subcase>  "END"')   
+        'case : CASE subcase END ID'
+        bnf.addProduccion('\<case> ::= "CASE" \<subcase>  "END" "ID"')   
 #    <SUBCASE> ::= <WHEN_CASE>
 def p_subcase(p):
         'subcase : when_case'
@@ -2024,7 +2028,10 @@ def p_subcase1(p):
 def p_else_case(p):
         'else_case : ELSE expresion'
         bnf.addProduccion('\<else_case> ::= "ELSE" \<expresion>')
-
+#<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
+def p_when_case(p):
+    'when_case : WHEN expresion THEN expresion'
+    bnf.addProduccion('\<when_case> ::=  "WHEN" \<expresion> "THEN" \<expresion>') 
 #<GREATEST> ::= 'greatest' '(' <LISTA_EXP>')'
 def p_greatiest(p):
         'greatest : GREATEST PABRE lista_exp PCIERRA'
@@ -2049,10 +2056,6 @@ def p_lista_exp_2(p):
     p[0] = p[1]
     bnf.addProduccion('\<lista_exp> ::=  \<lista_exp> "," \<expresion>')  
 
-#<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
-def p_when_case(p):
-    'when_case : WHEN expresion THEN expresion'
-    bnf.addProduccion('\<when_case> ::=  "WHEN" \<expresion> "THEN" \<expresion>') 
         
 def p_alias(p):
     '''alias : CADENA ''' # VALIDACION SEMANTICA QUE ESTA CADENA VENGA ENTRR COMILLAS DOBLES
@@ -2088,8 +2091,7 @@ def analizarEntrada(entrada):
 
 arbolParser = analizarEntrada('''
 use test;
-select cos(TABLA2.numerica) from tb1 as TABLAUNO, tb2 as TABLA2;
-
+select alv.numerica as valor , alv.cadena from tb2 as alv where alv.numerica between 10 and 55;
 ''')
 arbolParser.ejecutar()
 

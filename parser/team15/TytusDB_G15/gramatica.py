@@ -354,7 +354,7 @@ def t_COMENTARIO_MULTILINEA(t):
 
 # Comentario simple // ...
 def t_COMENTARIO_SIMPLE(t):
-    r'//.*\n'
+    r'--.*\n'
     t.lexer.lineno += 1
 
 # Caracteres ignorados
@@ -1714,6 +1714,24 @@ def p_instruccion_select_insrt_union(t):
         temp.append(t[1])
     t[0] = temp
 
+def p_instruccion_select_insrt_union_ALL(t):
+    ''' select_uniones : select_uniones tipo_union ALL select_insrt'''
+    reporte_bnf.append("<select_uniones> ::= <select_uniones> <tipo_union> ALL <select_insrt>")
+    temp = []
+    if t[2].upper() == 'UNION':
+        temp.append(OPCIONES_UNIONES.UNION_ALL)
+        t[1].append(t[4])
+        temp.append(t[1])
+    elif t[2].upper() == 'INTERSECT':
+        temp.append(OPCIONES_UNIONES.INTERSECT_ALL)
+        t[1].append(t[4])
+        temp.append(t[1])
+    elif t[2].upper() == 'EXCEPT':
+        temp.append(OPCIONES_UNIONES.EXCEPTS_ALL)
+        t[1].append(t[4])
+        temp.append(t[1])
+    t[0] = temp
+
 def p_instruccion_select_insrt_union2(t):
     ' select_uniones : select_insrt '
     reporte_bnf.append("<select_uniones> ::= <select_insrt>")
@@ -2738,7 +2756,7 @@ def p_funciones_select(t):
                         | LENGTH PAR_A string_type PAR_C
                         | SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
                         | TRIM PAR_A string_type PAR_C
-                        | SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+                        | SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
                         | GET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO PAR_C
                         | SET_BYTE PAR_A string_type D_DOSPTS BYTEA COMA ENTERO COMA ENTERO PAR_C
                         | SHA256 PAR_A string_type PAR_C
@@ -2893,7 +2911,7 @@ def p_funciones_select(t):
         t[0] = Expresiondatos(CADENA_BINARIA.TRIM, t[3],None,None,None) 
     elif t[1].upper() == 'SUBSTR':
         reporte_bnf.append("<funciones_select> :: SUBSTR PAR_A <string_type> COMA ENTERO COMA ENTERO PAR_C")
-        t[0] = Expresiondatos(CADENA_BINARIA.SUBSTR, t[3],ExpresionEntero(TIPO_VALOR.NUMERO,t[5]),ExpresionEntero(TIPO_VALOR.NUMERO,t[7]),None) 
+        t[0] = Expresiondatos(CADENA_BINARIA.SUBSTR, t[3],t[5],t[7],None) 
     elif t[1].upper() == 'GET_BYTE':
         reporte_bnf.append("<funciones_select> :: GET_BYTE PAR_A <string_type> D_DOSPTS BYTEA COMA ENTERO PAR_C")
         t[0] = Expresiondatos(CADENA_BINARIA.GET_BYTE, t[3],ExpresionEntero(TIPO_VALOR.NUMERO,t[7]),None,None)
@@ -2971,7 +2989,7 @@ def p_expresion_wherea(t):
                         | CEILING PAR_A expresion PAR_C 
                         | SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
                         | TRIM PAR_A string_type D_DOSPTS BYTEA FROM string_type D_DOSPTS BYTEA PAR_C
-                        | SUBSTR PAR_A string_type COMA ENTERO COMA ENTERO PAR_C
+                        | SUBSTR PAR_A string_type COMA expresion COMA expresion PAR_C
                         | sin_some_any PAR_A select_insrt PAR_C
                         | EXTRACT PAR_A extract_time FROM string_type PAR_C '''
 

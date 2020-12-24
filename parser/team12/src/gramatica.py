@@ -1364,14 +1364,15 @@ def p_opcional_creartabla_columna_8_1(t):
     t[0] = temporal  
     
 def p_opcional_creartabla_columna_9(t):
-    '''opcional_creartabla_columna : opcional_constraint CHECK PARENTESISIZQ PARENTESISDER
+    '''opcional_creartabla_columna : opcional_constraint CHECK PARENTESISIZQ Exp PARENTESISDER
                                     |'''
-    reportebnf.append(bnf["p_opcional_creartabla_columna_9"])                                    
+    reportebnf.append(bnf["p_opcional_creartabla_columna_9"]) 
     if len(t) > 1:
         nuevo = Start("OPCIONALES_ATRIBUTO_CHECK")
         if t[1] != None:
             nuevo.addChild(t[1])
         nuevo.createTerminal(t.slice[2])
+        nuevo.addChild(t[4])
         temporal = Start("Temp")
         temporal.addChild(nuevo)
         t[0] = temporal
