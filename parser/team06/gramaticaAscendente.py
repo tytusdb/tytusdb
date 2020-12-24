@@ -813,6 +813,7 @@ def p_operacion(t):
         t[0]=ExpresionBIT(t[1],t[3],OPERACION_BIT.DESPLAZAMIENTO_DERECHA)
 # --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='=':
+        t[0]=operacionDelete(t[1],t[3],t[1])
         h.reporteGramatical1 +="operacion    ::=      operacion IGUAL operacion\n"
 # --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='==':
@@ -1240,7 +1241,7 @@ def p_insertBD_1(t):
 def p_insertBD_2(t):
     'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
     print(t[9])
-    #t[0] = InsertinDataBases(t[3],t[5],t[9])
+    t[0] = InsertinDataBases(t[3],t[5],t[9])
     h.reporteGramatical1 +="insertinBD    ::=     INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
     h.reporteGramatical2 += "t[0] = InsertinDataBases(t[3],t[5],t[9])\n"
 
@@ -1294,11 +1295,12 @@ def p_asigna(t):
 #-----------------------------------------------------DELETE IN BD--------------------------------------------------------------------
 def p_deleteinBD_1(t):
     'deleteinBD         : DELETE FROM ID PUNTOYCOMA'
+    t[0] = t[3]
     h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0]=t[3]\n"
 
 def p_deleteinBD_2(t):
-    'deleteinBD         : DELETE FROM ID WHERE asignaciones PUNTOYCOMA'
+    'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
     t[0] = DeleteinDataBases(t[3],t[5])
     h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE asignaciones PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0]=DeleteinDataBases(t[3],t[5])\n"
@@ -1535,7 +1537,7 @@ def p_tipo(t):
         h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],None)\n"
 
     # -------------------------------------------------------------------------------------------------------------- 
-    elif t[1].upper()=="BEGIN":
+    elif t[1].upper()=="BIGINT":
         t[0]=TipoDatoColumna(t[1],None)
         h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
         h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],None)\n"
@@ -1554,7 +1556,7 @@ def p_tipo(t):
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="REAL":
-        t[0]=TipoDatoColumna(t[0],None)
+        t[0]=TipoDatoColumna(t[1],None)
         h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
         h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],None)\n"
 
@@ -1571,9 +1573,9 @@ def p_tipo(t):
         h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],None)\n"
 
     # -------------------------------------------------------------------------------------------------------------- 
-    elif t[1].upper()=="CHARACTER" and t[2].upper()=="VARING":
+    elif t[1].upper()=="CHARACTER" and t[2].upper()=="VARYING":
         t[0]=TipoDatoColumna(t[2],t[4])
-        h.reporteGramatical1 +="tipo    ::=      CHARACTER VARING PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA\n"
+        h.reporteGramatical1 +="tipo    ::=      CHARACTER VARYING PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA\n"
         h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],t[4])\n"
 
     # -------------------------------------------------------------------------------------------------------------- 

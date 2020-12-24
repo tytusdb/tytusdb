@@ -41,25 +41,31 @@ class Delete(Instruccion):
                     pks.append(contp)
             contp += 1
 
-        if pks == [] :
-            error = Error('Semántico', 'Error(???): La tabla ' + self.tableid.table.upper()+' no tiene primary key definida.', 0, 0)
-            return error
-        #print(pks)
+
 
         if self.condiciones == None :
-            'Se cambian todas los campos que vienen en el set'
+            'Se cambian todas los campos que vienen'
+            index = 0
             for fila in filas :
                 rowlistp = []
-                for pk in pks :
-                    rowlistp.append(fila[pk])
+                if not pks == [] :
+                    for pk in pks :
+                        rowlistp.append(fila[pk])
+                else :
+                    rowlistp.append(index)
+                    index += 1
 
                 print(rowlistp)
 
-            
+            index = 0
             for fila in filas :
                 rowlistp = []
-                for pk in pks :
-                    rowlistp.append(fila[pk])
+                if not pks == [] :
+                    for pk in pks :
+                        rowlistp.append(fila[pk])
+                else :
+                    rowlistp.append(index)
+                    index += 1
                 
 
                 if rowlistp == [] :
@@ -87,6 +93,7 @@ class Delete(Instruccion):
         else : 
             #diccionario para mandar a condiciones:
             #dicciPrueba = {'NombreTabla1': {'fila': [1, 3, "f"], 'alias': 'nombre'}, 'NombreTabla2': {'fila': [], 'alias': None}}
+            index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
                 #print(condObj)
@@ -97,12 +104,18 @@ class Delete(Instruccion):
 
                 rowlistp = []
                 if toadd :
-                    for pk in pks :
-                        rowlistp.append(fila[pk])
+                    if not pks == [] :
+                        for pk in pks :
+                            rowlistp.append(fila[pk])
+                    else :
+                        rowlistp.append(index)
 
                     print(rowlistp)
 
+                index += 1
 
+
+            index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
                 print(condObj)
@@ -114,8 +127,11 @@ class Delete(Instruccion):
                 # Send to delete function
                 rowlistp = []
                 if toadd :
-                    for pk in pks :
-                        rowlistp.append(fila[pk])
+                    if not pks == [] :
+                        for pk in pks :
+                            rowlistp.append(fila[pk])
+                    else :
+                        rowlistp.append(index)
 
                     if rowlistp == [] :
                         print('Operación exitosa')
@@ -137,6 +153,8 @@ class Delete(Instruccion):
                     elif reto == 4:
                         error = Error('Storage', 'Error(4): Llave primaria inexistente', 0, 0)
                         return error
+                
+                index += 1
 
         return self.tableid
 

@@ -101,6 +101,19 @@ class TrigonometricFunction(Expression):
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
         dot += self.expression.graphAST('',hash(self))
         return dot
+
+class ArgumentListFunction(Expression):
+    def __init__(self, function, expressions):
+        self.function = function
+        self.expressions = expressions
+    def graphAST(self, dot, parent):
+        dot += str(parent) + '->' + str(hash(self)) + '\n'
+        str(hash("expressions") + hash(self)) + '\n'
+        dot += str(hash("expressions") + hash(self)) + \
+            '[label=\"' + "expressions" + '\"]\n'
+        for expression in self.expressions:
+            dot+= expression.graphAST('',str(hash("expressions") + hash(self)))
+        return dot
         
 class AggFunction(Expression):
     def __init__(self, function, expression):
