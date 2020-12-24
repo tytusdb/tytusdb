@@ -387,6 +387,7 @@ class ArbolAVL:
 
     def eliminarcolumna(self, raiz, Nocol):
         if raiz != None:
+            Nocol=int(Nocol)
             raiz.campos.pop(Nocol)
             self.eliminarcolumna(raiz.izq, Nocol)
             self.eliminarcolumna(raiz.der, Nocol)
@@ -742,11 +743,12 @@ class ArbolAVL:
             i = self.buscartabla(db, tabla)
             if i != None:
                 try:
+                    i.campos[1]=int(i.campos[1])
                     i.campos[1]=i.campos[1]+1
                     self.agregarcolumna(i.lista.raiz, valor)
                     return 0
                 except:
-                    return 1
+                    return 1 
             else:
                 return 3
         else:
@@ -759,13 +761,14 @@ class ArbolAVL:
         if raiz !=None:
             i = self.buscartabla(db, tabla)
             if i != None:
-                if i.campos[1] < Nocol:
+                if int(i.campos[1]) < int(Nocol):
                     return 5
                 else:
                     for f in i.campos[0]:
                         if f == Nocol:
                             return 4
                 try:
+                    i.campos[1]=int(i.campos[1])-1
                     self.eliminarcolumna(i.lista.raiz, Nocol)
                     return 0
                 except:

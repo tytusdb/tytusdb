@@ -8,7 +8,7 @@ from storageManager.jsonMode import extractTable
 from typeChecker.typeReference import getColumns
 from prettytable import PrettyTable
 from astExpresion import ExpresionID, Expresion , TuplaCompleta
-
+from reporteErrores.errorReport import ErrorReport
 class COMBINE_QUERYS(Enum):
     UNION = 1
     INTERSECT = 2
@@ -192,7 +192,7 @@ class SelectFrom(Instruccion):
             tabla_fuente = productoCruz(lista)
             resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", self.fuentes)
             ts.append(resultado)
-            print(ts)
+            # print(ts)
             salida = None
             seleccion_columnas = []
             
@@ -376,6 +376,7 @@ class matriz():
         columnas_resultantes = []
         for actual in ids:
             if isinstance(actual , Expresion):
+                print(actual.getExpresionToString())
                 #___________________________________________________- EJECUCION 
                 ColumnaCompleta = []
                 MinitablaSimbolos = []
@@ -389,6 +390,9 @@ class matriz():
                         indiceColumna+=1
                     tupla = TuplaCompleta(MinitablaSimbolos) # ESTO SOLO LO HICE PARA PODER HACER UN IF EN EL EJECUTAREXPRESIONID y no matar lo que puso cante :v 
                     casillaResultante = actual.ejecutar(tupla)
+                    if isinstance(casillaResultante , ErrorReport): # REPORTE EL ERROR Y LO RETORNO
+                        print(casillaResultante.description)
+                
                     ColumnaCompleta.append(casillaResultante.val) 
                     MinitablaSimbolos.clear()
                     i+=1

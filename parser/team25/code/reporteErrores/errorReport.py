@@ -29,7 +29,7 @@ class ListError:
         self.listErrors.append(error)
     
     def generateReport(self):
-        archivo = open('reporteErrores.html' ,'w')# w es escritura, si no existe lo crea
+        archivo = open('data/Reportes/reporteErrores.html' ,'w')# w es escritura, si no existe lo crea
         # HEAD
         archivo.write('<!DOCTYPE html> '+"\n")
         archivo.write('<html lang=\"en\">'+"\n")
