@@ -46,6 +46,7 @@ class Select(Querie):
             for item in self.tableList:
                 table = database.getTable(item)
                 if table == None:
+                
                     if len(self.tableList) > 1:
                         return {'Error': 'La tabla: '+item+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
                     else:
@@ -57,7 +58,7 @@ class Select(Querie):
                 valor = {'table': table,'data': val}
                 tableArray.append(valor)
         else:
-            tableArray.push(self.columnList)
+            tableArray.push(self.columnList.execute(environment))
         
         '''WHERE'''
         if self.where != None:
