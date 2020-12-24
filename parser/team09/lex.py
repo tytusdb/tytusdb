@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 import ply.lex as lex
 import re
+import instrucciones as ins
 from graphviz import Digraph
 from graphviz import Graph
 
@@ -13,7 +14,7 @@ cont_error_sintactico = 0
 linea = 1
 columna = 1
 errores = ""                #Variable para concatenar los errores que se mostraran en la consola
-
+base_actual = None
 i = 0
 
 def inc_index():
@@ -98,6 +99,8 @@ reservadas = {
     'right'         : 'RIGHT',
     'full'          : 'FULL',
     'outer'         : 'OUTER',
+    'boolean'       : 'BOOLEAN', 
+    'off'           : 'OFF', 
     'on'            : 'ON',
     'join'          : 'JOIN',
     'order'         : 'ORDER',
@@ -854,6 +857,7 @@ def p_data_type(p):
             | DATA
             | TIME
             | TIME time_zone
+            | BOOLEAN
             | INTERVAL
             | ID'''
     try:
@@ -1313,13 +1317,13 @@ def p_colum_list(p):
 
 def p_const_keys(p):
     '''const_keys   : const_keys COMA CONSTRAINT ID PRIMARY KEY PARIZQ lista_id PARDER
-                    | const_keys COMA CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+                    | const_keys COMA CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER
                     | const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
-                    | const_keys COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+                    | const_keys COMA FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER
                     | CONSTRAINT ID PRIMARY KEY PARIZQ lista_id PARDER
-                    | CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+                    | CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER
                     | PRIMARY KEY PARIZQ lista_id PARDER
-                    | FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
+                    | FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER'''
 
     try:
 
@@ -1907,7 +1911,9 @@ def p_expresion(p):
 
 def p_booleanos(p):
     '''booleanos : TRUE
-                 | FALSE'''
+                 | FALSE
+                 | ON
+                 | OFF'''
 
 def p_now(p):
     'now : NOW PARIZQ PARDER'

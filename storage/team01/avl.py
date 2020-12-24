@@ -3,7 +3,8 @@
 from graphviz import Digraph, nohtml
 import os
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
-
+import pathlib
+ruta=str(pathlib.Path().absolute())+"/team01/"
 #Clase Nodo de Arbol AVL
 class NodoAVL:
     #Constructor de Nodo de Arbol Binario de Busqueda
@@ -398,21 +399,31 @@ class AVL:
        self.quitar(clave)
 
     #Crea nodos en la graficación de un árbol
-    def crearnodos(self, arbol, f, dir):
-        if arbol != None:
-            strclave = str(arbol.clave)
-            f.node(strclave, nohtml('<f0> |<f1> ' + strclave + '|<f2>'))
-            if arbol.padre != None:
-                if dir == 0:
-                    f.edge(str(arbol.padre.clave)+':<f0>', str(arbol.clave)+':<f1>')
-                else:
-                    f.edge(str(arbol.padre.clave)+':<f2>', str(arbol.clave)+':<f1>')
-            self.crearnodos(arbol.Izq, f, 0)
-            self.crearnodos(arbol.Der, f, 1)
-
+    def crearnodos(self, arbol, f, dir,tipo=""):        
+        if tipo =="":
+            if arbol != None: 
+                strclave = str(arbol.clave)
+                f.node(strclave, nohtml('<f0> |<f1> ' + strclave + '|<f2>'))
+                if arbol.padre != None:
+                    if dir == 0:
+                        f.edge(str(arbol.padre.clave)+':<f0>', str(arbol.clave)+':<f1>')
+                    else:
+                        f.edge(str(arbol.padre.clave)+':<f2>', str(arbol.clave)+':<f1>')
+                self.crearnodos(arbol.Izq, f, 0)
+                self.crearnodos(arbol.Der, f, 1)
+        else:            
+            for index in range(0, len(arbol)):
+                try:                    
+                    f.edge(str(arbol[index]),str(arbol[index+1]))
+                except:
+                    pass 
     #Crea un gráfico del árbol
-    def armararbol(self, arbol):
-        f = Digraph('arbol', filename='D:\\Usac\\2020 Vacaciones Diciembre\\Laboratorio\\Temporal.jpg',
-                format="jpg", node_attr={'shape': 'record', 'height': '.1'})
-        self.crearnodos(arbol, f, 0)
+    def armararbol(self, arbol, titulo, nombreArchivo,tipo=""):
+        f = Digraph('arbol', filename=ruta+"Imagenes/graficaArboles/"+nombreArchivo,
+                format="png", node_attr={'shape': 'record', 'height': '.1'})
+        self.crearnodos(arbol, f, 0,tipo=tipo)
+        f.attr(label=r'\n\n'+titulo)
+        f.attr(fontsize='20')
         f.render()
+
+    

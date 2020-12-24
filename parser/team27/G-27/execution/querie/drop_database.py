@@ -1,10 +1,10 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/storage')
-from querie import * 
+from execution.abstract.querie import * 
 from storageManager import jsonMode as admin
 
-class drop_database(Querie):
+class Drop_Database(Querie):
+    """
+    name: id de la base de datos a eliminar
+    """
     def __init__(self,name, column,row):
         Querie.__init__(self,column, row)
         self.name = name
@@ -16,6 +16,7 @@ class drop_database(Querie):
         result = admin.dropDatabase(self.name)  #<---------------------------
         if result == 0:
             #Se elimino correctamente la base de datos
+            environment.deleteDataBase(self.name)
             return 'Se elimino exitosamente la base de datos: ' + self.name 
         elif result == 1:
             #Error al crear

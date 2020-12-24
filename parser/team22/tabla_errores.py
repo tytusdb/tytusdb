@@ -39,5 +39,12 @@ class Codigos():
     def table_duplicate_table(self, name: str):
         return 'ERROR: La tabla «' + name + '» ya existe\n' + 'SQL state: 42P07\n'
 
+    def table_undefined_table(self, name: str):
+        return 'ERROR: La tabla «' + name + '» no existe\n' + 'SQL state: 42P01\n'
+
     def successful_completion(self, consulta: str):
         return consulta + '\nConsulta devuelta correctamente \nSQL state: 00000\n'
+
+    def trigonometric_function_out_of_range(self, name: str, value: str, limit: str):
+        return 'ERROR: La función «' + name + '» permite un rango de [' + limit +'] y se ingresó: '+value +'. \n' + 'SQL state: 22003\n'
+    

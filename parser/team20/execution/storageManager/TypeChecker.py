@@ -6,7 +6,7 @@ import os
 import json
 
 ##Create##
-def TCcreateDatabase(database: str) -> int:
+def TCcreateDatabase(database: str,Mode:str) -> int:
     initCheck()
     dump = False
     with open('data/json/TypeChecker') as file:
@@ -14,8 +14,9 @@ def TCcreateDatabase(database: str) -> int:
         if database in data:
             return 2
         else: 
-            new = {database:{}}
+            new = {database:{"Mode":Mode,"Types":{}}}
             data.update(new)
+            data["USE"]=database
             dump = True
     if dump:
         with open('data/json/TypeChecker', 'w') as file:
@@ -24,15 +25,38 @@ def TCcreateDatabase(database: str) -> int:
     else:
         return 1
 
+#Get database selected#
+def TCgetDatabase()->str:
+    initCheck()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        return data["USE"]
+
+#Set database select
+def TCsetDatabase(database: str)->int:
+    initCheck()
+    dump= False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        data["USE"]= database
+        dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 2
+    return 1
+
 #Check if database exists
 def TCSearchDatabase(database:str)->int:
     initCheck()
     with open('data/json/TypeChecker') as file:
         data = json.load(file)
         if database in data:
-            return 1 #existe
+            return   data[database]["Mode"]  #existe
         else:
-            return 2 #noExiste
+            return 8 #noExiste
 
 # DELETE a database by pop from dictionary
 def TCdropDatabase(database: str) -> int:
@@ -68,7 +92,7 @@ def TCshowDatabases() -> list:
 ###############
 
 # CREATE a table checking their existence
-def TCcreateTable(database: str, table: str, Columns:list) -> int:
+def TCcreateTable(database: str, table: str, Columns:None) -> int:
     initCheck()
     dump = False
     with open('data/json/TypeChecker') as file:
@@ -83,10 +107,124 @@ def TCcreateTable(database: str, table: str, Columns:list) -> int:
                 #print(Columns)
                 new = {table:{}}
                 data[database].update(new)
-                for b in range(0,len(Columns)):
-                    new2= Columns[b]
-                    data[database][table].update(new2)
+                data[database][table].update(Columns)
 
+                dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 1
+
+def TCaddCheckTable (database: str, table: str,column:str ,value:None,op:str) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            else:
+                if not column in data[database][table]:
+                    return 4
+                else:
+                    data[database][table][column]['CHECKS'].append({'OP':op,'VALUE':value})
+                    dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 1
+
+def TCaddPrimaryKey (database: str, table: str,column:str,value:bool) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            else:
+                if not column in data[database][table]:
+                    return 4
+                else:
+                    new={'PRIMARY':value}
+                    data[database][table][column].update(new)
+                    dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 1
+
+def TCaddUnique (database: str, table: str,column:str,value:bool) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            else:
+                if not column in data[database][table]:
+                    return 4
+                else:
+                    new={'UNIQUE':value}
+                    data[database][table][column].update(new)
+                    dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 1
+
+def TCgetToInherit(database: str, table: str) -> None:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        doc={}
+        if not database in data:
+            return doc
+        else:
+            if not table in data[database]:
+                return doc
+            else:
+                for d in data[database][table]:
+                    new= dict.copy(data[database][table][d])
+                    doc.update({d:new})
+                return doc
+    
+###############
+# Tables TYPES #
+###############
+
+# CREATE a type
+def TCcreateType(database: str, typeEnum: str, Values:None) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if typeEnum in data[database]['Types']:
+                return 3
+            else:
+                print(Values)
+                new = {typeEnum:{}}
+                data[database]['Types'].update(new)
+                data[database]['Types'][typeEnum].update(Values)
                 dump = True
     if dump:
         with open('data/json/TypeChecker', 'w') as file:
@@ -97,9 +235,34 @@ def TCcreateTable(database: str, table: str, Columns:list) -> int:
         return 0"""
     else:
         return 1
+'''def TCgetPrimarys(database:str,table:str)->str:
+    initCheck()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if database in data:
+            if table in data[database][table]:
+                for d in data[database][table]
+                    print(data[database][table][d])
+            else:
+                return 1
+        else:
+            return 2
 
+def TCValidateReference(database:str,table:str,column:str)->int:
+    initCheck()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if database in data:
+            if table in data[database][table]:
+                if column in data[database][table][column]:
+                    return 0
+                else:
+                    return 1 #noexists column in table
+            else:
+                return 2 #noexists table in database
 
-
+        else:
+            return 3 #noexists database'''
 
 # Check the existence of data and json folder and databases file
 # Create databases files if not exists
