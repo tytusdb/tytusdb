@@ -1,6 +1,7 @@
 Error = None
 syntaxPostgreErrors = []
 
+
 def validateInteger(n, val, x):
     global Error
     s = str(val)
@@ -15,7 +16,9 @@ def validateInteger(n, val, x):
             Error = "El valor está fuera del rango"
             return False
     Error = "El valor no es un numero entero"
-    syntaxPostgreErrors.append("Error: 22P02: sintaxis de entrada no válida para el tipo entero")
+    syntaxPostgreErrors.append(
+        "Error: 22P02: sintaxis de entrada no válida para el tipo entero"
+    )
     return False
 
 
@@ -59,8 +62,10 @@ def validateDecimal(col, val):
                 if x and y:
                     Error = None
                     return True
-                else: 
-                    syntaxPostgreErrors.append("Error: 22003: el valor no cumple con la precision")
+                else:
+                    syntaxPostgreErrors.append(
+                        "Error: 22003: el valor no cumple con la precision"
+                    )
                     Error = "No cumple con la precisión"
                     return False
             else:
@@ -68,7 +73,9 @@ def validateDecimal(col, val):
                     Error = None
                     return True
                 else:
-                    syntaxPostgreErrors.append("Error: 22003: el valor no cumple con la precision")
+                    syntaxPostgreErrors.append(
+                        "Error: 22003: el valor no cumple con la precision"
+                    )
                     Error = "No cumple con la presición"
                     return False
         else:
@@ -79,8 +86,10 @@ def validateDecimal(col, val):
                 if x and y:
                     Error = None
                     return True
-                else: 
-                    syntaxPostgreErrors.append("Error: 22003: el valor no cumple con la precision")
+                else:
+                    syntaxPostgreErrors.append(
+                        "Error: 22003: el valor no cumple con la precision"
+                    )
                     Error = "No cumple con la precisión"
                     return False
             else:
@@ -88,14 +97,17 @@ def validateDecimal(col, val):
                     Error = None
                     return True
                 else:
-                    syntaxPostgreErrors.append("Error: 22003: el valor no cumple con la precision")
+                    syntaxPostgreErrors.append(
+                        "Error: 22003: el valor no cumple con la precision"
+                    )
                     Error = "No cumple con la presición"
                     return False
     except:
         Error = "El valor no es un decimal"
-        syntaxPostgreErrors.append("Error: 22P02: sintaxis de entrada no válida para el tipo decimal")
+        syntaxPostgreErrors.append(
+            "Error: 22P02: sintaxis de entrada no válida para el tipo decimal"
+        )
         return False
-
 
 
 def validateNumeric(col, val):
@@ -112,8 +124,10 @@ def validateNumeric(col, val):
                 if x and y:
                     Error = None
                     return True
-                else: 
-                    syntaxPostgreErrors.append("Error: 22003: el valor no cumple con la precision")
+                else:
+                    syntaxPostgreErrors.append(
+                        "Error: 22003: el valor no cumple con la precision"
+                    )
                     Error = "No cumple con la precisión"
                     return False
             else:
@@ -121,7 +135,9 @@ def validateNumeric(col, val):
                     Error = None
                     return True
                 else:
-                    syntaxPostgreErrors.append("Error: 22003: el valor no cumple con la precision")
+                    syntaxPostgreErrors.append(
+                        "Error: 22003: el valor no cumple con la precision"
+                    )
                     Error = "No cumple con la presición"
                     return False
         else:
@@ -132,8 +148,10 @@ def validateNumeric(col, val):
                 if x and y:
                     Error = None
                     return True
-                else: 
-                    syntaxPostgreErrors.append("Error: 22003: el valor no cumple con la precision")
+                else:
+                    syntaxPostgreErrors.append(
+                        "Error: 22003: el valor no cumple con la precision"
+                    )
                     Error = "No cumple con la precisión"
                     return False
             else:
@@ -141,11 +159,15 @@ def validateNumeric(col, val):
                     Error = None
                     return True
                 else:
-                    syntaxPostgreErrors.append("Error: 22003: el valor no cumple con la precision")
+                    syntaxPostgreErrors.append(
+                        "Error: 22003: el valor no cumple con la precision"
+                    )
                     Error = "No cumple con la presición"
                     return False
     except:
-        syntaxPostgreErrors.append("Error: 22P02: sintaxis de entrada no válida para el tipo entero")
+        syntaxPostgreErrors.append(
+            "Error: 22P02: sintaxis de entrada no válida para el tipo entero"
+        )
         Error = "El valor no es un numero"
         return False
 
@@ -162,20 +184,26 @@ def validateReal(col, val):
             if x and y:
                 Error = None
                 return True
-            else: 
-                syntaxPostgreErrors.append("Error: 22003: el valor esta fuera del rango establecido")
+            else:
+                syntaxPostgreErrors.append(
+                    "Error: 22003: el valor esta fuera del rango establecido"
+                )
                 Error = "Valor real fuera del rango establecido"
                 return False
         else:
-            if validateInteger(31, int(lts[0]), 0):
+            if validateInteger(31, int(val), 0):
                 Error = None
                 return True
-            else: 
-                syntaxPostgreErrors.append("Error: 22003: el valor esta fuera del rango establecido")
+            else:
+                syntaxPostgreErrors.append(
+                    "Error: 22003: el valor esta fuera del rango establecido"
+                )
                 Error = "Valor real fuera del rango establecido"
                 return False
     except:
-        syntaxPostgreErrors.append("Error: 22P02: sintaxis de entrada no válida para el tipo entero")
+        syntaxPostgreErrors.append(
+            "Error: 22P02: sintaxis de entrada no válida para el tipo entero"
+        )
         Error = "El valor no es un numero"
         return False
 
@@ -189,24 +217,30 @@ def validateDouble(col, val):
             lts = n.split(".")
             x = validateInteger(63, int(lts[0]), 0)
             y = afterPoint(15, int(lts[1]))
-            
+
             if x and y:
                 Error = None
                 return True
-            else: 
-                syntaxPostgreErrors.append("Error: 22003: el valor double esta fuera del rango establecido")
+            else:
+                syntaxPostgreErrors.append(
+                    "Error: 22003: el valor double esta fuera del rango establecido"
+                )
                 Error = "Valor double fuera del rango establecido"
                 return False
         else:
-            if validateInteger(63, int(lts[0]), 0):
+            if validateInteger(63, int(val), 0):
                 Error = None
                 return True
-            else: 
-                syntaxPostgreErrors.append("Error: 22003: el valor  double esta fuera del rango establecido")
+            else:
+                syntaxPostgreErrors.append(
+                    "Error: 22003: el valor  double esta fuera del rango establecido"
+                )
                 Error = "Valor double fuera del rango establecido"
                 return False
     except:
-        syntaxPostgreErrors.append("Error: 22P02: sintaxis de entrada no válida para el tipo entero")
+        syntaxPostgreErrors.append(
+            "Error: 22P02: sintaxis de entrada no válida para el tipo entero"
+        )
         Error = "El valor no es un numero"
         return False
 
@@ -220,13 +254,15 @@ def validateMoney(value):
         if min <= val and val <= max:
             Error = None
             return True
-        else: 
-            syntaxPostgreErrors.append("Error: 22003: el valor  money esta fuera del rango establecido")
+        else:
+            syntaxPostgreErrors.append(
+                "Error: 22003: el valor  money esta fuera del rango establecido"
+            )
             Error = "Valor money fuera del rango establecido"
             return False
     except:
-        syntaxPostgreErrors.append("Error: 22P02: sintaxis de entrada no válida para el tipo entero")
+        syntaxPostgreErrors.append(
+            "Error: 22P02: sintaxis de entrada no válida para el tipo entero"
+        )
         Error = "El valor no es un numero"
         return False
-
-        

@@ -28,7 +28,11 @@ def test():
                 "Universidad de San Carlos de Guatemala\n\tFacultad de Ingenieria\n\tOrganización de lenguajes y compiladores 2\n\tversion 1.0\n\tGRUPO 11\n\tMaria Andrea Duarte Saenz\n\t201503484")  # título, mensaje
     # END
 
-
+def borrar():
+    output_text.delete("1.0","end")
+    errores_text.delete("1.0","end")
+    texto.delete("1.0","end")
+        
 def nuevo():
     global ruta
     mensaje.set("Nuevo archivo")
@@ -117,8 +121,8 @@ filemenu.add_command(label="Guardar Como", command=guardar_como)
 filemenu.add_separator()
 filemenu.add_command(label="Salir", command=root.quit)
 editmenu = Menu(menubar, tearoff=0)
-editmenu.add_command(label="Run")
-editmenu.add_command(label="Borrar todo")
+editmenu.add_command(label="Run", command = lambda : funcion.analizar(texto,consola_text,output_text, errores_text))
+editmenu.add_command(label="Borrar todo", command = borrar)
 #editmenu.add_command(label="Analizar HTML", command = analizarHTML)
 #editmenu.add_command(label="Analizar RMT", command = analizarRMT)
 helpmenu = Menu(menubar, tearoff=0)
@@ -137,7 +141,7 @@ frame1.config(bd=18)
 frame1.config(cursor="spider")
 
 
-fname = "./img/logo.png"
+fname = "./parser/team11/img/logo.png"
 imagen = PhotoImage(file=fname)
 fondo = Label(frame1, image=imagen).place(x=0, y=0)
 # Labels
@@ -190,34 +194,30 @@ label_cod = Label(frame1, text="Consola, Output y Errores", bg="gray93",
 
 funcion = Funciones2()
 # Botones
-fname2 = "./img/run.png"
+fname2 = "./parser/team11/img/run.png"
 img = PhotoImage(file=fname2)
 btn = Button(frame1, image=img, bg="gray93", command=lambda : funcion.analizar(texto,consola_text,output_text, errores_text)).place(x=835, y=20)
 
 
-fname3 = "./img/borrar.png"
+fname3 = "./parser/team11/img/borrar.png"
 img2 = PhotoImage(file=fname3)
-btn2 = Button(frame1, image=img2, bg="gray93").place(x=1330, y=20)
+btn2 = Button(frame1, image=img2, bg="gray93", command = borrar).place(x=1330, y=20)
 
-fname4 = "./img/error.png"
+fname4 = "./parser/team11/img/error.png"
 img3 = PhotoImage(file=fname4)
 btn3 = Button(frame1, bg="gray93", command = abrirERRORES, image=img3, text="Errores", height=70,
               width=100, font=("Berlin Sans FB", 15)).place(x=138, y=200)
 
-fname5 = "./img/tabla.png"
+fname5 = "./parser/team11/img/tabla.png"
 img4 = PhotoImage(file=fname5)
 btn4 = Button(frame1, bg="gray93", command = abrirTS, image=img4, text="Tabla", height=70,
               width=100, font=("Berlin Sans FB", 15)).place(x=138, y=290)
 
-fname6 = "./img/AST.png"
+fname6 = "./parser/team11/img/AST.png"
 img5 = PhotoImage(file=fname6)
 btn5 = Button(frame1, bg="gray93", image=img5, text="AST", height=70,
               width=100, font=("Berlin Sans FB", 15)).place(x=138, y=380)
 
-fname7 = "./img/gramatica.png"
-img6 = PhotoImage(file=fname7)
-btn6 = Button(frame1, bg="gray93", image=img6, text="Gramatical",
-              height=70, width=100, font=("Berlin Sans FB", 15)).place(x=138, y=470)
 
 
 # Monitor inferior

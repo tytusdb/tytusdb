@@ -52,11 +52,10 @@ s = """
   --and IT.ididentificaciontipo = I.ididentificaciontipo;
 --SELECT distinct caca.primernombre FROM tbempleado de1, (SELECT de2.primernombre FROM tbempleado de2 WHERE de1.idempleado = de2.idempleado) AS caca;
 
-
 """
 result = grammar.parse(s)
 print(result)
 
-#print(symbolReport())
-grammar.InitTree()
-BnfGrammar.grammarReport()
+# print(symbolReport())
+# grammar.InitTree()
+# BnfGrammar.grammarReport()
