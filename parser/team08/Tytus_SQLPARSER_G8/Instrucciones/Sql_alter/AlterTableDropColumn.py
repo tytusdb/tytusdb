@@ -4,8 +4,8 @@ import collections
 from storageManager.jsonMode import *
 
 class AlterTableDropColumn(Instruccion):
-    def __init__(self, tabla, lista_col, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, tabla, lista_col, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.tabla = tabla
         self.lista_col = lista_col
 
@@ -13,7 +13,7 @@ class AlterTableDropColumn(Instruccion):
         super().ejecutar(tabla,arbol)
         if arbol.bdUsar != None:
             objetoTabla = arbol.devolviendoTablaDeBase(self.tabla)
-            if objetoTabla != None:
+            if objetoTabla != 0:
                 listaMatch = []
                 listaBorrar = []
                 for c in self.lista_col:
@@ -77,6 +77,7 @@ class AlterTableDropColumn(Instruccion):
                             objetoTabla.lista_de_campos[c].orden = c
                             arbol.devolverOrdenDeColumna(self.tabla, objetoTabla.lista_de_campos[c].nombre)
                             #print(objetoTabla.lista_de_campos[c].nombre,objetoTabla.lista_de_campos[c].orden,indice)
+                    arbol.consola.append("Consulta devuelta correctamente.")
                 else:
                     for c in list(set(self.lista_col) - set(listaMatch)):
                         error = Excepcion('42703',"Semántico","No existe la columna «"+c.id+"» en la relación «"+self.tabla+"»",c.linea,c.columna)

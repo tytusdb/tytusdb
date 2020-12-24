@@ -2,8 +2,8 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 
 class Lcm(Instruccion):
-    def __init__(self, valor, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, valor, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):

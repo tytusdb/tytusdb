@@ -2,14 +2,14 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 class ShowDatabases(Instruccion):
-    def __init__(self, id, tipo, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, id, tipo, strGram ,linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.valor = id
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         listaBD = showDatabases()
-
+        arbol.lRepDin.append(self.strGram)
         lista = []
         columna = ['Database']
         iteracion = 1  

@@ -428,11 +428,11 @@ def p_usedb(p):
 #MANIPULACION DE TABLAS
 # CREATE TABLE-------------------
 def p_createtb(p):
-    "createtb   :   CREATE TABLE id PARA coltb PARC PUNTOCOMA inherits"
+    "createtb   :   CREATE TABLE id PARA coltb PARC inherits PUNTOCOMA"
     p[0] = inst.createtb(p[3],p[5],p[8])
 
 def p_inherits(p):
-    "inherits   :   INHERITS PARA id PARC PUNTOCOMA"
+    "inherits   :   INHERITS PARA id PARC"
     p[0] = p[3]
 
 def p_inhrits1(p):

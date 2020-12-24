@@ -13,6 +13,22 @@ class Arbol():
         self.nombreTabla = None
         self.tablaActual = []
         self.columnasActual = []
+        self.lEnum = []
+        self.lRepDin = []
+        self.comprobacionCreate = False
+        self.columnaCheck = None
+        self.order = None
+
+    def setEnum(self, nuevo):
+        self.lEnum.append(nuevo)
+
+    #devuelve un objeto enum
+    def getEnum(self, nombre):
+        for x in range(0, len(self.lEnum)):
+            if nombre == self.lEnum[x].id:
+                return self.lEnum[x]
+        
+        return None
 
     def setListaBd(self, nueva):
         self.listaBd.append(nueva)
@@ -191,3 +207,15 @@ class Arbol():
 
     def setNombreTabla(self, valor):
         self.nombreTabla = valor
+
+    def devolverTamanio(self, nombreTabla):
+        tabla = self.devolviendoTablaDeBase(nombreTabla)
+        can = tabla.devolverTodasLasColumnas()
+        return len(can)
+
+    def setOrder(self, order):
+        self.order = order
+    
+    def getOrder(self):
+        return self.order
+    

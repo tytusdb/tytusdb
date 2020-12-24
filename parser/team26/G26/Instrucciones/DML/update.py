@@ -28,13 +28,17 @@ class Update(Instruccion):
 
         for asignacion in self.asignaciones:
             #valor del argumento
-            arg = asignacion.argument.execute()
+            try:
+                arg = asignacion.argument.execute()
+            except:
+                arg = asignacion.argument.execute(data, None)
+
             if isinstance(arg, Error):
                 return arg
             #validar si existe columna
             found = False #para saber si encontré la columna
             colPosition = 0 #var para guardar la posición de la columna
-            for columna in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.tableid.table]['columns'] :
+            for columna in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.tableid.table.upper()]['columns'] :
                 if asignacion.columnid.column.upper() == columna.name :
                     found = True
                     #validar tipo de dato argumento vs tipo de columna
@@ -44,11 +48,11 @@ class Update(Instruccion):
 
                     break
                 colPosition += 1
-                
+
             if not found :
                 error = Error('Semántico', 'Error(???): El campo '+asignacion.columnid.column.upper()+' no pertence a la tabla ' + self.tableid.table.upper(), 0, 0)
                 return error
-            
+
             register[colPosition] = arg.val
 
         #mandar a condiciones
@@ -71,25 +75,31 @@ class Update(Instruccion):
             contp += 1
 
 
-        if pks == [] :
-            error = Error('Semántico', 'Error(???): La tabla ' + self.tableid.table.upper()+' no tiene primary key definida.', 0, 0)
-            return error
-        #print(pks)
-        
+
         if self.condiciones == None :
             'Se cambian todas los campos que vienen en el set'
             print(register)
+            index = 0
             for fila in filas :
                 rowlist = []
-                for pk in pks :
-                    rowlist.append(fila[pk])
+                if not pks == [] :
+                    for pk in pks :
+                        rowlist.append(fila[pk])
+                else :
+                    rowlist.append(index)
+                    index += 1
 
                 print(rowlist)
 
+            index = 0
             for fila in filas :
                 rowlist = []
-                for pk in pks :
-                    rowlist.append(fila[pk])
+                if not pks == [] :
+                    for pk in pks :
+                        rowlist.append(fila[pk])
+                else :
+                    rowlist.append(index)
+                    index += 1
 
                 reto = update(data.databaseSeleccionada, self.tableid.table.upper(), register, rowlist)
 
@@ -107,43 +117,51 @@ class Update(Instruccion):
                 else :
                     error = Error('Storage', 'Error(4): Llave primaria inexistente', 0, 0)
                     return error
-                
 
-        else : 
+
+        else :
             #diccionario para mandar a condiciones:
             #dicciPrueba = {'NombreTabla1': {'fila': [1, 3, "f"], 'alias': 'nombre'}, 'NombreTabla2': {'fila': [], 'alias': None}}
 
             print(register)
-
+            index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
-                
+
                 toadd = self.condiciones.execute(data, condObj)
                 if isinstance(toadd, Error):
                     return toadd
-                
-                
+
+
                 rowlist = []
                 if toadd :
-                    for pk in pks :
-                        rowlist.append(fila[pk])
+                    if not pks == [] :
+                        for pk in pks :
+                            rowlist.append(fila[pk])
+                    else :
+                        rowlist.append(index)
 
                     print(rowlist)
 
-            
+                index += 1
 
+
+            index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
-                
+
                 toadd = self.condiciones.execute(data, condObj)
                 if isinstance(toadd, Error):
                     return toadd
-                
-                
+
+
                 rowlist = []
                 if toadd :
-                    for pk in pks :
-                        rowlist.append(fila[pk])
+                    if not pks == [] :
+                        for pk in pks :
+                            rowlist.append(fila[pk])
+                    else :
+                        rowlist.append(index)
 
                     reto = update(data.databaseSeleccionada, self.tableid.table.upper(), register, rowlist)
 
@@ -161,6 +179,8 @@ class Update(Instruccion):
                     else :
                         error = Error('Storage', 'Error(4): Llave primaria inexistente', 0, 0)
                         return error
+
+                index += 1
 
         #return self.tableid
 
@@ -217,12 +237,14 @@ class Update(Instruccion):
             if isinstance(arg.val, str):
                 if isinstance(arg.val[0] == '$'):
                     if isinstance(arg.val[1], int):
+                        arg.val = arg.val.replace("$", "")
+                        arg.val = int(arg.val)
                         return 'correcto'
                     else:
                         return error
             else:
                 if arg.val >= -92233720368547758.08 and arg.val <= 92233720368547758.07:
-                    arg.val = '$' + str(arg.val)
+                    arg.val = int(arg.val)
                     return arg
                 else :
                     return error
@@ -256,7 +278,7 @@ class Update(Instruccion):
             except ValueError:
                 return error
 
-        elif columna.type == 'boleano':
+        elif columna.type == 'boolean':
             if isinstance(arg.val, str):
                 if arg.val.lower() == 'yes' or arg.val.lower() == 'on' or arg.val.lower() == 'no' or arg.val.lower() == 'off':
                     return arg
@@ -269,7 +291,7 @@ class Update(Instruccion):
                     return arg
                 else:
                     return error
-        
+
         else:
             #print(data.tablaSimbolos[data.databaseSeleccionada]['enum'])
             #for valoresEnum in data.tablaSimbolos[data.databaseSeleccionada]['enum'][columna.type]:
@@ -277,7 +299,7 @@ class Update(Instruccion):
                 for valoresEnum in data.tablaSimbolos[data.databaseSeleccionada]['enum'][columna.type]:
                     if arg.val == valoresEnum.val:
                         return arg
-            
+
             return error
 
 

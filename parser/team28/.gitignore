@@ -143,9 +143,13 @@ parser.out
 parsetab.py
 
 *.dot
-*.png
 *.txt
 *.pdf
+
+ast.png
+errors.png
+symbolTable.png
+typeChecker.png
 
 storageManager/
 test/

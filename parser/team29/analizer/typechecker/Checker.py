@@ -15,6 +15,9 @@ lstErr = []
 dbActual = ""
 S.load()
 
+syntaxPostgreErrors = []
+
+
 def addError(error):
     if error != None:
         lstErr.append(error)
@@ -45,6 +48,9 @@ def numeric(col, val):
         N.validateMoney(val)
     else:
         print("Invalidate type")
+        syntaxPostgreErrors(
+            "Error: 42P18: discrepancia de datos  \n  Type " + col["type"] + " invalido"
+        )
     addError(N.Error)
 
 
@@ -52,7 +58,7 @@ def character(col, val):
     x = col["type"]
     e = None
     try:
-        if x == "VARCHAR" :
+        if x == "VARCHAR":
             e = C.validateVarchar(col["size"], val)
         elif x == "VARYING":
             e = C.validateVarchar(col["size"], val)
@@ -62,6 +68,9 @@ def character(col, val):
             e = C.validateVarchar(col["size"], val)
     except:
         e = "Error: CHARACTER"
+        syntaxPostgreErrors(
+            "Error: 42P18: discrepancia de datos  \n  Type " + col["type"] + " invalido"
+        )
     addError(e)
 
 
@@ -94,9 +103,19 @@ def types(col, value):
             return True
         else:
             e = "El valor " + str(value) + " no pertenece a " + col["type"]
+            syntaxPostgreErrors(
+                "Error: 42804: discrepancia de datos  \n "
+                + str(value)
+                + " no es del tipo : "
+                + col["type"]
+            )
     else:
         e = " Type " + col["type"] + " no encontrado"
-
+        syntaxPostgreErrors(
+            "Error: 42P18: discrepancia de datos  \n  Type "
+            + col["type"]
+            + " no encontrado"
+        )
     addError(e)
 
 
@@ -115,57 +134,86 @@ def select(col, val):
     elif x == TYPE.NUMBER and val.type == TYPE.NUMBER:
         numeric(col, val.value)
     elif col["type"] == "MONEY" and val.type == TYPE.STRING:
+        val.value = val.value.replace(",", "")
         numeric(col, val.value)
     else:
         addError(str(val.value) + " no es del tipo : " + col["type"])
+        syntaxPostgreErrors(
+            "Error: 42804: discrepancia de datos  \n "
+            + str(val.value)
+            + " no es del tipo : "
+            + col["type"]
+        )
 
 
 def checkValue(dbName, tableName):
     lstErr.clear()
-    table = S.extractTable(dbName,tableName)
-    if table ==0 and table == 1: return
-    for col in table['columns']:
-        if col['Default'] !=None:
-            if col['Default'][1] != 9:
-                value = expression.Primitive(TypeNumber.get(col['Default'][1]), col['Default'][0], 0, 0)
-                select(col,value)
+    table = S.extractTable(dbName, tableName)
+    if table == 0 and table == 1:
+        return
+    for col in table["columns"]:
+        if col["Default"] != None:
+            if col["Default"][1] != 9:
+                value = expression.Primitive(
+                    TypeNumber.get(col["Default"][1]), col["Default"][0], 0, 0, 0
+                )
+                select(col, value)
+                if len(lstErr) != 0:
+                    col["Default"] = None
             else:
-                col['Default'] =None
-    
-    return listError()
+                col["Default"] = None
 
-    
+    return listError()
 
 
 def checkInsert(dbName, tableName, columns, values):
     lstErr.clear()
-    
-
     if columns != None:
         if len(columns) != len(values):
-            return ["Columnas fuera de los limites 1"]
+            syntaxPostgreErrors.append(
+                "Error: 42611:  definicion en numero de columnas invalida "
+            )
+            return ["Columnas fuera de los limites"]
 
     table = S.extractTable(dbName, tableName)
     values = S.getValues(table, columns, values)
-
     if table == 0:
-        return ["No existe la base de datos"]
+        syntaxPostgreErrors.append(
+            "Error: 42000: La base de datos  " + str(dbName) + " no existe"
+        )
+        return ["Error: No existe la base de datos"]
     elif table == 1:
-        return ["No existe la tabla"]
-    elif len(table["columns"]) != len(values):
-        return ["Columnas fuera de los limites 2"]
+        syntaxPostgreErrors.append(
+            "Error: 42P01: La tabla  " + str(tableName) + " no existe"
+        )
+        return ["Error: No existe la tabla"]
+    elif not values:
+        syntaxPostgreErrors.append("Error: 42P10: Columnas no identificadas  ")
+        return ["Error: Columnas no identificadas"]
     else:
         pass
+
+    pks = []
+    indexCol = 0
+    for col in table["columns"]:
+        x = Type.get(col["type"])
+        value = values[indexCol]
+        if not isinstance(value, expression.Primitive):
+            value = expression.Primitive(x, value, 0, 0, 0)
+            values[indexCol] = value
+        if col["PK"]:
+            pks.append(indexCol)
+        indexCol += 1
+    # Validar la llave primaria
+    if pks:
+        validatePrimary(dbName, tableName, values, pks)
 
     indexCol = 0
     for value in values:
         column = table["columns"][indexCol]
-        x = Type.get(column["type"])
-        if not isinstance(value, expression.Primitive):
-            value = expression.Primitive(x, value, 0, 0)
-            values[indexCol] = value
-        if value != None and value.type != TYPE.NULL:
-            if column["Unique"] or column["PK"]:
+        if value.value != None and value.type != TYPE.NULL:
+            value.value = convertDateTime(value.value, column["type"])
+            if column["Unique"]:
                 validateUnique(dbName, tableName, value.value, indexCol)
             if column["FK"] != None:
                 validateForeign(dbName, column["FK"], value.value)
@@ -175,9 +223,29 @@ def checkInsert(dbName, tableName, columns, values):
                 )
             select(column, value)
         else:
+            value.value = None
             validateNotNull(column["NN"], column["name"])
         indexCol += 1
     return [listError(), values]
+
+
+def convertDateTime(value, type_):
+    """
+    docstring
+    """
+    if type_ == "DATE":
+        if "/" in value:
+            value = value.replace("/", "-")
+        if ":" in value:
+            dateTime = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+            value = str(dateTime.date())
+    elif type_ == "TIME":
+        if "/" in value:
+            value = value.replace("/", "-")
+        if "-" in value:
+            dateTime = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+            value = str(dateTime.time())
+    return value
 
 
 def listError():
@@ -187,15 +255,31 @@ def listError():
 
 
 def validateUnique(database, table, value, index):
-
     records = jsonMode.extractTable(database, table)
-
     if records == []:
         return
-
     for record in records:
         if value == record[index]:
             lstErr.append("El Valor " + str(value) + " ya existe dentro de la tabla")
+            syntaxPostgreErrors(
+                "Error: 23505: El valor " + str(value) + " ya existe dentro de la tabla"
+            )
+            break
+
+
+def validatePrimary(database, table, values, index):
+    records = jsonMode.extractTable(database, table)
+    if records == []:
+        return
+    for record in records:
+        lst1 = []
+        lst2 = []
+        for j in index:
+            lst1.append(record[j])
+            lst2.append(values[j].value)
+        if lst1 == lst2:
+            lstErr.append("Llaves primarias existentes dentro de la tabla")
+            syntaxPostgreErrors("Error: 23505: llaves primarias duplicadas ")
             break
 
 
@@ -203,19 +287,21 @@ def validateForeign(database, values, value):
     # values = [references,column]
     references = values[0]
     column = values[1]
-
     records = jsonMode.extractTable(database, references)
-
     if records == []:
+        syntaxPostgreErrors(
+            "Error: 23503: El valor " + str(value) + " no es una llave foranea "
+        )
         lstErr.append("El Valor " + str(value) + " no es una llave foranea")
         return
-
     index = S.getIndex(database, references, column)
-
     for record in records:
         if value == record[index]:
             return
     lstErr.append("El Valor " + str(value) + " no es una llave primaria")
+    syntaxPostgreErrors(
+        "Error: 23505: El valor " + str(value) + " no es una llave primaria "
+    )
 
 
 def validateConstraint(values, record, database, table, type_):
@@ -245,7 +331,10 @@ def validateConstraint(values, record, database, table, type_):
 
     try:
         if not insert:
-            lstErr.append("El registro no cumple con la restriccion")
+            lstErr.append("El registro no cumple con la restriccion: ", name)
+            syntaxPostgreErrors(
+                "Error: 23000: El registro no cumple con la restriccion " + str(name)
+            )
         elif insert:
             return
         else:
@@ -273,12 +362,39 @@ def CheckOperation(value1, value2, type_, operator):
         }
         value = comps.get(operator, None)
         if value == None:
+            syntaxPostgreErrors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(type_)
+                + " "
+                + str(operator)
+                + " "
+                + str(type_)
+            )
             return Expression.ErrorBinaryOperation(value1, value1, 0, 0)
         return value
     except:
+        syntaxPostgreErrors.append("Error: XX000: Error fatal CHECK")
         return "Error fatal CHECK"
 
 
 def validateNotNull(notNull, name):
     if notNull:
+        syntaxPostgreErrors.append(
+            "Error: 23502: el valor nulo en la columna '"
+            + name
+            + "' viola la condicion no-nulo"
+        )
         lstErr.append("La columna " + name + "  no puede ser nula")
+
+
+def returnErrors():
+    global syntaxPostgreErrors
+    list_ = T.syntaxPostgreSQL
+    list_ += N.syntaxPostgreErrors
+    list_ += C.syntaxPostgreErrors
+    list_ += syntaxPostgreErrors
+    T.syntaxPostgreSQL = list()
+    N.syntaxPostgreErrors = list()
+    C.syntaxPostgreErrors = list()
+    syntaxPostgreErrors = list()
+    return list_

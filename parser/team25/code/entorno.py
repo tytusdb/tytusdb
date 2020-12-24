@@ -64,7 +64,7 @@ def toEnviroment(columns : dict, env: Entorno) -> Entorno:
     # Por cada columna se verifica el tipo 
     for col in columns:
         #Dependiendo del tipo de columna, se establecera un tipo de variable especial
-        tipo = VARIABLE_TYPE.ENUM.value
+        tipo = VARIABLE_TYPE.STRING.value
         if columns[col]['Type'] == 'SMALLINT' \
         or columns[col]['Type'] == 'BIGINT' \
         or columns[col]['Type'] == 'INTEGER':

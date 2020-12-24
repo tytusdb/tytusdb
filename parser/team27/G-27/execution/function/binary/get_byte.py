@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from bstring_functions import get_byte
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.bstring_functions import get_byte
 
 class Get_Byte:
     def __init__(self, input1, input2, row, column):
@@ -37,6 +32,6 @@ class Get_Byte:
                 error = incorrect[0] if (input1['typ'] != Type.STRING) else  ""
                 error += incorrect[1] if (input2['typ'] != Type.INT) else  ""
                 return {'Error':"El valor " + error, 'linea':self.row,'columna':self.column }
-            return [{'value': get_byte(input1['value'],input2['value']), 'typ': Type.STRING}]
+            return {'value': get_byte(input1['value'],input2['value']), 'typ': Type.STRING}
 
 

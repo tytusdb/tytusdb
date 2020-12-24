@@ -7,6 +7,7 @@ class SimboloBaseDatos():
         self.propietario = ""
         self.modo = 1
         self.tablas = []
+        self.nuevoTipo = []         #Guarda todos los tipos de datos creados por el usuario
     
     def setearModo(self,Modo):
         self.modo = Modo
@@ -140,11 +141,62 @@ class SimboloBaseDatos():
             return None
     
 
+    #Se ingresa un nuevo tipo de dato
+    def agregarTipo(self, tipoDato):
+        # return 1 --> Tabla Agregada Exito
+        # return 0 --> Nombre Repetido
 
+        if len(self.nuevoTipo) == 0:
+            self.nuevoTipo.append(tipoDato)            
+            return 1
+        else:
 
+            for nodoTipo in self.nuevoTipo:
 
+                if nodoTipo.nombre.lower() == tipoDato.nombre.lower():
+                    return 0
+            
+            self.nuevoTipo.append(tipoDato)
+            return 1
+
+    # valida si el nombre del nuevo tipo ya existe dentro de la db
+    def comprobarNombreTipo(self, nombreTipo):
+        # return 1 -->> Nombre ya existe
+        # return 0 -->> Nombre NO existe
+
+        if len(self.nuevoTipo) == 0:
+            return 0
+        else:
+            for nodoTipo in self.nuevoTipo:
+                if(nodoTipo.nombre.lower()==nombreTipo.lower()):
+                    return 1
+
+            return 0  
+
+    def obtenerTipoDatoNoPrimitivo(self, nombreTipo):
+        if len(self.nuevoTipo) == 0:
+            return None
+        else:
+            for nodoTipo in self.nuevoTipo:
+                if(nodoTipo.nombre.lower()==nombreTipo.lower()):
+                    return nodoTipo
+
+            return None
         
+    def eliminarTabla(self, nombreTabla):
+        # return 1 -->> Exito
+        # return 0 -->> Nombre NO existe
 
+        if len(self.tablas) == 0:
+            return 0
+        else:
+            indice = 0
+            for nodoTabla in self.tablas:
+                if nodoTabla.nombre.lower() == nombreTabla.lower():
+                    self.tablas.pop(indice)
+                    return 1
+                indice = indice + 1
+            return 0 
 
 
 

@@ -3,8 +3,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 
 class Aritmetica(Instruccion):
-    def __init__(self, opIzq, opDer, operador, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, opIzq, opDer, operador, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.opIzq = opIzq
         self.opDer = opDer
         self.operador = operador
@@ -49,7 +49,10 @@ class Aritmetica(Instruccion):
                     return resultadoIzq + resultadoDer                
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    return resultadoIzq + resultadoDer                
+                    return resultadoIzq + resultadoDer
+                elif self.opIzq.tipo.tipo == Tipo_Dato.CHAR and self.opDer.tipo.tipo == Tipo_Dato.CHAR:
+                    self.tipo = Tipo(Tipo_Dato.CHAR)
+                    return resultadoIzq + resultadoDer                 
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" + "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
