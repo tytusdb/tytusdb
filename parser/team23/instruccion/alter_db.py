@@ -19,7 +19,7 @@ class alter_db(instruccion):
         self.nodo.hijos.append(nodo_AST(owner.dato, num_nodo+3))
 
         #Gramatica
-        self.grammar_ = '<TR><TD> INSTRUCCION ::= ALTER DATABASE ' + id_db + ' OWNER_RENAME </TD><TD> INSTRUCCION = new alter_db(' + self.id_db + ', OWNER_RENAME); </TD></TR>\n'
+        self.grammar_ = '<TR><TD> INSTRUCCION ::= ALTER DATABASE ' + id_db + ' rename_owner </TD><TD> INSTRUCCION = new alter_db(' + self.id_db + ', OWNER_RENAME); </TD></TR>\n'
         self.grammar_ += owner.grammar_
 
     def ejecutar(self):
@@ -32,21 +32,21 @@ class alter_db(instruccion):
                     new_db = ts.get_db(self.id_db)
                     new_db.id_ = self.owner.dato
                     ts.update_db(self.id_db, new_db)
-                    add_text("Base de datos se ha alterado: ID Anterior: " + self.id_db + " ID Nuevo: " + self.owner.dato + "\n")
+                    add_text("M-00000 successful completion: \n The database has been altered: \n Previous ID: " + self.id_db + " New ID: " + self.owner.dato + "\n")
                 elif(alterar == 1):
-                    errores.append(nodo_error(self.line, self.column, 'Error en alter database', 'Semántico'))
-                    add_text("ERROR - Base de datos no pudo ser alterada.\n")
+                    errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: The Database could not be altered', 'Semántico'))
+                    add_text("E-22005 error in assignment: The Database could not be altered.\n")
                 elif(alterar == 2):
-                    errores.append(nodo_error(self.line, self.column, 'Base de datos con id ' + self.id_db + ' no existe.', 'Semántico'))
-                    add_text("ERROR - La base de datos " + self.id_db + " no existe.\n")
+                    errores.append(nodo_error(self.line, self.column, 'E-42602 invalid name: The database with this ID \"" + self.id_db + "\" does not exist.', 'Semántico'))
+                    add_text("E-42602 invalid name: The database with this ID ->" + self.id_db + "<- does not exist.\n")
                 elif(alterar == 3):
-                    errores.append(nodo_error(self.line, self.column, 'Ya existe una base de datos con el id ' + self.owner.dato, 'Semántico'))
-                    add_text("ERROR - Ya existe una base de datos con el id " + self.owner.dato + "\n")
+                    errores.append(nodo_error(self.line, self.column, 'Error 42P04 duplicate_database: A database already exists with the following id ' + self.owner.dato, 'Semántico'))
+                    add_text("Error 42P04 duplicate_database: A database already exists with the following id " + self.owner.dato + "\n")
                 else:
-                    errores.append(nodo_error(self.line, self.column, 'Error al alterar database', 'Semántico'))
-                    add_text("Base de datos no puedo ser alterada.\n")
+                    errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: The Database could not be altered.', 'Semántico'))
+                    add_text("E-22005 error in assignment: The Database could not be altered.\n")
             else:
                 add_text("No se ha implementado ALTER OWNER")
         except:
-            errores.append(nodo_error(self.line, self.column, 'Error al realizar cambios en la base de datos', 'Semántico'))
-            add_text("ERROR - Base de datos no pudo ser alterada.\n")
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: The Database could not be altered.', 'Semántico'))
+            add_text("E-22005 error in assignment: The Database could not be altered..\n")

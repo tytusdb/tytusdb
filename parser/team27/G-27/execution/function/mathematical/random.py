@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from math_functions import randomn
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.math_functions import randomn
 
 """
 NOTA: VERIFICAR QUE EL CONSTRUCTOR LLAMADO SEA -> Randomic()
@@ -15,4 +10,4 @@ class Randomic(Function):
         Function.__init__(self,row,column)
     
     def execute(self, environment):
-        return [{'value':randomn(), 'typ': Type.INT}]
+        return {'value':randomn(), 'typ': Type.INT}

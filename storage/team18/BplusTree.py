@@ -1,3 +1,7 @@
+# B+ Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
 import os
 
 class Node:
@@ -248,29 +252,29 @@ class BPlusTree:
             izquierda = 0
             if index == len(temp.parent.child)-1:
                 izquierda = len(temp.parent.child[index-1].keys)
-                if izquierda+actual == self.degree-1 and actual+1 != izquierda and actual<izquierda:
+                if izquierda+actual >= self.degree-1 and actual+1 != izquierda and actual<izquierda:
                     temp = self.MoverIzquierda(temp,index)
                 elif izquierda+actual < self.degree-1 and actual<izquierda:
                     temp = self.UnirIzquierda(temp,index)
             elif not index:
                 derecha = len(temp.parent.child[index+1].keys)
-                if derecha+actual == self.degree-1 and actual+1 != derecha and derecha>actual:
+                if derecha+actual >= self.degree-1 and actual+1 != derecha and derecha>actual:
                     temp = self.MoverDerecha(temp,index)
                 elif derecha+actual < self.degree-1 and actual<derecha:
                     temp = self.UnirDerecha(temp,index)
             else:
                 izquierda = len(temp.parent.child[index-1].keys)
                 derecha = len(temp.parent.child[index+1].keys)
-                if izquierda+actual == self.degree-1 and actual+1 != izquierda and izquierda>actual:
+                if izquierda+actual >= self.degree-1 and actual+1 != izquierda and izquierda>actual:
                     temp = self.MoverIzquierda(temp,index)
-                elif derecha+actual == self.degree-1 and actual+1 != derecha and actual<derecha:
+                elif derecha+actual >= self.degree-1 and actual+1 != derecha and actual<derecha and derecha>izquierda:
                     temp = self.MoverDerecha(temp,index)
                 elif izquierda+actual < self.degree-1 and actual< izquierda:
                     if len(temp.parent.child[index-1].child) == self.degree:
                         temp = self.CambioRaizI(temp, index)
                     else:
                         temp = self.UnirIzquierda(temp,index)
-                elif derecha+actual < self.degree-1 and actual<derecha:
+                elif derecha+actual < self.degree-1 and actual<derecha and derecha>izquierda:
                     if len(temp.parent.child[index+1].child) == self.degree:
                         print("Caso especial")
                     else:
@@ -341,11 +345,15 @@ class BPlusTree:
             temp.parent.child[index-1].child.append(x)
         temp.parent.child[index-1].next = temp.next
         temp.parent.child.remove(temp)
+        if len(temp.child):
+            temp.parent.child[index-1].insert(temp.parent.keys.pop(index-1), None)
+        else:
+            temp.parent.keys.pop(index-1)
         if len(temp.child)==1:
             if temp.child[0].keys[0] in temp.parent.keys:
                 temp.parent.keys.remove(temp.child[0].keys[0])
                 temp.parent.child[index-1].insert(temp.child[0].keys[0], None)
-        else:
+        if not len(temp.child):
             temp = self.ReorganizarKeys(temp)
         return temp
     
@@ -357,43 +365,66 @@ class BPlusTree:
         for x in temp.parent.child[index+1].child:
             x.parent = temp
             temp.child.append(x)
+        if len(temp.child):
+            temp.insert(temp.parent.keys.pop(index), None)
+        else:
+            temp.parent.keys.pop(index)
         temp.next = temp.parent.child[index+1].next
         temp.parent.child.remove(temp.parent.child[index+1])
-        temp = self.ReorganizarKeys(temp)
+        if not len(temp.child):
+            temp = self.ReorganizarKeys(temp)
         return temp
     
     def MoverDerecha(self, temp, index):
-        val = temp.parent.child[index+1].keys[0]
-        temp.insert(val, temp.parent.child[index+1].values.get(val))
-        if temp.parent.child[index+1].values.get(val):
-            del temp.parent.child[index+1].values[val]
-        temp.parent.child[index+1].keys.remove(val)
-        if temp.child and self.degree<5:
+        if not len(temp.child):
+            val = temp.parent.child[index+1].keys[0]
+            temp.insert(val, temp.parent.child[index+1].values.get(val))
+            if temp.parent.child[index+1].values.get(val):
+                del temp.parent.child[index+1].values[val]
+            temp.parent.child[index+1].keys.remove(val)
+        else:
+            val = temp.parent.keys.pop(index)
+            temp.insert(val, None)
+            temp.parent.insert(temp.parent.child[index+1].keys.pop(0), None)
+        if temp.child and self.degree<5  or len(temp.child)==len(temp.keys):
             hijo = temp.parent.child[index+1].child[0]
             temp.child.append(hijo)
             temp.parent.child[index+1].child.remove(hijo)
             hijo.parent = temp
-        temp = self.ReorganizarKeys(temp)
+        if not len(temp.child):
+            temp = self.ReorganizarKeys(temp)
         return temp
 
     def MoverIzquierda(self, temp, index):
-        val = temp.parent.child[index-1].keys[len(temp.parent.child[index-1].keys)-1]
-        temp.insert(val, temp.parent.child[index-1].values.get(val))
-        if temp.parent.child[index-1].values.get(val):
-            del temp.parent.child[index-1].values[val]
-        temp.parent.child[index-1].keys.remove(val)
-        if temp.child and self.degree<5:
+        if not len(temp.child):
+            val = temp.parent.child[index-1].keys[len(temp.parent.child[index-1].keys)-1]
+            temp.insert(val, temp.parent.child[index-1].values.get(val))
+            if temp.parent.child[index-1].values.get(val):
+                del temp.parent.child[index-1].values[val]
+            temp.parent.child[index-1].keys.remove(val)
+        else:
+            val = temp.parent.keys.pop(index-1)
+            temp.insert(val, None)
+            temp.parent.insert(temp.parent.child[index-1].keys.pop(-1), None)
+        if temp.child and self.degree<5  or len(temp.child)==len(temp.keys):
             hijo = temp.parent.child[index-1].child[len(temp.parent.child[index-1].child)-1]
             temp.child.insert(0,hijo)
             temp.parent.child[index-1].child.remove(hijo)
             hijo.parent = temp
-        temp = self.ReorganizarKeys(temp)
+        if not len(temp.child):
+            temp = self.ReorganizarKeys(temp)
         return temp
 
     def ReorganizarKeys(self, temp):
         temp.parent.keys = []
         for g in range(1,len(temp.parent.child)):
             temp.parent.insert(temp.parent.child[g].keys[0], None)
+        return temp
+    
+    def ReorganizarKeysHijo(self, temp):
+        temp.keys = []
+        for g in range(1,len(temp.child)):
+            temp.insert(temp.child[g].keys[0], None)
         return temp
     #---------Graficar-----------------#
     def graficar(self, database, table):
@@ -412,7 +443,7 @@ class BPlusTree:
         f.write('}')
         f.close()
         os.system(f'dot -Tpng Data/{database}/{table}/{table}.dot -o ./Data/{database}/{table}/{table}.png')
-   
+    
     def _graficar(self, f, temp, nombre):
         if temp:
             if nombre == '':
@@ -473,6 +504,8 @@ class BPlusTree:
     def register(self, register):
         if len(register)!=self.columns:
             return 5
+        if self.buscar(register):
+            return 4
         try:
             key = self.GenKey(register)
             if not len(self.PKey):
@@ -514,11 +547,14 @@ class BPlusTree:
             return []
 
     def buscar(self, register):
-        if len(self.PKey):
-            key = self.GenKey(register)
-            return self._buscar(self.root ,key)
-        else:
-            return None
+        try:
+            if len(self.PKey):
+                key = self.GenKey(register)
+                return self._buscar(self.root ,key)
+            else:
+                return None
+        except:
+            return 1
 
     def _buscar(self, temp, key):
         found = False
@@ -538,49 +574,76 @@ class BPlusTree:
         return False
     
     def CreatePK(self, Pk):
-        if len(self.PKey):
-            return 4
-        else:
-            for x in Pk:
-                if type(x) != int:
-                    return 1
-            self.PKey = Pk
-            if not len(self.root.keys):
-                self.Incremet = 1
-                return 0
+        try:
+            if len(self.PKey):
+                return 4
             else:
-                res = self.reorganizar()
-                return res
-                
+                maximun = max(Pk)
+                minimun = min(Pk)
+                if not (minimun >= 0 and maximun < self.columns):
+                    return 5
+                for x in Pk:
+                    if type(x) != int:
+                        return 1
+                self.PKey = Pk
+                if not len(self.root.keys):
+                    self.Incremet = 1
+                    return 0
+                else:
+                    res = self.reorganizar()
+                    return res
+        except:
+            return 1
+        
     def DeletePk(self):
-        if not len(self.PKey):
-            return 4
-        else:
-            self.PKey = []
-            self.dropPK = True
-            return 0
+        try:
+            if not len(self.PKey):
+                return 4
+            else:
+                self.PKey = []
+                self.dropPK = True
+                return 0
+        except:
+            return 1
     
     def addColumn(self, default):
-        self.columns+=1
-        lista = list(self.lista().values())
-        for l in lista:
-            l.append(default)
-        return 0
-    
-    def dropColumn(self, column):
-        if column in self.PKey or self.columns==1:
-            return 4
-        else:
-            self.columns-=1
+        try:
+            self.columns+=1
             lista = list(self.lista().values())
             for l in lista:
-                l.pop(column)
+                l.append(default)
             return 0
+        except:
+            return 1
+    
+    def dropColumn(self, column):
+        try:
+            if column in self.PKey or self.columns==1:
+                return 4
+            else:
+                if column < 0 or column >= self.columns:
+                    return 5
+                self.columns-=1
+                lista = list(self.lista().values())
+                for l in lista:
+                    l.pop(column)
+                if len(self.PKey):
+                    for x in self.PKey:
+                        if x>column:
+                            index = self.PKey.index(x)
+                            x-=1
+                            self.PKey[index]=x
+                return 0
+        except:
+            return 1
     
     def lista(self):
-        if len(self.root.keys):
-            return self._lista(self.root,{})
-        else:
+        try:
+            if len(self.root.keys):
+                return self._lista(self.root,{})
+            else:
+                return {}
+        except:
             return {}
     
     def _lista(self, temp,lista):
@@ -611,23 +674,28 @@ class BPlusTree:
         os.system('tupla.png')
 
     def update(self, data, columns):
-        key = "_".join(str(x) for x in columns)
-        delete = False
-        mini = min(data.keys())
-        maxi = max(data.keys())
-        if mini<0 or maxi>= self.columns:
-            return 1
-        for x in data.keys():
-            if x in self.PKey:
-                delete = True
-        return self._update(self.root, data, delete, key, columns)         
+        try:
+            key = "_".join(str(x) for x in columns)
+            delete = False
+            mini = min(data.keys())
+            maxi = max(data.keys())
+            if mini<0 or maxi>= self.columns:
+                return 1
+            for x in data.keys():
+                if x in self.PKey:
+                    delete = True
+            return self._update(self.root, data, delete, key, columns)  
+        except:
+            return 1       
     
     def _update(self, temp, data, delete, key, keys):
         if temp.child:
             for i in range(0, len(temp.keys)):
                 if key < temp.keys[i]:
                     return self._update(temp.child[i], data,delete,key,keys)
-                    
+
+        if temp.child:
+            return self._update(temp.child[len(temp.keys)], data,delete,key,keys)
         else:
             if key in temp.keys:
                 try:

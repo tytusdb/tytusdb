@@ -1,6 +1,4 @@
 import TypeCheck.ListaTablas as ListaTablas
-import TypeCheck.Tabla as Tabla
-
 class Base:
     def __init__(self,nombreBase: str, owner, mode):
         #Punteros

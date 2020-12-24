@@ -1,12 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-from function import *
-from typ import *
-from trigonometric_functions import asinh
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.trigonometric_functions import asinh
 
 class Asinh(Function):
     def __init__(self, input, row, column):
@@ -32,4 +26,4 @@ class Asinh(Function):
             if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
 
-            return [{'value':asinh(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':asinh(value['value']), 'typ': Type.DECIMAL}

@@ -16,7 +16,6 @@ i = 0
 
 def inc(): 
     global i
-    print(str(i))
     i += 1
     return i
 
@@ -167,8 +166,19 @@ def t_error(t):
 
 # fin de las expresiones regulares para reconocer nuestro lenguaje.
     
-# Construyendo el analizador léxico
-lexer = lex.lex()
+# funcion para realizar el analisis lexico de nuestra entrada
+def analizarBNFLex(texto):    
+    analizador = lex.lex()
+    analizador.input(texto)# el parametro cadena, es la cadena de texto que va a analizar.
+
+    #ciclo para la lectura caracter por caracter de la cadena de entrada.
+    textoreturn = ""
+    while True:
+        tok = analizador.token()
+        if not tok : break
+        #print(tok)
+        textoreturn += str(tok) + "\n"
+    return textoreturn 
 
 ######### inicia el analizador Sintactico ##########
 
@@ -187,8 +197,11 @@ precedence = (
 def p_inicio(t):
     '''inicio : instrucciones '''
     t[0] = GenerarBNF()
-    t[0].code = '\n' + '<INCIO>' + ' ::= ' + t[1].code
-    print(t[0].code)
+    t[0].code = '\n' + '<INCIO>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
+    # GENERAR TEXTO
+    file=open("BNF.txt","w") 
+    file.write(str(t[0].code)) 
+    file.close()
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
@@ -310,7 +323,6 @@ def p_primary_key(t):
 #FOREIGN KEY PARABRE ID PARCIERRE REFERENCES ID PARABRE ID PARCIERRE ins_references
 def p_foreign_key(t):
     '''foreign_key : FOREIGN KEY PARABRE nombre_columnas PARCIERRE REFERENCES ID PARABRE nombre_columnas PARCIERRE ins_references'''
-    print('FOREIGN KEY')
     t[0] = GenerarBNF()
     t[0].produccion = '<FOREIGN_KEY>'
     t[0].code += '\n' + '<FOREIGN_KEY>' + ' ::= ' + str(t[1]) + ' ' +  str(t[2])+ ' ' +  str(t[3]) + ' ' +  t[4].produccion + ' ' +  str(t[5]) + ' ' +  str(t[6]) + ' ' +  str(t[7]) + ' ' +  str(t[8])+ ' ' +  t[9].produccion + ' ' +  str(t[10]) + ' ' +  t[11].produccion + ' ' +  t[4].code + ' ' +  t[9].code + ' ' +  t[11].code
@@ -459,8 +471,8 @@ def p_restriccion_columna(t):
                            | UNIQUE 
                            | NULL 
                            | NOT NULL PRIMARY KEY 
-                           | CHECK PARABRE exp PARCIERRE 
-                           | 
+                           | CHECK PARABRE exp PARCIERRE
+                           |
                            '''
     if len(t) == 5:
         if t[3] == 'PRIMARY':
@@ -535,7 +547,7 @@ def p_ins_replace(t):
         t[0].produccion = '<REPLACE>'
         t[0].code += '\n' + '<REPLACE>' + ' ::= EPSILON'
 
-def p_if_exist(t): 
+def p_if_exists(t): 
     '''if_exists :  IF NOT EXISTS
                 |  IF EXISTS
                 | ''' # EPSILON
@@ -604,23 +616,34 @@ def p_alteracion_tabla(t):
         t[0].code += '\n' + '<ALTERACION_TABLA>' + ' ::= ' + t[1].produccion + ' ' + t[1].code 
 
 def p_alterar_tabla(t): 
-    '''alterar_tabla : ADD COLUMN columna
-                     | ADD CONSTRAINT ID columna
-                     | ALTER COLUMN columna
+    #alter column viene como una lista
+    '''alterar_tabla : ADD COLUMN ID tipo_dato
+                     | ADD CONSTRAINT ins_constraint
+                     | ALTER COLUMN ID TYPE tipo_dato
+                     | ALTER COLUMN ID SET NOT NULL
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
-    if len(t) == 5:
+    if len(t) == 4: 
+        if t[1] == 'DROP':
+            t[0] = GenerarBNF()
+            t[0].produccion = '<ALTERAR_TABLA>'
+            t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3])
+        else:
+            t[0] = GenerarBNF()
+            t[0].produccion = '<ALTERAR_TABLA>'
+            t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + t[3].code
+    elif len(t) == 7:
         t[0] = GenerarBNF()
         t[0].produccion = '<ALTERAR_TABLA>'
-        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3])+ ' ' + t[4].produccion + ' ' + t[4].code
-    elif t[1] == 'ADD' or t[1] == 'ALTER':
+        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6])
+    elif len(t) == 6:
         t[0] = GenerarBNF()
         t[0].produccion = '<ALTERAR_TABLA>'
-        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + t[3].code
+        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + t[5].code
     else:
         t[0] = GenerarBNF()
         t[0].produccion = '<ALTERAR_TABLA>'
-        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3])
+        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + t[4].code
 
 def p_alter_database(t): 
     '''alter_database : RENAME TO ID
@@ -648,11 +671,28 @@ def p_tipo_drop(t):
         t[0].code += '\n' + '<TIPO_DROP>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3])
 
 def p_ins_insert(t):
-    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA '''
-    print('INSERT INTO ID VALUES ( *values* )')
-    t[0] = GenerarBNF()
-    t[0].produccion = '<INSERT>'
-    t[0].code += '\n' + '<INSERT>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].code + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[6].produccion
+    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA 
+                | INSERT INTO ID PARABRE list_id PARCIERRE VALUES PARABRE list_vls PARCIERRE PUNTO_COMA'''
+    if len(t) == 9:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<INSERT>'
+        t[0].code += '\n' + '<INSERT>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[6].code
+    else:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<INSERT>'
+        t[0].code += '\n' + '<INSERT>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + str(t[6]) + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[9].produccion + ' ' + str(t[10]) + ' ' + str(t[11]) + ' ' + t[5].code + ' ' + t[9].code
+
+def p_list_id(t):
+    '''list_id : list_id COMA ID
+               | ID'''
+    if len(t) == 4:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<LIST_ID>'
+        t[0].code += '\n' + '<LIST_ID>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[1].code
+    else:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<LIST_ID>'
+        t[0].code += '\n' + '<LIST_ID>' + ' ::= ' + str(t[1])
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA val_value
@@ -872,7 +912,7 @@ def p_trig(t):
         t[0].produccion = '<TRIG>'
         t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6])
 
-def p_string_func(t):   #TODO: CORREGIR GRAMÁTICA
+def p_string_func(t):
     '''string_func  :   LENGTH PARABRE s_param PARCIERRE
                     |   TRIM PARABRE s_param PARCIERRE
                     |   MOD5 PARABRE s_param PARCIERRE
@@ -886,10 +926,19 @@ def p_string_func(t):   #TODO: CORREGIR GRAMÁTICA
                     |   DECODE PARABRE s_param COMA s_param PARCIERRE 
                     |   GET_BYTE PARABRE s_param COMA NUMERO PARCIERRE'''
     if len(t) == 9:
-        t[0] = GenerarBNF()
-        t[0].produccion = '<TRIG>'
-        t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6]) + ' ' + str(t[7]) + ' ' + str(t[8])
-    elif len(t) == 5:
+        if t[1] == 'SET_BYTE':
+            t[0] = GenerarBNF()
+            t[0].produccion = '<TRIG>'
+            t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6]) + ' ' + t[7].produccion + ' ' + str(t[8]) + ' ' + t[7].code
+        elif t[1] == 'SUBSTR':
+            t[0] = GenerarBNF()
+            t[0].produccion = '<TRIG>'
+            t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6]) + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[3].code
+        else: 
+            t[0] = GenerarBNF()
+            t[0].produccion = '<TRIG>'
+            t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6]) + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[3].code
+    elif len(t) == 5: #CHECK
         t[0] = GenerarBNF()
         t[0].produccion = '<TRIG>'
         t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[3].code
@@ -905,11 +954,7 @@ def p_string_func(t):   #TODO: CORREGIR GRAMÁTICA
     elif len(t) == 8:
         t[0] = GenerarBNF()
         t[0].produccion = '<TRIG>'
-        t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6]) + ' ' + str(t[7])
-    else:
-        t[0] = GenerarBNF()
-        t[0].produccion = '<TRIG>'
-        t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[8])
+        t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + t[3].code + ' ' + t[6].code
 
 def p_s_param(t):
     '''s_param  :   s_param string_op CADENA
@@ -993,16 +1038,16 @@ def p_param(t):
         t[0].code += '\n' + '<PARAM>' + ' ::= ' + str(t[1])
 
 def p_table_list(t):
-    '''table_list   :   table_list COMA ID
-                    |   ID '''
-    if len(t) == 4: 
+    '''table_list   :   table_list COMA ID as_id
+                    |   ID as_id'''
+    if len(t) == 5: 
         t[0] = GenerarBNF()
         t[0].produccion = '<TABLE_LIST>'
-        t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[1].code
+        t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + t[1].code + ' ' + t[4].code
     else:
         t[0] = GenerarBNF()
         t[0].produccion = '<TABLE_LIST>'
-        t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + str(t[1])
+        t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[2].code
 
 def p_arg_where(t):
     '''arg_where    :   WHERE exp
@@ -1042,8 +1087,7 @@ def p_exp(t):
             | arg_case
             | arg_greatest
             | arg_least 
-            | val_value	
-            | ID'''
+            | val_value'''
 # values -> list_vls
     if len(t) == 4:
         t[0] = GenerarBNF()
@@ -1054,17 +1098,9 @@ def p_exp(t):
         t[0].produccion = '<EXP>'
         t[0].code += '\n' + '<EXP>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[2].code
     else:
-        #print('QUE SOY?' + str(t[1]))
-        #print('QUE SOY?' + str(t[1].code))
-        if isinstance(t[1], GenerarBNF):
-
-            t[0] = GenerarBNF()
-            t[0].produccion = '<EXP>'
-            t[0].code += '\n' + '<EXP>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
-        else:
-            t[0] = GenerarBNF()
-            t[0].produccion = '<EXP>'
-            t[0].code += '\n' + '<EXP>' + ' ::= ' + str(t[1])
+        t[0] = GenerarBNF()
+        t[0].produccion = '<EXP>'
+        t[0].code += '\n' + '<EXP>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
 
 def p_arg_greatest(t):
     '''arg_greatest  : GREATEST PARABRE exp_list PARCIERRE''' 
@@ -1362,8 +1398,8 @@ def p_ins_update(t):
     t[0].code += '\n' + '<UPDATE>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + t[4].code + ' ' + t[6].code
 
 def p_ins_asign_list(t):
-    '''asign_list  : asign_list COMA ID SIGNO_IGUAL val_value
-                   | ID SIGNO_IGUAL val_value'''
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL exp
+                   | ID SIGNO_IGUAL exp'''
     if len(t) == 6:
         t[0] = GenerarBNF()
         t[0].produccion = '<ASIGN_LIST>'
@@ -1382,11 +1418,6 @@ def p_ins_delete(t):
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
 
-parser = yacc.yacc()
-
-while True:
-    try:
-        s = input('SQL> ')
-    except EOFError:
-        break
-    parser.parse(s)
+def analizarBNFSin(texto):    
+    parser = yacc.yacc()
+    parser.parse(texto)# el parametro cadena, es la cadena de texto que va a analizar.

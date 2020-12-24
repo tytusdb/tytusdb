@@ -9,6 +9,9 @@
                   | <DELETE> ';'
                   | <DEFINICION> ';'
                   | <ALTER_TABLE> ';'
+                  | <use> ';'
+    
+    <use> ::=  "USE" "ID" 
 
     <DEFINICION> ::= 'create' 'type' 'as' 'enum' '(' <LISTA_ENUM> ')'
                   | <CREATE_OR_REPLACE> 'database' <COMBINACIONES1>
@@ -72,17 +75,12 @@
             |  'character' '(''numero'')'
             |  'char' '(''numero'')'
             |  'text'
-            |  <TIMESTAMP>
+            |  'decimal' '(' 'numero' ',' 'numero' ')' 
             |  'date'
             |  <TIME>
             |  <INTERVAL>
             |  'boolean'
 
-    <TIMESTAMP> ::= 'timestamp' '(''numero'')' 'tmstamp'
-                |   'timestamp' 'tmstamp'
-                |   'timestamp' '(''numero'')' 
-                |   'timestamp' 
-                | 'now' '(' ')'
 
     <TIME> ::= 'time' '(''numero'')' 'tmstamp'
             |  'time' 'tmstamp'
@@ -131,15 +129,20 @@
 
 
     <ALTER_TABLE> ::=  'alter' 'table' 'id' <ALTER_OPTIONS>
-                   | 'alter' 'table' 'id' <ALTER_VARCHAR_LISTA>
+                   |   'alter' 'table' 'id' <ALTER_VARCHAR_LISTA>
 
-    <ALTER_OPTION> ::= 'add' 'column' 'id' <TIPO>
+    
+    <ALTER_OPTIONS> ::= 'add' 'column' 'id' <TIPO>
                     | 'drop' 'column' 'id'
-                    | 'add' 'check' '(' 'id' '<''>' '\'' '\'' ')'
+                    | 'add' 'check' '(' 'id' '<''>' 'CADENA' ')'
                     | 'add' 'constraint' 'id' 'unique' '(' 'id' ')'
                     | 'add' 'foreign' 'key' '('<LISTA_IDS>')' 'references' <LISTA_IDS>
                     | 'alter' 'column' 'id' 'set' 'not' 'null' 
                     | 'drop' 'constraint' 'id'
+                    | 'ADD' 'CONSTRAINT' 'ID' 'FOREIGN' 'KEY' '(' 'ID' ')' 'REFERENCES' 'ID' '(' 'ID' ')'
+                    | 'ADD' 'FOREIGN' 'KEY' '(' <lista_ids> ')' 'REFERENCES' 'ID' '(' <lista_ids> ')'
+                    | 'ALTER' 'COLUMN' 'ID' 'SET' 'NOT'  'NULL'
+                    | 'DROP' 'CONSTRAINT' 'ID'
                     
     <ALTER_VARCHAR_LISTA>::= <ALTER_VARCHAR>
                            | <ALTER_VARCHAR_LISTA> ',' <ALTER_VARCHAR>
@@ -156,73 +159,36 @@
                    | <COMBINE_QUERYS> 'except'<SELECT>
                    | <SELECT>
 
-    <SELECT> ::= 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO> 
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> <OFFSET> <JOIN>
+    <SELECT> ::= 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO> 
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS>  <JOIN>
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> 
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <OFFSET> <JOIN>
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS>  <JOIN>
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> 
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> <OFFSET> <JOIN>
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS>  <JOIN>
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> 
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <OFFSET> <JOIN>
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <OFFSET>
-              | 'select' '*' 'from' <LISTA_TABLAS>  <FILTRO> <JOIN>
-              | 'select' '*' 'from' <LISTA_TABLAS>  <FILTRO>
-              | 'select' 'distinct' <opcionDistinc> 'from'  <LISTA_TABLAS> <FILTRO> <JOIN>
-              | 'select' 'distinct' <opcionDistinc> 'from'  <LISTA_TABLAS> <FILTRO>
-              | 'select' 'distinct' <opcionDistinc> 'from' <LISTA_TABLAS>   <JOIN>
-              | 'select' 'distinct' <opcionDistinc> 'from' <LISTA_TABLAS>  
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> <FILTRO> <JOIN>
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> <FILTRO>
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>   <JOIN>
-              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>  
-              | 'select' '*' 'from' <LISTA_TABLAS>   <JOIN>
-              | 'select' '*' 'from' <LISTA_TABLAS>  
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS>  <JOIN>
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> 
-              | 'select' <FUNCIONES> 'as' 'id' <JOIN>
-              | 'select' <FUNCIONES> 'as' 'id'
-              | 'select' <FUNCIONES> <JOIN>
-              | 'select' <FUNCIONES>
+              | 'select' 'distinct' <SELECT_LIST> 'from'  <LISTA_TABLAS> <FILTRO>      
+              | 'select' 'distinct' <SELECT_LIST> 'from' <LISTA_TABLAS>  
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>
+              | 'select' <SELECT_LIST> 
+              | 'select' 'distinct'  <SELECT_LIST> 
+              | select' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO>  <LIMITS>
+              | select' 'distinct' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO>  <LIMITS>
 
-<opcionDistinct> :: =  'id'
-                    | '*'
-
-    <JOIN> ::=  <JOIN_TYPE> 'join' 'id' 'on' <EXPRESION>
-             |  <JOIN_TYPE> 'join' 'id' 'using' '(' 'join' <LISTA_IDS> ')'
-             |  'natural'<JOIN_TYPE> 'join' 'id'
-
-    <JOIN_TYPE> ::= 'inner'
-                |   <OUTER>
-
-    <OUTER> ::= 'left' 'outer'
-              | 'right' 'outer'
-              | 'full' 'outer'
-              | 'left'
-              | 'right' 
-              | 'full' 
-
-
-    <LISTA_NUMEROS> ::= <TIPO_NUMERO>
-                     |  <LISTA_NUMEROS> ',' <TIPO_NUMERO>
-    
-    <TIPO_NUMERO> ::= 'numero'
-                  |   'decimal'
 
 
     <LISTA_TABLAS> ::=  <LISTA_TABLAS> ',' <TABLA>
                      |  <TABLA>
 
+    <ALIAS> ::= 'id'
+              | 'cadena'
+
     <TABLA> ::=  'id' 
-             |   'id' 'as' 'id'
+             |   'id' <alias>
+             |   'id' 'as' <alias>
              |   <SUBQUERY>
-             |   <SUBQUERY> 'as' 'id'
+             |   <SUBQUERY> <alias>
+             |   <SUBQUERY> 'as' '<alias>
             
 
 
@@ -260,16 +226,21 @@
     <OFFSET> ::= 'offset' 'numero'
 
     <SELECT_LIST> ::= <SELECT_ITEM>
+                    | <SELECT_ITEM> <ALIAS>
+                    | <SELECT_ITEM> 'AS' <ALIAS>
                     | <SELECT_LIST> ',' <SELECT_ITEM>
+                    | <SELECT_LIST> ',' <SELECT_ITEM> <ALIAS>
+                    | <SELECT_LIST> ',' <SELECT_ITEM> 'AS' <ALIAS>
+  
 
-    <SELECT_ITEM>::=  'id'
-                  | 'id' '.' 'id'
-                  | <COUNT>
-                  | <AGGREGATE_F>
-                  | <SUBQUERY>
-                  | <CASE>
-                  | <GREATEST>
-                  | <LEAST>
+    <SELECT_ITEM> ::=  <exp_aux>
+                     | <COUNT>
+                     | <SUBQUERY>
+                     | <CASE>
+                     | <GREATEST>
+                     | <LEAST>
+                     | '*'
+                     | 'id' '.' '*'
 
 
     <COUNT> ::= 'count' '(' '*' ')'
@@ -297,7 +268,8 @@
 
     <SUBQUERY> ::= '('<SELECT>')'
 
-    <INSERT> ::= 'insert' 'into'  'id' 'values' '('<LISTA_EXP>')'
+    <INSERT> ::=  'insert' 'into'  'id' 'values' '('<LISTA_EXP>')'
+                | 'insert' 'into' 'id' <parametros> 'values'  '('<LISTA_EXP>')'
 
     <LISTA_EXP> ::= <EXPRESION>
                | <LISTA_EXP> ',' <EXPRESION>
@@ -344,11 +316,15 @@
                 | 'cadena'
                 | 'numero'
                 | 'decimal_literal'
+                | 'cadena_date'
                 | 'id' '.' 'id'
                 | 'id'
                 | '(' <EXPRESION> ')'
+                | 'id' in  <subquery>
+                | 'id' 'not in'  <subquery>
+                |  exist  <subquery>
                 | <FUNCIONES>
-                | <TIMESTAMP>
+
 
 <EXP_AUX>::= '-'  <EXP_AUX>
           |    '+'  <EXP_AUX>
@@ -358,14 +334,23 @@
           | <EXP_AUX>  '/'  <EXP_AUX>
           | <EXP_AUX>  '%'  <EXP_AUX>
           | <EXP_AUX>  '^'  <EXP_AUX>
+          | <EXPRESION> '<>'  <EXPRESION>
+          | <EXPRESION> 'or'   <EXPRESION>
+          | <EXPRESION> '='  <EXPRESION>
+          | <EXPRESION> '!='  <EXPRESION>
+          | <EXPRESION> '>='  <EXPRESION>
+          | <EXPRESION> '<='  <EXPRESION> 
+          | <EXPRESION>  '>'  <EXPRESION>
+          | <EXPRESION>  '<'  <EXPRESION>
           | 'cadena'
           | 'numero'
           | 'decimal'
+          | 'cadena_date'
           | 'id' '.' 'id'
           | 'id'
           | '(' <EXP_AUX> ')'
           | <FUNCIONES>
-          | <TIMESTAMP>
+
 
     <FUNCIONES> ::= 'length' '(' 'id' ')'
                     |   'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
@@ -434,7 +419,7 @@
                     |   'bitwise_not' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_not: ~ */
                     |   <TIPO_NUMERO> 'bitwise_shift_left' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_shift_left: << */
                     |   <TIPO_NUMERO> 'bitwise_shift_right' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_shift_right: >> */
-
+                    |   <AGGREGATE_F>
      
 
 

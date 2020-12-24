@@ -3,7 +3,7 @@ from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 from datetime import datetime 
 
 class CurrentTime(Instruccion):
-    def __init__(self, id, operacion, id2, linea, columna):
+    def __init__(self, linea, columna):
         Instruccion.__init__(self,None,linea,columna)
         
 

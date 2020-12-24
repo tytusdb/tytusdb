@@ -1,12 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-from function import *
-from typ import *
-from trigonometric_functions import acosh
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.trigonometric_functions import acosh
 
 class Acosh(Function):
     def __init__(self, input, row, column):
@@ -38,4 +32,4 @@ class Acosh(Function):
             if value['value'] < 1:
                 return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [1,infinito] que son aceptados por la funcion acosh()", 'linea':self.row,'columna':self.column }
 
-            return [{'value':acosh(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':acosh(value['value']), 'typ': Type.DECIMAL}

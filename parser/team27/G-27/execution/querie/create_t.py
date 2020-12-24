@@ -1,15 +1,22 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/execution/querie')
-sys.path.append('../tytus/storage')
-from querie import * 
-from environment import *
-from table import *
-from column import *
+from execution.abstract.querie import * 
+from execution.symbol.environment import *
+from execution.symbol.table import *
+from execution.symbol.column import *
 from storageManager import jsonMode as admin
 
 class Create_Table(Querie):
+    """
+    table: id con el nombre de la nueva tabla
+    fields: arreglo que contiene objetos column o diccionarios de restriccion
+
+    Formato de los diccionarios de cada restriccion:
+    DEPENDE EN CADA PRODUCCIÓN DE LOS CAMPOS QUE SE AGREGARAN
+    {'type': 'primary', 'name':nombre, 'value': id_campo2},
+    {'type': 'foreign', 'name':nombre, 'value': campo_tabla1, 'references': campo_tabla_extranjera},
+    {'type': 'not null', 'name':nombre, 'value': campo_no_nulo},
+    {'type': 'check', 'name':nombre, 'value':objetoExpression},
+    {'type': 'unique', 'name':nombre,'value': campo_unico}
+    """
     def __init__(self, table, fields, row, column):
         Querie.__init__(self, row, column)
         self.table = table

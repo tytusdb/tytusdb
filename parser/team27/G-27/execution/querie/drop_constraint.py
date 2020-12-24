@@ -1,16 +1,16 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/execution/querie')
-sys.path.append('../tytus/storage')
-from querie import * 
-from environment import *
-from table import *
-from column import *
-from typ import *
+from execution.abstract.querie import * 
+from execution.symbol.environment import *
+from execution.symbol.table import *
+from execution.symbol.column import *
+from execution.symbol.typ import *
 from storageManager import jsonMode as admin
 
 class Drop_Constraint(Querie):
+    '''
+     constName = nombre del constraint que deseamos eliminar(cadena)
+     row = numero de fila(int)
+     column = numero de columna(int)
+    '''
     def __init__(self,constName, row, column):
         Querie.__init__(self, row, column)
         self.constName = constName

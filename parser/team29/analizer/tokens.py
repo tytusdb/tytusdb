@@ -122,6 +122,11 @@ reservadas = {
     "SUM": "R_SUM",
     "PROM": "R_PROM",
     "COUNT": "R_COUNT",
+    "CASE": "R_CASE",
+    "WHEN": "R_WHEN",
+    "THEN": "R_THEN",
+    "ELSE": "R_ELSE",
+    "END": "R_END"
 }
 
 reservadas.update(r_types)
@@ -215,12 +220,14 @@ def t_ID(t):
     t.type = reservadas.get(t.value.upper(), "ID")
     if t.type != "ID":
         t.value = t.value.upper()
+    else:
+        t.value = t.value.lower()
     return t
 
 
 # Funcion para evaluar si el token reconocido es un DECIMAL
 def t_DECIMAL(t):
-    r"\d+\.\d+"
+    r"\d+\.\d+(e(-|\+)?\d+)?|\d+(e(-|\+)?\d+)"
     try:
         t.value = float(t.value)
     except ValueError:
@@ -279,4 +286,7 @@ def t_error(t):
 
 
 def returnLexicalErrors():
-    return listErrors
+    global listErrors
+    temp = listErrors
+    listErrors = list()
+    return temp

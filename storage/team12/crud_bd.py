@@ -1,10 +1,12 @@
 import binary_file
 import copy
+import os
+from PIL import Image
 
 class Nodo():
     def __init__(self, name):
         self.name = name
-        self.tables = None
+        self.tables = []
         self.left = None
         self.right = None
         self.height = 0
@@ -43,7 +45,7 @@ class CRUD_DataBase:
         try:
             if tmp is None:
                 return Nodo(name)
-            elif int(name) > int(tmp.name):
+            elif name > tmp.name:
                 
                 tmp.right = self._createDatabase(name, tmp.right)
 
@@ -83,7 +85,7 @@ class CRUD_DataBase:
     def _searchDatabase(self, name, tmp):
         if tmp is None or name == tmp.name:
             return tmp
-        elif int(name) > int(tmp.name):
+        elif name > tmp.name:
             tmp = self._searchDatabase(name, tmp.right)
         else:
             tmp = self._searchDatabase(name, tmp.left)            
@@ -142,8 +144,11 @@ class CRUD_DataBase:
             self._showDatabases(tmp.right, r_list)
             r_list.append(tmp.name)
     
-    def r_Root(self):
+    def getRoot(self):
         return binary_file.rollback("databases")
+
+    def saveRoot(self, root):
+        binary_file.commit(root, "databases")
 
     # Left more Right
     def lmr (self, tmp):
@@ -207,7 +212,7 @@ class CRUD_DataBase:
         try:
             if tmp is None:
                 return nodo_Nuevo
-            elif int(name) > int(tmp.name):
+            elif name > tmp.name:
                 
                 tmp.right = self._assignTables(name, tmp.right, nodo_Nuevo)
 
@@ -266,7 +271,6 @@ class CRUD_DataBase:
                     return 2
                 else:
                     return 1
-                    # Creamos un Nuevo Nodo
                     
     def dropDatabase(self, database):
         r_value = 0
@@ -292,7 +296,7 @@ class CRUD_DataBase:
 
         try:
             if tmp is not None:
-                if int(name) == int(tmp.name):
+                if name == tmp.name:
                     if tmp.left != None:
                         tmp.name = self.lmr(tmp).name
                         tmp.left = self._dropDatabase(tmp.name, tmp.left)
@@ -304,7 +308,7 @@ class CRUD_DataBase:
                     else:
                         return None
                 #-----------------------------------#
-                elif int(name) > int(tmp.name):
+                elif name > tmp.name:
                     tmp.right = self._dropDatabase(name, tmp.right)
                     tmp = self.giro(tmp)
                     # Se verifica que no haya error en el nodo
@@ -317,3 +321,39 @@ class CRUD_DataBase:
                 return tmp
         except:
             return 1
+
+    def showGraphviz(self):
+        try:
+            tmp = self.getRoot()
+            encabezado = "digraph D { \n"
+            cuerpo = self._showGraphviz(tmp)[1]
+            pie = "}"
+            consolidado = encabezado + cuerpo + pie
+            objFichero = open("imagenproyecto.txt",'w')
+            objFichero.write(consolidado)
+            objFichero.close()
+            os.system("dot -Tpng imagenproyecto.txt -o imagenproyecto.png")
+            os.remove("imagenproyecto.txt")
+            f = Image.open("imagenproyecto.png")
+            f.show()
+        except FileNotFoundError:
+            pass
+
+    def _showGraphviz(self, tmp):
+        if tmp:
+            dibujo = ""
+            
+            lado_derecho = tmp.name
+            lado_izquierdo = tmp.name
+            
+            izquierda = self._showGraphviz(tmp.left)
+            derecha = self._showGraphviz(tmp.right)
+            
+            
+            if izquierda is None and derecha is None: 
+                return [lado_derecho, '']
+            if izquierda:
+                dibujo += izquierda[1]+lado_izquierdo+"->"+izquierda[0]+"\n"
+            if derecha:
+                dibujo += derecha[1]+lado_derecho+"->"+derecha[0]+"\n"
+            return [lado_derecho, dibujo]
