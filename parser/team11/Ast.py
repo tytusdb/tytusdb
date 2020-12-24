@@ -213,3 +213,49 @@ class AST:
                 self.Select(nodo)
             else:
                 print('[!] Valor de etiqueta ('+nodo.etiqueta+') no corresponde, en L: '+str(nodo.linea))
+################---CREATE DATABASE---##########################
+    def createDB(self, nodo):
+        name_db = ''
+        owner = ''
+        mode = -1
+
+        hijo1 = ''
+        hijo2 = ''
+        hijo3 = ''
+
+        for hijos in nodo.hijos:
+            for hijos2 in hijos.hijos:
+                for hijos3 in hijos2.hijos:
+                    hijo3 = hijos3.valor
+                hijo2 = hijos2.valor
+            hijo1 = hijos.valor
+
+        if nodo.valor != '':
+            name_db = nodo.valor
+            owner = hijo1
+            mode = hijo2
+        else:
+            name_db = hijo1
+            owner = hijo2
+            mode = hijo3
+        
+        
+        query_result = jsonMode.createDatabase(name_db)
+        if query_result == 0:
+            jsonMode.createDatabase(name_db)
+            self.ts[name_db] = Database(owner, mode)
+            self.output.append('Creación de base de datos \"'+name_db+'\" exitosa.')
+        elif query_result == 1:
+            self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+        elif query_result == 2:
+            self.errors.append(Error('42P04', EType.SEMANTICO, 'duplicate_database',nodo.linea))
+            
+#################---USE DATABASE---################################
+    def useDB(self,nodo):
+        if nodo.valor in self.ts:
+            self.usingDB = nodo.valor
+            self.output.append('Usted esta ubicado en la base de datos \"'+ self.usingDB +'\".')
+            # print(self.usingDB)
+        else:
+            # agregar el error semantico con su debido codigo -> DB no existe
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
