@@ -2064,6 +2064,8 @@ ST = SymbolTable([])##TODO Check is only one ST.
 class grammarReview:
     def __init__(self, texto): 
         print("Executing AST root, please wait ...")
+        global errorsList
+        errorsList = []
         global ST
         ST.LoadMETADATA()
         instrucciones = parse.parse(texto)
@@ -2079,11 +2081,21 @@ class grammarReview:
         for e in errorsList:
             print(e,"\n")
         
+        
 
     def getTablaTabulada(self):
         global ST
         return ST.report_symbols()
 
+
+    def report_errors(self):
+        result2 = ["LINEA", "COLUMNA", "TIPO", "DESCRIPCION"]
+        result = []
+        global errorsList
+        for our_error in errorsList:
+            result.append([our_error.line, our_error.column, our_error.error_type, our_error.message])
+        print(tabulate(result, result2, tablefmt="rst"))
+        return tabulate(result, result2, tablefmt="rst")
 
 """ if __name__ == "__main__":
     f = open("./entrada.txt", "r")
