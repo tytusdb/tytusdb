@@ -49,3 +49,34 @@ class ListaDobledeArboles :
             nuevo.anterior = self.fin
             self.fin = nuevo
         return self.inicio
+
+    def eliminar(self,nombreTabla) :
+        if self.estaVacia() != None :
+            aux = self.inicio
+            while aux != None :
+                if aux.nombre == nombreTabla :
+                    if aux.anterior == None and aux.siguiente == None :
+                        self.inicio=self.fin=None
+                        return 0
+                    #en el original no tenias los elif
+                    elif aux.anterior == None :
+                        self.inicio = self.inicio.siguiente
+                        self.inicio.anterior = None
+                        aux.siguiente = None
+                        return 0
+                    elif aux.siguiente == None :
+                        self.fin = self.fin.anterior
+                        self.fin.siguiente = None
+                        aux.anterior = None
+                        return 0
+                    else:
+                        aux.anterior.siguiente = aux.siguiente
+                        aux.siguiente.anterior = aux.anterior
+                        aux.anterior = None
+                        aux.siguiente = None
+                        return 0
+                else:
+                    aux = aux.siguiente
+        else:
+            #return("BD vacia")
+            return(4)
