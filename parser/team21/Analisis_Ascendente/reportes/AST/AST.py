@@ -31,6 +31,7 @@ from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable imp
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Update.Update import Update
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Delete.delete import Delete
 from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where import  Where
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Type.type import CreateType
 
 class AST:
     def __init__(self, sentencias):
@@ -684,6 +685,9 @@ class AST:
                 self.Primitivo(inst.E1, np)
             elif isinstance(inst.E1, IdId):
                 self.CrearNodo(inst.E1.id1 + '.' + inst.E1.id2, np)
+            elif isinstance(inst.E1,list):
+                self.listaID(inst.E1,np)
+
             #elif isinstance(inst.E1, Expresion):
             else:
                 self.E(inst.E1, np)
