@@ -235,7 +235,8 @@ def p_instruccion(t) :
 
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
-    'creacion     : DATABASE crear_bd'
+    '''creacion     : DATABASE crear_bd
+                    | TABLE crear_tb'''
     print("Creacion")
 
 def p_instruccion_crear_BD(t) :
@@ -243,6 +244,18 @@ def p_instruccion_crear_BD(t) :
     t[0] = Crear_BD(t[1])
     print("Creacion de BD")
 
+def p_instruccion_crear_TB(t) :
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER crear_tb_herencia PTCOMA
+                    | ID PARIZQ crear_tb_columnas PARDER crear_tb_herencia
+                    | ID PARIZQ crear_tb_columnas PARDER PTCOMA
+                    | ID PARIZQ crear_tb_columnas PARDER'''
+    
+    if t[5] != None and t[5] != ';':
+        #Si t[5] existe y no es punto y coma, entonces la tabla tiene herencia
+        t[0] = Crear_TB_Herencia(t[1], t[3], t[5])
+    else:
+        #Si t[5] no existe o es Punto y coma, entonces la tabla no tiene herencia
+        t[0] = Crear_TB(t[1], t[3])
 
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
@@ -296,6 +309,23 @@ def p_parametro_sin_tabla(t) :
 
 #========================================================
 
+#========================================================
+# LISTA DE PARAMETROS PARA CREAR TABLA
+def p_instruccion_crear_TB_columnas(t) :
+    '''crear_tb_columnas    : crear_tb_columnas COMA ID tipo_valor parametro_columna
+                            | crear_tb_columnas COMA ID tipo_valor
+                            | crear_tb_columnas COMA PRIMARY KEY PARIZQ pkey_id PARDER
+                            | crear_tb_columnas COMA FOREIGN KEY PARIZQ pkey_id PARDER REFERNECES ID PARIZQ pkey_id PARDER
+                            | ID tipo_valor parametro_columna
+                            | ID tipo_valor
+                            | PRIMARY KEY PARIZQ pkey_id PARDER
+                            | FOREIGN KEY PARIZQ pkey_id PARDER REFERNECES ID PARIZQ pkey_id PARDER
+    '''
+    print('Cosas')    
+    
+
+#========================================================
+
 # INSTRUCCION CON "DELETE"
 def p_instruccion_delete(t) :
     '''deletes      : ID PTCOMA WHERE delete_condicional
@@ -305,7 +335,6 @@ def p_instruccion_delete(t) :
 def p_instruccion_delete_incondicional(t) :
     'delete_incondicional     : ID PTCOMA'
     t[0] = Delete_incondicional(t[1])
-    print("Eliminar tabla: " + t[1])
 
 def p_instruccion_delete_condicional(t) :
     'delete_condicional     : ID WHERE PTCOMA'

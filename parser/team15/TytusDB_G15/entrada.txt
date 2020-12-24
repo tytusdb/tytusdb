@@ -1,0 +1,13 @@
+CREATE DATABASE compiladores2;
+
+USE compiladores2;
+
+CREATE TABLE tbUSUARIO(
+	id_ususario		INTEGER,
+	usuario		    INTEGER ,
+	password		bigint,
+    telefono        VARCHAR(50),
+    direccion       VARCHAR(50),
+    edad            numeric(10,10),
+    PRIMARY KEY (id_ususario,usuario)
+);

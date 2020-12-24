@@ -160,6 +160,14 @@ class UnitariaLogicaNOT() :
     def __init__(self, expresion):
         self.expresion=expresion
 
+
+#Objeto exist
+class UnitariaLogicaEXIST() :
+    def __init__(self, expresion):
+        self.expresion=expresion
+
+
+
 class UnitariaNotBB() :
     def __init__(self, expresion):
         self.expresion=expresion
@@ -167,6 +175,9 @@ class UnitariaNotBB() :
 class UnariaReferencia() :
     def __init__(self,tipoVar):
         self.tipoVar=tipoVar
+
+
+
 
 #NUEVAS UNITARIAS
 class UnitariaLogicaIS_NOT_NULL() :

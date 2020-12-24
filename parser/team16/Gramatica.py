@@ -197,7 +197,10 @@ reservadas = {
     'width_bucket': 'WIDTH_BUCKET',
     'trunc': 'TRUNC',
     'random': 'RANDOM',
-    'power': 'POWER'
+    'power': 'POWER',
+    #AGREGADAS
+    'notexist':'NOTEXIST',
+    'notin':'NOTIN'
 }
 
 tokens = [
@@ -461,6 +464,7 @@ def p_instruccion_Use_database(t):
     'DQL_COMANDOS       : USE ID PUNTOCOMA'
     global baseActual
     baseActual = str(t[2])
+    t[0] = useClase(t[2])
     rep_gramatica('\n <TR><TD> DQL_COMANDOS → USE ID PUNTOCOMA </TD><TD> DQL_COMANDOS=t[2] </TD></TR>')
 
 # ===================  DEFINICIONES DE LOS TIPOS DE SELECT
@@ -2289,22 +2293,29 @@ def p_expresion_logica_predicados_4(t):
 
 def p_expresion_logica_exists_sub(t):
     '''expresion_logica : EXISTS expresion_aritmetica'''
-    t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS)
+    t[0]=UnitariaLogicaEXIST(t[2])
+
+   # t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS)
     rep_gramatica('\n <TR><TD> expresion_logica →  EXISTS expresion_aritmetica   </TD><TD>  t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS) </TD></TR>')
 
 def p_expresion_logica_not_exists_sub(t):
     '''expresion_logica : NOT EXISTS '''
+
     t[0] = ExpresionLogica(None, None, OPERACION_LOGICA.NOT_EXISTS)
     rep_gramatica('\n <TR><TD> expresion_logica → NOT EXISTS   </TD><TD>  t[0] = ExpresionLogica(None, None, OPERACION_LOGICA.NOT_EXISTS) </TD></TR>')
 
 
 
+
+
+
 def p_expresion_logica_in(t):
     '''expresion_logica : expresion_aritmetica IN expresion_aritmetica
-                        | expresion_aritmetica NOT IN expresion_aritmetica'''
+                        | expresion_aritmetica NOTIN expresion_aritmetica'''
     if t[2] == 'IN':
         t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.IN)
-    elif t[2] == 'NOT':
+    elif t[2] == 'NOTIN':
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   estoy entrando <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.NOT_IN)
     rep_gramatica('\n <TR><TD> expresion_logica → expresion_aritmetica IN -OR-NOT IN   </TD><TD>   t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.IN) </TD></TR>')
 
