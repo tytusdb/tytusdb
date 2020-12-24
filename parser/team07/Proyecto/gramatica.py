@@ -3393,20 +3393,21 @@ def p_select_query(t):
         \t t[0] = instruccion\n\n")
 
     elif len(t) == 6:
-        if str.lower(t[2]) == 'distinct':
-            instruccion = selectSimple.selectSimple(t[3], t[5], None, True)
-            hijos.append(t[3])
-            hijos.append(t[5])
-            instruccion.setearValores(
-                linea, columna, "SELECT", nNodo, '', hijos)
-            t[0] = instruccion
+        if isinstance(t[2], str):
+            if str.lower(t[2]) == 'distinct':
+                instruccion = selectSimple.selectSimple(t[3], t[5], None, True)
+                hijos.append(t[3])
+                hijos.append(t[5])
+                instruccion.setearValores(
+                    linea, columna, "SELECT", nNodo, '', hijos)
+                t[0] = instruccion
 
-            GenerarRepGram.AgregarTexto("select_query     ::=   SELECT DISTINCT select_list FROM from_query_list\n\n\
-            \t instruccion = selectSimple.selectSimple(t[3], t[5], None, True)\n\
-            \t hijos.append(t[3])\n\
-            \t hijos.append(t[5])\n\
-            \t instruccion.setearValores(linea, columna, \"SELECT\", nNodo, '', hijos)\n\
-            \t t[0] = instruccion\n\n")
+                GenerarRepGram.AgregarTexto("select_query     ::=   SELECT DISTINCT select_list FROM from_query_list\n\n\
+                \t instruccion = selectSimple.selectSimple(t[3], t[5], None, True)\n\
+                \t hijos.append(t[3])\n\
+                \t hijos.append(t[5])\n\
+                \t instruccion.setearValores(linea, columna, \"SELECT\", nNodo, '', hijos)\n\
+                \t t[0] = instruccion\n\n")
 
         else:
             instruccion = selectSimple.selectSimple(t[2], t[4], t[5], False)
