@@ -72,6 +72,10 @@ from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Tanh import *
 from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Asinh import *
 from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Acosh import *
 from FUNCIONES_NATIVAS.TRIGRONOMETRIC_FUNCTION.Atanh import *
+from FUNCIONES_NATIVAS.BYNARY_STRING_FUNCTION.Length import *
+from FUNCIONES_NATIVAS.BYNARY_STRING_FUNCTION.Substr import *
+from FUNCIONES_NATIVAS.BYNARY_STRING_FUNCTION.Substring import *
+from FUNCIONES_NATIVAS.BYNARY_STRING_FUNCTION.Trim import *
 from Config.BNF import bnf
 
 #Definicion de listado de errores
@@ -920,13 +924,13 @@ def p_select_funciones_44(t):
 def p_select_funciones_45(t):
     'funcion_string : LENGTH PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_45"])  
-    t[0] = Start("SENTENCIA_LENTGH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Length("SENTENCIA_LENTGH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_46(t):
     'funcion_string : SUBSTRING PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_46"])  
-    t[0] = Start("SENTENCIA_SUBSTRING",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Substring("FUNCION_SUBSTRING",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
     t[0].hijos.append(t[7])
@@ -934,7 +938,7 @@ def p_select_funciones_46(t):
 def p_select_funciones_47(t):
     'funcion_string : TRIM PARENTESISIZQ Exp FROM Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_47"])  
-    t[0] = Start("SENTENCIA_TRIM",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Trim("SENTENCIA_TRIM",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
@@ -953,7 +957,7 @@ def p_select_funciones_49(t):
 def p_select_funciones_50(t):
     'funcion_string : SUBSTR PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_50"])  
-    t[0] = Start("SENTENCIA_SUBSTR",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Substr("FUNCION_SUBSTR",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
     t[0].hijos.append(t[7])
@@ -2056,7 +2060,7 @@ def p_exp_case(t):
     reportebnf.append(bnf["p_exp_case"])
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
-    
+
 # *********************************************************************************
 # ----------------------------------  Access --------------------------------------
 def p_option_exp_access(t):
