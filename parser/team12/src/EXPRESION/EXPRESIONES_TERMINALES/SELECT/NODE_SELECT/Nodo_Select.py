@@ -34,14 +34,13 @@ class Select_Expresion(Expresion):
         if len(self.hijos) == 1 :
 
             lista_Exp = self.hijos[0]
-
+            l = []
             for exp in lista_Exp.hijos :
 
                 value = exp.execute(None)
 
                 if exp.tipo.data_type == Data_Type.error :
-
-                    print("Error: :'v")
+                    print("Error: ")
 
                 else :
 
@@ -50,7 +49,9 @@ class Select_Expresion(Expresion):
                     else :
                         dataSelect.encabezados.append('?column?')
                     
-                    dataSelect.data.append(value)
+                    l.append(value)
+            dataSelect.data.append(l)    
+            return dataSelect
                 
         else :
             #SENTENCIA_SELECT_DISTINCT

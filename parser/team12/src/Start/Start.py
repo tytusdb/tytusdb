@@ -33,13 +33,18 @@ class Start(Nodo):
         self.hijos.append(nuevo)
 
     def tabular_data(self, encabezados : list, data : list) -> str: 
+        index = 0
+        for i in encabezados:
+            if i == "?column?":
+                encabezados[index] = "?column?"+str(index)
+                index += 1
         x = PrettyTable()
         x.field_names = encabezados
         for item in data:
             if len(item) == len(encabezados):
                 x.add_row(item)
         return x.get_string()
-
+        
     # recursiva por la izquierda
     def execute(self, enviroment):
         
