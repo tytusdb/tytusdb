@@ -8861,41 +8861,43 @@ class Insert_Datos(Instruccion):
                     cV += 1
 
                 if cC == cV:
-                    #print(" >> Parametros exactos.")
+                    print(" >> Parametros exactos. +++++++++++++++++++++++++++++++++++++++++++")
                     index = 0
                     banderaInsert = False
 
                     for cc in self.valores:
-
-                        if isinstance(temporal[index].tipo, valorTipo):
-
-                            resultado = Inter.procesar_expresion(cc, None)
-                            print(" Mi proceso: "+str(resultado))
-
-                            if isinstance(resultado, string_types) and (str(temporal[index].tipo.valor).upper() == 'VARCHAR' or str(temporal[index].tipo.valor).upper() == 'CHARACTER' or str(temporal[index].tipo.valor).upper() == 'CHAR'):
-                                print(" >>> Parametros correctos, insertar, Validar la exprecion.")
-                                banderaInsert = True
-                            else:
-                                imprir("INSERT BD: Parametros incorrectos. ")
-                                banderaInsert = False
+                        if isinstance(temporal[index], constraintTabla):
+                            pass
                         else:
-                            resultado = Inter.procesar_expresion(cc, None)
-                            print(" Mi proceso: "+str(resultado))
-                            #print(" Valor: >>>" + str(cc.val))
-                            if isinstance(resultado, string_types) and  str(temporal[index].tipo).upper() == 'TEXT' or str(temporal[index].tipo).upper() == 'DATE':
-                                print(" >>> Parametros correctos, insertar")
-                                banderaInsert = True
-                            elif str(temporal[index].tipo) == 'BOOLEAN'and (str(cc.val).upper() == "TRUE" or str(cc.val).upper() == "FALSE"):
-                                imprir("INSERT BD: Parametros correctos, insertar")
-                                banderaInsert = True
-                            elif int(resultado) > 0 and (str(temporal[index].tipo).upper() == 'SMALLINT' or str(temporal[index].tipo).upper() == 'INTEGER' or str(temporal[index].tipo).upper() == 'INT' or str(temporal[index].tipo).upper() == 'BIGINT' or str(temporal[index].tipo).upper() == 'DECIMAL' or str(temporal[index].tipo).upper() == 'REAL' or str(temporal[index].tipo).upper() == 'FLOAT' or str(temporal[index].tipo).upper() == 'MONEY'):
-                                print(" >>> Parametros correctos, insertar")
-                                banderaInsert = True
-                            else:
-                                imprir("INSERT BD: Parametros incorrectos. ")
-                                banderaInsert = False
+                            if isinstance(temporal[index].tipo, valorTipo):
 
-                        index += 1
+                                resultado = Inter.procesar_expresion(cc, None)
+                                print(" Mi proceso: "+str(resultado))
+
+                                if isinstance(resultado, string_types) and (str(temporal[index].tipo.valor).upper() == 'VARCHAR' or str(temporal[index].tipo.valor).upper() == 'CHARACTER' or str(temporal[index].tipo.valor).upper() == 'CHAR'):
+                                    print(" >>> Parametros correctos, insertar, Validar la exprecion.")
+                                    banderaInsert = True
+                                else:
+                                    imprir("INSERT BD: Parametros incorrectos. ")
+                                    banderaInsert = False
+                            else:
+                                resultado = Inter.procesar_expresion(cc, None)
+                                print(" Mi proceso: "+str(resultado))
+                                #print(" Valor: >>>" + str(cc.val))
+                                if isinstance(resultado, string_types) and  str(temporal[index].tipo).upper() == 'TEXT' or str(temporal[index].tipo).upper() == 'DATE':
+                                    print(" >>> Parametros correctos, insertar")
+                                    banderaInsert = True
+                                elif str(temporal[index].tipo).upper() == 'BOOLEAN'and (str(cc.val).upper() == 'TRUE' or str(cc.val).upper() == 'FALSE'):
+                                    imprir("INSERT BD: Parametros correctos, insertar")
+                                    banderaInsert = True
+                                elif int(resultado) > 0 and (str(temporal[index].tipo).upper() == 'SMALLINT' or str(temporal[index].tipo).upper() == 'INTEGER' or str(temporal[index].tipo).upper() == 'INT' or str(temporal[index].tipo).upper() == 'BIGINT' or str(temporal[index].tipo).upper() == 'DECIMAL' or str(temporal[index].tipo).upper() == 'REAL' or str(temporal[index].tipo).upper() == 'FLOAT' or str(temporal[index].tipo).upper() == 'MONEY'):
+                                    print(" >>> Parametros correctos, insertar")
+                                    banderaInsert = True
+                                else:
+                                    imprir("INSERT BD: Parametros incorrectos. ")
+                                    banderaInsert = False
+
+                            index += 1
 
                     # INSERTANDO DATOS
                     ix = 0
@@ -9283,16 +9285,20 @@ class CreacionEnum(Instruccion):
                 if str(cadena) not in ts_global.Tipos:
                     mi = DatoTipo(baseActual, str(self.id), str(cadena))
                     ts_global.agregarTipo(mi)
+                    imprir("TYPE: Tipo agregado")
                 else:
-                    print("ERROR: YA existe")
+                    imprir("TYPE: Ya existe este tipo.")
+                    er = ErrorRep('Semantico', 'El tipo creado ya existe.', 0)
+                    LisErr.agregar(er)
         else:
-            print("NO HAY CADENAS EN EL ENUM TYPE")
+            imprir("TYPE: Los parametros son incorrectos.")
+            er = ErrorRep('Semantico', 'Se necesitan cadenas para crearlos..', 0)
+            LisErr.agregar(er)
 
         print("AQUI ESTAN")
         for ca in ts_global.Tipos:
             a = ts_global.Tipos.get(ca)
             print(str(a.tipo))
-
 
 # Crear funciones de ejecucion ----------------------------------
 #Prueba clase errores
@@ -9477,9 +9483,19 @@ class Alter_Table_AddColumn(Instruccion):
                                 # Se ingreso correctamente el valor
                                 temporal2 = CampoValidacion(None, None)
                                 temporal = CampoTabla(elemento.val, elemento.tipo, temporal2)
+                                print("CAMPO  TABLA: "+str(elemento.val)+str(elemento.tipo)+str(temporal2))
                                 r2.cuerpo.append(temporal)
 
                                 imprir("ALTER TABLE: Se Agrego correctamente la Columna")
+
+                                for elemento2 in ts_global.Tablas:
+                                    x: CreateTable = ts_global.obtenerTabla(elemento2)
+                                    print("TABLA: ")
+                                    if (x.id == self.id_table):
+                                        for ele in x.cuerpo:
+                                            y = ele
+                                            if isinstance(ele, CampoTabla):
+                                                print(str(y.id)+str(y.tipo))
 
                             elif rc == 1:
                                 # Error al escribir en la base de datos
