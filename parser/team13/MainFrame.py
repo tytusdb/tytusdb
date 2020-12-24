@@ -219,11 +219,11 @@ if __name__ == "__main__":
 
             if len(g.errores_sintacticos) == 0:
                 imprimir_consola("") 
-                raiz = graficando.analizador(entrada)
                 data=principal.interpretar_sentencias(arbol,tablaSimbolos)
                 #tablaSimbolos.mostrar()
                 imprimir_consola(data)
                 #append_consola(tablaSimbolos.mostrar_tabla())
+                raiz = graficando.analizador(entrada)
                 graficando.GraficarAST(raiz)
                 graficando.ReporteGramatical()
             else:
@@ -276,6 +276,7 @@ if __name__ == "__main__":
     # FUNCIÓN PRIVADA PARA REALIZAR EL REPORTE DE ERRORES SINTÁCTICOS
     def __funcion_GramaticalEstatico():
             os.startfile('gramaticaEstatico.txt') 
+            os.startfile('GramaticaEstaticoDescendente.txt') 
     def __funcion_GramaticalDinamico():
             os.startfile('gramaticaDinamico.txt') 
    

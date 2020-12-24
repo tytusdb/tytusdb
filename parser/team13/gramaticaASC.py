@@ -306,8 +306,8 @@ t_ptComa = r';'
 # tk_queries
 t_barra = r'\|'
 t_barraDoble = r'\|\|'
-t_amp = r'\&'
-t_numeral = r'\#'
+t_amp = r'&'
+t_numeral = r'\?'
 t_virgulilla = r'~'
 t_mayormayor = r'>>'
 t_menormenor = r'<<'
@@ -1488,9 +1488,9 @@ def p_EXPR_COLUMNAS1_p1(p):  # error
                      | least parAbre E_LIST parCierra as E '''
     if p[1].lower() == "substring":
         if len(p) == 11:
-            p[0] = SColumnasSubstr(p[3], p[5], p[7], p[10])
+            p[0] = SColumnasSubstr(p[10], p[5], p[7], p[3])
         else:
-            p[0] = SColumnasSubstr(p[3], p[5], p[7], False)
+            p[0] = SColumnasSubstr(False, p[3], p[5], p[7])
     elif p[1].lower() == "substr":
         if len(p) == 11:
             p[0] = SColumnasSubstr(p[10],p[3], p[5], p[7])
@@ -1509,7 +1509,7 @@ def p_EXPR_COLUMNAS1_p1(p):  # error
 
 
 def p_EXPR_EXTRA(p):
-    '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp fecha_hora parCierra
+    '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp E parCierra
                   | tExtract parAbre FIELDS from E parCierra'''
     if len(p) == 7:
         p[0] = SExtract(p[3], p[5])
@@ -1618,6 +1618,7 @@ def p_EXPR_BINARIAS(p):
                      | E menormenor E
                      | E mayormayor E'''
     if len(p) == 3:
+        print("entro con trim xd")
         p[0] = SFuncBinary(p[1], p[2])
     if len(p) == 4:
         p[0] = SFuncBinary2(p[2], p[1], p[3])
@@ -1642,7 +1643,7 @@ def p_EXPR_FECHA(p):
     elif len(p) == 3:
         p[0] = SFechaFunc(p[1], p[2])
     else:
-        p[0] = SFechaFunc2(p[1], p[3], p[5], p[6])
+        p[0] = SDatePart(p[1], p[3], p[5], p[6])
 
 
 def p_EXPR_CASE(p):

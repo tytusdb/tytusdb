@@ -770,3 +770,10 @@ class SAll(Sentencia):
 
     def __str__(self):
         return "{ SAll | columna: '%s', operador: '%s', consulta: '%s' }" % (str(self.columna), str(self.operador),str(self.consulta))
+
+class SDatePart(Sentencia):
+    def __init__(self, id, param, ts, param2):
+        self.id = id
+        self.param = param
+        self.ts = ts
+        self.param2 = param2

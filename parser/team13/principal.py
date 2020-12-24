@@ -20,6 +20,8 @@ listaSemanticos = []
 listaConstraint = []
 listaFK = []
 types = {}
+d1 = ""
+d2 = ""
 
 def interpretar_sentencias(arbol, tablaSimbolos):
     # jBase.dropAll()
@@ -233,6 +235,146 @@ def interpretar_sentencias(arbol, tablaSimbolos):
 
             else:
                 print("Query no 1")
+                consulta1=[]
+                consulta2=[]
+                
+                Qselect = nodo.query1.select
+                Qffrom = nodo.query1.ffrom
+                Qwhere = nodo.query1.where
+                Qgroupby = nodo.query1.groupby
+                Qhaving = nodo.query1.having
+                Qorderby = nodo.query1.orderby
+                Qlimit = nodo.query1.limit
+                base = tablaSimbolos.get(useActual)
+                pT = PrettyTable()
+                consulta1=hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
+                
+                Qselect2 = nodo.query2.select
+                Qffrom2 = nodo.query2.ffrom
+                Qwhere2 = nodo.query2.where
+                Qgroupby2 = nodo.query2.groupby
+                Qhaving2 = nodo.query2.having
+                Qorderby2 = nodo.query2.orderby
+                Qlimit2 = nodo.query2.limit
+                base2 = tablaSimbolos.get(useActual)
+                pT = PrettyTable()
+                consulta2=hacerConsulta(Qselect2, Qffrom2, Qwhere2, Qgroupby2, Qhaving2, Qorderby2, Qlimit2, base2, pT, False,tablaSimbolos)
+                
+                arrColNames = []
+                arrFinal = []
+                arrAux = []
+                arrAux2 = []
+                if nodo.ope.lower() == "union":
+                    print("union")
+                    n=0
+                    for e in consulta1:
+                        if n == 0:
+                            arrColNames .append(e)
+                        n+=1
+                   
+                    m=0
+                    for e in consulta1:
+                        if m != 0 :
+                            for x in e :
+                                if x not in arrFinal:
+                                    arrFinal.append(x)
+                        m+=1
+                   
+                    x=0
+                    for e in consulta2:
+                        if x != 0 :
+                            for z in e :
+                                if z not in arrFinal:
+                                    arrFinal.append(z)
+                        x+=1
+                    
+                    x = PrettyTable()
+                    x.field_names = arrColNames[0]
+                    for e in arrFinal:
+                        print(e)
+                        x.add_row(e)
+                    consola += str(x) + "\n"
+
+                elif nodo.ope.lower() == "intersect":
+                    print("intersect")
+                    n=0
+                    for e in consulta1:
+                        if n == 0:
+                            arrColNames .append(e)
+                        n+=1
+                   
+                    m=0
+                    for e in consulta1:
+                        if m != 0 :
+                            for x in e :
+                                if x not in arrFinal:
+                                    arrFinal.append(x)
+                                else :
+                                    arrAux.append(x)
+                        m+=1
+                   
+                    x=0
+                    for e in consulta2:
+                        if x != 0 :
+                            for z in e :
+                                if z not in arrFinal:
+                                    arrFinal.append(z)
+                                else :
+                                    arrAux.append(z)
+                        x+=1
+
+                    x = PrettyTable()
+                    x.field_names = arrColNames[0]
+                    for e in arrAux:
+                        print(e)
+                        x.add_row(e)
+                    consola += str(x) + "\n"
+                    
+                elif nodo.ope.lower() == "except":
+                    print("intersect")
+                    n=0
+                    for e in consulta1:
+                        if n == 0:
+                            arrColNames .append(e)
+                        n+=1
+                   
+                    m=0
+                    for e in consulta1:
+                        if m != 0 :
+                            for x in e :
+                                if x not in arrFinal:
+                                    arrFinal.append(x)
+                                else :
+                                    arrAux.append(x)
+                        m+=1
+                   
+                    x=0
+                    for e in consulta2:
+                        if x != 0 :
+                            for z in e :
+                                if z not in arrFinal:
+                                    arrFinal.append(z)
+                                else :
+                                    arrAux.append(z)
+                        x+=1
+
+                    #no Repetidos
+                    g=0
+                    for e in consulta1:
+                        if g != 0 :
+                            for x in e :
+                                if x not in arrAux:
+                                    arrAux2.append(x)
+                        g+=1
+                   
+
+                    x = PrettyTable()
+                    x.field_names = arrColNames[0]
+                    for e in arrAux2:
+                        print(e)
+                        x.add_row(e)
+                    consola += str(x) + "\n"
+
 
 
     for i in listaSemanticos:
@@ -1763,7 +1905,8 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "acosd":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = math.asin(param.valor)
+            val1 = math.acos(param.valor)
+            val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "asin":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
@@ -1848,19 +1991,19 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         if expresion.funcion.lower() == "atan2":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
             param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
-            val = param.valor / param2.valor
+            val = math.atan2(param.valor,param2.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "atan2d":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
             param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
-            val1 = param.valor / param2.valor
+            val1 = math.atan2(param.valor,param2.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
 
     elif isinstance(expresion, SFuncBinary):
         if expresion.funcion.lower() == "length":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            val = len(param.valor)
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion.lower() == "trim":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
@@ -1872,42 +2015,46 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
             return SExpresion(val, Expresion.CADENA)
         elif expresion.funcion.lower() == "sha256":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = hashlib.md5(str(param.valor).encode("utf-8")).hexdigest()
+            val = hashlib.sha256(str(param.valor).encode("utf-8")).hexdigest()
             return SExpresion(val, Expresion.CADENA)
-        elif expresion.funcion.lower() == "barra":
+        elif expresion.funcion == "|":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            val = math.sqrt(param.valor)
             return SExpresion(val, Expresion.ENTERO)
-        elif expresion.funcion.lower() == "barraDoble":
+        elif expresion.funcion == "||":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            val = (param.valor ** (1 / 3))
             return SExpresion(val, Expresion.ENTERO)
-        elif expresion.funcion.lower() == "virgulilla":
+        elif expresion.funcion == "~":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            val = (~int(param.valor))
             return SExpresion(val, Expresion.ENTERO)
 
     elif isinstance(expresion, SFuncBinary2):
-        if expresion.funcion.lower() == "amp":
+        if expresion.funcion == "&":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
             param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            val = param.valor & param2.valor
             return SExpresion(val, Expresion.ENTERO)
-        elif expresion.funcion.lower() == "barra":
+        elif expresion.funcion == "|":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            val = param.valor | param2.valor
             return SExpresion(val, Expresion.ENTERO)
-        elif expresion.funcion.lower() == "numeral":
+        elif expresion.funcion == "?":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            val = param.valor ^ param2.valor
             return SExpresion(val, Expresion.ENTERO)
-        elif expresion.funcion.lower() == "menormenor":
+        elif expresion.funcion == "<<":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            val = param.valor << param2.valor
             return SExpresion(val, Expresion.ENTERO)
-        elif expresion.funcion.lower() == "mayormayor":
+        elif expresion.funcion == ">>":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            val = len(param)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            val = param.valor >> param2.valor
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion.lower() == "encode":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
@@ -2370,7 +2517,22 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 vIndice= ""
                 vNodo=""
                 vcTipo=""
-                if isinstance(col.cols, SExpresion):
+                if isinstance(col, SColumnasSubstr):
+                    print("Funcion Substr:")
+                    tipoSubstr = True
+                    vNombre = "substr"
+                    vTipo = 9
+                    vIndice = contador
+                    d1= col.cols2.valor
+                    d2 =col.cols3.valor
+                    if isinstance(col.cols, SExpresion):
+                        vParam = col.cols
+                        vTabla = False
+                    else:
+                        vNombre = col.cols.opDer.valor
+                        vTabla = col.cols.opIzq.valor
+
+                elif isinstance(col.cols, SExpresion):
                     vNombre = col.cols.valor
                     vTipo = 0
                     vIndice=contador
@@ -2525,7 +2687,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                         arr1.append(col.cols.param.valor)
                         arr1.append(col.cols.param2.valor)
                         arrt.append(col.cols.param.tipo)
-                        arrt.append(col.cols.param.tipo2)
+                        arrt.append(col.cols.param2.tipo)
                         vcTipo = arrt
                         vParam = arr1
                         vTabla = False
@@ -2570,7 +2732,9 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 if col.id != False:
                     vAlias = col.id.valor
                 else:
-                    if isinstance(col.cols, SExpresion):
+                    if isinstance(col, SColumnasSubstr):
+                        vAlias = "substr"
+                    elif isinstance(col.cols, SExpresion):
                         vAlias = col.cols.valor
                     elif isinstance(col.cols, SOperacion):
                         vAlias = col.cols.opDer.valor
@@ -2690,6 +2854,8 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                         x.add_row(e)
                     print(bConsulta)
                     consola += str(x) + "\n"
+                    oficial.append(nombreCols)
+                    oficial.append(bConsulta)
                 else:
                     # COLUMNAS ESPECIFICAS SIN WHERE
                     print("ESPECIFICAS")
@@ -2721,7 +2887,61 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
         # Consulta simple
 
         else:
-            consultaSimple(arrCols,pT,groupBy)
+            if isinstance(col.cols, SExtract2):
+                #print("Funcion Extract:") #len 17
+                if isinstance(col.cols.field, STipoDato):
+                    extraer = str(col.cols.field.dato)
+                    dtstr = str(col.cols.timestampstr.valor)
+                    year=dtstr[0:4]
+                    month=dtstr[5:7]
+                    day=dtstr[8:10]
+                    hour=dtstr[11:13]
+                    minute=dtstr[13:15]
+                    second=dtstr[15:18]
+                    if extraer.lower() == "year":
+                        val = year
+                    elif extraer.lower() == "month":
+                        val = month
+                    elif extraer.lower() == "day":
+                        val = day
+                    elif extraer.lower() == "hour":
+                        val = hour
+                    elif extraer.lower() == "minute":
+                        val = minute
+                    elif extraer.lower() == "second":
+                        val = second
+                    #print(val)
+                    pT.add_column(str(extraer), val)
+            elif isinstance(col.cols, SDatePart):
+                #print("Funcion DatePart:")
+                if isinstance(col.cols.param, SExpresion):
+                    extraer = str(col.cols.param.valor)
+                    cad = str(col.cols.param2.valor)
+                    hours=""
+                    mins=""
+                    secs=""
+                    x = cad.split("hours")
+                    if len(x) == 2:
+                        hours=str(x[0])
+                        cad1 = str(x[1])
+                        y= cad1.split("minutes")
+                    else:
+                        y = cad.split("minutes")              
+                    if len(y) == 2:
+                        mins=str(y[0])
+                        w = y[1].split("seconds")
+                        secs = w[0]
+                    else:
+                        w = y[0].split("seconds")
+                        secs = w[0]
+                    if extraer == "hour":
+                        pT.add_column(str(extraer), hours)
+                    elif extraer == "minutes":
+                        pT.add_column(str(extraer), mins)
+                    elif extraer == "seconds":
+                        pT.add_column(str(extraer), secs)
+            else:
+                consultaSimple(arrCols,pT,groupBy)
     
 
     else:
@@ -2864,6 +3084,8 @@ def multcolumns(arrCols, base, tablasColumna, pT, subConsulta,groupBy):
                 retorno.append(BinStringSinWhere(arrCols,base,tablasColumna,pT,False))
             elif e.tipo==7:
                 retorno.append(BinDosStringSinWhere(arrCols,base,tablasColumna,pT,False))
+            elif e.tipo==9:
+                retorno.append(SubstrSinWhere(arrCols,base,tablasColumna,pT,False))
 
     return retorno
 
@@ -3301,7 +3523,6 @@ def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
     if not groupby:
         n = 0
         for xd in arrGlobal:
-            print("adentro del puto math2")
             print(arrCols[n].alias)
             pT.add_column(arrCols[n].alias + "(" +str(arrCols[n].param[0]) + "," + str(arrCols[n].param[1]) + ")", xd)
             n += 1
@@ -3652,6 +3873,16 @@ def BinStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                     arrIndices.append(i)
                     arr1.append(len(dato))
                 arrGlobal.append(arr1)
+            elif e.nombre.lower() == "trim":
+                arr1 = []
+                for i in range(len(auxCons)):
+                    dato = auxCons[i][indice.index]
+                    arrIndices.append(i)
+                    v = str(dato)
+                    d=v.replace(" ", "")
+                    print(d)
+                    arr1.append(d)
+                arrGlobal.append(arr1)
             elif e.nombre.lower() == "md5":
                 arr1 = []
                 for i in range(len(auxCons)):
@@ -3673,13 +3904,13 @@ def BinStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                     print(dato)
                     arr1.append(math.sqrt(dato))
                 arrGlobal.append(arr1)
-            elif e.nombre.lower() == "barradoble":
+            elif e.nombre == "||":
                 arr1 = []
                 for i in range(len(auxCons)):
                     dato = auxCons[i][indice.index]
                     arr1.append((dato) ** (1 / 3))
                 arrGlobal.append(arr1)
-            elif e.nombre.lower() == "virgulilla":
+            elif e.nombre == "~":
                 arr1 = []
                 for i in range(len(auxCons)):
                     dato = auxCons[i][indice.index]
@@ -3764,7 +3995,7 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
         elif not bande:
             indice = indice.index
             indice2 = indice2.index
-            if e.nombre.lower() == "amp":
+            if e.nombre == "&":
                 arrcc = []
                 for i in range(len(auxCons)):
                     param = auxCons[i][indice]
@@ -3772,7 +4003,7 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                     val = param & param2
                     arrcc.append(val)
                 arrGlobal.append(arrcc)
-            elif e.nombre.lower() == "barra":
+            elif e.nombre == "|":
                 arrcc = []
                 for i in range(len(auxCons)):
                     param = auxCons[i][indice]
@@ -3780,7 +4011,7 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                     val = param | param2
                     arrcc.append(val)
                 arrGlobal.append(arrcc)
-            elif e.nombre.lower() == "numeral":
+            elif e.nombre == "?":
                 arrcc = []
                 for i in range(len(auxCons)):
                     param = auxCons[i][indice]
@@ -3788,7 +4019,7 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                     val = param ^ param2
                     arrcc.append(val)
                 arrGlobal.append(arrcc)
-            elif e.nombre.lower() == "menormenor":
+            elif e.nombre == "<<":
                 arrcc = []
                 for i in range(len(auxCons)):
                     param = auxCons[i][indice]
@@ -3796,7 +4027,7 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                     val = param << param2
                     arrcc.append(val)
                 arrGlobal.append(arrcc)
-            elif e.nombre.lower() == "mayormayor":
+            elif e.nombre == ">>":
                 arrcc = []
                 for i in range(len(auxCons)):
                     param = auxCons[i][indice]
@@ -3812,7 +4043,7 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                     val = param >> param2
                     arrcc.append(val)
                 arrGlobal.append(arrcc)
-            elif e.nombre.lower() == "decode    ":
+            elif e.nombre.lower() == "decode":
                 arrcc = []
                 for i in range(len(auxCons)):
                     param = auxCons[i][indice]
@@ -3928,3 +4159,69 @@ def agregacionSinWhere(arrCols, base, tablasColumna, pT,subconsulta,groupBy):
                     MathDosSinWhere([e], base, tablasColumna, pT,True)
         else:
             listaSemanticos.append(Error.ErrorS("Error semantico","Falta el group by en la consulta"))
+
+
+def SubstrSinWhere(arrCols, base, tablasColumna, pT,groupby):
+    global consola
+    global d1,d2
+    arrIndices = []
+    arrGlobal = []
+    indice = None
+    for e in arrCols:
+        tabla = ""
+        bandd = False
+        auxCons = ""
+        if e.tabla == False:
+            for c in tablasColumna:
+                tabla = base.getTabla(c.nombre)
+                if isinstance(e.param,SExpresion):
+                    indice = tabla.getColumna(e.param.valor)
+                else: 
+                    indice = tabla.getColumna(e.param.index)
+                auxCons = jBase.extractTable(useActual, tabla.nombre)
+                if indice != None:
+                    bandd = True
+                    break
+        else:
+            for a in tablasColumna:
+                if a.alias == e.tabla:
+                    tabla = base.getTabla(a.nombre)
+                    if isinstance(e.param,SExpresion):
+                        indice = tabla.getColumna(e.param.valor)
+                    else: 
+                        indice = tabla.getColumna(e.param)
+                    auxCons = jBase.extractTable(useActual, tabla.nombre)
+                    if indice != None:
+                        bandd = True
+                        break
+        if indice == None:
+            listaSemanticos.append(Error.ErrorS("Error Semántico", "No se encontró la columna" + str(e.param.valor)))
+
+        if e.nombre.lower() == "substr":
+            arr1 = []
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arrIndices.append(i)
+                val1 = str(dato)
+                inicio = int(d1)
+                fin = int(d2)
+                val = val1[inicio:fin]
+                arr1.append(val)
+            arrGlobal.append(arr1)
+        
+        if not groupby:
+            n=0
+            for xd in arrGlobal:
+                if isinstance(arrCols[n].param,SExpresion):
+                    pT.add_column(arrCols[n].alias + "(" + arrCols[n].param.valor + ")", xd)
+                else:
+                    pT.add_column(arrCols[n].alias + "(" + arrCols[n].param + ")", xd)
+                n += 1
+        else:
+            return {"indices": arrIndices, "valore": arrGlobal}
+        
+        return arrGlobal
+        # x.field_names = nombreCols
+        # x.add_rows([arrGlobal])
+        # consola += str(x)+"\n"
+   
