@@ -180,63 +180,12 @@ class SelectFrom(Instruccion):
             elif isinstance(col, str):
                 columnas.append(col)
             elif isinstance(col, Expresion):
+                columnas.append(col)
+            elif isinstance(col, ITEM_ALIAS):
                 columnas.append(col)      
         tabla_base = FROM(self.fuentes)
         salida = SELECT(columnas, tabla_base.ejecutar(ts))
         salida.ejecutar(ts).imprimirMatriz()
-        # if len(self.fuentes)>1:
-        #     encabezados = []
-        #     lista = []
-        #     columns = []
-        #     for tabla in self.fuentes:
-        #         tb = extractTable(DB_ACTUAL.name,tabla)
-        #         lista.append(tb)
-        #         clm = getColumns(DB_ACTUAL.name,tabla)
-        #         columns.append(clm)
-        #         for encabezado in clm:
-        #             encabezados.append(tabla+"."+encabezado)
-        #     tabla_fuente = productoCruz(lista)
-        #     resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", self.fuentes, columns)
-        #     ts.append(resultado)
-            # print(ts)
-            # salida = None
-            # seleccion_columnas = []
-            
-            # for actual in columnas:
-            #     if actual.count('.') == 1:
-            #         seleccion_columnas.append(actual)
-            #     elif actual == "*":
-            #         seleccion_columnas.append(actual)
-            #     else:
-            #         if esAmbiguo(actual,encabezados,self.fuentes):
-            #             print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
-            #         else:
-            #             actual = aclarar(actual, encabezados, self.fuentes)
-            #             seleccion_columnas.append(actual)
-            # salida = resultado.obtenerColumnas(seleccion_columnas)
-            # if salida != None:
-            #     salida.imprimirMatriz()
-            #     pass
-            # else:
-            #     print("Algo salió mal")
-        # else:
-        #     # SOLO UNA FUENTE 
-        #     encabezados = []
-        #     tb = extractTable(DB_ACTUAL.name,self.fuentes[0])
-        #     clm = getColumns(DB_ACTUAL.name,self.fuentes[0])
-        #   #  print(clm)
-        #     for encabezado in clm:
-        #         encabezados.append(self.fuentes[0]+"."+encabezado)
-        #     resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0], self.fuentes , clm)
-            # ts.append(resultado)   
-
-            # falta agregar las columnas de expresion a la hora de mostrar 
-            # salida = resultado.obtenerColumnas(columnas)
-            # if salida != None:
-            #     salida.imprimirMatriz()
-            #     pass
-            # else:
-            #     print("Algo salió mal")
 
 class FROM():
     def __init__(self, fuentes:list):
@@ -268,15 +217,22 @@ class FROM():
             resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", nuevasFuentes, columns)
             return resultado 
         else:
-         # SOLO UNA FUENTE 
-            encabezados = []
-            tb = extractTable(DB_ACTUAL.name,self.fuentes[0])
-            clm = getColumns(DB_ACTUAL.name,self.fuentes[0])
-          #  print(clm)
-            for encabezado in clm:
-                encabezados.append(self.fuentes[0]+"."+encabezado)
-            resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0], self.fuentes , clm) 
-            return resultado
+            if isinstance(self.fuentes[0],ITEM_ALIAS):
+                encabezados = []
+                tb = extractTable(DB_ACTUAL.name,self.fuentes[0].item)
+                clm = getColumns(DB_ACTUAL.name,self.fuentes[0].item)
+                for encabezado in clm:
+                    encabezados.append(self.fuentes[0].alias+"."+encabezado)
+                resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0].alias, [self.fuentes[0].alias] , clm) 
+                return resultado
+            else:
+                encabezados = []
+                tb = extractTable(DB_ACTUAL.name,self.fuentes[0])
+                clm = getColumns(DB_ACTUAL.name,self.fuentes[0])
+                for encabezado in clm:
+                    encabezados.append(self.fuentes[0]+"."+encabezado)
+                resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0], self.fuentes , clm) 
+                return resultado
 
 class SELECT():
     def __init__(self, columnas:list, resultado: list):
@@ -287,7 +243,29 @@ class SELECT():
         if len(self.resultado.fuentes)>1:
             seleccion_columnas = []
             for actual in self.columnas:
-                if isinstance(actual, Expresion):
+                if isinstance(actual, ITEM_ALIAS):
+                    if isinstance(actual.item, ExpresionID):
+                        actual.item = actual.item.val
+                        if actual.item.count('.') == 1:
+                            seleccion_columnas.append(actual)
+                        elif esAmbiguo(actual.item,self.resultado.columnas,self.resultado.fuentes):
+                            print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                        else:
+                            actual = aclarar(actual.item, self.resultado.columnas, self.resultado.fuentes)
+                            seleccion_columnas.append(actual)
+                    elif isinstance(actual.item, Expresion):
+                        seleccion_columnas.append(actual)
+                    elif actual.item.count('.') == 1:
+                        seleccion_columnas.append(actual)
+                    elif actual.item == "*":
+                        print("Error semántico, el operador \"*\" no es aplicable con alias.")
+                    else:
+                        if esAmbiguo(actual,self.resultado.columnas,self.resultado.fuentes):
+                            print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                        else:
+                            actual = aclarar(actual, self.resultado.columnas, self.fuentes)
+                            seleccion_columnas.append(actual)
+                elif isinstance(actual, Expresion):
                     seleccion_columnas.append(actual)
                 elif actual.count('.') == 1:
                     seleccion_columnas.append(actual)
@@ -304,6 +282,14 @@ class SELECT():
                 print("Algo salió mal")
             return salida
         else:
+            seleccion_columnas = []
+            for actual in self.columnas:
+                if isinstance(actual, ITEM_ALIAS):
+                    if isinstance(actual.item, ExpresionID):
+                        actual.item = actual.item.val
+                        seleccion_columnas.append(actual)
+                else:
+                    seleccion_columnas.append(actual)
             salida = self.resultado.obtenerColumnas(self.columnas)
             return salida
 
@@ -449,84 +435,148 @@ class matriz():
         flag = True
         columnas_resultantes = []
         for actual in ids:
-            if isinstance(actual , Expresion):
-                ColumnaCompleta = []
-                MinitablaSimbolos = []
-                filas = self.filas
-                columnas = self.columnas
-                i = 0 
-                while(i < len(filas)):
-                    indiceColumna = 0
-                    while(indiceColumna < len(columnas)): 
-                        if len(self.fuentes)==1:
-                            MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':self.clm[quitarRef(columnas[indiceColumna])]['Type']})
-                        else:
-                            MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':self.clm[obtenerIndice(self.fuentes,obtenerRef(columnas[indiceColumna]))][quitarRef(columnas[indiceColumna])]['Type']})
-                        indiceColumna+=1
-                    tupla = TuplaCompleta(MinitablaSimbolos)
-                    casillaResultante = actual.ejecutar(tupla)
-                    if isinstance(casillaResultante , ErrorReport): 
-                        print(casillaResultante.description)
-                    ColumnaCompleta.append(casillaResultante.val) 
-                    MinitablaSimbolos.clear()
-                    i+=1
-                if flag:
-                    for k in ColumnaCompleta:
-                        nuevaColumna = [] 
-                        nuevaColumna.append(k)
-                        resultante.append(nuevaColumna)
-                    flag = False
-                    columnas_resultantes.append('exp')
-                else:
-                    h = 0 
-                    for j in resultante:
-                        resultante[h].append(ColumnaCompleta[h])
-                        h+=1
-                    flag = False
-                    columnas_resultantes.append('exp')
-            elif actual == "*":
-                j = 0
-                for fila in self.filas:
+            if isinstance(actual,ITEM_ALIAS):
+                if isinstance(actual.item , Expresion):
+                    ColumnaCompleta = []
+                    MinitablaSimbolos = []
+                    filas = self.filas
+                    columnas = self.columnas
+                    i = 0 
+                    while(i < len(filas)):
+                        indiceColumna = 0
+                        while(indiceColumna < len(columnas)): 
+                            if len(self.fuentes)==1:
+                                MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':self.clm[quitarRef(columnas[indiceColumna])]['Type']})
+                            else:
+                                MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':self.clm[obtenerIndice(self.fuentes,obtenerRef(columnas[indiceColumna]))][quitarRef(columnas[indiceColumna])]['Type']})
+                            indiceColumna+=1
+                        tupla = TuplaCompleta(MinitablaSimbolos)
+                        casillaResultante = actual.item.ejecutar(tupla)
+                        if isinstance(casillaResultante , ErrorReport): 
+                            print(casillaResultante.description)
+                        ColumnaCompleta.append(casillaResultante.val) 
+                        MinitablaSimbolos.clear()
+                        i+=1
                     if flag:
-                        nuevaColumna = []
-                        for k in fila:
+                        for k in ColumnaCompleta:
+                            nuevaColumna = [] 
                             nuevaColumna.append(k)
-                        resultante.append(nuevaColumna)
+                            resultante.append(nuevaColumna)
+                        flag = False
+                        columnas_resultantes.append(actual.alias)
                     else:
-                        for k in fila:
-                            resultante[j].append(k)
-                    j+=1
-                for c in self.columnas:
-                    columnas_resultantes.append(c)
-                flag = False
-            elif self.columnas.__contains__(self.nombre+"."+actual) and self.tipo == TABLA_TIPO.UNICA:
-                i = 0
-                for columna in self.columnas:
-                    if columna == self.nombre+"."+actual:
+                        h = 0 
+                        for j in resultante:
+                            resultante[h].append(ColumnaCompleta[h])
+                            h+=1
+                        flag = False
+                        columnas_resultantes.append(actual.alias)
+                elif self.columnas.__contains__(self.nombre+"."+actual.item) and self.tipo == TABLA_TIPO.UNICA:
+                    i = 0
+                    for columna in self.columnas:
+                        if columna == self.nombre+"."+actual.item:
+                            break
+                        else:
+                            i+=1
+                    j = 0
+                    for fila in self.filas:
+                        if flag:
+                            nuevaColumna = []
+                            nuevaColumna.append(fila[i])
+                            resultante.append(nuevaColumna)
+                        else:
+                            resultante[j].append(fila[i])
+                        j+=1
+                    flag = False
+                    columnas_resultantes.append(actual.alias)
+                else:
+                    i = 0
+                    bandera = False
+                    for columna in self.columnas:
+                        if columna == actual.item:
+                            bandera = True
+                            break
+                        else:
+                            i+=1
+                    if bandera:
+                        j = 0
+                        for fila in self.filas:
+                            if flag:
+                                nuevaColumna = []
+                                nuevaColumna.append(fila[i])
+                                resultante.append(nuevaColumna)
+                            else:
+                                resultante[j].append(fila[i])
+                            j+=1
+                        flag = False
+                        columnas_resultantes.append(actual.alias)
+                    else:                        
+                        print("Error semántico, la columna:  \" ", actual.item," \"  no se encuentra o su referencia es ambigua.")
+                        error = True
                         break
-                    else:
-                        i+=1
-                j = 0
-                for fila in self.filas:
-                    if flag:
-                        nuevaColumna = []
-                        nuevaColumna.append(fila[i])
-                        resultante.append(nuevaColumna)
-                    else:
-                        resultante[j].append(fila[i])
-                    j+=1
-                flag = False
-                columnas_resultantes.append(actual)
+
+
+
+
+
             else:
-                i = 0
-                bandera = False
-                for columna in self.columnas:
-                    if columna == actual:
-                        bandera = True
-                        break
-                    else:
+                if isinstance(actual , Expresion):
+                    ColumnaCompleta = []
+                    MinitablaSimbolos = []
+                    filas = self.filas
+                    columnas = self.columnas
+                    i = 0 
+                    while(i < len(filas)):
+                        indiceColumna = 0
+                        while(indiceColumna < len(columnas)): 
+                            if len(self.fuentes)==1:
+                                MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':self.clm[quitarRef(columnas[indiceColumna])]['Type']})
+                            else:
+                                MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':self.clm[obtenerIndice(self.fuentes,obtenerRef(columnas[indiceColumna]))][quitarRef(columnas[indiceColumna])]['Type']})
+                            indiceColumna+=1
+                        tupla = TuplaCompleta(MinitablaSimbolos)
+                        casillaResultante = actual.ejecutar(tupla)
+                        if isinstance(casillaResultante , ErrorReport): 
+                            print(casillaResultante.description)
+                        ColumnaCompleta.append(casillaResultante.val) 
+                        MinitablaSimbolos.clear()
                         i+=1
-                if bandera:
+                    if flag:
+                        for k in ColumnaCompleta:
+                            nuevaColumna = [] 
+                            nuevaColumna.append(k)
+                            resultante.append(nuevaColumna)
+                        flag = False
+                        columnas_resultantes.append('exp')
+                    else:
+                        h = 0 
+                        for j in resultante:
+                            resultante[h].append(ColumnaCompleta[h])
+                            h+=1
+                        flag = False
+                        columnas_resultantes.append('exp')
+                elif actual == "*":
+                    j = 0
+                    for fila in self.filas:
+                        if flag:
+                            nuevaColumna = []
+                            for k in fila:
+                                nuevaColumna.append(k)
+                            resultante.append(nuevaColumna)
+                        else:
+                            for k in fila:
+                                resultante[j].append(k)
+                        j+=1
+                    for c in self.columnas:
+                        columnas_resultantes.append(c)
+                    flag = False
+                elif self.columnas.__contains__(self.nombre+"."+actual) and self.tipo == TABLA_TIPO.UNICA:
+                    i = 0
+                    for columna in self.columnas:
+                        if columna == self.nombre+"."+actual:
+                            break
+                        else:
+                            i+=1
                     j = 0
                     for fila in self.filas:
                         if flag:
@@ -538,10 +588,31 @@ class matriz():
                         j+=1
                     flag = False
                     columnas_resultantes.append(actual)
-                else:                        
-                    print("Error semántico, la columna:  \" ", actual," \"  no se encuentra o su referencia es ambigua.")
-                    error = True
-                    break
+                else:
+                    i = 0
+                    bandera = False
+                    for columna in self.columnas:
+                        if columna == actual:
+                            bandera = True
+                            break
+                        else:
+                            i+=1
+                    if bandera:
+                        j = 0
+                        for fila in self.filas:
+                            if flag:
+                                nuevaColumna = []
+                                nuevaColumna.append(fila[i])
+                                resultante.append(nuevaColumna)
+                            else:
+                                resultante[j].append(fila[i])
+                            j+=1
+                        flag = False
+                        columnas_resultantes.append(actual)
+                    else:                        
+                        print("Error semántico, la columna:  \" ", actual," \"  no se encuentra o su referencia es ambigua.")
+                        error = True
+                        break
         if not error:
             salida = matriz(columnas_resultantes, resultante, TABLA_TIPO.SELECCIONADA, "nueva tabla", self.fuentes , self.clm)
         else: 
