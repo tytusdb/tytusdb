@@ -1,9 +1,9 @@
 import  math
 
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import Time
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
 
 import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
 import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math

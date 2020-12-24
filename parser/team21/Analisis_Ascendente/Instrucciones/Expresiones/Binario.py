@@ -1,9 +1,9 @@
 import base64
 
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 
 class Binario(Instruccion):
 
