@@ -9,33 +9,17 @@ from reportAST import *
 from reportError import *
 from reportBNF import *
 from reportTable import *
+import prettytable as pt
 import os
 
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
 
-def meterSimbolos():
-    
-    
-    ts.agregar(TabladeSimbolos.Simbolo(0,'DB1',TabladeSimbolos.TIPO.DATABASE,None,None, None, None, None, None, None, None,None,None))
-
-    ts.agregar(TabladeSimbolos.Simbolo(1,'tbempleado',TabladeSimbolos.TIPO.TABLE,0,None, None, None, None, None, None, None, None,None))
-    ts.agregar(TabladeSimbolos.Simbolo(2,'id',TabladeSimbolos.TIPO.COLUMN,1, None, None, None, None, None, None, None,0,None))
-    ts.agregar(TabladeSimbolos.Simbolo(3,'nombre',TabladeSimbolos.TIPO.COLUMN,1,None, None, None, None, None, None, None,1,None))
-    ts.agregar(TabladeSimbolos.Simbolo(4,'apellido',TabladeSimbolos.TIPO.COLUMN,1,None, None, None, None, None, None, None,2,None))
-
-    ts.agregar(TabladeSimbolos.Simbolo(5,'tbusuario',TabladeSimbolos.TIPO.TABLE,0,None, None, None, None, None, None, None, None,None))
-    
-    ts.agregar(TabladeSimbolos.Simbolo(6,'id',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,0,None))
-    ts.agregar(TabladeSimbolos.Simbolo(7,'nombre',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,1,None))
-    ts.agregar(TabladeSimbolos.Simbolo(8,'apellido',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,2,None))
-
 def analiz(input):
-    meterSimbolos()
     raiz = g.parse(input)
-    #report_errors()
+    report_errors()
     #executeGraphTree(raiz)
-    #graphTable(ts)
+    
     results = []
     for val in raiz:
         res = val.ejecutar()
@@ -43,10 +27,12 @@ def analiz(input):
             results.append("Error "+ res.tipo+". Descripcion: " +res.descripcion)
         else:
             results.append( res)
+    graphTable(ts)
     return results
 
 
 root = Tk()
+cont = 1
 
 """PROPIEDADES DE LA VENTANA"""
 root.geometry("1100x650")
@@ -97,14 +83,19 @@ def LimpiarTexto():
     texto.delete('1.0',END)
 def LimpiarConsola():
     consola.delete('1.0',END)
+    global cont
+    cont = 1
 def Analizar():
     results = analiz(texto.get("1.0", "end-1c"))
-    cont = 1
+    global cont
     for res in results:
         consola.insert(str(float(cont)), res)
-        cont += 1
-        consola.insert(str(float(cont)),'\n')
-        cont +=1
+        if isinstance(res,pt.PrettyTable):
+            cont += (res.get_string().count('\n')+2)
+        else:
+            cont += (res.count('\n')+2)
+        consola.insert(str(float(cont)), '\n')
+        
 
 """CREACION DE COMPONENTES GRAFICOS"""
 BarraMenu=Menu(root)

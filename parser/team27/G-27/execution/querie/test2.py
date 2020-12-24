@@ -1,32 +1,23 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/execution/querie')
-sys.path.append('../tytus/parser/team27/G-27/execution/function/agreggates')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/storage')
-sys.path.append('../tytus/parser/team27/G-27/execution')
-sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
-from querie import * 
+from execution.abstract.querie import * 
 from select_ import *
-from environment import *
-from table import *
-from column import *
-from typ import *
+from execution.symbol.environment import *
+from execution.symbol.table import *
+from execution.symbol.column import *
+from execution.symbol.typ import *
 from storageManager import jsonMode as admin
 from create import *
 from use import *
 from create_t import *
 from relational import *
-from id import *
-from literal import *
+from execution.expression.id import *
+from execution.expression.literal import *
 from insert import *
 from main import *
 from alter_table import *
 from add_column import *
 from drop_constraint import *
 from alter_column import *
-from Database_Types import *
+from execution.symbol.typeChecker.Database_Types import *
 from avg import  * 
 from count import *
 from max import * 

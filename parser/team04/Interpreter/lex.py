@@ -8,27 +8,27 @@
 # --------------------------------------------------------------------------------
 
 import ply.lex as lex
+from Statics.errorTable import ErrorTable
 
 reserved = {
 
     # Numerc Types
     'smallint': 'SMALLINT',
-    'integer': 'INTEGER',
-    'bigint': 'BIGINT',
+    'integer': 'INTEGER',  #
+    'bigint': 'BIGINT',   
     'decimal': 'DECIMAL_T',
     'numeric': 'NUMERIC',
-    'real':  'REAL',
+    'real':  'REAL',     #
     'double':  'DOUBLE',
     'precition': 'PRECITION',
     'money':  'MONEY',
     'float': 'FLOAT',
 
     # Boolean Type
-    'boolean': 'BOOLEAN',
+    'boolean': 'BOOLEAN', #
     'true': 'TRUE',
     'false': 'FALSE',
     'yes': 'YES',
-    'on': 'ON',
     'no': 'NO',
     'off': 'OFF',
 
@@ -52,7 +52,7 @@ reserved = {
     'second': 'SECOND',
     'extract': 'EXTRACT',
     'date_part': 'DATE_PART',
-    'now': 'NOW',
+    #'now': 'NOW',
     'current_date': 'CURRENT_DATE',
     'current_time': 'CURRENT_TIME',
 
@@ -72,92 +72,25 @@ reserved = {
     'not': 'NOT',
     'and': 'AND',
     'or': 'OR',
+    'null': 'NULL',
 
     # Conditionals
     'if': 'IF',
     'else': 'ELSE',
 
-    # Mathematical Funtions
-    'sum': 'SUM',
-    'min': 'MIN',
-    'max': 'MAX',
-    'avg': 'AVG',
-    'count': 'COUNT',
-    'abs': 'ABS',
-    'cbrt': 'CBRT',
-    'ceil': 'CEIL',
-    'ceiling': 'CEILING',
-    'degrees': 'DEGREES',
-    'div': 'DIV',
-    'exp': 'EXP',
-    'factorial': 'FACTORIAL',
-    'floor': 'FLOOR',
-    'gcd': 'GCD',
-    'lcm': 'LCM',
-    'ln': 'LN',
-    'log': 'LOG',
-    'log10': 'LOG10',
-    'min_scale': 'MIN_SCALE',
-    'mod': 'MOD',
-    'pi': 'PI',
-    'power': 'POWER',
-    'radians': 'RADIANS',
-    'round': 'ROUND',
-    'scale': 'SCALE',
-    'sign': 'SIGN',
-    'sqrt': 'SQRT',
-    'trim_scale': 'TRIM_SCALE',
-    'truc': 'TRUC',
-    'width_bucket': 'WIDTH_BUCKET',
-    'random': 'RANDOM',
-    'setseed': 'SETSEED',
-    'acos': 'ACOS',
-    'acosd': 'ACOSD',
-    'asin': 'ASIN',
-    'asind': 'ASIND',
-    'atan': 'ATAN',
-    'atand': 'ATAND',
-    'atan2': 'ATAN2',
-    'atand2d': 'ATAN2D',
-    'cos': 'COS',
-    'cosd': 'COSD',
-    'cot': 'COT',
-    'cotd': 'COTD',
-    'sin': 'SIN',
-    'sind': 'SIND',
-    'tan': 'TAN',
-    'tand': 'TAND',
-    'sinh': 'SINH',
-    'cosh': 'COSH',
-    'tanh': 'TANH',
-    'asinh': 'ASINH',
-    'acosh': 'ACOSH',
-    'atanh': 'ATANH',
-
-    # String functions
-    'length': 'LENGTH',
-    'substring': 'SUBSTRING',
-    'trim': 'TRIM',
-    'get_byte': 'GET_BYTE',
-    'md5': 'MD5',
-    'set_byte': 'SET_BYTE',
-    'sha256': 'SHA256',
-    'substr': 'SUBSTR',
-    'convert': 'CONVERT',
-    'encode': 'ENCODE',
-    'decode': 'DECODE',
-
     # Generals
+    'use': 'USE',
     'database': 'DATABASE',
     'databases': 'DATABASES',
     'create': 'CREATE',
-    'insert': 'INSERT',
+    'insert': 'RINSERT',
     'into': 'INTO',
     'alter': 'ALTER',
     'table': 'TABLE',
     'show': 'SHOW',
-    'drop': 'DROP',
-    'delete': 'DELETE',
+    'drop': 'RDROP',
+    'delete': 'RDELETE',
+    'truncate': 'RTRUNCATE',
     'primary': 'PRIMARY',
     'foreign': 'FOREIGN',
     'key': 'KEY',
@@ -215,9 +148,10 @@ reserved = {
     'least': 'LEAST',
     'limit': 'LIMIT',
     'offset': 'OFFSET',
-    'union': 'UNION',
-    'intersect': 'INTERSECT',
-    'except': 'EXCEPT'
+    'union': 'RUNION',
+    'intersect': 'RINTERSECT',
+    'except': 'REXCEPT',
+    'to': 'TO'
 
 }
 
@@ -248,9 +182,9 @@ tokens = [
     'MENORIGUAL',
     'IGUALQ',
     'DISTINTO',
-    'SIMBOL_OR2',
-    'SIMBOL_AND',
-    'SIMBOL_OR1',
+    'CONCAT',
+    'BAND',
+    'BOR',
     'NUMERAL',
     'VIRGULILLA',
     'MOVD',
@@ -268,14 +202,14 @@ t_POTENCIA = r'\^'
 t_MODULO = r'%'
 t_PARI = r'\('
 t_PARD = r'\)'
-t_PUNTO = r'.'
+t_PUNTO = r'\.'
 t_PCOMA = r'\;'
 t_COMA = r'\,'
 t_LLAVEI = r'{'
 t_LLAVED = r'}'
 t_CORCHI = r'\['
 t_CORCHD = r'\]'
-t_IGUAL = r'='
+t_IGUAL = r'\='
 
 # Operadores relacionales
 t_MENORQ = r'\<'
@@ -284,9 +218,9 @@ t_MENORIGUAL = r'\<='
 t_MAYORIGUAL = r'\>='
 t_IGUALQ = r'\=='
 
-t_SIMBOL_OR2 = r'\|\|'
-t_SIMBOL_AND = r'\&'
-t_SIMBOL_OR1 = r'\|'
+t_CONCAT = r'\|\|'
+t_BAND = r'\&'
+t_BOR = r'\|'
 t_NUMERAL = r'\#'
 t_VIRGULILLA = r'\~'
 t_MOVD = r'\>\>'
@@ -342,21 +276,24 @@ def t_COMENTARIO_MULTILINEA(t):
 
 def t_COMENTARIO_SIMPLE(t):
     r'--(.)+(\n)+'
-    t.lexer.lineno += -1
+    #t.lexer.lineno += 1
 
 
 # Caracteres ignorados
-t_ignore = " \t| \b| \f| \r"
+t_ignore = " \t"
 
 
 def t_NEWLINE(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
-
+    
 
 def t_error(t):
     print("Caracter inválido %s" % t.value[0])
+    error = ("Léxico", "Caracter inválido %s" % t.value[0], t.lexer.lineno)
+    ErrorTable.add(error)
     t.lexer.skip(1)
 
 
-lex.lex(debug=0)
+
+lexico  =  lex.lex()

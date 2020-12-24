@@ -1,7 +1,5 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from database import *
-from symbol_ import *
+from execution.symbol.database import Database
+from execution.symbol.symbol_ import Symbol
 
 class Environment:
     def __init__(self, father):

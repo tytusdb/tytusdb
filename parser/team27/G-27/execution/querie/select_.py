@@ -1,17 +1,11 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/execution/querie')
-sys.path.append('../tytus/storage')
-sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
-from querie import * 
-from environment import *
-from table import *
-from column import *
-from typ import *
+from execution.abstract.querie import * 
+from execution.symbol.environment import *
+from execution.symbol.table import *
+from execution.symbol.column import *
+from execution.symbol.typ import *
 from storageManager import jsonMode as admin
-from checker import check
-from checker import getPrimitivo
+from TypeChecker.checker import check
+from TypeChecker.checker import getPrimitivo
 import pandas as pd
 import copy
 
@@ -48,19 +42,23 @@ class Select(Querie):
         
         '''FROM'''
         # recorremos el tableList para ver si todas las tablas pertenecen a la base de datos y las almacenamos en table Array
-        for item in self.tableList:
-            table = database.getTable(item)
-            if table == None:
-                if len(self.tableList) > 1:
+        if not isinstance(self.columnList,dict): 
+            for item in self.tableList:
+                table = database.getTable(item)
+                if table == None:
+                
+                    if len(self.tableList) > 1:
+                        return {'Error': 'La tabla: '+item+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
+                    else:
+                        return {'Error': 'La tabla: '+item+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
+                val = admin.extractTable(db_name,table.name)
+                if  val == None:
                     return {'Error': 'La tabla: '+item+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
-                else:
-                    return {'Error': 'La tabla: '+item+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
-            val = admin.extractTable(db_name,table.name)
-            if  val == None:
-                return {'Error': 'La tabla: '+item+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
 
-            valor = {'table': table,'data': val}
-            tableArray.append(valor)
+                valor = {'table': table,'data': val}
+                tableArray.append(valor)
+        else:
+            tableArray.push(self.columnList.execute(environment))
         
         '''WHERE'''
         if self.where != None:
@@ -79,7 +77,6 @@ class Select(Querie):
                 if isValid['value'] == True:#REALIZAR PUSH A CADA TABLA CORRESPONDIENTE DE LA POSICIÓN i 
                     for index in range(len(whereArray)): #RECORREMOS WHEREARRAY Y TABLEARRAY
                         whereArray[index]['data'].append( tableArray[index]['data'][i] )
-
             tableArray = whereArray
         
         '''GROUP BY'''
@@ -147,6 +144,8 @@ class Select(Querie):
                         for index in range(len(havingArray)): #RECORREMOS WHEREARRAY Y TABLEARRAY
                             havingArray[index]['data'].append( tableArray[index]['data'][i] )
                 tableArray = havingArray
+        else:
+            return { 'Error':'No se puede agrupar sobre multiples tablas', 'Fila': self.row, 'Columna': self.column }
 
         '''SELECT'''
         # ahora recorremos el columnList para ver si todas las columnas existen en las tablas especificadas
@@ -156,7 +155,7 @@ class Select(Querie):
                 for item2 in tableArray:
                     index = 0
                     for item3 in item2['table'].columns:
-                        if item3.name == item:
+                        if (item3.name == item['name'] and item2['table'].name == item['father']) or (item3.name == item['name'] and item['father'] == None):
                             exist = True
                             listaValores =[]
                             for item4 in item2['data']:
@@ -183,7 +182,6 @@ class Select(Querie):
                             columnaSelect ={'column':item3,'data':listaValores}
                             columnsArray.append(columnaSelect)
                             index = index + 1
-
             else:
                 return {'Error': 'Error desconocido en el select', 'Linea':self.row, 'Columna': self.column}
        
@@ -207,4 +205,21 @@ class Select(Querie):
                 for val in columnsArray:
                     tupla.append(val['data'][i])
                 tabla.append(tupla)
-        return tabla   
+
+        '''
+        AREA DE RETORNO
+        '''
+        #Lleno metadata de columnas seleccionadas
+        columnas = []
+        for val in columnsArray:
+            idColumna = val['column'].name
+            for id in self.columnList:
+                if id == idColumna:
+                    columnas.append(val) 
+                    break
+        #Lleno columnas de funciones de agregado en la metadata 
+        for function in self.aggregates:
+            columnas.append(function.getColumn())
+        
+        resultTable = Table('QUERY',columnas,None)
+        return {'table':resultTable,'data':tabla }

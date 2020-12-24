@@ -4,6 +4,10 @@ import platform
 from nodeAst import nodeAst
 import ascendente as analizador
 
+#jossie
+from storageManager import jsonMode as j
+import pandas as pd
+
 #To display pdfs
 import webbrowser
 #Interface toolkit of python tk interface
@@ -20,7 +24,7 @@ class Interfaz(tk.Frame):
     def __init__(self, *args, **kwargs):
         self.root = root
         tk.Frame.__init__(self, *args, **kwargs)
-
+        self.m_carga_de_informacion()
         self.filename = None
 
         self.terminal = tk.Text(root, width=75, height=1, background="black",foreground="#00AA00")
@@ -185,10 +189,12 @@ class Interfaz(tk.Frame):
         try:
             x=x.replace("and","AND")
             x=x.replace("or","OR")
-            salida=analizador.ejecucionAscendente(x)
+            salida=self.terminal.get(1.0,tk.END)
+            salida+=analizador.ejecucionAscendente(x)
             self.terminal.insert(tk.END,salida) 
         except:
-            salida="TYTTUS>Se genero un error de análisis"
+            salida=self.terminal.get(1.0,tk.END)
+            salida+="TYTTUS>Se genero un error de análisis"
             self.terminal.insert(tk.END,salida)        
 #-------------------------------------------------------Help Menu Methods---------------------------------------------------------------------
     def about(self):
@@ -219,6 +225,42 @@ class Interfaz(tk.Frame):
             box_tilte ="Path Error"
             box_msg = "El archivo que trata de acceder no existe"
             messagebox.showerror(box_tilte,box_msg)
+    
+    def m_carga_de_informacion(self):
+        # drop all databases if exists
+        j.dropAll()
+
+        # create database
+        j.createDatabase('BD1')
+
+        # create tables
+        j.createTable('BD1', 'personas', 5)
+        j.createTable('BD1', 'pais',    4)
+        j.createTable('BD1', 'idiomas', 4)
+
+        # create simple primary keys
+        j.alterAddPK('BD1', 'personas', [0])
+        j.alterAddPK('BD1', 'pais',    [0])
+        j.alterAddPK('BD1', 'idiomas', [0])
+
+        # insert data in countries
+        j.insert('BD1', 'pais', ['GTM', 'Guatemala',  'Central America', 108889])
+        j.insert('BD1', 'pais', ['MX', 'Mexico', 'Norte America',  21041])  
+        j.insert('BD1', 'pais', ['EEUU', 'Estados Unidos', 'Norte America',  21041]) 
+
+        # insert data in cities
+        j.insert('BD1', 'personas', [1, 'Jossie',    'Castrillo','27',    'GTM'])
+        j.insert('BD1', 'personas', [2, 'Juanpi',    'Garcia','27',    'GTM'])
+        j.insert('BD1', 'personas', [3, 'Byron',    'Cermeno','27',    'GTM'])
+        j.insert('BD1', 'personas', [4, 'Hayrton',    'Ixpata','27',    'GTM'])
+        j.insert('BD1', 'personas', [5, 'Dulce',    'DeLeon','25',    'MX'])
+        j.insert('BD1', 'personas', [6, 'Miguel',    'Basir','26',    'GTM'])
+        j.insert('BD1', 'personas', [7, 'Nose',    'Algo','30',    'EEUU'])
+                
+        # inser data in languages
+        j.insert('BD1', 'idiomas', ['GTM', 'Espanol', 'official',  64.7])
+        j.insert('BD1', 'idiomas', ['EEUU', 'Espanol', 'official', 100.0])
+        j.insert('BD1', 'idiomas', ['MX', 'Espanol', 'official', 100.0])
 #-------------------------------------------------------Main---------------------------------------------------------------------       
 if __name__ == "__main__":
     root = tk.Tk()

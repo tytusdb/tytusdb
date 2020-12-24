@@ -2,10 +2,10 @@
 class Tipo() :
     'Esta clase representa un tipo dentro de nuestra tabla de tipos'
 
-    def __init__(self, database, tabla, id, tipo, tamanio, referencia, tablaRef, listaCons = []) :
+    def __init__(self, database, tabla, val, tipo, tamanio, referencia, tablaRef, listaCons = []) :
         self.database = database
         self.tabla = tabla
-        self.id = id
+        self.val = val
         self.tipo = tipo
         self.tamanio = tamanio
         self.referencia = referencia
@@ -30,15 +30,33 @@ class TablaDeTipos() :
     def obtenerReturn(self,database,tabla,column) :
         i = 0
         while i < len(self.tipos):
-            if self.tipos[i].database == database and self.tipos[i].tabla == tabla and self.tipos[i].id == column:
+            if self.tipos[i].database == database and self.tipos[i].tabla == tabla and self.tipos[i].val == column:
                 return self.tipos[i]
             i += 1
         return False
 
+    def obtenerColumns(self,database,tabla) :
+        arrayColumns = []
+        i = 0
+        while i < len(self.tipos):
+            if self.tipos[i].database == database and self.tipos[i].tabla == tabla:
+                arrayColumns.append(self.tipos[i].val) 
+            i += 1
+        return arrayColumns
+
+    def obtenerColumnsNum(self,database,tabla) :
+        numColumns = 0
+        i = 0
+        while i < len(self.tipos):
+            if self.tipos[i].database == database and self.tipos[i].tabla == tabla:
+                numColumns += 1
+            i += 1
+        return numColumns
+
     def actualizar(self,tipo,database, tabla, column) :
         i = 0
         while i < len(self.tipos):
-            if self.tipos[i].database == database and self.tipos[i].tabla == tabla and self.tipos[i].id == column:
+            if self.tipos[i].database == database and self.tipos[i].tabla == tabla and self.tipos[i].val == column:
                 self.tipos[i] = tipo
             i += 1
 
@@ -61,14 +79,14 @@ class TablaDeTipos() :
 
     def eliminarID(self,database,tabla,id):
         for elem in list(self.tipos):
-            if elem.database == database and elem.tabla == tabla and elem.id == id:
+            if elem.database == database and elem.tabla == tabla and elem.val == id:
                 self.tipos.remove(elem)
 
     def getPos(self,database,tabla,id):
         i = 0;
         for elem in list(self.tipos):
             if elem.database == database and elem.tabla == tabla:
-                if elem.id == id:
+                if elem.val == id:
                     return i;
                 i+=1
 

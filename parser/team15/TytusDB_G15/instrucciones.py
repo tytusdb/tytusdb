@@ -2,9 +2,9 @@ class Instruccion:
     ''' Esta sera la clase de Instrucciones '''
 
 class Definicion(Instruccion):
-    def __init__(self, tipo, id):
+    def __init__(self, tipo, val):
         self.tipo = tipo
-        self.id = id
+        self.val = val
 
 class CreateDatabase(Instruccion):
     def __init__(self, nombre, usuario, modo = 1, replace = 0):
@@ -14,8 +14,8 @@ class CreateDatabase(Instruccion):
         self.replace = replace
 
 class LLave_Primaria(Instruccion):
-    def __init__(self, id):
-        self.id  = id
+    def __init__(self, val):
+        self.val  = val
 
 class Definicon_Foranea(Instruccion):
     def __init__(self, nombre_tabla, referencia_tabla , campo_referencia):
@@ -38,14 +38,14 @@ class Etiqueta_Interval(Instruccion):
         self.etiqueta = etiqueta
 
 class Create_Table(Instruccion):
-    def __init__(self, id, herencia, instrucciones = []):
-        self.id  = id
+    def __init__(self, val, herencia, instrucciones = []):
+        self.val  = val
         self.herencia = herencia
         self.instrucciones = instrucciones
 
 class Definicion_Columnas(Instruccion):
-    def __init__(self, id, tipo_datos, etiqueta, id_referencia, opciones_constraint = []):
-        self.id = id
+    def __init__(self, val, tipo_datos, etiqueta, id_referencia, opciones_constraint = []):
+        self.val = val
         self.tipo_datos = tipo_datos
         self.etiqueta = etiqueta
         self.id_referencia = id_referencia
@@ -56,8 +56,8 @@ class Lista_Parametros(Instruccion):
         self.identificadores = identificadores
 
 class definicion_constraint(Instruccion):
-    def __init__(self, id, tipo , referencia,columna,opciones_contraint = []):
-        self.id = id
+    def __init__(self, val, tipo , referencia,columna,opciones_contraint = []):
+        self.val = val
         self.tipo = tipo
         self.referencia = referencia
         self.columna = columna
@@ -68,13 +68,13 @@ class showDatabases(Instruccion):
         ''' SHOW DATABASES'''
 
 class dropDatabase(Instruccion):
-    def __init__(self,id, exists = 0):
-        self.id = id
+    def __init__(self,val, exists = 0):
+        self.val = val
         self.exists = exists
 
 class useDatabase(Instruccion):
-    def __init__(self,id):
-        self.id = id
+    def __init__(self,val):
+        self.val = val
 
 class Create_Alterdatabase(Instruccion):
     def __init__(self,id_tabla, tipo_id):
@@ -118,8 +118,8 @@ class Crear_tipodato(Instruccion):
         self.par2 = par2
 
 class Definicion_Insert(Instruccion):
-    def __init__(self, id, etiqueta ,lista_parametros = [], lista_datos = []):
-        self.id = id
+    def __init__(self, val, etiqueta ,lista_parametros = [], lista_datos = []):
+        self.val = val
         self.etiqueta = etiqueta
         self.lista_parametros = lista_parametros
         self.lista_datos = lista_datos
@@ -130,16 +130,64 @@ class Create_type(Instruccion):
         self.lista_datos = lista_datos
 
 class Definicion_delete(Instruccion):
-    def __init__(self, id, etiqueta, expresion, id_using, returning = []):
-        self.id = id
+    def __init__(self, val, etiqueta, expresion, id_using, returning = []):
+        self.val = val
         self.etiqueta = etiqueta
         self.expresion = expresion
         self.id_using = id_using
         self.returning = returning
 
+
+class Create_select_time(Instruccion):
+    def __init__(self,etiqueta,val1,val2):
+        self.etiqueta = etiqueta
+        self.val1 = val1
+        self.val2 = val2
+
+class Create_select_uno(Instruccion):
+    def __init__(self,etiqueta,subconsulta,expresion,asterisco,lista_extras = [] , listac = [],listacase = []):
+        self.etiqueta = etiqueta
+        self.subconsulta = subconsulta
+        self.expresion = expresion
+        self.asterisco = asterisco
+        self.lista_extras = lista_extras
+        self.listac = listac
+        self.listacase = listacase
+
+class Create_select_general(Instruccion):
+    def __init__(self,etiqueta,instr1,instr2,instr3,listains = [],listanombres = []):
+        self.etiqueta = etiqueta
+        self.instr1 = instr1
+        self.instr2 = instr2
+        self.instr3 = instr3
+        self.listains = listains
+        self.listanombres = listanombres
+
+class Create_padre_select(Instruccion):
+    def __init__(self,expwhere,expgb,exphav,expob,exporden,explimit,expoffset,valor):
+        self.expwhere = expwhere
+        self.expgb = expgb
+        self.exphav = exphav
+        self.expob = expob
+        self.exporden = exporden
+        self.explimit = explimit
+        self.expoffset = expoffset
+        self.valor = valor
+
 class Create_hijo_select(Instruccion):
-    def init(self,etiqueta,expresion,expresion2, lista_objetos = []):
+    def __init__(self,etiqueta,expresion,expresion2):
         self.etiqueta = etiqueta
         self.expresion = expresion
         self.expresion2 = expresion2
-        self.lista_objetos = lista_objetos
+
+class Select_Uniones(Instruccion):
+    def __init__(self,etiqueta,ins):
+        self.etiqueta = etiqueta
+        self.ins = ins
+
+class Funcion_Exclusivas_insert(Instruccion):
+    def __init__(self,operador,exp1,exp2,exp3):
+        self.operador = operador
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.exp3 = exp3

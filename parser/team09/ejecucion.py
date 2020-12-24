@@ -446,7 +446,6 @@ def p_data_type_3(p):
                     | CHARACTER PARIZQ ENTERO PARDER
                     | CHAR PARIZQ ENTERO PARDER'''
 
-    print('entro aqui')
     p[0] = (p[1]) + "," + str(p[3])
     #p[0] = str(p[1]) + str(p[2]) + str(p[3]) + str(p[4])
 
@@ -521,22 +520,24 @@ def p_owner_db(p):
 
 def p_drop_db(p):
     '''drop_db  : DROP DATABASE ID PTCOMA'''
-    ins.Drop(str(p[3]), False)
+    cons = ins.DropDB(str(p[3]), False)
+    lst_instrucciones.append(cons)
 
 def p_drop_db_2(p):
     '''drop_db  : DROP DATABASE IF EXISTS ID PTCOMA'''
-    ins.Drop(str(p[5]), True)
+    cons = ins.DropDB(str(p[5]), True)
+    lst_instrucciones.append(cons)
 
 def p_create_table(p): 
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER PTCOMA'''
     arr = p[5]
-    cons = ins.CreateTable(str(p[3]), arr[0], None, arr[1])
+    cons = ins.CreateTable(str(p[3]), None, arr[0], None,arr[1]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
     lst_instrucciones.append(cons)
 
 def p_create_table_2(p):
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
     arr = p[5]
-    cons = ins.CreateTable(str(p[3]), arr[0], p[9], arr[1])
+    cons = ins.CreateTable(str(p[3]), None, arr[0], p[9],arr[1]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
     lst_instrucciones.append(cons)
 
 def p_columnas(p):
@@ -599,21 +600,56 @@ def p_colum_list_2(p):
     p[0] = arr
 
 def p_const_keys(p):
-    '''const_keys   : const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
-                    | const_keys COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
-    arr = []
-    key = str(p[3]) + str(p[4])
-    arr.append(key)
-    arr.append(p[6])
-    p[0] = arr
+    '''const_keys   : const_keys COMA CONSTRAINT ID PRIMARY KEY PARIZQ lista_id PARDER
+                    | const_keys COMA CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER
+                    | const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
+                    | const_keys COMA FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER'''
+
+    if str(p[3]).upper() == 'CONSTRAINT':
+        if str(p[5]).upper() == 'PRIMARY':
+            for x in p[8]:
+                const = TS.const(p[4], None, None, TS.t_constraint.PRIMARY,x.id)
+                p[1].append(const)
+        elif str(p[5]).upper() == 'FOREIGN':
+            o = str(p[11]) + ',' + str(p[13])
+            const = TS.const(p[4], o, None, TS.t_constraint.FOREIGN, p[8])
+            p[1].append(const)
+    elif str(p[3]).upper() == 'PRIMARY':
+        for x in p[6]:
+            const = TS.const(None, None, None, TS.t_constraint.PRIMARY,x.id)
+            p[1].append(const)
+    elif str(p[3]).upper() == 'FOREIGN':
+        oo = str(p[9]) + ',' + str(p[11])
+        const = TS.const(None, oo, None, TS.t_constraint.FOREIGN, p[6])
+        p[1].append(const)
+    
+    p[0] = p[1]
 
 def p_const_keys_2(p):
-    '''const_keys   : COMA PRIMARY KEY PARIZQ lista_id PARDER
-                    | COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
+    '''const_keys   : CONSTRAINT ID PRIMARY KEY PARIZQ lista_id PARDER
+                    | CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER
+                    | PRIMARY KEY PARIZQ lista_id PARDER
+                    | FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER'''
     arr = []
-    key = str(p[1]) + str(p[2])
-    arr.append(key)
-    arr.append(p[4])
+    
+    if str(p[1]).upper() == 'CONSTRAINT':
+        if str(p[3]).upper() == 'PRIMARY':
+            for x in p[6]:
+                const = TS.const(p[2], None, None, TS.t_constraint.PRIMARY,x.id)
+                arr.append(const)
+        elif str(p[3]).upper() == 'FOREIGN':
+            t_c = str(p[9]) + ',' + str(p[11])
+            const = TS.const(p[2], t_c, None, TS.t_constraint.FOREIGN, p[6])
+            arr.append(const)
+    elif str(p[1]).upper() == 'PRIMARY':
+        for x in p[4]:
+            const = TS.const(None, None, None, TS.t_constraint.PRIMARY,x.id)
+            arr.append(const)
+    elif str(p[1]).upper() == 'FOREIGN':
+        t_t = str(p[7]) + ',' + str(p[9])
+        const = TS.const(None, t_t, None, TS.t_constraint.FOREIGN, p[4])
+        arr.append(const)
+
     p[0] = arr
 
 def p_const(p):
@@ -644,8 +680,7 @@ def p_const(p):
     elif str(p[2]).upper() == 'REFERENCES':
         const = TS.const(p[2], p[4], None, TS.t_constraint.FOREIGN,None) #ID va a ser igual al ID de la tabla y valor = columna de referencia
     elif str(p[2]).upper() == 'CHECK':
-        x = str(p[4]).split(',')
-        const = TS.const(None, x[2], x[1], TS.t_constraint.CHECK,None)
+        const = TS.const(None, None, p[4], TS.t_constraint.CHECK,None)
     elif str(p[2]).upper() == 'CONSTRAINT':
         if str(p[4]).upper() == 'UNIQUE':
             
@@ -661,8 +696,7 @@ def p_const(p):
                 const = TS.const(str(p[2]),None,None,TS.t_constraint.UNIQUE,None)
 
         elif str(p[3]).upper() == 'CHECK':
-            x = str(p[5]).split(',')
-            const = TS.const(p[2], x[2], x[1], TS.t_constraint.CHECK,None)
+            const = TS.const(p[2], None, p[6], TS.t_constraint.CHECK,None)
 
     if(creado == False):
         p[1].append(const)
@@ -678,8 +712,8 @@ def p_const_2(p):
                 | CONSTRAINT ID UNIQUE
                 | CONSTRAINT ID  UNIQUE PARIZQ lista_id PARDER
                 | UNIQUE
-                | CONSTRAINT ID CHECK PARIZQ exp_check PARDER
-                | CHECK PARIZQ exp_check PARDER
+                | CONSTRAINT ID CHECK PARIZQ expresion PARDER
+                | CHECK PARIZQ expresion PARDER
                 | PRIMARY KEY
                 | REFERENCES ID PARIZQ lista_id PARDER
                  '''
@@ -700,8 +734,7 @@ def p_const_2(p):
     elif str(p[1]).upper() == 'REFERENCES':
         const = TS.const(p[2], p[4], None, TS.t_constraint.FOREIGN,None) #ID va a ser igual al ID de la tabla y valor = columna de referencia
     elif str(p[1]).upper() == 'CHECK':
-        x = str(p[3]).split(',')
-        const = TS.const(None, x[2], x[1], TS.t_constraint.CHECK,None)
+        const = TS.const(None, None, p[3], TS.t_constraint.CHECK,None)
     elif str(p[1]).upper() == 'CONSTRAINT':
         if str(p[3]).upper() == 'UNIQUE':
             
@@ -717,8 +750,7 @@ def p_const_2(p):
                 const = TS.const(str(p[2]),None,None,TS.t_constraint.UNIQUE,None)
 
         elif str(p[3]).upper() == 'CHECK':
-            x = str(p[5]).split(',')
-            const = TS.const(p[2], x[2], x[1], TS.t_constraint.CHECK,None)
+            const = TS.const(p[2], None, p[5], TS.t_constraint.CHECK,None)
 
     if(creado == False):
         arr.append(const)
@@ -745,66 +777,59 @@ def p_drop_table(p):
 
 
 def p_alter_table(p):
-    '''alter_table : ALTER TABLE ID alter_cols alter_constraint forein_keys alter_refs PTCOMA'''
-    refs = None
-    forein = None
-    constrain = None
-    cols = None
+    '''alter_table : ALTER TABLE ID acciones PTCOMA'''
 
-    if p[7] != None:
-        refs = p[7]
-    if p[6] != None:
-        foreign = p[6]
-    if p[5] != None:
-        constrain = p[5]
-    if p[4] != None:
-        cols = p[4]
-
-    cons = ins.AlterTable(p[3], cols, constrain, foreign, refs)
+    cons = ins.AlterTable(p[3], p[4], None)
     lst_instrucciones.append(cons)
+        
+def p_acciones(p):
+    '''acciones : ADD acc
+                | ADD COLUMN ID data_type
+                | ALTER COLUMN ID TYPE data_type
+                | ALTER COLUMN ID SET const
+                | DROP CONSTRAINT ID
+                | DROP COLUMN ID
+                | RENAME COLUMN ID TO ID'''
 
-def p_alter_addcols(p):
-    '''alter_cols : ADD COLUMN ID data_type
-                | '''
-    if p[3] != None:
-        p[0] = p[3]
+    arr = []
+    
+    if str(p[1]).upper() == 'ADD':
+        if str(p[2]).upper() == 'COLUMN':
+            arr.append('ADDCOL')
+            #Verificar si el data type viene con longitud o no
+            x = p[4].split(',')
+            tipo = tipo_data(x[0])
+            if len(x) == 2: 
+                nueva_columna = TS.Simbolo(str(p[3]), tipo, None, None, x[1], False, False, None) 
+            else:
+                nueva_columna = TS.Simbolo(str(p[3]),tipo, None, None, None, False, False, None)
+            arr.append(nueva_columna)
+        else:
+            nueva_columna = TS.Simbolo(p[3], tipo, None, None, x[1], False, False, None) 
+    elif str(p[1]).upper() == 'DROP':
+        if str(p[2]).upper() == 'CONSTRAINT':
+            arr.append('DCONS')
+            arr.append(p[3])
+        elif str(p[2]).upper() == 'COLUMN':
+            arr.append('DCOL')
+            arr.append(p[3])
+    elif str(p[1]).upper() == 'ALTER':
+        if str(p[4]).upper() == 'TYPE':
+            arr.append('TYPE')
+            arr.append(p[3])
+            arr.append(p[5])
+        elif str(p[4]).upper() == 'SET':
+            arr.append('SET')
+            arr.append(p[3])
+            arr.append(p[5])
 
-def p_alter_constrint(p):
-    '''alter_constraint : ADD CONSTRAINT ID
-                        | '''
-    if p[3] != None:
-        p[0] = p[3]
+    p[0] = arr
 
-def p_alter_foreinkeys(p):
-    '''forein_keys : FOREIGN KEY PARIZQ ID PARDER
-                    |  '''
-    if p[4] != None:
-        p[0] = p[4]
+def p_acc(p):
+    '''acc  : const
+            | const_keys'''
 
-def p_alter_refs(p):
-    '''alter_refs : REFERENCES ID PARIZQ ID PARDER
-                    | '''
-    try:
-        p[0] = str(p[2]) + str(p[3]) + str(p[4]) + str(p[5])
-    except IndexError:
-        print('')
-
-
-#def p_acciones(p):
-#    '''acciones : ADD acc
-#                | ADD COLUMN ID data_type
-#                | ADD CONSTRAINT ID
-#                | ALTER COLUMN ID TYPE data_type
-#                | ALTER COLUMN ID SET const
-#                | DROP CONSTRAINT ID
-#                | DROP COLUMN ID
-#                | RENAME COLUMN ID TO ID'''
-
-
-#def p_acc(p):
-#    '''acc  : const
-#            | const_keys'''
-
+    p[0] = p[1]
 
 def p_delete(p):
     '''s_delete : DELETE FROM ID PTCOMA'''
@@ -949,13 +974,16 @@ def lex_error(lex, linea, columna):
 
 def ejecutar(entrada):
     global parser, ts_global, lst_instrucciones
+    consola = ''
     parse_result = parser.parse(entrada)
 
     for cons in lst_instrucciones :
-        cons.execute(ts_global)
+        consola = consola + str(cons.execute(ts_global)) + '\n'
 
     ts_global.graficar()
-    return parse_result
+    
+    result = [parse_result, consola]
+    return result
 
 def tipo_data(tipo):
     data_type = ''
@@ -991,7 +1019,8 @@ def tipo_data(tipo):
         data_type = TS.tipo_simbolo.DATA
     elif tipo.upper() == 'DOUBLE':
         data_type = TS.tipo_simbolo.D_PRECISION
-    
+    elif tipo.upper() == 'BOOLEAN':
+        data_type = TS.tipo_simbolo.BOOLEAN
     return data_type
 
     
