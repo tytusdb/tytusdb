@@ -11,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectFilter, SelectFrom
+from astSelect import SelectFilter, SelectFrom, ITEM_ALIAS
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -276,10 +276,10 @@ def p_tablas(p):
         p[0] = p[1]
         bnf.addProduccion('\<tabla> ::= "ID"')
     elif len(p) == 3:
-        p[0] = p[1]
+        p[0] = ITEM_ALIAS(p[1], p[2])
         bnf.addProduccion('\<tabla> ::= "ID" \<alias>')
     else:
-        p[0] = p[1]
+        p[0] = ITEM_ALIAS(p[1], p[3])
         bnf.addProduccion('\<tabla> ::= "ID" "AS" \<alias>')
 def p_tablas2(p):
     '''tabla : subquery
@@ -843,10 +843,10 @@ def p_select_list(p):
         p[0] = [p[1]]
         bnf.addProduccion('\<select_list> ::= \<select_item>')
     elif len(p) == 3:
-        p[0] = [p[1]] # considerar que este ya tendria un alias
+        p[0] = [ITEM_ALIAS(p[1], p[2])] # considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_item>  "ID"')
     elif len(p) == 4:
-        p[0] = [p[1]] # considerar que este ya tendria un alias
+        p[0] = [ITEM_ALIAS(p[1], p[3])] # considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_item> "AS" \<alias>')
 
 def p_select_list2(p):
@@ -860,11 +860,11 @@ def p_select_list2(p):
         p[0] = p[1]
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> ')
     elif len(p) == 5:
-        p[1].append(p[3])
+        p[1].append(ITEM_ALIAS(p[3], p[4]))
         p[0] = p[1] # falta considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> "ID"')
     elif len(p) == 6:
-        p[1].append(p[3])
+        p[1].append(ITEM_ALIAS(p[3], p[5]))
         p[0] = p[1] # falta considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> "AS" \<alias>')
 
@@ -2088,8 +2088,7 @@ def analizarEntrada(entrada):
 
 arbolParser = analizarEntrada('''
 use test;
-select *, cos(tb2.numerica) from tb1, tb2;
-
+select * from tb2 as alv;
 ''')
 arbolParser.ejecutar()
 

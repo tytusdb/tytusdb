@@ -9,6 +9,7 @@ from report_tc import *
 from report_ts import *
 from report_errores import *
 
+import datetime
 import math
 import random
 import mpmath
@@ -16,6 +17,8 @@ import hashlib
 from operator import itemgetter
 import base64
 import binascii
+import re
+import hashlib
 
 from storageManager import jsonMode as j
 
@@ -634,6 +637,9 @@ def procesar_altertable(instr,ts,tc):
                 elif lista.tipo.val.upper() == 'INTEGER':
                     tipodatoo = TIPO_DE_DATOS.integer_ 
                     tamanioD = ""
+                elif lista.tipo.val.upper() == 'BOOLEAN':
+                    tipodatoo = TIPO_DE_DATOS.boolean 
+                    tamanioD = ""
                 elif lista.tipo.val.upper() == 'SMALLINT':
                     tipodatoo = TIPO_DE_DATOS.smallint_ 
                 elif lista.tipo.val.upper() == 'MONEY':
@@ -764,6 +770,9 @@ def procesar_altertable(instr,ts,tc):
         elif instr.lista_campos[0].tipo.val.upper() == 'INTEGER':
             tipodatoo = TIPO_DE_DATOS.integer_ 
             tamanioD = ""
+        elif instr.lista_campos[0].tipo.val.upper() == 'BOOLEAN':
+            tipodatoo = TIPO_DE_DATOS.boolean
+            tamanioD = ""
         elif instr.lista_campos[0].tipo.val.upper() == 'SMALLINT':
             tipodatoo = TIPO_DE_DATOS.smallint_ 
         elif instr.lista_campos[0].tipo.val.upper() == 'MONEY':
@@ -847,7 +856,7 @@ def procesar_insert(instr,ts,tc):
     arrayInserteFinal = []
     arrayParametros = []
     if instr.etiqueta == TIPO_INSERT.CON_PARAMETROS:
-
+        print(instr)
         if instr.lista_parametros != []:
             for parametros in instr.lista_parametros:
                 #print(parametros.val)
@@ -857,7 +866,13 @@ def procesar_insert(instr,ts,tc):
 
         if instr.lista_datos != []:
             for parametros in instr.lista_datos:
-                arrayInsert.append(parametros.val)
+                if isinstance(parametros,Funcion_Exclusivas_insert):
+                    arrTC = []
+                    salidaR = resolver_expresion_aritmetica(parametros,arrTC)
+                    print(salidaR)
+                    arrayInsert.append(salidaR)
+                else:
+                    arrayInsert.append(parametros.val)
 
 
         arrayNew = []           
@@ -946,8 +961,15 @@ def procesar_insert(instr,ts,tc):
             #print(columns)
             #print(numC)
             for parametros in instr.lista_datos:
-                #print(parametros.val)
-                arrayInsert.append(parametros.val)
+                if isinstance(parametros,Funcion_Exclusivas_insert):
+                    arrTC = []
+                    salidaR = resolver_expresion_aritmetica(parametros,arrTC)
+                    print(salidaR)
+                    arrayInsert.append(salidaR)
+                else:
+                    arrayInsert.append(parametros.val)
+
+            
 
         # LLENAR CAMPOS CON None
         if len(arrayInsert) < numC:
@@ -955,6 +977,7 @@ def procesar_insert(instr,ts,tc):
             while i < numC:
                 arrayInsert.append(None)
                 i+=1
+
 
         if len(arrayInsert) == numC:
             i = 0
@@ -1014,7 +1037,7 @@ def procesar_insert(instr,ts,tc):
     print(str(useCurrentDatabase),str(instr.val), arrayInserteFinal)'''
 
     result = j.insert(useCurrentDatabase,instr.val, arrayInserteFinal)
-
+    print(result)
     if result == 0:
         salida = "\nINSERT 0 1"            
     elif result == 1 :
@@ -1097,23 +1120,85 @@ def procesar_delete(instr,ts,tc):
 
 
 def procesar_select_time(instr,ts,tc):
+    arrayReturn = []
     if instr.etiqueta == SELECT_TIME.EXTRACT:
-        print(instr.etiqueta)
-        print(instr.val1.val)
-        print(instr.val2)
+        if instr.val1.val == 'YEAR':
+            year = re.findall('(\d{4})-\d{2}-\d{2}', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([year[0]])
+
+        elif instr.val1.val == 'MONTH':
+            month = re.findall('\d{4}-(\d{2})-\d{2}', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([month[0]])
+
+        elif instr.val1.val == 'DAY':
+            day = re.findall('\d{4}-\d{2}-(\d{2})', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([day[0]])
+
+        elif instr.val1.val == 'HOUR':
+            hora = re.findall('(\d{2}):\d{2}:\d{2}', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([hora[0]])
+
+        elif instr.val1.val == 'MINUTE':
+            minuto = re.findall('\d{2}:(\d{2}):\d{2}', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([minuto[0]])
+
+        elif instr.val1.val == 'SECOND':
+            segundo = re.findall('\d{2}:\d{2}:(\d{2})', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([segundo[0]])
+
     elif instr.etiqueta == SELECT_TIME.DATE_PART:
-        print(instr.etiqueta)
-        print(instr.val1)
-        print(instr.val2)
+        if instr.val1.upper() == 'HOURS':
+            hour = re.findall('(\d+) hours', instr.val2)
+            print(hour[0]) 
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([hour[0]])
+
+        elif instr.val1.upper() == 'MINUTES':
+            minutes = re.findall('(\d+) minutes', instr.val2)
+            print(minutes[0])
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([minutes[0]])
+
+        elif instr.val1.upper() == 'SECONDS':
+            seconds = re.findall('(\d+) seconds', instr.val2)
+            print(seconds[0])
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([seconds[0]])
+
     elif instr.etiqueta == SELECT_TIME.NOW:
-        print(instr.etiqueta)
+        current_time = datetime.datetime.now() 
+        print (str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond))
+        noww = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond)
+        arrayReturn.append(['now'])
+        arrayReturn.append([noww])
     elif instr.etiqueta == SELECT_TIME.CURRENT_TIME:
-        print(instr.etiqueta)
+        current_time = datetime.datetime.now() 
+        print (str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond)) 
+        currentT = str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond) 
+        arrayReturn.append(['current_time'])
+        arrayReturn.append([currentT])
     elif instr.etiqueta == SELECT_TIME.CURRENT_DATE:
-        print(instr.etiqueta)
+        current_time = datetime.datetime.now() 
+        print(str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day))
+        currentD = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)
+        arrayReturn.append(['current_date'])
+        arrayReturn.append([currentD])
     elif instr.etiqueta == SELECT_TIME.TIMESTAMP:
         print(instr.etiqueta)
         print(instr.val1)
+        if instr.val1.upper() == 'NOW':
+            current_time = datetime.datetime.now() 
+            print (str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond))
+            noww = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond)
+            arrayReturn.append(['now'])
+            arrayReturn.append([noww])
+    print(arrayReturn)
 
 def procesar_select1(instr,ts,tc):
     if instr.etiqueta == OPCIONES_SELECT.GREATEST:
@@ -1815,6 +1900,36 @@ def resolver_expresion_aritmetica(expNum,ts):
                 return ascii_cadena
             else:
                 return exp
+
+    elif isinstance(expNum, Funcion_Exclusivas_insert):
+        exp = resolver_expresion_aritmetica(expNum.exp1,ts)
+        exp1 = resolver_expresion_aritmetica(expNum.exp2,ts)
+        exp2 = resolver_expresion_aritmetica(expNum.exp3,ts)
+        if expNum.operador == INSERT_EXCLUSIVA.SUBSTRING:
+            expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
+            expInicio = resolver_expresion_aritmetica(expNum.exp2,ts)
+            expFin = resolver_expresion_aritmetica(expNum.exp3,ts)            
+            return  expCadena[expInicio:expFin]
+
+        elif expNum.operador == INSERT_EXCLUSIVA.NOW:
+            current_time = datetime.datetime.now() 
+            noww = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)
+            return noww
+
+        elif expNum.operador == INSERT_EXCLUSIVA.TRIM:
+            expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
+            return expCadena.strip()
+
+        elif expNum.operador == INSERT_EXCLUSIVA.MD5:
+            expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
+            hash_obj = hashlib.md5(expCadena.encode())
+            md5_to = hash_obj.hexdigest()
+            return md5_to
+
+        
+
+
+        
                 
 
 
@@ -1916,6 +2031,9 @@ def resolver_expresion_logica(expLog,ts):
         return resolver_expresion_relacional(expLog,ts) 
 
 
+def procesar_select_uniones(instr,ts,tc):
+    print(instr.etiqueta)
+    print(instr.ins)
 
 
 def procesar_instrucciones(instrucciones,ts,tc) :
@@ -1977,11 +2095,13 @@ def procesar_instrucciones(instrucciones,ts,tc) :
                 procesar_select1(instr,ts,tc)
             elif isinstance(instr, Create_select_general) : 
                 procesar_select_general(instr,ts,tc)
+            elif isinstance(instr, Select_Uniones) : 
+                procesar_select_uniones(instr,ts,tc)
         
             #SELECT 
             
             
-            else : print('Error: instrucción no válida ' + str(instr))
+            else : print('Error: instrucción no válida ' + str(instr[0]))
         return salida 
     except:
         pass

@@ -5,7 +5,8 @@
 En el siguiente documento se redacta el funcionamiento correcto de un nuevo administrador de base de datos llamado "Tytus" el cual cumple con una amplia variedad de funciones y poder extraer la información de una base de datos o ingresar nueva información.
 
 ### Interfaz De Usuario
-!["Interfaz de Uusario"](Images/Interfaz.PNG)
+!["Interfaz de usario"](Images/Interfaz.png)
+
 
 La interfaz de usuario cuenta con las siguientes funcionalidades:
 
@@ -13,30 +14,31 @@ La interfaz de usuario cuenta con las siguientes funcionalidades:
 
 - **Analizar:** Permite analizar todo el texto que se ha ingresado en el area de edicion y analiza cada instrucción y la ejecuta. 
 
-!["Icono Analizar"](Images/I1.PNG)
+
+!["Analizar"](Images/I1.png)
 
 - **Analizar Query:** Permite unicamente analizar el texto seleccionado y ejecuta la instrucción.
 
-!["Icono Analizar Query"](Images/I2.PNG)
+!["Analizar Query"](Images/I2.png)
 
 - **Exit:** Cierra la aplicación.
 
 ###### Reportes
 - **Tabla de Simbolos:** Muestra las definiciones de las tablas ingresadas en la base de datos, mostrando la fila y columna en la que se encuentra y el ambito en el que se encuentra.
 
-!["Reporte de tabla de simbolos"](Images/TabladeSimbolos.PNG)
+!["Tabla de simbolos"](Images/TabladeSimbolos.png)
 
 - **Tabla de Tipos:** Muestra las deficiones de cada columna de una tabla haciendo referencia a todos sus atributos, como el tipo de variable, tamaño, y a que tabla pertenece.
 
-!["Reporte Tabla de tipos"](Images/Typechecker.PNG)
+!["Tabla de tipos"](Images/Typechecker.png)
 
 - **AST:** es una representación grafica del recorrido de estructura sintactica, cada nodo del arbol muestra una producción del lenguaje utilizado.
 
-!["Reporte del arbol ast"](Images/Ast.PNG)
+!["Arbol ast"](Images/Ast.png)
 
 - **Errores:** muestra los errores encontrados en el texto de entrada identificando el tipo de error y en que linea y columna ocurren.
 
-!["Reporte de Errores"](Images/Errores.PNG)
+!["Tabla de errores"](Images/Errores.png)
 
 #### Funcionalidad
 
@@ -50,11 +52,11 @@ La interfaz cuenta con un area de texto, en ella se podran colocar sentencias de
 
 Al ingresar a la siguiente instrucción el administrador de base de datos creara una nueva tabla en la base de datos.
 
-!["Reporte de Errores"](Images/Consulta.PNG)
+!["Ejemplo Consulta"](Images/Consulta.png)
 
 La salida al escribir esta instruccion de forma correcta, mostrara el siguiente mensaje:
 
-!["Reporte de Errores"](Images/Salida.PNG)
+!["Ejemplo Salida"](Images/Salida.png)
 
 Para mayor información de la sintaxis correcta del lenguaje visite el siguiente enlace.
 
