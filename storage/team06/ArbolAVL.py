@@ -1,3 +1,7 @@
+#Package:       AVL Mode
+#License:       Released under MIT License
+#Notice:        Copyright  (c) 2020 Tytus DB Team
+
 import os
 import pickle
 import csv
