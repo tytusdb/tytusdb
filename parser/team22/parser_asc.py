@@ -1033,12 +1033,14 @@ def p_instruccion_Drop_BD(t) :
 def p_instruccion_Drop_TB(t) :
     '''dropear      : TABLE ID PTCOMA
                     '''
-    #T[0] = DropTabla(t[2])
+    type_checker.dropTable(table = t[2].lower(), line = t.lexer.lineno)
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
-    dot.node(str(id), 'TABLE')
-    dot.edge(str(id), t[2])
+    dot.node(str(id), 'DROP TABLE')
+    id_id = inc()
+    dot.node(str(id_id), t[2])
+    dot.edge(str(id), str(id_id))
 
 #========================================================
 
@@ -1365,7 +1367,7 @@ def p_instrucciones_columna_parametros(t) :
             col.addReference(parametro['references'])
 
     col.printCol()
-    t[0] = {'nombre': t[1], 'col': col, 'id': id}
+    t[0] = {'nombre': t[1].lower(), 'col': col, 'id': id}
 
 
 def p_instrucciones_columna_parametros_error(t) :
@@ -1398,27 +1400,24 @@ def p_instrucciones_columna_noparam(t) :
 
 def p_instrucciones_columna_pk(t) :
     'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
-    #t[0] = LlavesPrimarias(t[4])
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id, 'primary': t[4]}
     print('primary key t0 ',t[0])
     dot.node(str(id), ' PRIMARY KEY')
     
-    dot.edge(str(id), str(t[4]['id'])) 
-    # for element in t[4]:
-    #     dot.edge(str(id), str(element['id']))
+    for element in t[4]:
+         dot.edge(str(id), str(element['id']))
 
 
 
 def p_instrucciones_columna_fk(t) :
     'crear_tb_columna       : FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'
     if len(t[4]) != len(t[9]):
-        print('Error el número de columnas referencias es distinto al número de columnas foraneas')
-    else:
-        print('Se creó referencia de llave foranea')
-
+        error = Error('Semántico', "El número de columnas referencias es distinto al número de columnas foraneas", t.lexer.lineno)
+        tabla_errores.agregar(error)
+        
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'foreign': t[4], 'table': t[7].lower(), 'references': t[9]}
     dot.node(str(id), ' FOREIGN KEY')
     
     for element in t[4]:
@@ -1517,11 +1516,11 @@ def p_instrucciones_parametro_columna_pkey(t) :
     dot.node(str(id), 'PRIMARY KEY')
 
 def p_instrucciones_parametro_columna_fkey(t) :
-    'parametro_columna      : REFERENCES ID'
+    'parametro_columna      : REFERENCES ID PARIZQ ID PARDER'
     id = inc()
-    t[0] = {'id': id, 'references': t[2]}
+    t[0] = {'id': id, 'references': t[2] + '.' + t[4]}
     dot.node(str(id), 'REFERENCES')
-    dot.edge(str(id), t[2])
+    dot.edge(str(id), t[2] + '.' + t[4])
 
 def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
@@ -1540,7 +1539,7 @@ def p_instrucciones_unul(t) :
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
     id = inc()
-    t[0] = {'id': id, 'is_unique': 1, 'constraint': Constraint(tipo = TipoConstraint.UNIQUE, name = t[2])}
+    t[0] = {'id': id, 'is_unique': 1, 'constraint': Constraint(tipo = TipoConstraint.UNIQUE, name = t[2], line = t.lexer.lineno)}
     dot.node(str(id), 'CONSTRAINT ' + t[2] + ' UNIQUE')
 
 def p_instrucciones_unic(t) :
@@ -1594,14 +1593,12 @@ def p_instrucciones_chequeo_error(t) :
 # LISTA DE ELEMENTOS REUTILIZABLES
 def p_instrucciones_lista_ids(t) :
     'lista_id   : lista_id COMA ID'
-    t[1].append(t[3])
+    id = inc()
+    t[1].append({'id': id, 'valor': t[3].lower()})
     t[0] = t[1]
-    # id = inc()
-    # t[0] = {'id': id}
-    # dot.node(str(id), 'Lista de ID')
 
-    # dot.edge(str(id), str(t[1]['id'])) 
-    # dot.edge(str(id), t[3])
+    dot.node(str(id), t[3])
+
 def p_instrucciones_lista_ids_error(t) :
     'lista_id   : lista_id COMA error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
@@ -1613,11 +1610,9 @@ def p_instrucciones_lista_ids_error(t) :
 
 def p_instrucciones_lista_id(t) :
     'lista_id   : ID'
-    t[0] = [t[1]]
-    # id = inc()
-    # t[0] = {'id': id}
-    # dot.node(str(id), 'ID')
-    # dot.edge(str(id), t[1])
+    id = inc()
+    t[0] = [{'id': id, 'valor': t[1].lower()}]
+    dot.node(str(id), t[1])
 
 def p_isntrucciones_lista_id_error(t) :
     'lista_id   : error'

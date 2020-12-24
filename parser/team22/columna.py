@@ -47,51 +47,39 @@ class TipoNull(Enum):
 
 class Columna():
     'Esta clase representa las columnas de las tablas'
-    def __init__(self, line, tipo: {}, default = None, references: str = None, is_null = TipoNull.NULL, is_primary = 0, is_unique = 0):
+    def __init__(self, line, tipo: {}):
         self.line = line
         # tipo = {'tipo': TipoColumna, 'n': int, 'p': int, 'field': {'origen': TipoFields, 'destino': TipoFields}}
         self.tipo = tipo
-        self.default = default
-        self.is_null = is_null
-        # 0 -> No es primaria, 1 -> Es primaria
-        self.is_primary = is_primary
-        self.references = references
-        # 0 -> No es única, 1 -> Es única
-        self.is_unique = is_unique
         self.constraints = []
 
     def addDefault(self, valor, constraint = None):
-        self.default = valor
         if constraint == None:
-            self.constraints.append(Constraint(tipo = TipoConstraint.DEFAULT, condicion = valor))
+            self.constraints.append(Constraint(tipo = TipoConstraint.DEFAULT, condicion = valor, line = self.line))
         else:
             self.constraints.append(constraint)
 
     def addNull(self, valor, constraint = None):
-        self.is_null = valor
         if constraint == None:
-            self.constraints.append(Constraint(tipo = TipoConstraint.NULL, condicion = valor.name))
+            self.constraints.append(Constraint(tipo = TipoConstraint.NULL, condicion = valor.name, line = self.line))
         else:
             self.constraints.append(constraint)
 
     def addUnique(self, valor, constraint = None):
-        self.is_unique = valor
         if constraint == None:
-            self.constraints.append(Constraint(tipo = TipoConstraint.UNIQUE))
+            self.constraints.append(Constraint(tipo = TipoConstraint.UNIQUE, line = self.line))
         else:
             self.constraints.append(constraint)
 
     def addPrimaryKey(self, valor, constraint = None):
-        self.is_primary = valor
         if constraint == None:
-            self.constraints.append(Constraint(tipo = TipoConstraint.PRIMARY_KEY))
+            self.constraints.append(Constraint(tipo = TipoConstraint.PRIMARY_KEY, line = self.line))
         else:
             self.constraints.append(constraint)
 
     def addReference(self, valor, constraint = None):
-        self.references = valor
         if constraint == None:
-            self.constraints.append(Constraint(tipo = TipoConstraint.FOREIGN_KEY, condicion = valor))
+            self.constraints.append(Constraint(tipo = TipoConstraint.FOREIGN_KEY, condicion = valor, line = self.line))
         else:
             self.constraints.append(constraint)
 
@@ -106,21 +94,11 @@ class Columna():
                     'destino': self.tipo['tipo']['field']['destino'].name if 'destino' in self.tipo['tipo']['field'] else None
                 } if 'field' in self.tipo else None
             },
-            'default': self.default,
-            'is_null': self.is_null.name,
-            'is_primary': self.is_primary,
-            'references': self.references,
-            'is_unique': self.is_unique,
             'constraints': self.getConstraints()
         }
     
     def printCol(self):
         print('Tipo: ', self.tipo)
-        print('Default: ', self.default)
-        print('Null: ', self.is_null)
-        print('Primary: ', self.is_primary)
-        print('References: ', self.references)
-        print('Unique: ', self.is_unique)
         print('Constraints: ', self.getConstraints(), '\n')
 
     def getConstraints(self):
@@ -131,8 +109,9 @@ class Columna():
 
 class Constraint():
     'Esta clase representa los constraint de las columnas'
-    def __init__(self, tipo: TipoConstraint, condicion = '', name: str = ''):
+    def __init__(self, line, tipo: TipoConstraint, condicion = '', name: str = ''):
         self.name = name
+        self.line = line
         if name == '':
             self.name = tipo.name + str(random.randint(100000, 1000000))
         self.tipo = tipo
