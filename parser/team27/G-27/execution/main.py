@@ -8,14 +8,15 @@ class Main(object):
     
     def execute(self, environment):
         arreglo = []
+        errores = []
         for item in self.queryArray:
             env = Environment(environment)
             res = item.execute(env)
             if isinstance(res,str):
                 arreglo.append(res)
             elif isinstance(res,dict) or isinstance(res,list):
-                arreglo.append(str(res))
-        return arreglo
+                errores.append(str(res))
+        return [arreglo,errores]
             
 
 
