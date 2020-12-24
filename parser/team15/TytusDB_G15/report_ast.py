@@ -60,7 +60,7 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
         self.crearNodoNombreDatabase(temp1,instruccion)
-        if instruccion.usuario.id != "":
+        if instruccion.usuario.val != "":
             self.crearNodoUsuarioDatabase(temp1,instruccion)
         self.crearNodoModoDatabase(temp1,instruccion)
 
@@ -91,9 +91,9 @@ class AST:
     def crearNodoExpresion(self, padre, expresion):
         global contadorNodos, dot
         if isinstance(expresion, ExpresionIdentificador):
-            if expresion.id != "":
+            if expresion.val != "":
                 contadorNodos = contadorNodos + 1
-                dot.node("node" + str(contadorNodos), str(expresion.id))
+                dot.node("node" + str(contadorNodos), str(expresion.val))
                 dot.edge(padre, "node" + str(contadorNodos))
         elif isinstance(expresion, ExpresionNumeroSimple):
             contadorNodos = contadorNodos + 1
@@ -155,7 +155,7 @@ class AST:
     def crearNodoNombreTablaID(self, padre, instruccion):
         global  contadorNodos, dot
         contadorNodos = contadorNodos + 1
-        dot.node("node" + str(contadorNodos), instruccion.id)
+        dot.node("node" + str(contadorNodos), instruccion.val)
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
 
@@ -176,7 +176,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'NOMBRE COLUMNA')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodoDefinicionTipoDato(self, padre, instruccion):
         global  contadorNodos, dot
@@ -232,7 +232,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'ID')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodoConstraintLlaveForanea(self, padre, instruccion):
         global  contadorNodos, dot
@@ -316,7 +316,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)  
         if instruccion.identificadores != []:
             for ids in instruccion.identificadores:
-                self.crearNodoExpresion(temp1,ids.id)
+                self.crearNodoExpresion(temp1,ids.val)
 
     def crearNodoConstraint(self, padre, instruccion):
         global  contadorNodos, dot
@@ -341,7 +341,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'ID CONSTRAINT')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos) 
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodoConstraintTipoConstraint(self, padre, instruccion):
         global  contadorNodos, dot
@@ -372,7 +372,7 @@ class AST:
         if instruccion.tipo == 'UNIQUE':
             if instruccion.opciones_constraint != []:
                 for ids in instruccion.opciones_constraint:
-                    self.crearNodoExpresion(temp1,ids.id)
+                    self.crearNodoExpresion(temp1,ids.val)
         
     def crearNodoConstraintForaneaId(self, padre, instruccion):
         global  contadorNodos, dot
@@ -417,9 +417,9 @@ class AST:
             if instruccion.opciones_constraint != []:
                 for ids in instruccion.opciones_constraint:
                     if type(ids.exp1) == ExpresionIdentificador:
-                        self.crearNodoExpresion(temp1,ids.exp1.id)
+                        self.crearNodoExpresion(temp1,ids.exp1.val)
                     else: 
-                        self.crearNodoExpresion(temp1,ids.exp2.id)
+                        self.crearNodoExpresion(temp1,ids.exp2.val)
 
     def crearNodoshowDatabases(self, padre, instruccion):
         global  contadorNodos, dot
@@ -449,7 +449,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'ID')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodo_useDatabase(self, padre, instruccion):
         global  contadorNodos, dot
@@ -465,7 +465,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'ID')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.id)
+        self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodo_alterDatabase(self, padre, instruccion):
         global  contadorNodos, dot
@@ -512,7 +512,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'Nombre Tabla')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.identificador.id)
+        self.crearNodoExpresion(temp1,instruccion.identificador.val)
 
     def Crear_lista_parametros(self,padre,instruccion):
         global  contadorNodos, dot
@@ -522,7 +522,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)
         if instruccion.lista_update != []:
             for datos in instruccion.lista_update:
-                self.crearNodoExpresion(temp1,datos.ids.id)
+                self.crearNodoExpresion(temp1,datos.ids.val)
                 self.crearNodoExpresion(temp1,"=")
                 self.crearNodoExpresion(temp1,datos.expresion.val)
         self.crearNodoWhere(temp1, instruccion)
@@ -582,7 +582,7 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos) 
         if instruccion.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR:
-            self.crearNodoExpresion(temp1,instruccion.expresion.exp1.id)
+            self.crearNodoExpresion(temp1,instruccion.expresion.exp1.val)
 
           
     def Valores2(self, padre, instruccion):
@@ -611,7 +611,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)
         if instruccion.lista_ids != []:
             for datos in instruccion.lista_ids:
-                self.crearNodoExpresion(temp1,datos.id)
+                self.crearNodoExpresion(temp1,datos.val)
 
             
     def crearNodoAlterTable(self,padre,instruccion):
@@ -681,7 +681,7 @@ class AST:
         self.crearNodoExpresion(temp1,instruccion.identificador)
         if instruccion.lista_campos != []:
             for datos in instruccion.lista_campos:
-                self.crearNodoExpresion(temp1,datos.id)
+                self.crearNodoExpresion(temp1,datos.val)
 
     def crearAlterTable_Column(self,padre,instruccion):
         global  contadorNodos, dot
@@ -692,8 +692,8 @@ class AST:
         self.crearNodoExpresion(temp1,instruccion.identificador)
         if instruccion.lista_campos != []:
             for datos in instruccion.lista_campos:
-                self.crearNodoExpresion(temp1,datos.identificador.id)
-                self.crearNodoExpresion(temp1,datos.tipo.id)
+                self.crearNodoExpresion(temp1,datos.identificador.val)
+                self.crearNodoExpresion(temp1,datos.tipo.val)
                 if datos.par1 != None:
                     self.crearNodoExpresion(temp1,datos.par1)
                 if datos.par2 != None:
@@ -776,16 +776,16 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
         if instruccion.expresionlogica.operador == OPERACION_LOGICA.AND or instruccion.expresionlogica.operador == OPERACION_LOGICA.OR: 
-            self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.exp1.id)
+            self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.exp1.val)
             self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.exp2.val)
             self.crearNodoExpresion(temp1,instruccion.expresionlogica.operador)
-            self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.exp1.id)
+            self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.exp1.val)
             self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.exp2.val)
         else:
             if isinstance(instruccion.expresionlogica.exp1,ExpresionIdentificador):
-                self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.id)
+                self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp1.val)
             elif isinstance(instruccion.expresionlogica.exp2,ExpresionIdentificador):
-                self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.id)
+                self.crearNodoExpresion(temp1,instruccion.expresionlogica.exp2.val)
 
     
     def crearNodoInsert(self,padre,instruccion):
@@ -804,7 +804,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'TABLA')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1, instruccion.id)
+        self.crearNodoExpresion(temp1, instruccion.val)
 
     def crearNodoLISTA_PARAMETROS(self,padre,instruccion):
         global  contadorNodos, dot
@@ -816,7 +816,7 @@ class AST:
         if instruccion.etiqueta == TIPO_INSERT.CON_PARAMETROS:
             if instruccion.lista_parametros != []:
                 for parametros in instruccion.lista_parametros:
-                    self.crearNodoExpresion(temp1,parametros.id)
+                    self.crearNodoExpresion(temp1,parametros.val)
 
     def CrearNodoLista_VALORES(self, padre, instruccion):
         global  contadorNodos, dot
@@ -837,7 +837,7 @@ class AST:
         dot.node("node" + str(contadorNodos), 'Enum')
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
-        self.crearNodoExpresion(temp1,instruccion.identificador.id)
+        self.crearNodoExpresion(temp1,instruccion.identificador.val)
         self.crearNodoEnum_lista(temp1,instruccion)
 
     def crearNodoEnum_lista(self,padre,instruccion):
@@ -861,17 +861,17 @@ class AST:
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_RETURNING:
             self.crearNodoDelete_returning(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_EXIST:
-            self.crearNodoExpresion(temp1,instruccion.id)
+            self.crearNodoExpresion(temp1,instruccion.val)
             self.crearNodoWhereDelete(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_EXIST_RETURNING:
             self.Nombre_existes_returning(temp1, instruccion)
             self.crearNodoDelete_returning(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_USING:
-            self.crearNodoExpresion(temp1, instruccion.id)
+            self.crearNodoExpresion(temp1, instruccion.val)
             self.crearNodO_USING(temp1, instruccion)
             self.crearNodoWhereDelete(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_USING_returnin:
-            self.crearNodoExpresion(temp1, instruccion.id)
+            self.crearNodoExpresion(temp1, instruccion.val)
             self.crearNodO_USING(temp1, instruccion)
             self.crearNodoWhereDelete(temp1, instruccion)
 
@@ -890,7 +890,7 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)    
         if instruccion.etiqueta == TIPO_DELETE.DELETE_NORMAL:
-            self.crearNodoExpresion(temp1,instruccion.id)
+            self.crearNodoExpresion(temp1,instruccion.val)
 
     def crearNodoDelete_returning(self,padre,instruccion):
         global  contadorNodos, dot
@@ -900,7 +900,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)  
         
         if instruccion.etiqueta == TIPO_DELETE.DELETE_RETURNING:
-            self.crearNodoExpresion(temp1, instruccion.id)
+            self.crearNodoExpresion(temp1, instruccion.val)
             self.NombreTabla_returning(temp1, instruccion)
         elif instruccion.etiqueta == TIPO_DELETE.DELETE_USING_returnin:
             self.NombreTabla_returning(temp1, instruccion)
@@ -1028,7 +1028,7 @@ class AST:
         temp1 = "node" + str(contadorNodos)  
 
         if instruccion.etiqueta == TIPO_DELETE.DELETE_EXIST_RETURNING:
-            self.crearNodoExpresion(temp1, instruccion.id)
+            self.crearNodoExpresion(temp1, instruccion.val)
             self.NombreTabla_returning(temp1, instruccion)
 
     def NombreTabla_returning(self, padre, instruccion):
@@ -1058,7 +1058,7 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos) 
         if instruccion.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR:
-            self.crearNodoExpresion(temp1,instruccion.expresion.exp1.id)
+            self.crearNodoExpresion(temp1,instruccion.expresion.exp1.val)
 
     def Valores2Delete(self, padre, instruccion):
         global  contadorNodos, dot
@@ -1077,8 +1077,8 @@ class AST:
         temp1 = "node" + str(contadorNodos)
         if instruccion.lista_campos != []:
             for datos in instruccion.lista_campos:
-                self.crearNodoExpresion(temp1,datos.identificador.id)
-                self.crearNodoExpresion(temp1,datos.tipo.id)
+                self.crearNodoExpresion(temp1,datos.identificador.val)
+                self.crearNodoExpresion(temp1,datos.tipo.val)
                 if datos.par1 != None:
                     self.crearNodoExpresion(temp1,datos.par1)
                 if datos.par2 != None:

@@ -83,4 +83,5 @@ class ErrorHTML:
         f.close()
         
         self.clearList()
+        
 
