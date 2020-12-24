@@ -7,10 +7,10 @@ Laboratorio de Estructuras de Datos
 #MANUAL DE USUARIO
 
 
-# INTRODUCCION
-###GENERALES:
+# OBJETIVOS
+#GENERALES:
 ###### Proporcionar un manejo del sistema para el usuario
-###Específicos:
+#Específicos:
 ###### Que el usuario pueda crear, eliminar, modificar y mostrar una base de datos
 ###### Que el usuario pueda crear, modificar, eliminar, mostrar tablas
 ###### Que el usuario pueda insertar, modificar, eliminar y mostrar valores de una tabla
