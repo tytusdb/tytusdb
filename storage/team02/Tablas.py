@@ -29,3 +29,12 @@ class ListaDobledeArboles :
             aux = aux.siguiente
         #print("La tabla no existe")
         return None
+
+    #Metodo para listar los nodos
+    def verNodos(self) :
+        tablas = []
+        aux = self.inicio
+        while aux != None :
+            tablas.append(aux.nombre)
+            aux = aux.siguiente
+        return tablas 
