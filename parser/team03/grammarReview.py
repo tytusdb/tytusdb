@@ -1148,7 +1148,7 @@ def p_stm_alter(t):
         t[0] = AlterDatabaseRename(t[3], t[6], token_alter.lineno, token_alter.lexpos, graph_ref)
     if token_alter.type == "OWNER":
         childsProduction = addNotNoneChild(t,[6])                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tDatabase tIdentifier tOwner tTo \<DB_OWNER>        ")
         t[0] = AlterDatabaseOwner(t[3], t[6], token_alter.lineno, token_alter.lexpos, graph_ref)
 
@@ -1157,81 +1157,69 @@ def p_stm_alter0(t):
     '''stm_alter    :    ALTER TABLE ID DROP CONSTRAINT ID
                     |    ALTER TABLE ID DROP COLUMN ID
 '''
-    token = t.slice[5]
-    if token.type == "CONSTRAINT":                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,[])
+    token_alter = t.slice[5]
+    if token_alter.type == "CONSTRAINT":
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tDrop tIdentifier        ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-        #####    
-    if token.type == "COLUMN":                 
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,[])
+    if token_alter.type == "COLUMN":
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tDrop  tColumn tIdentifier   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####  
-
+        t[0] = AlterTableDropColumn(t[3], t[6], token_alter.lineno, token_alter.lexpos, graph_ref)
 
 
 def p_stm_alter1(t):
-    '''stm_alter    :    ALTER TABLE ID ADD COLUMN ID type param_int_opt
+    '''stm_alter    :    ALTER TABLE ID ADD COLUMN ID type nullable_opt
                     |    ALTER TABLE ID ADD CHECK PARA logicExpression PARC
-                    |    ALTER TABLE ID ALTER COLUMN TYPE type param_int_opt
+                    |    ALTER TABLE ID ALTER COLUMN ID TYPE type param_int_opt
 '''
-    token = t.slice[6]
-    if token.type == "ID":                
-        childsProduction = addNotNoneChild(t,[7,8])                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
-        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tColumn  tIdentifier \<TYPE> \<PARAM_INT_OPT>        ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####    
-    if token.type == "PARA":                 
+    token_alter = t.slice[6]
+    if token_alter.type == "ID" and t[7] != 'TYPE':
+        childsProduction = addNotNoneChild(t, [7, 8])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tColumn  tIdentifier \<TYPE> \<PARAM_INT_OPT>   ")
+        t[0] = AlterTableAddColumn(t[3], t[6], t[7], t[7].max_size, t[8], token_alter.lineno, token_alter.lexpos, graph_ref)
+    if token_alter.type == "PARA":
         childsProduction = addNotNoneChild(t,[7])                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tCheck '('  \<EXP_LOG> ')'   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####  
-    if token.type == "TYPE":                 
-        childsProduction = addNotNoneChild(t,[7,8])                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
+    if token_alter.type == "ID":
+        childsProduction = addNotNoneChild(t, [8, 9])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tType \<TYPE> \<PARAM_INT_OPT>   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####  
+        t[0] = AlterTableChangeColumnType(t[3], t[6], t[8], t[8].max_size, token_alter.lineno, token_alter.lexpos, graph_ref)
 
 
 def p_stm_alter2(t):
     '''stm_alter    :    ALTER TABLE ID RENAME COLUMN ID TO ID
+                    |    ALTER TABLE ID ALTER COLUMN ID SET NULL
                     |    ALTER TABLE ID ALTER COLUMN ID SET NOT NULL 
                     |    ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARA ID PARC
                     |    ALTER TABLE ID ADD FOREIGN KEY PARA ID PARC REFERENCES ID 
 '''
-
-    if len(t) == 9:                
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    , [])
+    token_alter = t.slice[1]
+    if len(t) == 9 and t[4] == 'RENAME':
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tRename tColumn tIdentifier tTo tIdentifier     ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
+        t[0] = AlterTableRenameColumn(t[3], t[6], t[8], token_alter.lineno, token_alter.lexpos, graph_ref)
+    elif len(t) == 9 and t[4] == 'ALTER':
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], [])
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tIdentifier tSet tNull     ")
+        t[0] = AlterTableNotNull(t[3], t[6], True, token_alter.lineno, token_alter.lexpos, graph_ref)
     elif len(t) == 10:         
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]]    , [])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tIdentifier tSet tNot tNull     ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
-        
+        t[0] = AlterTableNotNull(t[3], t[6], False, token_alter.lineno, token_alter.lexpos, graph_ref)
     elif len(t) == 11:
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10]]    , [])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tConstraint tIdentifier tUnique '(' tIdentifier ')'    ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
-        
     elif len(t) == 12:
-        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10],t[11]]    , [])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd  tForeign  tKey '(' tIdentifier ')' tReference tIdentifier ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-        #####         
-
-
-
-
-
-
 
 
 def p_param_int_opt(t):

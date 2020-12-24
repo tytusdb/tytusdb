@@ -110,7 +110,7 @@ class TableField(ASTNode):  # returns an item, grammar has to add it to a list a
         self.name = name  # field name
         self.field_type = field_type  # type of field
         self.length = length
-        self.allows_null = allows_null  # if true then NULL or default, if false the means is NOT NULL
+        self.allows_null = False if allows_null and allows_null.val is False else True
         self.is_pk = is_pk  # field is primary key
         self.graph_ref = graph_ref
 
