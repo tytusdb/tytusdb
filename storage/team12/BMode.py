@@ -52,16 +52,16 @@ def insert(database, table, register):
     return CRUD_Tabla().insert(database, table, register)
 
 def loadCSV(file, database, table):
-    return CRUD_Tabla().dropTable(database, table)
+    return CRUD_Tabla().loadCSV(file, database, table)
 
 def extractRow(database, table, columns):
-    return CRUD_Tabla().dropTable(database, table)
+    return CRUD_Tabla().extractRow(database, table, columns)
 
 def update(database, table, register, columns):
-    return CRUD_Tabla().dropTable(database, table)
+    return CRUD_Tabla().update(database, table, register, columns)
 
 def delete(database, table, columns):
-    return CRUD_Tabla().dropTable(database, table)
+    return CRUD_Tabla().delete(database, table, columns)
 
 def truncate(database, table):
-    return CRUD_Tabla().dropTable(database, table)
+    return CRUD_Tabla().truncate(database, table)
