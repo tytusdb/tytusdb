@@ -2006,8 +2006,8 @@ def p_case(p):
         bnf.addProduccion('\<case> ::= "CASE" \<subcase> \<else_case> "END"')
 #             | 'case' <SUBCASE> 'end'   
 def p_case1(p):
-        'case : CASE subcase END'
-        bnf.addProduccion('\<case> ::= "CASE" \<subcase>  "END"')   
+        'case : CASE subcase END ID'
+        bnf.addProduccion('\<case> ::= "CASE" \<subcase>  "END" "ID"')   
 #    <SUBCASE> ::= <WHEN_CASE>
 def p_subcase(p):
         'subcase : when_case'
@@ -2024,7 +2024,10 @@ def p_subcase1(p):
 def p_else_case(p):
         'else_case : ELSE expresion'
         bnf.addProduccion('\<else_case> ::= "ELSE" \<expresion>')
-
+#<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
+def p_when_case(p):
+    'when_case : WHEN expresion THEN expresion'
+    bnf.addProduccion('\<when_case> ::=  "WHEN" \<expresion> "THEN" \<expresion>') 
 #<GREATEST> ::= 'greatest' '(' <LISTA_EXP>')'
 def p_greatiest(p):
         'greatest : GREATEST PABRE lista_exp PCIERRA'
@@ -2049,10 +2052,6 @@ def p_lista_exp_2(p):
     p[0] = p[1]
     bnf.addProduccion('\<lista_exp> ::=  \<lista_exp> "," \<expresion>')  
 
-#<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
-def p_when_case(p):
-    'when_case : WHEN expresion THEN expresion'
-    bnf.addProduccion('\<when_case> ::=  "WHEN" \<expresion> "THEN" \<expresion>') 
         
 def p_alias(p):
     '''alias : CADENA ''' # VALIDACION SEMANTICA QUE ESTA CADENA VENGA ENTRR COMILLAS DOBLES
