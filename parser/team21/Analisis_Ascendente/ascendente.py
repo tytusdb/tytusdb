@@ -2322,11 +2322,9 @@ def procesar_instrucciones(instrucciones, ts):
             Update.ejecutar(instr, ts, consola, exceptions)
         elif isinstance(instr,CreateType):
             CreateType.ejecutar(instr,ts,consola,exceptions)
-        #    elif isinstance(instr, Definicion) : procesar_definicion(instr, ts)
-        #    elif isinstance(instr, Asignacion) : procesar_asignacion(instr, ts)
-        #    elif isinstance(instr, Mientras) : procesar_mientras(instr, ts)
-        #    elif isinstance(instr, If) : procesar_if(instr, ts)
-        #    elif isinstance(instr, IfElse) : procesar_if_else(instr, ts)
+        elif isinstance(instr,Show):
+            Show.ejecutar(instr,ts,consola,exceptions)
+
         else:
             print('Error: instrucción no válida')
 
