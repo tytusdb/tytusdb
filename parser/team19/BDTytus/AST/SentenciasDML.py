@@ -37,85 +37,98 @@ class Select(Node.Nodo):
         db = os.environ['DB']
         result = 'Query from tables: '
         contador = 0
+        tablasError = []
+        tableState = True
         #---------------------FROM
         if len(self.tables) != 0:
             for tabla in self.tables:
-                tuplas += jm.extractTable(db, tabla)
-                col_dict = tp.showColumns(db, tabla)
-
-        #--------------------WHERE
-        if isinstance(self.conditions, Where):
-            self.conditions.ejecutar(TS, Errores)
-        #---------------------ORDER BY
-        if self.ord is not None:
-            for ord in self.ord:
-                ord.ejecutar(TS, Errores)
-                ord_dict = {
-                    'columna': ord.columna,
-                    'orden': ord.orden,
-                    'nulls': ord.nulls
-                }
-                ordencol.append(ord_dict)
-        if self.arguments is not None:
-            for columna in self.arguments:
-                columna.ejecutar(TS, Errores)
-                if columna.op_type == 'as':
-                    if columna.val.op_type == 'valor' or \
-                            columna.val.op_type == 'Aritmetica' or \
-                            columna.val.op_type == 'Relacional' or\
-                            columna.val.op_type == 'Logica' or\
-                            columna.val.op_type == 'unario':
-                        tuplas_aux.append(columna.val.val)
-                    columnas.append(columna.asid.val)
-                elif columna.op_type == 'valor':
-                    columnas.append('Columna '+str(contador))
-                    tuplas_aux.append(columna.val)
-                    contador = contador + 1
-                elif columna.op_type == 'iden':
-                    columnas.append(columna.id)
+                if jm.extractTable(db, tabla) is not None:
+                    tuplas += jm.extractTable(db, tabla)
+                    col_dict.update(tp.showColumns(db, tabla))
                 else:
-                    tuplas.append(columna.val)
-                    columnas.append('Columna ' + str(contador))
-                    contador = contador + 1
-        else:
-            columnas = list(col_dict.keys())
-
-        if len(columnas) != 0:
-            self.result_query.field_names = columnas
-
-        cont = 0;
-        if len(tuplas_aux) > 0:
-            tuplas += [tuplas_aux]
-        if len(tuplas) != 0:
-            if ordencol is not None:
-                for dic in ordencol:
-                    while dic['columna'] != columnas[cont]:
-                        cont = cont + 1
-                for item in ordencol:
-                    if item['orden'] == 'asc':
-                        tuplas = sorted(tuplas, key=itemgetter(cont))
-                    else:
-                        tuplas = sorted(tuplas, key=itemgetter(cont), reverse=True)
+                    tablasError.append(tabla)
+                    tableState = False
+        if tableState:
+            #--------------------WHERE
             if isinstance(self.conditions, Where):
-                new_tuplas = []
-                for tupla in tuplas:
-                    if self.conditions.dictionary['val'] in tupla:
-                        new_tuplas.append(tupla)
-                tuplas = new_tuplas
-            if len(tuplas[0]) == len(columnas):
-                for tupla in tuplas:
-                    self.result_query.add_row(tupla)
+                self.conditions.ejecutar(TS, Errores)
+            # ---------------------ORDER BY
+            if self.ord is not None:
+                for ord in self.ord:
+                    ord.ejecutar(TS, Errores)
+                    ord_dict = {
+                        'columna': ord.columna,
+                        'orden': ord.orden,
+                        'nulls': ord.nulls
+                    }
+                    ordencol.append(ord_dict)
+            if self.arguments is not None:
+                for columna in self.arguments:
+                    columna.ejecutar(TS, Errores)
+                    if columna.op_type == 'as':
+                        if columna.val.op_type == 'valor' or \
+                                columna.val.op_type == 'Aritmetica' or \
+                                columna.val.op_type == 'Relacional' or \
+                                columna.val.op_type == 'Logica' or \
+                                columna.val.op_type == 'unario':
+                            tuplas_aux.append(columna.val.val)
+                        columnas.append(columna.asid)
+                    elif columna.op_type == 'valor':
+                        columnas.append('Columna ' + str(contador))
+                        tuplas_aux.append(columna.val)
+                        contador = contador + 1
+                    elif columna.op_type == 'iden':
+                        columnas.append(columna.id)
+                    else:
+                        tuplas.append(columna.val)
+                        columnas.append('Columna ' + str(contador))
+                        contador = contador + 1
             else:
-                new_tuplas2 = []
-                indices = []
-                index = 0
-                for col in col_dict.keys():
-                    if col == columnas[index]:
-                        indices.append(index)
-                        index = index+1
-                for ind in indices:
-                    new_tuplas2 = list( map(itemgetter(ind), tuplas ))
-                print(new_tuplas2)
+                columnas = list(col_dict.keys())
+
+            if len(columnas) != 0:
+                self.result_query.field_names = columnas
+
+            cont = 0;
+            if len(tuplas_aux) > 0:
+                tuplas += [tuplas_aux]
+            if len(tuplas) != 0:
+                if ordencol is not None:
+                    for dic in ordencol:
+                        while dic['columna'] != columnas[cont]:
+                            cont = cont + 1
+                    for item in ordencol:
+                        if item['orden'] == 'asc':
+                            tuplas = sorted(tuplas, key=itemgetter(cont))
+                        else:
+                            tuplas = sorted(tuplas, key=itemgetter(cont), reverse=True)
+                if isinstance(self.conditions, Where):
+                    new_tuplas = []
+                    for tupla in tuplas:
+                        if self.conditions.dictionary['val'] in tupla:
+                            new_tuplas.append(tupla)
+                    tuplas = new_tuplas
+                if len(tuplas[0]) == len(columnas):
+                    for tupla in tuplas:
+                        self.result_query.add_row(tupla)
+                else:
+                    new_tuplas2 = []
+                    indices = []
+                    index = 0
+                    for col in col_dict.keys():
+                        if col == columnas[index]:
+                            indices.append(index)
+                            index = index + 1
+                    for ind in indices:
+                        new_tuplas2 = list(map(itemgetter(ind), tuplas))
+                    print(new_tuplas2)
+        else:
+            tabless = ''
+            for tabla in tablasError:
+                Errores.insertar(Nodo_Error('42P01', 'undefined_table', self.line, self.column))
+                tabless += str(tabla) + ' '
+            result = '42P01: <<' + str(tabless) + '>> UNDEFINED TABLE(S)'
+            return result
         if self.tables is not []:
             for obj in self.tables:
                 result += str(obj) + ' '
@@ -291,10 +304,10 @@ class Update(Node.Nodo):
         estado = 0
         for k in self.list_exp: #validando tipos
             k.ejecutar(TS,Errores)
-            print(TypeChecker.obtenerTipoColumna(bd,self.table_id,'idrol'))    
+            print(tp.obtenerTipoColumna(bd,self.table_id,'idrol'))
             print(k.exp2.type)
             print(k.exp1.val)
-            if k.exp2.type ==  TypeChecker.obtenerTipoColumna(bd,self.table_id,k.exp1.val):
+            if k.exp2.type == tp.obtenerTipoColumna(bd,self.table_id,k.exp1.val):
                 print('hola')    
             else: 
                 estado = 1

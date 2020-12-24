@@ -179,6 +179,9 @@ class STipoDato(Sentencia):
         self.tipo = tipo
         self.cantidad = cantidad
 
+    def __str__(self):
+        return "{ STipoDato | dato: '%s', tipo: '%s', cantidad: '%s' } " % ( str(self.dato), str(self.tipo), str(self.cantidad) )
+
 
 class SShowTable(Sentencia):
     ''' Show table'''
@@ -318,10 +321,21 @@ class SQuery(Sentencia):
         self.limit = limit
 
 
+    def __str__(self):
+
+        return "{ SQuery | select: '%s', ffrom: '%s', where: '%s', groupby: '%s', having: '%s', orderby: '%s', limit: '%s' }" % (
+            str(self.select), str(self.ffrom), str(self.where), str(self.groupby),str(self.having),str(self.orderby),str(self.limit)) 
+
+
+
+
 class SSelectCols(Sentencia):
     def __init__(self, distinct, cols=[]):
         self.distinct = distinct
         self.cols = cols
+
+    def __str__(self):
+        return "{ SSelectCols | distinct: '%s', cols: '%s' }" % (str(self.distinct), str(self.cols))
 
 
 class SSelectFunc(Sentencia):
@@ -333,6 +347,9 @@ class SColumnasAsSelect(Sentencia):
     def __init__(self, id, cols=[]):
         self.id = id
         self.cols = cols
+
+    def __str__(self):
+        return "{ SColumnasAsSelect | id: '%s', cols: '%s' }" % (str(self.id), str(self.cols))
 
 
 class SColumnasSubstr(Sentencia):
@@ -482,6 +499,10 @@ class SFrom(Sentencia):
     def __init__(self, clist=[]):
         self.clist = clist
 
+    def __str__(self):
+
+        return "{ SFrom | clist: '%s' }" % (self.clist)
+
 
 class SFrom2(Sentencia):
     def __init__(self, id, clist=[]):
@@ -492,6 +513,9 @@ class SFrom2(Sentencia):
 class SWhere(Sentencia):
     def __init__(self, clist=[]):
         self.clist = clist
+
+    def __str__(self):
+        return "{ SWhere | clist: '%s' }" % str(self.clist)
 
 
 class SGroupBy(Sentencia):
@@ -521,6 +545,10 @@ class SAlias(Sentencia):
     def __init__(self, id, alias):
         self.id = id
         self.alias = alias
+
+    def __str__(self):
+
+        return "{ SAlias | id: '%s', alias: '%s' }" % ( str(self.id), str(self.alias) )
 
 
 class SWhereCond1(Sentencia):
@@ -680,3 +708,72 @@ class SSubstring(Sentencia):
     def __str__(self):
         return "{ SSubstring || 'cadena': %s, 'inicio': %s, 'tamanio': %s, 'comparar': %s }" % (
             str(self.cadena), str(self.inicio), str(self.tamanio), str(self.comparar) )
+
+
+#CLASE PARA UN "IN"
+class SIn(Sentencia):
+
+    def __init__(self,columna,consulta):
+        self.columna = columna
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SIn | columna: '%s', consulta: '%s' }" %( self.columna, self.consulta )
+
+
+#CLASE PARA UN "NOT IN"
+class SNotIn(Sentencia):
+
+    def __init__(self,columna,consulta):
+        self.columna = columna
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SNotIn | columna: '%s', consulta: '%s' }" %( self.columna, self.consulta )
+
+
+class SExist(Sentencia):
+
+    def __init__(self,consulta):
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SExist | consulta: '%s' }" % (str(self.consulta))
+
+
+class SNotExist(Sentencia):
+
+    def __init__(self,consulta):
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SExist | consulta: '%s' }" % (str(self.consulta))
+
+
+class SAny(Sentencia):
+
+    def __init__(self,columna, operador, consulta):
+        self.columna = columna
+        self.operador = operador
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SAny | columna: '%s', operador: '%s', consulta: '%s' }" % (str(self.columna), str(self.operador),str(self.consulta))
+
+
+class SAll(Sentencia):
+
+    def __init__(self,columna, operador, consulta):
+        self.columna = columna
+        self.operador = operador
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SAll | columna: '%s', operador: '%s', consulta: '%s' }" % (str(self.columna), str(self.operador),str(self.consulta))
+
+class SDatePart(Sentencia):
+    def __init__(self, id, param, ts, param2):
+        self.id = id
+        self.param = param
+        self.ts = ts
+        self.param2 = param2

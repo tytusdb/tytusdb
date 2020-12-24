@@ -2206,43 +2206,49 @@ class trig_atan2(column_mathtrig):
         self.alias = alias
 
     def ejecutar(self,tables):
-        val = self.exp.ejecutar(tables)
-        if isinstance(val,CError):
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError):
             e = CError(0,0,"Error en funcion trigonometrica",'Semantico','Semantico')
             errores.insert_error(e)
             return e
-        if isinstance(val,dict):        
+        if isinstance(val2,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico','Semantico')
+            errores.insert_error(e)
+            return e
+        if isinstance(val1,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
             
                 #recorro valores y saco el substring 
             subs = []
-            for st in val['valores']:
+            for st in val1['valores']:
                 try:
-                    temp = float(st)
+                    temp1 = float(st)
+                    temp2 = float(st)
                 except ValueError:
                     e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
-                trim =  mt.atan2(temp)
+                trim =  mt.atan2(temp1,temp2)
                 subs.append(trim)
                 
-            val['valores'] = subs
-            return val
+            val1['valores'] = subs
+            return val1
             
                 
         #Es solo un valor en especifico
         else:
-            #saco el substring y lo devuelvo
             try:
-                temp = float(val)
+                temp1 = float(self.exp1)
+                temp2 = float(self.exp2)
             except ValueError:
                 e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
-            trim = mt.atan2(float(temp))
+            trim = mt.atan2(temp1,temp2)
             
             return trim
  
@@ -2254,48 +2260,54 @@ class trig_atan2(column_mathtrig):
 
 class trig_atan2d(column_mathtrig):
     def __init__(self, exp1, exp2, alias):
-        self.exp = exp1
+        self.exp1 = exp1
         self.exp2 = exp2
         self.alias = alias
     
     def ejecutar(self,tables):
-        val = self.exp.ejecutar(tables)
-        if isinstance(val,CError):
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError):
             e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
-        if isinstance(val,dict):        
+        if isinstance(val2,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
+        if isinstance(val1,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
             
                 #recorro valores y saco el substring 
             subs = []
-            for st in val['valores']:
+            for st in val1['valores']:
                 try:
-                    temp = float(st)
+                    temp1 = float(st)
+                    temp2 = float(st)
                 except ValueError:
                     e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
-                trim =  mt.atan2d(temp)
+                trim =  mt.atan2d(temp1,temp2)
                 subs.append(trim)
                 
-            val['valores'] = subs
-            return val
+            val1['valores'] = subs
+            return val1
             
                 
         #Es solo un valor en especifico
         else:
-            #saco el substring y lo devuelvo
             try:
-                temp = float(val)
+                temp1 = float(self.exp1)
+                temp2 = float(self.exp2)
             except ValueError:
                 e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
-            trim = mt.atan2d(float(temp))
+            trim = mt.atan2d(temp1,temp2)
             
             return trim
  

@@ -10,6 +10,10 @@ from Libraries import Use
 from Libraries import Type
 from Libraries import Select
 from Libraries import InsertTable
+from Libraries import UnionAll
+from Libraries import Union
+from Libraries import Intersect
+from Libraries import Except
 
 
 
@@ -64,7 +68,9 @@ class Start(Nodo):
                 nuevaTabla = Table()
                 res = nuevaTabla.execute(hijo, enviroment)
                 if res.code != "00000":
-                    print(res.responseObj.descripcion)
+                    self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
+                else:
+                    self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
             elif hijo.nombreNodo == 'CREATE_TYPE_ENUM':
                 nuevoEnum = Type()
                 nuevoEnum.execute(hijo)
@@ -85,4 +91,25 @@ class Start(Nodo):
                 self.listaSemanticos.append(hijo.execute(None))
             elif hijo.nombreNodo == "SENTENCIA_DELETE":
                 hijo.execute(enviroment)
+            elif hijo.nombreNodo == 'SENTENCIA_UNION_ALL':
+                nuevoUnionAll = UnionAll()
+                resp = nuevoUnionAll.execute(hijo)
+                if resp.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+            elif hijo.nombreNodo == 'SENTENCIA_UNION':
+                nuevoUnion = Union()
+                resp = nuevoUnion.execute(hijo)
+                if resp.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+            elif hijo.nombreNodo == 'SENTENCIA_INTERSECT':
+                nuevoIntersect = Intersect()
+                resp = nuevoIntersect.execute(hijo)
+                if resp.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+            elif hijo.nombreNodo == 'SENTENCIA_EXCEPT':
+                nuevoExcept = Except()
+                
+                resp = nuevoExcept.execute(hijo)
+                if resp.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
                 
