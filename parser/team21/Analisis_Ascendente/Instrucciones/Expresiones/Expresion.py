@@ -21,6 +21,8 @@ class Expresion(Exp):
             exp2 = Expresion.Resolver(expr.dr,ts,Consola,exception)
 
             if expr.operador == '=':
+                #print('llega exp1 '+str(exp1))
+                #print('llega exp2 '+(exp2))
                 return exp1 == exp2
             elif expr.operador == '*':
 
@@ -59,6 +61,7 @@ class Expresion(Exp):
                 boole = exp1 > exp2
                 return boole
             elif expr.operador == '<':
+
                 boole = exp1 < exp2
                 return boole
             elif expr.operador == '!=':
@@ -85,4 +88,13 @@ class Expresion(Exp):
             return  Math.Math_.Resolver(expr,ts,Consola,exception)
         elif isinstance(expr,Time):
             return Time.resolverTime(expr)
-
+        elif isinstance(expr, Unario):
+            exp1 = Expresion.Resolver(expr.op,ts,Consola,exception)
+            if expr.operador == '-':
+                if isinstance(exp1, int) or isinstance(exp1, float):
+                    return exp1 * -1
+            elif expr.operador == '+':
+                if isinstance(exp1, int) or isinstance(exp1, float):
+                    return exp1
+            elif expr.operador == '!':
+                    return not exp1

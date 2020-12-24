@@ -965,12 +965,12 @@ class FuncionCadena(Expresion):
                     return ErrorReport('semantico', 'error de tipo' ,self.linea)
             elif self.funcion == "MD5":
                 if  isinstance(nodoSimplificado , ExpresionCadena):
-                    return str(hashlib.md5(nodoSimplificado.val.encode()).hexdigest())
+                    return '\''+str(hashlib.md5(nodoSimplificado.val.encode()).hexdigest())+'\''
                 else:
                     return ErrorReport('semantico', 'error de tipo' ,self.linea)
             elif self.funcion == "SHA256":
                 if  isinstance(nodoSimplificado , ExpresionCadena):
-                    return str(hashlib.sha256(nodoSimplificado.val.encode()).hexdigest())
+                    return '\''+str(hashlib.sha256(nodoSimplificado.val.encode()).hexdigest())+'\''
             return str('FUNCION DESCONOCIDA')
 
 class FuncionAgregacion(Expresion):

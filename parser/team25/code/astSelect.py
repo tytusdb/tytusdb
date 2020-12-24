@@ -27,6 +27,9 @@ class TABLA_TIPO(Enum):
     SELECCIONADA = 2
     SELECT_SIMPLE = 3
     TABLAWHERE = 4    
+    TABLAUNION = 5
+    TABLAINTERSECCION = 6
+    TABLAEXCEPT = 7
 
     
 
@@ -57,8 +60,7 @@ class SelectSimple(Instruccion):
                 print("Error semántico, solo se aceptan expresiones.")
 
         salida = matriz(columnas, [filas], TABLA_TIPO.SELECT_SIMPLE, "nueva tabla", None, None)
-        salida.imprimirMatriz()
-        return salida
+        return salida.ejecutar(ts)
 # Select From
 class SelectFrom(Instruccion):
     def __init__(self, fuentes, campos, alias=None):
@@ -98,7 +100,7 @@ class SelectFrom(Instruccion):
                 columnas.append(col)      
         tabla_base = FROM(self.fuentes)
         salida = SELECT(columnas, tabla_base.ejecutar(ts))
-        salida.ejecutar(ts).imprimirMatriz()
+        return salida.ejecutar(ts)
 
 class FROM():
     def __init__(self, fuentes:list):
@@ -588,4 +590,87 @@ class SelectFromWhere(Instruccion):
         salida.ejecutar(ts).imprimirMatriz()
         return salida
 
-    
+class combineQuery(Instruccion):
+    def __init__(self, izq, operador, der):
+        self.izq = izq
+        self.operador = operador
+        self.der = der
+    def ejecutar(self, ts):
+        izquierdo = self.izq.ejecutar(ts)
+        derecho = self.der.ejecutar(ts)
+        if len(izquierdo.filas) == len(derecho.filas) and len(izquierdo.columnas) == len(derecho.columnas):
+            if self.operador == COMBINE_QUERYS.UNION:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 | set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                for actual in lista_final[0]:
+                    nuevas_columnas.append("Union")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAUNION,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+            elif self.operador == COMBINE_QUERYS.INTERSECT:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 & set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                if len(lista_final)>0:
+                    for actual in lista_final[0]:
+                        nuevas_columnas.append("Intersect")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAINTERSECCION,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+            elif self.operador == COMBINE_QUERYS.EXCEPT:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 - set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                for actual in lista_final[0]:
+                    nuevas_columnas.append("Except")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAEXCEPT,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+        else:
+            print("Error semántico, el número de filas de los operandos es diferente.")   
