@@ -225,7 +225,30 @@ class select_normal(instruccion):
             salidaTabla.field_names = encabezados
             if len(registro) > 0:
                 salidaTabla.add_rows(registro)
-                        
+
+        if self.distinto != None:
+            salidaTabla.clear()
+            mostrar = []
+            aux1 = registro
+            for n in registro:
+                if self.metodo_Pegre(n, aux1) == 1:
+                    mostrar.append(n)
+                    print(n)
+                else:
+                    cont = 0
+                    for reco in mostrar:
+
+                        if n == reco:
+                            cont = 2
+                            break
+                        else:
+                            cont =1
+
+                    if cont == 1:
+                        mostrar.append(n)
+
+            salidaTabla.add_rows(mostrar)
+
 
         if imprimir==None :
             add_text('\n')
@@ -280,4 +303,16 @@ class select_normal(instruccion):
 
         return lista_original
 
+    def metodo_Pegre(self, dato, lista):
+        aux = lista
+        contador = 0
+        #bandera = True
+
+        for recorrido in aux:
+            if (recorrido == dato):
+                contador += 1
+            else:
+                pass
+
+        return contador
 
