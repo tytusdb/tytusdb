@@ -7,4 +7,4 @@ class Pi(Function):
         Function.__init__(self,row,column)
     
     def execute(self, environment):
-        return [{'value':pi(), 'typ': Type.DECIMAL}]
+        return {'value':pi(), 'typ': Type.DECIMAL}

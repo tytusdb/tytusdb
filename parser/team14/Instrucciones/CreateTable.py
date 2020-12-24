@@ -6,6 +6,7 @@ from Entorno.Simbolo import Simbolo
 from Entorno.TipoSimbolo import TipoSimbolo
 from Expresion.variablesestaticas import variables
 from tkinter import *
+from reportes import *
 
 class CreateTable(Instruccion):
     def __init__(self, id:str, listaDef):
@@ -40,7 +41,9 @@ class CreateTable(Instruccion):
                     
                     inicioHerencia = len(r.valor)
 
-                else: return "La tabla padre '" + self.herencia + "' no existe"
+                else: 
+                    variables.consola.insert(INSERT,"La tabla padre '" + self.herencia + "' no existe")
+                    reporteerrores.append(Lerrores("Error Semántico","La tabla padre '" + self.herencia + "' no existe","",""))
 
             for x in range(0,tam,1):
                 tt = self.listaDef[x]
@@ -113,6 +116,7 @@ class CreateTable(Instruccion):
                                     
                                     if not hayForanea:
                                         variables.consola.insert(INSERT,"No se puede establecer llave foranea entre tabla '" + self.id + "' y '" + atrColumna.valor + "'\n")
+                                        reporteerrores.append(Lerrores("Error Semántico","No se puede establecer llave foranea entre tabla '" + self.id + "' y '" + atrColumna.valor + "'","",""))
                             
                             if hayAtr: listaAtrCol.append(nuevoSym)
                     
@@ -121,12 +125,14 @@ class CreateTable(Instruccion):
                 if tt.tipo == AtributosColumna.PRIMARY:
                     if hayPrimaria: 
                         variables.consola.insert(INSERT,str("La tabla \'" + self.id + "\' ya contiene llave primaria declarada\n"))
+                        reporteerrores.append(Lerrores("Error Semántico","La tabla \'" + self.id + "\' ya contiene llave primaria declarada","",""))
                     else: 
                         primariaAdd:Primaria = tt
                 
                 if tt.tipo == AtributosColumna.REFERENCES:
                     if hayForanea: 
                         variables.consola.insert(INSERT,str("La tabla \'" + self.id + "\' ya contiene llave foranea declarada\n"))
+                        reporteerrores.append(Lerrores("Error Semántico","La tabla \'" + self.id + "\' ya contiene llave foranea declarada","",""))
                     else:
                         foraneaAdd:Foranea == tt
                         rr = DBMS.extractTable(dbActual,foraneaAdd.tabla)
@@ -135,12 +141,14 @@ class CreateTable(Instruccion):
                     if tt.contenido.tipo == AtributosColumna.PRIMARY:
                         if hayPrimaria: 
                             variables.consola.insert(INSERT,str("La tabla \'" + self.id + "\' ya contiene llave primaria declarada\n"))
+                            reporteerrores.append(Lerrores("Error Semántico","La tabla \'" + self.id + "\' ya contiene llave primaria declarada","",""))
                         else: 
                             primariaAdd:Primaria = tt.contenido
                             primariaAdd.idConstraint = tt.id
                     elif tt.contenido.tipo == AtributosColumna.REFERENCES:
                         if hayForanea: 
                             variables.consola.insert(INSERT,str("La tabla \'" + self.id + "\' ya contiene llave foranea declarada\n"))
+                            reporteerrores.append(Lerrores("Error Semántico","La tabla \'" + self.id + "\' ya contiene llave foranea declarada","",""))
                         else:
                             foraneaAdd:Foranea == tt
                             rr = DBMS.extractTable(dbActual,foraneaAdd.tabla)
@@ -184,6 +192,7 @@ class CreateTable(Instruccion):
                                 rrr = DBMS.alterAddPK(dbActual,self.id,self.listPK)
                                 if rrr != 0: 
                                     variables.consola.insert(INSERT,"No se ha podido agregar PK en tabla \'" + self.id + "\'\n")
+                                    reporteerrores.append(Lerrores("Error Semántico","No se ha podido agregar PK en tabla \'" + self.id + "'","",""))
                                 else: 
                                     alreadyPrimary = True
                                     sym1 = Simbolo(TipoSimbolo.CONSTRAINT_PRIMARY,str("PK_" + dbActual + "_" + self.id))
@@ -209,6 +218,7 @@ class CreateTable(Instruccion):
                                     n = DBMS.alterAddPK(dbActual,self.id,self.listPK)
                                     if n != 0:
                                         variables.consola.insert(INSERT,"No se ha podido agregar PK en tabla \'" + self.id + "\'\n")
+                                        reporteerrores.append(Lerrores("Error Semántico","No se ha podido agregar PK en tabla \'" + self.id + "'","",""))
                                     else: 
                                         idPk = ""
                                         alreadyPrimary = True
@@ -229,7 +239,8 @@ class CreateTable(Instruccion):
                                         ent.nuevoSimbolo(sym)
                     
                     DBMS.showCollection()
-                    return str("Tabla " + self.id + " creada exitosamente")
+                    variables.consola.insert(INSERT,str("Tabla " + self.id + " creada exitosamente\n"))
+                    return
                 
                 return r
             #elif estado == 1: 
@@ -245,9 +256,11 @@ class CreateType(Instruccion):
         nuevoType.baseDatos = ent.getDataBase()
         r = ent.nuevoSimbolo(nuevoType)
         if r == "ok":
-            return "Nuevo tipo '" + self.id + "' creado"
+            variables.consola.insert(INSERT,"Nuevo tipo '" + self.id + "' creado\n")
+            return
 
-        return "El tipo '" + self.id + "' ya existe declarado"
+        variables.consola.insert(INSERT,"El tipo '" + self.id + "' ya existe declarado\n")
+        reporteerrores.append(Lerrores("Error Semántico","El tipo '" + self.id + "' ya existe declarado","",""))
 
 
 class Check(CreateTable):
@@ -307,7 +320,8 @@ class ShowTables(Instruccion):
         variables.consola.insert(INSERT,"Ejecutando Show Tables para la base de datos: "+self.id+" \n")
         resultado = DBMS.showTables(self.id) 
         if(resultado==None):
-            return "ERROR >> En la instrucción Show Tables("+self.id+"), base de datos: "+self.id+" NO existe"
+            variables.consola.insert(INSERT,"ERROR >> En la instrucción Show Tables("+self.id+"), base de datos: "+self.id+" NO existe\n")
+            reporteerrores.append(Lerrores("Error Semántico","En la instrucción Show Tables("+self.id+"), base de datos: "+self.id+" NO existe","",""))
         else:
             variables.x.title="DB: "+self.id
             variables.x.add_column("Tables",resultado)
