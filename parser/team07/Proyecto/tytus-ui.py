@@ -294,7 +294,7 @@ def ventana_reporte_mensajes(parent, report):
     t3.focus_set()
     t3.grab_set()
 
-    mensajes_headers = (u" Mensaje ")
+    mensajes_headers = (u"No. ", u" Mensaje ")
     mensajes_tab = Table(t3, title="Reporte de mensajes",
                          headers=mensajes_headers)
     mensajes_tab.pack()
@@ -303,7 +303,8 @@ def ventana_reporte_mensajes(parent, report):
     if report != None:
         value = report.listaMensajes
         for x in value:
-            a = [x]
+            cont = cont + 1
+            a = [cont, x]
             listaCad.append(a)
 
     for row in listaCad:
