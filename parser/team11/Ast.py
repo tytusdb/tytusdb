@@ -496,6 +496,43 @@ class AST:
 
 ###################################################### Ejecucion de Querys ###############################################
 
+    def getfieldnames(self, tb, names,):
+        for col in tb:
+            names.append(col)
+
+    def getnamesIndex(self, tb, index, names, rows):
+        for nodo in rows.hijos:
+            ban = 0
+            if nodo.etiqueta == 'ID':
+                for col, val in tb.items():
+                    if nodo.valor == col:
+                        ban = 1
+                        index.append(val.index)
+                        if len(nodo.hijos) > 0:
+                            names.append(nodo.hijos[0].valor)
+                        else :
+                            names.append(nodo.valor)
+                        break
+                if ban == 0:
+                    self.errors.append(Error('42703', EType.SEMANTICO, 'No existe la columna '+str(nodo.valor), nodo.linea))
+                    return -1
+        return 1
+
+    def getTablas(self, instr, tablas):
+        for nodo in instr.hijos:
+           if nodo.etiqueta == 'Tabla':
+                hijos = {}
+                hijos['Tabla'] = nodo.valor
+                if len(nodo.hijos) > 0:
+                   hijos['As'] = nodo.hijos[0].valor
+                registros = jsonMode.extractTable(self.usingDB, nodo.valor)
+                if registros == None:
+                    self.errors.append(Error('42P01', EType.SEMANTICO, 'No existe la relacion '+str(nodo.valor), nodo.linea))
+                    return -1
+                hijos['Tuplas'] = registros
+                tablas.append(hijos)
+                return 1
+
     def querySimple(self, nodo):
         names = []
         resultados = []
