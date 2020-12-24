@@ -1000,3 +1000,18 @@ class Isam:
                 nodes.append(aux.right_node)
             aux = aux.next_page
         return nodes
+    
+    def get_in_range(self,min,max):
+        nodes = []
+        aux = self.leftmost:
+        while aux != None:
+            if aux.left_node != None:
+                if aux.left_node.node_id > min.node_id and aux.left_node.node_id < max.node_id:
+                    nodes.append(aux.left_node)
+            if aux.right_node != None:
+                if aux.right_node.node_id > min.node_id and aux.right_node.node_id < max.node_id:
+                    nodes.append(aux.right_node)
+            aux = aux.next_page
+        return nodes   
+
+
