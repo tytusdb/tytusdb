@@ -175,3 +175,9 @@ Para garantizar la eficiencia de lo procesos, nos basamos en las búsquedas opti
 | `truncate(database: str, table: str)` | 2 | Base de datos inexistente |
 | `truncate(database: str, table: str)` | 3 | Tabla inexistente |
 
+## Diagrama de clases
+<p align="center">
+  <img src="imagenes/Diagramadeclases.png" width="900" alt="Diagrama">
+</p>
+
+
