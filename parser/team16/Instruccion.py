@@ -43,6 +43,16 @@ def gets(Lista, data2, pos):
     return 0
 
 
+
+def ExisteInList(lista,valor):
+    for ss in lista:
+        if(str(ss)==str(valor)):
+            return  False
+
+    return True
+
+
+
 def imprir(string):
     global Ejecucion
     Ejecucion += string + "\n"
@@ -63,6 +73,9 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
     global ts_global, baseActual
     global LisErr
     listaGeneral ={}
+    listaConsultados=[]
+    contadorCol = 0
+
     r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
     if r is not None:
@@ -89,28 +102,49 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                     y: CampoTabla = ele
                                     if (str(y.id) == str(ii.Columna)):
 
-                                        print("LA columan " + str(
-                                            ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
+                                        print("LA columan " + str(ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
                                         # Bamos a sacar todos los datos coincidentes
                                         # recorremos datos
 
                                         # Vallidamos que la no venga sin datos
                                         print(ii.NombreT)
+
                                         if (ii.NombreT != ""):
                                             # hacemos una doble condicion para agarrar la columna que es
-
                                             if (str(x.id) == ii.NombreT):
                                                 print("Estoy entrando <<<<<<<<<<<<<<<<<<<<< ")
                                                 i = ts_global.Datos
                                                 lista = []
+
                                                 for gg in ts_global.Datos:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
-                                                    listaGeneralSubQuery.append(t)
-                                                    if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
-                                                        listaGeneralSubQuery.append(t)
-                                                        lista.append(str(t.valor))
-                                                listaGeneral[ii.Columna] = lista
+
+                                                    if (str(t.columna) == str(ii.Columna) and str(t.tabla) == str(
+                                                            ii.NombreT)):
+
+                                                        print(str(t.columna) + "Estos vienen" + str(t.tabla))
+                                                        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                                                        nombreGen = ""
+                                                        if (ExisteInList(listaConsultados,
+                                                                         t.columna) == False):  # Existe
+
+                                                            print("Campo ya existe se creara un nuevo nombre")
+                                                            nombreGen += str(t.columna) + str(contadorCol)
+                                                            print(str(t.valor))
+                                                            listaGeneralSubQuery.append(t)
+                                                            lista.append(str(t.valor))
+
+                                                        else:
+                                                            listaConsultados.append(t.columna)
+                                                            print(str(t.valor))
+                                                            listaGeneralSubQuery.append(t)
+                                                            lista.append(str(t.valor))
+                                                            nombreGen += str(ii.Columna)
+                                                listaGeneral[nombreGen] = lista
+                                                contadorCol += 1
+
+
                                             else:
                                                 print("")
 
@@ -123,7 +157,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
 
                                                 if (str(t.columna) == str(ii.Columna)):
                                                     print(str(t.valor))
-                                                    listaGeneralSubQuery.append(t)
+
                                                     lista.append(str(t.valor))
                                             listaGeneral[ii.Columna] = lista
 
@@ -143,6 +177,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     i = ts_global.Datos
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
+
                                                         if (pp.id == t.columna):
                                                             print(str(t.valor))
                                                             listaGeneralSubQuery.append(t)
@@ -1728,6 +1763,8 @@ class Select(Instruccion) :
 
         global ts_global, baseActual, ListaTablasG
         global LisErr
+        listaConsultados = []
+        contadorCol = 0
 
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
         casee =False
@@ -1760,9 +1797,8 @@ class Select(Instruccion) :
                                     #listaGeneral
                                     for ele in x.cuerpo: #recorremos lista de columnas
                                         y:CampoTabla = ele
+
                                         if (str(y.id) == str(ii.Columna)):
-
-
                                             print("LA columan "+str(ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
                                             #Bamos a sacar todos los datos coincidentes
                                             #recorremos datos
@@ -1776,19 +1812,38 @@ class Select(Instruccion) :
                                                     print("Estoy entrando <<<<<<<<<<<<<<<<<<<<< ")
                                                     i = ts_global.Datos
                                                     lista = []
+
                                                     for gg in ts_global.Datos:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
-                                                        if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                        if (str(t.columna) == str(ii.Columna) and str(t.tabla)==str(ii.NombreT)):
 
-                                                            lista.append(str(t.valor))
-                                                    listaGeneral[ii.Columna] = lista
+                                                            print(str(t.columna) +"Estos vienen"+str(t.tabla))
+                                                            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                                                            nombreGen = ""
+                                                            if(ExisteInList(listaConsultados,t.columna)==False):  #Existe
+
+                                                                print("Campo ya existe se creara un nuevo nombre")
+                                                                nombreGen += str(t.columna) + str(contadorCol)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+
+                                                            else:
+                                                                listaConsultados.append(t.columna)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+                                                                nombreGen+=str(ii.Columna)
+                                                    listaGeneral[nombreGen] = lista
+                                                    contadorCol += 1
+
+
                                                 else:
                                                     print("")
 
                                             else:
-
                                                 i = ts_global.Datos
                                                 lista = []
                                                 for gg in ts_global.Datos:
@@ -1799,7 +1854,6 @@ class Select(Instruccion) :
 
                                                         lista.append(str(t.valor))
                                                 listaGeneral[ii.Columna] = lista
-
 
                                         elif(str(ii.Columna) == "*"):
                                             print("Vienen todo los datos de la tabla")
@@ -2567,6 +2621,9 @@ class Select2(Instruccion) :
 
         global ts_global, baseActual
         global LisErr
+        listaConsultados = []
+        contadorCol = 0
+
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
         if r is not None:
@@ -2591,10 +2648,10 @@ class Select2(Instruccion) :
                                     # listaGeneral
                                     for ele in x.cuerpo:  # recorremos lista de columnas
                                         y: CampoTabla = ele
+
                                         if (str(y.id) == str(ii.Columna)):
 
-                                            print("LA columan " + str(
-                                                ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
+                                            print("LA columan " + str(ii.Columna) + "Esta en la tabla y bamos a retornar sus valores")
                                             # Bamos a sacar todos los datos coincidentes
                                             # recorremos datos
 
@@ -2607,14 +2664,34 @@ class Select2(Instruccion) :
                                                     print("Estoy entrando <<<<<<<<<<<<<<<<<<<<< ")
                                                     i = ts_global.Datos
                                                     lista = []
+
                                                     for gg in ts_global.Datos:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
-                                                        if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                        if (str(t.columna) == str(ii.Columna) and str(t.tabla)==str(ii.NombreT)):
 
-                                                            lista.append(str(t.valor))
-                                                    listaGeneral[ii.Columna] = lista
+                                                            print(str(t.columna) +"Estos vienen"+str(t.tabla))
+                                                            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                                                            nombreGen = ""
+                                                            if(ExisteInList(listaConsultados,t.columna)==False):  #Existe
+
+                                                                print("Campo ya existe se creara un nuevo nombre")
+                                                                nombreGen += str(t.columna) + str(contadorCol)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+
+                                                            else:
+                                                                listaConsultados.append(t.columna)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+                                                                nombreGen+=str(ii.Columna)
+                                                    listaGeneral[nombreGen] = lista
+                                                    contadorCol += 1
+
+
                                                 else:
                                                     print("")
 
@@ -3797,6 +3874,8 @@ class Select2(Instruccion) :
 
 
 
+
+
 # Con Distinct
 # ---------------------------------------------------------------------------------------------------
 class Select3(Instruccion):
@@ -4502,6 +4581,8 @@ class Select4(Instruccion) :
 
         global ts_global, baseActual
         global LisErr
+        listaConsultados = []
+        contadorCol = 0
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
 
@@ -4545,23 +4626,46 @@ class Select4(Instruccion) :
                                             if(ii.NombreT !=""):
                                                 #hacemos una doble condicion para agarrar la columna que es
 
+
                                                 if(str(x.id)==ii.NombreT):
+
                                                     print("Estoy entrando <<<<<<<<<<<<<<<<<<<<< ")
                                                     i = ts_global.Datos
                                                     lista = []
+
                                                     for gg in ts_global.Datos:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
-                                                        if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                        if (str(t.columna) == str(ii.Columna) and str(t.tabla) == str(
+                                                                ii.NombreT)):
 
-                                                            lista.append(str(t.valor))
-                                                    listaGeneral[ii.Columna] = lista
+                                                            print(str(t.columna) + "Estos vienen" + str(t.tabla))
+                                                            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+                                                            nombreGen = ""
+                                                            if (ExisteInList(listaConsultados,
+                                                                             t.columna) == False):  # Existe
+
+                                                                print("Campo ya existe se creara un nuevo nombre")
+                                                                nombreGen += str(t.columna) + str(contadorCol)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+
+                                                            else:
+                                                                listaConsultados.append(t.columna)
+                                                                print(str(t.valor))
+                                                                listaGeneralSubQuery.append(t)
+                                                                lista.append(str(t.valor))
+                                                                nombreGen += str(ii.Columna)
+                                                    listaGeneral[nombreGen] = lista
+                                                    contadorCol += 1
+
+
                                                 else:
                                                     print("")
 
                                             else:
-
                                                 i = ts_global.Datos
                                                 lista = []
                                                 for gg in ts_global.Datos:
