@@ -99,9 +99,13 @@ def p_instruccion(t) :
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
                         | DROP dropear
+                        | TABLE
                         '''
     id = inc()
     t[0] = {'id': id}
+
+    if len(t) == 2:
+        type_checker.showTables(line = t.lexer.lineno)
 
     if t[1].upper() == 'CREATE':
         t[0] = t[2]
@@ -627,7 +631,7 @@ def p_instruccion_selects2(t) :
 
 def p_instruccion_selects3(t) :
     '''selects      : fun_trigonometrica state_aliases_field 
-                    '''
+                    | aritmetica state_aliases_field  '''
     # print(t[1]['funcion'].upper() )
     '''if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
         resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
@@ -662,7 +666,7 @@ def p_instruccion_selects3(t) :
 
 def p_instruccion_selects4(t) :
     '''selects      : fun_trigonometrica state_aliases_field FROM ID state_aliases_table 
-                    '''
+                    | aritmetica state_aliases_field FROM ID state_aliases_table  '''
     '''if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
         resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
     else:
@@ -5202,5 +5206,5 @@ parser = yacc.yacc()
 
 def parse(input) :
     retorno = parser.parse(input)
-    dot.view()
+    # dot.view()
     return retorno
