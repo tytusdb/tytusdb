@@ -1,5 +1,5 @@
-from ISAM.Cilindro import Cilindro, Registro
-import ISAM.BinWriter as bin
+from .Cilindro import Cilindro
+from . import BinWriter as bin
 import os
 
 class Indice:
@@ -74,6 +74,8 @@ class Indice:
                 i = self._hashn(val[0])
             else:
                 i = self._hashl(val[0])
+            if self.indx[i] is None:
+                return 4
             return self.indx[i].update(register, val)
         except:
             return 1
@@ -84,6 +86,8 @@ class Indice:
                 i = self._hashn(val[0])
             else:
                 i = self._hashl(val[0])
+            if self.indx[i] is None:
+                return 4
             return self.indx[i].delete(val)
         except:
             return 1
@@ -94,6 +98,8 @@ class Indice:
                 i = self._hashn(val[0])
             else:
                 i = self._hashl(val[0])
+            if self.indx[i] is None:
+                return []
             return self.indx[i].extractRow(val)
         except:
             return 1
@@ -125,6 +131,5 @@ class Indice:
         for x in self.indx:
             if x != None:
                 x.indx = bin.read(self.ruta +"/"+ x.nombre + ".b")
-		        x.pkeys = self.pkey
+                x.pkeys = self.pkey
         self.writeI()
-
