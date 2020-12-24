@@ -12,6 +12,7 @@ from Interprete.Primitivos.DECIMAL import DECIMAL
 from Interprete.Primitivos.CADENAS import CADENAS
 from Interprete.Primitivos.BOOLEANO import BOOLEANO
 from Interprete.Insert.insert import Insert
+from Interprete.SELECT.select_simples_date import Select_simples_date
 from Interprete.SHOW_DATABASES.show_databases import ShowDatabases
 from Interprete.USE_DATABASE.use_database import UseDatabase
 from Interprete.ALTER_DATABASE.alter_database import AlterDatabase
@@ -537,8 +538,8 @@ def p_ddl_drop_database(t):
 def p_select(t):
     '''
         select  : SELECT listavalores FROM listavalores listawhere
-                | SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
-                | SELECT DATE_PART PARIZQ CADENA COMA INTERVAL CADENA PARDER
+                | SELECT EXTRACT PARIZQ time FROM TIMESTAMP exp PARDER
+                | SELECT DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
                 | SELECT NOW PARIZQ PARDER
                 | SELECT CURRENT_DATE
                 | SELECT CURRENT_TIME
@@ -549,22 +550,22 @@ def p_select(t):
         t[0] = select(t[2], t[4], t[5], 1, 1)
     elif t[2].lower() == "extract":
         # SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
-        pass
+        t[0] = Select_simples_date(t.lineno, 0, 'extract', t[4], t[7])
     elif t[2].lower() == "date_part":
-        # SELECT DATE_PART PARIZQ CADENA COMA INTERVAL CADENA PARDER
-        pass
+        # SELECT DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
+        t[0] = Select_simples_date(t.lineno, 0, 'date_part', t[4], t[7])
     elif t[2].lower() == "now":
         # SELECT NOW PARIZQ PARDER
-        pass
+        t[0] = Select_simples_date(t.lineno, 0, 'now')
     elif t[2].lower() == "current_date":
         # SELECT CURRENT_DATE
-        pass
+        t[0] = Select_simples_date(t.lineno, 0, 'current_date')
     elif t[2].lower() == "current_time":
         # SELECT CURRENT_TIME
-        pass
+        t[0] = Select_simples_date(t.lineno, 0, 'current_time')
     elif t[2].lower() == "timestamp":
         # SELECT TIMESTAMP CADENA
-        pass
+        t[0] = Select_simples_date(t.lineno, 0, 'timestamp')
 
 def p_select_simple(t):
     '''
@@ -588,7 +589,7 @@ def p_time(t):
              | MONTH
              | DAY
     '''
-    t[0] = t[1]
+    t[0] = t[1].lower()
 
 def p_listawhere(t):
     '''
