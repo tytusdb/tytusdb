@@ -3251,7 +3251,7 @@ def p_drop_instr(t):
     nNodo = incNodo(numNodo)
     nodoId = crear_nodo_general("ID", t[4], linea, columna)
     nodoId.hijos = []
-    instru = dropDatabase.dropDatabase(t[4])
+    instru = dropDatabase.dropDatabase(t[3],t[4])
     hijos.append(nodoId)
     instru.setearValores(linea, columna, "DROP_DATABASE", nNodo, "", hijos)
     t[0] = instru
@@ -3262,7 +3262,7 @@ def p_drop_instr(t):
     \t nNodo = incNodo(numNodo)\n\
     \t nodoId = crear_nodo_general(\"ID\", t[4], linea, columna)\n\
     \t nodoId.hijos = []\n\
-    \t instru = dropDatabase.dropDatabase(t[4])\n\
+    \t instru = dropDatabase.dropDatabase(t[3],t[4])\n\
     \t hijos.append(nodoId)\n\
     \t instru.setearValores(linea, columna, \"DROP_DATABASE\", nNodo, "", hijos)\n\
     \t t[0] = instru\n\n")
