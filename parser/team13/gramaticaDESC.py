@@ -25,12 +25,12 @@ reservadas = {
     'interval': 'tInterval',
 
     # Interval Type
-    'YEAR': 'tYear',
-    'MONTH': 'tMonth',
-    'DAY': 'tDay',
-    'HOUR': 'tHour',
-    'MINUTE': 'tMinute',
-    'SECOND': 'tSecond',
+    'year': 'tYear',
+    'month': 'tMonth',
+    'day': 'tDay',
+    'hour': 'tHour',
+    'minute': 'tMinute',
+    'second': 'tSecond',
     'to': 'tTo',
 
     # Boolean Type
@@ -82,7 +82,7 @@ reservadas = {
 
     'is': 'tIs',
     'notNull': 'notNull',
-    'and': 'tAnd',
+    'and': 'And',
     'current_user': 'currentuser',
     'session_user': 'sessionuser',
     'type': 'ttype',
@@ -106,114 +106,125 @@ reservadas = {
     'add': 'add',
 
     # >termina fl
-    'no':'no',
-    'yes':'yes',
-    'on':'on',
-    'off':'off',
+    'no': 'no',
+    'yes': 'yes',
+    'on': 'on',
+    'off': 'off',
 
-    #TOKENS QUERIES
-    'distinct':'distinct',
-    'group':'group',
-    'by':'by',
-    'having':'having',
-    #agregacion
-    'count':'count',
-    'avg':'avg',
-    'max':'max',
-    'min':'min',
-    'sum':'sum',
-    #matematicas
-    'abs':'abs',
-    'cbrt':'cbrt',
-    'ceil':'ceil',
-    'ceiling':'ceiling',
-    'degrees':'degrees',
-    'div':'div',
-    'exp':'exp',
-    'factorial':'factorial',
-    'floor':'floor',
-    'gcd':'gcd',
-    'lcm':'lcm',
-    'ln':'ln',
-    'log':'log',
-    'log10':'log10',
-    'min_scale':'min_scale',
-    'mod':'mod',
-    'pi':'pi',
-    'power':'power',
-    'radians':'radians',
-    'round':'round',
-    'scale':'scale',
-    'sign':'sign',
-    'sqrt':'sqrt',
-    'trim_scale':'trim_scale',
-    'truc':'truc',
-    'width_bucket':'width_bucket',
-    'random':'random',
-    'setseed':'setseed',
-    #trigonometricas
-    'acos':'acos',
-	'acosd':'acosd',
-	'asin':'asin',
-	'asind':'asind',
-	'atan':'atan',
-	'atand':'atand',
-	'atan2':'atan2',
-	'atan2d':'atan2d',
-	'cos':'cos',
-	'cosd':'cosd',
-	'cot':'cot',
-	'cotd':'cotd',
-	'sin':'sin',
-	'sind':'sind',
-	'tan':'tan',
-	#'tand':'ttand',
-	'sinh':'sinh',
-	'cosh':'cosh',
-	'tanh':'tanh',
-	'asinh':'asinh',
-	'acosh':'acosh',
-	'atanh':'atanh',
-    #binary
-    'length':'length',
-	'substring':'substring',
-	'trim':'trim',
-	'get_byte':'get_byte',
-	'md5':'md5',
-	'set_byte':'set_byte',
-	'sha256':'sha256',
-	'substr':'substr',
-	'convert':'convert',
-	'encode':'encode',
-	'decode':'decode',
+    # TOKENS QUERIES
+    'distinct': 'distinct',
+    'group': 'group',
+    'by': 'by',
+    'having': 'having',
+    # agregacion
+    'count': 'count',
+    'avg': 'avg',
+    'max': 'max',
+    'min': 'min',
+    'sum': 'sum',
+    # matematicas
+    'abs': 'abs',
+    'cbrt': 'cbrt',
+    'ceil': 'ceil',
+    'ceiling': 'ceiling',
+    'degrees': 'degrees',
+    'div': 'div',
+    'exp': 'exp',
+    'factorial': 'factorial',
+    'floor': 'floor',
+    'gcd': 'gcd',
+    'lcm': 'lcm',
+    'ln': 'ln',
+    'log': 'log',
+    'log10': 'log10',
+    'min_scale': 'min_scale',
+    'mod': 'mod',
+    'pi': 'pi',
+    'power': 'power',
+    'radians': 'radians',
+    'round': 'round',
+    'scale': 'scale',
+    'sign': 'sign',
+    'sqrt': 'sqrt',
+    'trim_scale': 'trim_scale',
+    'trunc': 'trunc',
+    'width_bucket': 'width_bucket',
+    'random': 'random',
+    'setseed': 'setseed',
+    # trigonometricas
+    'acos': 'acos',
+    'acosd': 'acosd',
+    'asin': 'asin',
+    'asind': 'asind',
+    'atan': 'atan',
+    'atand': 'atand',
+    'atan2': 'atan2',
+    'atan2d': 'atan2d',
+    'cos': 'cos',
+    'cosd': 'cosd',
+    'cot': 'cot',
+    'cotd': 'cotd',
+    'sin': 'sin',
+    'sind': 'sind',
+    'tan': 'tan',
+    'tand':'tand',
+    'sinh': 'sinh',
+    'cosh': 'cosh',
+    'tanh': 'tanh',
+    'asinh': 'asinh',
+    'acosh': 'acosh',
+    'atanh': 'atanh',
+    # binary
+    'length': 'length',
+    'substring': 'substring',
+    'trim': 'trim',
+    'get_byte': 'get_byte',
+    'md5': 'md5',
+    'set_byte': 'set_byte',
+    'sha256': 'sha256',
+    'substr': 'substr',
+    'convert': 'convert',
+    'encode': 'encode',
+    'decode': 'decode',
 
-    #otros
-    'all':'all',
-    'any':'any',
-    'some':'some',
+    # otros
+    'all': 'all',
+    'any': 'any',
+    'some': 'some',
 
-    #EXPRESSIONS
-    'case':'case',
-    'when':'when',
-    'then':'then',
-    'else':'else',
-    'end':'end',
-    'greatest':'greatest',
-    'leaste':'least',
-    'limit':'limit',
-    'offset':'offset',
-    'union':'union',
-    'except':'except',
-    'intersect':'intersect',
+    # EXPRESSIONS
+    'case': 'case',
+    'when': 'when',
+    'then': 'then',
+    'else': 'else',
+    'end': 'end',
+    'greatest': 'greatest',
+    'least': 'least',
+    'limit': 'limit',
+    'offset': 'offset',
+    'union': 'union',
+    'except': 'except',
+    'intersect': 'intersect',
 
-    #otros
-    'date_part':'date_part',
-    'now':'now',
-    'current_date':'current_date',
-    'current_time':'current_time',
-    'extract':'tExtract',
-    'in':'in'
+    # otros
+    'date_part': 'date_part',
+    'now': 'now',
+    'current_date': 'current_date',
+    'current_time': 'current_time',
+    'extract': 'tExtract',
+    'in': 'in'
 
+    #nuevos -10
+    ,'asc':'asc',
+    'desc':'desc',
+    'nulls':'nulls',
+    'first':'first',
+    'last':'last',
+    'order':'order',
+    'use': 'tuse',
+    'unknown':'unknown',
+    'bytea':'bytea'
+ 
 }
 
 # LISTA DE TOKENS
@@ -247,14 +258,21 @@ tokens = [
              'parCierra',
              'coma',
              'ptComa',
-             #tks
+             # tks
              'barra',
              'barraDoble',
              'amp',
              'numeral',
              'virgulilla',
              'mayormayor',
-             'menormenor'
+             'menormenor',
+
+             #TOKENS PARA EL RECONOCIMIENTO DE FECHA Y HORA
+             'fecha',
+             'hora',
+             'fecha_hora',
+             'intervaloc',
+             'notEqual'
 
          ] + list(reservadas.values())
 
@@ -284,14 +302,15 @@ t_parCierra = r'\)'
 t_coma = r','
 t_ptComa = r';'
 
-#tk_queries
-t_barra         = r'\|'
-t_barraDoble    = r'\|\|'
-t_amp           = r'&'
-t_numeral       = r'\#'
-t_virgulilla    = r'~'
-t_mayormayor    = r'>>'
-t_menormenor    = r'<<'
+# tk_queries
+t_barra = r'\|'
+t_barraDoble = r'\|\|'
+t_amp = r'&'
+t_numeral = r'\#'
+t_virgulilla = r'~'
+t_mayormayor = r'>>'
+t_menormenor = r'<<'
+t_notEqual = r'!='
 
 
 # DEFINICIÓN DE UN NÚMERO DECIMAL
@@ -313,6 +332,29 @@ def t_entero(t):
     except ValueError:
         print("Integer value too large %d", t.value)
         t.value = 0
+    return t
+
+# DEFINICION PARA INTERVALO
+def t_intervaloc(t):
+    r'\'[\d+\s(Year|Years|Month|Months|day|days|hour|hours|minute|minutes|second|seconds)]+\''
+    return t
+
+
+#DEFINICIÓN PARA LA HORA
+def t_hora(t):
+    r'\'[0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9]\''
+    return t
+
+
+#DEFINICIÓN PARA LA FECHA
+def t_fecha(t):
+    r'\'[0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9]\''
+    return t
+
+
+#DEFINICIÓN PARA TIMESTAMP
+def t_fecha_hora(t):
+    r'\'([0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9])(\s)([0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])\''
     return t
 
 
@@ -346,7 +388,7 @@ def t_COMENTARIO_MULTILINEA(t):
 # DEFINICIÓN DE UN COMENTARIO SIMPLE
 def t_COMENTARIO_SIMPLE(t):
     r'--.*'
-    t.lexer.lineno += 1  # Descartamos la linea desde aca
+    #t.lexer.lineno += 1  # Descartamos la linea desde aca
 
 
 # IGNORAR COMENTARIOS SIMPLES
@@ -367,9 +409,6 @@ def t_error(t):
     print("Caracter inválido '%s'" % t.value[0], " Línea: '%s'" % str(t.lineno))
 
 
-def find_column(input, token):  # Columna relativa a la fila
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
 
 
 # Construyendo el analizador léxico
@@ -411,24 +450,29 @@ def p_sentencia(t):
                  | ALTER_TABLE
                  | DROP_TABLE
                  | INSERT
-             
+                 | QUERIES ptComa
+                 | USEDB
     '''
+
+def p_USEDB(t):
+    ''' USEDB : tuse id ptComa'''
+
     
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_crearBase(t):
-    '''CrearBase : create database id ptComa
-                 | create database id owner igual id ptComa
-                 | create database id mode igual entero ptComa
-                 | create database id owner igual id mode igual entero ptComa
-                 | create or replace database id ptComa
-                 | create or replace database id owner igual id ptComa
-                 | create or replace database id mode igual entero ptComa
-                 | create or replace database id owner igual id mode igual entero ptComa
-                 | create database if not exists id ptComa
-                 | create database if not exists id owner igual id ptComa
-                 | create database if not exists id mode igual entero ptComa
-                 | create database if not exists id owner igual id mode igual entero ptComa'''
+    '''CrearBase : create database E ptComa
+                 | create database E owner igual E ptComa
+                 | create database E mode igual entero ptComa
+                 | create database E owner igual E mode igual entero ptComa
+                 | create or replace database E ptComa
+                 | create or replace database E owner igual E ptComa
+                 | create or replace database E mode igual entero ptComa
+                 | create or replace database E owner igual E mode igual entero ptComa
+                 | create database if not exists E ptComa
+                 | create database if not exists E owner igual E ptComa
+                 | create database if not exists E mode igual entero ptComa
+                 | create database if not exists E owner igual E mode igual entero ptComa'''
     
 
 def p_showBase(t):
@@ -437,16 +481,15 @@ def p_showBase(t):
     
 
 def p_AlterBase(t):
-    '''AlterBase : alter database id rename tTo id ptComa
-                 | alter database id owner tTo id ptComa
-                 | alter database id owner tTo currentuser ptComa
-                 | alter database id owner tTo sessionuser ptComa
+    '''AlterBase : alter database E rename tTo id ptComa
+                 | alter database E owner tTo id ptComa
+                 | alter database E owner tTo currentuser ptComa
+                 | alter database E owner tTo sessionuser ptComa
     '''
-    
 
 def p_DropBase(t):
-    '''DropBase : drop database id ptComa
-                | drop database if exists id ptComa'''
+    '''DropBase : drop database E ptComa
+                | drop database if exists E ptComa'''
     
 
 def p_EnumType(t):

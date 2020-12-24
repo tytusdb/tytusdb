@@ -1,173 +1,467 @@
-class Tytus:
-    def __init__(self):
-        self.databases = []
+from DataBase import Database
+from Hash import TablaHash
+import os
+import pickle
+databases = []
 
-    # @description | Devuelve una lista de los nombres de la base de datos, el nombre es único.
-    def showDatabases(self):
-        print("showDatabases")
+def dropAll():
+    databases.clear()
 
-    # @description | Cambia el nombre de una base de datos.
-    def alterDatabase(self, old, new):
-        print("alterDatabase")
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+"""
+def createDatabase(nameDB):
+    try:
+        if buscarDB(nameDB) != None:
+            # print("Base de datos existente")
+            return 2
+        else:
+            if nameDB.isdigit():
+                return 1
+            databases.append(Database(nameDB))
+            return 0
+    except: 
+        # print("Error en la operación")
+        return 1
 
-    # @desciption | Crea una base de datos.
-    def createDatabase(self, name):
-        print("createDatabase")
+"""
+@return 
+    una lista de nombres de la base de datos
+"""
+def showDatabases():
+    listNamesDB = []
+    for db in databases:
+        if db != None:
+            listNamesDB.append(db.getName())
+    return listNamesDB
 
-    # @desciption | Elimina por completo la base de datos indicada. 
-    def dropDatabase(self, name):
-        print("dropDatabase")
+"""
+@return 
+    0 operación exitosa
+    1 Error en la operación
+    2 databaseOld no existente
+    3 databaseNew existente
+"""
+def alterDatabase(databaseOld, databaseNew):
+    try:
+        banderaDB = buscarDB(databaseOld)
+        if banderaDB != None:
+            if buscarDB(databaseNew) != None:
+                # print("databaseNew existente")
+                return 3
+            else:
+                databases[banderaDB].setName(databaseNew)
+                # print("operación exitosa")
+                return 0
+        else:
+            # print("dtabaseOld no existente")
+            return 2
+    except Exception as e:
+        # print("Error de la operación")
+        # print(e)
+        return 1
+
+"""
+@return
+    0 Operación exitosa
+    1 Error en la operación
+    2 Base de datos no existente
+"""
+def dropDatabase(nameDB):
+    try:
+        banderaDB = buscarDB(nameDB)
+        if banderaDB != None:
+            databases.pop(banderaDB)
+            return 0
+        else:
+            # print("Base de datos no existente")
+            return 2
+    except:
+        # print("Error en la operación")
+        return 1
+
+"""
+prototype method
+"""
+def buscarDB(name):
+    if len(databases) != 0:
+        for db in databases:
+            if name == db.getName():
+                #econtrada
+                return databases.index(db)
+        return None
+
+def createTable(database, table, nCols):
+    try:
+        flagDB = buscarDB(database)
+        if flagDB != None:
+            db = databases[flagDB]
+            return db.createTable(500, table, nCols)
+        else:
+            # print("Base de datos no existente")
+            return 2
+    except:
+        # print("Error en operacion")
+        return 1
+
+def showTables(database):
+    tables = []
+    for db in databases:
+        if db.name == database:
+            tables = db.showTables()
+            break
+        else:
+            pass
+    if tables==[]:
+        return None        
+    return tables
+
+def extractTable(database, table):
+    try:
+        flagDB = buscarDB(database)
+        if flagDB != None:
+            db = databases[flagDB]
+            return db.extractTable2(table)
+        else:
+            # print("Base de datos no existente")
+            return None
+    except:
+        # print("Error en la operacion")
+        return None
+
+def extractRangeTable(database, table, columnNumber, lower, upper):
+    try:
+        flagDB = buscarDB(database)
+        if flagDB != None:
+            db = databases[flagDB]
+            return db.extractRangeTable2(table,columnNumber,lower,upper) ##Cambiar esto
+        else:
+            # print("Base de datos no existente")
+            return None
+    except:
+        # print("Error en la operacion")
+        return None
+
+def alterAddPK(database, table, columns):
+    try:
+        flagDB = buscarDB(database)
+        if flagDB != None:
+            db = databases[flagDB]
+            value = db.alterAddPK(table, columns)
+            if value == None:
+                return 0
+            return value
+        else:
+            # print("Base de datos no existente")
+            return 2
+    except:
+        # print("Error en operacion")
+        return 1
+
+def alterDropPK(database, table):
+    try:
+        indiceDB = buscarDB(database)
+        if indiceDB != None:
+            indiceTabla = databases[indiceDB].buscarTable(table)
+            if indiceTabla != None:
+                return databases[indiceDB].getTable(indiceTabla).alterDropPK()
+            return 3
+        return 2
+    except:
+        return 1
+
+def alterTable(database, old, new):
+    try:
+        flagDB = buscarDB(database)
+        if flagDB != None:
+            db = databases[flagDB]
+            return db.alterTable(old, new)
+        else:
+            # print("Base de datos no existente")
+            return 2
+    except:
+        # print("Error en operacion")
+        return 1
+
+"""
+alterAddColumn(database: str, table: str, default: any) -> int
+@description
+        Agrega un registro a la tabla y base de datos especificada.
+@param
+        database: nombre de la base de datos a utilizar
+        table: nombre de la tabla a utilizar
+        default: valor que se le asignara por defecto a la nueva columna
+@return
+        0 Operación exitosa
+        1 Error en la operación                                                 -
+        2 Database no existente 
+        3 Tabla no existente
+"""
+def alterAddColumn(database, table, default):
+    try:
+        indiceDB = buscarDB(database)
+        if indiceDB != None:
+            indiceTabla = databases[indiceDB].buscarTable(table)
+            if indiceTabla != None:
+                value = databases[indiceDB].getTable(indiceTabla).alterAddColumn(default)
+                return value
+            return 3
+        return 2
+    except:
+        return 1
+
+def alterDropColumn(database, table, columnNumber):
+    try:
+        indiceDB = buscarDB(database)
+        if indiceDB != None:
+            indiceTabla = databases[indiceDB].buscarTable(table)
+            if indiceTabla != None:
+                return databases[indiceDB].getTable(indiceTabla).alterDropColumn(columnNumber)
+            return 3
+        return 2
+    except:
+        return 1
+
+def dropTable(database, table):
+    try:
+        indiceDB = buscarDB(database)
+        if indiceDB != None:
+            indiceTabla = databases[indiceDB].buscarTable(table)
+            if indiceTabla != None:
+                # exito 0, o error 1
+                return databases[indiceDB].dropTable(indiceTabla)
+            else:
+                # print("Table no existe")
+                return 3
+        else:
+            # print("Database no existe") 
+            return 2
+    except:
+        # print("Error en la operación")
+        return 1
+
+def insert(database, table, register):
+    try:    
+        flagDB = buscarDB(database)
+        if flagDB != None:
+            indiceTabla = databases[flagDB].buscarTable(table)
+            if indiceTabla != None:
+                return databases[flagDB].getTable(indiceTabla).insert(register)
+                # return databases[flagDB].insert(table, register)
+            else:
+                return 3
+        else:
+            # print("Base de datos no existente")
+            return 2
+    except:
+        # print("Error en operacion")
+        return 1
+
+"""
+loadCSV()
+@return
+    0 Operación exitosa                             -
+    1 Error en la operación                         -
+    2 Database no existente                         -
+    3 Tabla no existe                               -
+    4 Llave primaria duplicada
+    5 Columnas fuera de límites                     -
+"""
+#18/12/2020
+def loadCSV(fileCSV, db, table,):
+    #try:
+    import csv
+        #verifica que la base de datos exista
+    indiceDB = buscarDB(db)
+    if indiceDB != None:
+        #verifica que la tabla exista en la base de datos
+        indiceTabla = databases[indiceDB].buscarTable(table)
+        if  indiceTabla != None:
+                #-------------------leee el csv
+            with open(fileCSV, 'r') as fileCsv:
+                lector = csv.reader(fileCsv, delimiter = ',')
+                tabla = databases[indiceDB].getTable(indiceTabla)
+                for f in lector:
+                    if len(f) <= databases[indiceDB].getTable(indiceTabla).getNumeroColumnas():
+                        value = tabla.insert(f)
+                        print(value, end="")
+                            # print(len(f))
+                            # print("operación exitosa")
+                    else:
+                            # print("Columnas fuera de límites")
+                        return 5
+                # print("Operación Exitosa")
+            return 0
+            # print("Tabla no existe")
+        return 3
+        # print("Database no existente")  
+    return 2
+    """except Exception as e:
+        print(e)
+        # print("Error en la operación")
+        return 1"""
+
+def extractRow(database, table, columns):
+    try:
+        indiceDB = buscarDB(database)
+        if indiceDB != None:
+            indiceTabla = databases[indiceDB].buscarTable(table)
+            if indiceTabla != None:
+                return databases[indiceDB].getTable(indiceTabla).buscar(columns)
+            return 3
+        return 2
+    except:
+        return 1
+
+def update(database, table,register, columns):
+    try:
+        if isinstance(register,dict) and isinstance(columns, list):
+            flagDB = buscarDB(database)
+            if flagDB != None:
+                indiceTabla = databases[flagDB].buscarTable(table)
+                if indiceTabla != None:
+                    counter = 0
+                    tabla = databases[flagDB].getTable(indiceTabla)
+                    for i in register:
+                        edit = tabla.editar(i,register[i],columns)
+
+                        if edit == 0:
+                            counter += 1
+                            continue
+                        elif edit == 4:
+                            return 4
+                        elif edit == 1:
+                            return 1
+                    if counter == len(register):
+                        return 0
+                else:
+                    return 3 
+            else:
+                # print("Base de datos no existente")
+                return 2
+        else:
+            return 1
+    except:
+        # print("Error en operacion")
+        return 1
+
+def delete(database, table, columns):
+    try:
+        indiceDB = buscarDB(database)
+        if indiceDB != None:
+            indiceTabla = databases[indiceDB].buscarTable(table)
+            if indiceTabla != None:
+                return databases[indiceDB].getTable(indiceTabla).eliminarDato(columns)
+            return 3
+        return 2
+    except:
+        return 1
+
+def truncate(database, table):
+    try:
+        indiceDB = buscarDB(database)
+        if indiceDB != None:
+            indiceTabla = databases[indiceDB].buscarTable(table)
+            if indiceTabla != None:
+                return databases[indiceDB].getTable(indiceTabla).truncate()
+            return 3
+        return 2
+    except:
+        return 1
+
+#generar inmagen con graphviz
+#18/12/2020
+def generateGrafoDatabases():
+    nombre = "grafoDatabases.dot"
+    archivo = open(nombre, "w")
+    archivo.write("digraph G{\n")
+    archivo.write("rankdir=LR;\n")
+    archivo.write("size=\"8,5\"\n")
+    archivo.write("node [shape = record]; \n")
+    #primer nodo
+    archivo.write(str(0) + "[label=\"{ " + str(databases[0].getName()) + " | }\"];\n")
+    #recorre la lista
+    i = 1
+    while(i < (len(databases))):
+        #agrega la forma de tipo nodo a todas las db mostradas
+        archivo.write(str(i) + "[label=\"{ " + str(databases[i].getName()) + " | }\"];\n")
+        archivo.write(str(i - 1) + " -> " + str(i) + ";\n")
+        i += 1
+    #nodo que apunta null
+    archivo.write(str(i) + "[label=\"{ null | }\"];\n")
+    archivo.write(str(i - 1) + " -> " + str(i) + ";\n")
+        
+    archivo.write("}\n")
+    archivo.close()
     
-    # @desciption | Crea una tabla según el modo de almacenamiento, la base de datos debe existir, y solo se define el número de columnas.
-    def createTable(self, db, name, nCols):
-        print("createTable")
+    os.system("dot -Tpng " + nombre + " -o " + nombre + ".png")
 
-    # @desciption | Cambia el nombre de una base de datos.
-    def alterTable(self, db, old, new):
-        print("alterTable")
+def persistence():
+    archivo = open("DB", "wb")
+    pickle.dump(databases, archivo)
+    archivo.close()
 
-    # @desciption | Elimina por completo la tabla indicada.
-    def dropTable(self, db, name):
-        print("dropTable")
-    
-    # @desciption | Agrega una columna a cada registro de la tabla.
-    def alterAdd(self, db, name, columnName):
-        print("alterTable")
+def chargePersistence():
+    archivo = open("DB", "rb")
+    data = pickle.load(archivo)
+    databases = data[:]
+    archivo.close()
+    print("bases de datos cargadas")
 
-    # @desciption | Elimina un n-esima columna de cada registro de la tabla.
-    def alterDrop(self, db, name, column):
-        print("alterDrop")
+def graphTable(db, table):
+    try:
+        indice = buscarDB(db)
+        if indice != None:
+            indiceTabla = databases[indice].buscarTable(table)
+            if indiceTabla != None:
+                tabla = databases[indice].getTable(indiceTabla)
+                tabla.genGraph(table)
+                
 
-    # @desciption | Extrae y devuelve en una lista de listas el contenido de la tabla
-    def extractTable(self, db, name, column):
-        print("extractTable")
-    
-    # @desciption | Carga un archivo csv de una ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla
-    #               existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe,
-    #               la crea con el modo especificado.
-    def loadCSV(self, fileCSV, db, table, mode):#mode debe ser un int
-        print("chargueCSV")
+    except:
+        print("error")
 
-    # @desciption | Inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla
-    #               y columns es una lista de campos a insertar. Devuelve un True si no hubo problema y una False si no se logró insertar.
-    def insertTuple(self, db, table, campos):
-        print("insertTuple")
+def graphDB():
+    BasesdeDatos = [] ##Esto agrega las bases de datos de tytus
+    for l in databases:
+        BasesdeDatos.append(l.name)
+    g = Digraph('G', filename='db.gv')
+    g.graph_attr['rankdir'] = 'LR'
+    g.attr('node', shape='box') ##Aqui creo mis nodos
+    cont=0
+    for i in BasesdeDatos:
+        g.node(i)
+        if cont>0:
+            g.edge(BasesdeDatos[cont-1],i)
+        else:
+            pass
+        cont+=1
+    g.attr(label=r'\n\nLista de \nBases de Datos')
+    g.attr(fontsize='20')
+    g.view()
 
-    # @desciption | Actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualió correctamente
-    #               y False si no se logró actualizar.
-    def updateTuple(self, db, table, id, nCol, val):
-        print("updateTuple")
-
-    # @desciption | Elimina un nodo o elemento de página indicado de una tabla y base de datos especificada.
-    def deleteTuple(self, db, table, id):
-        print("deleteTuple")
-
-    # @desciption | Vacía la tabla de todos los registros.
-    def truncateTuple(self, db, table):
-        print("truncateTuple")
-
-    # @desciption | Extrae y devuelve una tupla especificada
-    def extractRow(db, table, id):
-        print("extractRow")
-    
-    def extractTuple(self, table, idTuple):
-        print("extractTuple")
-
-class Database:
-    
-    def __init__(self):
-        self.tables = []
-
-    def showTable(self):
-        print("showTable")
-
-    def alterDatabase(self, new):
-        print("alterDatabase")
-    
-    def createTable(self, name, nCols):
-        print("createTable")
-    
-    def alterTable(self, old, new):
-        print("alterTable")
-
-    def dropTable(self, name):
-        print("dropTable")
-
-    def alterAdd(self, name, columnName):
-        print("alterAdd")
-
-    def alterDrop(self, name, column):
-        print("alterDrop")
-    
-    def extractTable(self, name, column):
-        print("extractTable")
-
-class HashTable:
-
-    def __init__(self):
-        self.lenght = 0
-        self.percentage = 0.0
-        arrayNodes = []
-
-    def funcionHash(key):
-        print("funcionHash")
-
-    def addNode(value):
-        print("addNode")
-    
-    def rehashing():
-        print("rehashing")
-
-    def searchValue(key):
-        print("searchValue")
-
-    def deleteNode(key):
-        print("deleteNode")
-
-    def updateNode(key):
-        print("updateNode")
-
-    def generateGraph():
-        print("generateGraph")
-
-class Table:
-
-    def __init__(self):
-        self.arrayTuples = []
-        self.position = 0
-        self. key = 0
-        self.name = ""
-        self.arrayColumns = []
-        self.idTable = 0
-
-    def createTable(name, nCols):
-        print("createTable")
-
-    def alterTable(new):
-        print("alterTable")
-
-    def alterAdd(colunmName):
-        print("alterAdd")
-
-    def alterDrop(column):
-        print("alterDrop")
-
-    def extractTable():
-        print("extractTable")
-
-class Column:
-    def __init__(self):
-        self.name = ""
-        self.index = 0
-
-    def createColumn(self, name):
-        print("createColumn")
-
-class Tuple:
-
-    def __init__(self):
-        self.id = 0
-        self.values = []
-
-    def updateTuple(nCol, val):
-        print("updateTuple")
+def graphTBL(db):
+    Tablas=[] 
+    try:
+        for i in showTables(db): ##metodo para imprimir tablas segun la base de datos mandando lo que hay en el drop1
+            Tablas.append(i)
+    except:
+        pass    
+ 
+    g = Digraph('G', filename='db.gv')
+    g.graph_attr['rankdir'] = 'LR'
+    g.attr('node', shape='box') ##Aqui creo mis nodos
+    cont=0
+    for i in Tablas:
+        g.node(i)
+        if cont>0:
+            g.edge(Tablas[cont-1],i)
+        else:
+            pass
+        cont+=1
+    g.attr(label=r'\n\nLista de \nTablas')
+    g.attr(fontsize='20')
+    g.view()
