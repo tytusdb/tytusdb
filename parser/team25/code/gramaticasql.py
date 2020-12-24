@@ -1,7 +1,7 @@
 import ply.yacc as yacc
 from reporteErrores.errorReport import ErrorReport
 from reporteErrores.instance import listaErrores 
-from astDML import UpdateTable,InsertTable
+from astDML import UpdateTable,InsertTable,DeleteTabla
 from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, BETWEEN,ExpresionPositiva, ExpresionBetween, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano , ExpresionAgrupacion
@@ -1285,6 +1285,11 @@ def p_tipo_20(p):
     'tipo : DECIMAL PABRE NUMERO COMA NUMERO PCIERRA'
     bnf.addProduccion(f'\<tipo> ::="DECIMAL" "(" "NUMERO" "," "NUMERO" ")"')
     p[0] = (TYPE_COLUMN.DECIMAL, (p[3],p[5]))
+
+def p_tipo_21(p):
+    'tipo : NUMERIC PABRE NUMERO COMA NUMERO PCIERRA'
+    bnf.addProduccion(f'\<tipo> ::="NUMERIC" "(" "NUMERO" "," "NUMERO" ")"')
+    p[0] = (TYPE_COLUMN.DECIMAL, (p[3],p[5]))
 # __________________________________________ <INTERVAL>
 # <INTERVAL> ::= 'interval' <FIELDS> ('numero')
 #             |  'interval' <FIELDS>
@@ -1440,12 +1445,12 @@ def p_update(p):
 
 def p_sentenciaInsert(p):
     ''' insert : INSERT INTO ID VALUES PABRE lista_exp PCIERRA'''
-    p[0] = InsertTable(p[3],p[6])
+    p[0] = InsertTable(p[3],p[6],None,p.slice[1].lineno)
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" "VALUES"  "( "\<lista_exp> ")"')
     
 def p_sentenciaInsert2(p):
     ''' insert : INSERT INTO ID parametros VALUES PABRE lista_exp PCIERRA'''
-    p[0] = InsertTable(p[3],p[7],p[4])
+    p[0] = InsertTable(p[3],p[7],p[4],p.slice[1].lineno)
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" \<parametros> "VALUES"  "( "\<lista_exp> ")"') 
 # ___________________________________________PARAMETROS
 
@@ -1477,8 +1482,10 @@ def p_sentenciaDelete(p):
     ''' sentenciaDelete : DELETE FROM ID WHERE expresion
                         | DELETE FROM ID '''
     if len(p) == 6:
+        p[0] = DeleteTabla(p[3],p[5],p.slice[1].lineno)
         bnf.addProduccion('\<delete> ::= "DELETE" "FROM" "ID" "WHERE" <expresion>')
     else:
+        p[0] = DeleteTabla(p[3],None,p.slice[1].lineno)
         bnf.addProduccion('\<delete> ::= "DELETE" "FROM" "ID"')
 
 
@@ -2090,8 +2097,23 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada('''
+create database if not exists test;
 use test;
-select alv.numerica as valor , alv.cadena from tb2 as alv where alv.numerica between 10 and 55;
+
+insert into decimalTest values(101,10.55,666698.52,7500.00,'ok');
+insert into decimalTest (id,valDecimal,valNumeric,precio,estado) values(12,10.55,66669.52,8500.00,'happy');
+insert into decimalTest (id,valDecimal,valNumeric,precio,estado) values(13,109898.55,666698.52,9500.00,'ok');
+insert into decimalTest values(14,10989.55,666698.52,9500.00,'happy');
+
+select * from decimalTest;
+
+select * from decimalTest where id>11 and id<13;
+
+delete from decimalTest where id=101;
+
+select * from decimalTest;
+
+
 ''')
 arbolParser.ejecutar()
 
