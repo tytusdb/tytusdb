@@ -1,7 +1,13 @@
 import sys
 sys.path.append('../G26/Instrucciones')
+sys.path.append('../G26/Utils')
+sys.path.append('../G26/Librerias/storageManager')
 
+from jsonMode import *
 from instruccion import *
+from Lista import *
+from TablaSimbolos import *
+from datetime import *
 
 class Insert(Instruccion):
 
@@ -9,8 +15,309 @@ class Insert(Instruccion):
         self.tableid = tableid
         self.values = values
 
-    def execute(self):
-        return self.tableid
+    def execute(self, data):
+        valoresTabla = []
+        for val in self.values:
+            try:
+                valor = val.execute()
+            except:
+                valor = val.execute(data, None)
+            valoresTabla.append(valor.val)
+
+        listaColumnas = data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.tableid.upper()]['columns']
+
+        tamanioInferior = False
+
+        datosColumna = extractTable(data.databaseSeleccionada, self.tableid.upper())
+
+        posColumna = 0
+        mensajeError = None
+        comprobarNull = False
+
+        for columna in listaColumnas:
+
+            tamanioInferior = False
+
+            if len(valoresTabla) != len(listaColumnas):
+                if len(valoresTabla) < len(listaColumnas):
+                    tamanioInferior = True
+                elif len(valoresTabla) > len(listaColumnas):
+                    return 'Error(54023): too_many_arguments'
+
+            dentroRango = True
+            valExtra = False
+
+            try:
+                prueba = valoresTabla[posColumna]
+            except IndexError:
+                dentroRango = False
+                comprobarNull = True
+                valExtra = True
+                #print('ERROR INDEX')
+
+            if dentroRango:
+                if columna.type == 'smallint':
+                    if isinstance(valoresTabla[posColumna], int):
+                        if valoresTabla[posColumna] >= -32768 and valoresTabla[posColumna] <= 32767:
+                            ''
+                        else:
+                            mensajeError = 'Error(???): El tamaño del dato insertado en ' + columna.name + ' es incorrecto.'
+                            comprobarNull = True
+                    else:
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                elif columna.type == 'integer' or columna.type == 'numeric':
+                    if isinstance(valoresTabla[posColumna], int):
+                        if valoresTabla[posColumna] >= -2147483648 and valoresTabla[posColumna] <= 2147483647:
+                            ''
+                        else:
+                            mensajeError = 'Error(???): El tamaño del dato insertado en ' + columna.name + ' es incorrecto.'
+                            comprobarNull = True
+                    else:
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+
+                elif columna.type == 'bigint':
+                    if isinstance(valoresTabla[posColumna], int):
+                        if valoresTabla[posColumna] >= -9223372036854775808 and valoresTabla[posColumna] <= 9223372036854775807:
+                            ''
+                        else:
+                            mensajeError = 'Error(???): El tamaño del dato insertado en ' + columna.name + ' es incorrecto.'
+                            comprobarNull = True
+                    else:
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+
+                elif columna.type == 'decimal':
+                    if isinstance(valoresTabla[posColumna], int): valoresTabla[posColumna] = float(valoresTabla[posColumna])
+                    if isinstance(valoresTabla[posColumna], float):
+                        if valoresTabla[posColumna] >= -9223372036854775808 and valoresTabla[posColumna] <= 9223372036854775807:
+                            ''
+                        else:
+                            mensajeError = 'Error(???): El tamaño del dato insertado en ' + columna.name + ' es incorrecto.'
+                            comprobarNull = True
+                    else:
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                elif columna.type == 'real':
+                    if isinstance(valoresTabla[posColumna], int) or isinstance(valoresTabla[posColumna], float):
+                        round(valoresTabla[posColumna], 6)
+                        ''
+                    else:
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                elif columna.type == 'double':
+                    if isinstance(valoresTabla[posColumna], int) or isinstance(valoresTabla[posColumna], float):
+                        round(valoresTabla[posColumna], 15)
+                        ''
+                    else:
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                elif columna.type == 'money':
+                    if isinstance(valoresTabla[posColumna], str):
+                        if isinstance(valoresTabla[posColumna][0] == '$'):
+                            if isinstance(valoresTabla[posColumna][1], int):
+                                ''
+                            else:
+                                if tamanioInferior:
+                                    comprobarNull = True
+                                else:
+                                    return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                    else:
+                        if valoresTabla[posColumna] >= -92233720368547758.08 and valoresTabla[posColumna] <= 92233720368547758.07:
+                            valoresTabla[posColumna] = '$' + str(valoresTabla[posColumna])
+                            ''
+                        else :
+                            if tamanioInferior:
+                                comprobarNull = True
+                            else:
+                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                elif columna.type == 'character' or columna.type == 'varchar' or columna.type == 'char': #-------------FALTA EL CHAR
+                    if isinstance(valoresTabla[posColumna], str):
+                        if columna.size >= len(valoresTabla[posColumna]):
+                            ''
+                        else:
+                            if tamanioInferior:
+                                comprobarNull = True
+                            else:
+                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                    else:
+                        mensajeError = 'Error(???): El tipo de dato insertado en la columna ' + columna.name + ' es incorrecto.'
+                        comprobarNull = True
+                elif columna.type == 'text':
+                    if isinstance(valoresTabla[posColumna], str):
+                        ''
+                    else:
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                elif columna.type == 'time':
+                    try:
+                        hora = valoresTabla[posColumna]
+                        horaVal = datetime.strptime(hora, '%H:%M:%S')
+                        valoresTabla[posColumna] = horaVal.strftime('%H:%M:%S')
+                    except:
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                elif columna.type == 'date':
+                    try:
+                        fecha = valoresTabla[posColumna]
+                        fechaN = fecha.replace('/', '-')
+                        fechaVal = datetime.strptime(fechaN, '%Y-%m-%d')
+                        valoresTabla[posColumna] = fechaVal.strftime('%Y-%m-%d %H:%M:%S')
+                    except:
+                        try:
+                            fecha = valoresTabla[posColumna]
+                            fechaN = fecha.replace('/', '-')
+                            fechaVal = datetime.strptime(fechaN, '%Y-%m-%d %H:%M:%S')
+                            valoresTabla[posColumna] = fechaVal.strftime('%Y-%m-%d %H:%M:%S')
+                        except:
+                            if tamanioInferior:
+                                comprobarNull = True
+                            else:
+                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                elif columna.type == 'boleano':
+                    if isinstance(valoresTabla[posColumna], str):
+                        if valoresTabla[posColumna].lower() == 'true' or valoresTabla[posColumna].lower() == 'yes' or valoresTabla[posColumna].lower() == 'on' or valoresTabla[posColumna].lower() == 'false' or valoresTabla[posColumna].lower() == 'no' or valoresTabla[posColumna].lower() == 'off':
+                            ''
+                        else:
+                            if tamanioInferior:
+                                comprobarNull = True
+                            else:
+                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                    elif bool(valoresTabla[posColumna]):
+                        ''
+                    else:
+                        if valoresTabla[posColumna] == 1 or valoresTabla[posColumna] == 0:
+                            ''
+                        else:
+                            if tamanioInferior:
+                                comprobarNull = True
+                            else:
+                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                else:
+                    saltarValor = True
+                    for valoresEnum in data.tablaSimbolos[data.databaseSeleccionada]['enum'][columna.type]:
+                        if valoresTabla[posColumna] == valoresEnum.val:
+                            ''
+                            saltarValor = False
+                    if saltarValor :
+                        if tamanioInferior:
+                            comprobarNull = True
+                        else:
+                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+
+            compDefault = False
+            if columna.unique != None:
+                tablaExtraida = extractTable(data.databaseSeleccionada, self.tableid.upper())
+                for fila in tablaExtraida:
+                    if fila[posColumna] == valoresTabla[posColumna]:
+                        return 'Error(???): Debe insertarse un valor unico en ' + columna.name
+
+            nullInsertado = False
+            if columna.null != None and comprobarNull and tamanioInferior:
+                compDefault = True
+                if columna.null:
+                    valoresTabla = self.insertarValor(valoresTabla, 'null', posColumna, valExtra)
+                    nullInsertado = True
+
+            defaultInsertado = False
+            comprobarNull = False
+            tamanioInferior = False
+
+            if columna.default != None and compDefault:
+                if nullInsertado:
+                    valoresTabla[posColumna] = columna.default.val.val
+                else:
+                    valoresTabla = self.insertarValor(valoresTabla, columna.default.val.val, posColumna, valExtra)
+                defaultInsertado = True
+
+            if columna.check != None:
+                diccionarioTabla = {}
+                diccionarioTabla[self.tableid.upper()] = {'fila': valoresTabla, 'alias': None}
+                for chk in columna.check :
+                    if chk == None:
+                        continue
+                    if chk.val.executeInsert(data, diccionarioTabla) :
+                        ''
+                    else:
+                        return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
+
+             #validando foreign keys
+            for fk in columna.fk :
+                'validar las foreign keys alv :,VVV'
+                if fk == None :
+                    continue
+                #obteniendo el index de la PK
+                colindex = 0
+                for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][fk.val.table]['columns'] :
+                    if col.name == fk.val.column:
+                        break
+                    colindex += 1
+                    
+                #comparando si existe
+                filas = extractTable(data.databaseSeleccionada, fk.val.table) #obtengo filas de la tabla al que hago referencia
+                found = False #bndera para saber si se hizo match entre la referencia y el dato nuevo
+                for fila in filas :
+                    if fila[colindex] == valoresTabla[posColumna]:  #revisando si se hizo match
+                        found = True
+                
+                if not found : #si no hay match, hay error
+                    error = Error('Semántico', 'Error(???): La FK '+str(valoresTabla[posColumna])+' no concuerda con la PK de la tabla referenciada.', 0, 0)
+                    return error
+
+            posColumna += 1
+
+        valRetorno = insert(data.databaseSeleccionada, self.tableid.upper(), valoresTabla)
+
+        if valRetorno == 0:
+            return 'Se ha insertado correctamente.'
+        elif valRetorno == 1:
+            return 'Error(???): unknown_error'
+        elif valRetorno == 2:
+            return 'Error(???): No existe la base de datos ' + data.databaseSeleccionada
+        elif valRetorno == 3:
+            return 'Error(???): No existe la tabla ' + self.tableid.upper()
+        elif valRetorno == 4:
+            return 'Error(???): Llave primaria duplicada.'
+        elif valRetorno == 5:
+            return 'Error(54023): too_many_arguments'
+
+        return self
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def insertarValor(self, data, valorInsertar, posicion, extra):
+        if extra:
+            data.append(valorInsertar)
+            return data
+        else:
+            contador = 0
+            contadorPos = 0
+            nuevoArreglo = []
+            for columnas in data:
+                if contador == posicion:
+                    nuevoArreglo.append(valorInsertar)
+                    nuevoArreglo.append(data[contadorPos])
+                    contadorPos -= 1
+                else:
+                    nuevoArreglo.append(data[contadorPos])
+                contador += 1
+                contadorPos += 1
+            return nuevoArreglo

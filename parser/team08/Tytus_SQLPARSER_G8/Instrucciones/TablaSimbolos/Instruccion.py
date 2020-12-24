@@ -1,16 +1,26 @@
 from abc import ABC, abstractmethod
+#from graphviz import Digraph
+
 
 class Instruccion(ABC):
         
     @abstractmethod
     def ejecutar(self, tabla, arbol):
-        #print('Ejecutando...')
+        #print('Ejecutando...?')
         pass
     
     def __init__(self, tipo, linea, columna):
         self.tipo = tipo
         self.linea = linea
         self.columna = columna
+        self.nodoPadre = None
+        self.nodosLista = []
+
+    #@abstractmethod
+    #def nodoGraphviz(self, nodoPadre, nodosLista):
+    #    self.nodoPadre = nodoPadre
+    #    self.nodosLista = nodosLista
+
         
 '''   
 class Prueba(Instruccion):

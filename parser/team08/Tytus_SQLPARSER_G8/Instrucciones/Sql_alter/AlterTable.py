@@ -1,19 +1,28 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.Excepcion import Excepcion
+from storageManager.jsonMode import *
 
 class AlterTable(Instruccion):
-    def __init__(self, id, tipo, opcion, id2, listaId, listaId2, linea, columna):
+    def __init__(self, id, tipo, tipos, opcion, id2, listaId, listaId2, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna)
-        self.valor = id
-        self.id2 = id2
+        self.TablaAntigua = id
+        self.TablaNueva = id2
+        self.tipos = tipos
         self.opcion = opcion
         self.listaId = listaId
         self.listaId = listaId2
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+        print(self.tipos)
+        if(arbol.getBaseDatos() != None):
+            #aqui vamos a renombrar el alter
+            alterTable(arbol.getBaseDatos(),self.TablaAntigua,self.TablaNueva)
+        else:
+            Excepcion(3,"Semántico","No se encuentra la base de datos",self.linea,self.columna)
+
 '''
-instruccion = AlterTable("hola mundo",None, 1,2)
+instruccion = AlterDatabase("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
 '''

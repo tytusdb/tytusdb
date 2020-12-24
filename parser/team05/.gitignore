@@ -2,6 +2,10 @@
 /venv/
 /.idea/
 /proyecto/.idea/
-/proyecto/parser.out
-/proyecto/parsetab.py
+/proyecto/jsonMode.py/
+/proyecto/__pycache__/
+/proyecto/data/
+**/parser.out
+**/parsetab.py
 **/__pycache__/**
+**/reports/**

@@ -1,4 +1,8 @@
-./_pycache_
+./__pycache__
+**/__pycache__/**
+/__pycache__
 parser.out
 parsetab.py
+**/data/**
+/data
 

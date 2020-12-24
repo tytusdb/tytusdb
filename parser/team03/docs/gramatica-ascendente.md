@@ -22,9 +22,10 @@
               |    <STM_ALTER>  ‘;’
               |    <STM_DROP>   ‘;’
               |    <STM_SHOW>   ‘;’
-              |    <STM_INSERT> tUnion [tAll] <STM_INSERT>
-              |    <STM_INSERT> tIntersect [tAll] <STM_INSERT>
-              |    <STM_INSERT> tExcept [tAll] <STM_INSERT>
+              |    <STM_USE_DB> ‘;’
+              |    <STM_SELECT> tUnion [tAll] <STM_SELECT>
+              |    <STM_SELECT> tIntersect [tAll] <STM_SELECT>
+              |    <STM_SELECT> tExcept [tAll] <STM_SELECT>
 
 
 <br>
@@ -69,9 +70,9 @@
                 |    ‘(’ <STM_SELECT> ‘)’ [tAs tTexto]
 
 ---
-**\<LIST_NAMES>**        ::=     \<LIST_NAMES> ‘,’ \<NAMES>
+**\<LIST_NAMES>**        ::=     \<LIST_NAMES> ‘,’ \<NAMES> [tAs tTexto]
 
-                |    <NAMES>
+                |    <NAMES> [tAs tTexto]
 
 ---
 **\<NAMES>**        ::=    tAsterisk
@@ -190,10 +191,10 @@
                 |    tAlter tTable tIdentifier tAdd tConstraint tIdentifier 
                      tUnique ‘(‘ tIdentifier ‘)’
                 |    tAlter tTable tIdentifier tAdd tForeing tKey ‘(‘iIdentifier’)’
-                     tReferences tIdentifier 
+                     tReferences tIdentifier ‘(‘iIdentifier’)’
                 |    tAlter tTable tIdentifier tAlter tColumn tIdentifier tSet tNot tNull
-                |    tAlter tTable tDrop tConstraint tIdentifier
-                |    tAlter tTable tRename tColumn tIdentifier tTo tIdentifier
+                |    tAlter tTable tIdentifier tDrop tConstraint tIdentifier
+                |    tAlter tTable tIdentifier tRename tColumn tIdentifier tTo tIdentifier
                 |    tAlter tTable tIdentifer tAlter tColumn tType <TYPE>[‘(‘tEntero’)’]
 
 
@@ -228,6 +229,9 @@
 
 **\<STM_SHOW>**        ::=    tShow tDatabases [tLike [‘%’] tTexto [‘%’]]
 
+<br>
+
+**\<STM_USE_DB>**        ::=    tUse tDatabases tIdentificador
 
 <br>
 
@@ -275,11 +279,11 @@
                 |<EXP_LOG>
 
 ---
-**\<EXP_LOG>** ::= \<EXP_REL> tAnd \<EXP_REL>
+**\<EXP_LOG>** ::= \<EXP_LOG> tAnd \<EXP_LOG>
 
-                |<EXP_REL> tOR  <EXP_REL>
-                |tNot <EXP_REL>
-                |<EXP_REL> 
+                |<EXP_LOG> tOR  <EXP_LOG>
+                |tNot <EXP_LOG>
+                |<EXP_LOG> 
 
 ---
 **\<EXP_REL>** ::=  \<EXP> ‘\<’ \<EXP> 
@@ -289,7 +293,7 @@
                 |<EXP> ‘<=’ <EXP>
                 |<EXP> ‘>=’ <EXP>
                 |<EXP> ‘<>’ <EXP>
-                |<EXP> [tNot] tLike [‘%’] <EXP> [‘%’]
+                |<EXP> [tNot] tLike [‘%’] tTexto [‘%’]
                 |<EXP>
 
 ---
@@ -302,20 +306,20 @@
                 | <EXP> ‘^’ <EXP>
                 | tAbs ‘(’ <EXP> ’)’               
                 | tCbrt ‘(’ <EXP> ’)’                
-                | tCeil ‘(’ <EXP> ’)’                //numero
-                | tCeiling ‘(’ <EXP> ’)’            //numero
-                | tDegrees ‘(’ <EXP> ’)’            //numero
-                | tDiv ‘(’ <EXP> ‘,’<EXP> ’)’        //numeros
-                | tExp ‘(’ <EXP>  ’)’                //numero
-                | tFactorial ‘(’ <EXP>  ’)’         //[+|-]enteros
-                | tFloor ‘(’ <EXP>  ’)’            //numero
+                | tCeil ‘(’ <EXP> ’)’               
+                | tCeiling ‘(’ <EXP> ’)’           
+                | tDegrees ‘(’ <EXP> ’)’           
+                | tDiv ‘(’ <EXP> ‘,’<EXP> ’)’        
+                | tExp ‘(’ <EXP>  ’)’                
+                | tFactorial ‘(’ <EXP>  ’)’         
+                | tFloor ‘(’ <EXP>  ’)’            
                 | tGcd ‘(’ <EXP> ‘,’<EXP> ’)’
                 | tLcm ‘(’ <EXP> ‘,’<EXP> ’)’
-                | tLn ‘(’ <EXP> ’)’                //numero>0
-                | tLog ‘(’ <EXP> ’)’                //numero>0
-                | tLog10 ‘(’ <EXP> ’)’            //numero>0
-                | tMinscale ‘(’ <EXP> ’)’            //numero
-                | tMod ‘(’ <EXP> ‘,’<EXP> ’)’        //numeros
+                | tLn ‘(’ <EXP> ’)’                
+                | tLog ‘(’ <EXP> ’)’                
+                | tLog10 ‘(’ <EXP> ’)’            
+                | tMinscale ‘(’ <EXP> ’)’            
+                | tMod ‘(’ <EXP> ‘,’<EXP> ’)’        
                 | tPi ‘()’
                 | tPower ‘(’ <EXP> ‘,’<EXP> ’)’
                 | tRadians ‘(’ <EXP> ’)’
@@ -351,7 +355,7 @@
                 | tAcosh ‘(’ <EXP> ’)’
                 | tAtanh ‘(’ <EXP> ’)’
                 | tNot <EXP> 
-                | [+            |-]<EXP> 
+                | [+|-]<EXP> 
                 | tTexto
                 | <COL_NAME>
                 | tTrue

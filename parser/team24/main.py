@@ -1,17 +1,45 @@
-# This is a sample Python script.
-from descendente import *
-# Press Mayús+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import grammar2 as g
+import tablaDGA as TabladeSimbolos
+from reportAST import *
+from reportError import *
+from reportBNF import *
+from reportTable import *
+default_db = 'DB1'
+ts = TabladeSimbolos.Tabla()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
+def meterSimbolos():
     
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+    
+    ts.agregar(TabladeSimbolos.Simbolo(0,'DB1',TabladeSimbolos.TIPO.DATABASE,None,None, None, None, None, None, None, None,None,None))
+
+    ts.agregar(TabladeSimbolos.Simbolo(1,'tbempleado',TabladeSimbolos.TIPO.TABLE,0,None, None, None, None, None, None, None, None,None))
+    ts.agregar(TabladeSimbolos.Simbolo(2,'id',TabladeSimbolos.TIPO.COLUMN,1, None, None, None, None, None, None, None,0,None))
+    ts.agregar(TabladeSimbolos.Simbolo(3,'nombre',TabladeSimbolos.TIPO.COLUMN,1,None, None, None, None, None, None, None,1,None))
+    ts.agregar(TabladeSimbolos.Simbolo(4,'apellido',TabladeSimbolos.TIPO.COLUMN,1,None, None, None, None, None, None, None,2,None))
+
+    ts.agregar(TabladeSimbolos.Simbolo(5,'tbusuario',TabladeSimbolos.TIPO.TABLE,0,None, None, None, None, None, None, None, None,None))
+    
+    ts.agregar(TabladeSimbolos.Simbolo(6,'id',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,0,None))
+    ts.agregar(TabladeSimbolos.Simbolo(7,'nombre',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,1,None))
+    ts.agregar(TabladeSimbolos.Simbolo(8,'apellido',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,2,None))
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-    print("Holi")
+def analiz(input):
+    meterSimbolos()
+    raiz = g.parse(input)
+    #report_errors()
+    #executeGraphTree()
+    #graphTable(ts)
+    results = []
+    for val in raiz:
+        if isinstance(val,CError):
+            results.append("Error"+ val.tipo+". Descripcion: " +val.descripcion)
+        else:
+            results.append(val)
+    return results
+    
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    
+
+
+
