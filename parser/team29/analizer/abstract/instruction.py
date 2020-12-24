@@ -61,13 +61,14 @@ class SelectParams(Instruction):
 
 
 class Select(Instruction):
-    def __init__(self, params, fromcl, wherecl, groupbyCl, havingCl, row, column):
+    def __init__(self, params, fromcl, wherecl, groupbyCl, havingCl, limitCl, row, column):
         Instruction.__init__(self, row, column)
         self.params = params
         self.wherecl = wherecl
         self.fromcl = fromcl
         self.groupbyCl = groupbyCl
         self.havingCl = havingCl
+        self.limitCl = limitCl
 
     def execute(self, environment):
         try:
@@ -133,12 +134,18 @@ class Select(Instruction):
 
             if value != []:
                 if self.wherecl == None:
-                    return [newEnv.dataFrame.filter(labels), newEnv.types]
+                    df_ = newEnv.dataFrame.filter(labels)
+                    if self.limitCl:
+                        df_ = self.limitCl.execute(df_,newEnv)
+                    return [df_, newEnv.types]
                 w2 = newEnv.dataFrame.filter(labels)
                 # Si la clausula WHERE devuelve un dataframe vacio
                 if w2.empty:
                     return None
-                return [w2, newEnv.types]
+                df_ = w2
+                if self.limitCl:
+                        df_ = self.limitCl.execute(df_,newEnv)
+                return [df_, newEnv.types]
             else:
                 newNames = {}
                 i = 0
@@ -146,7 +153,10 @@ class Select(Instruction):
                     newNames[columnName] = labels[i]
                     i += 1
                 groupDf.rename(columns=newNames, inplace=True)
-                return [groupDf, newEnv.types]
+                df_ = groupDf
+                if self.limitCl:
+                    df_ = self.limitCl.execute(df_,newEnv)
+                return [df_, newEnv.types]
         except:
             raise
 
@@ -1077,9 +1087,18 @@ class AlterTable(Instruction):
 
 
 class limitClause(Instruction):
-    def __init__(self, row, column) -> None:
+    def __init__(self, num, offset, row, column) -> None:
         super().__init__(row, column)
+        self.num = num
+        self.offset = offset
 
+    def execute(self, dataFrame, environment):
+        temp = dataFrame
+        if self.offset != None:
+            temp = dataFrame[self.offset:]
+        if self.num == "ALL":
+            return temp
+        return temp.head(self.num)
 
 class Union(Instruction):
     """
