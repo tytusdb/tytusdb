@@ -263,6 +263,12 @@ class matriz():
         for fila in self.filas:
             x.add_row(fila)
         print(x)
+    def getTablaToString(self) ->str:
+        x = PrettyTable()
+        x.field_names = sinRepetidos(self.columnas)
+        for fila in self.filas:
+            x.add_row(fila)
+        return x.get_string()
     def obtenerColumnas(self, ids:list):
         error = False
         resultante = []
@@ -610,8 +616,9 @@ class SelectFromWhere(Instruccion):
             return SALIDA_FILTRADA
              
         salida = SELECT(columnas,SALIDA_FILTRADA) 
-        salida.ejecutar(ts).imprimirMatriz()
-        return salida
+        matriz = salida.ejecutar(ts)
+        matriz.imprimirMatriz()
+        return matriz
 
 class combineQuery(Instruccion):
     def __init__(self, izq, operador, der,linea=0):

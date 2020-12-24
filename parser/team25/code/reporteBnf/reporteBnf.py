@@ -20,7 +20,7 @@ class ReporteBnf:
             
     def showReporte(self):
         self.generarReporte()
-        os.system('data/Reportes/gramaticaEjecucion.md')
+        os.system('cd data/Reportes & gramaticaEjecucion.md')
         
     def clear(self):
         self.listaBnf = []

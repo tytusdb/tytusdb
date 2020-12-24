@@ -38,6 +38,10 @@ def leer_instrucciones(intrucciones):
                 salida.append([[instruccion.objeto['alias']],[type_checker.Funciones_Trigonometricas_1(objeto.funcion, objeto.valor, objeto.line)]])
             elif isinstance(objeto, FuncionTrigonometrica2):
                 salida.append([[instruccion.objeto['alias']],[type_checker.Funciones_Trigonometricas_2(objeto.funcion, objeto.valor1, objeto.valor2, objeto.line)]])
+        elif isinstance(instruccion, Crear_TB):
+            type_checker.createTable(instruccion.id, instruccion.columnas, instruccion.line)
+        elif isinstance(instruccion, Drop_TB):
+            type_checker.dropTable(instruccion.table, instruccion.line)
 
 leer_instrucciones(instrucciones)
 
@@ -46,8 +50,7 @@ for element in consola:
     print(element)
 
 print('**************** Salida: ****************')
-for element in salida:
-    print(element)
+print(salida[len(salida) - 1])
 
 print('**************** Tabla de Simbolos: ****************')
 for element in tabla_simbolos.simbolos:
