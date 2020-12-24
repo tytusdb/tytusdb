@@ -1,5 +1,6 @@
 import ply.yacc as yacc
-
+from reporteErrores.errorReport import ErrorReport
+from reporteErrores.instance import listaErrores 
 from astDML import UpdateTable,InsertTable
 from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, BETWEEN,ExpresionPositiva, ExpresionBetween, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
@@ -10,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectFrom
+from astSelect import SelectFilter, SelectFrom
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -275,10 +276,10 @@ def p_tablas(p):
         p[0] = p[1]
         bnf.addProduccion('\<tabla> ::= "ID"')
     elif len(p) == 3:
-        print("TABLA CON ID")
+        p[0] = p[1]
         bnf.addProduccion('\<tabla> ::= "ID" \<alias>')
     else:
-        print("TABLA CON AS ID")
+        p[0] = p[1]
         bnf.addProduccion('\<tabla> ::= "ID" "AS" \<alias>')
 def p_tablas2(p):
     '''tabla : subquery
@@ -298,10 +299,12 @@ def p_filtro(p):
               | where '''
     if len(p) == 4:
         bnf.addProduccion('\<filtro> ::= \<where> \<group_by> \<having>')
+        p[0] = SelectFilter(p[1],p[2],p[3])
     elif len(p) == 3:
         bnf.addProduccion('\<filtro> ::= \<where> \<group_by>')
     else:
         bnf.addProduccion('\<filtro> ::= \<where>')
+        p[0] = p[1]
 
         
 
@@ -338,7 +341,7 @@ def p_combine_querys7(p):
 #_____________________________________________________________ SELECT
 
 
-def p_select2(p):
+def p_select2(p):#_________________________________- select simple con un where
     'select : SELECT select_list FROM lista_tablas filtro'
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list> "FROM"  \<lista_tablas> \<filtro>')
 
@@ -1830,7 +1833,7 @@ def p_exp_aux_decimal(p):
 #          | 'id' '.' 'id'
 def p_exp_aux_tabla(p):
     'exp_aux :  ID PUNTO ID'
-    p[0] = ExpresionID(p[1], p.slice[1].lineno , tabla = p[1]+"."+p[3])
+    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno ,tabla = p[1]+"."+p[3])
     bnf.addProduccion('\<exp_aux> ::= "ID" "." "ID"')
 #          | 'id'
 def p_exp_aux_id(p):
@@ -2065,9 +2068,13 @@ def p_alias2(p):
 def p_error(p):
     print(p)
     try:
+        error = ErrorReport('sintactico', f'No se esperaba el token de tipo: {p.type}  valor: {p.value}', p.lineno)
+        listaErrores.addError(error)
         print("Error sintáctico en '%s'" % p.value)
     except:
         print("no se recupero del error porque no encontro punto y coma")
+        error = ErrorReport('sintactico','no se recupero del error porque no encontro punto y coma',0)
+        listaErrores.addError(error)
 
 
 
@@ -2082,12 +2089,8 @@ def analizarEntrada(entrada):
 arbolParser = analizarEntrada('''
 use test;
 
-select numerica , COS(numerica) * 3 from tb1 ;
+select   LENGTH('CADENAAAAAA') * 9 * random() + pi() * cos(cos(7))  , TIMESTAMP 'now' from tb1;
 
-
-
--- select tb1.numerica , 7*9 from tb1 ; da error de ambiguedad pero no deberia 
---select now() from tb1;
 ''')
 arbolParser.ejecutar()
 

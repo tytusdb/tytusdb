@@ -1,10 +1,18 @@
-import tkinter
-from BHash2 import BHash
+def toASCII2(cadena):
+    cadena = str(cadena)
+    resultado = 0
+    for i in cadena:
+        i = str(i)
+        resultado += ord(i)
+    return resultado
 
 
 class DataBase(object):
+
     def __init__(self, name):
+        from storage.team07.storageBeans.BHash2 import BHash
         self.name = name
+        self.numero = toASCII2(name)
         self.BHash = BHash()
 
 
@@ -47,7 +55,7 @@ class Hash:
         if ((self.n * 100 / self.m) >= self.max):
             # copia del arreglo existente
             temp = self.h  # temp posee la copia del arreglo
-            self.print()
+            # self.print()
             # rehashing
             mprev = self.m  # copia del  tamaño del vector que quedara atras
             self.m = self.n * 100 / self.min  # nuevo tamaño del vector
@@ -57,7 +65,8 @@ class Hash:
                     self.insert(temp[i].name)
                 i += 1
         else:
-            self.print()
+            pass
+            # self.print()
 
     def search(self, database):
         k = self.toASCII(database)
@@ -85,7 +94,7 @@ class Hash:
                 break
         self.h[int(i)] = DataBase(-1)  # asumiendo que antes se buscara si existe o no la base de datos
         self.n -= 1
-        self.print()
+        # self.print()
         # self.rehashingInverso()
 
     # def rehashingInverso(self):
@@ -123,7 +132,7 @@ class Hash:
         return resultado
 
     def updateName(self, newName, OldName):
-        if (t.search(OldName)):  # si la base de datos existe
+        if (self.search(OldName)):  # si la base de datos existe
             k = self.toASCII(OldName)
             i = int(self.division(k))
             paso = i
@@ -132,7 +141,7 @@ class Hash:
                 if (paso == i):
                     break
             self.h[int(i)].name = newName  # asumiendo que antes se buscara si existe o no la base de datos
-            self.print()
+            # self.print()
             return True
         else:  # significa que la base de datos no existe
             return False
@@ -144,8 +153,14 @@ class Hash:
                 lista.append(self.h[i].name)
         return lista
 
+    def getData2(self):
+        lista = []
+        for i in range(len(self.h)):
+            lista.append(self.h[i])
+        return lista
+
     def getDataBase(self, OldName):
-        if (t.search(OldName)):  # si la base de datos existe
+        if (self.search(OldName)):  # si la base de datos existe
             k = self.toASCII(OldName)
             i = int(self.division(k))
             paso = i
@@ -156,39 +171,3 @@ class Hash:
             return self.h[int(i)]  # asumiendo que antes se buscara si existe o no la base de datos
         else:  # significa que la base de datos no existe
             return False
-
-    # def show_DATASTRUCTURE(self):
-    #     ventana = tkinter.Tk()
-    #     ventana.mainloop()
-
-
-t = Hash()
-t.insert("_sas")
-t.insert("sasas")
-t.insert("dfs")
-t.insert("scv3")
-t.insert("sdko")
-t.insert("ácpas")
-t.insert("lokas")
-t.insert("qkm")
-t.insert("342d")
-t.insert("ncm")
-t.insert("vsd")
-
-# print(t.search("scv3"))
-t.delete("scv3")
-t.delete("ncm")
-# t.delete("sas")
-# t.delete("dfs")
-# t.delete("sdko")
-# t.delete("lokas")
-# t.delete("qkm")
-# t.delete("vsd")
-# print(t.search("_sas"))
-# t.insert("Ulitmooo")
-# print(t.search("scv3"))
-# print(t.search("Ulitmooo"))
-print(t.updateName("byron", "sasas"))
-a = t.getData()
-for i in range(len(a)):
-    print(a[i])

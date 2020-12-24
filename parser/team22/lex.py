@@ -189,7 +189,8 @@ reservadas = {
     'sqrt' : 'SQRT',
     'width_bucket' : 'WIDTH_BUCKET',
     'trunc' : 'TRUNC',
-    'random' : 'RANDOM'
+    'random' : 'RANDOM',
+    'exp' : 'EXP'
 }
 
 tokens  = [
@@ -205,7 +206,6 @@ tokens  = [
     'MODULO',
     'CONCAT',
     'PIPE',
-    'EXP',
     'IGUAL',
     'MAYORIGUAL',
     'MAYOR',

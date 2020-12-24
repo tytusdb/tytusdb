@@ -498,6 +498,39 @@ class TernaryRelationalOperation(Expression):
         return new
 
 
+class ExistsRelationalOperation(Expression):
+    def __init__(self, subquery, row, column) -> None:
+        super().__init__(row, column)
+        self.subquery = subquery
+        self.temp = "EXISTS( subquery )"
+
+    def execute(self, environment):
+        df1 = environment.dataFrame.copy()
+        names = {}
+
+        for n in list(df1.columns):
+            names[n] = n.split(".")[1]
+
+        df1.rename(columns=names, inplace=True)
+
+        df2 = self.subquery.execute(environment)[0]
+
+        y = df1.columns.intersection(df2.columns)
+        lst = list(y)
+        if len(lst) < 1:
+            raise Exception("No hay columnas en comun")
+        value = df1[lst].apply(tuple, 1).isin(df2[lst].apply(tuple, 1))
+        return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
+
+    def dot(self):
+        n1 = "exists"
+        new = Nodo.Nodo("select")
+        new.addNode(n1)
+        global root
+        root = new
+        return new
+
+
 class BinaryLogicalOperation(Expression):
     """
     Esta clase contiene las expresiones booleanas binarias.
@@ -605,7 +638,7 @@ class UnaryLogicalOperation(Expression):
         return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
 
     def dot(self):
-        n1 = self.exp1.dot()
+        n1 = self.exp.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         global root

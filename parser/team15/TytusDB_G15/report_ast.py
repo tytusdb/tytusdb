@@ -827,7 +827,7 @@ class AST:
 
         if instruccion.lista_datos != []:
             for parametros in instruccion.lista_datos:
-                 self.crearNodoExpresion(temp1,parametros.val)
+                self.crearNodoExpresion(temp1,parametros)
         
 
     #ENUM TYPE

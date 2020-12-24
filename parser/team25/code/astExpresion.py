@@ -175,6 +175,10 @@ class ExpresionAritmetica(Expresion):
     def getExpresionToString(self) -> str:
         izq  = self.exp1.getExpresionToString()
         der  = self.exp2.getExpresionToString()
+        if isinstance(izq , ErrorReport):
+            return izq
+        if isinstance(der , ErrorReport):
+            return der
         op = ''
         if self.operador == OPERACION_ARITMETICA.MAS:
             op = '+' # si fuera != le pone <>
@@ -226,7 +230,10 @@ class ExpresionNegativa(Expresion):
         return value
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
-        return str('-' + sint)
+        if isinstance(sint , ErrorReport):
+            return sint
+        else:
+            return str('-' + sint)
 
 class ExpresionPositiva(Expresion):
     def __init__(self, exp, linea):
@@ -261,6 +268,8 @@ class ExpresionPositiva(Expresion):
         return value
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
+        if isinstance(sint , ErrorReport):
+            return sint
         return str('+' + sint)
 # Clase de expresión numero
 
@@ -305,15 +314,26 @@ class ExpresionID(Expresion):
             if valorYtipo == None:
                 return ErrorReport('Semantico','no se encontro esa columna', self.linea)
             else:
-                # mientras no tengo tipo :v 
-                if isinstance(valorYtipo['val'], str):
-                    return ExpresionCadena(valorYtipo['val'], TIPO_DE_DATO.CADENA, self.linea)
-                elif isinstance(valorYtipo['val'],int):
+                if valorYtipo['tipo'] == 'SMALLINT' \
+                or valorYtipo['tipo'] == 'BIGINT' \
+                or valorYtipo['tipo'] == 'INTEGER':
                     return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.ENTERO, self.linea)
-                elif isinstance(valorYtipo['val'],float):
+                elif valorYtipo['tipo'] == 'DECIMAL' \
+                or valorYtipo['tipo'] == 'NUMERIC' \
+                or valorYtipo['tipo'] == 'REAL' \
+                or valorYtipo['tipo']== 'DOUBLE_PRECISION' \
+                or valorYtipo['tipo'] == 'MONEY':
                     return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea)
-                elif isinstance(valorYtipo['val'],bool):
-                    return ExpresionCadena(valorYtipo['val'], TIPO_DE_DATO.BOOLEANO, self.linea)
+                elif valorYtipo['tipo'] == 'CHAR' \
+                or valorYtipo['tipo'] == 'VARCHAR' \
+                or valorYtipo['tipo'] == 'TEXT' \
+                or valorYtipo['tipo'] == 'ENUM':
+                    return ExpresionCadena(valorYtipo['val'], TIPO_DE_DATO.CADENA, self.linea)
+                elif valorYtipo['tipo'] == 'BOOLEAN':
+                    return ExpresionBooleano(valorYtipo['val'], self.linea)
+                elif valorYtipo['tipo'] == 'DATE':
+                    return ExpresionCadena(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea, isFecha=True)
+                return ErrorReport('Semantico','TIPO DESCONOCIDO', self.linea)
             
         else:# supongo que es para lo del check :v 
             try:
@@ -441,6 +461,10 @@ class ExpresionComparacion(Expresion):
     def getExpresionToString(self) -> str:
         izq  = self.exp1.getExpresionToString()
         der  = self.exp2.getExpresionToString()
+        if isinstance(izq , ErrorReport):
+            return izq
+        if isinstance(der , ErrorReport):
+            return der
         op = ''
         if self.operador == OPERACION_RELACIONAL.DESIGUAL:
             op = '<>' # si fuera != le pone <>
@@ -504,6 +528,10 @@ class ExpresionLogica(Expresion):
     def getExpresionToString(self) -> str:
         izq  = self.exp1.getExpresionToString()
         der  = self.exp2.getExpresionToString()
+        if isinstance(izq , ErrorReport):
+            return izq
+        if isinstance(der , ErrorReport):
+            return der
         return str(izq + f' {self.operador.name.lower()} ' + der)
 
 # Expresion negada
@@ -535,6 +563,8 @@ class ExpresionNegada(Expresion):
         return 0
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
+        if isinstance(sint , ErrorReport):
+            return sint
         return str('not' + sint)
 # Expresión booleana (Valor puro)
 class ExpresionBooleano(Expresion):
@@ -752,14 +782,18 @@ class TuplaCompleta:
     def getValue(self, id , referciaTabla = None): # a veces no viene
         # VALIDAR QUE NO HAYA AMBIGUEDAD PRIMERO , aun no lo tengo :v 
         for columna in self.tupla:
-            if referciaTabla == None:
-                if self.quitarRef(columna['id']) == id:
-                    return columna
-            else:
-                if columna['id'] == id:
-                    return columna
+            # 3 POSIBLES CASOS  , TABLA.COLUMNA , ALIAS.COLUMNA , COLUMNA
+            if columna['id'] == id:
+                return columna
+            # elif self.coincideConAlias(columna['id']):
+            #     pass
+            elif self.quitarRef(columna['id']) == id:
+                return columna
         return None
     
     def quitarRef(self,cadena):# le quito la referencia de su tabla 
         cadena = cadena.split('.')
         return cadena[1]
+    def coincideConAlias(self,columna):# le quito la referencia de su tabla 
+        aux = columna['id'].split('.')
+        return columna['alias']+'.'+aux[1]
