@@ -258,6 +258,29 @@ class Insert(Instruccion):
                     else:
                         return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
 
+             #validando foreign keys
+            for fk in columna.fk :
+                'validar las foreign keys alv :,VVV'
+                if fk == None :
+                    continue
+                #obteniendo el index de la PK
+                colindex = 0
+                for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][fk.val.table]['columns'] :
+                    if col.name == fk.val.column:
+                        break
+                    colindex += 1
+                    
+                #comparando si existe
+                filas = extractTable(data.databaseSeleccionada, fk.val.table) #obtengo filas de la tabla al que hago referencia
+                found = False #bndera para saber si se hizo match entre la referencia y el dato nuevo
+                for fila in filas :
+                    if fila[colindex] == valoresTabla[posColumna]:  #revisando si se hizo match
+                        found = True
+                
+                if not found : #si no hay match, hay error
+                    error = Error('Semántico', 'Error(???): La FK '+str(valoresTabla[posColumna])+' no concuerda con la PK de la tabla referenciada.', 0, 0)
+                    return error
+
             posColumna += 1
 
         valRetorno = insert(data.databaseSeleccionada, self.tableid.upper(), valoresTabla)

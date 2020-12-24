@@ -159,7 +159,8 @@ reservadas = {
     'nulls':'t_nulls',
     'all':'t_all',
     'offset':'t_offset',
-    'limit':'t_limit'
+    'limit':'t_limit',
+    'date':'t_date'
 }
 
 tokens = [
@@ -351,7 +352,7 @@ def p_Sentencias_DML(p):
     '''Sentencias_DML : t_select Lista_EXP Select_SQL Condiciones GRP ORD pyc
                     | t_select asterisco Select_SQL Condiciones GRP ORD pyc
                     | t_insert t_into id Insert_SQL pyc
-                    | t_update id t_set Lista_EXP t_where EXP pyc
+                    | t_update id t_set Lista_EXP Condiciones pyc
                     | t_delete t_from id Condiciones pyc
                     | t_use id pyc'''
     vaciar_lista()
@@ -362,6 +363,7 @@ def p_Sentencias_DML(p):
         p[0] = Insert(p[3], p[4]['col'],p[4]['valores'], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= insert into id INSERT_SQL ; </TD> <TD> {sentencias_dml.inst = insert(id,Insert_SQL.inst)}  </TD></TR>')
     elif p[1] == 'update':
+        p[0] = Update(p[2],p[4],p[5],p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= update id set LISTA_EXP where EXP ; </TD> <TD> {sentencias_dml.inst = update(id, lista_exp.list, exp.val)} </TD></TR>')
     elif p[1] == 'delete':
         p[0] = Delete(p[3],p[4],p.slice[1].lineno, find_column(input, p.slice[1]))
@@ -414,10 +416,10 @@ def p_Condiciones(p):
     '''Condiciones : t_where EXP
             | empty'''
     if len(p) == 3:
-        p[0] = p[2]
+        p[0] = Where(p[2], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> CONDICIONES ::= where EXP  </TD>  <TD> condiciones.val = exp.val </TD></TR>')
     else:
-        p[0] = p[1]
+        p[0] = []
         concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
 
 # ---------------------------- Group, having and order by --------------
@@ -426,7 +428,7 @@ def p_GRP(p):
            | t_group t_by Lista_ID HV
            | empty'''
     if len(p) == 5:
-        p[0] = p[3]
+        p[0] = p[3] + p[4]
     elif len(p) == 4:
         p[0] = p[3]
 
@@ -438,32 +440,55 @@ def p_ORD(p):
     '''ORD : t_order t_by LSORT
            | t_order t_by LSORT LMT
            | empty'''
+    if len(p) == 4:
+        p[0] = p[3]
+    elif len(p) == 5:
+        p[0] = p[3] + [p[4]]
 
 
-def p_LSORT(p):
+def p_L_SORT(p):
     '''LSORT : LSORT coma SORT
-             | SORT'''
+                | SORT'''
+    if len(p) == 4:
+        p[0] = p[1] + [p[3]]
+    else:
+        p[0] = [p[1]]
 
 def p_SORT(p):
     '''SORT : EXP AD NFL
             | EXP AD
             | EXP'''
+    if len(p) == 4:
+        p[0] = Order(p[1], p[2], p[3], p.slice[1].lineno, find_column(input, p.slice[1]))
+    elif len(p) == 3:
+        p[0] = Order(p[1], p[2], p.slice[1].lineno, find_column(input, p.slice[1]))
+    else:
+        p[0] = Order(p[1], p.slice[1].lineno, find_column(input, p.slice[1]))
 
 def p_AD(p):
     '''AD : t_asc
           | t_desc'''
+    p[0] = p[1]
+
 
 def p_NFL(p):
     '''NFL : t_nulls t_first
            | t_nulls t_last'''
+    p[0] = p[2]
+
 def p_LMT(p):
     '''LMT : t_limit NAL t_offset entero
            | t_limit NAL
            | t_offset entero '''
+    if len(p) == 5:
+        p[0] = p[1] + ':' + p[2] + ':' + p[3] + ':' + p[4]
+    else:
+        p[0] = p[1] + ':' + p[2]
 
 def p_NAL(p):
     '''NAL : entero
            | t_all '''
+    p[0] = p[1]
 
 # ---------------------------- Sentencias DDL y Enum Type --------------
 def p_Sentencias_DDL(p):
@@ -525,13 +550,14 @@ def p_DropDB(p): #Agregado
         p[0] = False
         concatenar_gramatica('\n <TR><TD> DROPDB ::= EMPTY </TD> <TD> { dropdb.val = False } </TD></TR>')
 
-def p_Alter(p):
+def p_Alter(p): #Agregado
     '''Alter : t_database id AlterDB
             | t_table id AlterTB '''
     if p[1] == 'database':
         p[0] = DDL.AlterDatabase(p.slice[1].lineno, find_column(input, p.slice[1]), p[2], p[3]['nuevo_nombre_DB'], p[3]['owner'])
         concatenar_gramatica('\n <TR><TD> ALTER ::= database id ALTERDB </TD> <TD> alter.inst = alterDB( id,alterdb.inst ) </TD></TR>')
-    else: 
+    else:
+        p[0] = DDL.AlterTable(p.slice[1].lineno, find_column(input, p.slice[1]), p[2], p[3]) 
         concatenar_gramatica('\n <TR><TD> ALTER ::= table id ALTERTB </TD> <TD>  alter.inst = altertb(id, altertb.inst)  </TD></TR>')
 
 def p_AlterDB(p): #Agregado
@@ -562,29 +588,35 @@ def p_AlterTB(p):
                 | t_alter t_column Alter_Column
                 | t_rename t_column id t_to id '''
     if p[1] == 'add':
+        p[0] = p[2]
         concatenar_gramatica('\n <TR><TD> ALTERTB ::= add ADD_OPC </TD>  <TD> { altertb.inst = add(add_Opc.val) } </TD></TR>')
     elif p[1] == 'drop':
+        p[0] = p[1]
         concatenar_gramatica('\n <TR><TD> ALTERTB ::= drop DROP_OPC </TD> <TD> { altertb.inst =  drop(drop_opc.val) } </TD></TR>')
     elif p[1] == 'alter': 
         concatenar_gramatica('\n <TR><TD> ALTERTB ::= alter column ALTER_COLUMN </TD> <TD> { altertb.inst = alter(alter_column.val) } </TD></TR>')
     elif p[1] == 'rename':
         concatenar_gramatica('\n <TR><TD> ALTERTB ::= rename column id to id </TD> <TD> { altertb.inst = rename(id1,id2) } </TD></TR>')
 
-def p_Add_Opc(p):
+def p_Add_Opc(p): #Agregado
     '''Add_Opc : t_column id Tipo
                | Constraint_AlterTB t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2
                | Constraint_AlterTB t_unique par1 id par2
                | Constraint_AlterTB t_check EXP '''
-    if p[1] == 'column':
+    if p[1].lower() == 'column':
+        p[0] = DDL.AlterTBAdd(p.slice[1].lineno, find_column(input, p.slice[1]), 1, {'id': p[2], 'tipo': p[3]})
         concatenar_gramatica('\n <TR><TD> ADD_OPC ::= column id TIPO </TD> <TD> { add_opc.inst = column(id, tipo.type) } </TD></TR>')
-    elif p[1] == 'foreign':
-        concatenar_gramatica('\n <TR><TD> ADD_OPC ::= foreign key ( id ) references id </TD> <TD> { add_opc.isnt = foreign(id1,id2)} </TD></TR>')
-    elif p[1] == 'constraint':
-        concatenar_gramatica('\n <TR><TD> ADD_OPC ::= constraint id unique ( id ) </TD> <TD> { add_opc.inst = constraint(id1,id2)} </TD></TR>')
-    elif p[1] == 'check': 
-        concatenar_gramatica('\n <TR><TD> ADD_OPC ::= check EXP </TD> <TD> {add_opc.inst = check( exp.val )} </TD></TR>')
+    elif p[2].lower() == 'foreign':
+        p[0] = DDL.AlterTBAdd(p.slice[2].lineno, find_column(input, p.slice[2]), 2, {'id_constraint': p[1], 'Lista_ID': p[5], 'id_ref': p[8], 'Lista_ID_ref': p[10]})
+        concatenar_gramatica('\n <TR><TD> ADD_OPC ::= CONSTRAINT_ALTERTB foreign key ( id ) references id par1 Lista_ID par2 </TD> <TD> { add_opc.isnt = foreign(id1,id2)} </TD></TR>')
+    elif p[2].lower() == 'unique':
+        p[0] = DDL.AlterTBAdd(p.slice[2].lineno, find_column(input, p.slice[2]), 3, {'id_constraint': p[1], 'id': p[4]})
+        concatenar_gramatica('\n <TR><TD> ADD_OPC ::= CONSTRAINT_ALTERTB unique ( id ) </TD> <TD> { add_opc.inst = constraint(id1,id2)} </TD></TR>')
+    elif p[2].lower() == 'check': 
+        p[0] = DDL.AlterTBAdd(p.slice[2].lineno, find_column(input, p.slice[2]), 4, {'id_constraint': p[1], 'EXP': p[3]})
+        concatenar_gramatica('\n <TR><TD> ADD_OPC ::= CONSTRAINT_ALTERTB check EXP </TD> <TD> {add_opc.inst = check( exp.val )} </TD></TR>')
 
-def p_Constraint_AlterTB(p):
+def p_Constraint_AlterTB(p): #Agregado
     '''Constraint_AlterTB : t_constraint id
                             | empty'''
     if p[1].lower() == 'constraint':
@@ -594,12 +626,14 @@ def p_Constraint_AlterTB(p):
         p[0] = None
         concatenar_gramatica('\n <TR><TD> CONSTRAINT_ALTERTB ::= EMPTY </TD> <TD> { constraint_altertb.inst = None } </TD></TR>')
 
-def p_Drop_Opc(p):
+def p_Drop_Opc(p): #Agregado
     ''' Drop_Opc :  t_column id
                  |  t_constraint id '''
     if p[1] == 'column':
+        p[0] = DDL.AlterTBDrop(p.slice[1].lineno, find_column(input, p.slice[1]), 1, p[2])
         concatenar_gramatica('\n <TR><TD> DROP_OPC ::= column id TIPO </TD> <TD> {drop_opc.val = column,id }</TD></TR>')
-    elif p[1] == 'constraint': 
+    elif p[1] == 'constraint':
+        p[0] = DDL.AlterTBDrop(p.slice[1].lineno, find_column(input, p.slice[1]), 2, p[2])
         concatenar_gramatica('\n <TR><TD> DROP_OPC ::= foreign key ( id ) references id </TD> <TD> { drop_opc.val = constraint,id}  </TD></TR>')
 
 def p_Alter_Column(p):
@@ -819,18 +853,99 @@ def p_Tipo(p):
               | t_integer
               | t_bigint
               | t_decimal
-              | t_numeric
+              | t_numeric par1 entero par2
               | t_real
               | t_double t_precision
               | t_money
-              | t_character t_varying par1 Valor par2
-              | t_varchar par1 Valor par2
-              | t_character par1 Valor par2
-              | t_charn par1 Valor par2
+              | t_character t_varying par1 entero par2
+              | t_varchar par1 entero par2
+              | t_character par1 entero par2
+              | t_charn par1 entero par2
               | t_text
               | t_boolean
-            | id'''
-    p[0] = p[1]
+              | t_date
+              | id'''
+    if p[1].lower() == 'smallint':
+        p[0] = {
+            'tipo': 'smallint',
+            'size': 2
+        }
+    elif p[1].lower() == 'integer':
+        p[0] = {
+            'tipo': 'integer',
+            'size': 4
+        }
+    elif p[1].lower() == 'bigint':
+        p[0] = {
+            'tipo': 'bigint',
+            'size': 8
+        }
+    elif p[1].lower() == 'decimal':
+        p[0] = {
+            'tipo': 'decimal',
+            'size': 8
+        }
+    elif p[1].lower() == 'numeric':
+        p[0] = {
+            'tipo': 'numeric',
+            'size': p[3]
+        }
+    elif p[1].lower() == 'real':
+        p[0] = {
+            'tipo': 'real',
+            'size': 4
+        }
+    elif p[1].lower() == 'double':
+        p[0] = {
+            'tipo': 'double',
+            'size': 8
+        }
+    elif p[1].lower() == 'money':
+        p[0] = {
+            'tipo': 'money',
+            'size': 8
+        }
+    elif p[1].lower() == 'character':
+        if len(p) == 6:
+            p[0] = {
+                'tipo': 'character varying',
+                'size': p[4]
+            }
+        else:
+            p[0] = {
+                'tipo': 'character',
+                'size': p[3]
+            }
+    elif p[1].lower() == 'varchar':
+        p[0] = {
+            'tipo': 'varchar',
+            'size': p[3]
+        }
+    elif p[1].lower() == 'char':
+        p[0] = {
+            'tipo': 'char',
+            'size': p[3]
+        }
+    elif p[1].lower() == 'text':
+        p[0] = {
+            'tipo': 'text',
+            'size': 1998
+        }
+    elif p[1].lower() == 'boolean':
+        p[0] = {
+            'tipo': 'boolean',
+            'size': 1
+        }
+    elif p[1].lower() == 'date':
+        p[0] = {
+            'tipo': 'date',
+            'size': 4
+        }
+    else:
+        p[0] = {
+            'tipo': p[1],
+            'size': 1998
+        }
     concatenar_gramatica('\n <TR><TD> TIPO ::= ' + str(p[1]) + '</TD>  <TD> { tipo.type = ' + str(p[1]) + '  } </TD></TR>')
 
 def p_Valor(p):
@@ -902,11 +1017,11 @@ def p_unario(p):
            | menos EXP  %prec umenos
            | t_not EXP'''
     if p[1] == 'not': 
-        p[0] = Expression(p.slice[1].value, p[2], p.slice[2].lineno, find_column(input, p.slice[2]), 'unario')
+        p[0] = Expression(p.slice[1].value, p[2], p.slice[1].lineno, find_column(input, p.slice[1]), 'unario')
         concatenar_gramatica('\n <TR><TD> EXP ::= not EXP </TD>  <TD> { Exp =  Exp1.val  } </TD></TR>')
     else: 
-        p[0] = Expression(p.slice[1].value, p[2], p.slice[2].lineno, find_column(input, p.slice[2]), 'unario')
-        concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + 'EXP %prec' +  str(p[4]) +'</TD> <TD> { exp = exp1.val  } </TD></TR>')
+        p[0] = Expression(p.slice[1].value, p[2], p.slice[1].lineno, find_column(input, p.slice[1]), 'unario')
+        concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + 'EXP %prec' +  str(p[2]) +'</TD> <TD> { exp = exp1.val  } </TD></TR>')
 
 def p_EXP_Valor(p):
     'EXP : Valor'

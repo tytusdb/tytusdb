@@ -6,7 +6,8 @@ parser.out
 parsetab.py
 debug.log
 Reporte_Errores.html
+Reporte_Errores_Sem.html
 reporte_AST.pdf
 entrada.sql
 gramatica_ASC.md
-gramatica_DSC.md
+

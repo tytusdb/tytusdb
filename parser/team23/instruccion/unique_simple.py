@@ -35,7 +35,9 @@ class unique_simple(instruccion):
             #Validar si existe un registro igual
             for registro in tabla:
                 if dato == registro[pos_col]:
-                    return None
+                    return nodo_error(self.line, self.column, 'ERROR - Restricción UNIQUE violada, no se puede insertar duplicado: ' + str(dato), 'Semántico')
+            
+            return None
         except:
             return nodo_error(self.line, self.column, 'E-22005 error in assignment: Unable to validate UNIQUE constraint', 'Semántico')
 

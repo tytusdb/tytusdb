@@ -1,2 +1,4 @@
 
 *.pyc
+
+grammar/parser.out

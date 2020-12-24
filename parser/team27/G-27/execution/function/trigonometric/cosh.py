@@ -1,12 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-from function import *
-from typ import *
-from trigonometric_functions import cosh
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.trigonometric_functions import cosh
 
 class Cosh(Function):
     def __init__(self, input, row, column):
@@ -39,4 +33,4 @@ class Cosh(Function):
             if value['value'] < -710 or value['value'] > 710:
                     return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [-710,710] soportado por python en la funcion cosh() ", 'linea':self.row,'columna':self.column }
 
-            return [{'value':cosh(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':cosh(value['value']), 'typ': Type.DECIMAL}

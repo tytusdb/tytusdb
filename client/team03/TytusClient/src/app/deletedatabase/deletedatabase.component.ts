@@ -12,4 +12,8 @@ export class DeletedatabaseComponent implements OnInit {
   ngOnInit() {
   }
 
+  deletedatabase(event:Event)
+  {
+    alert("Eliminado base de datos.....");
+  }
 }

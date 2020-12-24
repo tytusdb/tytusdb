@@ -8,6 +8,7 @@ from controllers.data_controller import *
 from models.database import Database
 from models.column import Column
 from models.table import Table
+from models.instructions.DDL.column_inst import *
 import json
 import datetime
 import re
@@ -51,8 +52,8 @@ class CreateTB(Instruction):
             return
 
         # Verifico si tiene llave primaria la tabla o si le meto una escondida
-        if self.existsPK(nombreTabla) == 0:
-            self.generateHiddenPK(nombreTabla)
+        # if self.existsPK(nombreTabla) == 0:
+        #     self.generateHiddenPK(nombreTabla)
 
         # Agrego llaves primarias a la base de datos si no hubo clavo con la tabla
         self.addPKToDB(nombreTabla)
@@ -111,7 +112,7 @@ class CreateTB(Instruction):
     def addPropertyes(self, prop,columnaFinal):
         if prop['default_value'] != None:
             validation = self.validateType(columnaFinal._dataType,prop['default_value'], True)
-            if validation == None:
+            if validation == None or validation == False:
                 return
             else:
                 columnaFinal._default = prop['default_value'].alias
@@ -318,10 +319,12 @@ class CreateTB(Instruction):
                 else:
                     desc = f": out of range value in bigint"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             except:
                 desc = f": invalid default value to bigint column"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -331,6 +334,7 @@ class CreateTB(Instruction):
             else:
                 desc = f": invalid default value to boolean column"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
 
@@ -341,11 +345,13 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid length in char column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             else:
                 if len(valorDef) > 1:
                     desc = f": invalid length in char column, limit is 1"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
                     
 
@@ -356,11 +362,13 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid len in character column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             else:
                 if len(valorDef) > 1:
                     desc = f": invalid length in char column, limit is 1"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
 
         #-->
@@ -370,6 +378,7 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f": invalid len in varying column, limit is {str(paramOne)}"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             else:
                 pass
@@ -382,6 +391,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format in date column"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -401,6 +411,7 @@ class CreateTB(Instruction):
                         if conteo > paramOne:
                             desc = f": overflow in decimal or numeric column"
                             ErrorController().add(6, 'Execution', desc, 0, 0)
+                            self._can_create_flag = False
                             return False
                 else:
                     strValorDef = str(valorDef)
@@ -410,11 +421,13 @@ class CreateTB(Instruction):
                         if len(str(parteEntera)) > paramOne and parteEntera != 0:
                             desc = f": overflow in decimal or numeric column"
                             ErrorController().add(6, 'Execution', desc, 0, 0)
+                            self._can_create_flag = False
                             return False
 
             except:
                 desc = f": invalid default value in decimal or numeric"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         elif columnType == 'ColumnsTypes.DOUBLE_PRECISION' or columnType == 'ColumnsTypes.REAL':
@@ -423,6 +436,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in double or real"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -434,10 +448,12 @@ class CreateTB(Instruction):
                 else:
                     desc = f": default value out of range in integer col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             except:
                 desc = f": invalid default value in integer col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -451,6 +467,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in money col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         #-->
@@ -462,10 +479,12 @@ class CreateTB(Instruction):
                 else:
                     desc = f": default value out of range in small col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             except:
                 desc = f": invalid default value in smallint col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
         
         #-->
@@ -475,6 +494,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid default value in text col"
                 ErrorController().add(6, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
         
         #-->
@@ -485,6 +505,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format timpestamp, yyyy-mm-dd h:m:s"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
         
         #-->
@@ -495,6 +516,7 @@ class CreateTB(Instruction):
             except:
                 desc = f": invalid format time, h:m:s"
                 ErrorController().add(17, 'Execution', desc, 0, 0)
+                self._can_create_flag = False
                 return False
 
         elif columnType == 'ColumnsTypes.VARCHAR':
@@ -503,9 +525,11 @@ class CreateTB(Instruction):
                 if len(valorDef) > paramOne:
                     desc = f":  out of range value in varchar col"
                     ErrorController().add(6, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
                     return False
             else:
                 pass
+
         return True
 
 
@@ -590,8 +614,28 @@ class AlterTable(Instruction):
         self._tablaAModificar = tablaAModificar
         self._listaCambios = listaCambios
 
-    def execute(self):
-        pass
+    def process(self,instruction):
+        typeChecker = TypeChecker()
+
+        print('')
+        print('VAMOS A MODIFICAR LA SIGUIENTE TABLA')
+        print(self._tablaAModificar)
+
+        existTable = typeChecker.searchTable(SymbolTable().useDatabase,self._tablaAModificar)
+
+        #validate if the table to alter exists
+        if existTable == None:
+            desc = f": Undefined table in alter table"
+            ErrorController().add(27, 'Execution', desc, 0, 0)
+            return
+
+        print('y estos son los cambios')
+        #  Cambio puede ser un add    (column,check,constraint_unique,foreign_key)
+        #                   un alter 
+        #                   un drop 
+        #                   un rename
+        for cambio in self._listaCambios:
+            cambio.process(self._tablaAModificar)
 
     def __repr__(self):
         return str(vars(self))
@@ -611,6 +655,131 @@ class AlterTableAdd(AlterTable):
     def __repr__(self):
         return str(vars(self))
 
+    def process(self,instruction):
+
+        if isinstance(self._changeContent,CreateCol):
+            print('VAMOS A AGREGAR UNA COLUMNA')
+            self.agregarCol(self._changeContent,instruction)
+            
+            
+        elif isinstance(self._changeContent,Check):
+            print('VAMOS A AGREGAR UN CHECK')
+            self.agregarCheck(self._changeContent._column_condition, instruction)
+        
+        elif isinstance(self._changeContent,Constraint):
+            print('VAMOS A AGREGAR UN CONSTRAINT_UNIQUE')
+            self.agregarUnique(self._changeContent._column_condition._column_list, instruction)
+
+        elif isinstance(self._changeContent,ForeignKey):
+            print('VAMOS A AGREGAR UN FOREIGN_KEY')
+            self.agregarFk(self._changeContent._column_list,self._changeContent._table_name,
+                            self._changeContent._table_column_list,instruction)
+
+
+    def agregarCol(self,columna,nombreTabla):
+        typeChecker = TypeChecker()
+        
+        tipoFinal = {
+        '_tipoColumna' : str(columna._type_column._tipoColumna),
+        '_paramOne' : columna._type_column._paramOne,
+        '_paramTwo' : columna._type_column._paramTwo
+        }
+
+        columnaFinal = Column(columna._column_name,tipoFinal)
+        tableToInsert = typeChecker.searchTable(SymbolTable().useDatabase, nombreTabla)
+        validateCol = typeChecker.createColumnTable(tableToInsert,columnaFinal,0,0)
+        # if return None an error ocurrio
+        if validateCol == None:
+            return
+
+    def agregarFk(self,listaCols,nombreTabla,listaTablasCols,tablaAAlter): 
+        
+        typeChecker = TypeChecker()
+
+        # the len of the cols must be de same
+        if len(listaCols) != len(listaTablasCols):
+            desc = f": cantidad of params in foreign() != "
+            ErrorController().add(36, 'Execution', desc, 0, 0)
+            return
+
+        existForeingTable = typeChecker.searchTable(SymbolTable().useDatabase,nombreTabla)
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaAAlter)
+
+        #validate if the foreign table exists
+        if existForeingTable == None:
+            desc = f": Undefined table in foreign key ()"
+            ErrorController().add(27, 'Execution', desc, 0, 0)
+            return
+
+        #validate if the columns exists in the foreign table
+        for coli in listaTablasCols:
+            if typeChecker.searchColumn(existForeingTable,coli) == None:
+                desc = f": Undefined col in table in foreign key ()"
+                ErrorController().add(26, 'Execution', desc, 0, 0)
+                return
+
+        bandera = False
+        for x in range(0,len(listaCols)):
+            for columna in tableToAlter.columns:
+                if(columna._name == listaCols[x]):
+                    bandera = True
+                    columna._foreignKey = {
+                                            '_refTable' : nombreTabla,
+                                            '_refColumn' : listaTablasCols[x]
+                                        }
+                    break
+            if not bandera:
+                desc = f": Undefined column in alter foreign key ()"
+                ErrorController().add(26, 'Execution', desc, 0, 0)
+                return
+            bandera = False
+        
+        typeChecker.writeFile()
+
+    def agregarUnique(self,columnaToUnique, tablaAAlter):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaAAlter)
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == columnaToUnique):
+                bandera = True
+                columna._unique = True
+                break
+
+        if not bandera:
+            desc = f": Undefined column in alter Unique ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        typeChecker.writeFile()
+
+    def agregarCheck(self, conditionColumn, tablaId):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaId)
+
+        #                           L (L|D)*
+        whatColumnIs = re.search('[a-zA-z]([a-zA-z]|[0-9])*',conditionColumn.alias)
+
+        if whatColumnIs != None:
+            whatColumnIs = whatColumnIs.group(0)
+            for columna in tableToAlter.columns:    
+                if(columna._name == whatColumnIs):
+                    bandera = True
+                    columna._check = conditionColumn.alias
+                    break
+            if not bandera:
+                desc = f": Undefined column in alter check ()"
+                ErrorController().add(26, 'Execution', desc, 0, 0)
+                return
+            bandera = False
+
+        else:
+            desc = f": column not given in check()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        typeChecker.writeFile()
 
 class AlterTableAlter(AlterTable):
     '''
@@ -624,6 +793,64 @@ class AlterTableAlter(AlterTable):
     def __repr__(self):
         return str(vars(self))
 
+    #instrucction trae el valor de la tabla
+    def process(self,instrucction):
+
+        if self._changeContent['change'] == 'not_null':
+            print('LE VAMOS A DAR UN SET NOT NULL A LA COLUMNA')
+            self.agregarNotNull(instrucction,self._changeContent['id_column'])
+
+
+        elif self._changeContent['change'] == 'type_column':
+            print('LE VAMOS A DAR UN CAMBIO DE TIPO A LA COLUMNA')
+            self.agregarNuevoTipo(instrucction,self._changeContent['id_column'],self._changeContent['type'])
+
+
+        pass
+
+    def agregarNotNull(self, tablaAMod, colAMod):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaAMod)
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == colAMod):
+                bandera = True
+                columna._notNull = True
+                break
+
+        if not bandera:
+            desc = f": Undefined column in alter not null ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        typeChecker.writeFile()
+        
+
+    def agregarNuevoTipo(self, tablaAMod, colAMod, nuevoTipo):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaAMod)
+
+        tipoFinal = {
+        '_tipoColumna' : str(nuevoTipo._tipoColumna),
+        '_paramOne' : nuevoTipo._paramOne,
+        '_paramTwo' : nuevoTipo._paramTwo
+        }
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == colAMod):
+                bandera = True
+                columna._dataType = tipoFinal
+                break
+
+        if not bandera:
+            desc = f": Undefined column in alter type ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        typeChecker.writeFile()
+        pass
 
 class AlterTableDrop(AlterTable):
     '''
@@ -637,6 +864,32 @@ class AlterTableDrop(AlterTable):
     def __repr__(self):
         return str(vars(self))
 
+    #instrucction trae el valor de la tabla
+    def process(self,instrucction):
+        if self._changeContent['change'] == 'column':
+            print('HARE UNA ELIMINACION DE UNA COLUMNA')
+            self.eliminarColumna(instrucction,self._changeContent['id'])
+
+        elif self._changeContent['change'] == 'constraint':
+            print(' **DEBERIA ESTAR ELIMINANDO ALGUN CONSTRAINT **')
+        
+    def eliminarColumna(self,nombreTabla,nombreColumna):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,nombreTabla)
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == nombreColumna):
+                bandera = True
+                #typeChecker.deleteColumn(tableToAlter,columna,0,0)
+                break
+
+        if not bandera:
+            desc = f": Undefined column in alter drop column ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        pass
 
 class AlterTableRename(AlterTable):
     '''
@@ -649,3 +902,25 @@ class AlterTableRename(AlterTable):
 
     def __repr__(self):
         return str(vars(self))
+
+    #instrucction tiene el valor de la tabla
+    def process(self,instrucction):
+
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,instrucction)
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == self._oldName):
+                bandera = True
+                columna._name = self._newName
+                break
+
+        if not bandera:
+            desc = f": Undefined column in rename column ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        typeChecker.writeFile()
+
+        
