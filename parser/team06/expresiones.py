@@ -265,6 +265,20 @@ class RestriccionDefaul(RestriccionTabla):
     def __init__(self,valor):
         self.valor = valor
 
+class CondicionDelete:
+    '''
+        Esta clase representa la condicon que se le dara para poder
+        eliminar un registro en una tabla
+    '''
+class operacionDelete(CondicionDelete):
+    '''
+        Esta clase representa los valores que se validaran para poder
+        eliminar un registro
+    '''
+    def __init__(self,exp1,exp2,operador):
+        self.exp1=exp1
+        self.exp2=exp2
+        self.operador=operador
 
 class ExpresionNegativo(ExpresionNumerica) :
     '''

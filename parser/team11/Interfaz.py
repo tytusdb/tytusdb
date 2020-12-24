@@ -8,6 +8,9 @@ import webbrowser
 import json
 import os
 from string import Template
+from funciones import Funciones2
+
+import Ast as ast
 
 from io import open
 import re
@@ -18,14 +21,6 @@ ruta = ""  # La utilizaremos para almacenar la ruta del fichero
 
 # esto es para la interfaz--------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-def run():
-    mb.showinfo("ANALISIS COMPLETADO", "Analisis Completado")
-    consola_text.configure(state='normal')
-    consola_text.insert(INSERT, "LA CONSOLA FUNCIONA")
-    consola_text.configure(state='disabled')
-    
-    # END
 
 
 def test():
@@ -41,15 +36,13 @@ def nuevo():
     texto.delete(1.0, "end")
     root.title("TytusDB")
     # END
-
-
+    
 def abrir():
     global ruta
     mensaje.set("Abrir archivo")
     ruta = FileDialog.askopenfilename(
         initialdir='.',
-        filetypes=(("HTML", "*.html"), ("CSS", "*.css"), ("JavaScript",
-                                                          "*.js"), ("Arbol sintactico", "*.rmt"), ("All files", "*.*")),
+        filetypes=(("SQL", "*.sql"),("All files", "*.*")),
         title="Abrir un archivo")
 
     if ruta != "":
@@ -59,7 +52,7 @@ def abrir():
         print(contenido)
         texto.insert('insert', contenido)
         fichero.close()
-        root.title(ruta + " - DBMS Usac editor")
+        root.title(ruta + " - TytusDB Usac editor")
     # END
 
 
@@ -95,7 +88,17 @@ def guardar_como():
         ruta = ""
 
     # END
+opera_path = "C:\\Users\\mads3\\AppData\\Local\\Programs\\Opera GX\\launcher.exe"
+webbrowser.register('opera', None,webbrowser.BackgroundBrowser(opera_path))
+
+def abrirERRORES(): 
+    erro_path = "C:\\Users\\mads3\\Desktop\\OLC2 Proyecto G11\\OLC2_Proyecto_G11\\Errores.html"
+    webbrowser.get('opera').open(erro_path)
 # _____________________________________________INTERFAZ----------------------------------------------------
+def abrirTS(): 
+    ts_path = "C:\\Users\\mads3\\Desktop\\OLC2 Proyecto G11\\OLC2_Proyecto_G11\\repoteTS.html"
+    webbrowser.get('opera').open(ts_path)
+
 
 root = Tk()
 root.title("TytusDB")
@@ -167,7 +170,7 @@ texto4.place(x=420, y=500)
 consola_text = Text(texto4, width=90, height=10,
                     bg="gray40", fg="spring green")
 consola_text.config(bd=0, font=("Consolas", 14))
-consola_text.configure(state='disabled')
+consola_text.configure(state='normal')
 
 output_text = Text(texto4, width=90, height=10,
                     bg="gray40", fg="white")
@@ -177,20 +180,19 @@ output_text.config(bd=0, font=("Consolas", 14))
 errores_text = Text(texto4, width=90,  height=10,
                     bg="gray40", fg="OrangeRed2")
 errores_text.config(bd=0, font=("Consolas", 14))
-errores_text.configure(state='disabled')
+errores_text.configure(state='normal')
 
-texto4.add(consola_text, text="Consola", padding=5)
 texto4.add(output_text, text="Output", padding=5)
 texto4.add(errores_text, text="Errores", padding=5)
 
 label_cod = Label(frame1, text="Consola, Output y Errores", bg="gray93",
                   font=("Berlin Sans FB", 14)).place(x=420, y=470)
 
-
+funcion = Funciones2()
 # Botones
 fname2 = "./img/run.png"
 img = PhotoImage(file=fname2)
-btn = Button(frame1, image=img, bg="gray93", command=run).place(x=835, y=20)
+btn = Button(frame1, image=img, bg="gray93", command=lambda : funcion.analizar(texto,consola_text,output_text, errores_text)).place(x=835, y=20)
 
 
 fname3 = "./img/borrar.png"
@@ -199,12 +201,12 @@ btn2 = Button(frame1, image=img2, bg="gray93").place(x=1330, y=20)
 
 fname4 = "./img/error.png"
 img3 = PhotoImage(file=fname4)
-btn3 = Button(frame1, bg="gray93", image=img3, text="Errores", height=70,
+btn3 = Button(frame1, bg="gray93", command = abrirERRORES, image=img3, text="Errores", height=70,
               width=100, font=("Berlin Sans FB", 15)).place(x=138, y=200)
 
 fname5 = "./img/tabla.png"
 img4 = PhotoImage(file=fname5)
-btn4 = Button(frame1, bg="gray93", image=img4, text="Tabla", height=70,
+btn4 = Button(frame1, bg="gray93", command = abrirTS, image=img4, text="Tabla", height=70,
               width=100, font=("Berlin Sans FB", 15)).place(x=138, y=290)
 
 fname6 = "./img/AST.png"
