@@ -185,7 +185,7 @@ class Select(Instruction):
             syntaxPostgreSQL.append(
                  "Error: P0001: Error en la instruccion SELECT"
             )
-            raise Exception("Error en la instruccion DELETE")
+            
 
     def dot(self):
         new = Nodo.Nodo("SELECT")
@@ -282,7 +282,10 @@ class FromClause(Instruction):
             try:
                 environment.types.update(types)
             except:
-                raise Exception("Error en la clausula FROM")
+                syntaxPostgreSQL.append(
+                 "Error: P0001: Error en la instruccion SELECT clausula FROM"
+            )
+                
         return
 
     def dot(self):
@@ -375,7 +378,7 @@ class SelectOnlyParams(Select):
             syntaxPostgreSQL.append(
                  "Error: P0001: Error en la instruccion SELECT"
             )
-            raise Exception("Error en la instruccion SELECT")
+            
 
     def dot(self):
         new = Nodo.Nodo("SELECT")
@@ -440,7 +443,7 @@ class Delete(Instruction):
             syntaxPostgreSQL.append(
                  "Error: P0001: Error en la instruccion DELETE"
             )
-            raise Exception("Error en la instruccion DELETE")
+            
 
     def dot(self):
         new = Nodo.Nodo("DELETE")
@@ -500,7 +503,7 @@ class Update(Instruction):
             syntaxPostgreSQL.append(
                  "Error: P0001: Error en la instruccion UPDATE"
             )
-            raise Exception("Error en la instruccion UPDATE")
+            
     def dot(self):
 
         new = Nodo.Nodo("UPDATE")
@@ -570,6 +573,10 @@ class Drop(Instruction):
                     if valor == 0:
                         Struct.dropTable(dbtemp, self.name)
                         return "DROP TABLE Se elimino la tabla: " + self.name
+                syntaxPostgreSQL.append(
+                "Error: 42000: Base de datos no especificada "
+                
+            )
                 return "El nombre de la base de datos no esta especificado operacion no realizada"
             else:
                 valor = jsonMode.dropDatabase(self.name)
@@ -597,7 +604,7 @@ class Drop(Instruction):
             syntaxPostgreSQL.append(
                  "Error: P0001: Error en la instruccion DROP"
             )
-            raise Exception("Error en la instruccion DROP")
+            
 
     def dot(self):
         new = Nodo.Nodo("DROP")
@@ -658,7 +665,7 @@ class AlterDataBase(Instruction):
             syntaxPostgreSQL.append(
                  "Error: P0001: Error en la instruccion ALTER DATABASE"
             )
-            raise Exception("Error en la instruccion ALTER DATABASE")
+            
 
     def dot(self):
         new = Nodo.Nodo("ALTER_DATABASE")
@@ -702,7 +709,7 @@ class Truncate(Instruction):
             syntaxPostgreSQL.append(
                  "Error: P0001: Error en la instruccion TRUNCATE"
             )
-            raise Exception("Error en la instruccion TRUNCATE")
+            
 
     def dot(self):
         new = Nodo.Nodo("TRUNCATE")
@@ -1153,7 +1160,7 @@ class CheckOperation(Instruction):
         except:
             syntaxPostgreSQL.append( "Error: XX000: Error interno CHECK"
             )
-            raise Exception("Error en la instruccion INSERT")
+            
 
 
 class AlterTable(Instruction):

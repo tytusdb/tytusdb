@@ -404,7 +404,7 @@ class BinaryRelationalOperation(Expression):
                 "Error: XX000: Error interno (Binary Relational Operation)"
                 + "\n En la linea: "+ str(self.row)
                 )
-            raise Exception("Error en BinaryRelationalOperation")
+            pass
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -492,7 +492,7 @@ class UnaryRelationalOperation(Expression):
                 "Error: XX000: Error interno (Unary Relational Operation)"
                 + "\n En la linea: "+ str(self.row)
                 )
-            raise Exception("Error en UnaryRelationalOperation")
+            pass
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -584,7 +584,7 @@ class TernaryRelationalOperation(Expression):
                 "Error: XX000: Error interno (Ternary Relational Operation)"
                 + "\n En la linea: "+ str(self.row)
                 )
-            raise Exception("Error en TernaryRelationalOperation")
+            pass
 
     def dot(self):
         n1 = self.exp1.dot()
