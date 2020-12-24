@@ -26,6 +26,9 @@ class TABLA_TIPO(Enum):
     UNICA = 1
     SELECCIONADA = 2
     SELECT_SIMPLE = 3
+    TABLAWHERE = 4    
+
+    
 
 class SelectSimple(Instruccion):
     def __init__(self, campos):
@@ -49,10 +52,10 @@ class SelectSimple(Instruccion):
                 print("Error semántico, solo se aceptan expresiones.")
                 break
             elif isinstance(actual, Expresion):
-                filas.append(actual.item.ejecutar(ts).val)
+                filas.append(actual.ejecutar(ts).val)
                 columnas.append('???')
                 print("Error semántico, solo se aceptan expresiones.")
-                break
+
         salida = matriz(columnas, [filas], TABLA_TIPO.SELECT_SIMPLE, "nueva tabla", None, None)
         salida.imprimirMatriz()
         return salida
@@ -484,3 +487,105 @@ class ITEM_ALIAS():
     def __init__(self, item, alias) -> None:
         self.item = item
         self.alias = alias
+
+
+
+
+# Select filter
+class SelectFilter(Instruccion):
+    def __init__(self, where, groupby = None, having = None):
+        self.where = where # ES UNA EXPRESION
+        self.groupby = groupby
+        self.having = having
+
+    def dibujar(self):
+        identificador = str(hash(self))
+
+        nodo = "\n" + identificador + "[ label = \"FILTER\" ];"
+
+        # Para el where
+        nodo += "\nWHERE" + identificador + "[ label = \"WHERE\" ];"
+        nodo += "\n" + identificador + " -> WHERE" + identificador + ";"
+        nodo += "\nWHERE" + identificador + " -> " + str(hash(self.where)) + ";"
+
+        # Para el group by
+        if self.groupby:
+            nodo += "\nGROUPBY" + identificador + "[ label = \"GROUP BY\" ];"
+            nodo += "\n" + identificador + " -> GROUPBY" + identificador + ";"
+            nodo += "\nGROUPBY" + identificador + " -> " + str(hash(self.groupby)) + ";"
+
+        if self.having:
+            nodo += "\nHAVING" + identificador + "[ label = \"HAVING\" ];"
+            nodo += "\n" + identificador + " -> HAVING" + identificador + ";"
+            nodo += "\nHAVING" + identificador + " -> " + str(hash(self.having)) + ";"        
+
+        return nodo
+    def ejecutar(self, ts):
+        if self.groupby == None and self.having == None:
+            if isinstance(self.where , WHERE):
+                return self.where.ejecutar(ts)
+
+class WHERE():
+    def __init__(self, expresion):
+        self.exp = expresion
+
+    
+    def ejecutar(self, ts): # NECESITO LA TABLOTA :v 
+        
+        lista_litas = []
+        MinitablaSimbolos = []
+        filas = ts.filas
+        columnas = ts.columnas
+        i = 0 
+        while(i < len(filas)):
+            indiceColumna = 0
+            while(indiceColumna < len(columnas)): 
+                if len(ts.fuentes)==1:
+                    MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':ts.clm[quitarRef(columnas[indiceColumna])]['Type']})
+                else:
+                    MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':ts.clm[obtenerIndice(ts.fuentes,obtenerRef(columnas[indiceColumna]))][quitarRef(columnas[indiceColumna])]['Type']})
+                indiceColumna+=1
+            tupla = TuplaCompleta(MinitablaSimbolos)
+            casillaResultante = self.exp.ejecutar(tupla)
+            if isinstance(casillaResultante , ErrorReport): 
+                print(casillaResultante.description)
+                
+            if casillaResultante.val:
+                fila = []
+                for t in MinitablaSimbolos:
+                    fila.append(t['val'])    
+                lista_litas.append(fila)
+
+            MinitablaSimbolos.clear()
+            i+=1
+        return matriz(ts.columnas, lista_litas, TABLA_TIPO.TABLAWHERE, "nueva tabla", ts.fuentes, ts.clm)
+
+class SelectFromWhere(Instruccion):
+    def __init__(self, fuentes, campos, filtro):
+        self.fuentes = fuentes
+        self.campos = campos # tal vez que lista de campos viniera como    [ ( item , alias)   , ( item , alias)  , ( item , alias)   ] donde item puede ser una expresion , funcion o algo simple
+        self.filtro = filtro
+    def dibujar(self):
+        pass
+    def ejecutar(self, ts): 
+        columnas = []
+        for col in self.campos:
+            if isinstance (col, ExpresionID):
+                columnas.append(col.val)
+            elif isinstance(col, str):
+                columnas.append(col)
+            elif isinstance(col, Expresion):
+                columnas.append(col)
+            elif isinstance(col, ITEM_ALIAS):
+                columnas.append(col)      
+        tabla_base = FROM(self.fuentes)
+        
+        SALIDA_FILTRADA = self.filtro.ejecutar(tabla_base.ejecutar(ts))
+        if isinstance(SALIDA_FILTRADA , ErrorReport):
+            return SALIDA_FILTRADA
+             
+        salida = SELECT(columnas,SALIDA_FILTRADA) 
+        salida.ejecutar(ts).imprimirMatriz()
+        return salida
+
+    
