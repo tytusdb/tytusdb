@@ -258,7 +258,52 @@ def TCgetToInherit(database: str, table: str) -> None:
                     new= dict.copy(data[database][table][d])
                     doc.update({d:new})
                 return doc
-    
+
+def TCalterDropPk(database:str,table:str)->int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            else:
+                for i in data[database][table]:
+                    if 'PRIMARY' in data[database][table][i]['CONST']:
+                        data[database][table][i]['CONST'].pop('PRIMARY')
+                        dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 1
+
+def TCaltertype(database:str,table:str,column:str,lenght:int)->int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            else:
+                if not column in data[database][table]:
+                    return 4
+                else:
+                    data[database][table][column]['CONST']['MAXLENGTH']=lenght
+                    dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 1
+
 ###############
 # Tables TYPES #
 ###############

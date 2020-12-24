@@ -7,7 +7,7 @@ from .executeDrop import executeDropDatabase,executeDropTable
 from .executeUse import executeUse, executeUseAlter
 from .executeExpression import executeExpression
 from .executeInsert import executeInsertAll
-from .executeAlter import executeAlterDatabaseRename
+from .executeAlter import executeAlterDatabaseRename,executeAlterTableDropPK,executeAlterType
 from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable,TCalterDatabase
 from .AST.error import * 
 import sys
@@ -115,4 +115,34 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence,Update):
         executeUpdate(self,sentence)
+    elif isinstance(sentence,AlterTableDropConstraint):
+        if(len(sentence.constraint)>2):
+            if(sentence.constraint[len(sentence.constraint)-2:len(sentence.constraint)]=='PK'):
+                result=executeAlterTableDropPK(self,sentence)    
+                if(result==0):
+                    print_success("QUERY","Primary key has been dropped")
+                elif(result==2):
+                    print_error("SEMANTIC ERROR","Database "+database+" does not exist")
+                elif(result==3):
+                    print_error("SEMANTIC ERROR","Table "+sentence.table+" does not exist")
+                elif (result==4):
+                    print_error("SEMANTIC ERROR","Pk does not exist")
+                else:
+                    print_error("SEMANTIC ERROR",'error in the operation')
+    elif isinstance(sentence,AlterTableAlterColumnType):
+        result=executeAlterType(self,sentence)
+        if(result==0):
+            print_success("QUERY","Type has been changed")
+        elif(result==2):
+            print_error("SEMANTIC ERROR","Database does not exist")
+        elif(result==3):
+            print_error("SEMANTIC ERROR","Table "+sentence.table+" does not exist")
+        elif (result==4):
+            print_error("SEMANTIC ERROR","Column "+sentence.column+" does not exist")
+        elif (result==5):
+            print_error("SEMANTIC ERROR","Type can not change")
+        else:
+            print_error("SEMANTIC ERROR",'error in the operation')
+
+
     
