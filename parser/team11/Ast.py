@@ -461,7 +461,37 @@ class AST:
         return tipos
 
 #-----------------------------------------------------------------------------------------------------------------------------------------
+    def erroresHTML(self):
+        now = datetime.now()
+        fecha = 'Fecha: '+str(now.day)+'/'+str(now.month)+'/'+str(now.year)
+        hora = 'Hora: '+str(now.hour)+':'+str(now.minute)
+        header = '<html><head><br><title>REPORTE DE ERRORES</title></head><body>\n<H1 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">REPORTE DE ERRORES</font></b></H1>\n<H4 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">'+fecha+' | '+hora+'</font></b></H4>\n'
+        tbhead = '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
+        tbhead += '<tr>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">CODIGO</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">TIPO DE ERROR</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">DESCRIPCION</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">LINEA</font></td>\n'
+        tbhead += '</tr>\n'
+        cont = ''
+        template = open("Errores.html", "w")
 
+        for e in self.errors:
+            print(e.toString())
+
+        for comp in self.errors:
+            # Iteración sobre las tablas de la DB
+            cont += '<tr>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.code+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(comp.error_type.name)+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.description+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(comp.line)+'</font></td>\n'
+            cont += '</tr>\n'
+        template.write(header)
+        template.write(tbhead)
+        template.write(cont)
+        template.write("</table> \n</body> \n</html>")
+        template.close()
 
 
 ###################################################### Ejecucion de Querys ###############################################
