@@ -11,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectFilter, SelectFrom, ITEM_ALIAS
+from astSelect import SelectSimple, SelectFrom, ITEM_ALIAS , SelectFilter , SelectFromWhere, WHERE
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -302,9 +302,10 @@ def p_filtro(p):
         p[0] = SelectFilter(p[1],p[2],p[3])
     elif len(p) == 3:
         bnf.addProduccion('\<filtro> ::= \<where> \<group_by>')
+        p[0] = SelectFilter(p[1],p[2])
     else:
         bnf.addProduccion('\<filtro> ::= \<where>')
-        p[0] = p[1]
+        p[0] = SelectFilter(p[1])
 
         
 
@@ -344,6 +345,7 @@ def p_combine_querys7(p):
 def p_select2(p):#_________________________________- select simple con un where
     'select : SELECT select_list FROM lista_tablas filtro'
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list> "FROM"  \<lista_tablas> \<filtro>')
+    p[0] = SelectFromWhere(p[4], p[2] ,p[5])
 
 
 
@@ -399,6 +401,7 @@ def p_select28(p):
 
 def p_select30(p):
     'select : SELECT select_list'
+    p[0] = SelectSimple(p[2])
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list>')
 
 def p_select31(p):
@@ -1855,6 +1858,7 @@ def p_subquery(p):
 def p_where(p):
         'where : WHERE expresion'
         bnf.addProduccion('\<where> ::= "WHERE" \<expresion>')
+        p[0] = WHERE(expresion=p[2])
 
 #<GROUP_BY> ::= <LISTA_IDS>
 def p_groupby(p):
@@ -2087,7 +2091,7 @@ def analizarEntrada(entrada):
 
 arbolParser = analizarEntrada('''
 use test;
-select * from tb2 as alv;
+select alv.numerica as valor , alv.cadena from tb2 as alv where alv.numerica between 10 and 55;
 ''')
 arbolParser.ejecutar()
 

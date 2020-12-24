@@ -24,6 +24,7 @@ import re
 from Instrucciones import *
 from jsonMode import *
 from Expresiones import *
+from reporteTS import *
 import webbrowser
 from Graficar import Graficar
 
@@ -420,11 +421,13 @@ class Main(tk.Tk):
 
     # Semantic report
     def report_semantic(self):
-        pass
+        eS = es.ListaErroresSemanticos()
+        generarReporte(eS)
 
     # ST report
     def report_st(self):
-        pass
+        tSimbolo = st.SymbolTable()
+        generarTablaSimbolos(tSimbolo)
 
     # AST report
     def ast_report(self):
@@ -527,7 +530,7 @@ class Main(tk.Tk):
 
             # Start parser
             ins = g.parse(tytus)
-            g.analizar(tytus)
+           ##g.analizar(tytus)
             st_global = st.SymbolTable()
             es_global = es.ListaErroresSemanticos()
             ct_global = ct.crearTabla()
@@ -537,7 +540,10 @@ class Main(tk.Tk):
                 messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
             else:
                 self.do_body(ins.getInstruccion(), st_global, es_global, ct_global)
-                self.raiz_ast = ins.getNodo()
+                if es_global is Null:
+                    self.raiz_ast = ins.getNodo()
+                else:
+                    messagebox.showerror("ERROR", "Verificar reporte semántico")
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
@@ -557,6 +563,8 @@ class Main(tk.Tk):
                 self.do_create_database(inst, p_st, es_global)
             elif isinstance(inst, Insert):
                 self.do_insert_tb(inst, p_st, es_global)
+            elif isinstance(inst,DropT):
+                self.do_drop_tb(inst,p_st,es_global)
             elif isinstance(inst, CreateTable):
                 self.do_create_tb(inst, p_st, es_global, ct_global)
             else:
@@ -590,6 +598,7 @@ class Main(tk.Tk):
         elif not existe:
             p_st.add(simbolo)
             createDatabase(p_inst.idData)
+        else:
             error = es.errorSemantico(key, 'La base de datos ' + p_inst.idData + ' ya existe')
             p_es.agregar(error)
 

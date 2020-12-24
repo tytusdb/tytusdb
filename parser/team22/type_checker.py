@@ -40,13 +40,16 @@ class TypeChecker():
     def showDatabase(self, like: str = ''):
         query_result = jsonMode.showDatabases()
         if like == '':
-            self.salida.append(query_result)
+            sal = [['DATABASES']]
+            for base in query_result:
+                sal.append([base])
+            self.salida.append(sal)
         else:
             pattern = '^' + like.replace('%','.+').replace('_','(.){0,1}') + '$'
-            filtrada = []
+            filtrada = [['DATABASES']]
             for base in query_result:
                 if re.match(pattern, base):
-                    filtrada.append(base)
+                    filtrada.append([base])
             self.salida.append(filtrada)
         self.consola.append(Codigos().successful_completion('SHOW DATABASE'))
 
@@ -59,7 +62,9 @@ class TypeChecker():
         if query_result == 0:
             self.consola.append(Codigos().successful_completion('ALTER DATABASE'))
             self.type_checker[databaseNew] = self.type_checker.pop(databaseOld)
-            self.tabla_simbolos.simbolos[databaseNew] = self.tabla_simbolos.simbolos.pop(databaseOld)
+            symbol = self.tabla_simbolos.simbolos.pop(databaseOld)
+            symbol.id = databaseNew
+            self.tabla_simbolos.simbolos[databaseNew] = symbol
             #self.saveTypeChecker()
         elif query_result == 1:
             self.addError(Codigos().database_internal_error(databaseOld), line)
@@ -180,7 +185,6 @@ class TypeChecker():
             json.dump(data, file)
                 
     def addError(self, error, line):
-        self.consola.append(error)
         self.tabla_errores.agregar(Error('Semántico', error, line))
     
 

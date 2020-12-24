@@ -24,7 +24,7 @@ class Funciones2:
                 er += str(contador) + '. . . .'+a.toString()+'. . . .' + '\n'
             errores.insert('insert', er)
             #print(entrada)
-
+            self.AST.output[:] = []
 
         else:
             messagebox.showerror(message="Ingrese datos a analizar",title="TytusDB")
