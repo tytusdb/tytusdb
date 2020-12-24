@@ -10,6 +10,7 @@ from parse.sql_ddl.alter import *
 from parse.sql_dml.insert import *
 from parse.sql_ddl.drop import *
 from parse.sql_dml.select import *
+from parse.sql_dml.delete import *
 from treeGraph import *
 from parse.symbol_table import *
 
@@ -380,12 +381,10 @@ def p_statement(t):
                     | stm_select PUNTOCOMA
                     | stm_insert PUNTOCOMA
                     | stm_update PUNTOCOMA
+                    | stm_delete PUNTOCOMA
                     | stm_drop   PUNTOCOMA
                     '''
-#                    |    stm_select PUNTOCOMA 
-#
-#
-#                    |    stm_delete PUNTOCOMA
+#                    |    stm_select PUNTOCOMA
 #                    |    stm_show   PUNTOCOMA
 #                    |    stm_select UNION all_opt stm_select
 #                    |    stm_select INTERSECT all_opt stm_select
@@ -955,19 +954,17 @@ def p_stm_use_db(t):
 def p_stm_delete(t):
     '''stm_delete   : DELETE FROM ID where_clause
                     | DELETE FROM ID'''
-    token = t.slice[1]
+    token_del = t.slice[1]
     if len(t) == 5:
-        childsProduction = addNotNoneChild(t,[4])                
-        graph_ref = graph_node(str("stm_delete"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
+        childsProduction = addNotNoneChild(t, [4])
+        graph_ref = graph_node(str("stm_delete"), [t[1], t[2], t[3], t[4]], childsProduction)
         addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier \<WHERE_CLAUSE>")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
+        t[0] = Delete(t[3], t[4], token_del.lineno, token_del.lexpos, graph_ref)
     else:
-        childsProduction = addNotNoneChild(t,[2,5,6])                
-        graph_ref = graph_node(str("stm_delete"), [t[1],t[2],t[3]]    ,childsProduction)
+        childsProduction = addNotNoneChild(t, [2, 5, 6])
+        graph_ref = graph_node(str("stm_delete"), [t[1], t[2], t[3]], childsProduction)
         addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
+        t[0] = Delete(t[3], None, token_del.lineno, token_del.lexpos, graph_ref)
 
         
 def p_where_clause(t):
@@ -2052,7 +2049,6 @@ def p_empty(t):
     pass
 
 
-
 import ply.yacc as yacc
 from ply.yacc import token
 
@@ -2060,6 +2056,7 @@ parse = yacc.yacc()
 errorsList = []
 
 ST = SymbolTable([])##TODO Check is only one ST.
+
 
 class grammarReview:
     def __init__(self, texto): 
@@ -2093,8 +2090,8 @@ class grammarReview:
     ST = SymbolTable([])##TODO Check is only one ST.
     ST.LoadMETADATA()
     instrucciones = parse.parse(input)
-    createFile()
-    creategrafo()
+    # createFile()
+    # creategrafo()
 
     for instruccion in instrucciones:
         try:
