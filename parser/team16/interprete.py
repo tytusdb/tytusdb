@@ -1731,7 +1731,14 @@ def procesar_expresion_select(expresiones, ts):
 
 #exist
     elif isinstance(expresiones, UnitariaLogicaEXIST):
-        return ProcesoSub(expresiones, ts_global)
+        result = ProcesoSub(expresiones.expresion, ts_global)
+
+        if(len(result)>0):
+            return True
+        else:
+            return False
+
+        # return ProcesoSub(expresiones.expresion, ts_global)
 
 
 
