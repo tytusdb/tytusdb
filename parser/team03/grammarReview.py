@@ -10,6 +10,7 @@ from parse.sql_ddl.alter import *
 from parse.sql_dml.insert import *
 from parse.sql_ddl.drop import *
 from parse.sql_dml.select import *
+from parse.sql_dml.update import *
 from parse.sql_dml.delete import *
 from treeGraph import *
 from parse.symbol_table import *
@@ -900,35 +901,37 @@ def p_column_list(t):
 def p_stm_update(t):
     '''stm_update : UPDATE ID SET update_list where_clause
                     | UPDATE ID SET update_list'''
+    token_up = t.slice[1]
     if len(t) == 6:
-        childsProduction  = addNotNoneChild(t,[4,5])
-        graph_ref = graph_node(str("stm_update"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+        lista = None
+        childsProduction  = addNotNoneChild(t, [5])
+        if t[4] != None:
+            lista= t[4][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("stm_update"),    [t[1], t[2], t[3], t[4], t[5]], childsProduction)
         addCad("**\<STM_UPDATE>** ::= tUpdate tIdentifier tSet \<UPDATE_LIST> \<WHERE_CLAUSE> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####        
+        t[0] = Update(t[2], t[4], t[5], token_up.lineno, token_up.lexpos, graph_ref)
     else: 
-        childsProduction  = addNotNoneChild(t,[4])
-        graph_ref = graph_node(str("stm_update"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        childsProduction  = addNotNoneChild(t, [])
+        graph_ref = graph_node(str("stm_update"),    [t[1], t[2], t[3], t[4]], childsProduction)
         addCad("**\<STM_UPDATE>** ::= tUpdate tIdentifier tSet \<UPDATE_LIST>  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####    
+        t[0] = Update(t[2], t[4], None, token_up.lineno, token_up.lexpos, graph_ref)
 
 def p_update_list(t):
     '''update_list  : update_list COMA ID IGUAL logicExpression
                     | ID IGUAL logicExpression'''
-
+    token_up = t.slice[1]
     if len(t) == 6:
         childsProduction  = addNotNoneChild(t,[1,5])
-        graph_ref = graph_node(str("update_list"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+        graph_ref = graph_node(str("update_list"),    [t[1], t[2], t[3], t[4], t[5]], childsProduction)
         addCad("**\<UPDATE_LIST>** ::= \<UPDATE_LIST> ',' tIdentifier '=' \<EXP_LOG> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####        
+        t[1].append(UpdateItem(t[3], t[5], token_up.lineno, token_up.lexpos, graph_ref))
+        t[0] = t[1]
     else: 
         childsProduction  = addNotNoneChild(t,[3])
-        graph_ref = graph_node(str("update_list"),    [t[1],t[2],t[3]]       ,childsProduction)
+        graph_ref = graph_node(str("update_list"),    [t[1], t[2], t[3]], childsProduction)
         addCad("**\<UPDATE_LIST>** ::= tIdentifier '=' \<EXP_LOG> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####     
+        t[0] = [UpdateItem(t[1], t[3], token_up.lineno, token_up.lexpos, graph_ref)]
 
 
 ################################
