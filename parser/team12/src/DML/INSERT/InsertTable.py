@@ -113,17 +113,11 @@ class InsertTable():
                 resp = Response("42P12",err_resp)
                 return resp      
             for h in l_col:
-                print('contador ', contador )
                 tmp_col_actual = Column()
                 if len(columnasI) > contador:
                     tmp_col_insert = columnasI[contador].upper()
                     tmp_valor = valoresI[contador]
                 tmp_col_actual = h
-                
-                print('actual ', tmp_col_insert)
-                print('insert ', tmp_col_insert)
-                print('valor ', tmp_valor)
-                
 
                 # Validar que sea la misma columna
                 if tmp_col_actual.name == tmp_col_insert:
@@ -143,8 +137,6 @@ class InsertTable():
             for h in l_col:
                 tmp_col_actual = Column()
                 tmp_col_actual = h
-                print('contador',contador)
-                print('len', len(valoresI))
                 if not(contador == len(valoresI)):
                     tmp_valor = valoresI[contador]
 
@@ -168,8 +160,12 @@ class InsertTable():
         
         
     def validar_tipo(self, tipo: str, variable: str):
+        print('Variable ', variable, ' tipo ', tipo)
+        variable = str(variable)
         try:
             if tipo == 1:
+                variable = variable.replace(" ","")
+                variable = variable.replace(",","")
                 int(variable)
             elif tipo == 2:
                 print('caracter')
@@ -182,5 +178,5 @@ class InsertTable():
                 print('No tiene tipo')
             return 1 
         except:
-            print('La variable no coincide con el tipo')
+            print('La variable ', variable, ' no coincide con el tipo ',tipo)
             return 0
