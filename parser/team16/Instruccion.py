@@ -6275,6 +6275,7 @@ class Insert_Datos(Instruccion):
 
                             resultado = Inter.procesar_expresion(cc, None)
                             print(" Mi proceso: "+str(resultado))
+
                             if isinstance(resultado, string_types) and (str(temporal[index].tipo.valor).upper() == 'VARCHAR' or str(temporal[index].tipo.valor).upper() == 'CHARACTER' or str(temporal[index].tipo.valor).upper() == 'CHAR'):
                                 print(" >>> Parametros correctos, insertar, Validar la exprecion.")
                                 banderaInsert = True

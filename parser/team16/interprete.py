@@ -100,6 +100,7 @@ def procesar_expresion(expresiones, ts):
             # LisErr.agregar(newErr)
             return None
     else:
+        print(expresiones)
         print('Error:Expresion no reconocida')
 
 
@@ -440,6 +441,25 @@ def procesar_logicaNOT(instr, ts):
         # newErr=ErrorRep('Semantico','No se puede aplicar Neg Logica ',indice)
         # LisErr.agregar(newErr)
         return None
+
+
+#aqui viene expresion de subquery
+def procesar_logicaEXIST(instr, ts):
+    try:
+        val = procesar_expresion(instr.expresion, ts)
+        return 0 if (val == 1) else 1
+
+    except:
+        print('Error no se puede aplicar Neg Logica')
+        # consola.insert('end','>>Error: No se puede aplicar Neg Logica\n>>')
+        # newErr=ErrorRep('Semantico','No se puede aplicar Neg Logica ',indice)
+        # LisErr.agregar(newErr)
+        return None
+
+
+
+
+
 
 
 def procesar_NotBB(instr, ts):
@@ -1638,6 +1658,7 @@ def agregarErrorFuncion(val1, val2, val3, val4,funcion, tipoEsperado, linea, col
 # VERIFICANDO QUE TIPO DE EXPRESION ES
 def procesar_expresion_select(expresiones, ts):
     print("---------------------------------------"+str(expresiones))
+
     if isinstance(expresiones, ExpresionAritmetica):
         return procesar_aritmetica_select(expresiones, ts)
 
@@ -1664,8 +1685,15 @@ def procesar_expresion_select(expresiones, ts):
 
     elif isinstance(expresiones, Variable):
         return procesar_variable(expresiones, ts)
+
     elif isinstance(expresiones, UnitariaAritmetica):
         return procesar_unitaria_aritmetica_select(expresiones, ts)
+
+#exist
+    elif isinstance(expresiones, UnitariaLogicaEXIST):
+        return ProcesoSub(expresiones, ts_global)
+
+
 
     elif isinstance(expresiones, AccesoSubConsultas):
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ENtre sub where")
@@ -1679,6 +1707,8 @@ def procesar_expresion_select(expresiones, ts):
             print('Error no se puede aplicar abs() por el tipo de dato')
             return None
     else:
+        print('<<<<<<<<><<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>a')
+        print(expresiones)
         print('Error:Expresion no reconocida')
 
 
@@ -1930,7 +1960,8 @@ def procesar_logica_select(expresion, ts):
     val2 = procesar_expresion_select(expresion.exp2, ts)
 
     if ((isinstance(val, int) or isinstance(val, float))
-            and ((isinstance(val2, int) or isinstance(val2, float)))):
+        and ((isinstance(val2, int) or isinstance(val2, float)))):
+
         if expresion.operador == OPERACION_LOGICA.AND:
             return 1 if (val and val2) else 0
         elif expresion.operador == OPERACION_LOGICA.OR:
@@ -1955,6 +1986,38 @@ def procesar_logica_select(expresion, ts):
                     if str(vv2.fila) == str(vv.fila):
                         listaP.append(vv2)
             return listaP
+
+
+#==========  AQU VIENEN NOT IN
+
+        elif expresion.operador == OPERACION_LOGICA.NOT_IN:
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   estoy entrando x2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+            listaP = []
+            for v in val2:
+                vv: DatoInsert = v
+                for v2 in val:
+                    vv2: DatoInsert = v2
+
+                    if str(vv2.fila) != str(vv.fila):
+                        listaP.append(vv2)
+            return listaP
+
+
+# ========== VIENE UN IN
+
+        elif expresion.operador == OPERACION_LOGICA.IN:
+            listaP = []
+            for v in val2:
+                vv: DatoInsert = v
+                for v2 in val:
+                    vv2: DatoInsert = v2
+                    if str(vv2.fila) == str(vv.fila):
+                        listaP.append(vv2)
+            return listaP
+
+
+
+
         elif expresion.operador == OPERACION_LOGICA.IS_DISTINCT:
             listaP = []
             for v in val:
