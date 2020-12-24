@@ -384,18 +384,32 @@ def p_statement(t):
                     | stm_update PUNTOCOMA
                     | stm_delete PUNTOCOMA
                     | stm_drop   PUNTOCOMA
+                    | stm_select UNION all_opt stm_select PUNTOCOMA
+                    | stm_select INTERSECT all_opt stm_select PUNTOCOMA
+                    | stm_select EXCEPT all_opt stm_select PUNTOCOMA
                     '''
+
 #                    |    stm_select PUNTOCOMA
 #                    |    stm_show   PUNTOCOMA
-#                    |    stm_select UNION all_opt stm_select
-#                    |    stm_select INTERSECT all_opt stm_select
-#                    |    stm_select EXCEPT all_opt stm_select
 #                    |    stm_use_db PUNTOCOMA
     try:
         punteroinicio(t[1].graph_ref)
     except:
         print("falta parametro graph_ref")
-    t[0] = t[1]
+    if len(t) == 3:
+        t[0] = t[1]
+    else:
+        token_op = t.slice[2]
+        graph_ref = None
+        if token_op.type == 'UNION':
+            addCad("**\<STATEMENT>** ::= \<STM_SELECT> tUnion tAll \<STM_SELECT> ")
+            t[0] = Union(t[1], t[4], True if t[3] is not None else False, token_op.lineno, token_op.lexpos, graph_ref)
+        if token_op.type == 'INTERSECT':
+            addCad("**\<STATEMENT>** ::= \<STM_SELECT> tUnion tAll \<STM_SELECT> ")
+            t[0] = Intersect(t[1], t[4], True if t[3] is not None else False, token_op.lineno, token_op.lexpos, graph_ref)
+        if token_op.type == 'EXCEPT':
+            addCad("**\<STATEMENT>** ::= \<STM_SELECT> tUnion tAll \<STM_SELECT> ")
+            t[0] = Except(t[1], t[4], True if t[3] is not None else False, token_op.lineno, token_op.lexpos, graph_ref)
 
 def p_statement_error(t):
     '''statement    : error PUNTOCOMA
@@ -414,7 +428,7 @@ def p_all_opt(t):
     if len(t) == 2:
         graph_ref = graph_node(str(t[1]) )
         addCad("**\<ALL_OPT>** ::= tAll ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = upNodo(True, 0, 0, graph_ref)
         #####        
     else: 
         t[0]=None 
