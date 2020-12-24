@@ -3443,8 +3443,8 @@ class dato(column_function):
     
 
 class fun_now(column_function):
-    def __init__ (self,tables):
-        pass
+    def __init__ (self,alias):
+        self.alias = alias
         
     def ejecutar(self,tables):
         # dd/mm/YY

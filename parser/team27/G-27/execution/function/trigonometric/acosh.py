@@ -32,4 +32,4 @@ class Acosh(Function):
             if value['value'] < 1:
                 return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [1,infinito] que son aceptados por la funcion acosh()", 'linea':self.row,'columna':self.column }
 
-            return [{'value':acosh(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':acosh(value['value']), 'typ': Type.DECIMAL}

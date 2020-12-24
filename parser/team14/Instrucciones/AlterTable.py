@@ -30,8 +30,11 @@ class AlterTable(Instruccion):
                             nuevaCol.baseDatos = dbActual
                             tablaAlterada.valor.append(nuevaCol)
                             e = ent.editarSimbolo(self.tabla + "_" + dbActual,tablaAlterada)
-                            if e == "ok": print("a la tabla se le agrego nueva col")
-                        else: reporteerrores.append(Lerrores("Error Semantico", "No se ha podido agregar la columna '" + addColumna.id + "' a la tabla " + self.tabla, 0, 0)) 
+                            if e == "ok":
+                                variables.consola.insert(INSERT,"Se agregó nueva columna '" + str(addColumna.id) + "' a la tabla '" + str(self.tabla) + "'\n")
+                        else: 
+                            reporteerrores.append(Lerrores("Error Semantico", "No se ha podido agregar la columna '" + addColumna.id + "' a la tabla " + self.tabla, 0, 0))
+                            variables.consola.insert(INSERT,"No se ha podido agregar la columna '" + addColumna.id + "' a la tabla ")
                     
                     elif opcionX.tipoAlter == TipoAlter.ADDCHECK:
                         #formato: C_database_tabla_nombreColumna
@@ -48,6 +51,7 @@ class AlterTable(Instruccion):
                                 nuevoSym.baseDatos = dbActual
                                 nuevoSym.tabla = self.tabla
                                 ent.nuevoSimbolo(nuevoSym)
+                                variables.consola.insert(INSERT,"Condición check agegada en columna '" + str(col.nombre) + "' en la tabla '" + str(self.tabla) + "'\n")
                                 break
                     
                     elif opcionX.tipoAlter == TipoAlter.ADDUNIQUE:
@@ -64,6 +68,7 @@ class AlterTable(Instruccion):
                                     nuevoSym.baseDatos = dbActual
                                     nuevoSym.tabla = self.tabla
                                     ent.nuevoSimbolo(nuevoSym)
+                                    variables.consola.insert(INSERT,"Condición Unique agregada en columna '" + str(col.nombre) + "' en la tabla '" + str(self.tabla) + "'\n")
 
                     elif opcionX.tipoAlter == TipoAlter.ADDFOREIGN:
                         addForeign:AddForeign = opcionX
@@ -76,7 +81,10 @@ class AlterTable(Instruccion):
                                 n.baseDatos = dbActual
                                 n.tabla = self.tabla
                                 ent.nuevoSimbolo(n)
-                            else: return ("La cantidad de columnas no coinciden en llave foránea de tabla '" + self.tabla + "'")
+                                variables.consola.insert(INSERT,"Llave Foránea referenciando a tabla '" + str(addForeign.referenceTable) + "' en la tabla '" + str(self.tabla) + "'\n")
+                            else: 
+                                variables.consola.insert(INSERT,"La cantidad de columnas no coinciden en llave foránea de la tabla '" + str(self.tabla) + "'\n")
+                                reporteerrores.append(Lerrores("Error Semántico","La cantidad de columnas no coinciden en llave foránea de tabla '" + self.tabla + "'","",""))
 
                     elif opcionX.tipoAlter == TipoAlter.ADDNULL:
                         addNulo:AddNull = opcionX
@@ -84,9 +92,10 @@ class AlterTable(Instruccion):
                             if col.nombre == addNulo.columna:
                                 if addNulo.nulo: #setea a nulos
                                     col.atributos.update({'null':True})
-                                    break
                                 else:
                                     col.atributos.update({'not null':True})
+                                
+                                break
                     
                     elif opcionX.tipoAlter == TipoAlter.DROPCONSTRAINT:
                         #formato : CONSTRAINT_database_tabla_nombreCol_idConstraint
@@ -107,19 +116,24 @@ class AlterTable(Instruccion):
                                     break
 
                         if not encontrado:
-                            return "El constraint '" + str(dropConstr.constraint) + "' no existe"
+                            variables.consola.insert(INSERT,"El constraint '" + str(dropConstr.constraint) + "' no existe'\n")
+                            reporteerrores.append(Lerrores("Error Semántico","El constraint '" + str(dropConstr.constraint) + "' no existe","",""))
                     
                     elif opcionX.tipoAlter == TipoAlter.ALTERTYPE:
                         alterTipo:AlterType = opcionX
                         for col in tablaAlterada.valor:
-                            if col.nombre == alterTipo.columna:
+                            if col.nombre == alterTipo.columna: 
                                 col.tipo = alterTipo.nuevoTipo
+                                variables.consola.insert(INSERT,"El tipo de la columna '" + str(col.nombre) + "' de la tabla '" + self.tabla + "' cambió a '" + col.tipo.tipo + "'\n")
+                                return
 
                     elif opcionX.tipoAlter == TipoAlter.RENAMECOLUMN:
                         rCol:RenameColumn = opcionX
                         for col in tablaAlterada.valor:
                             if col.nombre == rCol.oldColumn:
                                 col.nombre = rCol.newColumn
+                                variables.consola.insert(INSERT,"El nombre de la columna '" + str(rCol.oldColumn) + "' de la tabla '" + self.tabla + "' cambió a '" + str(rCol.newColumn) + "'\n")
+                                return
                     
                     elif opcionX.tipoAlter == TipoAlter.DROPCHECK:
                         dChe:DropCheck = opcionX
@@ -141,6 +155,7 @@ class AlterTable(Instruccion):
                                     if r == 0:
                                         for z in tablaAlterada.valor[x].atributos.values():
                                             ent.eliminarSimbolo(z)
+                                            variables.consola.insert(INSERT,"Se ha eliminado la columna '" + str(drop.valor) + "' de la tabla '" + str(self.tabla) + "'\n")
                                         
                                         index.append(x)
                         for g in index:

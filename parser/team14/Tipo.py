@@ -81,7 +81,7 @@ class Tipo():
                 if tipovalor.tipo in  ('date','timestamp without time zone'):
                     return True
             elif tipocolumn.tipo == 'time without time zone':
-                if tipovalor.tipo in  ('time','timestamp without time zone'):
+                if tipovalor.tipo in  ('time without time zone','timestamp without time zone'):
                     return True
             elif tipocolumn.tipo == 'boolean':
                 if tipovalor.tipo == 'boolean':

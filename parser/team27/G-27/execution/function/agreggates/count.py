@@ -16,3 +16,6 @@ class Count(object):
             if not any(columna.name == x.name for x in metadata.columns):
                 metadata.columns.append(columna)
             return {'tabla': metadata, 'data': tabla}
+    
+    def getColumn(self):
+        return Column( 'COUNT('+self.id.id+')', DBType.numeric, 0, -1)

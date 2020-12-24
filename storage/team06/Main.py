@@ -140,16 +140,26 @@ def ShowDataBase():
     t.graficar()
     caja1.insert(END,resultado)
     try:
-        print("mostrar data")
         #prueba para mostrar el arbol
         VBase= Toplevel()
-        VBase.geometry('600x600')
-        VBase.config(bg="black")
-        VBase.title('Arbol')
-        #se agrega la imagen
-        imagenL=PhotoImage(file="tab.png")
-        grafico=Label(VBase,image=imagenL)
-        grafico.place(x=0,y=0)
+        canvas1=Canvas(VBase, width=600,height=600,background="black")
+        canvas1.grid(column=0,row=0)
+
+        scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+        scroll_x.grid(row=1, column=0, sticky="ew")
+
+        scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+        scroll_y.grid(row=0, column=1, sticky="ns")
+
+        canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+        Grafico=PhotoImage(file="tab.png")
+        canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+        canvas1.configure(scrollregion=canvas1.bbox("all"))
+
+
         VBase.wait_window()
     except:
         print("No se encontró la imagen")
@@ -177,16 +187,23 @@ def showTables():
         caja2.delete("1.0", END)
         caja1.insert(END, respuesta)
         try:
-            print("mostrar data")
-            #prueba para mostrar el arbol
             VBase= Toplevel()
-            VBase.geometry('600x600')
-            VBase.config(bg="black")
-            VBase.title('Arbol')
-            #se agrega la imagen
-            imagenL=PhotoImage(file="tab.png")
-            grafico=Label(VBase,image=imagenL)
-            grafico.place(x=0,y=0)
+            canvas1=Canvas(VBase, width=600,height=600,background="black")
+            canvas1.grid(column=0,row=0)
+
+            scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+            scroll_x.grid(row=1, column=0, sticky="ew")
+
+            scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+            scroll_y.grid(row=0, column=1, sticky="ns")
+
+            canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+            Grafico=PhotoImage(file="tab.png")
+            canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+            canvas1.configure(scrollregion=canvas1.bbox("all"))
             VBase.wait_window()
         except:
             print("No se encontró la imagen")
@@ -208,15 +225,23 @@ def extractTable():
             caja2.delete("1.0", END)
             caja1.insert(END, respuesta)
             try:
-                #prueba para mostrar el arbol
                 VBase= Toplevel()
-                VBase.geometry('600x600')
-                VBase.config(bg="black")
-                VBase.title('Arbol')
-                #se agrega la imagen
-                imagenL=PhotoImage(file="tab.png")
-                grafico=Label(VBase,image=imagenL)
-                grafico.place(x=0,y=0)
+                canvas1=Canvas(VBase, width=600,height=600,background="black")
+                canvas1.grid(column=0,row=0)
+
+                scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+                scroll_x.grid(row=1, column=0, sticky="ew")
+
+                scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+                scroll_y.grid(row=0, column=1, sticky="ns")
+
+                canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+                Grafico=PhotoImage(file="tab.png")
+                canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+                canvas1.configure(scrollregion=canvas1.bbox("all"))
                 VBase.wait_window()
             except:
                 print("No se encontró la imagen")
@@ -369,6 +394,7 @@ def loadCSV():
     db = division[1]
     table = division[2]
     t.loadCSV(path,db,table)
+    caja2.delete("1.0",END)
 
 #"FINALIZADO"
 def extractRow():
@@ -433,16 +459,24 @@ def EjecutarBD():
                 t.graficar()
                 caja1.insert(END, resultado)
                 try:
-                    print("mostrar data")
-                    # prueba para mostrar el arbol
-                    VBase = Toplevel()
-                    VBase.geometry('600x600')
-                    VBase.config(bg="black")
-                    VBase.title('Arbol')
-                    # se agrega la imagen
-                    imagenL = PhotoImage(file="tab.png")
-                    grafico = Label(VBase, image=imagenL)
-                    grafico.place(x=0, y=0)
+                    #prueba para mostrar el arbol
+                    VBase= Toplevel()
+                    canvas1=Canvas(VBase, width=600,height=600,background="black")
+                    canvas1.grid(column=0,row=0)
+
+                    scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+                    scroll_x.grid(row=1, column=0, sticky="ew")
+
+                    scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+                    scroll_y.grid(row=0, column=1, sticky="ns")
+
+                    canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+                    Grafico=PhotoImage(file="tab.png")
+                    canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+                    canvas1.configure(scrollregion=canvas1.bbox("all"))
                     VBase.wait_window()
                 except:
                     print("No se encontró la imagen")
@@ -473,15 +507,23 @@ def EjecutarBD():
                 caja1.delete("1.0", END)
                 caja1.insert(END, respuesta)
                 try:
-                    # prueba para mostrar el arbol
-                    VBase = Toplevel()
-                    VBase.geometry('600x600')
-                    VBase.config(bg="black")
-                    VBase.title('Arbol')
-                    # se agrega la imagen
-                    imagenL = PhotoImage(file="tab.png")
-                    grafico = Label(VBase, image=imagenL)
-                    grafico.place(x=0, y=0)
+                    VBase= Toplevel()
+                    canvas1=Canvas(VBase, width=600,height=600,background="black")
+                    canvas1.grid(column=0,row=0)
+
+                    scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+                    scroll_x.grid(row=1, column=0, sticky="ew")
+
+                    scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+                    scroll_y.grid(row=0, column=1, sticky="ns")
+
+                    canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+                    Grafico=PhotoImage(file="tab.png")
+                    canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+                    canvas1.configure(scrollregion=canvas1.bbox("all"))
                     VBase.wait_window()
                 except:
                     print("No se encontró la imagen")
@@ -496,15 +538,23 @@ def EjecutarBD():
                     caja2.delete("1.0", END)
                     caja1.insert(END, respuesta)
                     try:
-                        # prueba para mostrar el arbol
-                        VBase = Toplevel()
-                        VBase.geometry('600x600')
-                        VBase.config(bg="black")
-                        VBase.title('Arbol')
-                        # se agrega la imagen
-                        imagenL = PhotoImage(file="tab.png")
-                        grafico = Label(VBase, image=imagenL)
-                        grafico.place(x=0, y=0)
+                        VBase= Toplevel()
+                        canvas1=Canvas(VBase, width=600,height=600,background="black")
+                        canvas1.grid(column=0,row=0)
+
+                        scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+                        scroll_x.grid(row=1, column=0, sticky="ew")
+
+                        scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+                        scroll_y.grid(row=0, column=1, sticky="ns")
+
+                        canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+                        Grafico=PhotoImage(file="tab.png")
+                        canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+                        canvas1.configure(scrollregion=canvas1.bbox("all"))
                         VBase.wait_window()
                     except:
                         print("No se encontró la imagen")

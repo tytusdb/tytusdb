@@ -32,4 +32,4 @@ class Acosd(Function):
             if value['value'] < -1 or value['value'] > 1:
                 return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [-1,1] que son aceptados por la funcion acosd()", 'linea':self.row,'columna':self.column }
 
-            return [{'value':acosd(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':acosd(value['value']), 'typ': Type.DECIMAL}

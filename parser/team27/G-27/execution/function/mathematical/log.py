@@ -28,4 +28,4 @@ class Log(Function):
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
             if value['value'] < 0:
                 return {'Error': "El valor " + str(value['value']) + " debe de ser real y positivo para el logaritmo neperiano.", 'linea': self.row, 'columna': self.column}
-            return [{'value':log(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':log(value['value']), 'typ': Type.DECIMAL}

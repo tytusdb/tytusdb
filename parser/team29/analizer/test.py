@@ -29,5 +29,5 @@ where ES.idestado = E.idestado
 """
 result = grammar.parse(s)
 print(result)
-
+#grammar.InitTree()
 # BnfGrammar.grammarReport()

@@ -3,6 +3,9 @@ from hashlib import new
 from analizer.abstract.expression import Expression
 from analizer.abstract import expression
 from enum import Enum
+import sys
+
+sys.path.append("../../..")
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
 from analizer.typechecker import Checker
@@ -11,6 +14,7 @@ from analizer.symbol.symbol import Symbol
 from analizer.symbol.environment import Environment
 from analizer.reports import Nodo
 from analizer.reports import AST
+import analizer
 
 ast = AST.AST()
 root = None
@@ -29,6 +33,10 @@ dbtemp = ""
 # listas encargadas de almacenar los errores semanticos
 sintaxPostgreSQL = list()
 semanticErrors = list()
+
+
+def makeAst(root):
+    ast.makeAst(root)
 
 
 class Instruction:
@@ -57,13 +65,16 @@ class SelectParams(Instruction):
 
 
 class Select(Instruction):
-    def __init__(self, params, fromcl, wherecl, groupbyCl, havingCl, row, column):
+    def __init__(
+        self, params, fromcl, wherecl, groupbyCl, havingCl, limitCl, row, column
+    ):
         Instruction.__init__(self, row, column)
         self.params = params
         self.wherecl = wherecl
         self.fromcl = fromcl
         self.groupbyCl = groupbyCl
         self.havingCl = havingCl
+        self.limitCl = limitCl
 
     def execute(self, environment):
         try:
@@ -129,12 +140,18 @@ class Select(Instruction):
 
             if value != []:
                 if self.wherecl == None:
-                    return [newEnv.dataFrame.filter(labels), newEnv.types]
+                    df_ = newEnv.dataFrame.filter(labels)
+                    if self.limitCl:
+                        df_ = self.limitCl.execute(df_, newEnv)
+                    return [df_, newEnv.types]
                 w2 = newEnv.dataFrame.filter(labels)
                 # Si la clausula WHERE devuelve un dataframe vacio
                 if w2.empty:
                     return None
-                return [w2, newEnv.types]
+                df_ = w2
+                if self.limitCl:
+                    df_ = self.limitCl.execute(df_, newEnv)
+                return [df_, newEnv.types]
             else:
                 newNames = {}
                 i = 0
@@ -142,7 +159,10 @@ class Select(Instruction):
                     newNames[columnName] = labels[i]
                     i += 1
                 groupDf.rename(columns=newNames, inplace=True)
-                return [groupDf, newEnv.types]
+                df_ = groupDf
+                if self.limitCl:
+                    df_ = self.limitCl.execute(df_, newEnv)
+                return [df_, newEnv.types]
         except:
             raise
 
@@ -157,9 +177,8 @@ class Select(Instruction):
             for p in self.params:
                 paramNode.addNode(p.dot())
         new.addNode(self.fromcl.dot())
-        new.addNode(self.wherecl.dot())
-        global root
-        root = new
+        if self.wherecl != None:
+            new.addNode(self.wherecl.dot())
         return new
 
 
@@ -228,13 +247,15 @@ class FromClause(Instruction):
     def dot(self):
         new = Nodo.Nodo("FROM")
         for t in self.tables:
-            t1 = Nodo.Nodo(t.name)
-            new.addNode(t1)
+            if isinstance(t, analizer.abstract.instruction.Select):
+                n = t.dot()
+                new.addNode(n)
+            else:
+                t1 = Nodo.Nodo(t.name)
+                new.addNode(t1)
         for a in self.aliases:
             a1 = Nodo.Nodo(a)
             new.addNode(a1)
-        global root
-        root = new
         return new
 
 
@@ -287,8 +308,6 @@ class WhereClause(Instruction):
     def dot(self):
         new = Nodo.Nodo("WHERE")
         new.addNode(self.series.dot())
-        global root
-        root = new
         return new
 
 
@@ -322,8 +341,6 @@ class SelectOnlyParams(Select):
         else:
             for p in self.params:
                 paramNode.addNode(p.dot())
-        global root
-        root = new
         return new
 
 
@@ -372,6 +389,12 @@ class Delete(Instruction):
         except:
             raise
 
+    def dot(self):
+        new = Nodo.Nodo("DELETE")
+        new.addNode(self.fromcl.dot())
+        new.addNode(self.wherecl.dot())
+        return new
+
 
 class Update(Instruction):
     def __init__(self, fromcl, values, wherecl, row, column):
@@ -419,6 +442,18 @@ class Update(Instruction):
         except:
             raise
 
+    def dot(self):
+
+        new = Nodo.Nodo("UPDATE")
+        new.addNode(self.fromcl.dot())
+
+        assigNode = Nodo.Nodo("SET")
+        new.addNode(assigNode)
+        for v in self.values:
+            assigNode.addNode(v.dot())
+        new.addNode(self.wherecl.dot())
+        return new
+
 
 class Assignment(Instruction):
     def __init__(self, id, value, row, column):
@@ -430,6 +465,13 @@ class Assignment(Instruction):
         if self.value != "DEFAULT":
             self.value = self.value.execute(environment).value
         return self
+
+    def dot(self):
+        new = Nodo.Nodo("=")
+        idNode = Nodo.Nodo(str(self.id))
+        new.addNode(idNode)
+        new.addNode(self.value.dot())
+        return new
 
 
 class Drop(Instruction):
@@ -466,10 +508,10 @@ class Drop(Instruction):
                         sintaxPostgreSQL.insert(
                             len(sintaxPostgreSQL), "Error: XX000: Error interno"
                         )
-                        return "Hubo un problema en la ejecucion de la sentencia"
+                        return "Hubo un problema en la ejecucion de la sentencia DROP"
                     if valor == 0:
                         Struct.dropTable(dbtemp, self.name)
-                        return "Instruccion ejecutada con exito DROP TABLE"
+                        return "DROP TABLE Se elimino la tabla: " + self.name
                 return "El nombre de la base de datos no esta especificado operacion no realizada"
             else:
                 valor = jsonMode.dropDatabase(self.name)
@@ -488,11 +530,11 @@ class Drop(Instruction):
                     return "La base de datos no existe"
                 if valor == 0:
                     Struct.dropDatabase(self.name)
-                    return "Instruccion ejecutada con exito DROP DATABASE"
+                    return "DROP DATABASE se elimino la base de datos: " + self.name
             sintaxPostgreSQL.insert(
                 len(sintaxPostgreSQL), "Error: XX000: Error interno"
             )
-            return "Fatal Error: DropTable"
+            return "Fatal Error: DROP TABLE"
         except:
             raise
 
@@ -502,9 +544,6 @@ class Drop(Instruction):
         n = Nodo.Nodo(self.name)
         new.addNode(t)
         new.addNode(n)
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -525,9 +564,9 @@ class AlterDataBase(Instruction):
                         + str(self.name)
                         + " no existe",
                     )
-                    return "La base de datos no existe"
+                    return "La base de datos no existe: '" + self.name + "'."
                 if valor == 3:
-                    return "El nuevo nombre para la base de datos existe"
+                    return "El nuevo nombre para la base de datos existe."
                 if valor == 1:
                     sintaxPostgreSQL.insert(
                         len(sintaxPostgreSQL), "Error: XX000: Error interno"
@@ -535,20 +574,22 @@ class AlterDataBase(Instruction):
                     return "Hubo un problema en la ejecucion de la sentencia"
                 if valor == 0:
                     Struct.alterDatabaseRename(self.name, self.newname)
-                    return "Instruccion ejecutada con exito ALTER DATABASE RENAME"
-                return "Error ALTER DATABASE RENAME"
+                    return (
+                        "Base de datos renombrada: " + self.name + " - " + self.newname
+                    )
+                return "Error ALTER DATABASE RENAME: " + self.newname
             elif self.option == "OWNER":
                 valor = Struct.alterDatabaseOwner(self.name, self.newname)
                 if valor == 0:
-                    return "Instruccion ejecutada con exito ALTER DATABASE OWNER"
+                    return "Base de datos : " + self.name + " - Owner: " + self.newname
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL), "Error: XX000: Error interno"
                 )
-                return "Error ALTER DATABASE OWNER"
+                return "Error ALTER DATABASE OWNER: " + self.newname
             sintaxPostgreSQL.insert(
                 len(sintaxPostgreSQL), "Error: XX000: Error interno"
             )
-            return "Fatal Error ALTER DATABASE"
+            return "Fatal Error ALTER DATABASE: " + self.newname
         except:
             raise
 
@@ -562,9 +603,6 @@ class AlterDataBase(Instruction):
         valOption = Nodo.Nodo(self.newname)
         optionNode.addNode(valOption)
 
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -593,7 +631,7 @@ class Truncate(Instruction):
                 )
                 return "Hubo un problema en la ejecucion de la sentencia"
             if valor == 0:
-                return "Instruccion ejecutada con exito"
+                return "Truncate de la tabla: " + self.name
         except:
             raise
 
@@ -601,9 +639,6 @@ class Truncate(Instruction):
         new = Nodo.Nodo("TRUNCATE")
         n = Nodo.Nodo(self.name)
         new.addNode(n)
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -678,9 +713,6 @@ class InsertInto(Instruction):
 
         new.addNode(t)
         new.addNode(par)
-        global root
-        root = new
-
         # ast.makeAst(root)
         return new
 
@@ -698,9 +730,7 @@ class useDataBase(Instruction):
         new = Nodo.Nodo("USE_DATABASE")
         n = Nodo.Nodo(self.db)
         new.addNode(n)
-        global root
-        root = new
-        # ast.makeAst(root)
+
         return new
 
 
@@ -732,9 +762,6 @@ class showDataBases(Instruction):
             new.addNode(l)
             l.addNode(ls)
 
-        global root
-        root = new
-        # ast.makeAst(root)
         return new
 
 
@@ -764,19 +791,19 @@ class CreateDatabase(Instruction):
 
         if result == 0:
             Struct.createDatabase(self.name, self.mode, self.owner)
-            report = "Base de datos insertada"
+            report = "Base de datos: " + self.name + " insertada."
         elif result == 1:
             sintaxPostgreSQL.insert(
-                len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                len(sintaxPostgreSQL), "Error: XX000: Error interno."
             )
-            report = "Error al insertar la base de datos"
+            report = "Error al insertar la base de datos: " + self.name
         elif result == 2 and self.replace:
             Struct.replaceDatabase(self.name, self.mode, self.owner)
-            report = "Base de datos reemplazada"
+            report = "Base de datos '" + self.name + " ' reemplazada."
         elif result == 2 and self.exists:
-            report = "Base de datos no insertada, la base de datos ya existe"
+            report = "Base de datos no insertada, " + self.name + " ya existe."
         else:
-            report = "Error: La base de datos ya existe"
+            report = "Error: La base de datos ya existe."
             sintaxPostgreSQL.insert(
                 len(sintaxPostgreSQL), "Error: 42P04: 	base de datos duplicada"
             )
@@ -797,12 +824,10 @@ class CreateDatabase(Instruction):
             new.addNode(ow)
         if self.mode != None:
             mod = Nodo.Nodo("MODE")
-            mod2 = Nodo.Nodo(self.mode)
+            mod2 = Nodo.Nodo(str(self.mode))
             mod.addNode(mod2)
             new.addNode(mod)
-        global root
-        root = new
-        # ast.makeAst(root)
+
         return new
 
 
@@ -814,12 +839,12 @@ class CreateTable(Instruction):
         self.inherits = inherits
 
     def execute(self, environment):
-
         # insert = [posiblesErrores,noColumnas]
         insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
         error = insert[0]
         nCol = insert[1]
-        insert = Checker.checkValue(dbtemp, self.name)
+        if not error:
+            error = Checker.checkValue(dbtemp, self.name)
         """
         Result
         0: insert
@@ -827,7 +852,7 @@ class CreateTable(Instruction):
         2: not found database
         3: exists table
         """
-        if error == None and insert == None:
+        if not error:
             result = jsonMode.createTable(dbtemp, self.name, nCol)
             if result == 0:
                 pass
@@ -849,18 +874,14 @@ class CreateTable(Instruction):
                     len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
                 )
                 return "Error: ya existe la tabla " + self.name
-
             pk = Struct.extractPKIndexColumns(dbtemp, self.name)
             addPK = 0
             if pk:
                 addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
             if addPK != 0:
-                print("Error en llaves primarias del CREATE TABLE:", self.name)
+                print("Error en llaves primarias del CREATE TABLE: ", self.name)
             return "Tabla " + self.name + " creada"
         else:
-            if error == None:
-                error = insert
-
             Struct.dropTable(dbtemp, self.name)
             return error
 
@@ -878,6 +899,7 @@ class CreateTable(Instruction):
         new.addNode(c)
 
         for cl in self.columns:
+            print(cl)
             if not cl[0]:
                 id = Nodo.Nodo(cl[1])
                 c.addNode(id)
@@ -890,8 +912,11 @@ class CreateTable(Instruction):
                     params = Nodo.Nodo("PARAMS")
                     typ.addNode(params)
                     for parl in par:
+                        print(parl)
                         parl1 = Nodo.Nodo(str(parl))
                         params.addNode(parl1)
+
+                print(cl[3])
                 colOpts = cl[3]
                 if colOpts != None:
                     coNode = Nodo.Nodo("OPTIONS")
@@ -995,8 +1020,6 @@ class CreateType(Instruction):
         for v in self.values:
             paramsNode.addNode(v.dot())
 
-        global root
-        root = new
         return new
 
 
@@ -1071,8 +1094,18 @@ class AlterTable(Instruction):
 
 
 class limitClause(Instruction):
-    def __init__(self, row, column) -> None:
+    def __init__(self, num, offset, row, column) -> None:
         super().__init__(row, column)
+        self.num = num
+        self.offset = offset
+
+    def execute(self, dataFrame, environment):
+        temp = dataFrame
+        if self.offset != None:
+            temp = dataFrame[self.offset :]
+        if self.num == "ALL":
+            return temp
+        return temp.head(self.num)
 
 
 class Union(Instruction):
