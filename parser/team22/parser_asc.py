@@ -52,18 +52,24 @@ def p_init(t) :
     id = inc()
     dot.node(str(id), 'INICIO')
     for element in t[1]:
-        dot.edge(str(id), str(element['id']))
-    gramatica = "<init>	::= <instrucciones>"
-    no_terminal = ["<init>","<instrucciones>"]
-    terminal = []
-    reg_gramatical = ""
-    gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"init")
+        if element != None:
+            dot.edge(str(id), str(element['id']))
+            gramatica = "<init>	::= <instrucciones>"
+            no_terminal = ["<init>","<instrucciones>"]
+            terminal = []
+            reg_gramatical = ""
+            gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"init")
+    for element in tabla_errores.errores:
+        print('Error tipo: ', element.tipo, ' Descripción: ', element.descripcion, ' en la línea: ', element.linea)
     
 def p_instrucciones_lista(t) :
     'instrucciones    : instrucciones instruccion'
     #                   [{'id': id}]  {'id': id}
-    t[1].append(t[2])
+    if t[2] != None:
+        t[1].append(t[2])
     #[{'id': id}, {'id': id}, ...]
+    if t[1] == None:
+        t[1] = []
     t[0] = t[1]
     gramatica = "<instrucciones>	::= <instrucciones> <instruccion>"
     no_terminal = ["<instrucciones>", "<instruccion>"]
@@ -71,10 +77,10 @@ def p_instrucciones_lista(t) :
     reg_gramatical = "\ninstrucciones.append(instruccion) \n instrucciones.syn = instrucciones.syn"
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"instrucciones")
 
-
 def p_instrucciones_instruccion(t) :
     'instrucciones    : instruccion '
-    t[0] = [t[1]]
+    if t[1] != None:
+        t[0] = [t[1]]
     # [{'id': id}]
     gramatica = "				| <instruccion>"
     no_terminal = ["<instrucciones>", "<instruccion>"]
@@ -183,7 +189,12 @@ def p_instruccion(t) :
         reg_gramatical = "\ninstruccion.syn = dropear.syn"
         gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"instruccion")
 
-    
+'''
+def p_instruccion_error(t) :
+    'instruccion    : error PTCOMA'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    '''
 #========================================================
 
 #========================================================
@@ -195,7 +206,7 @@ def p_instruccion_creacion(t) :
                     | TYPE crear_type'''
     print("Creacion")
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
     if t[1].upper() == 'DATABASE':
         t[0] = t[2]
@@ -221,9 +232,8 @@ def p_instruccion_creacion(t) :
         gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"creacion")
     elif t[1].upper() == 'TYPE':
         dot.node(str(id), 'TYPE')
-        
-        for element in t[2]:
-            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), str(t[2]['id']))
+
         gramatica = "			| TYPE <crear_type>"
         no_terminal = ["<crear_type>"]
         terminal = ["TYPE"]
@@ -277,9 +287,6 @@ def p_instruccion_crear_BD_Parametros_error(t) :
     'crear_bd   : ID error PTCOMA'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'ERROR')
 
 def p_instruccion_crear_BD_if_exists(t) :
     'crear_bd       : IF NOT EXISTS ID PTCOMA'
@@ -338,7 +345,17 @@ def p_instruccion_crear_TB_herencia(t):
 
     dot.node(str(id), t[1])
     for element in t[3]:
-        dot.edge(str(id), str(element['id']))
+        if element != None:
+            dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[5]['id']))
+
+def p_instruccion_crear_TB_herencia_error(t) :
+    'crear_tb   : ID PARIZQ error PARDER tb_herencia PTCOMA'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), t[1])
     for element in t[5]:
         dot.edge(str(id), str(element['id']))
 
@@ -371,13 +388,19 @@ def p_instruccion_crear_TB(t):
         else:
             dot.edge(str(id_cols), str(element['id']))
     temp_tabla = -1
-
     gramatica = "			| ID PARIZQ <crear_tb_columnas> PARDER PTCOMA"
     no_terminal = ["<crear_tb_columnas>"]
     terminal = ["PARIZQ","PARDER","ID","PTCOMA"]
     reg_gramatical = ""
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"crear_tb")
-
+    
+def p_instruccion_crear_TB_error(t) :
+    'crear_tb   : ID PARIZQ error PARDER PTCOMA'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), t[1])
 
 def p_isntruccion_crear_TYPE(t) :
     '''crear_type   : ID AS ENUM PARIZQ lista_objetos PARDER PTCOMA
@@ -389,16 +412,17 @@ def p_isntruccion_crear_TYPE(t) :
 
     dot.node(str(id), 'ENUM')
     dot.edge(str(id), 'IDENTIFICADOR\n' + t[1])
-
-    for element in t[5]:
-        dot.edge(str(id), str(element['id']))
+    if type(t[5]) == list:
+        for element in t[5]:
+            dot.edge(str(id), str(element['id']))
+    else:
+        dot.edge(str(id), str(t[5]['id']))
 
     gramatica = "<crear_type>	::= ID AS ENUM PARIZQ <lista_objetos> PARDER PTCOMA"
     no_terminal = ["<crear_type>","<lista_objetos>"]
     terminal = ["PARIZQ","PARDER","ID","PTCOMA","AS","ENUM"]
     reg_gramatical = ""
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"crear_type")
-
 
 def p_instruccion_TB_herencia(t) :
     'tb_herencia    : INHERITS PARIZQ ID PARDER'
@@ -541,7 +565,8 @@ def p_instruccion_selects(t) :
     global nodo_distinct
 
     for element in t[1]:
-        dot.edge(str(id_id), str(element['id']))
+        if element != None:
+            dot.edge(str(id_id), str(element['id']))
         # dot.edge(str(id_id), str(id_campos))
         
     # print("------------->" + str(id_campos))
@@ -729,8 +754,10 @@ def p_instruccion_selects5(t) :
 
     else:
         dot.node(str(id), 'SELECT')
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
+        if t[1] != None:
+            for element in t[1]:
+                if element != None:
+                    dot.edge(str(id), str(element['id']))
 
 
 
@@ -1095,9 +1122,11 @@ def p_instruccion_Select_All(t) :
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'IDENTIFICADOR\n' + t[1])
-
-    for element in t[2]:
-        dot.edge(str(id), str(element['id']))
+    if type(t[2]) != list:
+        dot.edge(str(id), str(t[2]['id']))
+    else:
+        for element in t[2]:
+            dot.edge(str(id), str(element['id']))
     # dot.edge(str(id), str(t[2]['id'])) 
     
     if t[3] != []:
@@ -1305,9 +1334,6 @@ def p_state_subquery_error(t) :
     'state_subquery : PARIZQ SELECT error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'ERROR')
 #========================================================
 
     
@@ -1417,12 +1443,14 @@ def p_instruccion_Drop_BD(t) :
 def p_instruccion_Drop_TB(t) :
     '''dropear      : TABLE ID PTCOMA
                     '''
-    #T[0] = DropTabla(t[2])
+    type_checker.dropTable(table = t[2].lower(), line = t.lexer.lineno)
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
-    dot.node(str(id), 'TABLE')
-    dot.edge(str(id), t[2])
+    dot.node(str(id), 'DROP TABLE')
+    id_id = inc()
+    dot.node(str(id_id), t[2])
+    dot.edge(str(id), str(id_id))
 
     gramatica = "			| TABLE ID PTCOMA"
     no_terminal = []
@@ -1660,14 +1688,6 @@ def p_instrucciones_lista_parametros(t) :
     reg_gramatical = "\nlista_parametros.append(parametro.syn) \nlista_parametros.syn = lista_parametros.syn"
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"lista_parametros")
 
-def p_instrucciones_lista_parametros_error2(t) :
-    'lista_parametros   : lista_parametros COMA error state_aliases_field'
-    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
-    tabla_errores.agregar(error)
-    id = inc()
-    t[1].append({'id':id})
-    t[0] = t[1]
-    dot.node(str(id), 'ERROR')
 
 def p_instrucciones_parametro(t) :
     'lista_parametros    : es_distinct parametro state_aliases_field '
@@ -1687,12 +1707,18 @@ def p_instrucciones_parametro(t) :
     terminal = []
     reg_gramatical = "\nlista_parametros = [parametro.syn]"
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"lista_parametros")
+
+#def p_instrucciones_parametro_error(t) :
+#   'lista_parametros   : es_distinct error state_aliases_field'
+#    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+#    tabla_errores.agregar(error)
+#    id = inc()
+#    t[0] = [{'id':id}]
+#    dot.node(str(id), 'ERROR')
+#    print(t[2])
+#    t.lexer.token()
+
     
-def p_instrucciones_parametro_error(t) :
-    'lista_parametros   : es_distinct error state_aliases_field'
-    id = inc()
-    t[0] = [{'id':id}]
-    dot.node(str(id), 'ERROR')
 
 def p_instrucciones_distinct(t) :
     '''es_distinct      : DISTINCT
@@ -1732,9 +1758,6 @@ def p_parametro_con_tabla_error(t) :
     'parametro  : ID PUNTO error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id),'INDENTIFICADOR\n'+ t[1] +'.ERROR')
 
 def p_parametros_funciones(t) :
     '''parametro         : funciones_math_esenciales
@@ -1819,6 +1842,8 @@ def p_parametro_sin_tabla(t) :
 # CONTENIDO DE TABLAS EN CREATE TABLE
 def p_instrucciones_lista_columnas(t) :
     'crear_tb_columnas      : crear_tb_columnas COMA crear_tb_columna'
+    if t[1] == None:
+        t[1] = []
     t[1].append(t[3])
     t[0] = t[1]
     gramatica = "<crear_tb_columnas>	::= <crear_tb_columnas> COMA <crear_tb_columna>"
@@ -1831,10 +1856,7 @@ def p_instrucciones_lista_columnas_error(t) :
     'crear_tb_columnas      : crear_tb_columnas COMA error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[1].append({'id':id})
-    t[0] = t[1]
-    dot.node(str(id), 'ERROR')
+
 
 def p_instrucciones_columnas(t) :
     'crear_tb_columnas      : crear_tb_columna'
@@ -1849,22 +1871,49 @@ def p_instrucciones_columnas_error(t) :
     'crear_tb_columnas  : error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = [{'id':id}]
-    dot.node(str(id), 'ERROR')
 
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
     id = inc()
-    t[0] = [{'nombre': t[1], 'col': Columna(tipo = t[2]), 'id': id}]
-    print('////////////\n', t[0][0]['col'].printCol())
-    dot.node(str(id), 'ID')
-    dot.edge(str(id), t[1])
+
+    global temp_tabla
+    if temp_tabla == -1:
+        temp_tabla = id
+        dot.node(str(temp_tabla), '')
+        id = inc()
+
+    dot.node(str(id), t[1])
+    dot.edge(str(id), str(t[2]['id']))
+    id_params = inc()
+    dot.node(str(id_params), 'PARAMETROS')
+    dot.edge(str(id), str(id_params))
+
+    col = Columna(tipo = t[2], line = t.lexer.lineno)
     
+    for parametro in t[3]['parametros']:
+        dot.edge(str(id_params), str(parametro['id'])) 
+        if 'default' in parametro:
+            col.addDefault(parametro['default'])
+        elif 'is_null' in parametro:
+            col.addNull(parametro['is_null'])
+        elif 'is_unique' in parametro:
+            if 'constraint' in parametro:
+                col.addUnique(valor = parametro['is_unique'], constraint = parametro['constraint'])
+            else:
+                col.addUnique(parametro['is_unique'])
+        elif 'is_primary' in parametro:
+            col.addPrimaryKey(parametro['is_primary'])
+        elif 'references' in parametro:
+            col.addReference(parametro['references'])
+
+    col.printCol()
+    t[0] = {'nombre': t[1].lower(), 'col': col, 'id': id}
+
     dot.edge(str(id), str(t[2]['id'])) 
     # for element in t[2]:
     #     dot.edge(str(id), str(element['id']))
-    dot.edge(str(id), str(t[3]['id'])) 
+    if t[3] != None:
+        dot.edge(str(id), str(t[3]['id'])) 
     # for element in t[3]:
     #     dot.edge(str(id), str(element['id']))
     gramatica = "<crear_tb_columna>	::= ID <tipos> <parametros_columna>"
@@ -1878,7 +1927,7 @@ def p_instrucciones_columna_parametros_error(t) :
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
     tabla_errores.agregar(error)
     id = inc()
-    t[0] = [{'nombre':t[1], 'col':Columna(tipo='ERROR'), 'id':id}]
+    t[0] = [{'nombre':t[1], 'col':Columna(tipo='ERROR', line = t.lexer.lineno), 'id':id}]
     dot.node(str(id), 'ID')
     dot.edge(str(id),t[1])
     id2 = inc()
@@ -1898,25 +1947,29 @@ def p_instrucciones_columna_noparam(t) :
     dot.node(str(id), t[1])
     dot.edge(str(id), str(t[2]['id']))
 
-    t[0] = {'nombre': t[1].lower(), 'col': Columna(tipo = t[2]), 'id' : id}
+    t[0] = {'nombre': t[1].lower(), 'col': Columna(tipo = t[2], line = t.lexer.lineno), 'id' : id}
+
     gramatica = "					| ID <tipos>"
     no_terminal = ["<tipos>"]
     terminal = ["ID"]
     reg_gramatical = ""
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"crear_tb_columna")
 
+def p_instrucciones_columna_noparam_error(t) :
+    'crear_tb_columna       : ID error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
+    tabla_errores.agregar(error)
 
 def p_instrucciones_columna_pk(t) :
     'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
-    #t[0] = LlavesPrimarias(t[4])
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id, 'primary': t[4]}
     print('primary key t0 ',t[0])
     dot.node(str(id), ' PRIMARY KEY')
     
-    dot.edge(str(id), str(t[4]['id'])) 
-    # for element in t[4]:
-    #     dot.edge(str(id), str(element['id']))
+    for element in t[4]:
+         dot.edge(str(id), str(element['id']))
+
     gramatica = "					| PRIMARY KEY PARIZQ <lista_id> PARDER"
     no_terminal = ["<lista_id>"]
     terminal = ["PRIMARY","KEY","PARIZQ","PARDER"]
@@ -1927,20 +1980,39 @@ def p_instrucciones_columna_pk(t) :
 def p_instrucciones_columna_fk(t) :
     'crear_tb_columna       : FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'
     if len(t[4]) != len(t[9]):
-        print('Error el número de columnas referencias es distinto al número de columnas foraneas')
-    else:
-        print('Se creó referencia de llave foranea')
-
+        error = Error('Semántico', "El número de columnas referencias es distinto al número de columnas foraneas", t.lexer.lineno)
+        tabla_errores.agregar(error)
+        
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'foreign': t[4], 'table': t[7].lower(), 'references': t[9]}
     dot.node(str(id), ' FOREIGN KEY')
     
-    for element in t[4]:
-        dot.edge(str(id), str(element['id']))
+    if t[4] != None:
+        for element in t[4]:
+            id2 = inc()
+            dot.node(str(id2), str(element))
+            dot.edge(str(id), str(id2)) 
 
     dot.node(str(id), t[6] + ' - ' + t[7])
-    for element in t[9]:
+    if t[9] != None:
+        for element in t[9]:
+            id2 = inc()
+            dot.node(str(id2), str(element))
+            dot.edge(str(id), str(id2)) 
+
+def p_instrucciones_columna_fk_error(t) :
+    'crear_tb_columna   : FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[9], t.lexer.lineno)
+    tabla_errores.agregar(error)
+
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'FOREIGN KEY')
+
+    for element in t[4] :
         dot.edge(str(id), str(element['id']))
+    
+    dot.node(str(id), t[6] + ' - ' + t[7])
     gramatica = "					| FOREIGN KEY PARIZQ <lista_id> PARDER REFERENCES ID PARIZQ <lista_id> PARDER"
     no_terminal = ["<lista_id>"]
     terminal = ["FOREIGN","KEY","PARIZQ","PARDER","REFERENCES","ID"]
@@ -1977,11 +2049,10 @@ def p_instrucciones_columna_unique(t) :
 
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
-    t[1].update(t[2])
+    t[1]['parametros'].append(t[2])
     #t[1] = {} -> t[0] = {}
-    t[0] = t[1]
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'parametros': t[1]['parametros']}
     dot.node(str(id), 'PARAMETRO')
     
     dot.edge(str(id), str(t[1]['id'])) 
@@ -1997,24 +2068,16 @@ def p_instrucciones_lista_params_columnas(t) :
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"parametros_columna")
 
 def p_instrucciones_lista_params_columnas_error(t) :
-    'parametros_columna : parametros_columna error'
+    'parametros_columna : error parametro_columna'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
     tabla_errores.agregar(error)
-    t[1].update(t[2])
-    id2 = inc()
-    id = inc()
-    t[0] = {'id':id2}
-    dot.node(str(id2), 'PARAMETRO')
-    dot.edge(str(id2), str(t[1]['id']))
-    dot.edge(str(id2), str(id))
-    dot.node(str(id),'ERROR')
+    
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
-    #t[1] = {} -> t[0] = {}
-    t[0] = t[1]
+    t[0] = {'id': id, 'parametros': [t[1]]}
+
     id = inc()
-    t[0] = {'id': id}
     dot.node(str(id), 'PARAMETRO')
     
     dot.edge(str(id), str(t[1]['id'])) 
@@ -2030,21 +2093,15 @@ def p_instrucciones_params_columnas_error(t) :
     'parametros_columna : error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'PARAMETRO')
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_parametro_columna_default(t) :
     'parametro_columna      : DEFAULT valor'
     #t[1] = {} -> t[0] = {}
-    t[0] = {'default': t[2]}
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
-
+    t[0] = {'id': id, 'default': t[2]['valor']}
+    dot.node(str(id), 'DEFAULT')
+    dot.edge(str(id), str(t[2]['id']))
+    
     for element in t[2]:
         dot.edge(str(id), str(element['id']))
     gramatica = "<parametro_columna>	::= DEFAULT <valor>"
@@ -2055,15 +2112,7 @@ def p_instrucciones_parametro_columna_default(t) :
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
-    #t[1] = {} -> t[0] = {}
     t[0] = t[1]
-    id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
-
-    dot.edge(str(id), str(t[1]['id'])) 
-    # for element in t[1]:
-    #     dot.edge(str(id), str(element['id']))
     gramatica = "					| <unul>"
     no_terminal = ["<unul>"]
     terminal = []
@@ -2101,9 +2150,8 @@ def p_instrucciones_parametro_columna_checkeo(t) :
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
-    t[0] = {'is_primary': 1}
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'is_primary': 1}
     dot.node(str(id), 'PRIMARY KEY')
     gramatica = "					| PRIMARY KEY"
     no_terminal = []
@@ -2112,12 +2160,11 @@ def p_instrucciones_parametro_columna_pkey(t) :
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"parametro_columna")
 
 def p_instrucciones_parametro_columna_fkey(t) :
-    'parametro_columna      : REFERENCES ID'
-    t[0] = {'references': t[2]}
+    'parametro_columna      : REFERENCES ID PARIZQ ID PARDER'
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'references': t[2] + '.' + t[4]}
     dot.node(str(id), 'REFERENCES')
-    dot.edge(str(id), t[2])
+    dot.edge(str(id), t[2] + '.' + t[4])
     gramatica = "					| REFERENCES ID"
     no_terminal = []
     terminal = ["REFERENCES","ID"]
@@ -2128,7 +2175,7 @@ def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
     t[0] = {'is_null': TipoNull.NOT_NULL}
     id = inc()
-    t[0] = {'id': id}
+    t[0]['id'] = id
     dot.node(str(id), 'NOT NULL')
     gramatica = "<unul>	::= NOT NULL"
     no_terminal = ["<unul>"]
@@ -2140,7 +2187,7 @@ def p_instrucciones_unul(t) :
     'unul   : NULL'
     t[0] = {'is_null': TipoNull.NULL}
     id = inc()
-    t[0] = {'id': id}
+    t[0]['id'] = id
     dot.node(str(id), 'NULL')
     gramatica = "		| NULL"
     no_terminal = []
@@ -2151,8 +2198,8 @@ def p_instrucciones_unul(t) :
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'CONSTRAINT ' + t[2] + ' CHECK')
+    t[0] = {'id': id, 'is_unique': 1, 'constraint': Constraint(tipo = TipoConstraint.UNIQUE, name = t[2], line = t.lexer.lineno)}
+    dot.node(str(id), 'CONSTRAINT ' + t[2] + ' UNIQUE')
     gramatica = "<unic> ::= CONSTRAINT ID UNIQUE"
     no_terminal = ["<unic>"]
     terminal = ["CONSTRAINT","ID","UNIQUE"]
@@ -2162,8 +2209,8 @@ def p_instrucciones_unic_constraint(t) :
 def p_instrucciones_unic(t) :
     'unic   : UNIQUE'
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'UNIQUE ')
+    dot.node(str(id), 'UNIQUE')
+    t[0] = {'id': id, 'is_unique': 1}
     gramatica = "		| UNIQUE"
     no_terminal = []
     terminal = ["UNIQUE"]
@@ -2188,12 +2235,6 @@ def p_instrucciones_chequeo_constraint_error(t) :
     'chequeo    : CONSTRAINT ID CHECK PARIZQ error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'CONSTRAINT '+t[2]+' CHECK')
-    id2 = inc()
-    dot.edge(str(id), str(id2))
-    dot.node(str(id2), 'ERROR')
 
 def p_instrucciones_chequeo(t) :
     'chequeo    : CHECK PARIZQ relacional PARDER'
@@ -2212,12 +2253,6 @@ def p_instrucciones_chequeo_error(t) :
     'chequeo    : CHECK PARIZQ error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = {'id':id}
-    id2 = inc()
-    dot.node(str(id), 'CHECK')
-    dot.node(str(id2),'ERROR')
-    dot.edge(str(id), str(id2))
     
 #========================================================
 
@@ -2225,14 +2260,13 @@ def p_instrucciones_chequeo_error(t) :
 # LISTA DE ELEMENTOS REUTILIZABLES
 def p_instrucciones_lista_ids(t) :
     'lista_id   : lista_id COMA ID'
-    t[1].append(t[3])
+    id = inc()
+    t[1].append({'id': id, 'valor': t[3].lower()})
     t[0] = t[1]
-    # id = inc()
-    # t[0] = {'id': id}
-    # dot.node(str(id), 'Lista de ID')
 
-    # dot.edge(str(id), str(t[1]['id'])) 
-    # dot.edge(str(id), t[3])
+    dot.node(str(id), t[3])
+    
+    
     gramatica = "<lista_id>	::= <lista_id> COMA ID"
     no_terminal = ["<lista_id>"]
     terminal = ["COMA","ID"]
@@ -2243,14 +2277,12 @@ def p_instrucciones_lista_ids_error(t) :
     'lista_id   : lista_id COMA error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[1].append({'id':id})
-    t[0] = t[1]
-    dot.node(str(id), 'ERROR')
 
 def p_instrucciones_lista_id(t) :
     'lista_id   : ID'
-    t[0] = [t[1]]
+    id = inc()
+    t[0] = [{'id': id, 'valor': t[1].lower()}]
+    dot.node(str(id), t[1])
     # id = inc()
     # t[0] = {'id': id}
     # dot.node(str(id), 'ID')
@@ -2267,9 +2299,6 @@ def p_isntrucciones_lista_id_error(t) :
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
     tabla_errores.agregar(error)
     print(error.imprimir())
-    id = inc()
-    t[0] = [{'id':id}]
-    dot.node(str(id), 'ERROR')
     
 
 def p_instrucciones_lista_objetos(t) :
@@ -2305,20 +2334,14 @@ def p_instrucciones_lista_objetos_error2(t) :
     'lista_objetos  : lista_objetos COMA error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = {'id':id}
-    dot.edge(str(id), t[1])
-    id2 = inc()
-    dot.edge(str(id), id2)
-    dot.node(str(id2), 'ERROR')
 
 def p_instrucciones_lista_objeto(t) :
     'lista_objetos  : objeto'
     # t[0] = [t[1]]
     id = inc()
     t[0] = {'id': id}
-
-    dot.edge(str(id), str(t[1]['id'])) 
+    if t[1] != None:
+        dot.edge(str(id), str(t[1]['id'])) 
     # for element in t[1]:
     #     dot.edge(str(id), str(element['id']))
     gramatica = "                | <objeto>"
@@ -2335,14 +2358,6 @@ def p_instrucciones_lista_objeto(t) :
 #     dot.node(str(id), 'OBJETO')
 #     dot.edge(str(id), 'CADENA\n' + t[1])
 
-def p_instrucciones_lista_objeto_error(t) :
-    'lista_objetos  : error'
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id',id}
-    dot.edge(str(id), str(id2))
-
 def p_instrucciones_objeto2(t) :
     '''objeto       : valor
                     | fun_binario_insert
@@ -2358,7 +2373,10 @@ def p_instrucciones_objeto2(t) :
     reg_gramatical = ""
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"objeto") 
 
-
+def p_instrucciones_lista_objeto_error(t) :
+    'objeto  : error'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
 
 def p_instrucciones_lista_insercion_objeto(t) :
     '''lista_insercion  : lista_insercion COMA objeto
@@ -2503,13 +2521,26 @@ def p_instruccion_alter(t) :
     dot.node(str(id), 'ALTER TABLE')
     dot.node(str(id_id), 'IDENTIFICADOR\n' + t[1])
     dot.edge(str(id), str(id_id))
-    dot.edge(str(id_id), str(t[2]['id']))
+    if t[2] != None:
+        dot.edge(str(id_id), str(t[2]['id']))  
     gramatica = "<alter_table>	::= ID <def_alter>"
     no_terminal = ["<alter_table>","<def_alter>"]
     terminal = ["ID"]
     reg_gramatical = ""
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"alter_table")  
 
+def p_def_alter_error_FOREIGNKEY(t) :
+    'def_alter  : ADD FOREIGN KEY PARIZQ lista_parametros PARDER REFERENCES ID PARIZQ error PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[10], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+    dot.node(str(id), 'FOREIGN KEY ERROR references')
+
+def p_def_alter_error_FOREIGNKEY_columnas(t) :
+    'def_alter  : ADD FOREIGN KEY PARIZQ error PARDER REFERENCES ID PARIZQ lista_parametros PARDER'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[10], t.lexer.lineno)
+    tabla_errores.agregar(error)
 
 def p_def_alter(t) :
     '''def_alter    : ADD COLUMN ID tipos
@@ -2716,9 +2747,6 @@ def p_def_dt_types_1_error(t) :
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
     tabla_errores.agregar(error)
     print(error.imprimir())
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'ERROR')
 
 def p_def_dt_types_1(t) :
     '''def_dt_types : PARIZQ ENTERO PARDER WITHOUT TIME ZONE
@@ -2855,8 +2883,10 @@ def p_relacional_op(t) :
         if t[2].upper() == '<=':
             dot.node(str(id_op_signo), 'MENOR O IGUAL')
             dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))
+            if t[1] != None:
+                dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            if t[3] != None:
+                dot.edge(str(id_op_signo), str(t[3]['id']))  
             gramatica = "<relacional>	::= <aritmetica> MENORIGUAL <aritmetica>"
             no_terminal = ["<relacional>","<aritmetica>"]
             terminal = ["MENORIGUAL"]
@@ -2866,8 +2896,10 @@ def p_relacional_op(t) :
         elif t[2].upper() == '<':
             dot.node(str(id_op_signo), 'MENOR')
             dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))
+            if t[1] != None:
+                dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            if t[3] != None:
+                dot.edge(str(id_op_signo), str(t[3]['id']))   
             gramatica = "				| <aritmetica> MENOR <aritmetica>"
             no_terminal = ["<aritmetica>"]
             terminal = ["MENOR"]
@@ -2877,8 +2909,10 @@ def p_relacional_op(t) :
         elif t[2].upper() == '>=':
             dot.node(str(id_op_signo), 'MAYOR O IGUAL')
             dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))
+            if t[1] != None:
+                dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            if t[3] != None:
+                dot.edge(str(id_op_signo), str(t[3]['id']))    
             gramatica = "				| <aritmetica> MAYORIGUAL <aritmetica>"
             no_terminal = ["<aritmetica>"]
             terminal = ["MAYORIGUAL"]
@@ -2888,8 +2922,10 @@ def p_relacional_op(t) :
         elif t[2].upper() == '>':
             dot.node(str(id_op_signo), 'MAYOR')
             dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))
+            if t[1] != None:
+                dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            if t[3] != None:
+                dot.edge(str(id_op_signo), str(t[3]['id']))   
             gramatica = "				| <aritmetica> MAYOR <aritmetica>"
             no_terminal = ["<aritmetica>"]
             terminal = ["MAYOR"]
@@ -2899,8 +2935,10 @@ def p_relacional_op(t) :
         elif t[2].upper() == '=':
             dot.node(str(id_op_signo), 'IGUAL')
             dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))
+            if t[1] != None:
+                dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            if t[3] != None:
+                dot.edge(str(id_op_signo), str(t[3]['id']))    
             gramatica = "				| <aritmetica> IGUAL <aritmetica>"
             no_terminal = ["<aritmetica>"]
             terminal = ["IGUAL"]
@@ -2911,8 +2949,11 @@ def p_relacional_op(t) :
         elif t[2].upper() == 'AND':
             dot.node(str(id_op_signo), 'AND')
             dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))
+            if t[1] != None:
+                dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            if t[3] != None:
+                dot.edge(str(id_op_signo), str(t[3]['id']))   
+            
             gramatica = "				| <relacional> AND <relacional>"
             no_terminal = ["<relacional>"]
             terminal = ["AND"]
@@ -2922,8 +2963,10 @@ def p_relacional_op(t) :
         elif t[2].upper() == 'OR':
             dot.node(str(id_op_signo), 'OR')
             dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))
+            if t[1] != None:
+                dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            if t[3] != None:
+                dot.edge(str(id_op_signo), str(t[3]['id']))    
             gramatica = "				| <relacional> OR <relacional>"
             no_terminal = ["<relacional>"]
             terminal = ["OR"]
@@ -2935,8 +2978,11 @@ def p_relacional_op(t) :
         if t[2].upper() == '=':
             dot.node(str(id_op_signo), 'IGUAL IGUAL')
             dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(t[4]['id']))
+            if t[1] != None:
+                dot.edge(str(id_op_signo), str(t[1]['id'])) 
+            if t[3] != None:
+                dot.edge(str(id_op_signo), str(t[4]['id']))   
+
             gramatica = "				| <aritmetica> IGUAL IGUAL <aritmetica>"
             no_terminal = ["<aritmetica>"]
             terminal = ["IGUAL"]
@@ -2946,7 +2992,9 @@ def p_relacional_op(t) :
         id_op_signo = inc()
         dot.node(str(id_op_signo), 'NOT')
         dot.edge(str(id), str(id_op_signo))
-        dot.edge(str(id_op_signo), str(t[2]['id']))
+        if t[2] != None:
+            dot.edge(str(id_op_signo), str(t[2]['id'])) 
+
         gramatica = "				| NOT <relacional>"
         no_terminal = ["<relacional>"]
         terminal = ["NOT"]
@@ -2964,70 +3012,23 @@ def p_relacional_error(t) :
                     | error IGUAL aritmetica '''
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
     id = inc()
     t[0] = {'id' : id}
     dot.node(str(id),  'OPERACION RELACIONAL')
-    
+
     if len(t) == 4:
-        id_op_signo = inc()
-
-        if t[2].upper() == '<=':
-            dot.node(str(id_op_signo), 'MENOR O IGUAL')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(id2))
-            dot.edge(str(id_op_signo), str(t[3]['id']))  
-
-        elif t[2].upper() == '<':
-            dot.node(str(id_op_signo), 'MENOR')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(id2))
-            dot.edge(str(id_op_signo), str(t[3]['id']))  
-            
-        elif t[2].upper() == '>=':
-            dot.node(str(id_op_signo), 'MAYOR O IGUAL')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(id2))
-            dot.edge(str(id_op_signo), str(t[3]['id']))  
-            
-        elif t[2].upper() == '>':
-            dot.node(str(id_op_signo), 'MAYOR')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(id2))
-            dot.edge(str(id_op_signo), str(t[3]['id']))  
-            
-        elif t[2].upper() == '=':
-            dot.node(str(id_op_signo), 'IGUAL')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(id2)) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))  
-            
-        # PARA LOS OPERADORES LOGICOS
-        elif t[2].upper() == 'AND':
-            dot.node(str(id_op_signo), 'AND')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(id2)) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))  
-
-        elif t[2].upper() == 'OR':
-            dot.node(str(id_op_signo), 'OR')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(id2)) 
-            dot.edge(str(id_op_signo), str(t[3]['id']))  
-
-    elif len(t) == 5:
-        id_op_signo = inc()
-        if t[2].upper() == '=':
-            dot.node(str(id_op_signo), 'IGUAL IGUAL')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(id2)) 
-            dot.edge(str(id_op_signo), str(t[4]['id'])) 
+        idsigno = inc()
+        dot.node(str(idsigno), str(t[2]))
+        dot.edge(str(id), str(idsigno))
+        if t[3] != None:
+            dot.edge(str(idsigno), str(t[3]['id']))
     else:
-        id_op_signo = inc()
-        dot.node(str(id_op_signo), 'NOT')
-        dot.edge(str(id), str(id_op_signo))
-        dot.edge(str(id_op_signo), str(t[2]['id'])) 
+        idsigno = inc()
+        dot.node(str(idsigno), str(t[2] + t[3]))
+        dot.edge(str(id), str(idsigno))
+        if t[4] != None:
+            dot.edge(str(idsigno), str(t[4]['id']))
+
 
 def p_relacional_error2(t) :
     '''relacional   : aritmetica MENOR error
@@ -3040,71 +3041,22 @@ def p_relacional_error2(t) :
                     | aritmetica IGUAL error'''
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
     id = inc()
     t[0] = {'id' : id}
     dot.node(str(id),  'OPERACION RELACIONAL')
-    
+
     if len(t) == 4:
-        id_op_signo = inc()
-
-        if t[2].upper() == '<=':
-            dot.node(str(id_op_signo), 'MENOR O IGUAL')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(id2))  
-
-        elif t[2].upper() == '<':
-            dot.node(str(id_op_signo), 'MENOR')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(id2))  
-            
-        elif t[2].upper() == '>=':
-            dot.node(str(id_op_signo), 'MAYOR O IGUAL')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(id2))  
-            
-        elif t[2].upper() == '>':
-            dot.node(str(id_op_signo), 'MAYOR')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(id2))  
-            
-        elif t[2].upper() == '=':
-            dot.node(str(id_op_signo), 'IGUAL')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(id2))  
-            
-        # PARA LOS OPERADORES LOGICOS
-        elif t[2].upper() == 'AND':
-            dot.node(str(id_op_signo), 'AND')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(id2))  
-
-        elif t[2].upper() == 'OR':
-            dot.node(str(id_op_signo), 'OR')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(id2))  
-
-    elif len(t) == 5:
-        id_op_signo = inc()
-        if t[2].upper() == '=':
-            dot.node(str(id_op_signo), 'IGUAL IGUAL')
-            dot.edge(str(id), str(id_op_signo))
-            dot.edge(str(id_op_signo), str(t[1]['id'])) 
-            dot.edge(str(id_op_signo), str(id2)) 
+        idsigno = inc()
+        dot.node(str(idsigno), str(t[2]))
+        dot.edge(str(id), str(idsigno))
+        if t[1] != None:
+            dot.edge(str(idsigno), str(t[1]['id']))
     else:
-        id_op_signo = inc()
-        dot.node(str(id_op_signo), 'NOT')
-        dot.edge(str(id), str(id_op_signo))
-        dot.edge(str(id_op_signo), str(id2)) 
+        idsigno = inc()
+        dot.node(str(idsigno), str(t[2] + t[3]))
+        dot.edge(str(id), str(idsigno))
+        if t[1] != None:
+            dot.edge(str(idsigno), str(t[1]['id']))
 
 def p_relacional_val(t) :
     'relacional   : aritmetica'
@@ -3239,20 +3191,25 @@ def p_aritmetica(t) :
     dot.node(str(id), 'Valor aritmetico' )
 
     if len(t) == 2:
-        t[0] = {'id': id, 'valor': str(t[1]['valor'])}
-        dot.edge(str(id), str(t[1]['id'])) 
+        if t[1] != None:
+            
+            t[0] = {'id': id, 'valor': str(t[1]['valor'])}
+            dot.edge(str(id), str(t[1]['id'])) 
 
     elif len(t) == 3:
-        valor = type_checker.Validando_Operaciones_Aritmeticas((t[2]['valor']), (t[2]['valor']), 'NEGATIVO')
-        t[0] = {'id': id, 'valor': valor}
-        dot.edge(str(id), 'NEGATIVO')
-        dot.edge(str(id), str(t[2]['id'])) 
+        if t[2] != None:
+            valor = type_checker.Validando_Operaciones_Aritmeticas((t[2]['valor']), (t[2]['valor']), 'NEGATIVO')
+            t[0] = {'id': id, 'valor': valor}
+            dot.edge(str(id), 'NEGATIVO')
+            dot.edge(str(id), str(t[2]['id'])) 
     else:
-        valor = type_checker.Validando_Operaciones_Aritmeticas((t[1]['valor']), (t[3]['valor']), str(t[2]))
-        t[0] = {'id': id, 'valor': valor}
-        dot.edge(str(id), str(t[1]['id'])) 
-        dot.edge(str(id), t[2])
-        dot.edge(str(id), str(t[3]['id']))
+        if t[1] != None and t[3] != None:
+            valor = type_checker.Validando_Operaciones_Aritmeticas((t[1]['valor']), (t[3]['valor']), str(t[2]))
+            t[0] = {'id': id, 'valor': valor}
+            dot.edge(str(id), str(t[1]['id'])) 
+            dot.edge(str(id), t[2])
+            dot.edge(str(id), str(t[3]['id'])) 
+
     gramatica = "				| <aritmetica> MAS <aritmetica>\n				| <aritmetica> MENOS <aritmetica>\n\
 				| <arimtetica> POR <aritmetica>\n				| <aritmetica> DIVISION <aritmetica>\n\
 				| <aritmetica> MODULO <aritmetica>\n				| <aritmetica> EXP <aritmetica>"
@@ -3271,18 +3228,16 @@ def p_aritmetica_error(t) :
                     | PARIZQ error PARDER'''
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
     id = inc()
-    t[0] = {'id': id}
     dot.node(str(id), 'Valor aritmetico' )
-
-    if len(t) == 2:
-        dot.edge(str(id), str(id2)) 
+    if t[3] != None and t[3] != ')':
+        idoperador = inc()
+        dot.node(str(idoperador), t[2])
+        dot.edge(str(id), str(idoperador))
+        dot.edge(str(idoperador), str(t[3]['id']))
+        t[0] = {'id':id, 'valor':t[3]['valor']}
     else:
-        dot.edge(str(id), str(id2)) 
-        dot.edge(str(id), t[2])
-        dot.edge(str(id), str(t[3]['id'])) 
+        t[0] = {'id':id,'valor':0}
 
 def p_aritmetica_error2(t) :
     '''aritmetica   : aritmetica MAS error
@@ -3293,18 +3248,16 @@ def p_aritmetica_error2(t) :
                     | aritmetica EXP error'''
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
     id = inc()
-    t[0] = {'id': id}
     dot.node(str(id), 'Valor aritmetico' )
-
-    if len(t) == 2:
-        dot.edge(str(id), str(t[1]['id'])) 
+    if t[1] != None and t[1] != ')':
+        idoperador = inc()
+        dot.node(str(idoperador), t[2])
+        dot.edge(str(id), str(idoperador))
+        dot.edge(str(idoperador), str(t[1]['id']))
+        t[0] = {'id':id,'valor':t[1]['valor']}
     else:
-        dot.edge(str(id), str(t[1]['id'])) 
-        dot.edge(str(id), t[2])
-        dot.edge(str(id), str(id2)) 
+        t[0] = {'id':id, 'valor':0}
 
 def p_aritmetica2(t) :
     '''aritmetica   : funciones_math_esenciales
@@ -3342,8 +3295,11 @@ def p_aritmetica3(t) :
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'Funciones')
-
-    dot.edge(str(id), str(t[1]['id'])) 
+    if type(t[1]) == list:
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+    else:
+        dot.edge(str(id), str(t[1]['id'])) 
     # for element in t[1]:
     #     dot.edge(str(id), str(element['id']))
     gramatica = "				| <funciones_math_esenciales>\n				| <lista_funciones>\n				| <fun_binario_select>\n\
@@ -3411,12 +3367,23 @@ def p_valor2(t) :
                     | fun_binario_select
                     '''
     id = inc()
-    t[0] = {'id': id}
+    try:
+        if t[1]['valor'] != None:
+            t[0] = {'id':id, 'valor':t[1]['valor']}
+    except KeyError:
+        #REVISAR FALTA PONER ALGO AQUÍ PARA VALIDAR QUE CONTENGA VALOR, YA QUE ESO SE REQUIERE EN ARITMETICA
+        t[0] = {'id': id, 'valor':0}
     dot.node(str(id), 'FUNCIONES')
     # for element in t[1]:
     #     dot.edge(str(id), str(element['id']))
+    if t[1] != None:
+        if type(t[1]) == list:
+            for element in t[1]:
+                dot.edge(str(id), str(element['id']))     
+        else:
+            dot.edge(str(id), str(t[1]['id'])) 
         
-    dot.edge(str(id), str(t[1]['id'])) 
+
     gramatica = "		| <lista_funciones_where>\n		| <fun_binario_where>\n		| <state_subquery>\n        | <fun_binario_update>\n\
         | <fun_binario_select>"
     no_terminal = ["<lista_funciones_where>","<fun_binario_where>","<state_subquery>","<fun_binario_update>","<fun_binario_select>"]
@@ -3466,6 +3433,7 @@ def p_valor4(t) :
     reg_gramatical = ""
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"valor") 
 
+'''
 def p_valor_error(t) :
     'valor  : error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
@@ -3473,6 +3441,7 @@ def p_valor_error(t) :
     id = inc()
     t[0] = {'id':id}
     dot.node(str(id), 'ERROR')
+    '''
 
 def p_instruccion_update_where(t) :
     '''update_table : ID SET def_update WHERE relacional'''
@@ -3496,6 +3465,17 @@ def p_instruccion_update_where(t) :
     terminal = ["ID","SET","WHERE"]
     reg_gramatical = ""
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"update_table") 
+
+def p_instruccion_update_where_error(t) :
+    'update_table   : ID SET error WHERE relacional'
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    id = inc()
+    t[0] = {'id':id}
+
+    dot.node(str(id), 'UPDATE')
+    dot.edge(str(id), 'TABLA\n' + t[1])
+    
 
 def p_instruccion_update(t) :
     '''update_table : ID SET def_update'''
@@ -3537,10 +3517,6 @@ def p_def_update_rec_error2(t) :
     'def_update : def_update COMA error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    dot.node(str(id), 'ERROR')
-    t[1].append({'id':id})
-    t[0] = t[1]
 
 def p_def_update(t) :
     '''def_update   : def_update_asig'''
@@ -3558,9 +3534,8 @@ def p_def_update(t) :
 
 def p_def_update_error(t) :
     'def_update : error'
-    id = inc()
-    dot.node(str(id), 'ERROR')
-    t[0] = [{'id':id}]
+    error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
+    tabla_errores.agregar(error)
 
 def p_def_update_2(t) :
     '''def_update_asig   : ID IGUAL valor'''
@@ -3652,10 +3627,8 @@ def p_is_distinct(t) :
         dot.edge(str(id), str(t[1]['id'])) 
         dot.edge(str(id), str(t[5]['id'])) 
         # dot.edge(str(id), t[5] + ' [table]')
-
-        dot.edge(str(id), str(t[6]['id'])) 
-        for element in t[6]:
-            dot.edge(str(id), str(element['id']))
+        if type(t[6]) != list:
+            dot.edge(str(id), str(t[6]['id'])) 
         
         gramatica = "<state_is_distinct>	::= <valor> IS DISTINCT FROM <valor> <state_aliases_table>"
         no_terminal = ["<valor>","<state_aliases_table>","<state_is_distinct>"]
@@ -3707,8 +3680,7 @@ def p_predicate_nulls(t) :
 # # Pattern Matching
 # #=======================================================
 def p_matchs(t) :
-    '''state_pattern_match      : aritmetica LIKE CADENA
-                                | aritmetica LIKE CADENA_DOBLE'''
+    '''state_pattern_match      : aritmetica LIKE CADENA'''
     print("LIKE")
     id = inc()
     t[0] = {'id': id}
@@ -3766,7 +3738,6 @@ def p_aliases_table2(t):
 # -------------------------------------------------------
 def p_aliases_field(t):
     ''' state_aliases_field     : AS CADENA
-                                | AS CADENA_DOBLE
                                 | AS ID
                                 | ID
                                 '''
@@ -3894,17 +3865,24 @@ def p_instrucciones_funcion_sum(t):
     t[0] = {'id': id}
 
     dot.node(str(id), 'SUM')
-    if len == 5:
-        for element in t[3]:
-            dot.edge(str(id), str(element['id']))
+    if len(t) == 5:
+        if type(t[3]) == list:
+            for element in t[3]:
+                dot.edge(str(id), str(element['id']))
+        else:
+            dot.edge(str(id), str(t[3]['id']))
+
         gramatica = "<funciones_math_esenciales>	::= SUM PARIZQ <lista_funciones_math_esenciales> PARDER"
         no_terminal = ["<funciones_math_esenciales>","<lista_funciones_math_esenciales>"]
         terminal = ["SUM","PARIZQ","PARDER"]
         reg_gramatical = ""
         gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"funciones_math_esenciales")
     else:
-        for element in t[3]:
-            dot.edge(str(id), str(element['id']))
+        if type(t[3]) == list:
+            for element in t[3]:
+                dot.edge(str(id), str(element['id']))
+        else:
+            dot.edge(str(id), str(t[3]['id']))
         dot.edge(str(id), t[5])
         gramatica = "							| SUM PARIZQ <lista_funciones_math_esenciales> PARDER <parametro>"
         no_terminal = ["<parametro>","<lista_funciones_math_esenciales>"]
@@ -3919,6 +3897,7 @@ def p_instrucciones_funcion_avg(t):
     
     id = inc()
     t[0] = {'id': id}
+
     dot.node(str(id), 'AVG')
     
     if len == 5:
@@ -3945,17 +3924,26 @@ def p_lista_instrucciones_funcion_math(t):
                                         | lista_id
                                         '''
     id = inc()
-    t[0] = {'id': id, 'valor': t[1]['valor']}
-
+    if type(t[1]) != list:
+        t[0] = {'id': id, 'valor': t[1]['valor']}
+    else:
+        t[0] = {'id':id, 'valor':t[1]}
     dot.node(str(id), 'PARAMETROS')
-    dot.edge(str(id), str(t[1]['id']))
+    if type(t[1]) != list:
+        dot.edge(str(id), str(t[1]['id']))
+    else:
+        for element in t[1]:
+            id2 = inc()
+            dot.node(str(id2),str(element))
+            dot.edge(str(id), str(id2))
     
 def p_lista_instrucciones_funcion_math2(t):
     '''lista_funciones_math_esenciales  : POR'''
     id = inc()
     t[0] = {'id': id, 'valor': '*'}
 
-    dot.node(str(id), t[0])
+    dot.node(str(id), t[1])
+
     gramatica = "<lista_funciones_math_esenciales>	::= <aritmetica>\n									| <lista_id>\n\
 									| POR"
     no_terminal = ["<aritmetica>","<lista_funciones_math_esenciales>","<lista_id>"]
@@ -4342,9 +4330,6 @@ def p_instrucciones_funcion_math_parametro_error(t) :
     'funcion_math_parametro : error'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[1], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'ERROR')
     
 def p_instrucciones_funcion_math_parametro2(t) :
     '''funcion_math_parametro   : funcion_math_parametro_negativo'''
@@ -4709,12 +4694,6 @@ def p_instruccciones_funcion_binary_string_length_select_error(t) :
     'fun_binario_select : LENGTH PARIZQ error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'LENGTH')
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_length_where(t) :
     'fun_binario_where    : LENGTH PARIZQ valor PARDER'
@@ -4734,12 +4713,6 @@ def p_instrucciones_funcion_binary_string_length_where_error(t) :
     'fun_binario_where  : LENGTH PARIZQ error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'LENGTH')
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_substring_select(t) :
     'fun_binario_select    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -4761,14 +4734,6 @@ def p_instrucciones_funcion_binary_string_substring_select_error(t) :
     'fun_binario_select : SUBSTRING PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substring_insert(t) :
     'fun_binario_insert    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -4790,14 +4755,6 @@ def p_instrucciones_funcion_binary_string_substring_insert_error(t) :
     'fun_binario_insert : SUBSTRING PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substring_update(t) :
     'fun_binario_update    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -4819,14 +4776,6 @@ def p_instrucciones_funcion_binary_string_substring_update_error(t) :
     'fun_binario_update : SUBSTRING PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substring_where(t) :
     'fun_binario_where    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -4848,14 +4797,6 @@ def p_instrucciones_funcion_binary_string_substring_where_error(t) :
     'fun_binario_where  : SUBSTRING PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_trim_select(t) :
     'fun_binario_select    : TRIM PARIZQ CADENA FROM valor PARDER'
@@ -4876,13 +4817,6 @@ def p_instrucciones_funcion_binary_string_trim_select_error(t) :
     'fun_binario_select : TRIM PARIZQ CADENA FROM error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'TRIM')
-    dot.edge(str(id), str(t[3]))
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_trim_insert(t) :
     'fun_binario_insert    : TRIM PARIZQ CADENA FROM valor PARDER'
@@ -4903,13 +4837,6 @@ def p_instrucciones_funcion_binary_string_trim_insert_error(t) :
     'fun_binario_insert : TRIM PARIZQ CADENA FROM error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'TRIM')
-    dot.edge(str(id), str(t[3]))
-    dot.edge(str(id), str(id2))
     
 def p_instrucciones_funcion_binary_string_trim_update(t) :
     'fun_binario_update    : TRIM PARIZQ CADENA FROM valor PARDER'
@@ -4930,13 +4857,6 @@ def p_instrucciones_funcion_binary_string_trim_update_error(t) :
     'fun_binario_update : TRIM PARIZQ CADENA FROM error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'TRIM')
-    dot.edge(str(id), str(t[3]))
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_trim_where(t) :
     'fun_binario_where    : TRIM PARIZQ CADENA FROM valor PARDER'
@@ -4957,13 +4877,6 @@ def p_instrucciones_funcion_binary_string_trim_where_error(t) :
     'fun_binario_where  : TRIM PARIZQ CADENA FROM error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[5], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'TRIM')
-    dot.edge(str(id), str(t[3]))
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_md5_insert(t) :
     'fun_binario_insert : MD5 PARIZQ valor PARDER'
@@ -4983,12 +4896,6 @@ def p_instrucciones_funcion_binary_string_md5_insert_error(t) :
     'fun_binario_insert : MD5 PARIZQ error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'MD5')
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_md5_update(t) :
     'fun_binario_update : MD5 PARIZQ valor PARDER'
@@ -5008,12 +4915,6 @@ def p_instrucciones_funcion_binary_string_md5_update_error(t) :
     'fun_binario_update : MD5 PARIZQ error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'MD5')
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_sha256_select(t) :
     'fun_binario_select : SHA256 PARIZQ valor PARDER'
@@ -5033,12 +4934,6 @@ def p_instrucciones_funcion_binary_string_sha256_select_error(t) :
     'fun_binario_select : SHA256 PARIZQ error PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SHA256')
-    dot.edge(str(id), str(id2))
 
 def p_instrucciones_funcion_binary_string_substr_select(t) :
     'fun_binario_select : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -5060,14 +4955,6 @@ def p_instrucciones_funcion_binary_string_substr_select_error(t) :
     'fun_binario_select : SUBSTR PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substr_insert(t) :
     'fun_binario_insert : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -5089,14 +4976,6 @@ def p_instrucciones_funcion_binary_string_substr_insert_error(t) :
     'fun_binario_insert : SUBSTR PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substr_update(t) :
     'fun_binario_update : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -5118,14 +4997,6 @@ def p_instrucciones_funcion_binary_string_substr_update_error(t) :
     'fun_binario_update : SUBSTR PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_substr_where(t) :
     'fun_binario_where : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
@@ -5147,14 +5018,6 @@ def p_instrucciones_funcion_binary_string_substr_where_error(t) :
     'fun_binario_where  : SUBSTR PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SUBSTRING')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_get_byte(t) :
     'fun_binario_select : GET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO PARDER'
@@ -5176,13 +5039,6 @@ def p_instrucciones_funcion_binary_string_get_byte_error(t) :
     
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'GET_BYTE')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[8]))
 
 def p_instrucciones_funcion_binary_string_get_byte2(t) :
     'fun_binario_select : GET_BYTE PARIZQ valor COMA ENTERO PARDER'
@@ -5203,13 +5059,6 @@ def p_instrucciones_funcion_binary_string_get_byte2_error(t) :
     'fun_binario_select : GET_BYTE PARIZQ error COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'GET_BYTE')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
 
 def p_instrucciones_funcion_binary_string_set_byte(t) :
     'fun_binario_select : SET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO COMA ENTERO PARDER'
@@ -5252,14 +5101,6 @@ def p_instrucciones_funcion_binary_string_set_byte2_error(t) :
     'fun_binario_select : SET_BYTE PARIZQ error COMA ENTERO COMA ENTERO PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SET_BYTE')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
-    dot.edge(str(id), str(t[7]))
 
 def p_instrucciones_funcion_binary_string_Convert(t) :
     'fun_binario_select : CONVERT PARIZQ valor AS tipos PARDER'
@@ -5280,13 +5121,6 @@ def p_instrucciones_funcion_binary_string_convert_error(t) :
     'fun_binario_select : CONVERT PARIZQ error AS tipos PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'SET_BYTE')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]['id']))
 
 def p_instrucciones_funcion_binary_string_encode(t) :
     'fun_binario_select : ENCODE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA CADENA PARDER'
@@ -5307,13 +5141,6 @@ def p_instrucciones_funcion_binary_string_encode_error(t) :
     'fun_binario_select : ENCODE PARIZQ error DOS_PUNTOS DOS_PUNTOS BYTEA COMA CADENA PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'ENCODE')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[8]))
 
 def p_instrucciones_funcion_binary_string_encode2(t) :
     'fun_binario_select : ENCODE PARIZQ valor COMA CADENA PARDER'
@@ -5334,13 +5161,6 @@ def p_instrucciones_funcion_binary_string_encode2_error(t) :
     'fun_binario_select : ENCODE PARIZQ error COMA CADENA PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'ENCODE')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
 
 def p_instrucciones_funcion_binary_string_decode(t) :
     'fun_binario_select : DECODE PARIZQ valor COMA CADENA PARDER'
@@ -5361,20 +5181,18 @@ def p_instrucciones_funcion_binary_string_decode_error(t) :
     'fun_binario_select : DECODE PARIZQ error COMA CADENA PARDER'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[3], t.lexer.lineno)
     tabla_errores.agregar(error)
-    id2 = inc()
-    dot.node(str(id2), 'ERROR')
-    id = inc()
-    t[0] = {'id':id}
-    dot.node(str(id), 'DECODE')
-    dot.edge(str(id), str(id2))
-    dot.edge(str(id), str(t[5]))
 
 #========================================================
 
 def p_error(t):
-    error = Error('Sintáctico', "No se esperaba el caracter '%s'" % t.value[0], t.lexer.lineno)
-    tabla_errores.agregar(error)
-    print(error.imprimir())
+    if t == None:
+        error = Error('Sintáctcio', "Problema con el final del texto a analizar", 404)
+        tabla_errores.agregar(error)
+        print(error.imprimir())
+    else:
+        error = Error('Sintáctico', "No se esperaba el caracter '%s'" %t.value, t.lexer.lineno)
+        tabla_errores.agregar(error)
+        print(error.imprimir())
 
 import ply.yacc as yacc
 parser = yacc.yacc()
