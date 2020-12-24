@@ -9,7 +9,7 @@ class TIPO_DE_DATO(Enum) :
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'
 
-    def __init__(self, id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default) :
+    def __init__(self, id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default, idConstraintFK, idConstraintPK) :
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -28,6 +28,8 @@ class Simbolo() :
         self.idCheck = idCheck
         self.valor = valor
         self.default = default
+        self.idConstraintFK = idConstraintFK
+        self.idConstraintPK = idConstraintPK
         
 
 
@@ -200,7 +202,7 @@ class TablaDeSimbolos() :
             print(self.simbolos[simb].valor)
             tm=tm+1
         return 0
-# --------------------CREAR, ALTER Y DROP BD---------------------------------------------------------------------
+# --------------------CREAR, ALTER USE Y DROP BD---------------------------------------------------------------------
     def agregarCrearBD(self, simbolo) :
         self.simbolos[simbolo.nombre] = simbolo
 
@@ -212,7 +214,20 @@ class TablaDeSimbolos() :
                 return 1
         return 0 
 
+    def verificacionUseBD(self, nombre) :
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                print('BD ', nombre, ' existente.')
+                return 1
+        return 0  
+
     def verificacionAlterBD(self, nombre) :
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                return 1
+        return 0
+
+    def verificacionAlterBD_2(self, nombre) :
         for simb in self.simbolos:            
             if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
                 return 1
@@ -235,11 +250,11 @@ class TablaDeSimbolos() :
                 return 1
         return 0
 
-    def printBD(self):
-        tm = 0
-        for simb in self.simbolos:
-            print("----------BASE DE DATOS ",tm,"----------")
-           # print(self.simbolos[simb].id)
-            print(self.simbolos[simb].nombre)
-            tm=tm+1
-        return 0
+    def verificacionShowBD(self) :
+        bd = []
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre != None and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:                
+                for simb in self.simbolos:
+                    bd.append(self.simbolos[simb].nombre)      
+                return bd
+        return 0 

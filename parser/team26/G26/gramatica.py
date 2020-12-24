@@ -725,7 +725,7 @@ def p_operadores_select_t(t):
         reporte = "<operadoresselect> ::= PLECA <argumentosdeoperadores>\n" + t[2]['reporte']
         t[0] = {'ast': select.OperadoresSelect('square',t[2]['ast'],None),'graph': grafo.index, 'reporte': reporte}
     else :
-        reporte = "<operadoresselect> ::= VIRGULILLA <argumentodeoperadores>\n" + t[2]['reportes']
+        reporte = "<operadoresselect> ::= VIRGULILLA <argumentodeoperadores>\n" + t[2]['reporte']
         t[0] = {'ast': select.OperadoresSelect('not',t[2]['ast'],None),'graph': grafo.index, 'reporte':reporte}
 
 
@@ -811,6 +811,12 @@ def p_argumento_de_operadores_entero(t):
     reporte = "<argumentodeoperadores> ::= ENTERO\n"
     t[0] = {'ast' : primi.Primitive('integer', t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
+def p_argumento_de_operadores_ID(t):
+    '''argumentodeoperadores : ID'''
+    grafo.newnode('ARGUMENTO DE OPERADORES')
+    grafo.newchildrenE(t[1])
+    reporte = "<argument> ::= " +  t[1].upper() +"\n"
+    t[0] = {'ast' : ident.Identificador(None, t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_simples(t):
     '''funcionesmatematicassimples  : COUNT PARENIZQ argument  PARENDER
@@ -1718,9 +1724,9 @@ def p_tipo(t):
             grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<tipo> ::= INTERVAL <fields> <precision>\n" + t[2]['reporte'] + t[3]['reporte']
         t[0] = {'ast' : type.Types(t[2]['ast'], t[3]['ast']), 'graph' : grafo.index}
-    elif t[1].lower() == 'boleano' :
+    elif t[1].lower() == 'boolean' :
         grafo.newchildrenE(t[1].upper())
-        reporte ="<tipo> ::= BOLEANO\n"
+        reporte ="<tipo> ::= BOOLEAN\n"
         t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE(t[1])
@@ -2140,7 +2146,7 @@ def p_valueb(t):
     grafo.newnode('VALUE')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<value> ::= <boleano>\n" + t[1]['reporte']
-    t[0] = {'ast' : t[1], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_value_md(t):
     'value : MD5 PARENIZQ argument PARENDER'
