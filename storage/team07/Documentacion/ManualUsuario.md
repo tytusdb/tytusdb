@@ -6,7 +6,7 @@ Laboratorio de Estructuras de Datos
 
 
 # OBJETIVOS
-# GENERALES:
+### GENERALES:
   Proporcionar un manejo del sistema para el usuario
 # Específicos:
  Que el usuario pueda crear, eliminar, modificar y mostrar una base de datos
