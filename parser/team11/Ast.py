@@ -496,6 +496,64 @@ class AST:
 
 ###################################################### Ejecucion de Querys ###############################################
 
+    def querySimple(self, nodo):
+        names = []
+        resultados = []
+        for hijo in nodo.hijos:
+            if hijo.etiqueta == 'EXTRACT':
+                if len(hijo.hijos) == 3:
+                   names.append(hijo.hijos[2].valor)
+                else:
+                    names.append(hijo.valor)
+                self.resolverExtract(hijo, resultados)
+            elif hijo.etiqueta == 'DATE PART':
+                if len(hijo.hijos) == 3:
+                   names.append(hijo.hijos[2].valor)
+                else:
+                    names.append(hijo.valor)
+                self.resolverDatepart(hijo, resultados)
+            elif hijo.etiqueta == 'CURRENT_DATE':
+                if len(hijo.hijos) == 1:
+                    names.append(hijo.hijos[0].valor)
+                else:
+                    names.append(hijo.etiqueta)
+                self.resolverCurrentDate(resultados)
+            elif hijo.etiqueta == 'CURRENT_TIME':
+                if len(hijo.hijos) == 1:
+                    names.append(hijo.hijos[0].valor)
+                else:
+                    names.append(hijo.etiqueta)
+                self.resolverCurrentTime(resultados)
+            elif hijo.etiqueta == 'TIMESTAMP':
+                if len(hijo.hijos) == 1:
+                    names.append(hijo.hijos[0].valor)
+                else:
+                    names.append(hijo.etiqueta)
+                self.resolverTimestampNow(resultados)
+            elif hijo.etiqueta == 'NOW':
+                self.resolverTimestampNow(resultados)
+            elif hijo.etiqueta == 'Matematica':
+                if len(hijo.hijos) == 1 or len(hijo.hijos) == 0:
+                    names.append(hijo.valor)
+                elif len(hijo.hijos) == 2:
+                    if hijo.hijos[1].etiqueta == 'Alias':
+                        names.append(hijo.hijos[1].valor)
+                    else :
+                       names.append(hijo.valor) 
+                elif len(hijo.hijos) == 3:
+                    names.append(hijo.hijos[2].valor)
+                self.resolverFuncionMatematica(hijo, resultados)
+            elif hijo.etiqueta == 'Trigonometrica':
+                if len(hijo.hijos) == 2:
+                    names.append(hijo.hijos[1].valor)
+                else: 
+                    names.append(hijo.valor)
+                self.resolverFuncionTrigonometrica(hijo, resultados) 
+
+        x = PrettyTable()
+        x.field_names = names
+        x.add_rows([resultados])
+        self.output.append(x.get_string())
 
     def resolverExtract(self, nodo, resultados):
         try:
