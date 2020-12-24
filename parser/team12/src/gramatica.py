@@ -451,7 +451,7 @@ def p_error(t):
 #------------------------------- Produccion Union ------------------------------------------
 def p_sentencia_union(t):
     'sentencia_union : sentencia_select UNION sentencia_select'
-    # reportebnf.append(bnf["p_sentencia_union"])
+    reportebnf.append(bnf["p_sentencia_union"])
     t[0] = Start("SENTENCIA_UNION",t.lineno(2),t.lexpos(2)+1,None)
     t[0].hijos.append(t[1])
     t[0].hijos.append(t[3])
@@ -459,7 +459,7 @@ def p_sentencia_union(t):
 #------------------------------- Produccion Union ALL ------------------------------------------
 def p_sentencia_union_all(t):
     'sentencia_union_all : sentencia_select UNION ALL sentencia_select'
-    # reportebnf.append(bnf["p_sentencia_union"])
+    reportebnf.append(bnf["p_sentencia_union_all"])
     t[0] = Start("SENTENCIA_UNION_ALL",t.lineno(2),t.lexpos(2)+1,None)
     t[0].hijos.append(t[1])
     t[0].hijos.append(t[4])
@@ -467,7 +467,7 @@ def p_sentencia_union_all(t):
 #----------------------------- Produccion Intersect ----------------------------------------
 def p_sentencia_intersect(t):
     'sentencia_intersect : sentencia_select INTERSECT sentencia_select'
-    # reportebnf.append(bnf["p_sentencia_intersect"])
+    reportebnf.append(bnf["p_sentencia_intersect"])
     t[0] = Start("SENTENCIA_INTERSECT",t.lineno(2),t.lexpos(2)+1,None)
     t[0].hijos.append(t[1])
     t[0].hijos.append(t[3])
@@ -475,7 +475,7 @@ def p_sentencia_intersect(t):
 #------------------------------- Produccion Except ----------------------------------------.
 def p_sentencia_except(t):
     'sentencia_except : sentencia_select EXCEPT sentencia_select'
-    # reportebnf.append(bnf["p_sentencia_except"])
+    reportebnf.append(bnf["p_sentencia_except"])
     t[0] = Start("SENTENCIA_EXCEPT",t.lineno(2),t.lexpos(2)+1,None)
     t[0].hijos.append(t[1])
     t[0].hijos.append(t[3])

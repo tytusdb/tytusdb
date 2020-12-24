@@ -68,7 +68,9 @@ class Start(Nodo):
                 nuevaTabla = Table()
                 res = nuevaTabla.execute(hijo, enviroment)
                 if res.code != "00000":
-                    print(res.responseObj.descripcion)
+                    self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
+                else:
+                    self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
             elif hijo.nombreNodo == 'CREATE_TYPE_ENUM':
                 nuevoEnum = Type()
                 nuevoEnum.execute(hijo)
