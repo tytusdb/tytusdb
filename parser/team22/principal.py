@@ -16,6 +16,7 @@ salida = []
 type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
 
 def leer_instrucciones(intrucciones):
+    global salida
     for instruccion in instrucciones:
         if isinstance(instruccion, Crear_BD):
             if instruccion.replace is False:
@@ -29,6 +30,14 @@ def leer_instrucciones(intrucciones):
             type_checker.alterDatabase(instruccion.databaseOld, instruccion.databaseNew, instruccion.line)
         elif isinstance(instruccion, Drop_BD):
             type_checker.dropDatabase(instruccion.database, instruccion.line)
+        elif isinstance(instruccion, Cambio_BD):
+            type_checker.useDatabase(instruccion.id, instruccion.line)
+        elif isinstance(instruccion, Select):
+            objeto = instruccion.objeto['objeto']
+            if isinstance(objeto, FuncionTrigonometrica1):
+                salida.append([[instruccion.objeto['alias']],[type_checker.Funciones_Trigonometricas_1(objeto.funcion, objeto.valor, objeto.line)]])
+            elif isinstance(objeto, FuncionTrigonometrica2):
+                salida.append([[instruccion.objeto['alias']],[type_checker.Funciones_Trigonometricas_2(objeto.funcion, objeto.valor1, objeto.valor2, objeto.line)]])
 
 leer_instrucciones(instrucciones)
 
