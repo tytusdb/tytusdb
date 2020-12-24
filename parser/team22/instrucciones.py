@@ -127,7 +127,7 @@ class Crear_TB_Herencia(Instruccion) :
         self.columnas = columnas
         self.idHerencia = idHerencia
 
-class Crear_TB():
+class Crear_TB(Instruccion):
     '''
         Esta clase representa la instrucción de Crear tabla sin herencia
         La instrucción Crear_TB tiene 2 parámetros:
@@ -135,6 +135,15 @@ class Crear_TB():
         columnas = columnas que contendrá la tabla.
     '''
 
-    def __init__(self, id, columnas):
+    def __init__(self, id, columnas, line):
         self.id = id
         self.columnas = columnas
+        self.line = line
+
+class Drop_TB(Instruccion):
+    '''
+        Esta clase representa la instruccion de eliminar TB.
+    '''
+    def __init__(self, table, line) :
+        self.table = table
+        self.line = line
