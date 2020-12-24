@@ -510,7 +510,7 @@ def p_add_alter(p):
         'fk_references_to' : None
     }]))
     elif len(p) == 5:
-        p[0] = AlterTableAdd(Check(p[4]))
+        p[0] = AlterTableAdd(Check(p[3]))
     elif len(p) == 7:
         p[0] = AlterTableAdd(Constraint(p[2],Unique(p[5]))) #TODO revisar esta asignacion
     else:

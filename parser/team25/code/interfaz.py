@@ -83,7 +83,7 @@ class InterfazCompi:
     #    error1 = ErrorReport('lexico' , 'ERROR  DESDE LA INTERFAZ ' , '3') 
     #    listaErrores.addError(error1)
        listaErrores.generateReport()
-       os.system('reporteErrores.html') # & para ejecutar dos comandos en una sola linea de la terminal
+       os.system('cd data/Reportes & reporteErrores.html') # & para ejecutar dos comandos en una sola linea de la terminal
             
     
     def viewImage(self):
