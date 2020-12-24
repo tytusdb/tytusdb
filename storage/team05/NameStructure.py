@@ -238,7 +238,7 @@ class NombreEstructuras:
                 if self.buscarTabla(table, dicTemp) == True:
                     lenColumns = len(columns) #tamaño del atributo columns
                     lenPrimaryKey = len(dicTemp[table][1]) #tamaño de la tabla creada
-                    columnasTabla = int(dicTep[table][0]) - 1
+                    columnasTabla = int(dicTemp[table][0]) - 1
 
                     if  (columnasTabla + 1) >= lenColumns: #Comparamos tamaño de columnas
                         if lenPrimaryKey == 0:
@@ -616,7 +616,7 @@ class HashTable:
         self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
         return 0
     
-        def addColumn(self, data_default, database, table):
+    def addColumn(self, data_default, database, table):
         self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
         for r in self.__vector:
             if r is not None:
