@@ -157,12 +157,12 @@ class SelectQ(Instruction):
                             return list_from[0]
                         else:
                             return list_from[0]   
-                    elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
-                            list_from[0] = list_from[0].drop_duplicates()
-                            return list_from[0]
-                        else:
-                            return list_from[0]  
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                    #         list_from[0] = list_from[0].drop_duplicates()
+                    #         return list_from[0]
+                    #     else:
+                    #         return list_from[0]  
                     else:
                         list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
                         if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
@@ -178,12 +178,12 @@ class SelectQ(Instruction):
                             return list_from[0]
                         else:
                             return list_from[0]       
-                    elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
-                            list_from[0] = list_from[0].drop_duplicates()
-                            return list_from[0]
-                        else:
-                            return list_from[0]                            
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                    #         list_from[0] = list_from[0].drop_duplicates()
+                    #         return list_from[0]
+                    #     else:
+                    #         return list_from[0]                            
                     else:
                         list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
                         if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
@@ -264,14 +264,14 @@ class SelectQ(Instruction):
                                 return where_table
                         else:
                             return where_table
-                    elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                        # list_select = loop_list(self.select_list, instrucction)
-                        where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
-                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
-                                where_table = where_table.drop_duplicates()
-                                return where_table
-                        else:
-                            return where_table
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     # list_select = loop_list(self.select_list, instrucction)
+                    #     where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    #     if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                    #             where_table = where_table.drop_duplicates()
+                    #             return where_table
+                    #     else:
+                    #         return where_table
                     else:
                         where_table = self.where_or_grouphaving.process(instrucction, list_from[0], self.alias)
                         list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
@@ -326,10 +326,10 @@ class SelectQ(Instruction):
                         list_select = loop_list(self.select_list, instrucction)
                         where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
                         return where_table
-                    elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                        # list_select = loop_list(self.select_list, instrucction)
-                        where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
-                        return where_table
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     # list_select = loop_list(self.select_list, instrucction)
+                    #     where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    #     return where_table
                     else:
                         where_table = self.where_or_grouphaving.process(instrucction, list_from[0], self.alias)
                         list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
@@ -343,9 +343,9 @@ class SelectQ(Instruction):
                     if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
                         list_select = loop_list(self.select_list, instrucction)
                         return list_from[0]
-                    elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                        # list_select = loop_list(self.select_list, instrucction)
-                        return list_from[0]
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     # list_select = loop_list(self.select_list, instrucction)
+                    #     return list_from[0]
                     else:
                         list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
                         return list_select
@@ -353,9 +353,9 @@ class SelectQ(Instruction):
                     if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
                         list_select = loop_list(self.select_list, instrucction)
                         return list_from[0]
-                    elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                        # list_select = loop_list(self.select_list, instrucction) 
-                        return list_from[0]
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     # list_select = loop_list(self.select_list, instrucction) 
+                    #     return list_from[0]
                     else:
                         list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
                         return list_select
@@ -488,7 +488,7 @@ class AgreggateFunctions(Instruction):
                 elif self.type_agg.lower() == 'sum':
                     data = {str(self.alias.lower()): 'sum'}
                 elif self.type_agg.lower() == 'count':
-                    data = {str(self.alias.lower()): 'size'}
+                    data = {str(result.value): 'size'}
                 elif self.type_agg.lower() == 'max':
                     data = {str(self.alias.lower()): 'max'}
                 elif self.type_agg.lower() == 'min':

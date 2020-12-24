@@ -29,12 +29,45 @@ def print_success(data_type: str, print_: str):
 def print_text(data_type: str, print_: str):
     print_data_("FFFFFF", "text", data_type, print_)
 
+def print_table( print_: str):
+    print_data_table("FFFFFF", "text", print_)
+
 
 #Tytus_GUI.console.tag_add("tag name", "initial_line.initial_column", "end_line.end_column")
 #       Always initial position line starts at 1, end position line starts at 1
 #       Always initial position column starts at 0, end position column starts at 1
 #Tytus_GUI.console.insert("line.column", "text")
 #       line starts at 1, column starts at 0
+
+def print_data_table(hexadecimal_color_foreground: str, type_print: str, print_: str):
+
+    # We save the print
+    prints.append( print_data(type_print,"",print_) )
+
+    text_console_before = Tytus_GUI.console.get(1.0,'end-1c')
+    number_of_lines_before = 0
+    if(text_console_before!=""):
+        number_of_lines_before = len(text_console_before.split("\n"))
+    
+    # We add printing
+    if text_console_before!="":
+        print_ = "\n" + print_
+    Tytus_GUI.console.configure(state="normal")
+    Tytus_GUI.console.insert(str(number_of_lines_before + 1) + ".0", print_)
+    Tytus_GUI.console.configure(state="disabled")
+    
+    text_console_after = Tytus_GUI.console.get(1.0,'end-1c')
+    number_of_lines_after = 0
+    if(text_console_after!=""):
+        number_of_lines_after = len(text_console_after.split("\n"))
+    
+    positions = get_printed_line_and_column(text_console_before,  text_console_after, (number_of_lines_before + 1), number_of_lines_after)
+
+    # We create a tag
+    Tytus_GUI.console.tag_config(type_print,foreground=hexadecimal_color_foreground)
+    
+    # We apply the tag to a fragment of the text using indexes
+    Tytus_GUI.console.tag_add(type_print, str(positions[0]) + "." + str(positions[1]), str(positions[2]) + "." + str(positions[3]))
 
 def print_data_(hexadecimal_color_foreground: str, type_print: str, data_type: str, print_: str):
 

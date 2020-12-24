@@ -1,5 +1,5 @@
 import os
-from DataBaseTree_AVL import *
+from .DataBaseTree_AVL import *
 import shutil
 import pickle
 from PIL import Image

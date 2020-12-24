@@ -9,6 +9,7 @@ from report_tc import *
 from report_ts import *
 from report_errores import *
 
+import datetime
 import math
 import random
 import mpmath
@@ -16,6 +17,8 @@ import hashlib
 from operator import itemgetter
 import base64
 import binascii
+import re
+import hashlib
 
 from storageManager import jsonMode as j
 
@@ -634,6 +637,9 @@ def procesar_altertable(instr,ts,tc):
                 elif lista.tipo.val.upper() == 'INTEGER':
                     tipodatoo = TIPO_DE_DATOS.integer_ 
                     tamanioD = ""
+                elif lista.tipo.val.upper() == 'BOOLEAN':
+                    tipodatoo = TIPO_DE_DATOS.boolean 
+                    tamanioD = ""
                 elif lista.tipo.val.upper() == 'SMALLINT':
                     tipodatoo = TIPO_DE_DATOS.smallint_ 
                 elif lista.tipo.val.upper() == 'MONEY':
@@ -729,9 +735,8 @@ def procesar_altertable(instr,ts,tc):
                 
                 pos = tc.getPos(useCurrentDatabase,instr.identificador,datos.val)
                 print(pos)
-                #result = j.alterDropColumn('world','countries',1)
-                #print(result)
-                result = 0
+                result = j.alterDropColumn(str(useCurrentDatabase),str(instr.identificador),pos)
+                
                 if result == 0:
                     tc.eliminarID(useCurrentDatabase,instr.identificador,datos.val)
                     temp1 = ts.obtener(instr.identificador,useCurrentDatabase)
@@ -763,6 +768,9 @@ def procesar_altertable(instr,ts,tc):
             tipodatoo = TIPO_DE_DATOS.float_ 
         elif instr.lista_campos[0].tipo.val.upper() == 'INTEGER':
             tipodatoo = TIPO_DE_DATOS.integer_ 
+            tamanioD = ""
+        elif instr.lista_campos[0].tipo.val.upper() == 'BOOLEAN':
+            tipodatoo = TIPO_DE_DATOS.boolean
             tamanioD = ""
         elif instr.lista_campos[0].tipo.val.upper() == 'SMALLINT':
             tipodatoo = TIPO_DE_DATOS.smallint_ 
@@ -847,7 +855,7 @@ def procesar_insert(instr,ts,tc):
     arrayInserteFinal = []
     arrayParametros = []
     if instr.etiqueta == TIPO_INSERT.CON_PARAMETROS:
-
+        print(instr)
         if instr.lista_parametros != []:
             for parametros in instr.lista_parametros:
                 #print(parametros.val)
@@ -857,7 +865,13 @@ def procesar_insert(instr,ts,tc):
 
         if instr.lista_datos != []:
             for parametros in instr.lista_datos:
-                arrayInsert.append(parametros.val)
+                if isinstance(parametros,Funcion_Exclusivas_insert):
+                    arrTC = []
+                    salidaR = resolver_expresion_aritmetica(parametros,arrTC)
+                    print(salidaR)
+                    arrayInsert.append(salidaR)
+                else:
+                    arrayInsert.append(parametros.val)
 
 
         arrayNew = []           
@@ -946,8 +960,15 @@ def procesar_insert(instr,ts,tc):
             #print(columns)
             #print(numC)
             for parametros in instr.lista_datos:
-                #print(parametros.val)
-                arrayInsert.append(parametros.val)
+                if isinstance(parametros,Funcion_Exclusivas_insert):
+                    arrTC = []
+                    salidaR = resolver_expresion_aritmetica(parametros,arrTC)
+                    print(salidaR)
+                    arrayInsert.append(salidaR)
+                else:
+                    arrayInsert.append(parametros.val)
+
+            
 
         # LLENAR CAMPOS CON None
         if len(arrayInsert) < numC:
@@ -955,6 +976,7 @@ def procesar_insert(instr,ts,tc):
             while i < numC:
                 arrayInsert.append(None)
                 i+=1
+
 
         if len(arrayInsert) == numC:
             i = 0
@@ -1014,7 +1036,7 @@ def procesar_insert(instr,ts,tc):
     print(str(useCurrentDatabase),str(instr.val), arrayInserteFinal)'''
 
     result = j.insert(useCurrentDatabase,instr.val, arrayInserteFinal)
-
+    print(result)
     if result == 0:
         salida = "\nINSERT 0 1"            
     elif result == 1 :
@@ -1097,23 +1119,85 @@ def procesar_delete(instr,ts,tc):
 
 
 def procesar_select_time(instr,ts,tc):
+    arrayReturn = []
     if instr.etiqueta == SELECT_TIME.EXTRACT:
-        print(instr.etiqueta)
-        print(instr.val1.val)
-        print(instr.val2)
+        if instr.val1.val == 'YEAR':
+            year = re.findall('(\d{4})-\d{2}-\d{2}', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([year[0]])
+
+        elif instr.val1.val == 'MONTH':
+            month = re.findall('\d{4}-(\d{2})-\d{2}', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([month[0]])
+
+        elif instr.val1.val == 'DAY':
+            day = re.findall('\d{4}-\d{2}-(\d{2})', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([day[0]])
+
+        elif instr.val1.val == 'HOUR':
+            hora = re.findall('(\d{2}):\d{2}:\d{2}', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([hora[0]])
+
+        elif instr.val1.val == 'MINUTE':
+            minuto = re.findall('\d{2}:(\d{2}):\d{2}', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([minuto[0]])
+
+        elif instr.val1.val == 'SECOND':
+            segundo = re.findall('\d{2}:\d{2}:(\d{2})', instr.val2)
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([segundo[0]])
+
     elif instr.etiqueta == SELECT_TIME.DATE_PART:
-        print(instr.etiqueta)
-        print(instr.val1)
-        print(instr.val2)
+        if instr.val1.upper() == 'HOURS':
+            hour = re.findall('(\d+) hours', instr.val2)
+            print(hour[0]) 
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([hour[0]])
+
+        elif instr.val1.upper() == 'MINUTES':
+            minutes = re.findall('(\d+) minutes', instr.val2)
+            print(minutes[0])
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([minutes[0]])
+
+        elif instr.val1.upper() == 'SECONDS':
+            seconds = re.findall('(\d+) seconds', instr.val2)
+            print(seconds[0])
+            arrayReturn.append(['date_part'])
+            arrayReturn.append([seconds[0]])
+
     elif instr.etiqueta == SELECT_TIME.NOW:
-        print(instr.etiqueta)
+        current_time = datetime.datetime.now() 
+        print (str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond))
+        noww = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond)
+        arrayReturn.append(['now'])
+        arrayReturn.append([noww])
     elif instr.etiqueta == SELECT_TIME.CURRENT_TIME:
-        print(instr.etiqueta)
+        current_time = datetime.datetime.now() 
+        print (str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond)) 
+        currentT = str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond) 
+        arrayReturn.append(['current_time'])
+        arrayReturn.append([currentT])
     elif instr.etiqueta == SELECT_TIME.CURRENT_DATE:
-        print(instr.etiqueta)
+        current_time = datetime.datetime.now() 
+        print(str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day))
+        currentD = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)
+        arrayReturn.append(['current_date'])
+        arrayReturn.append([currentD])
     elif instr.etiqueta == SELECT_TIME.TIMESTAMP:
         print(instr.etiqueta)
         print(instr.val1)
+        if instr.val1.upper() == 'NOW':
+            current_time = datetime.datetime.now() 
+            print (str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond))
+            noww = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond)
+            arrayReturn.append(['now'])
+            arrayReturn.append([noww])
+    print(arrayReturn)
 
 def procesar_select1(instr,ts,tc):
     if instr.etiqueta == OPCIONES_SELECT.GREATEST:
@@ -1160,19 +1244,19 @@ def procesar_select_general(instr,ts,tc):
         print('1')
         if instr.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
             for datos in instr.instr1.listac:
-                print(datos.val)
+                print('\n')
         if instr.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
             for datos in instr.instr1.lista_extras:
                 if datos.etiqueta == OPCIONES_SELECT.CASE:
                     for objs in datos.listacase:
-                        print(objs.operador) #SOLO ETIQUETAS
+                        print('\n')
                     print(datos.expresion.etiqueta)
                 elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
                     arrayColumns.append(datos.val)
                     print(datos.val) # * 
 
                 elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
-                    print(datos.val+'.*')
+                    print('\n')
                     return datos.val
                 else:
                     #print(datos.val) #RESTO DE ETIQUETAS
@@ -1181,15 +1265,13 @@ def procesar_select_general(instr,ts,tc):
         if instr.listanombres != []:
             for datos in instr.listanombres:
                 if datos.etiqueta == TIPO_VALOR.DOBLE:
-                    print(datos.val+'.'+datos.val1)
+                    print('\n')
                 elif datos.etiqueta == TIPO_VALOR.AS_ID:
-                    print(datos.val)
-                    print(datos.val1.val)
+                    print('\n')
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None:
-                    print(datos.val)
-                    print(datos.val1)
+                    print('\n')
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
-                    print(datos.val)
+                    print('\n')
                     tables.append(datos.val)
 
         if '*' in arrayColumns:
@@ -1225,39 +1307,127 @@ def procesar_select_general(instr,ts,tc):
     
     elif instr.instr1 != None and instr.instr2 != None and instr.instr3 == None and instr.listains == None and instr.listanombres != None:
         print('2')
+        arrayColumnsF = []
         if instr.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
             for datos in instr.instr1.listac:
-                print(datos.val)
+                print('\n')
         if instr.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
             for datos in instr.instr1.lista_extras:
                 if datos.etiqueta == OPCIONES_SELECT.CASE:
                     for objs in datos.listacase:
-                        print(objs.operador) #SOLO ETIQUETAS
-                    print(datos.expresion.etiqueta)
+                        print('\n')
+                    print('\n')
                 elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
-                    print(datos.val)
+                    #print(datos.val)
+                    arrayColumnsF.append(datos.val)
+
                 elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
-                    print(datos.val+'.*')
+                    print('\n')
                 else:
-                    print(datos.etiqueta) #RESTO DE ETIQUETAS
-        
+                    columnP = str(datos.val)+"."+str(datos.val1)
+                    arrayColumnsF.append(columnP)
+
+        arrayTablas = []
         if instr.listanombres != []:
             for datos in instr.listanombres:
                 if datos.etiqueta == TIPO_VALOR.DOBLE:
-                    print(datos.val+'.'+datos.val1)
-                elif datos.etiqueta == TIPO_VALOR.AS_ID:
-                    print(datos.val)
-                    print(datos.val1.val)
-                elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None:
-                    print(datos.val)
-                    print(datos.val1)
+                    print(':)')
+                    #print(datos.val+'.'+datos.val1)
+                elif datos.etiqueta == TIPO_VALOR.AS_ID: #TABLA AS T
+                    arrayTablas.append([datos.val,datos.val1.val])
+
+                elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None: #TABLA T
+                    arrayTablas.append([datos.val,datos.val1])
                 elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
-                    print(datos.val)
+                    print(':)')
+                    #print(datos.val)
+            #print(arrayTablas)
+            #tc.obtenerColumns(useCurrentDatabase,tables[0])
+            arrayColumnsPrimera = tc.obtenerColumns(useCurrentDatabase,arrayTablas[0][0])
+            arrayColumnsSegunda = tc.obtenerColumns(useCurrentDatabase,arrayTablas[1][0])
+
+            arrayColumnsMerge = []
+            arrC = 0
+            while arrC < len(arrayTablas):
+                if arrC == 0:
+                    for arrCP in arrayColumnsPrimera:
+                        columP = str(arrayTablas[0][1])+"."+str(arrCP)
+                        arrayColumnsMerge.append(columP)
+                if arrC == 1:
+                    for arrCS in arrayColumnsSegunda:
+                        columS = str(arrayTablas[1][1])+"."+str(arrCS)
+                        arrayColumnsMerge.append(columS)
+                arrC +=1
+
+            columnsTable = arrayColumnsMerge
+            #print(arrayColumnsMerge)
+
+            arrayPrimera = j.extractTable(str(useCurrentDatabase),str(arrayTablas[0][0]))
+            arraySegunda = j.extractTable(str(useCurrentDatabase),str(arrayTablas[1][0]))
+            
+
+            arrayMerge = []
+            arrayMerge.append(arrayColumnsMerge)           
+            arrP = 0
+            while arrP < len(arrayPrimera):
+                
+                arrS = 0
+                while arrS < len(arraySegunda):
+                    arrFilas = []
+                    arrPP = 0
+                    while arrPP < len(arrayPrimera[arrP]):
+                        arrFilas.append(arrayPrimera[arrP][arrPP])
+                        arrPP +=1
+                    arrSS = 0
+                    while arrSS < len(arraySegunda[arrS]):
+                        arrFilas.append(arraySegunda[arrS][arrSS])
+                        arrSS +=1
+                    #print(arrayPrimera[arrP],arraySegunda[arrS])
+                    arrayMerge.append(arrFilas)
+                    arrS+=1
+                arrP +=1
+
+            #print(arrayMerge)
+
                     
         if instr.instr2.expwhere != None:
-            print(instr.instr2.expwhere.etiqueta)
-            print(instr.instr2.expwhere.expresion.etiqueta)
-        if instr.instr2.expgb != None:
+            arrayFilterFilter = []
+            arrayFilterFilter.append(arrayMerge[0])
+            i = 1
+            while i < len(arrayMerge):
+                arrayTS = []
+                arrayTS.append(arrayMerge[0])
+                arrayTS.append(arrayMerge[i])
+                val = resolver_expresion_logica(instr.instr2.expwhere.expresion,arrayTS)
+                if val == 1:
+                    arrayFilterFilter.append(arrayMerge[i])
+                i+=1
+        
+            arrayFilter = arrayFilterFilter
+            #print(instr.instr2.expwhere.expresion)
+            #print(instr.instr2.expwhere.etiqueta)
+            #print(instr.instr2.expwhere.expresion.etiqueta)
+
+        if '*' in arrayColumnsF:
+            for filas in arrayFilter:
+                arrayReturn.append(filas)
+
+            salida = arrayReturn
+            print(arrayReturn)
+
+        else:
+            for filasF in arrayFilter:
+                #print(filasF)
+                arrayTemp = []
+                for colF in arrayColumnsF:
+                    arrayTemp.append(filasF[columnsTable.index(colF)])
+                    #print(colF)
+                arrayReturn.append(arrayTemp)
+
+            salida = arrayReturn
+            print(arrayReturn)
+
+        '''if instr.instr2.expgb != None:
             print(instr.instr2.expgb.etiqueta)
             for datos in instr.instr2.expgb.expresion:
                 print(datos.id)
@@ -1281,7 +1451,7 @@ def procesar_select_general(instr,ts,tc):
             print(instr.instr2.expoffset.etiqueta)
             print(instr.instr2.expoffset.expresion.val)
         if instr.instr2.valor != None:
-            print(instr.instr2.valor)
+            print(instr.instr2.valor)'''
 
     elif instr.instr1 == None and instr.instr2 != None and instr.instr3 != None and instr.listains != None and instr.listanombres == None:
         print('3')
@@ -1638,6 +1808,11 @@ def resolver_expresion_aritmetica(expNum,ts):
     elif isinstance(expNum, ExpresionIdentificador) :
         pos = getPosition(ts,expNum.val)
         return ts[1][pos]
+
+    elif isinstance(expNum, ExpresionIdentificadorDoble) :
+        idd = str(expNum.val) + "." + str(expNum.val1)
+        pos = getPosition(ts,idd)
+        return ts[1][pos]
         
     elif isinstance(expNum, Expresiondatos):
         exp = resolver_expresion_aritmetica(expNum.exp1,ts)
@@ -1815,6 +1990,36 @@ def resolver_expresion_aritmetica(expNum,ts):
                 return ascii_cadena
             else:
                 return exp
+
+    elif isinstance(expNum, Funcion_Exclusivas_insert):
+        exp = resolver_expresion_aritmetica(expNum.exp1,ts)
+        exp1 = resolver_expresion_aritmetica(expNum.exp2,ts)
+        exp2 = resolver_expresion_aritmetica(expNum.exp3,ts)
+        if expNum.operador == INSERT_EXCLUSIVA.SUBSTRING:
+            expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
+            expInicio = resolver_expresion_aritmetica(expNum.exp2,ts)
+            expFin = resolver_expresion_aritmetica(expNum.exp3,ts)            
+            return  expCadena[expInicio:expFin]
+
+        elif expNum.operador == INSERT_EXCLUSIVA.NOW:
+            current_time = datetime.datetime.now() 
+            noww = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)
+            return noww
+
+        elif expNum.operador == INSERT_EXCLUSIVA.TRIM:
+            expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
+            return expCadena.strip()
+
+        elif expNum.operador == INSERT_EXCLUSIVA.MD5:
+            expCadena = resolver_expresion_aritmetica(expNum.exp1,ts)
+            hash_obj = hashlib.md5(expCadena.encode())
+            md5_to = hash_obj.hexdigest()
+            return md5_to
+
+        
+
+
+        
                 
 
 
@@ -1837,15 +2042,17 @@ def resolver_expresion_relacional(expRel,ts):
             return exp1 <= exp2
         if expRel.operador == OPERACION_RELACIONAL.DOBLEIGUAL:
             return exp1 == exp2
+        if expRel.operador == OPERACION_RELACIONAL.IGUAL:
+            return exp1 == exp2
         if expRel.operador == OPERACION_RELACIONAL.DIFERENTE:
             print('diferente')
             return exp1 != exp2
         if expRel.operador == OPCION_VERIFICAR.NULL or expRel.operador == OPCION_VERIFICAR.UNKNOWN:
-            return exp1 == ''
+            return exp1 == None
         if expRel.operador == OPCION_VERIFICAR.ISNULL:
-            return exp1 == ''
+            return exp1 == None
         if expRel.operador == OPCION_VERIFICAR.NOTNULL:
-            return exp1 != ''
+            return exp1 != None
         if expRel.operador == OPCION_VERIFICAR.TRUE:
             return exp1 == True
         if expRel.operador == OPCION_VERIFICAR.FALSE:
@@ -1916,6 +2123,628 @@ def resolver_expresion_logica(expLog,ts):
         return resolver_expresion_relacional(expLog,ts) 
 
 
+def procesar_select_uniones(instr,ts,tc):
+    print(instr.etiqueta)
+    print(instr.ins)
+    global salida
+    
+    if instr.etiqueta == OPCIONES_UNIONES.UNION:
+        arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
+        arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
+        union_arr = procesar_UNION(arraySelect1,arraySelect2)
+        salida = union_arr
+        print(salida)
+    elif instr.etiqueta == OPCIONES_UNIONES.UNION_ALL:
+        arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
+        arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
+        union_arr = procesar_UNION_ALL(arraySelect1,arraySelect2)
+        salida = union_arr
+        print(salida)
+    elif instr.etiqueta == OPCIONES_UNIONES.INTERSECT or instr.etiqueta == OPCIONES_UNIONES.INTERSECT_ALL:
+        arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
+        arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
+        intersect_arr = procesar_INTERSECT(arraySelect1,arraySelect2)
+        salida = intersect_arr
+        print(salida)
+    elif instr.etiqueta == OPCIONES_UNIONES.EXCEPTS or instr.etiqueta == OPCIONES_UNIONES.EXCEPTS_ALL:
+        arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
+        arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
+        except_arr = procesar_EXCEPT(arraySelect1,arraySelect2)
+        salida = except_arr
+        print(salida)
+
+def procesar_UNION(arr1,arr2):
+    if len(arr1[0]) != len(arr2[0]):
+        return "ERROR:  each UNION query must have the same number of columns\nSQL state: 42601"
+    else:
+        arrUNION_ALL = []
+        i=1
+        while i<len(arr1):
+            arrUNION_ALL.append(arr1[i])
+            i+=1
+        j=1
+        while j<len(arr2):
+            arrUNION_ALL.append(arr2[j])
+            j+=1
+
+        arrUNION = []
+        
+        arrU = 0
+        while arrU < len(arrUNION_ALL):
+            val = find_ARR(arrUNION_ALL[arrU],arrUNION)
+            if val:
+                arrUNION.append(arrUNION_ALL[arrU])
+            arrU+=1
+        arrUNION.insert(0,arr1[0])           
+        
+        return arrUNION
+
+def procesar_INTERSECT(arr1,arr2):
+    if len(arr1[0]) != len(arr2[0]):
+        return "ERROR:  each UNION query must have the same number of columns\nSQL state: 42601"
+    else:
+        arrINTERSECT = []
+        i=1
+        while i<len(arr1):
+            j=1
+            while j<len(arr2):
+                if arr1[i] == arr2[j]:
+                    arrINTERSECT.append(arr1[i])
+
+                j+=1
+            i+=1
+        arrINTERSECT.insert(0,arr1[0])           
+        
+        return arrINTERSECT
+
+def procesar_EXCEPT(arr1,arr2):
+    if len(arr1[0]) != len(arr2[0]):
+        return "ERROR:  each UNION query must have the same number of columns\nSQL state: 42601"
+    else:
+        arr_INTERSECT = []
+        i=1
+        while i<len(arr1):
+            j=1
+            while j<len(arr2):
+                if arr1[i] == arr2[j]:
+                    arr_INTERSECT.append(arr1[i])
+
+                j+=1
+            i+=1
+        arr_EXCEPT = []
+        arrE = 1
+        while arrE < len(arr1):
+            val = find_ARR(arr1[arrE],arr_INTERSECT)
+            if val:
+                arr_EXCEPT.append(arr1[arrE])
+            arrE+=1
+        
+        arr_EXCEPT.insert(0,arr1[0])           
+       
+        return arr_EXCEPT
+
+
+
+def procesar_UNION_ALL(arr1,arr2):
+    if len(arr1[0]) != len(arr2[0]):
+        return "ERROR:  each UNION query must have the same number of columns\nSQL state: 42601"
+    else:
+        arrUNION_ALL = []
+        i=1
+        while i<len(arr1):
+            arrUNION_ALL.append(arr1[i])
+            i+=1
+        j=1
+        while j<len(arr2):
+            arrUNION_ALL.append(arr2[j])
+            j+=1
+
+        
+        arrUNION_ALL.insert(0,arr1[0])           
+        
+        return arrUNION_ALL
+
+def find_ARR(line,arr):
+    i=0
+    while i < len(arr):
+        if arr[i] == line:
+            return False
+        i+=1
+    return True
+
+
+def procesar_select_for_UNIONES(instr,ts,tc):
+    global salida
+    columnsTable = []
+    arrayColumns = []
+    tables = []
+    arrayReturn = []
+    #WHERE
+    arrayWhere = []
+    arrayFilter = []
+    
+    if  instr.instr1 != None and instr.instr2 == None and instr.instr3 == None and instr.listains == None and instr.listanombres != None:
+        global salida
+        
+        print('1')
+        if instr.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
+            for datos in instr.instr1.listac:
+                print(datos.val)
+        if instr.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
+            for datos in instr.instr1.lista_extras:
+                if datos.etiqueta == OPCIONES_SELECT.CASE:
+                    for objs in datos.listacase:
+                        print(objs.operador) #SOLO ETIQUETAS
+                    print(datos.expresion.etiqueta)
+                elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                    arrayColumns.append(datos.val)
+                    print(datos.val) # * 
+
+                elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                    print(datos.val+'.*')
+                    return datos.val
+                else:
+                    #print(datos.val) #RESTO DE ETIQUETAS
+                    arrayColumns.append(datos.val)
+        
+        if instr.listanombres != []:
+            for datos in instr.listanombres:
+                if datos.etiqueta == TIPO_VALOR.DOBLE:
+                    print(datos.val+'.'+datos.val1)
+                elif datos.etiqueta == TIPO_VALOR.AS_ID:
+                    print(datos.val)
+                    print(datos.val1.val)
+                elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None:
+                    print(datos.val)
+                    print(datos.val1)
+                elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
+                    print(datos.val)
+                    tables.append(datos.val)
+
+        if '*' in arrayColumns:
+            columnsTable = tc.obtenerColumns(useCurrentDatabase,tables[0])
+            resultArray = j.extractTable(str(useCurrentDatabase),str(tables[0]))
+            arrayReturn.append(columnsTable)
+            for filas in resultArray:
+                arrayReturn.append(filas)
+
+            return arrayReturn
+        else:
+            columnsTable = tc.obtenerColumns(useCurrentDatabase,tables[0])
+            resultArray = j.extractTable(str(useCurrentDatabase),str(tables[0]))
+            arrayReturn.append(arrayColumns)
+            for filasF in resultArray:
+                #print(filasF)
+                arrayTemp = []
+                for colF in arrayColumns:
+                    #print(filasF[columnsTable.index(colF)])
+                    arrayTemp.append(filasF[columnsTable.index(colF)])
+                    #print(colF)
+                arrayReturn.append(arrayTemp)
+
+            return arrayReturn
+
+        
+
+        
+
+    
+
+    
+    elif instr.instr1 != None and instr.instr2 != None and instr.instr3 == None and instr.listains == None and instr.listanombres != None:
+        print('2')
+        arrayColumnsF = []
+        if instr.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
+            for datos in instr.instr1.listac:
+                print(datos.val)
+        if instr.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
+            for datos in instr.instr1.lista_extras:
+                if datos.etiqueta == OPCIONES_SELECT.CASE:
+                    for objs in datos.listacase:
+                        print(objs.operador) #SOLO ETIQUETAS
+                    print(datos.expresion.etiqueta)
+                elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                    #print(datos.val)
+                    arrayColumnsF.append(datos.val)
+
+                elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                    print(datos.val+'.*')
+                else:
+                    columnP = str(datos.val)+"."+str(datos.val1)
+                    arrayColumnsF.append(columnP)
+
+        arrayTablas = []
+        if instr.listanombres != []:
+            for datos in instr.listanombres:
+                if datos.etiqueta == TIPO_VALOR.DOBLE:
+                    print(':)')
+                    #print(datos.val+'.'+datos.val1)
+                elif datos.etiqueta == TIPO_VALOR.AS_ID: #TABLA AS T
+                    print(datos.val)
+                    print(datos.val1.val)
+                    arrayTablas.append([datos.val,datos.val1.val])
+                elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 != None: #TABLA T
+                    arrayTablas.append([datos.val,datos.val1])
+                elif datos.etiqueta == TIPO_VALOR.IDENTIFICADOR and datos.val1 == None:
+                    print(':)')
+                    #print(datos.val)
+            #print(arrayTablas)
+            #tc.obtenerColumns(useCurrentDatabase,tables[0])
+            arrayColumnsPrimera = tc.obtenerColumns(useCurrentDatabase,arrayTablas[0][0])
+            arrayColumnsSegunda = tc.obtenerColumns(useCurrentDatabase,arrayTablas[1][0])
+
+            arrayColumnsMerge = []
+            arrC = 0
+            while arrC < len(arrayTablas):
+                if arrC == 0:
+                    for arrCP in arrayColumnsPrimera:
+                        columP = str(arrayTablas[0][1])+"."+str(arrCP)
+                        arrayColumnsMerge.append(columP)
+                if arrC == 1:
+                    for arrCS in arrayColumnsSegunda:
+                        columS = str(arrayTablas[1][1])+"."+str(arrCS)
+                        arrayColumnsMerge.append(columS)
+                arrC +=1
+
+            columnsTable = arrayColumnsMerge
+            #print(arrayColumnsMerge)
+
+            arrayPrimera = j.extractTable(str(useCurrentDatabase),str(arrayTablas[0][0]))
+            arraySegunda = j.extractTable(str(useCurrentDatabase),str(arrayTablas[1][0]))
+            
+
+            arrayMerge = []
+            arrayMerge.append(arrayColumnsMerge)           
+            arrP = 0
+            while arrP < len(arrayPrimera):
+                
+                arrS = 0
+                while arrS < len(arraySegunda):
+                    arrFilas = []
+                    arrPP = 0
+                    while arrPP < len(arrayPrimera[arrP]):
+                        arrFilas.append(arrayPrimera[arrP][arrPP])
+                        arrPP +=1
+                    arrSS = 0
+                    while arrSS < len(arraySegunda[arrS]):
+                        arrFilas.append(arraySegunda[arrS][arrSS])
+                        arrSS +=1
+                    #print(arrayPrimera[arrP],arraySegunda[arrS])
+                    arrayMerge.append(arrFilas)
+                    arrS+=1
+                arrP +=1
+
+            #print(arrayMerge)
+
+                    
+        if instr.instr2.expwhere != None:
+            arrayFilterFilter = []
+            arrayFilterFilter.append(arrayMerge[0])
+            i = 1
+            while i < len(arrayMerge):
+                arrayTS = []
+                arrayTS.append(arrayMerge[0])
+                arrayTS.append(arrayMerge[i])
+                val = resolver_expresion_logica(instr.instr2.expwhere.expresion,arrayTS)
+                if val == 1:
+                    arrayFilterFilter.append(arrayMerge[i])
+                i+=1
+        
+            arrayFilter = arrayFilterFilter
+            #print(instr.instr2.expwhere.expresion)
+            #print(instr.instr2.expwhere.etiqueta)
+            #print(instr.instr2.expwhere.expresion.etiqueta)
+
+        if '*' in arrayColumnsF:
+            for filas in arrayFilter:
+                arrayReturn.append(filas)
+
+            return arrayReturn
+            
+
+        else:
+            for filasF in arrayFilter:
+                #print(filasF)
+                arrayTemp = []
+                for colF in arrayColumnsF:
+                    arrayTemp.append(filasF[columnsTable.index(colF)])
+                    #print(colF)
+                arrayReturn.append(arrayTemp)
+
+            return arrayReturn
+
+    elif instr.instr1 == None and instr.instr2 != None and instr.instr3 != None and instr.listains != None and instr.listanombres == None:
+        print('3')
+        if instr.instr2.etiqueta == OPCIONES_SELECT.DISTINCT:
+            for datos in instr.instr2.listac:
+                print(datos.val)
+        if instr.instr2.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
+            for datos in instr.instr2.lista_extras:
+                if datos.etiqueta == OPCIONES_SELECT.CASE:
+                    for objs in datos.listacase:
+                        print(objs.operador) #SOLO ETIQUETAS
+                    print(datos.expresion.etiqueta)
+                elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                    print(datos.val)
+                elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                    print(datos.val+'.*')
+                else:
+                    print(datos.etiqueta) #RESTO DE ETIQUETAS 
+
+            if instr.instr3[0] == TIPO_VALOR.AS_ID:
+                print(instr.instr3[1].val)
+            elif instr.instr3[0] == TIPO_VALOR.DOBLE:
+                print(instr.instr3[1])
+            else:
+                print(instr.instr3)   
+
+            for objs in instr.listains:
+                if objs.instr2 != None:
+                    print(objs.instr1.val)
+                    if objs.instr2.expwhere != None:
+                        print(objs.instr2.expwhere.etiqueta)
+                        print(objs.instr2.expwhere.expresion.etiqueta)
+                    if objs.instr2.expgb != None:
+                        print(objs.instr2.expgb.etiqueta)
+                        for datos in objs.instr2.expgb.expresion:
+                            print(datos.id)
+                    if objs.instr2.expob != None:
+                        print(objs.instr2.expob.etiqueta)
+                        for datos in objs.instr2.expob.expresion:
+                            print(datos.val)
+                    if objs.instr2.exphav != None:
+                        print(objs.instr2.exphav.etiqueta)
+                        print(objs.instr2.exphav.expresion)
+                    if objs.instr2.exporden != None:
+                        print(objs.instr2.exporden.etiqueta)
+                        print(objs.instr2.exporden.expresion.id)
+                    if objs.instr2.explimit != None:
+                        print(objs.instr2.explimit.etiqueta)
+                        if objs.instr2.explimit.expresion.etiqueta == TIPO_VALOR.NUMERO:
+                            print(objs.instr2.explimit.expresion.val)
+                        else:
+                            print(objs.instr2.explimit.expresion.val)
+                    if objs.instr2.expoffset != None:
+                        print(objs.instr2.expoffset.etiqueta)
+                        print(objs.instr2.expoffset.expresion.val)
+                    if objs.instr2.valor != None:
+                        print(objs.instr2.valor)
+                elif objs.instr2 == None:
+                    print(objs.instr1.val)
+
+    elif instr.instr1 != None and instr.instr2 == None and instr.instr3 != None and instr.listains != None and instr.listanombres == None:
+        print('4')
+        if instr.instr1.etiqueta == OPCIONES_SELECT.DISTINCT:
+            for datos in instr.instr1.listac:
+                print(datos.val)
+        if instr.instr1.etiqueta == OPCIONES_SELECT.SUBCONSULTA:
+            for datos in instr.instr1.lista_extras:
+                if datos.etiqueta == OPCIONES_SELECT.CASE:
+                    for objs in datos.listacase:
+                        print(objs.operador) #SOLO ETIQUETAS
+                    print(datos.expresion.etiqueta)
+                elif datos.etiqueta == TIPO_VALOR.ASTERISCO:
+                    arrayColumns.append(datos.val) # *
+                elif datos.etiqueta == TIPO_VALOR.ID_ASTERISCO:
+                    print(datos.val+'.*')
+                else:
+                    arrayColumns.append(datos.val) #IDS
+
+        for objs in instr.listains:
+            tables.append(objs.val) #tables
+
+
+        columnsTable = tc.obtenerColumns(useCurrentDatabase,tables[0])
+        resultArray = j.extractTable(str(useCurrentDatabase),str(tables[0]))
+        arrayWhere = resultArray
+        arrayWhere.insert(0,columnsTable)           
+
+        if instr.instr3.expwhere != None:
+            arrayFilter.append(arrayWhere[0])
+            i = 1
+            while i < len(arrayWhere):
+                arrayTS = []
+                arrayTS.append(arrayWhere[0])
+                arrayTS.append(arrayWhere[i])
+                val = resolver_expresion_logica(instr.instr3.expwhere.expresion,arrayTS)
+                if val == 1:
+                    arrayFilter.append(arrayWhere[i])
+                i+=1
+            
+        #print(arrayFilter)
+
+        if '*' in arrayColumns:
+            for filas in arrayFilter:
+                arrayReturn.append(filas)
+
+            return arrayReturn
+
+        else:
+            for filasF in arrayFilter:
+                #print(filasF)
+                arrayTemp = []
+                for colF in arrayColumns:
+                    #print(filasF[columnsTable.index(colF)])
+                    arrayTemp.append(filasF[columnsTable.index(colF)])
+                    #print(colF)
+                arrayReturn.append(arrayTemp)
+
+            return arrayReturn
+
+        if instr.instr3.expgb != None:
+            print(instr.instr3.expgb.etiqueta)
+            for datos in instr.instr3.expgb.expresion:
+                print(datos.id)
+        if instr.instr3.expob != None:
+            print(instr.instr3.expob.etiqueta)
+            for datos in instr.instr3.expob.expresion:
+                print(datos.val)
+        if instr.instr3.exphav != None:
+            print(instr.instr3.exphav.etiqueta)
+            print(instr.instr3.exphav.expresion)
+        if instr.instr3.exporden != None:
+            print(instr.instr3.exporden.etiqueta)
+            print(instr.instr3.exporden.expresion.id)
+        if instr.instr3.explimit != None:
+            print(instr.instr3.explimit.etiqueta)
+            if instr.instr3.explimit.expresion.etiqueta == TIPO_VALOR.NUMERO:
+                print(instr.instr3.explimit.expresion.val)
+            else:
+                print(instr.instr3.explimit.expresion.val)
+        if instr.instr3.expoffset != None:
+            print(instr.instr3.expoffset.etiqueta)
+            print(instr.instr3.expoffset.expresion.val)
+        if instr.instr3.valor != None:
+            print(instr.instr3.valor)
+
+
+    elif instr.instr1 == None and instr.instr2 == None and instr.instr3 == None and instr.listains == None and instr.listanombres != None:
+        print(5)    
+        for datos in instr.listanombres:
+            #CON IDENTIFICADOR 
+            if datos.expresion != None and datos.asterisco != None:
+                print('hol2')
+                if type(datos.asterisco) == list:
+                    arrayReturn.append([datos.asterisco[1].val])
+                    print(datos.asterisco[1].val)
+                else:
+                    arrayReturn.append([datos.asterisco])
+                    print(datos.asterisco)
+
+
+                if datos.expresion.operador == OPERACION_ARITMETICA.WIDTH_BUCKET:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.E_DIV:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+
+                elif datos.expresion.operador == OPERACION_ARITMETICA.GCD:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.MOD:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.POWER:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.TRUNC:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2D:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SUBSTRING:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SUBSTR:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.GET_BYTE:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SET_BYTE:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.ENCODE:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.DECODE:
+                    
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                else:
+                    ts = []
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                    print(resolver_expresion_aritmetica(datos.expresion,ts))
+                
+                if datos.asterisco[0] == TIPO_VALOR.AS_ID:
+                    print(datos.asterisco[1].val)
+                elif datos.asterisco[0] == TIPO_VALOR.DOBLE:
+                    print(datos.asterisco[1])
+                else:
+                    print(datos.asterisco)
+
+            #SIN IDENTIFICADOR
+            if datos.expresion != None and datos.asterisco == None:
+                print('hola')
+                if datos.expresion.operador == OPERACION_ARITMETICA.WIDTH_BUCKET:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.E_DIV:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.GCD:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.MOD:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.POWER:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.TRUNC:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+
+                elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == OPERACION_ARITMETICA.ATAN2D:
+                    
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SUBSTRING:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SUBSTR:
+                    
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.GET_BYTE:
+                    
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.SET_BYTE:
+                    
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.ENCODE:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                elif datos.expresion.operador == CADENA_BINARIA.DECODE:
+                    ts = []
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+                else:
+                    ts = []
+                    print(datos.expresion.operador)
+                    arrayReturn.append([datos.expresion.operador])
+                    arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
+
+        return arrayReturn
 
 
 def procesar_instrucciones(instrucciones,ts,tc) :
@@ -1977,16 +2806,18 @@ def procesar_instrucciones(instrucciones,ts,tc) :
                 procesar_select1(instr,ts,tc)
             elif isinstance(instr, Create_select_general) : 
                 procesar_select_general(instr,ts,tc)
+            elif isinstance(instr, Select_Uniones) : 
+                procesar_select_uniones(instr,ts,tc)
         
             #SELECT 
             
             
-            else : print('Error: instrucción no válida ' + str(instr))
+            else : print('Error: instrucción no válida ' + str(instr[0]))
         return salida 
     except:
         pass
 
-f = open("./entrada.txt", "r")
+'''f = open("./entrada.txt", "r")
 input = f.read()
 instrucciones = g.parse(input)
 
@@ -2004,5 +2835,8 @@ if listaErrores == []:
 else:
     erroressss = ErrorHTML()
     erroressss.crearReporte()
-    listaErrores = []
+    listaErrores = []'''
+
+
+
 

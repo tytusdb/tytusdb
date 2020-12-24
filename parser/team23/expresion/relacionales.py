@@ -42,13 +42,13 @@ class relacional(expresion):
                     if item[left_value.index_col] == right_value.valor:
                         registros.append(item)
 
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col ,encabezados=left_value.encabezados)
             elif right_value.query == True:
                 registros = []
                 for item in right_value.valor:
                     if item[right_value.index_col] == left_value.valor:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=right_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
             else:
                 return retorno(left_value.valor == right_value.valor, tipo_primitivo.BOOLEAN)
         # DESIGUALDAD
@@ -60,13 +60,13 @@ class relacional(expresion):
                 for item in left_value.valor:
                     if item[left_value.index_col] != right_value.valor:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
             elif right_value.query == True:
                 registros = []
                 for item in right_value.valor:
                     if left_value.valor != item[right_value.index_col]:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=right_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
             else:
                 return retorno(left_value.valor == right_value.valor, tipo_primitivo.BOOLEAN)
         #MAYOR
@@ -78,13 +78,13 @@ class relacional(expresion):
                 for item in left_value.valor:
                     if item[left_value.index_col] > right_value.valor:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
             elif right_value.query == True:
                 registros = []
                 for item in right_value.valor:
                     if left_value.valor > item[right_value.index_col]:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=right_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
             else:
                 return retorno(left_value.valor > right_value.valor, tipo_primitivo.BOOLEAN)
         #MENOR
@@ -96,13 +96,13 @@ class relacional(expresion):
                 for item in left_value.valor:
                     if item[left_value.index_col] >= right_value.valor:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
             elif right_value.query == True:
                 registros = []
                 for item in right_value.valor:
                     if left_value.valor >= item[right_value.index_col]:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
             else:
                 return retorno(left_value.valor < right_value.valor, tipo_primitivo.BOOLEAN)
         # MAYOR IGUAL
@@ -114,13 +114,13 @@ class relacional(expresion):
                 for item in left_value.valor:
                     if item[left_value.index_col] < right_value.valor:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
             elif right_value.query == True:
                 registros = []
                 for item in right_value.valor:
                     if left_value.valor < item[right_value.index_col]:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
             else:
                 return retorno(left_value.valor >= right_value.valor, tipo_primitivo.BOOLEAN)
         
@@ -133,13 +133,13 @@ class relacional(expresion):
                 for item in left_value.valor:
                     if item[left_value.index_col] > right_value.valor:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
             elif right_value.query == True:
                 registros = []
                 for item in right_value.valor:
                     if left_value.valor > item[right_value.index_col]:
                         registros.append(item)
-                return retorno(registros, tipo_primitivo.TABLA, True,encabezados=left_value.encabezados)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
             else:
                 return retorno(left_value.valor <= right_value.valor, tipo_primitivo.BOOLEAN)
 

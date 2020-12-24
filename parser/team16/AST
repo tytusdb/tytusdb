@@ -2,66 +2,44 @@ digraph AST {
 	edge [arrowhead=none]
 	node [color="#31CEF0" shape=box]
 	Node0 [label="\"AST\""]
-	Node1 [label=INSTRUCCION_SELECT]
+	Node1 [label="CREATE DATABASE"]
 	Node0 -> Node1
-	Node2 [label=SELECT]
+	Node2 [label="Id: test2"]
 	Node1 -> Node2
-	Node3 [label=LISTA_CAMPOS]
-	Node1 -> Node3
-	Node4 [label=Acceso_Case]
+	Node3 [label="CREATE TABLE"]
+	Node0 -> Node3
+	Node4 [label="Id: tbpuesto"]
 	Node3 -> Node4
-	Node5 [label=CASE]
-	Node4 -> Node5
-	Node6 [label=TIPOS_WHEN]
-	Node4 -> Node6
-	Node7 [label="TIPOS WHEN ENTRADA"]
-	Node6 -> Node7
-	Node8 [label=when]
-	Node7 -> Node8
-	Node9 [label=CONDICIONES_EXPRESIONES1]
-	Node7 -> Node9
-	Node10 [label=CONDICION]
-	Node9 -> Node10
-	11 [label=ExpresionRelacional]
-	12 [label=exp1]
-	11 -> 12
+	Node5 [label=CAMPO]
+	Node3 -> Node5
+	Node6 [label="Id: idpuesto"]
+	Node5 -> Node6
+	Node7 [label="Tipo: smallint"]
+	Node5 -> Node7
+	Node8 [label=CAMPO]
+	Node3 -> Node8
+	Node9 [label="Id: puesto"]
+	Node8 -> Node9
+	Node10 [label="Tipo: character"]
+	Node8 -> Node10
+	Node11 [label=EXPRESION]
+	Node10 -> Node11
+	12 [label=ExpresionValor]
 	12 -> 13
-	13 [label=Variable]
-	13 -> 14
-	14 [label=idrol]
-	15 [label=">="]
-	11 -> 15
-	16 [label=exp2]
-	11 -> 16
-	16 -> 17
-	17 [label=ExpresionValor]
-	17 -> 18
-	18 [label=2]
-	Node10 -> 11
-	Node20 [label=then]
-	Node7 -> Node20
-	Node21 [label=CONDICIONES_EXPRESIONES3]
-	Node7 -> Node21
-	Node22 [label=CONDICION]
-	Node21 -> Node22
-	23 [label=ExpresionValor]
-	23 -> 24
-	24 [label=Calamardo]
-	Node22 -> 23
-	Node26 [label=end]
-	Node4 -> Node26
-	Node27 [label=FROM]
-	Node1 -> Node27
-	Node28 [label=LISTA_TABLAS]
-	Node1 -> Node28
-	Node29 [label=Nombre_Tabla]
-	Node28 -> Node29
-	Node30 [label=tbrol]
-	Node29 -> Node30
-	Node31 [label=Uniones]
-	Node1 -> Node31
-	Node32 [label=Final_Instruccion]
-	Node31 -> Node32
-	Node33 [label=""]
-	Node32 -> Node33
+	13 [label=25]
+	Node11 -> 12
+	Node14 [label=CAMPO]
+	Node3 -> Node14
+	Node15 [label="Id: salariobase"]
+	Node14 -> Node15
+	Node16 [label="Tipo: money"]
+	Node14 -> Node16
+	Node17 [label="CONSTRAINT:"]
+	Node3 -> Node17
+	Node18 [label="Valor: primary key"]
+	Node17 -> Node18
+	Node19 [label=COLUMNA]
+	Node17 -> Node19
+	Node20 [label=idpuesto]
+	Node19 -> Node20
 }
