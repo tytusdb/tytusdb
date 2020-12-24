@@ -65,7 +65,6 @@ class ArithmeticBinaryOperation(Expression):
                 value = round(value1.value | value2.value)
             elif operador == SymbolsAritmeticos.BITWISE_XOR:
                 value = round(value1.value ^ value2.value)
-
             return PrimitiveData(DATA_TYPE.NUMBER, value, self.line, self.column)
         except:
             desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"

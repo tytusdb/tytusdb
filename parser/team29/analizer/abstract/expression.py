@@ -61,7 +61,7 @@ class Primitive(Expression):
         self.temp = str(temp)
 
     def execute(self, environment):
-        self.dot()
+        
         return self
 
     def dot(self):
@@ -141,6 +141,11 @@ class TableAll(Expression):
             env = env.previous
         return lst
 
+    def dot(self):
+        new = Nodo.Nodo(str(self.table))
+        punto = Nodo.Nodo(".*")
+        new.addNode(punto)
+        return new
 
 class UnaryArithmeticOperation(Expression):
     """
@@ -180,8 +185,6 @@ class UnaryArithmeticOperation(Expression):
         n1 = self.exp.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
-        global root
-        root = new
         return new
 
 
@@ -229,7 +232,7 @@ class BinaryArithmeticOperation(Expression):
                 value = exp1.value % exp2.value
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-            self.dot()
+          
             return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
         except:
             raise
@@ -240,8 +243,6 @@ class BinaryArithmeticOperation(Expression):
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         new.addNode(n2)
-        global root
-        root = new
         return new
 
 
@@ -285,7 +286,7 @@ class BinaryStringOperation(Expression):
             value = exp1.value + exp2.value
         else:
             return ErrorOperatorExpression(operator, self.row, self.column)
-        self.dot()
+        
         return Primitive(TYPE.STRING, value, self.temp, self.row, self.column)
 
     def dot(self):
@@ -294,8 +295,6 @@ class BinaryStringOperation(Expression):
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         new.addNode(n2)
-        global root
-        root = new
         return new
 
 
@@ -337,7 +336,6 @@ class BinaryRelationalOperation(Expression):
                 value = exp1.value == exp2.value
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-            self.dot()
             return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except TypeError:
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
@@ -350,8 +348,6 @@ class BinaryRelationalOperation(Expression):
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         new.addNode(n2)
-        global root
-        root = new
         return new
 
 
@@ -407,7 +403,7 @@ class UnaryRelationalOperation(Expression):
                 value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-            self.dot()
+            
             return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except TypeError:
             return ErrorUnaryOperation(exp.value, self.row, self.column)
@@ -418,8 +414,6 @@ class UnaryRelationalOperation(Expression):
         n1 = self.exp1.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
-        global root
-        root = new
         return new
 
 
@@ -493,8 +487,6 @@ class TernaryRelationalOperation(Expression):
         new.addNode(n1)
         new.addNode(n2)
         new.addNode(n3)
-        global root
-        root = new
         return new
 
 
@@ -505,32 +497,61 @@ class ExistsRelationalOperation(Expression):
         self.temp = "EXISTS( subquery )"
 
     def execute(self, environment):
-        df1 = environment.dataFrame.copy()
-        names = {}
+        try:
+            df1 = environment.dataFrame.copy()
+            names = {}
+            
+            for n in list(df1.columns):
+                names[n] = n.split('.')[1]
 
-        for n in list(df1.columns):
-            names[n] = n.split(".")[1]
+            df1.rename(columns=names, inplace=True)
 
-        df1.rename(columns=names, inplace=True)
+            df2 = self.subquery.execute(environment)[0]
 
-        df2 = self.subquery.execute(environment)[0]
-
-        y = df1.columns.intersection(df2.columns)
-        lst = list(y)
-        if len(lst) < 1:
-            raise Exception("No hay columnas en comun")
-        value = df1[lst].apply(tuple, 1).isin(df2[lst].apply(tuple, 1))
-        return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
+            y =	df1.columns.intersection(df2.columns)
+            lst = list(y)
+            if len(lst) < 1:
+                raise Exception("No hay columnas en comun en el EXISTS")
+            value = (df1[lst].apply(tuple, 1).isin(df2[lst].apply(tuple, 1)))
+            return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
+        except:
+            raise
 
     def dot(self):
-        n1 = "exists"
-        new = Nodo.Nodo("select")
-        new.addNode(n1)
-        global root
-        root = new
+        new = Nodo.Nodo("EXISTS")
+        new.addNode(self.subquery.dot())
         return new
 
 
+class InRelationalOperation(Expression):
+    def __init__(self, colData, optNot, subquery, row, column) -> None:
+        super().__init__(row, column)
+        self.colData = colData
+        self.subquery = subquery
+        self.optNot = optNot
+        self.temp = colData.temp + optNot + " IN ( subquery )" 
+    
+    def execute(self, environment):
+        col = self.colData.execute(environment)
+        df = self.subquery.execute(environment)[0]
+
+        # TODO: Falta agregar la verificacion de types
+        
+        if len(list(df.columns)) != 1:
+            raise Exception("La subquery no tiene exactamente una columna")
+        value = col.value.isin(df.iloc[:, 0])
+        if self.optNot == 'NOT':
+            value = ~value
+        return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
+
+    def dot(self):
+
+        n1 = self.optNot + " IN"
+        new = Nodo.Nodo(n1)
+        new.addNode(self.colData.dot())
+        new.addNode(self.subquery.dot())
+        return new
+        
 class BinaryLogicalOperation(Expression):
     """
     Esta clase contiene las expresiones booleanas binarias.
@@ -575,8 +596,6 @@ class BinaryLogicalOperation(Expression):
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         new.addNode(n2)
-        global root
-        root = new
         return new
 
 
@@ -641,8 +660,6 @@ class UnaryLogicalOperation(Expression):
         n1 = self.exp.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
-        global root
-        root = new
         return new
 
 
@@ -889,7 +906,7 @@ class FunctionCall(Expression):
                     value = value[0]
                 else:
                     value = pd.Series(value)
-            self.dot()
+            
             return Primitive(type_, value, self.temp, self.row, self.column)
         except TypeError:
             print("Error de tipos en llamada a funciones")
@@ -904,8 +921,6 @@ class FunctionCall(Expression):
         new.addNode(p)
         for par in self.params:
             p.addNode(par.dot())
-        global root
-        root = new
         return new
 
 
@@ -983,7 +998,7 @@ class ExtractDate(Expression):
             else:
                 val = self.str
                 # ERROR
-            self.dot()
+            
             return Primitive(TYPE.NUMBER, int(val), self.temp, self.row, self.column)
         except TypeError:
             pass
@@ -1002,8 +1017,6 @@ class ExtractDate(Expression):
         p.addNode(nopt)
         p.addNode(ntype)
         p.addNode(nstr)
-        global root
-        root = new
         return new
 
 
@@ -1067,7 +1080,7 @@ class ExtractColumnDate(Expression):
                     val = val[0]
                 else:
                     val = pd.Series(val)
-            self.dot()
+            
             return Primitive(TYPE.NUMBER, val, self.temp, self.row, self.column)
         except TypeError:
             pass
@@ -1084,8 +1097,6 @@ class ExtractColumnDate(Expression):
         nopt = Nodo.Nodo(str(self.opt))
         p.addNode(nopt)
         p.addNode(nstr)
-        global root
-        root = new
         return new
 
 
@@ -1197,8 +1208,6 @@ class DatePart(Expression):
         p.addNode(nopt)
         p.addNode(ntype)
         p.addNode(nstr)
-        global root
-        root = new
         return new
 
 
@@ -1232,8 +1241,6 @@ class Current(Expression):
 
     def dot(self):
         new = Nodo.Nodo(self.val)
-        global root
-        root = new
         return new
 
 
@@ -1331,6 +1338,15 @@ class AggregateFunction(Expression):
 
         return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
 
+    def dot(self):
+        f = Nodo.Nodo(self.func)
+        p = Nodo.Nodo("PARAMS")
+        new = Nodo.Nodo("CALL")
+        new.addNode(f)
+        new.addNode(p)
+
+        p.addNode(self.colData.dot())
+        return new
 
 def makeAst():
     ast.makeAst(root)

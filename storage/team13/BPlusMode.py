@@ -1,3 +1,6 @@
+# Package:      BPlusMode
+# License:      Released under MIT License
+# Notice:       Copyright (c) 2020 TytusDB Team
 import os
 import re
 import pickle

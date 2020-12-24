@@ -807,14 +807,20 @@ def p_com(t):
     insertProduction(t.slice, len(t.slice))
 
 def p_queryP(t):
-    'queryp : SELECT distinct select_list FROM table_expression condition group having order lim off  '
-    t[0] =  select(t[2],t[3],t[5],t[6],t[7],t[8],t[9],t[10],t[11])
+    'queryp : SELECT queryp2  '
+    t[0] =  t[2]
     insertProduction(t.slice, len(t.slice))
 
-def p_queryPF(t):
-    'queryp : SELECT funciones_sis'
-    t[0] =  select_func(t[2])
+def p_queryp2(t):
+    '''queryp2 : distinct select_list FROM table_expression condition group having order lim off
+                | PUNTO funciones_sis
+    '''
+    if t[1] == '.':
+        t[0] = select_func(t[2])
+    else:
+        t[0] =  select(t[1],t[2],t[4],t[5],t[6],t[7],t[8],t[9],t[10])
     insertProduction(t.slice, len(t.slice))
+
 
 def p_distinct(t):
     'distinct : DISTINCT'
@@ -997,7 +1003,9 @@ def p_math(t):
     elif t[1].lower() == 'random' : t[0] =  math_random(None);insertProduction(t.slice, len(t.slice))
     elif t[1].lower() == 'setseed' : t[0] =  math_setseed(t[3],None);insertProduction(t.slice, len(t.slice))
 
-
+def p_function_countAll(t):
+    'function : COUNT PARA MULTIPLICACION PARC'
+    t[0] = fun_count(exp_id(t[3],None),None)
 
 def p_function(t):
     '''
@@ -1033,7 +1041,8 @@ def p_function(t):
     if t[1].lower() == 'greatest' : t[0] = fun_greatest(t[3],None);insertProduction(t.slice, len(t.slice))
     if t[1].lower() == 'least' : t[0] = fun_least(t[3],None);insertProduction(t.slice, len(t.slice))
     if t[1].lower() == 'now' : t[0] = fun_now(None);insertProduction(t.slice, len(t.slice))
-    
+
+
 def p_type(t):
     '''
     type : SMALLINT
