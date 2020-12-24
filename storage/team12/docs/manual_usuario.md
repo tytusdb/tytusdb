@@ -164,7 +164,7 @@ Al momento de iniciar la aplicación se le mostrara la siguiente ventana, dicha 
 ### Módulo Tuplas
 
 <p align="center">
-  <img src="img/img19.png" width="700" alt="img1">
+  <img src="img/img19.PNG" width="700" alt="img1">
 </p>
 
 ##### Insert
@@ -172,7 +172,7 @@ Al momento de iniciar la aplicación se le mostrara la siguiente ventana, dicha 
 Deberá ingresar en el campo que se muestra a continuacion.
 
 <p align="center">
-  <img src="img/img20.png" width="700" alt="img1">
+  <img src="img/img20.PNG" width="700" alt="img1">
 </p>
 
 ##### Load CSV
@@ -182,19 +182,19 @@ Este nos permite cargar archivos excel para cargar la base con datos
 ##### Extract Row
 Extrae y devuelve un registro especificado por su llave primaria, es por esto que se debe de ingresar el campo que se solicita
 <p align="center">
-  <img src="img/img21.png" width="700" alt="img1">
+  <img src="img/img21.PNG" width="700" alt="img1">
 </p>
 
 ##### Update
 Inserta un registro en la estructura de datos asociada a la tabla y la base de datos, para esto es que se solicita dos campos, el register y el columnas.
 <p align="center">
-  <img src="img/img22.png" width="700" alt="img1">
+  <img src="img/img22.PNG" width="700" alt="img1">
 </p>
 
 ##### Delete
 Elimina un registro de una tabla y base de datos especificados por la llave primaria, es por esto que se solicita la llave primaria
 <p align="center">
-  <img src="img/img23.png" width="700" alt="img1">
+  <img src="img/img23.PNG" width="700" alt="img1">
 </p>
 
 ##### Truncate
