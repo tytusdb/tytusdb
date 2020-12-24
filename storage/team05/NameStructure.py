@@ -405,6 +405,84 @@ class NombreEstructuras:
         return recover_data
     ##fin serializacion
     
+    #Grapvhiz para la estructura de la base de datos
+    def graficarTablaBaseDato(self):
+        s = open('graphDataBaseTable.dot', 'w')
+        cadena = """digraph g{
+            rankdir = \"LR\"
+            label = \" Base de datos con sus tablas 
+            Grupo #5\"; fontsize=18;
+            node[shape=record]
+            Nodo[label =\""""
+        
+        
+        cadenaNodos = ""
+        contador = 0
+        longitudKey = len(self.database)
+        uniones = ""
+        for key in self.database:
+            contador = contador +1
+            dictmp = self.database[key]
+            
+            nombretmp = "nodo" + str(key)
+            
+            longitudTabla = len(dictmp)
+
+            #Uniones de nodos
+            if longitudTabla > 0:
+                print("longi >", longitudTabla)
+                uniones = uniones + "Nodo:<"+str(key)+"> " + "->" + nombretmp + ";\n"
+
+            if longitudKey > contador:
+                contadorTabla = 0
+                cadena = cadena +"<" +str(key)+">"+str(key)+"|"
+                for key2 in dictmp:
+                    contadorTabla = contadorTabla + 1
+                    if longitudTabla > contadorTabla:
+                        if contadorTabla == 1:
+                            cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"|"
+                        else:
+                            cadenaNodos = cadenaNodos + str(key2) + "|"
+
+                        
+                    else:
+                        if contadorTabla == 1:
+                            cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"\"];\n"
+                        else:
+                            cadenaNodos = cadenaNodos + str(key2) + "\"];\n"
+                
+            else:
+                contadorTabla = 0
+                cadena = cadena +"<" +str(key)+">"+str(key)+"\"];\n"
+                for key2 in dictmp:
+                    contadorTabla = contadorTabla + 1
+                    if longitudTabla > contadorTabla:
+                        if contadorTabla == 1:
+                            cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"|"
+                        else:
+                            cadenaNodos = cadenaNodos + str(key2) + "|"
+                        
+
+                    else:
+                        if contadorTabla == 1:
+                            cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"\"];\n"
+                        else:
+                            cadenaNodos = cadenaNodos + str(key2) + "\"];\n"
+                        
+                
+
+        uniones = uniones +"\n}"
+        s.write(cadena)
+        s.write(cadenaNodos)
+        s.write(uniones)
+        s.close()
+        
+        path=os.getcwd()
+        print('path'+path)
+        os.system('dot -Tpdf graphDataBaseTable.dot -o graphDataBaseTable.pdf')
+        os.system('graphDataBaseTable.pdf')
+    
+    
 class HashTable:
 
     #Define el tamanio del vector al ser creada la tabla
