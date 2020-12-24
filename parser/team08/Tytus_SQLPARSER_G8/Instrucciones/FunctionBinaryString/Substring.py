@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
 
 class Substring(Instruccion):
-    def __init__(self, valor, inicio, fin, tipo, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, valor, inicio, fin, tipo, strGram, linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.valor = valor
         self.inicio = inicio
         self.fin = fin

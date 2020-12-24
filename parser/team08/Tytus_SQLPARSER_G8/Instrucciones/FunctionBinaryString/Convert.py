@@ -7,8 +7,8 @@ import time
 #from dateutil.parser import parse
 
 class Convert(Instruccion):
-    def __init__(self, valor, tipo, tipo_salida, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, valor, tipo, tipo_salida, strGram, linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.valor = valor
         self.tipo = tipo
         self.tipo_salida = tipo_salida
