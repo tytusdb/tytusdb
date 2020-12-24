@@ -10,4 +10,5 @@ create table estudiante(
 insert into estudiante values (1,'jorge','Perez'),
 (2,'Mario','Hernandez'),
 (3,'Juan','Paredes');
-delete from estudiante;
+delete from estudiante where nombre = 'jorge';
+update estudiante set nombre = 'Roberto Eduardo' where idestudiante = 2;

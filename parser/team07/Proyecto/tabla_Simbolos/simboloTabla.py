@@ -97,6 +97,16 @@ class SimboloTablas():
                 indice = indice + +1
             return 0
     
+    def obtenerSimboloColumna(self, nombreColumna):
+        if len(self.columnas) == 0:
+            return None
+        else:
+            for nodoColumna in self.columnas:
+                if(nodoColumna.nombre.lower()==nombreColumna.lower()):
+                    return nodoColumna
+
+            return None
+    
 
 
 

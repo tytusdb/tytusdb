@@ -80,6 +80,83 @@ class Expresion(InstruccionAbstracta):
                 simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.default,"default")
                 simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.default)
                 return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.smallInt:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.smallInt,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.smallInt)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.integer:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.integer,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.integer)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.bigInit:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.bigInit,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.bigInit)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.decimal:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.decimal,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.decimal)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.numeric:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.numeric,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.numeric)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.real:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.real,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.real)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.double_precision:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.double_precision,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.double_precision)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.money:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.money,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.money)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.varchar:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.varchar,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.varchar)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.character:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.character,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.character)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.text:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.text,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.text)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.date:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.date,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.date)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.time_No_zone:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.time_No_zone,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.time_No_zone)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.time_si_zone:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.time_si_zone,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.time_si_zone)
+                return simboloRetornar                
+            elif self.tipoOperacion == simboloColumna.TiposDatos.boolean:
+                simboloRetornar = simbolo.Simbolo()
+                simboloRetornar.crearSimboloPrimitivo(simboloColumna.TiposDatos.boolean,self.valor)
+                simboloRetornar.setTipoDatosCasteo(simboloColumna.TiposDatos.boolean)
+                return simboloRetornar                
+
+                
             else:
                 return None
                 
@@ -237,6 +314,7 @@ class Expresion(InstruccionAbstracta):
                         enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.columna
                         enviarSimbolo.nombreColumnaIzquierdo = simboloIzquierdo.nombreColumnaIzquierdo
                         enviarSimbolo.valorRetorno = simboloDerecho.valorRetorno
+                        enviarSimbolo.descripcionError = simboloDerecho.tipoDatoRetorno
                         enviarSimbolo.tipoOperacion = self.tipoOperacion
                         return enviarSimbolo
                     elif simboloDerecho.tipoDatoRetorno == simboloColumna.TiposDatos.columna:
@@ -244,6 +322,7 @@ class Expresion(InstruccionAbstracta):
                         enviarSimbolo.tipoDatoRetorno = simboloColumna.TiposDatos.columna
                         enviarSimbolo.tipDatoCasteo = simboloColumna.TiposDatos.columna
                         enviarSimbolo.valorRetorno = simboloIzquierdo.valorRetorno
+                        enviarSimbolo.descripcionError = simboloIzquierdo.tipoDatoRetorno
                         enviarSimbolo.nombreColumnaDerecho = simboloDerecho.nombreColumnaIzquierdo
                         enviarSimbolo.tipoOperacion = self.tipoOperacion
                         return enviarSimbolo

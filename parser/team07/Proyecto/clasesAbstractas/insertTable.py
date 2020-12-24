@@ -189,7 +189,33 @@ class InsertTable(InstruccionAbstracta):
                                     #Se obtiene el simbolo ejecutado
                                     valorInsertar = listaSimbolosEjecutados[indice]
 
-                                    if valorInsertar.tipoDatoRetorno == simboloColumna.TiposDatos.default:
+                                    #Inicio Enum
+
+                                    if column.tipoDato == simboloColumna.TiposDatos.enum:
+                                    #Es un enum
+                                        simboloEnum = column.tipoDatoNOprimitivo
+
+                                        if simboloEnum != None:
+                                            bandera = False
+                                            for enumm in simboloEnum.posiblesValores:
+                                                if (enumm.lower()==str(valorInsertar.valorRetorno).lower()):
+                                                    bandera = True
+
+                                            if bandera == False:
+                                                NodoErr = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecución","El valor a ingresar no se encuentra dentro del enumn: "+simboloEnum.nombre)
+                                                listaErrores.append(NodoErr)
+                                                retorr = retornoInstruccion.RetornoInstruccion(retornoInstruccion.TipoRetornoInstruccion.ERROR,None)
+                                                return retorr
+                                            else:
+                                                listaValoresInsertar.append(valorInsertar.valorRetorno) 
+                                        
+                                        else:
+                                            nodoErr = errorReportar.ErrorReportar(self.fila,self.columna, "Ejecucion", "La columna esta declarada cono tipo de dato Enum, pero no tienen ningún enum asociado")
+                                            listaErrores.append(nodoErr)
+                                            retorr = retornoInstruccion.RetornoInstruccion(retornoInstruccion.TipoRetornoInstruccion.ERROR,None)
+                                            return retorr
+                                    # Fin enum
+                                    elif valorInsertar.tipoDatoRetorno == simboloColumna.TiposDatos.default:
                                         if column.defaultValue!=None:
                                             listaValoresInsertar.append(str(column.defaultValue))
                                         else:
@@ -223,6 +249,7 @@ class InsertTable(InstruccionAbstracta):
                                                 listaValoresInsertar.append(valorInsertar.valorRetorno)                                                
                                             else:
                                                 nodoErr = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion",simboloRecibido.descripcionError)
+                                                listaErrores.append(nodoErr)
                                                 nodoRetorno = retornoInstruccion.RetornoInstruccion(retornoInstruccion.TipoRetornoInstruccion.ERROR,None)
                                                 return nodoRetorno
 
@@ -350,7 +377,33 @@ class InsertTable(InstruccionAbstracta):
                                             bandera = True
                                             valorInsertar = listaSimbolosEjecutados[indice]
 
-                                            if valorInsertar.tipoDatoRetorno == simboloColumna.TiposDatos.default:
+                                            #Inicio Enum
+
+                                            if column.tipoDato == simboloColumna.TiposDatos.enum:
+                                            #Es un enum
+                                                simboloEnum = column.tipoDatoNOprimitivo
+
+                                                if simboloEnum != None:
+                                                    bandera = False
+                                                    for enumm in simboloEnum.posiblesValores:
+                                                        if (enumm.lower()==str(valorInsertar.valorRetorno).lower()):
+                                                            bandera = True
+
+                                                    if bandera == False:
+                                                        NodoErr = errorReportar.ErrorReportar(self.fila, self.columna,"Ejecución","El valor a ingresar no se encuentra dentro del enumn: "+simboloEnum.nombre)
+                                                        listaErrores.append(NodoErr)
+                                                        retorr = retornoInstruccion.RetornoInstruccion(retornoInstruccion.TipoRetornoInstruccion.ERROR,None)
+                                                        return retorr
+                                                    else:
+                                                        listaValoresInsertar.append(valorInsertar.valorRetorno) 
+                                                
+                                                else:
+                                                    nodoErr = errorReportar.ErrorReportar(self.fila,self.columna, "Ejecucion", "La columna esta declarada cono tipo de dato Enum, pero no tienen ningún enum asociado")
+                                                    listaErrores.append(nodoErr)
+                                                    retorr = retornoInstruccion.RetornoInstruccion(retornoInstruccion.TipoRetornoInstruccion.ERROR,None)
+                                                    return retorr
+                                            # Fin enum
+                                            elif valorInsertar.tipoDatoRetorno == simboloColumna.TiposDatos.default:
                                                 if column.defaultValue!=None:
                                                     listaValoresInsertar.append(str(column.defaultValue))
                                                 else:
@@ -384,6 +437,7 @@ class InsertTable(InstruccionAbstracta):
                                                         listaValoresInsertar.append(valorInsertar.valorRetorno)                                                
                                                     else:
                                                         nodoErr = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion",simboloRecibido.descripcionError)
+                                                        listaErrores.append(nodoErr)
                                                         nodoRetorno = retornoInstruccion.RetornoInstruccion(retornoInstruccion.TipoRetornoInstruccion.ERROR,None)
                                                         return nodoRetorno
 

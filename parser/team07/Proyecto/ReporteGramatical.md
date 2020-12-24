@@ -12,16 +12,153 @@ instrucciones  ::=   instrucciones instruccion
     	 nodo.hijos.append(t[2])
     	 t[0] = nodo
 
+instruccion  ::=   update_table
+
+        	 t[0] = t[1]
+
+update_table     ::=   UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA
+
+        	 nodoUpdate = updateTable.UpdateTable(t[2], t[4].hijos, t[6])
+        	 hijos.append(nodoId)
+        	 hijos.append(t[4])
+        	 hijos.append(t[6])
+        	 nodoUpdate.setearValores(linea, columna, "UPDATE_TABLE", nNodo, , hijos)
+        	 t[0] = nodoUpdate
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+exp_relacional   ::=   exp_relacional IGUAL exp_relacional
+
+            	 nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.IGUALACION)
+            	 nodoMas = crear_nodo_general("IGUALACION", "=", linea, columna)
+            	 nodoExp.hijos.append(t[1])
+            	 nodoExp.hijos.append(nodoMas)
+            	 nodoExp.hijos.append(t[3])
+            	 t[0] = nodoExp  
+
+primitivo  ::=   ENTERO
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.ENTERO)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+primitivo  ::=   ID
+
+    	 linea = str(t.lexer.lineno)
+    	 nodoId = crear_nodo_general("NombreColumna", t[1], linea, columna)
+    	 hijos = []
+    	 nNodo = incNodo(numNodo)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.NOMBRE_COLUMNA)
+    	 hijos.append(nodoId)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], hijos)
+    	 t[0] = nodoPri
+
+lista_seteos     ::=   set_columna
+
+        	 nodoLista = crear_nodo_general("LISTA_SETEOS", "", linea, columna)
+        	 nodoLista.hijos.append(t[1])
+        	 t[0] = nodoLista
+
+set_columna    ::=   ID IGUAL exp_operacion
+
+    	 linea = str(t.lexer.lineno)
+    	 nodoId = crear_nodo_general("ID", t[1], linea, columna)
+    	 nNodo = incNodo(numNodo)
+    	 hijos = []
+    	 nodoSet = updateColumna.UpdateColumna(t[1], t[3])
+    	 hijos.append(nodoId)
+    	 hijos.append(t[3])
+    	 nodoSet.setearValores(linea, columna, "set_columna", nNodo, , hijos)
+    	 t[0] = nodoSet
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+primitivo  ::=   CADENA
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+instrucciones  ::=   instrucciones instruccion
+
+    	 nodo = t[1]
+    	 nodo.hijos.append(t[2])
+    	 t[0] = nodo
+
 instruccion  ::=   use_dabatabase
 
         	 t[0] = t[1]
 
-delete_table   ::=   DELETE FROM ID PTCOMA
+delete_table   ::=   DELETE FROM ID WHERE exp_operacion PTCOMA
 
-        	 nodoDelete = deleteTable.DeleteTable(t[3], None)
+        	 nodoDelete = deleteTable.DeleteTable(t[3], t[5])
         	 hijos.append(nodoId)
+        	 hijos.append(t[5])
         	 nodoDelete.setearValores(linea, columna, "DELETE_FROM", nNodo, , hijos)
         	 t[0] = nodoDelete
+
+exp_operacion  ::=  exp_logica
+
+    	 nodoExp = crear_nodo_general("Exp_OPERACION", , str(t.lexer.lineno), columna)
+    	 nodoExp.hijos.append(t[1])
+    	 t[0] = t[1]
+
+exp_logica     ::=     exp_relacional
+
+        	 t[0] = t[1]
+
+exp_relacional   ::=   exp_relacional IGUAL exp_relacional
+
+            	 nodoExp.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.IGUALACION)
+            	 nodoMas = crear_nodo_general("IGUALACION", "=", linea, columna)
+            	 nodoExp.hijos.append(t[1])
+            	 nodoExp.hijos.append(nodoMas)
+            	 nodoExp.hijos.append(t[3])
+            	 t[0] = nodoExp  
+
+primitivo  ::=   CADENA
+
+    	 nNodo = incNodo(numNodo)
+    	 linea = str(t.lexer.lineno)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.CADENA)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], [])
+    	 t[0] = nodoPri
+
+primitivo  ::=   ID
+
+    	 linea = str(t.lexer.lineno)
+    	 nodoId = crear_nodo_general("NombreColumna", t[1], linea, columna)
+    	 hijos = []
+    	 nNodo = incNodo(numNodo)
+    	 nodoPri = expresion.Expresion()
+    	 nodoPri.valorPrimitivo(t[1], tipoSimbolo.TipoSimbolo.NOMBRE_COLUMNA)
+    	 hijos.append(nodoId)
+    	 nodoPri.setearValores(linea, columna, "PRIMITIVO", nNodo, t[1], hijos)
+    	 t[0] = nodoPri
 
 instrucciones  ::=   instrucciones instruccion
 
