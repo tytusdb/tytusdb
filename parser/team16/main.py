@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
 
 
-
+    print("ELIMINANDO...")
 
     files = glob.glob('data/json/*')
     for ele in files:

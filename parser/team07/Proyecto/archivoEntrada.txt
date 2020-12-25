@@ -1,10 +1,14 @@
-create type hola as enum(ola);
-    create type hola as enum(ola);
-create type hola as enum(ola);
-insert into hola values (1,'2',2),
-(1,2,'sss');
-insert into hola(col1,col2,col3) values 
-(1,'si',2),
-(1,'no',3);
+create database baseDatos1;
+use baseDatos1;
+create database prueba;
+create table estudiante(
+    idestudiante numeric primary key,
+    nombre varchar not null,
+    apellido varchar not null
+);
 
-delete from tabla1 where 12 >= 12 AND 12 < 12;
+insert into estudiante values (1,'jorge','Perez'),
+(2,'Mario','Hernandez'),
+(3,'Juan','Paredes');
+delete from estudiante where nombre = 'jorge';
+update estudiante set nombre = 'Roberto Eduardo' where idestudiante = 2;

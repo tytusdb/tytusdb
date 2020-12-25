@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from datetime_functions import extract
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.datetime_functions import extract
 
 class Extract(Function):
     def __init__(self, input, value, row, column):
@@ -17,7 +12,7 @@ class Extract(Function):
         date = self.value.execute(environment)
         val = extract(self.input,date['value'])
         if val > -1:
-            return [{'value': val, 'typ': Type.INT}]
+            return {'value': val, 'typ': Type.INT}
 
         error = {
             -1 : str(self.input) + " no es permitido, petición de fecha invalido",

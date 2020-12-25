@@ -4,8 +4,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 
 class Mod(Instruccion):
-    def __init__(self, opIzq, opDer, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, opIzq, opDer, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.opIzq = opIzq
         self.opDer = opDer
 

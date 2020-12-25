@@ -14,8 +14,10 @@ class Arbol():
         self.tablaActual = []
         self.columnasActual = []
         self.lEnum = []
+        self.lRepDin = []
         self.comprobacionCreate = False
         self.columnaCheck = None
+        self.order = None
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)
@@ -205,3 +207,15 @@ class Arbol():
 
     def setNombreTabla(self, valor):
         self.nombreTabla = valor
+
+    def devolverTamanio(self, nombreTabla):
+        tabla = self.devolviendoTablaDeBase(nombreTabla)
+        can = tabla.devolverTodasLasColumnas()
+        return len(can)
+
+    def setOrder(self, order):
+        self.order = order
+    
+    def getOrder(self):
+        return self.order
+    
