@@ -3836,7 +3836,7 @@ def p_error(t):
         return
     while True:
         entry = parser.token()
-        if not entry or entry.type == 'RBRACE':
+        if not entry or entry.type == 'PCOMA':
             break
     parser.restart()
 

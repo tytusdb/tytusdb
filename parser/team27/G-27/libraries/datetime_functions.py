@@ -32,9 +32,9 @@ def extract(source, value):
         if source == 'YEAR':
             return int(datestr[0][0:4])
         if source == 'MONTH':
-            return int(datestr[0][0:4])
+            return int(datestr[0][5:7])
         if source == 'DAY':
-            return int(datestr[0][0:4])
+            return int(datestr[0][8:10])
         
         if source == 'HOUR':
             return int(datestr[1][0:2])
@@ -80,6 +80,8 @@ def date_part(source, value):
     
         if isinstance(value,str):
             value = value.upper().split(" ")
+            if source[len(source)-1] != 'S':
+                source += 'S'
             if source in value:
                 return int(value[value.index(source)-1])
             return -2

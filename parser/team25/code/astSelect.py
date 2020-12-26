@@ -10,6 +10,8 @@ from typeChecker.typeReference import getColumns
 from prettytable import PrettyTable
 from astExpresion import ExpresionID, Expresion , TuplaCompleta
 from reporteErrores.errorReport import ErrorReport
+import sqlErrors
+
 class COMBINE_QUERYS(Enum):
     UNION = 1
     INTERSECT = 2
@@ -24,134 +26,55 @@ class TABLA_TIPO(Enum):
     PRODUCTO_CRUZ = 0
     UNICA = 1
     SELECCIONADA = 2
-# ------------------------ Select ----------------------------
-# Select Table
-class SelectTable(Instruccion):
-    def __init__(self, campos, tablas = None, filtro = None, orden = None, limite = None, offset = None, join = None):
+    SELECT_SIMPLE = 3
+    TABLAWHERE = 4    
+    TABLAUNION = 5
+    TABLAINTERSECCION = 6
+    TABLAEXCEPT = 7
+
+    
+
+class SelectSimple(Instruccion):
+    def __init__(self, campos,linea=0):
         self.campos = campos
-        self.tablas = tablas
-        self.filtro = filtro
-        self.orden = orden
-        self.limite = limite
-        self.offset = offset
-        self.join = join
-
-    def dibujar(self):
-        identificador = str(hash(self))
-
-        nodo = "\n" + identificador + "[ label = \"SELECT TABLE\" ];" + "\nVALUES" + identificador + "[ label = \"FIELDS\" ];"
-        nodo += "\n" + identificador + " -> VALUES" + identificador + ";"
-
-        # Para los distintos campos que puedan ser objeto, una lista o un booleano
-        if isinstance(self.campos, bool):
-            nodo += "\nVALUES" + identificador + " -> " + str(hash(self.campos)) + ";"
-            nodo += "\n" + str(hash(self.campos)) + "[ label = \"*\" ];"
-        elif isinstance(self.campos, list):
-            for campo in self.campos:
-                nodo += "\nVALUES" + identificador + " -> " + str(hash(campo)) + ";"
-                nodo += campo.dibujar()
-        else:
-            nodo += "\nVALUES" + identificador + " -> " + str(hash(self.campos)) + ";"
-            nodo += self.campos.dibujar()
-
-        # Para from
-        if self.tablas:
-            nodo += "\nFROM" + identificador + "[ label = \"FROM\" ];"
-            nodo += "\n" + identificador + " -> FROM" + identificador + ";"
-            for tabla in self.tablas:
-                nodo += "\nFROM" + identificador + " -> " + str(hash(tabla)) + ";"
-                nodo += tabla.dibujar()
-
-        # Para filtro
-        if self.filtro:
-            nodo += "\n" + identificador + " -> " + str(hash(self.filtro)) + ";"
-            nodo += self.filtro.dibujar()
-        
-        # Para orders
-        if self.orden:
-            nodo += "\n" + identificador + " -> " + str(hash(self.orden)) + ";"
-            nodo += self.orden.dibujar()
-
-        # Para limites
-        if self.limite:
-            nodo += "\n" + identificador + " -> " + str(hash(self.limite)) + ";"
-            if isinstance(self.limite, int):
-                nodo += "\n" + str(hash(self.limite)) + "[ label =  \"" + str(self.limite) + "\"];"
-            else:            
-                nodo += "\n" + str(hash(self.limite)) + "[ label =  \"ALL\"];"
-
-        # Para offset
-        if self.offset:
-            nodo += "\n" + identificador + " -> " + str(hash(self.offset)) + ";"
-            nodo += "\n" + str(hash(self.offset)) + "[ label =  \"" + str(self.offset) + "\"];"
-
-        # Para join
-        if self.join:
-            nodo += "\n" + identificador + " -> " + str(hash(self.join)) + ";"
-            nodo += self.join.dibujar()
-
-        return nodo
-
-# JOIN
-class SelectJoin(Instruccion):
-    def __init__(self, tabla, tipo, coincidencia = None, natural = False, outer = False):
-        self.tabla = tabla
-        self.tipo = tipo
-        self.coincidencia = coincidencia
-        self.natural = natural
-        self.outer = outer
-
-    def dibujar(self):
-        identificador = str(hash(self))
-
-        nodo = "\n" + identificador
-
-        if self.natural:
-            if self.outer:
-                if self.tipo == JOIN.RIGHT:
-                    nodo += "[ label = \"NATURAL RIGHT OUTER\" ];"
-                elif self.tipo == JOIN.LEFT:
-                    nodo += "[ label = \"NATURAL LEFT OUTER\" ];"
+        self.linea = linea
+    
+    def ejecutar(self,ts):
+        columnas = []
+        filas = []
+        for actual in self.campos:
+            if isinstance(actual, ITEM_ALIAS):
+                if isinstance(actual.item, ExpresionID):
+                    print("Error semántico, solo se aceptan expresiones.")
+                    sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+                    return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
+                elif isinstance(actual.item, Expresion):
+                    filas.append(actual.item.ejecutar(ts).val)
+                    columnas.append(actual.alias)
                 else:
-                    nodo += "[ label = \"NATURAL FULL OUTER\" ];"
-            else:
-                if self.tipo == JOIN.INNER:
-                    nodo += "[ label = \"NATURAL INNER\" ];"
-                elif self.tipo == JOIN.RIGHT:
-                    nodo += "[ label = \"NATURAL RIGHT\" ];"
-                elif self.tipo == JOIN.LEFT:
-                    nodo += "[ label = \"NATURAL LEFT\" ];"
-                else:
-                    nodo += "[ label = \"NATURAL FULL\" ];"
-        else:
-            if self.outer:
-                if self.tipo == JOIN.RIGHT:
-                    nodo += "[ label = \"RIGHT OUTER\" ];"
-                elif self.tipo == JOIN.LEFT:
-                    nodo += "[ label = \"LEFT OUTER\" ];"
-                else:
-                    nodo += "[ label = \"FULL OUTER\" ];"
-            else:
-                if self.tipo == JOIN.INNER:
-                    nodo += "[ label = \"INNER\" ];"
-                elif self.tipo == JOIN.RIGHT:
-                    nodo += "[ label = \"RIGHT\" ];"
-                elif self.tipo == JOIN.LEFT:
-                    nodo += "[ label = \"LEFT\" ];"
-                else:
-                    nodo += "[ label = \"FULL\" ];"
-        
-        nodo += "\n" + str(hash(self.tabla)) + "[ label = \"" + self.tabla + "\" ];"
-        nodo += "\n" + identificador + " -> " + str(hash(self.tabla)) + ";"
+                    print("Error semántico, solo se aceptan expresiones.")
+                    sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+                    return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
+            elif isinstance(actual, ExpresionID):
+                print("Error semántico, solo se aceptan expresiones.")
+                sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+                return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
+            elif isinstance(actual, Expresion):
+                filas.append(actual.ejecutar(ts).val)
+                columnas.append('???')
+                print("Error semántico, solo se aceptan expresiones.")
+                sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+                return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
 
-        return nodo
-
+        salida = matriz(columnas, [filas], TABLA_TIPO.SELECT_SIMPLE, "nueva tabla", None, None)
+        return salida.ejecutar(ts)
 # Select From
 class SelectFrom(Instruccion):
-    def __init__(self, fuentes, campos, alias=None):
+    def __init__(self, fuentes, campos, alias=None,linea=0):
         self.fuentes = fuentes
         self.campos = campos # tal vez que lista de campos viniera como    [ ( item , alias)   , ( item , alias)  , ( item , alias)   ] donde item puede ser una expresion , funcion o algo simple
         self.alias = alias
+        self.linea = linea
     
     def dibujar(self):
         identificador = str(hash(self))
@@ -184,8 +107,8 @@ class SelectFrom(Instruccion):
             elif isinstance(col, ITEM_ALIAS):
                 columnas.append(col)      
         tabla_base = FROM(self.fuentes)
-        salida = SELECT(columnas, tabla_base.ejecutar(ts))
-        salida.ejecutar(ts).imprimirMatriz()
+        salida = SELECT(columnas, tabla_base.ejecutar(ts),self.linea)
+        return salida.ejecutar(ts)
 
 class FROM():
     def __init__(self, fuentes:list):
@@ -235,9 +158,10 @@ class FROM():
                 return resultado
 
 class SELECT():
-    def __init__(self, columnas:list, resultado: list):
+    def __init__(self, columnas:list, resultado: list,linea=0):
         self.columnas = columnas
         self.resultado = resultado
+        self.linea = linea
     def ejecutar(self,ts):
         salida = None
         if len(self.resultado.fuentes)>1:
@@ -250,6 +174,8 @@ class SELECT():
                             seleccion_columnas.append(actual)
                         elif esAmbiguo(actual.item,self.resultado.columnas,self.resultado.fuentes):
                             print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                            sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.ambiguous_column
+                            return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                         else:
                             actual = aclarar(actual.item, self.resultado.columnas, self.resultado.fuentes)
                             seleccion_columnas.append(actual)
@@ -259,9 +185,13 @@ class SELECT():
                         seleccion_columnas.append(actual)
                     elif actual.item == "*":
                         print("Error semántico, el operador \"*\" no es aplicable con alias.")
+                        sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
+                        return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                     else:
                         if esAmbiguo(actual,self.resultado.columnas,self.resultado.fuentes):
                             print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                            sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.ambiguous_column
+                            return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                         else:
                             actual = aclarar(actual, self.resultado.columnas, self.fuentes)
                             seleccion_columnas.append(actual)
@@ -274,6 +204,8 @@ class SELECT():
                 else:
                     if esAmbiguo(actual,self.resultado.columnas,self.resultado.fuentes):
                         print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                        sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.ambiguous_column
+                        return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                     else:
                         actual = aclarar(actual, self.resultado.columnas, self.fuentes)
                         seleccion_columnas.append(actual)
@@ -292,105 +224,6 @@ class SELECT():
                     seleccion_columnas.append(actual)
             salida = self.resultado.obtenerColumnas(self.columnas)
             return salida
-
-
-    
-# Select filter
-class SelectFilter(Instruccion):
-    def __init__(self, where, groupby = None, having = None):
-        self.where = where # ES UNA EXPRESION
-        self.groupby = groupby
-        self.having = having
-
-    def dibujar(self):
-        identificador = str(hash(self))
-
-        nodo = "\n" + identificador + "[ label = \"FILTER\" ];"
-
-        # Para el where
-        nodo += "\nWHERE" + identificador + "[ label = \"WHERE\" ];"
-        nodo += "\n" + identificador + " -> WHERE" + identificador + ";"
-        nodo += "\nWHERE" + identificador + " -> " + str(hash(self.where)) + ";"
-
-        # Para el group by
-        if self.groupby:
-            nodo += "\nGROUPBY" + identificador + "[ label = \"GROUP BY\" ];"
-            nodo += "\n" + identificador + " -> GROUPBY" + identificador + ";"
-            nodo += "\nGROUPBY" + identificador + " -> " + str(hash(self.groupby)) + ";"
-
-        if self.having:
-            nodo += "\nHAVING" + identificador + "[ label = \"HAVING\" ];"
-            nodo += "\n" + identificador + " -> HAVING" + identificador + ";"
-            nodo += "\nHAVING" + identificador + " -> " + str(hash(self.having)) + ";"        
-
-        return nodo
-
-# Select orderby
-class SelectOrderBy(Instruccion):
-    def __init__(self, exp, orden = None, nulo = None):
-        self.exp = exp
-        self.orden = orden
-        self.nulo = nulo
-    
-    def dibujar(self):
-        identificador = str(hash(self))
-
-        nodo = "\n" + identificador + "[ label = \"ORDER BY\" ];"
-        nodo += "\n" + identificador + " -> " + str(hash(self.exp)) + ";"
-        nodo += self.exp.dibujar()
-
-        if self.orden:
-            nodo += "\n" + str(hash(self.orden)) + "[ label = \"" + self.orden + "\" ];"
-            nodo += "\n" + identificador + " -> " + str(hash(self.orden)) + ";\n"
-
-        if self.nulo:
-            nodo += "\n" + str(hash(self.nulo)) + "[ label = \"" + self.nulo + "\" ];"
-            nodo += "\n" + identificador + " -> " + str(hash(self.nulo)) + ";\n"
-
-        return nodo
-
-# Select Aggregate
-class SelectAggregate(Instruccion):
-    def __init__(self, funcion, parametro):
-        self.funcion = funcion
-        self.parametro = parametro
-
-# Combine Select
-class CombineSelect(Instruccion):
-    def __init__(self, select1, select2, funcion, all = False):
-        self.select1 = select1
-        self.select2 = select2
-        self.funcion = funcion
-        self.all = all
-
-    def dibujar(self):
-        identificador = str(hash(self))
-
-        nodo = "\n" + identificador 
-
-        if self.all:
-            if self.funcion == COMBINE_QUERYS.UNION:
-                nodo += "[ label = \"UNION ALL\" ];"
-            elif self.funcion == COMBINE_QUERYS.INTERSECT:
-                nodo += "[ label = \"INTERSECT ALL\" ];"
-            else:
-                nodo += "[ label = \"EXCEPT ALL\" ];"
-        else:
-            if self.funcion == COMBINE_QUERYS.UNION:
-                nodo += "[ label = \"UNION\" ];"
-            elif self.funcion == COMBINE_QUERYS.INTERSECT:
-                nodo += "[ label = \"INTERSECT\" ];"
-            else:
-                nodo += "[ label = \"EXCEPT\" ];"
-
-        nodo += "\n" + identificador + " -> " + str(hash(self.select1)) + ";"
-        nodo += self.select1.dibujar() + "\n"
-
-        nodo += "\n" + identificador + " -> " + str(hash(self.select2)) + ";"
-        nodo += self.select2.dibujar() + "\n"
-
-        return nodo
-
 def productoCruz(lista:list):
     
     return execProduct(lista)
@@ -415,13 +248,14 @@ def realizarProducto(operandos:list):
     operandos.append(res)
     return res  
 class matriz():
-    def __init__(self, columnas:list, filas:list, tipo, nombre, fuentes: list , clm ):
+    def __init__(self, columnas:list, filas:list, tipo, nombre, fuentes: list , clm ,linea=0):
         self.columnas = columnas
         self.filas = filas
         self.tipo = tipo
         self.nombre = nombre
         self.fuentes = fuentes
         self.clm = clm 
+        self.linea=linea
 
     def imprimirMatriz(self):
         x = PrettyTable()
@@ -429,6 +263,12 @@ class matriz():
         for fila in self.filas:
             x.add_row(fila)
         print(x)
+    def getTablaToString(self) ->str:
+        x = PrettyTable()
+        x.field_names = sinRepetidos(self.columnas)
+        for fila in self.filas:
+            x.add_row(fila)
+        return x.get_string()
     def obtenerColumnas(self, ids:list):
         error = False
         resultante = []
@@ -513,7 +353,9 @@ class matriz():
                     else:                        
                         print("Error semántico, la columna:  \" ", actual.item," \"  no se encuentra o su referencia es ambigua.")
                         error = True
-                        break
+                        sqlTypeError=sqlErrors.sql_error_fdw_error.fdw_column_name_not_found
+                        return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
+                        
 
 
 
@@ -612,7 +454,9 @@ class matriz():
                     else:                        
                         print("Error semántico, la columna:  \" ", actual," \"  no se encuentra o su referencia es ambigua.")
                         error = True
-                        break
+                        sqlTypeError=sqlErrors.sql_error_fdw_error.fdw_column_name_not_found
+                        return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
+
         if not error:
             salida = matriz(columnas_resultantes, resultante, TABLA_TIPO.SELECCIONADA, "nueva tabla", self.fuentes , self.clm)
         else: 
@@ -673,3 +517,193 @@ class ITEM_ALIAS():
     def __init__(self, item, alias) -> None:
         self.item = item
         self.alias = alias
+
+
+
+
+# Select filter
+class SelectFilter(Instruccion):
+    def __init__(self, where, groupby = None, having = None):
+        self.where = where # ES UNA EXPRESION
+        self.groupby = groupby
+        self.having = having
+
+    def dibujar(self):
+        identificador = str(hash(self))
+
+        nodo = "\n" + identificador + "[ label = \"FILTER\" ];"
+
+        # Para el where
+        nodo += "\nWHERE" + identificador + "[ label = \"WHERE\" ];"
+        nodo += "\n" + identificador + " -> WHERE" + identificador + ";"
+        nodo += "\nWHERE" + identificador + " -> " + str(hash(self.where)) + ";"
+
+        # Para el group by
+        if self.groupby:
+            nodo += "\nGROUPBY" + identificador + "[ label = \"GROUP BY\" ];"
+            nodo += "\n" + identificador + " -> GROUPBY" + identificador + ";"
+            nodo += "\nGROUPBY" + identificador + " -> " + str(hash(self.groupby)) + ";"
+
+        if self.having:
+            nodo += "\nHAVING" + identificador + "[ label = \"HAVING\" ];"
+            nodo += "\n" + identificador + " -> HAVING" + identificador + ";"
+            nodo += "\nHAVING" + identificador + " -> " + str(hash(self.having)) + ";"        
+
+        return nodo
+    def ejecutar(self, ts):
+        if self.groupby == None and self.having == None:
+            if isinstance(self.where , WHERE):
+                return self.where.ejecutar(ts)
+
+class WHERE():
+    def __init__(self, expresion):
+        self.exp = expresion
+
+    
+    def ejecutar(self, ts): # NECESITO LA TABLOTA :v 
+        
+        lista_litas = []
+        MinitablaSimbolos = []
+        filas = ts.filas
+        columnas = ts.columnas
+        i = 0 
+        while(i < len(filas)):
+            indiceColumna = 0
+            while(indiceColumna < len(columnas)): 
+                if len(ts.fuentes)==1:
+                    MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':ts.clm[quitarRef(columnas[indiceColumna])]['Type']})
+                else:
+                    MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':ts.clm[obtenerIndice(ts.fuentes,obtenerRef(columnas[indiceColumna]))][quitarRef(columnas[indiceColumna])]['Type']})
+                indiceColumna+=1
+            tupla = TuplaCompleta(MinitablaSimbolos)
+            casillaResultante = self.exp.ejecutar(tupla)
+            if isinstance(casillaResultante , ErrorReport): 
+                print(casillaResultante.description)
+                
+            if casillaResultante.val:
+                fila = []
+                for t in MinitablaSimbolos:
+                    fila.append(t['val'])    
+                lista_litas.append(fila)
+
+            MinitablaSimbolos.clear()
+            i+=1
+        return matriz(ts.columnas, lista_litas, TABLA_TIPO.TABLAWHERE, "nueva tabla", ts.fuentes, ts.clm)
+
+class SelectFromWhere(Instruccion):
+    def __init__(self, fuentes, campos, filtro,linea=0):
+        self.fuentes = fuentes
+        self.campos = campos # tal vez que lista de campos viniera como    [ ( item , alias)   , ( item , alias)  , ( item , alias)   ] donde item puede ser una expresion , funcion o algo simple
+        self.filtro = filtro
+        self.linea = linea
+    def dibujar(self):
+        pass
+    def ejecutar(self, ts): 
+        columnas = []
+        for col in self.campos:
+            if isinstance (col, ExpresionID):
+                columnas.append(col.val)
+            elif isinstance(col, str):
+                columnas.append(col)
+            elif isinstance(col, Expresion):
+                columnas.append(col)
+            elif isinstance(col, ITEM_ALIAS):
+                columnas.append(col)      
+        tabla_base = FROM(self.fuentes)
+        
+        SALIDA_FILTRADA = self.filtro.ejecutar(tabla_base.ejecutar(ts))
+        if isinstance(SALIDA_FILTRADA , ErrorReport):
+            return SALIDA_FILTRADA
+             
+        salida = SELECT(columnas,SALIDA_FILTRADA) 
+        matriz = salida.ejecutar(ts)
+        matriz.imprimirMatriz()
+        return matriz
+
+class combineQuery(Instruccion):
+    def __init__(self, izq, operador, der,linea=0):
+        self.izq = izq
+        self.operador = operador
+        self.der = der
+        self.linea = linea
+    def ejecutar(self, ts):
+        izquierdo = self.izq.ejecutar(ts)
+        derecho = self.der.ejecutar(ts)
+        if len(izquierdo.filas) == len(derecho.filas) and len(izquierdo.columnas) == len(derecho.columnas):
+            if self.operador == COMBINE_QUERYS.UNION:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 | set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                for actual in lista_final[0]:
+                    nuevas_columnas.append("Union")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAUNION,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+            elif self.operador == COMBINE_QUERYS.INTERSECT:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 & set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                if len(lista_final)>0:
+                    for actual in lista_final[0]:
+                        nuevas_columnas.append("Intersect")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAINTERSECCION,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+            elif self.operador == COMBINE_QUERYS.EXCEPT:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 - set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                for actual in lista_final[0]:
+                    nuevas_columnas.append("Except")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAEXCEPT,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+        else:
+            print("Error semántico, el número de filas de los operandos es diferente.")   
+            sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+            return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)

@@ -20,6 +20,16 @@ from datetime import date
 import tkinter
 from tkinter import messagebox
 baseActual = ""
+import hashlib as ha
+
+#jossie
+from storageManager import jsonMode as j
+import pandas as pd
+import time
+
+from decimal import Decimal, getcontext
+getcontext().prec = 8
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 #                                QUERY SHOW DATABASE
@@ -43,7 +53,7 @@ def procesar_useBD(query,ts):
         h.textosalida+="TYTUS>> " + " Se esta utilizando la BD "+str(h.bd_enuso)+"\n"
         return "se usa la bd: "+str(h.bd_enuso)
     elif verificacion==0:
-        h.textosalida+="TYTUS>> " + "BD "+ +str(query.bd_id) + " no existente, no se puede usar "+"\n"
+        h.textosalida+="TYTUS>> " + "BD "+ str(query.bd_id) + " no existente, no se puede usar "+"\n"
         return "Esta BD no existe "+str(query.bd_id)+"\n"
         
 # ---------------------------------------------------------------------------------------------------------------- 
@@ -56,30 +66,56 @@ def procesar_select(query,ts):
     if query.tipo==1:
         print("entra al select de TIPO 1")
         print(query.operacion)
-        if isinstance(query.operacion,list):
-            if len(query.operacion)==1:
-                print("entra al if de tamaño 1")
-                if isinstance(query.operacion[0], ExpresionFuncionBasica): 
-                    if procesar_operacion_basica(query.operacion[0],ts)==None:
-                        h.textosalida+="TYTUS>> La tabla consultada no existe\n"
-                    else:
-                        h.textosalida+="TYTUS>>"  + str(procesar_operacion_basica(query.operacion[0],ts)) +"\n"
-                elif isinstance(query.operacion[0],Asignacion):
-                    print("entra al select de asignaciones")
-                    h.textosalida+="TYTUS>>"  + str(procesar_asignacion(query.operacion[0], ts))  +"\n"
+        if query.bandera==2:
+            if isinstance(query.operacion,list):
+                if len(query.operacion)==1:
+                    print("entra al if de tamaño 1")
+                    if isinstance(query.operacion[0], ExpresionFuncionBasica): 
+                        if procesar_operacion_basica(query.operacion[0],ts)==None:
+                            h.textosalida+="TYTUS>> La tabla consultada no existe\n"
+                        else:
+                            a=str(procesar_operacion_basica(query.operacion[0],ts))
+                            print("---------------------------------------------RESULTADO SELECT 1A-------------------------------------------------")
+                            print(a)
+                            print(h.bd_enuso)
+                            b=j.extractTable(h.bd_enuso, a)
+                            resultado=pd.DataFrame(b,columns=['ID','Nombre','Apellido', 'Edad','Pais'])
+                            print(str(resultado))
+                            h.textosalida+="TYTUS>>El resultado de su consulta es \n"
+                            h.textosalida+=str(resultado)+"\n"
+                    elif isinstance(query.operacion[0],Asignacion):
+                        print("entra al select de asignaciones")
+                        a=str(procesar_asignacion(query.operacion[0], ts))
+                        print("---------------------------------------------RESULTADO SELECT 1B-------------------------------------------------")
+                        print(a)
+                        h.textosalida+="TYTUS>>"  + a  +"\n"
+                else:
+                    print("--------SELECT TIPO 2-------------")
+                    print("en este select se obtienen todos los campos de la lista de tablas")
+                    a=procesar_select2_obtenerTablas(query.operacion,ts)
+                    print("---------------------------------------------RESULTADO SELECT 2D--------------------------------------------------")
+                    print("LAS TABLAS SERAN: ",a)
+                    print("LAS COLUMNAS SERAN: todas")
+                    
+                    h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
             else:
-                print("--------SELECT TIPO 2-------------")
-                print("en este select se obtienen todos los campos de la lista de tablas")
-                print("obtener tablas: ",procesar_select2_obtenerTablas(query.operacion,ts))
-        else:
-            print("no es array")
-            print("entra al if de tamaño 1")
-            if isinstance(query.operacion, ExpresionFuncionBasica): 
-                print(procesar_operacion_basica(query.operacion, ts))
-                h.textosalida+="TYTUS>>"  + str(procesar_operacion_basica(query.operacion,ts)) +"\n"
-            elif isinstance(query.operacion,Asignacion):
-                print("entra al select de asignaciones")
-                h.textosalida+="TYTUS>>"  + str(procesar_asignacion(query.operacion, ts))  +"\n"
+                print("no es array")
+                print("entra al if de tamaño 1")
+                if isinstance(query.operacion, ExpresionFuncionBasica): 
+                    print(procesar_operacion_basica(query.operacion, ts))
+                    h.textosalida+="TYTUS>>"  + str(procesar_operacion_basica(query.operacion,ts)) +"\n"
+                elif isinstance(query.operacion,Asignacion):
+                    print("entra al select de asignaciones")
+                    h.textosalida+="TYTUS>>"  + str(procesar_asignacion(query.operacion, ts))  +"\n"
+        elif query.bandera==1:
+            print("--------SELECT TIPO 2-------------")
+            print("en este select se obtienen todos los campos de la lista de columnas")
+            a=procesar_select2_obtenerColumnas(query.operacion,ts)
+            print("---------------------------------------------RESULTADO SELECT 2E--------------------------------------------------")
+            print("LAS COLUMNAS SERAN: ",a)
+            print("NO TIENE TABLAS")
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta:  "+str(a)+"\n"
+        
     
 def procesar_select_Tipo2(query,ts):
     print("************************ENTRO AL 2DO SELECT*********************")
@@ -90,39 +126,92 @@ def procesar_select_Tipo2(query,ts):
         print("+++++++++++TABLA+++++++++++")
         print(query.operacion2[0])
         if isinstance(query.operacion2[0],Asignacion):
-            print(procesar_asignacion(query.operacion2[0],ts))
-            print("LAS TABLAS SERAN: ",str(procesar_asignacion(query.operacion2[0],ts)))
-            print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+            a=str(procesar_asignacion(query.operacion2[0],ts))
+            b=procesar_select2_obtenerColumnas(query.operacion1,ts)
+            print("---------------------------------------------RESULTADO SELECT 2A--------------------------------------------------")
+            print("LAS TABLAS SERAN: ",a)
+            print("LAS COLUMNAS SERAN: ",b)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
         else:
             if procesar_operacion_basica(query.operacion2[0],ts)==None:
                 h.textosalida+="TYTUS>> La tabla consultada no existe\n"
             else:
-                print("LAS TABLAS SERAN: ",str(procesar_operacion_basica(query.operacion2[0],ts)))
-                print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+                a=str(procesar_operacion_basica(query.operacion2[0],ts))
+                b=procesar_select2_obtenerColumnas(query.operacion1,ts)
+                print("---------------------------------------------RESULTADO SELECT 2B--------------------------------------------------")
+                print("LAS TABLAS SERAN: ",a)
+                print("LAS COLUMNAS SERAN: ",b)
+                c=j.extractTable(h.bd_enuso, a)
+                resultado=pd.DataFrame(c,columns=['ID','Nombre','Apellido', 'Edad','Pais'])
+                resultado1=pd.DataFrame(resultado,columns=b)
+                print(str(resultado1))
+                h.textosalida+="TYTUS>>El resultado de su consulta es \n"
+                h.textosalida+=str(resultado1)+"\n"
+
+                
        
     else:
         print("vienen mas tablas*******************************")
-        print("LAS TABLAS SERAN: ",procesar_select2_obtenerTablas(query.operacion2,ts))
-        print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+        a=procesar_select2_obtenerTablas(query.operacion2,ts)
+        b=procesar_select2_obtenerColumnas(query.operacion1,ts)
+        print(query.operacion1)
+        print(query.operacion2)
+        print("---------------------------------------------RESULTADO SELECT 2C--------------------------------------------------")
+        print("LAS TABLAS SERAN: ",a)
+        print("LAS COLUMNAS SERAN: ",b)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
     
     
 
 
 def procesar_select2_obtenerColumnas(query,ts):
-    print("Entra a OBTENER COLUMNAS")
+    print("Entra a OBTENER COLUMNAS++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     print(query)
     columnas=[]
     if isinstance(query,list):
         for x in range(len(query)) :
-            if isinstance(query[x], ExpresionFuncionBasica): 
-                #print("entra a la opcion funcionBasica del else")
-                columnas.append(query[x].id.id)
-            elif isinstance(query[x],Asignacion):
-                print("entra a la opcion de la lista//////////////////////////////////////////")
-                columnas.append(procesar_asignacion(query[x],ts))
-            elif isinstance(query[x],ExpresionIdentificador):
-                #print("entra a la opcion de identificador del lse")
-                columnas.append(query[x].id)
+            if x==0:
+                print("++++++++++++++++++++++++++++++++entra: ",x,"+++++++++++++++++++++++++++++++")
+                print(query[x])
+                if isinstance(query[0],Asignacion):
+                    print("trae una asignacionA")
+                    columnas.append(procesar_asignacion(query[x],ts))
+                if isinstance(query[0],ExpresionFuncionBasica):
+                    print("trae una funcion basicaA")
+                    print(query[0].id)
+                    if isinstance(query[0].id,ExpresionLlamame):
+                        print("trae una expresion llamameA")
+                        columnas.append(query[x].id.id+"-"+(query[x].id.id1))
+                    if isinstance(query[0].id,ExpresionIdentificador):
+                        print("trae una expresion identificadorA")
+                        columnas.append(ts.obtener2(query[x].id.id).valor)
+                        
+                    else:
+                        print("trae otra cosaA")
+                        print(query[0].id)
+                        a=procesar_operacion_basica(query[0],ts)
+                        columnas.append(a)
+                        #return a
+                if isinstance(query[0],ExpresionLlamame):
+                    print("trae una expresion llamameB")
+                    columnas.append(query[0].id+"-"+(query[x].id1))
+               
+            else:
+                print("++++++++++++++++++++++++++++++++entra: ",x,"+++++++++++++++++++++++++++++++")
+                print(query[x])
+                if isinstance(query[x], ExpresionFuncionBasica): 
+                    #print("entra a la opcion funcionBasica del else")
+                    columnas.append(query[x].id)
+                elif isinstance(query[x],Asignacion):
+                    print("entra a la opcion de la lista//////////////////////////////////////////")
+                    columnas.append(procesar_asignacion(query[x],ts))
+                elif isinstance(query[x],ExpresionIdentificador):
+                    #print("entra a la opcion de identificador del lse")
+                    columnas.append(query[x].id)
+                elif isinstance(query[x],ExpresionLlamame):
+                    #print("entra a la opcion de identificador del lse")
+                    columnas.append(query[x].id+"-"+(query[x].id1))
+
             if x==len(query)-1:
                 #print(columnas)
                 return columnas 
@@ -175,8 +264,10 @@ def procesar_select_Tipo3(query,ts):
         print("+++++++++++TABLA+++++++++++")
         a=procesar_operacion_basica(query.operacion1[0],ts)
         b=procesar_where(query.operacion2,ts,1,procesar_operacion_basica(query.operacion1[0],ts))
+        print("---------------------------------------------RESULTADO SELECT 3 --------------------------------------------------")
         print("LAS TABLAS SERAN: ",a)
         print("EL OBJETO WHERE: ",b)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
     else:
         if isinstance(query.operacion1,Asignacion):
             print("vienen mas tablas*******************************2")
@@ -185,18 +276,22 @@ def procesar_select_Tipo3(query,ts):
             print([query.operacion1])
             a=procesar_select2_obtenerTablas([query.operacion1],ts)
             b=procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas([query.operacion1],ts))
+            print("---------------------------------------------RESULTADO SELECT 3--------------------------------------------------")
             print("LAS TABLAS SERAN: ",a)
             print("LAS COLUMNAS SERAN: todas")
             print("EL WHERE SERA: ",b)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
         else:
             print("vienen mas tablas*******************************")
             print(query.operacion1)
             print(query.operacion2)
             a=procesar_select2_obtenerTablas(query.operacion1,ts)
             b=procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas(query.operacion1,ts))
+            print("---------------------------------------------RESULTADO SELECT 3--------------------------------------------------")
             print("LAS TABLAS SERAN: ",a)
             print("LAS COLUMNAS SERAN: todas")
             print("EL WHERE SERA: ",b)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
             
             
 
@@ -209,10 +304,11 @@ def procesar_select_Tipo4(query,ts):
     a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas
     b=procesar_select2_obtenerColumnas(query.operacion1,ts) #columnas
     c=procesar_where(query.operacion3,ts,b,a)
-    print("-------------RESULTADO SELECT 4------------------")
+    print("---------------------------------------------RESULTADO SELECT 4--------------------------------------------------")
     print("LAS TABLAS SERAN: ",a)
     print("Las columnas seran: ",b)
     print("La sentencia Where sera ",c)
+    h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
     
 
 
@@ -224,20 +320,22 @@ def procesar_select_Tipo5(query,ts):
         a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas    
         c=procesar_where(query.operacion3,ts,"todo",a)
         d=procesar_extras(query.operacion4,ts,c)
-        print("-------------RESULTADO SELECT 5 * ------------------")
+        print("--------------------------------RESULTADO SELECT 5 * --------------------------------")
         print("LAS TABLAS SERAN: ",a)
         print("las columas seran: Todas")
         print("La sentencia Where sera ",c)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
     else:
         print("trae una lista de columnas")
         a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas
         b=procesar_select2_obtenerColumnas(query.operacion1,ts) #columnas
         c=procesar_where(query.operacion3,ts,b,a)
         d=procesar_extras(query.operacion4,ts,c)
-        print("-------------RESULTADO SELECT 5------------------")
+        print("---------------------------------------------RESULTADO SELECT 5--------------------------------------------------")
         print("LAS TABLAS SERAN: ",a)
-        print("EL OBJETO WHERE: ",b)
+        print("LAS COLUMNAS SERAN: ",b)
         print("La sentencia Where sera ",c)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
         
 
 def procesar_extras(query,ts,donde):
@@ -247,14 +345,19 @@ def procesar_extras(query,ts,donde):
     for x in range(0,len(query)):
         if isinstance(query[x],ExpresionLimit):
             print("trae una limitante")
+            print(query[x])
         elif isinstance(query[x],ExpresionLimitOffset):
             print("trae una limitante con offset")
+            print(query[x])
         elif isinstance(query[x],ExpresionGroup):
             print("trae para agrupar")
+            print(query[x])
         elif isinstance(query[x],ExpresionHaving):
             print("trae condicion adicional")
+            print(query[x])
         elif isinstance(query[x],ExpresionOrder):
             print("trae expresion de ordenamiento")
+            print(query[x])
     return 1
 
 
@@ -358,7 +461,16 @@ def operar_where(query,ts):
         print("NEGATIVO")
         print("EXP_NUM:",query.id)
         return query.id * -1
-
+    elif isinstance(query, ExpresionNegativo) :
+        print("NEGATIVO")
+        print("EXP_NUM:",query.id)
+        return query.id * -1
+    elif isinstance(query, ExpresionNotIn) :
+        print("TRAE UN NOT IN")
+        print("ID: ",query.valor1)
+        print("select: ", query.valor2)
+        procesar_queries(query.valor2,ts)
+        return 0
 def procesar_createdb(query,ts):
     verificacion =  ts.verificacionCrearBD(query.variable)
     if verificacion==0:
@@ -656,9 +768,9 @@ def procesar_alterwithparametersdb(query,ts):
 def procesar_dropdb(query,ts):
     if ts.destruirBD(query.id)==1:
         if store.dropDatabase(query.id) == 0:
-            h.textosalida+="TYTUS>> "+"Se elimino la BD " +str(query.variable) +" en memoria estatica"+"\n"
+            h.textosalida+="TYTUS>> "+"Se elimino la BD " +str(query.id) +" en memoria estatica"+"\n"
         elif store.dropDatabase(query.id) == 2:
-            h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " no existe"+"\n"
+            h.textosalida+="TYTUS>> "+"La BD "+ str(query.id) + " no existe"+"\n"
         elif store.dropDatabase(query.id) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
         else:
@@ -696,6 +808,8 @@ def procesar_dropifdb(query,ts):
 
 # --------------------------------------EXPRESION ARITMETICA-----------------------------------------------------------
 def resolver_expresion_aritmetica(expNum, ts) :
+    print("entra a expresion aritmetica")
+    print(expNum)
     try:
         if isinstance(expNum, ExpresionAritmetica) :
             exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
@@ -948,7 +1062,9 @@ def resolver_expresion_aritmetica(expNum, ts) :
             exp4= resolver_expresion_aritmetica(expNum.exp4, ts)
             return 0
         elif isinstance(expNum,ExpresionACOS):
+            print("entro al acos")
             exp= resolver_expresion_aritmetica(expNum.exp, ts)
+            print("entro al acos")
             return mt.acos(exp)
         elif isinstance(expNum,ExpresionACOSD):
             exp= resolver_expresion_aritmetica(expNum.exp, ts)
@@ -1015,6 +1131,91 @@ def resolver_expresion_aritmetica(expNum, ts) :
         elif isinstance(expNum,ExpresionATANH):
             exp= resolver_expresion_aritmetica(expNum.exp, ts)
             return mt.atanh(exp)
+
+
+        elif isinstance(expNum,ExpresionLENGTH):
+            exp= resolver_expresion_aritmetica(expNum.exp1, ts)
+            return len(exp)
+        elif isinstance(expNum,ExpresionSUBSTR):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            ex2= resolver_expresion_aritmetica(expNum.exp3, ts)
+            return ex[ex1:ex2]
+        elif isinstance(expNum,ExpresionSUBSTRINGA):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            ex2= resolver_expresion_aritmetica(expNum.exp3, ts)
+            return ex[ex1:ex2]
+        elif isinstance(expNum,ExpresionSUBSTRINGB):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            return ex[ex1:]
+        elif isinstance(expNum,ExpresionSUBSTRINGC):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            return ex[:ex1]
+        elif isinstance(expNum,ExpresionSHA256):
+            exp= resolver_expresion_aritmetica(expNum.exp1, ts)
+            print(exp)
+            return str(ha.sha256(exp.encode()))
+        elif isinstance(expNum,ExpresionMD5):
+            exp= resolver_expresion_aritmetica(expNum.exp1, ts)
+            return str(ha.md5(exp.encode()))
+        elif isinstance(expNum,ExpresionTRIM):
+            ex= resolver_expresion_aritmetica(expNum.exp1, ts)
+            ex1= resolver_expresion_aritmetica(expNum.exp2, ts)
+            ex2= resolver_expresion_aritmetica(expNum.exp3, ts)
+            print(ex)
+            print(ex1)
+            print(ex2)
+            if ex=="1":
+                res=ex2.lstrip(ex1)
+                print(res)
+                return res
+            elif ex=="2":
+                res=ex2.rstrip(ex1)
+                return res
+            elif ex=="3":
+                res=ex2.strip(ex1)
+                return res
+        elif isinstance(expNum,ExpresionCurrentTime):
+            print(datetime.datetime.now().strftime("%H:%M:%S"))
+            return str(datetime.datetime.now().strftime("%H:%M:%S"))
+        elif isinstance(expNum,ExpresionCurrentDate):
+            print(datetime.datetime.now().strftime("%Y-%m-%d"))
+            return str(datetime.datetime.now().strftime("%Y-%m-%d"))
+        elif isinstance(expNum,ExpresionEXTRACT):
+            print("entro al extract")
+            ex1= resolver_expresion_aritmetica(expNum.exp1, ts)
+            print(ex1)
+            ex2= resolver_expresion_aritmetica(expNum.exp2, ts)
+            print(ex2)
+            ex3=time.strptime(ex2,"%Y-%m-%d %H:%M:%S")
+            print(str(ex3))
+            if ex1=="1":
+                res=ex3.tm_year
+                print(str(res))
+                return str(res)
+            elif ex1=="2":
+                res=ex3.tm_mon
+                print(str(res))
+                return str(res)
+            elif ex1=="3":
+                res=ex3.tm_mday
+                print(str(res))
+                return str(res)
+            elif ex1=="4":
+                res=ex3.tm_hour
+                print(str(res))
+                return str(res)
+            elif ex1=="5":
+                res=ex3.tm_min
+                print(str(res))
+                return str(res)
+            elif ex1=="6":
+                res=ex3.tm_sec
+                print(str(res))
+                return str(res)
         elif isinstance(expNum, ExpresionNumero) :
             return expNum.id
         elif isinstance(expNum, ExpresionIdentificador) :
@@ -1138,23 +1339,513 @@ def resolver_expresion_relacional(expRel, ts) :
 def procesar_insertBD(query,ts):
     print("entra a insert")
     print("entra al print con: ",query.idTable)
-    h.textosalida+="TYTUS>> Insertando registro de una tabla\n"
-    if query.listidCol == None: 
-        for i in query.listRegistros:
-            if isinstance(i,ExpresionNOW):
-                print("dato: ", str(date.today().strftime("%Y-%m-%d")))
+    #h.textosalida+="TYTUS>> Insertando registro de una tabla\n"
+    numdatocolumna = 0
+    if query.listidCol == None: #solo cuando no se especifica las columnas al ingresar un dato
+        tamlistreg = len(query.listRegistros)
+        contcol = 1
+        while contcol <= tamlistreg:
+            col = ts.obtenersinNombreColumna(query.idTable,h.bd_enuso,contcol-1)
+            if col == 0:
+                print("ERROR: La tabla especificada no se encuentra creada")
+                return
             else:
-                print("dato: ",i.id)
+                if col.tipo.upper() == 'VARCHAR' or col.tipo.upper() == 'CHARACTER' or col.tipo.upper() == 'VARYING' or col.tipo.upper() == 'CHAR':
+                    if validaTipoDato(col.tipo,str(query.listRegistros[contcol-1].id),col.tamanoCadena) == True:
+                        #ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+                        if col.pk == 1 or col.unique == 1: #columna es llave primaria
+                            temp = 0
+                            if col.valor != None:
+                                sizeregcol = len(col.valor)
+                                while temp < sizeregcol:
+                                    if col.valor[temp] == query.listRegistros[contcol-1].id:
+                                        if col.valor == None:
+                                            correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                            print("Error: valor invalido para la columna")
+                                            return
+
+                                        else:
+                                            correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                            print("Error: valor invalido para la columna")
+                                            return
+                                    temp=temp+1
+
+                            ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+
+                        else:
+                            ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+                    else:
+                        if col.valor == None:
+                            correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                        else:
+                            correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                elif col.check == 1: #validacion de dato si cumple con restriccion check
+                    if validaTipoDato(col.tipo.upper(),query.listRegistros[contcol-1].id,col.tamanoCadena) == True:
+                        print("valido check")
+                        tp = col.tipo.upper()
+                        if tp=='SMALLINT' or tp=='INTEGER' or tp=='BIGINT' or tp=='DECIMAL' or tp=='NUMERIC' or tp=='REAL' or tp=='DOUBLE' or tp=='MONEY':
+                            exp1=ExpresionNumero(query.listRegistros[contcol-1].id)
+                            exp2= None
+                            if isinstance(col.condicionCheck.exp2,ExpresionIdentificador):
+                                coltemp = ts.obtenerconNombreColumna(col.condicionCheck.exp2.id,h.bd_enuso,query.idTable)
+                                tamtemp = len(coltemp.valor)
+                                valtemp = coltemp.valor[tamtemp-1]
+                                exp2=ExpresionNumero(valtemp)
+                            else:
+                                exp2=col.condicionCheck.exp2
+                            if validarCheck(exp1,exp2,col.condicionCheck.operador,ts) == 1:
+                                if col.pk == 1 or col.unique == 1: #columna es llave primaria
+                                    temp = 0
+                                    if col.valor != None:
+                                        sizeregcol = len(col.valor)
+                                        while temp < sizeregcol:
+                                            if col.valor[temp] == query.listRegistros[contcol-1].id:
+                                                if col.valor == None:
+                                                    correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                                    print("Error: valor invalido para la columna")
+                                                    return
+
+                                                else:
+                                                    correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                                    print("Error: valor invalido para la columna")
+                                                    return
+                                            temp=temp+1
+
+                                    ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+
+                                else:
+                                    ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+                            else:
+                                if col.valor == None:
+                                    correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                    print("Error: valor invalido para la columna")
+                                    return
+
+                                else:
+                                    correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                    print("Error: valor invalido para la columna")
+                                    return
+                        else:
+                            exp1=ExpresionCadenas(query.listRegistros[contcol-1].id)
+                            exp2= None
+                            if isinstance(col.condicionCheck.exp2,ExpresionIdentificador):
+                                coltemp = ts.obtenerconNombreColumna(col.condicionCheck.exp2.id,h.bd_enuso,query.idTable)
+                                tamtemp = len(coltemp.valor)
+                                valtemp = coltemp.valor[tamtemp-1]
+                                exp2=ExpresionCadenas(valtemp)
+                            else:
+                                exp2=col.condicionCheck.exp2
+                            if validarCheck(exp1,exp2,col.condicionCheck.operador,ts)==1:
+                                if col.pk == 1 or col.unique == 1: #columna es llave primaria
+                                    temp = 0
+                                    if col.valor != None:
+                                        sizeregcol = len(col.valor)
+                                        while temp < sizeregcol:
+                                            if col.valor[temp] == query.listRegistros[contcol-1].id:
+                                                if col.valor == None:
+                                                    correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                                    print("Error: valor invalido para la columna")
+                                                    return
+
+                                                else:
+                                                    correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                                    print("Error: valor invalido para la columna")
+                                                    return
+                                            temp=temp+1
+
+                                    ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+
+                                else:
+                                    ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+                            else:
+                                if col.valor == None:
+                                    correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                    print("Error: valor invalido para la columna")
+                                    return
+
+                                else:
+                                    correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                    print("Error: valor invalido para la columna")
+                                    return
+                    else:
+                        if col.valor == None:
+                            correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                        else:
+                            correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                            print("Error: valor invalido para la columna")
+                            return
+
+
+                elif isinstance(query.listRegistros[contcol-1], ExpresionNOW) and col.tipo.upper() == 'DATE':
+                    #ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,str(date.today().strftime("%Y-%m-%d")))
+                    if col.pk == 1 or col.unique == 1: #columna es llave primaria
+                        temp = 0
+                        if col.valor != None:
+                            sizeregcol = len(col.valor)
+                            while temp < sizeregcol:
+                                if col.valor[temp] == query.listRegistros[contcol-1].id:
+                                    if col.valor == None:
+                                        correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                        print("Error: valor invalido para la columna")
+                                        return
+
+                                    else:
+                                        correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                        print("Error: valor invalido para la columna")
+                                        return
+                                temp=temp+1
+
+                        ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,str(date.today().strftime("%Y-%m-%d")))
+
+                    else:
+                        ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,str(date.today().strftime("%Y-%m-%d")))
+                else:
+                    if validaTipoDato(col.tipo.upper(),query.listRegistros[contcol-1].id,col.tamanoCadena) == True:
+                        if col.tipo.upper()=="MONEY":
+                            datotemp = convertiraMoney(query.listRegistros[contcol-1].id)
+                        else:
+                            datotemp = query.listRegistros[contcol-1].id
+                        if col.pk == 1 or col.unique == 1: #columna es llave primaria
+                            temp = 0
+                            if col.valor != None:
+                                sizeregcol = len(col.valor)
+                                while temp < sizeregcol:
+                                    if col.valor[temp] == datotemp:
+                                        if col.valor == None:
+                                            correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                            print("Error: valor invalido para la columna")
+                                            return
+
+                                        else:
+                                            correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                                            print("Error: valor invalido para la columna")
+                                            return
+                                    temp=temp+1
+
+                            ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,datotemp)
+
+                        else:
+                            ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,datotemp)
+
+                    else:
+                        if col.valor == None:
+                            correccionTamanoValoresColumna(0,tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                        else:
+                            correccionTamanoValoresColumna(len(col.valor),tamlistreg,query.listRegistros,h.bd_enuso,query.idTable,ts,2)
+                            print("Error: valor invalido para la columna")
+                            return
+                        
+
+            contcol=contcol+1
             
-    elif query.listidCol != None:
+    elif query.listidCol != None:  #cuando se especifica la columna a la que se le ingresara un dato
+        
+        numdatocolumna = ts.numerodeDatosenColumna(query.listidCol[0].id,h.bd_enuso,query.idTable)
         tamlistid = len(query.listidCol)
         tamlistreg = len(query.listRegistros)
-        contcol = 0 
-        while contcol < tamlistid:
-            col = ts.obtenerColumna(query.idTable,'BD1',)
-            print("nombre columna: ",col.nombre)
-            contcol=contcol+1
+        contcol = 1 
+        while contcol <= tamlistid:
+            col = ts.obtenerconNombreColumna(query.listidCol[contcol-1].id,h.bd_enuso,query.idTable)
+            if col == 0:
+                print("ERROR: La tabla especificada no se encuentra creada")
+                return
+            else:
+                if col.tipo.upper() == 'VARCHAR' or col.tipo.upper() == 'CHARACTER' or col.tipo.upper() == 'VARYING' or col.tipo.upper() == 'CHAR':
+                    if validaTipoDato(col.tipo,str(query.listRegistros[contcol-1].id),col.tamanoCadena) == True:
+                        if col.pk == 1 or col.unique == 1: #columna es llave primaria
+                            temp = 0
+                            if col.valor != None:
+                                sizeregcol = len(col.valor)
+                                while temp < sizeregcol:
+                                    if col.valor[temp] == query.listRegistros[contcol-1].id:
+                                        if col.valor == None:
+                                            correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                            print("Error: valor invalido para la columna")
+                                            return
 
+                                        else:
+                                            correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                            print("Error: valor invalido para la columna")
+                                            return
+
+                            ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+
+                        else:
+                            ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+
+                    else:
+                        if col.valor == None:
+                            correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                        else:
+                            correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                elif col.check == 1:
+                    if validaTipoDato(col.tipo.upper(),query.listRegistros[contcol-1].id,col.tamanoCadena) == True:
+                        print("valido check")
+                        tp = col.tipo.upper()
+                        if tp=='SMALLINT' or tp=='INTEGER' or tp=='BIGINT' or tp=='DECIMAL' or tp=='NUMERIC' or tp=='REAL' or tp=='DOUBLE' or tp=='MONEY':
+                            exp1=ExpresionNumero(query.listRegistros[contcol-1].id)
+                            exp2= None
+                            if isinstance(col.condicionCheck.exp2,ExpresionIdentificador):
+                                coltemp = ts.obtenerconNombreColumna(col.condicionCheck.exp2.id,h.bd_enuso,query.idTable)
+                                tamtemp = len(coltemp.valor)
+                                valtemp = coltemp.valor[tamtemp-1]
+                                exp2=ExpresionNumero(valtemp)
+                            else:
+                                exp2=col.condicionCheck.exp2
+                            if validarCheck(exp1,exp2,col.condicionCheck.operador,ts) == 1:
+                                if col.pk == 1 or col.unique == 1: # se verifica que la llave primaria no sea repetida
+                                    temp = 0
+                                    if col.valor != None:
+                                        sizeregcol = len(col.valor)
+                                        while temp < sizeregcol:
+                                            if col.valor[temp] == query.listRegistros[contcol-1].id:
+                                                print("llave primaria a insertar repetida")
+                                                if col.valor == None:
+                                                    correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                                    print("Error: valor invalido para la columna")
+                                                    return
+
+                                                else:
+                                                    correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                                    print("Error: valor invalido para la columna")
+                                                    return
+                                                
+                                            temp= temp+1
+
+                                    ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+
+                                else:
+                                    ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+                            else:
+                                if col.valor == None:
+                                    correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                    print("Error: valor invalido para la columna")
+                                    return
+
+                                else:
+                                    correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                    print("Error: valor invalido para la columna")
+                                    return
+
+                        else:
+                            exp1=ExpresionCadenas(query.listRegistros[contcol-1].id)
+                            exp2= None
+                            if isinstance(col.condicionCheck.exp2,ExpresionIdentificador):
+                                coltemp = ts.obtenerconNombreColumna(col.condicionCheck.exp2.id,h.bd_enuso,query.idTable)
+                                tamtemp = len(coltemp.valor)
+                                valtemp = coltemp.valor[tamtemp-1]
+                                exp2=ExpresionCadenas(valtemp)
+                            else:
+                                exp2=col.condicionCheck.exp2
+                            if validarCheck(exp1,exp2,col.condicionCheck.operador,ts)==1:
+                                if col.pk == 1 or col.unique == 1: # se verifica que la llave primaria no sea repetida
+                                    temp = 0
+                                    if col.valor != None:
+                                        sizeregcol = len(col.valor)
+                                        while temp < sizeregcol:
+                                            if col.valor[temp] == query.listRegistros[contcol-1].id:
+                                                print("llave primaria a insertar repetida")
+                                                if col.valor == None:
+                                                    correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                                    print("Error: valor invalido para la columna")
+                                                    return
+
+                                                else:
+                                                    correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                                    print("Error: valor invalido para la columna")
+                                                    return
+                                                
+                                            temp= temp+1
+
+                                    ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+
+                                else:
+                                    ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,query.listRegistros[contcol-1].id)
+                            else:
+                                if col.valor == None:
+                                    correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                    print("Error: valor invalido para la columna")
+                                    return
+
+                                else:
+                                    correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                    print("Error: valor invalido para la columna")
+                                    return
+                    else:
+                        if col.valor == None:
+                            correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                        else:
+                            correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                elif isinstance(query.listRegistros[contcol-1], ExpresionNOW) and col.tipo.upper() == 'DATE':
+                    if col.pk == 1 or col.unique == 1:#se verifica que la llave primaria no sea repetida
+                        temp = 0
+                        if col.valor != None:
+                            sizeregcol = len(col.valor)
+                            while temp < sizeregcol:
+                                if col.valor[temp] == query.listRegistros[contcol-1].id:
+                                    print("llave primaria a insertar repetida")
+                                    if col.valor == None:
+                                        correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                        print("Error: valor invalido para la columna")
+                                        return
+
+                                    else:
+                                        correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                        print("Error: valor invalido para la columna")
+                                        return
+
+                        ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,str(date.today().strftime("%Y-%m-%d")))
+
+                    else:
+                        ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,str(date.today().strftime("%Y-%m-%d")))
+                    
+                else:
+                    if validaTipoDato(col.tipo.upper(),query.listRegistros[contcol-1].id,col.tamanoCadena) == True:
+                        datotemp = None
+                        if col.tipo.upper()=="MONEY":
+                            datotemp = convertiraMoney(query.listRegistros[contcol-1].id)
+                        else:
+                            datotemp = query.listRegistros[contcol-1].id
+
+                        if col.pk == 1 or col.unique == 1: # se verifica que la llave primaria no sea repetida
+                            temp = 0
+                            if col.valor != None:
+                                sizeregcol = len(col.valor)
+                                while temp < sizeregcol:
+                                    if col.valor[temp] == datotemp:
+                                        print("llave primaria a insertar repetida")
+                                        if col.valor == None:
+                                            correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                            print("Error: valor invalido para la columna")
+                                            return
+
+                                        else:
+                                            correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                                            print("Error: valor invalido para la columna")
+                                            return
+                                        
+                                    temp= temp+1
+
+                            ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,datotemp)
+
+                        else:
+                            ts.actualizarValorColumna(col.nombre,col.BD,col.tabla,datotemp)
+
+                    else:
+                        if col.valor == None:
+                            correccionTamanoValoresColumna(0,tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                            print("Error: valor invalido para la columna")
+                            return
+
+                        else:
+                            correccionTamanoValoresColumna(len(col.valor),tamlistid,query.listidCol,h.bd_enuso,query.idTable,ts,1)
+                            print("Error: valor invalido para la columna")
+                            return
+                        
+
+            contcol=contcol+1
+        ValidandoDefault(numdatocolumna+1,h.bd_enuso,query.idTable,ts)
+    insertTablaStorage(query.idTable,ts)
+
+    
+def insertTablaStorage(tabla,ts):
+    cont = 0
+    listdatos = None
+    numcol = ts.numerodeColumnas(h.bd_enuso,tabla)
+    while cont < numcol:
+        col = ts.obtenersinNombreColumna(tabla,h.bd_enuso,cont)
+        temp = len(col.valor)
+        if listdatos == None:
+            listdatos = [col.valor[temp-1]]
+        else:
+            listdatos.append(col.valor[temp-1])
+        cont=cont+1
+    print(listdatos)
+    h.textosalida+="TYTUS>> "+"\n"
+    h.textosalida+="TYTUS>> "+"\n"
+    h.textosalida +="TYTUS>> Se inserto datos a la tabla: "+str(tabla)+"\n"
+    h.textosalida +="TYTUS>> Datos isertados: "+str(listdatos)+"\n"
+
+
+
+#se utiliza cuando se produce un error y anteriormente se ingresaron datos, recalcula la cantidad de valores
+def correccionTamanoValoresColumna(tamValores,tamlistid,listidcol,BD,tabla,ts,forma):
+    #forma = 1 ---> con parametros id
+    #forma = 2 ---> sin parametros id
+    if tamValores != 0: #con valores en la columna
+        contt=1
+        while contt <= tamlistid:
+            if forma == 1:
+                col2 = ts.obtenerconNombreColumna(listidcol[contt-1].id,BD,tabla)
+            elif forma == 2:
+                col2 = ts.obtenersinNombreColumna(tabla,BD,contt-1)
+
+            if len(col2.valor) != tamValores:
+                col2.valor.pop()
+            contt=contt+1
+        return
+    else: #sin valores en la columna
+        sizeValores = None
+        contt = 1
+        while contt <= tamlistid:
+            if forma == 1:
+                col2 = ts.obtenerconNombreColumna(listidcol[contt-1].id,BD,tabla)
+            elif forma == 2:
+                col2 = ts.obtenersinNombreColumna(tabla,BD,contt-1)
+            if len(col2.valor) != sizeValores:
+                col2.valor.pop()
+            contt=contt+1
+        return
+
+
+
+def ValidandoDefault(tamValores,BD,tabla,ts):
+    cantColumnas = ts.numerodeColumnas(h.bd_enuso,tabla)
+    cont=1
+    while cont <= cantColumnas:
+        col = ts.obtenersinNombreColumna(tabla,BD,cont-1)
+        if col.valor != None:  
+            if len(col.valor) < tamValores:
+                ts.actualizandoDefaultColumna(col.nombre,BD,tabla)
+        else:
+             if 0 < tamValores:
+                ts.actualizandoDefaultColumna(col.nombre,BD,tabla)
+        cont = cont+1
+
+
+def validarCheck(exp1,exp2,operador,ts):
+    print(exp2.id)
+    cond = ExpresionRelacional(exp1,exp2,operador)
+    if resolver_expresion_relacional(cond,ts):
+        print("se valido check")
+        return 1
+    else:
+        print("dato no valido para check")
+        return 0
 
 def procesar_updateinBD(query,ts):
     print("entro a update")
@@ -1170,20 +1861,31 @@ def procesar_updateinBD(query,ts):
 
 
 def procesar_select2_obtenerTablas(query,ts):
-    print("Entra al else del select")
-    #print(query)
+    print("Entra al else del select-------------------------------------------------------------------------------------------")
+    print(query)
+    print(len(query))
     tablas=[]
-    for x in range(len(query)) :
+    for x in range(0,len(query)) :
+        print("***********************************************Itera: ",x,"******************************************************")
         if isinstance(query[x], ExpresionFuncionBasica): 
-            #print("entra a la opcion funcionBasica del else")
+            print("***********************************************BASICA******************************************************")
+            a=query[x]
+            print(a)
             tablas.append(query[x].id.id)
         elif isinstance(query[x],Asignacion):
-            print("entra a la opcion select del else")
-            print(procesar_asignacion(query[x],ts))
-            tablas.append(procesar_asignacion(query[x].campo,ts))
-            tablas.append(procesar_asignacion(query[x].alias,ts))
+            print("***********************************************ASIGNACION******************************************************")
+            #print(procesar_asignacion(query[x],ts))
+            a=query[x]
+            print(a.campo)
+            print(a.alias)
+            b=procesar_asignacion(query[x],ts)
+            tablas.append(b)
+            #tablas.append(procesar_asignacion(query[x].campo,ts))
+            #tablas.append(procesar_asignacion(query[x].alias,ts))
         elif isinstance(query[x],ExpresionIdentificador):
-            #print("entra a la opcion de identificador del lse")
+            print("***********************************************IDENTIFICADOR******************************************************")
+            a=query[x]
+            print(a)
             tablas.append(query[x].id)
         if x==len(query)-1:
             print(tablas)
@@ -1198,6 +1900,9 @@ def procesar_operacion_basica(query,ts):
     print("entra a operacion basica")
     print(query.id)
     if isinstance(query.id,ExpresionABS): return resolver_expresion_aritmetica(query.id, ts)
+    elif isinstance(query.id,ExpresionLlamame):
+        print("trae una expresion llamameO")
+        return (query.id.id+"-"+query.id.id1)
     elif isinstance(query.id,ExpresionCBRT): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionCEIL): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionCEILING): return resolver_expresion_aritmetica(query.id,ts)
@@ -1245,9 +1950,28 @@ def procesar_operacion_basica(query,ts):
     elif isinstance(query.id,ExpresionLEAST): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionNOW): return resolver_expresion_aritmetica(query.id,ts)
 
+    elif isinstance(query.id,ExpresionLENGTH): 
+        print("pasa opr lenght de operaciones basicas")
+        return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionTRIM): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSUBSTR): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSUBSTRINGA): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSUBSTRINGB): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSUBSTRINGC): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionSHA256): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionMD5): return resolver_expresion_aritmetica(query.id,ts)
+
+    elif isinstance(query.id,ExpresionCurrentTime): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionCurrentDate): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionEXTRACT): return resolver_expresion_aritmetica(query.id,ts)
+    
+    
+
     elif isinstance(query.id,ExpresionIdentificador): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionCadenas): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionAritmetica): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.campo,ExpresionLlamame): print("777777777 LLEGO A LLAMAME 77777777777777777777777")
+    
     
     else:
         print("error en operaciones basicas")
@@ -1258,8 +1982,7 @@ def procesar_operacion_basica(query,ts):
 # ---------------------------------------------------------------------------------------------------------------------
 def procesar_asignacion(query, ts) :  
     print("entra a procesar asignacion")
-    print(query.campo)
-    print(query.alias)
+    print(query)
     if isinstance(query.campo,Asignacion):
         print("***-------aun hay instancias por baja----------------")
         print(query.campo)
@@ -1321,6 +2044,8 @@ def procesar_asignacion(query, ts) :
         print(query.id)
     elif isinstance(query.campo,ExpresionAritmetica):
         return guardar_asignacion(resolver_expresion_aritmetica(query.campo,ts),query.alias.id,ts)
+    elif isinstance(query.campo,ExpresionLlamame):
+        print("777777777 LLEGO A LLAMAME 77777777777777777777777")
     else :
         print("-------------estos datos se asignan con operacion--------------")
         print(query.campo.exp)
@@ -1351,7 +2076,7 @@ def guardar_asignacion(valor, variable,ts):
             return valor
         else:
             print("se agregara la variable")
-            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None)      # inicializamos con 0 como valor por defecto
+            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None,None,None)      # inicializamos con 0 como valor por defecto
             ts.agregar(simbolo)
             print("se creo una nueva variable")
             print(variable)
@@ -1360,7 +2085,7 @@ def guardar_asignacion(valor, variable,ts):
         if isinstance(valor, str) and valor.find("error")>0:
             return valor
         else:
-            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None)
+            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None,None,None)
             ts.actualizar(simbolo)
             print("la variable ya existia, se actualizo")
             print(variable)
@@ -1376,8 +2101,27 @@ def procesar_deleteinBD(query,ts):
     print("entra a delete from")
     print("entra al print con: ",query.idTable)
     h.textosalida+="TYTUS>> Eliminando registro de una tabla\n"
-    for i in query.condColumna:
-        print("id: ",i.id," valor: ",i.expNumerica.id)
+    if isinstance(query.condColumna,operacionDelete):
+        numcolumnas = ts.numerodeColumnas(h.bd_enuso,query.idTable)
+        cont=0
+        while cont < numcolumnas:
+            col = ts.obtenersinNombreColumna(query.idTable,h.bd_enuso,cont)
+            if col.nombre == query.condColumna.exp1.id:
+                temp = len(col.valor)
+                contval = 0
+                while contval < temp:
+                    if col.valor == None:
+                        print("Tabla vacia")
+                        return
+                    else:
+                        if col.valor[contval] == query.condColumna.exp2.id:
+                            ts.eliminarRegistroTabla(h.bd_enuso,query.idTable,contval)
+                            return
+                    contval=contval+1
+                
+    else:
+        print("Se eliminara el registro que cumple la siguiente condicion")
+        print(query.condColumna.exp1.id," ",query.condColumna.operador,query.condColumna.exp2.id)
     #llamada de funcion
 
 def procesar_createTale(query,ts):
@@ -1387,8 +2131,8 @@ def procesar_createTale(query,ts):
     h.textosalida+="TYTUS>>Creando tabla\n"
     cantcol = 0
 
-    if ts.validarTabla(query.idTable,'BD1') == 0:
-        simbolo = TS.Simbolo(None,query.idTable,None,None,'BD1',None,None,None,None,None,None,None,None,None,None,None,None,None)
+    if ts.validarTabla(query.idTable,h.bd_enuso) == 0:
+        simbolo = TS.Simbolo(None,query.idTable,None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None)
         ts.agregarnuevTablaBD(simbolo)
         print("--> Se creo nueva tabla con id: "+query.idTable)
         #return "Se creo Tabla con id: "+str(query.idTable)
@@ -1404,12 +2148,13 @@ def procesar_createTale(query,ts):
             print("Tipo de dato: ",i.objAtributo.TipoColumna.id)
             idcol=i.objAtributo.idColumna
             idtipo=i.objAtributo.TipoColumna.id
-            cantcol=cantcol+1
+            
            
-            if idtipo=="CHARACTER" or idtipo=="VARING" or idtipo=="VARCHAR" or idtipo=="CHAR":
-                idtamcad = i.objAtributo.TipoColumna.longitud 
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
-                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,'BD1',idtab,1,0,0,None,None,0,None,0,None,None,None,None)
+            if idtipo.upper() =="CHARACTER" or idtipo.upper() =="VARYING" or idtipo.upper()=="VARCHAR" or idtipo.upper()=="CHAR":
+                idtamcad = i.objAtributo.TipoColumna.longitud
+                #print(idtamcad) 
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,h.bd_enuso,idtab,1,0,0,None,None,0,None,0,None,None,None,None,None,None)
                     ts.agregarnuevaColumna(simbolo)
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
@@ -1417,13 +2162,15 @@ def procesar_createTale(query,ts):
                    
             else:
                 idtamcad = i.objAtributo.TipoColumna.longitud
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
-                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,'BD1',idtab,1,0,0,None,None,0,None,0,None,None,None,None)
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,h.bd_enuso,idtab,1,0,0,None,None,0,None,0,None,None,None,None,None,None)
                     ts.agregarnuevaColumna(simbolo)
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
                     print("columna: ",idcol," ya existe en tabla: ",idtab)
-            ts.printcontsimbolos()
+                    
+            cantcol=cantcol+1
+            #ts.printcontsimbolos()
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION:
             print("Crea Columna: ",i.objAtributo.idColumna)
@@ -1441,7 +2188,7 @@ def procesar_createTale(query,ts):
             chk = 0
             condchk = None
 
-            cantcol=cantcol+1
+            
             for res in i.objAtributo.RestriccionesCol:
                 if res.typeR == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
                     print("Restriccion: PRIMARY KEY")
@@ -1449,8 +2196,8 @@ def procesar_createTale(query,ts):
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.DEFAULT:
                     print("REstriccion: DEFAULT ")
-                    print("Dato Default: ",res.objrestriccion.valor)
-                    df = res.objrestriccion.valor
+                    print("Dato Default: ",res.objrestriccion.valor.id)
+                    df = res.objrestriccion.valor.id
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NULL:
                     print("Restriccion: NULL")
@@ -1474,6 +2221,7 @@ def procesar_createTale(query,ts):
                     print("Restriccion: CHECK")
                     print("Valor de check: ",res.objrestriccion.condCheck.exp1.id,res.objrestriccion.condCheck.operador,res.objrestriccion.condCheck.exp2.id)
                     chk = 1
+                    condchk = res.objrestriccion.condCheck
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
                     print("Restriccion: CONSTRAINT CHECK")
@@ -1487,10 +2235,10 @@ def procesar_createTale(query,ts):
                     print("No se encontro ninguna restriccion")
         
 
-            if idtipo=="CHARACTER" or idtipo=="VARING" or idtipo=="VARCHAR" or idtipo=="CHAR":
+            if idtipo.upper()=="CHARACTER" or idtipo.upper()=="VARYING" or idtipo.upper()=="VARCHAR" or idtipo.upper()=="CHAR":
                 idtamcad = i.objAtributo.TipoColumna.longitud 
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
-                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,'BD1',idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df)
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,h.bd_enuso,idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df,None,None)
                     ts.agregarnuevaColumna(simbolo)
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
@@ -1498,13 +2246,15 @@ def procesar_createTale(query,ts):
                    
             else:
                 idtamcad = i.objAtributo.TipoColumna.longitud
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
-                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,'BD1',idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df)
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,h.bd_enuso,idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df,None,None)
                     ts.agregarnuevaColumna(simbolo)
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
                     print("columna: ",idcol," ya existe en tabla: ",idtab)
-            ts.printcontsimbolos()
+
+            cantcol=cantcol+1
+            #ts.printcontsimbolos()
 
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO:
@@ -1513,45 +2263,51 @@ def procesar_createTale(query,ts):
             
             for lc in i.objAtributo.listColumn:
                 print("id: ",lc.id)
-                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
                     print("La columna especificada no existe, no se creo restriccion unique")
+                    h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La columna especificada no existe, no se creo restriccion unique</td></tr>\n"
                     return
                 else:
-                    ts.actualizauniqueColumna(lc.id,'BD1',idtab)
-            ts.printcontsimbolos()
+                    ts.actualizauniqueColumna(lc.id,h.bd_enuso,idtab)
+            #ts.printcontsimbolos()
 
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
             print("Declaracion de constraint check")
             print("Id constraint: ", i.objAtributo.idConstraint)
             print("Condicion check: ",i.objAtributo.condCheck.exp1.id, i.objAtributo.condCheck.operador, i.objAtributo.condCheck.exp2.id)
-            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,'BD1',idtab) == 1:
-                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,'BD1',idtab,i.objAtributo.idConstraint,i.objAtributo.condCheck)
+            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab) == 1:
+                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab,i.objAtributo.idConstraint,i.objAtributo.condCheck)
             else:
                 print("La columna especificada no existe")
-            ts.printcontsimbolos()
+            #ts.printcontsimbolos()
+                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La columna especificada no existe</td></tr>\n"
+            #ts.printcontsimbolos()
 
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
             print("Delaracion de check")
             print("Condicion check: ",i.objAtributo.condCheck.exp1.id, i.objAtributo.condCheck.operador, i.objAtributo.condCheck.exp2.id)
-            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,'BD1',idtab) == 1:
-                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,'BD1',idtab,None,i.objAtributo.condCheck)
+            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab) == 1:
+                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,h.bd_enuso,idtab,None,i.objAtributo.condCheck)
             else:
                 print("La columna especificada no existe")
-            ts.printcontsimbolos()
+                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La columna especificada no existe</td></tr>\n"
+            #ts.printcontsimbolos()
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
             print("Declaracion de una o varias PRIMARY KEY")
             print("Lista de columnas: ")
             for lc in i.objAtributo.listColumn:
                 print("id: ",lc.id)
-                if ts.verificarcolumnaBD(lc.id,'BD1',idtab) == 1:
-                    ts.actualizapkcolumna(lc.id,'BD1',idtab)
+                if ts.verificarcolumnaBD(lc.id,h.bd_enuso,idtab) == 1:
+                    ts.actualizapkcolumna(lc.id,h.bd_enuso,idtab)
                     print("se actualizo llave primaria en: ",lc.id)
                 else:
                     print("La columna especificada no existe, no se creo llave primaria")
-            ts.printcontsimbolos()
+                    h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La columna especificada no existe, no se creo llave primaria</td></tr>\n"
+
+            #ts.printcontsimbolos()
 
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY:
@@ -1561,22 +2317,33 @@ def procesar_createTale(query,ts):
             contidref = len(i.objAtributo.idLlaveF)
             conttemp = 0
             while conttemp < contidfor:
-                if ts.verificarcolumnaBD(i.objAtributo.idLlaveF[conttemp].id,'BD1',i.objAtributo.idTable) == 1:
-                    if ts.verificarcolumnaBD(i.objAtributo.idForanea[conttemp].id,'BD1',idtab)==1:
-                        ts.actualizafkcolumna(i.objAtributo.idForanea[conttemp].id,'BD1',idtab,i.objAtributo.idLlaveF[conttemp],i.objAtributo.idTable)
+                if ts.verificarcolumnaBD(i.objAtributo.idLlaveF[conttemp].id,h.bd_enuso,i.objAtributo.idTable) == 1:
+                    if ts.verificarcolumnaBD(i.objAtributo.idForanea[conttemp].id,h.bd_enuso,idtab)==1:
+                        ts.actualizafkcolumna(i.objAtributo.idForanea[conttemp].id,h.bd_enuso,idtab,i.objAtributo.idLlaveF[conttemp],i.objAtributo.idTable)
                     else:
                         print("la columna especificada no existe para crear llave foranea")
+                        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>la columna especificada no existe para crear llave foranea</td></tr>\n"
                 else:
                     print("la columna referenciada en la tabla no existe")
+                    h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>la columna referenciada en la tabla no existe</td></tr>\n"
                 conttemp = conttemp+1
-            ts.printcontsimbolos()
+            #ts.printcontsimbolos()
     # -------------------------------------------------------------------------------------------------------------- 
         else:
             print("No se encontraron columnas a crear")
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontraron columnas a crear</td></tr>\n"
 
-    #print("Cantidad de columnas ------> ",cantcol)
-    #Llamada a metodo crear Tabla
-    #store.createTable("bd1",query.idTable,cantcol)
+    print("----------se creara en storage------------")
+    print("Base de datos: ",h.bd_enuso)
+    print("Tabla: ",query.idTable)
+    print("Cantidad de columnas: ",cantcol)
+    h.textosalida+="TYTUS>> "+"\n"
+    h.textosalida+="TYTUS>> "+"\n"
+    h.textosalida+="TYTUS>> Se creo Tabla:        "+str(query.idTable)+"\n"
+    h.textosalida+="TYTUS>> Base de datos usada:  "+str(h.bd_enuso)+"\n"
+    h.textosalida+="TYTUS>> Cantidad de columnas: "+str(cantcol)+"\n"
+    #store.createDatabase(h.bd_enuso)
+    #store.createTable(h.bd_enuso,query.idTable,cantcol+1)
 
 
 
@@ -1596,9 +2363,18 @@ def procesar_inheritsBD(query, ts):
 
 
 def drop_table(query,ts):
-    print("voy a imprimir los valores del drop :v")
-    print("aqui viene el id de la tabla a dropear:",query.id)
-    h.textosalida+="TYTUS>> Eliminaré la tabla"+query.id+"\n"
+    #print("voy a imprimir los valores del drop :v")
+    #print("aqui viene el id de la tabla a dropear:",query.id)
+    #h.textosalida+="TYTUS>> Eliminaré la tabla"+query.id+"\n"
+    nombreTab = query.id
+    xd = ts.obtenerColumnas(nombreTab,h.bd_enuso)
+    print("TOTAL DE COLUMNAS")
+    print(len(xd))
+    for x in range(0,len(xd)):
+        ts.destruirColumna(xd[x],h.bd_enuso,nombreTab)
+        print (xd[x])
+    xdd = ts.destruirTabla(nombreTab,h.bd_enuso)
+
 
 def alter_table(query,ts):
     print("voy a imprimir los valores del alter :v")
@@ -1607,24 +2383,124 @@ def alter_table(query,ts):
     temp = query.querys.tipo #TIPO DE OBJETO
     if(temp.upper()=="ADD"):
         contenido = query.querys.contenido #AQUI ESTA EL CONTENIDO DEL ADD - contAdd
+        tablatemp = query.id #AQUI ESTA EL NOMBRE DE LA TABLA A ALTERAR
         if contenido.tipo.upper()=="COLUMN":
+            print("ESTA ES MI TABLA-->: ",tablatemp)
+            columnaNew = contenido.id1
             print("SE AGREGARA UNA COLUMNA")
+            #la cadena a buscar sería query.id + baseactual
+            #por el momento tengo quemada la BD1 al final del nombre de la tabla
+            #resNum = ts.verificarcolumnaBD(columnaNew,"BD1",tablatemp)
+            res = ts.verificarcolumnaBDAT(columnaNew,h.bd_enuso,tablatemp)
+            if res!=0:
+                print("ENCONTRE LA #$%& COLUMNA :V, YA ESTABA CREADA")
+                """x = res.valor
+                if x!=None:
+                    #NO PUEDO CAMBIAR EL TIPO PORQUE YA HAY VALORES ASOCIADOS A LA COLUMNA
+                    print("NO PUEDO CAMBIAR EL TIPO DE LA COLUMNA PORQUE YA TIENE VALORES ASOCIADOS")
+                else:
+                    #PUEDO CAMBIAR EL TIPO PORQUE NO HAY VALORES TODAVÍA
+                    if contenido.tipo2.id.upper()=='VARCHAR': #VIENE UN VARCHAR
+                        print("ESTE ES EL TAMAÑO QUE TRAE-->: ",contenido.tipo2.longitud)
+                        res.tipo = contenido.tipo2.id
+                        res.tamanoCadena = contenido.tipo2.logitud
+                        ts.printcontsimbolos()
+                    else:
+                        #VIENE OTRO TIPO QUE NO SE VARCHAR
+                        res.tipo = contenido.tipo2.id
+                        ts.printcontsimbolos()"""
+                #CODIGO ALTER TYPE ------------------------------------------
+                
+                #TERMINA CODIGO ALTER TYPE ----------------------------------
+            else:#NO ESTA CREADA LA COLUMNA
+                print("NO ENCONTRE LA $#%& columna")
+                tempTab = ts.obtener2(tablatemp+h.bd_enuso)
+                if tempTab == 0:
+                    print("NO EXISSTE LA TABLA, NO PUEDO CREAR LA COLUMNA, F!!")
+                else:
+                    print("EXISTE LA TABLA, PUEDO CREAR LA COLUMNAAAA")
+                    #debo contar que id le toca
+# id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default)
+                    if contenido.tipo2.id.upper()=="VARCHAR":
+                        print("ES UN VARCHARRRRRRRRRRRRRRRRR")
+                        print(contenido.tipo2.id)
+                        print(contenido.id1)
+                        print(contenido.tipo2.longitud)
+                        print(tablatemp)
+                        ahora = TS.Simbolo(None,contenido.id1,contenido.tipo2.id,contenido.tipo2.longitud,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
+                        print("xd")
+                        ts.agregarnuevaColumna(ahora)
+                        ts.printcontsimbolos()
+                    else:
+                        print("POR ACÁ CREO")
+                        ahora = TS.Simbolo(None,contenido.id1,contenido.tipo2.id,None,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
+                        ts.agregarnuevaColumna(ahora)
+                        ts.printcontsimbolos()              
             #METODO PARA ALTERAR LA COLUMNA
+            #h.bde_nuso
             #alterAddColumn(baseActual,contenido.id1,anyxd)
         elif contenido.tipo.upper()=="CHECK":
             print("SE AGREGARA UN CHECK")
+            operacion = contenido.operacion
+            id1byron = contenido.operacion.exp1.id
+            print("exp1: ",id1byron)
+            id2byron = contenido.operacion.exp2.id
+            print("exp2: ",id2byron)
+            ans = ts.actualizarcheckColumna(id1byron,h.bd_enuso,tablatemp,None,operacion)
+            ans = ts.actualizarcheckColumna(id2byron,h.bd_enuso,tablatemp,None,operacion)
+            '''if not id1byron.isnumeric():
+                ans = ts.actualizarcheckColumna(id1byron,h.bd_enuso,tablatemp,None,operacion)
+            else:
+                ans = ts.actualizarcheckColumna(id2byron,h.bd_enuso,tablatemp,None,operacion)
+            '''
+        
         elif contenido.tipo.upper()=="FOREIGN":
-            print("SE AGREGARA UNA LLAVE FORANEA")
+            #print("SE AGREGARA UNA LLAVE FORANEA")
+            #nombre,BD,tabla,idrefcolumna,idreftabla
+            #print(query.querys.contenido.id1)
+            contenidox = query.querys.contenido
+            tabla = query.id
+            #print("nuevamente jejeje: ",contenidox.id1)
+            #print("nuevamente jejeje: ",contenidox.id2)
+            #print(query.id)
+            res = ts.actualizafkcolumna(contenidox.id1,h.bd_enuso,tabla,contenidox.id2,None)
         elif contenido.tipo.upper()=="PRIMARY":
-            print("SE AGREGARA UNA LLAVE PRIMARIA")
+            #print("SE AGREGARA UNA LLAVE PRIMARIA")
+            contenidox = query.querys.contenido
+            tabla = query.id
+            res = ts.actualizapkcolumna(contenidox.id1,h.bd_enuso,tabla)
         elif contenido.tipo.upper()=="CONSTRAINT":
             print("SE VIENE UN CONSTRAINT")
             if contenido.tipo2.upper()=="FOREIGN":
                 print("Y DENTRO VIENE UNA LLAVE FORANEA")
+                contenidox = query.querys.contenido
+                tabla = query.id
+                idConstraint = contenidox.id1
+                print(tabla)
+                print(idConstraint)
+                print(contenidox.id3)
+                print(contenidox.id4)
+                res = ts.actualizafkcolumnaAT(contenidox.id2,h.bd_enuso,tabla,contenidox.id3,contenidox.id4,idConstraint)
             elif contenido.tipo2.upper()=="PRIMARY":
                 print("Y DENTRO VIENE UNA LLAVE PRIMARIA")
+                contenidox = query.querys.contenido
+                tabla = query.id
+                idConstraint = contenidox.id1
+                nombre = contenidox.id2
+                print(tabla)
+                print(idConstraint)
+                print(nombre)
+                res = ts.actualizapkcolumnaAT(nombre,h.bd_enuso,tabla,idConstraint)
             elif contenido.tipo2.upper()=="UNIQUE":
                 print("Y DENTRO VIENE UN UNIQUE")
+                contenidox = query.querys.contenido
+                tabla = query.id
+                idConstraint = contenidox.id1
+                nombre = contenidox.operacion
+                print(tabla)
+                print(idConstraint)
+                print(nombre)
+                rs = ts.actualizauniqueColumnaAT(nombre,h.bd_enuso,tabla,idConstraint)
         #print("VIENE UN ADD, POR TANTO SE AGREGA ALGO A LA TABLA")
         #print("SE AGREGARÁ UNA: ", query.querys.contenido.tipo)
         #print("DE NOMBRE: ",query.querys.contenido.id1)
@@ -1634,15 +2510,81 @@ def alter_table(query,ts):
         contenido = query.querys.contenido #AQUI ESTA EL CONTENIDO DEL DROP - contDrop
         if contenido.tipo.upper() == "COLUMN":
             print("DROPEARÉ UNA COLUMNA: ",contenido.id)
+            contenidox = query.querys.contenido
+            nombreTab = query.id
+            nombreCol = contenidox.id
+            print(nombreTab)
+            print(nombreCol)
+            print(nombreCol+h.bd_enuso+nombreTab)
+            #simbTemp = ts.obtener2(nombreCol+h.bd_enuso+nombreTab)
+            xd = ts.destruirColumna(nombreCol,h.bd_enuso,nombreTab)
         else:
             print("DROPEARÉ UNA CONSTRAINT: ",contenido.id)
-        #print("LO QUE EXPLOTARA SERA: ", query.querys.contenido.tipo)
-        #print("CON EL ID: ", query.querys.contenido.id)
+            print("LO QUE EXPLOTARA SERA: ", contenido.tipo)
+            idConstraint = contenido.id
+            tabla = query.id
+            print(idConstraint)
+            print(tabla)
+            xd = ts.destruirConstraint(idConstraint,h.bd_enuso,tabla)
+
     elif(temp.upper()=="ALTER"):
         print("VIENE UN ALTER DENTRO DE OTRO ALTER")
-        #print("DE TIPO: ", query.querys.contenido.tipo)
-        #print("CON EL ID: ", query.querys.contenido.id)
-        #print("PARA ASIGNAR: ", query.querys.contenido.tipoAsignar)
+        contenido = query.querys.contenido
+        if contenido.tipo.upper()=="SET":
+            print("ES UN SET")
+            print(contenido.tipoAsignar)
+            if contenido.tipoAsignar.upper()=="NOT":
+                print("ES UN NOT NULL")
+                #nuevotipo = contenido.tipoAsignar.id
+                tabla = query.id
+                res = ts.verificarcolumnaBDAT(contenido.id,h.bd_enuso,tabla)
+                if res!=0:
+                    print("ENCONTRE LA COLUMNA")
+                    if res.valor!=None:
+                        print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                    else:
+                        print("NO HAY VALORES, SE PUEDE CAMBIAR EL TIPO")
+                        res.obligatorio = 0
+            else:
+                print("VAMOS A SETEAR EL VALOR DE LA COLUMNA A NULL")
+                res = ts.verificarcolumnaBDAT(contenido.id,h.bd_enuso,tabla)
+                if res!=0:
+                    print("ENCONTRE LA COLUMNA")
+                    if res.valor!=None:
+                        print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                    else:
+                        print("NO HAY VALORES, SE PUEDE CAMBIAR EL TIPO")
+                        res.obligatorio = 1
+        elif contenido.tipo.upper()=="TYPE":
+            print("SE LE ASIGNARA UN VALOR DIFERENTE A NULL Y NOT NULL, ESTE ES : ", contenido.tipoAsignar.id)
+            nuevotipo = contenido.tipoAsignar.id
+            tabla = query.id
+            res = ts.verificarcolumnaBDAT(contenido.id,h.bd_enuso,tabla)
+            if res !=0:
+                print("encontre la columna")
+                if res.valor!=None:
+                    print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                else:
+                    print("NO HAY VALORES, PUEDO CAMBIAR EL TIPO")
+                    if nuevotipo.upper()=="VARCHAR":
+                            longitud = contenido.tipoAsignar.longitud
+                            res.tipo = nuevotipo
+                            res.tamanoCadena = longitud
+                    else:
+                            res.tipo = nuevotipo
+            else:
+                print("NO SE ENCONTRÓ LA TABLA, F")
+                
+
+            #print("ESTE ES EL TIPO NUEVO-->: ",contenido.tipo2.id)
+                #if contenido.tipo2.id.upper()=='VARCHAR': #VIENE UN VARCHAR
+                #    print("ESTE ES EL TAMAÑO QUE TRAE-->: ",contenido.tipo2.longitud)
+                #    res.tipo = contenido.tipo2.id
+                #    res.tamanoCadena = contenido.tipo2.logitud
+                #    ts.printcontsimbolos()
+                #else:#VIENE OTRO TIPO QUE NO SE VARCHAR
+                #    res.tipo = contenido.tipo2.id
+                #    ts.printcontsimbolos()
 
 
         
@@ -1654,7 +2596,8 @@ def alter_table(query,ts):
 # ---------------------------------------------------------------------------------------------------------------------
 def procesar_queries(queries, ts) :
     ## lista de instrucciones recolectadas
-    print(queries)
+    datos_de_prueba(ts)
+    print("Entra a procesar queries",queries)
     for query in queries :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query, Select) : procesar_select(query, ts)
@@ -1691,6 +2634,7 @@ def procesar_queries(queries, ts) :
         elif isinstance(query,DropTable): drop_table(query,ts)
         elif isinstance(query,AlterTable): alter_table(query,ts)
         elif isinstance(query,UseDatabases): procesar_useBD(query,ts)
+        elif isinstance(query, Tipo) : procesar_tipo(query, ts)
         else : 
             print('Error: instrucción no válida')
             h.errores+=  "<tr><td>"+str(query)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La consulta no es valida.</td></tr>\n"  
@@ -1704,6 +2648,7 @@ def ejecucionAscendente(input):
     #print(input)
 
     print("--------------------------------Archivo Ejecucion---------------------------------------")
+
     prueba =g.parse(input)
     arbol =gt.parse(input)
     ts_global=TS.TablaDeSimbolos()
@@ -1750,7 +2695,9 @@ def generarReporteSimbolos(ruta):
         val+="<td>"+str(ts_global.simbolos[simbolo].condicionCheck)+"</td>"
         val+="<td>"+str(ts_global.simbolos[simbolo].idCheck)+"</td>"
         val+="<td>"+str(ts_global.simbolos[simbolo].valor)+"</td>"
-        val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>"    
+        val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>" 
+        val+="<td>"+str(ts_global.simbolos[simbolo].idConstraintFK)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>"   
         val+="</tr>\n"
     #construyo el archivo html
     print("manda los datos")
@@ -1771,110 +2718,180 @@ def generarASTReport():
 
 
 def validaTipoDato(tipo, valor, tam):
-    if tipo == 'INTEGER':
-        if -2147483648 < valor and valor > 2147483648:
-            return True
-        else:
-            print("El valor ingresado supera la longitud permitida para INTEGER")
-            return False
-    elif tipo == 'SMALLINT':
-        if -2147483648 < valor and valor > 2147483648:
-            return True
-        else:
-            print("El valor ingresado supera la lingitud permitida para SMALLINT")
-            return False
-    elif tipo == 'BIGINT':
-        if -9223372036854775808 < valor and valor > 9223372036854775807:
-            return True
-        else:
-            print("El valor ingresado supera la longitud permitida para BIGING")
-            return False
-    elif tipo == "DECIMAL":
-        temp = str(valor)
-        num = temp.split(".")
-        entero = len(num[0])
-        decimal = len(num[1])
-        if(131072 < entero and 16383 < decimal):
-            return True
-        else:
-            print("El valor ingresado no cumple como Decimal")
-            return False
-    elif tipo == "NUMERIC":
-        temp = str(valor)
-        num = temp.split(".")
-        entero = len(num[0])
-        decimal = len(num[1])
-        if(131072 < entero and 16383 < decimal):
-            return True
-        else:
-            print("El valor ingresado no cumple como NUMERIC")
-            return False
-    elif tipo == "REAL":
-        temp = str(valor)
-        num = temp.split(".")
-        decimal = len(num[1])
-        if(6 <= decimal):
-            return True
-        else:
-            print("El valor ingresado tiene mas de 6 decimales")
-            return False
-    elif tipo == "DOUBLE":
-        temp = str(valor)
-        num = temp.split(".")
-        decimal = len(num[1])
-        if(15 <= decimal):
-            return True
-        else:
-            print("El valor ingresado tiene mas de 15 decimales")
-            return False
-    elif tipo == "MONEY":
-        if -92233720368547758.08 < valor and valor > +92233720368547758.07:
-            return True
-        else:
-            print("El valor ingresado supera la longitud permitida para BIGING")
-            return False
-    elif tipo == "VARING":
-        if type(valor) is str :
-            tamcad = len(valor)
-            if tamcad > 0 and tamcad <= tam:
+    if tipo.upper() == 'INTEGER':
+        try:
+            if -2147483648 < valor and valor < 2147483648:
                 return True
             else:
-                print("La cadena ingresada supera el limite del CHARETECTER VARING definido")
+                print("El valor ingresado supera la longitud permitida para INTEGER")
                 return False
-        else:
-            print("El valor ingresado no es una cadena")
+        except:
+            print("El dato no es valido para tipo INTEGER")
             return False
-    elif tipo == "VARCHAR":
-        if type(valor) is str :
-            tamcad = len(valor)
-            if tamcad > 0 and tamcad <= tam:
+
+    elif tipo.upper() == 'SMALLINT':
+        try:
+            if -2147483648 < valor and valor < 2147483648:
                 return True
             else:
-                print("La cadena ingresada supera el limite del VARCHAR definido")
+                print("El valor ingresado supera la lingitud permitida para SMALLINT")
                 return False
-        else:
-            print("El valor ingresado no es una cadena")
-    elif tipo == "CHARACTER":
-        if type(valor) is str :
-            tamcad = len(valor)
-            if tamcad > 0 and tamcad <= tam:
+        except:
+            print("El dato no se valido para tipo SMALLINT")
+            return False
+
+    elif tipo.upper() == 'BIGINT':
+        try:
+            if -9223372036854775808 < valor and valor < 9223372036854775807:
                 return True
             else:
-                print("La cadena ingresada supera el limite del CHARETECTER definido")
+                print("El valor ingresado supera la longitud permitida para BIGING")
                 return False
-        else:
-            print("El valor ingresado no es una cadena")
-    elif tipo == "CHAR":
-        if type(valor) is str :
-            tamcad = len(valor)
-            if tamcad > 0 and tamcad <= tam:
+        except:
+            print("El dato no es valido para tipo BEGINT")
+            return False
+
+    elif tipo.upper() == "DECIMAL":
+        try:
+            temp = str(valor)
+            num = temp.split(".")
+            entero = len(num[0])
+            decimal = len(num[1])
+            if 131072 > entero and 16383 > decimal:
                 return True
             else:
-                print("La cadena ingresada supera el limite del CHAR definido")
+                print("El valor ingresado no cumple como Decimal")
                 return False
-        else:
-            print("El valor ingresado no es una cadena")
-    elif tipo == "TIMESTAMP":
+        except:
+            print("El dato no es valido para tipo DECIMAL")
+            return False
+
+    elif tipo.upper() == "NUMERIC":
+        try:
+            temp = str(valor)
+            num = temp.split(".")
+            entero = len(num[0])
+            decimal = len(num[1])
+            if(131072 > entero and 16383 > decimal):
+                return True
+            else:
+                print("El valor ingresado no cumple como NUMERIC")
+                return False
+        except:
+            print("El dato no es valido para tipo NUMERIC")
+            return False
+
+    elif tipo.upper() == "REAL":
+        try:
+            temp = str(valor)
+            num = temp.split(".")
+            decimal = len(num[1])
+            if decimal <= 6:
+                return True
+            else:
+                print("El valor ingresado tiene mas de 6 decimales")
+                return False
+        except:
+            print("El dato no es valido para tipo REAL")
+            return False
+
+    elif tipo.upper() == "DOUBLE":
+        try:
+            temp = str(valor)
+            num = temp.split(".")
+            decimal = len(num[1])
+            if(decimal <= 15):
+                return True
+            else:
+                print("El valor ingresado tiene mas de 15 decimales")
+                return False
+        except:
+            print("El dato no es valido para tipo DOUBLE")
+            return False
+
+    elif tipo.upper() == "MONEY":
+        try:
+            if type(valor) is str:
+                x = valor.replace(',','')
+                "{:0,.2f}".format(float(x))
+                return True
+            elif type(valor) is int:
+                y = float(valor)
+                "{:0,.2f}".format(float(y))
+                return True
+            elif type(valor) is float:
+                "{:0,.2f}".format(float(valor))
+                return True
+
+        except:
+            print("El dato no es valido para tipo MONEY")
+            return False
+
+    elif tipo.upper() == "VARYING":
+        try:
+            if type(valor) is str :
+                tamcad = len(valor)
+                if tamcad > 0 and tamcad <= tam:
+                    return True
+                else:
+                    print("La cadena ingresada supera el limite del CHARETECTER VARYING definido")
+                    return False
+            else:
+                print("El valor ingresado no es una cadena")
+                return False
+        except:
+            print("El dato no es valido para tipo CHARACTER VARING")
+
+    elif tipo.upper() == "VARCHAR":
+        try:
+            if type(valor) is str :
+                tamcad = len(valor)
+                if tamcad > 0 and tamcad <= tam:
+                    return True
+                else:
+                    print("La cadena ingresada supera el limite del VARCHAR definido")
+                    return False
+            else:
+                print("El valor ingresado no es una cadena")
+        except:
+            print("El dato no es valido para tipo VARCHAR")
+
+    elif tipo.upper() == "CHARACTER":
+        try:
+            if type(valor) is str :
+                tamcad = len(valor)
+                if tamcad > 0 and tamcad <= tam:
+                    return True
+                else:
+                    print("La cadena ingresada supera el limite del CHARETECTER definido")
+                    return False
+            else:
+                print("El valor ingresado no es una cadena")
+        except:
+            print("El dato no es valido para tipo CHARACTER")
+
+    elif tipo.upper() == "CHAR":
+        try:
+            if type(valor) is str :
+                tamcad = len(valor)
+                if tamcad > 0 and tamcad <= tam:
+                    return True
+                else:
+                    print("La cadena ingresada supera el limite del CHAR definido")
+                    return False
+            else:
+                print("El valor ingresado no es una cadena")
+        except:
+            print("El dato no es valido para tipo CHAR")
+
+    elif tipo.upper() == "TEXT":
+        try:
+            if type(valor) is str:
+                return True
+        except:
+            print("El valor ingresado no es valido para tipo TEXT")
+
+    elif tipo.upper() == "TIMESTAMP":
         date_format = '%Y-%m-%d %H:%M:%S'
         try:
             if datetime.datetime.strptime(valor,date_format):
@@ -1882,7 +2899,8 @@ def validaTipoDato(tipo, valor, tam):
         except:
             print("La fecha y hora ingresada es invalida")
             return False
-    elif tipo == "TIME":
+
+    elif tipo.upper() == "TIME":
         date_format = '%H:%M:%S'
         try:
             if datetime.datetime.strptime(valor,date_format):
@@ -1890,7 +2908,8 @@ def validaTipoDato(tipo, valor, tam):
         except:
             print("La hora ingresada es invalida")
             return False
-    elif tipo == "DATE":
+
+    elif tipo.upper() == "DATE":
         date_format = '%Y-%m-%d'
         try:
             if datetime.datetime.strptime(valor,date_format):
@@ -1898,3 +2917,66 @@ def validaTipoDato(tipo, valor, tam):
         except:
             print("La fecha ingresada es invalida")
             return False
+
+    elif tipo.upper() == "BOOLEAN":
+        try:
+            if valor.upper() == 'true' or valor.upper() == 'false':
+                return True
+            return False
+        except:
+            print("El valor booleando no es valido")
+            return False
+
+
+def convertiraMoney(valor):
+    try:
+        if type(valor) is str:
+            x = valor.replace(',','')
+            respuesta = "{:0,.2f}".format(float(x))
+            return respuesta
+        elif type(valor) is int:
+            y = float(valor)
+            respuesta = "{:0,.2f}".format(float(y))
+            return respuesta
+        elif type(valor) is float:
+            respuesta = "{:0,.2f}".format(float(valor))
+            return respuesta
+
+    except:
+        print("El dato no es valido para tipo MONEY")
+        return False
+def datos_de_prueba(ts):
+    #CREO ALGUNAS TABLAS
+    simbolo = TS.Simbolo(None,"personas",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "personas",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"pais",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "pais",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"idiomas",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "idiomas",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    #CREO ALGUNAS COLUMNAS DE PRUEBA
+    simbolo = TS.Simbolo(None,"ID",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "ID",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"Nombre",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "Nombre",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"Apellido",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "Apellido",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"Edad",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "Edad",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+    simbolo = TS.Simbolo(None,"Pais",None,None,None,None,None,None,None,None,None,None,None,None,None,None, "Pais",None,None,None)      # inicializamos con 0 como valor por defecto
+    ts.agregar(simbolo)
+
+
+def procesar_tipo(query,ts):
+    
+    try:
+        print("llega al metodo del type")
+        print(query.operacion1.id)
+        print(query.operacion2)
+        a=procesar_retorno_lista_valores(query.operacion2,ts)
+        print(a)
+        simbolo = TS.Simbolo(None,query.operacion1.id,None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None, a,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregar(simbolo)
+        h.textosalida+="TYTUS>> se creo el TYPE:  "+query.operacion1.id+"\n"
+    except:
+        h.errores+=  "<tr><td>"+str(query.operacion1.id)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Se genero un error en la creacion</td></tr>\n"  
+        h.textosalida+="TYTUS>> Se genero un error en la creacion del type\n"

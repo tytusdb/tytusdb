@@ -22,7 +22,7 @@ Type = {
     "TIMESTAMP": TYPE.DATETIME,
 }
 
-TypeNumber ={
+TypeNumber = {
     1: TYPE.NUMBER,
     2: TYPE.STRING,
     3: TYPE.BOOLEAN,

@@ -1,15 +1,22 @@
 #libreria importada para la creacion de ventanas en nuestro escritorio
 #import tkinter
 from tkinter import *
-from Lexico import analizarLex ,analizarSin
+import tkinter
 from gramatica import analizarASTLex, analizarASTSin
 from bnf import analizarBNFLex, analizarBNFSin
+from execution.symbol.environment import Environment
+from execution.main import Main
+from Lexico import analizarLex ,analizarSin, get_errores
+from execution.symbol.error import T_error
 
 # creamos una nueva ventana
 ventana = Tk()
 # funcion para darle tamaño a la ventana
 ventana.geometry("900x600")
 ventana.configure(bg = "gray")
+
+consola = []
+env = Environment(None)
 
 # creamos una etiqueta para mostrar
 etiqueta = Label(ventana, text = "SQL PARSER", bg = "green")
@@ -30,9 +37,24 @@ etiqueta2.place(x = 100 , y = 350)
 # Metodo de analisis de gramatica
 def analizar_texto():
     result= txt_consultas.get("1.0","end")
-    salida_Lexico = analizarLex(result)  # se envia el texto a el analizador lexico
-    analizarSin(result)  # se envia el texto a el analizador sintactico
-    print(salida_Lexico)
+    entorno = analizarSin(result)  # se envia el texto a el analizador sintactico
+    iniciarEjecucion = Main(entorno)
+    _res = iniciarEjecucion.execute(env)
+    txt_salida.insert('end','>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+    for item in _res[0]:
+        txt_salida.insert('end',item+'\n')
+    
+    txt_salida.insert('end','=========================================ERRORES==============================================\n')
+    
+    for item in _res[1]:
+        txt_salida.insert('end',item+'\n')
+    
+    for item in get_errores():
+        txt_salida.insert('end',item.toString()+'\n')
+    txt_salida.insert('end','=====================================TABLA DE SIMBOLOS=========================================\n')
+    txt_salida.insert('end', env.tsString()+'\n')
+    txt_salida.insert('end','>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n\n\n')
+            
 
 # Metodo para limpiar la salida de gramatica
 def limpiar():
@@ -102,8 +124,10 @@ txt_consultas = Text(ventana,height = 20,width = 110,bg = "black",fg = "white")
 txt_consultas.place(x = 100 , y = 60)
 
 # TEXTAREA Salida
-txt_salida = Text(ventana,height = 15,width = 110,bg = "black",fg = "white")
+txt_salida = Text(ventana,height = 15,width = 110,bg = "black",fg = "green")
 txt_salida.place(x = 100 , y = 380)
+scrollb = tkinter.Scrollbar( command=txt_salida.yview)
+txt_salida['yscrollcommand'] = scrollb.set
 
 
 # loop para mostrar nuestra venatana

@@ -14,6 +14,9 @@ class OPCIONES_UNIONES(Enum):
     UNION = 1
     INTERSECT = 2
     EXCEPTS = 3
+    UNION_ALL = 4
+    INTERSECT_ALL = 5
+    EXCEPTS_ALL = 6
 
 class OPERACION_TIEMPO(Enum):
     YEAR = 1

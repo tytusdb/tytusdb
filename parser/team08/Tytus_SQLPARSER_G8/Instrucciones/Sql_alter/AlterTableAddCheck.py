@@ -6,8 +6,8 @@ from Instrucciones.Excepcion import Excepcion
 #from storageManager.jsonMode import *
 
 class AlterTableAddCheck(Instruccion):
-    def __init__(self, tabla, condicion, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, tabla, condicion, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.tabla = tabla
         self.condicion = condicion
 

@@ -67,19 +67,25 @@ class Columna():
 
     def addUnique(self, valor, constraint = None):
         if constraint == None:
-            self.constraints.append(Constraint(tipo = TipoConstraint.UNIQUE, line = self.line))
+            const = Constraint(tipo = TipoConstraint.UNIQUE, line = self.line)
+            self.constraints.append(const)
+            return const
         else:
             self.constraints.append(constraint)
 
     def addPrimaryKey(self, valor, constraint = None):
         if constraint == None:
-            self.constraints.append(Constraint(tipo = TipoConstraint.PRIMARY_KEY, line = self.line))
+            const = Constraint(tipo = TipoConstraint.PRIMARY_KEY, line = self.line)
+            self.constraints.append(const)
+            return const
         else:
             self.constraints.append(constraint)
 
     def addReference(self, valor, constraint = None):
         if constraint == None:
-            self.constraints.append(Constraint(tipo = TipoConstraint.FOREIGN_KEY, condicion = valor, line = self.line))
+            const = Constraint(tipo = TipoConstraint.FOREIGN_KEY, condicion = valor, line = self.line)
+            self.constraints.append(const)
+            return const
         else:
             self.constraints.append(constraint)
 

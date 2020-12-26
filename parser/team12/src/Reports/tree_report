@@ -1,9 +1,0 @@
-digraph Arbol_AST{ node[shape="box"]n10[label = "S"];n10 -> n11;
-n11[label = "SENTENCIA_SELECT"];n11 -> n12;
-n12[label = "LISTA_EXP"];n12 -> n13;
-n13[label = "E"];n13 -> n14;
-n14[label = "E"];n14 -> n15;
-n15[label = "Entero\n2"];n13 -> n16;
-n16[label = "*"];n13 -> n17;
-n17[label = "E"];n17 -> n18;
-n18[label = "Entero\n2"];}

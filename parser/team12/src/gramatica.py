@@ -432,6 +432,10 @@ def p_instruccion(t):
                     | sentencia_show
                     | sentencia_drop
                     | sentencia_select
+                    | sentencia_union
+                    | sentencia_union_all
+                    | sentencia_intersect
+                    | sentencia_except
                     | Exp
                     | error'''
     reportebnf.append(bnf["p_instruccion"])                    
@@ -443,6 +447,40 @@ def p_error(t):
         tok = yacc.token()
         if not tok or tok.type == 'PUNTOYCOMA': break
     yacc.restart()
+
+#------------------------------- Produccion Union ------------------------------------------
+def p_sentencia_union(t):
+    'sentencia_union : sentencia_select UNION sentencia_select'
+    reportebnf.append(bnf["p_sentencia_union"])
+    t[0] = Start("SENTENCIA_UNION",t.lineno(2),t.lexpos(2)+1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(t[3])
+#-------------------------------------------------------------------------------------------
+#------------------------------- Produccion Union ALL ------------------------------------------
+def p_sentencia_union_all(t):
+    'sentencia_union_all : sentencia_select UNION ALL sentencia_select'
+    reportebnf.append(bnf["p_sentencia_union_all"])
+    t[0] = Start("SENTENCIA_UNION_ALL",t.lineno(2),t.lexpos(2)+1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(t[4])
+#-------------------------------------------------------------------------------------------
+#----------------------------- Produccion Intersect ----------------------------------------
+def p_sentencia_intersect(t):
+    'sentencia_intersect : sentencia_select INTERSECT sentencia_select'
+    reportebnf.append(bnf["p_sentencia_intersect"])
+    t[0] = Start("SENTENCIA_INTERSECT",t.lineno(2),t.lexpos(2)+1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(t[3])
+#-------------------------------------------------------------------------------------------
+#------------------------------- Produccion Except ----------------------------------------.
+def p_sentencia_except(t):
+    'sentencia_except : sentencia_select EXCEPT sentencia_select'
+    reportebnf.append(bnf["p_sentencia_except"])
+    t[0] = Start("SENTENCIA_EXCEPT",t.lineno(2),t.lexpos(2)+1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(t[3])
+#-------------------------------------------------------------------------------------------
+
 
 #------------------------------ Produccion Select ------------------------------------------
 def p_sentencia_select(t):
@@ -1364,14 +1402,15 @@ def p_opcional_creartabla_columna_8_1(t):
     t[0] = temporal  
     
 def p_opcional_creartabla_columna_9(t):
-    '''opcional_creartabla_columna : opcional_constraint CHECK PARENTESISIZQ PARENTESISDER
+    '''opcional_creartabla_columna : opcional_constraint CHECK PARENTESISIZQ Exp PARENTESISDER
                                     |'''
-    reportebnf.append(bnf["p_opcional_creartabla_columna_9"])                                    
+    reportebnf.append(bnf["p_opcional_creartabla_columna_9"]) 
     if len(t) > 1:
         nuevo = Start("OPCIONALES_ATRIBUTO_CHECK")
         if t[1] != None:
             nuevo.addChild(t[1])
         nuevo.createTerminal(t.slice[2])
+        nuevo.addChild(t[4])
         temporal = Start("Temp")
         temporal.addChild(nuevo)
         t[0] = temporal

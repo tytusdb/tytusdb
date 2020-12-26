@@ -3,7 +3,7 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 class JoinFull(Instruccion):
     
     def __init__(self, valor, tipo, valor2, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.izq = valor
         self.der = valor2
 
