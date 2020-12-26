@@ -50,7 +50,7 @@ Cada integrante de los equipos debe hacer sus propuestas de cambio mediante pull
 Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres componentes interrelacionados: el administrador de almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1, este administrador se compone a su vez de un servidor y de un cliente; y el SQL Parser, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
 
 <p align="center">
-  <img src="img/tytusdb_architecture_v2.jpg" width="800" alt="TytusDB Architecture">
+  <img src="img/tytusdb_architecture_v3.jpg" width="800" alt="TytusDB Architecture">
 </p>
 
 ## Administrador de almacenamiento
