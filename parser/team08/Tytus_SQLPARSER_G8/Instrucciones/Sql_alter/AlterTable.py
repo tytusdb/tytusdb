@@ -3,14 +3,15 @@ from Instrucciones.Excepcion import Excepcion
 from storageManager.jsonMode import *
 
 class AlterTable(Instruccion):
-    def __init__(self, id, tipo, tipos, opcion, id2, listaId, listaId2, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, id, tipo, tipos, opcion, id2, listaId, listaId2, strGram, linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.TablaAntigua = id
         self.TablaNueva = id2
         self.tipos = tipos
         self.opcion = opcion
         self.listaId = listaId
         self.listaId = listaId2
+       
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)

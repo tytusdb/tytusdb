@@ -7,8 +7,8 @@ from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 from storageManager.jsonMode import *
 
 class CreateOrReplace(Instruccion):
-    def __init__(self, base, tipo, existe, owner, mode, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, base, tipo, existe, owner, mode, strGram ,linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.base=base
         self.tipo=tipo
         self.existe = existe
@@ -18,6 +18,7 @@ class CreateOrReplace(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         bandera = False
+        arbol.lRepDin.append(self.strGram)
         #SE OBTIENE LA LISTA DE BD
         lb=showDatabases()
         #SE RECORRE LA BD PARA VERIFICAR QUE NO EXISTA

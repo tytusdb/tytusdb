@@ -16,7 +16,7 @@ class Condicionales(Instruccion):
         self.rightOperator = rightOperator
         self.sign = sign
         self.extra = extra
-    
+
     def validarcondicion(self, data, tbname):
         try:
             id1 = self.leftOperator.column
@@ -28,7 +28,7 @@ class Condicionales(Instruccion):
             return [False, None]
         except:
             print('L: not an id')
-        
+
         try:
             id1 = self.rightOperator.column
             i = 0
@@ -55,7 +55,10 @@ class Condicionales(Instruccion):
             try:
                 right = self.rightOperator.execute()
             except:
-                right = self.rightOperator.execute(data, valoresTabla)
+                try:
+                    right = self.rightOperator.execute(data, valoresTabla)
+                except:
+                    right = self.rightOperator.execute(data)
 
             if isinstance(right, Error):
                 return right
@@ -388,7 +391,7 @@ class Condicionales(Instruccion):
             elif left.type == 'date' :
                 if right.type == False :
                     if right.val1.type == 'string' and right.val2.type == 'string':
-                        try:   
+                        try:
                             horacomparar = left.val
                             horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
                             try:
@@ -551,7 +554,7 @@ class Condicionales(Instruccion):
             elif left.type == 'date' :
                 if right.type == False :
                     if right.val1.type == 'string' and right.val2.type == 'string':
-                        try:   
+                        try:
                             horacomparar = left.val
                             horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d %H:%M:%S')
                             try:
@@ -586,7 +589,7 @@ class Condicionales(Instruccion):
                                 return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
                 else :
                     if right.val1.type == 'string' and right.val2.type == 'string':
-                        try:   
+                        try:
                             horacomparar = left.val
                             horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
                             try:
@@ -619,7 +622,7 @@ class Condicionales(Instruccion):
                                     return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
                             except:
                                 return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
-                
+
             elif left.type == 'time' :
                 if right.type == False :
                     if right.val1.type == 'string' and right.val2.type == 'string':
@@ -644,7 +647,7 @@ class Condicionales(Instruccion):
                             horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
                             return  (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
                         except:
-                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)    
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
         elif self.sign == 'isnull':
             if left.val == '' or left.val == 'null':
                 return True
@@ -668,7 +671,7 @@ class Condicionales(Instruccion):
                 ##IS TRUE
                 if self.rightOperator.val == True:
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return True
                         else:
                             return False
@@ -678,7 +681,7 @@ class Condicionales(Instruccion):
                 ## IS FALSE
                 if self.rightOperator.val == False:
                     if left.type == 'boolean':
-                        if left.val: 
+                        if left.val:
                             return False
                         else:
                             return True
@@ -695,13 +698,13 @@ class Condicionales(Instruccion):
 
                     if isinstance(right, Error):
                         return right
-                    if left.val != rd.val : 
+                    if left.val != rd.val :
                         return True
                     else:
                         return False
-                ## IS UNKNOWN   
+                ## IS UNKNOWN
                 if self.rightOperator.val == 'unknown':
-                    if left.type == 'boolean': 
+                    if left.type == 'boolean':
                         if left.val:
                             return False
                         else :
@@ -716,7 +719,7 @@ class Condicionales(Instruccion):
                 #IS NOT TRUE
                 if self.rightOperator.val == 'true':
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return not True
                         else:
                             return not False
@@ -726,7 +729,7 @@ class Condicionales(Instruccion):
                 ##IS NOT FALSE
                 if self.rightOperator.val == 'false':
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return not False
                         else:
                             return not True
@@ -735,18 +738,18 @@ class Condicionales(Instruccion):
                         return error
                 ##IS DISTINCT
                 if self.rightOperator.val == 'distinct':
-                    if left.val != self.rightOperator.val : 
+                    if left.val != self.rightOperator.val :
                         return not True
                     else:
                         return not False
                 ##ID unknown
                 if self.rightOperator.val == 'unknown':
-                    if left.type == 'boolean': 
+                    if left.type == 'boolean':
                         if left.val:
                             return not False
                         else :
                             return not True
-        
+
     def __repr__(self):
         return str(self.__dict__)
 
@@ -759,10 +762,14 @@ class Condicionales(Instruccion):
         if isinstance(left, Error):
             return left
 
-        try:
-            right = self.rightOperator.execute()
-        except:
-            right = self.rightOperator.execute(data, valoresTabla)
+        if self.rightOperator != None :
+            try:
+                right = self.rightOperator.execute()
+            except:
+                try:
+                    right = self.rightOperator.execute(data, valoresTabla)
+                except:
+                    right = self.rightOperator.execute(data)
 
         if isinstance(right, Error):
             return right
@@ -1270,7 +1277,7 @@ class Condicionales(Instruccion):
                             horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
                             return  (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
                         except:
-                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)    
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
         elif self.sign == 'isnull':
             if left.val == '' or left.val == 'null':
                 return True
@@ -1292,7 +1299,7 @@ class Condicionales(Instruccion):
                 ##IS TRUE
                 if self.rightOperator.val == True:
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return True
                         else:
                             return False
@@ -1311,13 +1318,13 @@ class Condicionales(Instruccion):
                         return error
                 ## IS DISTINCT
                 if self.rightOperator.val == 'distinct':
-                    if left.val != self.rightOperator.val : 
+                    if left.val != self.rightOperator.val :
                         return True
                     else:
                         return False
-                ## IS UNKNOWN   
+                ## IS UNKNOWN
                 if self.rightOperator.val == 'unknown':
-                    if left.type == 'booleano': 
+                    if left.type == 'booleano':
                         if left.val == True :
                             return True
                         else :
@@ -1332,7 +1339,7 @@ class Condicionales(Instruccion):
                 #IS NOT TRUE
                 if self.rightOperator.val == 'true':
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return not True
                         else:
                             return not False
@@ -1342,7 +1349,7 @@ class Condicionales(Instruccion):
                 ##IS NOT FALSE
                 if self.rightOperator.val == 'false':
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return not False
                         else:
                             return not True
@@ -1351,13 +1358,13 @@ class Condicionales(Instruccion):
                         return error
                 ##IS DISTINCT
                 if self.rightOperator.val == 'distinct':
-                    if left.val != self.rightOperator.val : 
+                    if left.val != self.rightOperator.val :
                         return not True
                     else:
                         return not False
                 ##ID DISCTINCT
                 if self.rightOperator.val == 'unknown':
-                    if left.type == 'booleano': 
+                    if left.type == 'booleano':
                         if left.val == True :
                             return not True
                         else :
@@ -1448,7 +1455,7 @@ class Condicionales(Instruccion):
             elif left.type == 'date' :
                 if right.type == False :
                     if right.val1.type == 'string' and right.val2.type == 'string':
-                        try:   
+                        try:
                             horacomparar = left.val
                             horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
                             try:
@@ -1611,7 +1618,7 @@ class Condicionales(Instruccion):
             elif left.type == 'date' :
                 if right.type == False :
                     if right.val1.type == 'string' and right.val2.type == 'string':
-                        try:   
+                        try:
                             horacomparar = left.val
                             horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d %H:%M:%S')
                             try:
@@ -1646,7 +1653,7 @@ class Condicionales(Instruccion):
                                 return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
                 else :
                     if right.val1.type == 'string' and right.val2.type == 'string':
-                        try:   
+                        try:
                             horacomparar = left.val
                             horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
                             try:
@@ -1679,7 +1686,7 @@ class Condicionales(Instruccion):
                                     return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
                             except:
                                 return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
-                
+
             elif left.type == 'time' :
                 if right.type == False :
                     if right.val1.type == 'string' and right.val2.type == 'string':
@@ -1704,7 +1711,7 @@ class Condicionales(Instruccion):
                             horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
                             return  (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
                         except:
-                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)    
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
         elif self.sign == 'isnull':
             if left.val == '' or left.val == 'null':
                 return True
@@ -1728,7 +1735,7 @@ class Condicionales(Instruccion):
                 ##IS TRUE
                 if self.rightOperator.val == True:
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return True
                         else:
                             return False
@@ -1738,7 +1745,7 @@ class Condicionales(Instruccion):
                 ## IS FALSE
                 if self.rightOperator.val == False:
                     if left.type == 'boolean':
-                        if left.val: 
+                        if left.val:
                             return False
                         else:
                             return True
@@ -1755,13 +1762,13 @@ class Condicionales(Instruccion):
 
                     if isinstance(right, Error):
                         return right
-                    if left.val != rd.val : 
+                    if left.val != rd.val :
                         return True
                     else:
                         return False
-                ## IS UNKNOWN   
+                ## IS UNKNOWN
                 if self.rightOperator.val == 'unknown':
-                    if left.type == 'boolean': 
+                    if left.type == 'boolean':
                         if left.val:
                             return False
                         else :
@@ -1776,7 +1783,7 @@ class Condicionales(Instruccion):
                 #IS NOT TRUE
                 if self.rightOperator.val == 'true':
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return not True
                         else:
                             return not False
@@ -1786,7 +1793,7 @@ class Condicionales(Instruccion):
                 ##IS NOT FALSE
                 if self.rightOperator.val == 'false':
                     if left.type == 'boolean':
-                        if left.val == True: 
+                        if left.val == True:
                             return not False
                         else:
                             return not True
@@ -1795,18 +1802,18 @@ class Condicionales(Instruccion):
                         return error
                 ##IS DISTINCT
                 if self.rightOperator.val == 'distinct':
-                    if left.val != self.rightOperator.val : 
+                    if left.val != self.rightOperator.val :
                         return not True
                     else:
                         return not False
                 ##ID unknown
                 if self.rightOperator.val == 'unknown':
-                    if left.type == 'boolean': 
+                    if left.type == 'boolean':
                         if left.val:
                             return not False
                         else :
                             return not True
-        
+
 
 class Between(Instruccion):
 

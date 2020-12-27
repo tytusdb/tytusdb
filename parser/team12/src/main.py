@@ -79,6 +79,7 @@ class mainWindow:
             self.textArea.insert("end-1c", content)
 
     def analyzeMethod(self):
+        self.consoleArea.delete(*self.consoleArea.get_children())
         entrada = self.textArea.get("1.0",END)
         resp = run_method(entrada)
         self.resp = resp  #VARIABLE PARA REPORTES

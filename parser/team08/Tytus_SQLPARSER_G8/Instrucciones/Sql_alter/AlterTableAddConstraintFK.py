@@ -4,8 +4,8 @@ from Instrucciones.Excepcion import Excepcion
 #from storageManager.jsonMode import *
 
 class AlterTableAddConstraintFK(Instruccion):
-    def __init__(self, tabla, id_constraint, lista_id1,tabla2, lista_id2, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, tabla, id_constraint, lista_id1,tabla2, lista_id2, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.tabla = tabla
         self.id_constraint = id_constraint
         self.lista_id1 = lista_id1
@@ -49,10 +49,14 @@ class AlterTableAddConstraintFK(Instruccion):
                             if listaPrimarias == len(self.lista_id2):
                                 for c in range(0,len(listaTabla1)):
                                     if listaTabla1[c].constraint != None:
-                                        listaTabla1[c].constraint.append(Tipo_Constraint(self.id_constraint, Tipo_Dato_Constraint.FOREIGN_KEY, listaForaneas[c]))
+                                        restriccion = Tipo_Constraint(self.id_constraint, Tipo_Dato_Constraint.FOREIGN_KEY, listaForaneas[c])
+                                        restriccion.referencia = self.tabla2
+                                        listaTabla1[c].constraint.append(restriccion)
                                     else:
                                         listaTabla1[c].constraint = []
-                                        listaTabla1[c].constraint.append(Tipo_Constraint(self.id_constraint, Tipo_Dato_Constraint.FOREIGN_KEY, listaForaneas[c]))
+                                        restriccion = Tipo_Constraint(self.id_constraint, Tipo_Dato_Constraint.FOREIGN_KEY, listaForaneas[c])
+                                        restriccion.referencia = self.tabla2
+                                        listaTabla1[c].constraint.append(restriccion)
                                 arbol.consola.append("Consulta devuelta correctamente.") 
                             else:
                                 error = Excepcion('42P01',"Semántico","No hay restricción unique que coincida con las columnas dadas en la tabla referida «"+self.tabla2+"»",self.linea,self.columna)

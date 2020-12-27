@@ -9,8 +9,8 @@ from Instrucciones.Tablas.Tablas import Tablas
 from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 
 class CreateTable(Instruccion):
-    def __init__(self, tabla, tipo, campos, herencia, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, tabla, tipo, campos, herencia, strGram ,linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.tabla = tabla
         self.campos = campos
         self.herencia = herencia
@@ -96,6 +96,13 @@ class CreateTable(Instruccion):
             #SE LLENA LA TABLA EN MEMORIA
             for camp in self.campos:
                 if isinstance(camp.tipo,Tipo):
+                    if camp.tipo.tipo == Tipo_Dato.TIPOENUM:
+                        existe = arbol.getEnum(camp.tipo.nombre)
+                        if existe == None:
+                            error = Excepcion('42P00',"Semántico","El tipo "+camp.tipo.nombre+" no existe",self.linea,self.columna)
+                            arbol.excepciones.append(error)
+                            arbol.consola.append(error.toString())
+                            return error
                     if camp.constraint != None:
                         for s in camp.constraint:
                             if s.tipo == Tipo_Dato_Constraint.CHECK:
@@ -144,7 +151,7 @@ class CreateTable(Instruccion):
             for i in listaPrimarias:
                 listaIndices.append(tablaNueva.devolverColumna(i.nombre))
             if len(listaIndices) >0:
-                print("SE AGREGO UN INDICE")
+                #print("SE AGREGO UN INDICE")
                 resultado = alterAddPK(arbol.getBaseDatos(), self.tabla, listaIndices)
             if resultado == 1:
                 error = Excepcion('XX000',"Semántico","Error interno",self.linea,self.columna)
@@ -175,3 +182,19 @@ class CreateTable(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+
+class IdentificadorColumna(Instruccion):
+    def __init__(self, id, linea, columna):
+        self.id = id
+        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna,strGram)
+
+    def ejecutar(self, tabla, arbol):
+        super().ejecutar(tabla,arbol)
+        variable = tabla.getVariable(self.id)
+        if variable == None:
+            error = Excepcion("42P10","Semantico","La columna "+str(self.id)+" no existe",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+        self.tipo = variable.tipo
+        return variable.valor.ejecutar(tabla, arbol)
