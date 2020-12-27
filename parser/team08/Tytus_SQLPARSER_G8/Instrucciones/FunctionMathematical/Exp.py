@@ -4,8 +4,8 @@ from Instrucciones.Excepcion import Excepcion
 import math
 
 class Exp(Instruccion):
-    def __init__(self, valor, tipo, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, valor, tipo, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna, strGram)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):

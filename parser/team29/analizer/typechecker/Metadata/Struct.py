@@ -57,12 +57,10 @@ def dropDatabase(name):
         if data["name"] == name:
             element = data
             break
-
     if element != {}:
         Databases.remove(element)
         File.exportFile(Databases, "Databases")
         return "Drop database"
-
     return "Database not found"
 
 
@@ -78,12 +76,14 @@ def replaceDatabase(name, mode, owner):
 
 def insertTable(dbName, tableName, columns, inherits):
     Error.clear()
-    createTable(dbName, tableName, inherits)
     table = extractTable(dbName, tableName)
-    if table != 0 and table != 1:
-        insert = insertColumns(dbName, table, columns)
-    else:
-        insert = 0
+    insert = 0
+    if table == 1:
+        Error.pop()
+        createTable(dbName, tableName, inherits)
+        table = extractTable(dbName, tableName)
+        if table != 0 and table != 1:
+            insert = insertColumns(dbName, table, columns)
     return [ListError(), insert]
 
 
@@ -128,10 +128,11 @@ def dropTable(dbName, tableName):
             for table in db["tables"]:
                 if table["name"] == tableName:
                     tbl = table
+                    break
             if tbl != {}:
                 db["tables"].remove(tbl)
                 File.exportFile(Databases, "Databases")
-        break
+            break
 
 
 def extractTable(dbName, tableName):
@@ -523,3 +524,17 @@ def existType(name):
 
 def save():
     File.exportFile(Databases, "Databases")
+
+
+def getListIndex(dbName, tableName, columns):
+    table = extractTable(dbName, tableName)
+    if table == 0 or table == 1:
+        return None
+    n = len(table["columns"])
+    index = []
+    for j in columns:
+        for i in range(n):
+            col = table["columns"][i]
+            if col["name"] == j:
+                index.append(i)
+    return index

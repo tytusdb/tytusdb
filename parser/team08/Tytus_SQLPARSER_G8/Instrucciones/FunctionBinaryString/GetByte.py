@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
 
 class GetByte(Instruccion):
-    def __init__(self, valor, tipo, indice, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, valor, tipo, indice, strGram, linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.valor = valor
         self.indice = indice
 
