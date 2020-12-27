@@ -340,7 +340,43 @@ class AST:
                 
             #     print("====================================")
             self.output.append(filtrada)
-      
+##################---UPDATE---################################
+    def update(self,nodo):
+        #print("=============================")
+        #print(self.usingDB)
+        tb_id = nodo.valor
+        for hijos in nodo.hijos:
+            for hijos2 in hijos.hijos:
+                r = jsonMode.update(self.usingDB, tb_id, hijos2.valor)
+        #print(r)
+        if r == 0:
+            self.output.append('La tabla \"'+ tb_id+'\" de la base de datos \"' + self.usingDB + '\" ha sido actualizada con nuevos datos.')
+        elif r == 1:   # Error en la operación
+            self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+        elif r == 2:   # Base de datos inexistente
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+        elif r == 3:   # Tabla existente
+            self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
+
+        
+
+##################---DELETE---################################
+    def delete(self,nodo):
+        a = ''
+        print(self.usingDB) #BDD
+        tb_id = nodo.valor # id
+        for hijos in nodo.hijos:
+            a = hijos.valor #condiciones
+        result = jsonMode.delete(self.usingDB, tb_id, a)
+        print('>>>>>>>>>>>>>>>>>>>>------',result)
+
+
+##################---TRUNCATE---################################
+    def truncate(self,nodo):
+        tb_name=''
+        for hijos in nodo.hijos:
+            tb_name = hijos.valor
+        result = jsonMode.truncate(self.usingDB, tb_name)   
  #----------------------------------------------------------------------------------------------------------------   
     def printOutputs(self):
         global output2
@@ -934,7 +970,7 @@ class AST:
         now = datetime.now()
         resultados.append(str(now))
 
-def resolverFuncionMatematica(self, nodo, resultado):
+    def resolverFuncionMatematica(self, nodo, resultado):
         if nodo.valor.lower()  == 'degrees':
             a = math.degrees(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
             resultado.append(a)
@@ -1031,7 +1067,7 @@ def resolverFuncionMatematica(self, nodo, resultado):
             c = math.ceil(a)
             resultado.append(c)
 
-def resolverFuncionTrigonometrica(self, nodo, resultado):
+    def resolverFuncionTrigonometrica(self, nodo, resultado):
         if nodo.valor.lower()  == 'acos':
             a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
             c = math.acos(a)

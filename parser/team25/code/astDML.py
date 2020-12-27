@@ -4,6 +4,7 @@ from astDDL import Instruccion
 import storageManager.jsonMode as DBMS
 from useDB.instanciaDB import DB_ACTUAL
 import typeChecker.typeReference as TypeCheck
+import entorno as env
 from astExpresion import TIPO_DE_DATO
 from astFunciones import FuncionTime,FuncionCadena
 from useDB import instanciaDB
@@ -881,7 +882,7 @@ class UpdateTable(Instruccion):
 
         for asignacion in self.asignaciones:
             nodo += "\nSET" + identificador + " -> " + str(hash(asignacion)) + ";"
-            nodo += asignacion.dibujar()
+            nodo += "\n" + str(hash(asignacion)) + "[ label = \" " + asignacion + " = " + str(self.asignaciones[asignacion].val) + "\" ];"
 
         if self.condiciones:
             nodo += "\nWHERE" + identificador + "[ label = \"WHERE\" ];"
@@ -892,3 +893,170 @@ class UpdateTable(Instruccion):
                 nodo += condicion.dibujar()
 
         return nodo
+
+    def ejecutar(self, ts):
+        try:
+            if DB_ACTUAL.getName() == None:
+                return ErrorReport('Semantico', 'Not defined database to used', 0)
+            elif not TypeCheck.databaseExist(DB_ACTUAL.getName()):
+                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_invalid_schema_name.invalid_schema_name), 0)
+            elif not TypeCheck.tableExist(DB_ACTUAL.getName(), self.tabla):
+                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_table), 0)
+
+
+            columnas = TypeCheck.getColumns(DB_ACTUAL.getName(),self.tabla)
+            columnasIndex = self.__auxDict(columnas)
+
+            #Evaluamos las nuevas expresiones xd
+            posiblesValores = dict()
+            for asign in self.asignaciones:
+                temp = self.asignaciones[asign].ejecutar(None)
+                if isinstance(temp, ErrorReport):
+                    return temp
+                posiblesValores[asign] = temp
+
+            #Procesamos cada valor para determinar si podemos ingresar
+            for valor in posiblesValores:
+                temp = self.__processUpdateField(columnas[valor], posiblesValores[valor])
+                if isinstance(temp, ErrorReport):
+                    return temp
+                posiblesValores[valor] = temp
+
+            #Ahora evaluamos los checks en base a cada registroCambiado
+            for cheq in posiblesValores:
+                if columnas[cheq]['Check']:
+                    try:
+                        posible = eval(columnas[cheq]['Check'], posiblesValores)
+                        if not posible:
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.check_violation), 0) 
+                    except:
+                        return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.integrity_constraint_violation), 0) 
+
+
+        
+            #Traemos todos los valores de las columnas
+            registros = DBMS.extractTable(DB_ACTUAL.getName(),self.tabla)
+            #Validacion WHERE
+            if self.condiciones:
+                tsLocal = env.Entorno()
+                tsLocal = env.toEnviroment(columnas,tsLocal)
+
+                auxAceptadas = list()
+                for reg in range(len(registros)):
+                    #Insertamos valores en la tabla de simbolos
+                    for field in columnasIndex:
+                        tsLocal.modificarSimbolo(field, registros[reg][columnasIndex[field]])
+                    
+                    valido = self.condiciones.ejecutar(tsLocal)
+                    if valido.tipo != TIPO_DE_DATO.BOOLEANO:
+                        raise Exception()
+
+                    if valido.val:
+                        auxAceptadas.append( reg )
+                
+                pkWhere = TypeCheck.getIndexPK(DB_ACTUAL.getName(), self.tabla)
+                #Con PK
+                if len(pkWhere) != 0:
+                    for regCamb in auxAceptadas:
+                        pkReg = list()
+                        for pk in pkWhere:
+                            pkReg.append(registros[regCamb][pk])
+                        DBMS.update(DB_ACTUAL.getName(),self.tabla,posiblesValores,pkReg)
+                #Sin PK
+                else:
+                    for regCamb in auxAceptadas:
+                        DBMS.update(DB_ACTUAL.getName(),self.tabla,posiblesValores,[regCamb])
+            #SIN WHERE
+            else:
+                pkNormal = TypeCheck.getIndexPK(DB_ACTUAL.getName(), self.tabla)
+                #Con PK
+                if len(pkNormal) != 0:
+                    for regCamb in registros:
+                        pkReg = list()
+                        for pk in pkNormal:
+                            pkReg.append(regCamb[pk])
+                        DBMS.update(DB_ACTUAL.getName(),self.tabla,posiblesValores,pkReg)
+                #Sin PK
+                else:
+                    for regCamb in range(len(registros)):
+                        DBMS.update(DB_ACTUAL.getName(),self.tabla,posiblesValores,[regCamb])
+                    
+            
+            return 'Deleted successful'
+        except:
+            return ErrorReport('Semantico', 'Error Fatal', 0)
+
+    def __auxDict(self,columns: dict) -> dict:
+        dicc = dict()
+        aux = 0
+
+        for item in columns:
+            dicc[item] = aux
+            aux += 1
+
+        return dicc
+
+    def __processUpdateField(self, pureColumn: dict, newValue: any) -> any:
+        #Comprobamos esto antes de seguir
+        if pureColumn['PK']:
+            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.integrity_constraint_violation), 0)
+        if pureColumn['FK']:
+            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.foreign_key_violation), 0)
+        if pureColumn['Unique']:
+            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.unique_violation), 0)
+
+        #Comprobación de tipos
+        pureValue = newValue.val
+        if pureValue != None:
+            if pureColumn['Type'] in ("SMALLINT", "BIGINT", "INTEGER") and newValue.tipo == TIPO_DE_DATO.ENTERO:
+                if pureColumn['Type'] == "SMALLINT" and ( pureValue <= 32767 and pureValue >= -32768 ):
+                    pass
+                elif pureColumn['Type'] == "BIGINT" and ( pureValue <= 9223372036854775807 and pureValue >= -9223372036854775808 ):
+                    pass
+                elif pureColumn['Type'] == "INTEGER" and ( pureValue <= 2147483647 and pureValue >= -2147483648 ):
+                    pass
+                else:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch), 0)
+            elif pureColumn['Type'] in ("DECIMAL", "NUMERIC", "REAL", "DOUBLE_PRECISION", "MONEY") and \
+            (newValue.tipo == TIPO_DE_DATO.ENTERO or newValue.tipo == TIPO_DE_DATO.DECIMAL):
+                #Forma de calcular la forma xd
+                auxDecimal = (len(str(pureValue)),0)
+                if isinstance(pureValue, float):
+                    auxDecimal = str(pureValue).split('.')
+                    auxDecimal = (len(str(pureValue)),len(auxDecimal[1]))
+
+                if pureColumn['Type'] in ("DECIMAL","NUMERIC") and \
+                (auxDecimal[0] <= pureColumn['Lenght']['Precision'] and auxDecimal[1] <=  pureColumn['Lenght']['Scale']) :
+                    pass
+                elif pureColumn['Type'] == "REAL" and auxDecimal[1] < 6:
+                    pass
+                elif pureColumn['Type'] == "DOUBLE_PRECISION" and auxDecimal[1] < 15:
+                    pass
+                elif pureColumn['Type'] == "MONEY" and auxDecimal[1] < 2:
+                    pass
+                else: 
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch), 0)           
+                
+            elif pureColumn['Type'] in ("CHAR", "TEXT", "VARCHAR", "DATE") and newValue.tipo == TIPO_DE_DATO.CADENA:
+                if pureColumn['Type'] in ("CHAR","VARCHAR") and len(pureValue) < pureColumn['Lenght']:
+                    pass
+                elif pureColumn['Type'] == "DATE" and newValue.isFecha:
+                    pass
+                elif pureColumn['Type'] == "TEXT":
+                    pass
+                else: 
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch), 0)
+            elif pureColumn['Type'] == "BOOLEAN" and newValue.tipo == TIPO_DE_DATO.BOOLEANO:
+                pass
+            elif typeEnum.enumExist(pureColumn['Type']):
+                if not pureValue in typeEnum.getEnum(pureColumn['Type']):
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch), 0)
+            else:
+                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch), 0)
+
+        #Comprobaciones especiales, excluyendo checks
+        if not pureColumn['Null'] and pureValue == None:
+            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.not_null_violation), 0)
+
+        return pureValue
+        
