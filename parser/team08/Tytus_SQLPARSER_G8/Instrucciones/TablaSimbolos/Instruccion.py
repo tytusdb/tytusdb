@@ -7,14 +7,17 @@ class Instruccion(ABC):
     @abstractmethod
     def ejecutar(self, tabla, arbol):
         #print('Ejecutando...?')
+        if  self.strGram:
+            arbol.lRepDin.append(self.strGram)
         pass
     
-    def __init__(self, tipo, linea, columna):
+    def __init__(self, tipo, linea, columna, strGram):
         self.tipo = tipo
         self.linea = linea
         self.columna = columna
         self.nodoPadre = None
         self.nodosLista = []
+        self.strGram = strGram
 
     #@abstractmethod
     #def nodoGraphviz(self, nodoPadre, nodosLista):
@@ -26,7 +29,7 @@ class Instruccion(ABC):
 class Prueba(Instruccion):
 
     def __init__(self, valor, tipo, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.valor = valor
         
 

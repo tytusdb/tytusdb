@@ -9,17 +9,18 @@ from reportAST import *
 from reportError import *
 from reportBNF import *
 from reportTable import *
+import prettytable as pt
 import os
+from reportBNF import *
+import webbrowser as wb
 
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
 
 def analiz(input):
     raiz = g.parse(input)
-    report_errors()
-    #executeGraphTree(raiz)
-    
     results = []
+    executeGraphTree(raiz)
     for val in raiz:
         res = val.ejecutar()
         if isinstance(res,CError):
@@ -27,10 +28,14 @@ def analiz(input):
         else:
             results.append( res)
     graphTable(ts)
+    report_errors()
+    report_BNF()
+
     return results
 
 
 root = Tk()
+cont = 1
 
 """PROPIEDADES DE LA VENTANA"""
 root.geometry("1100x650")
@@ -81,13 +86,26 @@ def LimpiarTexto():
     texto.delete('1.0',END)
 def LimpiarConsola():
     consola.delete('1.0',END)
+    global cont
+    cont = 1
 def Analizar():
     results = analiz(texto.get("1.0", "end-1c"))
-    cont = 1
+    global cont
     for res in results:
         consola.insert(str(float(cont)), res)
-        cont += (res.get_string().count('\n')+2)
+        if isinstance(res,pt.PrettyTable):
+            cont += (res.get_string().count('\n')+2)
+        else:
+            cont += (res.count('\n')+2)
         consola.insert(str(float(cont)), '\n')
+def AbrirAST():
+    wb.open_new(r'tree.gv.pdf')
+def AbrirBNF():
+    wb.open_new(r'reporteBNF.gv.pdf')
+def AbrirErrores():
+    wb.open_new(r'reporteErrores.gv.pdf')
+def AbrirTablaSimbolos():
+    wb.open_new(r'reporteTabla.gv.pdf')
         
 
 """CREACION DE COMPONENTES GRAFICOS"""
@@ -113,7 +131,10 @@ BarraMenu.add_cascade(label="Analizar", menu=MenuAnalizador)
 
 MenuReportes= Menu(BarraMenu, tearoff=0)
 BarraMenu.add_cascade(label="Reportes", menu=MenuReportes)
-MenuReportes.add_command(label="Generar AST") 
+MenuReportes.add_command(label="AST", command=AbrirAST) 
+MenuReportes.add_command(label="BNF", command=AbrirBNF)
+MenuReportes.add_command(label="Errores", command=AbrirErrores) 
+MenuReportes.add_command(label="Tabla Simbolos",command=AbrirTablaSimbolos) 
 
 MenuAyuda= Menu(BarraMenu, tearoff=0)
 MenuAyuda.add_command(label="Acerca de...",command=AcercaDe)

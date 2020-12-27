@@ -2,7 +2,6 @@ class Nodo:
     def __init__(self, val):
         self.val_ = val
         self.lista_ = []
-        # print("Nodo")
 
     def getId(self):
         return self.id_

@@ -82,7 +82,7 @@ def showTables(database:str):
     respuesta = JM.showTables(database)
     return respuesta
 
-def createColumn(database:str,table:str,nombre:str,tipo:str):
+def createColumn(database:str,table:str,nombre:str,tipo):
     # 0:operación exitosa, 1: error en la operación, 2: base de datos inexistente, 3: tabla inexistente, 4: columna ya existente
     actualBase = obtenerBase(database)
     if(actualBase!=None):
@@ -329,6 +329,7 @@ def alterRenameColumn(database:str, table: str, columnOld:str, columnNew:str) ->
                     actualAtributo = actualTabla.listaAtributos.obtenerAtributo(columnOld)
                     actualAtributo.nombre = columnNew
                     actualTabla.renombrarLlavesForaneas(actualBase,table,columnOld,columnNew)
+                    actualTabla.renombrarLlavePrimaria(columnOld, columnNew)
                     return 0
                 else:
                     return 5
@@ -363,6 +364,7 @@ def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenc
         if (actualTabla is not None):
             if not actualTabla.existeForanea(nombreConstraint):
                 actualTabla.foreigns.append(ConstraintForeign.Foreign(nombreConstraint, columns, referenceTable, referencesColumns))
+                return 0
             else:
                 return 4
         else:
@@ -416,8 +418,8 @@ def getIfTipoColumnaIsReserverd(tipo:str):
         'money': 7,
         'character': 8,
         'varchar': 9,
-        'character': 10,
-        'charn': 11,
+        'character varying': 10,
+        'char': 11,
         'text': 12,
         'boolean': 13,
         'date': 15

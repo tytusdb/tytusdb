@@ -5,6 +5,8 @@ from expresiones import *
 from instrucciones import *
 import tablasimbolos as TS
 import AST as arbol
+import Funciones as f
+import math
 
 from storageManager import jsonMode as EDD
 
@@ -46,11 +48,14 @@ class DOTAST:
                 self.getTextDotUseDB("node2",instruccion)
             elif isinstance(instruccion,MostrarDB):
                 self.getTextDotShowDB("node2",instruccion)
+            elif isinstance(instruccion, ALTERDBO) : print('Alter dbo')
+            elif isinstance(instruccion, ALTERTBO) : print('Alter tbo')
             else:
                 for val in instruccion:
                     if(isinstance (val,SELECT)):
                         self.getTextDotSelect("node2",val)
-
+               
+                    else : print('Error: instrucción no válida') 
             tam = tam +1
             print(TextDot)
         TextDot.view('reporte_AST', cleanup=True)
@@ -277,9 +282,11 @@ class DOTAST:
         TextDot.node("node"+str(contador),"SELECT")
         TextDot.edge(padre, "node"+str(contador))
         aux = "node"+str(contador)
-        for val in instr.funcion_alias:
-            if(isinstance (val,Funcion_Alias)):
-                self.getTextDotSelectMathFunc(aux,val)
+        if instr.funcion_alias is not None:
+            for val in instr.funcion_alias:
+                if(isinstance (val,Funcion_Alias)):
+                    self.getTextDotSelectMathFunc(aux,val)
+        else: print('No funciono')
 
 
     def getTextDotSelectMathFunc(self,padre,instr):
@@ -291,11 +298,33 @@ class DOTAST:
         self.getNombreFuncion(aux,instr)
         self.getAlias(aux,instr)
 
+    #def getTextotSelectDateFunc(self,padre,instr):
+
+
     def getNombreFuncion(self,padre,instr):
         global contador,TextDot
         contador = contador+1
-        TextDot.node("node"+str(contador),str(instr.nombre.operador))
-        TextDot.edge(padre, "node"+str(contador))
+
+        if hasattr(instr.nombre, 'operador'):
+            TextDot.node("node"+str(contador),str(instr.nombre.operador))
+            TextDot.edge(padre, "node"+str(contador))
+        elif hasattr(instr.nombre, 'tipo'):
+            TextDot.node("node"+str(contador),"CURRENT_"+str(instr.nombre.tipo))
+            TextDot.edge(padre, "node"+str(contador))
+        elif hasattr(instr.nombre, 'valor'):
+            TextDot.node("node"+str(contador),str(instr.nombre.valor.valor))
+            TextDot.edge(padre, "node"+str(contador))
+            print("nose que pasa")
+        elif hasattr(instr.nombre, 'val1'):
+            TextDot.node("node"+str(contador),"DATE_PART")
+            TextDot.edge(padre, "node"+str(contador))
+        elif hasattr(instr.nombre, 'medida'):
+            TextDot.node("node"+str(contador),"EXTRACT")
+            TextDot.edge(padre, "node"+str(contador))
+        
+        else:
+            print("Exito")
+
         aux = "node"+str(contador)
 
         if isinstance(instr.nombre, Operacion_Math_Unaria):
@@ -319,21 +348,48 @@ class DOTAST:
             #if instr.nombre.operador == OPERACION_MATH.PI: self.getTextDotExpresion(aux,"Pi()")
             #elif instr.nombre.operador == OPERACION_MATH.RANDOM: self.getTextDotExpresion(aux,"Random()")
             print("funciones definidas")
-        elif isinstance(operacion, Operacion_Strings):
+        elif isinstance(instr.nombre, Operacion_Strings):
             op = arbol.resolver_operacion(instr.nombre.cadena,"")
             self.getTextDotExpresion(aux,op)
-        elif isinstance(operacion,Operacion_String_Binaria):
+        elif isinstance(instr.nombre,Operacion_String_Binaria):
             op1 = arbol.resolver_operacion(instr.nombre.op1,ts)
             op2 = arbol.resolver_operacion(instr.nombre.op2,ts)
             self.getTextDotExpresion(aux,op1)
             self.getTextDotExpresion(aux,op2)
-        elif isinstance(operacion,Operacion_String_Compuesta):
+        elif isinstance(instr.nombre,Operacion_String_Compuesta):
             op1 = arbol.resolver_operacion(instr.nombre.op1,"")
             op2 = arbol.resolver_operacion(instr.nombre.op2,"")
             op3 = arbol.resolver_operacion(instr.nombre.op3,"")
             self.getTextDotExpresion(aux,op1)
             self.getTextDotExpresion(aux,op2)
             self.getTextDotExpresion(aux,op3)
+        elif isinstance(instr.nombre, Operacion_Patron):
+            op1 = arbol.resolver_operacion(instr.nombre.op1,"")
+            self.getTextDotExpresion(aux,op1)
+        elif isinstance(instr.nombre, Operacion_NOW):
+            TextDot.node("node"+str(contador),"NOW")
+            TextDot.edge(padre, "node"+str(contador))
+        elif isinstance(instr.nombre, Operacion_CURRENT):
+            op = arbol.resolver_operacion(instr.nombre,"")
+            self.getTextDotExpresion(aux,op)
+        elif isinstance(instr.nombre, Operando_EXTRACT): 
+            op = arbol.resolver_operacion(instr.nombre,"")
+            self.getTextDotExpresion(aux,op)
+        elif isinstance(instr.nombre, Operacion_DATE_PART): 
+            op1 = arbol.resolver_operacion(instr.nombre.val1,"")
+            op2 = arbol.resolver_operacion(instr.nombre.val2,"")
+            self.getTextDotExpresion(aux,op1)
+            self.getTextDotExpresion(aux,op1)
+        elif isinstance(instr.nombre, Operacion_TIMESTAMP):
+            op = arbol.resolver_operacion(instr.nombre,"")
+            self.getTextDotExpresion(aux,op)
+        elif isinstance(instr.nombre, Operacion_Great_Least):
+            op = arbol.resolver_operacion(instr.nombre,"")
+            self.getTextDotExpresion(aux,op)
+            
+
+
+        
         
 
     def getAlias(self,padre,instr):

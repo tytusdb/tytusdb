@@ -32,23 +32,26 @@ class Select(Instruction):
         instr = None
         order = None
         limit = None
-        if self.instrs != None and self.order_option != None and self.limit_option != None:
-            instr = self.instrs.process(instrucction)
-            order = self.order_option.process(instrucction, instr)
-            limit = self.limit_option.process(instrucction, order)
-            return limit
-        elif self.instrs != None and self.order_option != None and self.limit_option == None:
-            instr = self.instrs.process(instrucction)
-            order = self.order_option.process(instrucction,instr)
-            return order
-        elif self.instrs != None  and self.order_option == None and self.limit_option != None:
-            instr = self.instrs.process(instrucction)
-            limit = self.limit_option.process(instrucction, instr)
-            return limit
-        elif self.instrs != None and self.order_option == None and self.limit_option == None:
-            instr = self.instrs.process(instrucction)
-            return instr
-        return None 
+        try:
+            if self.instrs != None and self.order_option != None and self.limit_option != None:
+                instr = self.instrs.process(instrucction)
+                order = self.order_option.process(instrucction, instr)
+                limit = self.limit_option.process(instrucction, order)
+                return limit
+            elif self.instrs != None and self.order_option != None and self.limit_option == None:
+                instr = self.instrs.process(instrucction)
+                order = self.order_option.process(instrucction,instr)
+                return order
+            elif self.instrs != None  and self.order_option == None and self.limit_option != None:
+                instr = self.instrs.process(instrucction)
+                limit = self.limit_option.process(instrucction, instr)
+                return limit
+            elif self.instrs != None and self.order_option == None and self.limit_option == None:
+                instr = self.instrs.process(instrucction)
+                return instr
+        except:
+            desc = "FATAL ERROR, murio en Select, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
     
 class TypeQuerySelect(Instruction):
     '''
@@ -104,7 +107,8 @@ class TypeQuerySelect(Instruction):
                     table_result = select1.merge(select2, how='outer', indicator = True).query("_merge == 'left_only'").drop('_merge', 1)
             return table_result
         except:
-            print('error en la clase TypeQuerySelect')
+            desc = "FATAL ERROR, murio en TypeQuerySelect, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
             
 class Table:
     def __init__(self, headers, values):
@@ -133,92 +137,232 @@ class SelectQ(Instruction):
     def process(self, instrucction):
         list_select = None
         # print(self.alias)
-        if self.type_select == None and self.from_clause == None and self.where_or_grouphaving == None and self.select_list != None:
-            print( self.select_list )
-            list_select = list_expressions(self.select_list, instrucction)
-            return list_select
-        elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
-            pass
-        elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
-            pass
-        elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
-            list_from = self.from_clause.process(instrucction)
-            where_table = None
-            group_by = None
-            if len(list_from) > 1:
-                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
-                    list_select = loop_list(self.select_list, instrucction)
-                    # print(type(self.where_or_grouphaving))
-                    if isinstance(self.where_or_grouphaving, GroupBy):
-                        list_select = list_expressions_groupby(self.select_list, instrucction)
-                        group_by = self.where_or_grouphaving.process(instrucction,list_select)
-                        return group_by
-                    elif isinstance(self.where_or_grouphaving, Where):
+        try:
+           #########################################################################################################################################
+            if self.type_select == None and self.from_clause == None and self.where_or_grouphaving == None and self.select_list != None:
+                print( self.select_list )
+                list_select = list_expressions(self.select_list, instrucction)
+                return list_select
+            
+            ################################################################################################################################
+            elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
+                list_from = self.from_clause.process(instrucction)
+                type_select = self.type_select
+                ## Esto es para selects simples 
+                if len(list_from) > 1:
+                    if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                        list_select = loop_list(self.select_list, instrucction)
+                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                            list_from[0] = list_from[0].drop_duplicates()
+                            return list_from[0]
+                        else:
+                            return list_from[0]   
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                    #         list_from[0] = list_from[0].drop_duplicates()
+                    #         return list_from[0]
+                    #     else:
+                    #         return list_from[0]  
+                    else:
+                        list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                            list_select = list_select.drop_duplicates()
+                            return list_select
+                        else:
+                            return list_select
+                else:
+                    if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                        list_select = loop_list(self.select_list, instrucction)
+                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                            list_from[0] = list_from[0].drop_duplicates()
+                            return list_from[0]
+                        else:
+                            return list_from[0]       
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                    #         list_from[0] = list_from[0].drop_duplicates()
+                    #         return list_from[0]
+                    #     else:
+                    #         return list_from[0]                            
+                    else:
+                        list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
+                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                            list_select = list_select.drop_duplicates()
+                            return list_select
+                        else:
+                            return list_select
+            ####################################################################################################################################        
+            elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
+                list_from = self.from_clause.process(instrucction)
+                type_select = self.type_select
+                where_table = None
+                group_by = None
+                if len(list_from) > 1:
+                    if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                        list_select = loop_list(self.select_list, instrucction)
+                        # print(type(self.where_or_grouphaving))
+                        if isinstance(self.where_or_grouphaving, GroupBy):
+                            list_select = list_expressions_groupby(self.select_list, instrucction)
+                            group_by = self.where_or_grouphaving.process(instrucction,list_select)
+                            if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                                group_by = group_by.drop_duplicates()
+                                return group_by
+                            else:
+                                return group_by
+                        elif isinstance(self.where_or_grouphaving, Where):
+                            where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                            if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                                where_table = where_table.drop_duplicates()
+                                return where_table
+                            else:
+                                return where_table
+                        elif isinstance(self.where_or_grouphaving, list):
+                            where_table = self.where_or_grouphaving[0]
+                            where_table = where_table.process(instrucction, list_from[0], list_from[1])
+                            list_select = list_expressions_groupby(self.select_list, instrucction)
+                            group_by = self.where_or_grouphaving[1]
+                            group_by = group_by.process(instrucction,list_select)
+                            if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                                group_by = group_by.drop_duplicates()
+                                return group_by
+                            else:
+                                return group_by
+                    else:
+                        if isinstance(self.where_or_grouphaving, GroupBy):
+                            list_select = list_expressions_groupby(self.select_list, instrucction)
+                            group_by = self.where_or_grouphaving.process(instrucction,list_select)
+                            if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                                group_by = group_by.drop_duplicates()
+                                return group_by
+                            else:
+                                return group_by
+                        elif isinstance(self.where_or_grouphaving, Where):
+                            where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                            list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                            if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                                list_select = list_select.drop_duplicates()
+                                return list_select
+                            else:
+                                return list_select
+                        elif isinstance(self.where_or_grouphaving, list):
+                            where_table = self.where_or_grouphaving[0]
+                            where_table = where_table.process(instrucction, list_from[0], list_from[1])
+                            list_select = list_expressions_groupby(self.select_list, instrucction)
+                            group_by = self.where_or_grouphaving[1]
+                            group_by = group_by.process(instrucction,list_select)
+                            if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                                group_by = group_by.drop_duplicates()
+                                return group_by
+                            else:
+                                return group_by
+                else:
+                    if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                        list_select = loop_list(self.select_list, instrucction)
+                        where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                                where_table = where_table.drop_duplicates()
+                                return where_table
+                        else:
+                            return where_table
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     # list_select = loop_list(self.select_list, instrucction)
+                    #     where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    #     if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                    #             where_table = where_table.drop_duplicates()
+                    #             return where_table
+                    #     else:
+                    #         return where_table
+                    else:
+                        where_table = self.where_or_grouphaving.process(instrucction, list_from[0], self.alias)
+                        list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
+                        if type_select.lower() == 'distinct' or  type_select.lower() == 'unique':
+                                list_select = list_select.drop_duplicates()
+                                return list_select
+                        else:
+                            return list_select
+            
+            
+            #######################################################################################################################################
+            elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
+                list_from = self.from_clause.process(instrucction)
+                where_table = None
+                group_by = None
+                if len(list_from) > 1:
+                    if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                        list_select = loop_list(self.select_list, instrucction)
+                        # print(type(self.where_or_grouphaving))
+                        if isinstance(self.where_or_grouphaving, GroupBy):
+                            list_select = list_expressions_groupby(self.select_list, instrucction)
+                            group_by = self.where_or_grouphaving.process(instrucction,list_select)
+                            return group_by
+                        elif isinstance(self.where_or_grouphaving, Where):
+                            where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                            return where_table
+                        elif isinstance(self.where_or_grouphaving, list):
+                            where_table = self.where_or_grouphaving[0]
+                            where_table = where_table.process(instrucction, list_from[0], list_from[1])
+                            list_select = list_expressions_groupby(self.select_list, instrucction)
+                            group_by = self.where_or_grouphaving[1]
+                            group_by = group_by.process(instrucction,list_select)
+                            return group_by
+                    else:
+                        if isinstance(self.where_or_grouphaving, GroupBy):
+                            list_select = list_expressions_groupby(self.select_list, instrucction)
+                            group_by = self.where_or_grouphaving.process(instrucction,list_select)
+                            return group_by
+                        elif isinstance(self.where_or_grouphaving, Where):
+                            where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                            list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                            return list_select
+                        elif isinstance(self.where_or_grouphaving, list):
+                            where_table = self.where_or_grouphaving[0]
+                            where_table = where_table.process(instrucction, list_from[0], list_from[1])
+                            list_select = list_expressions_groupby(self.select_list, instrucction)
+                            group_by = self.where_or_grouphaving[1]
+                            group_by = group_by.process(instrucction,list_select)
+                            return group_by
+                else:
+                    if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                        list_select = loop_list(self.select_list, instrucction)
                         where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
                         return where_table
-                    elif isinstance(self.where_or_grouphaving, list):
-                        where_table = self.where_or_grouphaving[0]
-                        where_table = where_table.process(instrucction, list_from[0], list_from[1])
-                        list_select = list_expressions_groupby(self.select_list, instrucction)
-                        group_by = self.where_or_grouphaving[1]
-                        group_by = group_by.process(instrucction,list_select)
-                        return group_by
-                else:
-                    if isinstance(self.where_or_grouphaving, GroupBy):
-                        list_select = list_expressions_groupby(self.select_list, instrucction)
-                        group_by = self.where_or_grouphaving.process(instrucction,list_select)
-                        return group_by
-                    elif isinstance(self.where_or_grouphaving, Where):
-                        where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
-                        list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     # list_select = loop_list(self.select_list, instrucction)
+                    #     where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
+                    #     return where_table
+                    else:
+                        where_table = self.where_or_grouphaving.process(instrucction, list_from[0], self.alias)
+                        list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
                         return list_select
-                    elif isinstance(self.where_or_grouphaving, list):
-                        where_table = self.where_or_grouphaving[0]
-                        where_table = where_table.process(instrucction, list_from[0], list_from[1])
-                        list_select = list_expressions_groupby(self.select_list, instrucction)
-                        group_by = self.where_or_grouphaving[1]
-                        group_by = group_by.process(instrucction,list_select)
-                        return group_by
-            else:
-                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
-                    list_select = loop_list(self.select_list, instrucction)
-                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
-                    return where_table
-                elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                    # list_select = loop_list(self.select_list, instrucction)
-                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], list_from[1])
-                    return where_table
-                else:
-                    where_table = self.where_or_grouphaving.process(instrucction, list_from[0], self.alias)
-                    list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
-                    return list_select
             
         ###################################### SELECTS SIMPLES #######################################################################
-        elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
-            list_from = self.from_clause.process(instrucction)
+            elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
+                list_from = self.from_clause.process(instrucction)
                 ## Esto es para selects simples 
-            if len(list_from) > 1:
-                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
-                    list_select = loop_list(self.select_list, instrucction)
-                    return list_from[0]
-                elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                    # list_select = loop_list(self.select_list, instrucction)
-                    return list_from[0]
+                if len(list_from) > 1:
+                    if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                        list_select = loop_list(self.select_list, instrucction)
+                        return list_from[0]
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     # list_select = loop_list(self.select_list, instrucction)
+                    #     return list_from[0]
+                    else:
+                        list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
+                        return list_select
                 else:
-                    list_select = loop_list_with_columns(self.select_list, list_from[1], instrucction)
-                    return list_select
-            else:
-                if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
-                    list_select = loop_list(self.select_list, instrucction)
-                    return list_from[0]
-                elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
-                    # list_select = loop_list(self.select_list, instrucction) 
-                    return list_from[0]
-                else:
-                    list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
-                    return list_select
+                    if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1:
+                        list_select = loop_list(self.select_list, instrucction)
+                        return list_from[0]
+                    # elif isinstance(self.select_list[0], ObjectReference) and len(self.select_list) == 1:
+                    #     # list_select = loop_list(self.select_list, instrucction) 
+                    #     return list_from[0]
+                    else:
+                        list_select = loop_list_with_columns(self.select_list, self.alias, instrucction)
+                        return list_select
         ######################################################################################################################################
-        return None
+        except:
+            desc = "FATAL ERROR, murio en SELECTQ, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
             
 
 class OrderClause(Instruction):
@@ -238,18 +382,22 @@ class OrderClause(Instruction):
     
     def process(self, instrucction, select_clasue: DataFrame):
         arrvaluesorder = None
-        arrvaluesorder = loop_list_of_order_by(self.arrvaluesorder, instrucction)
-        order_aux = []
-        for x in arrvaluesorder:
-            if self.type_order != None:
-                if self.type_order.lower() == 'desc':
-                    order_aux.append(False)
-                elif self.type_order.lower() == 'asc':
+        try:
+            arrvaluesorder = loop_list_of_order_by(self.arrvaluesorder, instrucction)
+            order_aux = []
+            for x in arrvaluesorder:
+                if self.type_order != None:
+                    if self.type_order.lower() == 'desc':
+                        order_aux.append(False)
+                    elif self.type_order.lower() == 'asc':
+                        order_aux.append(True)
+                else:
                     order_aux.append(True)
-            else:
-                order_aux.append(True)
-        select_clasue.sort_values(by=arrvaluesorder,inplace=True,ascending=order_aux)
-        return select_clasue
+            select_clasue.sort_values(by=arrvaluesorder,inplace=True,ascending=order_aux)
+            return select_clasue
+        except:
+            desc = "FATAL ERROR, murio en OrderClause, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
         
 
 class LimitClause(Instruction):
@@ -268,16 +416,20 @@ class LimitClause(Instruction):
         return str(vars(self))
     
     def process(self, instrucction, table: DataFrame):
-        if self.limitarr != None and self.offset != None:
-            limit = self.limitarr 
-            offset = self.offset
-            table = table.iloc[offset:offset+limit-1]
-        elif self.limitarr != None and self.offset == None:
-            if not isinstance(self.limitarr, int):
-                table.head()
-            else:
-                table = table.head(int(self.limitarr))
-        return table
+        try:
+            if self.limitarr != None and self.offset != None:
+                limit = self.limitarr 
+                offset = self.offset
+                table = table.iloc[offset:offset+limit-1]
+            elif self.limitarr != None and self.offset == None:
+                if not isinstance(self.limitarr, int):
+                    table.head()
+                else:
+                    table = table.head(int(self.limitarr))
+            return table
+        except:
+            desc = "FATAL ERROR, murio en LimitClause, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class JoinClause(Instruction):
     '''
@@ -315,32 +467,36 @@ class AgreggateFunctions(Instruction):
     
     def process(self, instrucction):
         data = None
-        result = self.cont_agg.process(instrucction)
-        if isinstance(result, list):
-            if self.type_agg.lower() == "avg":
-                data = {str(self.alias): 'mean'}
-            elif self.type_agg.lower() == 'sum':
-                data = {str(self.alias): 'sum'}
-            elif self.type_agg.lower() == 'count':
-                data = {str(self.alias): 'size'}
-            elif self.type_agg.lower() == 'max':
-                data = {str(self.alias): 'max'}
-            elif self.type_agg.lower() == 'min':
-                data = {str(self.alias): 'min'}
+        try:
+            result = self.cont_agg.process(instrucction)
+            if isinstance(result, list):
+                if self.type_agg.lower() == "avg":
+                    data = {str(self.alias): 'mean'}
+                elif self.type_agg.lower() == 'sum':
+                    data = {str(self.alias): 'sum'}
+                elif self.type_agg.lower() == 'count':
+                    data = {str(self.alias): 'size'}
+                elif self.type_agg.lower() == 'max':
+                    data = {str(self.alias): 'max'}
+                elif self.type_agg.lower() == 'min':
+                    data = {str(self.alias): 'min'}
                     #dict  # column  # encambezado
-            return [result[0], result[1], data]
-        else:
-            if self.type_agg.lower() == "avg":
-                data = {str(self.alias.lower()): 'mean'}
-            elif self.type_agg.lower() == 'sum':
-                data = {str(self.alias.lower()): 'sum'}
-            elif self.type_agg.lower() == 'count':
-                data = {str(self.alias.lower()): 'size'}
-            elif self.type_agg.lower() == 'max':
-                data = {str(self.alias.lower()): 'max'}
-            elif self.type_agg.lower() == 'min':
-                data = {str(self.alias.lower()): 'min'}
-            return [data, result.value, self.type_agg]
+                return [result[0], result[1], data]
+            else:
+                if self.type_agg.lower() == "avg":
+                    data = {str(self.alias.lower()): 'mean'}
+                elif self.type_agg.lower() == 'sum':
+                    data = {str(self.alias.lower()): 'sum'}
+                elif self.type_agg.lower() == 'count':
+                    data = {str(result.value): 'size'}
+                elif self.type_agg.lower() == 'max':
+                    data = {str(self.alias.lower()): 'max'}
+                elif self.type_agg.lower() == 'min':
+                    data = {str(self.alias.lower()): 'min'}
+                return [data, result.value, self.type_agg]
+        except:
+            desc = "FATAL ERROR, murio en AgreggateFunctions, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Case(Instruction):
     '''

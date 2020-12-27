@@ -274,19 +274,19 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
-listErrors = list()
+syntax_errors = list()
 
 # Funcion de error para el lexer
 def t_error(t):
     """ print("Illegal character '%s'" % t.value[0]) """
-    listErrors.insert(
-        len(listErrors), ["Illegal character '%s'" % t.value[0], t.lineno]
+    syntax_errors.insert(
+        len(syntax_errors), ["Illegal character '%s'" % t.value[0], t.lineno]
     )
     t.lexer.skip(1)
 
 
 def returnLexicalErrors():
-    global listErrors
-    temp = listErrors
-    listErrors = list()
+    global syntax_errors
+    temp = syntax_errors
+    syntax_errors = list()
     return temp

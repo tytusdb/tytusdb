@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Instruccion import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 from storageManager.jsonMode import *
 class CreateDatabase(Instruccion):
-    def __init__(self, base, tipo, existe, owner, mode, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, base, tipo, existe, owner, mode, strGram, linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.base=base
         self.tipo=tipo
         self.existe = existe
@@ -15,7 +15,6 @@ class CreateDatabase(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-
         bandera = False
         #SE OBTIENE LA LISTA DE BD
         lb=showDatabases()

@@ -27,12 +27,14 @@ class Tipo_Dato(Enum):
     TIPOENUM = 19
     # ID 
     ID = 20
+    QUERY =21
 
 class Tipo():
     'Esta clase será de utilidad para la comprobación de tipos.'
     def __init__(self, tipo, dimension=None):
         self.tipo = tipo
         self.dimension = dimension
+        self.nombre = ''
         
     def toString(self):
         if self.tipo == Tipo_Dato.SMALLINT:
@@ -73,3 +75,7 @@ class Tipo():
             return "boolean"
         elif self.tipo == Tipo_Dato.TIPOENUM:
             return "enum"
+        elif self.tipo == Tipo_Dato.ID:
+            return "id"
+        elif self.tipo == Tipo_Dato.QUERY:
+            return "query"

@@ -24,6 +24,7 @@ import re
 from Instrucciones import *
 from jsonMode import *
 from Expresiones import *
+from reporteTS import *
 import webbrowser
 from Graficar import Graficar
 
@@ -36,6 +37,7 @@ class Main(tk.Tk):
 
         # Global variables in class
         self.tab_counter = 1
+        self.use_db = None
         self.array_tabs = []
         self.array_canvas = []
         self.array_name = []
@@ -102,7 +104,8 @@ class Main(tk.Tk):
         self.menu_bar.add_cascade(label="Reportes", menu=self.sm_report)
         # Submenu [Help]
         self.sm_help = Menu(self.menu_bar, tearoff=False)
-        self.sm_help.add_command(label="Ayuda")
+        self.sm_help.add_command(label="Manual de Usuario", command=lambda: self.help_user_manual())
+        self.sm_help.add_command(label="Manual Técnico", command=lambda: self.help_technical_manual())
         self.sm_help.add_command(label="Acerca de", command=lambda: self.help_about_it())
         self.menu_bar.add_cascade(label="Ayuda", menu=self.sm_help)
         # Input Frame & Widget
@@ -420,16 +423,24 @@ class Main(tk.Tk):
 
     # Semantic report
     def report_semantic(self):
-        pass
+        eS = es.ListaErroresSemanticos()
+        generarReporte(eS)
 
     # ST report
     def report_st(self):
-        pass
+        tSimbolo = st.SymbolTable()
+        generarTablaSimbolos(tSimbolo)
 
     # AST report
     def ast_report(self):
         g = Graficar()
         g.graficar_arbol(self.raiz_ast)
+
+    def help_user_manual(self):
+        webbrowser.open('file://' + os.path.realpath("documents/Manual de Usuario.pdf"))
+
+    def help_technical_manual(self):
+        webbrowser.open('file://' + os.path.realpath("documents/Manual Técnico.pdf"))
 
     # About it section
     def help_about_it(self):
@@ -527,6 +538,7 @@ class Main(tk.Tk):
 
             # Start parser
             ins = g.parse(tytus)
+           ##g.analizar(tytus)
             st_global = st.SymbolTable()
             es_global = es.ListaErroresSemanticos()
             ct_global = ct.crearTabla()
@@ -536,7 +548,10 @@ class Main(tk.Tk):
                 messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
             else:
                 self.do_body(ins.getInstruccion(), st_global, es_global, ct_global)
-                self.raiz_ast = ins.getNodo()
+                if es_global is Null:
+                    self.raiz_ast = ins.getNodo()
+                else:
+                    messagebox.showerror("ERROR", "Verificar reporte semántico")
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
@@ -556,12 +571,37 @@ class Main(tk.Tk):
                 self.do_create_database(inst, p_st, es_global)
             elif isinstance(inst, Insert):
                 self.do_insert_tb(inst, p_st, es_global)
+            elif isinstance(inst, DropT):
+                self.do_drop_tb(inst, p_st, es_global)
             elif isinstance(inst, CreateTable):
                 self.do_create_tb(inst, p_st, es_global, ct_global)
+            elif isinstance(inst, AlterDB):
+                self.do_alter_db(inst,p_st,es_global)
+            elif isinstance(inst, Select3):
+                self.do_select(inst, p_st, es_global, ct_global)
+            elif isinstance(inst, Show):
+                self.do_show(inst, p_st, es_global, ct_global)
             else:
                 print(inst)
 
         print("--- ANÁLISIS TERMINADO ---")
+
+    # MODIFICACION NOMBRE BASE DE DATOS
+    def do_alter_db(self, p_inst, p_st, p_es):
+        key = 'CBD_' + p_inst.nombreDB
+        existe = p_st.get(key)
+        if existe:
+            newDB = p_inst.operacion.cadena
+            key = 'ADB_' + p_inst.nombreDB
+            simbolo = st.Symbol(key, p_inst.nombreDB, 'Alter database', newDB)
+            p_st.add(simbolo)
+            alterDatabase(p_inst.nombreDB, newDB)
+
+        else:
+            error = es.errorSemantico('ADB_' + p_inst.nombreDB, 'La base de datos ' + p_inst.nombreDB + ' no existe')
+            p_es.agregar(error)
+
+        print('a')
 
     # USO DE BASE DE DATOS
     def do_use(self, p_inst, p_st, p_es):
@@ -570,27 +610,34 @@ class Main(tk.Tk):
         if existe:
             simbolo = st.Symbol('UDB_' + p_inst.nombre, p_inst.nombre, 'use', '')
             p_st.add(simbolo)
+            self.new_output("SE USARÁ LA BASE DE DATOS \'" + p_inst.nombre + "\'")
+            self.use_db = p_inst.nombre
         else:
             error = es.errorSemantico('UDB_' + p_inst.nombre, 'La base de datos ' + p_inst.nombre + ' no existe')
             p_es.agregar(error)
+            self.new_output(error.tipo)
 
     # CREACIÓN DE BASE DE DATOS
     def do_create_database(self, p_inst, p_st, p_es):
-        print('CREAR BASE DE DATOS')
         key = 'CBD_' + p_inst.idData
         simbolo = st.Symbol(key, p_inst.idData, 'create', '')
         existe = p_st.get(key)
         if existe and p_inst.Replace:
             p_st.add(simbolo)
             createDatabase(p_inst.idData)
+            self.new_output("BASE DE DATOS \'" + p_inst.idData + "\' HA SIDO CREADA EXITOSAMENTE.")
         elif existe and p_inst.IfNot:
             p_st.add(simbolo)
             createDatabase(p_inst.idData)
+            self.new_output("BASE DE DATOS \'" + p_inst.idData + "\' HA SIDO CREADA EXITOSAMENTE.")
         elif not existe:
             p_st.add(simbolo)
             createDatabase(p_inst.idData)
+            self.new_output("BASE DE DATOS \'" + p_inst.idData + "\' HA SIDO CREADA EXITOSAMENTE.")
+        else:
             error = es.errorSemantico(key, 'La base de datos ' + p_inst.idData + ' ya existe')
             p_es.agregar(error)
+            self.new_output(error.tipo)
 
     # ELIMINACIÓN DE BASE DE DATOS
     def do_drop_db(self, p_inst, p_st, p_es):
@@ -601,9 +648,11 @@ class Main(tk.Tk):
             simbolo = st.Symbol('DDB_' + p_inst.nombre, p_inst.nombre, 'drop', '')
             p_st.add(simbolo)
             dropDatabase(p_inst.nombre)
+            self.new_output("BASE DE DATOS \'" + p_inst.nombre + "\' HA SIDO ELIMINADA EXITOSAMENTE.")
         elif not existe and not p_inst.exist:
             error = es.errorSemantico('DDB_' + p_inst.nombre, 'La base de datos ' + p_inst.nombre + ' no existe')
             p_es.agregar(error)
+            self.new_output(error.tipo)
 
     # CREACIÓN DE LISTADO DE TIPOS
     def do_create_type(self, p_inst, p_st):
@@ -613,7 +662,7 @@ class Main(tk.Tk):
         print()
 
     # CREACIÓN DE TABLAS EN BASE DE DATOS
-    def do_create_tb(self,p_inst,p_st,p_es,p_ct):
+    def do_create_tb(self, p_inst, p_st, p_es, p_ct):
         list = []
         valor = 0
         for keys, value in p_st.symbols.items():
@@ -622,8 +671,9 @@ class Main(tk.Tk):
                 list.append(value.id)
 
         if valor == 0:
-            error = es.errorSemantico('CTB_'+p_inst.nombreTabla,'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.nombreTabla)
+            error = es.errorSemantico('CTB_' + p_inst.nombreTabla, 'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.nombreTabla)
             p_es.agregar(error)
+            self.new_output(error.tipo)
         else:
             BDD = list.pop()
             cantCol = len(p_inst.atributos)
@@ -635,13 +685,15 @@ class Main(tk.Tk):
         if existe:
             error = es.errorSemantico(key, 'La tabla ' + p_inst.nombreTabla + ' ya existe')
             p_es.agregar(error)
+            self.new_output(error.tipo)
         else:
             simbolo = st.Symbol(key, p_inst.nombreTabla, 'create table', BDD)
             p_st.add(simbolo)
             createTable(BDD, nTB, cantCol)
+            self.new_output("SE HA CREADO LA TABLA \'" + p_inst.nombreTabla + "\' EN BASE DE DATOS \'" + BDD + "\'.")
 
     # INSERTAR DATOS A TABLA EN BASE DE DATOS
-    def do_insert_tb(self,inst,p_inst, p_st,p_es):
+    def do_insert_tb(self, p_inst, p_st, p_es):
         valor2 = 0
         list = []
         listI = []
@@ -655,7 +707,7 @@ class Main(tk.Tk):
                 list.append(value.id)
 
         if valor2 == 0:
-            error = es.errorSemantico('ITB_'+p_inst.tabla,'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.tabla)
+            error = es.errorSemantico('ITB_' + p_inst.tabla, 'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.tabla)
             p_es.agregar(error)
         else:
             BDDU = list.pop()
@@ -666,14 +718,13 @@ class Main(tk.Tk):
                 for val in p_inst.valores:
                     if isinstance(val,Numero) or isinstance(val,Decimal) or isinstance(val,bool) or isinstance(val,Cadena):
                         listI.append(val.valor)
-                insert(BDD,p_inst.tabla,listI)
+                insert(BDD, p_inst.tabla,listI)
             else:
                 error = es.errorSemantico('ITB_' + p_inst.tabla, 'La tabla ' + p_inst.tabla + ' no existe')
                 p_es.agregar(error)
 
     # DROP A TABLAS EN BASE DE DATOS
-
-    def do_drop_tb(self,inst,p_inst, p_st,p_es):
+    def do_drop_tb(self, p_inst, p_st, p_es):
         valor2 = 0
         list = []
         listI = []
@@ -686,25 +737,116 @@ class Main(tk.Tk):
                 valor2 = 1
                 list.append(value.id)
         if valor2 == 0:
-            error = es.errorSemantico('DTB_'+p_inst.nombre,'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.nombre)
+            error = es.errorSemantico('DTB_' + p_inst.nombre, 'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.nombre)
             p_es.agregar(error)
+            self.new_output(error.tipo)
         else:
             BDDU = list.pop()
             if BDDU == BDD:
                 key = 'DTB_'+p_inst.nombre
-                simbolo = st.Symbol(key, p_inst.nombre, 'insert table', BDD)
+                simbolo = st.Symbol(key, p_inst.nombre, 'drop table', BDD)
                 p_st.add(simbolo)
-                dropTable(BDD,p_inst.nombre)
-
+                dropTable(BDD, p_inst.nombre)
+                self.new_output("SE LA ELIMINADO LA TABLA \'" + p_inst.nombre + "\' EN LA BASE DE DATOS \'" + BDD + "\'.")
             else:
                 error = es.errorSemantico('DTB_' + p_inst.tabla, 'La tabla ' + p_inst.tabla + ' no existe')
                 p_es.agregar(error)
+                self.new_output(error.tipo)
 
+    # SHOW DATABASES
+    def do_show(self, p_inst, p_st, es_global, ct_global):
+        output = ""
+        key = 1
+        listado = showDatabases()
+
+        for db in listado:
+            output += str(key) + '. ' + str(db) + '\n'
+            key += 1
+
+        if output == "":
+            self.new_output("-- NO HAY BASES DE DATOS CREADAS --")
+        else:
+            self.new_output(output)
 
     # SELECT A TABLAS EN BASE DE DATOS
-    def do_select(self, p_inst, p_st):
-        print('SELECT EN TABLA')
-        print()
+    def do_select(self, p_inst, p_st, p_es, ct_global):
+        valor2 = 0
+        list = []
+
+        for keys, value in p_st.symbols.items():
+            if value.type == 'use':
+                valor2 = 1
+                list.append(value.id)
+        if valor2 == 0:
+            error = es.errorSemantico('SLT_', 'No se ha seleccionado ninguna base de datos para realizar el select')
+            p_es.agregar(error)
+            self.new_output(error.tipo)
+        else:
+            tablas_listado = []
+            for keys, value in p_st.symbols.items():
+                if value.value == self.use_db and value.type == 'create table':
+                    tablas_listado.append(value.id)
+                if value.value == self.use_db and value.type == 'drop table':
+                    tablas_listado.remove(value.id)
+
+            for table in p_inst.pfrom:
+                ans = self.search_table(tablas_listado, table.valor)
+                if ans is False:
+                    error = es.errorSemantico('SLT_',
+                                              'No se puede ejecutar la instrucción SELECT. Una de las tabla \'' + table.valor + '\' no existe en la base de datos.')
+                    p_es.agregar(error)
+                    self.new_output(error.tipo)
+                    return
+
+            if p_inst.valores == '*':
+                out = ""
+                for table in p_inst.pfrom:
+                    output = extractTable(self.use_db, table.valor)
+                    if len(output) > 0:
+                        out += table.valor + '\n'
+                        out += '---------------------------------------\n'
+                        for item in output:
+                            out += str(item) + '\n'
+                        out += '\n'
+                    else:
+                        out += table.valor + '\n'
+                        out += '---------------------------------------\n'
+                        out += '... TABLA VACIA ...' + '\n\n'
+                self.new_output(out)
+            else:
+                listado = []
+                listado2 = []
+                for col in p_inst.valores:
+                    listado.append(col.valor.valor)
+
+                for col in p_inst.valores:
+                    if col.alias is None:
+                        listado2.append(col.valor.valor)
+                    else:
+                        listado2.append(col.alias.valor)
+
+                out = ""
+                for table in p_inst.pfrom:
+                    output = extractRow(self.use_db, table.valor, listado)
+                    if len(output) > 0:
+                        out += table.valor + '\n'
+                        out += str(listado2) + '\n'
+                        out += '---------------------------------------\n'
+                        for item in output:
+                            out += str(item) + '\n'
+                        out += '\n'
+                    else:
+                        out += table.valor + '\n'
+                        out += str(listado2) + '\n'
+                        out += '---------------------------------------\n'
+                        out += '... TABLA VACIA ...' + '\n\n'
+                self.new_output(out)
+
+    def search_table(self, listado, tabla):
+        for item in listado:
+            if item == tabla:
+                return True
+        return False
 
 
 if __name__ == "__main__":

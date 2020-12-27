@@ -2,7 +2,7 @@
 import ply.lex as lex
 from ts import *
 from lex import *
-from type_checker import *
+#from type_checker import *
 from columna import *
 from graphviz import Graph
 from grammar.gramatical import *
@@ -19,7 +19,7 @@ consola = []
 salida = []
 nodo_alias = 0
 nodo_distinct = 0
-type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
+#type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
 gramatical = Gramatical()
 
 i = 0
@@ -99,9 +99,13 @@ def p_instruccion(t) :
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
                         | DROP dropear
+                        | TABLE
                         '''
     id = inc()
     t[0] = {'id': id}
+
+    if len(t) == 2:
+        type_checker.showTables(line = t.lexer.lineno)
 
     if t[1].upper() == 'CREATE':
         t[0] = t[2]
@@ -242,7 +246,7 @@ def p_instruccion_creacion(t) :
 
 def p_instruccion_crear_BD(t) :
     'crear_bd     : ID PTCOMA'
-    type_checker.createDatabase(database = t[1].upper(), line = t.lexer.lineno)
+    #type_checker.createDatabase(database = t[1].upper(), line = t.lexer.lineno)
     id = inc()
     t[0] = {'id': id}
     id_id = inc()
@@ -276,11 +280,11 @@ def p_instruccion_crear_BD_Parametros(t) :
     reg_gramatical = ""
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"crear_bd")
 
-    if 'mode' in t[2]:
+    '''if 'mode' in t[2]:
         type_checker.createDatabase(database = t[1].upper(), mode = t[2]['params']['mode'], line = t.lexer.lineno)
     else:
         type_checker.createDatabase(database = t[1].upper(), line = t.lexer.lineno)
-
+'''
     temp_base = -1
 
 def p_instruccion_crear_BD_Parametros_error(t) :
@@ -290,7 +294,7 @@ def p_instruccion_crear_BD_Parametros_error(t) :
 
 def p_instruccion_crear_BD_if_exists(t) :
     'crear_bd       : IF NOT EXISTS ID PTCOMA'
-    type_checker.createDatabase(database = t[4].upper(), line = t.lexer.lineno)
+    #type_checker.createDatabase(database = t[4].upper(), line = t.lexer.lineno)
     id = inc()
     t[0] = {'id': id}
     id_if = inc()
@@ -309,11 +313,11 @@ def p_instruccion_crear_BD_if_exists(t) :
 
 def p_instruccion_crear_BD_if_exists_Parametros(t) :
     'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
-    if 'mode' in t[5]:
+    '''if 'mode' in t[5]:
         type_checker.createDatabase(database = t[4].upper(), mode = t[5]['params']['mode'], line = t.lexer.lineno)
     else:
         type_checker.createDatabase(database = t[4].upper(), line = t.lexer.lineno)
-
+'''
     id = inc()
     t[0] = {'id': id}
     global temp_base
@@ -368,7 +372,7 @@ def p_instruccion_crear_TB_herencia_error(t) :
 
 def p_instruccion_crear_TB(t):
     '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA'''
-    type_checker.createTable(table = t[1], columns = t[3], line = t.lexer.lineno)
+    #type_checker.createTable(table = t[1], columns = t[3], line = t.lexer.lineno)
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'CREATE TABLE')
@@ -451,10 +455,11 @@ def p_instruccion_show(t) :
     t[0] = {'id': id}
 
     if len(t) == 2:
-        type_checker.showDatabase()
+        #type_checker.showDatabase()
+        print()
 
     else:
-        type_checker.showDatabase(t[3].upper())
+        #type_checker.showDatabase(t[3].upper())
         id_er = inc()
         dot.node(str(id_er), t[3] + ' [er]')
         dot.edge(str(id), str(id_er))
@@ -476,7 +481,7 @@ def p_instruccion_alter_database(t) :
     id = inc()
     t[0] = {'id': id}
     if t[2].upper() == 'RENAME':
-        type_checker.alterDatabase(databaseOld = t[1].upper(), databaseNew = t[4].upper(), line = t.lexer.lineno)
+        #type_checker.alterDatabase(databaseOld = t[1].upper(), databaseNew = t[4].upper(), line = t.lexer.lineno)
         dot.node(str(id), 'RENAME TO')
         id_old = inc()
         id_new = inc()
@@ -523,7 +528,7 @@ def p_def_alter_db(t) :
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
     'cambio_bd     : ID PTCOMA'
-    type_checker.useDatabase(t[1].upper(), line = t.lexer.lineno)
+    #type_checker.useDatabase(t[1].upper(), line = t.lexer.lineno)
 
     id = inc()
     t[0] = {'id': id}
@@ -626,14 +631,14 @@ def p_instruccion_selects2(t) :
 
 def p_instruccion_selects3(t) :
     '''selects      : fun_trigonometrica state_aliases_field 
-                    '''
+                    | aritmetica state_aliases_field  '''
     # print(t[1]['funcion'].upper() )
-    if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
+    '''if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
         resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
     else:
         resultado = type_checker.Funciones_Trigonometricas_2(t[1]['funcion'], t[1]['valor1'], t[1]['valor1'], line = t.lexer.lineno)
-  
-    print("================================>", resultado)
+  '''
+    #print("================================>", resultado)
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'SELECT')
@@ -661,13 +666,13 @@ def p_instruccion_selects3(t) :
 
 def p_instruccion_selects4(t) :
     '''selects      : fun_trigonometrica state_aliases_field FROM ID state_aliases_table 
-                    '''
-    if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
+                    | aritmetica state_aliases_field FROM ID state_aliases_table  '''
+    '''if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
         resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
     else:
         resultado = type_checker.Funciones_Trigonometricas_2(t[1]['funcion'], t[1]['valor1'], t[1]['valor1'], line = t.lexer.lineno)
-  
-    print("================================>", resultado)
+  '''
+    #print("================================>", resultado)
 
     id = inc()
     t[0] = {'id': id}
@@ -1406,7 +1411,7 @@ def p_instruccion_insert(t) :
 def p_instruccion_Drop_BD_exists(t) :
     '''dropear      : DATABASE IF EXISTS ID PTCOMA
                     '''
-    type_checker.dropDatabase(database = t[4].upper(), line = t.lexer.lineno)
+    #type_checker.dropDatabase(database = t[4].upper(), line = t.lexer.lineno)
     id = inc()
     id_id = inc()
     t[0] = {'id': id}
@@ -1424,7 +1429,7 @@ def p_instruccion_Drop_BD_exists(t) :
 def p_instruccion_Drop_BD(t) :
     '''dropear      : DATABASE ID PTCOMA
                     '''
-    type_checker.dropDatabase(database = t[2].upper(), line = t.lexer.lineno)
+    #type_checker.dropDatabase(database = t[2].upper(), line = t.lexer.lineno)
     id = inc()
     id_id = inc()
     t[0] = {'id': id}
@@ -1443,12 +1448,14 @@ def p_instruccion_Drop_BD(t) :
 def p_instruccion_Drop_TB(t) :
     '''dropear      : TABLE ID PTCOMA
                     '''
-    #T[0] = DropTabla(t[2])
+    #type_checker.dropTable(table = t[2].lower(), line = t.lexer.lineno)
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
-    dot.node(str(id), 'TABLE')
-    dot.edge(str(id), t[2])
+    dot.node(str(id), 'DROP TABLE')
+    id_id = inc()
+    dot.node(str(id_id), t[2])
+    dot.edge(str(id), str(id_id))
 
     gramatica = "			| TABLE ID PTCOMA"
     no_terminal = []
@@ -1776,11 +1783,12 @@ def p_parametros_funciones2(t) :
                          '''
     t[0] = t[1]
     resultado = 0
-    if t[1]['funcion'] != 'MOD' and t[1]['funcion'] != 'POWER'and t[1]['funcion'] != 'WIDTH_BUCKET' and t[1]['funcion'] != 'DIV' and t[1]['funcion'] != 'GCD':
+    '''if t[1]['funcion'] != 'MOD' and t[1]['funcion'] != 'POWER'and t[1]['funcion'] != 'WIDTH_BUCKET' and t[1]['funcion'] != 'DIV' and t[1]['funcion'] != 'GCD':
         resultado = type_checker.Funciones_Matematicas_1( t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
     else:
         resultado = type_checker.Funciones_Matematicas_2( t[1]['funcion'], t[1]['valor'], t[1]['valor2'], line = t.lexer.lineno)
-    print("=========>>>", resultado)
+    '''
+    #print("=========>>>", resultado)
 
     gramatica = "				| <lista_funciones>"
     no_terminal = ["<lista_funciones>"]
@@ -1873,11 +1881,40 @@ def p_instrucciones_columnas_error(t) :
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
     id = inc()
-    t[0] = [{'nombre': t[1], 'col': Columna(tipo = t[2]), 'id': id}]
-    print('////////////\n', t[0][0]['col'].printCol())
-    dot.node(str(id), 'ID')
-    dot.edge(str(id), t[1])
+
+    global temp_tabla
+    if temp_tabla == -1:
+        temp_tabla = id
+        dot.node(str(temp_tabla), '')
+        id = inc()
+
+    dot.node(str(id), t[1])
+    dot.edge(str(id), str(t[2]['id']))
+    id_params = inc()
+    dot.node(str(id_params), 'PARAMETROS')
+    dot.edge(str(id), str(id_params))
+
+    col = Columna(tipo = t[2], line = t.lexer.lineno)
     
+    for parametro in t[3]['parametros']:
+        dot.edge(str(id_params), str(parametro['id'])) 
+        if 'default' in parametro:
+            col.addDefault(parametro['default'])
+        elif 'is_null' in parametro:
+            col.addNull(parametro['is_null'])
+        elif 'is_unique' in parametro:
+            if 'constraint' in parametro:
+                col.addUnique(valor = parametro['is_unique'], constraint = parametro['constraint'])
+            else:
+                col.addUnique(parametro['is_unique'])
+        elif 'is_primary' in parametro:
+            col.addPrimaryKey(parametro['is_primary'])
+        elif 'references' in parametro:
+            col.addReference(parametro['references'])
+
+    col.printCol()
+    t[0] = {'nombre': t[1].lower(), 'col': col, 'id': id}
+
     dot.edge(str(id), str(t[2]['id'])) 
     # for element in t[2]:
     #     dot.edge(str(id), str(element['id']))
@@ -1895,6 +1932,13 @@ def p_instrucciones_columna_parametros_error(t) :
     'crear_tb_columna       : ID error parametros_columna'
     error = Error('Sintactico', "No se esperaba la entrada '%s'" %t[2], t.lexer.lineno)
     tabla_errores.agregar(error)
+    id = inc()
+    t[0] = [{'nombre':t[1], 'col':Columna(tipo='ERROR', line = t.lexer.lineno), 'id':id}]
+    dot.node(str(id), 'ID')
+    dot.edge(str(id),t[1])
+    id2 = inc()
+    dot.edge(str(id),str(id2))
+    dot.node(str(id2),'ERROR')
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
@@ -1909,7 +1953,8 @@ def p_instrucciones_columna_noparam(t) :
     dot.node(str(id), t[1])
     dot.edge(str(id), str(t[2]['id']))
 
-    t[0] = {'nombre': t[1].lower(), 'col': Columna(tipo = t[2]), 'id' : id}
+    t[0] = {'nombre': t[1].lower(), 'col': Columna(tipo = t[2], line = t.lexer.lineno), 'id' : id}
+
     gramatica = "					| ID <tipos>"
     no_terminal = ["<tipos>"]
     terminal = ["ID"]
@@ -1923,18 +1968,14 @@ def p_instrucciones_columna_noparam_error(t) :
 
 def p_instrucciones_columna_pk(t) :
     'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
-    #t[0] = LlavesPrimarias(t[4])
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id, 'primary': t[4]}
     print('primary key t0 ',t[0])
     dot.node(str(id), ' PRIMARY KEY')
-    if t[4] != None:
-        for element in t[4]:
-            id2 = inc()
-            dot.node(str(id2), str(element))
-            dot.edge(str(id), str(id2)) 
-    # for element in t[4]:
-    #     dot.edge(str(id), str(element['id']))
+    
+    for element in t[4]:
+         dot.edge(str(id), str(element['id']))
+
     gramatica = "					| PRIMARY KEY PARIZQ <lista_id> PARDER"
     no_terminal = ["<lista_id>"]
     terminal = ["PRIMARY","KEY","PARIZQ","PARDER"]
@@ -1945,12 +1986,11 @@ def p_instrucciones_columna_pk(t) :
 def p_instrucciones_columna_fk(t) :
     'crear_tb_columna       : FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'
     if len(t[4]) != len(t[9]):
-        print('Error el número de columnas referencias es distinto al número de columnas foraneas')
-    else:
-        print('Se creó referencia de llave foranea')
-
+        error = Error('Semántico', "El número de columnas referencias es distinto al número de columnas foraneas", t.lexer.lineno)
+        tabla_errores.agregar(error)
+        
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'foreign': t[4], 'table': t[7].lower(), 'references': t[9]}
     dot.node(str(id), ' FOREIGN KEY')
     
     if t[4] != None:
@@ -2015,11 +2055,10 @@ def p_instrucciones_columna_unique(t) :
 
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
-    t[1].update(t[2])
+    t[1]['parametros'].append(t[2])
     #t[1] = {} -> t[0] = {}
-    t[0] = t[1]
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'parametros': t[1]['parametros']}
     dot.node(str(id), 'PARAMETRO')
     
     dot.edge(str(id), str(t[1]['id'])) 
@@ -2042,10 +2081,10 @@ def p_instrucciones_lista_params_columnas_error(t) :
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
-    #t[1] = {} -> t[0] = {}
-    t[0] = t[1]
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'parametros': [t[1]]}
+
+    
     dot.node(str(id), 'PARAMETRO')
     
     dot.edge(str(id), str(t[1]['id'])) 
@@ -2065,11 +2104,11 @@ def p_instrucciones_params_columnas_error(t) :
 def p_instrucciones_parametro_columna_default(t) :
     'parametro_columna      : DEFAULT valor'
     #t[1] = {} -> t[0] = {}
-    t[0] = {'default': t[2]}
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
-
+    t[0] = {'id': id, 'default': t[2]['valor']}
+    dot.node(str(id), 'DEFAULT')
+    dot.edge(str(id), str(t[2]['id']))
+    
     for element in t[2]:
         dot.edge(str(id), str(element['id']))
     gramatica = "<parametro_columna>	::= DEFAULT <valor>"
@@ -2080,15 +2119,7 @@ def p_instrucciones_parametro_columna_default(t) :
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
-    #t[1] = {} -> t[0] = {}
     t[0] = t[1]
-    id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'PARAMETRO')
-
-    dot.edge(str(id), str(t[1]['id'])) 
-    # for element in t[1]:
-    #     dot.edge(str(id), str(element['id']))
     gramatica = "					| <unul>"
     no_terminal = ["<unul>"]
     terminal = []
@@ -2101,8 +2132,7 @@ def p_instrucciones_parametro_columna_unique(t) :
     t[0] = {'id': id}
     dot.node(str(id), 'PARAMETRO')
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id']))
     gramatica = "					| <unic>"
     no_terminal = ["<unic>"]
     terminal = []
@@ -2126,9 +2156,8 @@ def p_instrucciones_parametro_columna_checkeo(t) :
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
-    t[0] = {'is_primary': 1}
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'is_primary': 1}
     dot.node(str(id), 'PRIMARY KEY')
     gramatica = "					| PRIMARY KEY"
     no_terminal = []
@@ -2137,12 +2166,11 @@ def p_instrucciones_parametro_columna_pkey(t) :
     gramatical.agregarGramatical(gramatica,reg_gramatical,terminal,no_terminal,"parametro_columna")
 
 def p_instrucciones_parametro_columna_fkey(t) :
-    'parametro_columna      : REFERENCES ID'
-    t[0] = {'references': t[2]}
+    'parametro_columna      : REFERENCES ID PARIZQ ID PARDER'
     id = inc()
-    t[0] = {'id': id}
+    t[0] = {'id': id, 'references': t[2] + '.' + t[4]}
     dot.node(str(id), 'REFERENCES')
-    dot.edge(str(id), t[2])
+    dot.edge(str(id), t[2] + '.' + t[4])
     gramatica = "					| REFERENCES ID"
     no_terminal = []
     terminal = ["REFERENCES","ID"]
@@ -2153,7 +2181,7 @@ def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
     t[0] = {'is_null': TipoNull.NOT_NULL}
     id = inc()
-    t[0] = {'id': id}
+    t[0]['id'] = id
     dot.node(str(id), 'NOT NULL')
     gramatica = "<unul>	::= NOT NULL"
     no_terminal = ["<unul>"]
@@ -2165,7 +2193,7 @@ def p_instrucciones_unul(t) :
     'unul   : NULL'
     t[0] = {'is_null': TipoNull.NULL}
     id = inc()
-    t[0] = {'id': id}
+    t[0]['id'] = id
     dot.node(str(id), 'NULL')
     gramatica = "		| NULL"
     no_terminal = []
@@ -2176,8 +2204,8 @@ def p_instrucciones_unul(t) :
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'CONSTRAINT ' + t[2] + ' CHECK')
+    t[0] = {'id': id, 'is_unique': 1, 'constraint': Constraint(tipo = TipoConstraint.UNIQUE, name = t[2], line = t.lexer.lineno)}
+    dot.node(str(id), 'CONSTRAINT ' + t[2] + ' UNIQUE')
     gramatica = "<unic> ::= CONSTRAINT ID UNIQUE"
     no_terminal = ["<unic>"]
     terminal = ["CONSTRAINT","ID","UNIQUE"]
@@ -2187,8 +2215,8 @@ def p_instrucciones_unic_constraint(t) :
 def p_instrucciones_unic(t) :
     'unic   : UNIQUE'
     id = inc()
-    t[0] = {'id': id}
-    dot.node(str(id), 'UNIQUE ')
+    dot.node(str(id), 'UNIQUE')
+    t[0] = {'id': id, 'is_unique': 1}
     gramatica = "		| UNIQUE"
     no_terminal = []
     terminal = ["UNIQUE"]
@@ -2238,14 +2266,13 @@ def p_instrucciones_chequeo_error(t) :
 # LISTA DE ELEMENTOS REUTILIZABLES
 def p_instrucciones_lista_ids(t) :
     'lista_id   : lista_id COMA ID'
-    t[1].append(t[3])
+    id = inc()
+    t[1].append({'id': id, 'valor': t[3].lower()})
     t[0] = t[1]
-    # id = inc()
-    # t[0] = {'id': id}
-    # dot.node(str(id), 'Lista de ID')
 
-    # dot.edge(str(id), str(t[1]['id'])) 
-    # dot.edge(str(id), t[3])
+    dot.node(str(id), t[3])
+    
+    
     gramatica = "<lista_id>	::= <lista_id> COMA ID"
     no_terminal = ["<lista_id>"]
     terminal = ["COMA","ID"]
@@ -2259,7 +2286,9 @@ def p_instrucciones_lista_ids_error(t) :
 
 def p_instrucciones_lista_id(t) :
     'lista_id   : ID'
-    t[0] = [t[1]]
+    id = inc()
+    t[0] = [{'id': id, 'valor': t[1].lower()}]
+    dot.node(str(id), t[1])
     # id = inc()
     # t[0] = {'id': id}
     # dot.node(str(id), 'ID')
@@ -3175,14 +3204,14 @@ def p_aritmetica(t) :
 
     elif len(t) == 3:
         if t[2] != None:
-            valor = type_checker.Validando_Operaciones_Aritmeticas((t[2]['valor']), (t[2]['valor']), 'NEGATIVO')
-            t[0] = {'id': id, 'valor': valor}
+            #valor = type_checker.Validando_Operaciones_Aritmeticas((t[2]['valor']), (t[2]['valor']), 'NEGATIVO')
+            t[0] = {'id': id}
             dot.edge(str(id), 'NEGATIVO')
             dot.edge(str(id), str(t[2]['id'])) 
     else:
         if t[1] != None and t[3] != None:
-            valor = type_checker.Validando_Operaciones_Aritmeticas((t[1]['valor']), (t[3]['valor']), str(t[2]))
-            t[0] = {'id': id, 'valor': valor}
+            #valor = type_checker.Validando_Operaciones_Aritmeticas((t[1]['valor']), (t[3]['valor']), str(t[2]))
+            t[0] = {'id': id}
             dot.edge(str(id), str(t[1]['id'])) 
             dot.edge(str(id), t[2])
             dot.edge(str(id), str(t[3]['id'])) 
@@ -3249,11 +3278,11 @@ def p_aritmetica2(t) :
 def p_aritmetica1_2(t) :
     '''aritmetica   : lista_funciones
                     '''
-    if t[1]['funcion'] != 'MOD' and t[1]['funcion'] != 'POWER'and t[1]['funcion'] != 'WIDTH_BUCKET'and t[1]['funcion'] != 'DIV' and t[1]['funcion'] != 'GCD':
+    '''if t[1]['funcion'] != 'MOD' and t[1]['funcion'] != 'POWER'and t[1]['funcion'] != 'WIDTH_BUCKET'and t[1]['funcion'] != 'DIV' and t[1]['funcion'] != 'GCD':
         resultado = type_checker.Funciones_Matematicas_1( t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
     else:
         resultado = type_checker.Funciones_Matematicas_2( t[1]['funcion'], t[1]['valor'], t[1]['valor2'], line = t.lexer.lineno)
-    print("=========>>>", resultado)
+    print("=========>>>", resultado)'''
 
     id = inc()
     t[0] = {'id': id}
@@ -3263,12 +3292,12 @@ def p_aritmetica1_2(t) :
 
 def p_aritmetica3(t) :
     '''aritmetica   : fun_trigonometrica'''
-    if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
+    '''if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
         resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
     else:
         resultado = type_checker.Funciones_Trigonometricas_2(t[1]['funcion'], t[1]['valor1'], t[1]['valor1'], line = t.lexer.lineno)
-  
-    print("================================>", resultado)
+  '''
+    #print("================================>", resultado)
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'Funciones')
@@ -3371,12 +3400,12 @@ def p_valor2(t) :
 def p_valor3(t) :
     '''valor        : fun_trigonometrica
                     '''
-    if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
+    '''if t[1]['funcion'].upper() != 'ATAN2D' and t[1]['funcion'].upper() != 'ATAN2':
         resultado = type_checker.Funciones_Trigonometricas_1(t[1]['funcion'], t[1]['valor'], line = t.lexer.lineno)
     else:
         resultado = type_checker.Funciones_Trigonometricas_2(t[1]['funcion'], t[1]['valor1'], t[1]['valor1'], line = t.lexer.lineno)
-  
-    print("================================>", resultado)
+  '''
+    #print("================================>", resultado)
   
     id = inc()
     t[0] = {'id': id}
@@ -3657,8 +3686,7 @@ def p_predicate_nulls(t) :
 # # Pattern Matching
 # #=======================================================
 def p_matchs(t) :
-    '''state_pattern_match      : aritmetica LIKE CADENA
-                                | aritmetica LIKE CADENA_DOBLE'''
+    '''state_pattern_match      : aritmetica LIKE CADENA'''
     print("LIKE")
     id = inc()
     t[0] = {'id': id}
@@ -3716,7 +3744,6 @@ def p_aliases_table2(t):
 # -------------------------------------------------------
 def p_aliases_field(t):
     ''' state_aliases_field     : AS CADENA
-                                | AS CADENA_DOBLE
                                 | AS ID
                                 | ID
                                 '''
@@ -5179,5 +5206,5 @@ parser = yacc.yacc()
 
 def parse(input) :
     retorno = parser.parse(input)
-    dot.view()
+    # dot.view()
     return retorno

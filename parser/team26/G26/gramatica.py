@@ -396,14 +396,14 @@ def p_instruccionQuerys(t):
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionError(t):
-    'instruccion  : error PTCOMA'
-    reporte ="<instruccion> ::= <error> PTCOMA\n"
+    'instruccion  : problem'
+    reporte ="<instruccion> ::= <problem>\n" + t[1]['reporte']
     t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_problem(t):
     '''problem  :  error PTCOMA'''
     reporte = "<problem> ::= <error> PTCOMA\n"
-    t[0] = {'ast' : "error", 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 #----------------------------------------------------------------SELECT---------------------------------
 def p_querys(t):
@@ -435,7 +435,7 @@ def p_all_opcional(t):
 def p_all_opcional_null(t):
     'allopcional : '
     grafo.newnode('ALL')
-    reporte = "<allopcional> ::= ε\n"
+    reporte = "<allopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 #aqui
@@ -449,6 +449,10 @@ def p_select(t):
 
 #def p_select_error(t):
 #    'select   : SELECT problem'
+def p_select_err(t):
+    'select : problem'
+    reporte = "<select> ::= <problem>"
+    t[0] = { 'reporte': reporte, 'ast': None, 'graph': grafo.index}
 
 def p_from_opcional(t):
     'fromopcional     :  FROM parametrosfrom whereopcional '
@@ -469,7 +473,7 @@ def p_from_opcional_2(t):
 def p_from_opcional_null(t):
     'fromopcional : '
     grafo.newnode('FROM')
-    reporte = "<fromopcional> ::= ε\n"
+    reporte = "<fromopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_where_opcional(t):
@@ -483,7 +487,7 @@ def p_where_opcional(t):
 def p_where_opcional_null(t):
     'whereopcional :   '
     grafo.newnode('WHERE')
-    reporte = "<whereopcional> ::= ε\n"
+    reporte = "<whereopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -513,7 +517,7 @@ def p_having(t):
 def p_having_null(t):
     'havings : '
     grafo.newnode('HAVING')
-    reporte = "<havings> ::= ε\n"
+    reporte = "<havings> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -537,7 +541,7 @@ def p_listanumeros(t):
 def p_group_by_opcional_null(t):
     'groupbyopcional  : '
     grafo.newnode('GROUPBY')
-    reporte = "<groupbyopcional> ::= ε\n"
+    reporte = "<groupbyopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -629,7 +633,7 @@ def p_lista_de_seleccionados(t):
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         grafo.newchildrenE(t[4])
         reporte = "<listadeseleccionados> ::= CASE <cases> END " + t[4].upper() + "\n" + t[2]['reporte']
-        t[0] = {'ast' : select.ListaDeSeleccionadosConOperador(t[1].lower(),t[3]['ast'],t[4]) ,'graph' : grafo.index , 'reporte': reporte}
+        t[0] = {'ast' : select.ListaDeSeleccionadosConOperador(t[1].lower(),t[2]['ast'],t[4]) ,'graph' : grafo.index , 'reporte': reporte}
     elif t[1] == '*' :
         grafo.newchildrenE(t[1])
         reporte ="<listadeseleccionados> ::= ASTERISCTO\n"
@@ -663,7 +667,7 @@ def p_lista_de_argumentos(t):
     grafo.newnode('LIST_ARG')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    t[1]['ast'].append({'ast': t[3]['ast'] , 'graph' : grafo.index})
+    t[1]['ast'].append(t[3]['ast'])
     reporte = "<listadeargumentos> ::= <listadeargumentos> COMA <argument>\n" + t[1]['reporte'] + t[3]['reporte']
     t[0] = {'ast': t[1]['ast'], 'graph': grafo.index , 'reporte': reporte}
 
@@ -681,7 +685,7 @@ def p_casos(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    t[1]['ast'].append( {'ast' : select.Casos(t[2]['ast'],t[3]['ast']), 'graph' : grafo.index} )
+    t[1]['ast'].append(select.Casos(t[2]['ast'],t[3]['ast']))
     reporte = "<cases> := <cases> <case> <elsecase>\n" + t[1]['reporte'] + t[2]['reporte'] + t[3]['reporte']
     t[0] = {'ast': t[1]['ast'], 'graph': grafo.index , 'reporte': reporte}
 
@@ -711,7 +715,7 @@ def p_else_case(t):
 def p_else_case_null(t):
     'elsecase  : '
     grafo.newnode('ELSE')
-    reporte = "<elsecase> ::= ε\n"
+    reporte = "<elsecase> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph': grafo.index, 'reporte': reporte}
 
 
@@ -725,7 +729,7 @@ def p_operadores_select_t(t):
         reporte = "<operadoresselect> ::= PLECA <argumentosdeoperadores>\n" + t[2]['reporte']
         t[0] = {'ast': select.OperadoresSelect('square',t[2]['ast'],None),'graph': grafo.index, 'reporte': reporte}
     else :
-        reporte = "<operadoresselect> ::= VIRGULILLA <argumentodeoperadores>\n" + t[2]['reportes']
+        reporte = "<operadoresselect> ::= VIRGULILLA <argumentodeoperadores>\n" + t[2]['reporte']
         t[0] = {'ast': select.OperadoresSelect('not',t[2]['ast'],None),'graph': grafo.index, 'reporte':reporte}
 
 
@@ -811,6 +815,12 @@ def p_argumento_de_operadores_entero(t):
     reporte = "<argumentodeoperadores> ::= ENTERO\n"
     t[0] = {'ast' : primi.Primitive('integer', t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
+def p_argumento_de_operadores_ID(t):
+    '''argumentodeoperadores : ID'''
+    grafo.newnode('ARGUMENTO DE OPERADORES')
+    grafo.newchildrenE(t[1])
+    reporte = "<argument> ::= " +  t[1].upper() +"\n"
+    t[0] = {'ast' : ident.Identificador(None, t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_simples(t):
     '''funcionesmatematicassimples  : COUNT PARENIZQ argument  PARENDER
@@ -994,7 +1004,7 @@ def p_tipo_de_round(t):
 def p_tipo_de_round_null(t):
     'tipoderound  :'
     grafo.newnode('T_ROUND')
-    reporte ="<tipoderound> ::= ε\n"
+    reporte ="<tipoderound> ::= EPSILON\n"
     t[0]= {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -1198,7 +1208,7 @@ def p_asopcional_argumentS(t):
 def p_asopcional_null(t):
     'asopcional  : '
     grafo.newnode('ASOPCIONAL')
-    reporte = "<asopcional> ::= ε\n"
+    reporte = "<asopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -1224,8 +1234,7 @@ def p_create_instruccion(t) :
     '''create : TYPE createenum
               | TABLE createtable
               | OR REPLACE DATABASE createdatabase
-              | DATABASE createdatabase
-              | problem'''
+              | DATABASE createdatabase'''
     grafo.newnode('CREATE')
     print(t[1])
     if t[1].lower() == 'type' :
@@ -1248,10 +1257,11 @@ def p_create_instruccion(t) :
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<create> ::= DATABASE <createdatabase>\n" + t[2]['reporte']
         t[0] = {'ast' : create.Create('database', None, t[2]['ast']), 'graph' : grafo.index, 'reporte' : reporte}
-    else:
-        #manejo errores aqui
-        reporte = "<create> ::= <problem>\n" #falta
-        t[0] = { 'reporte': reporte}
+
+def p_create_instruccion_err(t):
+    "create : problem"
+    reporte = "<create> ::= <problem>\n" + t[1]['reporte']
+    t[0] = {'reporte': reporte, 'graph': "error", "ast": None}
 
 def p_createenum(t):
     'createenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA'
@@ -1438,6 +1448,7 @@ def p_tablekey(t):#--------------------------------------------------CUIDAAAAAAA
         reporte = "<tablekey> ::= PRIMARY KEY <tabledefault>\n" + t[3]['reporte']
         t[0] = {'ast': create.TableDescription('primary', None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'references' :
+        grafo.newchildrenE(t[2])
         grafo.newchildrenE(t[4])
         grafo.newchildrenF(grafo.index, t[6]['graph'])
         reporte = "<tablekey> ::= REFERENCES ID PARENIZQ ID PARENDER <tabledefault>\n" + t[6]['reporte']
@@ -1555,7 +1566,7 @@ def p_tableconstraintcheck(t):
 def p_tableconstraintcheckE(t):
     'tableconstraintcheck : '
     grafo.newnode('TABLECONSCHECK')
-    reporte = "<tableconstraintcheck> ::= ε\n"
+    reporte = "<tableconstraintcheck> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_finalconstraintcheck(t):
@@ -1677,7 +1688,7 @@ def p_tipo(t):
     elif t[1].lower() == 'character' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        reporte = "<tipo> ::= CHARACTER <tipochar>\n" + t[2].reporte
+        reporte = "<tipo> ::= CHARACTER <tipochar>\n" + t[2]['reporte']
         t[0] = {'ast' : type.Types(t[1].lower(), t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'varchar' :
         grafo.newchildrenE(t[1].upper())
@@ -1717,9 +1728,9 @@ def p_tipo(t):
             grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<tipo> ::= INTERVAL <fields> <precision>\n" + t[2]['reporte'] + t[3]['reporte']
         t[0] = {'ast' : type.Types(t[2]['ast'], t[3]['ast']), 'graph' : grafo.index}
-    elif t[1].lower() == 'boleano' :
+    elif t[1].lower() == 'boolean' :
         grafo.newchildrenE(t[1].upper())
-        reporte ="<tipo> ::= BOLEANO\n"
+        reporte ="<tipo> ::= BOOLEAN\n"
         t[0] = {'ast' : type.Types(t[1].lower(), 0), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE(t[1])
@@ -1750,7 +1761,7 @@ def p_precision(t):
 
 def p_precisionE(t):
     'precision  :'
-    reporte = "<precision> := ε\n"
+    reporte = "<precision> := EPSILON\n"
     t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_fields(t):
@@ -1779,33 +1790,45 @@ def p_fields(t):
 
 def p_fieldsE(t):
     'fields :'
-    t[0] = {'ast' : None, 'graph' : grafo.index}
+    reporte = "<fields> ::= EPSILON\n"
+    t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 ###########USE
 def p_use(t):
-    '''use    : DATABASE ID PTCOMA
-              | error PTCOMA'''
+    '''use  : DATABASE ID PTCOMA
+            | ID PTCOMA'''
     grafo.newnode('USE')
     grafo.newchildrenE(t[2])
     reporte = "<use> ::= "
     if t[1].lower() == "database":
         reporte += "DATABASE ID PTCOMA\n"
+        grafo.newchildrenE(t[2])
+        t[0] = {'ast' : use.Use(ident.Identificador(None, t[2])), 'graph' : grafo.index, 'reporte': reporte}
     else:
-        reporte += "<error> PTCOMA"
-    t[0] = {'ast' : use.Use(ident.Identificador(None, t[2])), 'graph' : grafo.index, 'reporte': reporte}
+        reporte += "ID PTCOMA\n"
+        grafo.newchildrenE(t[1])
+        t[0] = {'ast' : use.Use(ident.Identificador(None, t[1])), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_useE(t):
+    'use    : problem'
+    reporte = "<use> ::= "
+    reporte += "<problem>\n"
+    t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 ##########SHOW
 def p_show(t):
-    '''show   :    DATABASES likeopcional
-                | error PTCOMA'''
+    '''show   :    DATABASES likeopcional'''
     grafo.newnode('SHOW')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<show> ::= "
     if t[1].lower() == "databases":
         reporte += "DATABASES <likeopcional>\n"
-    else:
-        reporte += "<error> PTCOMA\n"
     t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+
+def p_showw(t):
+    '''show   :  problem'''
+    reporte = "<show> ::= <problem>\n"
+    t[0] = {'reporte': reporte, 'graph': grafo.index, 'ast': None }
 
 def p_likeopcional(t):
     '''likeopcional   :   LIKE CADENA PTCOMA
@@ -1822,8 +1845,7 @@ def p_likeopcional(t):
 ##########DROP
 def p_drop(t):
     '''drop :   DATABASE dropdb PTCOMA
-            |   TABLE ID PTCOMA
-            |   error PTCOMA'''
+            |   TABLE ID PTCOMA'''
     reporte = "<drop> ::= "
     if t[1].lower() == 'database' :
         reporte +=  "DATABASE <dropdb> PTCOMA\n" + t[2]['reporte']
@@ -1834,8 +1856,11 @@ def p_drop(t):
         grafo.newchildrenE(t[2])
         reporte += "TABLE " + t[2].upper() + " PTCOMA\n"
         t[0] = {'ast' : drop.Drop(ident.Identificador(None, t[2]), False), 'graph' : grafo.index, 'reporte': reporte}
-    else:
-        t[0] = {'graph': "error", "reporte": reporte}
+
+def p_drop_e(t):
+    '''drop : problem'''
+    reporte = "<drop> ::= <problem>\n"+ t[1]['reporte']
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
 
 def p_dropdb(t):
     '''dropdb   : IF EXISTS ID
@@ -1869,6 +1894,10 @@ def p_alterp(t):
 '''def p_alterP(t):
     'alter  : error PTCOMA'
     t[0] = { 'ast' : 'error', 'graph' : grafo.index}'''
+def p_alterp_err(t):
+    "alter : problem"
+    reporte = "<alter> ::= <problem>\n" + t[1]['reporte']
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
 
 def p_alterdbsr(t):
     'alterdbs   : alterdbs COMA alterdb'
@@ -2064,22 +2093,22 @@ def p_tipodedrop(t):
 
 #------------------------------------------------------------DELETE----------------------------------------------------
 def p_instrucciones_delete(t) :
-    '''delete    : FROM ID condicionesops PTCOMA
-                | error PTCOMA'''
+    '''delete    : FROM ID condicionesops PTCOMA'''
     grafo.newnode('DELETE')
     grafo.newchildrenE(t[2])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     reporte = "<delete> ::= "
     if t[1].lower() == "from":
         reporte += "FROM " + t[2].upper() + " <condicionesops> PTCOMA\n"
-    else:
-        reporte += "<error> PTCOMA\n"
     t[0] = {'ast' : delete.Delete(ident.Identificador(t[2], None), t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
+def p_instruccionesdelete_e(t):
+    '''delete : problem'''
+    reporte = "<delete> ::= <problem>\n" + t[1]['reporte']
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
 #-------------------------------------------------------INSERT------------------------------------------
 def p_instrucciones_insert(t):
-    '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA
-                    | error PTCOMA'''
+    '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
     grafo.newnode('INSERT')
     grafo.newchildrenE(t[2])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
@@ -2087,6 +2116,11 @@ def p_instrucciones_insert(t):
     if t[1].lower() == "into":
         reporte += "INTO " + t[2].upper() + " VALUES PARENIZQ <values> PARENDER PTCOMA\n" + t[5]['reporte']
     t[0] = {'ast' : insert.Insert(t[2], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_instrucciones_insert_err(t):
+    "insert : problem"
+    reporte = "<insert> ::= <problem>\n" + t[1]['reporte']
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
 
 def p_values_rec(t):
     '''values   : values COMA value'''
@@ -2130,7 +2164,7 @@ def p_valueb(t):
     grafo.newnode('VALUE')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<value> ::= <boleano>\n" + t[1]['reporte']
-    t[0] = {'ast' : t[1], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_value_md(t):
     'value : MD5 PARENIZQ argument PARENDER'
@@ -2177,17 +2211,19 @@ def p_value_substr(t):
 
 #-------------------------------------------------------UPDATE-------------------------------------------
 def p_instrucciones_update(t):
-    '''update    : ID SET asignaciones condicionesops PTCOMA
-                    | error PTCOMA'''
+    '''update    : ID SET asignaciones condicionesops PTCOMA'''
     grafo.newnode('UPDATE')
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[4]['graph'])
     if t[2].lower() == "set":
         reporte = " <update> ::= " + t[1].upper() + " SET <asignaciones> <condiciones> PTCOMA\n" + t[3]['reporte'] + t[4]['reporte']
-    else:
-        reporte = "<update> ::= <error> PTCOMA\n"
     t[0] = {'ast' : update.Update(ident.Identificador(t[1], None), t[3]['ast'], t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_instruccions_update_e(t):
+    '''update : problem'''
+    reporte = "<update> ::= <problem>\n"+ t[1]['reporte']
+    t[0] = {'reporte': reporte, 'ast':None, 'graph': grafo.index}
 
 def p_asignaciones_rec(t):
     '''asignaciones     : asignaciones COMA ID IGUAL argument'''
@@ -2217,7 +2253,7 @@ def p_instrucciones_update_condsops(t):
 def p_instrucciones_update_condsopsE(t):
     'condicionesops    : '
     grafo.newnode('CONDSOPS')
-    reporte = "<condicionesops> ::= ε\n"
+    reporte = "<condicionesops> ::= EPSILON\n"
     t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
 
 #------------------------------------------------------CONDICIONES-----------------------------------------
@@ -2323,7 +2359,7 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
             #grafo.newchildrenF(grafo.index, t[5]['graph'])
             #t[0] = {'ast' : condicion.Condicionales(t[1], t[5], 'not in', None), 'graph' : grafo.index}
             reporte = "<condicions> ::= <argument> NOT IN  PARENIZQ <select> PARENDER\n" + t[1]['reporte'] + t[5]['reporte']
-            t[0] = {'ast' : condicion.Condicionales(t[1], None, 'not in', None), 'graph' : grafo.index, 'reporte': reporte}
+            t[0] = {'ast' : condicion.Condicionales(t[1]['ast'], t[5]['ast'], 'not in', None), 'graph' : grafo.index, 'reporte': reporte}
     elif t[2].lower() == 'isnull' :
         grafo.newchildrenE('ISNULL')
         reporte = "<condicions> ::= <argument> ISNULL\n" + t[1]['reporte']
@@ -2348,7 +2384,7 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
         t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
     else :
         reporte = "<condicions> ::= <argument> IN  PARENIZQ <select> PARENDER\n" + t[1]['reporte'] +t[4]['reporte']
-        t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : condicion.Condicionales(t[1]['ast'], t[4]['ast'], 'in', None), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicionsP(t):
     'condicions : EXISTS PARENIZQ select PARENDER'
@@ -2546,7 +2582,7 @@ def p_error(t):
     description = "Error sintactico con: " + t.value
     mistake = error("Sintactico", description, str(t.lineno))
     errores.append(mistake)
-    #t[0] = {'graph': "error"}
+    return None
 
 def getMistakes():
     return errores

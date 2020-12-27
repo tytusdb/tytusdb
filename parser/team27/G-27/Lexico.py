@@ -18,6 +18,8 @@ from execution.symbol.environment import Environment
 from TypeChecker.Database_Types import *
 from execution.symbol.typ import *
 from execution.main import Main
+from execution.symbol.error import *
+TokenError = list()
 
 # ======================================================================
 #                          INSTRUCCIONES DDL
@@ -38,6 +40,7 @@ from execution.querie.drop_column import Drop_Column
 from execution.querie.drop_constraint import Drop_Constraint
 from execution.querie.drop_database import Drop_Database
 from execution.querie.drop_t import Drop_Table
+from execution.querie.select_fun import Select_Func
 
 from execution.symbol.column import Column
 
@@ -134,6 +137,15 @@ from execution.function.binary.substr import Substr
 from execution.function.binary.substring import Substring
 from execution.function.binary.trim import Trim
 
+# ======================================================================
+#                       FUNCIONES DE TIEMPO
+# ======================================================================
+from execution.function.time.current_date import Current_Date
+from execution.function.time.current_time import Current_Time
+from execution.function.time.date_part import Date_Part
+from execution.function.time.extract import Extract
+from execution.function.time.now import Now
+
 # creamos la lista de tokens de nuestro lenguaje.
 reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','PRECISION','MONEY',
               'VARYING','VARCHAR','CHARACTER','CHAR','TEXT',
@@ -163,12 +175,12 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS'
               ]
 
-tokens = reservadas + ['PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
+tokens = reservadas + ['FECHA_HORA','PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
                        'SIGNO_DIVISION','SIGNO_POR','NUMERO','NUM_DECIMAL','CADENA','ID','LLAVEABRE','LLAVECIERRE','CORCHETEABRE',
                        'CORCHETECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','MAYORQUE','MENORQUE',
                        'MAYORIGUALQUE','MENORIGUALQUE',
                        'SIGNO_PIPE','SIGNO_DOBLE_PIPE','SIGNO_AND','SIGNO_VIRGULILLA','SIGNO_NUMERAL','SIGNO_DOBLE_MENORQUE','SIGNO_DOBLE_MAYORQUE',
-                       'FECHA_HORA','F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT'
+                       'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT'
                        ]
 
 
@@ -217,12 +229,6 @@ def t_ID (t):
             t.type = t.value    
         return t
 
-def t_CADENASIMPLE(t):
-    r'\'.*?\''
-    t.value = str(t.value)
-    t.value = t.value[1:-1]
-    return t
-
 # expresion regular para comentario de linea
 def t_COMMENT(t):
     r'--.*'
@@ -252,13 +258,19 @@ def t_F_HORA(t):
 
 # expresion regular para reconocer fecha_hora
 def t_FECHA_HORA(t):
-    r'\'\d+-\d+-\d+ \d+:\d+:\d+\''
+    r'\'\d+-\d+-\d+\s\d+:\d+:\d+\''
     t.value = t.value[1:-1]
     from datetime import datetime
     try:
         t.value = datetime.strptime(t.value,'%Y-%m-%d %H:%M:%S')
     except ValueError:
         t.value = datetime(2000,1,1)
+    return t
+
+def t_CADENASIMPLE(t):
+    r'\'.*?\''
+    t.value = str(t.value)
+    t.value = t.value[1:-1]
     return t
     
 # expresion regular para reconocer cadenas
@@ -274,15 +286,16 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 # expresion regular para reconocer errores
 def t_error(t):
-    print ("caracter desconocido '%s'" % t.value[0])
+    err = T_error('LEXICO', t.value, 'TOKEN DESCONOCIDO', str(t.lineno), str(t.lexpos))
+    TokenError.append(err)
     t.lexer.skip(1)
 
 # fin de las expresiones regulares para reconocer nuestro lenguaje.
 
+analizador = lex.lex()
 
 # funcion para realizar el analisis lexico de nuestra entrada
 def analizarLex(texto):    
-    analizador = lex.lex()
     analizador.input(texto)# el parametro cadena, es la cadena de texto que va a analizar.
 
     #ciclo para la lectura caracter por caracter de la cadena de entrada.
@@ -314,9 +327,10 @@ precedence = (
 # Definición de la gramática
 def p_inicio(t):
     '''inicio : instrucciones '''
-    envGlobal = Environment(None)
-    iniciarEjecucion = Main(t[1])
-    iniciarEjecucion.execute(envGlobal)
+    #envGlobal = Environment(None)
+    #iniciarEjecucion = Main(t[1])
+    #iniciarEjecucion.execute(envGlobal)
+    t[0] = t[1] 
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
@@ -357,16 +371,16 @@ def p_tipo_create(t):
                    | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA
                    | TYPE ID AS ENUM PARABRE list_vls PARCIERRE PUNTO_COMA'''
     if t[1] == 'TYPE':
-        print('TYPE')
+        t[0] = Create_Type(t[2], t[5], t.slice[1].lexpos, t.slice[1].lineno)
     elif t[1] == 'TABLE':
         arreglo = []
         for item in t[4]:
             for i in item:
                 arreglo.append(i)
 
-        t[0] = Create_Table(t[2], arreglo, t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Create_Table(t[2], arreglo, t.slice[1].lexpos, t.slice[1].lineno)
     else:
-        pass
+        t[0] = Create(t[1], 0, t[4], t.slice[2].lexpos, t.slice[2].lineno)
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
@@ -405,7 +419,7 @@ def p_columna(t):
             columna.append(item)
         t[0] = columna
 
-
+#TODO: HERENCIA
 def p_ins_inherits(t):
     '''ins_inherits : INHERITS PARABRE ID PARCIERRE
                 |  ''' #EPSILON
@@ -469,41 +483,41 @@ def p_tipo_dato(t):
                  | INTERVAL arg_tipo arg_precision
                  | BOOLEAN
                  | MONEY'''
-    if t.slice[1] == 'SMALLINT':
+    if t.slice[1].type == 'SMALLINT':
         t[0] = {'type':DBType.smallint, 'length': -1, 'default':0 }
-    elif t.slice[1] == 'BIGINT':
+    elif t.slice[1].type == 'BIGINT':
         t[0] = {'type':DBType.bigint, 'length': -1, 'default':0 }
-    elif t.slice[1] == 'NUMERIC':
+    elif t.slice[1].type == 'NUMERIC':
         t[0] = {'type':DBType.numeric, 'length': -1, 'default':0 }
-    elif t.slice[1] == 'DECIMAL':
+    elif t.slice[1].type == 'DECIMAL':
         t[0] = {'type':DBType.decimal, 'length': -1, 'default':0.0 }
-    elif t.slice[1] == 'INTEGER':
+    elif t.slice[1].type == 'INTEGER':
         t[0] = {'type':DBType.integer, 'length': -1, 'default':0 }
-    elif t.slice[1] == 'REAL':
+    elif t.slice[1].type == 'REAL':
         t[0] = {'type':DBType.real, 'length': -1, 'default':0.0 }
-    elif t.slice[1] == 'DOUBLE':
+    elif t.slice[1].type == 'DOUBLE':
         t[0] = {'type':DBType.double_precision, 'length': -1, 'default':0.0 }
-    elif t.slice[1] == 'TEXT':
+    elif t.slice[1].type == 'TEXT':
         t[0] = {'type':DBType.text, 'length': -1, 'default':"" }
-    elif t.slice[1] == 'DATE':
+    elif t.slice[1].type == 'DATE':
         t[0] = {'type':DBType.date, 'length': -1, 'default':"2000-01-01" }
-    elif t.slice[1] == 'BOOLEAN':
+    elif t.slice[1].type == 'BOOLEAN':
         t[0] = {'type':DBType.boolean, 'length': -1, 'default':False }
-    elif t.slice[1] == 'MONEY':
+    elif t.slice[1].type == 'MONEY':
         t[0] = {'type':DBType.money, 'length': -1, 'default':0.0 }
     
-    elif t.slice[1] == 'TIMESTAMP':
+    elif t.slice[1].type == 'TIMESTAMP':
         t[0] = {'type':DBType.timestamp_wtz, 'length': t[2], 'default':"2000-01-01" }
-    elif t.slice[1] == 'TIME':
+    elif t.slice[1].type == 'TIME':
         t[0] = {'type':DBType.time_wtz, 'length': t[2], 'default':"00:00:01" }
-    elif t.slice[1] == 'INTERVAL':
+    elif t.slice[1].type == 'INTERVAL':
         t[0] = {'type':DBType.interval, 'length': -1, 'default':"1 HOUR 1 MINUTE 1 SECOND" }
 
-    elif t.slice[1] == 'CHAR':
+    elif t.slice[1].type == 'CHAR':
         t[0] = {'type':DBType.char, 'length':t[3], 'default':"" }
-    elif t.slice[1] == 'VARCHAR':
+    elif t.slice[1].type == 'VARCHAR':
         t[0] = {'type':DBType.varchar, 'length':t[3], 'default':"" }
-    elif t.slice[1] == 'CHARACTER':
+    elif t.slice[1].type == 'CHARACTER':
         t[0] = {'type':DBType.character, 'length':t[3], 'default':"" }
 
 def p_arg_precision(t):
@@ -538,13 +552,14 @@ def p_ins_constraint(t):
     '''ins_constraint : ins_constraint constraint restriccion_columna 
                         | restriccion_columna
                         |''' #epsilon
-    if len(t) == 4:
+    if len(t) > 2:
         if t[2] != None:
             diccionario = t[3]
             diccionario['name'] = t[2]
             t[1].append(diccionario)
         else:
             t[1].append(t[3])
+        t[0] = t[1]
     elif len(t) == 2:
         t[0] = [t[1]]
     else:
@@ -566,25 +581,23 @@ def p_restriccion_columna(t):
                            | NULL 
                            | NOT NULL PRIMARY KEY 
                            | CHECK PARABRE exp PARCIERRE 
-                           | 
                            ''' #cambio del condicion columna
-    if len(t) > 1:
-        if t.slice[1].type == 'NOT' and t.slice[1].type == 'NULL':
-            t[0] = {'type' : 'not null' }
-        elif t.slice[1].type == 'SET' and t.slice[2].type == 'NOT' and t.slice[3].type == 'NULL':
-            pass
-        elif t.slice[1].type == 'PRIMARY' and t.slice[1].type == 'KEY':
-            t[0] = {'type':'primary'}
-        elif t.slice[1].type == 'UNIQUE' :
-            t[0] = {'type':'unique'}
-        elif t.slice[1].type == 'NULL' :
-            t[0] = {'type' : 'null' }
-        elif t.slice[1].type == 'NOT' and t.slice[2].type == 'NULL' and t.slice[3].type == 'PRIMARY' and t.slice[3].type == 'KEY':
-            t[0] = {'type':'primary'}
-        elif t.slice[1].type == 'CHECK' :
-            {'type':'check', 'value': t[3]}
+    
+    if t.slice[1].type == 'UNIQUE' :
+        t[0] = {'type':'unique'}
+    elif t.slice[1].type == 'NULL' :
+        t[0] = {'type' : 'null' }
+    if t.slice[1].type == 'NOT' and t.slice[2].type == 'NULL':
+        t[0] = {'type' : 'not null' }
+    #elif t.slice[1].type == 'SET' and t.slice[2].type == 'NOT' and t.slice[3].type == 'NULL':
+    #    t[0] = {}
+    elif t.slice[1].type == 'PRIMARY' and t.slice[2].type == 'KEY':
+        t[0] = {'type':'primary'}
 
-
+    elif t.slice[1].type == 'CHECK' :
+        t[0] = {'type':'check', 'value': t[3]}
+    #elif t.slice[1].type == 'NOT' and t.slice[2].type == 'NULL' and t.slice[3].type == 'PRIMARY' and t.slice[3].type == 'KEY':
+    #    t[0] = {'type':'primary'}
 
 
 def p_references(t):
@@ -626,78 +639,143 @@ def p_create_opciones(t):
     '''create_opciones : OWNER SIGNO_IGUAL user_name create_opciones
                        | MODE SIGNO_IGUAL NUMERO create_opciones
                        | '''
-    #if len(t) == 5:
-    #    if t[1] == 'MODE':
-    #        t[0] = t[3]
-    #    else:
-    #        t[0] = 0
-    #else: 
-    #    t[0] = 0
+    if len(t) == 5:
+        if t[1] == 'MODE':
+            t[0] = t[3]
+        else:
+            t[0] = 0
+    else: 
+        t[0] = 0
 
 def p_user_name(t):
     '''user_name : ID
                   | CADENA 
                   | CADENASIMPLE'''
-    #t[0] = t[1]
+    t[0] = t[1]
 
 def p_alter(t): 
     '''ins_alter : ALTER tipo_alter ''' 
-    #t[0] = t[2]
+    t[0] = t[2]
 
 def p_tipo_alter(t): 
     '''tipo_alter : DATABASE ID alter_database PUNTO_COMA
                   | TABLE ID alteracion_tabla PUNTO_COMA''' # NO SE SI VAN LOS PUNTO Y COMA
-    #if t[1] == 'DATABASE':
-    #    if t[3] == None:
-    #        t[0] = Alter_Database(t[2],t[2], 0, 0)
-    #    else: 
-    #        t[0] = Alter_Database(t[2],t[3], 0, 0)
-    #else: 
-    #    print('TABLE')
+    if t[1] == 'DATABASE':
+        if t[3] == None:
+            t[0] = Alter_Database(t[2],t[2], t.slice[1].lexpos, t.slice[1].lineno)
+        else: 
+            t[0] = Alter_Database(t[2],t[3], t.slice[1].lexpos, t.slice[1].lineno)
+    else: 
+        print('TABLE')
+        t[0] = Alter_Table(t[2], t[3], t.slice[1].lexpos, t.slice[1].lineno)
 
 def p_alteracion_tabla(t): 
     '''alteracion_tabla : alteracion_tabla COMA alterar_tabla
                         | alterar_tabla'''
+    if len(t) == 4:
+        t[0] = t[1].append(t[3])
+    else:
+        t[0] = [t[1]]
 
 def p_alterar_tabla(t): 
     #alter column viene como una lista
     '''alterar_tabla : ADD COLUMN ID tipo_dato
-                     | ADD CONSTRAINT ins_constraint
+                     | ADD CONSTRAINT ID ins_constraint_dos
+                     | ADD ins_constraint_dos
                      | ALTER COLUMN ID TYPE tipo_dato
                      | ALTER COLUMN ID SET NOT NULL
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
+    if t[1] == 'ADD' and t[2] == 'COLUMN':
+        t[0] = Add_Column(t[3], t[4], t.slice[1].lexpos, t.slice[1].lineno)
+    elif t[1] == 'ADD' and t[2] == 'CONSTRAINT':
+        t[4]['name'] = t[3]
+        t[0] = Add_Constraint('', t[3], t.slice[1].lexpos, t.slice[1].lineno)
+    elif t[1] == 'ADD':
+        nombre = t[2]['value']
+        if t[2]['type'] == 'unique':
+            t[2]['name'] = 'un_' + str(nombre)
+            t[0] = Add_Constraint('', t[2], t.slice[1].lexpos, t.slice[1].lineno)
+        elif t[2]['type'] == 'foreign':
+            t[2]['name'] = 'fk_' + str(nombre)
+            t[0] = Add_Constraint('', t[2], t.slice[1].lexpos, t.slice[1].lineno)
+        elif t[2]['type'] == 'check':
+            t[2]['name'] = 'ch_check'
+            t[0] = Add_Constraint('', t[2], t.slice[1].lexpos, t.slice[1].lineno)
+        elif t[2]['type'] == 'primary':
+            t[2]['name'] = 'pk_' + str(nombre)
+            t[0] = Add_Constraint('', t[2], t.slice[1].lexpos, t.slice[1].lineno)
+    elif t[1] == 'ALTER':
+        if len(t) == 6:
+            t[0] = Alter_Column(t[3], 'SET NOT NULL', None, t.slice[1].lexpos, t.slice[1].lineno)
+        else: 
+            t[0] = Alter_Column(t[3], 'TYPE', t[5], t.slice[1].lexpos, t.slice[1].lineno)
+    elif t[1] == 'DROP' and t[2] == 'COLUMN':
+        t[0] = Drop_Column(t[3], t.slice[1].lexpos, t.slice[1].lineno)
+    elif t[1] == 'DROP' and t[2] == 'CONSTRAINT':
+        t[0] = Drop_Constraint(t[3], t.slice[1].lexpos, t.slice[1].lineno)
+
+def p_ins_constraint_dos(t):
+    '''ins_constraint_dos : UNIQUE PARABRE ID PARCIERRE
+                    | FOREIGN KEY PARABRE ID PARCIERRE REFERENCES PARABRE ID PARCIERRE
+                    | CHECK PARABRE exp PARCIERRE 
+                    | PRIMARY KEY PARABRE ID PARCIERRE'''
+    if t[1] == 'UNIQUE':
+        t[0] = {'type': 'unique', 'value': t[3]}
+    elif t[1] == 'FOREIGN':
+        t[0] = {'type': 'foreign', 'value': t[4], 'references': t[8]}
+    elif t[1] == 'CHECK':
+        t[0] = {'type': 'check', 'value': t[3]}
+    elif t[1] == 'PRIMARY':
+        t[0] = {'type': 'primary', 'value': t[4]}
 
 def p_alter_database(t): 
     '''alter_database : RENAME TO ID
                       | OWNER TO ID'''
-    #if t[1] == 'RENAME':
-    #    t[0] = t[3]
-    #else:
-    #    t[0] = None
+    if t[1] == 'RENAME':
+        t[0] = t[3]
+    else:
+        t[0] = None
 
 def p_drop(t): 
     '''ins_drop : DROP tipo_drop'''
-    #t[0] = t[2]
+    t[0] = t[2]
 
 def p_tipo_drop(t): 
     '''tipo_drop : DATABASE if_exists ID PUNTO_COMA
                  | TABLE ID PUNTO_COMA'''
-    #if len(t) == 5:
-    #    t[0] = Drop_Database(t[3], 0, 0)
+    if len(t) == 5:
+        t[0] = Drop_Database(t[3], t.slice[1].lexpos, t.slice[1].lineno)
+    else:
+        t[0] = Drop_Table(t[2], t.slice[1].lexpos, t.slice[1].lineno)
 
 def p_ins_insert(t):
     '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA 
                   | INSERT INTO ID PARABRE list_id PARCIERRE VALUES PARABRE list_vls PARCIERRE PUNTO_COMA'''
-    print('INSERT INTO ID VALUES ( *values* )')
+    if len(t) == 9: 
+        t[0] = Insert(t[3], t[6], None, t.slice[1].lexpos, t.slice[1].lineno)
+    else: 
+        t[0] = Insert(t[3], t[9], t[5], t.slice[1].lexpos, t.slice[1].lineno)
 
 def p_list_id(t):
     '''list_id : list_id COMA ID
                | ID'''
+    if len(t) == 4:
+        t[0] = t[1].append(t[3])
+    else:
+        t[0] = [t[1]]
+
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA val_value
                 | val_value '''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        arreglo = []
+        arreglo.append(t[1])
+        t[0] = arreglo
 
 def p_val_value(t):
     '''val_value : CADENA
@@ -710,32 +788,37 @@ def p_val_value(t):
                 |   NULL
                 |   F_HORA'''
     if t.slice[1].type == 'CADENA':
-        ob = Literal(t[1],Type.STRING,t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Literal(t[1],Type.STRING,t.slice[1].lexpos,t.slice[1].lineno)
     elif t.slice[1].type == 'CADENASIMPLE':
-        ob = Literal(t[1],Type.STRING,t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Literal(t[1],Type.STRING,t.slice[1].lexpos,t.slice[1].lineno)
     elif t.slice[1].type == 'NUMERO':
-        ob = Literal(t[1],Type.INT,t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Literal(t[1],Type.INT,t.slice[1].lexpos,t.slice[1].lineno)
     elif t.slice[1].type == 'NUM_DECIMAL':
-        ob = Literal(t[1],Type.DECIMAL,t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Literal(t[1],Type.DECIMAL,t.slice[1].lexpos,t.slice[1].lineno)
     elif t.slice[1].type == 'FECHA_HORA':
-        ob = Literal(t[1],Type.DATE,t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Literal(t[1],Type.DATE,t.slice[1].lexpos,t.slice[1].lineno)
     elif t.slice[1].type == 'F_HORA':
-        ob = Literal(t[1],Type.DATE,t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Literal(t[1],Type.DATE,t.slice[1].lexpos,t.slice[1].lineno)
     elif t.slice[1].type == 'TRUE':
-        ob = Literal(True,Type.BOOLEAN,t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Literal(True,Type.BOOLEAN,t.slice[1].lexpos,t.slice[1].lineno)
     elif t.slice[1].type == 'FALSE':
-        ob = Literal(False,Type.BOOLEAN,t.slice[1].lexpos,t.slice[1].lineno)
+        t[0] = Literal(False,Type.BOOLEAN,t.slice[1].lexpos,t.slice[1].lineno)
     elif t.slice[1].type == 'NULL':
-        ob = Literal(t[1],Type.NULL,t.slice[1].lexpos,t.slice[1].lineno)
-    t[0] = ob
+        t[0] = Literal(t[1],Type.NULL,t.slice[1].lexpos,t.slice[1].lineno)
 
 def p_ins_select(t):
     '''ins_select : ins_select UNION option_all ins_select PUNTO_COMA
                     |    ins_select INTERSECT option_all ins_select PUNTO_COMA
                     |    ins_select EXCEPT option_all ins_select PUNTO_COMA
-                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
+                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_having arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
                     |    SELECT functions as_id'''
-
+    #t[0] = Select()
+    if len(t) == 13:
+        t[0] = Select(t[2], t[3]['id'], t[5], t[6], t[8], t[3]['aggregates'], t[7], t[9], t.slice[1].lexpos, t.slice[1].lineno)
+    elif len(t) == 4:
+        t[0] = Select_Func(t[2], t.slice[1].lexpos, t.slice[1].lineno)
+    
+# TODO: PENDIENTE
 def p_option_all(t):
     '''option_all   :   ALL
                     |    '''
@@ -743,19 +826,45 @@ def p_option_all(t):
 def p_arg_distict(t):
     '''arg_distict :    DISTINCT
                     |    '''
+    if len(t) == 2:
+        t[0] = True
+    else:
+        t[0] = False
 
 def p_colum_list(t):
     '''colum_list   :   s_list
                     |   SIGNO_POR '''
+    if t[1] == '*':
+        t[0] = t[1]
+    else: 
+        t[0] = t[1]
 
+#TODO: PENDIENTE
 def p_s_list(t):
     '''s_list   :   s_list COMA columns as_id
                 |   columns as_id'''
+    if len(t) == 5:
+        if 'aggregates' in t[3]:
+            t[1]['aggregates'].append(t[3]['aggregates'])
+            t[1]['id'].append({'name': t[3]['id'], 'father': None, 'as': t[4]})
+            t[0] = t[1]
+        elif 'father' in t[3]:
+            t[1]['id'].append({'name': t[3]['name'], 'father': t[3]['father'], 'as': t[4]})
+            t[0] = t[1]
+    else:
+        if 'aggregates' in t[1]:
+            t[0] = {'aggregates': [t[1]['aggregates']], 'id': [t[1]['id']]}
+        elif 'father' in t[1]:
+            t[0] = {'aggregates': [], 'id':[{'name': t[1]['name'], 'father': t[1]['father'], 'as': t[2]}]}
 
 def p_columns(t):
     '''columns   : ID dot_table
                     |   aggregates '''
-
+    if len(t) == 3:
+        t[0] = {'father': t[1], 'name': t[2]}
+    else:
+        t[0] = t[1]
+                
 def p_dot_table(t):
     '''dot_table    :   PUNTO ID
                     |    '''
@@ -768,25 +877,31 @@ def p_as_id(t): #  REVISRA CADENA Y AS CADENA
     '''as_id    :   AS ID
                     |   AS CADENA
                     |   CADENA
+                    |   ID
                     |   '''
-
+    if len(t) == 3:
+        t[0] = t[2]
+    elif len(t) == 2:
+        t[0] = t[1]
+    else: 
+        t[0] = None
 
 def p_aggregates(t):
-    '''aggregates   :   COUNT PARABRE param PARCIERRE
+    '''aggregates   :   COUNT PARABRE param PARCIERRE 
                     |   SUM PARABRE param PARCIERRE
                     |   AVG PARABRE param PARCIERRE
                     |   MAX PARABRE param PARCIERRE
                     |   MIN PARABRE param PARCIERRE ''' 
     if t.slice[1] == 'COUNT':
-        t[0] = Count(t[3])
+        t[0] = {'funcion':Count(t[3]), 'id': 'COUNT(' + t[3].id + ')'}
     if t.slice[1] == 'SUM':
-        t[0] = Sum(t[3]) 
+        t[0] = {'funcion':Sum(t[3]), 'id': 'SUM(' + t[3].id + ')'}
     if t.slice[1] == 'AVG':
-        t[0] = Avg(t[3])
+        t[0] = {'funcion':Avg(t[3]), 'id': 'AVG(' + t[3].id + ')'}
     if t.slice[1] == 'MAX':
-        t[0] = Max(t[3])
+        t[0] = {'funcion':Max(t[3]), 'id': 'MAX(' + t[3].id + ')'}
     if t.slice[1] == 'MIN':
-        t[0] = Min(t[3])
+        t[0] = {'funcion':Min(t[3]), 'id': 'MIN(' + t[3].id + ')'}
 
 def p_functions(t):
     '''functions    :   math
@@ -997,31 +1112,49 @@ def p_string_op(t):
                     |   SIGNO_DOBLE_MAYORQUE'''
     t[0] = t[1]
 
-
 def p_time_func(t):
-    '''time_func    :   DATE_PART PARABRE COMILLA h_m_s COMILLA COMA INTERVAL F_HORA PARCIERRE 
+    '''time_func    :   DATE_PART PARABRE  h_m_s  COMA INTERVAL F_HORA PARCIERRE 
                     |   NOW PARABRE PARCIERRE
-                    |   EXTRACT PARABRE reserv_time  FROM TIMESTAMP  PARCIERRE
+                    |   EXTRACT PARABRE reserv_time  FROM TIMESTAMP FECHA_HORA PARCIERRE
+                    |   TIMESTAMP CADENASIMPLE
                     |   CURRENT_TIME
                     |   CURRENT_DATE'''
+    if t.slice[1].type == 'NOW':
+        t[0] = Now(t.slice[1].lexpos,t.slice[1].lineno)
+    if t.slice[1].type == 'TIMESTAMP':
+        if t[2].upper() == 'NOW':
+            t[0] = Now(t.slice[1].lexpos,t.slice[1].lineno)
+    elif t.slice[1].type == 'CURRENT_TIME':
+        t[0] = Current_Time(t.slice[1].lexpos,t.slice[1].lineno)
+    elif t.slice[1].type == 'CURRENT_DATE':
+        t[0] = Current_Date(t.slice[1].lexpos,t.slice[1].lineno)
+    elif t.slice[1].type == 'EXTRACT':
+        fecha = Literal(t[6],Type.DATE,t.slice[6].lexpos,t.slice[6].lineno)
+        t[0] = Extract(t[3],fecha,t.slice[1].lexpos,t.slice[1].lineno)
+    elif t.slice[1].type == 'DATE_PART':
+        interval = Literal(t[6],Type.DATE,t.slice[6].lexpos,t.slice[6].lineno)
+        t[0] = Date_Part(t[3],interval,t.slice[1].lexpos,t.slice[1].lineno)
 
 def p_reserv_time(t):
     '''reserv_time  :   h_m_s 
                     |   YEAR
                     |   MONTH
                     |   DAY'''
+    t[0] = t[1]
 
 def p_h_m_s(t):
     '''h_m_s    :   HOUR
                     |   MINUTE
-                    |   SECOND '''
+                    |   SECOND 
+                    |   CADENASIMPLE'''
+    t[0] = t[1]
 
 def p_param(t):
     '''param    :   ID dot_table
                 |   SIGNO_POR '''
     if t.slice[1].type == 'ID':
         if t[1] != None:
-            t[0] = t[1] + '.' + t[1]
+            t[0] = Id(t[2], t[1],t.slice[1].lexpos,t.slice[1].lineno)
         else:
             t[0] = t[1]
     else: 
@@ -1031,10 +1164,27 @@ def p_param(t):
 def p_table_list(t):
     '''table_list   :   table_list COMA ID as_id
                     |   ID as_id'''
+    if len(t) == 5:
+        t[1].append({'name': t[3], 'as': t[4]})
+        t[0] = t[1]
+    else:
+        t[0] = [{'name': t[1], 'as': t[2]}]
 
 def p_arg_where(t):
-    '''arg_where    :   WHERE exp
+    '''arg_where    :   WHERE PARABRE exp PARCIERRE
                     |    '''
+    if len(t) == 5:
+        t[0] = t[2]
+    else:
+        t[0] = None
+
+def p_arg_having(t):
+    '''arg_having    :   HAVING PARABRE exp PARCIERRE
+                    |    '''
+    if len(t) == 5:
+        t[0] = t[2]
+    else:
+        t[0] = None
 
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
@@ -1064,13 +1214,6 @@ def p_exp(t):
             | arg_least 
             | val_value'''
     
-    t[0] = t[1]
-    if 'Error' in t[0].execute(""):
-        print(t[0])
-    else:
-        print(t[0].execute(""))
-# values -> list_vls
-    
     try:
         if t.slice[1].type == 'NOT' :
             t[0] = Logic(t[2],None,t[1], t.slice[1].lexpos,t.slice[1].lineno)
@@ -1090,23 +1233,40 @@ def p_exp(t):
 
 def p_arg_greatest(t):
     '''arg_greatest  : GREATEST PARABRE exp_list PARCIERRE''' 
+    t[0] = Greatest(t[3], t.slice[2].lexpos,t.slice[2].lineno)
 
 def p_arg_least(t):
     '''arg_least  : LEAST PARABRE exp_list PARCIERRE''' 
+    t[0] = Least(t[3], t.slice[2].lexpos,t.slice[2].lineno)
 
 def p_exp_list(t):
     '''exp_list  : exp_list COMA exp
                  | exp'''
+    if len(t) == 4:
+        t[0] = t[1].append(t[3])
+    else:
+        t[0] = [t[1]]
 
 def p_case(t):
     '''arg_case  : CASE arg_when arg_else END''' 
+    diccionario = {'when': t[2], 'then':t[3]}
+    t[0] = Case(diccionario, t.slice[1].lexpos,t.slice[1].lineno)
 
 def p_arg_when(t):
     '''arg_when  : arg_when WHEN exp THEN exp
-                 | WHEN exp THEN exp''' 
+                 | WHEN exp THEN exp'''
+    if len(t) == 6:
+        t[0] = t[1].append({'exp1': t[3], 'exp2': t[5]})
+    else:
+        t[0] = [{'exp1': t[2], 'exp2': t[4]}]
+     
 def p_arg_else(t):
     '''arg_else :  ELSE exp
                  | ''' # epsilon
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = None
 
 def p_predicates(t):
     '''predicates  : data BETWEEN list_vls AND list_vls
@@ -1165,7 +1325,7 @@ def p_data(t):
 def p_table_at(t):
     '''table_at  : PUNTO ID
                  | ''' #epsilon
-    if t.slice[1].type == 'PUNTO':
+    if len(t) == 3:
         t[0] = t[3]
     else :
         t[0] = None
@@ -1181,81 +1341,135 @@ def p_arg_pattern(t):
 def p_arg_group_by(t):
     '''arg_group_by    :   GROUP BY g_list
                        |  ''' #epsilon
+    if len(t) == 4:
+        t[0] = t[3]
+    else:
+        t[0] = None
 
 def p_g_list(t):
     '''g_list    : g_list COMA g_item
                  | g_item ''' 
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_g_item(t):
     '''g_item    : ID g_refitem''' 
+    if t[2] == None:
+        t[0] = {'father': t[1]}
+    else:
+        t[0] = {'father': t[1], 'id': t[2]}
 
 def p_g_refitem(t):
     '''g_refitem  : PUNTO ID
                   | ''' #epsilon
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = None
 
 def p_arg_order_by(t):
     '''arg_order_by    :   ORDER BY o_list
                        |  ''' #epsilon
+    if len(t) == 4:
+        t[0] = t[3]
+    else:
+        t[0] = None
 
 def p_o_list(t):
     '''o_list    : o_list COMA o_item
                  | o_item ''' 
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_o_item(t):
     '''o_item    : ID o_refitem ad arg_nulls''' 
+    t[0] = {'father': t[1], 'id': t[2], 'ad': t[3], 'nulls': t[4]}
 
 def p_o_refitem(t):
     '''o_refitem  : PUNTO ID
                   | ''' #epsilon
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = None
 
 def p_ad(t):
     '''ad : ASC
           | DESC
           | ''' #epsilon
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = None
 
 def p_arg_nulls(t):
     '''arg_nulls : NULLS arg_fl
                  | ''' #epsilon
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = None
 
 def p_arg_fl(t):
     '''arg_fl : FIRST
               | LAST''' #epsilon
+    t[0] = t[1]
 
 def p_arg_limit(t):
     '''arg_limit   :  LIMIT option_limit
                    |  ''' #epsilon
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = None
 
 def p_option_limit(t):
     '''option_limit   : NUMERO
                       | ALL ''' 
+    t[0] = t[1]
 
 def p_arg_offset(t):
     '''arg_offset   : OFFSET NUMERO 
                     |  ''' #epsilon
-
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = None
 
 def p_ins_update(t):
     '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
+    t[0] = Update(t[2], t[4], t[6], t.slice[2].lexpos, t.slice[2].lineno)
 
 def p_ins_asign_list(t):
     '''asign_list  : asign_list COMA ID SIGNO_IGUAL exp 
                    | ID SIGNO_IGUAL exp'''
+    if len(t) == 6:
+        t[0] = t[1].append({'id': t[3], 'value': t[5]})
+    else: 
+        t[0] = [{'id': t[1], 'value': t[3]}]
 
 def p_ins_delete(t):
     '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''
+    t[0] = Delete(t[3], t[5], t.slice[2].lexpos, t.slice[2].lineno)
 
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value)
-    print(str(t.lineno))
+    err = T_error('SINTACTICO', t.value, 'ERROR SINTÁCTICO', str(t.lexpos), str(t.lineno))
+    TokenError.append(err)
 
-
-
-
-
+def get_errores():
+    return TokenError
+    TokenError.clear()
 
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar
-def analizarSin(texto):    
+def analizarSin(texto):
     parser = yacc.yacc()
-    parser.parse(texto)# el parametro cadena, es la cadena de texto que va a analizar.
+    contenido = parser.parse(texto, lexer= analizador)# el parametro cadena, es la cadena de texto que va a analizar.
+    return contenido
 

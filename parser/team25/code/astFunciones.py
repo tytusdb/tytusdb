@@ -25,7 +25,6 @@ class FuncionNumerica(Expresion):
             nodo += "\n" + identificador + " -> " + \
                 str(hash(self.parametro2)) + ";"
             nodo += self.parametro2.dibujar()
-
         return nodo
     
     def getTipo(self , valorNumerico):
@@ -731,19 +730,30 @@ class FuncionCadena(Expresion):
         nodo += "\n" + identificador + " -> " + \
             str(hash(self.parametro1)) + ";"
         nodo += "\n" + str(hash(self.parametro1)) + \
-            "[label = \"" + self.parametro1 + "\"];"
+            "[label = \"" + str(self.parametro1) + "\"];"
 
         if self.parametro2:
             if isinstance(self.parametro2, str):
                 nodo += "\n" + identificador + " -> " + \
                     str(hash(self.parametro2)) + ";"
                 nodo += "\n" + str(hash(self.parametro2)) + \
-                    "[label = \"" + self.parametro2 + "\"];"
+                    "[label = \"" + str(self.parametro2) + "\"];"
             else:
                 nodo += "\n" + identificador + " -> " + \
                     str(hash(self.parametro2)) + ";"
                 nodo += "\n" + str(hash(self.parametro2)) + \
                     "[label = \"" + str(self.parametro2) + "\"];"
+        if (self.parametro1,Expresion):
+            if (self.parametro1,Expresion):
+                nodo += "\n" + self.parametro1.dibujar()
+        
+        if self.parametro2:
+            if (self.parametro2,Expresion):
+                nodo += "\n" + self.parametro2.dibujar()
+
+        if self.parametro3:
+            if (self.parametro3,Expresion):
+                nodo += "\n" + self.parametro3.dibujar()
 
         return nodo
     def ejecutar(self, ts):
@@ -772,7 +782,72 @@ class FuncionCadena(Expresion):
            
             
         elif self.parametro2 != None:       # 2 PARAMETROS
-            print("2 parametros")
+            if self.funcion=="CONVERT":
+                nodoSimplificado = self.parametro1.ejecutar(ts)
+                if isinstance(nodoSimplificado , ErrorReport):
+                    return nodoSimplificado # SOLO SE SUBE EL ERROR
+                self.parametro2 = self.parametro2.upper()
+                
+                if isinstance(nodoSimplificado , ExpresionCadena):
+                    if self.parametro2 == "DATE":
+                        if nodoSimplificado.isFecha:
+                            return nodoSimplificado
+                        else:
+                            try:# ejemplo de lo que espera    año7 mes 7 dia 
+                                valor = datetime.strptime( str(nodoSimplificado.val) , '%Y/%m/%d')
+                                return ExpresionCadena(str(valor) ,TIPO_DE_DATO.CADENA, self.linea , True)
+                            except:
+                                try:# ejemplo : dia - mes - anio   7-MAY-2020
+                                    valor = datetime.strptime(str(nodoSimplificado.val) , '%u-%b-%Y')
+                                    return ExpresionCadena(str(valor) ,TIPO_DE_DATO.CADENA, self.linea , True)
+                                except:
+                                    print("NO COINCIDE CON NINGUN FORMATO DATE")
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 == "INTEGER":
+                        try:
+                            valor = nodoSimplificado.val
+                            return ExpresionNumero(int(valor) ,TIPO_DE_DATO.DECIMAL, self.linea )
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 == "VARCHAR":
+                        try:
+                            valor = nodoSimplificado.val
+                            return ExpresionCadena(str(valor) ,TIPO_DE_DATO.CADENA, self.linea )
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 =="DECIMAL":
+                        try:
+                            valor = nodoSimplificado.val
+                            return ExpresionNumero(float(valor) ,TIPO_DE_DATO.DECIMAL, self.linea )
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                        
+                elif isinstance(nodoSimplificado , ExpresionNumero):
+                    if self.parametro2 == "DATE":
+                        return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 == "INTEGER":
+                        try:
+                            valor = nodoSimplificado.val
+                            return ExpresionNumero(int(valor) ,TIPO_DE_DATO.DECIMAL, self.linea )
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 == "VARCHAR":
+                        try:
+                            valor = nodoSimplificado.val
+                            return ExpresionCadena(str(valor) ,TIPO_DE_DATO.CADENA, self.linea )
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 =="DECIMAL":
+                        try:
+                            valor = nodoSimplificado.val
+                            return ExpresionNumero(float(valor) ,TIPO_DE_DATO.DECIMAL, self.linea )
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                else:
+                    return ErrorReport('semantico', f'error de tipo en la funcion {self.funcion}' ,self.linea)
+
+            else:
+                print(':v esas funciones no estan')
             
         elif self.parametro1 != None:       # 1 PARAMETRO
             nodoSimplificado = self.parametro1.ejecutar(ts)
@@ -815,8 +890,73 @@ class FuncionCadena(Expresion):
                     if res2.tipo == TIPO_DE_DATO.ENTERO and res3.tipo == TIPO_DE_DATO.ENTERO:
                         return str(res1)[int(res2.val) : int(res3.val)]
                 return ErrorReport('semantico', 'error de tipo en el parametro 2 o parametro 3' ,self.linea)
-        elif self.parametro2 != None:       # 2 PARAMETROS
-            print("2 parametros")
+        elif self.parametro2 != None:
+            if self.funcion=="CONVERT":
+                nodoSimplificado = self.parametro1.ejecutar(0)
+                if isinstance(nodoSimplificado , ErrorReport):
+                    return nodoSimplificado # SOLO SE SUBE EL ERROR
+                self.parametro2 = self.parametro2.upper()
+                
+                if isinstance(nodoSimplificado , ExpresionCadena):
+                    if self.parametro2 == "DATE":
+                        if nodoSimplificado.isFecha:
+                            return nodoSimplificado
+                        else:
+                            try:# ejemplo de lo que espera    año7 mes 7 dia 
+                                valor = datetime.strptime( str(nodoSimplificado.val) , '%Y/%m/%d')
+                                return str(valor)
+                            except:
+                                try:# ejemplo : dia - mes - anio   7-MAY-2020
+                                    valor = datetime.strptime(str(nodoSimplificado.val) , '%u-%b-%Y')
+                                    return str(valor)
+                                except:
+                                    print("NO COINCIDE CON NINGUN FORMATO DATE")
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 == "INTEGER":
+                        try:
+                            valor = nodoSimplificado.val
+                            return str(valor)
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 == "VARCHAR":
+                        try:
+                            valor = nodoSimplificado.val
+                            return str(valor)
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 =="DECIMAL":
+                        try:
+                            valor = nodoSimplificado.val
+                            return str(valor)
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                        
+                elif isinstance(nodoSimplificado , ExpresionNumero):
+                    if self.parametro2 == "DATE":
+                        return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 == "INTEGER":
+                        try:
+                            valor = nodoSimplificado.val
+                            return str(valor)
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 == "VARCHAR":
+                        try:
+                            valor = nodoSimplificado.val
+                            return str(valor)
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                    elif self.parametro2 =="DECIMAL":
+                        try:
+                            valor = nodoSimplificado.val
+                            return str(valor)
+                        except:
+                            return ErrorReport('semantico', f'error NO ES POSIBLE HACER LA CONVERSION' ,self.linea)
+                else:
+                    return ErrorReport('semantico', f'error de tipo en la funcion {self.funcion}' ,self.linea)
+
+            else:
+                print(':v esas funciones no estan')
             
         elif self.parametro1 != None:       # 1 PARAMETRO
             nodoSimplificado = self.parametro1.ejecutar(0)
@@ -974,8 +1114,34 @@ class FuncionTime(Expresion):# 0 , 1 y 2
         self.linea = linea
 
     def dibujar(self):
-        pass
+        identificador = str(hash(self))
 
+        nodo = "\n" + identificador + "[ label = \"" + self.funcion + "\" ];"
+        nodo += "\n" + identificador + " -> " + \
+            str(hash(self.parametro1)) + ";"
+        nodo += "\n" + str(hash(self.parametro1)) + \
+            "[label = \"" + str(self.parametro1) + "\"];"
+
+        if self.parametro2:
+            if isinstance(self.parametro2, str):
+                nodo += "\n" + identificador + " -> " + \
+                    str(hash(self.parametro2)) + ";"
+                nodo += "\n" + str(hash(self.parametro2)) + \
+                    "[label = \"" + str(self.parametro2) + "\"];"
+            else:
+                nodo += "\n" + identificador + " -> " + \
+                    str(hash(self.parametro2)) + ";"
+                nodo += "\n" + str(hash(self.parametro2)) + \
+                    "[label = \"" + str(self.parametro2) + "\"];"
+        if (self.parametro1,Expresion):
+            if (self.parametro1,Expresion):
+                nodo += "\n" + self.parametro1.dibujar()
+        
+        if self.parametro2:
+            if (self.parametro2,Expresion):
+                nodo += "\n" + self.parametro2.dibujar()
+
+                
     def ejecutar(self, ts):#los que pueden venir en el select 
         if self.parametro1 != None and self.parametro2 != None:        
             if self.funcion == "EXTRACT":
