@@ -2,13 +2,13 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 import numpy as np
 
 class GroupBy(Instruccion):
-    def __init__(self, valor, tipo, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, valor, tipo, strGram, linea, columna):
+        Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        tabla = [] 
+        tabla = []
         for x in range(0,len(self.valor)):
             val = self.valor[x].ejecutar(tabla,arbol)
             if(tabla == []):

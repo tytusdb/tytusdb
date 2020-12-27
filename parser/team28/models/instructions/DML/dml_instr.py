@@ -69,12 +69,20 @@ class Insert(Instruction):
                 for name_col in headers:
                     column = TypeChecker().searchColumn(table_tp, name_col).__dict__
                     if not name_col in dic: #Valor Nulo --> ver si se puede
-                        if column['_notNull'] == True:
-                            desc = f'Columna {name_col} no puede ser null'
-                            ErrorController().add(28, 'Execution', desc, self.line, self.column)
-                            return None
+                        if column['_default'] is not None:
+                            if isinstance(column['_default'], str):
+                                dic[name_col] = column['_default'].replace("\'","")
+                            else:
+                                dic[name_col] = column['_default']
                         else:
                             dic[name_col] = None
+                            if column['_notNull'] == True:
+                                desc = f'Columna {name_col} no puede ser null'
+                                ErrorController().add(28, 'Execution', desc, self.line, self.column)
+                                return None
+                            else:
+                                dic[name_col] = None
+                        
                     else: #validar valor
                         is_correct = checker.validateType(column['_dataType'], dic.get(name_col), False)
                         if not is_correct:

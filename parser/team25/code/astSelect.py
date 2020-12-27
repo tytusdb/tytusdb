@@ -10,6 +10,7 @@ from typeChecker.typeReference import getColumns
 from prettytable import PrettyTable
 from astExpresion import ExpresionID, Expresion , TuplaCompleta
 from reporteErrores.errorReport import ErrorReport
+import sqlErrors
 
 class COMBINE_QUERYS(Enum):
     UNION = 1
@@ -27,12 +28,16 @@ class TABLA_TIPO(Enum):
     SELECCIONADA = 2
     SELECT_SIMPLE = 3
     TABLAWHERE = 4    
+    TABLAUNION = 5
+    TABLAINTERSECCION = 6
+    TABLAEXCEPT = 7
 
     
 
 class SelectSimple(Instruccion):
-    def __init__(self, campos):
+    def __init__(self, campos,linea=0):
         self.campos = campos
+        self.linea = linea
     
     def ejecutar(self,ts):
         columnas = []
@@ -41,30 +46,35 @@ class SelectSimple(Instruccion):
             if isinstance(actual, ITEM_ALIAS):
                 if isinstance(actual.item, ExpresionID):
                     print("Error semántico, solo se aceptan expresiones.")
-                    break
+                    sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+                    return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                 elif isinstance(actual.item, Expresion):
                     filas.append(actual.item.ejecutar(ts).val)
                     columnas.append(actual.alias)
                 else:
                     print("Error semántico, solo se aceptan expresiones.")
-                    break
+                    sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+                    return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
             elif isinstance(actual, ExpresionID):
                 print("Error semántico, solo se aceptan expresiones.")
-                break
+                sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+                return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
             elif isinstance(actual, Expresion):
                 filas.append(actual.ejecutar(ts).val)
                 columnas.append('???')
                 print("Error semántico, solo se aceptan expresiones.")
+                sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+                return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
 
         salida = matriz(columnas, [filas], TABLA_TIPO.SELECT_SIMPLE, "nueva tabla", None, None)
-        salida.imprimirMatriz()
-        return salida
+        return salida.ejecutar(ts)
 # Select From
 class SelectFrom(Instruccion):
-    def __init__(self, fuentes, campos, alias=None):
+    def __init__(self, fuentes, campos, alias=None,linea=0):
         self.fuentes = fuentes
         self.campos = campos # tal vez que lista de campos viniera como    [ ( item , alias)   , ( item , alias)  , ( item , alias)   ] donde item puede ser una expresion , funcion o algo simple
         self.alias = alias
+        self.linea = linea
     
     def dibujar(self):
         identificador = str(hash(self))
@@ -97,8 +107,8 @@ class SelectFrom(Instruccion):
             elif isinstance(col, ITEM_ALIAS):
                 columnas.append(col)      
         tabla_base = FROM(self.fuentes)
-        salida = SELECT(columnas, tabla_base.ejecutar(ts))
-        salida.ejecutar(ts).imprimirMatriz()
+        salida = SELECT(columnas, tabla_base.ejecutar(ts),self.linea)
+        return salida.ejecutar(ts)
 
 class FROM():
     def __init__(self, fuentes:list):
@@ -148,9 +158,10 @@ class FROM():
                 return resultado
 
 class SELECT():
-    def __init__(self, columnas:list, resultado: list):
+    def __init__(self, columnas:list, resultado: list,linea=0):
         self.columnas = columnas
         self.resultado = resultado
+        self.linea = linea
     def ejecutar(self,ts):
         salida = None
         if len(self.resultado.fuentes)>1:
@@ -163,6 +174,8 @@ class SELECT():
                             seleccion_columnas.append(actual)
                         elif esAmbiguo(actual.item,self.resultado.columnas,self.resultado.fuentes):
                             print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                            sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.ambiguous_column
+                            return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                         else:
                             actual = aclarar(actual.item, self.resultado.columnas, self.resultado.fuentes)
                             seleccion_columnas.append(actual)
@@ -172,9 +185,13 @@ class SELECT():
                         seleccion_columnas.append(actual)
                     elif actual.item == "*":
                         print("Error semántico, el operador \"*\" no es aplicable con alias.")
+                        sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch
+                        return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                     else:
                         if esAmbiguo(actual,self.resultado.columnas,self.resultado.fuentes):
                             print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                            sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.ambiguous_column
+                            return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                         else:
                             actual = aclarar(actual, self.resultado.columnas, self.fuentes)
                             seleccion_columnas.append(actual)
@@ -187,6 +204,8 @@ class SELECT():
                 else:
                     if esAmbiguo(actual,self.resultado.columnas,self.resultado.fuentes):
                         print("Error semántico, el identificador  \"", actual, "\"  es ambiguo")
+                        sqlTypeError=sqlErrors.sql_error_syntax_error_or_access_rule_violation.ambiguous_column
+                        return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
                     else:
                         actual = aclarar(actual, self.resultado.columnas, self.fuentes)
                         seleccion_columnas.append(actual)
@@ -229,13 +248,14 @@ def realizarProducto(operandos:list):
     operandos.append(res)
     return res  
 class matriz():
-    def __init__(self, columnas:list, filas:list, tipo, nombre, fuentes: list , clm ):
+    def __init__(self, columnas:list, filas:list, tipo, nombre, fuentes: list , clm ,linea=0):
         self.columnas = columnas
         self.filas = filas
         self.tipo = tipo
         self.nombre = nombre
         self.fuentes = fuentes
         self.clm = clm 
+        self.linea=linea
 
     def imprimirMatriz(self):
         x = PrettyTable()
@@ -243,6 +263,12 @@ class matriz():
         for fila in self.filas:
             x.add_row(fila)
         print(x)
+    def getTablaToString(self) ->str:
+        x = PrettyTable()
+        x.field_names = sinRepetidos(self.columnas)
+        for fila in self.filas:
+            x.add_row(fila)
+        return x.get_string()
     def obtenerColumnas(self, ids:list):
         error = False
         resultante = []
@@ -327,7 +353,9 @@ class matriz():
                     else:                        
                         print("Error semántico, la columna:  \" ", actual.item," \"  no se encuentra o su referencia es ambigua.")
                         error = True
-                        break
+                        sqlTypeError=sqlErrors.sql_error_fdw_error.fdw_column_name_not_found
+                        return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
+                        
 
 
 
@@ -426,7 +454,9 @@ class matriz():
                     else:                        
                         print("Error semántico, la columna:  \" ", actual," \"  no se encuentra o su referencia es ambigua.")
                         error = True
-                        break
+                        sqlTypeError=sqlErrors.sql_error_fdw_error.fdw_column_name_not_found
+                        return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)
+
         if not error:
             salida = matriz(columnas_resultantes, resultante, TABLA_TIPO.SELECCIONADA, "nueva tabla", self.fuentes , self.clm)
         else: 
@@ -561,10 +591,11 @@ class WHERE():
         return matriz(ts.columnas, lista_litas, TABLA_TIPO.TABLAWHERE, "nueva tabla", ts.fuentes, ts.clm)
 
 class SelectFromWhere(Instruccion):
-    def __init__(self, fuentes, campos, filtro):
+    def __init__(self, fuentes, campos, filtro,linea=0):
         self.fuentes = fuentes
         self.campos = campos # tal vez que lista de campos viniera como    [ ( item , alias)   , ( item , alias)  , ( item , alias)   ] donde item puede ser una expresion , funcion o algo simple
         self.filtro = filtro
+        self.linea = linea
     def dibujar(self):
         pass
     def ejecutar(self, ts): 
@@ -585,7 +616,94 @@ class SelectFromWhere(Instruccion):
             return SALIDA_FILTRADA
              
         salida = SELECT(columnas,SALIDA_FILTRADA) 
-        salida.ejecutar(ts).imprimirMatriz()
-        return salida
+        matriz = salida.ejecutar(ts)
+        matriz.imprimirMatriz()
+        return matriz
 
-    
+class combineQuery(Instruccion):
+    def __init__(self, izq, operador, der,linea=0):
+        self.izq = izq
+        self.operador = operador
+        self.der = der
+        self.linea = linea
+    def ejecutar(self, ts):
+        izquierdo = self.izq.ejecutar(ts)
+        derecho = self.der.ejecutar(ts)
+        if len(izquierdo.filas) == len(derecho.filas) and len(izquierdo.columnas) == len(derecho.columnas):
+            if self.operador == COMBINE_QUERYS.UNION:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 | set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                for actual in lista_final[0]:
+                    nuevas_columnas.append("Union")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAUNION,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+            elif self.operador == COMBINE_QUERYS.INTERSECT:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 & set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                if len(lista_final)>0:
+                    for actual in lista_final[0]:
+                        nuevas_columnas.append("Intersect")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAINTERSECCION,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+            elif self.operador == COMBINE_QUERYS.EXCEPT:
+                set1 = set(tuple(x) for x in izquierdo.filas)
+                set2 = set(tuple(x) for x in derecho.filas)
+                union = set1 - set2
+                lista_intermedia = list(union)
+                lista_final = []
+                for actual in lista_intermedia:
+                    lista_final.append(list(actual))
+                nuevas_columnas = []
+                for actual in lista_final[0]:
+                    nuevas_columnas.append("Except")
+                nuevas_fuentes = []
+                for actual in izquierdo.fuentes:
+                    nuevas_fuentes.append(actual)
+                for actual in derecho.fuentes:
+                    nuevas_fuentes.append(actual)
+                nuevo_clm = []
+                for actual in izquierdo.clm:
+                    nuevo_clm.append(actual)
+                for actual in derecho.clm:
+                    nuevo_clm.append(actual)
+                salida = matriz(nuevas_columnas, lista_final,TABLA_TIPO.TABLAEXCEPT,'nueva tabla',nuevas_fuentes, nuevo_clm )
+                salida.imprimirMatriz()
+                return salida
+        else:
+            print("Error semántico, el número de filas de los operandos es diferente.")   
+            sqlTypeError=sqlErrors.sql_error_data_exception.invalid_parameter_value
+            return ErrorReport('Semántico',"ERROR "+sqlTypeError.value+": "+str(sqlTypeError.name),self.linea)

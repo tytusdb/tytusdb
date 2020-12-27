@@ -329,6 +329,7 @@ def alterRenameColumn(database:str, table: str, columnOld:str, columnNew:str) ->
                     actualAtributo = actualTabla.listaAtributos.obtenerAtributo(columnOld)
                     actualAtributo.nombre = columnNew
                     actualTabla.renombrarLlavesForaneas(actualBase,table,columnOld,columnNew)
+                    actualTabla.renombrarLlavePrimaria(columnOld, columnNew)
                     return 0
                 else:
                     return 5
@@ -363,6 +364,7 @@ def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenc
         if (actualTabla is not None):
             if not actualTabla.existeForanea(nombreConstraint):
                 actualTabla.foreigns.append(ConstraintForeign.Foreign(nombreConstraint, columns, referenceTable, referencesColumns))
+                return 0
             else:
                 return 4
         else:

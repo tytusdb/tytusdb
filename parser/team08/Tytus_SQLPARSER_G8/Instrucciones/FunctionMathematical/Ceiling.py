@@ -6,7 +6,7 @@ from Instrucciones.Excepcion import Excepcion
 
 class Ceiling(Instruccion):
     def __init__(self, valor, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
