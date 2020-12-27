@@ -197,7 +197,7 @@ class arbolB:
     def _Keys(self, tmp):
         if tmp:
             for i in tmp.llaves:
-                l.append(i[0])
+                l.append(str(i[0]))
             for j in tmp.hijos:
                 self._Keys(j)
         return l
