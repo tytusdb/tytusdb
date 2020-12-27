@@ -181,13 +181,12 @@ def p_instruccion_selects2(t) :
 
 def p_instruccion_selects3(t) :
     '''selects      : fun_trigonometrica state_aliases_field 
-                    '''
+                    | aritmetica state_aliases_field '''
     t[0] = Select({'objeto': t[1], 'alias': t[2]}, t.lexer.lineno - 1)
-
 
 def p_instruccion_selects4(t) :
     '''selects      : fun_trigonometrica state_aliases_field FROM ID state_aliases_table 
-                    '''
+                    | aritmetica state_aliases_field FROM ID state_aliases_table  '''
     
 
 
@@ -798,12 +797,12 @@ def p_relacional2(t) :
                     | state_is_distinct
                     | state_pattern_match
                     '''
-
+    t[0] = t[1]
         
 def p_aritmetica1(t) :
     '''aritmetica   : PARIZQ aritmetica PARDER
                     | PARIZQ relacional PARDER'''
-
+    t[0] = t[2]
 
 def p_aritmetica(t) :
     '''aritmetica   : aritmetica MAS aritmetica
@@ -816,12 +815,16 @@ def p_aritmetica(t) :
                     | valor'''
     if len(t) == 2:
         t[0] = t[1]
+    elif len(t) == 3:
+        t[0] = FuncionAritmetica( 'NEGATIVO', str(t[1]), str(t[3]), t.lexer.lineno - 1 )
+    else:
+        t[0] = FuncionAritmetica( str(t[2]), str(t[1]), str(t[3]), t.lexer.lineno - 1 )
 
 def p_aritmetica2(t) :
     '''aritmetica   : funciones_math_esenciales
                     | fun_binario_select
                     '''
-
+    t[0] = t[1]
 
 def p_aritmetica1_2(t) :
     '''aritmetica   : lista_funciones
@@ -830,12 +833,15 @@ def p_aritmetica1_2(t) :
 
 def p_aritmetica3(t) :
     '''aritmetica   : fun_trigonometrica'''
-
+    t[0] = t[1]
 
 def p_valor_id(t) :
     '''valor        : ID
                     | ID PUNTO ID'''
-
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = t[1] + t[2] + t[3]
 
 def p_valor_num(t) :
     '''valor        : ENTERO
@@ -854,6 +860,7 @@ def p_valor2(t) :
                     | fun_binario_update
                     | fun_binario_select
                     '''
+    t[0] = t[1]
 
 def p_valor3(t) :
     '''valor        : fun_trigonometrica
@@ -863,7 +870,7 @@ def p_valor3(t) :
 def p_valor4(t) :
     '''valor        : date_functions
                     '''
-
+    t[0] = t[1]
 
 
 def p_instruccion_update_where(t) :
@@ -1011,14 +1018,17 @@ def p_instrucciones_funcion_abs_where(t) :
 
 def p_instrucciones_funcion_cbrt_where(t) :
     'lista_funciones_where    : CBRT PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_ceil_where(t) :
     'lista_funciones_where    : CEIL PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_cieling_where(t) :
     'lista_funciones_where    : CEILING PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 #ESTOS SE USAN EN EL SELECT
@@ -1028,18 +1038,22 @@ def p_instrucciones_funcion_abs_select(t) :
 
 def p_instrucciones_funcion_cbrt_select(t) :
     'lista_funciones    : CBRT PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_ceil_select(t) :
     'lista_funciones    : CEIL PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_cieling_select(t) :
     'lista_funciones    : CEILING PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_degrees(t) :
     'lista_funciones    : DEGREES PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_div(t) :
@@ -1048,14 +1062,17 @@ def p_instrucciones_funcion_div(t) :
 
 def p_instrucciones_funcion_exp(t) :
     'lista_funciones    : EXP PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_factorial(t) :
     'lista_funciones    : FACTORIAL PARIZQ ENTERO PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_floor(t) :
     'lista_funciones    : FLOOR PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_gcd(t) :
@@ -1064,10 +1081,12 @@ def p_instrucciones_funcion_gcd(t) :
 
 def p_instrucciones_funcion_ln(t) :
     'lista_funciones    : LN PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_log(t) :
     'lista_funciones    : LOG PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_mod(t) :
@@ -1076,6 +1095,7 @@ def p_instrucciones_funcion_mod(t) :
 
 def p_instrucciones_funcion_pi(t) :
     'lista_funciones    : PI PARIZQ PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), 1, t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_power(t) :
@@ -1084,18 +1104,22 @@ def p_instrucciones_funcion_power(t) :
 
 def p_instrucciones_funcion_radians(t) :
     'lista_funciones    : RADIANS PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_round(t) :
     'lista_funciones    : ROUND PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_sign(t) :
     'lista_funciones    : SIGN PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_sqrt(t) :
     'lista_funciones    : SQRT PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_width_bucket(t) :
@@ -1104,10 +1128,12 @@ def p_instrucciones_funcion_width_bucket(t) :
 
 def p_instrucciones_funcion_trunc(t) :
     'lista_funciones    : TRUNC PARIZQ funcion_math_parametro PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), t[3], t.lexer.lineno - 1)
     
 
 def p_instrucciones_funcion_random(t) :
     'lista_funciones    : RANDOM PARIZQ PARDER'
+    t[0] = FuncionMatematica1(t[1].upper(), 1, t.lexer.lineno - 1)
 
 
 def p_instrucciones_funcion_math_parametro(t) :

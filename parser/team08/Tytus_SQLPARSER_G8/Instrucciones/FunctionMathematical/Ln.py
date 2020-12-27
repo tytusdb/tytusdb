@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 
 class Ln(Instruccion):
-    def __init__(self, valor, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, valor, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):

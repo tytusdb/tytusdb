@@ -69,6 +69,8 @@ def executeGraphTree(data):
     global graph2
     json_data = json.dumps({'raiz': data}, default=lambda o: o.__dict__, indent=4)
     json_data = json_data.replace("[]", "null")
+    json_data = json_data.replace(">", "MAYOR")
+    json_data = json_data.replace("<", "MENOR")
     #print(json_data)
     with open('entrada2.txt', 'w') as f:
         stringNew = ''

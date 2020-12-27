@@ -127,7 +127,7 @@ class AlterTableAddCol(Instruccion):
             default = '28-01-2000'
         elif tip == 'time' :
             default = '10:52:23'
-        elif tip == 'boleano' : 
+        elif tip == 'boolean' : 
             default = True
         else :
             tip = self.tipo.length.upper()
