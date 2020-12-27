@@ -4,13 +4,14 @@ from storageManager.jsonMode import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 
 class Use(Instruccion):
-    def __init__(self, id, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, id, strGram ,linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.valor = id
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         #SE OBTIENE LA LISTA DE BD
+        arbol.lRepDin.append(self.strGram)
         lb=showDatabases()
         #SE RECORRE LA BD PARA VERIFICAR QUE NO EXISTA
         for bd in lb:

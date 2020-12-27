@@ -6,7 +6,7 @@ from .AST.error import *
 
 import sys
 sys.path.append("../")
-from console import print_error, print_success
+from console import print_error, print_success, print_warning
 
 
 #def insert(database: str, table: str, register: list) -> int:
@@ -111,7 +111,7 @@ def executeInsertAll(self, InsertAll_):
                     print_error("SEMANTIC ERROR", "Database to use does not exist")
 
             else:
-                print_error("RUNTIME ERROR", "Undefined database to use")
+                print_warning("RUNTIME ERROR", "Undefined database to use")
         
         else:
             print_error("UNKNOWN ERROR", "instruction not executed")
@@ -192,7 +192,7 @@ def executeInsert(self, Insert_):
                     print_error("SEMANTIC ERROR", "Database to use does not exist")
 
             else:
-                print_error("RUNTIME ERROR", "Undefined database to use")
+                print_warning("RUNTIME ERROR", "Undefined database to use")
         
         else:
             print_error("UNKNOWN ERROR", "instruction not executed")

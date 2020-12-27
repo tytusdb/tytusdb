@@ -1,20 +1,22 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select as Select
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import  Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import  *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import  Trigonometrica
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import  IdAsId,Id,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select as Select
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.select import GroupBy,Having
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import  Time
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import  *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import  Trigonometrica
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import  IdAsId,Id,IdId
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
 from prettytable import PrettyTable
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where import Where
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
 
 class Selectp4(Instruccion):
 
-    def ejecutar(Select,ts,Consola, Exceptions):
-        insert('prueba1', 'tabla1', [1, 'Fredy', 'Ramirez'])
+    def ejecutar(Select,ts,Consola, Exceptions,mostrar):
+        '''insert('prueba1', 'tabla1', [1, 'Fredy', 'Ramirez'])
         insert('prueba1', 'tabla1', [2, 'Mauro', 'Martinez'])
         insert('prueba1', 'tabla1', [3, 'Javier', 'Lima'])
         insert('prueba1', 'tabla1', [4, 'Yisus', 'Yisusx2'])
@@ -30,7 +32,7 @@ class Selectp4(Instruccion):
         insert('prueba1', 'tabla3', [2, 'Pepe', 'Irak', 'en amatitlan ese'])
         insert('prueba1', 'tabla3', [3, 'Etesech', 'China', 'perdido'])
         insert('prueba1', 'tabla3', [4, 'ufuefue', 'Japon', 'Selva'])
-        insert('prueba1', 'tabla3', [5, 'osas', 'Venezuela', 'Jungla'])
+        insert('prueba1', 'tabla3', [5, 'osas', 'Venezuela', 'Jungla'])'''
 
 
 
@@ -40,9 +42,10 @@ class Selectp4(Instruccion):
         x.clear()
         en=[]
         DataSelect=[]
+        DataSelectInicial=[]
         columnasT = len(Select.columnas)
         Error = False;
-        resultado = FROM(Select, tablasRef, Exceptions) #leemos las tablas
+        resultado = FROM(Select, tablasRef, Exceptions,DataSelectInicial) #leemos las tablas
         for i in tablasRef.items():
             print(i)
         for columna in Select.columnas:
@@ -65,7 +68,7 @@ class Selectp4(Instruccion):
 
                     for k in tablasRef.keys():
                         if not existeTabla(listado_tablas, tablasRef.get(k)):
-                            Exceptions.append('no existe tabla' + tablasRef.get(k))
+                            Exceptions.append(f'Error semantico - 42P01 - no existe la relación, error en  - {Select.fila} - {Select.columna}')
                             Error = True
                             break;
 
@@ -116,12 +119,14 @@ class Selectp4(Instruccion):
                                     DataSelect = PermutarData(DataSelect,DataSelectAux);
                                     #x.add_column(nombreCampo,columna)
                             elif Frecuencia == 0 :
-                                Exceptions.append('No existe campo en tablas de referencia')
+                                Exceptions.append(
+                                    'Error semantico - 42703 -no existe la columna, error en ' + ' - ' + str(Select.fila) + ' - ' + str(Select.columna) + '')
                                 print('No existe campo en tablas de referencia')
                                 Error = True
                                 break;
                             else:
-                                Exceptions.append('Existe ambigüedad en campos de tablas de referencia campo'+ nombreCampo)
+                                Exceptions.append(
+                                    'Error semantico - 42702 -la referencia a la columna es ambigua, error en ' + ' - ' + str(Select.fila) + ' - ' + str(Select.columna) + '')
                                 print('Existe ambigüedad en campos de tablas de referencia campo'+ nombreCampo)
                                 Error = True
                                 break;
@@ -178,22 +183,27 @@ class Selectp4(Instruccion):
                                                 DataSelect = PermutarData(DataSelect, DataSelectAux);
                                                 #x.add_column(str(nombreTabla)+'.'+str(nombreCampo), columna)
                                             else:
-                                                Exceptions.append('no existe campo  en tabla' + Tabla[1])
+                                                Exceptions.append(
+                                                    'Error semantico - 42703 -no existe la columna, error en ' + ' - ' + str(Select.fila) + ' - ' + str(Select.columna) + '')
                                                 print('no existe campo  en tabla' + Tabla[1])
                                                 Error = True
                                                 break;
 
                                     else:
-                                        Exceptions.append('no existe tabla con ese alias' + nombreTabla)
+                                        Exceptions.append(
+                                            'Error semantico - 42P01 -falta una entrada para la tabla en la cláusula FROM, error en ' + ' - ' + str(Select.fila) + ' - ' + str(Select.columna) + '')
                                         print('no existe tabla con ese alias' + nombreTabla)
                                         Error = True
                                         break;
 
                             else:
-                                Exceptions.append('tipo invalido en campo')
+                                Exceptions.append(
+                                    'Error semantico - 42P01 -tipo invalido de id campo , error en ' + ' - ' + str(Select.fila) + ' - ' + str(Select.columna) + '')
+
                                 Error = True
                                 break;
-
+                        else:
+                            print()
                     else:
                         Error = True
                         break
@@ -204,16 +214,22 @@ class Selectp4(Instruccion):
         if (not Error):
 
             #x.clear()
-            DataSelect = EvaluarWhere(x,Select,DataSelect,Exceptions,Consola)
+            DataSelect = EvaluarWhere(ts,Select,DataSelect,Exceptions,Consola)
+
+
             print('lo que llego')
             print(DataSelect)
-            for i in range(len(DataSelect[0])):
-                columnas=[]
-                for fila  in DataSelect[1]:
-                    columnas.append(fila[i])
-                x.add_column(str(DataSelect[0][i]),columnas)
 
-            Consola.append('\n' + x.get_string() + '\n')
+
+            if isinstance(DataSelect,list):
+                for i in range(len(DataSelect[0])):
+                    columnas=[]
+                    for fila  in DataSelect[1]:
+                        columnas.append(fila[i])
+                    x.add_column(str(DataSelect[0][i]),columnas)
+                if mostrar:
+                    Consola.append('\n' + x.get_string() + '\n')
+                return DataSelect
             #cont=cont+1
 
 
@@ -289,9 +305,10 @@ def agregarData(x,DataJson,rango,en,DataSelect3,alias,Permutar,tabla):
         for i in range(rango):
             columna = []
             print(len(DataSelect3[0][1]))
-            for j in range(int(len(DataSelect3[0][1])/len(DataJson))):
-                for row in DataJson:
-                    columna.append(row[i])
+            if(len(DataJson)>0):
+                for j in range(int(len(DataSelect3[0][1])/len(DataJson))):
+                    for row in DataJson:
+                        columna.append(row[i])
             if alias != None:
                 DataSelect3.append([alias+'.'+en[i], columna,tabla])
             else:
@@ -315,7 +332,7 @@ def agregarData(x,DataJson,rango,en,DataSelect3,alias,Permutar,tabla):
         #x.add_column(en[i], columna)
 
 
-def FROM(Select,tablasRef,Exceptions):
+def FROM(Select,tablasRef,Exceptions,DataSelectInicial):
     if Select.subquery != None:  # resolver subquery primero que de aca saldrían los datos
         print('what -- ' + type(Select.subquery).__name__)
     else:  # las tablas vendrían en inner
@@ -327,12 +344,15 @@ def FROM(Select,tablasRef,Exceptions):
                 if isinstance(tablas.id1, Id) and isinstance(tablas.id2, Id):
 
                     if str(tablas.id2.id) in tablasRef.keys():
-                        Exceptions.append('alias repetidos')
+                        Exceptions.append(
+                            'Error semantico - 42712 -  el nombre de tabla  fue especificado más de una vez, error en ' + ' - ' + str(Select.fila) + ' - ' + str(Select.columna) + '')
+
                         print('alias repetidos-->'+ tablas.id2.id)
                         return [False,tablasRef]
                     tablasRef[str(tablas.id2.id)] = str(tablas.id1.id)
                 else:
-                    Exceptions.append()
+                    Exceptions.append(
+                        'Error semantico - 42712 -  alias de tipo invalidos, error en ' + ' - ' + str(Select.fila) + ' - ' + str(Select.columna) + '')
                     return [False,tablasRef]
 
     return [True,tablasRef,Exceptions]
@@ -371,17 +391,23 @@ def existeCampo(nombreCampo,lista):
     return [False,contador]
 
 
-def EvaluarWhere(x,Select,DataSelect,Exceptions,Consola):
+def EvaluarWhere(ts,Select,DataSelect,Exceptions,Consola):
+    print(type(Select.complementS).__name__)
+    #print(DataSelect)
+    l = []
+    filas=[False,[]]
+    if isinstance(Select.complementS,Where.Where) or isinstance(Select.complementS,Expresion.Expresion):
+        filas = Where.Where.Resolver(Select.complementS,ts,Exceptions,Consola,DataSelect)
 
-    filas = Where.Resolver(Select.complementS,Exceptions,Consola,DataSelect)
-    l=[]
+    elif isinstance(Select.complementS,GroupBy):
+        filas = Where.Where.Resolver(Select.complementS.listaC, ts, Exceptions, Consola, DataSelect)
     '''for c in DataSelect:
         l.append(str(c[0]))
     x.field_names= l'''
-
+    print(filas)
     DataSelectAux = []
     row = []
-    if filas[0]:
+    if filas[0] and filas[1]!=None and len(filas[1])>0:
         registros=[]
         columnas=[]
         for i in filas[1]:
@@ -400,6 +426,11 @@ def EvaluarWhere(x,Select,DataSelect,Exceptions,Consola):
         return [columnas,row]
     else:
         print(filas[1])
+        columnas=[]
+        for column in DataSelect:
+            columnas.append(column[0])
+        return [columnas,[]]
+
 
 
 def PermutarData(DataSelect3, DataSelectAux):
@@ -411,7 +442,8 @@ def PermutarData(DataSelect3, DataSelectAux):
         contcolumna=0
         for columna in DataSelect3:
             if columna[2] == DataSelectAux[2]:
-                veces = int(len(columna[1])/len(DataSelectAux[1]))
+                if len(DataSelectAux[1])>0:
+                    veces = int(len(columna[1])/len(DataSelectAux[1]))
 
                 break;
             contcolumna = contcolumna + 1
@@ -435,9 +467,10 @@ def PermutarData(DataSelect3, DataSelectAux):
 
             columna = []
             print(len(DataSelect3[0][1]))
-            for j in range(int(len(DataSelect3[0][1]) / len(DataSelectAux[1]))):
-                for row in DataSelectAux[1]:
-                    columna.append(row)
+            if len(DataSelectAux[1])>0:
+                for j in range(int(len(DataSelect3[0][1]) / len(DataSelectAux[1]))):
+                    for row in DataSelectAux[1]:
+                        columna.append(row)
             DataSelect3.append([DataSelectAux[0], columna, DataSelectAux[2]])
             return  DataSelect3
 

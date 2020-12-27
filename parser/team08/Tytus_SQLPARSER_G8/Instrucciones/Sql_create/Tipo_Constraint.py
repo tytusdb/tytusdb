@@ -18,7 +18,8 @@ class Tipo_Constraint():
     def __init__(self,id, tipo, expresion):
         self.id =id
         self.tipo = tipo
-        self.expresion =expresion
+        self.expresion = expresion
+        self.referencia = ''
         
     def toString(self):
         if self.tipo == Tipo_Dato_Constraint.PRIMARY_KEY:
