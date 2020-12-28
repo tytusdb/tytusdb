@@ -17,12 +17,12 @@ class DropDatabase(ASTNode):
         result = 0
         if self.if_exists:
             dropDatabase(result_name)
-            return True
+            return "Database "+ str(result_name)+" has been dropped"
         else:
             result = dropDatabase(result_name)
             if result == 0:     # successful operation
                 table.drop_data_base(result_name)
-                return True
+                return "Database "+ str(result_name)+" has been dropped."
             elif result == 1:   # operation error
                 raise Error(0, 0, ErrorType.RUNTIME, '58000: system_error')
             elif result == 2:    # database does not exist.
@@ -40,7 +40,7 @@ class DropTable(ASTNode):
         result = dropTable(table.get_current_db().name, result_name)
         if result == 0: # successful operation
             table.drop_table(result_name)
-            return True
+            return "Table "+ str(result_name)+" has been dropped."
         elif result == 1: # operation error
             raise Error(0, 0, ErrorType.RUNTIME, '58000: system_error')
         elif result == 2: # database does not exist.

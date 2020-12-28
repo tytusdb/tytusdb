@@ -90,15 +90,21 @@ class query_tool:
         self.reportsMenu = Menu(self.barraMenu, tearoff=0)
         self.reportsMenu.add_command(label = "Symbol Table", command=self.getST)
         self.reportsMenu.add_separator()
+        self.reportsMenu.add_command(label = "Errors", command=self.openErrors)
+        self.reportsMenu.add_separator()
         self.reportsMenu.add_command(label = "AST", command=self.openAST)
         self.reportsMenu.add_separator()
         self.reportsMenu.add_command(label = "DDS", command= self.openBNF)
         self.reportsMenu.add_separator()
         self.reportsMenu.add_command(label = "Asc Grammar", command= self.openBNFasc)
         self.reportsMenu.add_command(label = "Desc Grammar", command= self.openBNFdesc)
+        self.reportsMenu.add_command(label = "Grammar Analysis", command= self.openBNFanalysis)
         #Menu Help
         self.helpMenu = Menu(self.barraMenu, tearoff=0)
         self.helpMenu.add_command(label = "About",command = self.seeAbout)
+        self.helpMenu.add_separator()
+        self.helpMenu.add_command(label = "Technical Manual", command= self.openTechnical)
+        self.helpMenu.add_command(label = "User Manual", command= self.openUser)
         # Barra de Menú
         self.barraMenu.add_cascade(label = "File",      menu = self.archivoMenu)
         self.barraMenu.add_cascade(label = "Run",       menu = self.runMenu)
@@ -137,6 +143,7 @@ class query_tool:
         self.texto =""
         self.extension = ""
         self.entrada.delete(1.0, END)
+        self.consola.delete(1.0,END)
 
     def OpenFile(self):
         '''
@@ -180,8 +187,19 @@ class query_tool:
         '''
         Llamada a la clase main del proyecto, envía el texto que está en el área de entrada
         '''
+        self.consola.delete(1.0,END)
         self.inputText = self.entrada.get("1.0","end")
         grammarReview(self.inputText)
+        gr = grammarReview.get_result(self)
+        self.consola.insert(INSERT,gr)
+
+    def openErrors(self):
+        ST0 = '\n\n\n============== ERROR REPORT ==============\n'
+        ST1 = grammarReview.report_errors(self)
+        ST2 = '\n'
+        self.consola.insert(INSERT,ST0)
+        self.consola.insert(INSERT,ST1)
+        self.consola.insert(INSERT,ST2)
 
     def getST(self):
         ST0 = '\n\n\n+------------- SYMBOL TABLE REPORT --------------+\n'
@@ -201,10 +219,19 @@ class query_tool:
         a=os.popen('reportGrammar.md')
 
     def openBNFasc(self):
-        a=os.popen('docs\gramatica-ascendente.md')
+        a=os.popen('docs\grammars\gramatica-ascendente.md')
 
     def openBNFdesc(self):
-        a=os.popen('docs\gramatica-descendente.md')
+        a=os.popen('docs\grammars\gramatica-descendente.md')
+
+    def openBNFanalysis(self):
+        a=os.popen('docs\grammars\grammar-analysis.md')
+
+    def openTechnical(self):
+        a=os.popen('docs\\manuals\\technical-manual.md')
+
+    def openUser(self):
+        a=os.popen('docs\\manuals\\user-manual.md')
 
 def getNameAndExtensionFile(self):
         rutaSpliteada = self.rutaArchivo.split("/")
