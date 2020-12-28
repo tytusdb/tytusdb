@@ -8,26 +8,23 @@ listaMemoria=[]
 memoriTrue=0;
 
 #Funciones para generear codigo de 3 direcciones
+def agregarInstr(datoMemoria,instruccion):
+    #agregar a la lista de parametros
+    global listaMemoria
+    listaMemoria.append(datoMemoria)
+    #agregar a la lista de salida
+    global listaSalida
+    listaSalida.append(instruccion)
+
 def PCreateDatabase(nombreBase,result):
     if(result==1):
         'eliminar, luego crear'
         PDropDatabase(nombreBase)
-        
-    #agregar a la lista de parametros
-    global listaMemoria
-    listaMemoria.append(nombreBase)
-    #agregar a la lista de salida
-    global listaSalida
-    listaSalida.append("CD3.ECreateDatabase()")
+    #crear
+    agregarInstr(nombreBase,"CD3.ECreateDatabase()")
 
 def PDropDatabase(nombreBase):
-    #llamar funcion EDD
-    #agregar a la lista de parametros
-    global listaMemoria
-    listaMemoria.append(nombreBase)
-    #agregar a la lista de salida
-    global listaSalida
-    listaSalida.append("CD3.EDropDatabase()")
+    agregarInstr(nombreBase,"CD3.EDropDatabase()")
 
 #escribir archivo
 def CrearArchivo():
@@ -68,7 +65,6 @@ def cargarMemoria():
         with open('memoria.json') as file:
             data = json.load(file)
         listaMemoria=data
-
 
 def ECreateDatabase():
     cargarMemoria()
