@@ -4,6 +4,7 @@ from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select.Select import Select
 from Instrucciones.Tablas.Tablas import Tablas
 
+
 class SelectLista(Instruccion):
     def __init__(self, lista, strGram, linea, columna):
         Instruccion.__init__(self,Tipo(Tipo_Dato.QUERY),linea,columna,strGram)
@@ -62,3 +63,4 @@ class Alias():
     def __init__(self, id, expresion):
         self.id = id
         self.expresion = expresion
+        self.tipo = None

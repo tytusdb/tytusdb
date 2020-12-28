@@ -1,6 +1,5 @@
 import storageManager
 from tkinter import *
-
 from os import path
 from tkinter import filedialog
 
@@ -63,7 +62,7 @@ class interfaz():
         self.window.configure(background="#6a8d92")
         self.window.title("Query Tool - Grupo 8")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
-        w, h = 1170,670
+        w, h = 1370,670
         self.window.geometry("%dx%d+0+0" % (w, h))
         
         ##############################################MENU####################################
@@ -184,6 +183,7 @@ class interfaz():
     ##############################################EVENTOS DE LOS BOTONES DEL FRAME####################################
     def btnanalizar_click(self):
         global arbol
+        arbol = None
         dropAll()
         os.system ("cls")
         #Elimina el Contenido de txtsalida
@@ -216,7 +216,7 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-        arbol = None
+        
         
 
         
@@ -231,12 +231,12 @@ class interfaz():
         self.tab_frame[-1].pack(fill='both', expand=1)
         self.tab_frame[-1].config(bd=5)
         self.tab.add(self.tab_frame[-1],text=nombre)
-        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=137,height=15))
+        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15))
         self.txtentrada[-1].place(x=0,y=25)
         self.txtentrada[-1].insert(INSERT,entrada+"")
         #self.txtentrada[-1].bind("<MouseWheel>", self.OnMouseWheel)
 
-        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=137,height=15,background="#070707",foreground="#FEFDFD"))
+        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15,background="#070707",foreground="#FEFDFD"))
         self.txtsalida[-1].place(x=0,y=298)
         #nombre del archivo
         #print(self.tab.tab(self.tab.select(),"text"))

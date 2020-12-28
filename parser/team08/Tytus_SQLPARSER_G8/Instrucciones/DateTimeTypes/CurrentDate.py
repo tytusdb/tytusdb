@@ -6,13 +6,11 @@ class CurrentDate(Instruccion):
     def __init__(self, strGram, linea, columna):
         Instruccion.__init__(self,None,linea,columna,strGram)
         
-
     def ejecutar(self, ts, arbol):
         super().ejecutar(ts,arbol)
         #año-mes-dia
-        todays_date = datetime.now()
-        date_time_obj = datetime.datetime.strptime(todays_date, '%Y-%m-%d %H:%M:%S')
-        date = date_time_obj.date()
+        todays_date = datetime.today()
+        date = todays_date.strftime("%Y-%m-%d")
         return date
 
 '''
