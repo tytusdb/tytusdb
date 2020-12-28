@@ -1,16 +1,26 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/execution/querie')
-sys.path.append('../tytus/storage')
-from querie import * 
-from environment import *
-from table import *
-from column import *
-from typ import *
+from execution.abstract.querie import * 
+from execution.symbol.environment import *
+from execution.symbol.table import *
+from execution.symbol.column import *
+from execution.symbol.typ import *
 from storageManager import jsonMode as admin
 
 class Add_Constraint(Querie):
+    ''' 
+     row = numero de fila
+     column = numero de columna
+     columnName = espera un nombre de columna debe de ser una cadena
+     constraintval = espera un constraint esto seria un dicionario con la siguiente sintaxis:
+                    [
+                    {'type': 'primary', 'name':nombre para el constraint(cadena) , 'value': nombre de la columna que es la llave primaria(cadena)},-> si es una llave primaria
+                    {'type': 'foreign', 'name':nombre para el constraint(cadena), 'value': nombre de la columna que es la llave foranea(cadena), 'references': campo_tabla_extranjera}, -> si es una llave foranea
+                    {'type': 'not null', 'name':nombre para el constraint(cadena), 'value': nombre de la columna que es nula(cadena)}, -> si es un NOT NULL
+                    {'type': 'check', 'name':nombre para el constraint(cadena), 'value':objetoExpression -> un ojeto exp ejemplo (5>10)}, -> si es un CHECK
+                    {'type': 'unique', 'name':nombre para el constraint(cadena),'value': nombre de la columna que va a ser unique(cadena)} si es un UNIQUE
+                    ]
+                    {'type': 'primary', 'name':'pk_tabla1' , 'value': 'columna_tabla1'}
+                    
+    '''
     def __init__(self, columnName,constraintVal, row, column):
         Querie.__init__(self, row, column)
         self.columnName = columnName
@@ -47,7 +57,7 @@ class Add_Constraint(Querie):
         
         if self.constraintVal['type'] == 'primary':
             for item in table.constraint:
-                if item['value'] == self.constraintVal['value']
+                if item['value'] == self.constraintVal['value']:
                     if item['type'] == 'primary':
                         return 'la columna: '+self.columnName +' ya tiene la restriccionde llave primaria'
             result = admin.extractTable(db_name, tableName)

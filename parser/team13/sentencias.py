@@ -33,6 +33,11 @@ class Expresion(Enum):
     CADENA = 5
     TABATT = 6
     NEGATIVO = 7
+    FECHA=8
+    HORA=9
+    FECHA_HORA=10
+    INTERVALO=11
+    NULL=12
 
 
 class TipoDato(Enum):
@@ -51,6 +56,8 @@ class TipoAlterColumn(Enum):
 class TipoAlterDrop(Enum):
     CONSTRAINT = 1
     COLUMN = 2
+
+
 
 
 class TipoOpcionales(Enum):
@@ -106,12 +113,20 @@ class SExpresion(Sentencia):
         self.valor = valor
         self.tipo = tipo
 
+    def __str__(self):
+        return "{ SExpresion || 'valor': %s, 'tipo': %s }" % (
+            str(self.valor), str(self.tipo))
+
 
 class SOperacion(Sentencia):
     def __init__(self, opIzq, opDer, operador):
         self.opIzq = opIzq
         self.opDer = opDer
         self.operador = operador
+
+    def __str__(self):
+        return "{ SOperacion || 'opIzq': %s, 'operador': %s, 'opDer': %s }" % (
+            str(self.opIzq), str(self.operador),str(self.opDer))
 
 
 class SUpdateBase(Sentencia):
@@ -139,8 +154,9 @@ class STruncateBase(Sentencia):
 
 
 class SInsertBase(Sentencia):
-    def __init__(self, id, listValores=[]):
+    def __init__(self, id, listaColumnas=[],listValores=[]):
         self.id = id
+        self.listaColumnas=listaColumnas
         self.listValores = listValores
 
 
@@ -162,6 +178,9 @@ class STipoDato(Sentencia):
         self.dato = dato
         self.tipo = tipo
         self.cantidad = cantidad
+
+    def __str__(self):
+        return "{ STipoDato | dato: '%s', tipo: '%s', cantidad: '%s' } " % ( str(self.dato), str(self.tipo), str(self.cantidad) )
 
 
 class SShowTable(Sentencia):
@@ -220,9 +239,10 @@ class SAlterTableAddUnique(Sentencia):
 
 
 class SAlterTableAddFK(Sentencia):
-    def __init__(self, idtabla, idtablafk,idlocal=[], idfk=[]):
+    def __init__(self, idtabla, idtablafk,idconstraint,idlocal=[], idfk=[]):
         self.idtabla = idtabla
         self.idtablafk=idtablafk
+        self.idconstraint=idconstraint
         self.idlocal = idlocal
         self.idfk = idfk
 
@@ -269,8 +289,9 @@ class SColumnaPk(Sentencia):
 
 
 class SColumnaFk(Sentencia):
-    def __init__(self, id, idlocal=[], idfk=[]):
+    def __init__(self, id, idconstraint,idlocal=[], idfk=[]):
         self.id = id
+        self.idconstraint=idconstraint
         self.idlocal = idlocal
         self.idfk = idfk
 
@@ -300,10 +321,21 @@ class SQuery(Sentencia):
         self.limit = limit
 
 
+    def __str__(self):
+
+        return "{ SQuery | select: '%s', ffrom: '%s', where: '%s', groupby: '%s', having: '%s', orderby: '%s', limit: '%s' }" % (
+            str(self.select), str(self.ffrom), str(self.where), str(self.groupby),str(self.having),str(self.orderby),str(self.limit)) 
+
+
+
+
 class SSelectCols(Sentencia):
     def __init__(self, distinct, cols=[]):
         self.distinct = distinct
         self.cols = cols
+
+    def __str__(self):
+        return "{ SSelectCols | distinct: '%s', cols: '%s' }" % (str(self.distinct), str(self.cols))
 
 
 class SSelectFunc(Sentencia):
@@ -316,14 +348,16 @@ class SColumnasAsSelect(Sentencia):
         self.id = id
         self.cols = cols
 
+    def __str__(self):
+        return "{ SColumnasAsSelect | id: '%s', cols: '%s' }" % (str(self.id), str(self.cols))
+
 
 class SColumnasSubstr(Sentencia):
-    def __init__(self, st, st2, st3, id):
-        self.st = st
-        self.st2 = st2
-        self.st3 = st3
+    def __init__(self, id,cols=[],cols2=[],cols3=[]):
         self.id = id
-
+        self.cols = cols
+        self.cols2 = cols2
+        self.cols3 = cols3
 
 class SColumnasGreatest(Sentencia):
     def __init__(self, id, cols=[]):
@@ -465,6 +499,10 @@ class SFrom(Sentencia):
     def __init__(self, clist=[]):
         self.clist = clist
 
+    def __str__(self):
+
+        return "{ SFrom | clist: '%s' }" % (self.clist)
+
 
 class SFrom2(Sentencia):
     def __init__(self, id, clist=[]):
@@ -475,6 +513,9 @@ class SFrom2(Sentencia):
 class SWhere(Sentencia):
     def __init__(self, clist=[]):
         self.clist = clist
+
+    def __str__(self):
+        return "{ SWhere | clist: '%s' }" % str(self.clist)
 
 
 class SGroupBy(Sentencia):
@@ -504,6 +545,10 @@ class SAlias(Sentencia):
     def __init__(self, id, alias):
         self.id = id
         self.alias = alias
+
+    def __str__(self):
+
+        return "{ SAlias | id: '%s', alias: '%s' }" % ( str(self.id), str(self.alias) )
 
 
 class SWhereCond1(Sentencia):
@@ -576,3 +621,159 @@ class SWhereCond9(Sentencia):
 class SHaving(Sentencia):
     def __init__(self, efunc=[]):
         self.efunc = efunc
+
+class SColumnasMulti(Sentencia):
+    def __init__(self, id, cols=[]):
+        self.id = id
+        self.cols = cols
+
+class SWhereConds(Sentencia):
+    def __init__(self, ope,clist=[]):
+        self.ope = ope
+        self.clist = clist
+
+
+class SColQuery(Sentencia):
+    def __init__(self, id, cols=[]):
+        self.id = id
+        self.cols = cols
+
+
+#CLASE PARA UNA OPERACIÓN BEETWEN
+class SBetween(Sentencia):
+    def __init__(self, opIzq, columna, opDer):
+        self.opIzq = opIzq
+        self.columna = columna
+        self.opDer = opDer
+
+    def __str__(self):
+        return "{ SBetween || 'opIzq': %s, 'columna': %s, 'opDer': %s }" % (
+            str(self.opIzq), str(self.columna),str(self.opDer))
+
+
+#CLASE PARA UNA OPERACIÓN NOT BEETWEN
+class SNotBetween(Sentencia):
+    def __init__(self, opIzq, columna, opDer):
+        self.opIzq = opIzq
+        self.columna = columna
+        self.opDer = opDer
+
+
+#CLASE PARA UNA OPERACIÓN LIKE
+class SLike(Sentencia):
+
+    def __init__(self, columna, cadena):
+        self.columna = columna
+        self.cadena = cadena
+
+    def __str__(self):
+        return "{ SLike || 'columna': %s, 'cadena': %s }" % (
+            str(self.columna), str(self.cadena))
+
+
+#CLASE PARA UNA OPERACIÓN iLIKE
+class SILike(Sentencia):
+
+    def __init__(self, columna, cadena):
+        self.columna = columna
+        self.cadena = cadena
+
+    def __str__(self):
+        return "{ SILike || 'columna': %s, 'cadena': %s }" % (
+            str(self.columna), str(self.cadena))
+
+
+#CLASE PARA UNA OPERACIÓN SIMILAR TO
+class SSimilar(Sentencia):
+
+    def __init__(self,columna,patron):
+        self.columna = columna
+        self.patron = patron
+
+    def __str__(self):
+        return "{ SSimilar || 'columna': %s, 'patron': %s }" % (
+            str(self.columna), str(self.patron))
+
+
+#PARA UNA COMPARACIÓN  ENTRE SUBSTRINGS
+class SSubstring(Sentencia):
+
+    def __init__(self,cadena,inicio,tamanio,comparar):
+        self.cadena = cadena
+        self.inicio = inicio
+        self.tamanio = tamanio
+        self.comparar = comparar
+
+
+    def __str__(self):
+        return "{ SSubstring || 'cadena': %s, 'inicio': %s, 'tamanio': %s, 'comparar': %s }" % (
+            str(self.cadena), str(self.inicio), str(self.tamanio), str(self.comparar) )
+
+
+#CLASE PARA UN "IN"
+class SIn(Sentencia):
+
+    def __init__(self,columna,consulta):
+        self.columna = columna
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SIn | columna: '%s', consulta: '%s' }" %( self.columna, self.consulta )
+
+
+#CLASE PARA UN "NOT IN"
+class SNotIn(Sentencia):
+
+    def __init__(self,columna,consulta):
+        self.columna = columna
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SNotIn | columna: '%s', consulta: '%s' }" %( self.columna, self.consulta )
+
+
+class SExist(Sentencia):
+
+    def __init__(self,consulta):
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SExist | consulta: '%s' }" % (str(self.consulta))
+
+
+class SNotExist(Sentencia):
+
+    def __init__(self,consulta):
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SExist | consulta: '%s' }" % (str(self.consulta))
+
+
+class SAny(Sentencia):
+
+    def __init__(self,columna, operador, consulta):
+        self.columna = columna
+        self.operador = operador
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SAny | columna: '%s', operador: '%s', consulta: '%s' }" % (str(self.columna), str(self.operador),str(self.consulta))
+
+
+class SAll(Sentencia):
+
+    def __init__(self,columna, operador, consulta):
+        self.columna = columna
+        self.operador = operador
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SAll | columna: '%s', operador: '%s', consulta: '%s' }" % (str(self.columna), str(self.operador),str(self.consulta))
+
+class SDatePart(Sentencia):
+    def __init__(self, id, param, ts, param2):
+        self.id = id
+        self.param = param
+        self.ts = ts
+        self.param2 = param2

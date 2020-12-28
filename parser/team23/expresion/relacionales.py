@@ -25,25 +25,123 @@ class relacional(expresion):
 
         #Gramatica
         self.grammar_ = '<TR><TD> EXPRESION ::= EXPRESION1 ' + self.get_str_oper(tipo_oper) + ' EXPRESION2 </TD><TD> EXPRESION = new relacional(EXPRESION1, EXPRESION2, ' + self.get_str_oper(tipo_oper) + '); </TD></TR>\n'
-        #self.grammar_ += str(left.grammar_) + "\n"
-        #self.grammar_ += str(right.grammar_) + "\n"
+        self.grammar_ += str(left.grammar_) + "\n"
+        self.grammar_ += str(right.grammar_) + "\n"
 
-    def ejecutar(self):
-        '''left_value = self.left.ejecutar()
-        right_value = self.right.ejecutar()
+    def ejecutar(self, list_tb):
+        left_value = self.left.ejecutar(list_tb)
+        right_value = self.right.ejecutar(list_tb)
 
+        #IGUALDAD
         if self.tipo_oper == operacion_relacional.IGUALDAD:
-            return retorno(left_value.valor == right_value.valor, tipo_primitivo.BOOLEAN)
+            if left_value.query == True and right_value.query == True:                
+                pass
+            elif left_value.query == True:
+                registros = []
+                for item in left_value.valor:
+                    if item[left_value.index_col] == right_value.valor:
+                        registros.append(item)
+
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col ,encabezados=left_value.encabezados)
+            elif right_value.query == True:
+                registros = []
+                for item in right_value.valor:
+                    if item[right_value.index_col] == left_value.valor:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
+            else:
+                return retorno(left_value.valor == right_value.valor, tipo_primitivo.BOOLEAN)
+        # DESIGUALDAD
         elif self.tipo_oper == operacion_relacional.DESIGUALDAD:
-            return retorno(left_value.valor != right_value.valor, tipo_primitivo.BOOLEAN)
+            if left_value.query == True and right_value.query == True:                
+                pass
+            elif left_value.query == True:
+                registros = []
+                for item in left_value.valor:
+                    if item[left_value.index_col] != right_value.valor:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
+            elif right_value.query == True:
+                registros = []
+                for item in right_value.valor:
+                    if left_value.valor != item[right_value.index_col]:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
+            else:
+                return retorno(left_value.valor == right_value.valor, tipo_primitivo.BOOLEAN)
+        #MAYOR
         elif self.tipo_oper == operacion_relacional.MAYOR:
-            return retorno(left_value.valor > right_value.valor, tipo_primitivo.BOOLEAN)
+            if left_value.query == True and right_value.query == True:                
+                pass
+            elif left_value.query == True:
+                registros = []
+                for item in left_value.valor:
+                    if item[left_value.index_col] > right_value.valor:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
+            elif right_value.query == True:
+                registros = []
+                for item in right_value.valor:
+                    if left_value.valor > item[right_value.index_col]:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
+            else:
+                return retorno(left_value.valor > right_value.valor, tipo_primitivo.BOOLEAN)
+        #MENOR
         elif self.tipo_oper == operacion_relacional.MENOR:
-            return retorno(left_value.valor < right_value.valor, tipo_primitivo.BOOLEAN)
+            if left_value.query == True and right_value.query == True:                
+                pass
+            elif left_value.query == True:
+                registros = []
+                for item in left_value.valor:
+                    if item[left_value.index_col] >= right_value.valor:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
+            elif right_value.query == True:
+                registros = []
+                for item in right_value.valor:
+                    if left_value.valor >= item[right_value.index_col]:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
+            else:
+                return retorno(left_value.valor < right_value.valor, tipo_primitivo.BOOLEAN)
+        # MAYOR IGUAL
         elif self.tipo_oper == operacion_relacional.MAYOR_IGUAL:
-            return retorno(left_value.valor >= right_value.valor, tipo_primitivo.BOOLEAN)
+            if left_value.query == True and right_value.query == True:                
+                pass
+            elif left_value.query == True:
+                registros = []
+                for item in left_value.valor:
+                    if item[left_value.index_col] < right_value.valor:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
+            elif right_value.query == True:
+                registros = []
+                for item in right_value.valor:
+                    if left_value.valor < item[right_value.index_col]:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
+            else:
+                return retorno(left_value.valor >= right_value.valor, tipo_primitivo.BOOLEAN)
+        
+        #MENOR IGUAL
         elif self.tipo_oper == operacion_relacional.MENOR_IGUAL:
-            return retorno(left_value.valor <= right_value.valor, tipo_primitivo.BOOLEAN)'''
+            if left_value.query == True and right_value.query == True:                
+                pass
+            elif left_value.query == True:
+                registros = []
+                for item in left_value.valor:
+                    if item[left_value.index_col] > right_value.valor:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, left_value.index_col, encabezados=left_value.encabezados)
+            elif right_value.query == True:
+                registros = []
+                for item in right_value.valor:
+                    if left_value.valor > item[right_value.index_col]:
+                        registros.append(item)
+                return retorno(registros, tipo_primitivo.TABLA, True, right_value.index_col, encabezados=right_value.encabezados)
+            else:
+                return retorno(left_value.valor <= right_value.valor, tipo_primitivo.BOOLEAN)
 
     def get_str_tipo(self, tipo):
         if tipo == tipo_primitivo.SMALLINT:

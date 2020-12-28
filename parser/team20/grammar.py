@@ -1,25 +1,29 @@
 from pathlib import Path
 from execution.AST.expression import *
 from execution.AST.sentence import *
-from execution.execute import * 
+from execution.execute import *  
 from execution.AST.error import *
+import webbrowser
+
+from grammar_result import *
+from console import print_error
 # -----------------------------------------------------------------------------
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
-# 
-# 
+# 201612154 André Mendoza Torres
+# 201612139 Jeralmy Alejandra de León Samayoa
+# 201612276 Carlos Manuel Garcia Gonzalez
 # 
 # DIC 2020
 #
 # 
 # -----------------------------------------------------------------------------
-def __init__(self):
-    self.grammarerrors = []
-    self.grammarreport = ""
 
 # Global variables
 grammarerrors = []
 grammarreport = ""
+noderoot = None
+input = ""
 
 #LEXER
 
@@ -122,6 +126,11 @@ reservedwords = (
     'POWER',
     'RADIANS',
     'ROUND',
+    'SIGN',
+    'SQRT',
+    'TRUNC',
+    'RANDOM',
+    'MD5',
     'AND',
     'OR',
     'COUNT',
@@ -149,6 +158,15 @@ reservedwords = (
     'ASINH',
     'ACOSH',
     'ATANH',
+    'TRUE',
+    'FALSE',
+    'EXTRACT',
+    'HOUR',
+    'SECOND',
+    'MINUTE',
+    'YEAR',
+    'MONTH',
+    'DAY',
 )
 
 symbols = (
@@ -176,7 +194,6 @@ tokens = reservedwords + symbols + (
     'INT',
     'NDECIMAL',
     'STRING',
-    'REGEX',
 )
 
 # Tokens
@@ -197,7 +214,6 @@ t_GREATERTHAN      = r'>'
 t_LESSTHANEQUAL    = r'<='
 t_GREATERTHANEQUAL = r'>='
 t_NOTEQUAL         = r'<>|!='
-t_REGEX            = r'\'%?.*?%?\''
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9_]*'
@@ -224,7 +240,7 @@ def t_INT(t):
     return t
 
 def t_STRING(t):
-    r'\".*?\"'
+    r'\".*?\"|\'.*?\''
     t.value = t.value[1:-1]
     return t
 
@@ -245,9 +261,9 @@ def t_multi_line_comment(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
+    print_error("LEXICAL ERROR", "Illegal character in " + str(t.value[0]) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
     grammarerrors.append(
-        Error("Léxico","Carácter ilegal en '%s'" % (t.value[0]),t.lineno,find_column(input,t)))
-    print("Carácter ilegal en '%s' Linea: %d Columna: %d" % (t.value[0],t.lineno,find_column(input,t)))
+        Error("Lexical","Ilegal character in '%s'." % (t.value[0]),t.lineno,find_column(input,t)))
     t.lexer.skip(1)
 
 # Compute column.
@@ -268,7 +284,7 @@ precedence = (
     ('left','OR'),
     ('left','AND'),
     ('right','NOT'),
-    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
+    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL','EQUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
     ('left','PLUS','MINUS'),
     ('left','TIMES','DIVIDED','MODULO'),
@@ -282,8 +298,11 @@ def p_start(t):
     '''start : sentences'''
     global grammarreport
     grammarreport = "<start> ::= <sentences> { start.val = sentences.val }\n" + grammarreport
-    exec = Execute(t[1]) # Esto se correra desde la GUI
-    exec.execute()
+    grammarreport = reportheader + "```bnf\n" + grammarreport + "```\n" + "## Entrada\n" + "```sql\n" + input + "```"
+    global noderoot
+    noderoot = t[1]    
+    #exec = Execute(t[1]) # Esto se correra desde la GUI
+    #exec.execute()
     t[0] = t[1]
 
 def p_instructions_list_list(t):
@@ -478,7 +497,7 @@ def p_instruction_create_table_column(t):
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
               | UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
               | PRIMARY KEY BRACKET_OPEN idList BRACKET_CLOSE 
-              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES BRACKET_OPEN idList BRACKET_CLOSE '''
+              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES ID BRACKET_OPEN idList BRACKET_CLOSE '''
     global grammarreport
     if(t[1]=='CHECK'):
         t[0]=ColumnCheck(t[3])
@@ -493,8 +512,8 @@ def p_instruction_create_table_column(t):
         t[0]=ColumnPrimaryKey(t[4])
         grammarreport = "<column> ::= PRIMARY KEY '(' <idList> ')' { column.val = ColumnPrimaryKey(idList.val) }\n" + grammarreport
     elif(t[1]=='FOREIGN'):
-        t[0]=ColumnForeignKey(t[4],t[8])
-        grammarreport = "<column> ::= FOREIGN KEY '(' <idList> ')' REFERENCES '(' <idList> ')' { column.val = ColumnForeignKey(idList1.val, idList2.val) }\n" + grammarreport
+        t[0]=ColumnForeignKey(t[4],t[7],t[9])
+        grammarreport = "<column> ::= FOREIGN KEY '(' <idList> ')' REFERENCES ID '(' <idList> ')' { ID.val='"+t[7]+"'; column.val = ColumnForeignKey(idList1.val, idList2.val, ID.val) }\n" + grammarreport
     else:
         try:
             t[0]=ColumnId(t[1],t[2],t[3])
@@ -867,7 +886,8 @@ def p_instruction_select_compound(t):
     global grammarreport
     grammarreport = "<select> ::= <select> "+t[2]+t[3]+" <select> { select.val=SelectMultiple(select.val,'"+t[2]+t[3]+"',select.val) }\n" + grammarreport
 def p_instruction_selectinstruction(t):
-    '''selectInstruction : SELECT expressionList FROM expressionList
+    '''selectInstruction : SELECT expressionList
+                         | SELECT expressionList FROM expressionList
                          | SELECT expressionList FROM expressionList selectOptions
                          | SELECT DISTINCT expressionList FROM expressionList
                          | SELECT DISTINCT expressionList FROM expressionList selectOptions'''
@@ -885,9 +905,14 @@ def p_instruction_selectinstruction(t):
             t[0] = Select(t[2],False,t[4],t[5])
             grammarreport = "<selectInstruction> ::= SELECT <expressionList> FROM <expressionList> <selectOptions> { selectInstruction.val=Select(expressionList.val,False,expressionList.val,selectOptions.val) }\n" + grammarreport
         except Exception as e:
-            print(e)
-            t[0] = Select(t[2],False,t[4],None)
-            grammarreport = "<selectInstruction> ::= SELECT <expressionList> FROM <expressionList> { selectInstruction.val=Select(expressionList.val,False,expressionList.val,None) }\n" + grammarreport
+            try:
+                print(e)
+                t[0] = Select(t[2],False,t[4],None)
+                grammarreport = "<selectInstruction> ::= SELECT <expressionList> FROM <expressionList> { selectInstruction.val=Select(expressionList.val,False,expressionList.val,None) }\n" + grammarreport
+            except:
+                t[0] = Select(t[2],False,None,None)
+                grammarreport = "<selectInstruction> ::= SELECT <expressionList> { selectInstruction.val=Select(expressionList.val,False,None,None) }\n" + grammarreport
+
 
 def p_instruction_selectoptions_single(t):
     '''selectOptions : selectOption'''
@@ -1098,22 +1123,21 @@ def p_expression_mathfunctions(t):
                   | CEIL BRACKET_OPEN expression BRACKET_CLOSE 
                   | CEILING BRACKET_OPEN expression BRACKET_CLOSE 
                   | DEGREES BRACKET_OPEN expression BRACKET_CLOSE 
-                  | DIV BRACKET_OPEN expression BRACKET_CLOSE 
                   | EXP BRACKET_OPEN expression BRACKET_CLOSE 
                   | FACTORIAL BRACKET_OPEN expression BRACKET_CLOSE 
                   | FLOOR BRACKET_OPEN expression BRACKET_CLOSE 
-                  | GCD BRACKET_OPEN expression BRACKET_CLOSE 
                   | LN BRACKET_OPEN expression BRACKET_CLOSE 
-                  | LOG BRACKET_OPEN expression BRACKET_CLOSE 
-                  | MOD BRACKET_OPEN expression BRACKET_CLOSE
-                  | POWER BRACKET_OPEN expression BRACKET_CLOSE 
+                  | LOG BRACKET_OPEN expression BRACKET_CLOSE  
                   | RADIANS BRACKET_OPEN expression BRACKET_CLOSE
-                  | ROUND BRACKET_OPEN expression BRACKET_CLOSE
-                  | PI BRACKET_OPEN BRACKET_CLOSE   
+                  | SIGN BRACKET_OPEN expression BRACKET_CLOSE
+                  | SQRT BRACKET_OPEN expression BRACKET_CLOSE
+                  | MD5 BRACKET_OPEN expression BRACKET_CLOSE
+                  | PI BRACKET_OPEN BRACKET_CLOSE 
+                  | RANDOM BRACKET_OPEN BRACKET_CLOSE   
                   '''
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = MathFunction('"+t[1]+"',expression.val) }\n" + grammarreport
-    if(t[1]=='PI'): t[0]=MathFunction(t[1],0)
+    if(t[1]=='PI' or t[1]=='RANDOM'): t[0]=MathFunction(t[1],0)
     else: t[0] = MathFunction(t[1],t[3])
 
 #TRIGONOMETRIC FUNCTIONS
@@ -1124,8 +1148,6 @@ def p_expression_trigonometricfunctions(t):
                   | ASIND BRACKET_OPEN expression BRACKET_CLOSE 
                   | ATAN BRACKET_OPEN expression BRACKET_CLOSE 
                   | ATAND BRACKET_OPEN expression BRACKET_CLOSE 
-                  | ATAN2 BRACKET_OPEN expression BRACKET_CLOSE 
-                  | ATAN2D BRACKET_OPEN expression BRACKET_CLOSE 
                   | COS BRACKET_OPEN expression BRACKET_CLOSE 
                   | COSD BRACKET_OPEN expression BRACKET_CLOSE 
                   | COT BRACKET_OPEN expression BRACKET_CLOSE 
@@ -1145,6 +1167,21 @@ def p_expression_trigonometricfunctions(t):
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = TrigonometricFunction('"+t[1]+"',expression.val) }\n" + grammarreport
 
+#MATH AND TRIGONOMETRIC FUNCTIONS, EXPRESSION LIST
+def p_expression_argumentlistfunctions(t):
+    '''expression : DIV BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | GCD BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | MOD BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | POWER BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | ROUND BRACKET_OPEN expressionList BRACKET_CLOSE
+                  | TRUNC BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | ATAN2 BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | ATAN2D BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  '''
+    t[0] = ArgumentListFunction(t[1],t[3])
+    global grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expressionList> ')' { expression.val = ArgumentListFunction('"+t[1]+"',expressionList.val) }\n" + grammarreport
+
 def p_expression_aggfunctions(t):
     '''expression : COUNT BRACKET_OPEN expression BRACKET_CLOSE
                   | AVG BRACKET_OPEN expression BRACKET_CLOSE
@@ -1152,12 +1189,36 @@ def p_expression_aggfunctions(t):
     t[0] = AggFunction(t[1],t[3])
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = AggFunction('"+t[1]+"',expression.val) }\n" + grammarreport
+
+#EXTRACT
+def p_expression_extractfunctions(t):
+    '''expression : EXTRACT BRACKET_OPEN HOUR FROM TIMESTAMP expression BRACKET_CLOSE 
+                  | EXTRACT BRACKET_OPEN MINUTE FROM TIMESTAMP expression BRACKET_CLOSE
+                  | EXTRACT BRACKET_OPEN SECOND FROM TIMESTAMP expression BRACKET_CLOSE
+                  | EXTRACT BRACKET_OPEN YEAR FROM TIMESTAMP expression BRACKET_CLOSE
+                  | EXTRACT BRACKET_OPEN MONTH FROM TIMESTAMP expression BRACKET_CLOSE
+                  | EXTRACT BRACKET_OPEN DAY FROM TIMESTAMP expression BRACKET_CLOSE
+                  '''
+    t[0] = ExtractFunction(t[3],t[6])
+    global grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = ExtractFunction('"+t[3]+"',expression.val) }\n" + grammarreport
+
 #VALUES
 def p_expression_int(t):
     '''expression : INT'''
     global grammarreport
     grammarreport = "<expression> ::= INT { INT.val=int("+str(t[1])+"); expression.val = INT.val  }\n" + grammarreport
     t[0] = Value(1, t[1])
+def p_expression_true(t):
+    '''expression : TRUE'''
+    global grammarreport
+    grammarreport = "<expression> ::= TRUE { TRUE.val=int("+str(1)+"); expression.val = TRUE.val  }\n" + grammarreport
+    t[0] = Value(1, 1)
+def p_expression_false(t):
+    '''expression : FALSE'''
+    global grammarreport
+    grammarreport = "<expression> ::= FALSE { FALSE.val=int("+str(0)+"); expression.val = FALSE.val  }\n" + grammarreport
+    t[0] = Value(1, 0)
 def p_expression_decimal(t):
     '''expression : NDECIMAL'''
     global grammarreport
@@ -1173,11 +1234,6 @@ def p_expression_id(t):
     t[0] = Value(4, t[1])
     global grammarreport
     grammarreport = "<expression> ::= ID { ID.val='"+t[1]+"'; expression.val = ID.val  }\n" + grammarreport
-def p_expression_regex(t):
-    '''expression : REGEX'''
-    t[0] = Value(5, t[1])
-    global grammarreport
-    grammarreport = "<expression> ::= REGEX { REGEX.val=val("+t[1]+"); expression.val = REGEX.val  }\n" + grammarreport
 def p_expression_all(t):
     '''expression : TIMES'''
     t[0] = Value(6, t[1])
@@ -1186,31 +1242,70 @@ def p_expression_all(t):
 
 #ERROR
 def p_error(t):
-    grammarerrors.append(
-        Error("Sintáctico","Error sintáctico en '%s'" % (t.value),t.lineno,find_column(input,t)))
-    print("Error sintáctico en '%s' Fila: %d Columna: %d" % (t.value, t.lineno,find_column(input,t)))
-    # if not t: #recuperación errores
-    #     return
-    # while True:
-    #     tok = yacc.token()
-    #     if not tok or tok.value == ';': #, ) 
-    #         break
-    #     yacc.restart()
+    if t:
+        print_error("SYNTACTIC ERROR", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
+        grammarerrors.append(
+            Error("Syntactic","Syntactic Error in '%s'." % (t.value),t.lineno,find_column(input,t)))
+        parser.errok()
+    else:
+        print_error("SYNTACTIC ERROR","Syntax error at EOF")
+        grammarerrors.append(
+            Error("Syntactic","Syntax error at EOF",0,0))
 import ply.yacc as yacc
 parser = yacc.yacc()
 
 
-f = open(Path(__file__).parent / "./testCarlos.txt", "r")
-input = f.read()
-print(input)
-parser.parse(input.upper())
-print(grammarerrors)
-print(grammarreport)
+reportheader = '''# Reporte gramatical
 
-# def analyze(input):
-#     # limpiar variables
-#     global grammarerrors
-#     grammarerrors = []
-#     lexer = lex.lex()
-#     parser = yacc.yacc()
-#     return parser.parse(input,tracking=True)
+## Terminales
+### Palabras reservadas
+'CREATE, DROP, DATABASE, DATABASES, TABLE, SHOW, IF, EXISTS, ALTER, RENAME, OWNER, MODE, TO, COLUMN, CONSTRAINT, UNIQUE, FOREIGN, KEY, REFERENCES, REPLACE, SET, NOT, ADD, NULL, USE, INSERT, INTO, VALUES, TYPE, AS, ENUM, ASC, DESC, HAVING, GROUP, BY, OFFSET, LIMIT, ALL, ORDER, WHERE, SELECT, DISTINCT, FROM, UNION, EXCEPT, INTERSECT, BETWEEN, IN, LIKE, ILIKE, SIMILAR, SMALLINT, INTEGER, BIGINT, DECIMAL, NUMERIC, REAL, DOUBLE, PRECISION, MONEY, CHARACTER, VARYING, VARCHAR, TIMESTAMP, TEXT, CHAR, WITH, TIME, ZONE, WITHOUT, INTERVAL, BOOLEAN, DEFAULT, CHECK, PRIMARY, DATE, INHERITS, UPDATE, DELETE, TRUNCATE, ABS, CBRT, CEIL, CEILING, DEGREES, DIV, EXP, FACTORIAL, FLOOR, GCD, LN, LOG, MOD, PI, POWER, RADIANS, ROUND, AND, OR, COUNT, AVG, SUM, ACOS, ACOSD, ASIN, ASIND, ATAN, ATAND, ATAN2, ATAN2D, COS, COSD, COT, COTD, SIN, SIND, TAN, TAND, SINH, COSH, TANH, ASINH, ACOSH, ATANH'
+
+### Simbolos
+
+; ( ) = + - * / . ^ % < > <= >= <> !=
+
+### ER
+`ID = '[A-Za-z][A-Za-z0-9_]*'`
+`NDECIMAL = '\d+\.\d+'`
+`INT = '\d+'`
+`STRING = '\".*?\"`
+## Precedencia
+```python
+precedence = (
+    ('left','UNION','INTERSECT','EXCEPT'),
+    ('left','OR'),
+    ('left','AND'),
+    ('right','NOT'),
+    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
+    ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
+    ('left','PLUS','MINUS'),
+    ('left','TIMES','DIVIDED','MODULO'),
+    ('left','EXPONENTIATION'),
+    ('right','UMINUS','UPLUS'),
+    ('left','NSEPARATOR'),
+    )
+```
+## Gramatica\n'''
+
+
+def analyze(input_text: str):
+    #clear analyzer data
+    global grammarerrors
+    grammarerrors = []
+    global grammarreport
+    grammarreport = ""
+    global noderoot
+    noderoot = None
+    global input
+    input = ""
+    #declare parser
+    parser = yacc.yacc()
+    lexer = lex.lex()
+    input = input_text
+    #parse
+    if(input_text!=""):
+        parser.parse(input.upper())
+    #return result
+    result = grammar_result(grammarerrors, grammarreport, noderoot)
+    return result

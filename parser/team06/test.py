@@ -3,50 +3,47 @@
 # Copyright (c) 2020 TytusDb Team
 
 from storageManager import jsonMode as j
+import pandas as pd
+from datetime import *
 
-# create db1 and db2, return two 0's and show return list
-print(j.createDatabase("db1"))
-print(j.createDatabase("db2"))
-print(j.showDatabases())
+# drop all databases if exists
 
-# try create db1 and db2, return error value 2 and show return list
-print(j.createDatabase("db1"))
-print(j.createDatabase("db2"))
-print(j.showDatabases())
+# create database
+j.createDatabase('BD1')
 
-# rename db1 to db3, return 0 and show return list
-print(j.alterDatabase("db1","db3"))
-print(j.showDatabases())
+# create tables
+j.createTable('BD1', 'personas', 5)
+j.createTable('BD1', 'pais',    4)
+j.createTable('BD1', 'idiomas', 4)
 
-# rename db2 to db1, return 0 and show return list
-print(j.alterDatabase("db2","db1"))
-print(j.showDatabases())
+# create simple primary keys
+j.alterAddPK('BD1', 'personas', [0])
+j.alterAddPK('BD1', 'pais',    [0])
+j.alterAddPK('BD1', 'idiomas', [0])
 
-# drop db3 and db1, return two 0's
-print(j.dropDatabase("db3"))
-print(j.dropDatabase("db1"))
+# insert data in countries
+j.insert('BD1', 'pais', ['GTM', 'Guatemala',  'Central America', 108889])
+j.insert('BD1', 'pais', ['MX', 'Mexico', 'Norte America',  21041])  
+j.insert('BD1', 'pais', ['EEUU', 'Estados Unidos', 'Norte America',  21041]) 
 
-# show empty-list of databases
-print(j.showDatabases())
+# insert data in cities
+j.insert('BD1', 'personas', [1, 'Jossie',    'Castrillo','27',    'GTM'])
+j.insert('BD1', 'personas', [2, 'Juanpi',    'Garcia','27',    'GTM'])
+j.insert('BD1', 'personas', [3, 'Byron',    'Cermeno','27',    'GTM'])
+j.insert('BD1', 'personas', [4, 'Hayrton',    'Ixpata','27',    'GTM'])
+j.insert('BD1', 'personas', [5, 'Dulce',    'DeLeon','25',    'MX'])
+j.insert('BD1', 'personas', [6, 'Miguel',    'Basir','26',    'GTM'])
+j.insert('BD1', 'personas', [7, 'Nose',    'Algo','30',    'EEUU'])
+         
+# inser data in languages
+j.insert('BD1', 'idiomas', ['GTM', 'Espanol', 'official',  64.7])
+j.insert('BD1', 'idiomas', ['EEUU', 'Espanol', 'official', 100.0])
+j.insert('BD1', 'idiomas', ['MX', 'Espanol', 'official', 100.0])
 
-# again create db1 and db2, return two 0's and show return list of databases
-print(j.createDatabase("db1"))
-print(j.createDatabase("db2"))
-print(j.showDatabases())
+# show all data
+#j.showCollection()
+a=j.extractTable("BD1", "personas")
 
-# create two table in db1 and show return tables list of db1 database
-print(j.createTable("db1", "table1", 5))
-print(j.createTable("db1", "table2", 8))
-print(j.showTables("db1"))
+horaActual= datetime.now().strftime("%H:%M:%S")
+print(horaActual)
 
-# rename table1 to table 3 and show return tables list of db1 database
-print(j.alterTable("db1", "table1","table3"))
-print(j.showTables("db1"))
-
-# drop table3 of db1 and show return tables list of db1 database
-print(j.dropTable("db1", "table3"))
-print(j.showTables("db1"))
-
-# drop db1 with tables, first return 0 and second return None
-print(j.dropDatabase("db1"))
-print(j.showTables("db1"))

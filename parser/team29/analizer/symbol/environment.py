@@ -10,12 +10,14 @@ class Environment:
     """
 
     dataFrame = None
+    groupCols = 0
 
     def __init__(self, previous=None, database="") -> None:
         self.database = database
         self.previous = previous
         self.variables = {}
         self.tables = []
+        self.types = {}
 
     def updateVar(self, id, value, type_):
         """
@@ -59,25 +61,40 @@ class Environment:
         env = self
         env.tables.append(table)
 
-    # TODO: buscar ambiguedad
     def ambiguityBetweenColumns(self, column):
         """
-        Encarga de buscar ambiguedad de una columna entre todas las tablas de
-        la clausula FROM
+        Encargada de buscar ambiguedad de una columna entre todas
+        las tablas de la clausula FROM
         """
         env = self
         i = 0
-        table = ""
+        table = None
         for t in env.tables:
             lst = Struct.extractColumns(env.database, t)
             for l in lst:
                 if l.name == column:
                     i += 1
                     table = t
+                    break
         if i > 1:
             print("Error: Existe ambiguedad entre la culumna:", column)
-            return
-        return table
+            return [True, None]
+        return [False, table]
+
+    def getType(self, table, column):
+        """
+        Encargada de buscar ambiguedad de una columna entre todas
+        las tablas de la clausula FROM
+        """
+        env = self
+        type = None
+        while env != None:
+            if table in env.variables:
+                symbol = env.variables[table].value
+                type = env.types[symbol + "." + column]
+                break
+            env = env.previous
+        return type
 
     def getVar(self, id):
         env = self
@@ -97,11 +114,20 @@ class Environment:
             env = env.previous
         return env
 
-    def getColumn(self, tableId, column):
+    def getColumn(self, table, column):
         env = self
         while env != None:
-            if tableId in env.variables:
-                symbol = env.variables[tableId]
-                return env.dataFrame[symbol.value+"."+column]
+            if table in env.variables:
+                symbol = env.variables[table]
+                return env.dataFrame[symbol.value + "." + column]
+            env = env.previous
+        return None
+
+    def getTableColumn(self, table, column):
+        env = self
+        while env != None:
+            if table in env.variables:
+                symbol = env.variables[table]
+                return symbol.value + "." + column
             env = env.previous
         return None

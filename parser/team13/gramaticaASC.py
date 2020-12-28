@@ -77,11 +77,11 @@ reservadas = {
     'rename': 'rename',
     'isNull': 'isNull',
     'in': 'tIn',
-    'iLike': 'tILike',
+    'ilike': 'tILike',
     'similar': 'tSimilar',
 
     'is': 'tIs',
-    'notNull': 'notNull',
+    'notnull': 'notNull',
     'and': 'And',
     'current_user': 'currentuser',
     'session_user': 'sessionuser',
@@ -272,7 +272,8 @@ tokens = [
              # TOKENS PARA EL RECONOCIMIENTO DE FECHA Y HORA
              'fecha',
              'hora',
-             'fecha_hora'
+             'fecha_hora',
+             'intervaloc'
 
          ] + list(reservadas.values())
 
@@ -306,7 +307,7 @@ t_ptComa = r';'
 t_barra = r'\|'
 t_barraDoble = r'\|\|'
 t_amp = r'&'
-t_numeral = r'\#'
+t_numeral = r'\?'
 t_virgulilla = r'~'
 t_mayormayor = r'>>'
 t_menormenor = r'<<'
@@ -334,21 +335,30 @@ def t_entero(t):
     return t
 
 
+# DEFINICION PARA INTERVALO
+def t_intervaloc(t):
+    r'\'\d+[\s(Year|Years|Month|Months|day|days|hour|hours|minute|minutes|second|seconds)]+\''
+    t.value = t.value[1:-1]
+    return t
+
 # DEFINICIÓN PARA LA HORA
 def t_hora(t):
     r'\'[0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9]\''
+    t.value = t.value[1:-1]
     return t
 
 
 # DEFINICIÓN PARA LA FECHA
 def t_fecha(t):
     r'\'[0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9]\''
+    t.value = t.value[1:-1]
     return t
 
 
 # DEFINICIÓN PARA TIMESTAMP
 def t_fecha_hora(t):
     r'\'([0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9])(\s)([0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])\''
+    t.value = t.value[1:-1]
     return t
 
 
@@ -364,6 +374,7 @@ def t_cadena(t):
     r'\'.*?\'|\".*?\"'
     t.value = t.value[1:-1]
     return t
+
 
 
 # DEFINICIÓN DE UN ID
@@ -397,31 +408,33 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
-#IMPORTACIÓN Y CREACIÓN DE LISTAS PARA GUARDAR LOS ERRORES
+# IMPORTACIÓN Y CREACIÓN DE LISTAS PARA GUARDAR LOS ERRORES
 from Error import Error
+
 errores_lexicos = []
 errores_sintacticos = []
 
 
-#HALLAR LA COLUMNA DEL TOKEN ESPECIFICADO
+# HALLAR LA COLUMNA DEL TOKEN ESPECIFICADO
 def find_column(token):  # Columna relativa a la fila
     global con
     line_start = con.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
 
-#FUNCIÓN DE ERROR PARA LOS ERRORES LÉXICOS
+# FUNCIÓN DE ERROR PARA LOS ERRORES LÉXICOS
 def t_error(t):
     col = find_column(t)
-    #print("Caracter inválido '%s'" % t.value[0], " Línea: '%s'" % str(t.lineno))
-    errores_lexicos.append(Error(t.value[0],'Error Léxico','El caracter \'' + str(t.value[0]) + '\' no pertenece al lenguaje',col,t.lineno))
+    # print("Caracter inválido '%s'" % t.value[0], " Línea: '%s'" % str(t.lineno))
+    errores_lexicos.append(
+        Error(t.value[0], 'Error Léxico', 'El caracter \'' + str(t.value[0]) + '\' no pertenece al lenguaje', col,
+              t.lineno))
     t.lexer.skip(1)
 
 
 # Construyendo el analizador léxico
 import ply.lex as lex
 import re
-
 
 # DEFINIENDO LA PRECEDENCIA DE LOS OPERADORES
 # ---------Modificado Edi------
@@ -442,6 +455,7 @@ precedence = (
 from sentencias import *
 
 from graphviz import Digraph
+
 
 def p_init(t):
     'inicio :   sentencias'
@@ -484,25 +498,25 @@ def p_sentencia(t):
 
 
 def p_USEDB(t):
-    ''' USEDB : tuse database id ptComa'''
-    t[0] = SUse(t[3])
+    ''' USEDB : tuse id ptComa'''
+    t[0] = SUse(t[2])
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def p_crearBase(t):
     '''CrearBase : create database E ptComa
-                 | create database E owner igual id ptComa
+                 | create database E owner igual E ptComa
                  | create database E mode igual entero ptComa
-                 | create database E owner igual id mode igual entero ptComa
+                 | create database E owner igual E mode igual entero ptComa
                  | create or replace database E ptComa
-                 | create or replace database E owner igual id ptComa
+                 | create or replace database E owner igual E ptComa
                  | create or replace database E mode igual entero ptComa
-                 | create or replace database E owner igual id mode igual entero ptComa
+                 | create or replace database E owner igual E mode igual entero ptComa
                  | create database if not exists E ptComa
-                 | create database if not exists E owner igual id ptComa
+                 | create database if not exists E owner igual E ptComa
                  | create database if not exists E mode igual entero ptComa
-                 | create database if not exists E owner igual id mode igual entero ptComa'''
+                 | create database if not exists E owner igual E mode igual entero ptComa'''
     # def __init__(self, owner, mode, replace, exists, id)
     if len(t) == 5:
         # primera produccion
@@ -592,19 +606,150 @@ def p_EnumType(t):
 
 # PRODUCCIÓN PARA HACER UN UPDATE
 def p_produccion0(t):
-    ''' UpdateBase   : tUpdate id tSet L_ASIGN where E ptComa '''
+    ''' UpdateBase   : tUpdate id tSet L_ASIGN where CondicionBase ptComa '''
     t[0] = SUpdateBase(t[2], t[4], t[6])
 
 
 # PRODUCCIÓN PARA HACER UN DELETE
 def p_produccion0_1(t):
-    ''' DeleteBase  : tDelete from id where E ptComa '''
-    t[0] = SDeleteBase(t[3], t[4])
+    ''' DeleteBase  : tDelete from id where CondicionBase ptComa '''
+    t[0] = SDeleteBase(t[3], t[5])
 
 
 def p_produccion0_2(t):
     ''' DeleteBase : tDelete from id ptComa'''
     t[0] = SDeleteBase(t[3], False)
+
+
+#PRODUCCIÓN PARA LAS CONDICIONES DEL DELETE Y EL UPDATE
+def p_produccion0_3(p):
+    ''' CondicionBase   : CondicionBase Condiciones
+                        | CondicionBase ORAND Condiciones
+                        | ORAND Condiciones 
+                        | Condiciones '''
+
+    if len(p) == 2 :
+        p[0] = p[1]
+    elif len(p) == 3:
+        print(str(p[1]))
+        p[1].append(p[2])
+        p[0] = [p[1]]
+    elif len(p)==4:
+
+        if p[2][0].lower() == 'and':
+            p[0] = SOperacion(p[1],p[3],Logicas.AND)
+        else:
+            p[0] = SOperacion(p[1],p[3],Logicas.OR)
+
+def p_produccion0_4(p):
+    ''' Condiciones : E_FUNC 
+                    | E_FUNC tIs distinct from E_FUNC
+                    | E_FUNC tIs not distinct from E_FUNC
+                    | substring parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E
+                    | E_FUNC tIs tTrue
+                    | E_FUNC tIs not tTrue 
+                    | E_FUNC tIs tFalse
+                    | E_FUNC tIs not tFalse
+                    | E_FUNC tIs unknown
+                    | E_FUNC tIs not unknown
+                    | E_FUNC tIs null 
+                    | E_FUNC tIs not null
+                    | E_FUNC isNull
+                    | E_FUNC notNull
+                    | E_FUNC tILike cadenaLike
+                    | E_FUNC like cadenaLike
+                    | E_FUNC tSimilar tTo E_FUNC
+                    | substr parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E '''
+
+
+    if len(p) == 2:
+        p[0] = p[1]
+
+    elif len(p) == 3:
+
+        if p[2].lower() == 'isnull':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.IGUAL)
+        elif p[2].lower() == 'notnull':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.DIFERENTE)
+
+    elif len(p) == 4:
+
+        if p[2].lower() == 'like':
+            p[0] = SLike(p[1],p[3])
+        elif p[2].lower() == 'ilike':
+            p[0] = SILike(p[1],p[3])
+        elif p[3].lower() == 'true':
+            p[0] = SOperacion(p[1],SExpresion(True,Expresion.BOOLEAN),Relacionales.IGUAL)
+        elif p[3].lower() == 'false':
+            p[0] = SOperacion(p[1],SExpresion(False,Expresion.BOOLEAN),Relacionales.IGUAL)
+        elif p[3].lower() == 'unknown' or p[3].lower() == 'null':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.IGUAL)
+
+    elif len(p) == 5:
+
+        if p[2].lower() == 'similar':
+            p[0] = SSimilar(p[1],p[4])
+        elif p[4].lower() == 'true':
+            p[0] = SOperacion(p[1],SExpresion(True,Expresion.BOOLEAN),Relacionales.DIFERENTE)
+        elif p[4].lower() == 'false':
+            p[0] = SOperacion(p[1],SExpresion(False,Expresion.BOOLEAN),Relacionales.DIFERENTE)
+        elif p[4].lower() == 'unknown' or p[4].lower() == 'null':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.DIFERENTE)
+
+    elif len(p) == 6:
+        
+        if p[3].lower() == 'distinct':
+            p[0] = SOperacion(p[1],p[5],Relacionales.DIFERENTE)
+    elif len(p) == 7:
+        if p[4].lower() == 'distinct':
+            p[0] = SOperacion(p[1],p[6],Relacionales.IGUAL)
+    elif len(p) == 11:
+        if p[1].lower() == 'substring' or p[1].lower() == 'substr':
+            p[0] = SSubstring(p[3],p[5],p[7],p[10])
+
+
+
+def p_produccion0_5(p):
+    ''' Condiciones : exists parAbre QUERY parCierra
+                | not exists parAbre QUERY parCierra
+                | E_FUNC in parAbre QUERY parCierra 
+                | E_FUNC not in parAbre QUERY parCierra
+                | E_FUNC OPERATOR any parAbre QUERY parCierra
+                | E_FUNC OPERATOR some parAbre QUERY parCierra
+                | E_FUNC OPERATOR all parAbre QUERY parCierra '''
+
+
+def p_produccion0_6(p):
+    ''' Condiciones : E_FUNC tBetween E_FUNC 
+                    | E_FUNC not tBetween E_FUNC '''
+
+    print(len(p))
+    if len(p) == 4:
+
+        if hasattr(p[3].opIzq,'valor') and hasattr(p[3].opDer,'valor') :
+            p[0] = SBetween(p[3].opIzq,p[1],p[3].opDer)
+        elif hasattr(p[3].opIzq,'valor'):
+
+            p[0] = SOperacion(SBetween(p[3].opIzq,p[1],p[3].opDer.opIzq),p[3].opDer.opDer,Logicas.OR)
+        
+        else:
+
+            p[0] = SOperacion(SBetween(p[3].opIzq.opIzq,p[1],p[3].opIzq.opDer),p[3].opDer,Logicas.AND)
+
+    elif len(p) == 5:
+
+        if hasattr(p[4].opIzq,'valor') and hasattr(p[4].opDer,'valor') :
+
+            p[0] = SNotBetween(p[4].opIzq,p[1],p[4].opDer)
+
+        elif hasattr(p[4].opIzq,'valor'):
+
+            p[0] = SOperacion(SNotBetween(p[4].opIzq,p[1],p[4].opDer.opIzq),p[4].opDer.opDer,Logicas.OR)
+        
+        else:
+
+            p[0] = SOperacion(SNotBetween(p[4].opIzq.opIzq,p[1],p[4].opIzq.opDer),p[4].opDer,Logicas.AND)
+
 
 
 # PRODUCCIÓN PARA HACER UN TRUNCATE
@@ -668,6 +813,7 @@ def p_EXPR_ASSIGNS(t):
                | tConstraint id tCheck E
                | tUnique parAbre COLS parCierra
                | tPrimary tKey parAbre COLS parCierra
+               | tConstraint id tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra
                | tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra'''
     if len(t) == 3:
         if t[1].lower == "check":
@@ -684,7 +830,9 @@ def p_EXPR_ASSIGNS(t):
     elif len(t) == 6:
         t[0] = SColumnaPk(t[4])
     elif len(t) == 11:
-        t[0] = SColumnaFk(t[7], t[4], t[9])
+        t[0] = SColumnaFk(t[7], None, t[4], t[9])
+    else:
+        t[0] = SColumnaFk(t[9], t[2], t[6], t[11])
 
 
 def p_EXPR_OPCIONALES(t):
@@ -826,6 +974,7 @@ def p_EXPR_ALTER_TABLE(t):
                    | alter table id add tConstraint id tCheck E ptComa
                    | alter table id add tCheck E ptComa
                    | alter table id add tConstraint id tUnique parAbre id parCierra ptComa
+                   | alter table id add tConstraint id tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra ptComa
                    | alter table id add tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra ptComa
                    | alter table id drop tConstraint id ptComa
                    | alter table id rename tTo id ptComa
@@ -836,7 +985,6 @@ def p_EXPR_ALTER_TABLE(t):
             t[0] = SAlterTableRenameColumn(t[3], t[6], t[8])
         elif t[4].lower() == "add":
             t[0] = SAlterTableCheck(t[3], t[8], t[6])
-
     elif len(t) == 8:
         if t[4].lower() == "add":
             # cuarta produccion
@@ -856,7 +1004,9 @@ def p_EXPR_ALTER_TABLE(t):
         t[0] = SAlterTableAddUnique(t[3], t[6], t[9])
     elif len(t) == 16:
         # sexta produccion
-        t[0] = SAlterTableAddFK(t[3], t[11], t[8], t[13])
+        t[0] = SAlterTableAddFK(t[3], t[11], None, t[8], t[13])
+    else:
+        t[0] = SAlterTableAddFK(t[3], t[13], t[6], t[10], t[15])
 
 
 def p_EXPR_ALTER_TABLE1(t):
@@ -922,13 +1072,17 @@ def p_EXPR_ALTER(t):
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_INSERT(p):
-    ''' INSERT :  insert into id values parAbre LISTA_EXP parCierra ptComa   '''
-    p[0] = SInsertBase(p[3], p[6])
+    ''' INSERT :  insert into id values parAbre LISTA_EXP parCierra ptComa
+               |  insert into id parAbre LISTA_EXP parCierra values parAbre LISTA_EXP parCierra ptComa'''
+    if len(p) == 9:
+        p[0] = SInsertBase(p[3], None, p[6])
+    else:
+        p[0] = SInsertBase(p[3], p[5], p[9])
 
 
 def p_LISTA_EXP(p):
-    ''' LISTA_EXP :    LISTA_EXP coma E    
-                    |  E 
+    ''' LISTA_EXP :    LISTA_EXP coma E_FUNC
+                    |  E_FUNC
     '''
     if len(p) == 4:
         p[1].append(p[3])
@@ -983,7 +1137,7 @@ def p_E(p):
     elif p[2] == "**":
         p[0] = SOperacion(p[1], p[3], Aritmetica.POTENCIA)
     elif p[2] == ".":
-        p[0] = SOperacion(p[1], p[3], Expresion.TABATT)
+        p[0] = SExpresion(str(p[1].valor) + "_" + str(p[3].valor),Expresion.ID )
 
 
 def p_OpNot(p):
@@ -1028,19 +1182,19 @@ def p_id(p):
 def p_fecha(p):
     ''' E : fecha    
     '''
-    p[0] = SExpresion(p[1], Expresion.ID)
+    p[0] = SExpresion(p[1], Expresion.FECHA)
 
 
 def p_hora(p):
     ''' E : hora    
     '''
-    p[0] = SExpresion(p[1], Expresion.ID)
+    p[0] = SExpresion(p[1], Expresion.HORA)
 
 
 def p_fecha_hora(p):
     ''' E : fecha_hora    
     '''
-    p[0] = SExpresion(p[1], Expresion.ID)
+    p[0] = SExpresion(p[1], Expresion.FECHA_HORA)
 
 
 def p_booleano(p):
@@ -1052,6 +1206,15 @@ def p_booleano(p):
           | tFalse
     '''
     p[0] = SExpresion(p[1], Expresion.BOOLEAN)
+
+def p_interval(p):
+    '''E : intervaloc '''
+    p[0]=SExpresion(p[1],Expresion.INTERVALO)
+
+
+def p_nulo(p):
+    '''E : null '''
+    p[0]=SExpresion(None,Expresion.NULL)
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1065,7 +1228,7 @@ def p_QUERIES(p):
                | QUERY'''
     if len(p) == 2:
         p[0] = Squeries(p[1], False, False)
-    elif len(p) == 3:
+    elif len(p) == 4:
         p[0] = Squeries(p[1], p[2], p[3])
 
 
@@ -1282,12 +1445,36 @@ def p_EXPR_COLUMNAS1(p):
                      | EXPR_BINARIAS as E
                      | EXPR_EXTRA as E
                      | EXPR_FECHA as E
-                     | EXPR_CASE as E '''
+                     | EXPR_CASE as E 
+                     | E E
+                     | EXPR_AGREGACION  E
+                     | EXPR_MATHS E
+                     | EXPR_TRIG E 
+                     | EXPR_BINARIAS E
+                     | EXPR_EXTRA E
+                     | EXPR_FECHA E
+                     | EXPR_CASE E 
+                     | E punto multi'''
     if len(p) == 4:
-        p[0] = SColumnasAsSelect(p[3], p[1])
+        if p[3] == "*":
+            p[0] = SColumnasMulti(p[1], p[3])
+        else: 
+            p[0] = SColumnasAsSelect(p[3], p[1])
+    elif len(p) == 3:
+        p[0] = SColumnasAsSelect(p[2], p[1])
     else:
         p[0] = SColumnasAsSelect(False, p[1])
 
+def p_EXPR_COLUMNAS2(p):
+    '''EXPR_COLUMNAS1 : parAbre QUERY parCierra
+                     | parAbre QUERY parCierra E
+                     | parAbre QUERY parCierra as E'''
+    if len(p) == 4: 
+        p[0] = SColQuery(False, p[2])
+    if len(p) == 5:
+        p[0] = SColQuery(p[4], p[2])
+    if len(p) == 6:
+        p[0] = SColQuery(p[5], p[2])
 
 # LEN
 def p_EXPR_COLUMNAS1_p1(p):  # error
@@ -1295,13 +1482,20 @@ def p_EXPR_COLUMNAS1_p1(p):  # error
                      | greatest parAbre E_LIST parCierra
                      | least parAbre E_LIST parCierra
                      | substring parAbre E coma E coma E parCierra as E
+                     | substr parAbre E coma E coma E parCierra as E
+                     | substr parAbre E coma E coma E parCierra 
                      | greatest parAbre E_LIST parCierra as E
                      | least parAbre E_LIST parCierra as E '''
     if p[1].lower() == "substring":
         if len(p) == 11:
-            p[0] = SColumnasSubstr(p[3], p[5], p[7], p[10])
+            p[0] = SColumnasSubstr(p[10], p[5], p[7], p[3])
         else:
-            p[0] = SColumnasSubstr(p[3], p[5], p[7], False)
+            p[0] = SColumnasSubstr(False, p[3], p[5], p[7])
+    elif p[1].lower() == "substr":
+        if len(p) == 11:
+            p[0] = SColumnasSubstr(p[10],p[3], p[5], p[7])
+        else:
+            p[0] = SColumnasSubstr(False,p[3], p[5], p[7])
     elif p[1].lower() == "greatest":
         if len(p) == 7:
             p[0] = SColumnasGreatest(p[6], p[3])
@@ -1315,7 +1509,7 @@ def p_EXPR_COLUMNAS1_p1(p):  # error
 
 
 def p_EXPR_EXTRA(p):
-    '''EXPR_EXTRA : tExtract parAbre FIELDS from DATE_TYPES E parCierra
+    '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp E parCierra
                   | tExtract parAbre FIELDS from E parCierra'''
     if len(p) == 7:
         p[0] = SExtract(p[3], p[5])
@@ -1353,24 +1547,19 @@ def p_EXPR_MATHS(p):
                      | factorial E
                      | floor E
                      | gcd parAbre E coma E parCierra
-                     | lcm E
                      | ln E
                      | log E
-                     | log10 E
-                     | min_scale E
                      | mod parAbre E coma E parCierra
                      | pi parAbre parCierra
                      | power parAbre E coma E parCierra
                      | radians E
                      | round E
-                     | scale E
+                     | round parAbre E coma E parCierra
                      | sign E
                      | sqrt E
-                     | trim_scale E
                      | trunc E
                      | width_bucket parAbre LISTA_EXP parCierra
-                     | random parAbre parCierra
-                     | setseed E  '''
+                     | random parAbre parCierra '''
     if len(p) == 3:
         p[0] = SFuncMath(p[1], p[2])
     elif len(p) == 4:
@@ -1417,7 +1606,6 @@ def p_EXPR_BINARIAS(p):
                      | md5 E
                      | set_byte parAbre E dosPts dosPts bytea coma E coma E parCierra 
                      | sha256 E
-                     | substr E
                      | convert parAbre E as TIPO parCierra
                      | encode parAbre E dosPts dosPts bytea coma E parCierra 
                      | decode parAbre E coma E parCierra 
@@ -1430,9 +1618,10 @@ def p_EXPR_BINARIAS(p):
                      | E menormenor E
                      | E mayormayor E'''
     if len(p) == 3:
+        print("entro con trim xd")
         p[0] = SFuncBinary(p[1], p[2])
     if len(p) == 4:
-        p[0] = SFuncBinary2(p[1], p[2], p[3])
+        p[0] = SFuncBinary2(p[2], p[1], p[3])
     elif len(p) == 7:
         p[0] = SFuncBinary3(p[1], p[3], p[4], p[5])
     elif len(p) == 10:
@@ -1454,13 +1643,13 @@ def p_EXPR_FECHA(p):
     elif len(p) == 3:
         p[0] = SFechaFunc(p[1], p[2])
     else:
-        p[0] = SFechaFunc2(p[1], p[3], p[5], p[6])
+        p[0] = SDatePart(p[1], p[3], p[5], p[6])
 
 
 def p_EXPR_CASE(p):
     '''EXPR_CASE : case CASE_LIST end
                  | case CASE_LIST else E end'''
-    if len(p) == 2:
+    if len(p) == 4:
         p[0] = SCase(p[2])
     else:
         p[0] = SCaseElse(p[2], p[4])
@@ -1542,16 +1731,30 @@ def p_EXPR_WHERE(p):
 
 def p_LIST_CONDS(p):
     '''LIST_CONDS : LIST_CONDS COND1
+                  | LIST_CONDS ORAND COND1
+                  | ORAND COND1
                   | COND1  '''
-    if len(p) == 3:
-        p[1].append(p[2])
+    if len(p) == 2 :
         p[0] = p[1]
-    else:
+    elif len(p) == 3:
+        print(str(p[1]))
+        p[1].append(p[2])
         p[0] = [p[1]]
+    elif len(p)==4:
+
+        if p[2][0].lower() == 'and':
+            p[0] = SOperacion(p[1],p[3],Logicas.AND)
+        else:
+            p[0] = SOperacion(p[1],p[3],Logicas.OR)
+
+def p_LIST_ORAND(p):
+    '''ORAND : or
+             | And'''
+    p[0]= [p[1]]
 
 
 def p_COND1(p):
-    '''COND1 :  E_FUNC 
+    '''COND1    : E_FUNC 
                 | E_FUNC tIs distinct from E_FUNC
                 | E_FUNC tIs not distinct from E_FUNC
                 | substring parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E
@@ -1564,23 +1767,56 @@ def p_COND1(p):
                 | E_FUNC tIs null 
                 | E_FUNC tIs not null
                 | E_FUNC isNull
-                | E_FUNC notNull 
+                | E_FUNC notNull
+                | E_FUNC tILike cadenaLike
+                | E_FUNC like cadenaLike
+                | E_FUNC tSimilar tTo E_FUNC
                 | substr parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E '''
 
     if len(p) == 2:
-        p[0] = SWhereCond1(p[1])
+        p[0] = p[1]
+
     elif len(p) == 3:
-        p[0] = SWhereCond2(p[2], p[1])
+
+        if p[2].lower() == 'isnull':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.IGUAL)
+        elif p[2].lower() == 'notnull':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.DIFERENTE)
+
     elif len(p) == 4:
-        p[0] = SWhereCond3(p[2], False, p[3])
+
+        if p[2].lower() == 'like':
+            p[0] = SLike(p[1],p[3])
+        elif p[2].lower() == 'ilike':
+            p[0] = SILike(p[1],p[3])
+        elif p[3].lower() == 'true':
+            p[0] = SOperacion(p[1],SExpresion(True,Expresion.BOOLEAN),Relacionales.IGUAL)
+        elif p[3].lower() == 'false':
+            p[0] = SOperacion(p[1],SExpresion(False,Expresion.BOOLEAN),Relacionales.IGUAL)
+        elif p[3].lower() == 'unknown' or p[3].lower() == 'null':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.IGUAL)
+
     elif len(p) == 5:
-        p[0] = SWhereCond3(p[2], p[3], p[4])
+
+        if p[2].lower() == 'similar':
+            p[0] = SSimilar(p[1],p[4])
+        elif p[4].lower() == 'true':
+            p[0] = SOperacion(p[1],SExpresion(True,Expresion.BOOLEAN),Relacionales.DIFERENTE)
+        elif p[4].lower() == 'false':
+            p[0] = SOperacion(p[1],SExpresion(False,Expresion.BOOLEAN),Relacionales.DIFERENTE)
+        elif p[4].lower() == 'unknown' or p[4].lower() == 'null':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.DIFERENTE)
+
     elif len(p) == 6:
-        p[0] = SWhereCond4(p[2], False, p[3], p[1], p[5])
+        
+        if p[3].lower() == 'distinct':
+            p[0] = SOperacion(p[1],p[5],Relacionales.DIFERENTE)
     elif len(p) == 7:
-        p[0] = SWhereCond4(p[2], p[3], p[4], p[1], p[6])
+        if p[4].lower() == 'distinct':
+            p[0] = SOperacion(p[1],p[6],Relacionales.IGUAL)
     elif len(p) == 11:
-        p[0] = SWhereCond5(p[1], p[3], p[5], p[7])
+        if p[1].lower() == 'substring' or p[1].lower() == 'substr':
+            p[0] = SSubstring(p[3],p[5],p[7],p[10])
 
 
 def p_COND2(p):
@@ -1592,26 +1828,51 @@ def p_COND2(p):
                 | E_FUNC OPERATOR some parAbre QUERY parCierra
                 | E_FUNC OPERATOR all parAbre QUERY parCierra'''
     if len(p) == 5:
-        p[0] = SWhereCond6(False, p[1], p[3])
+        p[0] = SExist(p[3])
     elif len(p) == 6:
-        if p(2).lower(2) == "exists":
-            p[0] = SWhereCond6(p[1], p[2], p[4])
+        if p[2].lower() == "exists":
+            p[0] = SNotExist(p[4])
         else:
-            p[0] = SWhereCond8(False, p[2], p[1], p[4])
+            p[0] = SIn(p[1],p[4])
     elif len(p) == 7:
-        if p[3].lower == "in":
-            p[0] = SWhereCond7(p[2], p[3], p[1], p[5])
+        if p[3].lower() == "in":
+            p[0] = SNotIn(p[1],p[5])
+        elif p[3].lower() == "all":
+            p[0] = SAny(p[1], p[2], p[5])
         else:
-            p[0] = SWhereCond8(False, p[2], p[1], p[4])
+            p[0] = SAll(p[1], p[2], p[5])
 
 
 def p_COND3(p):
     '''COND1 :  E_FUNC tBetween E_FUNC 
                 | E_FUNC not tBetween E_FUNC'''
+    print(len(p))
     if len(p) == 4:
-        p[0] = SWhereCond9(False, p[2], p[1], p[3])
+
+        if hasattr(p[3].opIzq,'valor') and hasattr(p[3].opDer,'valor') :
+            p[0] = SBetween(p[3].opIzq,p[1],p[3].opDer)
+        elif hasattr(p[3].opIzq,'valor'):
+
+            p[0] = SOperacion(SBetween(p[3].opIzq,p[1],p[3].opDer.opIzq),p[3].opDer.opDer,Logicas.OR)
+        
+        else:
+
+            p[0] = SOperacion(SBetween(p[3].opIzq.opIzq,p[1],p[3].opIzq.opDer),p[3].opDer,Logicas.AND)
+
     elif len(p) == 5:
-        p[0] = SWhereCond9(p[2], p[3], p[1], p[4])
+
+        if hasattr(p[4].opIzq,'valor') and hasattr(p[4].opDer,'valor') :
+
+            p[0] = SNotBetween(p[4].opIzq,p[1],p[4].opDer)
+
+        elif hasattr(p[4].opIzq,'valor'):
+
+            p[0] = SOperacion(SNotBetween(p[4].opIzq,p[1],p[4].opDer.opIzq),p[4].opDer.opDer,Logicas.OR)
+        
+        else:
+
+            p[0] = SOperacion(SNotBetween(p[4].opIzq.opIzq,p[1],p[4].opIzq.opDer),p[4].opDer,Logicas.AND)
+
 
 
 def p_OPERATOR(p):
@@ -1701,20 +1962,20 @@ def p_EXPR_LIMIT2(p):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-#FUNCIÓN PARA EL MANEJO DE LOS ERRORES SINTÁCTICOS
+# FUNCIÓN PARA EL MANEJO DE LOS ERRORES SINTÁCTICOS
 def p_error(t):
     col = find_column(t)
-    #print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col) )
-    errores_sintacticos.append(Error(t.value,'Error Sintáctico','Símbolo no esperado',col,t.lineno))
+    # print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col) )
+    errores_sintacticos.append(Error(t.value, 'Error Sintáctico', 'Símbolo no esperado', col, t.lineno))
 
 
-#MÉTODO PARA GENERAR EL REPORTE DE ERRORES LÉXICOS
+# MÉTODO PARA GENERAR EL REPORTE DE ERRORES LÉXICOS
 def erroresLexicos():
     print('Generando reporte de errores léxicos')
     __generar_reporte('Lexicos', errores_lexicos)
 
 
-#MÉTODO PARA GENERAR EL REPORTE DE ERRORES SINTÁCTICOS
+# MÉTODO PARA GENERAR EL REPORTE DE ERRORES SINTÁCTICOS
 def erroresSintacticos():
     print('Generando reporte de errores sintácticos')
     __generar_reporte('Sintacticos', errores_sintacticos)
@@ -1723,9 +1984,8 @@ def erroresSintacticos():
 from datetime import datetime
 
 
-#FUNCIÓN PARA GENERAR EL REPORTE DE ERRORES 
+# FUNCIÓN PARA GENERAR EL REPORTE DE ERRORES
 def __generar_reporte(titulo, lista):
-
     if len(lista) > 0:
         ''' '''
         nodos = '''<
@@ -1740,22 +2000,25 @@ def __generar_reporte(titulo, lista):
             <TD>COLUMNA</TD>
             <TD>FILA</TD>
         </TR>                               \n''' % (titulo, str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-        s = Digraph(titulo, node_attr={'color': 'black', 'fillcolor': 'lightblue2','style': 'filled', 'shape': 'record'})
+        s = Digraph(titulo,
+                    node_attr={'color': 'black', 'fillcolor': 'lightblue2', 'style': 'filled', 'shape': 'record'})
         for e in lista:
             nodos += '<TR> '
-            nodos += (' \n\t<TD> '  + str(e.lexema).replace('{','\{').replace('}','\}').replace('<','\<').replace('>','\>') + ' </TD> ')
-            nodos += (' \n\t<TD> '  + str(e.tipo) + ' </TD> ')
-            nodos += (' \n\t<TD> '  + str(e.descripcion).replace('{','\{').replace('}','\}').replace('<','\<').replace('>','\>') + ' </TD> ')
-            nodos += (' \n\t<TD> '  + str(e.columna) + ' </TD> ')
-            nodos += (' \n\t<TD> '  + str(e.fila) + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.lexema).replace('{', '\{').replace('}', '\}').replace('<', '\<').replace('>',
+                                                                                                                    '\>') + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.tipo) + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.descripcion).replace('{', '\{').replace('}', '\}').replace('<',
+                                                                                                      '\<').replace('>',
+                                                                                                                    '\>') + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.columna) + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.fila) + ' </TD> ')
             nodos += ' \n</TR> \n'
         nodos += '</TABLE>>'
         s.node('lbl', nodos)
-        s.render('Reportes/'+titulo, format='png', view=True)
+        s.render('Reportes/' + titulo, format='png', view=True)
+
 
 import ply.yacc as yacc
-
-
 
 
 def parse(input):

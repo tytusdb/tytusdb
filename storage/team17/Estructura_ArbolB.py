@@ -1,4 +1,9 @@
-# -⁻- coding: UTF-8 -*-
+# File:     B Tree Structure
+# License:  Released under MIT License
+# Notice:   Copyright (c) 2020 TytusDB Team
+
+import os
+
 # ------------- CREACION DE LOS NODOS -------------#
 
 class NodoB:
@@ -40,7 +45,10 @@ class NodoB:
         return i #Regresa la posicion
     
     def posicionNodo(self):
-        return self.padre.hijos.index(self)
+        try:
+            return self.padre.hijos.index(self)
+        except:
+            pass
     
     def buscar_llave(self, llave, llaves):
         for i in llaves:
@@ -189,7 +197,7 @@ class arbolB:
     def _Keys(self, tmp):
         if tmp:
             for i in tmp.llaves:
-                l.append(i[0])
+                l.append(str(i[0]))
             for j in tmp.hijos:
                 self._Keys(j)
         return l
@@ -207,6 +215,18 @@ class arbolB:
                 self._agregarValor(j,valor)
         return tmp
 
+    def update(self, valor, llave):
+        self._update(self.root, valor, llave)
+
+    def _update(self, tmp, valor, llave):
+        if tmp:
+            for i in tmp.llaves:
+                if str(i[0]) == str(llave):
+                    i[1] = valor
+                    i[0] = llave
+            for j in tmp.hijos:
+                self._update(j, valor, llave)
+        return tmp
 
     # ELIMINA UNA COLUMNA A TODOS LOS NODOS
 
@@ -296,4 +316,29 @@ class arbolB:
         pos = nodo.posicionNodo() #Derecha
         nodo.insertar(padre.llaves.pop(pos-1))
         padre.insertar(tmp.llaves.pop(-1))
-        return 0   
+        return 0    
+
+    def graficar(self):
+        f = open('archivo.dot', 'w',encoding='utf-8')
+        f.write("digraph dibujo{\n")
+        f.write('graph [ordering="out"];')
+        f.write('rankdir=TB;\n')
+        global t
+        t = 0
+        f = self._graficar(f,self.root)
+        f.write('}')
+        f.close()
+        os.system('dot -Tpng archivo.dot -o salida.png')
+    
+    def _graficar(self, f, temp):
+        global t
+        if temp:
+            nombre = "Nodo"+str(t)
+            t+=1
+            f.write(nombre+' [ label = "'+", ".join(str(x[0]) for x in temp.llaves)+'",shape = box];\n')
+            for c in temp.hijos:
+                nombre2 = "Nodo"+str(t)
+                f = self._graficar(f, c)
+                f.write(nombre+'->'+ nombre2+';\n')
+                t+=1
+        return f

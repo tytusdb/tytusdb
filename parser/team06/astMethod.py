@@ -1,4 +1,6 @@
 import os
+import tkinter
+from tkinter import messagebox
 
 def tourAST(node,fileName):
     if node:
@@ -17,16 +19,23 @@ def tourAST(node,fileName):
 
 def astFile(fileName, node):
     try:
-        file = open(fileName+'.dot', 'w')
+        state_script_dir = os.getcwd()
+        file_path = state_script_dir + "\\AST\\ast"
+        print(file_path)
+        file = open(file_path+'.dot', 'w')
         if file:
             file.write('digraph d {\n')
             tourAST(node, file)
             file.write('\n}')
         file.close()
-        os.system("dot -Tpng "+fileName+".dot -o "+fileName +".png")
-        print("AST generado")
+        os.system("dot -Tpng "+file_path+".dot -o "+file_path +".png")
+        os.startfile(file_path +".png")
     except ValueError:
-        print("Error valor")
+        box_tilte ="Value Error"
+        box_msg = "Error con algun valor de la entrada"
+        messagebox.showerror(box_tilte,box_msg)
     except:
         file.close()
-        print("Error")
+        box_tilte ="File Error"
+        box_msg = "El archivo que trata de acceder no existe"
+        messagebox.showerror(box_tilte,box_msg)

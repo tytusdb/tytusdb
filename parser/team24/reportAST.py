@@ -69,7 +69,9 @@ def executeGraphTree(data):
     global graph2
     json_data = json.dumps({'raiz': data}, default=lambda o: o.__dict__, indent=4)
     json_data = json_data.replace("[]", "null")
-    print(json_data)
+    json_data = json_data.replace(">", "MAYOR")
+    json_data = json_data.replace("<", "MENOR")
+    #print(json_data)
     with open('entrada2.txt', 'w') as f:
         stringNew = ''
         tempstr = tos_string(json.loads(json_data)).replace('     ', '\t')
@@ -86,15 +88,16 @@ def executeGraphTree(data):
 
     with open(inputFile, 'r') as f:
         radice = f.readline().rstrip('\n')
-        print(radice)
+        #print(radice)
         tree = Node(radice)
         inserter = Inserter(tree)
-        print(inserter)
+        #print(inserter)
         if inserter == None:
-            print('caxxo')
+            #print('caxxo')
+            pass
         for line in f:
             line = line.rstrip('\n')
-            print(line)
+            #print(line)
             # note there's a bug with your original tab parsing code:
             # it would count all tabs in the string, not just the ones
             # at the beginning

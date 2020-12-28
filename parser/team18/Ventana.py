@@ -11,27 +11,63 @@ archivo = None
 
 # Configuración de Ventana
 ventana = Tk()
-ventana.geometry('950x700')
+ventana.geometry('800x600')
 ventana.title("TytusDB_18")
 
 
 # show pop-up menu
 
-def compilar():
-    texto = content_text.get("1.0",END)
-    ejecutar(texto)
-
 def abrirAST():
-    webbrowser.open_new_tab('AST.pdf')
+    AST.generarAST()
 
 def abrirGramaticalASC():
-    webbrowser.open_new_tab('reporte_Asc.html')
+    AST.generarGASC()
+
+def abrirEstructuraTablas():
+    #crear ventana
+    win=Tk()
+    win.title("Tabla de Simbolos")
+    win.geometry('900x600')
+    #crear Scrol
+    scroll_Derecha=Scrollbar(win)
+    scroll_Derecha.pack(side=RIGHT,fill=Y)
+    Scroll_Abajo=Scrollbar(win,orient='horizontal')
+    Scroll_Abajo.pack(side=BOTTOM, fill=X)
+    #texbox
+    tablasTxt=Text(win,width=100,height=40,yscrollcommand=scroll_Derecha.set,wrap="none",xscrollcommand=Scroll_Abajo.set)
+    tablasTxt.pack()
+    #configurar Scroll en texbox
+    scroll_Derecha.config(command=tablasTxt.yview)
+    Scroll_Abajo.config(command=tablasTxt.xview)
+    gemts=AST.generarTSReporte()
+    tablasTxt.insert('end',gemts)
+    tablasTxt.insert('end','\n\n')
+    #webbrowser.open_new_tab('reporte_TS.html')
 
 def abrirErrores():
     webbrowser.open_new_tab('Reporte_Errores.html')
+    webbrowser.open_new_tab('Reporte_Errores_Sem.html')
 
 def abrirSimbolos():
-    webbrowser.open_new_tab('reporte_TS.html')
+    #crear ventana
+    win=Tk()
+    win.title("Estructura De Las Tablas")
+    win.geometry('900x600')
+    #crear Scrol
+    scroll_Derecha=Scrollbar(win)
+    scroll_Derecha.pack(side=RIGHT,fill=Y)
+    Scroll_Abajo=Scrollbar(win,orient='horizontal')
+    Scroll_Abajo.pack(side=BOTTOM, fill=X)
+    #texbox
+    tablasTxt=Text(win,width=100,height=40,yscrollcommand=scroll_Derecha.set,wrap="none",xscrollcommand=Scroll_Abajo.set)
+    tablasTxt.pack()
+    #configurar Scroll en texbox
+    scroll_Derecha.config(command=tablasTxt.yview)
+    Scroll_Abajo.config(command=tablasTxt.xview)
+    for tab in AST.mostrarTablasTemp():
+        tablasTxt.insert('end',tab)
+        tablasTxt.insert('end','\n\n')
+    #webbrowser.open_new_tab('reporte_TS.html')
 
 def show_popup_menu(event):
     popup_menu.tk_popup(event.x_ventana, event.y_ventana)
@@ -100,7 +136,7 @@ def open_file(event=None):
     if input_file_name:
         global archivo
         archivo = input_file_name
-        ventana.title('{} - {}'.format(os.path.basename(archivo), IDE))
+        ventana.title('{} - {}'.format(os.path.basename(archivo), "TytusDB_18"))
         content_text.delete(1.0, END)
         with open(archivo) as _file:
             content_text.insert(1.0, _file.read())
@@ -196,8 +232,6 @@ def analizar():
     #AST.generarAST()
 
 #Metodo para generar el reporte del arbol ast
-def abrirAST():
-    AST.generarAST()
 
 
 menu_bar = Menu(ventana)
@@ -225,9 +259,9 @@ menu_bar.add_cascade(label='Compilar', menu=compil)
 
 report = Menu(menu_bar, tearoff=0)
 report.add_command(label="Gramatical Ascendente", compound="left", command=abrirGramaticalASC)
-report.add_command(label="Gramatical Descendente", compound="left", command=compilar)
+report.add_command(label="Tabla de Simbolos", compound="left", command=abrirEstructuraTablas)
 report.add_command(label="AST", compound="left", command=abrirAST)
-report.add_command(label="Tabla de Simbolos", compound="left", command=abrirSimbolos)
+report.add_command(label="Estructura Tablas", compound="left", command=abrirSimbolos)
 report.add_command(label="Errores", compound="left", command=abrirErrores)
 menu_bar.add_cascade(label='Reportes', menu=report)
 

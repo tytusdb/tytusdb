@@ -1,8 +1,12 @@
-# -⁻- coding: UTF-8 -*-
-from DataBase import *
-import Serializable as serializar
+# File:     B Mode Package
+# License:  Released under MIT License
+# Notice:   Copyright (c) 2020 TytusDB Team
 
-b = DB()
+from team17 import DataBase as db
+from team17 import Serializable as serializar
+from team17 import Estructura_ArbolB as bt
+
+b = db.DB()
 
 try:
     b = serializar.rollback("BDD")
@@ -59,8 +63,11 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
     except:
         pass
     r = b.alterAddPK(database, table, columns)
-    b.dicDB[database][table][0] = arbolB(b.grade)
-    serializar.commit(b, "BDD")
+    try:
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
+        serializar.commit(b, "BDD")
+    except:
+        pass
     return r
 
 def alterDropPK(database: str, table: str) -> int:
@@ -69,8 +76,11 @@ def alterDropPK(database: str, table: str) -> int:
     except:
         pass
     r = b.alterDropPK(database, table)
-    b.dicDB[database][table][0] = arbolB(b.grade)
-    serializar.commit(b, "BDD")
+    try:
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
+        serializar.commit(b, "BDD")
+    except:
+        pass
     return r
 
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
@@ -84,8 +94,11 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
     except:
         pass
     r = b.alterAddColumn(database, table, default)
-    b.dicDB[database][table][0] = arbolB(b.grade)
-    serializar.commit(b, "BDD")
+    try:
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
+        serializar.commit(b, "BDD")
+    except:
+        pass
     return r
 
 def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
@@ -94,8 +107,11 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
     except:
         pass
     r = b.alterDropColumn(database, table, columnNumber)
-    b.dicDB[database][table][0] = arbolB(b.grade)
-    serializar.commit(b, "BDD")
+    try:
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
+        serializar.commit(b, "BDD")
+    except:
+        pass
     return r
 
 def dropTable(database: str, table: str) -> int:
@@ -113,7 +129,7 @@ def insert(database: str, table: str, register: list) -> int:
     r = b.insert(database, table, register)
     try:
         serializar.commit(b.dicDB[database][table][0], database+"-"+table+"-B")
-        b.dicDB[database][table][0] = arbolB(b.grade)
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
         serializar.commit(b, "BDD")
     except:
         pass
@@ -127,7 +143,7 @@ def loadCSV(file: str, database: str, table: str) -> list:
     r = b.loadCSV(file, database, table)
     try:
         serializar.commit(b.dicDB[database][table][0], database+"-"+table+"-B")
-        b.dicDB[database][table][0] = arbolB(b.grade)
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
         serializar.commit(b, "BDD")
     except:
         pass
@@ -141,7 +157,7 @@ def extractRow(database: str, table: str, columns: list) -> list:
     r = b.extractRow(database, table, columns)
     try:
         serializar.commit(b.dicDB[database][table][0], database+"-"+table+"-B")
-        b.dicDB[database][table][0] = arbolB(b.grade)
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
         serializar.commit(b, "BDD")
     except:
         pass
@@ -155,7 +171,7 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
     r = b.update(database, table, register, columns)
     try:
         serializar.commit(b.dicDB[database][table][0], database+"-"+table+"-B")
-        b.dicDB[database][table][0] = arbolB(b.grade)
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
         serializar.commit(b, "BDD")
     except:
         pass
@@ -169,7 +185,7 @@ def delete(database: str, table: str, columns: list) -> int:
     r = b.delete(database, table, columns)
     try:
         serializar.commit(b.dicDB[database][table][0], database+"-"+table+"-B")
-        b.dicDB[database][table][0] = arbolB(b.grade)
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
         serializar.commit(b, "BDD")
     except:
         pass
@@ -183,7 +199,7 @@ def truncate(database: str, table: str) -> int:
     r = b.truncate(database, table)
     try:
         serializar.commit(b.dicDB[database][table][0], database+"-"+table+"-B")
-        b.dicDB[database][table][0] = arbolB(b.grade)
+        b.dicDB[database][table][0] = bt.arbolB(b.grade)
         serializar.commit(b, "BDD")
     except:
         pass
