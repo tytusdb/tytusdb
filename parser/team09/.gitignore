@@ -1,0 +1,7 @@
+*.pyc
+__*
+parser.out
+parsetab.py
+*.html
+jsonMode.py
+data

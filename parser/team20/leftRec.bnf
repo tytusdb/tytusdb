@@ -1,0 +1,340 @@
+##################################################
+# Rules of the parser that evaluate the symbols
+# returned from the scanner.
+##################################################
+
+<S> ::= <sentences>
+
+<sentences> ::= <sentences> <sentence>
+              |  <sentence> 
+
+<sentence> ::= <DDL> ";"
+             |  <DML> ";"
+
+<DDL> ::= <create>
+       |  <drop>
+       |  <alter>
+
+<DML> ::= <select>
+       |  <insert>
+       |  <delete_instruction>
+       |  <update_instruction>
+       |  <truncate>
+       |  <show>
+
+<create> ::= <createDatabase>
+          |  <createTable>
+          |  <createType>
+
+<drop> ::= <dropDatabase>
+        |  <dropTable>
+
+<dropDatabase> ::= drop database [if exists] id
+
+<dropTable> ::= drop table id
+
+<alter> ::= <alterDatabase>
+         |  <alterTable>
+
+<alterDatabase> ::= alter database id rename to id
+                 |  alter database id owner to id
+
+<alterTable> ::= alter table id <alterOptions>
+
+<alterOptions> ::= add column id <type>
+                |  drop column id
+                |  add check "(" <expression> ")"
+                |  add constraint id unique "(" id ")"
+                |  add foreign key "(" id ")" references id
+                |  alter column id set not null
+                |  drop constraint id
+                |  alter column id type <type>
+
+<select> ::= <select> union [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>]
+          |  <select> intersect [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>]
+          |  <select> except [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>]
+          |  select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>]
+<insert> ::= insert into id ["(" <idlist> ")"] values "(" <expression_list> ")"
+
+<expression_list> ::= <expression_list> "," <expression>
+                   |  <expression>
+
+<sortexpressionlist> ::= <sortexpressionlist> "," <expression> [asc|desc]
+                      |  <expression> [asc|desc]
+
+<createDatabase> ::= create [or replace] database [if not exists] id [owner ["="] id] [mode ["="] integer]
+
+<createTable> ::= create table id "(" <columns> ")"
+               |  create table id "(" <columns> ")" inherits "(" id ")"
+
+<createType> ::= create type id as enum "(" <expression_list> ")"
+
+<columns> ::= <columns> "," <column>
+           |  <column>
+
+<column> ::= id <type> [default <expression>] [[not] null] [primary key] [references id] [[constraint id] unique] [[constraint id] check (<expression>)]
+          |  [constraint id] check (<expression>)
+          |  unique (<idlist>)
+          |  primary key "(" <idlist> ")"
+          |  foreign key "(" <idlist> ")" references id "(" <idlist> ")"
+
+<idlist> ::= <idlist> "," id
+          |  id
+
+<case> ::= case <case_list> [else <expression>] end
+
+<case_list> ::= <case_list> when <expression> then <expression>
+             |   when <expression> then <expression>
+
+<type> ::= smallint
+        |  integer
+        |  bigint
+        |  decimal
+        |  numeric
+        |  real
+        |  double
+        |  precision
+        |  money
+        |  character
+        |  varying "(" integer ")" # variable-length with limit
+        |  varchar "(" integer ")" # variable-length with limit
+        |  character "(" integer ")" # fixed-length, blank padded
+        |  char "(" integer ")" # fixed-length, blank padded
+        |  text # variable unlimited length
+        # |  faltan variables de tipo date
+        |  boolean
+
+<expression> ::= <expression> nseparator <expression> #left
+              |  plus <expression> #right
+              |  minus <expression> #right
+              |  <expression> exponentiation <expression>#left
+              |  <expression> multiplication <expression>#left
+              |  <expression> divition <expression>#left
+              |  <expression> modulo <expression>#left
+              |  <expression> plus <expression>#left
+              |  <expression> minus <expression>#left
+              |  <expression> anyoperator <expression> # mentions all other native and user-defined operators ¿?
+              |  <expression> between <expression>
+              |  <expression> in <expression>
+              |  <expression> like <expression>
+              |  <expression> ilike <expression>
+              |  <expression> similar <expression>
+              |  <expression> lessthan <expression>
+              |  <expression> greaterthan <expression>
+              |  <expression> equal <expression>
+              |  <expression> lessthanequal <expression>
+              |  <expression> greaterthanequal <expression>
+              |  <expression> notequal <expression>
+              |  <expression> is <expression>
+              |  <expression> isnull
+              |  <expression> notnull
+              |  not <expression>#right
+              |  <expression> and <expression>#left
+              |  <expression> or <expression>#left
+              |  distinct from <expression>
+              #aggregate functions
+              |  count "(" <expression> ")"
+              |  sum "(" <expression> ")"
+              |  avg "(" <expression> ")"
+              |  max "(" <expression> ")"
+              |  min "(" <expression> ")"
+              #mathematical functions
+              |  abs "(" <expression> ")"
+              |  cbrt "(" <expression> ")"
+              |  ceil "(" <expression> ")"
+              |  ceiling "(" <expression> ")"
+              |  degrees "(" <expression> ")"
+              |  div "(" <expression> ")"
+              |  exp "(" <expression> ")"
+              |  factorial "(" <expression> ")"
+              |  floor "(" <expression> ")"
+              |  gcd "(" <expression> ")"
+              |  lcm "(" <expression> ")"
+              |  ln "(" <expression> ")"
+              |  log "(" <expression> ")"
+              |  log10 "(" <expression> ")"
+              |  min_scale "(" <expression> ")"
+              |  mod "(" <expression> ")"
+              |  pi "(" <expression> ")"
+              |  power "(" <expression> ")"
+              |  radians "(" <expression> ")"
+              |  round "(" <expression> ")"
+              |  scale "(" <expression> ")"
+              |  sign "(" <expression> ")"
+              |  sqrt "(" <expression> ")"
+              |  trim_scale "(" <expression> ")"
+              |  truc "(" <expression> ")"
+              |  width_bucket "(" <expression> ")"
+              |  random "(" <expression> ")"
+              |  setseed "(" <expression> ")"
+              # trigonometric functions
+              |  acos "(" <expression> ")"
+              |  acosd "(" <expression> ")"
+              |  asin "(" <expression> ")"
+              |  asind "(" <expression> ")"
+              |  atan "(" <expression> ")"
+              |  atand "(" <expression> ")"
+              |  atan2 "(" <expression> ")"
+              |  atan2d "(" <expression> ")"
+              |  cos "(" <expression> ")"
+              |  cosd "(" <expression> ")"
+              |  cot "(" <expression> ")"
+              |  cotd "(" <expression> ")"
+              |  sin "(" <expression> ")"
+              |  sind "(" <expression> ")"
+              |  tan "(" <expression> ")"
+              |  tand "(" <expression> ")"
+              |  sinh "(" <expression> ")"
+              |  cosh "(" <expression> ")"
+              |  tanh "(" <expression> ")"
+              |  asinh "(" <expression> ")"
+              |  acosh "(" <expression> ")"
+              |  atanh "(" <expression> ")"
+              # binary string functions
+              |  length "(" <expression> ")"
+              |  substring "(" <expression> "," <expression> "," <expression> ")"
+              |  trim "(" <expression> ")"
+              |  get_byte "(" <expression> ")"
+              |  md5 "(" <expression> ")"
+              |  set_byte "(" <expression> ")"
+              |  sha256 "(" <expression> ")"
+              |  substr "(" <expression> "," <expression> "," <expression> ")"
+              |  convert "(" <expression> ")"
+              |  encode "(" <expression> ")"
+              |  decode "(" <expression> ")"
+              |  greatest "(" <expression_list> ")"
+              |  least "(" <expression_list> ")"
+              |  "(" <select> ")"
+              |  <case>
+              |  "(" <expression> ")"
+              |  <value>
+
+
+<value>  ::= int | real | string | id | asterisk
+
+
+<delete_instruction> ::= delete from id where <expression>
+
+<truncate> ::= truncate [table] <idlist>
+
+<show>::= show databases [like regex]
+
+<update_instruction> ::= update id set <reallocation_of_values> where <expression>
+
+<reallocation_of_values> ::= <reallocation_of_values> "," id equal <expression> 
+                            | id equal <expression>
+
+
+##################################################
+# List of the symbols returned by the scanner,
+# also known as "lexer". Linear white spaces
+# between these symbols will be implicitly ignored
+# by the scanner, avoiding to clutter these
+# definitions with unnecessary details.
+##################################################
+
+create="CREATE";
+or="OR";
+replace="REPLACE";
+database="DATABASE";
+if="IF";
+not="NOT";
+exists="EXISTS";
+truncate = "TRUNCATE";
+show = "SHOW";
+name="NAME";
+owner="OWNER";
+mode="MODE";
+table="TABLE";
+default="DEFAULT";
+null="NULL";
+constraint="CONSTRAINT";
+unique="UNIQUE";
+check="CHECK";
+smallint="SMALLINT";
+integer="INTEGER";
+bigint="BIGINT";
+decimal="DECIMAL";
+numeric="NUMERIC";
+real="REAL";
+double="DOUBLE";
+precision="PRECISION";
+money="MONEY";
+character="CHARACTER";
+varying="VARYING";
+varchar="VARCHAR";
+character="CHARACTER";
+char="CHAR";
+text="TEXT";
+boolean="BOOLEAN";
+nseparator=".";
+typecast="::";
+plus="+";
+minus="-";
+exponentiation="^";
+multiplication="*";
+divition="/";
+modulo="%";
+between="BETWEEN";
+in="IN";
+like="LIKE";
+ilike="ILIKE";
+similar="SIMILAR";
+lessthan="<";
+greaterthan=">";
+equal="=";
+lessthanequal="<=";
+greaterthanequal=">=";
+notequal="<>" | "!=";
+is="IS";
+isnull="ISNULL";
+notnull="NOTNULL";
+and="AND";
+or="OR";
+select="SELECT";
+distinct="DISTINCT";
+from="FROM";
+where="WHERE";
+order="ORDER";
+by="BY";
+group="GROUP";
+having="HAVING";
+asc="ASC";
+desc="DESC";
+insert="INSERT";
+into="INTO";
+values="VALUES";
+int = digits;
+real = digits (real_decimals | real_scale | real_decimals real_scale);
+id = letter {digit | letter | "_"};
+
+delete="DELETE";
+only="ONLY";
+as="AS";
+asterisk="*";
+current="CURRENT";
+of="OF";
+returning="returning";
+true="TRUE";
+false="FALSE";
+update="UPDATE";
+set="SET";
+
+drop="DROP";
+alter="ALTER";
+rename="RENAME";
+owner="OWNER";
+to="TO";
+add="ADD";
+column="COLUMN";
+
+
+##################################################
+# Sub-rules used to define the lexer.
+##################################################
+digit = "0".."9";
+digits = digit {digit};
+real_decimals = "." digits;
+real_scale = ("E"|"e") ["+"|"-"] digits;
+letter = "a".."z" | "A".."Z";
+regex = %(\w)+%

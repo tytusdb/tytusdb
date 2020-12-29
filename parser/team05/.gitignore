@@ -1,0 +1,11 @@
+
+/venv/
+/.idea/
+/proyecto/.idea/
+/proyecto/jsonMode.py/
+/proyecto/__pycache__/
+/proyecto/data/
+**/parser.out
+**/parsetab.py
+**/__pycache__/**
+**/reports/**

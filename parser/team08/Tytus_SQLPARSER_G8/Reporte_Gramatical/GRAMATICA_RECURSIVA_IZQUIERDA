@@ -1,0 +1,303 @@
+GRAMATICA RECURSIVA POR LA IZQUIERDA
+
+instrucciones : instrucciones instruccion
+            | instruccion
+
+instruccion : CREATE DATABASE if_not_exists ID PUNTO_COMA
+        | CREATE DATABASE if_not_exists ID OWNER IGUAL ID PUNTO_COMA
+        | CREATE DATABASE if_not_exists ID OWNER IGUAL ID MODE IGUAL ENTERO PUNTO_COMA
+        | CREATE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
+        | CREATE OR REPLACE DATABASE if_not_exists ID PUNTO_COMA
+        | CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL ID PUNTO_COMA
+        | CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL ID MODE IGUAL ENTERO PUNTO_COMA
+        | CREATE OR REPLACE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
+        | CREATE TABLE ID PARIZQ campos PARDER PUNTO_COMA
+        | CREATE TABLE ID PARIZQ campos PARDER INHERITS PARIZQ ID PARDER PUNTO_COMA
+        | USE ID PUNTO_COMA
+        | SHOW DATABASES PUNTO_COMA
+        | SHOW DATABASES LIKE CARACTER PUNTO_COMA
+        | CREATE TYPE ID AS ENUM PARIZQ l_expresiones PARDER PUNTO_COMA
+        | TRUNCATE TABLE ID PUNTO_COMA
+        | DROP DATABASE ID PUNTO_COMA
+        | DROP DATABASE IF EXISTS ID PUNTO_COMA
+        | DROP TABLE ID PUNTO_COMA
+        | DROP ID
+        | UPDATE ID SET l_columnas instructionWhere PUNTO_COMA
+        | DELETE FROM ID instructionWhere PUNTO_COMA
+        | CREATE FUNCTION ID BEGIN instrucciones END PUNTO_COMA
+        | CREATE FUNCTION ID PARIZQ lcol PARDER BEGIN instrucciones END PUNTO_COMA
+        | CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
+        | DECLARE expresion AS expresion PUNTO_COMA
+        | DECLARE expresion tipo PUNTO_COMA
+        | SET expresion IGUAL expre PUNTO_COMA
+        | ALTER TABLE ID ADD ID tipo PUNTO_COMA
+        | ALTER DATABASE ID RENAME TO ID PUNTO_COMA
+        | ALTER DATABASE ID OWNER TO list_owner PUNTO_COMA
+        | ALTER TABLE ID ADD COLUMN ID tipo PUNTO_COMA
+        | ALTER TABLE ID DROP COLUMN ID PUNTO_COMA
+        | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ lista_id PARDER PUNTO_COMA
+        | ALTER TABLE ID ADD FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER PUNTO_COMA
+        | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PUNTO_COMA
+        | ALTER TABLE ID DROP CONSTRAINT ID PUNTO_COMA
+        | ALTER TABLE ID ADD CHECK expre PUNTO_COMA
+        | ALTER TABLE ID ADD CONSTRAINT ID CHECK expre PUNTO_COMA
+        | ALTER TABLE ID RENAME COLUMN ID TO ID PUNTO_COMA
+        | INSERT INTO ID PARIZQ lcol PARDER VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
+        | INSERT INTO ID VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
+        | lquery PUNTO_COMA
+
+if_not_exists : IF NOT EXISTS
+            | 
+
+instructionWhere :  WHERE expre
+
+l_columnas : l_columnas COMA expre
+        | expre
+
+list_owner : ID
+        | CURRENT_USER
+        | SESSION_USER
+
+lquery : lquery relaciones query
+        | query
+
+relaciones : UNION  
+        | UNION ALL 
+        | INTERSECT
+        | INTERSECT ALL 
+        | EXCEPT ALL 
+        | EXCEPT
+
+query : SELECT dist lcol FROM lcol 
+    | SELECT dist lcol FROM lcol instructionWhere lrows
+    | SELECT dist lcol FROM lcol instructionWhere 
+    | SELECT dist lcol FROM lcol linners 
+    | SELECT dist lcol FROM lcol linners instructionWhere lrows
+    | SELECT dist lcol FROM lcol linners instructionWhere 
+    | SELECT dist lcol 
+    | SELECT dist lcol FROM lcol lrows
+
+lcase : lcase case
+    | case
+
+case : WHEN expre THEN expre
+    | ELSE expre
+
+lrows : lrows rows
+    | rows
+
+rows : ORDER BY lista_order
+    | GROUP BY l_expresiones
+    | HAVING lcol
+    | LIMIT l_expresiones OFFSET expre
+    | LIMIT l_expresiones
+
+dist : DISTINCT
+        | 
+
+lista_order : lista_order COMA order_op
+        | order_op
+
+order_op : expre
+        | expre DESC
+        | expre ASC
+        | expre NULLS FIRST
+        | expre NULLS LAST
+
+linners : linners inners
+        | inners
+
+inners : INNER JOIN expre ON expre
+        | LEFT JOIN expre ON expre
+        | FULL OUTER JOIN expre ON expre
+        | JOIN expre ON expre
+        | RIGHT JOIN expre ON expre
+
+expre : expre OR expre
+        | expre AND expre
+        | NOT expre
+        | expre IGUAL expre
+        | expre MAYORQ expre
+        | expre MENORQ expre
+        | expre MAYOR_IGUALQ expre
+        | expre MENOR_IGUALQ expre
+        | expre DISTINTO expre
+        | expre MAS expre
+        | expre MENOS expre
+        | expre POR expre
+        | expre EXPONENCIACION expre
+        | expre MODULO expre
+        | expre LIKE expre
+        | expre NOT LIKE expre
+        | expre BETWEEN expresion AND expresion
+        | expre NOT BETWEEN expresion AND expresion
+        | expre IN PARIZQ lcol PARDER
+        | expre IS NULL
+        | expre IS NOT NULL
+        | expre IS DISTINCT FROM expre
+        | expre IS NOT DISTINCT FROM expre
+        | MIN PARIZQ expre PARDER
+        | MAX PARIZQ expre PARDER
+        | SUM PARIZQ expre PARDER
+        | AVG PARIZQ expre PARDER
+        | COUNT PARIZQ expre PARDER
+        | TOP PARIZQ expre PARDER
+        | ABS PARIZQ expre PARDER 
+        | CBRT PARIZQ expre PARDER 
+        | CEIL PARIZQ expre PARDER 
+        | CEILING PARIZQ expre PARDER 
+        | DEGREES PARIZQ expre PARDER 
+        | DIV PARIZQ expre PARDER
+        | EXP PARIZQ expre PARDER 
+        | FACTORIAL PARIZQ expre PARDER 
+        | FLOOR PARIZQ expre PARDER 
+        | GCD PARIZQ expre PARDER
+        | LCM PARIZQ expre PARDER 
+        | LN PARIZQ expre PARDER 
+        | LOG PARIZQ expre PARDER 
+        | LOG10 PARIZQ expre PARDER 
+        | MIN_SCALE PARIZQ expre PARDER
+        | MOD PARIZQ expre PARDER 
+        | PI PARIZQ expre PARDER 
+        | POWER PARIZQ expre PARDER 
+        | RADIANS PARIZQ expre PARDER 
+        | ROUND PARIZQ expre PARDER 
+        | SCALE PARIZQ expre PARDER 
+        | SIGN PARIZQ expre PARDER
+        | SQRT PARIZQ expre PARDER 
+        | TRIM_SCALE PARIZQ expre PARDER 
+        | TRUNC PARIZQ expre PARDER 
+        | WIDTH_BUCKET PARIZQ expre PARDER 
+        | RANDOM PARIZQ expre PARDER 
+        | SETSEED PARIZQ expre PARDER
+        | LENGTH PARIZQ expre PARDER
+        | SUBSTRING PARIZQ lcol PARDER
+        | TRIM PARIZQ expre PARDER
+        | GET_BYTE PARIZQ lcol PARDER
+        | MD5 PARIZQ lcol PARDER
+        | SET_BYTE PARIZQ lcol PARDER
+        | SHA256 PARIZQ lcol PARDER
+        | SUBSTR PARIZQ lcol PARDER
+        | CONVERT PARIZQ lcol PARDER
+        | ENCODE PARIZQ expre PARDER
+        | DECODE PARIZQ expre PARDER
+        | ACOS PARIZQ expre PARDER
+        | ACOSD PARIZQ expre PARDER
+        | ASIND PARIZQ expre PARDER
+        | ATAN PARIZQ expre PARDER
+        | ATAND PARIZQ expre PARDER
+        | ATAN2 PARIZQ expre PARDER
+        | ATAN2D PARIZQ expre PARDER
+        | COS PARIZQ expre PARDER
+        | COSD PARIZQ expre PARDER
+        | COT PARIZQ expre PARDER
+        | COTD PARIZQ expre PARDER
+        | SIN PARIZQ expre PARDER
+        | SIND PARIZQ expre PARDER
+        | TAN PARIZQ expre PARDER
+        | TAND PARIZQ expre PARDER
+        | SINH PARIZQ expre PARDER
+        | COSH PARIZQ expre PARDER
+        | TANH PARIZQ expre PARDER
+        | ASINH PARIZQ expre PARDER
+        | ACOSH PARIZQ expre PARDER
+        | ATANH PARIZQ expre PARDER
+        | LEAST PARIZQ lcol PARDER
+        | GREATEST PARIZQ lcol PARDER
+        | EXTRACT PARIZQ tiempo FROM TIMESTAMP CARACTER PARDER
+        | NOW PARIZQ PARDER
+        | DATE_PART PARIZQ CARACTER COMA INTERVAL CARACTER PARDER
+        | CURRENT_DATE
+        | CURRENT_TIME
+        | TIMESTAMP CARACTER
+        | POR
+        | CASE lcase END 
+        | PARIZQ expre PARDER
+        | PARIZQ query PARDER
+
+tiempo :  YEAR
+        | MONTH
+        | DAY
+        | HOUR
+        | MINUTE
+        | SECOND
+
+expre :  expresion
+
+expresion : CADENA
+        | CARACTER
+        | ENTERO
+        | FDECIMAL
+        | DOUBLE
+        | ID
+        | ID PUNTO ID
+        | ARROBA ID
+        | ID PARIZQ lcol PARDER
+
+campos : campos COMA ID tipo lista_op
+        | campos COMA ID tipo
+        | campos COMA CHECK expre
+        | campos COMA CONSTRAINT ID CHECK expre
+        | campos COMA UNIQUE PARIZQ lista_id PARDER
+        | campos COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+        | campos COMA PRIMARY KEY PARIZQ lista_id PARDER
+        | ID tipo lista_op
+        | ID tipo
+
+lista_id : lista_id COMA ID
+        | ID
+
+lista_op : lista_op opcion
+        | opcion
+
+opcion : PRIMARY KEY
+        | REFERENCES ID
+        | DEFAULT expresion
+        | NOT NULL
+        | NULL
+        | UNIQUE
+        | CONSTRAINT ID UNIQUE
+        | CONSTRAINT ID CHECK expre
+        | CHECK expre
+
+l_expresiones : l_expresiones COMA expresion
+            | expresion
+
+
+lcol : lcol COMA expre
+    | lcol COMA expre ID
+    | lcol COMA expre AS ID
+    | expre
+    | expre ID
+    | expre AS ID
+
+tipo : INT
+    | DATE
+    | ID PARIZQ ID PARDER
+    | VARCHAR PARIZQ ENTERO PARDER
+    | CHAR PARIZQ ENTERO PARDER
+    | CHARACTER VARYING PARIZQ ENTERO PARDER
+    | CHARACTER PARIZQ ENTERO PARDER
+    | TEXT
+    | DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
+    | DOUBLE
+    | DECIMAL
+    | ENTERO
+    | FLOAT PARIZQ ENTERO COMA ENTERO PARDER
+    | SMALLINT
+    | INTEGER
+    | BIGINT
+    | NUMERIC
+    | REAL
+    | DOUBLE PRECISION
+    | MONEY
+    | BOOLEAN
+    | TIMESTAMP
+    | TIME
+    | INTERVAL
+
+
+
+
+
+

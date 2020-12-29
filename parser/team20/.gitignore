@@ -1,0 +1,8 @@
+parser.out
+parsetab.py
+**/__pycache__/**
+jsontestview.json
+AST_Report_*
+AST_Report_*.pdf
+bnf.md
+bnf.md.html
