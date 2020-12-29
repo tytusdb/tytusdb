@@ -753,6 +753,8 @@ def crear_Tabla(instr,ts):
                     x=x+1
                 if(len(lis)>0):
                     EDD.alterAddPK(baseActiva,nombreT,lis)
+                    
+                CD3.PCreateTable(baseActiva,nombreT,contC,lis)
 
         else:
             msg='no existe la base de datos activa:'+baseActiva
@@ -1114,6 +1116,7 @@ def insertar_en_tabla(instr,ts):
         # 5 columnas fuera de límites
         result=EDD.insert(baseActiva,nombreT,ValInsert)
         if(result==0):
+            CD3.PInsert(baseActiva,nombreT,ValInsert)
             msg='valores insertados:'+str(ValInsert)
             agregarMensjae('exito',msg,'')
             #agregar mensaje Tabla simbolos
