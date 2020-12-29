@@ -126,7 +126,24 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de dato
 
 ### 2. Administrador del modo de almacenamiento
 
-El storageManager debe permitir cambiar el modo de almacenamiento de una base de datos en cualquier momento. Al suceder, si no hay ningun error, se debe construir la estructura de datos asociada al modo y eliminar la anterior.
+El storageManager debe permitir cambiar el modo de almacenamiento de una base de datos o de una tabla en cualquier momento. Al suceder, si no hay ningun error, se debe construir la estructura de datos asociada al modo y eliminar la anterior.
+
+```
+def alterDatabaseMode(database: str, mode: str) -> int:
+```
+Cambia el modo de almacenamiento de una base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos que se desea modificar, debe cumplir con las reglas de identificadores de SQL.  
+Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash'.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 4 modo incorrecto.  
+
+```
+def alterTableMode(database: str, table: str, encoding: str) -> int:
+```
+Cambia el modo de almacenamiento de una tabla de una base de datos especificada.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash'.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 modo incorrecto.  
+
 
 ### 3. Administración de índices
 
