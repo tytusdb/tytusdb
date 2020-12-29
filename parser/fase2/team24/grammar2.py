@@ -1242,6 +1242,7 @@ def p_type(t):
         | CHARACTER VARYING   
         | TEXT 
         | TIMESTAMP
+        | TABLE PARA lparams PARC
     '''
     t[0] = t[1]
     insertProduction(t.slice, len(t.slice))
@@ -1563,26 +1564,55 @@ def p_offsetEmpty(t):
     t[0] = 0
     insertProduction(t.slice, len(t.slice))
 
+
 def p_createfunc(t):
-    'createfunc : CREATE FUNCTION id PARA lparams PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOALR'
+    'createfunc : REATE FUNCTION id PARA lparams PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOALR'
+    t[0] = createfunc(t[3],t[5],t[8],t[12])
+
 
 def p_lparams(t):
     'lparams : lparams COMA param' 
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lparamsSingle(t):
     'lparams : param'
+    t[0] = [t[1]]
 
 def p_param(t):
     '''param : id type
-                | id
-    '''   
+                | type
+    '''
+    if len(t)>2:
+        t[0] = param(t[1],t[2])
+    else:
+        t[0] = param(None,t[1])
+
+def p_declareEmpty(t):
+    'declare : empty'
+    t[0] = []
 
 def p_block(t):
     ' block : declare BEGIN instrucciones END'
+    t[0] = block(t[1],t[3])
+
+def p_declareList(t):
+    'declare : declare declares'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_declareSingle(t):
+    'declare : declares'
+    t[0] = [t[1]]
 
 def p_declaration(p):
-    ''' declare : ID consta reservadatipo coll  nn  ddiexp'''
+    ''' declares : ID consta type coll  nn  ddiexp PUNTOCOMA'''
     p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
+
+def p_declaresAsAlias(t):
+    'declares : ID ALIAS FOR DOLAR INT PUNTOCOMA'
+    t[0] = declaration(t[1],int(t[5])-1,None,None,None)
+
 
 def p_ddiexp(p):
     '''ddiexp : ddi valortipo '''
@@ -1622,9 +1652,12 @@ def p_nn(p):
 
 def p_instrucciones(t):
     'instrucciones : instrucciones instruccion'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_instruccionesSingle(t):
     'instrucciones : instruccion'
+    t[0] = [t[1]]
 
 
 def p_instruccion(t):
@@ -1634,19 +1667,39 @@ def p_instruccion(t):
                     | block
     
      '''
+    t[0] = t[1]
 
 def p_raisenotice(t):
+    #Imprimir
+    # raise notice 'el valor elegido es %d',value
     'raisenotice : RAISE NOTICE VARCHAR compvalue PUNTOCOMA'
+    t[0] = raisenotice(t[3],t[4])
 
 def p_compvalue(t):
     'compvalue : COMA id'
+    t[0] = t[1]
+
+def p_compvalueEmpty(t):
+    'compvalue : empty'
+    t[0] = None
 
 def p_asignacion(t):
-    'asignacion : id DOSPUNTOS IGUAL exp PUNTOCOMA'
+    'asignacion : id igualacion newexp PUNTOCOMA'
+    t[0] = asignacion(t[1],t[4])
+
+def p_igualacion(t):
+    '''igualacion : DOSPUNTOS IGUAL
+                    | IGUAL
+    '''
+    
 
 def p_return(t):
-    'return : RETURN exp PUNTOCOMA'
+    'return : RETURN newexp PUNTOCOMA'
+    t[0] = rtrn(t[2])
 
+
+def p_newexp(t):
+    'newexp : empty'
 
 def p_error(t):
     if t:
