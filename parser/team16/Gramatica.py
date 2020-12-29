@@ -197,7 +197,10 @@ reservadas = {
     'width_bucket': 'WIDTH_BUCKET',
     'trunc': 'TRUNC',
     'random': 'RANDOM',
-    'power': 'POWER'
+    'power': 'POWER',
+    #AGREGADAS
+    'notexist':'NOTEXIST',
+    'notin':'NOTIN'
 }
 
 tokens = [
@@ -344,14 +347,15 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 def t_COMENTARIOMULTI(t):
-    r'/\*(.|\n)*?\*/'
+    r'/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
     t.lexer.lineno += t.value.count("\n")
     return t
 
 
-
 def t_COMENTARIONORMAL(t):
-    r'--.*\n'
+    #r'/--(.|\n)*?/'
+    #r'--.*\n'
+    r'--.*'
     t.lexer.lineno += 1
     return t
 
@@ -410,7 +414,7 @@ precedence = (
     ('left', 'MAS', 'MENOS'),
     ('left', 'ASTERISCO', 'DIVISION', 'PORCENTAJE'),
     ('left', 'POTENCIA'),
-    ('right', 'PLECA', 'DOBLEPLECA')
+    ('right', 'PLECA', 'DOBLEPLECA', 'MENOS')
     # ('PARIZQ', 'PARDER')
 )
 
@@ -447,8 +451,11 @@ def p_instrucciones_instruccion(t) :
 def p_instruccion(t):
     '''INSTRUCCION  : DQL_COMANDOS
                     | DDL_COMANDOS
-                    | DML_COMANDOS'''
-    t[0] = t[1]
+                    | DML_COMANDOS
+                    | COMENTARIOMULTI
+                    | COMENTARIONORMAL '''
+    if t[1] != 'COMENTARIONORMAL' and t[1] != 'COMENTARIOMULTI':
+        t[0] = t[1]
 
 
 
@@ -457,6 +464,7 @@ def p_instruccion_Use_database(t):
     'DQL_COMANDOS       : USE ID PUNTOCOMA'
     global baseActual
     baseActual = str(t[2])
+    t[0] = useClase(t[2])
     rep_gramatica('\n <TR><TD> DQL_COMANDOS → USE ID PUNTOCOMA </TD><TD> DQL_COMANDOS=t[2] </TD></TR>')
 
 # ===================  DEFINICIONES DE LOS TIPOS DE SELECT
@@ -490,8 +498,8 @@ def p_instruccion_dql_comandos3(t):
 
 # Lista de Campos
 def p_ListaCampos_ListaCamposs(t):
-    'LISTA_CAMPOS       : LISTA_CAMPOS LISTAA'
-    t[1].append(t[2])
+    'LISTA_CAMPOS       : LISTA_CAMPOS COMA LISTAA'
+    t[1].append(t[3])
     t[0] = t[1]
     rep_gramatica('\n <TR><TD> LISTA_CAMPOS →  LISTA_CAMPOS LISTAA     </TD><TD> t[1].append(t[2]) t[0] = t[1] </TD></TR>')
 
@@ -548,11 +556,11 @@ def p_Lista_SubsQuerys(t):
 
 
 
-def p_Lista_COMAs(t):
-    'LISTAA    :   COMA'
-    print("estoy entrando")
-    t[0] = str(t[1])
-    rep_gramatica('\n <TR><TD> LISTAA →  COMA ,   </TD><TD>  t[0] = str(t[1]) </TD></TR>')
+# def p_Lista_COMAs(t):
+#     LISTAA    :   COMA
+#     print("estoy entrando")
+#     t[0] = str(t[1])
+#     rep_gramatica('\n <TR><TD> LISTAA →  COMA ,   </TD><TD>  t[0] = str(t[1]) </TD></TR>')
 
 
 
@@ -1061,6 +1069,7 @@ def p_Expresion_Atributos(t):
 def p_Query_Query(t):
     'QUERY :   PARIZQ QUE_SUBS PARDER'
     t[0] = AccesoSubConsultas(False, t[2], False)
+
     print("Estoy accediendo a una subconsulta")
     rep_gramatica('\n <TR><TD> QUERY →      PARIZQ QUE_SUBS PARDER  </TD><TD> t[0] = AccesoSubConsultas(False, t[2], False) </TD></TR>')
 
@@ -1069,6 +1078,7 @@ def p_Query_QueryAs(t):
     'QUERY :  PARIZQ QUE_SUBS PARDER AS_NO'
     t[0] = AccesoSubConsultas(False, t[2], t[4])
     rep_gramatica('\n <TR><TD> QUERY →      PARIZQ QUE_SUBS PARDER AS_NO  </TD><TD> t[0] = AccesoSubConsultas(False, t[2], t[4]) </TD></TR>')
+
 
 
 
@@ -1184,16 +1194,51 @@ def p_ExpresionesC_Case(t):
     rep_gramatica('\n <TR><TD> EXPRESIONES_C →  CASE WHEN_LIST  CUERPOO  </TD><TD> t[0] = CaseCuerpo(t[3],t[2]) </TD></TR>')
 
 
+
+
 def p_ExpresionesC_Greatest(t):
-    'EXPRESIONES_C  :  GREATEST PARIZQ expresion PARDER '
+    'EXPRESIONES_C  :  GREATEST PARIZQ LISTAEXP PARDER '
   #  t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
     t[0] = ExpresionesCase(t[1],t[3])
     rep_gramatica('\n <TR><TD> EXPRESIONES_C →  GREATEST PARIZQ expresion PARDER  </TD><TD> t[0] = ExpresionesCase(t[1],t[3])  </TD></TR>')
 
 def p_ExpresionesC_Least(t):
-    'EXPRESIONES_C  :  LEAST PARIZQ expresion PARDER '
+    'EXPRESIONES_C  :  LEAST PARIZQ LISTAEXP PARDER '
     t[0] = ExpresionesCase(t[1],t[3])
     rep_gramatica('\n <TR><TD> EXPRESIONES_C →  LEAST PARIZQ expresion PARDER  </TD><TD> t[0] = ExpresionesCase(t[1],t[3])  </TD></TR>')
+
+
+
+
+#===========================================================================
+def p_Expresiones_Listt(t):
+    'LISTAEXP    :  LISTAEXP LISEXP '
+    t[1].append(t[2])
+    t[0] = t[1]
+    rep_gramatica('\n <TR><TD> LISTAEXP →  LISTAEXP LISEXP  </TD><TD> t[1].append(t[2])  t[0] = t[1]</TD></TR>')
+
+
+def p_Expresiones_Expres(t):
+    'LISTAEXP    :  LISEXP'
+    t[0] = [t[1]]
+    rep_gramatica('\n <TR><TD> LISTAEXP →   LISEXP  </TD><TD> t[0] = [t[1]] </TD></TR>')
+
+
+
+def p_Expresioness(t):
+    'LISEXP    :   expresion'
+    t[0] = t[1]
+    rep_gramatica('\n <TR><TD> LISEXP → expresion </TD><TD> t[0] = t[1] </TD></TR>')
+
+
+def p_ExpresionessComa(t):
+    'LISEXP    :   COMA'
+    t[0] = t[1]
+    rep_gramatica('\n <TR><TD> LISEXP → COMA </TD><TD> t[0] = t[1] </TD></TR>')
+
+#===========================================================================
+
+
 
 
 
@@ -1235,7 +1280,6 @@ def p_whenList_Uni(t):
 
 def p_WhenUni_Then(t):
     'WHEN_UNI  :   WHEN expresion THEN expresion'
-   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
     t[0] = TiposWhen(t[1],"", t[3], t[2], False, t[4])
     rep_gramatica('\n <TR><TD> WHEN_UNI →  WHEN expresion THEN expresion </TD><TD> t[0] = TiposWhen(t[1],"", t[3], t[2], False, t[4])  </TD></TR>')
 
@@ -1262,9 +1306,6 @@ def p_Cuerpo_WhenElse(t):
     'WHEN_UNI  :  WHEN expresion  ELSE expresion '
     t[0] =TiposWhen(t[1],t[3],"",t[2],t[4],False)
     rep_gramatica('\n <TR><TD> WHEN_UNI →  WHEN expresion  ELSE expresion </TD><TD> t[0] =TiposWhen(t[1],t[3],"",t[2],t[4],False)  </TD></TR>')
-
-
-
 
 
 
@@ -1778,7 +1819,7 @@ def p_instruccion_dml_comandos_ALTER_TABLE5(t):
 def p_instruccion_dml_comandos_ALTER_TABLE6(t):
     'DML_COMANDOS       : ALTER TABLE ID  ADD CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER PUNTOCOMA'
     print('\n' + str(t[0]) + '\n')
-    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13]))
+    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13]), t[6])
     rep_gramatica('\n <TR><TD> DML_COMANDOS →    ALTER TABLE ID  ADD CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER PUNTOCOMA  </TD><TD> t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13])) </TD></TR>')
 
 
@@ -1786,7 +1827,7 @@ def p_instruccion_dml_comandos_ALTER_TABLE6(t):
 def p_instruccion_dml_comandos_ALTER_TABLEF6(t):
     'DML_COMANDOS       : ALTER TABLE ID  ADD  FOREIGN KEY PARIZQ ID PARDER REFERENCES ID   PUNTOCOMA'
     print('\n' + str(t[0]) + '\n')
-    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11]))
+    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11]), None)
     rep_gramatica('\n <TR><TD> DML_COMANDOS →    ALTER TABLE ID  ADD  FOREIGN KEY PARIZQ ID PARDER REFERENCES ID   PUNTOCOMA  </TD><TD>t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11])) </TD></TR>')
 
 
@@ -2252,22 +2293,29 @@ def p_expresion_logica_predicados_4(t):
 
 def p_expresion_logica_exists_sub(t):
     '''expresion_logica : EXISTS expresion_aritmetica'''
-    t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS)
+    t[0]=UnitariaLogicaEXIST(t[2])
+
+   # t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS)
     rep_gramatica('\n <TR><TD> expresion_logica →  EXISTS expresion_aritmetica   </TD><TD>  t[0] = ExpresionLogica(t[2], None, OPERACION_LOGICA.EXISTS) </TD></TR>')
 
 def p_expresion_logica_not_exists_sub(t):
     '''expresion_logica : NOT EXISTS '''
+
     t[0] = ExpresionLogica(None, None, OPERACION_LOGICA.NOT_EXISTS)
     rep_gramatica('\n <TR><TD> expresion_logica → NOT EXISTS   </TD><TD>  t[0] = ExpresionLogica(None, None, OPERACION_LOGICA.NOT_EXISTS) </TD></TR>')
 
 
 
+
+
+
 def p_expresion_logica_in(t):
     '''expresion_logica : expresion_aritmetica IN expresion_aritmetica
-                        | expresion_aritmetica NOT IN expresion_aritmetica'''
+                        | expresion_aritmetica NOTIN expresion_aritmetica'''
     if t[2] == 'IN':
         t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.IN)
-    elif t[2] == 'NOT':
+    elif t[2] == 'NOTIN':
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   estoy entrando <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
         t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.NOT_IN)
     rep_gramatica('\n <TR><TD> expresion_logica → expresion_aritmetica IN -OR-NOT IN   </TD><TD>   t[0] = ExpresionLogica(t[1], t[3], OPERACION_LOGICA.IN) </TD></TR>')
 
@@ -2294,6 +2342,7 @@ def p_valor_id(t):
     '''expresion_aritmetica : ID'''
     t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL)
     rep_gramatica('\n <TR><TD> expresion_logica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>')
+
 
 def p_valor_id_2(t):
     '''expresion_aritmetica : ID PUNTO ID'''
@@ -2531,13 +2580,16 @@ def p_funciones_math(t):
 
 def p_expresion_binario(t):
     '''expresion_aritmetica : expresion_aritmetica AMPERSAND expresion_aritmetica
+                |   expresion_aritmetica PLECA expresion_aritmetica
                 |   expresion_aritmetica NUMERAL expresion_aritmetica
                 |   expresion_aritmetica LEFTSHIFT expresion_aritmetica
                 |   expresion_aritmetica RIGHTSHIFT expresion_aritmetica'''
     if t[2] == "&":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.AND)
-    if t[2] == "#":
+    if t[2] == "|":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.OR)
+    if t[2] == "#":
+        t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.XOR)
     if t[2] == "<<":
         t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_BIT_A_BIT.SHIFT_IZQ)
     if t[2] == ">>":
@@ -2547,6 +2599,7 @@ def p_expresion_binario(t):
 
 def p_expresion_binario_n(t):
     'expresion_aritmetica : VIRGULILLA expresion_aritmetica'
+    t[0] = UnitariaAritmetica(t[2], OPERACION_BIT_A_BIT.COMPLEMENTO)
 
 # def p_expresion_subquery(t):
 #     expresion_aritmetica : QUE_SUBS

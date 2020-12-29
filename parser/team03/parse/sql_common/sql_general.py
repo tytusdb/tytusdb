@@ -38,8 +38,6 @@ class Union(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        self.records_a = self.records_a.execute(table, tree)[1]
-        self.records_b = self.records_b.execute(table, tree)[1]
         if self.is_all:
             return self.records_a + self.records_b
         else:
@@ -59,13 +57,10 @@ class Intersect(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        self.records_a = self.records_a.execute(table, tree)[1]
-        self.records_b = self.records_b.execute(table, tree)[1]
-        inter_result = []
-        for item_a in self.records_a:
-            if item_a in self.records_b:
-                inter_result.append(item_a)
-        return inter_result
+        if self.is_all:  # TODO I have no idea of what the result of a intersect all is
+            return list(set(self.records_a).intersection(self.records_b))
+        else:
+            return list(set(self.records_a).intersection(self.records_b))
 
 
 class Except(ASTNode):
@@ -74,28 +69,11 @@ class Except(ASTNode):
         self.records_a = records_a
         self.records_b = records_b
         self.is_all = is_all
-        self.graph_ref = graph_ref
+        self.graph_ref =graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        self.records_a = self.records_a.execute(table, tree)[1]
-        self.records_b = self.records_b.execute(table, tree)[1]
         if self.is_all:  # TODO I may have an idea of what the result
-            inter_result = []
-            for item_a in self.records_a:
-                if item_a in self.records_b:
-                    inter_result.append(item_a)
-            complete_result = []
-            for item_a in self.records_a:
-                if item_a not in inter_result:
-                    complete_result.append(item_a)
-            for item_b in self.records_b:
-                if item_b not in inter_result:
-                    complete_result.append(item_b)
-            return complete_result
+            return list(set(self.records_a).intersection(self.records_b))
         else:
-            inter_result = []
-            for item_a in self.records_a:
-                if item_a not in self.records_b:
-                    inter_result.append(item_a)
-            return inter_result
+            return self.records_a - self.records_b

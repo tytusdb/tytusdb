@@ -1,6 +1,6 @@
 """Librería para realizar operaciones trigonométricas sobre datos numéricos."""
 import math
-import math_functions
+import libraries.math_functions
 
 def acos(input):
     """Coseno inverso

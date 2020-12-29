@@ -1,13 +1,8 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/execution/querie')
-sys.path.append('../tytus/storage')
-from querie import * 
-from environment import *
-from typ import *
-from add_column import *
-from drop_column import *
+from execution.abstract.querie import * 
+from execution.symbol.environment import *
+from execution.symbol.typ import *
+from execution.querie.add_column import *
+from execution.querie.drop_column import *
 
 
 class Alter_Table(Querie):
@@ -28,6 +23,10 @@ class Alter_Table(Querie):
             return {'Error': 'El nombre indicado de la tabla no es una cadena.', 'Fila':self.row, 'Columna': self.column }
         
         if isinstance(self.operacion,list):
-            print('')
+            arreglo = []
+            for item in self.operacion:
+                strVar = item.execute(environment, self.tableName)
+                arreglo.append(strVar)
+            return arreglo
         else:   
             return self.operacion.execute(environment,self.tableName)

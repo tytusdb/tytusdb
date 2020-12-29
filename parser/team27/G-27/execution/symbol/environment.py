@@ -1,7 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from database import *
-from symbol_ import *
+from execution.symbol.database import Database
+from execution.symbol.symbol_ import Symbol
+from prettytable import PrettyTable
 
 class Environment:
     def __init__(self, father):
@@ -9,6 +8,7 @@ class Environment:
         self.db = None
         self.bases = []
         self.simbolos = []
+        self.tablaSimbolos = []
 
     def getActualDataBase(self):
         #Buscamos la base de datos 
@@ -63,6 +63,10 @@ class Environment:
     
     def guardarVariable(self,name,tipo,value,father):
         self.simbolos.append(Symbol(name,tipo,value, father))
+        env = self
+        while env.father != None:
+            env = env.father 
+        env.tablaSimbolos.append(Symbol(name,tipo,value, father))
 
     def deleteVariable(self, name):
         env = self
@@ -91,3 +95,14 @@ class Environment:
                 if env.simbolos[i].name == name:
                     return {'value': env.simbolos[i].value , 'tipo':env.simbolos[i].tipo,'name':env.simbolos[i].name}
             env = env.father
+    
+    def tsString(self):
+        arreglo = []
+        for simbolo in self.tablaSimbolos:
+            arreglo.append([simbolo.name, simbolo.tipo.name, simbolo.value, simbolo.father] )
+        encabezado = [ 'ID','TIPO','VALOR','AMBITO']
+        x = PrettyTable()
+        x.field_names = encabezado
+        x.add_rows(arreglo)
+        return x.get_string()
+        

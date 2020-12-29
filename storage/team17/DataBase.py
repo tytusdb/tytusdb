@@ -240,6 +240,7 @@ class DB():
                                         else:
                                             pk.append(i-1)
                                     self.dicDB[database][table][2] = pk
+                                    serializar.commit(self.dicDB[database][table][0], database+"-"+table+"-B")
                                     return 0
                                 return 4
                             else:
@@ -407,7 +408,7 @@ class DB():
                         pk = pk[:-1]
                         if pk in self.dicDB[database][table][0].Keys():
                             self.dicDB[database][table][0]._del(pk)
-                            self.updateTree(database, table)
+                            # self.updateTree(database, table)
                             return 0
                         return 4
                 except:

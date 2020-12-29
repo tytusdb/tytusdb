@@ -1,10 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/storage')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from querie import Querie
+from execution.abstract.querie import Querie
 from storageManager import jsonMode as admin
-from typ import *
+from execution.symbol.typ import *
 
 class Delete(Querie):
 

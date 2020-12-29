@@ -22,19 +22,30 @@ class Terminal(Expresion) :
             'buscar columna'
 
         if self.valor == 'CURRENT_DATE':
-            return str(date.today())
-        elif self.valor== 'CURRENT_TIME':
+            self.tipo = Tipo('date', None, -1, -1)
+            self.valor=str(date.today())
+            return self
+        elif self.valor == 'CURRENT_TIME':
             'retornar solo  la hora'
             now = datetime.now()
-            return str(now.hour)
+            self.tipo=Tipo('time without time zone',None,-1,-1)
+            self.valor=str(now.hour)
+            return self
         elif self.valor=='now' and self.tipo.tipo=='timestamp without time zone':
-            return str(datetime.now())
+            self.valor=str(datetime.now())
+            return self
+
 
         elif(self.valor=='random'):
                 value = rn.uniform(0,1)
-                return value
+                self.tipo=Tipo('double',None,-1,-1)
+                self.valor= value
+                return self
         elif (self.valor=="pi"):
-                return math.pi
+
+                self.valor =math.pi
+                self.tipo = Tipo('numeric', None, len(str(self.valor)), -1)
+                return self
         else:
             if str(self.valor).count('-')==2 and self.valor.count(':')==2:
                 if len(str(self.valor))>10:
@@ -45,4 +56,4 @@ class Terminal(Expresion) :
             elif str(self.valor).count(':') == 2:
                 if len(str(self.valor)) >= 8:
                     self.tipo = Tipo('time without time zone', None, -1, -1)
-            return self.valor
+            return self

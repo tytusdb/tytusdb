@@ -63,6 +63,16 @@ class CreateType(Instruccion):
         self.nombre = nombre
         self.lista = lista
 
+    def dibujar(self):
+        identificador = str(hash(self))
+
+        nodo = "\n" + identificador + "[ label = \"CREATE " + self.nombre + " TYPE as ENUM\" ];"
+        for item in self.lista:
+            nodo += "\n" + identificador + "-> " + str(hash(item))
+            nodo += '\n' +  str(hash(item)) + "[ label = \" " + item + " \" ];"
+
+        return nodo
+
     def ejecutar(self, ts):
         lista = list()
         for item in self.lista:
@@ -71,7 +81,6 @@ class CreateType(Instruccion):
         if not TEnum.insertEnum(self.nombre, lista):
             return ErrorReport('Semantico', 'Invalid Enum Declaration', 0)
         return 'Enum \'' + self.nombre + '\' succesful created'
-
 
 # Create Database
 class CreateDatabase(Instruccion):
@@ -85,28 +94,24 @@ class CreateDatabase(Instruccion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label = \"CREATE DATABASE\" ];"
+        nodo = "\n" + identificador
 
         if self.reemplazo:
-            nodo += "\nREPLACE" + identificador + "[ label = \"OR REPLACE\" ];"
-            nodo += "\n" + identificador + " -> REPLACE" + identificador + ";"
-
-        nodo += "\nNAME" + identificador + "[ label = \"" + self.nombre + "\" ];"
-        nodo += "\n" + identificador + " -> NAME" + identificador + ";"
+            nodo += "[ label = \" CREATE OR REPLACE DATABASE " + self.nombre + " \" ];"
+        else:
+            nodo += "[ label = \"CREATE DATABASE " + self.nombre + "\" ];"
 
         if self.existencia:
             nodo += "\nEXISTS" + identificador + "[ label = \"IF EXISTS\" ];"
             nodo += "\n" + identificador + " -> EXISTS" + identificador + ";"
 
         if self.duenio:
-            nodo += "\nOWNER" + identificador + "[ label = \"OWNER\" ];"
-            nodo += "\n" + identificador + " -> OWNER" + identificador + ";"
-            nodo += "\nOWNERNAME" + identificador + "[ label = \""+ self.duenio + "\" ];"
-            nodo += "\nOWNER" + identificador + " -> OWNERNAME" + identificador + ";"
+            nodo += "\n" + identificador + " -> " + str(hash(self.duenio)) + ";"
+            nodo += "\n" + str(hash(self.duenio)) + "[ label = \"OWNER: " + self.duenio + "\" ];"
 
         if self.modo > 0:
-            nodo += "\nMODE" + identificador + "[ label = \"" + self.modo + "\" ];"
-            nodo += "\n" + identificador + " -> MODE" + identificador + ";"
+            nodo += "\n" + str(hash(self.modo)) + "[ label = \"MODE: " + str(self.modo) + "\" ];"
+            nodo += "\n" + identificador + " -> " + str(hash(self.modo)) + ";"
 
         return nodo
 
@@ -148,19 +153,16 @@ class CreateTable(Instruccion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label = \"CREATE TABLE\" ];"
-        nodo += "\nNAME" + identificador +  "[ label=\"" + self.nombre + "\" ];"
-        nodo += "\n" + identificador + " -> NAME" + identificador +  ";\n//COLUMNAS DE LA TABLA" + identificador + "\n"
+        nodo = "\n" + identificador + "[ label = \"CREATE TABLE " + self.nombre + "\" ];"
+        nodo += "\n//COLUMNAS DE LA TABLA" + identificador + "\n"
 
         for col in self.columnas:
             nodo += "\n" + identificador + " -> " + str(hash(col)) + ";"
             nodo += col.dibujar()
 
         if self.herencia:
-            nodo += "\nINHERITS" + identificador +  "[ label=\"INHERITS\" ];"
-            nodo += "\n" + identificador + " -> INHERITS" + identificador +  ";"
-            nodo += "SUPER" + identificador +  "[ label=\"" + self.herencia + "\" ];"
-            nodo += "\nINHERITS" + identificador + " -> SUPER" + identificador + ";"
+            nodo += "\n" + identificador + " -> " + str(hash(self.herencia)) + ";"
+            nodo += "\n" + str(hash(self.herencia)) + "[ label = \"" + self.herencia + "\" ];"
 
         return nodo
 
@@ -299,9 +301,19 @@ class CreateField(Instruccion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label = \"NEW FIELD\" ];"
-        nodo += "\nNAME" + identificador + "[ label = \"" + self.nombre + "\" ];"
-        nodo += "\n" + identificador + " -> NAME" + identificador + ";\n//ATRIBUTOS DE CREAR UN CAMPO " + identificador + "\n"
+        aux = self.tipo
+        if isinstance(self.tipo, tuple):
+            aux = self.tipo[0].value
+            if isinstance(self.tipo[1], tuple):
+                aux += "(" + str(self.tipo[1][0]) + "," + str(self.tipo[1][1]) + ")"
+            else:
+                aux += "(" + str(self.tipo[1]) + ")"
+        elif isinstance(self.tipo, str):
+            pass
+        else:
+            aux = self.tipo.value
+        nodo = "\n" + identificador + "[ label = \"NEW FIELD " + self.nombre + " " + aux + "\" ];"
+        nodo += "\n//ATRIBUTOS DE CREAR UN CAMPO " + identificador + "\n"
 
         if self.atributos:
             for atributo in self.atributos:
@@ -319,9 +331,12 @@ class CreateField(Instruccion):
 
         if isinstance(self.tipo, tuple):
             tipo = self.tipo[0].value
-            if self.tipo[1] < 1:
-                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_data_exception.numeric_value_out_of_range), 0)
-            largo = self.tipo[1]
+            if isinstance(self.tipo[1],tuple):
+                largo = {'Precision': self.tipo[1][0],'Scale': self.tipo[1][1]}
+            else:
+                if self.tipo[1] < 1:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_data_exception.numeric_value_out_of_range), 0)
+                largo = self.tipo[1]
         elif isinstance(self.tipo, str):
             #Comprobamos que el type a elegir exista
             if not TEnum.enumExist(self.tipo):
@@ -373,12 +388,38 @@ class CreateField(Instruccion):
                         atributos['References'] = fk
                         atributos['FK'] = True
                 elif isinstance(atr, DefaultField):
-                    atributos['Default'] = atr.ejecutar(ts)
+                    try:
+                        dflt = atr.ejecutar(ts).val
+                        #Chequeamos el default
+                        if (tipo == 'SMALLINT'\
+                        or tipo == 'BIGINT' \
+                        or tipo == 'INTEGER') and not isinstance(dflt, int):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        elif (tipo == 'DECIMAL' \
+                        or tipo == 'NUMERIC' \
+                        or tipo == 'REAL' \
+                        or tipo == 'DOUBLE_PRECISION' \
+                        or tipo == 'MONEY') and not (isinstance(dflt, float) or isinstance(dflt, int)):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        elif (tipo == 'CHAR' \
+                        or tipo == 'VARCHAR' \
+                        or tipo == 'TEXT' \
+                        or tipo == 'ENUM') and not isinstance(dflt, str):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        elif tipo == 'BOOLEAN' and not isinstance(dflt, bool):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        elif tipo == 'DATE' and not isinstance(dflt, str):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        #Guardamos el default
+                        atributos['Default'] = dflt
+                    except:
+                        return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
                 elif isinstance(atr,CheckField):
                     cheq = atr.ejecutar(ts)
                     checks = (cheq[1],cheq[0],self.nombre)
                 else:
                     return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.invalid_table_definition), 0)
+
 
         if isinstance(checks, tuple):
             return (atributos, checks)
@@ -393,14 +434,12 @@ class DefaultField(Instruccion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label = \"DEFAULT\" ];"
-        nodo += "\nDEFAULT" + identificador + "[ label = \"" + self.valor + "\" ];"
-        nodo += "\n" + identificador + " -> DEFAULT" + identificador + ";\n"
+        nodo = "\n" + identificador + "[ label = \"DEFAULT: " + str(self.valor.getExpresionToString()) + "\" ];"
 
         return nodo
 
     def ejecutar(self, ts):
-        return self.valor
+        return self.valor.ejecutar(None)
 
 # Check Field
 class CheckField(Instruccion):
@@ -417,9 +456,8 @@ class CheckField(Instruccion):
             nodo += "\nNAME" + identificador + "[ label = \"" + self.nombre + "\" ];"
             nodo += "\n" + identificador + " -> NAME" + identificador + ";"
 
-        for condicion in self.condiciones:
-            nodo += "\n" + identificador + " -> " + str(hash(condicion)) + ";"
-            nodo += condicion.dibujar()
+        nodo += "\n" + identificador + " -> " + str(hash(self.condiciones)) + ";"
+        nodo += "\n" + str(hash(self.condiciones)) + "[ label =\"" + self.condiciones.getExpresionToString() + "\" ];"
 
         return nodo
 
@@ -445,7 +483,7 @@ class ConstraintField(Instruccion):
             nodo += "[ label = \"PRIMARY KEY\" ];"
 
         if self.valor:
-            nodo += "\nNAME" + identificador + "[ label = \"" + self.valor + "\" ];"
+            nodo += "\nNAME" + identificador + "[ label = \"" + str(self.valor) + "\" ];"
             nodo += "\n" + identificador + " -> NAME" + identificador + ";"
 
         return nodo
@@ -458,6 +496,18 @@ class ForeignKeyField(Instruccion):
     def __init__(self, tabla, campo):
         self.tabla = tabla
         self.campo = campo
+
+    def dibujar(self):
+        identificador = str(hash(self))
+        nodo = "\n" + identificador + "[ label = \"FOREIGN KEY\" ];"
+
+        nodo += "\n" + identificador + " -> " + str(hash(self.tabla)) + ";"
+        nodo += "\n" + str(hash(self.tabla)) + "[ label = \"TABLE: " + self.tabla + "\" ];"
+
+        nodo += "\n" + identificador + " -> " + str(hash(self.campo)) + ";"
+        nodo += "\n" + str(hash(self.campo)) + "[ label = \"FIELD: " + self.campo + "\" ];"
+
+        return nodo
 
     def ejecutar(self, ts):
         if TRef.columnExist(DB_ACTUAL.getName(), self.tabla, self.campo):
@@ -483,7 +533,7 @@ class ConstraintMultipleFields(Instruccion):
 
         for item in self.lista:
             nodo += "\n" + identificador + " -> " + str(hash(item)) + ";"
-            nodo += item.dibujar()
+            nodo += "\n" + str(hash(item)) + "[ label = \"" + item + "\" ];"
 
         return nodo
 
@@ -507,14 +557,14 @@ class ForeignKeyMultipleFields(Instruccion):
 
         for item in self.lista:
             nodo += "\nLOCAL" + identificador + " -> " + str(hash(item)) + ";"
-            nodo += item.dibujar()
+            nodo += "\n" + str(hash(item)) + "[ label = \"" + item +" \" ];"
 
         nodo += "\nFOREIGN" + identificador + "[ label = \"" + self.otraTabla + " FIELDS\" ];"
         nodo += "\n" + identificador + " -> FOREIGN" + identificador + ";"
 
         for item in self.listaOtraTabla:
             nodo += "\nFOREIGN" + identificador + " -> " + str(hash(item)) + ";"
-            nodo += item.dibujar()
+            nodo += "\n" + str(hash(item)) + "[ label = \"" + item +" \" ];"
 
         return nodo
 
@@ -547,11 +597,10 @@ class CheckMultipleFields(Instruccion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label = \"CHECK MULTIPLE\" ];"
+        nodo = "\n" + identificador + "[ label = \"CHECK " + self.campo + "\" ];"
 
-        for condicion in self.condiciones:
-            nodo += "\n" + identificador + " -> " + str(hash(condicion)) + ";"
-            nodo += condicion.dibujar()
+        nodo += "\n" + identificador + " -> " + str(hash(self.condiciones)) + ";"
+        nodo += "\n" + str(hash(self.condiciones)) + "[ label = \"" + self.condiciones.getExpresionToString() + "\" ];"
 
         return nodo
 
@@ -571,17 +620,9 @@ class AlterDatabase(Instruccion):
         nodo += "\n" + identificador + " -> " + str(hash(self.accion)) + ";"
         
         if self.accion[0] == 'OWNER':
-            subid = str(hash(self.accion))
-            nodo += "\n" + subid + "[ label = \"OWNER\" ];"
-            nodo += "\n" + subid + " -> OWNER" + subid + ";"
-            nodo += "\nOWNER" + subid + "[ label = \"" + self.accion[1] + "\" ];"
-            nodo += "\n" + subid + " -> OWNER" + subid + ";\n"
+            nodo += "\n" + str(hash(self.accion)) + "[ label = \"OWNER: " + self.accion + "\" ];"
         else:
-            subid = str(hash(self.accion))
-            nodo += "\n" + subid + "[ label = \"NAME\" ];"
-            nodo += "\n" + subid + " -> NAME" + subid + ";"
-            nodo += "\nNAME" + subid + "[ label = \"" + self.accion[1] + "\" ];"
-            nodo += "\n" + subid + " -> NAME" + subid + ";\n"
+            nodo += "\n" + str(hash(self.accion)) + "[ label = \"NAME: " + self.accion + "\" ];"
 
         return nodo
     
@@ -597,7 +638,7 @@ class AlterDatabase(Instruccion):
                 return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.duplicate_database), 0)
             DBMS.alterDatabase(self.nombre, self.accion[1])
             TRef.alterDatabase(self.nombre, self.accion[1])
-        return 0
+        return 'Successful alter database ' + self.nombre
 
 # Alter Table
 class AlterTable(Instruccion):
@@ -613,8 +654,13 @@ class AlterTable(Instruccion):
         nodo += "\nNAME" + identificador + "[ label = \"" + self.tabla + "\" ];"
         nodo += "\n" + identificador + " -> NAME" + identificador + ";"
 
-        nodo += "\n" + identificador + " -> " + str(hash(self.accion)) + ";"
-        nodo += self.accion.dibujar()
+        if isinstance(self.accion, list):
+            for item in self.accion:
+                nodo += "\n" + identificador + " -> " + str(hash(item)) + ";"
+                nodo += item.dibujar()
+        else:
+            nodo += "\n" + identificador + " -> " + str(hash(self.accion)) + ";"
+            nodo += self.accion.dibujar()
 
         return nodo
         
@@ -653,7 +699,7 @@ class AlterTable(Instruccion):
             if self.accion.tipo == ALTER_TABLE_DROP.COLUMN:
                 sint = self.accion.ejecutar(ts)
                 #Comprobamos la existencia del campo
-                if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla,self.accion.campo):
+                if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla,self.accion.nombre):
                     return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_column), 0)
                 dropField = TRef.alterDropColumn(DB_ACTUAL.getName(), self.tabla, sint)
                 if dropField == 1:
@@ -694,7 +740,10 @@ class AlterTable(Instruccion):
 
                 if isinstance(self.accion.accion, tuple):
                     tipo = self.accion.accion[0].value
-                    largo = self.accion.accion[1]
+                    if isinstance(self.tipo[1],tuple):
+                        largo = {'Precision': self.accion.accion[1][0],'Scale': self.accion.accion[1][1]}
+                    else:
+                        largo = self.accion.accion[1]
                 elif isinstance(self.accion.accion, str):
                     tipo = self.accion.accion
                 else:
@@ -832,11 +881,17 @@ class AlterTableAdd(Instruccion):
         nodo = "\n" + identificador 
 
         if self.tipo == ALTER_TABLE_ADD.UNIQUE:
-            nodo += "[ label = \"ADD UNIQUE\" ];"
+            nodo += "[ label = \"ADD UNIQUE " + self.nombre + "\" ];"
             nodo += "\nNAME" + identificador + "[ label = \"" + self.nombre + "\" ];"
             nodo += "\n" + identificador + " -> NAME" + identificador + ";"
             nodo += "\nID" + identificador + "[ label = \"" + self.accion + "\" ];"
             nodo += "\n" + identificador + " -> ID" + identificador + ";\n"
+        elif self.tipo == ALTER_TABLE_ADD.FOREIGN_KEY:
+            nodo += "[ label = \"ADD CONSTRAINT " + self.nombre + " FOREIGN KEY\" ];"
+            nodo += "\n" + identificador + " -> " + str(hash(self.accion[0])) +"\n"
+            nodo += "\n" + str(hash(self.accion[0])) + "[ label = \"" + self.accion[0] + "." + self.accion[1] + "\" ]"
+            nodo += "\n" + identificador + " -> " + str(hash(self.accion[2])) +"\n"
+            nodo += "\n" + str(hash(self.accion[2])) + "[ label = \"CONSTRAINT: " + self.accion[2] + "\" ]"
         elif self.tipo == ALTER_TABLE_ADD.MULTI_FOREIGN_KEY:
             nodo += "[ label = \"ADD FOREIGN KEY\" ];"
             for local in self.nombre:
@@ -854,11 +909,18 @@ class AlterTableAdd(Instruccion):
             nodo += "\nACTION" + identificador + "[ label = \"" + self.accion + "\" ];"
             nodo += "\n" + identificador + " -> ACTION" + identificador + ";\n"
         else:
-            nodo += "[ label = \"ADD COLUMN\" ];"
-            nodo += "\nNAME" + identificador + "[ label = \"" + self.nombre + "\" ];"
-            nodo += "\n" + identificador + " -> NAME" + identificador + ";"
-            nodo += "\nTYPE" + identificador + "[ label = \"" + self.accion + "\" ];"
-            nodo += "\n" + identificador + " -> TYPE" + identificador + ";\n"
+            aux = self.accion
+            if isinstance(self.accion, tuple):
+                aux = self.accion[0].value
+                if isinstance(self.accion[1], tuple):
+                    aux += "(" + str(self.accion[1][0]) + "," + str(self.accion[1][1]) + ")"
+                else:
+                    aux += "(" + str(self.accion[1]) + ")"
+            elif isinstance(self.accion, str):
+                pass
+            else:
+                aux = self.accion.value
+            nodo += "[ label = \"ADD COLUMN " + self.nombre + " " + aux + "\" ];"
         return nodo
 
     def ejecutar(self, ts):
@@ -930,9 +992,7 @@ class DropDatabase(Instruccion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label = \"DROP DATABASE\" ];"
-        nodo += "\nNAME" + identificador + "[ label = \"" + self.db + "\" ];"
-        nodo += "\n" + identificador + " -> NAME" + identificador + ";"
+        nodo = "\n" + identificador + "[ label = \"DROP DATABASE " + self.db + "\" ];"
         if self.existencia:
             nodo += "\nLIKE" + identificador + "[ label = \"IF EXISTS\" ];"
             nodo += "\n" + identificador + " -> LIKE" + identificador + ";"
@@ -953,6 +1013,13 @@ class DropDatabase(Instruccion):
 class DropTable(Instruccion):
     def __init__(self, tabla):
         self.tabla = tabla
+
+    def dibujar(self):
+        identificador = str(hash(self))
+
+        nodo = "\n" + identificador + "[ label = \"DROP TABLE " + self.tabla + "\" ];"
+
+        return nodo
 
     def ejecutar(self, ts):
         if DB_ACTUAL.getName() == None:

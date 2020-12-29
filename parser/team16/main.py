@@ -24,97 +24,95 @@ def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
-# def gets(data2):
-#     for data in diccionario:
-#        if (data2 == diccionario.get(data)[1]):
-#             return data
-#     return 0
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-   #  Lista = ["1", "2", "3"]
-   #  Lista2 = ["1","4","5"]
-   #  d = {2:"abc", 1:"miNuevo"}
-   #  #JSON_INGE.createDatabase('base1')
-   #  #JSON_INGE.createTable("base1", "tabla1", 3)
-   #  #r = JSON_INGE.insert("base1", "tabla1", Lista)
-   #  #r = JSON_INGE.insert("base1", "tabla1", Lista2)
-   #  r2 = JSON_INGE.update("base1", "tabla1", d, ["1"])
-   #
-   #
-   #  diccionario={0:["5",6,"2323"],1:["ffg",3,"34fd"],2:["gh",9,"wewew"]}
-   #  listac=["0","1","2"]
-   #
-   #  diccionario2={}
-   # #diccionario2 = sorted(diccionario.get()[0])
-   #  lista=[]
-   #  indice=0
-   #
-   #  for n in diccionario:
-   #      lista.append(diccionario.get(n)[1])
-   #  print(lista)
-   #
-   #
-   #  lists = sorted(lista,reverse=True)
-   #
-   #  print(lists)
-   #
-   #  for n2 in lists:
-   #      diccionario2[gets(n2)]=diccionario.get(gets(n2))
-   #  print(diccionario2)
-   #
-   #  #cambiar nombres de claves
-   #
-   #
-   #  contador  = 0
-   #  for n in diccionario2:
-   #      diccionario2[str(listac[contador])] = diccionario2.pop(n)
-   #      contador+=1
-   #
-   #  print(diccionario2)
 
-    # #contador333 =0
-    # diccionariof = {}
-    # # primero llenamos el nuevo diccionario  amarrando las tuplas
-    # for campo in diccionario2:
-    #     # contador de filas
-    #     contador333 = 0
-    #     if (len(diccionariof) == 0):
-    #         for datos in diccionario2.get(campo):
-    #             diccionariof[str(contador333)] = [datos]
-    #             contador333 += 1
-    #     else:
-    #         for datos in diccionario2.get(campo):
-    #             diccionariof[str(contador333)].append(datos)
-    #             contador333 += 1
-    #
-    # print(diccionariof)
-    #
-    #
-    #
-    # #cambiar nombres de claves
-    #
-    # contador  = 0
-    # for n in diccionario2:
-    #     diccionario2[listac[contador]] = diccionario2.pop(n)
-    #     contador+=1
-    #
-    # print(diccionario2)
-
-
-
-    #print(dicc)
-    #Inter.limpiarValores()
-    #Inter.inicializarTS()
-
-   # Inter.inicializarEjecucionAscendente("cont")
-
-    #json.alterDropColumn("MiBase1","profesional",4)
     Gui.principal
-    #if path.exists("C:/Users/Jonathan/Documents/GitHub/compi2-proyecto/data/json"):
-    #    remove('C:/Users/Jonathan/Documents/GitHub/compi2-proyecto/data/json')
-    #g.parse()
-    
+
+    # last ={0:[0,1,2],1:[2,3,4],2:[3,4,2]}
+    # nes ={}
+    #
+    #
+    # #Calculamos la talla maxima de los datos
+    # p = "Null"
+    # list=[]
+    #
+    # for data in last:
+    #     maxi = 0
+    #     for jo in last.get(data):
+    #         maxi+=1
+    #     list.append(maxi)
+    #
+    # print(list)
+    # dataa = max(list)
+    # print(dataa)
+    #
+    # # Calculamos la talla maxima de los datos
+    # for date in last:
+    #     maxi = 0
+    #     for jo in last.get(date):
+    #         if(len(last.get(date))<dataa):
+    #             last.get(date).append(p)
+    #
+    #
+    # print(last)
+
+    #last = {0: [0, 1, 2], 1: [2, 3, 4]}
+    # last = {0: ["coma", "coco", "laton"], 1: ["cocolate", "toco", "coma"]}
+    # dicciAux ={}
+    #
+    # listi  =[]  #datos1
+    # listi2 =[]  #datos2
+    #
+    # listR =[]
+    # contador=0
+    #Recorremos el los datos de cada diccionario opcion 1
+
+    #Recolectamos los datos de cada lista
+    # for ni in last: #Recorremos cada dato en los diccionarios
+    #     for li in last.get(ni):
+    #         #aqui tenemos los datos en seco
+    #         if(contador==0):
+    #             listi.append(li)
+    #         else:
+    #             listi2.append(li)
+    #         #ahora miramos cual se repite en ambas listas
+    #     contador+=1
+
+    # # Recorremos cada dato en los diccionarios opcion2
+    # listi  =[]  #datos1
+    # listi2 =[]  #datos2
+    #
+    # listR =[]
+    # contador=0
+    # for ni in last:
+    #     if(contador==0):
+    #         listi = last.get(ni)[:]
+    #     else:
+    #         listi2 = last.get(ni)[:]
+    #     contador += 1
+    #
+    # print(listi)
+    # print(listi2)
+    # #comparamos y los que sean igual los metemos a una lista aparte
+    # for kl in listi:
+    #     for km in listi2:
+    #         if(kl==km):
+    #             listR.append(km)
+    #
+    # print(listR)
+    # #ahora seteamos el nuevo valor a la lista general
+    # for ji in last:
+    #     last[ji]=listR
+    #
+    # print(last)
+
+
+
+
+
+
+    print("ELIMINANDO...")
 
     files = glob.glob('data/json/*')
     for ele in files:

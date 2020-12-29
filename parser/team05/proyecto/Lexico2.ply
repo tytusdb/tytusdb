@@ -11,1436 +11,931 @@
 #||||||||||||||||||||||||||||||||||||||||||
 
 
-# GRAMMAR DEFINITION
-def p_init(t):
-    """
-        init            :   INSTRUCCIONES
-    """
-    #t[0] = t[1]
-
-    
-def p_instrucciones1(t):
-    """
-        INSTRUCCIONES   :   INSTRUCCION INSTRUCCIONES_P
-    """
-    #t[1].append(t[2])
-    #t[0] = t[1]
+init            :   INSTRUCCIONES
 
 
-def p_instrucciones2(t):
-    """
-        INSTRUCCIONES_P :   INSTRUCCION INSTRUCCIONES_P
-                        |   epsilon
-    """
-    t[0] = [t[1]]
+INSTRUCCIONES   :   INSTRUCCION INSTRUCCIONES_P
+
+INSTRUCCIONES_P :   INSTRUCCION INSTRUCCIONES_P
+                |   epsilon
 
 
-def p_instruccion1(t):
-    """
-        INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
-                        |   I_CREATE
-                        |   I_DROP
-                        |   I_INSERT
-                        |   I_ALTER
-                        |   I_UPDATE
-                        |   I_SHOW
-                        |   I_DELETE
-                        |   I_USE
-    """
-    #t[0] = t[1]
-
-#---------------------I_SELECT-----------------------
-
-def p_ISelect(t):
-    '''I_SELECT     :   SELECT VALORES PFROM COMPLEMENTO   
-                    |   SELECT VALORES PFROM PWHERE COMPLEMENTO
-                    |   SELECT DISTINCT VALORES PFROM COMPLEMENTO
-                    |   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO
-                    |   SELECT VALORES'''
-    #CLASE SELECT MINIMO
-
-def p_Valores(t):
-    '''VALORES  :   POR 
-                |   LISTAVALORES'''
+INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
+                |   I_REPLACE
+                |   I_CTABLE
+                |   I_CTYPE
+                |   I_DROP
+                |   I_INSERT
+                |   I_ALTERDB
+                |   I_UPDATE
+                |   I_SHOW
+                |   I_DELETE
+                |   I_USE
+                |   I_ALTERTB
 
 
-def p_ListaValores(t):
-    'LISTAVALORES    :  VALOR LISTAVALORES_P'
-
-def p_ListaValoresS(t):
-    '''LISTAVALORES_P   :   COMA VALOR LISTAVALORES_P 
-                        |   epsilon'''
-
-def p_PFROM(t):
-    'PFROM  :   FROM LVALORESFROM '
-
-def p_Where(t):
-    'PWHERE  :   WHERE CONDICION '
-
-def p_ComplementoH(t):
-    'COMPLEMENTO  :   PGROUPBY PHAVING  '
-
-def p_ComplementoHL(t):
-    'COMPLEMENTO  :   PGROUPBY PHAVING PLIMIT   '
-
-def p_ComplementoG(t):
-    'COMPLEMENTO  :   PGROUPBY  '
-
-def p_ComplementoGL(t):
-    'COMPLEMENTO  :   PGROUPBY PLIMIT   '
-
-def p_ComplementoO(t):
-    'COMPLEMENTO  :   PORDERBY  '
-
-def p_ComplementoOL(t):
-    'COMPLEMENTO  :   PORDERBY PLIMIT   '
-
-def p_ComplementoL(t):
-    'COMPLEMENTO  :   PLIMIT    '
-
-def p_ComplementoE(t):
-    'COMPLEMENTO  :   EMPTY '
+#--------------I_SELECT------------
+I_SELECT    : SELECT CUERPOSELECT
 
 
-def p_ComplementoSelectUnion(t):
-    'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
-    # INSTRUCCION COMPLEMENTOSELECTUNION
-
-def p_ComplementoSelectUnionAll(t):
-    'COMPLEMENTOSELECT  : UNION ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTALL
-
-def p_ComplementoSelectIntersect(t):
-    'COMPLEMENTOSELECT  : INTERSECT I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTINTERSECT
-
-def p_ComplementoSelectIntersectALL(t):
-    'COMPLEMENTOSELECT  : INTERSECT ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTINTERSECTALL
-
-def p_ComplementoSelectExcept(t):
-    'COMPLEMENTOSELECT  : EXCEPT I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTEXCEPT
-
-def p_ComplementoSelectExceptAll(t):
-    'COMPLEMENTOSELECT  : EXCEPT ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTEXCEPTALL
-
-def p_ComplementoSelectExceptPcoma(t):
-    'COMPLEMENTOSELECT  : PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTEXCEPTPCOMA
-
-#---------------------I_CREATE-----------------------
-    
-def p_create(t):
-    """
-        I_CREATE        :   CREATE I_TCREATE
-    """
-    #t[0] = t[2]
+CUERPOSELECT:   VALORES SELECT1 
+            |   DISTINCT SELECT2 
 
 
-def p_tcreate(t):
-    """
-        I_TCREATE       :   I_REPLACE
-                        |   I_CTABLE
-                        |   I_CTYPE
-    """
-    #t[0] = t[1]
-    
-def p_replace1(t):
-    """
-        I_REPLACE       :   OR REPLACE DATABASE I_EXIST
-                        |   DATABASE I_EXIST
-    """
+SELECT1     :   PFROM MASSELECT 
+            |   EMPTY
 
-def p_ctable(t):
-    """
-        I_CTABLE        :   TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS
-    """
-    #INSTRUCCION CTABLE
+MASSELECT   :   LCOMPLEMENTOS
+            |   PWHERE PWHEREMAS
+            |   EMPTY
 
-def p_ctype(t):
-    """
-        I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA PCOMA
-    """
-    #INSTRUCCION CTYPE
+PWHEREMAS   : LCOMPLEMENTOS
+            | EMPTY
 
-#---------------------I_DROP-----------------------
-def p_drop(t):
-    """
-        I_DROP          :   DROP I_TDROP
-    """
-    #t[0] = t[2]
+SELECT2     :   VALORES COMPSELECT2
 
-#---------------------I_INSERT-----------------------
+VALORES :   POR
+        |   LISTAVALORES
 
-def p_insertTB(t):
-    '''I_INSERT     :   INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA
-                    |   INSERT INTO ID PABRE I_LVALT PCIERRA VALUES PABRE I_LVALT PCIERRA PCOMA
-    '''
-    # INSTRUCCION INSERTTB
+LISTAVALORES  :     VALOR LISTAVALORES_P 
 
-#---------------------I_ALTER-----------------------
-def p_alter(t):
-    'I_ALTER     : ALTER I_TALTER'
+LISTAVALORES_P  :   COMA VALOR LISTAVALORES_P
+                |   EMPTY
 
-def p_tipAlterC(t): 
-    '''I_TALTER     :   CHECK CONDICION 
-                    |   UNIQUE PABRE I_LIDS  PCIERRA
+COMPSELECT2 :   PFROM PWHEREMAS2 
+            |   EMPTY
+
+PFROM  :   FROM LVALORESFROM
+
+LVALORESFROM    :   VALORFROM LVALORESFROM_P
+
+LVALORESFROM_P  :   COMA VALORFROM LVALORESFROM_P
+                | EMPTY
+
+VALORFROM   :   ID ALIAS_P
+            |   PABRE SUBCONSULTA PCIERRA ALIAS
+
+ALIAS_P     :   ALIAS
+            |   EMPTY
+
+ALIAS   :   AS ASS
+        |   ID
+        |  IDALIAS
+
+ASS     :   ID 
+        |   IDALIAS
+
+SUBCONSULTA     :   SELECT VALORES PFROM SUBSUB
+
+SUBSUB      :   LCOMPLEMENTOS
+            |   PWHERE LLCOMPLEMENTOS 
+            |   EMPTY
+
+LLCOMPLEMENTOS  :   LCOMPLEMENTOS
+                |   EMPTY
+
+
+PWHEREMAS2  :   LCOMPLEMENTOS
+            |   PWHERE FINSELECT2 
+            |   EMPTY
+
+PWHERE  :   WHERE CONDICION
+
+
+FINSELECT2  : LCOMPLEMENTOS
+            | EMPTY
+
+LCOMPLEMENTOS   : COMPLEMENTO LCOMPLEMENTOS_P
+
+LCOMPLEMENTOS_P : COMPLEMENTO LCOMPLEMENTOS_P
+                | EMPTY
+
+COMPLEMENTO     :   PGROUPBY
+                |   PHAVING
+                |   PORDERBY
+                |   PLIMIT
+
+
+#PGROUPBY
+
+PGROUPBY  :   GROUP BY LCOMPLEMENTOGROUP
+
+LCOMPLEMENTOGROUP   :   COMPLEMENTOGROUP LCOMPLEMENTOGROUP_P
+
+LCOMPLEMENTOGROUP_P :   COMA COMPLEMENTOGROUP LCOMPLEMENTOGROUP_P
+                    |   EMPTY
+
+
+COMPLEMENTOGROUP    :   CONDICION
+                    |   ID COMPGRUPMAS
+
+COMPGRUPMAS :   PUNTO ID
+            |   EMPTY
+
+
+#PHAVING
+
+PHAVING  :   HAVING CONDICION
+
+#PORDERBY
+
+PORDERBY  :   ORDER BY LCOMPLEMENTOORDERBY
+
+LCOMPLEMENTOORDERBY     :  COMPLEMENTOORDERBY LCOMPLEMENTOORDERBY_P
+
+LCOMPLEMENTOORDERBY_P   :  COMA COMPLEMENTOORDERBY LCOMPLEMENTOORDERBY_P
+                        |   EMPTY
+
+#PLIMIT
+
+PLIMIT      :   LIMIT CONDICION PLIMITCOMP
+
+PLIMITCOMP  :   OFFSET CONDICION
+            |   EMPTY
+
+#--------------I_REPLACE------------
+I_REPLACE   :   CREATE I_REPLACE2
+
+I_REPLACE2  :   OR REPLACE DATABASE I_REPLACE3
+            |   DATABASE I_REPLACE3
+
+I_REPLACE3  :   IF NOT EXISTS ID COMPLEMENTO_CREATE_DATABASE PCOMA
+            |   ID COMPLEMENTO_CREATE_DATABASE PCOMA
+
+COMPLEMENTO_CREATE_DATABASE :   OWNER IGUAL CADENA COMPDB2
+                            |   MODE IGUAL NUMERO COMPDB3
+
+COMPDB2 :   MODE IGUAL NUMERO 
+        |   EMPTY
+
+COMPDB3 :   OWNER IGUAL CADENA
+        |   EMPTY
+
+
+
+#--------------I_CTABLE------------
+
+I_CTABLE    :   CREATE TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_CTABLE2
+
+
+I_LTATRIBUTOS   :   I_TATRIBUTOS I_LTATRIBUTOS_P
+
+I_LTATRIBUTOS_P :   COMA I_TATRIBUTOS I_LTATRIBUTOS_P
+                |   EMPTY
+                
+I_TATRIBUTOS    :   ID I_TIPO  I_TATRIBUTOS2
+                |   PCONSTRAINT
+
+
+PCONSTRAINT     :   CONSTRAINT ID TIPO_CONSTRAINT
+                |   TIPO_CONSTRAINT
+
+
+TIPO_CONSTRAINT     :   UNIQUE PABRE I_LIDS PCIERRA
+                    |   PRIMARY KEY PABRE I_LIDS PCIERRA
+                    |   CHECK CONDICION
                     |   FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA
-                    |   FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID
-                    |   CONSTRAINT ID I_TCONST
-                    |   CHECK CONDICION 
-                    |   UNIQUE PABRE I_LIDS  PCIERRA
-                    |   FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA
-                    |   FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID
-                    |   CONSTRAINT ID I_TCONST
-                    |   I_ALTERDB
-                    |   I_ALTERTB
-    '''
+
+I_LIDS      :   CONDICION L_LIDS_P
+
+L_LIDS_P    :   COMA CONDICION L_LIDS_P
+            |   EMPTY
+
+I_TATRIBUTOS2   :   LI_LLAVES
+                |   EMPTY
+
+LI_LLAVES   :   I_LLAVES LI_LLAVES_P
+
+LI_LLAVES_P :   I_LLAVES LI_LLAVES_P
+            |   EMPTY
+
+
+I_LLAVES    :   PRIMARY KEY
+            |   REFERENCES ID PABRE I_CREFERENCE PCIERRA
+            |   DEFAULT DEF2
+            |   NULL
+            |   NOT NULL
+            |   CONSTRAINT ID CONST2
+            |   UNIQUE UNIQUE2
+            |   CHECK CHECK2 
+            |   FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA
+            |   CONSTRAINT ID CHECK CONDICION  
+
+DEF2        :   CONDICION
+            |   ID
+
+CONST2      :   UNIQUE 
+            |   EMPTY
+
+UNIQUE2     :   PABRE I_LIDS PCIERRA
+            |   EMPTY
+
+CHECK2      :   CONDICION
+            |   PABRE I_LIDS PCIERRA
+
+I_CREFERENCE    : ID I_CREFERENCE_P
+
+I_CREFERENCE_P  :   COMA ID I_CREFERENCE_P
+                |   EMPTY
+                
+I_TIPO  :   SMALLINT
+        |   INTEGER
+        |   BIGINT
+        |   DECIMAL DECI2
+        |   NUMERIC NUME2
+        |   REAL
+        |   DOUBLE DOUB2
+        |   MONEY   
+        |   CHARACTER CHARA2
+        |   VARCHAR PABRE NUMERO PCIERRA
+        |   CHAR PABRE NUMERO PCIERRA
+        |   TEXT
+        |   TIMESTAMP TIMES2
+        |   TIME TIME2
+        |   DATE
+        |   INTERVAL I_FIELDS INTER2
+        |   BOOLEAN
+        |   ID
+
+DECI2   :   PABRE NUMERO COMA NUMERO PCIERRA
+        |   EMPTY
+
+NUME2   :   PABRE NUMERO NUME2_1
+        |   EMPTY
+
+NUME2_1 :   COMA NUMERO PCIERRA
+        |   PCIERRA
+
+DOUB2   :   PABRE NUMERO PCIERRA
+        |   I_PREC
+
+CHARA2  :   VARYING PABRE NUMERO PCIERRA
+        |   PABRE NUMERO PCIERRA
+        |   I_TCHAR
+
+TIMES2  :   PABRE NUMERO PCIERRA
+        |   I_PREC
+        |   EMPTY
+
+TIME2   :   PABRE NUMERO PCIERRA
+        |   I_PREC
+        |   EMPTY
+
+INTER2  :   PABRE NUMERO PCIERRA
+        |   I_PREC
+        |   EMPTY
+
+
+I_CTABLE2   :   INHERITS PABRE ID PCIERRA PCOMA
+            |   PCOMA
+
+
+
+#-----------------I_USE----------------
+
+
+
+I_USE           :   USE ID PCOMA
+
     
+# CREATE TYPE
 
-def p_lcad1(t):
-    """
-        I_LCAD          :   I_LCAD COMA LCAD
-    """
-    # Instruccion
+I_CTYPE       : CREATE TYPE ID AS ENUM PABRE I_LVALUES PCIERRA PCOMA
 
+I_LVALUES          :   I_LVALUES COMA CONDI
 
-def p_lcad2(t):
-    """
-        I_LCAD          :   LCAD
-    """
-    # Instruccion
+I_LVALUES          :   CONDI
 
-def p_Ilcad2(t):
-    """
-        LCAD          :   CADENA
-    """
+CONDI          :   CONDICION
 
-    
-def p_Ilcad2(t):
-    """
-        LCAD          :   CADENA
-    """
+# TERMINO CREATE TYPE
 
 
+# CREATE TABLE
 
 
 
-def p_inherits(t):
-    'I_INHERITS    : INHERITS PABRE ID PCIERRA PCOMA'
 
-def p_inherits1(t):
-    'I_INHERITS    : PCOMA'
 
-def p_tAtributos(t):
-    'I_LTATRIBUTOS    : I_LTATRIBUTOS COMA I_TATRIBUTOS'
 
-def p_tAtributos1(t):
-    'I_LTATRIBUTOS    : I_TATRIBUTOS'
 
-def p_atributosT(t):
-    'I_TATRIBUTOS     : ID I_TIPO LI_LLAVES'
 
-def p_atributosTipo(t):
-    'I_TATRIBUTOS     : ID I_TIPO'
+# TERMINA CREATE TABLE
 
-def p_atributosT1(t):
-    'I_TATRIBUTOS     : PCONSTRAINT'
+# TIPOS DE DATOS
 
-def p_PConstraint(t):
-    'PCONSTRAINT     : CONSTRAINT ID TIPO_CONSTRAINT'
 
-def p_PConstrainTipo(t):
-    'PCONSTRAINT     :  TIPO_CONSTRAINT'
 
-def p_TipoConstraintUnique(t):
-    'TIPO_CONSTRAINT     :  UNIQUE PABRE I_LIDS PCIERRA' 
+# TERMINA TIPO DE DATOS
 
-def p_TipoConstraintPrimaryKey(t):
-    'TIPO_CONSTRAINT     :  PRIMARY KEY PABRE I_LIDS PCIERRA' 
+I_FIELDS         : MONTH
 
-def p_ipoConstraintCheck(t):
-    'TIPO_CONSTRAINT        : CHECK CONDICION'
+I_FIELDS         : HOUR
 
-def p_ipoConstraintForeignKey(t):
-    'TIPO_CONSTRAINT        : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
-    
-def p_Lllave(t):
-    'LI_LLAVES         : LI_LLAVES I_LLAVES'
+I_FIELDS         : MINUTE
 
-def p_Lllave1(t):
-    'LI_LLAVES         : I_LLAVES'
+I_FIELDS         : SECOND
 
-def p_cRef(t):
-    'I_CREFERENCE     : I_CREFERENCE COMA ID'
+I_FIELDS         : YEAR
 
-def p_cRef2(t):
-    'I_CREFERENCE     : ID'
 
-def p_llave(t):
-    'I_LLAVES         : PRIMARY KEY'
+# CREATE DATABASE
 
-def p_llave2(t):
-    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA' 
 
-def p_llave3(t):
-    'I_LLAVES         : DEFAULT ID'
+# TERMINA CREATE DATABASE
 
-def p_llave4(t):
-    'I_LLAVES         : NULL'
 
-def p_llave5(t):
-    'I_LLAVES         : NOT NULL'
+# ALTER DATABASE
 
-def p_llave6(t):
-    'I_LLAVES         : CONSTRAINT ID'
+I_ALTERDB    : ALTER DATABASE ID P_OPERACION_ALTERDB PCOMA
 
-def p_llave7(t):
-    'I_LLAVES         : UNIQUE PABRE I_LIDS PCIERRA'
+P_OPERACION_ALTERDB    : OWNER TO P_TIPOS_OWNER
 
-def p_llave9(t):
-    'I_LLAVES         : UNIQUE'
+P_OPERACION_ALTERDB    : MODE TO NUMERO
 
-def p_llave10(t):
-    'I_LLAVES         : CHECK PABRE I_LIDS PCIERRA'
+P_OPERACION_ALTERDB    : RENAME TO CADENA
 
-def p_llave11(t): 
-    'I_LLAVES    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
+P_TIPOS_OWNER    : CADENA
 
-def p_lIds(t):
-    'I_LIDS           : I_LIDS COMA CONDICION'
+P_TIPOS_OWNER    : CURRENT_USER
 
-def p_lIds1(t):
-    'I_LIDS           : CONDICION'
+P_TIPOS_OWNER    : SESSION_USER
 
-def p_tipo(t):
-    'I_TIPO           : SMALLINT'
+P_TIPOS_OWNER    : ID
 
-def p_tipo2(t):
-    'I_TIPO           : INTEGER'
+# TERMINA ALTER DATABASE
 
-def p_tipo3(t):
-    'I_TIPO           : BIGINT'
+# ALTER TABLE 
 
-def p_tipo4(t):
-    'I_TIPO           : DECIMAL'
+I_ALTERTB    : ALTER TABLE ID L_ADD_COLUMNS PCOMA
 
-def p_tipo5(t):
-    'I_TIPO           : NUMERIC'
+I_ALTERTB    : ALTER TABLE ID L_DROP_COLUMNS PCOMA
 
-def p_tipo6(t):
-    'I_TIPO           : REAL'
+I_ALTERTB    : ALTER TABLE ID ADD TIPOS_ALTER PCOMA
 
-def p_tipo7(t):
-    'I_TIPO           : DOUBLE I_PREC'
+I_ALTERTB    : ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PCOMA
 
-def p_tipo8(t):
-    'I_TIPO           : MONEY'
+I_ALTERTB    : ALTER TABLE ID DROP CONSTRAINT ID PCOMA
 
-def p_tipo9(t):
-    'I_TIPO           : CHARACTER I_TCHAR'
+I_ALTERTB    : ALTER TABLE ID L_COLUMN PCOMA
 
-def p_tipo11(t):
-    'I_TIPO           : VARCHAR PABRE NUMERO PCIERRA'
+L_COLUMN    : L_COLUMN COMA P_COLUMN
 
-def p_tipo22(t):
-    'I_TIPO           : CHAR PABRE NUMERO PCIERRA'
+L_COLUMN    : P_COLUMN
 
-def p_tipo33(t):
-    'I_TIPO           : TEXT'
+P_COLUMN    : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA
 
-def p_tipo44(t):
-    'I_TIPO           : TIMESTAMP I_PREC'
+TIPOS_ALTER    : CHECK CONDICION
 
-def p_tipo55(t):
-    'I_TIPO           : TIME I_PREC'
+TIPOS_ALTER    : UNIQUE PABRE L_ID PCIERRA
 
-def p_tipo66(t):
-    'I_TIPO           : DATE'
+TIPOS_ALTER    : FOREIGN KEY PABRE L_ID PCIERRA REFERENCES ID PABRE L_ID PCIERRA
 
-def p_tipo77(t):
-    'I_TIPO           : INTERVAL I_FIELDS I_PREC'
+TIPOS_ALTER    : CONSTRAINT ID CHECK CONDICION
 
-def p_tipo88(t):
-    'I_TIPO           : BOOLEAN'
+TIPOS_ALTER    : CONSTRAINT ID UNIQUE PABRE L_ID PCIERRA
 
-def p_tipo99(t):
-    'I_TIPO           : ID'
+TIPOS_ALTER    : CONSTRAINT ID FOREIGN KEY PABRE L_ID PCIERRA REFERENCES ID PABRE L_ID PCIERRA
 
-def p_tchar(t):
-    'I_TCHAR          : VARYING PABRE NUMERO PCIERRA'
+L_ID    : L_ID COMA ID
 
-def p_tchar1(t):
-    'I_TCHAR          : PABRE NUMERO PCIERRA'
+L_ID    : ID
 
-def p_prec(t):
-    'I_PREC           : PABRE NUMERO PCIERRA'
+L_DROP_COLUMNS    : L_DROP_COLUMNS COMA DROP_COLUMN
 
-def p_prec1(t):
-    'I_PREC           : '
+L_DROP_COLUMNS    : DROP_COLUMN
 
-def p_fields(t):
-    'I_FIELDS         : MONTH'
+DROP_COLUMN    : DROP COLUMN ID
 
-def p_fields1(t):
-    'I_FIELDS         : HOUR'
+L_ADD_COLUMNS    : L_ADD_COLUMNS COMA ADD_COLUMN
 
-def p_fields2(t):
-    'I_FIELDS         : MINUTE'
+L_ADD_COLUMNS    : ADD_COLUMN
 
-def p_fields3(t):
-    'I_FIELDS         : SECOND'
+ADD_COLUMN    : ADD COLUMN ID I_TIPO
 
-def p_fields4(t):
-    'I_FIELDS         : YEAR'
+# TERMINA ALTER TABLE
 
+# DROP TABLE
 
+I_DROP      : DROP TABLE ID PCOMA
 
 
+# TERMINA DROP TABLE
 
+# DROP DATABASE
 
-def p_alterTB(t):
-    'I_ALTERTB   : TABLE ID I_OPALTER '
+I_DROP    : DROP DATABASE IF EXISTS ID PCOMA
 
-def p_opAlterTB(t):
-    'I_OPALTER   : I_LADDC PCOMA'
+I_DROP     : DROP DATABASE ID PCOMA
 
-def p_opAlterTB1(t):
-    'I_OPALTER   : I_LDROPC PCOMA'
 
-def p_opAlterTB2(t):
-    'I_OPALTER   : ADD I_TALTER PCOMA'
+# TERMINA DROP DATABASE
 
-def p_opAlterTB3(t):
-    'I_OPALTER   : ALTER COLUMN ID SET NOT NULL PCOMA'
+# INSERT
 
-def p_opAlterTB4(t):
-    'I_OPALTER   : DROP CONSTRAINT ID PCOMA'
+I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA
 
-def p_opAlterTB5(t):
-    'I_OPALTER   : I_LCOL PCOMA'
+I_INSERT      : INSERT INTO ID PABRE I_LVALT PCIERRA VALUES PABRE I_LVALT PCIERRA PCOMA
 
-def p_lCol(t):
-    'I_LCOL      : I_LCOL COMA I_PCOL'
+I_LVALT       : I_LVALT COMA I_VALTAB
 
-def p_lCol2(t):
-    'I_LCOL      : I_PCOL'
+I_LVALT       : I_VALTAB
 
-def p_pCol3(t):
-    'I_PCOL      : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA'
+I_VALTAB      : CONDICION
 
+I_VALTAB      : MD5 PABRE CADENA PCIERRA
 
 
+# TERMINA INSERT
 
 
-def p_alterTB(t):
-    'I_ALTERTB   : TABLE ID I_OPALTER '
+# UPDATE  
 
-def p_opAlterTB(t):
-    'I_OPALTER   : I_LADDC PCOMA'
 
-def p_opAlterTB1(t):
-    'I_OPALTER   : I_LDROPC PCOMA'
+I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE PCOMA
 
-def p_opAlterTB2(t):
-    'I_OPALTER   : ADD I_TALTER PCOMA'
+I_LUPDATE     : I_LUPDATE COMA I_VALUPDATE
 
-def p_opAlterTB3(t):
-    'I_OPALTER   : ALTER COLUMN ID SET NOT NULL PCOMA'
+I_LUPDATE     : I_VALUPDATE
 
-def p_opAlterTB4(t):
-    'I_OPALTER   : DROP CONSTRAINT ID PCOMA'
+I_VALUPDATE   : CONDICION
 
-def p_opAlterTB5(t):
-    'I_OPALTER   : I_LCOL PCOMA'
+I_VALUPDATE   : CONDICION IGUAL FTRIGONOMETRICASUP PABRE LNUM PCIERRA
 
-def p_lCol(t):
-    'I_LCOL      : I_LCOL COMA I_PCOL'
+I_VALUPDATE      : MD5 PABRE CADENA PCIERRA
 
-def p_lCol2(t):
-    'I_LCOL      : I_PCOL'
+FTRIGONOMETRICASUP   : ACOSD
 
-def p_pCol3(t):
-    'I_PCOL      : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA'
+FTRIGONOMETRICASUP   : ASIN
 
 
-def p_tipoConstraintC(t):
-    'I_TCONST    : CHECK CONDICION '
-    #INSTRUCCION TIPOCONSTRAINTC
+# TERMINA UPDATE
 
-def p_tipoConstraintU(t):
-    'I_TCONST    : UNIQUE PABRE I_LIDS PCIERRA'
-    #INSTRUCCION TIPOCONSTRAINTU
 
-def p_tipoConstraintFK(t):
-    'I_TCONST    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA  '
-    #INSTRUCCION TIPOCONSTRAINTFK
 
-def p_lCDrop(t):
-    'I_LDROPC    : I_LDROPC COMA I_DROPC'
 
-def p_lCDrop1(t):
-    'I_LDROPC    : I_DROPC'
+# SHOW
 
-def p_cDrop(t):
-    'I_DROPC     : DROP COLUMN ID'
+I_SHOW       : SHOW DATABASES PCOMA
 
-def p_lCAdd(t):
-    'I_LADDC     : I_LADDC COMA I_ADDC'
 
-def p_lCAdd2(t):
-    'I_LADDC     : I_ADDC'
+# TERMINA SHOW
 
-def p_cAdd(t):
-    'I_ADDC      : ADD COLUMN ID I_TIPO'
+# DELETE
 
+I_DELETE     : DELETE FROM ID PWHERE PCOMA
 
-def p_tdrop1(t):
-    """
-        I_TDROP         :   I_DROPDB
-    """
-    t[0] = t[1]
 
+# TERMINA DELETE
 
-def p_tdrop2(t):
-    """
-        I_TDROP         :   I_DROPTB
-    """
-    t[0] = t[1]
+#--------------------------------------------------------------------------------
 
 
-def p_drop_db(t):
-    """
-        I_DROPDB        :   DATABASE I_IFEXIST
-    """
-    # INSTRUCCION DROPDB
-    t[0] = DropDB(t[2])
 
 
-def p_if_exist1(t):
-    """
-        I_IFEXIST       :   IF EXISTS ID PCOMA
-    """
-    # INSTRUCCION IFEXIST1
-    t[0] = IfExist1(t[3])
 
+COMPLEMENTOSELECT  : UNION I_SELECT PCOMA
 
-def p_if_exist2(t):
-    """
-        I_IFEXIST       :   ID PCOMA
-    """
-    # INSTRUCCION IFEXIST2
-    t[0] = IfExist2(t[1])
+COMPLEMENTOSELECT  : UNION ALL I_SELECT PCOMA
 
+COMPLEMENTOSELECT  : INTERSECT I_SELECT PCOMA
 
-def p_exist1(t):
-    """
-        I_EXIST         :   IF NOT EXISTS ID I_OWMOD
-    """
-    t[0] = DatabaseInfo(True, t[4], t[5])
+COMPLEMENTOSELECT  : INTERSECT ALL I_SELECT PCOMA
 
+COMPLEMENTOSELECT  : EXCEPT I_SELECT PCOMA
 
-def p_exist2(t):
-    """
-        I_EXIST         :   ID I_OWMOD
-    """
-    t[0] = DatabaseInfo(False, t[1], t[2])
+COMPLEMENTOSELECT  : EXCEPT ALL I_SELECT PCOMA
 
+COMPLEMENTOSELECT  : PCOMA
 
-def p_owmod1(t):
-    """
-        I_OWMOD         :   OWNER IGUAL ID I_MODE
-                        |   OWNER IGUAL CADENA I_MODE
-    """
-    t[0] = Owner_Mode(t[3], t[4])
 
 
-def p_owmod2(t):
-    """
-        I_OWMOD         :   MODE IGUAL NUMERO I_OWNER
-    """
-    t[0] = Owner_Mode(t[4], t[3])
 
+COMPLEMENTOORDERBY  :   CONDICION COMPLEMENTOORDERBY1
 
-def p_owmod3(t):
-    """
-        I_OWMOD         :   PCOMA
-    """
-    t[0] = Owner_Mode(None, None)
+COMPLEMENTOORDERBY1  :   COMPLEMENTOORDER
 
+COMPLEMENTOORDER  :   ASC
 
-def p_mode1(t):
-    """
-        I_MODE          :   MODE IGUAL NUMERO I_OWNER
-    """
-    t[0] = t[3]
+COMPLEMENTOORDER  :   DESC
 
+COMPLEMENTOORDER  :   ASC NULLS FIRST
 
-def p_mode2(t):
-    """
-        I_MODE          :   PCOMA
-    """
-    t[0] = None
+COMPLEMENTOORDER  :   ASC NULLS LAST
 
+COMPLEMENTOORDER  :   DESC NULLS FIRST
 
-def p_owner1(t):
-    """
-        I_OWNER         :   OWNER IGUAL ID PCOMA
-                        |   OWNER IGUAL CADENA PCOMA
-    """
-    t[0] = t[3]
+COMPLEMENTOORDER  :   DESC NULLS LAST
 
+COMPLEMENTOORDER  :   EMPTY
 
-def p_owner2(t):
-    """
-        I_OWNER         :   PCOMA
-    """
-    t[0] = None
 
 
-def p_AlterDB(t):
-    'I_ALTERDB     : DATABASE ID I_OPALTERDB I_VALALTDB PCOMA'
 
-def p_opAlterDB(t):
-    'I_OPALTERDB   : RENAME TO'
 
-def p_opAlterDB2(t):
-    'I_OPALTERDB   : OWNER TO'
 
-def p_valAlterDb(t):
-    'I_VALALTDB    : ID'
 
-def p_valAlterDb1(t):
-    'I_VALALTDB    : CADENA'
+VALOR  :   PABRE SUBCONSULTA PCIERRA ALIAS
 
-def p_dropTB(t):
-    'I_DROPTB      : TABLE ID PCOMA'
-    # INSTRUCCION DROPTB
-    #t[0]=DropTB(t[2])
+VALOR  :   COUNT PABRE POR PCIERRA ALIAS
 
+VALOR  :   COUNT PABRE ID PCIERRA ALIAS
 
+VALOR  :   COUNT PABRE POR PCIERRA
 
+VALOR  :   COUNT PABRE ID PCIERRA
 
-def p_lValt(t):
-    'I_LVALT       : I_LVALT COMA I_VALTAB'
-    # INSTRUCCION REALIZADA
+VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA ALIAS
 
-def p_lValt1(t):
-    'I_LVALT       : I_VALTAB'
-    # INSTRUCCION REALIZADA
+VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA
 
-def p_lValt1(t):
-    'I_LVALT       : I_VALTAB'
+VALOR  :   CONDICION ALIAS
 
-def p_update(t):
-    'I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE PCOMA'
+VALOR  :   CONDICION
 
-def p_lUpdate(t):
-    'I_LUPDATE     : I_LUPDATE COMA I_VALUPDATE'
+VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA
 
-def p_lUpdate1(t):
-    'I_LUPDATE     : I_VALUPDATE'
+VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA ALIAS
 
-def p_valUpdate(t):
-    'I_VALUPDATE   : CONDICION'
+VALOR  :   GREATEST PABRE LNUM PCIERRA
 
+VALOR  :   LEAST PABRE LNUM PCIERRA
 
-def p_show(t):
-    'I_SHOW       : SHOW DATABASES PCOMA'
+VALOR  :   GREATEST PABRE LNUM PCIERRA ALIAS
 
-def p_delete(t):
-    'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
+VALOR  :   LEAST PABRE LNUM PCIERRA ALIAS
 
-def p_valTab(t):
-    'I_VALTAB      : NUMERO'
-    # INSTRUCCION VALTAB
+VALOR  :   RANDOM PABRE PCIERRA ALIAS
 
-def p_valTab1(t):
-    'I_VALTAB      : CADENA'
-    # INSTRUCCION VALTAB
+VALOR  :   RANDOM PABRE PCIERRA
 
-def p_valTabId(t):
-    'I_VALTAB      : ID'
-    # INSTRUCCION VALTAB
+VALOR  :   PI PABRE PCIERRA   ALIAS
 
-def p_valTabDecimal(t):
-    'I_VALTAB      : DECIMAL'
-    # INSTRUCCION VALTAB
+VALOR  :   PI PABRE PCIERRA
 
-def p_valTabIdAlias(t):
-    'I_VALTAB      : IDALIAS'
-    # INSTRUCCION VALTAB
-    
-def p_valTabMd5(t):
-    'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
-    # INSTRUCCION VALTAB
+VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA ALIAS
 
-def p_valTabNow(t):
-    'I_VALTAB      : NOW PABRE PCIERRA'
-    # INSTRUCCION VALTAB
+VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA
 
+VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA ALIAS
 
+VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA
 
-def p_Limit(t):
-    'PLIMIT  :   LIMIT CONDICION    '
+VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA
 
-def p_LimitOff(t):
-    'PLIMIT  :   LIMIT CONDICION OFFSET CONDICION   '
+VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA
 
-def p_OrderBy(t):
-    'PORDERBY  :   ORDER BY LCOMPLEMENTOORDERBY '
+VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA ALIAS
 
-def p_ComplementoOrderL(t):
-    'LCOMPLEMENTOORDERBY  :   LCOMPLEMENTOORDERBY COMA COMPLEMENTOORDERBY  '
+VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA ALIAS
 
-def p_ComplementoOrderL1(t):
-    'LCOMPLEMENTOORDERBY  :   COMPLEMENTOORDERBY    '
+VALOR  :   SHA256 PABRE CADENA PCIERRA
 
-def p_ComplementoOrderCI(t):
-    'COMPLEMENTOORDERBY  :   ID COMPLEMENTOORDERBY1    '
+VALOR  :   SHA256 PABRE CADENA PCIERRA ALIAS
 
-def p_ComplementoOrderCOBC(t):
-    'COMPLEMENTOORDERBY1  :   COMPLEMENTOORDER   '
+VALOR  :   NUM OPERADOR NUM ALIAS
 
-def p_ComplementoOrderCOBP(t):
-    'COMPLEMENTOORDERBY1  :   PUNTO ID COMPLEMENTOORDER   '
+VALOR  :   NUM OPERADOR NUM
 
+VALOR  :   BNot NUM ALIAS
 
-def p_ComplementoOrder(t):
-    'COMPLEMENTOORDER  :   ASC  '
+VALOR  :   BNot NUM
 
-def p_ComplementoOD(t):
-    'COMPLEMENTOORDER  :   DESC '
+VALOR  :   raizCuadrada NUM ALIAS
 
-def p_ComplementoOANF(t):
-    'COMPLEMENTOORDER  :   ASC NULLS FIRST  '
+VALOR  :   raizCuadrada NUM
 
-def p_ComplementoOANL(t):
-    'COMPLEMENTOORDER  :   ASC NULLS LAST   '
+VALOR  :   raizCubica NUM ALIAS
 
-def p_ComplementoODNF(t):
-    'COMPLEMENTOORDER  :   DESC NULLS FIRST '
+VALOR  :   raizCubica NUM
 
-def p_ComplementoODNL(t):
-    'COMPLEMENTOORDER  :   DESC NULLS LAST  '
+VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA
 
-def p_ComplementoEm(t):
-    'COMPLEMENTOORDER  :   EMPTY    '
+VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA ALIAS
 
+VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA
 
-def p_Having(t):
-    'PHAVING  :   HAVING CONDICION '
+VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA ALIAS
 
-def p_GroupBy(t):
-    'PGROUPBY  :   GROUP BY LCOMPLEMENTOGROUP '
+VALOR  :   CASE LWHEN END
 
-def p_ComplementoGroupL(t):
-    'LCOMPLEMENTOGROUP  :   LCOMPLEMENTOGROUP COMA COMPLEMENTOGROUP '
+VALOR  :   CASE LWHEN END ALIAS
 
-def p_ComplementoGroupLS(t):
-    'LCOMPLEMENTOGROUP  :   COMPLEMENTOGROUP '
+VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA ALIAS
 
-def p_ComplementoGroupC(t):
-    'COMPLEMENTOGROUP  :   ID '
+VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA
 
-def p_ComplementoGroupC1(t):
-    'COMPLEMENTOGROUP  :   ID PUNTO ID '
+LWHEN  :   LWHEN PWHEN
 
+LWHEN  :   PWHEN
 
+PWHEN  :   WHEN CONDICION THEN CONDICION
 
+PWHEN  :   ELSE CONDICION
 
-def p_ValorSub(t):
-    'VALOR  :   PABRE SUBCONSULTA PCIERRA ALIAS'
+ID_VALOR  :   DEGREES
 
-def p_ValorCountAa(t):
-    'VALOR  :   COUNT PABRE POR PCIERRA ALIAS'
+ID_VALOR  :   DIV
 
-def p_ValorCounta(t):
-    'VALOR  :   COUNT PABRE ID PCIERRA ALIAS'
+ID_VALOR  :   FEXP
 
-def p_ValorCountA(t):
-    'VALOR  :   COUNT PABRE POR PCIERRA '
+ID_VALOR  :   FACTORIAL
 
-def p_ValorCount(t):
-    'VALOR  :   COUNT PABRE ID PCIERRA '
+ID_VALOR  :   FLOOR
 
-def p_ValorCountAliasId(t):
-    'VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA ALIAS'
+ID_VALOR  :   GCD
 
-def p_ValorCountIdP(t):
-    'VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA'
+ID_VALOR  :   LN
 
+ID_VALOR  :   LOG
 
-def p_ValorFuncionesA(t):
-    'VALOR  :   FUNCION PABRE ID PUNTO ID PCIERRA ALIAS'
+ID_VALOR  :   MOD
 
-def p_ValorFunciones1A(t):
-    'VALOR  :   FUNCION PABRE ID  PCIERRA ALIAS'
+ID_VALOR  :   POWER
 
-def p_ValorCondicion(t):
-    'VALOR  :   CONDICION'
-    
-def p_ValorCondicionAlias(t):
-    'VALOR  :   CONDICION ALIAS '
+ID_VALOR  :   RADIANS
 
-def p_ValorFTrigonometricas(t):
-    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA '
+ID_VALOR  :   ROUND
 
-def p_ValorFTrigonometricasAlias(t):
-    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA ALIAS '
+ID_VALOR  :   SIGN
 
-def p_ValorGreatest(t):
-    'VALOR  :   GREATEST PABRE LNUM PCIERRA '
+ID_VALOR  :   SQRT
 
-def p_ValorLeast(t):
-    'VALOR  :   LEAST PABRE LNUM PCIERRA '
+ID_VALOR  :   WIDTH_BUCKET
 
-def p_ValorGreatestAlias(t):
-    'VALOR  :   GREATEST PABRE LNUM PCIERRA ALIAS'
+ID_VALOR  :   TRUNC
 
-def p_ValorLeastAlias(t):
-    'VALOR  :   LEAST PABRE LNUM PCIERRA ALIAS'
+OPERADOR  :   BAnd
 
-def p_ValorRandomA(t):
-    'VALOR  :   RANDOM PABRE PCIERRA ALIAS'
+OPERADOR  :   BOr
 
-def p_ValorRandom(t):
-    'VALOR  :   RANDOM PABRE PCIERRA '
+OPERADOR  :   BXor
 
-def p_ValorPiAlias(t):
-    'VALOR  :   PI PABRE PCIERRA   ALIAS '
-    
-def p_ValorPi(t):
-    'VALOR  :   PI PABRE PCIERRA '
+OPERADOR  :   DesplazaI
 
-def p_ValorFuncionesDecodeA(t):
-    'VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA ALIAS   '
+OPERADOR  :   DesplazaD
 
-def p_ValorFuncionesDecode(t):
-    'VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA   '
+LNUM  : LNUM COMA NUM
 
-def p_ValorFuncionesEncodeA(t):
-    'VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA ALIAS   '
+LNUM   : NUM
 
-def p_ValorFuncionesEncode(t):
-    'VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA   '
+NUM    : NUMERO
 
-def p_ValorFuncionesConvertDate(t):
-    'VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA   '
+NUM  :   DECIMALN
 
-def p_ValorFuncionesConvertInt(t):
-    'VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA   '
+NUM  :   CADENA
 
-def p_ValorFuncionesConvertDateA(t):
-    'VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA ALIAS   '
+FTRIGONOMETRICAS  :   ACOS
 
-def p_ValorFuncionesConvertIntA(t):
-    'VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA ALIAS   '
+FTRIGONOMETRICAS  :   ACOSD
 
-def p_ValorFuncionesSha(t):
-    'VALOR  :   SHA256 PABRE CADENA PCIERRA   '
+FTRIGONOMETRICAS  :   ASIN
 
-def p_ValorFuncionesShaA(t):
-    'VALOR  :   SHA256 PABRE CADENA PCIERRA ALIAS   '
+FTRIGONOMETRICAS  :   ASIND
 
-def p_ValorOperadorMatAlias(t):
-    'VALOR  :   NUM OPERADOR NUM ALIAS '
+FTRIGONOMETRICAS  :   ATAN
 
-def p_ValorOperadorMat(t):
-    'VALOR  :   NUM OPERADOR NUM '
+FTRIGONOMETRICAS  :   ATAND
 
-def p_ValorOperadorNotA(t):
-    'VALOR  :   BNot NUM ALIAS '
+FTRIGONOMETRICAS  :   ATAN2
 
-def p_ValorOperadorNot(t):
-    'VALOR  :   BNot NUM '
+FTRIGONOMETRICAS  :   ATAN2D
 
-def p_ValorRaizCuadradaA(t):
-    'VALOR  :   raizCuadrada NUM ALIAS '
+FTRIGONOMETRICAS  :   COS
 
-def p_ValorRaizCuadrada(t):
-    'VALOR  :   raizCuadrada NUM '
+FTRIGONOMETRICAS  :   COSD
 
-def p_ValorRaizCubicaA(t):
-    'VALOR  :   raizCubica NUM ALIAS '
+FTRIGONOMETRICAS  :   COT
 
-def p_ValorRaizCubica(t):
-    'VALOR  :   raizCubica NUM '
+FTRIGONOMETRICAS  :   COTD
 
-def p_ValorFuncionesGetByte(t):
-    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA '
+FTRIGONOMETRICAS  :   SIN
 
-def p_ValorFuncionesGetByteA(t):
-    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA ALIAS '
+FTRIGONOMETRICAS  :   SIND
 
-def p_ValorFuncionesSetByte(t):
-    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA '
+FTRIGONOMETRICAS  :   TAN
 
-def p_ValorFuncionesSetByteA(t):
-    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA ALIAS '
+FTRIGONOMETRICAS  :   TAND
 
-def p_ValorCase(t):
-    'VALOR  :   CASE LWHEN END '
+FTRIGONOMETRICAS  :   SINH
 
-def p_ValorCaseAlias(t):
-    'VALOR  :   CASE LWHEN END ALIAS'
+FTRIGONOMETRICAS  :   COSH
 
-def p_ValorFunAlias(t):
-    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
+FTRIGONOMETRICAS  :   TANH
 
-def p_ValorFun(t):
-    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA   '
+FTRIGONOMETRICAS  :   ASINH
 
-def p_LWHEN(t):
-    'LWHEN  :   WHEN CONDICION THEN CONDICION LWHEN '
+FTRIGONOMETRICAS  :   ACOSH
 
-def p_LWHENSimple(t):
-    'LWHEN  :   WHEN CONDICION THEN CONDICION '
+FTRIGONOMETRICAS  :   ATANH
 
-def p_LWHENElse(t):
-    'LWHEN  :   ELSE CONDICION '
+FUNCION    :   AVG
 
-def p_IdFuncionDegrees(t):
-    'ID_VALOR  :   DEGREES  '
+FUNCION    :   SUM
 
-def p_IdFuncionDiv(t):
-    'ID_VALOR  :   DIV  '
+FUNCION    :   MIN
 
-def p_IdFuncionExp(t):
-    'ID_VALOR  :   FEXP  '
+FUNCION    :   MAX
 
-def p_IdFuncionFactorial(t):
-    'ID_VALOR  :   FACTORIAL  '
 
-def p_IdFuncionFloor(t):
-    'ID_VALOR  :   FLOOR  '
 
-def p_IdFuncionGcd(t):
-    'ID_VALOR  :   GCD  '
 
-def p_IdFuncionLn(t):
-    'ID_VALOR  :   LN  '
 
-def p_IdFuncionLog(t):
-    'ID_VALOR  :   LOG  '
+#--------------CONDICION--------------------
+CONDICION   :   CONDT CONDICION_P
 
-def p_IdFuncionMod(t):
-    'ID_VALOR  :   MOD  '
+CONDICION_P :   SIGN1 CONDT CONDICION_P
+            |   EMPTY
 
-def p_IdFuncionPower(t):
-    'ID_VALOR  :   POWER  '
+CONDT       :   CONDF CONDT_P
 
-def p_IdFuncionRadians(t):
-    'ID_VALOR  :   RADIANS  '
+CONDT_P     :   SIGN2 CONDF CONDT_P
+            |   EMPTY
 
-def p_IdFuncionRound(t):
-    'ID_VALOR  :   ROUND  '
+CONDF       :   NOT CONDICION
+            |   PABRE CONDICION PCIERRA
+            |   MENOS CONDICION 
+            |   MAS CONDICION
+            |   EXTRACT PABRE DATETIME FROM PTIMESTAMP PCIERRA
+            |   FUNCIONES_WHERE
+            |   NUMERO
+            |   DECIMALN
+            |   CADENA
+            |   TRUE
+            |   FALSE
+            |   ID
+            |   FUNCIONES_SISTEMA
+            |   DATE_PART PABRE CADENA COMA INTERVAL CADENA PCIERRA
+            |   CURRENT_DATE
+            |   CURRENT_TIME
+            |   TIMESTAMP CADENA
+            |   CONDICION BETWEEN CONDICION
+            |   CONDICION NOT BETWEEN CONDICION %prec NOTB
+            |   CONDICION BETWEEN SIMMETRIC CONDICION
+            |   CONDICION NOT BETWEEN SIMMETRIC CONDICION  %prec NOTB
+            |   CONDICION IS DISTINCT FROM CONDICION
+            |   CONDICION IS NOT DISTINCT FROM CONDICION
+            |   NULL
+            |   UNKNOWN
+            |   PABRE SUBCONSULTA PCIERRA
+            |   FUNCION PABRE ID PCIERRA
+            |   FUNCION PABRE ID PUNTO ID PCIERRA
+            |   NOW PABRE PCIERRA
 
-def p_IdFuncionSign(t):
-    'ID_VALOR  :   SIGN  '
 
-def p_IdFuncionSqrt(t):
-    'ID_VALOR  :   SQRT  '
+SIGN1       :   OR 
+            |   MENORIGUAL 
+            |   MAYORIGUAL 
+            |   IGUAL
+            |   MAS
+            |   MENOS
 
-def p_IdFuncionWidth_bucket(t):
-    'ID_VALOR  :   WIDTH_BUCKET  '
+SIGN2       :   AND
+            |   POR 
+            |   DIVIDIDO
+            |   MODULO
+            |   EXP
 
-def p_IdFuncionTrunc(t):
-    'ID_VALOR  :   TRUNC  '
 
-def p_OPERADORAnd(t):
-    'OPERADOR  :   BAnd '
+FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA ALIAS
 
-def p_OPERADOROr(t):
-    'OPERADOR  :   BOr '
+FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA
 
-def p_OPERADORXor(t):
-    'OPERADOR  :   BXor '
+FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA ALIAS
 
-def p_OPERADORDIz(t):
-    'OPERADOR  :   DesplazaI '
+FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA
 
-def p_OPERADORDDe(t):
-    'OPERADOR  :   DesplazaD '
+FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA ALIAS
 
-def p_LNumNumLNum(t):
-    'LNUM  : LNUM COMA NUM'
+FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA
 
-def p_LNumNum(t):
-    'LNUM   : NUM'
+FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA ALIAS
 
-def p_NumNumero(t):  
-    'NUM    : NUMERO '
+FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA
 
-def p_NumDecimal(t):
-    'NUM  :   DECIMAL '
+ID_FUNCION_S  :   SUBSTRING
 
-def p_NumCadena(t):
-    'NUM  :   CADENA '
+ID_FUNCION_S  :   LENGTH
 
-def p_FTrigonometricasAcos(t):
-    'FTRIGONOMETRICAS  :   ACOS '
+ID_FUNCION_S  :   SUBSTR
 
-def p_FTrigonometricasAcosd(t):
-    'FTRIGONOMETRICAS  :   ACOSD '
+LBOTH  :   LEADING
 
-def p_FTrigonometricasAsin(t):
-    'FTRIGONOMETRICAS  :   ASIN '
+LBOTH  :   TRAILING
 
-def p_FTrigonometricasAsind(t):
-    'FTRIGONOMETRICAS  :   ASIND '
+LBOTH  :   BOTH
 
-def p_FTrigonometricasAtan(t):
-    'FTRIGONOMETRICAS  :   ATAN '
+LCONDICION_FUNCION_S  :   CONDICION
 
-def p_FTrigonometricasAtand(t):
-    'FTRIGONOMETRICAS  :   ATAND '
+LCONDICION_FUNCION_S  :   CONDICION COMA NUMERO COMA NUMERO
 
-def p_FTrigonometricasAtan2(t):
-    'FTRIGONOMETRICAS  :   ATAN2 '
+ID_FUNCION  :   ABS
 
-def p_FTrigonometricasAtan2d(t):
-    'FTRIGONOMETRICAS  :   ATAN2D '
+ID_FUNCION  :   CBRT
 
-def p_FTrigonometricasCos(t):
-    'FTRIGONOMETRICAS  :   COS '
+ID_FUNCION  :   CEIL
 
-def p_FTrigonometricasCosd(t):
-    'FTRIGONOMETRICAS  :   COSD '
+ID_FUNCION  :   CEILING
 
-def p_FTrigonometricasCot(t):
-    'FTRIGONOMETRICAS  :   COT '
+LCONDICION_FUNCION  :   CONDICION
 
-def p_FTrigonometricasCotd(t):
-    'FTRIGONOMETRICAS  :   COTD '
+LCONDICION_FUNCION  :   LCONDICION_FUNCION COMA CONDICION
 
-def p_FTrigonometricasSin(t):
-    'FTRIGONOMETRICAS  :   SIN '
+DATETIME  :   YEAR
 
-def p_FTrigonometricasSind(t):
-    'FTRIGONOMETRICAS  :   SIND '
+DATETIME  :   HOUR
 
-def p_FTrigonometricasTan(t):
-    'FTRIGONOMETRICAS  :   TAN '
+DATETIME  :   MINUTE
 
-def p_FTrigonometricasTand(t):
-    'FTRIGONOMETRICAS  :   TAND '
+DATETIME  :   SECOND
 
-def p_FTrigonometricasSinh(t):
-    'FTRIGONOMETRICAS  :   SINH '
+DATETIME  :   MONTH
 
-def p_FTrigonometricasCosh(t):
-    'FTRIGONOMETRICAS  :   COSH '
+DATETIME  :   DAY
 
-def p_FTrigonometricasTanh(t):
-    'FTRIGONOMETRICAS  :   TANH '
+FUNCIONES_WHERE  :   EXISTS PABRE SUBCONSULTA PCIERRA
 
-def p_FTrigonometricasAsinh(t):
-    'FTRIGONOMETRICAS  :   ASINH '
 
-def p_FTrigonometricasAcosh(t):
-    'FTRIGONOMETRICAS  :   ACOSH '
+FUNCIONES_WHERE  :   CONDICION IN PABRE SUBCONSULTA PCIERRA
 
-def p_FTrigonometricasAtanh(t):
-    'FTRIGONOMETRICAS  :   ATANH '
+FUNCIONES_WHERE  :   CONDICION NOT IN PABRE SUBCONSULTA PCIERRA
 
-def p_funcionAvg(t):
-    'FUNCION    :   AVG'
+FUNCIONES_WHERE  :   CONDICION OPERATOR_FW ANY PABRE SUBCONSULTA PCIERRA
 
-def p_funcionSum(t):
-    'FUNCION    :   SUM'
+FUNCIONES_WHERE  :   CONDICION OPERATOR_FW ALL PABRE SUBCONSULTA PCIERRA
 
-def p_funcionMin(t):
-    'FUNCION    :   MIN'
+FUNCIONES_WHERE  :   CONDICION OPERATOR_FW SOME PABRE SUBCONSULTA PCIERRA
 
-def p_funcionMax(t):
-    'FUNCION    :   MAX'
+FUNCIONES_WHERE  :   CONDICION LIKE CADENA
 
-def p_Alias(t):
-    'ALIAS  :   AS ID '
+FUNCIONES_WHERE  :   CONDICION NOT LIKE CADENA
 
-def p_AliasS(t):
-    'ALIAS  :   ID '
+OPERATOR_FW  :   MENOR
 
-def p_AliasC(t):
-    'ALIAS  :   AS IDALIAS'
+OPERATOR_FW  :   MAYOR
 
-def p_AliasCS(t):
-    'ALIAS  :   IDALIAS'
+OPERATOR_FW  :   MENORIGUAL
 
+OPERATOR_FW  :   MAYORIGUAL
 
-def p_LValoresFrom(t):
-    'LVALORESFROM   :   LVALORESFROM  COMA VALORFROM '
+OPERATOR_FW  :   IGUAL
 
-def p_LValoresFrom1(t):
-    'LVALORESFROM   :   VALORFROM '
+OPERATOR_FW  :   DIF
 
-def p_ValoresFromIdAlias(t):
-    'VALORFROM  :   ID ALIAS '
+OPERATOR_FW  :   DIF1
 
-def p_ValoresFromId(t):
-    'VALORFROM  :   ID '
+PTIMESTAMP  :   TIMESTAMP CADENA
 
-def p_ValoresFromSub(t):
-    'VALORFROM  :   PABRE SUBCONSULTA PCIERRA ALIAS    '
+PTIMESTAMP  :   TIMESTAMP ID
 
-def p_SubconsultaFrom(t):
-    'SUBCONSULTA    :   SELECT VALORES PFROM COMPLEMENTO '
+PTIMESTAMP  :   TIMESTAMP ID PUNTO ID
 
-def p_SubconsultaFromW(t):
-    'SUBCONSULTA    :   SELECT VALORES PFROM PWHERE COMPLEMENTO '
+PTIMESTAMP  :   CADENA
 
-#--------------------CONDICION------------------
-def p_Condicion(t):
-    '''CONDICION    :   VALOR_COND CONDICION_P
-                    |   NOT VALOR_COND CONDICION_P
-                    |   PABRE CONDICION PCIERRA
-    '''
-####AQUI HACE FALTA EDITAR OTRA COSA 
+PTIMESTAMP  :   ID
 
-def p_Condicion_p(t):
-    '''CONDICION_P  :   SIGN CONDICION
-                    | epsilon
-    '''
+PTIMESTAMP  :   ID PUNTO ID
 
-def p_sign(t):
-    '''SIGN     :   IGUAL
-                |   DIF
-                |   DIF1
-                |   MENOR
-                |   MENORIGUAL
-                |   MAYOR
-                |   MAYORIGUAL
-                |   AND
-                |   OR
-    '''
+EMPTY       : 
 
-def p_CondicionIgual(t):
-    'CONDICION  :   CONDICION IGUAL CONDICION '
+#------------------------------
 
-def p_CondicionDif(t):
-    'CONDICION  :   CONDICION DIF CONDICION '
+I_INHERITS    : INHERITS PABRE ID PCIERRA PCOMA
 
-def p_CondicionDif1(t):
-    'CONDICION  :   CONDICION DIF1 CONDICION '
+I_INHERITS    : PCOMA
 
-def p_CondicionMenor(t):
-    'CONDICION  :   CONDICION MENOR CONDICION '
 
-def p_CondicionMenorI(t):
-    'CONDICION  :   CONDICION MENORIGUAL CONDICION '
 
-def p_CondicionMayor(t):
-    'CONDICION  :   CONDICION MAYOR CONDICION '
+TIPO_CONSTRAINT     :  UNIQUE PABRE I_LIDS PCIERRA
 
-def p_CondicionMayorI(t):
-    'CONDICION  :   CONDICION MAYORIGUAL CONDICION '
+TIPO_CONSTRAINT     :  PRIMARY KEY PABRE I_LIDS PCIERRA
 
-def p_CondicionAnd(t):
-    'CONDICION  :   CONDICION AND CONDICION '
+TIPO_CONSTRAINT        : CHECK CONDICION
 
-def p_CondicionOr(t):
-    'CONDICION  :   CONDICION OR CONDICION '
+TIPO_CONSTRAINT        : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA
 
-def p_CondicionNot(t):
-    'CONDICION  :   NOT CONDICION '
 
-def p_CondicionParentesis(t):
-    'CONDICION  :   PABRE CONDICION PCIERRA '
 
-def p_CondicionMas(t):
-    'CONDICION  :   CONDICION MAS CONDICION '
 
-def p_CondicionMenos(t):
-    'CONDICION  :   CONDICION MENOS CONDICION '
 
-def p_CondicionPor(t):
-    'CONDICION  :   CONDICION POR CONDICION '
+I_TCHAR          : VARYING PABRE NUMERO PCIERRA
 
-def p_CondicionDiv(t):
-    'CONDICION  :   CONDICION DIVIDIDO CONDICION '
+I_TCHAR          : PABRE NUMERO PCIERRA
 
-def p_CondicionMod(t):
-    'CONDICION  :   CONDICION MODULO CONDICION '
+I_PREC           : PABRE NUMERO PCIERRA
+I_PREC           :
 
-def p_CondicionExp(t):
-    'CONDICION  :   CONDICION EXP CONDICION '
 
-def p_CondicionIs(t):
-    'CONDICION  :   CONDICION IS CONDICION '
+I_FIELDS         : MONTH
 
-def p_CondicionIsN(t):
-    'CONDICION  :   CONDICION ISNULL CONDICION '
+I_FIELDS         : HOUR
 
-def p_CondicionNotN(t):
-    'CONDICION  :   CONDICION NOTNULL CONDICION '
+I_FIELDS         : MINUTE
 
-def p_CondicionM(t):
-    'CONDICION  :   MENOS CONDICION %prec UMENOS'
+I_FIELDS         : SECOND
 
-def p_CondicionP(t):
-    'CONDICION  :   MAS CONDICION %prec UMAS'
+I_FIELDS         : YEAR
 
-def p_CondicionExtract(t):
-    'CONDICION  :   EXTRACT PABRE DATETIME FROM PTIMESTAMP PCIERRA '
+I_ALTERTB   : TABLE ID I_OPALTER
 
-def p_CondicionFuncionWhere(t):
-    'CONDICION  :   FUNCIONES_WHERE '
-
-def p_CondicionNum(t):
-    'CONDICION  :   NUMERO '
-
-def p_CondicionDec(t):
-    'CONDICION  :   DECIMAL'
-
-def p_CondicionCad(t):
-    'CONDICION  :   CADENA '
-
-def p_CondicionTrue(t):
-    'CONDICION  :   TRUE '
-
-def p_CondicionFalse(t):
-    'CONDICION  :   FALSE '
-
-def p_CondicionId(t):
-    'CONDICION  :   ID '
-
-def p_CondicionIdP(t):
-    'CONDICION  :   ID PUNTO ID '
-
-def p_CondicionIdPor(t):
-    'CONDICION  :   ID PUNTO POR '
-
-def p_CondicionFuncionSistema(t):
-    'CONDICION  :   FUNCIONES_SISTEMA '
-
-def p_CondicionDatePart(t):
-    'CONDICION  :   DATE_PART PABRE CADENA COMA INTERVAL CADENA PCIERRA '
-
-def p_CondicionCurrentDate(t):
-    'CONDICION  :   CURRENT_DATE '
-
-def p_CondicionCurrentTime(t):
-    'CONDICION  :   CURRENT_TIME '
-
-def p_CondicionTimeStamp(t):
-    'CONDICION  :   TIMESTAMP CADENA '
-
-def p_CondicionBetween(t):
-    'CONDICION  :   CONDICION BETWEEN CONDICION '
-
-def p_CondicionNotBetween(t):
-    'CONDICION  :   CONDICION NOT BETWEEN CONDICION %prec NOTB'
-
-def p_CondicionBetweenSimetric(t):
-    'CONDICION  :   CONDICION BETWEEN SIMMETRIC CONDICION '
-
-def p_CondicionBetweenNotSimetric(t):
-    'CONDICION  :   CONDICION NOT BETWEEN SIMMETRIC CONDICION  %prec NOTB'
-
-def p_CondicionIsDistinct(t):
-    'CONDICION  :   CONDICION IS DISTINCT FROM CONDICION '
-
-def p_CondicionIsNotDistinct(t):
-    'CONDICION  :   CONDICION IS NOT DISTINCT FROM CONDICION '
-
-def p_CondicionNull(t):
-    'CONDICION  :   NULL '
-
-def p_CondicionUnknown(t):
-    'CONDICION  :   UNKNOWN '
-
-def p_CondicionSubConsulta(t):
-    'CONDICION  :   PABRE SUBCONSULTA PCIERRA '
-
-def p_CondicionFunciones(t):
-    'CONDICION  :   FUNCION PABRE ID PCIERRA'
-
-def p_CondicionFunciones1(t):
-    'CONDICION  :   FUNCION PABRE ID PUNTO ID PCIERRA'
-
-def p_CondicionNow(t):
-    'CONDICION  :   NOW PABRE PCIERRA '
-
-def p_FuncionesSistemaAlias(t):
-    'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
-
-def p_FuncionesSistema(t):
-    'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA   '
-
-def p_FuncionesSistemaString(t):
-    'FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA ALIAS   '
-
-def p_FuncionesSistemaString1(t):
-    'FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA   '
-
-def p_FuncionesSistemaTrimA(t):
-    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA ALIAS   '
-
-def p_FuncionesSistemaTrim(t):
-    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA   '
-
-def p_FuncionesSistemaTrimA1(t):
-    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA ALIAS   '
-
-def p_FuncionesSistemaTrim1(t):
-    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA   '
-
-def p_Id_FuncionSubstring(t):
-    'ID_FUNCION_S  :   SUBSTRING   '
-
-def p_Id_FuncionLength(t):
-    'ID_FUNCION_S  :   LENGTH   '
-
-def p_Id_FuncionSubstr(t):
-    'ID_FUNCION_S  :   SUBSTR   '
-
-def p_LBOTHLeading(t):
-    'LBOTH  :   LEADING   '
-
-def p_LBOTHTrailing(t):
-    'LBOTH  :   TRAILING   '
-
-def p_LBOTHBoth(t):
-    'LBOTH  :   BOTH   '
-
-def p_LCondicionFuncion_Condicion(t):
-    'LCONDICION_FUNCION_S  :   CONDICION   '
-
-def p_LCondicionFuncion_S(t):
-    'LCONDICION_FUNCION_S  :   CONDICION COMA NUMERO COMA NUMERO   '
-
-def p_IdFuncionAbs(t):
-    'ID_FUNCION  :   ABS  '
-
-def p_IdFuncionCBRT(t):
-    'ID_FUNCION  :   CBRT  '
-
-def p_IdFuncionCeil(t):
-    'ID_FUNCION  :   CEIL  '
-
-def p_IdFuncionCeiling(t):
-    'ID_FUNCION  :   CEILING  '
-
-def p_LCondicionFuncion1(t):
-    'LCONDICION_FUNCION  :   CONDICION  '
-
-def p_LCondicionFuncion(t):
-    'LCONDICION_FUNCION  :   LCONDICION_FUNCION COMA CONDICION  '
-
-def p_DateTimeYear(t):
-    'DATETIME  :   YEAR '
-
-def p_DateTimeHour(t):
-    'DATETIME  :   HOUR '
-
-def p_DateTimeMinute(t):
-    'DATETIME  :   MINUTE '
-
-def p_DateTimeSecond(t):
-    'DATETIME  :   SECOND '
-
-def p_DateTimeMonth(t):
-    'DATETIME  :   MONTH '
-    
-def p_DateTimeDay(t):
-    'DATETIME  :   DAY '
-
-def p_FuncionesWhereExist(t):
-    'FUNCIONES_WHERE  :   EXISTS PABRE SUBCONSULTA PCIERRA   '
-
-def p_FuncionesWhereIn(t):
-    'FUNCIONES_WHERE  :   CONDICION IN PABRE SUBCONSULTA PCIERRA   '
-
-def p_FuncionesWhereNotIn(t):
-    'FUNCIONES_WHERE  :   CONDICION NOT IN PABRE SUBCONSULTA PCIERRA   '
-
-def p_FuncionesWhereAny(t):
-    'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW ANY PABRE SUBCONSULTA PCIERRA   '
-
-def p_FuncionesWhereAll(t):
-    'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW ALL PABRE SUBCONSULTA PCIERRA   '
-
-def p_FuncionesWhereSome(t):
-    'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW SOME PABRE SUBCONSULTA PCIERRA   '
-
-def p_FuncionesWhereLike(t):
-    'FUNCIONES_WHERE  :   CONDICION LIKE CADENA   '
-
-def p_FuncionesWhereNotLike(t):
-    'FUNCIONES_WHERE  :   CONDICION NOT LIKE CADENA   '
-
-def p_OperatorFwMenor(t):
-    'OPERATOR_FW  :   MENOR   '
-
-def p_OperatorFwMayor(t):
-    'OPERATOR_FW  :   MAYOR   '
-
-def p_OperatorFwMenorIgual(t):
-    'OPERATOR_FW  :   MENORIGUAL   '
-
-def p_OperatorFwMayorIgual(t):
-    'OPERATOR_FW  :   MAYORIGUAL   '
-
-def p_OperatorFwIgual(t):
-    'OPERATOR_FW  :   IGUAL   '
-
-def p_OperatorFwDif(t):
-    'OPERATOR_FW  :   DIF   '
-
-def p_OperatorFwDif1(t):
-    'OPERATOR_FW  :   DIF1   '
-
-def p_PTimestamC(t):
-    'PTIMESTAMP  :   TIMESTAMP CADENA '
-
-def p_PTimestamId(t):
-    'PTIMESTAMP  :   TIMESTAMP ID '
-
-def p_PTimestamIdPId(t):
-    'PTIMESTAMP  :   TIMESTAMP ID PUNTO ID '
-
-def p_PTimestamCadena(t):
-    'PTIMESTAMP  :   CADENA '
-
-def p_PTimestamId1(t):
-    'PTIMESTAMP  :   ID '
-
-def p_PTimestamIdP(t):
-    'PTIMESTAMP  :   ID PUNTO ID '
-
-def p_empty(t):
-    'EMPTY :'
-
-def p_error(t):
-    global counter_syntactic_error
-    err = open("reports/error_syntactic.txt", "a+")
-    txt = '<tr><td>' + str(counter_syntactic_error) + '</td>'
-    txt += '<td>' + str(t.value) + '</td>'
-    txt += '<td>' + 'Texto ingresado no reconocido.' + '</td>'
-    txt += '<td>' + str(t.lexer.lineno) + '</td>'
-    txt += '<td>' + str(get_column(t.lexer.lexdata, t)) + '</td><tr>\n'
-    err.write(txt)
-    err.close()
-    counter_syntactic_error += 1
-    if not t:
-        return
-    while True:
-        entry = parser.token()
-        if not entry or entry.type == 'RBRACE':
-            break
-    parser.restart()
-
-
-# START PARSING THE INPUT TEXT
-parser = yacc.yacc()
-
-
-def parse(p_input):
-    global counter_lexical_error, counter_syntactic_error
-    counter_lexical_error = 1
-    counter_syntactic_error = 1
-    return parser.parse(p_input)
 

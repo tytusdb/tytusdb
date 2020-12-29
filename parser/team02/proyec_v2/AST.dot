@@ -1,0 +1,15 @@
+
+        digraph G{
+        edge [dir=forward]
+        node [shape=plaintext]
+
+        0 [label="Raiz"]
+        
+         1
+                [label="tipo:Insercion Tabla: Houseof "]  2         
+           [label="Primitivo"]3   [label="Tipo:TIPO.VALOR "]  4
+         [label="Valor:1 "]  2-> 3 [label=""]  2-> 4 [label=""]  1 -> 2 [label=""]  5         
+           [label="Primitivo"]6   [label="Tipo:TIPO.VALOR "]  7
+         [label="Valor:89 "]  5-> 6 [label=""]  5-> 7 [label=""]  1 -> 5 [label=""]  8         
+           [label="Primitivo"]9   [label="Tipo:TIPO.VALOR "]  10
+         [label="Valor:Hello  "]  8-> 9 [label=""]  8-> 10 [label=""]  1 -> 8 [label=""] 0->1 [label=""]  }

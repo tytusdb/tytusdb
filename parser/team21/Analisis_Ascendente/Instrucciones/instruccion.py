@@ -1,3 +1,4 @@
+import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 class Instruccion:
     'clase abstracta'
 
@@ -44,6 +45,16 @@ class Show(Instruccion):
         self.fv = fv
         self.fila = fila
         self.columna = columna
+
+    def ejecutar(shown, ts,consola,exceptions):
+
+        consola.append("----------------SHOW DATABASE----------------")
+        i = 1
+        for data in ts.simbolos:
+            if ts.simbolos.get(data).categoria == TS.TIPO_DATO.BASEDEDATOS:
+                consola.append(f"{i}. {data}")
+                i = i +1
+        consola.append("--------------END SHOW DATABASE--------------")
 
 
 #UPDATE
@@ -92,10 +103,3 @@ class ColCase(Instruccion):
         self.fila = fila
         self.columna = columna
 
-#TYPE
-class CreateType(Instruccion):
-    def __init__(self, id, lista,fila,columna):
-        self.id = id
-        self.lista = lista
-        self.fila = fila
-        self.columna = columna

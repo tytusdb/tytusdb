@@ -1,13 +1,8 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from bstring_functions import length
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.bstring_functions import length
 
-class Lenght(Function):
+class Length(Function):
     def __init__(self, input, row, column):
         Function.__init__(self,row,column)
         self.input = input
@@ -28,4 +23,4 @@ class Lenght(Function):
             value = self.input.execute(environment)
             if value['typ'] != Type.STRING:
                 return {'Error':"El valor " + value['value'] + " no es String", 'linea':self.row,'columna':self.column }
-            return [{'value':length(value['value']), 'typ': Type.INT}]
+            return {'value':length(value['value']), 'typ': Type.INT}

@@ -21,7 +21,9 @@ class tipo_simbolo(Enum):
     TIME = 17,
     INTERVAL = 18,
     NUMERIC = 19,
-    DB_ACTUAL = 20
+    DB_ACTUAL = 20,
+    BOOLEAN = 21,
+    DATE = 22
 
 class t_constraint(Enum):
     NOT_NULL    = 1,
@@ -32,10 +34,10 @@ class t_constraint(Enum):
     PRIMARY     = 6,
     FOREIGN     = 7
 
-class Simbolo(): 
+class Simbolo():
 
-#los tipos de los simbolos ayudan a idetificar que tipo de simbolo es
-#1-base de datos , 2-tablas , 3-columnas , 4-pk , 5-fk , 6-check , 7-constraint , 8-enum de types
+    #los tipos de los simbolos ayudan a idetificar que tipo de simbolo es
+    #1-base de datos , 2-tablas , 3-columnas , 4-pk , 5-fk , 6-check , 7-constraint , 8-enum de types
 
     def __init__(self,id, tipo, valor, base,longitud,pk,fk,referencia): 
         self.id = id
@@ -99,7 +101,7 @@ class tabla_simbolos():
             #validar que no exista una columna con el mismo nombre
             for col in tabla.valor:
                 if col.id == columna.id:
-                    msj_error = 'La columna -'+columna+' ya existe en la tabla -'+tabla+'-.'
+                    msj_error = 'La columna -'+columna.id+' ya existe en la tabla -'+tabla.id+'-.'
                     error = E.Errores('EROOR', msj_error)
                     return error
                     
@@ -122,7 +124,7 @@ class tabla_simbolos():
             if simbolo.id == id:
                 return simbolo
         #no encuentra la base, retorna error
-        msj_error = 'la base de datos -'+id+'- no existe.'
+        msj_error = 'la base de datos -'+ str(id) + '- no existe.'
         error = E.Errores('ERROR', msj_error)
         return error
 
@@ -199,7 +201,7 @@ class tabla_simbolos():
         self.lis_simbolos.remove(database)
         #eliminar todas las tablas que perteneces a esa base de datos
         for Sim in self.lis_simbolos:
-            print('simbolo ->  ' +Sim.id)
+            #print('simbolo ->  ' +Sim.id)
             if Sim.base == db :
                 self.lis_simbolos.remove(Sim)
 
@@ -213,6 +215,71 @@ class tabla_simbolos():
 
         return True
 
+    def drop_table(self,db,id_tabla):
+        obtener_tabla = self.get_table(db,id_tabla)
+        #verificar si encontro la tabla
+        if (isinstance(obtener_tabla,E.Errores)):
+            #el error viene en obrener tabla
+            return obtener_tabla
+
+        #si no se elimina de la ts
+        self.lis_simbolos.remove(obtener_tabla)
+        return True
+
+    def drop_colum(self,db,table,id_columna):
+        obtener_tabla = self.get_table(db,table)
+        #verificar si encontro la tabla
+        if (isinstance(obtener_tabla,E.Errores)):
+            #el error viene en obrener tabla
+            return obtener_tabla
+
+        #buscar columna 
+        for colum in obtener_tabla.valor :
+            if colum.id == id_columna :
+                obtener_tabla.valor.remove(colum)
+                return True
+
+        #si llega aqui no se encontro la columna 
+        msj_error = 'La columna -'+id_columna+' no existe en la tabla -',table,'-.'
+        error = E.Errores('EROOR', msj_error)
+        return error
+
+    def drop_const(self,db,table,id_constraint):
+        obtener_tabla = self.get_table(db,table)
+        if(isinstance(obtener_tabla,E.Errores)):
+            #viene el errore en obtener_table
+            return obtener_tabla
+        #buscar el contraint en todas las tablas de la columna
+        for col in obtener_tabla.valor:
+            for const in col.valor:
+                if(const.id == id_constraint):
+                    col.valor.remove(const)
+                    return True
+        #no encontro el constraint 
+        msj_error = 'el constrint -'+id_constraint+' no existe en la tabla -',table,'-.'
+        error = E.Errores('EROOR', msj_error)
+        return error
+
+    def get_column_name(self, db,table):
+        tabla = self.get_table(db,table)
+        if(isinstance(tabla,E.Errores)):
+            #no encontro la tabla 
+            return tabla #la variable tabla ya trae el error del metodo al que llamo
+
+        #si encuentra la tabla, recorre las columnas y las concatena a una lista
+        list_columnas = []
+
+        for columna in tabla.valor:
+            list_columnas.append(columna.id)
+
+        return list_columnas
+
+    def get_pos_column(self, table, column):
+        try:
+            return table.valor.index(column)
+        except:
+            return -1
+ 
     def graficar(self):
         cont = 0
         

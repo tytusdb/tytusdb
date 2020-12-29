@@ -7,4 +7,4 @@ class Error():
         self.column = column
 
     def toString(self):
-        return "Error " + self.type + ": " + self.detail + " en Fila " + str(self.row) + " , Columna " + str(self.column)
+        return str(self.type) + "Error : " + self.detail + ". In row  " + str(self.row) + ", column " + str(self.column)
