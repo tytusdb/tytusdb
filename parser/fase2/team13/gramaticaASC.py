@@ -212,20 +212,37 @@ reservadas = {
     'current_date': 'current_date',
     'current_time': 'current_time',
     'extract': 'tExtract',
-    'in': 'in'
+    'in': 'in',
 
     # nuevos -10
-    , 'asc': 'asc',
+    'asc': 'asc',
     'desc': 'desc',
     'nulls': 'nulls',
     'first': 'first',
     'last': 'last',
     'order': 'order',
-    'use': 'tuse'
+    'use': 'tuse',
 
     # otros
-    , 'unknown': 'unknown',
-    'bytea': 'bytea'
+    'unknown': 'unknown',
+    'bytea': 'bytea',
+    # nuevos
+    'return':  'treturn',
+    'returns': 'returns',
+    'declare': 'declare',
+    'begin': 'begin',
+    'function': 'function',
+    'language': 'language',
+    'for': 'tfor',
+    'alias': 'talias',
+    'loop': 'loop',
+    'while': 'twhile',
+    'do': 'do',
+    'elsif':'elsif',
+    'continue':'tcontinue',
+    'exit':'texit',
+    'raise':'raise',
+    'notice':'notice'
 
 }
 
@@ -273,8 +290,11 @@ tokens = [
              'fecha',
              'hora',
              'fecha_hora',
-             'intervaloc'
-
+             'intervaloc',
+             'dobledolar',
+             'val',
+             'asig'
+              
          ] + list(reservadas.values())
 
 # DEFINICIÓN DE TOKENS
@@ -311,6 +331,9 @@ t_numeral = r'\?'
 t_virgulilla = r'~'
 t_mayormayor = r'>>'
 t_menormenor = r'<<'
+t_dobledolar = r'\$\$'
+t_asig = r':='
+
 
 
 # DEFINICIÓN DE UN NÚMERO DECIMAL
@@ -375,6 +398,11 @@ def t_cadena(t):
     t.value = t.value[1:-1]
     return t
 
+# DEFINICIÓN DE UN ID
+def t_val(t):
+    r'\$\d+' 
+    t.value = t.value[1:-1]
+    return t
 
 
 # DEFINICIÓN DE UN ID
@@ -382,6 +410,7 @@ def t_id(t):
     r'[a-zA-Z]([a-zA-Z]|[0-9]|_)*'
     t.type = reservadas.get(t.value.lower(), 'id')
     return t
+
 
 
 # Comentario de múltiples líneas /* .. */
@@ -490,8 +519,176 @@ def p_sentencia(t):
                  | INSERT
                  | QUERIES ptComa
                  | USEDB
+                 | CREATE_FUNCION 
     '''
     t[0] = t[1]
+
+
+
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<< Edi Yovani Tomas  <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+def p_CrearFunciones(t):
+    ''' CREATE_FUNCION :  create function id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa
+                       |  create function id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
+                       |  create or replace function id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
+                       |  create or replace function id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
+     
+    '''
+      
+def p_BLOQUE(t):
+    ''' BLOQUE  : DECLARE STATEMENT 
+                | DECLARE
+                | STATEMENT 
+    '''
+       
+def p_DECLARE(t):
+    ''' DECLARE : declare BODYDECLARE
+    '''
+
+
+def p_BODYDECLARE(t):
+
+    ''' BODYDECLARE : BODYDECLARE DECLARATION
+                    | DECLARATION
+    '''
+
+def p_DECLARATION(t):
+    ''' DECLARATION :  id TIPO ptComa
+                    |  id TIPO asig E ptComa
+                    |  id talias tfor E ptComa      
+    '''
+
+
+def p_STATEMENT(t):
+    ''' STATEMENT   : begin L_BLOCK end ptComa    
+    '''
+
+
+def p_L_BLOCK(t):
+    ''' L_BLOCK : L_BLOCK BLOCK 
+                | BLOCK         
+    '''
+
+def p_BLOCK(t):
+    ''' BLOCK :   sentencias 
+                | ASIGNACION
+                | RETORNO
+                | CONTINUE
+                | EXIT
+                | SENTENCIAS_CONTROL
+                | DECLARACION_RAICENOTE
+                | STATEMENT          
+    '''
+
+
+def p_ASIGNACION(t):
+    '''   ASIGNACION : id asig E ptComa         
+    '''
+
+
+def p_LISTA_PARAMETROS(t):
+    '''   L_PARAMETROS :   L_PARAMETROS coma PARAMETROS 
+                       |   PARAMETROS      
+    '''
+
+def p_PARAMETROS(t):
+    '''   PARAMETROS : id TIPO
+                     | TIPO      
+    '''
+
+def p_RETORNO(t):
+    '''   RETORNO : treturn E ptComa      
+    '''
+
+def p_CONTINUE(t):
+    ''' CONTINUE : tcontinue EXPR_WHERE ptComa      
+    '''
+
+def p_EXIT(t):
+    '''   EXIT : texit EXPR_WHERE ptComa      
+    '''
+
+
+def p_SENTENCIAS_CONTROL(t):
+    '''   SENTENCIAS_CONTROL : FOR
+                             | IF
+                             | WHILE
+                             | LOOP
+                             | SEARCH_CASE
+    '''
+#----------------FOR EN DUDA --------------------------------------  
+#    for item in    (SELECT * FROM Usuario) no se donde poner esta parte solo puse E Y va count     
+
+
+
+def p_FOR(t):
+    '''    FOR : tfor  id  in  Condiciones loop  L_BLOCK  end loop ptComa
+    '''
+#----------------WHILE--------------------------------------  
+
+def p_WHILE(t):
+    '''    WHILE : twhile Condiciones loop  L_BLOCK  end loop ptComa
+    '''
+
+#----------------LOOP--------------------------------------  
+
+def p_LOOP(t):
+    '''    LOOP : loop  L_BLOCK  end loop ptComa
+    '''
+    
+
+#----------------IF--------------------------------------  
+def p_IF(t):
+    '''    IF : if  Condiciones then  L_BLOCK  end if ptComa
+              | if  Condiciones then  L_BLOCK  ELSE
+              | if  Condiciones then  L_BLOCK  ELSEIF  ELSE     
+    '''
+
+def p_ELSE(t):
+    '''   ELSE : else L_BLOCK end if ptComa
+    '''
+
+def p_ELSEIF(t):
+    '''   ELSEIF : ELSEIF SINOSI
+                 | SINOSI
+    '''
+
+def p_SINOSI(t):
+    '''   SINOSI : elsif Condiciones then L_BLOCK  
+    '''
+    
+
+def p_SEARCH_CASE(t):
+    '''  SEARCH_CASE : case Condiciones L_CASE end case ptComa
+                     | case Condiciones L_CASE SINO end case ptComa 
+                     | case L_CASE SINO end case ptComa
+                     | case L_CASE end case ptComa
+    '''
+
+def p_CUERPOCASE(t):
+    '''   L_CASE :  L_CASE CASE   
+                 | CASE
+    '''
+
+def p_CASE(t):
+    '''   CASE : where Condiciones then L_BLOCK   
+    '''
+
+def p_SINO(t):
+    '''   SINO : else L_BLOCK   
+    '''
+
+
+def p_Raice_Note(t):
+    ' DECLARACION_RAICENOTE : raise notice LISTA_EXP ptComa'
+
+
+
+
+
+
 
 
 ''' @@@@@@@ AGREGUE USEDB'''
@@ -1216,6 +1413,8 @@ def p_nulo(p):
     '''E : null '''
     p[0]=SExpresion(None,Expresion.NULL)
 
+def p_val(p):
+    '''E : val '''
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
