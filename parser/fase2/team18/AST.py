@@ -2839,6 +2839,7 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
 #--Select
 
 def ejecutar_select(instr,ts):
+    tablaresult = PrettyTable()
     agregarMensjae('normal','Select','')
     for val in instr.funcion_alias:
         if(isinstance (val,Funcion_Alias)):
@@ -2847,19 +2848,40 @@ def ejecutar_select(instr,ts):
             print("SALIDA",result)
             if isinstance (val.alias,Operando_ID):
                 alias = str(val.alias.id)
+                tablaresult.field_names = [ str(alias) ]
+                CD3.PSelectFunciones(str(alias),result)
             elif isinstance (val.alias,Operando_Cadena):
                 alias = str(val.alias.valor)
-            print("CABECERA",alias,"RESULTADO",result)
-            print(val.nombre)
-
-            tablaresult = PrettyTable()
-            #tablaresult.title = 'Resultado'
-            if (alias != None):
                 tablaresult.field_names = [ str(alias) ]
-
-            elif isinstance (val, Operacion_Math_Unaria):
-                tablaresult.field_names = [ str(val.nombre.operador) ]
-
+                CD3.PSelectFunciones(str(alias),result)
+            else: 
+                print("No tiene alias")
+                if isinstance (val.nombre, Operacion_Math_Unaria):
+                    tablaresult.field_names = [ str(val.nombre.operador) ]
+                    CD3.PSelectFunciones(str(val.nombre.operador),result)
+                elif isinstance (val.nombre, Operacion_Math_Binaria):
+                    tablaresult.field_names = [ str(val.nombre.operador) ]
+                    CD3.PSelectFunciones(str(val.nombre.operador),result)
+                elif isinstance (val.nombre, Operacion_Definida):
+                    tablaresult.field_names = [ str(val.nombre.operador) ]
+                    CD3.PSelectFunciones(str(val.nombre.operador),result)
+                elif isinstance (val.nombre, Operacion_Strings):
+                    tablaresult.field_names = [ str(val.nombre.operador) ]
+                    CD3.PSelectFunciones(str(val.nombre.operador),result)
+                elif isinstance (val.nombre, Operacion_String_Binaria):
+                    tablaresult.field_names = [ str(val.nombre.operador) ]
+                    CD3.PSelectFunciones(str(val.nombre.operador),result)
+                elif isinstance (val.nombre, Operacion_String_Compuesta):
+                    tablaresult.field_names = [ str(val.nombre.operador) ]
+                    CD3.PSelectFunciones(str(val.nombre.operador),result)
+                elif isinstance (val.nombre, Operacion_Cubos):
+                    tablaresult.field_names = [ str(val.nombre.operador) ]
+                    CD3.PSelectFunciones(str(val.nombre.operador),result)
+                elif isinstance (val.nombre, Operacion_Patron):
+                    tablaresult.field_names = [ str(val.nombre.operador) ]
+                    CD3.PSelectFunciones(str(val.nombre.operador),result)
+            
+            
             tablaresult.add_row([ str(result) ])
             agregarMensjae('table',tablaresult,'')
 

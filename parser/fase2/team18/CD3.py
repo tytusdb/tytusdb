@@ -35,6 +35,12 @@ def PCreateDatabase(nombreBase,result):
 def PDropDatabase(nombreBase):
     agregarInstr(nombreBase,"CD3.EDropDatabase()")
 
+
+def PSelectFunciones(alias,resultado):
+    agregarInstr("",'print("Alias:  '+ alias + '  Resultado: "+ str('+ str(resultado) +'))')
+    
+    
+    
 def PUseDatabase(nombreBase):
     txt="\t#usar base\n"
     txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
@@ -186,6 +192,14 @@ def EAddPK():
             EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[2])
             print("\tllave primaria:",crear_tabla[2])
         listaMemoria.pop(0)
+        if(len(crear_tabla[3])>0):
+            EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[3])
+            print("\tllave primaria:",crear_tabla[3])
+            listaMemoria.pop(0)
+
+def ESelectFuncion():
+    print("Select funcion")
+        
 
 def EInsert():
     cargarMemoria()
