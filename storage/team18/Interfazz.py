@@ -13,7 +13,7 @@ import os
 
 def show_data_bases():
     data_bases = Storage.showDatabases()
-    database_tree = Storage.serializable.Read('./Data/', 'Databases')
+    database_tree = Storage.serializable.Read('./Data/BPlusMode/', 'Databases')
     database_tree.graph("Databases")
     tree_window = Toplevel(main_window)
     main_window.iconify()
@@ -34,7 +34,7 @@ def show_data_bases():
     canvas_tree.bind('<Configure>', lambda e: canvas_tree.configure(scrollregion=canvas_tree.bbox('all')))
     frame_tree = Frame(canvas_tree)
     canvas_tree.create_window((0, 0), width=10000, height=5000, window=frame_tree, anchor='nw')
-    canvas_tree.image = PhotoImage(file='./Data/DataBases.png')
+    canvas_tree.image = PhotoImage(file='./Data/BPlusMode/DataBases.png')
     #Label(frame_tree, width=2000, height=200).place(x=0, y=0)
     Label(frame_tree, image=canvas_tree.image).place(x=50, y=50)
 
@@ -61,7 +61,7 @@ def show_data_bases():
 
 def show_tables(parent_window, database):
     tables = Storage.showTables(database)
-    db = Storage.serializable.Read(f"./Data/{database}/", database)
+    db = Storage.serializable.Read(f"./Data/BPlusMode/{database}/", database)
     db.graph(database)
     parent_window.iconify()
     table_window = Toplevel(parent_window)
@@ -83,7 +83,7 @@ def show_tables(parent_window, database):
     canvas_tree.bind('<Configure>', lambda e: canvas_tree.configure(scrollregion=canvas_tree.bbox('all')))
     frame_tree = Frame(canvas_tree)
     canvas_tree.create_window((0, 0), width=10000, height=5000, window=frame_tree, anchor='nw')
-    canvas_tree.image = PhotoImage(file=f'./Data/{database}/{database}.png')
+    canvas_tree.image = PhotoImage(file=f'./Data/BPlusMode/{database}/{database}.png')
     Label(frame_tree, image=canvas_tree.image).place(x=150, y=50)
     canvas_buttons = Canvas(table_window, width=120, height=470)
     canvas_buttons.place(x=25, y=75)
@@ -134,7 +134,7 @@ def extract_table(database, table, parent_window):
     canvas_tree.bind('<Configure>', lambda e: canvas_tree.configure(scrollregion=canvas_tree.bbox('all')))
     frame_tree = Frame(canvas_tree)
     canvas_tree.create_window((0, 0), width=10000, height=5000, window=frame_tree, anchor='nw')
-    canvas_tree.image = PhotoImage(file=f'./Data/{database}/{table}/{table}.png')
+    canvas_tree.image = PhotoImage(file=f'./Data/BPlusMode/{database}/{table}/{table}.png')
     Label(frame_tree, image=canvas_tree.image).place(x=50, y=50)
 
     canvas_buttons = Canvas(table_window, width=120, height=433)
@@ -178,14 +178,14 @@ def extract_table(database, table, parent_window):
 def getColumn(database, table):
     Storage.checkData()
     # Get the databases tree
-    dataBaseTree = Storage.serializable.Read('./Data/', "Databases")
+    dataBaseTree = Storage.serializable.Read('./Data/BPlusMode/', "Databases")
     # Get the dbNode
     databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
     # If DB exist
     if databaseNode:
-        tablesTree = Storage.serializable.Read(f"./Data/{database}/", database)
+        tablesTree = Storage.serializable.Read(f"./Data/BPlusMode/{database}/", database)
         if tablesTree.search(tablesTree.getRoot(), table):
-            table_aux = Storage.serializable.Read(f'./Data/{database}/{table}/', table)
+            table_aux = Storage.serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
             if len(table_aux.PKey):
                 pk = table_aux.PKey
             else:
@@ -199,14 +199,14 @@ def getColumn(database, table):
 def get_keys(database, table):
     Storage.checkData()
     # Get the databases tree
-    dataBaseTree = Storage.serializable.Read('./Data/', "Databases")
+    dataBaseTree = Storage.serializable.Read('./Data/BPlusMode/', "Databases")
     # Get the dbNode
     databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
     # If DB exist
     if databaseNode:
-        tablesTree = Storage.serializable.Read(f"./Data/{database}/", database)
+        tablesTree = Storage.serializable.Read(f"./Data/BPlusMode/{database}/", database)
         if tablesTree.search(tablesTree.getRoot(), table):
-            table_aux = Storage.serializable.Read(f'./Data/{database}/{table}/', table)
+            table_aux = Storage.serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
             table_aux.graficar(database, table)
             return list(table_aux.lista())
         else:
@@ -215,7 +215,7 @@ def get_keys(database, table):
         return None
 
 def table_graph(tupla, key, table, database):
-    f = open(f'Data/{database}/{table}/tupla.dot', 'w', encoding='utf-8')
+    f = open(f'Data/BPlusMode/{database}/{table}/tupla.dot', 'w', encoding='utf-8')
     f.write("digraph dibujo{\n")
     f.write('graph [ordering="out"];')
     f.write('rankdir=TB;\n')
@@ -229,7 +229,7 @@ def table_graph(tupla, key, table, database):
     f.write('table [label = ' + tabla + ',  fontsize="30", shape = plaintext ];\n')
     f.write('}')
     f.close()
-    Storage.os.system(f'dot -Tpng Data/{database}/{table}/tupla.dot -o ./Data/{database}/{table}/tupla.png')
+    Storage.os.system(f'dot -Tpng Data/BPlusMode/{database}/{table}/tupla.dot -o ./Data/BPlusMode/{database}/{table}/tupla.png')
     info_window = Toplevel()
 
     info_window.title('Llave: ' + key)
@@ -244,7 +244,7 @@ def table_graph(tupla, key, table, database):
     tupla_canvas.bind('<Configure>', lambda e: tupla_canvas.configure(scrollregion=tupla_canvas.bbox('all')))
     photo_frame = Frame(tupla_canvas)
     tupla_canvas.create_window((0, 0), width=3000, height=300, window=photo_frame, anchor='nw')
-    tupla_canvas.image = PhotoImage(file=f'./Data/{database}/{table}/tupla.png')
+    tupla_canvas.image = PhotoImage(file=f'./Data/BPlusMode/{database}/{table}/tupla.png')
     Label(photo_frame,image=tupla_canvas.image).place(x=0,y=0)
 
 def close_table_window(window, parent):
