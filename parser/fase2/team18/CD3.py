@@ -26,6 +26,13 @@ def PCreateDatabase(nombreBase,result):
 def PDropDatabase(nombreBase):
     agregarInstr(nombreBase,"CD3.EDropDatabase()")
 
+
+def PSelectFunciones(alias,resultado):
+    agregarInstr("",'print("Alias:  '+ alias + '  Resultado: "+ str('+ str(resultado) +'))')
+    
+    
+    
+
 #escribir archivo
 def CrearArchivo():
     #crear salida
@@ -82,3 +89,5 @@ def EDropDatabase():
         listaMemoria.pop(0)
         
 
+def ESelectFuncion():
+    print("Select funcion")
