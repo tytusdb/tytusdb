@@ -388,6 +388,7 @@ def seleccion_db(instr,ts):
     elif nombreDB in result: # Encontrada
         msg='Base de datos seleccionada'
         agregarMensjae('exito',msg,'')
+        CD3.PUseDatabase(nombreDB)
         use_db(nombreDB)
     else: # No encontrada
         Errores_Semanticos.append("Error Semantico: 42602: La Base de datos  "+ str(nombreDB) +" no existe")
@@ -752,6 +753,8 @@ def crear_Tabla(instr,ts):
                     x=x+1
                 if(len(lis)>0):
                     EDD.alterAddPK(baseActiva,nombreT,lis)
+                    
+                CD3.PCreateTable(baseActiva,nombreT,contC,lis)
 
         else:
             msg='no existe la base de datos activa:'+baseActiva
@@ -791,6 +794,7 @@ def crear_Type(instr,ts):
                     agregarMensjae('exito',msg,'')
                     insertartabla(None,nombreT)
                     respuestavalores=EDD.insert(baseActiva,nombreT,lvalores)
+                    CD3.PCreateType(baseActiva,nombreT,cont,lvalores)
                     if respuestavalores==0:
                         msg='con valores: '+str(lvalores)
                         agregarMensjae('exito',msg,'')
@@ -1112,6 +1116,7 @@ def insertar_en_tabla(instr,ts):
         # 5 columnas fuera de límites
         result=EDD.insert(baseActiva,nombreT,ValInsert)
         if(result==0):
+            CD3.PInsert(baseActiva,nombreT,ValInsert)
             msg='valores insertados:'+str(ValInsert)
             agregarMensjae('exito',msg,'')
             #agregar mensaje Tabla simbolos

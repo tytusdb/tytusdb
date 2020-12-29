@@ -5,7 +5,7 @@ import json
 #variables
 listaSalida=[]
 listaMemoria=[]
-memoriTrue=0;
+memoriTrue=0
 
 #Funciones para generear codigo de 3 direcciones
 def agregarInstr(datoMemoria,instruccion):
@@ -32,6 +32,20 @@ def PSelectFunciones(alias,resultado):
     
     
     
+def PUseDatabase(nombreBase):
+    agregarInstr(nombreBase,"CD3.EUseDatabase()")
+
+def PCreateType(nombreBase,nombreTabla,cantidadcol,valores):
+    crear_type=[nombreBase,nombreTabla,cantidadcol,valores]
+    agregarInstr(crear_type,"CD3.ECreateType()")
+
+def PCreateTable(nombreBase,nombreTabla,cantidadcol,llaves):
+    crear_Tabla=[nombreBase,nombreTabla,cantidadcol,llaves]
+    agregarInstr(crear_Tabla,"CD3.ECreateTable()")
+
+def PInsert(nombreBase,nombreTabla,valores):
+    Data_insert=[nombreBase,nombreTabla,valores]
+    agregarInstr(Data_insert,"CD3.EInsert()")
 
 #escribir archivo
 def CrearArchivo():
@@ -56,6 +70,7 @@ def CrearArchivo():
     
     #reiniciar lista temp
     listaMemoria.clear()
+    listaSalida.clear()
     memoriTrue=0
 
 
@@ -87,7 +102,45 @@ def EDropDatabase():
         print("base de datos eliminada:",listaMemoria[0])
         EDD.dropDatabase(listaMemoria[0])
         listaMemoria.pop(0)
-        
+       
+def EUseDatabase():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("selecionada base de datos:",listaMemoria[0])
+        listaMemoria.pop(0)
+
+def ECreateType():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        crear_type=listaMemoria[0]
+        EDD.createTable(crear_type[0],crear_type[1],crear_type[2])
+        EDD.insert(crear_type[0],crear_type[1],crear_type[3]) 
+        print("creado type ",crear_type[1]," con valores ",crear_type[3])
+        listaMemoria.pop(0)
+
+def ECreateTable():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        crear_tabla=listaMemoria[0]
+        EDD.createTable(crear_tabla[0],crear_tabla[1],crear_tabla[2])
+        print("creando Tabla ",crear_tabla[1])
+        if(len(crear_tabla[3])>0):
+            EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[3])
+            print("\tllave primaria:",crear_tabla[3])
+            listaMemoria.pop(0)
 
 def ESelectFuncion():
     print("Select funcion")
+        
+
+def EInsert():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        Data_insert=listaMemoria[0]
+        EDD.insert(Data_insert[0],Data_insert[1],Data_insert[2]) 
+        print("Insert en tabla ",Data_insert[1]," \n\tvalores ",Data_insert[2])
+        listaMemoria.pop(0)
