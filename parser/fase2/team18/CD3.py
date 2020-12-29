@@ -6,8 +6,14 @@ import json
 listaSalida=[]
 listaMemoria=[]
 memoriTrue=0
+contT=-1;
 
 #Funciones para generear codigo de 3 direcciones
+def numT():
+    global contT
+    contT+=1
+    return contT
+
 def agregarInstr(datoMemoria,instruccion):
     #agregar a la lista de parametros
     global listaMemoria
@@ -21,21 +27,61 @@ def PCreateDatabase(nombreBase,result):
         'eliminar, luego crear'
         PDropDatabase(nombreBase)
     #crear
-    agregarInstr(nombreBase,"CD3.ECreateDatabase()")
+    txt="\t#Create DataBase\n"
+    txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
+    txt+="\tCD3.ECreateDatabase()\n"
+    agregarInstr(nombreBase,txt)
 
 def PDropDatabase(nombreBase):
     agregarInstr(nombreBase,"CD3.EDropDatabase()")
 
 def PUseDatabase(nombreBase):
-    agregarInstr(nombreBase,"CD3.EUseDatabase()")
+    txt="\t#usar base\n"
+    txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
+    txt+="\tCD3.EUseDatabase()\n"
+    agregarInstr(nombreBase,txt)
 
 def PCreateType(nombreBase,nombreTabla,cantidadcol,valores):
-    crear_type=[nombreBase,nombreTabla,cantidadcol,valores]
-    agregarInstr(crear_type,"CD3.ECreateType()")
+    '''
+    var=nombreTipo #cargar en memoria el nombre
+    t3=CD3.EcrearTipo()
+    if(t3) goto Error1:
+    insertD1:
+        var=[1,1,1,1,1] #cargar en memoria la lista
+        CD3.EInsert()
+    '''
+    txt="\t#Create Type\n"
+    txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
+    var="t"+str(numT())
+    txt+="\t"+var+"= CD3.ECreateTable()"+"\n"
+    txt+="\tif("+var+"):"+"\n"
+    txt+="\t\tgoto .Insertar"+str(contT)+"\n"
+    txt+="\t\tlabel.Insertar"+str(contT)+"\n"
+    var="t"+str(numT())
+    txt+="\t\t"+var+"="+str(valores)+""
+    
+    crearT=[nombreBase,nombreTabla,cantidadcol]
+    agregarInstr(crearT,txt)
+    txt="\t\t"+"CD3.EInsert()"+"\n"
+    inserT=[nombreBase,nombreTabla,valores]
+    agregarInstr(inserT,txt)
 
 def PCreateTable(nombreBase,nombreTabla,cantidadcol,llaves):
-    crear_Tabla=[nombreBase,nombreTabla,cantidadcol,llaves]
-    agregarInstr(crear_Tabla,"CD3.ECreateTable()")
+    txt="\t#Create Table\n"
+    txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
+    var="t"+str(numT())
+    txt+="\t"+var+"=CD3.ECreateTable()"+"\n"
+    txt+="\tif("+var+"):"+"\n"
+    txt+="\t\tgoto .insPK"+str(contT)+"\n"
+    txt+="\t\tlabel.insPK"+str(contT)+"\n"
+    var="t"+str(numT())
+    txt+="\t\t"+var+"="+str(llaves)+""
+
+    crearT=[nombreBase,nombreTabla,cantidadcol]
+    agregarInstr(crearT,txt)
+    txt="\t\t"+"CD3.EAddPK()"+"\n"
+    pkT=[nombreBase,nombreTabla,llaves]
+    agregarInstr(pkT,txt)
 
 def PInsert(nombreBase,nombreTabla,valores):
     Data_insert=[nombreBase,nombreTabla,valores]
@@ -50,12 +96,17 @@ def CrearArchivo():
     f.write("\n")
     f.write("import CD3  as CD3  #modulo codigo 3 direcciones")
     f.write("\n")
+    f.write("from goto import with_goto  #modulo goto")
     f.write("\n")
+    f.write("\n")
+    f.write("@with_goto  # Decorador necesario \ndef main():\n")
     f.write("#Codigo Resultante")
     f.write("\n")
     for x in listaSalida:
         f.write(x)
         f.write("\n")
+    
+    f.write("main()")
     f.close()
 
     #crear memoria
@@ -66,6 +117,7 @@ def CrearArchivo():
     listaMemoria.clear()
     listaSalida.clear()
     memoriTrue=0
+    contT=-1
 
 
 
@@ -121,10 +173,18 @@ def ECreateTable():
         crear_tabla=listaMemoria[0]
         EDD.createTable(crear_tabla[0],crear_tabla[1],crear_tabla[2])
         print("creando Tabla ",crear_tabla[1])
-        if(len(crear_tabla[3])>0):
-            EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[3])
-            print("\tllave primaria:",crear_tabla[3])
+        listaMemoria.pop(0)
+        return True
+    return False
 
+def EAddPK():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        crear_tabla=listaMemoria[0]
+        if(len(crear_tabla[2])>0):
+            EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[2])
+            print("\tllave primaria:",crear_tabla[2])
         listaMemoria.pop(0)
 
 def EInsert():
