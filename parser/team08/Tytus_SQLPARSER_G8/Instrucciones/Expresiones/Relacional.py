@@ -12,6 +12,7 @@ class Relacional(Instruccion):
         self.opDer = opDer
         self.operador = operador
 
+
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         # Si existe algún error en el operador izquierdo, retorno el error.
@@ -25,6 +26,7 @@ class Relacional(Instruccion):
             resultadoIzq = posicion
         else:
             resultadoIzq = self.opIzq.ejecutar(tabla, arbol)
+            print("RESULTADO:",resultadoIzq, type(resultadoIzq))
         if isinstance(resultadoIzq, Excepcion):
             return resultadoIzq
         # Si existe algún error en el operador derecho, retorno el error.
@@ -36,7 +38,11 @@ class Relacional(Instruccion):
             posicion = arbol.devolverOrdenDeColumna(nombreTabla.valor,nombreColumna)
             resultadoDer = posicion
         else:
-            resultadoDer = self.opDer.ejecutar(tabla, arbol)
+            resultadoDer=""
+            if self.opDer.tipo.tipo== Tipo_Dato.QUERY:
+                print("ES UN QUERY")
+            else:
+                resultadoDer = self.opDer.ejecutar(tabla, arbol)
         if isinstance(resultadoDer, Excepcion):
             return resultadoDer
         # Comprobamos el tipo de operador
@@ -383,8 +389,9 @@ class Relacional(Instruccion):
                 #aqui va un comparador para update como en update el igual es para asignacion
                 if(self.opIzq.tipo.tipo == Tipo_Dato.ID and (not self.opDer.tipo.tipo == Tipo_Dato.ID)):
                     # aqui va el procedimiento para devolver un id con su valor
-                    
-                    return Alias(resultadoIzq, resultadoDer)
+                    a = Alias(resultadoIzq, resultadoDer)
+                    a.tipo = self.opDer.tipo
+                    return a
                 else:
                     # este es el error por el momento
                     error = Excepcion('42883', "Semántico", "el operador no existe "+self.opIzq.tipo.toString()+" = "+self.opDer.tipo.toString(), self.linea, self.columna )
@@ -614,7 +621,157 @@ class Relacional(Instruccion):
                     arbol.excepciones.append(error)
                     arbol.consola.append(error.toString())
                     return error
+        elif self.operador == "IN":
+            if(arbol.getWhere()):
+                try:
+                    fila = []
+                    tabla = []
+                    tablaRes = []
+                    #devolver columna
+                    tabla = arbol.getTablaActual()
+                    #aqui vamos a dividir por columnas
+                    data = np.array((tabla))
+                    #recorrer columna y ver si es == la posicion
+                    print(data)
+                    print(resultadoIzq)
+                    nueva_Columna = data[:, resultadoIzq]
+                    if self.opDer.lista[0].tipo.tipo == Tipo_Dato.QUERY:
+                        resultadoDer= self.opDer.lista[0].ejecutar(tabla, arbol)
 
+                    if isinstance(resultadoDer, np.ndarray):
+                        for nfila in resultadoDer:
+                            #if(variableComp == nfila):
+                                #agregar a filas
+                                #print("fila",nfila)
+                                #fila.append(x)                
+                            for x in range(0, len(nueva_Columna)):
+                                variableNC = str(nueva_Columna[x])
+                                variableComp = None
+                                #print(type(variableNC))
+
+                                if (str.isdigit(variableNC)):
+                                    variableComp = int(variableNC)
+                                elif str.isdecimal(variableNC):
+                                    variableComp = float(variableNC)
+                                else:
+                                    variableComp = nueva_Columna[x]
+                                if(variableComp == nfila):
+                                    #agregar a filas
+                                    fila.append(x)
+                    elif isinstance(resultadoDer, list):
+                        for nfila in resultadoDer:               
+                            for x in range(0, len(nueva_Columna)):
+                                variableNC = str(nueva_Columna[x])
+                                variableComp = None
+                                if (str.isdigit(variableNC)):
+                                    variableComp = int(variableNC)
+                                elif str.isdecimal(variableNC):
+                                    variableComp = float(variableNC)
+                                else:
+                                    variableComp = nueva_Columna[x]
+                                if(variableComp == nfila):
+                                    fila.append(x)
+                    else:
+                        for x in range(0, len(nueva_Columna)):
+                            variableNC = str(nueva_Columna[x])
+                            variableComp = None
+                            if (str.isdigit(variableNC)):
+                                variableComp = int(variableNC)
+                            elif str.isdecimal(variableNC):
+                                variableComp = float(variableNC)
+                            else:
+                                variableComp = nueva_Columna[x]
+                            if(variableComp == resultadoDer):
+                                fila.append(x)
+                    
+                    #Recorrer la tabla Completa y devolver el numero de filas
+                    for x in range(0, len(fila)):
+                        fil = tabla[fila[x]]
+                        tablaRes.append(fil)
+                except:
+                    error = Excepcion('XX000',"Semántico","ERROR INTERNO.",self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    tablaRes=error
+
+                #agregar la tabla al arbol
+                #arbol.setTablaActual(tablaRes)                  
+                return tablaRes
+            else:
+                print("ENTRO A ESTE ELSE")
+        elif self.operador == "NOT IN":
+            if(arbol.getWhere()):
+                try:
+                    fila = []
+                    tabla = []
+                    tablaRes = []
+                    #devolver columna
+                    tabla = arbol.getTablaActual()
+                    #aqui vamos a dividir por columnas
+                    data = np.array((tabla))
+                    #recorrer columna y ver si es == la posicion
+                    print(data)
+                    print(resultadoIzq)
+                    nueva_Columna = data[:, resultadoIzq]
+                    if self.opDer.lista[0].tipo.tipo == Tipo_Dato.QUERY:
+                        resultadoDer= self.opDer.lista[0].ejecutar(tabla, arbol)
+
+                    if isinstance(resultadoDer, np.ndarray):             
+                            for x in range(0, len(nueva_Columna)):
+                                variableNC = str(nueva_Columna[x])
+                                variableComp = None
+                                #print(type(variableNC))
+
+                                if (str.isdigit(variableNC)):
+                                    variableComp = int(variableNC)
+                                elif str.isdecimal(variableNC):
+                                    variableComp = float(variableNC)
+                                else:
+                                    variableComp = nueva_Columna[x]
+                                if not (variableComp in resultadoDer):
+                                    fila.append(x)
+                                   
+                    elif isinstance(resultadoDer, list):             
+                            for x in range(0, len(nueva_Columna)):
+                                variableNC = str(nueva_Columna[x])
+                                variableComp = None
+                                if (str.isdigit(variableNC)):
+                                    variableComp = int(variableNC)
+                                elif str.isdecimal(variableNC):
+                                    variableComp = float(variableNC)
+                                else:
+                                    variableComp = nueva_Columna[x]
+                                if not (variableComp in resultadoDer):
+                                    fila.append(x)
+                    else:
+                        for x in range(0, len(nueva_Columna)):
+                            variableNC = str(nueva_Columna[x])
+                            variableComp = None
+                            if (str.isdigit(variableNC)):
+                                variableComp = int(variableNC)
+                            elif str.isdecimal(variableNC):
+                                variableComp = float(variableNC)
+                            else:
+                                variableComp = nueva_Columna[x]
+                            if (variableComp != resultadoDer):
+                                fila.append(x)
+                    
+                    #Recorrer la tabla Completa y devolver el numero de filas
+                    for x in range(0, len(fila)):
+                        fil = tabla[fila[x]]
+                        tablaRes.append(fil)
+                except:
+                    error = Excepcion('XX000',"Semántico","ERROR INTERNO.",self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    tablaRes=error
+
+                #agregar la tabla al arbol
+                #arbol.setTablaActual(tablaRes)                  
+                return tablaRes
+            else:
+                print("ENTRO A ESTE ELSE")
+                
         else:
             error = Excepcion('42804',"Semántico","Operador desconocido.",self.linea,self.columna)
             arbol.excepciones.append(error)

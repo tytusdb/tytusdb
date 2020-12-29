@@ -6,7 +6,6 @@ from tkinter.constants import HORIZONTAL
 from ply import *
 from lexico import *
 #tokens= lexico.tokens
-
 from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.FunctionAgregate import Avg, Count, Greatest, Least, Max, Min, Sum, Top
 from Instrucciones.FunctionMathematical import Abs, Cbrt, Ceil, Ceiling, Degrees, Div, Exp, Factorial, Floor, Gcd, Lcm, Ln, Log, Log10, MinScale, Mod, PI, Power, Radians, Random, Round, Scale, SetSeed, Sign, Sqrt, TrimScale, Trunc, WidthBucket
@@ -237,6 +236,17 @@ def p_instruccion_update(t):
     strGram2 = ""
     id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
     t[0] = UpdateTable.UpdateTable(id1, None, t[4], t[5], strGram ,t.lexer.lineno, t.lexer.lexpos)
+
+# update tabla set campo = valor , campo 2= valor;
+
+def p_instruccion_update2(t):
+    '''instruccion : UPDATE ID SET lcol PUNTO_COMA
+
+    '''
+    strGram = "<instruccion> ::= UPDATE ID SET <lcol> PUNTO_COMA"
+    strGram2 = ""
+    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] = UpdateTable.UpdateTable(id1, None, t[4], None, strGram ,t.lexer.lineno, t.lexer.lexpos)
 
 # DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
 def p_columunas_delete(t):
@@ -789,11 +799,17 @@ def p_operadores_between(t):
     #t[0] = Between(t[1], t[3], t[5], 'BETWEEN', t.lexer.lineno, t.lexer.lexpos) if t[2] == 'LIKE' else Between(t[1], t[4], t[5], 'NOT_BETWEEN', t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_in(t):
-    '''expre : expre IN lcol
-            | expre NOT IN lcol
+    '''expre : expre IN expre
+            | expre NOT IN expre
     '''
+    strGram = ""
+    if t[2] == "NOT":
+        strGram = "<expre> ::= <expre> NOT INT <expre>"
+        t[0] = Relacional.Relacional(t[1], t[4], "NOT IN", strGram, t.lexer.lineno, t.lexer.lexpos)
 
-    #t[0] = In(t[1], t[4], t.lexer.lineno, t.lexer.lexpos)
+    else: 
+        strGram = "<expre> ::= <expre> IN <expre>"
+        t[0] = Relacional.Relacional(t[1], t[3], "IN", strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_is(t):
     '''expre : expre IS NULL
@@ -926,7 +942,7 @@ def p_operadores_matematica(t):
         t[0] = Ln.Ln(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'LOG':
         strGram = "<expre> ::= LOG PARIZQ <expre> PARDER"
-        t[0] = Log.Log(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Log.Log(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'LOG10':
         strGram = "<expre> ::= LOG10 PARIZQ <expre> PARDER"
         t[0] = Log10.Log10(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
@@ -1614,6 +1630,7 @@ def p_error(p):
         if not tok or tok.type == 'PUNTO_COMA':
             if not tok:
                 print("FIN DEL ARCHIVO")
+                return
             else:
                 print("Se recupero con ;")
                 break
@@ -1631,6 +1648,7 @@ def find_column(input,token):
 
 parser = yacc.yacc()
 def ejecutar_analisis(texto):
+    
     #LIMPIAR VARIABLES
     columna=0
     lista_lexicos.clear()
