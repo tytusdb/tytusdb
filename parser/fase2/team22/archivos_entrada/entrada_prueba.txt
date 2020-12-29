@@ -1,0 +1,78 @@
+create database if not exists bd1;
+use bd1;
+
+CREATE TABLE table_name(
+   column1 int,
+   column2 int,
+   column3 int
+);
+
+CREATE TABLE kathy(
+   id int PRIMARY KEY,
+   precio int
+);
+
+
+CREATE TABLE mishel(
+   id int PRIMARY KEY,
+   precio int
+);
+
+
+show databases;
+
+insert into table_name 
+(column1, column2, column3)
+values(1,4,7);
+
+insert into table_name
+(column3, column2, column1)
+values(8,5,2);
+
+insert into table_name 
+(column1, column2, column3)
+values(3,6,9);
+
+insert into table_name 
+(column1, column2, column3)
+values(4,4,9);
+
+insert into kathy
+(id, precio)
+values(1,100);
+
+insert into kathy
+(id, precio)
+values(2,200);
+
+insert into kathy
+(id, precio)
+values(3,300);
+
+insert into kathy
+(id, precio)
+values(4,400);
+
+insert into kathy
+(id, precio)
+values(5,500);
+
+insert into mishel
+(id, precio)
+values(1,400);
+
+insert into mishel
+(id, precio)
+values(2,200);
+
+insert into mishel
+(id, precio)
+values(3,500);
+
+select *
+from mishel m, kathy k;
+
+SELECT *
+FROM table_name
+WHERE column2 = 4
+LIMIT 1;
