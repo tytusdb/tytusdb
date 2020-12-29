@@ -33,7 +33,6 @@ class Extract(Instruccion):
             year = date.year
             return year
 
-
 '''
 instruccion = Declare("hola mundo",None, 1,2)
 
