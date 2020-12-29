@@ -388,6 +388,7 @@ def seleccion_db(instr,ts):
     elif nombreDB in result: # Encontrada
         msg='Base de datos seleccionada'
         agregarMensjae('exito',msg,'')
+        CD3.PUseDatabase(nombreDB)
         use_db(nombreDB)
     else: # No encontrada
         Errores_Semanticos.append("Error Semantico: 42602: La Base de datos  "+ str(nombreDB) +" no existe")
@@ -791,6 +792,7 @@ def crear_Type(instr,ts):
                     agregarMensjae('exito',msg,'')
                     insertartabla(None,nombreT)
                     respuestavalores=EDD.insert(baseActiva,nombreT,lvalores)
+                    CD3.PCreateType(baseActiva,nombreT,cont,lvalores)
                     if respuestavalores==0:
                         msg='con valores: '+str(lvalores)
                         agregarMensjae('exito',msg,'')
