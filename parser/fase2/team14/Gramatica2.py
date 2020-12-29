@@ -1172,13 +1172,32 @@ def p_EXP2(t):
             | EXP is false %prec predicates
             | EXP is not false %prec predicates
             | EXP is unknown %prec predicates
-            | EXP is not unknown %prec predicates
-            | EXP as cadenaString %prec lsel
-            | EXP cadenaString %prec lsel
-            | EXP as id %prec lsel
-            | EXP id  %prec lsel
-            | EXP as cadena %prec lsel
-            | EXP cadena %prec lsel'''
+            | EXP is not unknown %prec predicates'''
+    if len(t)==5:
+        t[0]=Relacional(t[1],t[4],'<>')
+    elif len(t)==4:
+        t[0]=Relacional(t[1],t[3],'=')
+    elif len(t)==3:
+        if t[2].lower()=='isnull':
+            t[0] = Relacional(t[1], 'null', '=')
+        else:
+            t[0] = Relacional(t[1], 'null', '<>')
+
+
+
+
+def p_EXPalias(t):
+    '''EXP :  EXP as cadenaString %prec lsel
+               | EXP cadenaString %prec lsel
+               | EXP as id %prec lsel
+               | EXP id  %prec lsel
+               | EXP as cadena %prec lsel
+               | EXP cadena %prec lsel'''
+    if len(t)==3:
+        t[0]=Alias(t[1],t[2])
+    elif len(t)==4:
+        t[0] = Alias(t[1], t[3])
+
 
 
 def p_EXP1(t):
@@ -1206,11 +1225,19 @@ def p_EXPV(t):
 
 def p_EXPV1(t):
     'EXP : EXP like cadena  %prec predicates'
+    tipo = Tipo('varchar', t[3], -1, -1)
+    tipo.getTipo()
+    ter= Terminal(tipo, t[3])
 
+    t[0]=Relacional(t[1],ter,'like')
 
 def p_EXPV2(t):
     'EXP : EXP not like cadena  %prec predicates '
-
+    tipo = Tipo('varchar', t[4], -1, -1)
+    tipo.getTipo()
+    ter = Terminal(tipo, t[4])
+    rel= Relacional(t[1], ter, 'like')
+    t[0] =Unaria(rel,'not')
 
 def p_EXPJ(t):
     '''EXP : SELECT
