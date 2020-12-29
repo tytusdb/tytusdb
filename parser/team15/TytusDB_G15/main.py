@@ -7,49 +7,71 @@ from principal import *
 import ts as TS
 from expresiones import *
 from instrucciones import *
-from ast import *
+from report_ast import *
 from report_tc import *
+from report_ts import *
+from report_errores import *
 
 instrucciones_Global = []
 
 tc_global1 = []
+ts_global1 = []
+
+erroressss = ErrorHTML()
 
 root = Tk() 
 w, h = root.winfo_screenwidth(), root.winfo_screenheight()
 root.geometry("%dx%d+0+0" % (w, h))
 root.title("TytusDB - Query Tools") 
+root.state("zoomed")
 
 global selected
 selected = False
 
 # ACTIONS
 def analizar(txt):
-    global instrucciones_Global,tc_global1
-    instrucciones = g.parse(txt)
-    instrucciones_Global = instrucciones
-    ts_global = TS.TablaDeSimbolos()
-    tc_global = TC.TablaDeTipos()
-    tc_global1 = tc_global
-    salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
 
-    print("analizando...")
-    print(txt)
-    salida_table(2,salida)
+    global instrucciones_Global,tc_global1,ts_global1,listaErrores
+    instrucciones = g.parse(txt)
+    if  erroressss.getList()== []:
+        instrucciones_Global = instrucciones
+        ts_global = TS.TablaDeSimbolos()
+        tc_global = TC.TablaDeTipos()
+        tc_global1 = tc_global
+        ts_global1 = ts_global
+        salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
+
+        if type(salida) == list:
+            salida_table(1,salida)
+        else:
+            salida_table(2,salida)
+    else:
+        salida_table(2,"PARSER ERROR")
     #parse(txt)
 
 def analizar_select(e):
     global selected
     if my_text.selection_get():
-        global instrucciones_Global
+
+        global instrucciones_Global,tc_global1,ts_global1,listaErrores
         selected = my_text.selection_get()
-        print(selected)
+        #print(selected)
         instrucciones = g.parse(selected)
-        instrucciones_Global = instrucciones
-        ts_global = TS.TablaDeSimbolos()
-        tc_global = TC.TablaDeTipos()
-        tc_global1 = tc_global
-        salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
-        salida_table(2,salida)
+        
+        if erroressss.getList() == []:
+            instrucciones_Global = instrucciones
+            ts_global = TS.TablaDeSimbolos()
+            tc_global = TC.TablaDeTipos()
+            tc_global1 = tc_global
+            ts_global1 = ts_global
+            salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
+            if type(salida) == list:
+                salida_table(1,salida)
+            else:
+                salida_table(2,salida)
+        else:
+            salida_table(2,"PARSER ERROR")
+            
 
 def generarReporteAST():
     global instrucciones_Global
@@ -61,9 +83,13 @@ def generarReporteTC():
     typeC = TipeChecker()
     typeC.crearReporte(tc_global1)
 
-def graficar_TS():
-    ''' '''
-    #ts_graph()
+def generarReporteErrores():
+    erroressss.crearReporte()
+
+def generarReporteTS():
+    global ts_global1
+    RTablaS = RTablaDeSimbolos()
+    RTablaS.crearReporte(ts_global1)
 
 toolbar_frame = Frame(root)
 toolbar_frame.pack(fill = X)
@@ -97,16 +123,15 @@ file_menu = Menu(my_menu, tearoff = False)
 my_menu.add_cascade(label = "Archivo", menu = file_menu)
 file_menu.add_command(label = "Analizar", command = lambda: analizar(my_text.get("1.0",'end-1c')))
 file_menu.add_command(label = "Analizar Query" , command = lambda: analizar_select(False))
-file_menu.add_command(label = "Save")
 file_menu.add_separator()
 file_menu.add_command(label = "Exit", command = root.quit)
 
 reportes_menu = Menu(my_menu, tearoff = False)
 my_menu.add_cascade(label = "Reportes", menu = reportes_menu)
-reportes_menu.add_command(label = "Tabla de Simbolos", command = lambda: graficar_TS())
+reportes_menu.add_command(label = "Tabla de Simbolos", command = lambda: generarReporteTS())
 reportes_menu.add_command(label = "Tabla de Tipos", command = lambda: generarReporteTC())
 reportes_menu.add_command(label = "AST", command = lambda: generarReporteAST())
-reportes_menu.add_command(label = "Errores")
+reportes_menu.add_command(label = "Errores", command = lambda: generarReporteErrores())
 
 analizar_button = Button(toolbar_frame)
 photoCompila = PhotoImage(file="iconos/all.png")
@@ -133,30 +158,29 @@ def salida_table(salida,textoSalida):
             widget.destroy()
 
         global random_numero
-        random_numero = random.randint(5,10)
+        random_numero = len(textoSalida)
 
         prueba_columna = []
 
         i = 1
-        while i < random_numero:
+        while i <= int(len(textoSalida[0])+1):
             prueba_columna.append(i)
             i += 1
 
-        print(prueba_columna)
+        #print(prueba_columna)
         
         my_tree = ttk.Treeview(salida_frame, columns=prueba_columna)
-
         my_tree.pack(side=LEFT)
         my_tree.place(x=0,y=0)
 
-        for record in prueba_columna:
-            # print(record-1)
-            if record == 1:
-                my_tree.column("#"+str(record-1), stretch=False, width=40)
-                my_tree.heading("#"+str(record-1),text = " ")
-            else:
-                my_tree.column("#"+str(record-1), stretch=False, width=100)
-                my_tree.heading("#"+str(record-1),text = "Label"+str(record-1))
+        my_tree.column("#"+str(0), stretch=False, width=40)
+        my_tree.heading("#"+str(0),text = " ")
+        j = 1
+        while j <= len(textoSalida[0]):
+            my_tree.column("#"+str(j), stretch=False, width=100)
+            my_tree.heading("#"+str(j),text = textoSalida[0][j-1])
+            j+=1
+        
 
         yscrollbar = ttk.Scrollbar(salida_frame, orient = "vertical", command=my_tree.yview)
         yscrollbar.pack(side = RIGHT, fill = Y)
@@ -166,33 +190,23 @@ def salida_table(salida,textoSalida):
 
         my_tree.configure(yscrollcommand=yscrollbar.set, xscrollcommand = xscrollbar.set)
 
-
-        data = []
-
-        j = 1
-        while j < 50:
-            data.append(["Usuario"+str(j),"Password"+str(j),j])
-            j += 1
-
-
-        count = 1
-        for record in data:
-            my_tree.insert(parent = '', index = 'end', iid=count, text = str(count), values = (record[0],record[1],record[2]))
-            count += 1
-            
-        
+     
+        countt = 1
+        while countt < len(textoSalida):
+            #print(textoSalida[countt])
+            my_tree.insert(parent = '', index = 'end', iid=countt, text = str(countt), values = tuple(textoSalida[countt]))
+            countt +=1       
 
         my_tree.pack(fill = X)
+
     else:
-        global salida_frame1
         try:
-            global salida_frame1
-            salida_frame1.destroy()
+            salida_frame.destroy()
         except:
             pass
-        salida_frame1 = LabelFrame(root, text = "Salida")
-        salida_frame1.pack(fill = X)
-        my_text1 = Text(salida_frame1)
+        salida_frame = LabelFrame(root, text = "Salida")
+        salida_frame.pack(fill = X)
+        my_text1 = Text(salida_frame)
         my_text1.pack(fill=X)
         my_text1.delete(1.0,"end")
         my_text1.insert(1.0, textoSalida)

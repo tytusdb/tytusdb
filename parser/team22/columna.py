@@ -1,3 +1,4 @@
+import random
 from enum import Enum
 
 class TipoColumna(Enum):
@@ -37,6 +38,8 @@ class TipoConstraint(Enum):
     CHECK = 2
     PRIMARY_KEY = 3
     FOREIGN_KEY = 4
+    DEFAULT = 5
+    NULL = 6
 
 class TipoNull(Enum):
     NULL = 1
@@ -44,31 +47,78 @@ class TipoNull(Enum):
 
 class Columna():
     'Esta clase representa las columnas de las tablas'
-    def __init__(self, tipo: {}, default = None, references: str = None, constraints: [str] = [], is_null = TipoNull.NULL, is_primary = 0, is_unique = 0):
+    def __init__(self, line, tipo: {}):
+        self.line = line
         # tipo = {'tipo': TipoColumna, 'n': int, 'p': int, 'field': {'origen': TipoFields, 'destino': TipoFields}}
         self.tipo = tipo
-        self.default = default
-        self.is_null = is_null
-        # 0 -> No es primaria, 1 -> Es primaria
-        self.is_primary = is_primary
-        self.references = references
-        # 0 -> No es única, 1 -> Es única
-        self.is_unique = is_unique
-        # constraints = ['nombre_constraint',...]
-        self.constraints = constraints
+        self.constraints = []
+
+    def addDefault(self, valor, constraint = None):
+        if constraint == None:
+            self.constraints.append(Constraint(tipo = TipoConstraint.DEFAULT, condicion = valor, line = self.line))
+        else:
+            self.constraints.append(constraint)
+
+    def addNull(self, valor, constraint = None):
+        if constraint == None:
+            self.constraints.append(Constraint(tipo = TipoConstraint.NULL, condicion = valor.name, line = self.line))
+        else:
+            self.constraints.append(constraint)
+
+    def addUnique(self, valor, constraint = None):
+        if constraint == None:
+            const = Constraint(tipo = TipoConstraint.UNIQUE, line = self.line)
+            self.constraints.append(const)
+            return const
+        else:
+            self.constraints.append(constraint)
+
+    def addPrimaryKey(self, valor, constraint = None):
+        if constraint == None:
+            const = Constraint(tipo = TipoConstraint.PRIMARY_KEY, line = self.line)
+            self.constraints.append(const)
+            return const
+        else:
+            self.constraints.append(constraint)
+
+    def addReference(self, valor, constraint = None):
+        if constraint == None:
+            const = Constraint(tipo = TipoConstraint.FOREIGN_KEY, condicion = valor, line = self.line)
+            self.constraints.append(const)
+            return const
+        else:
+            self.constraints.append(constraint)
+
+    def json(self):
+        return {
+            'tipo': {
+                'tipo': self.tipo['tipo'].name,
+                'n': self.tipo['n'] if 'n' in self.tipo else None,
+                'p': self.tipo['p'] if 'p' in self.tipo else None,
+                'field': {
+                    'origen': self.tipo['tipo']['field']['origen'].name,
+                    'destino': self.tipo['tipo']['field']['destino'].name if 'destino' in self.tipo['tipo']['field'] else None
+                } if 'field' in self.tipo else None
+            },
+            'constraints': self.getConstraints()
+        }
     
     def printCol(self):
         print('Tipo: ', self.tipo)
-        print('Default: ', self.default)
-        print('Null: ', self.is_null)
-        print('Primary: ', self.is_primary)
-        print('References: ', self.references)
-        print('Unique: ', self.is_unique)
-        print('Constraints: ', self.constraints, '\n')
+        print('Constraints: ', self.getConstraints(), '\n')
+
+    def getConstraints(self):
+        retorno = ''
+        for constraint in self.constraints:
+            retorno += '\n[' + constraint.name + ', ' + constraint.tipo.name + ', ' + str(constraint.condicion) + ']'
+        return retorno
 
 class Constraint():
     'Esta clase representa los constraint de las columnas'
-    def __init__(self, tipo: TipoConstraint, condicion, name: str = ''):
-        self.name = str
+    def __init__(self, line, tipo: TipoConstraint, condicion = '', name: str = ''):
+        self.name = name
+        self.line = line
+        if name == '':
+            self.name = tipo.name + str(random.randint(100000, 1000000))
         self.tipo = tipo
         self.condicion = condicion

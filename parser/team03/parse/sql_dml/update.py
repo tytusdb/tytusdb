@@ -1,7 +1,4 @@
-import sys
-
-sys.path.insert(0, '..')
-from ast_node import ASTNode
+from parse.ast_node import ASTNode
 
 
 class Update(ASTNode):

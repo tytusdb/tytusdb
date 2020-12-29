@@ -143,13 +143,16 @@ parser.out
 parsetab.py
 
 *.dot
+*.txt
 *.pdf
 
-dot.txt
-error.html
+ast.png
+errors.png
+symbolTable.png
 typeChecker.png
 
 storageManager/
 test/
 data/
 view/
+.vscode/

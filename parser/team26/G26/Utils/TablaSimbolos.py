@@ -2,9 +2,7 @@ class TablaSimbolos:
     'Clase abstracta'
 
 class TableData(TablaSimbolos):
-    def __init__(self, database, table, name, type, size, pk, fk, default, null, unique, check):
-        self.database = database
-        self.table = table
+    def __init__(self, name, type, size, pk, fk, default, null, unique, check):
         self.name = name
         self.type = type
         self.size = size
@@ -46,9 +44,10 @@ class EnumData(TablaSimbolos):
             return str(self.__dict__)
 
 class ConstraintData(TablaSimbolos):
-        def __init__(self, name, val):
+        def __init__(self, name, val, tipo):
             self.name = name
             self.val = val
+            self.tipo = tipo
 
         def execute(self):
             return self

@@ -1,0 +1,35 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<div class="border rounded mt-1 mb-1 vh-100 overflow-auto ">
+
+    <ul id="myTree" style="font-family: monospace;">
+        <div class="m-1">
+            <h6 class="d-inline mr-2">Browser:</h6>
+            <div class="d-inline" style="float: right;">
+                <button (click)="refresh()" type="button" name="btnRefresh" class="btn btn-sm btn-outline-dark">
+                    <fa-icon [icon]="faSync"></fa-icon>
+                </button>
+            </div>
+        </div>
+        <br>
+
+        <li><span class="caret"><i class="fa fa-server"></i> Servers</span>
+            <ul class="animacion">
+                <li><span class="caret"><i class="fa fa-folder-o"></i> Postgres [1]</span>
+                    <ul class="animacion" id="Postgres">
+                        <li><span class="caret"><i class="fa fa-database"></i> Databases [<a id="num_db">0</a>]</span>
+                            <ul class="animacion" id="db">
+                                
+                            </ul>
+                          
+                        
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+</div>
+<script>
+    funcion1()
+</script>
