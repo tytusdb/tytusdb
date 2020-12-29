@@ -31,6 +31,7 @@ class Substring(Function):
         #input valor puntual
         else:
             value = self.input1.execute(environment)
+            print(value, value2, value3)
             if value['typ'] != Type.STRING:
                 return {'Error':"El valor " + value['value'] + " no es String", 'linea':self.row,'columna':self.column }
-            return [{'value': substring(value['value'],value2['value'],value3['value']), 'typ': Type.STRING}]
+            return {'value': substring(value['value'],value2['value'],value3['value']), 'typ': Type.STRING}

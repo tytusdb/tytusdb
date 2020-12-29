@@ -136,7 +136,51 @@ reservadas = {
     'radians': 'RADIANS',
     'round': 'ROUND',
     'databases': 'DATABASES',
-    'use': 'USE'
+    'use': 'USE',
+    'sign': 'SIGN',
+    'sqrt': 'SQRT',
+    'width_bucket': 'WIDTH_BUCKET',
+    'trunc': 'TRUNC',
+    'random': 'RANDOM',
+    'acos': 'ACOS',
+    'acosd': 'ACOSD',
+    'asin': 'ASIN',
+    'asind': 'ASIND',
+    'atan': 'ATAN',
+    'atand': 'ATAND',
+    'atan2': 'ATAN2',
+    'atan2d': 'ATAN2D',
+    'cos': 'COS',
+    'cosd': 'COSD',
+    'cot': 'COT',
+    'cotd': 'COTD',
+    'sin': 'SIN',
+    'sind': 'SIND',
+    'tan': 'TAN',
+    'tand': 'TAND',
+    'sinh': 'SINH',
+    'cosh': 'COSH',
+    'tanh': 'TANH',
+    'asinh': 'ASINH',
+    'acosh': 'ACOSH',
+    'atanh': 'ATANH',
+    'now' : 'NOW',
+    'extract' : 'EXTRACT',
+    'current_time' : 'CURRENT_TIME',
+    'current_date' : 'CURRENT_DATE',
+    'date_part' : 'DATE_PART',
+    'except':'EXCEPT',
+    'length' : 'LENGTH',
+    'substr': 'SUBSTR',
+    'trim' : 'TRIM',
+    'md5' : 'MD5',
+    'sha256' : 'SHA256',
+    'decode' : 'DECODE',
+    'encode' : 'ENCODE',
+    'convert' : 'CONVERT',
+    'get_byte' : 'GET_BYTE',
+    'set_byte' : 'SET_BYTE',
+    'bytea' : 'BYTEA'
 }
 
 # Lista de tokens
@@ -262,6 +306,7 @@ import ply.lex as lex
 lexer = lex.lex(reflags=re.IGNORECASE)
 
 precedence = (
+
     ('left', 'PAR_ABRE', 'PAR_CIERRA'),
     ('right', 'IGUAL'),
     ('left', 'OR'),
@@ -322,12 +367,17 @@ from instruccion.between1 import *
 from instruccion.substring import *
 from instruccion.rename_tb import *
 from instruccion.alter_add_col import *
-
+from instruccion.union import *
+from instruccion.interseccion import *
+from instruccion.except_ import *
+from instruccion.select_funciones import *
 from expresion.primitivo import *
 from expresion.logicas import *
 from expresion.aritmeticas import *
 from expresion.relacionales import *
 from expresion.tableId import *
+from expresion.columnId import *
+from instruccion.alias_item import *
 
 # Tabla tipos
 from tools.tabla_tipos import *
@@ -353,7 +403,10 @@ def p_instruccion(t):
     '''instruccion      : crear_statement PUNTOCOMA
                         | alter_statement PUNTOCOMA
                         | drop_statement PUNTOCOMA
-                        | seleccionar PUNTOCOMA'''
+                        | seleccionar PUNTOCOMA
+                        | union PUNTOCOMA
+                        | intersect PUNTOCOMA
+                        | except PUNTOCOMA'''
     t[0] = t[1]
 
 
@@ -390,6 +443,34 @@ def p_aux_instruccion(t):
         t[0] = use_db(t[3], t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 3
 
+
+def p_union(t):
+    '''union : PAR_ABRE seleccionar PAR_CIERRA UNION PAR_ABRE seleccionar PAR_CIERRA'''
+    global num_nodo
+    try:
+        #print('Entra al union -----------*')
+        t[0]=union(t[2],t[6], t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo+=3
+    except:
+        print('No funciona el union')
+
+def p_intersect(t):
+    '''intersect : PAR_ABRE seleccionar PAR_CIERRA INTERSECT PAR_ABRE seleccionar PAR_CIERRA'''
+    global num_nodo
+    try:
+        t[0]=interseccion(t[2],t[6], t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo+=3
+    except:
+        print('No funciona el interseccion')
+
+def p_except_(t):
+   '''except : PAR_ABRE seleccionar PAR_CIERRA EXCEPT PAR_ABRE seleccionar PAR_CIERRA'''
+   global num_nodo
+   try:
+        t[0]=except_(t[2],t[6], t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo+=3
+   except:
+       print('No funciona el interseccion')
 
 def p_crear_statement_tbl(t):
     '''crear_statement  : CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA inherits_statement'''
@@ -705,7 +786,8 @@ def p_aux_list_id(t):
 
 
 def p_alias(t):
-    '''alias : ID'''
+    '''alias : ID
+             | alias_item'''
     t[0] = t[1]
 
 
@@ -821,12 +903,12 @@ def p_aux_list_val(t):
 
 
 def p_where(t):
-    '''where : WHERE ID IGUAL expression
+    '''where : WHERE expression
             | '''
     try:
         global num_nodo
         if t[1].lower() == 'where':
-            t[0] = where_up_de(t[2], t[4], t.lineno(1), t.lexpos(1), num_nodo)
+            t[0] = where_up_de(t[2],t.lineno(1),t.lexpos(1),num_nodo)
             num_nodo += 5
     except:
         t[0] = None
@@ -849,6 +931,15 @@ def p_aux_seleccionar(t):
     t[0] = Query_Select(t[2], t[3], t.lineno(1), t.lexpos(1), num_nodo)
     num_nodo += 4
 
+def p_seleccionar_funciones(t):
+    '''seleccionar  : SELECT list_expression_f'''
+
+    global num_nodo
+    try:
+        t[0] = select_funciones(t[2],t.lineno(1),t.lexpos(1),num_nodo)
+        num_nodo+=6
+    except:
+        print('No jala select funcioness')
 
 def p_expressiones(t):
     '''expressiones : PAR_ABRE list_expression PAR_CIERRA'''
@@ -871,7 +962,7 @@ def p_distinto(t):
 
 def p_select_list(t):
     '''select_list : ASTERISCO
-	                 | expressiones '''
+	                | expressiones '''
     t[0] = t[1]
 
 
@@ -892,22 +983,23 @@ def p_donde(t):
 
 
 def p_group_by(t):
-    '''group_by : GROUP BY expressiones
+    '''group_by : GROUP BY list_id
                 | '''
     global num_nodo
     try:
-        t[0] = group_by(None, t.lineno(1), t.lexpos(1), num_nodo)
-        num_nodo += 3
+        t[0] = group_by(t[3],t.lineno(1),t.lexpos(1), num_nodo)
+        num_nodo+=3
     except:
-        print('No jala la gramatica del group by')
+        pass
+
 
 
 def p_order_by(t):
-    '''order_by : ORDER BY expressiones asc_desc nulls_f_l
+    '''order_by : ORDER BY list_id asc_desc nulls_f_l
                 | '''
     global num_nodo
     try:
-        t[0] = order_by(None, t[4], t[5], t.lineno(1), t.lexpos(1), num_nodo)
+        t[0] = order_by(t[3], t[4], t[5], t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 6
     except:
         print('No jala la gramatica del order by')
@@ -963,12 +1055,33 @@ def p_aux_list_expression(t):
     '''list_expression  : expression'''
     t[0] = [t[1]]
 
+def p_list_expression_f(t):
+    '''list_expression_f  : list_expression_f COMA expression_f exp_alias'''
+    t[3].alias = t[4]
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_aux_list_expression_f(t):
+    '''list_expression_f  : expression_f exp_alias'''
+    t[1].alias = t[2]
+    t[0] = [t[1]]
+
+def p_exp_alias(t):
+    '''exp_alias : AS CADENA
+                | '''
+    
+    try:
+        t[0] = t[2]
+    except:
+        t[0] = None
 
 def p_expression(t):
-    '''expression : SUBSTRING PAR_ABRE expression COMA expression COMA expression PAR_CIERRA'''
+    '''expression_f : SUBSTRING PAR_ABRE expression COMA expression COMA expression PAR_CIERRA
+                    | SUBSTR PAR_ABRE expression COMA expression COMA expression PAR_CIERRA'''
     global num_nodo
     try:
-        t[0] = substring(t[1], t[3], t[5], t[7], t.lineno(1), t.lexpos(1), num_nodo)
+        t[0] = agrupar(t[1], t[3],t[7], t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 8
     except:
         print('Problema con substring')
@@ -987,7 +1100,7 @@ def p_expression_between3(t):
 
 def p_expression_between2(t):
     '''expression : expression NOT BETWEEN expression AND expression
-                   | expression BETWEEN SYMMETRIC expression AND expression'''
+                  | expression BETWEEN SYMMETRIC expression AND expression'''
     global num_nodo
     try:
         t[0] = between1(t[1], str(t[2]) + ' ' + str(t[3]), t[4], t[5], t[6], t.lineno(1), t.lexpos(1), num_nodo)
@@ -1000,11 +1113,10 @@ def p_expression_between(t):
     '''expression : expression BETWEEN expression AND expression'''
     global num_nodo
     try:
-
         t[0] = between1(t[1], t[2], t[3], t[4], t[5], t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 6
     except:
-        print('Problema con between1')
+        errores.append(t.lineno(1), t.lexpos(1), 'ERROR - No se puede analizar BETWEEN', 'Semántico')
 
 
 def p_expression_Distinct(t):
@@ -1032,7 +1144,7 @@ def p_expression_puntoId(t):
     '''expression : ID PUNTO ID'''
     global num_nodo
     try:
-        t[0] = IsNodistinct(str(t[1]) + '.' + str(t[3]), t.lineno(1), t.lexpos(1), 'Identificador', num_nodo)
+        t[0] = columnId(t[1], t[2], t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 2
     except:
         print('Problemas con el punto id punto')
@@ -1084,27 +1196,219 @@ def p_expression_agrupar(t):
                     | ABS PAR_ABRE expression PAR_CIERRA
                     | CBRT PAR_ABRE expression PAR_CIERRA
                     | CEIL PAR_ABRE expression PAR_CIERRA
-                    | CEILING PAR_ABRE expression PAR_CIERRA
+                    | CEILING PAR_ABRE expression PAR_CIERRA 
                     | DEGREES PAR_ABRE expression PAR_CIERRA
-                    | DIV PAR_ABRE expression PAR_CIERRA
+                    | DIV PAR_ABRE expression COMA expression PAR_CIERRA
                     | EXP PAR_ABRE expression PAR_CIERRA
-                    | FACTORIAL PAR_ABRE expression PAR_CIERRA
+                    | FACTORIAL PAR_ABRE expression PAR_CIERRA 
                     | FLOOR PAR_ABRE expression PAR_CIERRA
-                    | GCD PAR_ABRE expression PAR_CIERRA
+                    | GCD PAR_ABRE expression COMA expression PAR_CIERRA
                     | LN PAR_ABRE expression PAR_CIERRA
                     | LOG PAR_ABRE expression PAR_CIERRA
-                    | MOD PAR_ABRE expression PAR_CIERRA
-                    | PI PAR_ABRE expression PAR_CIERRA
-                    | POWER PAR_ABRE expression PAR_CIERRA
+                    | MOD PAR_ABRE expression COMA expression PAR_CIERRA
+                    | PI PAR_ABRE PAR_CIERRA
+                    | POWER PAR_ABRE expression COMA expression PAR_CIERRA
                     | RADIANS PAR_ABRE expression PAR_CIERRA
-                    | ROUND PAR_ABRE expression PAR_CIERRA'''
+                    | ROUND PAR_ABRE expression PAR_CIERRA
+                    | SIGN PAR_ABRE expression PAR_CIERRA
+                    | SQRT PAR_ABRE expression PAR_CIERRA
+                    | WIDTH_BUCKET PAR_ABRE expression COMA expression COMA expression COMA expression PAR_CIERRA
+                    | TRUNC PAR_ABRE expression PAR_CIERRA
+                    | RANDOM PAR_ABRE PAR_CIERRA '''
     global num_nodo
     try:
-        t[0] = agrupar(t[1], t[3], t.lineno(1), t.lexpos(1), num_nodo)
+        if str(t[1]).lower() == "div" or str(t[1]).lower() == "gcd" or str(t[1]).lower() == "mod" or str(t[1]).lower() == "power":
+            t[0] = agrupar(t[1], t[3], t[5], t.lineno(1), t.lexpos(1), num_nodo)
+        elif str(t[1]).lower() == "pi" or str(t[1]).lower() == "random":
+            auxiliar = primitivo(t.lineno(1), t.lexpos(1), 0, tipo_primitivo.INTEGER, num_nodo)
+            t[0] = agrupar(t[1], auxiliar, None, t.lineno(1), t.lexpos(1), num_nodo)
+        else:
+            t[0] = agrupar(t[1], t[3], None, t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 3
     except:
         print('No funciona la parte de agrupar')
 
+def p_expression_trigonometric(t):
+    '''expression : ACOS PAR_ABRE expression PAR_CIERRA
+                    | ACOSD PAR_ABRE expression PAR_CIERRA
+                    | ASIN PAR_ABRE expression PAR_CIERRA
+                    | ASIND PAR_ABRE expression PAR_CIERRA
+                    | ATAN PAR_ABRE expression PAR_CIERRA
+                    | ATAND PAR_ABRE expression PAR_CIERRA
+                    | ATAN2 PAR_ABRE expression COMA expression PAR_CIERRA
+                    | ATAN2D PAR_ABRE expression COMA expression PAR_CIERRA
+                    | COS PAR_ABRE expression PAR_CIERRA
+                    | COSD PAR_ABRE expression PAR_CIERRA
+                    | COT PAR_ABRE expression PAR_CIERRA
+                    | COTD PAR_ABRE expression PAR_CIERRA
+                    | SIN PAR_ABRE expression PAR_CIERRA
+                    | SIND PAR_ABRE expression PAR_CIERRA
+                    | TAN PAR_ABRE expression PAR_CIERRA
+                    | TAND PAR_ABRE expression PAR_CIERRA
+                    | SINH PAR_ABRE expression PAR_CIERRA
+                    | COSH PAR_ABRE expression PAR_CIERRA
+                    | TANH PAR_ABRE expression PAR_CIERRA
+                    | ASINH PAR_ABRE expression PAR_CIERRA
+                    | ACOSH PAR_ABRE expression PAR_CIERRA
+                    | ATANH PAR_ABRE expression PAR_CIERRA '''
+
+    global num_nodo
+    try:
+        if str(t[1]).lower() == "atan2" or str(t[1]).lower() == "atan2d":
+            t[0]=agrupar(t[1],t[3],t[5],t.lineno(1),t.lexpos(1),num_nodo)
+        else:
+            t[0]=agrupar(t[1],t[3],None,t.lineno(1),t.lexpos(1),num_nodo)
+        num_nodo+=3
+    except:
+        print('No funciona la parte de agrupar')
+
+def p_expression_agrupar_f(t):
+    '''expression_f : SUM PAR_ABRE expression PAR_CIERRA
+                    | COUNT PAR_ABRE expression PAR_CIERRA
+                    | AVG PAR_ABRE expression PAR_CIERRA
+                    | MAX PAR_ABRE expression PAR_CIERRA
+                    | MIN PAR_ABRE expression PAR_CIERRA
+                    | ABS PAR_ABRE expression PAR_CIERRA
+                    | CBRT PAR_ABRE expression PAR_CIERRA
+                    | CEIL PAR_ABRE expression PAR_CIERRA
+                    | CEILING PAR_ABRE expression PAR_CIERRA 
+                    | DEGREES PAR_ABRE expression PAR_CIERRA
+                    | DIV PAR_ABRE expression COMA expression PAR_CIERRA
+                    | EXP PAR_ABRE expression PAR_CIERRA
+                    | FACTORIAL PAR_ABRE expression PAR_CIERRA 
+                    | FLOOR PAR_ABRE expression PAR_CIERRA
+                    | GCD PAR_ABRE expression COMA expression PAR_CIERRA
+                    | LN PAR_ABRE expression PAR_CIERRA
+                    | LOG PAR_ABRE expression PAR_CIERRA
+                    | MOD PAR_ABRE expression COMA expression PAR_CIERRA
+                    | PI PAR_ABRE PAR_CIERRA
+                    | POWER PAR_ABRE expression COMA expression PAR_CIERRA
+                    | RADIANS PAR_ABRE expression PAR_CIERRA
+                    | ROUND PAR_ABRE expression PAR_CIERRA
+                    | SIGN PAR_ABRE expression PAR_CIERRA
+                    | SQRT PAR_ABRE expression PAR_CIERRA
+                    | WIDTH_BUCKET PAR_ABRE expression COMA expression COMA expression COMA expression PAR_CIERRA
+                    | TRUNC PAR_ABRE expression PAR_CIERRA
+                    | RANDOM PAR_ABRE PAR_CIERRA '''
+    global num_nodo
+    try:
+        if str(t[1]).lower() == "div" or str(t[1]).lower() == "gcd" or str(t[1]).lower() == "mod" or str(t[1]).lower() == "power":
+            t[0] = agrupar(t[1], t[3], t[5], t.lineno(1), t.lexpos(1), num_nodo)
+        elif str(t[1]).lower() == "pi" or str(t[1]).lower() == "random":
+            auxiliar = primitivo(t.lineno(1), t.lexpos(1), 0, tipo_primitivo.INTEGER, num_nodo)
+            t[0] = agrupar(t[1], auxiliar, None, t.lineno(1), t.lexpos(1), num_nodo)
+        else:
+            t[0] = agrupar(t[1], t[3], None, t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo += 3
+    except:
+        print('No funciona la parte de agrupar')
+
+def p_expression_trigonometric_f(t):
+    '''expression_f : ACOS PAR_ABRE expression PAR_CIERRA
+                    | ACOSD PAR_ABRE expression PAR_CIERRA
+                    | ASIN PAR_ABRE expression PAR_CIERRA
+                    | ASIND PAR_ABRE expression PAR_CIERRA
+                    | ATAN PAR_ABRE expression PAR_CIERRA
+                    | ATAND PAR_ABRE expression PAR_CIERRA
+                    | ATAN2 PAR_ABRE expression COMA expression PAR_CIERRA
+                    | ATAN2D PAR_ABRE expression COMA expression PAR_CIERRA
+                    | COS PAR_ABRE expression PAR_CIERRA
+                    | COSD PAR_ABRE expression PAR_CIERRA
+                    | COT PAR_ABRE expression PAR_CIERRA
+                    | COTD PAR_ABRE expression PAR_CIERRA
+                    | SIN PAR_ABRE expression PAR_CIERRA
+                    | SIND PAR_ABRE expression PAR_CIERRA
+                    | TAN PAR_ABRE expression PAR_CIERRA
+                    | TAND PAR_ABRE expression PAR_CIERRA
+                    | SINH PAR_ABRE expression PAR_CIERRA
+                    | COSH PAR_ABRE expression PAR_CIERRA
+                    | TANH PAR_ABRE expression PAR_CIERRA
+                    | ASINH PAR_ABRE expression PAR_CIERRA
+                    | ACOSH PAR_ABRE expression PAR_CIERRA
+                    | ATANH PAR_ABRE expression PAR_CIERRA '''
+
+    global num_nodo
+    try:
+        if str(t[1]).lower() == "atan2" or str(t[1]).lower() == "atan2d":
+            t[0]=agrupar(t[1],t[3],t[5],t.lineno(1),t.lexpos(1),num_nodo)
+        else:
+            t[0]=agrupar(t[1],t[3],None,t.lineno(1),t.lexpos(1),num_nodo)
+        num_nodo+=3
+    except:
+        print('No funciona la parte de agrupar')
+
+def p_expression_time_f(t):
+    '''expression_f : NOW PAR_ABRE PAR_CIERRA
+                    | TIMESTAMP CADENA
+                    | CURRENT_TIME
+                    | CURRENT_DATE 
+                    | DATE_PART PAR_ABRE expression COMA INTERVAL expression PAR_CIERRA
+                    | EXTRACT PAR_ABRE YEAR FROM TIMESTAMP expression PAR_CIERRA
+                    | EXTRACT PAR_ABRE MONTH FROM TIMESTAMP expression PAR_CIERRA
+                    | EXTRACT PAR_ABRE DAY FROM TIMESTAMP expression PAR_CIERRA
+                    | EXTRACT PAR_ABRE HOUR FROM TIMESTAMP expression PAR_CIERRA
+                    | EXTRACT PAR_ABRE MINUTE FROM TIMESTAMP expression PAR_CIERRA
+                    | EXTRACT PAR_ABRE SECOND FROM TIMESTAMP expression PAR_CIERRA'''
+
+    global num_nodo
+    try:
+        if str(t[1]).lower() == "date_part" or str(t[1]).lower() == "extract":
+            if str(t[3]) == "YEAR":
+                t[3] = primitivo(t.lineno(1), t.lexpos(1), "year", tipo_primitivo.CHAR, num_nodo)
+            elif str(t[3]) == "MONTH":
+                t[3] = primitivo(t.lineno(1), t.lexpos(1), "month", tipo_primitivo.CHAR, num_nodo)
+            elif str(t[3]) == "DAY":
+                t[3] = primitivo(t.lineno(1), t.lexpos(1), "day", tipo_primitivo.CHAR, num_nodo)
+            elif str(t[3]) == "HOUR":
+                t[3] = primitivo(t.lineno(1), t.lexpos(1), "hour", tipo_primitivo.CHAR, num_nodo)
+            elif str(t[3]) == "MINUTE":
+                t[3] = primitivo(t.lineno(1), t.lexpos(1), "minute", tipo_primitivo.CHAR, num_nodo)
+            elif str(t[3]) == "SECOND":
+                t[3] = primitivo(t.lineno(1), t.lexpos(1), "second", tipo_primitivo.CHAR, num_nodo)
+
+            t[0] = agrupar(t[1], t[3], t[6], t.lineno(1), t.lexpos(1), num_nodo)
+        elif str(t[1]).lower() == "now" or str(t[1]).lower() == "timestamp" or str(t[1]).lower() == "current_date" or str(t[1]).lower() == "current_time":
+            auxiliar = primitivo(t.lineno(1), t.lexpos(1), 0, tipo_primitivo.INTEGER, num_nodo)
+            t[0] = agrupar(t[1], auxiliar, None, t.lineno(1), t.lexpos(1), num_nodo)
+        else:
+            t[0] = agrupar(t[1], t[3], None, t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo += 3
+    except:
+        print('No funciona la parte de agrupar')
+
+def p_expression_string_f(t):
+    '''expression_f : LENGTH PAR_ABRE expression PAR_CIERRA
+                    | TRIM PAR_ABRE expression PAR_CIERRA
+                    | MD5 PAR_ABRE expression PAR_CIERRA
+                    | SHA256 PAR_ABRE expression PAR_CIERRA
+                    | DECODE PAR_ABRE expression COMA expression PAR_CIERRA
+                    | ENCODE PAR_ABRE expression CASTEO BYTEA COMA expression PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS DATE PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS INTEGER PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS BIGINT PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS DECIMAL PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS NUMERIC PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS REAL PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS MONEY PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS CHARACTER PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS CHAR PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS TEXT PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS TIME PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS VARCHAR PAR_CIERRA
+                    | CONVERT PAR_ABRE expression AS TIMESTAMP PAR_CIERRA
+                    | GET_BYTE PAR_ABRE expression CASTEO BYTEA COMA expression PAR_CIERRA
+                    | SET_BYTE PAR_ABRE expression CASTEO BYTEA COMA expression COMA expression PAR_CIERRA'''
+    global num_nodo
+    try:
+        if str(t[1]).lower() == "decode":
+            t[0] = agrupar(t[1], t[3], t[5], t.lineno(1), t.lexpos(1), num_nodo)
+        elif str(t[1]).lower() == "encode" or str(t[1]).lower() == "get_byte" or str(t[1]).lower() == "set_byte":
+            t[0] = agrupar(t[1], t[3], t[7], t.lineno(1), t.lexpos(1), num_nodo)
+        else:
+            t[0] = agrupar(t[1], t[3], None, t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo += 3
+    except:
+        print('No funciona la parte de agrupar')
 
 def p_expression_select(t):
     '''expression : seleccionar'''
@@ -1188,8 +1492,7 @@ def p_expression_logica_not(t):
 
 def p_solouno_expression(t):
     '''expression : ID
-            | ASTERISCO'''
-
+                  | ASTERISCO'''
     global num_nodo
     try:
         t[0] = tableId(t[1], t.lineno(1), t.lexpos(1), 'Identificador', num_nodo)
@@ -1257,6 +1560,18 @@ def p_expression_cadena(t):
         t[0] = primitivo(t.lineno(1), t.lexpos(1), t[1], tipo_primitivo.CHAR, num_nodo)
     num_nodo += 2
 
+
+def p_alias_list(t):
+    '''alias_list : alias_list COMA alias_item'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_aux_alias_list(t):
+    '''alias_list : alias_item'''
+    t[0] = [t[1]]
+
+def p_alias_item(t):
+    '''alias_item : ID AS ID'''
 
 def p_error(t):
     errores.append(nodo_error(t.lexer.lineno, t.lexer.lexpos, "Error sintáctico: '%s'" % t.value, 'Sintáctico'))

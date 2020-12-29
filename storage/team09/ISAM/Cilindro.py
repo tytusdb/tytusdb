@@ -1,4 +1,4 @@
-import BinWriter as bi
+from . import BinWriter as bi
 import os
 
 class Cilindro:
@@ -91,16 +91,19 @@ class Cilindro:
                 val = self._rehash(val, i)
                 i += 1
             else:
-                for v in range(30, self.longi):
-                    ke = []
-                    for k in self.pkeys:
-                        ke.append(self.indx[v].valores[k])
-                    if self._createKey(ke) == keyval:
-                        r = self.indx[val].update(register)
-                        if r == 0: self.writeD()
-                        return r
-                else:
-                    return 4
+                if self.longi > 30:
+                    for v in range(30, self.longi):
+                        ke = []
+                        for k in self.pkeys:
+                            ke.append(self.indx[v].valores[k])
+                        if self._createKey(ke) == keyval:
+                            r = self.indx[v].update(register)
+                            if r == 0: self.writeD()
+                            return r
+                    else:
+                        return 4
+                else: return 4
+
         except:
             return 1
     #elimina una tupla segun sea especificado
@@ -120,17 +123,19 @@ class Cilindro:
                 val = self._rehash(val, i)
                 i += 1
             else:
-                for v in range(30, self.longi):
-                    ke = []
-                    for k in self.pkeys:
-                        ke.append(self.indx[v].valores[k])
-                    if self._createKey(ke) == keyval:
-                        self.indx.pop(v)
-                        self.longi -= 1
-                        self.writeD()
-                        return 0
-                else:
-                    return 4
+                if self.longi > 30:
+                    for v in range(30, self.longi):
+                        ke = []
+                        for k in self.pkeys:
+                            ke.append(self.indx[v].valores[k])
+                        if self._createKey(ke) == keyval:
+                            self.indx.pop(v)
+                            self.longi -= 1
+                            self.writeD()
+                            return 0
+                    else:
+                        return 4
+                else: return 4
         except:
             return 1
 #devuelve una tupla segun el valor solicitado
@@ -148,14 +153,16 @@ class Cilindro:
                 val = self._rehash(val, i)
                 i += 1
             else:
-                for v in range(30, self.longi):
-                    ke = []
-                    for k in self.pkeys:
-                        ke.append(self.indx[v].valores[k])
-                    if self._createKey(ke) == keyval:
-                        return self.indx[v].valores
-                else:
-                    return []
+                if self.longi > 30:
+                    for v in range(30, self.longi):
+                        ke = []
+                        for k in self.pkeys:
+                            ke.append(self.indx[v].valores[k])
+                        if self._createKey(ke) == keyval:
+                            return self.indx[v].valores
+                    else:
+                        return []
+                else: return []
         except:
             return []
     #retorna todos los valores

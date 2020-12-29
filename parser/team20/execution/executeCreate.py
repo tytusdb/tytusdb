@@ -17,7 +17,7 @@ def executeCreateDatabase(self, database):
     if(database.OwnerMode[1]!= None):
         res = executeExpression(self,database.OwnerMode[1])
         if(isinstance(res,Error)): 
-            print_error("ERROR",'Semántico: '+r)
+            print_error("SEMANTIC ERROR",res.toString())
         else: mode = res.value
         
     if(database.ifNotExistsFlag and not(database.OrReplace)):
@@ -30,7 +30,7 @@ def executeCreateDatabase(self, database):
         elif mode==4:
             return jsonMode.createDatabase(database.name)
         else:
-            print_error("ERROR",'Semántico: Mode between 1-5')
+            print_error("SEMANTIC ERROR",'Mode between 1-5')
             return 1
 
     elif(database.ifNotExistsFlag and database.OrReplace):
@@ -41,7 +41,7 @@ def executeCreateDatabase(self, database):
             if(database.OwnerMode[1]!= None ):
                 res = executeExpression(self,database.OwnerMode[1])
                 if(isinstance(res,Error)): 
-                    print_error("ERROR",'Semántico: '+r)
+                    print_error("SEMANTIC ERROR",res.toString())
                 else: mode = res.value
             if mode==1:
                 return jsonMode.createDatabase(database.name)
@@ -52,7 +52,7 @@ def executeCreateDatabase(self, database):
             elif mode==4:
                 return jsonMode.createDatabase(database.name)
             else:
-                print_error("ERROR",'Semántico: Mode between 1-5')
+                print_error("SEMANTIC ERROR",'Mode between 1-5')
                 return 1
         else:
             TCdropDatabase(database.name)
@@ -65,14 +65,14 @@ def executeCreateDatabase(self, database):
             elif res==4:
                 jsonMode.dropDatabase(database.name)
             else:
-                print_error("ERROR",'Semántico: Mode between 1-5')
+                print_error("SEMANTIC ERROR",'Mode between 1-5')
                 return 1
             
             mode=1
             if(database.OwnerMode[1]!= None ):
                 res = executeExpression(self,database.OwnerMode[1])
                 if(isinstance(res,Error)): 
-                    print_error("ERROR",'Semántico: '+r)
+                    print_error("SEMANTIC ERROR",res.toString())
                 else: mode = res.value
             if mode==1:
                 return jsonMode.createDatabase(database.name)
@@ -83,7 +83,7 @@ def executeCreateDatabase(self, database):
             elif mode==4:
                 return jsonMode.createDatabase(database.name)
             else:
-                print_error("ERROR",'Semántico: Mode between 1-5')
+                print_error("SEMANTIC ERROR",'Mode between 1-5')
                 return 1
 
     elif(not(database.ifNotExistsFlag) and not(database.OrReplace)):
@@ -97,7 +97,7 @@ def executeCreateDatabase(self, database):
         elif mode==4:
             return jsonMode.createDatabase(database.name)
         else:
-            print_error("ERROR",'Semántico: Mode between 1-5')
+            print_error("SEMANTIC ERROR",'Mode between 1-5')
             return 1
 
     else:
@@ -113,7 +113,7 @@ def executeCreateDatabase(self, database):
             elif mode==4:
                 return jsonMode.createDatabase(database.name)
             else:
-                print_error("ERROR",'Semántico: Mode between 1-5')
+                print_error("SEMANTIC ERROR",'Mode between 1-5')
                 return 1
         else:
             TCdropDatabase(database.name)
@@ -126,7 +126,7 @@ def executeCreateDatabase(self, database):
             elif res==4:
                 jsonMode.dropDatabase(database.name)
             else:
-                print_error("ERROR",'Semántico: Mode between 1-5')
+                print_error("SEMANTIC ERROR",'Mode between 1-5')
                 return 1
             
             if mode==1:
@@ -138,7 +138,7 @@ def executeCreateDatabase(self, database):
             elif mode==4:
                 return jsonMode.createDatabase(database.name)
             else:
-                print_error("ERROR",'Semántico: Mode between 1-5')
+                print_error("SEMANTIC ERROR",'Mode between 1-5')
                 return 1
 
     return 1
@@ -164,6 +164,9 @@ def executeCreateTable(self, table):
                 NColumns+=1
                 new1={'TYPE':node.type[0]}
                 constrains1.update(new1)
+                if (len(node.type)==2):
+                    new={'MAXLENGTH':node.type[1]}
+                    constrains1.update(new)
                 if(node.options!=None):
                     if'primary' in node.options:
                         primary+=1
@@ -181,9 +184,6 @@ def executeCreateTable(self, table):
                             notnull+=1
 
                         new={'NULL':node.options['null']}
-                        constrains1.update(new)
-                    if (len(node.type)==2):
-                        new={'MAXLENGTH':node.type[1]}
                         constrains1.update(new)
                     if 'unique' in node.options:
                         new={'UNIQUE':node.options['unique']}
@@ -207,14 +207,14 @@ def executeCreateTable(self, table):
                                 lacolumna=node.options['check'].value2.value
                             constrains2.append({'OP':node.options['check'].type,'VALUE':lacolumna})
                         else:
-                            print_error("ERROR",'Semántico: Only relational operations acept check')
+                            print_error("SEMANTIC ERROR",'Only relational operations acept check')
                             return 1 
             
                 if(node.name in ids):
-                    print_error("ERROR",'Semántico: column '+node.name+' specified more than once SQL state: 42701')
+                    print_error("SEMANTIC ERROR",'column '+node.name+' specified more than once SQL state: 42701')
                     return 1
                 ids.update({node.name:node.name})
-                array.update({node.name:{'CONST':constrains1,'CHEKS':constrains2}})
+                array.update({node.name:{'CONST':constrains1,'CHECKS':constrains2}})
         
     if(table.columns!= None):
         for node in table.columns:        
@@ -228,10 +228,10 @@ def executeCreateTable(self, table):
                     elif(node.expression.value2.type==4):
                         lacolumna=node.expression.value2.value
                         valor=node.expression.value1.value
-                    array[lacolumna]['CHEKS'].append({'OP':node.expression.type,'VALUE':valor})
+                    array[lacolumna]['CHECKS'].append({'OP':node.expression.type,'VALUE':valor})
                     #print(TCaddCheckTable(database,table.name,lacolumna,valor,node.expression.type))
                 else:
-                    print_error("ERROR",'Semántico: Only relational operations acept check')
+                    print_error("SEMANTIC ERROR",'Only relational operations acept check')
                     return 1
             if isinstance(node,ColumnConstraint):
                 if isinstance(node.expression,Relational):
@@ -243,10 +243,10 @@ def executeCreateTable(self, table):
                     elif(node.expression.value2.type==4):
                         lacolumna=node.expression.value2.value
                         valor=node.expression.value1.value
-                    array[lacolumna]['CHEKS'].append({'OP':node.expression.type,'VALUE':valor})
+                    array[lacolumna]['CHECKS'].append({'OP':node.expression.type,'VALUE':valor})
                     #print(TCaddCheckTable(database,table.name,lacolumna,valor,node.expression.type))
                 else:
-                    print_error("ERROR",'Semántico: Only relational operations acept check')
+                    print_error("SEMANTIC ERROR",'Only relational operations acept check')
                     return 1
             if isinstance(node,ColumnUnique):
                 for x in node.columnslist:
@@ -254,7 +254,7 @@ def executeCreateTable(self, table):
                     if x in array:
                         array[x]['CONST'].update(new)
                     else:
-                        print_error("ERROR",'Semántico:  column '+x+' does not exist ')
+                        print_error("SEMANTIC ERROR",'column '+x+' does not exist ')
                         return 1
                     #constrains1.update(new)
                     #TCaddUnique(database,table.name,x,True)
@@ -266,7 +266,7 @@ def executeCreateTable(self, table):
                     if x in array:
                         array[x]['CONST'].update(new)
                     else:
-                        print_error("ERROR",'Semántico:  column '+x+' does not exist ')
+                        print_error("SEMANTIC ERROR",'column '+x+' does not exist ')
                         return 1
                     #constrains1.update(new)
                     #TCaddPrimaryKey(database,table.name,x,True)
@@ -277,13 +277,13 @@ def executeCreateTable(self, table):
             array.update(n)
             for i in n:
                 if i in ids:
-                    print_error("ERROR",'Semántico: column '+node.name+' specified more than once SQL state: 42701')
+                    print_error("SEMANTIC ERROR",'column '+node.name+' specified more than once SQL state: 42701')
                     return 1
                 NColumns+=1
                 #array.update(i)
 
     if(primary>1):
-        print_error("ERROR",'Semántico: multiple primary keys for table '+ table.name+' are not allowed SQL state: 42P16')
+        print_error("SEMANTIC ERROR",'multiple primary keys for table '+ table.name+' are not allowed SQL state: 42P16')
         return 1
 
     
@@ -302,7 +302,7 @@ def executeCreateTable(self, table):
     elif(mode==5):
         return jsonMode.createTable(database,table.name,NColumns)
     else:
-        print_error("ERROR",'Semántico: Mode between 1-5')
+        print_error("SEMANTIC ERROR",'Mode between 1-5')
         return 1
             
             
@@ -312,20 +312,42 @@ def executeCreateTable(self, table):
     #
         
 def executeCreateType(self, typeEnum):
-    data=TCgetDatabase()
+    database=TCgetDatabase()
     array={}
     if(typeEnum.expressions!=None):
         i = 0
         for node in typeEnum.expressions:
             res=executeExpression(self,node)
-            if(res.type == 5):
+            if(isinstance(res,Error)): 
+                print_error("SEMANTIC ERROR",res.toString())
+                return 1
+            elif(res.type == 3):
+                new={str(i):res.value}
+                array.update(new)
+                i=i+1
+            elif(res.type == 5):
                 res.value = res.value.replace("'","")
                 new={str(i):res.value}
                 array.update(new)
                 i=i+1
+            else:
+                return 1
+                
         #print(array)
-    return TCcreateType(data,typeEnum.name,array) 
-        
+        mode=TCSearchDatabase(database)
+        if(mode==1):
+            return TCcreateType(database,typeEnum.name,array) 
+        elif(mode==2):
+            return TCcreateType(database,typeEnum.name,array) 
+        elif(mode==3):
+            return TCcreateType(database,typeEnum.name,array) 
+        elif(mode==4):
+            return TCcreateType(database,typeEnum.name,array) 
+        elif(mode==8):
+            return TCcreateType(database,typeEnum.name,array) 
+        else:
+            print_error("SEMANTIC ERROR",'Mode between 1-5')
+            return 1
 
 
     

@@ -178,10 +178,10 @@ def view_extractTable():
             txtNombre.delete(0, END)
             value = CRUD_Tabla().extractTable(nombre_BaseDatos, name_table)
             if value:
-                messagebox.showinfo('', 'Operacion Exitosa')
+                messagebox.showinfo('', 'Si Existe')
                 window.destroy()
             else:
-                messagebox.showinfo('', 'No hay Registros')
+                messagebox.showinfo('', 'No Existe')
 
     window = Tk()
     edicionPantalla(window,  "Extract Table","#FCFCFB", 500, 350)
@@ -193,8 +193,55 @@ def view_extractTable():
     btn = Button(window, text='Obtener', command=ejecutar)
     btn.place(x = 350, y = 190)
 
+########################################
 def view_extractRangeTable():
-    print("funciona")
+    def ejecutar():
+        name_table = txtNombre.get()
+        num_column = txtColumnas.get()
+        s_pequenio = txtPequenio.get()
+        s_grande = txtGrande.get()
+        if name_table:
+            txtNombre.delete(0, END)
+            txtColumnas.delete(0, END)
+            txtPequenio.delete(0, END)
+            txtGrande.delete(0, END)
+            value = CRUD_Tabla().extractRangeTable(nombre_BaseDatos, name_table, num_column, s_pequenio, s_grande)
+            #value = 0
+            if value == 0:
+                messagebox.showinfo('', 'Operacion Exitosa')
+                window.destroy()
+            elif value == 2:
+                messagebox.showinfo('', 'Base de Datos Inexistente')
+            elif value == 3:
+                messagebox.showinfo('', 'Tabla Existente')
+            else:
+                messagebox.showinfo('', 'Error en la Operacion')
+
+    window = Tk()
+    edicionPantalla(window,  "Extract Range Table","#FCFCFB", 500, 450)
+    lblNombre = Label(window, text= 'Ingrese el Nombre de la Tabla', bg="#FCFCFB")
+    lblNombre.place(x = 125, y = 50)
+    txtNombre = Entry(window, width = 35)
+    txtNombre.place(x = 100, y = 80)
+
+    lblColumnas = Label(window, text= 'Ingrese el Numero de Columnas', bg="#FCFCFB")
+    lblColumnas.place(x = 125, y = 125)
+    txtColumnas = Entry(window, width = 35)
+    txtColumnas.place(x = 100, y = 155)
+
+    lblPequenio = Label(window, text= 'Ingrese el String mas Pequeño', bg="#FCFCFB")
+    lblPequenio.place(x = 125, y = 200)
+    txtPequenio = Entry(window, width = 35)
+    txtPequenio.place(x = 100, y = 230)
+
+    lblGrande = Label(window, text= 'Ingrese el String mas Grande', bg="#FCFCFB")
+    lblGrande.place(x = 125, y = 275)
+    txtGrande = Entry(window, width = 35)
+    txtGrande.place(x = 100, y = 305)
+
+    btn = Button(window, text='Guardar', command=ejecutar)
+    btn.place(x = 350, y = 350)
+########################################
 
 def view_alterAddPk():
     def modificar():
@@ -203,8 +250,9 @@ def view_alterAddPk():
         if v_table and v_columnas:
             txtTabla.delete(0, END)
             txtColumnas.delete(0, END)
-            #value = CRUD_Tabla().alterTable(nombre_BaseDatos, v_table, v_default)
-            value = 0
+            lista = v_columnas.split(",")
+            value = CRUD_Tabla().alterAddPK(nombre_BaseDatos, v_table,lista)
+            #value = 0
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
                 window.destroy()
@@ -237,8 +285,8 @@ def view_alterDropPk():
         v_table = txtTabla.get()
         if v_table:
             txtTabla.delete(0, END)
-            #value = CRUD_Tabla().alterTable(nombre_BaseDatos, v_table, v_default)
-            value = 0
+            value = CRUD_Tabla().alterDropPK(nombre_BaseDatos, v_table)
+            #value = 0
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
                 window.destroy()
@@ -267,8 +315,13 @@ def view_alterAddColumn():
         if v_table and v_default:
             txtTabla.delete(0, END)
             txtDefault.delete(0, END)
-            #value = CRUD_Tabla().alterTable(nombre_BaseDatos, v_table, v_default)
-            value = 0
+            lista = v_default.split(",")
+            value = 4
+            if len(lista) == 1:
+                value = CRUD_Tabla().alterAddColumn(nombre_BaseDatos, v_table, v_default)
+            else:
+                value = CRUD_Tabla().alterAddColumn(nombre_BaseDatos, v_table, lista)
+            #value = 0
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
                 window.destroy()
@@ -299,8 +352,8 @@ def view_alterDropColumn():
         if v_table and num_column:
             txtTabla.delete(0, END)
             txtColumna.delete(0, END)
-            #value = CRUD_Tabla().alterTable(nombre_BaseDatos, v_table, num_column)
-            value = 0
+            value = CRUD_Tabla().alterDropColumn(nombre_BaseDatos, v_table,num_column)
+            #value = 0
             if value == 0:
                 messagebox.showinfo('', 'Operacion Exitosa')
                 window.destroy()
