@@ -178,7 +178,19 @@ reservadas = {
     'money' :   'MONEY',
     'date'  :   'DATE',
     'varchar'   :   'VARCHAR',
-    'time'  :   'TIME'
+    'time'  :   'TIME',
+    'function' : 'FUNCTION',
+    'returns' : 'RETURNS',
+    'raise' : 'RAISE',
+    'notice' : 'NOTICE',
+    'return' : 'RETURN',
+    'begin' : 'BEGIN',
+    'end' : 'END',
+    'alias' : 'ALIAS',
+    'constant' : 'CONSTANT',
+    'collate' : 'COLLATE',
+    'declare' : 'DECLARE',
+    'for' : 'FOR'
 }
 
 tokens = [
@@ -362,7 +374,7 @@ def p_inst(p):
             |   delete
             |   usedb
             |   query
-            |   createfunc
+            | createfunc
     """
     p[0] = p[1]
     insertProduction(p.slice, len(p.slice))
@@ -1064,7 +1076,7 @@ def p_fun_sisa(t):
 def p_fsis(t):
     '''fsis : trig
             | math
-            | function '''
+            | func '''
     t[0]=t[1]
     insertProduction(t.slice, len(t.slice))
 
@@ -1072,7 +1084,7 @@ def p_columnFunc(t):
     '''
     column : trig
             | math
-            | function
+            | func
             | casewhen
 
     '''
@@ -1189,12 +1201,12 @@ def p_math(t):
     elif t[1].lower() == 'setseed' : t[0] =  math_setseed(t[3],None);insertProduction(t.slice, len(t.slice))
 
 def p_function_countAll(t):
-    'function : COUNT PARA MULTIPLICACION PARC'
+    'func : COUNT PARA MULTIPLICACION PARC'
     t[0] = fun_count(exp_id(t[3],None),None)
 
 def p_function(t):
     '''
-        function : SUM PARA exp PARC
+        func : SUM PARA exp PARC
                 | AVG PARA exp PARC
                 | MAX PARA exp PARC
                 | MIN PARA exp PARC
@@ -1242,7 +1254,6 @@ def p_type(t):
         | CHARACTER VARYING   
         | TEXT 
         | TIMESTAMP
-        | TABLE PARA lparams PARC
     '''
     t[0] = t[1]
     insertProduction(t.slice, len(t.slice))
@@ -1564,23 +1575,25 @@ def p_offsetEmpty(t):
     t[0] = 0
     insertProduction(t.slice, len(t.slice))
 
-
 def p_createfunc(t):
-    'createfunc : REATE FUNCTION id PARA lparams PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOALR'
+    'createfunc : CREATE FUNCTION ID PARA lparamsp PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
     t[0] = createfunc(t[3],t[5],t[8],t[12])
 
-
-def p_lparams(t):
-    'lparams : lparams COMA param' 
+def p_lparamsp(t):
+    'lparamsp : lparamsp COMA paramp' 
     t[1].append(t[3])
     t[0] = t[1]
 
-def p_lparamsSingle(t):
-    'lparams : param'
+def p_lparamspSingle(t):
+    'lparamsp : paramp'
     t[0] = [t[1]]
 
+def p_lparamspEmpty(t):
+    'lparamsp : empty'
+    t[0] = []
+
 def p_param(t):
-    '''param : id type
+    '''paramp : ID type
                 | type
     '''
     if len(t)>2:
@@ -1588,39 +1601,39 @@ def p_param(t):
     else:
         t[0] = param(None,t[1])
 
-def p_declareEmpty(t):
-    'declare : empty'
-    t[0] = []
-
 def p_block(t):
     ' block : declare BEGIN instrucciones END'
     t[0] = block(t[1],t[3])
 
+def p_declare(t):
+    '''declare : DECLARE ldec
+                | empty
+    '''
+
 def p_declareList(t):
-    'declare : declare declares'
+    'ldec : ldec declares'
     t[1].append(t[2])
     t[0] = t[1]
 
 def p_declareSingle(t):
-    'declare : declares'
+    'ldec : declares'
     t[0] = [t[1]]
-
-def p_declaration(p):
-    ''' declares : ID consta type coll  nn  ddiexp PUNTOCOMA'''
-    p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
 
 def p_declaresAsAlias(t):
     'declares : ID ALIAS FOR DOLAR INT PUNTOCOMA'
     t[0] = declaration(t[1],int(t[5])-1,None,None,None)
 
+def p_declaration(p):
+    ''' declares : ID consta type coll  nn  ddiexp PUNTOCOMA'''
+    p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
 
 def p_ddiexp(p):
     '''ddiexp : ddi valortipo '''
     p[0] = expre(p[1],p[2])
     
 
-def p_ddiexp(p):
-    '''ddiexp : '''
+def p_ddiexpNone(p):
+    '''ddiexp : empty '''
     p[0] = None
 
 def p_ddi(p):
@@ -1649,7 +1662,6 @@ def p_nn(p):
     if p[1] == 'not': p[0] = p[1]
     else: p[0] = None
 
-
 def p_instrucciones(t):
     'instrucciones : instrucciones instruccion'
     t[1].append(t[2])
@@ -1663,7 +1675,7 @@ def p_instruccionesSingle(t):
 def p_instruccion(t):
     '''instruccion : raisenotice
                     | asignacion
-                    | return 
+                    | rtrn 
                     | block
     
      '''
@@ -1676,7 +1688,7 @@ def p_raisenotice(t):
     t[0] = raisenotice(t[3],t[4])
 
 def p_compvalue(t):
-    'compvalue : COMA id'
+    'compvalue : COMA ID'
     t[0] = t[1]
 
 def p_compvalueEmpty(t):
@@ -1684,7 +1696,7 @@ def p_compvalueEmpty(t):
     t[0] = None
 
 def p_asignacion(t):
-    'asignacion : id igualacion newexp PUNTOCOMA'
+    'asignacion : ID igualacion newexp PUNTOCOMA'
     t[0] = asignacion(t[1],t[4])
 
 def p_igualacion(t):
@@ -1694,12 +1706,55 @@ def p_igualacion(t):
     
 
 def p_return(t):
-    'return : RETURN newexp PUNTOCOMA'
+    'rtrn : RETURN newexp PUNTOCOMA'
     t[0] = rtrn(t[2])
 
 
-def p_newexp(t):
-    'newexp : empty'
+def p_newexp_id(t):
+    '''newexp :  ID'''
+    t[0] = exp_idp(t[1])
+
+def p_newexp_bool(t):
+    '''newexp : TRUE
+            | FALSE
+    '''
+    t[0] = exp_textp(t[1])
+
+def p_newexp_num(t):
+    '''newexp : INT
+            | DEC 
+    '''
+    t[0] = exp_nump(t[1])
+            
+def p_newexp_text(t):
+    '''newexp :  VARCHAR '''
+    t[0] = exp_textp(t[1])
+
+def p_newexp_una(t):
+    '''newexp : MENOS newexp %prec UMENOS
+              | MAS newexp %prec UMAS
+              '''
+    if t[1] == '-'  :
+        t[2].val *= -1
+        t[0] = t[2]
+    elif t[1] == '+': 
+        t[0] = t[2]
+
+def p_newexp_bi(t):
+    '''newexp : newexp MAS newexp
+            | newexp MENOS newexp
+            | newexp MULTIPLICACION newexp
+            | newexp DIVISION newexp 
+            | PARA newexp PARC
+            '''
+    if t[1] == '(' : 
+        t[0] = t[2]
+    else:
+        if t[2] == '+'  : t[0] = exp_sumap(t[1],t[3])
+        elif t[2] == '-': t[0] = exp_restap(t[1], t[3])
+        elif t[2] == '*': t[0] = exp_multiplicacionp(t[1], t[3])
+        elif t[2] == '/': t[0] = exp_divisionp(t[1], t[3])
+
 
 def p_error(t):
     if t:
