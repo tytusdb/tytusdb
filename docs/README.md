@@ -137,7 +137,7 @@ Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 'is
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 4 modo incorrecto.  
 
 ```
-def alterTableMode(database: str, table: str, encoding: str) -> int:
+def alterTableMode(database: str, table: str, mode: str) -> int:
 ```
 Cambia el modo de almacenamiento de una tabla de una base de datos especificada.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
@@ -148,9 +148,39 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 ### 3. Administración de índices
 
 Mediante funciones se debe administrar los diferentes índices de una base de datos, entre los cuales figuran:
-- creación, modificación y eliminación de llaves foráneas
-- creación, modificación y eliminación de índices únicos
-- creación, modificación y eliminación de índices
+- creación y eliminación de llaves foráneas
+
+```
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+```
+Agrega un índice de llave foránea, creando una estructura adicional con el modo indicado para la base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar. 
+Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
+Parámetro indexName: es el nombre único del índice manejado como metadato de la tabla para ubicarlo fácilmente.
+Parámetro columns: es el conjunto de índices de columnas que forman parte de la llave foránea, mínimo debe ser una columna.  
+Parámetro tableRef: es el nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s).  
+Parámetro columnsRef: es el conjunto de índices de columnas que forman parte de la llave primaria, mínimo debe ser una columna.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table o tableRef no existente, 4 cantidad no exacta entre columns y columnsRef, 5 no se cumple la integridad referencial (es decir, algún valor de las llaves foráneas no existe en la tabla de referencia).  
+No es necesario que las llaves foráneas en la tabla de referencia sean primarias.  
+Se aceptan llaves foráneas nulas (None), en estás no se verifica la integridad referencial.
+A este nivel no se debe manejar las restricciones de delete o update de llaves, será manejado a nivel lógico del parser.
+
+```
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+```
+Destruye el índice tanto como metadato de la tabla como la estructura adicional creada.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar. 
+Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
+Parámetro indexName: es el nombre del índice manejado como metadato de la tabla para ubicarlo fácilmente.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 nombre de índice no existente.  
+
+
+- creación y eliminación de índices únicos
+
+
+- creación y eliminación de índices
+
+
 
 ### 4. Administración de la codificación
 
