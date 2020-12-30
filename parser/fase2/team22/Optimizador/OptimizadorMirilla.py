@@ -1,3 +1,4 @@
+from graphviz import Graph
 import C3D
 
 class OptMirilla:
@@ -18,6 +19,29 @@ class OptMirilla:
                 if type(pila[indice]) == C3D.Asignacion:
                     #Operación de optimización de regla 1
                     self.regla1(pila, pila[indice], indice)
+
+                    #Operacion de optimizacion de regla 8 - 18
+                    reg8_9 = self.regla8_9(pila[indice],indice)
+                    reg10_11 = self.regla10_11(pila[indice],indice)
+                    reg12_13 = self.regla12_13(pila[indice],indice)
+                    reg14_15 = self.regla14_15(pila[indice],indice)
+                    reg16 = self.regla16(pila[indice],indice)
+                    reg17_18 = self.regla17_18(pila[indice],indice)
+                    if reg8_9 != False:
+                        self.ElementosIgnorar.append(indice)
+                    elif reg10_11 != False:
+                        self.ElementosIgnorar.append(indice)
+                    elif reg12_13 != False:
+                        self.ListaOptimizada.append(reg12_13)
+                    elif reg14_15 != False:
+                        self.ListaOptimizada.append(reg14_15)
+                    elif reg16 != False:
+                        self.ListaOptimizada.append(reg16)
+                    elif reg17_18 != False:
+                        self.ListaOptimizada.append(reg17_18)
+                    else:
+                        if pila[indice] not in self.ListaOptimizada:
+                            self.ListaOptimizada.append(pila[indice])
         
                 elif type(pila[indice]) == C3D.SentenciaIF:
                     #signfica que debe ejecutar el análisis de los ifs
@@ -193,6 +217,202 @@ class OptMirilla:
         #Si llegamos a este punto, no encontramos ninguna etiqueta con el valor del goto, por lo que no cambiamos nada.
         return EtiquetaGoto
 
+    #-----------------Simplificacion por fuerza------------------#
+    #Reglas 8 y 9, eliminacion de instruccion; sumando o restando con 0
+    def regla8_9(self,operacion,indice):
+        if type(operacion.Valor) == C3D.Operacion:
+            asignado = self.verificaValor(operacion.Tx)
+            op1 = self.verificaValor(operacion.Valor.Op1)
+            op2 = self.verificaValor(operacion.Valor.Op2)
+            operador = operacion.Valor.Operador
+            if (asignado == op1) and (operador == C3D.OP_ARITMETICO.SUMA) and (op2 == '0'):
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " + " + op2
+                optimizado = "Se elimina la instruccion"
+                self.reporteOptimizado.append(["Regla 8", termino, optimizado, str(indice + 1)])
+                return True
+            elif (asignado == op2) and (operador == C3D.OP_ARITMETICO.SUMA) and (op1 == '0'):
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " + " + op2
+                optimizado = "Se elimina la instruccion"
+                self.reporteOptimizado.append(["Regla 8", termino, optimizado, str(indice + 1)])
+                return True
+            elif (asignado == op1) and (operador == C3D.OP_ARITMETICO.RESTA) and (op2  == '0'):
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " - " + op2
+                optimizado = "Se elimina la instruccion"
+                self.reporteOptimizado.append(["Regla 9", termino, optimizado, str(indice + 1)])
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    #Reglas 10 y 11, eliminacion de instruccion; multiplicando o dividiendo con 1
+    def regla10_11(self,operacion,indice):
+        if type(operacion.Valor) == C3D.Operacion:
+            asignado = self.verificaValor(operacion.Tx)
+            op1 = self.verificaValor(operacion.Valor.Op1)
+            op2 = self.verificaValor(operacion.Valor.Op2)
+            operador = operacion.Valor.Operador
+            if (asignado == op1) and (operador == C3D.OP_ARITMETICO.MULTIPLICACION) and (op2  == '1'):
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " * " + op2
+                optimizado = "Se elimina la instruccion"
+                self.reporteOptimizado.append(["Regla 10", termino, optimizado, str(indice + 1)])
+                return True
+            elif (asignado == op2) and (operador == C3D.OP_ARITMETICO.MULTIPLICACION) and (op1 == '1'):
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " * " + op2
+                optimizado = "Se elimina la instruccion"
+                self.reporteOptimizado.append(["Regla 10", termino, optimizado, str(indice + 1)])
+                return True
+            elif (asignado == op1) and (operador == C3D.OP_ARITMETICO.DIVISION) and (op2  == '1'):
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " / " + op2
+                optimizado = "Se elimina la instruccion"
+                self.reporteOptimizado.append(["Regla 11", termino, optimizado, str(indice + 1)])
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    #-----------------Simplificacion algebraica------------------#
+    #Reglas 12 y 13, optimizacion de instruccion; sumando o restando con 0
+    def regla12_13(self,operacion,indice):
+        if type(operacion.Valor) == C3D.Operacion:
+            asignado = self.verificaValor(operacion.Tx)
+            op1 = self.verificaValor(operacion.Valor.Op1)
+            op2 = self.verificaValor(operacion.Valor.Op2)
+            operador = operacion.Valor.Operador
+            if (asignado != op1) and (operador == C3D.OP_ARITMETICO.SUMA) and (op2  == '0'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),operacion.Valor.Op1)
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " + " + op2
+                optimizado = asignado + " = " + op1
+                self.reporteOptimizado.append(["Regla 12", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            elif (asignado != op2) and (operador == C3D.OP_ARITMETICO.SUMA) and (op1 == '0'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),operacion.Valor.Op2)
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " + " + op2
+                optimizado = asignado + " = " + op2
+                self.reporteOptimizado.append(["Regla 12", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            elif (asignado != op1) and (operador == C3D.OP_ARITMETICO.RESTA) and (op2  == '0'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),operacion.Valor.Op1)
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " - " + op2
+                optimizado = asignado + " = " + op1
+                self.reporteOptimizado.append(["Regla 13", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            else:
+                return False
+        else:
+            return False
+
+    #Reglas 14 y 15, optimizacion de instruccion; multiplicando o dividiendo con 1
+    def regla14_15(self,operacion,indice):
+        if type(operacion.Valor) == C3D.Operacion:
+            asignado = self.verificaValor(operacion.Tx)
+            op1 = self.verificaValor(operacion.Valor.Op1)
+            op2 = self.verificaValor(operacion.Valor.Op2)
+            operador = operacion.Valor.Operador
+            if (asignado != op1) and (operador == C3D.OP_ARITMETICO.MULTIPLICACION) and (op2  == '1'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),operacion.Valor.Op1)
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " * " + op2
+                optimizado = asignado + " = " + op1
+                self.reporteOptimizado.append(["Regla 14", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            elif (asignado != op2) and (operador == C3D.OP_ARITMETICO.MULTIPLICACION) and (op1 == '1'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),operacion.Valor.Op2)
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " * " + op2
+                optimizado = asignado + " = " + op2
+                self.reporteOptimizado.append(["Regla 14", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            elif (asignado != op1) and (operador == C3D.OP_ARITMETICO.DIVISION) and (op2  == '1'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),operacion.Valor.Op1)
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " / " + op2
+                optimizado = asignado + " = " + op1
+                self.reporteOptimizado.append(["Regla 15", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            else:
+                return False
+        else:
+            return False
+
+    #Regla 16, optimizacion de instruccion; convirtiendo multiplicacion * 2 a suma
+    def regla16(self,operacion,indice):
+        if type(operacion.Valor) == C3D.Operacion:
+            asignado = self.verificaValor(operacion.Tx)
+            op1 = self.verificaValor(operacion.Valor.Op1)
+            op2 = self.verificaValor(operacion.Valor.Op2)
+            operador = operacion.Valor.Operador
+            if (operador == C3D.OP_ARITMETICO.MULTIPLICACION) and (op2  == '2' or op1 == '2'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),C3D.Operacion(operacion.Tx,operacion.Tx,C3D.OP_ARITMETICO.SUMA))
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = ""
+                optimizado = ""
+                if op1 == '2':
+                    termino = asignado + " = " + op1 + " * " + op2
+                    optimizado = asignado + " = " + op2 + " + " + op2
+                elif op2 == '2':
+                    termino = asignado + " = " + op1 + " * " + op2
+                    optimizado = asignado + " = " + op1 + " + " + op1
+                
+                self.reporteOptimizado.append(["Regla 16", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            else:
+                return False
+        else:
+            return False
+
+    #Regla 17 y 18, optimizacion de instruccion; multiplicando o dividiendo con 0
+    def regla17_18(self,operacion,indice):
+        if type(operacion.Valor) == C3D.Operacion:
+            asignado = self.verificaValor(operacion.Tx)
+            op1 = self.verificaValor(operacion.Valor.Op1)
+            op2 = self.verificaValor(operacion.Valor.Op2)
+            operador = operacion.Valor.Operador
+            if (operador == C3D.OP_ARITMETICO.MULTIPLICACION) and (op2  == '0' or op1 == '0'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),C3D.Valor(0, 'ENTERO'))
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = ""
+                optimizado = ""
+                if op1 == '0':
+                    termino = asignado + " = " + op1 + " * " + op2
+                    optimizado = asignado + " = " + op2
+                elif op2 == '0':
+                    termino = asignado + " = " + op1 + " * " + op2
+                    optimizado = asignado + " = " + op1
+
+                self.reporteOptimizado.append(["Regla 17", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            elif (operador == C3D.OP_ARITMETICO.DIVISION) and (op1 == '0'):
+                #Agregamos los datos ya optimizados
+                nuevaOperacion = C3D.Asignacion(C3D.Identificador(asignado),operador.Valor.Op1)
+                #Generamos los datos para realizar el reporte de optimizacion
+                termino = asignado + " = " + op1 + " / " + op2
+                optimizado = asignado + " = " + op1
+                self.reporteOptimizado.append(["Regla 18", termino, optimizado, str(indice + 1)])
+                return nuevaOperacion
+            else:
+                return False
+        else:
+            return False
+
     def Imprimir(self, elemento):
         if type(elemento) == C3D.Asignacion:
             if type(elemento.Valor) == C3D.Identificador:
@@ -282,3 +502,28 @@ class OptMirilla:
             return C3D.Condicion(condicion.Op1, condicion.Op2, C3D.OP_RELACIONAL.DIFERENTE)
         if condicion.Operador == C3D.OP_RELACIONAL.DIFERENTE:
             return C3D.Condicion(condicion.Op1, condicion.Op2, C3D.OP_RELACIONAL.IGUAL)
+
+    #Verifica si es identificador o no para poder obtener su valor
+    def verificaValor(self,valor):
+        if type(valor) == C3D.Identificador:
+            return str(valor.Id)
+        elif type(valor) == C3D.Valor:
+            return str(valor.Valor)
+        else:
+            return str(valor)
+
+    def generarReporte(self):
+        dot = Graph()
+        dot.attr(pad = '0.5', nodesep = '0.5', ranksep = '2')
+        dot.node_attr.update(shape = 'plain', rankdir = 'TB')
+        tablaOptimizada ="<<table border = '0' cellborder = '1' cellspacing = '0'>\n"
+        tablaOptimizada += "<tr><td bgcolor='/rdylgn11/6:/rdylgn11/9'><i>Reporte de Optimización</i></td></tr>\n"
+        tablaOptimizada += "<tr><td bgcolor='/rdylgn11/6:/rdylgn11/9'><i>No. Regla</i></td><td bgcolor='/rdylgn11/6:/rdylgn11/9'><i> Codigo Original </i></td><td bgcolor='/rdylgn11/6:/rdylgn11/9'><i> Codigo Optimizado </i></td>"
+        tablaOptimizada += "<td bgcolor='/rdylgn11/6:/rdylgn11/9'><i>Fila</i></td></tr>\n"
+        
+        for elemento in self.reporteOptimizado:
+            tablaOptimizada += "<tr><td>" + elemento[0] + "</td><td>" + elemento[1] + "</td><td>" + elemento[2] + "</td><td>" + elemento[3] + "</td></tr>\n"
+        
+        tablaOptimizada += "</table>>\n"
+        dot.node("Optimi",tablaOptimizada)
+        dot.view("ReporteOptimizado")
