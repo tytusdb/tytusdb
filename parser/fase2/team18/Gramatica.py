@@ -25,7 +25,8 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'in':'IN','any':'ANY', 'all':'ALL','some':'SOME','union':'UNION','intersect':'INTERSECT','except':'EXCEPT'  ,'case':'CASE','when':'WHEN','else':'ELSE','end':'END',
                'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'between':'BETWEEN' ,'offset':'OFFSET',
                'greatest':'GREATEST' , 'least':'LEAST','md5':'MD5','extract':'EXTRACT','now':'NOW' ,'date_part':'DATE_PART' ,
-               'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME', 'use':'USE', 'count':'COUNT', 'sum':'SUM', 'avg':'AVG', 'max':'MAX', 'min':'MIN'
+               'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME', 'use':'USE', 'count':'COUNT', 'sum':'SUM', 'avg':'AVG', 'max':'MAX', 'min':'MIN', 'index':'INDEX',
+               'hash':'HASH', 'lower':'lower'
              } 
  
 
@@ -1073,6 +1074,9 @@ def p_funciones_select_restantes(t):
      elif t[1].lower() == "min":
           t[0] = Funcion_select(t[3],FUNCIONES_SELECT.MIN)
 
+def p_funtion_math_lower(t):
+     '''funcion_math : lower PAR_A exp PAR_C'''
+
 def p_funcion_date(t):
      '''funcion_date : extract'''
      t[0] = t[1]                                            
@@ -1287,6 +1291,26 @@ def p_crear(t):
                t[0]=CrearTabla(Operando_ID(t[3]),t[7],t[5])
           else:
                t[0]=CrearType(Operando_ID(t[3]),t[7])
+
+def p_crear_index(t):
+     'crear : CREATE unicidad_index INDEX ID ON ID tipo_index PAR_A lista_exp value_direction value_rang PAR_C cond_where'
+     t[0] = Indice(Operando_ID(t[4]),Operando_ID(t[6]),Operando_Booleano(t[7]),t[9])
+
+def p_unicidad_index(t):
+     '''unicidad_index : UNIQUE
+                       | empty'''
+
+def p_tipo_index(t):
+     '''tipo_index : USING HASH
+                   | empty'''
+     if len(t) == 3:
+          t[0] = True
+     else:
+          t[0] = False
+
+def p_cond_where(t):
+     '''cond_where : WHERE exp
+                   | empty'''
      
 def p_reemplazar(t):
      '''reemplazar : OR REPLACE

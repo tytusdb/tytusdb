@@ -339,4 +339,13 @@ class ALTERTBO_ALTER_SERIE(Instruccion):
     def __init__(self, listaval):
         self.listaval = listaval
 
+class Indice(Instruccion):
+    '''
+        Esta clase representa un indice
+    '''
+    def __init__(self,nombre,tabla,tipo,columnas):
+        self.nombre=nombre
+        self.tabla=tabla
+        self.tipo=tipo
+        self.columnas=columnas
 

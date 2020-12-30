@@ -3235,6 +3235,19 @@ def filtroOrderBy(tabla,filtro,ts):
 
     return tabla
 
+def Indexs(instr,ts):
+    nombre=resolver_operacion(instr.nombre,ts)
+    nmtabla=resolver_operacion(instr.tabla,ts)
+    tipo=resolver_operacion(instr.tipo,ts)
+    agregarMensjae('normal','Index','')
+    msg='Indice '+nombre+' en tabla '+nmtabla
+    agregarMensjae('exito',msg,'')
+    agregarTSRepor('INDEX','','','','')
+    if tipo:
+        agregarTSRepor('',nombre,'Hash',nmtabla,'1')
+    else:
+        agregarTSRepor('',nombre,'Normal',nmtabla,'1')
+
 
 #-------------
 def resolver_operacion(operacion,ts):
@@ -3456,14 +3469,16 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, ALTERDBO) : AlterDBF(instr,ts)
             elif isinstance(instr, ALTERTBO) : AlterTBF(instr,ts)
             elif isinstance(instr, MostrarTB) : Mostrar_TB(instr,ts)
+            elif isinstance(instr, Indice) : Indexs(instr,ts)
             else: 
-                for val in instr:
-                    if(isinstance (val,SELECT)): 
-                        if val.funcion_alias is not None:
-                            ejecutar_select(val,ts)
-                        else:
-                            select_table(val,ts)
-                    else : print('Error: instrucción no válida')      
+                if instr is not None:
+                    for val in instr:
+                        if(isinstance (val,SELECT)): 
+                            if val.funcion_alias is not None:
+                                ejecutar_select(val,ts)
+                            else:
+                                select_table(val,ts)
+                else : agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')      
     else: agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')
     Reporte_Errores_Sem(Errores_Semanticos)  
 
