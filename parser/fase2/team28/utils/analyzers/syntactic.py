@@ -74,6 +74,7 @@ def p_sql_instruction(p):
                     | usestatement
                     | MULTI_LINE_COMMENT
                     | SINGLE_LINE_COMMENT
+                    | INDEXES_STATEMENT
                     | error SEMICOLON
     '''
     p[0] = p[1]
@@ -369,6 +370,45 @@ def p_options_col_list(p):
     else:
         p[0] = [p[1]]
 
+def p_indexes_statement(p):
+    '''INDEXES_STATEMENT : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
+                         | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
+                         | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
+                         | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
+    '''
+def p_type_index(p):
+    ''' TYPE_INDEX : INDEX
+                   | UNIQUE INDEX
+    '''
+
+def p_options1_indexes(p):
+    ''' OPTIONS1_INDEXES : USING TYPE_MODE_INDEX
+    '''
+
+def p_type_mode_index(p):
+    ''' TYPE_MODE_INDEX : BTREE 
+                        | HASH
+    '''
+
+def p_body_index(p):
+    ''' BODY_INDEX : BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
+                   | BODY_INDEX COMMA ID OPTIONS2_INDEXES
+                   | BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                   | BODY_INDEX COMMA ID 
+                   | ID OPTIONS2_INDEXES
+                   | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                   | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
+                   | ID
+    '''
+
+def p_options2_indexes(p):
+    '''  OPTIONS2_INDEXES : ASC NULLS FIRST 
+                          | DESC NULLS LAST
+                          | NULLS FIRST
+                          | NULLS LAST
+                          | ASC
+                          | DESC
+    '''
 
 def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
@@ -1142,7 +1182,7 @@ def p_sql_in_clause(p):
                     | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                     | IN LEFT_PARENTHESIS listain RIGHT_PARENTHESIS'''
     if (len(p) == 6):
-        p[0] = [p.slice[2].type, True, p[3],
+        p[0] = [p.slice[2].type, True, p[4],
                 p.lineno(2), find_column(p.slice[2])]
     else:
         p[0] = [p.slice[1].type, False, p[3],
@@ -1184,7 +1224,7 @@ def p_sql_like_clause(p):
     '''SQLLIKECLAUSE  : NOT LIKE SQLSIMPLEEXPRESSION
                       | LIKE SQLSIMPLEEXPRESSION'''
     if (len(p) == 4):
-        p[0] = [True, p.slice[1].type, p[3],
+        p[0] = [True, p.slice[2].type, p[3],
                 p.lineno(1), find_column(p.slice[1])]
     else:
         p[0] = [False,  p.slice[1].type, p[2],

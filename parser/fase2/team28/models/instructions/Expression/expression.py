@@ -115,7 +115,14 @@ class Relop(Expression):
                 return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
             else:
                 data = ""
-                if isinstance(value1, list):
+                if isinstance(value1, list) and isinstance(value2, list):
+                    if self.op == "=":
+                        data = f'{value1[1]} {self.op}= {value2[1]}'
+                        return data
+                    else:
+                        data = f'{value1[1]} {self.op} {value2[1]}'
+                        return data
+                elif isinstance(value1, list):
                     if isinstance(value2.value, int):
                         if self.op == "=":
                             data = f'{value1[1]} {self.op}= {str(value2.value)}'

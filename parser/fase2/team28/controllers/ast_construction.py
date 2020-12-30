@@ -110,6 +110,14 @@ def p_sql_instruction_COMMENT(p):
     nodo.production += f"{p[1].production}"
     p[0] = nodo
 
+def p_sql_indexes_statement(p):
+    ''' sqlinstruction : INDEXES_STATEMENT
+    '''
+    nodo = Node('SQL Instruction')
+    nodo.add_childrens(p[1])
+    nodo.production = f'<sqlinstruction> ::= <INDEXES_STATEMENT>\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = p[1]
 
 def p_use_statement(p):
     '''usestatement : USE ID SEMICOLON'''
@@ -754,6 +762,220 @@ def p_options_col_list(p):
         nodo.production += f"{p[1].production}"
         p[0] = nodo
 
+def p_indexes_statement(p):
+    '''INDEXES_STATEMENT : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
+                         | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
+                         | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
+                         | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
+    '''
+    nodo = Node('INDEXES_STATEMENT')
+    if len(p) == 12:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(p[2])
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(p[6])
+        nodo.add_childrens(Node(p[7]))
+        nodo.add_childrens(p[8])
+        nodo.add_childrens(Node(p[9]))
+        nodo.add_childrens(p[10])
+        nodo.add_childrens(Node(p[11]))
+        nodo.production = f"<INDEXES_STATEMENT> := CREATE <TYPE_INDEX>  ID ON ID <OPTIONS1_INDEXES> LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  <WHERECLAUSE> SEMICOLON\n"
+        nodo.production += f'{p[2].production}'
+        nodo.production += f'{p[6].production}'
+        nodo.production += f'{p[8].production}'
+        nodo.production += f'{p[10].production}'
+        p[0] = nodo
+    elif len(p) == 11:
+        if p.slice[6].type == "LEFT_PARENTHESIS":
+            print('AQUI xd')
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(p[2])
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(Node(p[6]))
+            nodo.add_childrens(p[7])
+            nodo.add_childrens(Node(p[8]))
+            nodo.add_childrens(p[9])
+            nodo.add_childrens(Node(p[10]))
+            nodo.production = f'<INDEXES_STATEMENT> := CREATE <TYPE_INDEX>  ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS <WHERECLAUSE> SEMICOLON\n'
+            nodo.production += f'{p[2].production}'
+            nodo.production += f'{p[7].production}'
+            nodo.production += f'{p[9].production}'
+            p[0] = nodo
+        else:
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(p[2])
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(p[6])
+            nodo.add_childrens(Node(p[7]))
+            nodo.add_childrens(p[8])
+            nodo.add_childrens(Node(p[9]))
+            nodo.add_childrens(Node(p[10]))
+            nodo.production = f'<INDEXES_STATEMENT> := CREATE <TYPE_INDEX>  ID ON ID <OPTIONS1_INDEXES> LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON\n'
+            nodo.production += f'{p[2].production}'
+            nodo.production += f'{p[6].production}'
+            nodo.production += f'{p[8].production}'
+            p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(p[2])
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.add_childrens(p[7])
+        nodo.add_childrens(Node(p[8]))
+        nodo.add_childrens(Node(p[9]))
+        nodo.production = f'<INDEXES_STATEMENT> := CREATE <TYPE_INDEX>  ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS <WHERECLAUSE> SEMICOLON\n'
+        nodo.production += f'{p[2].production}'
+        nodo.production += f'{p[7].production}'
+        p[0] = nodo
+    
+
+def p_type_index(p):
+    ''' TYPE_INDEX : INDEX
+                   | UNIQUE INDEX
+    '''
+    nodo = Node('TYPE_INDEX')
+    if len(p) == 3:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.production = f'<TYPE_INDEX> := UNIQUE INDEX\n'
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f'<TYPE_INDEX> := INDEX\n'
+    p[0] = nodo
+
+def p_options1_indexes(p):
+    ''' OPTIONS1_INDEXES : USING TYPE_MODE_INDEX
+    '''
+    nodo = Node('OPTIONS1_INDEXES')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.production = f'<OPTIONS1_INDEXES> := USING <TYPE_MODE_INDEX>\n'
+    nodo.production += f'{p[2].production}'
+    p[0] = nodo
+
+def p_type_mode_index(p):
+    ''' TYPE_MODE_INDEX : BTREE 
+                        | HASH
+    '''
+    nodo = Node('TYPE_MODE_INDEX')
+    if p.slice[1].type == "BTREE":
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f'<TYPE_MODE_INDEX>  := BTREE\n'
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f'<TYPE_MODE_INDEX>  := HASH\n'
+    p[0] = nodo
+
+def p_body_index(p):
+    ''' BODY_INDEX : BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
+                   | BODY_INDEX COMMA ID OPTIONS2_INDEXES
+                   | BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                   | BODY_INDEX COMMA ID 
+                   | ID OPTIONS2_INDEXES
+                   | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                   | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
+                   | ID
+    '''
+    nodo = Node('BODY_INDEX')
+    if len(p) == 8:
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.add_childrens(p[7])
+        nodo.production = f'<BODY_INDEX> := <BODY_INDEX> COMMA  LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS <OPTIONS2_INDEXES>\n'
+        nodo.production += f'{p[1].production}'
+        nodo.production += f'{p[7].production}'
+    elif len(p) == 7:
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.production = f'<BODY_INDEX> := <BODY_INDEX>  COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS\n'
+        nodo.production += f'{p[1].production}'
+    elif len(p) == 6:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.production = f'<BODY_INDEX> := LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS\n"'
+        nodo.production += f'{p[5].production}'
+    elif len(p) == 5:
+        if p.slice[1].type == "LOWER":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.production = f'<BODY_INDEX> := LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS\n"'
+        else:
+            nodo.add_childrens(p[1])
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(p[4])
+            nodo.production = f'<BODY_INDEX> := <BODY_INDEX> COMMA ID <OPTIONS2_INDEXES>\n'
+            nodo.production += f'{p[1].production}'
+            nodo.production += f'{p[4].production}'
+    elif len(p) == 4:
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.production = f'<BODY_INDEX> := <BODY_INDEX>  COMMA ID\n'
+        nodo.production += f'{p[1].production}'
+    elif len(p) == 3:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(p[2])
+        nodo.production = f'<BODY_INDEX> :=  ID <OPTIONS2_INDEXES>\n'
+        nodo.production += f'{p[2].production}'
+    elif len(p) == 2:
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f'<BODY_INDEX> := ID\n'
+    p[0] = nodo
+
+
+def p_options2_indexes(p):
+    '''  OPTIONS2_INDEXES : ASC NULLS FIRST 
+                          | DESC NULLS LAST
+                          | NULLS FIRST
+                          | NULLS LAST
+                          | ASC
+                          | DESC
+    '''
+    nodo = Node('OPTIONS2_INDEXES')
+    if len(p) == 4:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        if p.slice[1].type == "ASC":
+            nodo.production = f'<OPTIONS2_INDEXES> := ASC NULLS FIRST\n'
+        else:
+            nodo.production = f'<OPTIONS2_INDEXES> := DESC NULLS LAST\n'
+    elif len(p) == 3:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        if p.slice[2].type == "FIRST":
+            nodo.production = f'<OPTIONS2_INDEXES> := NULLS FIRST\n'
+        else:
+            nodo.production = f'<OPTIONS2_INDEXES> := NULLS LAST\n'
+    else:
+        nodo.add_childrens(Node(p[1]))
+        if p.slice[1].type == "ASC":
+            nodo.production = f'<OPTIONS2_INDEXES> := ASC\n'
+        else:
+            nodo.production = f'<OPTIONS2_INDEXES> := DESC\n'
+    p[0] = nodo
 
 def p_option_col_DEFAULT_SIMP(p):
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION

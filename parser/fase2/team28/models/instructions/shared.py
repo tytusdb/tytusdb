@@ -122,7 +122,7 @@ class Where(Instruction):
                         value_aux = value
                         result = table.columns.intersection(value_aux.columns)
                         list_col = list(result)
-                        table = table[table[list_col].isin(value_aux[list_col])]
+                        table = table[list_col].isin(value_aux[list_col])
                 except:
                     desc = "FATAL ERROR, murio porque usaste where con columnas de otra tabla, F"
                     ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -131,10 +131,10 @@ class Where(Instruction):
                 condition = self.condition[1]
                 value = condition.process(instrucction)
                 try:
-                        value_aux = value
-                        result = table.columns.intersection(value_aux.columns)
-                        list_col = list(result)
-                        table = table[~table[list_col].isin(value_aux[list_col])]
+                    value_aux = value
+                    result = table.columns.intersection(value_aux.columns)
+                    list_col = list(result)
+                    table = ~table[list_col].isin(value_aux[list_col])
                 except:
                     desc = "FATAL ERROR, murio porque usaste where con columnas de otra tabla, F"
                     ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -464,8 +464,3 @@ class ObjectReference(Instruction):
     
     def process(self, instruction):
         return self.reference_column.process(instruction)
-
-
-
-
-

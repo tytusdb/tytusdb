@@ -107,10 +107,18 @@ class MainWindow(object):
         ############################################_ENTRADA_############################################
         Label(frame, text='Archivo de Entrada', borderwidth=0,
               font='Arial 15 bold', width=52, bg='#3c3f41', foreground='#fff').grid(row=3, column=0)
+
+        hor_scroll = Scrollbar(frame, orient='horizontal')
+        ver_scroll = Scrollbar(frame, orient='vertical')
         # Crea un scroll por si el texto es muy largo
-        self.entrada = scrolledtext.ScrolledText(frame, borderwidth=0, height=35,
-                                                 width=70, bg='#2e2e31', foreground='#fff')
+        self.entrada = Text(frame, borderwidth=0, height=35,
+                            width=70, bg='#2e2e31', foreground='#fff', undo=True, wrap='none', xscrollcommand=hor_scroll.set, yscrollcommand=ver_scroll.set)
         self.entrada.grid(row=4, column=0, padx=30)
+
+        ver_scroll.config(command=self.entrada.yview)
+        ver_scroll.grid(column=0, row=4, sticky='NE',ipady=255,padx=12)
+        hor_scroll.config(command=self.entrada.xview)
+        hor_scroll.grid(column=0, row=5, sticky='NS',ipadx=255)
 
         # Para este editor aun hay que ver si lo usamos como consola para errores, si no lo quitamos
         dataWindow = DataWindow()
@@ -176,20 +184,20 @@ class MainWindow(object):
             report_ast = result2
             messagebox.showinfo('EXITO', 'SE FINALIZO EL ANALISIS CON EXITO')
 
-            # ---------- TEST ---------
-            for inst in result:
-                # esto es por los select anidados (subquerys), no encontre otra menera
-                # de retornar la tabla dibujada, lo hacia en mi clase
-                # pero si lo dejaba ahi me tronaban las subquery,
-                # prueben que no les de problema
-                if isinstance(inst, Select):
-                    result = inst.process(0)
-                    if isinstance(result, DataFrame):
-                        DataWindow().consoleText(format_df(result))
-                    elif isinstance(result, list):
-                        DataWindow().consoleText(format_table_list(result))
-                else:
-                    inst.process(0)
+            # # ---------- TEST ---------
+            # for inst in result:
+            #     # esto es por los select anidados (subquerys), no encontre otra menera
+            #     # de retornar la tabla dibujada, lo hacia en mi clase
+            #     # pero si lo dejaba ahi me tronaban las subquery,
+            #     # prueben que no les de problema
+            #     if isinstance(inst, Select):
+            #         result = inst.process(0)
+            #         if isinstance(result, DataFrame):
+            #             DataWindow().consoleText(format_df(result))
+            #         elif isinstance(result, list):
+            #             DataWindow().consoleText(format_table_list(result))
+            #     else:
+            #         inst.process(0)
             # ---------- TEST ---------
 
     # Para mostrar el editor
