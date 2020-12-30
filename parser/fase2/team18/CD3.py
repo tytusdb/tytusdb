@@ -53,7 +53,15 @@ def PDropDatabase(nombreBase):
     agregarInstr(nombreBase,txt)
 
 def PSelectFunciones(alias,resultado):
-    agregarInstr("",'print("Alias:  '+ alias + '  Resultado: "+ str('+ str(resultado) +'))')
+    txt="\t#Select funcion\n"
+    varT="t"+str(numT())
+    txt+="\tt"+str(contT)+"='"+alias+"'\n"
+    varR="t"+str(numT())
+    txt+="\tt"+str(contT)+"='"+str(resultado)+"'\n"
+    
+
+    txt+='\tprint("Cabecera:  " + '+ varT  + ' + " Resultado: "+ str('+ varR +'))\n'
+    agregarInstr("",txt)
        
 def PUseDatabase(nombreBase):
     txt="\t#Use Database\n"

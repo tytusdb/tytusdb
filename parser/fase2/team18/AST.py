@@ -2850,6 +2850,7 @@ def ejecutar_select(instr,ts):
     agregarMensjae('normal','Select','')
     for val in instr.funcion_alias:
         if(isinstance (val,Funcion_Alias)):
+            print("Esto es  ->", val.nombre)
             result = resolver_operacion(val.nombre,ts)
             alias = ''
             print("SALIDA",result)
