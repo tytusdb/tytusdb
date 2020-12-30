@@ -14,12 +14,16 @@ class CreateEnum(ASTNode):
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_values = []
-        for val in self.value_list:          
+        for val in self.value_list:
             result_values.append(val.execute(table, tree))
         symbol = TypeSymbol(self.name, result_values)
         table.add(symbol)
         print(f'[AST] ENUM {self.name} created.')
         return f'[AST] ENUM {self.name} created.'
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class CreateDatabase(ASTNode):
@@ -57,6 +61,10 @@ class CreateDatabase(ASTNode):
             # return table.add(DatabaseSymbol(result_name, result_owner, result_mode)) #chaged by loadDatabases
             table.LoadDataBases()
             return ['Database \'' + result_name + '\' was created successfully!']
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
@@ -100,11 +108,16 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
 
         field_index = 0
         for field in result_fields:
-            nuevo = FieldSymbol(table.get_current_db().name, result_name, field_index, field.name, field.field_type, field.length, field.allows_null, field.is_pk, None, None)
+            nuevo = FieldSymbol(table.get_current_db().name, result_name, field_index, field.name, field.field_type,
+                                field.length, field.allows_null, field.is_pk, None, None)
             field_index += 1
             table.add(nuevo)
-            
-        return "Table: " +str(result_name) +" created."
+
+        return "Table: " + str(result_name) + " created."
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class TableField(ASTNode):  # returns an item, grammar has to add it to a list and synthesize value to table
@@ -134,6 +147,10 @@ class TableField(ASTNode):  # returns an item, grammar has to add it to a list a
             None,
             None
         )
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 # table = SymbolTable([])
 # cdb_obj = CreateDatabase('db_test2', None, None, False, 1, 2)
