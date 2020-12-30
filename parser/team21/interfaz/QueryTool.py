@@ -4,9 +4,10 @@ import sys
 import tkinter as tk
 from tkinter import ttk, font, messagebox, Image, filedialog
 import tytus.parser.team21.Analisis_Ascendente.ascendente as parser
+import tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode as jm
 import webbrowser as wb
 # from PIL import Image,ImageTk
-# vscode://vscode.github-authentication/did-authenticate?windowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
+# vscode://vscode.github-authentication/did-authenticate?wi0ndowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
 
 
 class Ctxt(tk.Text):  # Custom Text Widget with Highlight Pattern   - - - - -
@@ -618,7 +619,7 @@ class Application(ttk.Frame):
 
 
 def main():
-
+    #jm.dropAll()
     ventana = tk.Tk()
 
     # INICIALIZAR VARIABLES CON RUTAS
