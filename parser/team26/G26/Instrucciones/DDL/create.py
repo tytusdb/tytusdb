@@ -139,7 +139,7 @@ class Create(Instruccion):
                         null = default.list.execute(data)
                         unique = null.list.execute(data)
                         if unique.list == None : check = None
-                        else : check = unique.list.execute()
+                        else : check = unique.list.execute(data)
 
                         '''print('----------Columnas inicio----------')
                         print(primary)
