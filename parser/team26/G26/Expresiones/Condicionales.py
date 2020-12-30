@@ -307,8 +307,6 @@ class Condicionales(Instruccion):
                 return Error('Semántico', 'Error de tipos en IGUAL, no se puede operar ' + left.type + ' con ' + right.type, 0, 0)
         elif self.sign == 'between' :
             if left.type == 'integer' or left.type == 'float':
-                print (left)
-                print (right)
                 if right.type == False:
                     if (right.val1.type == 'integer' or right.val1.type == 'float') and (right.val2.type == 'integer' or right.val2.type == 'float') :
                         return (float(left.val) >= float(right.val1.val)) and (float(left.val) <= float(right.val2.val))
@@ -773,7 +771,6 @@ class Condicionales(Instruccion):
 
         if isinstance(right, Error):
             return right
-
         if self.sign == '>':
             if left.type == 'integer' or left.type == 'float':
                 if right.type == 'integer' or right.type == 'float':
@@ -1371,8 +1368,6 @@ class Condicionales(Instruccion):
                             return not False
         elif self.sign == 'between' :
             if left.type == 'integer' or left.type == 'float':
-                print (left)
-                print (right)
                 if right.type == False:
                     if (right.val1.type == 'integer' or right.val1.type == 'float') and (right.val2.type == 'integer' or right.val2.type == 'float') :
                         return (float(left.val) >= float(right.val1.val)) and (float(left.val) <= float(right.val2.val))

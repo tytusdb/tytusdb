@@ -57,6 +57,7 @@ class Select(Instruccion):
                             else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
                         
 
+
                 comprobar = nombreColumna.execute(data, None)
                 if isinstance(comprobar, Error):
                     return comprobar
@@ -206,7 +207,7 @@ class Select(Instruccion):
                             except :
                                 if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
                                 else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
-                            
+
 
 
                     try:
@@ -254,8 +255,6 @@ class Select(Instruccion):
             duplicadas = 0
             for route in routes:
                 if tuple(route) in dups:
-                    #nuevoArregloDistinct.append(route)
-                    #juntarValores.pop(contador)
                     duplicadas = duplicadas + 1
                 else:
                     nuevoArregloDistinct.append(route)
@@ -374,18 +373,11 @@ class Select(Instruccion):
                 duplicadas = 0
                 for route in routes:
                     if tuple(route) in dups:
-                        #juntarValores.pop(contador)
                         duplicadas = duplicadas + 1
                     else:
                         nuevoArregloDistinct.append(route)
                         dups.add(tuple(route))
                     contador = contador + 1
-
-                print('*******************************************************')
-                print(nuevoArregloDistinct)
-                print('*******************************************************')
-                print(juntarValores)
-                print('*******************************************************')
 
                 if duplicadas == 0:
                     nuevoArregloDistinct = juntarValores
@@ -497,10 +489,11 @@ class Casos(Instruccion):
 
 class FromOpcional(Instruccion):
 
-    def __init__(self,parametros, whereogroup, groupbyopcional):
+    def __init__(self, parametros, whereogroup, groupbyopcional, orderby):
         self.parametros = parametros
         self.whereopcional = whereogroup
         self.groupbyopcional = groupbyopcional
+        self.orderby = orderby
 
     def execute(self,data):
         return self
