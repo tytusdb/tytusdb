@@ -20,27 +20,41 @@ def agregarInstr(datoMemoria,instruccion):
     listaMemoria.append(datoMemoria)
     #agregar a la lista de salida
     global listaSalida
-    listaSalida.append(instruccion)
+    if(instruccion!=''):
+        listaSalida.append(instruccion)
 
 def PCreateDatabase(nombreBase,result):
-    if(result==1):
-        'eliminar, luego crear'
-        PDropDatabase(nombreBase)
-    #crear
     txt="\t#Create DataBase\n"
     txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
-    txt+="\tCD3.ECreateDatabase()\n"
-    agregarInstr(nombreBase,txt)
+    varT="t"+str(numT())
+    txt+="\t"+varT+"=CD3.EReplace()\n"
+    txt+="\tif("+varT+"):\n"
+    txt+="\t\tgoto .dropDB"+str(contT)+"\n"
+    txt+="\t\tlabel.dropDB"+str(contT)+"\n"
+    txt+="\t\tCD3.EDropDatabase()"
+    
+    replac=False
+    
+    if(result==1):
+        #'eliminar, luego crear'
+        replac=True
+        agregarInstr(replac,txt)#agregar replace
+        agregarInstr(nombreBase,'')#agregar Drop
+    else:
+        agregarInstr(replac,txt)#agregar replace
+    #crear tabla
+    txt3="\tCD3.ECreateDatabase()\n"
+    agregarInstr(nombreBase,txt3)#agregar create
 
 def PDropDatabase(nombreBase):
-    agregarInstr(nombreBase,"CD3.EDropDatabase()")
-
+    txt="\t#Drop DataBase\n"
+    txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
+    txt+="\tCD3.EDropDatabase()\n"
+    agregarInstr(nombreBase,txt)
 
 def PSelectFunciones(alias,resultado):
     agregarInstr("",'print("Alias:  '+ alias + '  Resultado: "+ str('+ str(resultado) +'))')
-    
-    
-    
+       
 def PUseDatabase(nombreBase):
     txt="\t#usar base\n"
     txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
@@ -91,7 +105,19 @@ def PCreateTable(nombreBase,nombreTabla,cantidadcol,llaves):
 
 def PInsert(nombreBase,nombreTabla,valores):
     Data_insert=[nombreBase,nombreTabla,valores]
-    agregarInstr(Data_insert,"CD3.EInsert()")
+    txt="\t#Insert\n"
+    txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
+    varT="t"+str(numT())
+    txt+="\t"+varT+"=CD3.EExistT()\n"
+    txt+="\tif("+varT+"):\n"
+    txt+="\t\tgoto .insert"+str(contT)+"\n"
+    txt+="\t\tlabel.insert"+str(contT)+"\n"
+    agregarInstr(True,'')#agregar que si existe
+    varT="t"+str(numT())
+    txt+="\t\t"+varT+"="+str(valores)+"\n"
+    txt+="\t\tCD3.EInsert()\n"
+
+    agregarInstr(Data_insert,txt)
 
 #escribir archivo
 def CrearArchivo():
@@ -192,10 +218,24 @@ def EAddPK():
             EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[2])
             print("\tllave primaria:",crear_tabla[2])
         listaMemoria.pop(0)
-        if(len(crear_tabla[3])>0):
-            EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[3])
-            print("\tllave primaria:",crear_tabla[3])
-            listaMemoria.pop(0)
+
+def EReplace():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    result=False
+    if(len(listaMemoria)>0):
+        result=listaMemoria[0]
+        listaMemoria.pop(0)
+    return result
+
+def EExistT():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    result=False
+    if(len(listaMemoria)>0):
+        result=listaMemoria[0]
+        listaMemoria.pop(0)
+    return result
 
 def ESelectFuncion():
     print("Select funcion")
