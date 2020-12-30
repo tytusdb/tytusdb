@@ -3,6 +3,7 @@ from execution.symbol.environment import *
 from execution.symbol.table import *
 from execution.symbol.column import *
 from storageManager import jsonMode as admin
+import copy
 
 class Create_Table(Querie):
     """
@@ -17,10 +18,11 @@ class Create_Table(Querie):
     {'type': 'check', 'name':nombre, 'value':objetoExpression},
     {'type': 'unique', 'name':nombre,'value': campo_unico}
     """
-    def __init__(self, table, fields, row, column):
+    def __init__(self, table, fields,herencia, row, column):
         Querie.__init__(self, row, column)
         self.table = table
         self.fields = fields
+        self.herencia = herencia
 
     def execute(self, environment):
         if not isinstance(self.table,str):
@@ -28,6 +30,21 @@ class Create_Table(Querie):
         
         columnas = []
         restricciones = []
+        colHerencia =[]
+        
+        if self.herencia != None:
+            db_name = environment.getActualDataBase()
+            database = environment.readDataBase(db_name)
+            if database == None:
+                return {'Error': 'Error al buscar en la base de datos, la herencia', 'Fila':self.row, 'Columna': self.column }                     
+            table = database.getTable(self.herencia)
+            if table == None:
+                return {'Error': 'La tabla: '+self.herencia+' no existe en la base de datos, no se puede realizar la herencia.','Fila':self.row, 'Columna': self.column }
+            colHerencia = copy.copy(table.columns)
+            for col in colHerencia:
+                if isinstance(col,Column):
+                    columnas.append(col)  
+   
 
         for column in self.fields:
             if isinstance(column,Column):
@@ -35,6 +52,9 @@ class Create_Table(Querie):
             else:
                 restricciones.append(column)
         
+        for it in restricciones:
+            print(str(it))
+
         for i in range(len(columnas)):
             if i+1 < len(columnas):
                 for j in range(i+1, len(columnas)):
@@ -42,7 +62,7 @@ class Create_Table(Querie):
                         return {'Error': 'El nombre de columna ya está siendo utilzado' , 'Fila':self.row, 'Columna': self.column}
 
         name = environment.getActualDataBase()
-        result = 3
+        result = 4
         result = admin.createTable(name, self.table, len(columnas))
         if result == 0:            
             #Se creo la tabla en la base de datos correctamente.
@@ -50,6 +70,8 @@ class Create_Table(Querie):
             database = environment.readDataBase(name)
             #Creo una nueva tabla con el nombre solicitado
             newTable = Table(self.table,columnas,restricciones)
+            if self.herencia != None:
+                newTable.herencia = self.herencia
             #Agrego a la tabla las columnas pertenecientes a la misma
             primaryKeys = []
             ids = []
@@ -65,7 +87,8 @@ class Create_Table(Querie):
             
             create = admin.alterAddPK(name,self.table,primaryKeys)
             if (create == 0):
-                return('Llave primaria agregada exitosamenta a la tabla' + self.table )
+                #return('Llave primaria agregada exitosamenta a la tabla' + self.table )
+                return('La tabla: '+ self.table+' se ha creado con exito.' )
             elif (create == 1):
                 return {'Error':'Tabla ' + self.table + ' creada, pero ocurrio un error al ingresar llaves primarias', 'Fila':self.row, 'Columna':self.column}
             elif (create == 2):
@@ -86,3 +109,6 @@ class Create_Table(Querie):
         elif result == 3:
             #Error al crear
             return {'Error':'Tabla' + self.table + 'ya existente, no pudo ser creada.', 'Fila':self.row, 'Columna':self.column}
+        elif result == 4:
+            #Error al crear
+            return {'Error':'Error desconocido al crear la tabla.', 'Fila':self.row, 'Columna':self.column}
