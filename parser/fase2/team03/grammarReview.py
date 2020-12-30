@@ -1261,19 +1261,19 @@ def p_stm_alter1(t):
 '''
     token_alter = t.slice[6]
     if token_alter.type == "ID" and t[7] != 'TYPE':
-        childsProduction = addNotNoneChild(t, [7, 8])
+        childsProduction = addNotNoneChild(t, [7])
         graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tColumn  tIdentifier \<TYPE> \<PARAM_INT_OPT>   ")
         t[0] = AlterTableAddColumn(t[3], t[6], t[7], t[7].max_size, t[8], token_alter.lineno, token_alter.lexpos, graph_ref)
-    if token_alter.type == "PARA":
+    elif token_alter.type == "PARA":
         childsProduction = addNotNoneChild(t,[7])                
         graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tCheck '('  \<EXP_LOG> ')'   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####  
-    if token_alter.type == "ID":
-        childsProduction = addNotNoneChild(t, [8, 9])
-        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8],t[9]], childsProduction)
+    elif token_alter.type == "ID":
+        childsProduction = addNotNoneChild(t, [8])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tType \<TYPE> \<PARAM_INT_OPT>   ")
         t[0] = AlterTableChangeColumnType(t[3], t[6], t[8], t[8].max_size, token_alter.lineno, token_alter.lexpos, graph_ref)
 
@@ -2139,7 +2139,7 @@ r = []
 
 ST = SymbolTable([])##TODO Check is only one ST.
 
-
+'''
 class grammarReview:
     def __init__(self, texto): 
         print("Executing AST root, please wait ...")
@@ -2189,8 +2189,8 @@ class grammarReview:
             result.append([our_error.line, our_error.column, our_error.error_type, our_error.message])
         print(tabulate(result, result2, tablefmt="rst"))
         return tabulate(result, result2, tablefmt="rst")
-
-'''if __name__ == "__main__":
+'''
+if __name__ == "__main__":
     f = open("./entrada.txt", "r")
     input = f.read()
     print("Input: " + input +"\n")
@@ -2213,5 +2213,5 @@ class grammarReview:
 
     for e in errorsList:
         print(e,"\n")
-    ST.report_symbols() '''
+    ST.report_symbols()
     
