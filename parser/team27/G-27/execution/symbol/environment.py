@@ -1,6 +1,8 @@
 from execution.symbol.database import Database
 from execution.symbol.symbol_ import Symbol
 from prettytable import PrettyTable
+from execution.symbol.typ import *
+from datetime import datetime
 
 class Environment:
     def __init__(self, father):
@@ -60,13 +62,27 @@ class Environment:
                 del env.bases[i]
                 break
 
-    
+    def clearTablaSimbolos(self):
+        self.tablaSimbolos = []
+        
     def guardarVariable(self,name,tipo,value,father):
-        self.simbolos.append(Symbol(name,tipo,value, father))
+        valuee = value
+        if tipo == Type.DATE:
+           valuee = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        elif tipo == Type.TIME:
+            valuee = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        self.simbolos.append(Symbol(name,tipo,valuee, father))
         env = self
         while env.father != None:
             env = env.father 
         env.tablaSimbolos.append(Symbol(name,tipo,value, father))
+
+    def guardarVariableins(self,name,tipo,value,father):            
+        self.simbolos.append(Symbol(name,tipo,value, father))
+        env = self
+        while env.father != None:
+            env = env.father 
+        env.tablaSimbolos.append(Symbol(name,tipo,str(value), father))
 
     def deleteVariable(self, name):
         env = self

@@ -43,20 +43,36 @@ def analisis():
         print("")
 
 
+    f = open("./Utils/tabla.txt", "r")
+    text = f.read()
+    text = text.replace("'",'"')
+    text = text.replace('False','"False"')
+    text = text.replace('None','""')
+    text = text.replace('True','"True"')
+
+    print(text)
+    datos.reInsertarValores(json.loads(text))
+    print(str(datos))
+    #except:
+    print('olv')
+
+
     for instr in instrucciones['ast'] :
 
             if instr != None:
                 result = instr.execute(datos)
-                print(result)
                 if isinstance(result, Error):
-                    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                     escribirEnSalidaFinal(str(result.desc))
                     erroresSemanticos.append(result)
-                elif isinstance(instr, select.Select):
-                    print("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
+                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
                     escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
                 else:
                     escribirEnSalidaFinal(str(result))
+
+
+    f = open("./Utils/tabla.txt", "w")
+    f.write(str(datos))
+    f.close()
 
 
     errores = g.getMistakes()
