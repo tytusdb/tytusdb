@@ -164,6 +164,12 @@ def PShowDatabases(dataBases):
     txt+="\tCD3.EShowDatabases()\n"
     agregarInstr(dataBases,txt)
 
+def PDropTable(nombreBase,nombreTabla):
+    drop_tb=[nombreBase,nombreTabla]
+    txt="\t#Drop Table\n"
+    txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
+    txt+="\tCD3.EDropTable()\n"
+    agregarInstr(drop_tb,txt)
 
 #escribir archivo
 def CrearArchivo():
@@ -303,7 +309,6 @@ def EObtenerTabla():
         get_tb=listaMemoria[0]
         result=EDD.showTables(get_tb[0])
         if get_tb[1] in result:
-            print("update en tabla ",get_tb[1])
             listaMemoria.pop(0)
             return True
     return False
@@ -318,7 +323,8 @@ def EUpdate():
         col={}
         col[indice]=valor
         EDD.update(update_registro[0],update_registro[1],col,update_registro[4])
-        print("registro actualizado: \tvalor ",valor)
+        print("update en tabla: ",update_registro[1])
+        print("\tregistro actualizado: valor ",valor)
         listaMemoria.pop(0)
 
 def EDelete():
@@ -327,7 +333,8 @@ def EDelete():
     if(len(listaMemoria)>0):
         delete_registro=listaMemoria[0]
         EDD.delete(delete_registro[0],delete_registro[1],delete_registro[2])
-        print("Registro eliminado: \tllave primaria ",delete_registro[2])
+        print("delete en tabla: ",delete_registro[1])
+        print("\tregistro eliminado: llave primaria:",delete_registro[2])
         listaMemoria.pop(0)
 
 def EShowDatabases():
@@ -335,5 +342,14 @@ def EShowDatabases():
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
         databases=listaMemoria[0]
-        print("databases:\t",str(databases))
+        print("databases: ",str(databases))
+        listaMemoria.pop(0)
+
+def EDropTable():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        drop_tb=listaMemoria[0]
+        EDD.dropTable(drop_tb[0],drop_tb[1])
+        print("tabla eliminada: ",drop_tb[1])
         listaMemoria.pop(0)

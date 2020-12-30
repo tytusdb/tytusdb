@@ -344,7 +344,7 @@ def eliminar_Tabla(instr,ts):
     # 3 table no existente.
     result=EDD.dropTable(baseActiva,nombreT)
     eliminarOK=False;
-
+    CD3.PDropTable(baseActiva,nombreT)
     msg='Eliminar Tabla:'+nombreT
     agregarMensjae('normal',msg,'')
     if(instr.existencia):
