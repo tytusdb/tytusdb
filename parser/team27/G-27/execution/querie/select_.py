@@ -1,3 +1,4 @@
+from typing import cast
 from execution.abstract.querie import * 
 from execution.symbol.environment import *
 from execution.symbol.table import *
@@ -45,10 +46,10 @@ class Select(Querie):
         self.FROM(db_name,database,tableArray,environment)
     
         '''WHERE'''
-        self.WHERE(tableArray,environment)
+        tableArray = self.WHERE(tableArray,environment)
         
         '''GROUP BY'''
-        self.GROUPBY(tableArray,environment)
+        tableArray = self.GROUPBY(tableArray,environment)
 
         '''SELECT'''
         self.SELECT(tableArray,columnsArray)
@@ -59,16 +60,23 @@ class Select(Querie):
         '''AREA DE RETORNO'''
         #Lleno metadata de columnas seleccionadas
         columnas = []
-        for val in columnsArray:
-            idColumna = val['column'].name
-            for id in self.columnList:
-                if id == idColumna:
-                    columnas.append(val) 
-                    break
-        #Lleno columnas de funciones de agregado en la metadata 
-        for function in self.aggregates:
-            columnas.append(function.getColumn())
+        if self.columnList != '*':
+            for val in columnsArray:
+                idColumna = val['column'].name
+                for id in self.columnList:
+                    nombre = id['name']
+                    if nombre== idColumna:
+                        columnas.append(val) 
+                        break
+        else:
+            for val in columnsArray:
+                columnas.append(val) 
+                      
         
+        #Lleno columnas de funciones de agregado en la metadata 
+        if self.aggregates != None:
+            for function in self.aggregates:
+                columnas.append(function.getColumn())       
         resultTable = Table('QUERY',columnas,None)
         return {'table':resultTable,'data':tabla }
 
@@ -77,12 +85,12 @@ class Select(Querie):
         # recorremos el tableList para ver si todas las tablas pertenecen a la base de datos y las almacenamos en table Array
         if isinstance(self.tableList,list): 
             for item in self.tableList:
-                table = database.getTable(item['id'])
+                table = database.getTable(item['name'])
                 if table == None:                
                     if len(self.tableList) > 1:
-                        return {'Error': 'La tabla: '+item['id']+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
+                        return {'Error': 'La tabla: '+item['name']+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
                     else:
-                        return {'Error': 'La tabla: '+item['id']+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
+                        return {'Error': 'La tabla: '+item['name']+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
                 val = admin.extractTable(db_name,table.name)
                 if  val == None:
                     return {'Error': 'La tabla: '+item['id']+' no existe en la base de datos', 'Linea':self.row, 'Columna': self.column}
@@ -118,10 +126,13 @@ class Select(Querie):
                 if isValid['value'] == True:#REALIZAR PUSH A CADA TABLA CORRESPONDIENTE DE LA POSICIÓN i 
                     for index in range(len(whereArray)): #RECORREMOS WHEREARRAY Y TABLEARRAY
                         whereArray[index]['data'].append( tableArray[index]['data'][i] )
-            tableArray = whereArray
+            return whereArray
+        return tableArray
     
     #===================================================== G R O U P   B Y ========================================================
     def GROUPBY(self,tableArray,environment):
+        if self.groupby == None:
+            return tableArray
         if isinstance(self.groupby, list) and len(tableArray) == 1:
             #input
             dataDict = {}
@@ -159,7 +170,8 @@ class Select(Querie):
             for t in split:
                 data.append(t[0])
             tableArray[0]['data'] = data
-                    
+
+            print(data)        
             '''HAVING'''
             if self.having != None:
                 havingArray = []
@@ -182,6 +194,7 @@ class Select(Querie):
                         for index in range(len(havingArray)): #RECORREMOS WHEREARRAY Y TABLEARRAY
                             havingArray[index]['data'].append( tableArray[index]['data'][i] )
                 tableArray = havingArray
+            return tableArray
         else:
             return { 'Error':'No se puede agrupar sobre multiples tablas', 'Fila': self.row, 'Columna': self.column }
 
@@ -251,8 +264,12 @@ class Select(Querie):
                     dictL.append(val[1])
                 tabla.append(dictL)
         else:
-            for i in range(len(columnsArray[0]['data'])):#tupla
-                tupla = []
-                for val in columnsArray:
-                    tupla.append(val['data'][i])
-                tabla.append(tupla)
+            try:
+                for index in range(len(columnsArray)):
+                    for i in range(len(columnsArray[index]['data'])):#tupla
+                        tupla = []
+                        for val in columnsArray:
+                            tupla.append(val['data'][i])
+                        tabla.append(tupla)
+            except:
+                print("Error")
