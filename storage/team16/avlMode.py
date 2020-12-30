@@ -4,9 +4,9 @@
 # Developers: SG#16
 
 
-from BusinessLayer.database_module import DatabaseModule
-from BusinessLayer.table_module import TableModule
-from BusinessLayer.tuple_module import TupleModule
+from .BusinessLayer.database_module import DatabaseModule
+from .BusinessLayer.table_module import TableModule
+from .BusinessLayer.tuple_module import TupleModule
 
 DB = DatabaseModule()
 TBL = TableModule()
@@ -92,7 +92,7 @@ def loadCSV(file: str, database: str, table: str) -> list:
     return TPL.loadCSV(file, database, table)
 
 
-def extractRow(database: str, table: str, columns: list) -> int:
+def extractRow(database: str, table: str, columns: list) -> list:
     return TPL.extractRow(database, table, columns)
 
 
