@@ -21,7 +21,7 @@ class Add_Constraint(Querie):
                     {'type': 'primary', 'name':'pk_tabla1' , 'value': 'columna_tabla1'}
                     
     '''
-    def __init__(self, columnName,constraintVal, row, column):
+    def __init__(self,columnName,constraintVal, row, column):
         Querie.__init__(self, row, column)
         self.columnName = columnName
         self.constraintVal = constraintVal
@@ -48,7 +48,7 @@ class Add_Constraint(Querie):
         #columna a la que hace referencia menos el check
         if self.constraintVal['type'] != 'check':
             reference = False
-            for item in table.column:
+            for item in table.columns:
                 if item.name == self.constraintVal['value']:
                     reference = True
                     break

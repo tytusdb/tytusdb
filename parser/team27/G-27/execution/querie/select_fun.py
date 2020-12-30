@@ -10,13 +10,14 @@ from libraries.datetime_functions import current_date
 
 class Select_Func(Querie):
 
-    def init(self,funcion , row, column):
-        Querie.init(self, row, column)
+    def __init__(self,funcion,row, column):
+        Querie.__init__(self, row, column)
         self.funcion = funcion
 
     def execute(self, environment):
 
         result = self.funcion.execute(environment)
+        print(result)
 
         if isinstance(result,dict):
             if 'Error' in result:
