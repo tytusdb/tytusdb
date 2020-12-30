@@ -86,9 +86,10 @@ def PCreateType(nombreBase,nombreTabla,cantidadcol,valores):
     inserT=[nombreBase,nombreTabla,valores]
     agregarInstr(inserT,txt)
 
-def PCreateTable(nombreBase,nombreTabla,cantidadcol,llaves):
+def PCreateTable(nombreBase,nombreTabla,cantidadcol,llaves,nombresC):
     txt="\t#Create Table\n"
     txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
+    txt+="\tt"+str(numT())+"="+str(nombresC)+"\n"
     var="t"+str(numT())
     txt+="\t"+var+"=CD3.ECreateTable()"+"\n"
     txt+="\tif("+var+"):"+"\n"

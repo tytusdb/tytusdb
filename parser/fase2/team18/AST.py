@@ -747,14 +747,16 @@ def crear_Tabla(instr,ts):
                 #agregar las llaves primarias
                 x=0
                 lis=[]
+                lisCol=[]
                 for col in listaColumnas:
+                    lisCol.append(col.nombre)
                     if(col.primary==True):
                         lis.append(x)
                     x=x+1
                 if(len(lis)>0):
                     EDD.alterAddPK(baseActiva,nombreT,lis)
                     
-                CD3.PCreateTable(baseActiva,nombreT,contC,lis)
+                CD3.PCreateTable(baseActiva,nombreT,contC,lis,lisCol)
 
         else:
             msg='no existe la base de datos activa:'+baseActiva
