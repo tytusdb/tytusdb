@@ -3,7 +3,7 @@ from graphviz import Digraph
 import ply.lex as lex
 import ply.yacc as yacc
 import re
-import ReporteGramatical as ReporteGramatical
+import tytus.parser.team21.Analisis_Descendente.ReporteGramatical as ReporteGramatical
 
 # Analisis lexico
 lista = []

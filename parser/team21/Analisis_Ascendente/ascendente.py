@@ -1,8 +1,8 @@
 import re
 
 # from reportes.Reportes import RealizarReportes,Error
-from Compi2RepoAux.team21.Analisis_Ascendente.reportes.Reportes import RealizarReportes, Error
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
+from tytus.parser.team21.Analisis_Ascendente.reportes.Reportes import RealizarReportes, Error
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
 from tkinter import messagebox as MessageBox
 
 L_errores_lexicos = []
@@ -371,34 +371,33 @@ lexer.input("")
 # from Instrucciones.Select.select1 import  selectTime
 
 
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createTable import CreateTable, Acompaniamiento, \
-    Campo
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createDatabase import CreateReplace, ComplementoCR
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select import Select, Limit, Having, GroupBy
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.union import Union
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Use_Data_Base.useDB import Use
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select1 import selectTime
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Insert.insert import InsertInto
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.Select2 import Selectp3
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import IdAsId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select import selectInst
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Drop.drop import Drop
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Alter.alterDatabase import AlterDatabase
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable import AlterTable
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable import Alter
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Update.Update import Update
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Delete.delete import Delete
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where import Where
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Type.type import CreateType
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select import SelectDist
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Type.type import CreateType
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import Time
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Create.createTable import CreateTable, Acompaniamiento,Campo
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Create.createDatabase import CreateReplace, ComplementoCR
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.select import Select, Limit, Having, GroupBy
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.union import Union
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Use_Data_Base.useDB import Use
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.select1 import selectTime
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Insert.insert import InsertInto
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.Select2 import Selectp3
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import IdAsId
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select import selectInst
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Drop.drop import Drop
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Alter.alterDatabase import AlterDatabase
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable import AlterTable
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable import Alter
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Update.Update import Update
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Delete.delete import Delete
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where import Where
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Type.type import CreateType
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select import SelectDist
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Type.type import CreateType
 
 precedence = (
     ('left', 'OR'),
@@ -2255,11 +2254,11 @@ import ply.yacc as yacc
 
 # import reportes.AST.AST as AST
 # import Tabla_simbolos.TablaSimbolos as TS
-import Compi2RepoAux.team21.Analisis_Ascendente.reportes.AST.AST as AST
-from Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import Simbolo
-from Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import TablaDeSimbolos
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.Select3 import Selectp4
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.Select4 import Selectp7
+import tytus.parser.team21.Analisis_Ascendente.reportes.AST.AST as AST
+from tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import Simbolo
+from tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import TablaDeSimbolos
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.Select3 import Selectp4
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.Select4 import Selectp7
 
 parser = yacc.yacc()
 
@@ -2322,11 +2321,9 @@ def procesar_instrucciones(instrucciones, ts):
             Update.ejecutar(instr, ts, consola, exceptions)
         elif isinstance(instr,CreateType):
             CreateType.ejecutar(instr,ts,consola,exceptions)
-        #    elif isinstance(instr, Definicion) : procesar_definicion(instr, ts)
-        #    elif isinstance(instr, Asignacion) : procesar_asignacion(instr, ts)
-        #    elif isinstance(instr, Mientras) : procesar_mientras(instr, ts)
-        #    elif isinstance(instr, If) : procesar_if(instr, ts)
-        #    elif isinstance(instr, IfElse) : procesar_if_else(instr, ts)
+        elif isinstance(instr,Show):
+            Show.ejecutar(instr,ts,consola,exceptions)
+
         else:
             print('Error: instrucción no válida')
 

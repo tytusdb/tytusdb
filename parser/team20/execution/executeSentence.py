@@ -28,7 +28,7 @@ def executeSentence(self, sentence):
             TCcreateDatabase(sentence.name,mode)
             print_success('QUERY',"Database "+sentence.name+" has been created Query returned successfully")
         elif(result==2 and sentence.ifNotExistsFlag):
-            print_warning("NOTICE",'Database '+sentence.name+' already exists Query returned successfully')
+            print_warning("RUNTIME ERROR",'Database '+sentence.name+' already exists Query returned successfully')
         elif(result==2 and not sentence.ifNotExistsFlag):
             print_error('SEMANTIC ERROR','Database '+sentence.name+' already exists')
         else:
@@ -42,7 +42,7 @@ def executeSentence(self, sentence):
             TCdropDatabase(sentence.name)
             print_success("QUERY","DataBase "+sentence.name+" has been dropped")
         elif(result==2 and sentence.ifExistsFlag): 
-            print_warning("NOTICE:", "Database "+sentence.name+" does not exist, skipping Query returned successfully with no result")
+            print_warning("RUNTIME ERROR", "Database "+sentence.name+" does not exist, skipping Query returned successfully with no result")
         elif(result==2 and not sentence.ifExistsFlag): 
             print_error("SEMANTIC ERROR","Database "+sentence.name+" does not exist")
         else:
@@ -83,7 +83,6 @@ def executeSentence(self, sentence):
         executeInsertAll(self, sentence)
     elif isinstance(sentence, Insert):
         executeInsert(self, sentence)
-    # #Resto de sentencias posibles
     elif isinstance(sentence,Select):
         executeSelect(self,sentence) 
     elif isinstance(sentence,DropTable):

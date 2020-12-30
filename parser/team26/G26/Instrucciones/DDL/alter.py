@@ -139,7 +139,8 @@ class AlterTableAddCol(Instruccion):
                 return error
             
         #dictionary for new column
-        col = {'name':self.id.upper(), 'type':tip, 'size':siz, 'pk':None, 'fk':None, 'default':None, 'null':None, 'check':None, 'unique':None}       
+        col = TableData(self.id.upper(), tip, siz, None, None, None, None, None, None)
+        #col = {'name':self.id.upper(), 'type':tip, 'size':siz, 'pk':None, 'fk':None, 'default':None, 'null':None, 'check':None, 'unique':None}       
 
         for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
             if colu.name == self.id.upper() :

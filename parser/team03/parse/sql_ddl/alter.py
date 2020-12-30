@@ -28,7 +28,7 @@ class AlterDatabaseRename(ASTNode):
             old_symbol = table.get(result_name, SymbolType.DATABASE)
             old_symbol.name = result_new_name
             table.update(old_symbol)
-            return True
+            return "You renamed table " + str(self.name) + " to "+ str(self.new_name)
 
 
 class AlterDatabaseOwner(ASTNode):

@@ -19,12 +19,20 @@ class Logicas(Instruccion):
         try:
             left = self.leftOperator.execute()
         except:
-            left = self.leftOperator.executeInsert(data, valoresTabla)
+            try:
+                left = self.leftOperator.executeInsert(data, valoresTabla)
+            except:
+                left = self.leftOperator.execute(data, valoresTabla)
+            
 
         try:
             right = self.rightOperator.execute()
         except:
-            right = self.rightOperator.executeInsert(data, valoresTabla)
+            try:
+                right = self.rightOperator.executeInsert(data, valoresTabla)
+            except:
+                right = self.rightOperator.execute(data, valoresTabla)
+            
 
         #checking returns of both arguments in case of error
         if isinstance(left, Error) :
