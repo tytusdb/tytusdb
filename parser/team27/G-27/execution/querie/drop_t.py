@@ -29,7 +29,7 @@ class Drop_Table(Querie):
             #metodo para verificar si existe la tabla en la base de datos
             # si existe la tabla, metodo para verificar que la tabla no sea llave foranea de otra tabla
             # si no es llave foranea, elimnar la tabla
-            return 'La Tabla ' + self.table + ' ha sido eliminada con éxito.' 
+            return 'La Tabla ' + self.tableName + ' ha sido eliminada con éxito.' 
         elif result == 1:
             #Error al crear
             return {'Error':'Ocurrió un error en el storage manager Tabla' + self.tableName + ' no pudo ser Eliminada.', 'Fila':self.row, 'Columna':self.column}

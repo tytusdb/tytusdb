@@ -18,17 +18,16 @@ class Main(object):
                     arreglo.append(res)
                 elif isinstance(res,dict):
                     if 'Error' in res:
-                        errores.append(str(res))
+                        errores.append('Tipo: SEMÁNTICO, Error: ' + res['Error'] + ' Linea: ' + str(res['Columna']) + ' Columna: ' + str(res['Fila']))
                     else:
                         x = PrettyTable()
                         encabezados = []
                         for value in res['table'].columns:
-                            encabezados.append(value.name)
+                            encabezados.append(value['column'].name)
                         x.field_names = encabezados
                         for tupla in res['data']:
                             x.add_row(tupla)
-                        arreglo.append(x.get_string())
-                        print(x.get_string())
+                        arreglo.append('\n'+ x.get_string() +'\n')
                 elif isinstance(res,list):
                     arreglo.append(str(res))
             return [arreglo,errores]
