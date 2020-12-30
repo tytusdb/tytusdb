@@ -8,36 +8,6 @@ class Lista:
     def __repr__(self):
         return str(self.__dict__)
 
-    def comprobarExistencia(self, name, tipo):
-        if tipo == 'database':
-            return name in self.tablaSimbolos
-        elif tipo == 'enum':
-            if name in self.tablaSimbolos :
-                ''
-        elif tipo == 'table':
-            if self.databaseSeleccionada == '':
-                return None
-        return True
-
-    def obtenerDatabase(self, name):
-        if len(self.tablaSimbolos) == 0 : return None
-        else:
-            for tabla in self.tablaSimbolos:
-                if isinstance(tabla, DatabaseData):
-                    if tabla.name == name : return tabla
-        return None
-
-    def comprobarColumnaTabla(self, name, table):
-        if len(self.tablaSimbolos) == 0 : return None
-        else:
-            for tabla in self.tablaSimbolos:
-                if isinstance(tabla, TableData):
-                    if self.databaseSeleccionada == tabla.database:
-                        if tabla.table == table :
-                            if tabla.name == name :
-                                return True
-        return False
-
     def reInsertarValores(self, data):
         for llave in data['tablaSimbolos'].keys():
             self.tablaSimbolos[llave] = {'tablas' : {}, 'enum' : {}, 'owner' : data['tablaSimbolos'][llave]['owner'], 'mode' : data['tablaSimbolos'][llave]['mode']}
@@ -89,3 +59,33 @@ class Lista:
                         self.tablaSimbolos[llave]['tablas'][tabla]['columns'].append(col)
         self.databaseSeleccionada = data['databaseSeleccionada']
         return data
+
+    def comprobarExistencia(self, name, tipo):
+        if tipo == 'database':
+            return name in self.tablaSimbolos
+        elif tipo == 'enum':
+            if name in self.tablaSimbolos :
+                ''
+        elif tipo == 'table':
+            if self.databaseSeleccionada == '':
+                return None
+        return True
+
+    def obtenerDatabase(self, name):
+        if len(self.tablaSimbolos) == 0 : return None
+        else:
+            for tabla in self.tablaSimbolos:
+                if isinstance(tabla, DatabaseData):
+                    if tabla.name == name : return tabla
+        return None
+
+    def comprobarColumnaTabla(self, name, table):
+        if len(self.tablaSimbolos) == 0 : return None
+        else:
+            for tabla in self.tablaSimbolos:
+                if isinstance(tabla, TableData):
+                    if self.databaseSeleccionada == tabla.database:
+                        if tabla.table == table :
+                            if tabla.name == name :
+                                return True
+        return False
