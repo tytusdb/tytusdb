@@ -803,8 +803,12 @@ def p_EnumType(t):
 
 # PRODUCCIÓN PARA HACER UN UPDATE
 def p_produccion0(t):
-    ''' UpdateBase   : tUpdate id tSet L_ASIGN where CondicionBase ptComa '''
-    t[0] = SUpdateBase(t[2], t[4], t[6])
+    ''' UpdateBase   : tUpdate id tSet L_ASIGN where CondicionBase ptComa
+                     | tUpdate id tSet L_ASIGN ptComa'''
+    if len(t)==5:
+        t[0] = SUpdateBase(t[2], t[4], False)
+    else:
+        t[0] = SUpdateBase(t[2], t[4], t[6])
 
 
 # PRODUCCIÓN PARA HACER UN DELETE
@@ -1107,6 +1111,7 @@ def p_EXPR_NUMERIC_TYPES(t):
                      | tInteger
                      | tBigint
                      | tDecimal
+                     | tDecimal parAbre E coma E parCierra
                      | tNumeric
                      | tReal
                      | tDouble tPrecision

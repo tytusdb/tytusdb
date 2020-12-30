@@ -8,6 +8,7 @@ import math
 from random import random
 from datetime import datetime
 from datetime import date
+from goto import with_goto
 from datetime import time
 import hashlib
 from prettytable import PrettyTable
@@ -15,8 +16,10 @@ from hashlib import sha256
 import itertools
 
 consola = ""
+texttraduccion=""
 useActual = ""
 listaSemanticos = []
+listaSemanticos2 = []
 listaConstraint = []
 listaFK = []
 types = {}
@@ -26,6 +29,8 @@ d2 = ""
 def interpretar_sentencias(arbol, tablaSimbolos):
     # jBase.dropAll()
     global consola
+    global texttraduccion
+    texttraduccion += "from goto import with_goto"
     for nodo in arbol:
         if isinstance(nodo, SCrearBase):
             crearBase(nodo, tablaSimbolos)
@@ -77,6 +82,8 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     else:
                         consola += "Error no se pudo elminar la base " + \
                                    nodo.id.valor + " de la tabla de simbolos \n"
+                elif db == 2:
+                    consola += "La base de datos " + nodo.id.valor + " no existe \n"
         elif isinstance(nodo, STypeEnum):
             my_dict = {}
             for val in nodo.lista:
@@ -103,7 +110,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     tupla["tipo"].append(columnas[k].tipo)
                     nombres.append(columnas[k].nombre)
                     tipos.append(columnas[k].tipo)
-                    
+
                 i = 1
                 for r in registros:
 
@@ -121,7 +128,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 primary = tabla.get_pk_index()
 
                 for x in range(len(actualizar)):
-                                
+
                     for z in range(len(nombres)):
 
                         bandera = False
@@ -139,12 +146,12 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
                             else:
                                 valores.append(SExpresion(actualizar[x][z],tipos[z].tipo))
-                            
+
 
                     validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x])
                     valores.clear()
                     diccionario = {}
-                                 
+
             else:
 
                 listaSemanticos.append(Error.ErrorS("Error Semantico",
@@ -228,16 +235,22 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     Qorderby = nodo.query1.orderby
                     Qlimit = nodo.query1.limit
                     base = tablaSimbolos.get(useActual)
+                    if useActual != None:
+                        if base == None:
+                            listaSemanticos.append(
+                                Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
+                            return
                     pT = PrettyTable()
-                    hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
-                    consola += str(pT) + "\n"
+                    B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
+                    if B!=0:
+                        consola += str(pT) + "\n"
 
 
             else:
                 print("Query no 1")
                 consulta1=[]
                 consulta2=[]
-                
+
                 Qselect = nodo.query1.select
                 Qffrom = nodo.query1.ffrom
                 Qwhere = nodo.query1.where
@@ -246,9 +259,14 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 Qorderby = nodo.query1.orderby
                 Qlimit = nodo.query1.limit
                 base = tablaSimbolos.get(useActual)
+                if useActual != None:
+                    if base == None:
+                        listaSemanticos.append(
+                            Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
+                        return
                 pT = PrettyTable()
                 consulta1=hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
-                
+
                 Qselect2 = nodo.query2.select
                 Qffrom2 = nodo.query2.ffrom
                 Qwhere2 = nodo.query2.where
@@ -259,7 +277,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 base2 = tablaSimbolos.get(useActual)
                 pT = PrettyTable()
                 consulta2=hacerConsulta(Qselect2, Qffrom2, Qwhere2, Qgroupby2, Qhaving2, Qorderby2, Qlimit2, base2, pT, False,tablaSimbolos)
-                
+
                 arrColNames = []
                 arrFinal = []
                 arrAux = []
@@ -271,7 +289,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         if n == 0:
                             arrColNames .append(e)
                         n+=1
-                   
+
                     m=0
                     for e in consulta1:
                         if m != 0 :
@@ -279,7 +297,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 if x not in arrFinal:
                                     arrFinal.append(x)
                         m+=1
-                   
+
                     x=0
                     for e in consulta2:
                         if x != 0 :
@@ -287,7 +305,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 if z not in arrFinal:
                                     arrFinal.append(z)
                         x+=1
-                    
+
                     x = PrettyTable()
                     x.field_names = arrColNames[0]
                     for e in arrFinal:
@@ -302,7 +320,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         if n == 0:
                             arrColNames .append(e)
                         n+=1
-                   
+
                     m=0
                     for e in consulta1:
                         if m != 0 :
@@ -312,7 +330,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 else :
                                     arrAux.append(x)
                         m+=1
-                   
+
                     x=0
                     for e in consulta2:
                         if x != 0 :
@@ -329,7 +347,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         print(e)
                         x.add_row(e)
                     consola += str(x) + "\n"
-                    
+
                 elif nodo.ope.lower() == "except":
                     print("intersect")
                     n=0
@@ -337,7 +355,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         if n == 0:
                             arrColNames .append(e)
                         n+=1
-                   
+
                     m=0
                     for e in consulta1:
                         if m != 0 :
@@ -347,7 +365,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 else :
                                     arrAux.append(x)
                         m+=1
-                   
+
                     x=0
                     for e in consulta2:
                         if x != 0 :
@@ -366,7 +384,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 if x not in arrAux:
                                     arrAux2.append(x)
                         g+=1
-                   
+
 
                     x = PrettyTable()
                     x.field_names = arrColNames[0]
@@ -374,12 +392,15 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         print(e)
                         x.add_row(e)
                     consola += str(x) + "\n"
+        for i in listaSemanticos:
+            consola += "\n" + i.descripcion + "\n"
+            listaSemanticos2.append(i)
+        listaSemanticos.clear()
 
 
 
-    for i in listaSemanticos:
+    for i in listaSemanticos2:
         print(i)
-        consola += i.descripcion + "\n"
     return consola
 
 
@@ -429,7 +450,7 @@ def deleteBase(nodo, tablaSimbolos):
                 if b.valor:
                     actualizar.append(r)
                     llaves.append([str(i) + "|"])
-                
+
                 i += 1
 
             bandera1 = False
@@ -465,7 +486,7 @@ def deleteBase(nodo, tablaSimbolos):
                                                         "Error al intentar eliminar la columna con PK '%s', Llave primaria no encontrada" % (
                                                             str(llaves))))
 
-                
+
 
 
 def crearBase(nodo, tablaSimbolos):
@@ -704,7 +725,7 @@ def crearTabla(nodo, tablaSimbolos):
             listaSemanticos.append(
                         Error.ErrorS("Error Semantico", "La tabla [%s] especificada para la herencia no ha sido hallada." % nodo.padre))
 
-        
+
 
     base = tablaSimbolos.get(useActual)
     base.crearTabla(val, nueva)
@@ -1013,11 +1034,11 @@ def InsertTable(nodo, tablaSimbolos):
                             col = tabla.getColumna(nodo.listaColumnas[i].valor)
                             val = Interpreta_Expresion(nodo.listValores[i], tablaSimbolos, tabla)
                             if hasattr(col.tipo,"valor"):
-                                
+
                                 el_tipo = types[col.tipo.valor]
 
                                 if el_tipo is not None:
-                                    
+
                                     if nodo.listValores[i].valor in el_tipo.keys():
                                         result = True
                                     else:
@@ -1040,6 +1061,10 @@ def InsertTable(nodo, tablaSimbolos):
                                 elif col.tipo.tipo == TipoDato.CHAR:
                                     if val.tipo == Expresion.CADENA:
                                         result = validarTiposChar(col.tipo, val)
+                                        if result == False:
+                                            listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                                                "Error la cadena sobrepasa el limite " + val.valor))
+                                            return
                                     else:
                                         result = False
                                         listaSemanticos.append(Error.ErrorS(
@@ -1052,7 +1077,7 @@ def InsertTable(nodo, tablaSimbolos):
                                 elif col.tipo.tipo == TipoDato.BOOLEAN:
                                     if val.tipo == Expresion.BOOLEAN or val.tipo == Expresion.NULL:
                                         result = True
-                            
+
                             if not result:
                                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                                     "Error de tipos: tipo " + col.tipo.dato + " columna " + col.nombre + " valor a insertar " + str(
@@ -1112,7 +1137,7 @@ def InsertTable(nodo, tablaSimbolos):
 
                             if rs == 0:
                                 consola += "Se insertó con éxito la tupla" + str(tupla) + "\n"
-                                
+
                                 if tabla.padre is not None:
 
                                     tabla_padre = tablaSimbolos.get(useActual).getTabla(tabla.padre)
@@ -1125,10 +1150,10 @@ def InsertTable(nodo, tablaSimbolos):
                                         for l in range(len(nodo.listaColumnas)):
 
                                             if nodo.listaColumnas[l].valor in tabla_padre.columnas:
-                                                
+
                                                 lista_de_columnas.append(nodo.listaColumnas[l])
                                                 lista_de_valores.append(nodo.listValores[l])
-                                        
+
                                             l += 1
 
                                         nuevo_insert = SInsertBase(tabla.padre,lista_de_columnas,lista_de_valores)
@@ -1137,7 +1162,7 @@ def InsertTable(nodo, tablaSimbolos):
                                     else:
 
                                         listaSemanticos.append(Error.ErrorS("Error Semantico", "Fallo al insertar la tupla: " + str(tupla) + ". Tabla padre no encontrada. " + str(tabla.padre) ))
-                                        
+
 
                             elif rs == 1:
 
@@ -1182,7 +1207,7 @@ def InsertTable(nodo, tablaSimbolos):
                     # se comprueba la cantidad de columnas y las que tienen valor null
                     columnas = list(tabla.columnas.keys())
                     b = tabla.comprobarNulas2(columnas)
-                    
+
                     if b["cod"]== 0:
                         # se validan tipos
                         for i in range(len(columnas)):
@@ -1190,11 +1215,11 @@ def InsertTable(nodo, tablaSimbolos):
                             val = Interpreta_Expresion(nodo.listValores[i], tablaSimbolos, tabla)
 
                             if hasattr(col.tipo,"valor"):
-                                
+
                                 el_tipo = types[col.tipo.valor]
 
                                 if el_tipo is not None:
-                                    
+
                                     if nodo.listValores[i].valor in el_tipo.keys():
                                         result = True
                                     else:
@@ -1216,6 +1241,10 @@ def InsertTable(nodo, tablaSimbolos):
                                 elif col.tipo.tipo == TipoDato.CHAR:
                                     if val.tipo == Expresion.CADENA:
                                         result = validarTiposChar(col.tipo, val)
+                                        if result == False:
+                                            listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                                                "Error la cadena sobrepasa el limite " + val.valor))
+                                            return
                                     else:
                                         result = False
                                         listaSemanticos.append(Error.ErrorS(
@@ -1327,7 +1356,7 @@ def InsertTable(nodo, tablaSimbolos):
 
         else:
             listaSemanticos.append(
-                Error.ErrorS("Error Semantico", "la base de datos " + useActual + " no ha sido encontrada"))
+                Error.ErrorS("Error Semantico", "la tabla " + nodo.id + " no ha sido encontrada"))
     else:
         listaSemanticos.append(
             Error.ErrorS("Error Semantico", "la base de datos " + useActual + " no ha sido encontrada"))
@@ -1345,12 +1374,6 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
         # se validan tipos
         for i in range(len(columnas)):
             col = tabla.getColumna(columnas[i])
-            print("============== DENTRO DEL UPDATE ==============")
-            print("============== tupla ==============")
-            print(tupla[i])
-            print("============== tabla ==============")
-            print(tabla)
-            
             val = Interpreta_Expresion(tupla[i],tablaSimbolos,tabla)
             if col.tipo.tipo == TipoDato.NUMERICO:
                 result = validarTiposNumericos(
@@ -1358,6 +1381,10 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
             elif col.tipo.tipo == TipoDato.CHAR:
                 if val.tipo == Expresion.CADENA:
                     result = validarTiposChar(col.tipo, val)
+                    if result == False:
+                        listaSemanticos.append(
+                            Error.ErrorS("Error Semantico", "Error la cadena sobrepasa el limite " + val.valor))
+                        return
                 else:
                     result = False
                     listaSemanticos.append(Error.ErrorS(
@@ -1432,11 +1459,14 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
 
                 if tabla_padre is not None:
                     print("Tiene Padre :)")
-                
+
 
 
             if rs == 0:
-                consola += "Se actualizó con éxito la tupla" + str(tupla) + "\n"
+                arr1=[]
+                for e in tupla:
+                    arr1.append(e.valor)
+                consola += "Se actualizó con éxito la tupla" + str(arr1) + "\n"
 
             elif rs == 1:
 
@@ -1470,14 +1500,14 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
 def validarDefault(listaC, listaV, tabla, tablaSimbolos):
     tupla = []
     indice = 0
-    
+
 
     for i in tabla.columnas:
         encontrado = False
         print(tabla.columnas[i].index,indice)
 
         if tabla.columnas[i].index == indice:
-            
+
             for j in range(len(listaC)):
 
                 if tabla.columnas[i].nombre == listaC[j].valor:
@@ -1500,9 +1530,9 @@ def validarDefault(listaC, listaV, tabla, tablaSimbolos):
                 indice += 1
 
             if (len(tabla.columnas) == len(tupla) ):
-                
+
                 return tupla
-        
+
 
 
 # MÉTODO PARA RETORNAR LA TUPLA COMPLETA
@@ -1578,7 +1608,7 @@ def validaCheck(col, val, columnas, valores):
                         return 1
             return 2
         else:
-            
+
             nuevo = SOperacion(val, col.check["condicion"].opDer, col.check["condicion"].operador)
 
             r = Interpreta_Expresion(nuevo, None, None)
@@ -1655,7 +1685,7 @@ def validarTiposNumericos(dato, expresion):
 
     if expresion.tipo==Expresion.NULL:
         return True
-    
+
     return False
 
 
@@ -1670,7 +1700,7 @@ def validarTiposChar(dato, expresion):
         return  True
 
     if expresion.tipo == Expresion.NULL:
-        return True 
+        return True
 
     return False
 
@@ -1691,7 +1721,7 @@ def validarTiposFecha(dato, expresion):
 
     if expresion.tipo == Expresion.NULL:
         return True
-    
+
     return False
 
 
@@ -1745,7 +1775,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         if (expresion.operador == Relacionales.MAYOR_QUE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-            
+
             result = opIzq.valor > opDer.valor
             return SExpresion(result, opIzq.tipo)
 
@@ -1870,7 +1900,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         if expresion.funcion.lower() == "div":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
             param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
-            val = param2.valor // param.valor
+            val = param.valor // param2.valor
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "gcd":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
@@ -2153,10 +2183,11 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
         qr = expresion.consulta
         pT = PrettyTable()
+        base = tablaSimbolos.get(useActual)
         for tb in tabla["tablas"]:
             qr.ffrom.clist.append(tb)
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
-        
+
         print(expresion.operador)
         if expresion.operador == '=':
             for rs in resultado_sub:
@@ -2197,7 +2228,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
                 if float(rs[0]) != float(columna.valor):
                     return SExpresion(True,Expresion.BOOLEAN)
             return SExpresion(False,Expresion.BOOLEAN)
-        
+
         print("=================== FIN AL ANY ===================")
         return SExpresion(False,Expresion.BOOLEAN)
 
@@ -2207,10 +2238,11 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
         qr = expresion.consulta
         pT = PrettyTable()
+        base= tablaSimbolos.get(useActual)
         for tb in tabla["tablas"]:
             qr.ffrom.clist.append(tb)
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
-        
+
         print(expresion.operador)
         if expresion.operador == '=':
             for rs in resultado_sub:
@@ -2252,10 +2284,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
                     return SExpresion(False,Expresion.BOOLEAN)
             return SExpresion(True,Expresion.BOOLEAN)
 
-        
+
         print("=================== FIN AL ALL ===================")
         return SExpresion(False,Expresion.BOOLEAN)
-    
+
     elif isinstance(expresion,SNotExist):
 
         qr = expresion.consulta
@@ -2281,9 +2313,9 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         if len(resultado_sub) > 0:
             return SExpresion(True,Expresion.BOOLEAN)
         return SExpresion(False,Expresion.BOOLEAN)
-               
-        
-    
+
+
+
     elif isinstance(expresion,SIn):
 
         qr = expresion.consulta
@@ -2300,7 +2332,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         return SExpresion(False,Expresion.BOOLEAN)
 
     elif isinstance(expresion,SNotIn):
-       
+
         qr = expresion.consulta
         base = tablaSimbolos.get(useActual)
         pT = PrettyTable()
@@ -2478,11 +2510,12 @@ def truncatebase(nodo, tablaSimbolos):
 def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, subConsulta,tablaSimbolos):
     global consola
     global useActual
+    global d1,d2
     x = PrettyTable()
     encabezados = []
     indices = []
     oficial = []
-    
+
     print("------------------ EMPIEZA CONSULTA ---------------------")
     if Qwhere == False:
 
@@ -2722,7 +2755,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                     vNodo = col.cols
                     if isinstance(col.cols.param, SExpresion):
                         vParam = col.cols.param.valor
-                        vcTipo = col.cols.tipo
+                        vcTipo = col.cols.param.tipo
                         vTabla = False
                     else:
                         vNombre = col.cols.param.opDer.valor
@@ -2831,29 +2864,25 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 for g in arrGlobal:
                     if g not in arrFinal:
                         arrFinal.append(g)
-                x = PrettyTable()
                 nombreCols = []
                 for e in arrCols:
                     nombreCols.append(e.alias)
-                x.field_names = nombreCols
+                pT.field_names = nombreCols
                 for e in arrFinal:
-                    x.add_row(e)
-                consola += str(x) + "\n"
+                    pT.add_row(e)
 
             else:
-                # TODAS LAS COLS SIN WHERE 
+                # TODAS LAS COLS SIN WHERE
                 if todasCols:
-                    x = PrettyTable()
                     t2 = base.getTabla(tablaConsulta)
                     nombreCols = []
                     for e in t2.columnas.keys():
                         nombreCols.append(e)
-                    x.field_names = nombreCols
+                    pT.field_names = nombreCols
                     print(nombreCols)
                     for e in bConsulta:
-                        x.add_row(e)
+                        pT.add_row(e)
                     print(bConsulta)
-                    consola += str(x) + "\n"
                     oficial.append(nombreCols)
                     oficial.append(bConsulta)
                 else:
@@ -2873,7 +2902,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                             for r2 in r:
                                 for r3 in r2:
                                     oficial.append([r3])
-                        
+
                 '''    elif tipoTrig:
                         trigSinWhere(tabla, arrCols, base, tablasColumna, pT, subConsulta)
                     elif tipoMathS:
@@ -2892,12 +2921,16 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 if isinstance(col.cols.field, STipoDato):
                     extraer = str(col.cols.field.dato)
                     dtstr = str(col.cols.timestampstr.valor)
-                    year=dtstr[0:4]
-                    month=dtstr[5:7]
-                    day=dtstr[8:10]
-                    hour=dtstr[11:13]
-                    minute=dtstr[13:15]
-                    second=dtstr[15:18]
+                    if len(dtstr)>19:
+                        listaSemanticos.append(Error.ErrorS("Error Semántico", "Los tipos no coinciden"))
+                        return 0
+                    else:
+                        year=dtstr[0:4]
+                        month=dtstr[5:7]
+                        day=dtstr[8:10]
+                        hour=dtstr[11:13]
+                        minute=dtstr[14:16]
+                        second=dtstr[17:19]
                     if extraer.lower() == "year":
                         val = year
                     elif extraer.lower() == "month":
@@ -2926,7 +2959,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                         cad1 = str(x[1])
                         y= cad1.split("minutes")
                     else:
-                        y = cad.split("minutes")              
+                        y = cad.split("minutes")
                     if len(y) == 2:
                         mins=str(y[0])
                         w = y[1].split("seconds")
@@ -2942,13 +2975,13 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                         pT.add_column(str(extraer), secs)
             else:
                 consultaSimple(arrCols,pT,groupBy)
-    
+
 
     else:
         tupla = {"nombreC": [], "tipo": [], "valor": [], "tablas": []}
         registros = []
         columnas = []
-        
+
         for tabs in Qffrom.clist:
             tupla["tablas"].append(tabs)
             registros.append(jBase.extractTable(useActual,tabs.id))
@@ -2961,8 +2994,8 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 
                 columnas.append(str_alias + nm )
                 tupla["nombreC"].append(str_alias + nm)
-                tupla["tipo"].append(tablaSimbolos.get(useActual).getTabla(tabs.id).getColumna(nm).tipo)            
-        
+                tupla["tipo"].append(tablaSimbolos.get(useActual).getTabla(tabs.id).getColumna(nm).tipo)
+
         resultado = []
         temporal = []
 
@@ -2982,7 +3015,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 
         resultado_2 = []
         for t in resultado:
-            
+
             for c in t:
 
                 tupla["valor"].append(c)
@@ -3003,16 +3036,16 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 
                     if q_cols.cols.valor == columnas[ind]:
                         indices.append(ind)
-                        
+
                         if q_cols.id == False:
 
                             encabezados.append(columnas[ind])
-                        
+
                         else:
 
                             encabezados.append(q_cols.id.valor)
                         break
-            
+
             i_t = 0
             for in2 in indices:
 
@@ -3023,7 +3056,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 
                 x.add_column(encabezados[i_t],columnas_2)
                 i_t +=1
-            
+
 
             for row in x:
                 tab_temporal.append(row._rows[0])
@@ -3037,23 +3070,23 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
             for in2 in range(len(columnas)):
 
                 columnas_2 = []
-                
+
 
                 for r3 in resultado_2:
                     columnas_2.append(r3[in2])
 
                 x.add_column(columnas[in2],columnas_2)
-            
+
 
             for row in x:
                 tab_temporal.append(row._rows[0])
-            
+
             oficial = tab_temporal
-            consola += str(x) + "\n"      
+            consola += str(x) + "\n"
 
         #AGREGAR LAS VALIDACIONES NECESARIAS PARA HACER UN DISTINCT
         if Qselect.distinct != False:
-            print("Tiene Distinct") 
+            print("Tiene Distinct")
 
     print("------------------ TERMINA CONSULTA ---------------------")
     return oficial
@@ -3068,6 +3101,9 @@ def multcolumns(arrCols, base, tablasColumna, pT, subConsulta,groupBy):
             bandd = False
             indice = None
             auxCons = ""
+            print("TOY EN EL MULTCOLUMN")
+            print(e)
+            print(e.tipo)
             if e.tipo == 0:
                 retorno.append(columnaEspecificaSinWhere([e], base, tablasColumna, pT, False))
             elif e.tipo == 2:
@@ -3105,6 +3141,9 @@ def columnaEspecificaSinWhere(arrCols, base, tablasColumna, pT,groupby):
         if e.tabla == False:
             for c in tablasColumna:
                 tabla = base.getTabla(c.nombre)
+                if tabla == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice = tabla.getColumna(e.nombre)
                 auxCons = jBase.extractTable(useActual, tabla.nombre)
                 if indice != None:
@@ -3121,6 +3160,9 @@ def columnaEspecificaSinWhere(arrCols, base, tablasColumna, pT,groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla:
                     tabla = base.getTabla(a.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice = tabla.getColumna(e.nombre)
                     auxCons = jBase.extractTable(useActual, tabla.nombre)
                     if indice != None:
@@ -3271,12 +3313,6 @@ def MathUnoSinWhere(arrCols, base, tablasColumna, pT,groupby):
     bande=False
     arrGlobal = []
     for e in arrCols:
-        print("ADENTRO DEL MATH UNO")
-        print(e.nombre)
-        print(e.tipo)
-        print(e.alias)
-        print(e.param)
-        print(e.tabla)
         tabla = ""
         bandd = False
         indice = None
@@ -3284,6 +3320,9 @@ def MathUnoSinWhere(arrCols, base, tablasColumna, pT,groupby):
         if e.tabla == False and e.vtipo==Expresion.ID:
             for c in tablasColumna:
                 tabla = base.getTabla(c.nombre)
+                if tabla == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice = tabla.getColumna(e.param)
                 auxCons = jBase.extractTable(useActual, tabla.nombre)
                 if indice != None:
@@ -3293,6 +3332,9 @@ def MathUnoSinWhere(arrCols, base, tablasColumna, pT,groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla:
                     tabla = base.getTabla(a.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice = tabla.getColumna(e.param)
                     auxCons = jBase.extractTable(useActual, tabla.nombre)
                     if indice != None:
@@ -3412,7 +3454,6 @@ def MathUnoSinWhere(arrCols, base, tablasColumna, pT,groupby):
         pass
     return arrGlobal
 
-
 def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
     global consola
     arrIndices = []
@@ -3431,6 +3472,9 @@ def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
         if e.tabla == False and e.vtipo[0]==Expresion.ID:
             for c in tablasColumna:
                 tabla = base.getTabla(c.nombre)
+                if tabla == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice = tabla.getColumna(e.param[0])
                 auxCons = jBase.extractTable(useActual, tabla.nombre)
                 if indice != None:
@@ -3440,6 +3484,9 @@ def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla[0]:
                     tabla = base.getTabla(a.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice = tabla.getColumna(e.param[0])
                     auxCons = jBase.extractTable(useActual, tabla.nombre)
                     if indice != None:
@@ -3454,6 +3501,9 @@ def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
         if  e.tabla == False and e.vtipo[0]==Expresion.ID:
             for c in tablasColumna:
                 tabla2 = base.getTabla(c.nombre)
+                if tabla2 == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice2 = tabla2.getColumna(e.param[1])
                 auxCons2 = jBase.extractTable(useActual, tabla2.nombre)
                 if indice2 != None:
@@ -3463,6 +3513,9 @@ def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla[1]:
                     tabla2 = base.getTabla(a.nombre)
+                    if tabla2 == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice2 = tabla2.getColumna(e.param[1])
                     auxCons2 = jBase.extractTable(useActual, tabla2.nombre)
                     if indice2 != None:
@@ -3483,7 +3536,7 @@ def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
                 for i in range(len(auxCons)):
                     param = auxCons[i][indice]
                     param2 = auxCons2[i][indice2]
-                    val = param2 // param
+                    val = param // param2
                     arrcc.append(val)
                 arrGlobal.append(arrcc)
             elif e.nombre.lower() == "gcd":
@@ -3570,6 +3623,9 @@ def trigSinWhere(arrCols, base, tablasColumna, pT,groupby):
         if e.tabla == False and e.vtipo==Expresion.ID:
             for c in tablasColumna:
                 tabla = base.getTabla(c.nombre)
+                if tabla == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice = tabla.getColumna(e.param)
                 auxCons = jBase.extractTable(useActual, tabla.nombre)
                 if indice != None:
@@ -3579,6 +3635,9 @@ def trigSinWhere(arrCols, base, tablasColumna, pT,groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla:
                     tabla = base.getTabla(a.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice = tabla.getColumna(e.param)
                     auxCons = jBase.extractTable(useActual, tabla.nombre)
                     if indice != None:
@@ -3750,6 +3809,9 @@ def TrigDosSinWhere(arrCols, base, tablasColumna, pT, groupby):
         if e.tabla == False and e.vtipo[0]==Expresion.ID:
             for c in tablasColumna:
                 tabla = base.getTabla(c.nombre)
+                if tabla == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice = tabla.getColumna(e.param[0])
                 auxCons = jBase.extractTable(useActual, tabla.nombre)
                 if indice != None:
@@ -3759,6 +3821,9 @@ def TrigDosSinWhere(arrCols, base, tablasColumna, pT, groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla[0]:
                     tabla = base.getTabla(a.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice = tabla.getColumna(e.param[0])
                     auxCons = jBase.extractTable(useActual, tabla.nombre)
                     if indice != None:
@@ -3774,6 +3839,9 @@ def TrigDosSinWhere(arrCols, base, tablasColumna, pT, groupby):
         if e.tabla == False and e.vtipo[0]==Expresion.ID:
             for c in tablasColumna:
                 tabla2 = base.getTabla(c.nombre)
+                if tabla2 == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice2 = tabla2.getColumna(e.param[1])
                 auxCons2 = jBase.extractTable(useActual, tabla2.nombre)
                 if indice2 != None:
@@ -3783,6 +3851,9 @@ def TrigDosSinWhere(arrCols, base, tablasColumna, pT, groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla[1]:
                     tabla2 = base.getTabla(a.nombre)
+                    if tabla2 == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice2 = tabla2.getColumna(e.param[1])
                     auxCons2 = jBase.extractTable(useActual, tabla2.nombre)
                     if indice2 != None:
@@ -3842,6 +3913,9 @@ def BinStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
         if e.tabla == False and e.vtipo==Expresion.ID:
             for c in tablasColumna:
                 tabla = base.getTabla(c.nombre)
+                if tabla == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice = tabla.getColumna(e.param)
                 auxCons = jBase.extractTable(useActual, tabla.nombre)
                 if indice != None:
@@ -3851,6 +3925,9 @@ def BinStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla:
                     tabla = base.getTabla(a.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice = tabla.getColumna(e.param)
                     auxCons = jBase.extractTable(useActual, tabla.nombre)
                     if indice != None:
@@ -3894,7 +3971,7 @@ def BinStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                 arr1 = []
                 for i in range(len(auxCons)):
                     dato = auxCons[i][indice.index]
-                    hs = hashlib.sha256(str(dato().encode('utf-8')).hexdigest())
+                    hs = hashlib.sha256(str(dato).encode('utf-8')).hexdigest()
                     arr1.append(val)
                 arrGlobal.append(arr1)
             elif e.nombre == "|":
@@ -3948,6 +4025,9 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
         if e.tabla == False and e.vtipo[0]==Expresion.ID:
             for c in tablasColumna:
                 tabla = base.getTabla(c.nombre)
+                if tabla == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice = tabla.getColumna(e.param[0])
                 auxCons = jBase.extractTable(useActual, tabla.nombre)
                 if indice != None:
@@ -3957,6 +4037,9 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla[0]:
                     tabla = base.getTabla(a.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice = tabla.getColumna(e.param[0])
                     auxCons = jBase.extractTable(useActual, tabla.nombre)
                     if indice != None:
@@ -3971,6 +4054,9 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
         if e.tabla == False and e.vtipo[0]==Expresion.ID:
             for c in tablasColumna:
                 tabla2 = base.getTabla(c.nombre)
+                if tabla2 == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 indice2 = tabla2.getColumna(e.param[1])
                 auxCons2 = jBase.extractTable(useActual, tabla2.nombre)
                 if indice2 != None:
@@ -3980,6 +4066,9 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla[1]:
                     tabla2 = base.getTabla(a.nombre)
+                    if tabla2 == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     indice2 = tabla2.getColumna(e.param[1])
                     auxCons2 = jBase.extractTable(useActual, tabla2.nombre)
                     if indice2 != None:
@@ -4083,6 +4172,9 @@ def agregacionSinWhere(arrCols, base, tablasColumna, pT,subconsulta,groupBy):
             if e.tabla == False:
                 for c in tablasColumna:
                     tabla = base.getTabla(c.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                        return
                     indice = tabla.getColumna(e.param)
                     auxCons = jBase.extractTable(useActual, tabla.nombre)
                     if indice != None:
@@ -4092,6 +4184,10 @@ def agregacionSinWhere(arrCols, base, tablasColumna, pT,subconsulta,groupBy):
                 for a in tablasColumna:
                     if a.alias == e.tabla:
                         tabla = base.getTabla(a.nombre)
+                        if tabla == None:
+                            listaSemanticos.append(
+                                Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                            return
                         indice = tabla.getColumna(e.param)
                         auxCons = jBase.extractTable(useActual, tabla.nombre)
                         if indice != None:
@@ -4162,6 +4258,7 @@ def agregacionSinWhere(arrCols, base, tablasColumna, pT,subconsulta,groupBy):
 
 
 def SubstrSinWhere(arrCols, base, tablasColumna, pT,groupby):
+    print("ENTRO AL PINCHE SUBSTRING")
     global consola
     global d1,d2
     arrIndices = []
@@ -4173,10 +4270,17 @@ def SubstrSinWhere(arrCols, base, tablasColumna, pT,groupby):
         auxCons = ""
         if e.tabla == False:
             for c in tablasColumna:
+                print("ADENTRO DEL SUBSTRING")
+                print(c.nombre)
                 tabla = base.getTabla(c.nombre)
+                print("soy tu tabla")
+                print(tabla)
+                if tabla == None:
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + c.nombre))
+                    return
                 if isinstance(e.param,SExpresion):
                     indice = tabla.getColumna(e.param.valor)
-                else: 
+                else:
                     indice = tabla.getColumna(e.param.index)
                 auxCons = jBase.extractTable(useActual, tabla.nombre)
                 if indice != None:
@@ -4186,6 +4290,9 @@ def SubstrSinWhere(arrCols, base, tablasColumna, pT,groupby):
             for a in tablasColumna:
                 if a.alias == e.tabla:
                     tabla = base.getTabla(a.nombre)
+                    if tabla == None:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la tabla " + a.nombre))
+                        return
                     if isinstance(e.param,SExpresion):
                         indice = tabla.getColumna(e.param.valor)
                     else: 

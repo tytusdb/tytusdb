@@ -4,7 +4,7 @@ from tkinter import filedialog as FileDialog
 from tkinter import colorchooser as ColorChooser
 from tkinter import messagebox as MessageBox
 
-import Graficar as graficando
+#import Graficar as graficando
 import principal as principal
 import os
 from tkinter import filedialog
@@ -223,9 +223,9 @@ if __name__ == "__main__":
                 #tablaSimbolos.mostrar()
                 imprimir_consola(data)
                 #append_consola(tablaSimbolos.mostrar_tabla())
-                raiz = graficando.analizador(entrada)
-                graficando.GraficarAST(raiz)
-                graficando.ReporteGramatical()
+                #raiz = graficando.analizador(entrada)
+                #graficando.GraficarAST(raiz)
+                #graficando.ReporteGramatical()
             else:
 
                 imprimir_consola('Se detectaron algunos errores sintácticos')
@@ -357,7 +357,7 @@ if __name__ == "__main__":
 
     # VENTANA PRINCIPAL
     frame = tk.Frame(root)
-    frame.place(x=0, y=0, width=1366, height=500)
+    frame.place(x=0, y=0, relwidth=0.975, height=450)
 
     ############################### BARRA DE MENÚS DE LA APLICACIÓN ###############################
     top = frame.winfo_toplevel()
@@ -428,7 +428,7 @@ if __name__ == "__main__":
 
     # EDITOR DE TEXTO
     my_editor = Example(frame)
-    my_editor.pack(side="top", fill="both", expand=True)
+    my_editor.pack(side="top", fill=tk.BOTH, expand=True)
     
     
     # ETIQUETAS PARA LA FILA Y COLUMNA ACTUAL
@@ -447,7 +447,7 @@ if __name__ == "__main__":
     ######################################### CONSOLA #############################################
 
     consola = tk.Text(root, bg='black', fg='white', state=tk.DISABLED)
-    consola.place(x=30, y=505, width=1330, height=140)
+    consola.place(x=30, y=505, relwidth=0.965, relheight=0.350)
 
     root.protocol("WM_DELETE_WINDOW", __funcion_on_closing)
     try:
