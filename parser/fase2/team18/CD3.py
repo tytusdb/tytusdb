@@ -42,7 +42,7 @@ def PSelectFunciones(alias,resultado):
     
     
 def PUseDatabase(nombreBase):
-    txt="\t#usar base\n"
+    txt="\t#Use Database\n"
     txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
     txt+="\tCD3.EUseDatabase()\n"
     agregarInstr(nombreBase,txt)
@@ -92,6 +92,43 @@ def PCreateTable(nombreBase,nombreTabla,cantidadcol,llaves):
 def PInsert(nombreBase,nombreTabla,valores):
     Data_insert=[nombreBase,nombreTabla,valores]
     agregarInstr(Data_insert,"CD3.EInsert()")
+
+def PUpdate(nombreBase,nombreTabla,indice,valor,nvalores):
+    update_data=[nombreBase,nombreTabla,indice,valor,nvalores]
+    busqueda_tb=[nombreBase,nombreTabla]
+    txt="\t#Update Registro\n"
+    txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
+    var="t"+str(numT())
+    txt+="\t"+var+"=CD3.EObtenerTabla()\n"
+    txt+="\tif("+var+"):\n"
+    txt+="\t\tgoto .tbencontrada"+str(contT)+"\n"
+    txt+="\t\tlabel.tbencontrada"+str(contT)
+    agregarInstr(busqueda_tb,txt)
+    txt="\t\tt"+str(numT())+"='"+str(valor)+"'\n"
+    txt+="\t\tCD3.EUpdate()\n"
+    agregarInstr(update_data,txt)
+
+def PDelete(nombreBase,nombreTabla,cols):
+    delete_data=[nombreBase,nombreTabla,cols]
+    busqueda_tb=[nombreBase,nombreTabla]
+    txt="\t#Delete Registro\n"
+    txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
+    var="t"+str(numT())
+    txt+="\t"+var+"=CD3.EObtenerTabla()\n"
+    txt+="\tif("+var+"):\n"
+    txt+="\t\tgoto .tbencontrada"+str(contT)+"\n"
+    txt+="\t\tlabel.tbencontrada"+str(contT)
+    agregarInstr(busqueda_tb,txt)
+    txt="\t\tt"+str(numT())+"="+str(cols)+"\n"
+    txt+="\t\tCD3.EDelete()\n"
+    agregarInstr(delete_data,txt)
+
+def PShowDatabases(dataBases):
+    txt="\t#Show Databases\n"
+    txt+="\tt"+str(numT())+"="+str(dataBases)+"\n"
+    txt+="\tCD3.EShowDatabases()\n"
+    agregarInstr(dataBases,txt)
+
 
 #escribir archivo
 def CrearArchivo():
@@ -192,10 +229,6 @@ def EAddPK():
             EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[2])
             print("\tllave primaria:",crear_tabla[2])
         listaMemoria.pop(0)
-        if(len(crear_tabla[3])>0):
-            EDD.alterAddPK(crear_tabla[0],crear_tabla[1],crear_tabla[3])
-            print("\tllave primaria:",crear_tabla[3])
-            listaMemoria.pop(0)
 
 def ESelectFuncion():
     print("Select funcion")
@@ -207,5 +240,47 @@ def EInsert():
     if(len(listaMemoria)>0):
         Data_insert=listaMemoria[0]
         EDD.insert(Data_insert[0],Data_insert[1],Data_insert[2]) 
-        print("Insert en tabla ",Data_insert[1]," \n\tvalores ",Data_insert[2])
+        print("insert en tabla ",Data_insert[1]," \n\tvalores ",Data_insert[2])
+        listaMemoria.pop(0)
+
+def EObtenerTabla():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        get_tb=listaMemoria[0]
+        result=EDD.showTables(get_tb[0])
+        if get_tb[1] in result:
+            print("update en tabla ",get_tb[1])
+            listaMemoria.pop(0)
+            return True
+    return False
+
+def EUpdate():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        update_registro=listaMemoria[0]
+        indice=update_registro[2]
+        valor=update_registro[3]
+        col={}
+        col[indice]=valor
+        EDD.update(update_registro[0],update_registro[1],col,update_registro[4])
+        print("registro actualizado: \tvalor ",valor)
+        listaMemoria.pop(0)
+
+def EDelete():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        delete_registro=listaMemoria[0]
+        EDD.delete(delete_registro[0],delete_registro[1],delete_registro[2])
+        print("Registro eliminado: \tllave primaria ",delete_registro[2])
+        listaMemoria.pop(0)
+
+def EShowDatabases():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        databases=listaMemoria[0]
+        print("databases:\t",str(databases))
         listaMemoria.pop(0)

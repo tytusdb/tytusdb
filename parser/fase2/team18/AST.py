@@ -323,6 +323,7 @@ def eliminar_BaseDatos(instr,ts):
 def mostrar_db(instr,ts):
     #retorna una lista[db1,db2...], si no hay estara vacia[]
     result=EDD.showDatabases()
+    CD3.PShowDatabases(result)
     msg='Lista de bases de datos'
     agregarMensjae('normal',msg,'')
 
@@ -1176,6 +1177,7 @@ def update_register(exp,llaves,ts,baseAc,tablenm,nameC,valor):
                     if len(atributosact) > 0:
                         col[indiceColum(baseAc,tablenm,nameC)]=valor
                         respuesta=EDD.update(baseAc,tablenm,col,atributosact)
+                        CD3.PUpdate(baseAc,tablenm,indiceColum(baseAc,tablenm,nameC),valor,atributosact)
                         if respuesta==0:
                             agregarMensjae('exito','Registro actualizado.','')
                         elif respuesta==1:
@@ -1192,6 +1194,7 @@ def update_register(exp,llaves,ts,baseAc,tablenm,nameC,valor):
                     if len(atributosact) > 0:
                         col[indiceColum(baseAc,tablenm,nameC)]=valor
                         respuesta=EDD.update(baseAc,tablenm,col,atributosact)
+                        CD3.PUpdate(baseAc,tablenm,indiceColum(baseAc,tablenm,nameC),valor,atributosact)
                         if respuesta==0:
                             agregarMensjae('exito','Registro actualizado.','')
                         elif respuesta==1:
@@ -1275,6 +1278,7 @@ def eliminar_de_tabla(instr,ts):
                                 atributodel.append(registro[i])
                         if len(atributodel) > 0:       
                             respuesta=EDD.delete(baseActiva,nombreT,atributodel)
+                            CD3.PDelete(baseActiva,nombreT,atributodel)
                             if respuesta==0:
                                 agregarMensjae('exito','Registro eliminado.','')
                             elif respuesta==1:
@@ -1290,6 +1294,7 @@ def eliminar_de_tabla(instr,ts):
                                 atributodel.append(registro[i])
                         if len(atributodel) > 0:       
                             respuesta=EDD.delete(baseActiva,nombreT,atributodel)
+                            CD3.PDelete(baseActiva,nombreT,atributodel)
                             if respuesta==0:
                                 agregarMensjae('exito','Registro eliminado.','')
                             elif respuesta==1:
