@@ -1,7 +1,7 @@
 
 """Librería para realizar operaciones matemáticas sobre datos numéricos."""
 import math
-#import random
+import random
 
 def absolute(input):
     """Valor absoluto
