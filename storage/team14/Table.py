@@ -7,7 +7,7 @@ class Table:
         self.name = name
         self.numberColumns = numberColumns
         self.PK = []
-        self.hiddenPK = 0
+        self.hiddenPK = 1
         self.tuples = ISAM()
         self.PKDefined = False
         self.droppdedPK = False

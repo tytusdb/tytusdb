@@ -214,7 +214,8 @@ tokens = [
             'PUNTOCOMA',
             'PTCOMA',
             'CORCHETEA',
-            'CORCHETEC'
+            'CORCHETEC',
+            'DOLAR'
 ] + list(reservadas.values())
 
 #Token
@@ -246,7 +247,7 @@ t_PUNTO=r'\.'
 t_PTCOMA = r'\;'
 t_CORCHETEA=r'\['
 t_CORCHETEC=r'\]'
-
+t_DOLAR = r'\$'
 
 def t_DEC(t):
     r'\d+\.\d+'
@@ -314,6 +315,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 from classesQuerys import *
+from procedural import *
 import ply.lex as lex
 lexer = lex.lex()
 
@@ -360,6 +362,7 @@ def p_inst(p):
             |   delete
             |   usedb
             |   query
+            |   createfunc
     """
     p[0] = p[1]
     insertProduction(p.slice, len(p.slice))
@@ -1559,6 +1562,91 @@ def p_offsetEmpty(t):
     'off : empty'
     t[0] = 0
     insertProduction(t.slice, len(t.slice))
+
+def p_createfunc(t):
+    'createfunc : CREATE FUNCTION id PARA lparams PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOALR'
+
+def p_lparams(t):
+    'lparams : lparams COMA param' 
+
+def p_lparamsSingle(t):
+    'lparams : param'
+
+def p_param(t):
+    '''param : id type
+                | id
+    '''   
+
+def p_block(t):
+    ' block : declare BEGIN instrucciones END'
+
+def p_declaration(p):
+    ''' declare : ID consta reservadatipo coll  nn  ddiexp'''
+    p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
+
+def p_ddiexp(p):
+    '''ddiexp : ddi valortipo '''
+    p[0] = expre(p[1],p[2])
+    
+
+def p_ddiexp(p):
+    '''ddiexp : '''
+    p[0] = None
+
+def p_ddi(p):
+    '''ddi : DEFAULT 
+           | DOSPUNTOS IGUAL
+           | IGUAL
+            '''
+    p[0] = p[1]
+    
+
+def p_collate(p):
+    '''coll : COLLATE ID
+            | '''
+    if p[1] == 'collate': p[0] = p[2]
+    else: p[0] = None
+
+def p_consta(p):
+    ''' consta : CONSTANT
+            | '''
+    if p[1] == 'constant': p[0] = p[1]
+    else: p[0] = None
+
+def p_nn(p):
+    ''' nn : NOT NULL
+            | '''
+    if p[1] == 'not': p[0] = p[1]
+    else: p[0] = None
+
+
+def p_instrucciones(t):
+    'instrucciones : instrucciones instruccion'
+
+def p_instruccionesSingle(t):
+    'instrucciones : instruccion'
+
+
+def p_instruccion(t):
+    '''instruccion : raisenotice
+                    | asignacion
+                    | return 
+                    | block
+    
+     '''
+
+def p_raisenotice(t):
+    'raisenotice : RAISE NOTICE VARCHAR compvalue PUNTOCOMA'
+
+def p_compvalue(t):
+    'compvalue : COMA id'
+
+def p_asignacion(t):
+    'asignacion : id DOSPUNTOS IGUAL exp PUNTOCOMA'
+
+def p_return(t):
+    'return : RETURN exp PUNTOCOMA'
+
 
 def p_error(t):
     if t:
