@@ -14,7 +14,6 @@ from analizer import interpreter
 
 class Pantalla:
     def __init__(self):
-
         self.lexicalErrors = list()
         self.syntacticErrors = list()
         self.semanticErrors = list()
