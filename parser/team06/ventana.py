@@ -26,6 +26,7 @@ class Interfaz(tk.Frame):
         self.root = root
         tk.Frame.__init__(self, *args, **kwargs)
        
+        
         self.filename = None
         self.terminal = tk.Text(root, width=75, height=1, background="black",foreground="#00AA00")
         self.terminal.pack(side="right", fill="both", expand=True)

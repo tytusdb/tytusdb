@@ -969,7 +969,7 @@ def p_operacion(t):
         t[0]=ExpresionBIT(t[1],t[3],OPERACION_BIT.DESPLAZAMIENTO_DERECHA)
 # --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='=':
-        t[0]=operacionDelete(t[1],t[3],t[1])
+        t[0]=operacionDelete(t[1],t[3],t[2])
         h.reporteGramatical1 +="operacion    ::=      operacion IGUAL operacion\n"
 # --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='==':
@@ -1500,7 +1500,7 @@ def p_listaParam_2(t):
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):
-    'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
+    'updateinBD           : UPDATE ID SET asignaciones WHERE operacion PUNTOYCOMA'
     t[0]= UpdateinDataBase(t[2],t[4],t[6])
     h.reporteGramatical1 +="updateinBD    ::=      UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA\n"
     h.reporteGramatical1 +="t[0]=UpdateinDabaBase(t[2].t[4],t[6])\n"
@@ -1739,6 +1739,7 @@ def p_tipo(t):
                         | INTEGER
                         | BIGINT
                         | DECIMAL
+                        | DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA
                         | NUMERIC
                         | REAL
                         | DOUBLE PRECISION
@@ -1779,10 +1780,16 @@ def p_tipo(t):
         h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],None)\n"
 
     # -------------------------------------------------------------------------------------------------------------- 
-    elif t[1].upper()=="DECIMAL":
+    elif t[1].upper()=="DECIMAL" and t[2]==None:
         t[0]=TipoDatoColumna(t[1],None)
         h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
         h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],None)\n"
+
+    elif t[1].upper()=="DECIMAL" and t[3] != None:
+        val = str(t[3])+","+str(t[5])
+        t[0]=TipoDatoColumna(t[1],val)
+        h.reporteGramatical1 +"tipo     ::=     "+str(t[1])+"("+str(t[3])+","+str(t[5])+")\n"
+        h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],val)"
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="NUMERIC":

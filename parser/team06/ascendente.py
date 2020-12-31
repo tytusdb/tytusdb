@@ -1500,8 +1500,18 @@ def procesar_insertBD(query,ts):
                             return
 
                 elif col.check == 1: #validacion de dato si cumple con restriccion check
+                    exp1=ExpresionNumero(query.listRegistros[contcol-1].id)
+                    #print("-------",col.condicionCheck)
+                    #print(col.condicionCheck.exp1)
+                    #print(col.condicionCheck.exp2)
+                    #print(col.condicionCheck.exp2.exp1)
+                    #print(col.condicionCheck.exp2.exp1.exp1.id)
+                    #print(col.condicionCheck.exp2.exp1.exp2.id)
+                    #print(col.condicionCheck.exp2.exp1.operador)
+                    #validarCheck(col.condicionCheck,exp1,None,ts)
+                    #return
                     if validaTipoDato(col.tipo.upper(),query.listRegistros[contcol-1].id,col.tamanoCadena) == True:
-                        print("valido check")
+                        #print("valido check")
                         tp = col.tipo.upper()
                         if tp=='SMALLINT' or tp=='INTEGER' or tp=='BIGINT' or tp=='DECIMAL' or tp=='NUMERIC' or tp=='REAL' or tp=='DOUBLE' or tp=='MONEY':
                             exp1=ExpresionNumero(query.listRegistros[contcol-1].id)
@@ -1511,9 +1521,10 @@ def procesar_insertBD(query,ts):
                                 tamtemp = len(coltemp.valor)
                                 valtemp = coltemp.valor[tamtemp-1]
                                 exp2=ExpresionNumero(valtemp)
+                                
                             else:
-                                exp2=col.condicionCheck.exp2
-                            if validarCheck(exp1,exp2,col.condicionCheck.operador,ts) == 1:
+                                exp2=col.condicionCheck
+                            if validarCheck(exp2,exp1,col.condicionCheck.operador,ts) == 1:
                                 if col.pk == 1 or col.unique == 1: #columna es llave primaria
                                     temp = 0
                                     if col.valor != None:
@@ -1554,8 +1565,8 @@ def procesar_insertBD(query,ts):
                                 valtemp = coltemp.valor[tamtemp-1]
                                 exp2=ExpresionCadenas(valtemp)
                             else:
-                                exp2=col.condicionCheck.exp2
-                            if validarCheck(exp1,exp2,col.condicionCheck.operador,ts)==1:
+                                exp2=col.condicionCheck
+                            if validarCheck(exp2,exp1,col.condicionCheck.operador,ts)==1:
                                 if col.pk == 1 or col.unique == 1: #columna es llave primaria
                                     temp = 0
                                     if col.valor != None:
@@ -1626,6 +1637,12 @@ def procesar_insertBD(query,ts):
                     if validaTipoDato(col.tipo.upper(),query.listRegistros[contcol-1].id,col.tamanoCadena) == True:
                         if col.tipo.upper()=="MONEY":
                             datotemp = convertiraMoney(query.listRegistros[contcol-1].id)
+                        elif col.tipo.upper()=="DECIMAL" and col.tamanoCadena != None:
+                            y = query.listRegistros[contcol-1].id
+                            exact = col.tamanoCadena.split(",")
+                            form = "{0:."+str(exact[1])+"f}"
+                            numero = form.format(y)
+                            datotemp = numero
                         else:
                             datotemp = query.listRegistros[contcol-1].id
                         if col.pk == 1 or col.unique == 1: #columna es llave primaria
@@ -1723,8 +1740,8 @@ def procesar_insertBD(query,ts):
                                 valtemp = coltemp.valor[tamtemp-1]
                                 exp2=ExpresionNumero(valtemp)
                             else:
-                                exp2=col.condicionCheck.exp2
-                            if validarCheck(exp1,exp2,col.condicionCheck.operador,ts) == 1:
+                                exp2=col.condicionCheck
+                            if validarCheck(exp2,exp1,col.condicionCheck.operador,ts) == 1:
                                 if col.pk == 1 or col.unique == 1: # se verifica que la llave primaria no sea repetida
                                     temp = 0
                                     if col.valor != None:
@@ -1768,8 +1785,9 @@ def procesar_insertBD(query,ts):
                                 valtemp = coltemp.valor[tamtemp-1]
                                 exp2=ExpresionCadenas(valtemp)
                             else:
-                                exp2=col.condicionCheck.exp2
-                            if validarCheck(exp1,exp2,col.condicionCheck.operador,ts)==1:
+                                exp2=col.condicionCheck
+
+                            if validarCheck(exp2,exp1,col.condicionCheck.operador,ts)==1:
                                 if col.pk == 1 or col.unique == 1: # se verifica que la llave primaria no sea repetida
                                     temp = 0
                                     if col.valor != None:
@@ -1952,14 +1970,32 @@ def ValidandoDefault(tamValores,BD,tabla,ts):
 
 
 def validarCheck(exp1,exp2,operador,ts):
-    print(exp2.id)
-    cond = ExpresionRelacional(exp1,exp2,operador)
-    if resolver_expresion_relacional(cond,ts):
-        print("se valido check")
-        return 1
-    else:
-        print("dato no valido para check")
-        return 0
+    print(exp1)
+    result1 = None
+    result2 = None
+    if isinstance(exp1, ExpresionRelacional):
+        if isinstance(exp1.exp1, ExpresionIdentificador) and isinstance(exp1.exp2, ExpresionRelacional):
+            cond1 = ExpresionRelacional(exp2,exp1.exp2.exp1.exp1,exp1.operador)
+            result1 = resolver_expresion_relacional(cond1,ts)
+            print("Resultado1: ",result1)
+
+            if isinstance(exp1.exp2, ExpresionRelacional):
+                cond2 = ExpresionRelacional(exp2,exp1.exp2.exp2,exp1.exp2.operador)
+                result2 = resolver_expresion_relacional(cond2,ts)
+                print("REesultado2: ",result2)
+            return result1 and result2
+        elif isinstance(exp1.exp1, ExpresionIdentificador) and isinstance(exp1.exp2, ExpresionNumero):
+            cond = ExpresionRelacional(exp2,exp1.exp2,exp1.operador)
+            return resolver_expresion_relacional(cond,ts)
+    elif isinstance(exp1,ExpresionNumero):
+        cond1 = ExpresionRelacional(exp2,exp1,operador)
+        return resolver_expresion_relacional(cond1,ts)
+        
+    #    print("se valido check")
+    #    return 1
+    #else:
+    #    print("dato no valido para check")
+    #    return 0
 
 def procesar_updateinBD(query,ts):
     print("entro a update")
@@ -2214,25 +2250,57 @@ def guardar_asignacion(valor, variable,ts):
 def procesar_deleteinBD(query,ts):
     print("entra a delete from")
     print("entra al print con: ",query.idTable)
+    h.textosalida+="TYTUS>>\n"
     h.textosalida+="TYTUS>> Eliminando registro de una tabla\n"
+    
     if isinstance(query.condColumna,operacionDelete):
-        numcolumnas = ts.numerodeColumnas(h.bd_enuso,query.idTable)
-        cont=0
-        while cont < numcolumnas:
-            col = ts.obtenersinNombreColumna(query.idTable,h.bd_enuso,cont)
-            if col.nombre == query.condColumna.exp1.id:
-                temp = len(col.valor)
-                contval = 0
-                while contval < temp:
-                    if col.valor == None:
-                        print("Tabla vacia")
-                        return
-                    else:
-                        if col.valor[contval] == query.condColumna.exp2.id:
-                            ts.eliminarRegistroTabla(h.bd_enuso,query.idTable,contval)
+        print(query.condColumna.exp1)
+        print(query.condColumna.exp2)
+        if isinstance(query.condColumna.exp1,ExpresionIdentificador) and isinstance(query.condColumna.exp2,ExpresionNumero):
+            print("condicion simple")
+            numcolumnas = ts.numerodeColumnas(h.bd_enuso,query.idTable)
+            cont=0
+            while cont < numcolumnas:
+                col = ts.obtenersinNombreColumna(query.idTable,h.bd_enuso,cont)
+                if col.nombre == query.condColumna.exp1.id:
+                    temp = len(col.valor)
+                    contval = 0
+                    while contval < temp:
+                        if col.valor == None:
+                            print("Tabla vacia")
                             return
-                    contval=contval+1
-                
+                        else:
+                            if col.valor[contval] == query.condColumna.exp2.id:
+                                ts.eliminarRegistroTabla(h.bd_enuso,query.idTable,contval)
+                                h.textosalida+="TYTUS>> Registro eliminado en la tabla "+query.idTable+" que cumple la condicion de la columna"+str(query.condColumna.exp2.id)+"\n"
+                                h.textosalida+="TYTUS>>\n"
+                                return
+                        contval=contval+1     
+        elif isinstance(query.condColumna.exp1,ExpresionIdentificador) and isinstance(query.condColumna.exp2,operacionDelete):
+            print("condicion con and")
+            numcolumnas = ts.numerodeColumnas(h.bd_enuso,query.idTable)
+            id1 = query.condColumna.exp1.id
+            id2 = query.condColumna.exp2.exp1.exp2.id
+            val1 = query.condColumna.exp2.exp1.exp1.id
+            val2 = query.condColumna.exp2.exp2.id
+
+            col1= ts.obtenerconNombreColumna(id1,h.bd_enuso,query.idTable)
+            col2= ts.obtenerconNombreColumna(id2,h.bd_enuso,query.idTable)
+            if col1 != None and col2 != None:
+                temp1 = len(col1.valor)
+                contval = 0
+                while contval < temp1:
+                    if col1.valor == None:
+                        print("Tabla vacia")
+                    else:
+                        if col1.valor[contval] == val1 and col2.valor[contval] == val2:
+                            ts.eliminarRegistroTabla(h.bd_enuso,query.idTable,contval)
+                            h.textosalida+="TYTUS>> Registro eliminado tabla "+query.idTable+" con condiciones en las columnas "+str(id1)+" y "+str(id2)+"\n"
+                            h.textosalida+="TYTUS>>\n"
+                            return
+                    contval=contval+1 
+
+        
     else:
         print("Se eliminara el registro que cumple la siguiente condicion")
         print(query.condColumna.exp1.id," ",query.condColumna.operador,query.condColumna.exp2.id)
@@ -2273,9 +2341,18 @@ def procesar_createTale(query,ts):
                     print("Se creo nueva columna :",idcol," a tabla: ",idtab)
                 else:
                     print("columna: ",idcol," ya existe en tabla: ",idtab)
-                   
-            else:
+
+            elif idtipo.upper() == "DECIMAL" and i.objAtributo.TipoColumna.longitud != None:
+                print("exactitud: ",i.objAtributo.TipoColumna.longitud)     
                 idtamcad = i.objAtributo.TipoColumna.longitud
+                if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,h.bd_enuso,idtab,1,0,0,None,None,0,None,0,None,None,None,None,None,None)
+                    ts.agregarnuevaColumna(simbolo)
+                    print("Se creo nueva columna :",idcol," a tabla: ",idtab)
+                else:
+                    print("columna: ",idcol," ya existe en tabla: ",idtab)
+
+            else:
                 if ts.verificarcolumnaBD(idcol,h.bd_enuso,idtab) == 0:
                     simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,h.bd_enuso,idtab,1,0,0,None,None,0,None,0,None,None,None,None,None,None)
                     ts.agregarnuevaColumna(simbolo)
@@ -2333,9 +2410,10 @@ def procesar_createTale(query,ts):
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
                     print("Restriccion: CHECK")
-                    print("Valor de check: ",res.objrestriccion.condCheck.exp1.id,res.objrestriccion.condCheck.operador,res.objrestriccion.condCheck.exp2.id)
+                    #print("Valor de check: ",res.objrestriccion.condCheck.exp1.id,res.objrestriccion.condCheck.operador,res.objrestriccion.condCheck.exp2.id)
                     chk = 1
                     condchk = res.objrestriccion.condCheck
+                    #print(res.objrestriccion.condCheck)
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
                     print("Restriccion: CONSTRAINT CHECK")
@@ -2456,6 +2534,7 @@ def procesar_createTale(query,ts):
     h.textosalida+="TYTUS>> Se creo Tabla:        "+str(query.idTable)+"\n"
     h.textosalida+="TYTUS>> Base de datos usada:  "+str(h.bd_enuso)+"\n"
     h.textosalida+="TYTUS>> Cantidad de columnas: "+str(cantcol)+"\n"
+    print(ts.columnasPrimaria(h.bd_enuso,query.idTable))
     #store.createDatabase(h.bd_enuso)
     #store.createTable(h.bd_enuso,query.idTable,cantcol+1)
 
@@ -2733,8 +2812,7 @@ def alter_table(query,ts):
 # ---------------------------------------------------------------------------------------------------------------------
 def procesar_queries(queries, ts) :
     ## lista de instrucciones recolectadas
-
-    #datos_de_prueba(ts)
+    
     print("Entra a procesar queries",queries)
     for query in queries :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
@@ -2891,15 +2969,45 @@ def validaTipoDato(tipo, valor, tam):
 
     elif tipo.upper() == "DECIMAL":
         try:
-            temp = str(valor)
-            num = temp.split(".")
-            entero = len(num[0])
-            decimal = len(num[1])
-            if 131072 > entero and 16383 > decimal:
-                return True
+            if tam != None:
+                exact = tam.split(",")
+                form = "{0:."+str(exact[1])+"f}"
+                numero = form.format(valor)
+                temp = str(numero)
+                num = temp.split(".")
+                entero = len(num[0])
+                decimal = len(num[1])
+            
+                if int(exact[0]) >= entero and int(exact[1]) >= decimal:
+                    return True
+                else:
+                    print("El valor ingresado no cumple como Decimal")
+                    return False
             else:
-                print("El valor ingresado no cumple como Decimal")
-                return False
+                if type(valor) is int:
+                    numero = float(valor)
+                    temp = str(numero)
+                    num = temp.split(".")
+                    entero = len(num[0])
+                    dec = len(num[1])
+            
+                    if 131072 > entero and 16383 > dec:
+                        return True
+                    else:
+                        print("El valor ingresado no cumple como Decimal")
+                        return False
+                elif type(valor) is float:
+                    temp = str(valor)
+                    num = temp.split(".")
+                    entero = len(num[0])
+                    dec = len(num[1])
+            
+                    if 131072 > entero and 16383 > dec:
+                        return True
+                    else:
+                        print("El valor ingresado no cumple como Decimal")
+                        return False
+
         except:
             print("El dato no es valido para tipo DECIMAL")
             return False
@@ -3058,7 +3166,7 @@ def validaTipoDato(tipo, valor, tam):
 
     elif tipo.upper() == "BOOLEAN":
         try:
-            if valor.upper() == 'true' or valor.upper() == 'false':
+            if valor.upper() == 'TRUE' or valor.upper() == 'FALSE':
                 return True
             return False
         except:
