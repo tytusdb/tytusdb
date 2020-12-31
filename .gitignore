@@ -7,6 +7,9 @@ parser/team13/.vscode/settings.json
 parser/team13/.vscode/settings.json
 .vscode
 
+
+parser/fase2/team17/StoreManager/*
+
 **/__pycache__/**
 **/venv/*
 **/.idea/*
