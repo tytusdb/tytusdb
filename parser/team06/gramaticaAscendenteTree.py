@@ -3843,7 +3843,7 @@ def p_listaParam_2(t):
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):
-    'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
+    'updateinBD           : UPDATE ID SET asignaciones WHERE operacion PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'UPDATE_IN_BD'
 
@@ -4404,6 +4404,7 @@ def p_tipo(t):
                         | INTEGER
                         | BIGINT
                         | DECIMAL
+                        | DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA
                         | NUMERIC
                         | REAL
                         | DOUBLE PRECISION
@@ -4470,6 +4471,37 @@ def p_tipo(t):
         nodeSon1.token = 'DECIMAL'
         nodeSon1.lexeme = t[1]
         nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    elif t[1].upper()=="DECIMAL" and t[2]=="(":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'DECIMAL'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = '('
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'ENTERO'
+        nodeSon3.lexeme = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon4 = nodeAst()
+        nodeSon4.token = 'ENTERO'
+        nodeSon4.lexeme = t[5]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon5 = nodeAst()
+        nodeSon5.token = ')'
+        nodeSon5.lexeme = t[6]
+        nodeFather.son.append(nodeSon2)
 
         t[0] = nodeFather
 

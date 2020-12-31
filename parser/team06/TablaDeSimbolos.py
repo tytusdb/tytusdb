@@ -182,7 +182,7 @@ class TablaDeSimbolos() :
     def verificarcolumnaBD(self,nombre,BD,tabla):
         clave = str(nombre) + str(BD) + str(tabla)
         if not clave in self.simbolos :
-            print('Error: La tabla: ', nombre, ' no definida.')
+            print('Error: La columna: ', nombre, ' no definida.')
             return 0
         return 1
 
@@ -362,7 +362,13 @@ class TablaDeSimbolos() :
             #print(self.simbolos[simb].id," ",self.simbolos[simb].nombre," ",self.simbolos[simb].BD," ",self.simbolos[simb].tabla)
         print("la columna no existe")
         return 0
-
+    
+    def columnasPrimaria(self,BD,tabla):
+        listpk = []
+        for simb in self.simbolos:
+            if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == BD and self.simbolos[simb].pk == 1:
+                listpk.append(self.simbolos[simb].id)
+        return listpk
 
 #--------------Delete de registro
     def eliminarRegistroTabla(self,BD,tabla,posvalor):
