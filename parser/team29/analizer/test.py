@@ -5,8 +5,6 @@ from shutil import rmtree
 path.append(dir(path[0]))
 
 from analizer import grammar
-from analizer.reports import BnfGrammar
-from analizer.interpreter import symbolReport
 
 dropAll = 0
 if dropAll:
@@ -15,18 +13,11 @@ if dropAll:
 
 
 s = """ 
-
 USE test;
-
-
-select iditem,  from tbcalifica order by tbcalifica.puntos desc nulls first, tbcalifica.item  nulls last;
-
+(SELECT "puta") union (SELECT "hola");
 """
-
 result = grammar.parse(s)
-
-x = [r.execute(None) for r in result]
-print(x)
-# print(symbolReport())
-# grammar.InitTree()
-# BnfGrammar.grammarReport()
+print(result)
+# print(result[0].execute(None))
+# print(result[1].execute(None))
+# print(grammar.returnPostgreSQLErrors())
