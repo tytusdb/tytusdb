@@ -2271,6 +2271,9 @@ def p_pldecla12(t):
 def p_pldecla13(t):
     '''pldecla : ID tipo PTCOMA'''
 
+def p_decla14(t):
+    '''pldecla : ID plasig PTCOMA'''
+
 #PLASIG ********************************
 def p_plasig(t):
     '''plasig : DEFAULT E
@@ -2318,13 +2321,13 @@ def p_retable(t):
 
 # FUNCTION *********************************************
 def p_plfunction(t):
-    '''plfunction : FUNCTION ID PARIZQ l_param PARDR RETURNS plreturns AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
+    '''instruccion : CREATE FUNCTION ID PARIZQ l_param PARDR RETURNS plreturns AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
 
 def p_plfunction1(t):
-    '''plfunction : FUNCTION ID PARIZQ PARDR RETURNS plreturns AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
+    '''instruccion : CREATE FUNCTION ID PARIZQ PARDR RETURNS plreturns AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
 
 def p_plfunction2(t):
-    '''plfunction : FUNCTION ID PARIZQ l_param PARDR AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
+    '''instruccion : CREATE FUNCTION ID PARIZQ l_param PARDR AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
 
 #BLOQUE ************************************************
 def p_bloq(t):
@@ -2363,7 +2366,10 @@ def p_l_plsen(t):
 #PLSEN *************************************
 def p_plsen(t):
     '''plsen : pldecla
-             | plretu '''
+             | plretu
+            | plIf
+            | pl_Case
+            | plCall'''
 
 #PLRETU *************************************
 def p_plretu(t):
@@ -2375,31 +2381,31 @@ def p_plretu(t):
 # --------------- Instrucciones Query -------------------------
 # PLSELECT**************************
 def p_plselect(t):
-    '''instruccion : SELECT select_list INTO ID FROM ID WHERE where andOr PTCOMA'''
+    '''plsen : SELECT select_list INTO ID FROM ID WHERE where andOr PTCOMA'''
 
 def p_plselect1(t):
-    '''instruccion : SELECT select_list INTO STRICT ID FROM ID WHERE where andOr PTCOMA'''
+    '''plsen : SELECT select_list INTO STRICT ID FROM ID WHERE where andOr PTCOMA'''
 
 # PLINSERT**************************
 def p_plinsert(t):
-    'instruccion : INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO ID PTCOMA'
+    'plsen : INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO ID PTCOMA'
 
 def p_plinsert1(t):
-    'instruccion : INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO STRICT ID PTCOMA'
+    'plsen : INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO STRICT ID PTCOMA'
 
 # PLUPDATE**************************
 def p_pludapte(t):
-    'instruccion : UPDATE ID SET asignaciones WHERE where andOr RETURNING plreturning INTO ID PTCOMA'
+    'plsen : UPDATE ID SET asignaciones WHERE where andOr RETURNING plreturning INTO ID PTCOMA'
 
 def p_pludapte1(t):
-    'instruccion : UPDATE ID SET asignaciones WHERE where andOr RETURNING plreturning INTO STRICT ID PTCOMA'
+    'plsen : UPDATE ID SET asignaciones WHERE where andOr RETURNING plreturning INTO STRICT ID PTCOMA'
 
 # PLDELETE *************************
 def p_pldelete(t):
-    'instruccion : DELETE FROM ID WHERE where andOr RETURNING plreturning INTO ID PTCOMA'
+    'plsen : DELETE FROM ID WHERE where andOr RETURNING plreturning INTO ID PTCOMA'
 
 def p_pldelete1(t):
-    'instruccion : DELETE FROM ID WHERE where andOr RETURNING plreturning INTO STRICT ID PTCOMA'
+    'plsen : DELETE FROM ID WHERE where andOr RETURNING plreturning INTO STRICT ID PTCOMA'
 
 def p_plreturning(t):
     '''plreturning : l_plid
@@ -2426,29 +2432,20 @@ def p_CAll(t):
 
 # IF ****************************
 def p_If(t):
-    ''' plIf : IF E THEN  statements_pl END IF PTCOMA '''
+    ''' plIf : IF E THEN  plsen END IF PTCOMA '''
 
 def p_If1(t):
-    ''' plIf : IF E THEN statements_pl ELSE statements_pl END IF PTCOMA '''
+    ''' plIf : IF E THEN plsen ELSE plsen END IF PTCOMA '''
 
 def p_If2(t):
-    ''' plIf : IF E THEN statements_pl plelsif  ELSE statements_pl END IF PTCOMA '''
+    ''' plIf : IF E THEN plsen plelsif  ELSE plsen END IF PTCOMA '''
 
 def p_plelsif(t):
     ''' plelsif : plelsif elsif
                 | elsif '''
 
 def p_elsif(t):
-    'elsif : ELSIF boolean THEN statements_pl'
-
-def p_statements_pl(t):
-    ''' statements_pl : statements_pl statements
-                    | statements'''
-
-def p_statements(t):
-    ''' statements : plsen
-                    | instruccion '''
-    ## agregar la produccion de pl assigments
+    'elsif : ELSIF boolean THEN plsen'
 
 # Case *******************
 
@@ -2464,16 +2461,16 @@ def p_case2(t):
                | case '''
 
 def p_case3(t):
-    ''' case : WHEN listaExpresiones THEN statements_pl'''
+    ''' case : WHEN listaExpresiones THEN plsen'''
 
 def p_case4(t):
-    ''' elseCase : ELSE statements_pl
+    ''' elseCase : ELSE plsen
                  | '''
 
 # -------------- Transaction Managament ---------------------
 
 def p_Procedure(t):
-    'procedure : CREATE PROCEDURE ID PARIZQ opc_param PARDR bloq1 BEGIN bloq3 END PTCOMA'
+    'instruccion : CREATE PROCEDURE ID PARIZQ opc_param PARDR bloq1 BEGIN bloq3 END PTCOMA'
 
 def p_opc_Param(t):
     '''opc_param : l_param
@@ -2496,9 +2493,7 @@ def p_bloq3(t):
 
 def p_bloq4(t):
     ''' bloq4 : BEGIN bloq4 END
-              | statements_pl
-              | plIf
-              | pl_Case '''
+              | plsen '''
 
 # ----- INDICES ------------------------------------
 
@@ -2745,5 +2740,3 @@ def ejecutarAnalisis(entrada):
     return consola
 
 # ejecutarAnalisis("prueba")
-'''comentario Brian'''
-#Yeah Broou!
