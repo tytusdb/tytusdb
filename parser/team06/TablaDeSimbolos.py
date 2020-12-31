@@ -1,4 +1,5 @@
 from enum import Enum
+import pandas as pd
 
 class TIPO_DE_DATO(Enum) :
     NUMERO = 1
@@ -451,3 +452,116 @@ class TablaDeSimbolos() :
                     bd.append(self.simbolos[simb].nombre)      
                 return bd
         return 0 
+
+
+
+#obtiene los datos cuando se manda una tabla y todas las columnas
+    def obtenerSelect1A(self, tabla, bd) :
+        print("a este entra metodo")
+        print("la bd: ",bd)
+        if tabla=="" or bd=="": return 0
+        a=""
+        columnas=[]
+        datos={}
+        for simb in self.simbolos:   
+            print(simb)         
+            if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == bd:                
+                print("res: ",self.simbolos[simb].valor)
+                print( simb,"  = ",self.simbolos[simb].valor)
+                a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
+                datos[simb]=self.simbolos[simb].valor
+                #columnas.append(simb)   
+        if a=="": 
+            print("A va vacio")
+            return 0
+        else:
+            print("vera si genera el dataframe")
+            df=pd.DataFrame(datos)
+            print(df)
+            print("si termino")
+            print("A es: ",a)
+            return df
+
+
+    #obtiene un dato cuando se mandan varias columnas de 1  tabla
+    def obtenerSelect2B(self, tabla, bd, campos) :
+        print("a este entra metodo")
+        print("la bd: ",bd)
+        print("la tabla: ",tabla)
+        print("campos: ",campos)
+        if tabla=="" or bd=="" or len(campos)==0: return 0
+        a=""
+        columnas=[]
+        datos={}
+        for x in range(0,len(campos)):
+            for simb in self.simbolos:   
+                print(simb)         
+                key=str(self.simbolos[simb].nombre)+str(self.simbolos[simb].BD)+str(self.simbolos[simb].tabla)
+                print("el nombre sera ====",key)
+                if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == bd and (self.simbolos[simb].nombre+self.simbolos[simb].BD+self.simbolos[simb].tabla)==campos[x]:                
+                    print("res: ",self.simbolos[simb].valor)
+                    print( simb,"  = ",self.simbolos[simb].valor)
+                    a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
+                    datos[simb]=self.simbolos[simb].valor
+                    #columnas.append(simb)
+        if a=="": 
+            print("A va vacio")
+            return 0
+        else:
+            print("vera si genera el dataframe")
+            df=pd.DataFrame(datos)
+            print(df)
+            print("si termino")
+            print("A es: ",a)
+            return df
+    
+    def obtenerSelect2E(self, identificador):
+        if len(identificador)==0: return "no se encontro la variable"
+        a=""
+        
+        for x in range(0,len(identificador)):
+            for simb in self.simbolos:   
+                if self.simbolos[simb].nombre == identificador[x]:  
+                    a+= str(self.simbolos[simb].nombre)+" = "+ str(self.simbolos[simb].valor)+"\n"
+
+              
+
+        if a=="": 
+            print("A va vacio")
+            return 0
+        else:
+            return a
+
+
+#obtiene un dato cuando se mandan varias columnas de 1  tabla
+    def obtenerSelect4(self, tabla, bd, campos) :
+        print("a este entra metodo----------------------")
+        print("la bd: ",bd)
+        print("la tabla: ",tabla)
+        print("campos: ",campos)
+        if tabla=="" or bd=="" or len(campos)==0: return 0
+        a=""
+        columnas=[]
+        datos={}
+        for x in range(0,len(tabla)):
+            for y in range(0,len(campos)):
+                for simb in self.simbolos:   
+                    print(simb)         
+                    key=str(self.simbolos[simb].nombre)+str(self.simbolos[simb].BD)+str(self.simbolos[simb].tabla)
+                    print("el nombre sera ====",key)
+                    if self.simbolos[simb].tabla == tabla[x] and self.simbolos[simb].BD == bd and (self.simbolos[simb].nombre+self.simbolos[simb].BD+self.simbolos[simb].tabla)==campos[y]:                
+                        print("res: ",self.simbolos[simb].valor)
+                        print( simb,"  = ",self.simbolos[simb].valor)
+                        a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
+                        datos[simb]=self.simbolos[simb].valor
+                        #columnas.append(simb)
+        if a=="": 
+            print("A va vacio")
+            return 0
+        else:
+            print("vera si genera el dataframe")
+            df=pd.DataFrame(datos)
+            print(df)
+            print("si termino")
+            print("A es: ",a)
+            return df

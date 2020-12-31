@@ -833,7 +833,7 @@ class ExpresionLimitOffset(ExpresionNumerica):
     '''
     def __init__(self, valor1, valor2):
         self.valor1 = valor1
-        self.valor1 = valor1
+        self.valor2 = valor2
 
 class ExpresionGroup(ExpresionNumerica):
     '''
