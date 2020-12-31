@@ -4,7 +4,7 @@
 # Developers: SG#16
 
 
-from DataAccessLayer.handler import Handler
+from ..DataAccessLayer.handler import Handler
 
 
 class Database:
@@ -54,10 +54,10 @@ class DatabaseModule:
                     index = self.databases.index(i)
                     tables_temp = self.handler.findCoincidences(databaseOld, i.tablesName)
                     break
-            for i in self.databases:
-                if databaseNew.upper() == i.name.upper():
-                    return 3
             if index != -1:
+                for i in self.databases:
+                    if databaseNew.upper() == i.name.upper():
+                        return 3
                 for j in tables_temp:
                     avl_temp = self.handler.tableinstance(databaseOld, j)
                     avl_temp.database = databaseNew

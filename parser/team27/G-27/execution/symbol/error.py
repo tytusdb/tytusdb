@@ -7,7 +7,10 @@ class T_error():
         self.column = column
 
     def toString(self):
-        return "Tipo: " + self.tipo + " Token: " + self.token  + " Descripcion: " + self.description + " Linea: " + self.row + " Columna: " + self.column
+        valor = self.token
+        if not isinstance(self.token, str):
+            valor = str(valor)
+        return "Tipo: " + self.tipo + " Token: " + valor  + " Descripcion: " + self.description + " Linea: " + self.row + " Columna: " + self.column
 
     def getTipo(self):
         return self.tipo

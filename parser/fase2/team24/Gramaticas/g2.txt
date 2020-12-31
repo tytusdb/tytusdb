@@ -1,0 +1,226 @@
+Gramatica descendente
+<QUERIES>	:= <QUERY> <QUERIES'>
+
+<QUERIES'>	:= <QUERY> <QUERIES'>
+		| 
+
+<QUERY>		:= <QUERY'>  <COM> ;
+
+<COM>		:= union    <D> <QUERY'>
+		| intersect <D> <QUERY'>
+		| EXCEPT    <D> <QUERY'>
+		|
+	
+<D>		:= all
+		|
+
+
+<QUERY'>	:= select A <SELECT_LIST>  from <TABLE_EXPRESSION> <CONDITION> <GROUP> <ORDER> <LIM> <OF>
+
+<A> 		:= distinct 
+		|
+
+<SELECT_LIST>	:= *
+		| <LIST> 
+		| 
+
+<LIST>		:= <COLUMN> LIST'
+		| <QUERY'>	
+
+<LIST'>		:= , <COLUMN> <LIST'>
+		| 
+
+<COLUMN>	:= id B
+		| <TRIG>		
+		| <MATH>
+
+<B>		:= . id 
+		| 
+
+<CONDITION> 	:= where <VALOR>
+		| 
+
+<VALOR> 	:= <VALOR> MAS <VALOR>
+                | <VALOR> MENOS <VALOR>
+                | <VALOR> POR <VALOR>
+                | <VALOR> DIVIDIDO <VALOR>
+                | <VALOR> MOD <VALOR>
+                | <VALOR> AND <VALOR>
+                | <VALOR> OR <VALOR>
+                | <VALOR> XOR <VALOR>
+                | <VALOR> DIFERENTE <VALOR>
+                | <VALOR> IGUALDOBLE <VALOR>
+                | <VALOR> MAYOR <VALOR>
+                | <VALOR> MAYORIGUAL <VALOR>
+                | <VALOR> MENORIGUAL <VALOR>
+		| <VALOR> is distinct  <VALOR>
+		| <VALOR> is not distinct <VALOR>
+ 		| not exists ( <QUERY'> )
+ 		| exists ( <QUERY'> )
+		| <CE> <CE'>
+                | <VALOR> MENOR <VALOR>
+		| smallint
+		| integer
+		| bigint
+		| decimal
+		| numeric
+		| real
+		| double precision
+		| money
+
+<CE>		:= <COLUMN> 
+		| <EXPRE>
+
+<CE'>		:= <OPERA> <SAA> ( <QUERY'> )
+		| in ( <QUERY'> )
+		| not in ( <QUERY'> )
+		| not exists ( <QUERY'> )
+ 		| exists ( <QUERY'> )
+		| 
+
+<GROUP>		:= group by <LIST> <HAVE>
+		|
+
+<LIM>		:= limit <LIM'>
+		| 
+
+<LIM'>		:= number
+		| all
+
+<OF>		:= ofset number 
+		|
+
+<ORDER>		:= COLUMN AD N
+		|
+
+<AD>		:= asc
+		| des
+
+<N>		:= nulls <FL>
+		| 
+
+<FL>		:= first
+		| last
+
+<JO>		:= id <JO'> join id <JO''>
+
+<JO'> 		:= natural <IN>
+		| <IN>
+
+<IN>		:= inner
+		| <LRF> <OU>
+
+<LRF>		:= left
+		| right
+		| full
+
+<OU>		:= outer
+		|
+
+<JO''>		:= on  <VALOR>
+		| using ( join LIST )	
+		| 
+
+
+<TABLE_EXPRESSION>:  <TE> <TE'>
+
+<TE'>		:= , <TE> <TE'>
+		|
+
+
+<TE>		:= <JO>
+		| id
+		| <QUERY'>
+		| 
+
+<MATH> 		:= abs ( <VALOR> )
+		| cbrt ( <VALOR> )
+		| ceil ( <VALOR> )
+		| ceiling ( <VALOR> )
+		| degrees ( <VALOR> )
+		| div ( <VALOR> )	
+		| exp ( <VALOR> )	
+		| factorial ( <VALOR> )
+		| floor ( <VALOR> )
+		| gcd ( <VALOR> )
+		| lcm ( <VALOR> )
+		| ln ( <VALOR> )
+		| log ( <VALOR> , <VALOR> )
+		| log10 ( <VALOR>  )
+*		| min_scale 
+		| mod (<VALOR>, <VALOR>)
+		| pi ()
+		| power ( <VALOR> )
+		| radians ( <VALOR> )
+		| round ( <VALOR> )
+*		| scale
+		| sign ( <VALOR> )
+		| sqrt ( <VALOR> )
+*		| trim_scale 
+		| truc ( <VALOR> , <VALOR> )
+		| width_bucket ( <VALOR> , <VALOR> , <VALOR> , <VALOR> )
+		| random ()
+		| setseed ( <VALOR> )
+		| count ( <VALOR> )
+
+
+<TRIG>		:=  acos ( <VALOR> )
+		| acosd ( <VALOR> )
+		| asin ( <VALOR> )
+		| asind ( <VALOR> )
+		| atan ( <VALOR> )
+		| atand ( <VALOR> )
+		| atan2 ( <VALOR> )
+		| atan2d ( <VALOR> )
+		| cos ( <VALOR> )
+		| cosd ( <VALOR> )
+		| cot ( <VALOR> )
+		| cotd ( <VALOR> )
+		| sin ( <VALOR> )
+		| sind ( <VALOR> )
+		| tan ( <VALOR> )
+		| tand ( <VALOR> )
+		| sinh ( <VALOR> )
+		| cosh ( <VALOR> ) 
+		| tanh ( <VALOR> )
+		| asinh ( <VALOR> )
+		| acosh ( <VALOR> )
+		| atanh ( <VALOR> )
+
+
+
+<TIME>		:= extract ( <EX> ) 
+		| now ( )
+		| date_part ( <DP> )
+ 		| current_date
+		| current_time
+		| timestamp <VALOR>
+
+<EX>		:= <TIPO> from timestamp <VALOR>
+
+<TIPO>		:= hour
+		| minute
+		| second
+		| year
+
+<PD>		:= VALOR , interval <VALOR>
+
+<EXPRE>		:= case when VALOR then <VALOR> <CASES> <ELSES>
+
+<CASES>		:= when VALOR then <VALOR> <CASES>
+		| 
+
+<ELSES>		:= else <VALOR>
+		| 
+
+<OPERA>		:= ||
+		| &
+		| |
+		| #
+		| ~
+		| >>
+		| <<
+
+<SA>		:= some
+		| any
+		| all 
