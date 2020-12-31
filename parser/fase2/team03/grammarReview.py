@@ -1921,6 +1921,7 @@ def p_aritmetic(t):
                     | RANDOM PARA PARC
                     | SETSEED PARA expression PARC
                     | TRUNC PARA expression PARC
+                    | MD5 PARA expression PARC
                 '''
     token = t.slice[1]
     if token.type == "ABS":
@@ -2065,6 +2066,11 @@ def p_aritmetic(t):
         graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tTruc '(' \<EXP> ')'      ")
         t[0] = Trunc(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == "MD5":
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
+        addCad("**\<EXP>** ::=   tMd5 '(' \<EXP> ')'      ")
+        t[0] = MD5_(t[3], token.lineno, token.lexpos, graph_ref)
 
 
 def p_exp_unary(t):
