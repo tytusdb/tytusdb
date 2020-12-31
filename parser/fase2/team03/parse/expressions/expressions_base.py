@@ -11,7 +11,7 @@ class Numeric(ASTNode):
         self.graph_ref = graph_ref
 
     def execute(self, table, tree):
-        super().execute(table, tree)
+        super().execute(self, table, tree)
         return self.val
 
 
@@ -70,18 +70,47 @@ class BoolAST(ASTNode):
 
 
 class DateAST(ASTNode):
-    def __init__(self, val, line, column, graph_ref):
+    def __init__(self, val, option, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
+        self. val = val
+        self.option = option
         self.graph_ref = graph_ref
         try:
             self.val = datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
+            if self.option == 'YEAR':
+                self.result = self.val.year
+            elif self.option == 'HOUR':
+                self.result = self.val.hour
+            elif self.option == 'MINUTE':
+                self.result = self.val.minute
+            elif self.option == 'SECOND':
+                self.result = self.val.second
+            elif self.option == 'MONTH':
+                self.result = self.val.month
+            elif self.option == 'DAY':
+                self.result = self.val.day
+            
         except:
-            print("String format not avalible!!!")
-            self.val = None
+            self.result = None
+            raise Error(self.line, self.column, ErrorType.SEMANTIC, 'it is not a date time format')
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return self.val
+        return self.option +' '+ str(self.result)
+
+class DateAST_2(ASTNode):
+    def __init__(self, option, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.option = option
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return str(self.option)
+
+
+
+
 
 
 class ColumnName(ASTNode):
@@ -121,7 +150,26 @@ class Now(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return date.today()
+        return datetime.now()
+
+class NowDate(ASTNode):
+    def __init__(self, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return str(date.today())
+
+class NowTime(ASTNode):
+    def __init__(self, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        now = datetime.now()
+        return now.strftime("%H:%M:%S")
 
 
 class BinaryExpression(ASTNode):
