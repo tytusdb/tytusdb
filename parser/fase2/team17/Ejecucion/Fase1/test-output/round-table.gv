@@ -1,0 +1,552 @@
+// AST
+digraph {
+	0 [label=INSTRUCTION_LIST]
+	1 [label=INSERT_INTO]
+	2 [label=tbcalifica]
+	3 [label=PARAMS]
+	4 [label=2]
+	5 [label="Funciones Date-Extract"]
+	6 [label=2.0]
+	7 [label=0]
+	8 [label=INST]
+	9 [label=INSERT_INTO]
+	10 [label=tbcalifica]
+	11 [label=PARAMS]
+	12 [label=1]
+	13 [label="Funcionalidades básicas"]
+	14 [label=2.0]
+	15 [label=0]
+	16 [label=INST]
+	17 [label=CREATE_TABLE]
+	18 [label=tbrol]
+	19 [label=COLUMNS]
+	20 [label=idrol]
+	21 [label=TYPE]
+	22 [label=INTEGER]
+	23 [label=OPTIONS]
+	24 [label=NOT_NULL]
+	25 [label=PRIMARY_KEY]
+	26 [label=rol]
+	27 [label=TYPE]
+	28 [label=VARCHAR]
+	29 [label=PARAMS]
+	30 [label=15]
+	31 [label=INST]
+	32 [label=DROP]
+	33 [label=TABLE]
+	34 [label=tbroles]
+	35 [label=INST]
+	36 [label=CREATE_TABLE]
+	37 [label=tbroles]
+	38 [label=COLUMNS]
+	39 [label=idrol]
+	40 [label=TYPE]
+	41 [label=INTEGER]
+	42 [label=OPTIONS]
+	43 [label=NOT_NULL]
+	44 [label=PRIMARY_KEY]
+	45 [label=rol]
+	46 [label=TYPE]
+	47 [label=VARCHAR]
+	48 [label=PARAMS]
+	49 [label=15]
+	50 [label=INST]
+	51 [label=CREATE_TABLE]
+	52 [label=tbusuario]
+	53 [label=COLUMNS]
+	54 [label=idusuario]
+	55 [label=TYPE]
+	56 [label=INTEGER]
+	57 [label=OPTIONS]
+	58 [label=NOT_NULL]
+	59 [label=PRIMARY_KEY]
+	60 [label=nombre]
+	61 [label=TYPE]
+	62 [label=VARCHAR]
+	63 [label=PARAMS]
+	64 [label=50]
+	65 [label=apellido]
+	66 [label=TYPE]
+	67 [label=VARCHAR]
+	68 [label=PARAMS]
+	69 [label=50]
+	70 [label=usuario]
+	71 [label=TYPE]
+	72 [label=VARCHAR]
+	73 [label=PARAMS]
+	74 [label=15]
+	75 [label=OPTIONS]
+	76 [label=CONSTRAINT]
+	77 [label=NOT_NULL]
+	78 [label=password]
+	79 [label=TYPE]
+	80 [label=VARCHAR]
+	81 [label=PARAMS]
+	82 [label=15]
+	83 [label=OPTIONS]
+	84 [label=NOT_NULL]
+	85 [label=fechacreacion]
+	86 [label=TYPE]
+	87 [label=DATE]
+	88 [label=password]
+	89 [label=TYPE]
+	90 [label=VARCHAR]
+	91 [label=PARAMS]
+	92 [label=80]
+	93 [label=INST]
+	94 [label=CREATE_TABLE]
+	95 [label=tbcalifica]
+	96 [label=COLUMNS]
+	97 [label=iditem]
+	98 [label=TYPE]
+	99 [label=INTEGER]
+	100 [label=OPTIONS]
+	101 [label=PRIMARY_KEY]
+	102 [label=item]
+	103 [label=TYPE]
+	104 [label=VARCHAR]
+	105 [label=PARAMS]
+	106 [label=150]
+	107 [label=puntos]
+	108 [label=TYPE]
+	109 [label=DECIMAL]
+	110 [label=PARAMS]
+	111 [label=8]
+	112 [label=2]
+	113 [label=seccion]
+	114 [label=TYPE]
+	115 [label=INTEGER]
+	116 [label=INST]
+	117 [label=USE_DATABASE]
+	118 [label=test]
+	119 [label=INST]
+	120 [label=SHOW_DATABASES]
+	121 [label=INST]
+	122 [label=CREATE_DATABASE]
+	123 [label=EXISTS]
+	124 [label=califica]
+	125 [label=OWNER]
+	126 [label=root]
+	127 [label=MODE]
+	128 [label=2]
+	129 [label=INST]
+	130 [label=CREATE_DATABASE]
+	131 [label=EXISTS]
+	132 [label=test]
+	133 [label=OWNER]
+	134 [label=root]
+	135 [label=MODE]
+	136 [label=1]
+	137 [label=INST]
+	138 [label=INSERT_INTO]
+	139 [label=tbcalifica]
+	140 [label=PARAMS]
+	141 [label=2]
+	142 [label="Funciones Date-Extract"]
+	143 [label=2.0]
+	144 [label=0]
+	145 [label=INST]
+	146 [label=INSERT_INTO]
+	147 [label=tbcalifica]
+	148 [label=PARAMS]
+	149 [label=1]
+	150 [label="Funcionalidades básicas"]
+	151 [label=2.0]
+	152 [label=0]
+	153 [label=INST]
+	154 [label=CREATE_TABLE]
+	155 [label=tbrol]
+	156 [label=COLUMNS]
+	157 [label=idrol]
+	158 [label=TYPE]
+	159 [label=INTEGER]
+	160 [label=OPTIONS]
+	161 [label=NOT_NULL]
+	162 [label=PRIMARY_KEY]
+	163 [label=rol]
+	164 [label=TYPE]
+	165 [label=VARCHAR]
+	166 [label=PARAMS]
+	167 [label=15]
+	168 [label=INST]
+	169 [label=DROP]
+	170 [label=TABLE]
+	171 [label=tbroles]
+	172 [label=INST]
+	173 [label=CREATE_TABLE]
+	174 [label=tbroles]
+	175 [label=COLUMNS]
+	176 [label=idrol]
+	177 [label=TYPE]
+	178 [label=INTEGER]
+	179 [label=OPTIONS]
+	180 [label=NOT_NULL]
+	181 [label=PRIMARY_KEY]
+	182 [label=rol]
+	183 [label=TYPE]
+	184 [label=VARCHAR]
+	185 [label=PARAMS]
+	186 [label=15]
+	187 [label=INST]
+	188 [label=CREATE_TABLE]
+	189 [label=tbusuario]
+	190 [label=COLUMNS]
+	191 [label=idusuario]
+	192 [label=TYPE]
+	193 [label=INTEGER]
+	194 [label=OPTIONS]
+	195 [label=NOT_NULL]
+	196 [label=PRIMARY_KEY]
+	197 [label=nombre]
+	198 [label=TYPE]
+	199 [label=VARCHAR]
+	200 [label=PARAMS]
+	201 [label=50]
+	202 [label=apellido]
+	203 [label=TYPE]
+	204 [label=VARCHAR]
+	205 [label=PARAMS]
+	206 [label=50]
+	207 [label=usuario]
+	208 [label=TYPE]
+	209 [label=VARCHAR]
+	210 [label=PARAMS]
+	211 [label=15]
+	212 [label=OPTIONS]
+	213 [label=CONSTRAINT]
+	214 [label=NOT_NULL]
+	215 [label=password]
+	216 [label=TYPE]
+	217 [label=VARCHAR]
+	218 [label=PARAMS]
+	219 [label=15]
+	220 [label=OPTIONS]
+	221 [label=NOT_NULL]
+	222 [label=fechacreacion]
+	223 [label=TYPE]
+	224 [label=DATE]
+	225 [label=password]
+	226 [label=TYPE]
+	227 [label=VARCHAR]
+	228 [label=PARAMS]
+	229 [label=80]
+	230 [label=INST]
+	231 [label=CREATE_TABLE]
+	232 [label=tbcalifica]
+	233 [label=COLUMNS]
+	234 [label=iditem]
+	235 [label=TYPE]
+	236 [label=INTEGER]
+	237 [label=OPTIONS]
+	238 [label=PRIMARY_KEY]
+	239 [label=item]
+	240 [label=TYPE]
+	241 [label=VARCHAR]
+	242 [label=PARAMS]
+	243 [label=150]
+	244 [label=puntos]
+	245 [label=TYPE]
+	246 [label=DECIMAL]
+	247 [label=PARAMS]
+	248 [label=8]
+	249 [label=2]
+	250 [label=seccion]
+	251 [label=TYPE]
+	252 [label=INTEGER]
+	253 [label=INST]
+	254 [label=USE_DATABASE]
+	255 [label=test]
+	256 [label=INST]
+	257 [label=SHOW_DATABASES]
+	258 [label=INST]
+	259 [label=CREATE_DATABASE]
+	260 [label=EXISTS]
+	261 [label=califica]
+	262 [label=OWNER]
+	263 [label=root]
+	264 [label=MODE]
+	265 [label=2]
+	266 [label=INST]
+	267 [label=CREATE_DATABASE]
+	268 [label=EXISTS]
+	269 [label=test]
+	270 [label=OWNER]
+	271 [label=root]
+	272 [label=MODE]
+	273 [label=1]
+	274 [label=INST]
+	0 -> 1
+	1 -> 2
+	1 -> 3
+	3 -> 4
+	3 -> 5
+	3 -> 6
+	3 -> 7
+	0 -> 8
+	8 -> 9
+	9 -> 10
+	9 -> 11
+	11 -> 12
+	11 -> 13
+	11 -> 14
+	11 -> 15
+	8 -> 16
+	16 -> 17
+	17 -> 18
+	17 -> 19
+	19 -> 20
+	19 -> 21
+	21 -> 22
+	19 -> 23
+	23 -> 24
+	23 -> 25
+	19 -> 26
+	19 -> 27
+	27 -> 28
+	27 -> 29
+	29 -> 30
+	16 -> 31
+	31 -> 32
+	32 -> 33
+	32 -> 34
+	31 -> 35
+	35 -> 36
+	36 -> 37
+	36 -> 38
+	38 -> 39
+	38 -> 40
+	40 -> 41
+	38 -> 42
+	42 -> 43
+	42 -> 44
+	38 -> 45
+	38 -> 46
+	46 -> 47
+	46 -> 48
+	48 -> 49
+	35 -> 50
+	50 -> 51
+	51 -> 52
+	51 -> 53
+	53 -> 54
+	53 -> 55
+	55 -> 56
+	53 -> 57
+	57 -> 58
+	57 -> 59
+	53 -> 60
+	53 -> 61
+	61 -> 62
+	61 -> 63
+	63 -> 64
+	53 -> 65
+	53 -> 66
+	66 -> 67
+	66 -> 68
+	68 -> 69
+	53 -> 70
+	53 -> 71
+	71 -> 72
+	71 -> 73
+	73 -> 74
+	53 -> 75
+	75 -> 76
+	75 -> 77
+	53 -> 78
+	53 -> 79
+	79 -> 80
+	79 -> 81
+	81 -> 82
+	53 -> 83
+	83 -> 84
+	53 -> 85
+	53 -> 86
+	86 -> 87
+	53 -> 88
+	53 -> 89
+	89 -> 90
+	89 -> 91
+	91 -> 92
+	50 -> 93
+	93 -> 94
+	94 -> 95
+	94 -> 96
+	96 -> 97
+	96 -> 98
+	98 -> 99
+	96 -> 100
+	100 -> 101
+	96 -> 102
+	96 -> 103
+	103 -> 104
+	103 -> 105
+	105 -> 106
+	96 -> 107
+	96 -> 108
+	108 -> 109
+	108 -> 110
+	110 -> 111
+	110 -> 112
+	96 -> 113
+	96 -> 114
+	114 -> 115
+	93 -> 116
+	116 -> 117
+	117 -> 118
+	116 -> 119
+	119 -> 120
+	119 -> 121
+	121 -> 122
+	122 -> 123
+	122 -> 124
+	122 -> 125
+	125 -> 126
+	122 -> 127
+	127 -> 128
+	121 -> 129
+	129 -> 130
+	130 -> 131
+	130 -> 132
+	130 -> 133
+	133 -> 134
+	130 -> 135
+	135 -> 136
+	129 -> 137
+	137 -> 138
+	138 -> 139
+	138 -> 140
+	140 -> 141
+	140 -> 142
+	140 -> 143
+	140 -> 144
+	137 -> 145
+	145 -> 146
+	146 -> 147
+	146 -> 148
+	148 -> 149
+	148 -> 150
+	148 -> 151
+	148 -> 152
+	145 -> 153
+	153 -> 154
+	154 -> 155
+	154 -> 156
+	156 -> 157
+	156 -> 158
+	158 -> 159
+	156 -> 160
+	160 -> 161
+	160 -> 162
+	156 -> 163
+	156 -> 164
+	164 -> 165
+	164 -> 166
+	166 -> 167
+	153 -> 168
+	168 -> 169
+	169 -> 170
+	169 -> 171
+	168 -> 172
+	172 -> 173
+	173 -> 174
+	173 -> 175
+	175 -> 176
+	175 -> 177
+	177 -> 178
+	175 -> 179
+	179 -> 180
+	179 -> 181
+	175 -> 182
+	175 -> 183
+	183 -> 184
+	183 -> 185
+	185 -> 186
+	172 -> 187
+	187 -> 188
+	188 -> 189
+	188 -> 190
+	190 -> 191
+	190 -> 192
+	192 -> 193
+	190 -> 194
+	194 -> 195
+	194 -> 196
+	190 -> 197
+	190 -> 198
+	198 -> 199
+	198 -> 200
+	200 -> 201
+	190 -> 202
+	190 -> 203
+	203 -> 204
+	203 -> 205
+	205 -> 206
+	190 -> 207
+	190 -> 208
+	208 -> 209
+	208 -> 210
+	210 -> 211
+	190 -> 212
+	212 -> 213
+	212 -> 214
+	190 -> 215
+	190 -> 216
+	216 -> 217
+	216 -> 218
+	218 -> 219
+	190 -> 220
+	220 -> 221
+	190 -> 222
+	190 -> 223
+	223 -> 224
+	190 -> 225
+	190 -> 226
+	226 -> 227
+	226 -> 228
+	228 -> 229
+	187 -> 230
+	230 -> 231
+	231 -> 232
+	231 -> 233
+	233 -> 234
+	233 -> 235
+	235 -> 236
+	233 -> 237
+	237 -> 238
+	233 -> 239
+	233 -> 240
+	240 -> 241
+	240 -> 242
+	242 -> 243
+	233 -> 244
+	233 -> 245
+	245 -> 246
+	245 -> 247
+	247 -> 248
+	247 -> 249
+	233 -> 250
+	233 -> 251
+	251 -> 252
+	230 -> 253
+	253 -> 254
+	254 -> 255
+	253 -> 256
+	256 -> 257
+	256 -> 258
+	258 -> 259
+	259 -> 260
+	259 -> 261
+	259 -> 262
+	262 -> 263
+	259 -> 264
+	264 -> 265
+	258 -> 266
+	266 -> 267
+	267 -> 268
+	267 -> 269
+	267 -> 270
+	270 -> 271
+	267 -> 272
+	272 -> 273
+	266 -> 274
+}

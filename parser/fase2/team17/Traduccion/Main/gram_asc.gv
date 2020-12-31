@@ -1,0 +1,133 @@
+digraph g {
+	node [height=.1 shape=plaintext]
+	table [label=<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR><TR> 
+ <TD> use_database → USE ID : </TD> 
+ <TD> use_database = UseDatabase(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → use_database : </TD> 
+ <TD>  DataManipulationLenguage = UseDatabase() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> types → TIPOS: </TD> 
+ <TD> types = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> definitionTypes → types: </TD> 
+ <TD> definitionTypes = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> especificaciones → especs: </TD> 
+ <TD> especificaciones = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> atributeTable  → ID definitionTypes: </TD> 
+ <TD> atributeTable  = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> types → TIPOS: </TD> 
+ <TD> types = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> definitionTypes → types: </TD> 
+ <TD> definitionTypes = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> especificaciones → especs: </TD> 
+ <TD> especificaciones = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> especificaciones → especs: </TD> 
+ <TD> especificaciones = t[1] </TD> 
+ </TR> 
+<TR><TD> listaespecificaciones → listaespecificaciones especificaciones </TD><TD> listaespecificaciones=t[1].append(t[2]) <BR/> instrucciones=t[1] </TD></TR><TR> 
+ <TD> atributeTable  → ID definitionTypes: </TD> 
+ <TD> atributeTable  = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> types → TIPOS: </TD> 
+ <TD> types = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> definitionTypes → types: </TD> 
+ <TD> definitionTypes = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> especificaciones → especs: </TD> 
+ <TD> especificaciones = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> especificaciones → especs: </TD> 
+ <TD> especificaciones = t[1] </TD> 
+ </TR> 
+<TR><TD> listaespecificaciones → listaespecificaciones especificaciones </TD><TD> listaespecificaciones=t[1].append(t[2]) <BR/> instrucciones=t[1] </TD></TR><TR> 
+ <TD> atributeTable  → ID definitionTypes: </TD> 
+ <TD> atributeTable  = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> types → TIPOS: </TD> 
+ <TD> types = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> definitionTypes → types: </TD> 
+ <TD> definitionTypes = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> especificaciones → especs: </TD> 
+ <TD> especificaciones = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> atributeTable  → ID definitionTypes: </TD> 
+ <TD> atributeTable  = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> types → TIPOS: </TD> 
+ <TD> types = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> definitionTypes → types: </TD> 
+ <TD> definitionTypes = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> atributeTable  → ID definitionTypes: </TD> 
+ <TD> atributeTable  = t[1] </TD> 
+ </TR> 
+
+ <TR><TD> ID </TD><TD> ID(t[1]) </TD></TR><TR> 
+ <TD> nextespec  → especs : </TD> 
+ <TD> nextespecs  = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> creatTB  → CREATE TABLE ID PARIZQ atributesTable COMA especs inherits: </TD> 
+ <TD> createTB  = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → createTB : </TD> 
+ <TD>  DataManipulationLenguage = CreateTable() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+</TABLE>>]
+}
