@@ -5,6 +5,7 @@ from execution.symbol.column import *
 from execution.symbol.typ import *
 from storageManager import jsonMode as admin
 from TypeChecker.checker import check
+from datetime import datetime
 
 class Insert(Querie):
     '''
@@ -28,7 +29,11 @@ class Insert(Querie):
 
             db_name = environment.getActualDataBase()
             database = environment.readDataBase(db_name)
+            if database == None:
+                return {'Error': 'Error al buscar en la base de datos', 'Fila':self.row, 'Columna': self.column }                     
             table = database.getTable(self.tableName)
+            if table == None:
+                return {'Error': 'La tabla: '+self.tableName+' no existe en la base de datos: '+db_name, 'Fila':self.row, 'Columna': self.column }
 
             if len(table.columns) != len(self.valueList):
                 return {'Error': 'El numero de valores a insertar es diferente que el numero de columnas de la tabla: '+self.tableName, 'Fila':self.row, 'Columna': self.column }
@@ -43,7 +48,7 @@ class Insert(Querie):
             for index in range(len(self.valueList)):
                 nombreVariable = table.columns[index].name
                 valorVariable = self.valueList[index].execute(environment)
-                environment.guardarVariable(nombreVariable,valorVariable['typ'],valorVariable['value'], None)
+                environment.guardarVariableins(nombreVariable,valorVariable['typ'],valorVariable['value'], None)
             
             for item in table.constraint:
                 if item['type'] == 'primary':
@@ -101,8 +106,12 @@ class Insert(Querie):
             listaValores=[]
             for item in self.valueList:
                 valorLista = item.execute(environment)
-                listaValores.append(valorLista['value'])
+                if valorLista['typ'] == Type.DATE or valorLista['typ'] == Type.TIME:
+                    listaValores.append(str(valorLista['value']))
+                else:
+                    listaValores.append(valorLista['value'])
             valorRetorno = admin.insert(db_name, self.tableName, listaValores)
+            print(listaValores)
 
             if valorRetorno == 0:
                 return'Se ha insertado con exito la tupla '+str(listaValores)+' en la tabla: '+self.tableName               
@@ -123,23 +132,29 @@ class Insert(Querie):
             # aqui es el segundo formato de insert
             db_name = environment.getActualDataBase()
             database = environment.readDataBase(db_name)
+            if database == None:
+                return {'Error': 'Error al buscar en la base de datos', 'Fila':self.row, 'Columna': self.column }
             table = database.getTable(self.tableName)
+            if table == None:
+                return {'Error': 'La tabla: '+self.tableName+' no existe en la base de datos: '+db_name, 'Fila':self.row, 'Columna': self.column }
 
             if len(table.columns) < len(self.idList):
                 return {'Error': 'El numero de columnas indicadas es mayor al numero de columnas de la tabla: '+self.tableName, 'Fila':self.row, 'Columna': self.column }
            
-            if len(self.valueList) != len(self.idList):
-                return {'Error': 'El numero de registros a insertar difiere del numero de columnas indicadas: '+self.tableName, 'Fila':self.row, 'Columna': self.column }
+            #if len(self.valueList) != len(self.idList):
+                #return {'Error': 'El numero de registros a insertar difiere del numero de columnas indicadas: '+self.tableName, 'Fila':self.row, 'Columna': self.column }
             
             #TODO verificar tipos
             for i in range(len(self.valueList)):
                 columna = table.readColumn(self.idList[i])
+                if columna == None:
+                     return {'Error': 'La columna: '+self.idList[i]+' no existe en la tabla '+table.name, 'Fila':self.row, 'Columna': self.column }
                 valor = self.valueList[i].execute(environment)
                 res = check(columna.tipo,valor['typ'], valor['value'],columna.lenght)
                 if not isinstance(res,bool):
                     return {'Error':res, 'Fila':self.row, 'Columna': self.column}
 
-
+            
             # verificar que el id list coincida con los nombres de las columnas
             for item in self.idList:
                 exist = False
@@ -153,7 +168,7 @@ class Insert(Querie):
             for index in range(len(self.valueList)):
                 nombreVariable = self.idList[index]
                 valorVariable = self.valueList[index].execute(environment)
-                environment.guardarVariable(nombreVariable,valorVariable['typ'],valorVariable['value'], None)
+                environment.guardarVariableins(nombreVariable,valorVariable['typ'],valorVariable['value'], None)
 
             for item in table.columns:
                 var = environment.buscarVariable(item.name, None)
@@ -162,12 +177,12 @@ class Insert(Querie):
                         nombreVariable = item.name
                         valorVariable = 'null'
                         tipoVariable = Type.NULL
-                        environment.guardarVariable(nombreVariable,tipoVariable,valorVariable, None)
+                        environment.guardarVariableins(nombreVariable,tipoVariable,valorVariable, None)
                     else:
                         nombreVariable = item.name
                         valorVariable = item.default
                         tipoVariable = item.tipo
-                        environment.guardarVariable(nombreVariable,tipoVariable,valorVariable, None)
+                        environment.guardarVariableins(nombreVariable,tipoVariable,valorVariable, None)
           
             for item in table.constraint:
                 if item['type'] == 'primary':
@@ -228,7 +243,11 @@ class Insert(Querie):
                 var = environment.buscarVariable(item.name, None)
                 if var == None:
                     return{'Error':'Error desconocido al insertar 2.', 'Fila':self.row, 'Columna': self.column }
-                valOrden.append(var['value'])
+
+                if var['tipo'] == Type.DATE or var['tipo'] == Type.TIME:
+                    valOrden.append(str(var['value']))
+                else:
+                    valOrden.append(var['value'])
             valorRetorno = admin.insert(db_name, self.tableName, valOrden)
 
             if valorRetorno == 0:

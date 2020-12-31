@@ -7,3 +7,4 @@ class Type(Enum):
     TIME = 4
     BOOLEAN = 5
     NULL = 6
+    DATETIME = 7

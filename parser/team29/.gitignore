@@ -2,6 +2,8 @@ parser.out
 parsetab.py
 **/__pycache__/**
 **/test-output/**
+**/.idea/**
+**/.vscode/**
 storage
 data
 **/*.csv

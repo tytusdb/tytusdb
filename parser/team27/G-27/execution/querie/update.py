@@ -11,7 +11,7 @@ class Update(Querie):
     condition: expression si viene where y True si no viene
     '''
     def __init__(self,idTable, assignList, condition, column, row ) -> None:
-        super().__init__(self, row, column)
+        super().__init__( row, column)
         self.idTable = idTable
         self.assignList = assignList
         self.condition = condition
@@ -64,12 +64,11 @@ class Update(Querie):
                 clave = indColumnas[asign['id']]
                 valor = asign['value'].execute(environment)['value']
                 tuplaModificada[clave] = valor
-            
+            print(tuplaModificada)
             #CREO UN ARREGLO CON LA LLAVE PRIMARIA DE ESE REGISTRO
             primaryKey = []
             for val in pkIndexes:
                 primaryKey.append(tuplas[tindex][val])
-            
             #VERIFICO LA CONDICIÓN DEL WHERE
             where = True
             if not isinstance(self.condition, bool):
@@ -78,9 +77,9 @@ class Update(Querie):
                 res = admin.update(dbname, tbname, tuplaModificada, primaryKey)
                 switcher = {
                     0: 'Se ha realizado el update en el registro con la FK: ' + str(primaryKey),
-                    1:{'Error:': 'Error en la operación update.','Fila':self.row,'Columna':self.column},
-                    2:{'Error:': 'La base de datos buscada no existe.','Fila':self.row,'Columna':self.column},
-                    3:{'Error:': 'La tabla ' + self.idTable + ' no existe.','Fila':self.row,'Columna':self.column},
-                    4:{'Error:': 'No existe el registro buscado: ' + str(primaryKey),'Fila':self.row,'Columna':self.column},
+                    1:{'Error': 'Error en la operación update.','Fila':self.row,'Columna':self.column},
+                    2:{'Error': 'La base de datos buscada no existe.','Fila':self.row,'Columna':self.column},
+                    3:{'Error': 'La tabla ' + self.idTable + ' no existe.','Fila':self.row,'Columna':self.column},
+                    4:{'Error': 'No existe el registro buscado: ' + str(primaryKey),'Fila':self.row,'Columna':self.column},
                 }
                 return switcher.get(res,'Error en la respuesta del update en el StorageManager.')

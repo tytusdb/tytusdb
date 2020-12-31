@@ -2,18 +2,12 @@ from sys import path
 from os.path import dirname as dir
 
 path.append(dir(path[0]))
-import analizer.ply.yacc as yacc
+import ply.yacc as yacc
 from analizer.tokens import *
 from analizer.reports import Nodo
 
-# Prueba para dataframe:
-import analizer.abstract.select_data as data
-
-df = data.dataSelect()
-df.crossJoin()
-
 # Construccion del analizador léxico
-import analizer.ply.lex as lex
+import ply.lex as lex
 
 lexer = lex.lex()
 # Asociación de operadores y precedencia
@@ -46,15 +40,16 @@ precedence = (
 
 # Definición de la gramática
 
-import analizer.abstract.expression as expression
+from analizer.abstract.expression import TYPE
+from analizer.abstract.expression import returnExpErrors
+import analizer.modules.expressions as expression
 import analizer.abstract.instruction as instruction
+import analizer.modules.instructions as instruction2
 
 
 def p_init(t):
     """init : stmtList"""
     t[0] = t[1]
-    global repGrammar
-    repGrammar = []
     repGrammar.append(t.slice)
 
 
@@ -120,7 +115,9 @@ def p_createbody(t):
 
 def p_createopts_table(t):
     """createOpts : R_TABLE ifNotExists idOrString S_PARIZQ createTableList S_PARDER inheritsOpt """
-    t[0] = instruction.CreateTable(t[2], t[3], t[7], t[5])
+    t[0] = instruction2.CreateTable(
+        t[2], t[3], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[5]
+    )
     repGrammar.append(t.slice)
 
 
@@ -128,7 +125,9 @@ def p_createopts_db(t):
     """
     createOpts : orReplace R_DATABASE ifNotExists idOrString createOwner createMode
     """
-    t[0] = instruction.CreateDatabase(t[1], t[3], t[4], t[5], t[6])
+    t[0] = instruction2.CreateDataBase(
+        t[1], t[3], t[4], t[5], t[6], t.slice[2].lineno, t.slice[2].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -152,7 +151,9 @@ def p_createopts_type(t):
     """
     createOpts : R_TYPE ifNotExists ID R_AS R_ENUM S_PARIZQ paramsList S_PARDER
     """
-    t[0] = instruction.CreateType(t[2], t[3], t[7])
+    t[0] = instruction2.CreateType(
+        t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos, t[7]
+    )
     repGrammar.append(t.slice)
 
 
@@ -667,18 +668,17 @@ def p_literal(t):
     | R_NULL
     """
     if t.slice[1].type == "CHARACTER" or t.slice[1].type == "STRING":
-        tipo = expression.TYPE.STRING
+        tipo = TYPE.STRING
     elif t.slice[1].type == "R_TRUE" or t.slice[1].type == "R_FALSE":
         t.slice[1].value = t.slice[1].value == "TRUE"
-        tipo = expression.TYPE.BOOLEAN
+        tipo = TYPE.BOOLEAN
     elif t.slice[1].type == "R_NULL":
-        tipo = expression.TYPE.NULL
+        tipo = TYPE.NULL
     else:
-        tipo = expression.TYPE.NUMBER
+        tipo = TYPE.NUMBER
     t[0] = expression.Primitive(
         tipo, t.slice[1].value, t.slice[1].value, t.slice[1].lineno, t.slice[1].lexpos
     )
-
     repGrammar.append(t.slice)
 
 
@@ -859,34 +859,6 @@ def p_expComp_unario_3(t):
     repGrammar.append(t.slice)
 
 
-def p_expSubq(t):
-    """
-    expSubq : datatype OL_MENORQUE  subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype OL_MAYORQUE  subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype OL_MAYORIGUALQUE subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype OL_MENORIGUALQUE subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype OL_ESIGUAL  subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype OL_DISTINTODE subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_BETWEEN datatype R_AND datatype subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_NOT R_BETWEEN datatype R_AND datatype subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_BETWEEN R_SYMMETRIC datatype R_AND datatype subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_DISTINCT R_FROM datatype subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_NOT R_DISTINCT R_FROM datatype subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_NULL subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_NOT R_NULL subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_ISNULL subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_NOTNULL subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_TRUE subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_NOT R_TRUE subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_FALSE subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_NOT R_FALSE subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_UNKNOWN subqValues S_PARIZQ selectStmt S_PARDER
-              | datatype R_IS R_NOT R_UNKNOWN subqValues S_PARIZQ selectStmt S_PARDER
-              | stringExp R_LIKE STRING
-    """
-    repGrammar.append(t.slice)
-
-
 def p_stringExp(t):
     """
     stringExp : STRING
@@ -933,7 +905,6 @@ def p_boolean_3(t):
 def p_boolean_4(t):
     """
     boolean : expComp
-            | expSubq
     """
     t[0] = t[1]
     repGrammar.append(t.slice)
@@ -1036,8 +1007,6 @@ def p_booleanCheck_1(t):
     | idOrLiteral S_IGUAL idOrLiteral
     | idOrLiteral OL_DISTINTODE idOrLiteral
     """
-
-    # t[0] = instruction.CheckOperation(t[1], t[3], t[2], t[1].row, t[1].column)
     t[0] = [t[1].value, t[3].value, t[2], t[1].type, t[3].type]
     repGrammar.append(t.slice)
 
@@ -1046,11 +1015,7 @@ def p_booleanCheck_2(t):
     """
     booleanCheck : idOrLiteral R_IS R_DISTINCT R_FROM idOrLiteral
     """
-
-    t[0] = instruction.CheckOperation(
-        t[1], t[5], t[2] + t[3] + t[4], t[1].row, t[1].column
-    )
-    t[0].execute(0)
+    t[0] = [t[1].value, t[5].value, "!=", t[1].type, t[5].type]
     repGrammar.append(t.slice)
 
 
@@ -1058,10 +1023,7 @@ def p_booleanCheck_3(t):
     """
     booleanCheck : idOrLiteral R_IS R_NOT R_DISTINCT R_FROM idOrLiteral
     """
-
-    t[0] = expression.CheckOperation(
-        t[1], t[6], t[2] + t[3] + t[4] + t[5], t[1].row, t[1].column
-    )
+    t[0] = [t[1].value, t[5].value, "==", t[1].type, t[6].type]
     repGrammar.append(t.slice)
 
 
@@ -1085,11 +1047,9 @@ def p_idOrLiteral(t):
         tipo = "NUMBER"
     else:
         tipo = "ID"
-
     t[0] = expression.CheckValue(
         t.slice[1].value, tipo, t.slice[1].lineno, t.slice[1].lexpos
     )
-
     t[0].execute(0)
 
     repGrammar.append(t.slice)
@@ -1106,9 +1066,11 @@ def p_alterStmt(t):
     | R_ALTER R_TABLE idOrString alterTableList
     """
     if t[2] == "DATABASE":
-        t[0] = instruction.AlterDataBase(t[4][0], t[3], t[4][1])
+        t[0] = instruction2.AlterDataBase(
+            t[4][0], t[3], t[4][1], t.slice[1].lineno, t.slice[1].lexpos
+        )
     else:
-        t[0] = instruction.AlterTable(t[3], t[4])
+        t[0] = instruction2.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
     repGrammar.append(t.slice)
 
 
@@ -1230,7 +1192,7 @@ def p_dropStmt(t):
     exists = True
     if t[3] == None:
         exists = False
-    t[0] = instruction.Drop(t[2], t[4], exists)
+    t[0] = instruction2.Drop(t[2], t[4], exists, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1249,14 +1211,15 @@ def p_ifExists(t):
 
 
 def p_selectStmt_1(t):
-    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl"""
-    t[0] = instruction.Select(
+    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl orderByCl"""
+    t[0] = instruction2.Select(
         t[3].params,
         t[4],
         t[5],
         t[6][0],
         t[6][1],
         t[7],
+        t[8],
         True,
         t.slice[1].lineno,
         t.slice[1].lexpos,
@@ -1266,14 +1229,15 @@ def p_selectStmt_1(t):
 
 # TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
 def p_selectStmt_2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl"""
-    t[0] = instruction.Select(
-        t[2].params,
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl orderByCl"""
+    t[0] = instruction2.Select(
+        t[2],
         t[3],
         t[4],
         t[5][0],
         t[5][1],
         t[6],
+        t[7],
         False,
         t.slice[1].lineno,
         t.slice[1].lexpos,
@@ -1281,36 +1245,21 @@ def p_selectStmt_2(t):
     repGrammar.append(t.slice)
 
 
-def p_selectStmt__1(t):
-    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl orderByCl limitCl"""
-    repGrammar.append(t.slice)
-
-
-def p_selectStmt__2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
-    repGrammar.append(t.slice)
-
-
-def p_selectStmt__3(t):
-    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl limitCl"""
-    repGrammar.append(t.slice)
-
-
 def p_selectStmt_union(t):
     """selectStmt : selectStmt R_UNION allOpt selectStmt"""
-    t[0] = instruction.Union(t[1], t[4], t.slice[2].lineno, t.slice[2].lexpos)
+    t[0] = instruction2.Union(t[1], t[4], t.slice[2].lineno, t.slice[2].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_selectStmt_intersect(t):
     """selectStmt : selectStmt R_INTERSECT allOpt selectStmt"""
-    t[0] = instruction.Intersect(t[1], t[4], t.slice[2].lineno, t.slice[2].lexpos)
+    t[0] = instruction2.Intersect(t[1], t[4], t.slice[2].lineno, t.slice[2].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_selectStmt_except(t):
     """selectStmt : selectStmt R_EXCEPT allOpt selectStmt"""
-    t[0] = instruction.Except_(t[1], t[4], t.slice[2].lineno, t.slice[2].lexpos)
+    t[0] = instruction2.Except_(t[1], t[4], t.slice[2].lineno, t.slice[2].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1329,16 +1278,15 @@ def p_fromClause(t):
     for i in range(len(t[2])):
         tables.append(t[2][i][0])
         aliases.append(t[2][i][1])
-    t[0] = instruction.FromClause(tables, aliases, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = instruction2.FromClause(
+        tables, aliases, t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
 def p_selectstmt_only_params(t):
     """selectStmt : R_SELECT selectParams"""
-    t[0] = instruction.SelectOnlyParams(
-        t[2].params, t[2].params[0].row, t[2].params[0].row
-    )
-
+    t[0] = instruction2.SelectOnlyParams(t[2], t.slice[1].lineno, t.slice[1].lineno)
     repGrammar.append(t.slice)
 
 
@@ -1352,15 +1300,13 @@ def p_allOpt(t):
 
 def p_selectparams_all(t):
     """selectParams : O_PRODUCTO"""
-    t[0] = instruction.SelectParams([], t.slice[1].lineno, t.slice[1].lexpos)
-
+    t[0] = []
     repGrammar.append(t.slice)
 
 
 def p_selectparams_params(t):
     """selectParams : selectList"""
-    t[0] = instruction.SelectParams(t[1], t[1][0].row, t[1][0].column)
-
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -1387,7 +1333,6 @@ def p_selectList_u(t):
 def p_selectListParams_1(t):
     """selectListParams : expresion"""
     t[0] = t[1]
-
     repGrammar.append(t.slice)
 
 
@@ -1423,7 +1368,6 @@ def p_tableexp_list(t):
     """tableExp : tableExp S_COMA fromBody """
     t[1].append(t[3])
     t[0] = t[1]
-
     repGrammar.append(t.slice)
 
 
@@ -1436,9 +1380,9 @@ def p_tableexp_u(t):
 def p_fromBody(t):
     """fromBody : ID optAlias"""
     if t[2] != None:
-        t[0] = [instruction.TableID(t[1], t.slice[1].lineno, t.slice[1].lexpos), t[2]]
+        t[0] = [instruction2.TableID(t[1], t.slice[1].lineno, t.slice[1].lexpos), t[2]]
     else:
-        t[0] = [instruction.TableID(t[1], t.slice[1].lineno, t.slice[1].lexpos), ""]
+        t[0] = [instruction2.TableID(t[1], t.slice[1].lineno, t.slice[1].lexpos), ""]
     repGrammar.append(t.slice)
 
 
@@ -1491,7 +1435,7 @@ def p_joinOpt(t):
 def p_whereCl(t):
     """whereCl : R_WHERE expBool"""
     if t[2] != None:
-        t[0] = instruction.WhereClause(t[2], t.slice[1].lineno, t.slice[1].lexpos)
+        t[0] = instruction2.WhereClause(t[2], t.slice[1].lineno, t.slice[1].lexpos)
     else:
         t[0] = None
     repGrammar.append(t.slice)
@@ -1552,13 +1496,26 @@ def p_havingCl_2(t):
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList"""
+    t[0] = instruction2.OrderByClause(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+
+def p_orderByCl_n(t):
+    """orderByCl : """
+    t[0] = None
     repGrammar.append(t.slice)
 
 
 def p_orderList(t):
-    """orderList : orderList S_COMA orderByElem
-    | orderByElem
-    """
+    """orderList : orderList S_COMA orderByElem"""
+    t[1].append(t[3])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_orderList_1(t):
+    """orderList : orderByElem"""
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -1567,22 +1524,35 @@ def p_orderByElem(t):
     orderByElem : columnName orderOpts orderNull
                 | INTEGER orderOpts orderNull
     """
+    t[0] = instruction2.OrderByElement(t[1], t[2], t[3])
     repGrammar.append(t.slice)
 
 
 def p_orderOpts(t):
     """orderOpts : R_ASC
     | R_DESC
-    |
     """
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_orderOpts_n(t):
+    """orderOpts :"""
+    t[0] = "ASC"
     repGrammar.append(t.slice)
 
 
 def p_orderNull(t):
-    """orderNull : R_NULL R_FIRST
-    | R_NULL R_LAST
-    |
+    """orderNull : R_NULLS R_FIRST
+    | R_NULLS R_LAST
     """
+    t[0] = t[2]
+    repGrammar.append(t.slice)
+
+
+def p_orderNull_n(t):
+    """orderNull :"""
+    t[0] = "FIRST"
     repGrammar.append(t.slice)
 
 
@@ -1590,7 +1560,7 @@ def p_limitCl(t):
     """limitCl : R_LIMIT INTEGER offsetLimit
     | R_LIMIT R_ALL offsetLimit
     """
-    t[0] = instruction.limitClause(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = instruction2.LimitClause(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1622,7 +1592,9 @@ def p_offsetLimit_n(t):
 def p_insertStmt(t):
     """insertStmt : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER"""
 
-    t[0] = instruction.InsertInto(t[3], t[4], t[7])
+    t[0] = instruction2.InsertInto(
+        t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -1648,11 +1620,10 @@ def p_paramsColumn_none(t):
 
 def p_updateStmt(t):
     """updateStmt : R_UPDATE fromBody R_SET updateCols whereCl"""
-    fc = instruction.FromClause(
+    fc = instruction2.FromClause(
         [t[2][0]], [t[2][1]], t.slice[1].lineno, t.slice[1].lexpos
     )
-    t[0] = instruction.Update(fc, t[4], t[5], t.slice[1].lineno, t.slice[1].lexpos)
-
+    t[0] = instruction2.Update(fc, t[4], t[5], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1671,7 +1642,7 @@ def p_updateCols_u(t):
 
 def p_updateVals(t):
     """updateVals : ID S_IGUAL updateExp"""
-    t[0] = instruction.Assignment(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = instruction2.Assignment(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
 
     repGrammar.append(t.slice)
 
@@ -1693,13 +1664,13 @@ def p_updateExp(t):
 
 def p_deleteStmt(t):
     """deleteStmt : R_DELETE fromCl whereCl"""
-    t[0] = instruction.Delete(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = instruction2.Delete(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_truncateStmt(t):
     """truncateStmt : R_TRUNCATE tableOpt ID"""
-    t[0] = instruction.Truncate(t[3])
+    t[0] = instruction2.Truncate(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1713,7 +1684,7 @@ def p_tableOpt(t):
 def p_showStmt(t):
     """showStmt : R_SHOW R_DATABASES likeOpt"""
 
-    t[0] = instruction.showDataBases(t[3])
+    t[0] = instruction2.showDataBases(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1764,7 +1735,7 @@ def returnSyntacticErrors():
 
 
 def returnPostgreSQLErrors():
-    errors = expression.returnExpErrors()
+    errors = returnExpErrors()
     errors += PostgreSQL
     errors += instruction.returnErrors()
     return errors
@@ -1799,13 +1770,13 @@ def getRepGrammar():
 
 def parse(input):
     try:
-        global syntax_errors, PostgreSQL
+        global syntax_errors, PostgreSQL, repGrammar
+        repGrammar = []
         syntax_errors = list()
         PostgreSQL = list()
         expression.list_errors = list()
         instruction.syntaxPostgreSQL = list()
         instruction.semanticErrors = list()
-        instruction.syntaxErrors = list()
         lexer.lineno = 1
         result = parser.parse(input)
         return result
