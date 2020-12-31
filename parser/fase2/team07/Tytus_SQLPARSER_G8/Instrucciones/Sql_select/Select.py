@@ -9,7 +9,6 @@ from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select import SelectLista 
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 import numpy as np
-import pandas as pd
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 
 class Select(Instruccion):
