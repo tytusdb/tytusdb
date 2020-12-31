@@ -84,3 +84,9 @@ class Identificador(Instruccion):
             return error
         self.tipo = variable.tipo
         return variable.valor.ejecutar(tabla, arbol)
+
+    def analizar(self, tabla, arbol):
+        pass
+        
+    def traducir(self, tabla, arbol):
+        pass

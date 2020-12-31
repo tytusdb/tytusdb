@@ -18,7 +18,6 @@ class Between(Instruccion):
         # Si existe algún error en el operador izquierdo, retorno el error.
         #Aqui vamos a verificar si hay un alias
         if isinstance(self.opIzq, Alias):
-            print("bueno y ahora, devolver el orden de la columna XD")
             nombreColumna = self.opIzq.expresion
             nombreTabla = tabla.getVariable(self.opIzq.id)
             #obtener la posicion
@@ -30,7 +29,6 @@ class Between(Instruccion):
             return resultadoIzq
         # Si existe algún error en el operador derecho, retorno el error.
         if isinstance(self.opDer, Alias):
-            print("bueno y ahora, devolver el orden de la columna XD")
             nombreColumna = self.opDer.expresion
             nombreTabla = tabla.getVariable(self.opDer.id)
             #obtener la posicion
@@ -43,7 +41,6 @@ class Between(Instruccion):
 
         # Si existe algún error en el operador derecho, retorno el error.
         if isinstance(self.opDer2, Alias):
-            print("bueno y ahora, devolver el orden de la columna XD")
             nombreColumna = self.opDer2.expresion
             nombreTabla = tabla.getVariable(self.opDer2.id)
             #obtener la posicion
@@ -64,13 +61,6 @@ class Between(Instruccion):
             #aqui vamos a dividir por columnas
             data = np.array((tabla))
             #recorrer columna y ver si es == la posicion
-            print(data)
-            print(resultadoIzq)
-            print(resultadoDer)
-            print(resultadoDer2)
-            #obtener la posicion
-            #posicion = arbol.devolverOrdenDeColumna(nombreTabla,nombreColumna)
-            #res.append(posicion)
             nueva_Columna = data[:, resultadoIzq]
             
             for x in range(0, len(nueva_Columna)):
