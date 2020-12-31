@@ -9,7 +9,6 @@ class Now(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print('EJECUTA NOW?')
         todays_date = datetime.now()
         current_time = todays_date.strftime("%Y-%m-%d %H:%M:%S")
         return current_time
