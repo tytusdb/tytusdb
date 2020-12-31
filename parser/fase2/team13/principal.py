@@ -439,7 +439,7 @@ def deleteBase(nodo, tablaSimbolos):
             nombres = []
             valores = []
             tipos = []
-            primary = []
+            primary = tabla.get_pk_index()
             llaves = []
 
             for k in columnas:
@@ -459,12 +459,15 @@ def deleteBase(nodo, tablaSimbolos):
 
                 if b.valor:
                     actualizar.append(r)
-                    llaves.append([str(i) + "|"])
+                    if len(primary) == 0:
+                        llaves.append([str(i-1)])
+                    else:
+                        llaves.append([str(i) + "|"])
 
                 i += 1
 
             bandera1 = False
-            primary = tabla.get_pk_index()
+            
 
             for x in range(len(actualizar)):
 
@@ -2271,16 +2274,6 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
         elif expresion.tipo == Expresion.ID:
 
-            # print("")
-            # print("==============================================")
-            # print("|            Estamos en el ID                |")
-            # print("==============================================")
-            # print("|              El ID es: '%s'                |" % expresion.valor)
-            # print("==============================================")
-            print("=========================================================================")
-            print(tabla)
-            print("=========================================================================")
-
             for i in range(len(tabla["nombreC"])):
 
                 if tabla["nombreC"][i] == expresion.valor:
@@ -2315,8 +2308,17 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         pT = PrettyTable()
         base = tablaSimbolos.get(useActual)
         for tb in tabla["tablas"]:
-            qr.ffrom.clist.append(tb)
-        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+            bandera = False
+
+            for tb2 in qr.ffrom.clist:
+
+                if tb.alias == tb2.alias and tb.id == tb2.id:
+                    bandera = True
+                    break
+
+            if not bandera:
+                qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,True,tablaSimbolos)
 
         print(expresion.operador)
         if expresion.operador == '=':
@@ -2370,8 +2372,17 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         pT = PrettyTable()
         base= tablaSimbolos.get(useActual)
         for tb in tabla["tablas"]:
-            qr.ffrom.clist.append(tb)
-        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+            bandera = False
+
+            for tb2 in qr.ffrom.clist:
+
+                if tb.alias == tb2.alias and tb.id == tb2.id:
+                    bandera = True
+                    break
+
+            if not bandera:
+                qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,True,tablaSimbolos)
 
         print(expresion.operador)
         if expresion.operador == '=':
@@ -2422,26 +2433,20 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         qr = expresion.consulta        
         base = tablaSimbolos.get(useActual)
         pT = PrettyTable()
-        for tb in tabla["tablas"]:
-            qr.ffrom.clist.append(tb)
-
-        print("=============== NO EXISTS ===============")
-        print("=============== NO EXISTS ===============")
-        print("=============== NO EXISTS ===============")
-        print()
-        print(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
-        print()
-        print("=============== NO EXISTS ===============")
-        print("=============== NO EXISTS ===============")
-        print("=============== NO EXISTS ===============")
-        print()
-        print(expresion)
-        print()
-        print("=============== NO EXISTS ===============")
-        print("=============== NO EXISTS ===============")
-        print("=============== NO EXISTS ===============")
         
-        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+        for tb in tabla["tablas"]:
+            bandera = False
+
+            for tb2 in qr.ffrom.clist:
+
+                if tb.alias == tb2.alias and tb.id == tb2.id:
+                    bandera = True
+                    break
+
+            if not bandera:
+                qr.ffrom.clist.append(tb)
+       
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,True,tablaSimbolos)
 
         if len(resultado_sub) > 0:
             return SExpresion(False,Expresion.BOOLEAN)
@@ -2453,8 +2458,17 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         base = tablaSimbolos.get(useActual)
         pT = PrettyTable()
         for tb in tabla["tablas"]:
-            qr.ffrom.clist.append(tb)
-        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+            bandera = False
+
+            for tb2 in qr.ffrom.clist:
+
+                if tb.alias == tb2.alias and tb.id == tb2.id:
+                    bandera = True
+                    break
+
+            if not bandera:
+                qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,True,tablaSimbolos)
 
         if len(resultado_sub) > 0:
             return SExpresion(True,Expresion.BOOLEAN)
@@ -2468,9 +2482,18 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         base = tablaSimbolos.get(useActual)
         pT = PrettyTable()
         for tb in tabla["tablas"]:
-            qr.ffrom.clist.append(tb)
-        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
-        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla, cod3D)
+            bandera = False
+
+            for tb2 in qr.ffrom.clist:
+
+                if tb.alias == tb2.alias and tb.id == tb2.id:
+                    bandera = True
+                    break
+
+            if not bandera:
+                qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,True,tablaSimbolos)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
 
         for r in resultado_sub:
             if str(r[0]) == str(columna.valor):
@@ -2483,9 +2506,18 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         base = tablaSimbolos.get(useActual)
         pT = PrettyTable()
         for tb in tabla["tablas"]:
-            qr.ffrom.clist.append(tb)
-        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
-        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla, cod3D)
+            bandera = False
+
+            for tb2 in qr.ffrom.clist:
+
+                if tb.alias == tb2.alias and tb.id == tb2.id:
+                    bandera = True
+                    break
+
+            if not bandera:
+                qr.ffrom.clist.append(tb)
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,True,tablaSimbolos)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
 
         for r in resultado_sub:
 
@@ -2664,9 +2696,8 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
     indices = []
     oficial = []
 
-    print("------------------ EMPIEZA CONSULTA ---------------------")
     if Qwhere == False:
-
+        print("------------------ ENTRO AL QWHERE FALSE ---------------------")
         # VARIABLES
         tablaConsulta = ""
         distinct = False
@@ -3162,6 +3193,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
             resultado = arreglo_tmp
 
         resultado_2 = []
+
         for t in resultado:
 
             for c in t:
@@ -3210,7 +3242,8 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 tab_temporal.append(row._rows[0])
 
             oficial = tab_temporal
-            consola += str(x) + "\n"
+            if not subConsulta:
+                consola += str(x) + "\n"
 
         else:
             tab_temporal = []
@@ -3230,13 +3263,13 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 tab_temporal.append(row._rows[0])
 
             oficial = tab_temporal
-            consola += str(x) + "\n"
+            if not subConsulta:
+                consola += str(x) + "\n"
 
         #AGREGAR LAS VALIDACIONES NECESARIAS PARA HACER UN DISTINCT
         if Qselect.distinct != False:
             print("Tiene Distinct")
 
-    print("------------------ TERMINA CONSULTA ---------------------")
     return oficial
 
 
