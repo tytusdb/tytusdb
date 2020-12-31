@@ -64,6 +64,12 @@ class Select(ASTNode):
             # TODO:apply having by execution...
             if self.having:
                 pass
+            if self.is_distinct:
+                temp = []
+                for item in megaunion:
+                    if item not in temp:
+                        temp.append(item)
+                megaunion = temp
 
         if not self.col_names[0].is_asterisk:  # return specific columns
             rrow = []  # only one result or row

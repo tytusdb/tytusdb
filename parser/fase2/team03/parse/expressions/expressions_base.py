@@ -2,6 +2,7 @@ from .expression_enum import OpArithmetic, OpRelational, OpLogic, OpPredicate
 from datetime import date, datetime
 from parse.errors import Error, ErrorType
 from parse.ast_node import ASTNode
+import hashlib
 
 
 class Numeric(ASTNode):
@@ -88,18 +89,47 @@ class BoolAST(ASTNode):
 
 
 class DateAST(ASTNode):
-    def __init__(self, val, line, column, graph_ref):
+    def __init__(self, val, option, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
+        self. val = val
+        self.option = option
         self.graph_ref = graph_ref
         try:
             self.val = datetime.strptime(val, '%Y-%m-%d %H:%M:%S')
+            if self.option == 'YEAR':
+                self.result = self.val.year
+            elif self.option == 'HOUR':
+                self.result = self.val.hour
+            elif self.option == 'MINUTE':
+                self.result = self.val.minute
+            elif self.option == 'SECOND':
+                self.result = self.val.second
+            elif self.option == 'MONTH':
+                self.result = self.val.month
+            elif self.option == 'DAY':
+                self.result = self.val.day
+            
         except:
-            print("String format not avalible!!!")
-            self.val = None
+            self.result = None
+            raise Error(self.line, self.column, ErrorType.SEMANTIC, 'it is not a date time format')
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return self.val
+        return self.option +' '+ str(self.result)
+
+class DateAST_2(ASTNode):
+    def __init__(self, option, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.option = option
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return str(self.option)
+
+
+
+
 
     def generate(self, table, tree):
         super().generate(table, tree)
@@ -147,7 +177,26 @@ class Now(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return date.today()
+        return datetime.now()
+
+class NowDate(ASTNode):
+    def __init__(self, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return str(date.today())
+
+class NowTime(ASTNode):
+    def __init__(self, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        now = datetime.now()
+        return now.strftime("%H:%M:%S")
 
     def generate(self, table, tree):
         super().generate(table, tree)
@@ -363,3 +412,18 @@ class Nullable(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         return ''
+
+
+class MD5_(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        try:
+            return hashlib.md5(exp.encode('utf-8')).hexdigest()
+        except :
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'MD5 error'))

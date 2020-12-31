@@ -306,7 +306,7 @@ def t_PATTERN_LIKE(t):
 def t_TEXTO(t):
     r'\'([^\\\n]|(\\.))*?\''
     t.value = t.value[1:-1]
-    t.type = reserved.get(t.value,'TEXTO')    
+    t.type = 'TEXTO'
     return t
     
 def t_BOOLEAN_VALUE(t):
@@ -891,18 +891,38 @@ def p_case_inner(t):
 
 def p_time_ops(t):
     '''time_ops :    EXTRACT PARA ops_from_ts  FECHA_HORA PARC
-                |    DATE_PART PARA TEXTO COMA INTERVAL TEXTO PARC'''
+                |    DATE_PART PARA TEXTO COMA INTERVAL TEXTO PARC
+                |    TIMESTAMP TEXTO
+                |    CURRENT_DATE
+                |    CURRENT_TIME
+                '''
     if len(t) == 6:
+        token = t.slice[1]
         childsProduction  = addNotNoneChild(t,[3])
         graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
         addCad("**\<TIME_OPS>** ::=  tExtract '(' \<OPS_FROM_TS>  tFechaHora ')'  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####                
+        t[0] = DateAST(t[4], t[3].option,token.lineno,token.lexpos,graph_ref)
     elif len(t) == 8:
         graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]       ,[])
         addCad("**\<TIMES_OPS>** ::=   tDate_part '(' tText ',' tINTERVAL tText ')'   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-        ####
+    elif len(t) == 3:
+        token = t.slice[1]
+        graph_ref = graph_node(str("time_ops"),    [t[1],t[2]]       ,[])
+        addCad("**\<TIME_OPS>** ::=  tTimestemp tText")
+        t[0] = Now(token.lineno, token.lexpos, graph_ref)
+    else:
+        token = t.slice[1]
+        if token.type == 'CURRENT_DATE':
+            graph_ref = graph_node(str("time_ops"),    [t[1]]       ,[])
+            addCad("**\<TIME_OPS>** ::=  tCurrent_date")
+            t[0] = NowDate(token.lineno, token.lexpos, graph_ref)
+        elif token.type == 'CURRENT_TIME':
+            graph_ref = graph_node(str("time_ops"),    [t[1]]       ,[])
+            addCad("**\<TIME_OPS>** ::=  tCurrent_time")
+            t[0] = NowTime(token.lineno, token.lexpos, graph_ref)
+
+
 
 
 def p_ops_from_ts(t):
@@ -917,8 +937,7 @@ def p_ops_from_ts(t):
     cadena = str(token.type)
     graph_ref = graph_node(str("ops_from_ts"),    [t[1],t[2],t[3]]       ,[])
     addCad("**\<OPS_FROM_TS>** ::= "+ cadena +" tFrom tTimestamp  ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    #####  
+    t[0] = DateAST_2(token.type, token.lineno, token.lexpos, graph_ref)
 
 def p_column_list_param_opt(t):
     '''column_list_param_opt  : PARA column_list PARC
@@ -1261,19 +1280,19 @@ def p_stm_alter1(t):
 '''
     token_alter = t.slice[6]
     if token_alter.type == "ID" and t[7] != 'TYPE':
-        childsProduction = addNotNoneChild(t, [7, 8])
+        childsProduction = addNotNoneChild(t, [7])
         graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tColumn  tIdentifier \<TYPE> \<PARAM_INT_OPT>   ")
         t[0] = AlterTableAddColumn(t[3], t[6], t[7], t[7].max_size, t[8], token_alter.lineno, token_alter.lexpos, graph_ref)
-    if token_alter.type == "PARA":
+    elif token_alter.type == "PARA":
         childsProduction = addNotNoneChild(t,[7])                
         graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tCheck '('  \<EXP_LOG> ')'   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####  
-    if token_alter.type == "ID":
-        childsProduction = addNotNoneChild(t, [8, 9])
-        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8],t[9]], childsProduction)
+    elif token_alter.type == "ID":
+        childsProduction = addNotNoneChild(t, [8])
+        graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tType \<TYPE> \<PARAM_INT_OPT>   ")
         t[0] = AlterTableChangeColumnType(t[3], t[6], t[8], t[8].max_size, token_alter.lineno, token_alter.lexpos, graph_ref)
 
@@ -1902,6 +1921,7 @@ def p_aritmetic(t):
                     | RANDOM PARA PARC
                     | SETSEED PARA expression PARC
                     | TRUNC PARA expression PARC
+                    | MD5 PARA expression PARC
                 '''
     token = t.slice[1]
     if token.type == "ABS":
@@ -2046,6 +2066,11 @@ def p_aritmetic(t):
         graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tTruc '(' \<EXP> ')'      ")
         t[0] = Trunc(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == "MD5":
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
+        addCad("**\<EXP>** ::=   tMd5 '(' \<EXP> ')'      ")
+        t[0] = MD5_(t[3], token.lineno, token.lexpos, graph_ref)
 
 
 def p_exp_unary(t):
@@ -2190,7 +2215,7 @@ class grammarReview:
         print(tabulate(result, result2, tablefmt="rst"))
         return tabulate(result, result2, tablefmt="rst")
 
-'''if __name__ == "__main__":
+""" if __name__ == "__main__":
     f = open("./entrada.txt", "r")
     input = f.read()
     print("Input: " + input +"\n")
@@ -2213,7 +2238,7 @@ class grammarReview:
 
     for e in errorsList:
         print(e,"\n")
-    ST.report_symbols() '''
+    ST.report_symbols() """
 
 
 def execute_from_wrapper(symbol_table: SymbolTable, command_input):
