@@ -1249,7 +1249,7 @@ def p_ifExists(t):
 
 
 def p_selectStmt_1(t):
-    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl"""
+    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl orderByCl"""
     t[0] = instruction.Select(
         t[3].params,
         t[4],
@@ -1257,6 +1257,7 @@ def p_selectStmt_1(t):
         t[6][0],
         t[6][1],
         t[7],
+        t[8],
         True,
         t.slice[1].lineno,
         t.slice[1].lexpos,
@@ -1266,7 +1267,7 @@ def p_selectStmt_1(t):
 
 # TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
 def p_selectStmt_2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl"""
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl orderByCl"""
     t[0] = instruction.Select(
         t[2].params,
         t[3],
@@ -1274,6 +1275,7 @@ def p_selectStmt_2(t):
         t[5][0],
         t[5][1],
         t[6],
+        t[7],
         False,
         t.slice[1].lineno,
         t.slice[1].lexpos,
@@ -1281,19 +1283,19 @@ def p_selectStmt_2(t):
     repGrammar.append(t.slice)
 
 
-def p_selectStmt__1(t):
-    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl orderByCl limitCl"""
-    repGrammar.append(t.slice)
+# def p_selectStmt__1(t):
+#     """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl orderByCl limitCl"""
+#     repGrammar.append(t.slice)
 
 
-def p_selectStmt__2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
-    repGrammar.append(t.slice)
+# def p_selectStmt__2(t):
+#     """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
+#     repGrammar.append(t.slice)
 
 
-def p_selectStmt__3(t):
-    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl limitCl"""
-    repGrammar.append(t.slice)
+# def p_selectStmt__3(t):
+#     """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl limitCl"""
+#     repGrammar.append(t.slice)
 
 
 def p_selectStmt_union(t):
@@ -1552,13 +1554,25 @@ def p_havingCl_2(t):
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList"""
+    t[0] = instruction.orderByClause(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
+def p_orderByCl_n(t):
+    """orderByCl : """
+    t[0] = None
+    repGrammar.append(t.slice)
 
 def p_orderList(t):
     """orderList : orderList S_COMA orderByElem
-    | orderByElem
     """
+    t[1].append(t[3])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_orderList_1(t):
+    """orderList : orderByElem
+    """
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -1567,24 +1581,35 @@ def p_orderByElem(t):
     orderByElem : columnName orderOpts orderNull
                 | INTEGER orderOpts orderNull
     """
+    t[0] = instruction.orderByElement(t[1], t[2], t[3])
     repGrammar.append(t.slice)
 
 
 def p_orderOpts(t):
     """orderOpts : R_ASC
     | R_DESC
-    |
     """
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
+def p_orderOpts_n(t):
+    """orderOpts : 
+    """
+    t[0] = "ASC"
+    repGrammar.append(t.slice)
 
 def p_orderNull(t):
-    """orderNull : R_NULL R_FIRST
-    | R_NULL R_LAST
-    |
+    """orderNull : R_NULLS R_FIRST
+    | R_NULLS R_LAST
     """
+    t[0] = t[2]
     repGrammar.append(t.slice)
 
+def p_orderNull_n(t):
+    """orderNull : 
+    """
+    t[0] = "FIRST"
+    repGrammar.append(t.slice)
 
 def p_limitCl(t):
     """limitCl : R_LIMIT INTEGER offsetLimit
