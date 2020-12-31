@@ -116,7 +116,64 @@ def p_createbody(t):
     """
     t[0] = t[1]
     repGrammar.append(t.slice)
+#----------------------------- SENTENCIA INDEX ---------------------------------#
 
+def p_createopts_index(t):
+    """createOpts : unique_index R_INDEX ID R_ON ID using_hash_index S_PARIZQ idList indexasc_desc indexNullS S_PARDER whereCl"""
+    t[0] = instruction.IndexCls(t[1],t[3], t[5],t[8], t[9], t[10], t[12], t.lineno(1), t.lexpos(1))
+    print("todo bien, nada mal")
+    repGrammar.append(t.slice)
+
+def p_unique_index(t):
+    """unique_index : R_UNIQUE
+                    | """
+    try:
+        t[0] = t[1]
+        print("todo bien, nada mal -> unique ")
+    except:
+        t[0] = None
+        print("todo bien, nada mal -> epsilon ")
+    repGrammar.append(t.slice)
+
+def p_using_hash_index(t):
+    """using_hash_index : R_USING R_HASH
+                    | """
+    try:
+        t[0] = t[1]
+        print("todo bien, nada mal -> using_hash ")
+    except:
+        t[0] = None
+        print("todo bien, nada mal -> epsilon ")
+    repGrammar.append(t.slice)
+
+def p_orderNullS(t):
+    """indexNullS : R_NULLS R_FIRST
+    | R_NULLS R_LAST
+    |
+    """
+    try:
+        t[0] = t[2]
+        print("todo bien, nada mal -> indexNullS ")
+    except:
+        t[0] = None
+        print("todo bien, nada mal -> epsilon ")
+
+    repGrammar.append(t.slice)
+
+def p_indexasc_desc(t):
+    """indexasc_desc : R_DESC
+    | R_ASC
+    |
+    """
+    try:
+        t[0] = t[1]
+        print("todo bien, nada mal -> indexasc_desc ")
+    except:
+        t[0] = None
+        print("todo bien, nada mal -> epsilon ")
+
+    repGrammar.append(t.slice)
+#----------------------------- FIN SENTENCIA INDEX ---------------------------------#
 
 def p_createopts_table(t):
     """createOpts : R_TABLE ifNotExists idOrString S_PARIZQ createTableList S_PARDER inheritsOpt """

@@ -5,8 +5,11 @@ class Symbol:
     expresiones.
     """
 
-    def __init__(self, value, type_, row, column) -> None:
+    def __init__(self, value, type_, row, column, col_creada, cons) -> None:
         self.value = value
         self.type = type_
         self.row = row
         self.column = column
+        self.col_creada = col_creada
+        self.cons = cons
+
