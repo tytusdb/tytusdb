@@ -15,6 +15,7 @@ from analizer.symbol.environment import Environment
 from analizer.reports import Nodo
 from analizer.reports import AST
 import analizer
+from prettytable import PrettyTable
 
 ast = AST.AST()
 root = None
@@ -633,24 +634,18 @@ class Drop(Instruction):
             else:
                 valor = jsonMode.dropDatabase(self.name)
                 if valor == 1:
-                    syntaxPostgreSQL.append("Error: XX000: Error interno")
-                    return "Hubo un problema en la ejecucion de la sentencia"
+                    print("Error: XX000: Error interno")
                 if valor == 2:
                     semanticErrors.append(
                         ["La base de datos " + dbtemp + " no existe", self.row]
                     )
-                    syntaxPostgreSQL.append(
-                        "Error: 42000: La base de datos  " + str(dbtemp) + " no existe"
-                    )
-                    return "La base de datos no existe"
+                    print("Error: 42000: La base de datos  " + str(dbtemp) + " no existe")
                 if valor == 0:
                     Struct.dropDatabase(self.name)
 
-                    return "Instruccion ejecutada con exito DROP DATABASE"
-            syntaxPostgreSQL.append("Error: XX000: Error interno DROPTABLE")
-            return "Fatal Error: DROP TABLE"
+                    print("Instruccion ejecutada con exito DROP DATABASE")
         except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion DROP")
+            print("Error: P0001: Error en la instruccion DROP")
 
     def dot(self):
         new = Nodo.Nodo("DROP")
@@ -660,6 +655,11 @@ class Drop(Instruction):
         new.addNode(n)
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Eliminar\n\n"
+        environment.conta_exec += 1
 
 class AlterDataBase(Instruction):
     def __init__(self, option, name, newname):
@@ -675,12 +675,11 @@ class AlterDataBase(Instruction):
                     semanticErrors.append(
                         ["La base de datos " + str(self.name) + " no existe", self.row]
                     )
-                    syntaxPostgreSQL.append(
+                    print(
                         "Error: 42000: La base de datos  "
                         + str(self.name)
                         + " no existe"
                     )
-                    return "La base de datos no existe: '" + self.name + "'."
                 if valor == 3:
                     semanticErrors.append(
                         [
@@ -688,31 +687,25 @@ class AlterDataBase(Instruction):
                             self.row,
                         ]
                     )
-                    syntaxPostgreSQL.append(
+                    print(
                         "Error: 42P04: La base de datos  "
                         + str(self.newname)
                         + " ya existe"
                     )
-                    return "El nuevo nombre para la base de datos existe"
                 if valor == 1:
-                    syntaxPostgreSQL.append("Error: XX000: Error interno")
-                    return "Hubo un problema en la ejecucion de la sentencia"
+                    print("Error: XX000: Error interno")
                 if valor == 0:
                     Struct.alterDatabaseRename(self.name, self.newname)
-                    return (
+                    print(
                         "Base de datos renombrada: " + self.name + " - " + self.newname
                     )
-                return "Error ALTER DATABASE RENAME: " + self.newname
             elif self.option == "OWNER":
                 valor = Struct.alterDatabaseOwner(self.name, self.newname)
                 if valor == 0:
-                    return "Instruccion ejecutada con exito ALTER DATABASE OWNER"
-                syntaxPostgreSQL.append("Error: XX000: Error interno")
-                return "Error ALTER DATABASE OWNER"
-            syntaxPostgreSQL.append("Error: XX000: Error interno")
-            return "Fatal Error ALTER DATABASE: " + self.newname
+                    print("Instruccion ejecutada con exito ALTER DATABASE OWNER")
+                print("Error ALTER DATABASE OWNER")
         except:
-            syntaxPostgreSQL.append(
+            print(
                 "Error: P0001: Error en la instruccion ALTER DATABASE"
             )
 
@@ -727,6 +720,12 @@ class AlterDataBase(Instruction):
         optionNode.addNode(valOption)
 
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Alter Base de datos\n\n"
+        environment.conta_exec += 1
 
 
 class Truncate(Instruction):
@@ -868,14 +867,12 @@ class useDataBase(Instruction):
         if self.db in dbs:
             global dbtemp
             dbtemp = self.db
-            return "Se cambio la base de datos a: " + dbtemp
-        syntaxPostgreSQL.append(
-            "Error: 42000: La base de datos " + self.db + " no existe"
-        )
-        semanticErrors.append(
-            ["La base de datos " + str(self.db) + " no existe", self.row]
-        )
-        return "La base de datos: " + self.db + " no existe."
+            print("Se cambio la base de datos a: " + str(dbtemp))
+        else:
+            semanticErrors.append(
+                ["La base de datos " + str(self.db) + " no existe", self.row]
+            )
+            print("Error: 42000: La base de datos " + self.db + " no existe")
 
     def dot(self):
         new = Nodo.Nodo("USE_DATABASE")
@@ -883,6 +880,13 @@ class useDataBase(Instruction):
         new.addNode(n)
 
         return new
+
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Usar Base de datos\n\n"
+        environment.conta_exec += 1
+
 
 
 class showDataBases(Instruction):
@@ -901,8 +905,14 @@ class showDataBases(Instruction):
         else:
             lista = jsonMode.showDatabases()
         if len(lista) == 0:
-            return "No hay bases de datos"
-        return lista
+            print("No hay bases de datos")
+        else:
+            salidaTabla = PrettyTable()
+            salidaTabla.add_column("Bases de Datos",lista)
+            print(salidaTabla)
+            print("\n")
+            print("\n")
+        return None
 
     def dot(self):
         new = Nodo.Nodo("SHOW_DATABASES")
@@ -913,6 +923,13 @@ class showDataBases(Instruction):
             l.addNode(ls)
 
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Mostrar Bases de datos\n\n"
+        environment.conta_exec += 1
+
 
 
 class CreateDatabase(Instruction):
@@ -942,25 +959,20 @@ class CreateDatabase(Instruction):
 
         if result == 0:
             Struct.createDatabase(self.name, self.mode, self.owner)
-            report = "Base de datos: " + self.name + " insertada."
             print("Base de datos: " + self.name + " insertada.")
         elif result == 1:
-            syntaxPostgreSQL.append("Error: XX000: Error interno")
-            report = "Error al insertar la base de datos: " + self.name
+            print("Error al insertar la base de datos: " + self.name)
         elif result == 2 and self.replace:
             Struct.replaceDatabase(self.name, self.mode, self.owner)
-            report = "Base de datos '" + self.name + " ' reemplazada."
+            print("Base de datos '" + self.name + " ' reemplazada.")
         elif result == 2 and self.exists:
-            report = "Base de datos no insertada, " + self.name + " ya existe."
+            print("Base de datos no insertada, " + self.name + " ya existe.")
         else:
             semanticErrors.append(
                 ["La base de datos " + str(self.name) + " ya existe", self.row]
             )
-            syntaxPostgreSQL.append(
-                "Error: 42P04: La base de datos  " + str(self.name) + " ya existe"
-            )
-            report = "Error: La base de datos ya existe"
-        return report
+            print("Error: 42P04: La base de datos  " + str(self.name) + " ya existe")
+        return None
 
     def dot(self):
         new = Nodo.Nodo("CREATE_DATABASE")
@@ -985,7 +997,8 @@ class CreateDatabase(Instruction):
 
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.result["+str(cont)+"]"
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Crear Base de datos\n\n"
         environment.conta_exec += 1
 
 
@@ -1015,41 +1028,37 @@ class CreateTable(Instruction):
             if result == 0:
                 pass
             elif result == 1:
-                syntaxPostgreSQL.append("Error: XX000: Error interno")
-                return "Error: No se puede crear la tabla: " + self.name
+                print("Error: No se puede crear la tabla: " + self.name)
             elif result == 2:
                 semanticErrors.append("La base de datos " + dbtemp + " no existe")
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 3F000: base de datos" + dbtemp + " no existe"
                 )
-                return "Error: Base de datos no encontrada: " + dbtemp
             elif result == 3 and self.exists:
                 semanticErrors.append(
                     ["La tabla " + str(self.name) + " ya existe", self.row]
                 )
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42P07: La tabla  " + str(self.name) + " ya existe"
                 )
-                return "La tabla ya existe en la base de datos"
             else:
                 semanticErrors.append(
                     ["La tabla " + str(self.name) + " ya existe", self.row]
                 )
-                syntaxPostgreSQL.append("Error: 42P07: tabla duplicada")
-                return "Error: ya existe la tabla " + self.name
+                print("Error: 42P07: tabla duplicada")
             pk = Struct.extractPKIndexColumns(dbtemp, self.name)
             addPK = 0
             if pk:
                 addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
             if addPK != 0:
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 23505: Error en llaves primarias de la instruccion CREATE TABLE de la tabla "
                     + str(self.name)
                 )
-            return "Tabla " + self.name + " creada"
+            print("Tabla " + self.name + " creada")
         else:
             Struct.dropTable(dbtemp, self.name)
-            return error
+            print(error)
 
     def dot(self):
         new = Nodo.Nodo("CREATE_TABLE")
@@ -1150,6 +1159,12 @@ class CreateTable(Instruction):
             inhNode.addNode(inhNode2)
 
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Crear Tabla\n\n"
+        environment.conta_exec += 1
 
 
 class CreateType(Instruction):
