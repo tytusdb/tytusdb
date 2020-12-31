@@ -3,7 +3,7 @@ import gramaticaASC as g
 from tkinter import filedialog as FileDialog
 from tkinter import colorchooser as ColorChooser
 from tkinter import messagebox as MessageBox
-
+from goto import with_goto
 #import Graficar as graficando
 import principal as principal
 import os
@@ -121,7 +121,7 @@ class Example(tk.Frame):
 if __name__ == "__main__":
 
     ########################################## FUNCIONES ##########################################
-    
+
 
     #FUNCIÓN PARA IMPRIMIR EN CONSOLA
     def imprimir_consola(expresion):
