@@ -3,10 +3,13 @@ from analizer.abstract import instruction as inst
 
 with open("obj.pickle", "rb") as f:
     result = pickle.load(f)
-# Imprime [1, 2, 3, 4].
-for v in result:
-    if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
-        r = v.execute(None)
+
+pila = 0
+
+def ejecutar():
+    cont = pila
+    if isinstance(result[cont], inst.Select) or isinstance(result[cont], inst.SelectOnlyParams):
+        r = result[cont].execute(None)
         if r:
             list_ = r[0].values.tolist()
             labels = r[0].columns.tolist()
@@ -14,4 +17,4 @@ for v in result:
         else:
             querys.append(None)
     else:
-        r = v.execute(None)
+        r = result[cont].execute(None)
