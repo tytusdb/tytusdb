@@ -25,6 +25,8 @@ listaFK = []
 types = {}
 d1 = ""
 d2 = ""
+contadoresT = 0
+contadoresEtiqueta = 0
 
 def interpretar_sentencias(arbol, tablaSimbolos):
     # jBase.dropAll()
@@ -119,7 +121,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         tupla["valor"].append(c)
 
                     if nodo.listaWhere is not False:
-                        b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla)
+                        b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla,False)
                     else:
                         b = SExpresion(True,Expresion.BOOLEAN)
                     tupla["valor"].clear()
@@ -452,7 +454,7 @@ def deleteBase(nodo, tablaSimbolos):
                 for c in r:
                     tupla["valor"].append(c)
 
-                b = Interpreta_Expresion(nodo.listaWhere, tablaSimbolos, tupla)
+                b = Interpreta_Expresion(nodo.listaWhere, tablaSimbolos, tupla,False)
                 tupla["valor"].clear()
 
                 if b.valor:
@@ -1040,7 +1042,7 @@ def InsertTable(nodo, tablaSimbolos):
                         # se validan tipos
                         for i in range(len(nodo.listaColumnas)):
                             col = tabla.getColumna(nodo.listaColumnas[i].valor)
-                            val = Interpreta_Expresion(nodo.listValores[i], tablaSimbolos, tabla)
+                            val = Interpreta_Expresion(nodo.listValores[i], tablaSimbolos, tabla,False)
                             if hasattr(col.tipo,"valor"):
 
                                 el_tipo = types[col.tipo.valor]
@@ -1220,7 +1222,7 @@ def InsertTable(nodo, tablaSimbolos):
                         # se validan tipos
                         for i in range(len(columnas)):
                             col = tabla.getColumna(columnas[i])
-                            val = Interpreta_Expresion(nodo.listValores[i], tablaSimbolos, tabla)
+                            val = Interpreta_Expresion(nodo.listValores[i], tablaSimbolos, tabla,False)
 
                             if hasattr(col.tipo,"valor"):
 
@@ -1382,13 +1384,8 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk,la_tupla
         # se validan tipos
         for i in range(len(columnas)):
             col = tabla.getColumna(columnas[i])
-            # print("============== DENTRO DEL UPDATE ==============")
-            # print("============== tupla ==============")
-            # print(tupla[i])
-            # print("============== tabla ==============")
-            # print(tabla)
             
-            val = Interpreta_Expresion(tupla[i],tablaSimbolos,la_tupla)
+            val = Interpreta_Expresion(tupla[i],tablaSimbolos,la_tupla,False)
             if col.tipo.tipo == TipoDato.NUMERICO:
                 result = validarTiposNumericos(
                     col.tipo.dato.lower(), val)
@@ -1537,7 +1534,7 @@ def validarDefault(listaC, listaV, tabla, tablaSimbolos):
 
                 if tabla.columnas[i].default != None:
 
-                    tupla.append(Interpreta_Expresion(tabla.columnas[i].default, tablaSimbolos, tabla).valor)
+                    tupla.append(Interpreta_Expresion(tabla.columnas[i].default, tablaSimbolos, tabla,False).valor)
 
                 else:
 
@@ -1564,7 +1561,7 @@ def validarDefault2(listaC, listaV, tabla, tablaSimbolos):
             for j in range(len(listaC)):
 
                 if tabla.columnas[i].nombre == listaC[j]:
-                    tupla.append(Interpreta_Expresion(listaV[j], tablaSimbolos, tabla).valor)
+                    tupla.append(Interpreta_Expresion(listaV[j], tablaSimbolos, tabla,False).valor)
                     indice += 1
                     i = 0
                     encontrado = True
@@ -1574,7 +1571,7 @@ def validarDefault2(listaC, listaV, tabla, tablaSimbolos):
 
                 if tabla.columnas[i].default != None:
 
-                    tupla.append(Interpreta_Expresion(tabla.columnas[i].default, tablaSimbolos, tabla).valor)
+                    tupla.append(Interpreta_Expresion(tabla.columnas[i].default, tablaSimbolos, tabla,False).valor)
 
                 else:
 
@@ -1618,7 +1615,7 @@ def validaCheck(col, val, columnas, valores):
 
                     nuevo = SOperacion(val, valores[i], col.check["condicion"].operador)
 
-                    if Interpreta_Expresion(nuevo, None, None).valor:
+                    if Interpreta_Expresion(nuevo, None, None,False).valor:
                         return 0
                     else:
                         return 1
@@ -1627,7 +1624,7 @@ def validaCheck(col, val, columnas, valores):
 
             nuevo = SOperacion(val, col.check["condicion"].opDer, col.check["condicion"].operador)
 
-            r = Interpreta_Expresion(nuevo, None, None)
+            r = Interpreta_Expresion(nuevo, None, None,False)
 
             if r.valor:
                 return 0
@@ -1741,166 +1738,275 @@ def validarTiposFecha(dato, expresion):
     return False
 
 
-def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
+def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
     global consola
+    global texttraduccion
+    global contadoresT,contadoresEtiqueta
     if isinstance(expresion, SOperacion):
         # Logicas
         if (expresion.operador == Logicas.AND):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla).valor
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla).valor
-            result = (opIzq and opDer)
-            return SExpresion(result, Expresion.BOOLEAN)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
+            if cod3D:
+                texttraduccion += " goto " + str(opIzq.EtiquetaV) + "\n"
+                texttraduccion += " goto " + str(opIzq.EtiquetaF) + "\n"
+                texttraduccion += str(opIzq.EtiquetaV) + ":"
+                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+                opDer.EtiquetaF = opIzq.EtiquetaF
+                contadoresEtiqueta -= 1
+                return {"EtiquetaV": opDer.EtiquetaV, "EtiquetaF": opIzq.EtiquetaF}
+            else:
+                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+                result = (opIzq and opDer)
+                return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Logicas.OR):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla).valor
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla).valor
-            result = (opIzq or opDer)
-            return SExpresion(result, Expresion.BOOLEAN)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
+            if cod3D:
+                texttraduccion += " goto " + str(opIzq.EtiquetaV) + "\n"
+                texttraduccion += " goto " + str(opIzq.EtiquetaF) + "\n"
+                texttraduccion += str(opIzq.EtiquetaV) + ":"
+                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+                opDer.EtiquetaV = opIzq.EtiquetaV
+                return {"EtiquetaV": opDer.EtiquetaV, "EtiquetaF": opIzq.EtiquetaF}
+            else:
+                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+                result = (opIzq or opDer)
+                return SExpresion(result, Expresion.BOOLEAN)
+        
+        if expresion.operador == Logicas.NOT:
+            if cod3D:
+                opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+                return {"EtiquetaV": opIzq.EtiquetaF, "EtiquetaF": opIzq.EtiquetaV}
+            else:
+                opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
+                result = not opIzq
+                return result
 
         # Relacionales
         if (expresion.operador == Relacionales.IGUAL):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla).valor
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla).valor
-            result = (opIzq == opDer)
-            return SExpresion(result, Expresion.BOOLEAN)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+            if cod3D:
+                Etiqueta = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                texttraduccion += "if(" + str(opIzq.etiqueta) + "==" + str(opDer.etiqueta) + ")"
+                Etiqueta2 = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+            else:
+                result = (opIzq == opDer)
+                return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Relacionales.DIFERENTE):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla).valor
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla).valor
-            result = (opIzq != opDer)
-            return SExpresion(result, Expresion.BOOLEAN)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+            if cod3D:
+                Etiqueta = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                texttraduccion += "if(" + str(opIzq.etiqueta) + "!=" + str(opDer.etiqueta) + ")"
+                Etiqueta2 = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+            else:
+                result = (opIzq != opDer)
+                return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Relacionales.MENORIGUAL_QUE):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-
-            result = opIzq.valor <= opDer.valor
-            return SExpresion(result, opIzq.tipo)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
+            if cod3D:
+                Etiqueta = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                texttraduccion += "if(" + str(opIzq.etiqueta) + "<=" + str(opDer.etiqueta) + ")"
+                Etiqueta2 = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+            else:
+                result = opIzq.valor <= opDer.valor
+                return SExpresion(result, opIzq.tipo)
 
         if (expresion.operador == Relacionales.MAYORIGUAL_QUE):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-
-            result = opIzq.valor >= opDer.valor
-            return SExpresion(result, opIzq.tipo)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
+            if cod3D:
+                Etiqueta = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                texttraduccion += "if(" + str(opIzq.etiqueta) + ">=" + str(opDer.etiqueta) + ")"
+                Etiqueta2 = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+            else:
+                result = opIzq.valor >= opDer.valor
+                return SExpresion(result, opIzq.tipo)
 
         if (expresion.operador == Relacionales.MENOR_QUE):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-
-            result = opIzq.valor < opDer.valor
-            return SExpresion(result, opIzq.tipo)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
+            if cod3D:
+                Etiqueta = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                texttraduccion += "if(" + str(opIzq.etiqueta) + "<" + str(opDer.etiqueta) + ")"
+                Etiqueta2 = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+            else:
+                result = opIzq.valor < opDer.valor
+                return SExpresion(result, opIzq.tipo)
 
         if (expresion.operador == Relacionales.MAYOR_QUE):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
-
-            result = opIzq.valor > opDer.valor
-            return SExpresion(result, opIzq.tipo)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
+            if cod3D:
+                Etiqueta = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                texttraduccion += "if(" + str(opIzq.etiqueta) + ">" + str(opDer.etiqueta) + ")"
+                Etiqueta2 = "label. L" + contadoresEtiqueta
+                contadoresEtiqueta += 1
+                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+            else:
+                result = opIzq.valor > opDer.valor
+                return SExpresion(result, opIzq.tipo)
 
         # Aritmetica
         if (expresion.operador == Aritmetica.MAS):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor + opDer.valor
-                return SExpresion(result, opIzq.tipo)
+                if cod3D:
+                    Etiqueta = "t" + contadoresT
+                    contadoresT += 1
+                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "+" + str(opDer.etiqueta) 
+                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                else:
+                    result = opIzq.valor + opDer.valor
+                    return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.MENOS):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor - opDer.valor
-                return SExpresion(result, opIzq.tipo)
+                if cod3D:
+                    Etiqueta = "t" + contadoresT
+                    contadoresT += 1
+                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "-" + str(opDer.etiqueta) 
+                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                else:
+                    result = opIzq.valor - opDer.valor
+                    return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.POR):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor * opDer.valor
-                return SExpresion(result, opIzq.tipo)
+                if cod3D:
+                    Etiqueta = "t" + contadoresT
+                    contadoresT += 1
+                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "*" + str(opDer.etiqueta) 
+                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                else:
+                    result = opIzq.valor * opDer.valor
+                    return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.DIVIDIDO):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor / opDer.valor
-                return SExpresion(result, opIzq.tipo)
+                if cod3D:
+                    Etiqueta = "t" + contadoresT
+                    contadoresT += 1
+                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "/" + str(opDer.etiqueta) 
+                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                else:
+                    result = opIzq.valor / opDer.valor
+                    return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.MODULO):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor % opDer.valor
-                return SExpresion(result, opIzq.tipo)
+                if cod3D:
+                    Etiqueta = "t" + contadoresT
+                    contadoresT += 1
+                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "%" + str(opDer.etiqueta) 
+                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                else:
+                    result = opIzq.valor % opDer.valor
+                    return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.POTENCIA):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                result = opIzq.valor ** opDer.valor
-                return SExpresion(result, opIzq.tipo)
+                if cod3D:
+                    ############################################################# potencia xd 
+                    Etiqueta = "t" + contadoresT
+                    contadoresT += 1
+                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "" + str(opDer.etiqueta) 
+                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                else:
+                    result = opIzq.valor ** opDer.valor
+                    return SExpresion(result, opIzq.tipo)
     # f
     elif isinstance(expresion, SFuncMath):
         if expresion.funcion.lower() == "abs":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = abs(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "cbrt":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = (param.valor) ** (1 / 3)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "ceil":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.ceil(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "ceiling":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.ceil(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "degrees":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.degrees(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "exp":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.exp(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "factorial":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.factorial(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "floor":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.floor(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "ln":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.log(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "log":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.log10(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "radians":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.radians(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "round":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = round(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "sign":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             if param.valor >= 0:
                 val = 1
             else:
                 val = -1
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "sqrt":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.sqrt(param.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "trunc":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.trunc(param.valor)
             return SExpresion(val, param.tipo)
 
@@ -1914,28 +2020,28 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
 
     elif isinstance(expresion, SFuncMath2):
         if expresion.funcion.lower() == "div":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla, cod3D)
             val = param.valor // param2.valor
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "gcd":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla, cod3D)
             val = math.gcd(param.valor, param2.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "mod":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla, cod3D)
             val = param.valor % param2.valor
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "power":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla, cod3D)
             val = math.pow(param.valor, param2.valor)
             return SExpresion(val, param.tipo)
         elif expresion.funcion.lower() == "round":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla, cod3D)
             val = round(param.valor, param2.valor)
             return SExpresion(val, param.tipo)
 
@@ -1946,189 +2052,189 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
 
     elif isinstance(expresion, SFuncTrig):
         if expresion.funcion.lower() == "acos":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.acos(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "acosd":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val1 = math.acos(param.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "asin":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.asin(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "asind":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val1 = math.asin(param.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "atan":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.atan(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "atand":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val1 = math.atan(param.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "cos":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.cos(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "cosd":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val1 = math.cos(param.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "cot":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = 1 / math.tan(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "cotd":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val1 = 1 / math.tan(param.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "sin":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.sin(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "sind":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val1 = math.sin(param.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "tan":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.tan(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "tand":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val1 = math.tan(param.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "sinh":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.sinh(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "cosh":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.cosh(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "tanh":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.tanh(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "asinh":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.asinh(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "acosh":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.acosh(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "atanh":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.atanh(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
 
     elif isinstance(expresion, SFuncTrig2):
         if expresion.funcion.lower() == "atan2":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla, cod3D)
             val = math.atan2(param.valor,param2.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "atan2d":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla, cod3D)
             val1 = math.atan2(param.valor,param2.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
 
     elif isinstance(expresion, SFuncBinary):
         if expresion.funcion.lower() == "length":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = len(param.valor)
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion.lower() == "trim":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = len(param)
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion.lower() == "md5":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = hashlib.md5(str(param.valor).encode("utf-8")).hexdigest()
             return SExpresion(val, Expresion.CADENA)
         elif expresion.funcion.lower() == "sha256":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = hashlib.sha256(str(param.valor).encode("utf-8")).hexdigest()
             return SExpresion(val, Expresion.CADENA)
         elif expresion.funcion == "|":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = math.sqrt(param.valor)
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion == "||":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = (param.valor ** (1 / 3))
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion == "~":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = (~int(param.valor))
             return SExpresion(val, Expresion.ENTERO)
 
     elif isinstance(expresion, SFuncBinary2):
         if expresion.funcion == "&":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = param.valor & param2.valor
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion == "|":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = param.valor | param2.valor
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion == "?":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = param.valor ^ param2.valor
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion == "<<":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = param.valor << param2.valor
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion == ">>":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = param.valor >> param2.valor
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion.lower() == "encode":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = len(param)
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion.lower() == "get_byte":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = len(param)
             return SExpresion(val, Expresion.ENTERO)
 
     elif isinstance(expresion, SFuncBinary3):
         if expresion.funcion.lower() == "decode":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = len(param)
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion.lower() == "convert":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = len(param)
             return SExpresion(val, Expresion.ENTERO)
 
     elif isinstance(expresion, SFuncBinary4):
         if expresion.funcion.lower() == "set_byte":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
             val = len(param)
             return SExpresion(val, Expresion.ENTERO)
 
@@ -2148,17 +2254,20 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
 
     elif isinstance(expresion, SFechaFunc2):
         if expresion.id.lower() == "date_part":
-            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla)
-            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla)
+            param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
+            param2 = Interpreta_Expresion(expresion.param2, tablaSimbolos, tabla, cod3D)
 
 
     elif isinstance(expresion, SExpresion):
-        if expresion.tipo == Logicas.NOT:
-            result = not expresion.valor
-            return result
-        elif expresion.tipo == Expresion.NEGATIVO:
+        if expresion.tipo == Expresion.NEGATIVO:
             result = expresion.valor.valor * -1
-            return SExpresion(result, Expresion.NEGATIVO)
+            if cod3D:
+                Etiqueta = "t" + contadoresT
+                contadoresT += 1
+                texttraduccion += Etiqueta + "=" + str(expresion.valor.valor) + "*-1"
+                return {"Etiqueta": Etiqueta, "tipo":Expresion.NEGATIVO}
+            else:
+                return SExpresion(result, Expresion.NEGATIVO)
 
         elif expresion.tipo == Expresion.ID:
 
@@ -2177,8 +2286,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
                 if tabla["nombreC"][i] == expresion.valor:
                     tipo = retornarTipo(tabla["tipo"][i].dato)
                     valor = tabla["valor"][i]
-
-                    return SExpresion(valor, tipo)
+                    if cod3D:
+                        return {"Etiqueta": valor, "tipo":tipo}
+                    else:
+                        return SExpresion(valor, tipo)
 
         elif expresion.tipo == Expresion.FECHA:
 
@@ -2199,7 +2310,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
     elif isinstance(expresion,SAny):
 
         print("================== ENTRÓ AL ANY ==================")
-        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla, cod3D)
         qr = expresion.consulta
         pT = PrettyTable()
         base = tablaSimbolos.get(useActual)
@@ -2254,7 +2365,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
     elif isinstance(expresion,SAll):
 
         print("================== ENTRÓ AL ALL ==================")
-        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla, cod3D)
         qr = expresion.consulta
         pT = PrettyTable()
         base= tablaSimbolos.get(useActual)
@@ -2359,7 +2470,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         for tb in tabla["tablas"]:
             qr.ffrom.clist.append(tb)
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
-        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla, cod3D)
 
         for r in resultado_sub:
             if str(r[0]) == str(columna.valor):
@@ -2374,7 +2485,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         for tb in tabla["tablas"]:
             qr.ffrom.clist.append(tb)
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
-        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla, cod3D)
 
         for r in resultado_sub:
 
@@ -2388,11 +2499,11 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         # print("")
         # print("============= ENTRÓ A BETWEEN =============")
 
-        op1 = Interpreta_Expresion(expresion.opIzq,tablaSimbolos, tabla)
+        op1 = Interpreta_Expresion(expresion.opIzq,tablaSimbolos, tabla, cod3D)
         # print("OP1: " + str(op1))
-        col = Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        col = Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla, cod3D)
         #print("COL: " + str(col))
-        op2 = Interpreta_Expresion(expresion.opDer,tablaSimbolos, tabla)
+        op2 = Interpreta_Expresion(expresion.opDer,tablaSimbolos, tabla, cod3D)
         #print("OP2: " + str(op2))
 
         res = col.valor >= op1.valor and col.valor <= op2.valor
@@ -2407,11 +2518,11 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         #print("")
         #print("============= ENTRÓ A NOT BETWEEN =============")
 
-        op1 = Interpreta_Expresion(expresion.opIzq,tablaSimbolos, tabla)
+        op1 = Interpreta_Expresion(expresion.opIzq,tablaSimbolos, tabla, cod3D)
         #print("OP1: " + str(op1))
-        col = Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        col = Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla, cod3D)
         #print("COL: " + str(col))
-        op2 = Interpreta_Expresion(expresion.opDer,tablaSimbolos, tabla)
+        op2 = Interpreta_Expresion(expresion.opDer,tablaSimbolos, tabla, cod3D)
         #print("OP2: " + str(op2))
 
         res = col.valor < op1.valor or col.valor > op2.valor
@@ -2423,7 +2534,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
 
     elif isinstance(expresion,SLike):
 
-        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla, cod3D)
         cadena = expresion.cadena
 
         r = re.compile(".*" + cadena + ".*")
@@ -2434,7 +2545,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
 
     elif isinstance(expresion,SLike):
 
-        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla, cod3D)
         cadena = expresion.cadena
 
         r = re.compile(".*" + cadena + ".*")
@@ -2445,7 +2556,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
 
     elif isinstance(expresion,SSimilar):
 
-        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla, cod3D)
         patron = expresion.patron
 
         r = re.compile(patron)
@@ -2456,16 +2567,18 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
 
     elif isinstance(expresion,SSubstring):
 
-        cadena = Interpreta_Expresion(expresion.cadena,tablaSimbolos,tabla)
-        inicio = Interpreta_Expresion(expresion.inicio,tablaSimbolos,tabla)
-        tamanio = Interpreta_Expresion(expresion.tamanio,tablaSimbolos,tabla)
-        comparar = Interpreta_Expresion(expresion.comparar,tablaSimbolos,tabla)
+        cadena = Interpreta_Expresion(expresion.cadena,tablaSimbolos,tabla, cod3D)
+        inicio = Interpreta_Expresion(expresion.inicio,tablaSimbolos,tabla, cod3D)
+        tamanio = Interpreta_Expresion(expresion.tamanio,tablaSimbolos,tabla, cod3D)
+        comparar = Interpreta_Expresion(expresion.comparar,tablaSimbolos,tabla, cod3D)
 
         res = cadena.valor[inicio.valor:inicio.valor+tamanio.valor]==comparar.valor
 
         return SExpresion(res,Expresion.BOOLEAN)
-
-    return expresion
+    if cod3D:
+        return {"Etiqueta": expresion.valor, "tipo":expresion.tipo}
+    else:
+        return expresion
 
 
 def retornarTipo(tipo):
@@ -2930,7 +3043,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                         puntoAsterisco(arrcast, base, tablasColumna, pT, groupBy, tablaSimbolos)
                         multcolumns(arrCols, base, tablasColumna, pT, subConsulta, groupBy)
                     else:
-                        un_temporal = multcolumns(arrCols, base, tablasColumna, pT, subConsulta, groupBy)
+                        un_temporal = multcolumns(arrCols, base, tablasColumna, pT, False, True)
 
 
                         for r in un_temporal:
@@ -3056,7 +3169,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 tupla["valor"].append(c)
 
 
-            b = Interpreta_Expresion(Qwhere.clist,tablaSimbolos,tupla)
+            b = Interpreta_Expresion(Qwhere.clist,tablaSimbolos,tupla,False)
             tupla["valor"].clear()
 
             if b.valor:
@@ -3284,7 +3397,7 @@ def consultaSimple(arrCols, pT,groupby):
                 arr1.append(val)
                 arrGlobal.append(arr1)
             else:
-                val = Interpreta_Expresion(e.nodo, None, None)
+                val = Interpreta_Expresion(e.nodo, None, None,False)
                 arrGlobal.append([str(val.valor)])
 
     # x = PrettyTable()
@@ -3376,7 +3489,7 @@ def MathUnoSinWhere(arrCols, base, tablasColumna, pT,groupby):
                         bandd = True
                         break
         else:
-            val = Interpreta_Expresion(e.nodo, None, None)
+            val = Interpreta_Expresion(e.nodo, None, None,False)
             arrGlobal.append([str(val.valor)])
             bande = True
 
@@ -3557,7 +3670,7 @@ def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
                         bandd = True
                         break
         else:
-            val = Interpreta_Expresion(e.nodo, None, None)
+            val = Interpreta_Expresion(e.nodo, None, None, False)
             arrGlobal.append([str(val.valor)])
             bande = True
 
@@ -3679,7 +3792,7 @@ def trigSinWhere(arrCols, base, tablasColumna, pT,groupby):
                         bandd = True
                         break
         else:
-            val = Interpreta_Expresion(e.nodo, None, None)
+            val = Interpreta_Expresion(e.nodo, None, None, False)
             arrGlobal.append([str(val.valor)])
             bande = True
 
@@ -3895,7 +4008,7 @@ def TrigDosSinWhere(arrCols, base, tablasColumna, pT, groupby):
                         bandd = True
                         break
         else:
-            val = Interpreta_Expresion(e.nodo, None, None)
+            val = Interpreta_Expresion(e.nodo, None, None, False)
             arrGlobal.append([str(val.valor)])
             bande = True
 
@@ -3969,7 +4082,7 @@ def BinStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                         bandd = True
                         break
         else:
-            val = Interpreta_Expresion(e.nodo, None, None)
+            val = Interpreta_Expresion(e.nodo, None, None, False)
             print(val.valor)
             arrGlobal.append([str(val.valor)])
             bande = True
@@ -4110,7 +4223,7 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
                         bandd = True
                         break
         else:
-            val = Interpreta_Expresion(e.nodo, None, None)
+            val = Interpreta_Expresion(e.nodo, None, None, False)
             arrGlobal.append([str(val.valor)])
             bande = True
         if indice2 == None and not bande:

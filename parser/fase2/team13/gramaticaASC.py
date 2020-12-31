@@ -546,6 +546,15 @@ def p_CrearFunciones(t):
                        |  TIPOFUNCION id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar ptComa  
                        
     '''
+    if len(t) == 15:
+        t[0]= SCreateFunction(t[2], t[4], t[10], t[7], t[1].rep, t[1].tipo)
+    elif len(t) == 14:
+        t[0]= SCreateFunction(t[2], False, t[9], t[6], t[1].rep, t[1].tipo)
+    elif len(t) == 13:
+        t[0]= SCreateFunction(t[2], t[4], t[10], t[7], t[1].rep, t[1].tipo)
+    elif len(t) == 12:
+        t[0]= SCreateFunction(t[2], False, t[9], t[6], t[1].rep, t[1].tipo)
+
      
 def p_TIPOFUNCION(t):
     ''' TIPOFUNCION :   create function
@@ -553,18 +562,27 @@ def p_TIPOFUNCION(t):
                       | create or replace function
                       | create or replace procedure  
     '''
+    if len(t) == 3:
+        t[0] = {"rep": False, "tipo":t[2]}
+    elif len(t) == 5:
+        t[0] = {"rep": True, "tipo":t[4]}
 
 
-      
 def p_BLOQUE(t):
     ''' BLOQUE  : DECLARE STATEMENT 
                 | DECLARE
                 | STATEMENT 
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0]=t[1]
+    else:
+        t[0]= [t[1]]
        
 def p_DECLARE(t):
     ''' DECLARE : declare BODYDECLARE
     '''
+    t[0] = t[2]
 
 
 def p_BODYDECLARE(t):
@@ -572,49 +590,86 @@ def p_BODYDECLARE(t):
     ''' BODYDECLARE : BODYDECLARE DECLARATION
                     | DECLARATION
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0]=t[1]
+    else:
+        t[0]= [t[1]]
 
 
 
 
 def p_DECLARATION(t):
     ''' DECLARATION :  NAME_CONSTANT TIPO ptComa
-                    |  NAME_CONSTANT TIPO ASIGNAR E ptComa
-                    |  NAME_CONSTANT TIPO not null ptComa 
                     |  NAME_CONSTANT TIPO not null ASIGNAR E ptComa 
                     |  NAME_CONSTANT talias tfor E ptComa 
-                    |  NAME_CONSTANT ACCESO modulo ttype ptComa
-                    |  NAME_CONSTANT id modulo rowtype ptComa
+                    |  NAME_CONSTANT TIPO not null ptComa 
                     '''
- 
+    if len(t) == 4:
+        t[0] = SDeclaracion(t[1].id, t[1].constt, t[2], False, False, False)
+    elif len(t) == 8:
+        t[0] = SDeclaracion(t[1].id, t[1].constt, t[2], True, t[5], t[6])
+    elif len(t) == 6:
+        if t[3].lower() == "for":
+            t[0] = SDeclaracion(t[1].id,t[1].constt, t[2], False, False, t[4])
+        if t[3].lower() == "not":
+            t[0] = SDeclaracion(t[1].id,t[1].constt, t[2], True, False, False)
+
+def p_DECLARATIONP0(t):
+    ''' DECLARATION :  NAME_CONSTANT ACCESO modulo ttype ptComa
+                    |  NAME_CONSTANT id modulo rowtype ptComa'''
+    t[0] = SDeclaracionType(t[1].id, t[1].constt, t[2], t[4])
+
+def p_DECLARATIONP1(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO ASIGNAR E ptComa'''
+    t[0] = SDeclaracion(t[1].id,t[1].constt, t[2], False, t[3], t[4])
+
+
 def p_ACCESO(t):
     ''' ACCESO : ACCESO punto id
-               |  id  
-    '''
+               |  id  '''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] =t[1]
+    else:
+        t[0] = [t[1]]
  
-
-
-
 def p_DECLARATION1(t):
     ''' ASIGNAR :  asig
                  | igual
                  | tDefault              
     '''
+    if t[1].lower()=="default":
+        t[0] = True
+    else:
+        t[0] = False
 
 def p_DECLARATION2(t):
     ''' NAME_CONSTANT : id
                       | id constant              
     '''
+    if len(t) == 2:
+        t[0] = {"constt": False, "id":t[1] }
+    elif len(t) ==3:
+        t[0] = {"constt": True, "id":t[1] }
 
 def p_STATEMENT(t):
     ''' STATEMENT   : begin L_BLOCK end ptComa
                     | begin end ptComa
     '''
+    t[0] = t[2]
 
 
 def p_L_BLOCK(t):
     ''' L_BLOCK : L_BLOCK BLOCK 
                 | BLOCK         
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+
 
 def p_BLOCK(t):
     ''' BLOCK :   sentencias 
@@ -627,12 +682,17 @@ def p_BLOCK(t):
                 | STATEMENT
                 | CALL ptComa          
     '''
+    t[0] = t[1]
 
 
 def p_CALL(t):
     ''' CALL :  id parAbre LISTA_EXP parCierra
               | id parAbre  parCierra            
     '''
+    if len(t) == 5:
+        t[0] = SCall(t[1],t[3])
+    elif len(t) == 4:
+        t[0] = SCall(t[1],False)
 
 
 
@@ -640,12 +700,19 @@ def p_ASIGNACION(t):
     '''   ASIGNACION : id asig E ptComa
                      | id igual E ptComa         
     '''
+    t[0] = SAsignacion(t[1],t[3])
+
 
 
 def p_LISTA_PARAMETROS(t):
     '''   L_PARAMETROS :   L_PARAMETROS coma PARAMETROS 
                        |   PARAMETROS      
     '''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_PARAMETROS(t):
     '''   PARAMETROS : id TIPO
@@ -653,37 +720,50 @@ def p_PARAMETROS(t):
                      | out id TIPO 
                      | inout id TIPO  
     '''
+    if len(t) == 4:
+        t[0] = SParam(t[2],t[3],t[1])
+    elif len(t) == 2:
+        t[0] = SParam(False,t[1],False)
+    elif len(t) == 3:
+        t[0] = SParam(t[1],t[2],False)
+
 
 def p_RETORNO(t):
     '''   RETORNO : treturn E ptComa
                   | treturn next E ptComa
-                  | treturn QUERY  ptComa
-                  | treturn QUERY tquery ptComa
+                  | treturn tquery QUERY ptComa
                   | treturn ptComa
     '''
+    if len(t) == 3:
+        t[0] = SReturn(False,False,False)
+    elif len(t) == 4:
+        t[0] = SReturn(False,False,t[2])
+    elif len(t) == 5:
+        if t[2].lower=="next":
+            t[0] = SReturn(True,False,t[3])
+        elif t[2].lower=="query":
+            t[0] = SReturn(False,t[3],False)
 
-def p_CONTINUE(t):
-    ''' CONTINUE : tcontinue EXPR_WHERE ptComa      
+def p_RETORNO2(t):
+    '''   RETORNO : treturn QUERY  ptComa
     '''
-
-def p_EXIT(t):
-    '''   EXIT : texit EXPR_WHERE ptComa    
-               | texit ptComa     
-               | texit id ptComa
-               | texit id EXPR_WHERE ptComa
-    '''
+    t[0] = SReturn(False,t[2],False)
 
 def p_OTROSTIPOS(t):
     '''   OTROSTIPOS :   tNumeric parAbre entero parCierra
                        | tVarchar 
                        | tChar    
     '''
-
+    if len(t) == 2:
+        t[0] = STipoDato(t[1], TipoDato.CHAR, None)
+    elif len(t) == 5:
+        t[0] = STipoDato(t[1], TipoDato.NUMERICO, t[3])
 
 def p_SENTENCIAS_CONTROL(t):
     '''   SENTENCIAS_CONTROL : IF
                              | SEARCH_CASE
     '''
+    t[0] = t[1]
 
 #----------------IF--------------------------------------  
 def p_IF(t):
@@ -691,19 +771,32 @@ def p_IF(t):
               | if  E then  L_BLOCK  ELSE
               | if  E then  L_BLOCK  ELSEIF  ELSE
     '''
+    if len(t) == 6:
+        t[0]=SIf(t[2],t[4],False,t[5])
+    elif len(t) == 7:
+        t[0]=SIf(t[2],t[4],t[5],t[6])
+    elif len(t) == 8:
+        t[0]=SIf(t[2],t[4],False,False)
 
 def p_ELSE(t):
     '''   ELSE : else L_BLOCK end if ptComa
     '''
+    t[0] = t[2]
 
 def p_ELSEIF(t):
     '''   ELSEIF : ELSEIF SINOSI
                  | SINOSI
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] == [t[1]]
 
 def p_SINOSI(t):
     '''   SINOSI :   elsif E then L_BLOCK
     '''
+    t[0] = SSinosi(t[2],t[4])
     
 
 def p_SEARCH_CASE(t):
@@ -712,6 +805,7 @@ def p_SEARCH_CASE(t):
                      | case L_CASE SINO end case ptComa
                      | case L_CASE end case ptComa
     '''
+    
 
 def p_CUERPOCASE(t):
     '''   L_CASE :  L_CASE CASE   
@@ -1398,7 +1492,7 @@ def p_E(p):
 
 def p_OpNot(p):
     ''' E : not E '''
-    p[0] = SExpresion(p[2], Logicas.NOT)
+    p[0] = SOperacion(p[2],None, Logicas.NOT)
 
 
 def p_OpNegativo(p):

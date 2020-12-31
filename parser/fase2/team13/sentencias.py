@@ -73,6 +73,72 @@ class Sentencia:
     '''clase abstracta'''
 
 
+class SCreateFunction(Sentencia):
+    def __init__(self, id, params, contenido, retorno, replace,tipo):
+        self.id = id
+        self.params = params
+        self.contenido = contenido
+        self.retorno = retorno
+        self.replace = replace
+        self.tipo = tipo
+
+class SDeclaracion (Sentencia):
+    def __init__(self, id, constant, tipo, notNull, default, expre):
+        self.id = id
+        self.constant = constant
+        self.tipo = tipo
+        self.notNull = notNull
+        self.default = default
+        self.expre = expre
+
+class SDeclaracionType (Sentencia):
+    def __init__(self, id, constant,acceso, rttype):
+        self.id = id
+        self.constant = constant
+        self.acceso = acceso
+        self.rttype = rttype
+
+class SCall (Sentencia):
+    def __init__(self, id, params):
+        self.id = id
+        self.params = params
+
+
+class SAsignacion (Sentencia):
+    def __init__(self, id, expre):
+        self.id = id
+        self.expre = expre
+
+class SParam (Sentencia):
+    def __init__(self, id, tipo, inout):
+        self.id = id
+        self.tipo = tipo
+        self.inout = inout
+
+class SReturn (Sentencia):
+    def __init__(self,next,query,expre):
+        self.next = next
+        self.query = query
+        self.expre = expre
+
+class SIf (Sentencia):
+    def __init__(self,condicion,iff,eliff, eelse):
+        self.condicion = condicion
+        self.iff = iff
+        self.eliff = eliff
+        self.eelse = eelse
+
+class SSinosi (Sentencia):
+    def __init__(self,condicion,bloque):
+        self.condicion = condicion
+        self.bloque = bloque
+
+class SSearchCase (Sentencia):
+    def __init__(self,expre,lcase,elsee):
+        self.expre = expre
+        self.lcase = lcase
+        self.elsee = elsee
+
 class SCrearBase(Sentencia):
     def __init__(self, owner, mode, replace, exists, id):
         self.id = id

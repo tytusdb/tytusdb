@@ -4,6 +4,7 @@ from tkinter import filedialog as FileDialog
 from tkinter import colorchooser as ColorChooser
 from tkinter import messagebox as MessageBox
 from goto import with_goto
+
 #import Graficar as graficando
 import principal as principal
 import os
@@ -451,10 +452,11 @@ if __name__ == "__main__":
 
     root.protocol("WM_DELETE_WINDOW", __funcion_on_closing)
     try:
-        tablaSimbolos = pickle.load(open("ts.p","rb"))
-        principal.listaConstraint = pickle.load(open("lc.p","rb"))
-        principal.listaFK = pickle.load(open("lf.p","rb"))
+        #tablaSimbolos = pickle.load(open("ts.p","rb"))
+        #principal.listaConstraint = pickle.load(open("lc.p","rb"))
+        #principal.listaFK = pickle.load(open("lf.p","rb"))
         #tablaSimbolos.mostrar()
+        print("")
     except Exception as e:
         print(e)
     
