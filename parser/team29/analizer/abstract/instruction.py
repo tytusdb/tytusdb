@@ -76,6 +76,7 @@ class Select(Instruction):
         groupbyCl,
         havingCl,
         limitCl,
+        orderByCl,
         distinct,
         row,
         column,
@@ -87,6 +88,7 @@ class Select(Instruction):
         self.groupbyCl = groupbyCl
         self.havingCl = havingCl
         self.limitCl = limitCl
+        self.orderByCl = orderByCl
         self.distinct = distinct
 
     def execute(self, environment):
@@ -162,17 +164,19 @@ class Select(Instruction):
 
             if value != []:
                 if self.wherecl == None:
-                    df_ = newEnv.dataFrame.filter(labels)
+                    df_ = newEnv.dataFrame
+                    if self.orderByCl:
+                        df_ = self.orderByCl.execute(df_, newEnv)
+                    df_ = df_.filter(labels)
                     if self.limitCl:
                         df_ = self.limitCl.execute(df_, newEnv)
                     if self.distinct:
                         return [df_.drop_duplicates(), newEnv.types]
                     return [df_, newEnv.types]
-                w2 = newEnv.dataFrame.filter(labels)
-                # Si la clausula WHERE devuelve un dataframe vacio
-                if w2.empty:
-                    return None
-                df_ = w2
+                df_ = newEnv.dataFrame
+                if self.orderByCl:
+                    df_ = self.orderByCl.execute(df_, newEnv)
+                df_ = df_.filter(labels)
                 if self.limitCl:
                     df_ = self.limitCl.execute(df_, newEnv)
                 if self.distinct:
@@ -188,6 +192,8 @@ class Select(Instruction):
                 df_ = groupDf
                 if self.limitCl:
                     df_ = self.limitCl.execute(df_, newEnv)
+                if self.orderByCl:
+                        df_ = self.orderByCl.execute(df_, newEnv)
                 if self.distinct:
                     return [df_.drop_duplicates(), newEnv.types]
                 return [df_, newEnv.types]
@@ -223,6 +229,9 @@ class Select(Instruction):
 
         if self.limitCl != None:
             new.addNode(self.limitCl.dot())
+
+        if self.orderByCl != None:
+            new.addNode(self.orderByCl.dot())
 
         return new
 
@@ -1334,6 +1343,51 @@ class limitClause(Instruction):
             offId = Nodo.Nodo(str(self.offset))
             off.addNode(offId)
 
+        return new
+
+
+class orderByElement():
+    def __init__(self, colName, opt, null):
+        self.colName = colName
+        self.opt = opt
+        self.null = null  
+
+
+class orderByClause(Instruction):
+    def __init__(self, orderElements, row, column) -> None:
+        super().__init__(row, column)
+        self.elements = orderElements
+        
+    def execute(self, dataFrame, environment):
+        temp = dataFrame
+        order = []
+        asc = []
+        na = 'first'
+        for el in self.elements:
+            # order by number
+            if isinstance(el.colName, expression.Identifiers):
+                el.colName = el.colName.execute(environment).temp
+            if el.colName.isdigit():
+                order.append(temp.columnNames[int(el.colName)])
+            # order by column
+            else:
+                order.append(el.colName)
+
+            if el.opt == "ASC":
+                asc.append(True)
+            else:
+                asc.append(False)
+
+            if el.null == "FIRST":
+                na = 'first'
+            else:
+                na = 'last'
+
+        temp = temp.sort_values(by=order, ascending=asc)
+        return temp.reset_index()
+
+    def dot(self):
+        new = Nodo.Nodo("order_by")
         return new
 
 

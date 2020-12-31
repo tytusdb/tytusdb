@@ -175,6 +175,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
               'LENGTH','TRIM','GET_BYTE','MD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS','SQRT','SIGN',
               'TRUNC','RADIANS','RANDOM','WIDTH_BUCKET'
+              ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL'
               ]
 
 tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -182,7 +183,7 @@ tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENAS
                        'CORCHETECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','MAYORQUE','MENORQUE',
                        'MAYORIGUALQUE','MENORIGUALQUE',
                        'SIGNO_PIPE','SIGNO_DOBLE_PIPE','SIGNO_AND','SIGNO_VIRGULILLA','SIGNO_NUMERAL','SIGNO_DOBLE_MENORQUE','SIGNO_DOBLE_MAYORQUE',
-                       'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT'
+                       'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT','DOSPUNTOS','DOLAR'
                        ]
 
 
@@ -214,6 +215,7 @@ t_LLAVECIERRE = r'\}'
 t_CORCHETEABRE = r'\['
 t_CORCHETECIERRE = r'\]'
 t_DOBLE_DOSPUNTOS= r'\:\:'
+t_DOSPUNTOS= r'\:\:'
 t_SIGNO_POTENCIA = r'\^'
 t_SIGNO_MODULO = r'\%'
 t_MAYORIGUALQUE = r'\>\='
@@ -221,6 +223,7 @@ t_MENORIGUALQUE = r'\<\='
 t_MAYORQUE = r'\>'
 t_MENORQUE = r'\<'
 t_COMILLA = r'\''
+t_DOLAR= r'\$'
 
 
 # expresion regular para los id´s
@@ -353,7 +356,7 @@ def p_inicio(t):
     '''inicio : instrucciones '''
     #envGlobal = Environment(None)
     #iniciarEjecucion = Main(t[1])
-    #iniciarEjecucion.execute(envGlobal)
+    #iniciarEjecucion.call(envGlobal)
     t[0] = t[1] 
 
 def p_instrucciones_lista(t):
@@ -375,7 +378,14 @@ def p_instrucciones_evaluar(t):
                    | ins_select
                    | ins_update
                    | ins_delete
-                   | exp'''
+                   | exp
+                   | declaracion
+                   | declaracion_default
+                   | asignacion
+                   | instruccion_if
+                   | instruccion_case
+                   | procedure
+                   | call'''
     t[0] = t[1]
 
 def p_instruccion_use(t):
@@ -1547,6 +1557,99 @@ def p_ins_asign_list(t):
 def p_ins_delete(t):
     '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''
     t[0] = Delete(t[3], t[5], t.slice[2].lexpos, t.slice[2].lineno)
+
+def p_declaracion(t):
+    '''declaracion  : ID constante tipo_dato not_null declaracion_default PUNTO_COMA'''
+
+def p_constante(t):
+    '''constante  : CONSTANT 
+                | '''
+
+def p_not_null(t):
+    '''not_null  : NOT NULL 
+                | '''
+
+def p_declaracion_default(t):
+    '''declaracion_default  : DEFAULT exp
+                | DOSPUNTOS exp
+                | DOSPUNTOS SIGNO_IGUAL  exp
+                | '''
+
+def p_declaracion_funcion(t):
+    '''declaracion_funcion : ID ALIAS FOR DOLAR NUMERO'''
+
+def p_asignacion(t):
+    '''asignacion : ID SIGNO_IGUAL exp
+                | ID SIGNO_IGUAL ins_select
+                | ID DOSPUNTOS SIGNO_IGUAL exp
+                | ID DOSPUNTOS SIGNO_IGUAL ins_select
+                '''
+
+def p_return(t):
+    '''return : RETURN exp
+                | RETURN NEXT query
+                | ID DOSPUNTOS SIGNO_IGUAL exp
+                '''
+
+def p_query(t):
+    '''query : ins_insert
+                | ins_select
+                | ins_update
+                | ins_delete '''
+
+def p_instruccion_if(t):
+    '''instruccion_if : IF exp then else_if else END IF PUNTO_COMA'''
+
+def p_then(t):
+    '''then : THEN sentencia'''
+
+def p_else_if(t):
+    '''else_if : else_if instruccion_else
+                | instruccion_else'''
+                
+def p_instruccion_else(t):
+    '''instruccion_else : ELSIF exp then'''
+
+def p_else(t):
+    '''else : ELSE sentencia 
+                | '''
+
+def p_instruccion_case(t):
+    '''instruccion_case : CASE exp cases else END CASE PUNTO_COMA'''
+
+def p_cases(t):
+    '''cases : cases instruccion_case_only
+                | instruccion_case_only'''
+
+def p_instruccion_case_only(t):
+    '''instruccion_case_only : WHEN exp then'''
+
+def p_procedure(t):
+    '''procedure : CREATE PROCEDURE ID PARABRE parametros_lista PARCIERRE LANGUAJE PLPGSSQL AS DOLAR DOLAR declare begin DOLAR DOLAR PUNTO_COMA'''
+
+def p_parametros_lista(t):
+    '''parametros_lista : parametros_lista COMA parametro
+                | parametro'''
+
+def p_parametro(t):
+    '''parametro : ID tipo_dato'''
+
+def p_declare(t):
+    '''declare : DECLARE instrucciones
+                | '''
+
+def p_begin(t):
+    '''begin : BEGIN instrucciones END PUNTO_COMA'''
+
+def p_call(t):
+    '''call : CALL PARABRE parametros_call PARCIERRE PUNTO_COMA'''
+
+def p_parametros_call(t):
+    '''parametros_call : parametros_call COMA parametro_call
+                | parametros_call'''
+
+def p_parametro_call(t):
+    '''parametro_call : tipo_default'''
 
 def p_error(t):
     if t != None:

@@ -1,0 +1,24 @@
+// AST
+digraph {
+	22 [label=INSTRUCTION_LIST]
+	23 [label=SELECT]
+	24 [label=PARAMS]
+	25 [label=OR]
+	26 [label=">"]
+	27 [label=10]
+	28 [label=13]
+	29 [label="!="]
+	30 [label=True]
+	31 [label=False]
+	32 [label=INST]
+	22 -> 23
+	23 -> 24
+	24 -> 25
+	25 -> 26
+	26 -> 27
+	26 -> 28
+	25 -> 29
+	29 -> 30
+	29 -> 31
+	22 -> 32
+}
