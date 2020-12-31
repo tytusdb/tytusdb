@@ -211,7 +211,7 @@ class AVLTree:
         f.write('}')
         f.close()
         if database == "Databases":
-            os.system('dot -Tpng bases.dot -o ./Data/DataBases.png')
+            os.system('dot -Tpng bases.dot -o ./Data/BPlusMode/DataBases.png')
         else:
-            os.system(f'dot -Tpng {database}.dot -o ./Data/{database}/{database}.png')
+            os.system(f'dot -Tpng {database}.dot -o ./Data/BPlusMode/{database}/{database}.png')
         # os.system('C:/Users/Marcos/Desktop/Data/DataBases.png')

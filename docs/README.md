@@ -45,6 +45,10 @@ El proyecto está diseñado por el catedrático bajo una licencia Open Source, e
 
 Cada integrante de los equipos debe hacer sus propuestas de cambio mediante pull request directamente al master de este repositorio (no hacer pull request de la rama de cada uno para evitar conflictos), queda a discreción de cada equipo utilizar de manera independiente una rama u otro repositorio para pruebas.
 
+### Guía de estilo de Python
+
+Para esta fase se debe escribir código con base en la guía de estilo de Python según el [PEP 8](https://www.python.org/dev/peps/pep-0008/).
+
 ## TytusDB
 
 Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres componentes interrelacionados: el administrador de almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1, este administrador se compone a su vez de un servidor y de un cliente; y el SQL Parser, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
@@ -61,16 +65,122 @@ La fase 2 de Estructuras de Datos consiste en desarrollar los siguientes requeri
 
 En cuanto se haya calificado la fase 1, algunos grupos serán seleccionados para formar parte de los modos de almacenamiento o motores de las bases de datos TytusDB. Cada equipo en su carpeta asignada debe unificar los modos de los proyectos seleccionados para formar un solo storageManager que maneje los diferentes modos de almacenamiento (sin agregar de manera redundante los paquetes).
 
+Los proyectos seleccionados son:
+Grupo 17-> B
+Grupo 15-> Tabla Hash
+Grupo 14-> ISAM
+Grupo 18-> B+
+Grupo 16-> AVL
+storageManager -> jsonMode
+DictMode -> Dictionaries
+
+#### Estructura del paquete
+
+Cada coordinador de los equipos seleccionados debe copiar solamente los archivos de código fuente en la carpeta correspondiente del modo, cumpliendo con la guía PEP 8.
+
+```
+storage/
+    __init__.py
+    avl/
+        __init__.py
+        avl_mode.py
+        otros.py
+    b/
+        __init__.py
+        b_mode.py
+        otros.py
+    bplus/
+        __init__.py
+        bplus_mode.py
+        otros.py
+    dict/
+        __init__.py
+        dict_mode.py
+        otros.py
+    isam/
+        __init__.py
+        isam_mode.py
+        otros.py
+    json/
+        __init__.py
+        json_mode.py
+        otros.py
+    hash/
+        __init__.py
+        mode.py
+        otros.py    
+```
+
+#### Funciones relativas al modo
+
+La función createDatabase está relacionada con el requerimiento 1, pero también está relacionada con el requerimiento 4.
+
+```
+def createDatabase(database: str, mode: string, encoding: string) -> int:
+```
+Crea una base de datos.  (CREATE)  
+Parámetro database: es el nombre de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
+Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash'.  
+Parámetro encoding: es un string indicando el modo 'ascii', 'iso-8859-1', 'utf8'.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos existente, 3 modo incorrecto, 4 codificación incorrecta.  
+
 ### 2. Administrador del modo de almacenamiento
 
-El storageManager debe permitir cambiar el modo de almacenamiento de una base de datos en cualquier momento. Al suceder, si no hay ningun error, se debe construir la estructura de datos asociada al modo y eliminar la anterior.
+El storageManager debe permitir cambiar el modo de almacenamiento de una base de datos o de una tabla en cualquier momento. Al suceder, si no hay ningun error, se debe construir la estructura de datos asociada al modo y eliminar la anterior.
+
+```
+def alterDatabaseMode(database: str, mode: str) -> int:
+```
+Cambia el modo de almacenamiento de una base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos que se desea modificar, debe cumplir con las reglas de identificadores de SQL.  
+Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash'.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 4 modo incorrecto.  
+
+```
+def alterTableMode(database: str, table: str, mode: str) -> int:
+```
+Cambia el modo de almacenamiento de una tabla de una base de datos especificada.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash'.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 modo incorrecto.  
+
 
 ### 3. Administración de índices
 
 Mediante funciones se debe administrar los diferentes índices de una base de datos, entre los cuales figuran:
-- creación, modificación y eliminación de llaves foráneas
-- creación, modificación y eliminación de índices únicos
-- creación, modificación y eliminación de índices
+- creación y eliminación de llaves foráneas
+
+```
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+```
+Agrega un índice de llave foránea, creando una estructura adicional con el modo indicado para la base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar. 
+Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
+Parámetro indexName: es el nombre único del índice manejado como metadato de la tabla para ubicarlo fácilmente.
+Parámetro columns: es el conjunto de índices de columnas que forman parte de la llave foránea, mínimo debe ser una columna.  
+Parámetro tableRef: es el nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s).  
+Parámetro columnsRef: es el conjunto de índices de columnas que forman parte de la llave primaria, mínimo debe ser una columna.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table o tableRef no existente, 4 cantidad no exacta entre columns y columnsRef, 5 no se cumple la integridad referencial (es decir, algún valor de las llaves foráneas no existe en la tabla de referencia).  
+No es necesario que las llaves foráneas en la tabla de referencia sean primarias.  
+Se aceptan llaves foráneas nulas (None), en estás no se verifica la integridad referencial.
+A este nivel no se debe manejar las restricciones de delete o update de llaves, será manejado a nivel lógico del parser.
+
+```
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+```
+Destruye el índice tanto como metadato de la tabla como la estructura adicional creada.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar. 
+Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
+Parámetro indexName: es el nombre del índice manejado como metadato de la tabla para ubicarlo fácilmente.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 nombre de índice no existente.  
+
+
+- creación y eliminación de índices únicos
+
+
+- creación y eliminación de índices
+
+
 
 ### 4. Administración de la codificación
 

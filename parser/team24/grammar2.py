@@ -315,6 +315,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 from classesQuerys import *
+from procedural import *
 import ply.lex as lex
 lexer = lex.lex()
 
@@ -1579,8 +1580,45 @@ def p_param(t):
 def p_block(t):
     ' block : declare BEGIN instrucciones END'
 
-def p_declare(t):
-    'declare : empty'
+def p_declaration(p):
+    ''' declare : ID consta reservadatipo coll  nn  ddiexp'''
+    p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
+
+def p_ddiexp(p):
+    '''ddiexp : ddi valortipo '''
+    p[0] = expre(p[1],p[2])
+    
+
+def p_ddiexp(p):
+    '''ddiexp : '''
+    p[0] = None
+
+def p_ddi(p):
+    '''ddi : DEFAULT 
+           | DOSPUNTOS IGUAL
+           | IGUAL
+            '''
+    p[0] = p[1]
+    
+
+def p_collate(p):
+    '''coll : COLLATE ID
+            | '''
+    if p[1] == 'collate': p[0] = p[2]
+    else: p[0] = None
+
+def p_consta(p):
+    ''' consta : CONSTANT
+            | '''
+    if p[1] == 'constant': p[0] = p[1]
+    else: p[0] = None
+
+def p_nn(p):
+    ''' nn : NOT NULL
+            | '''
+    if p[1] == 'not': p[0] = p[1]
+    else: p[0] = None
+
 
 def p_instrucciones(t):
     'instrucciones : instrucciones instruccion'
