@@ -1,4 +1,3 @@
-
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -114,7 +113,16 @@ reservadas = {
     'last':'last',
     'first':'first',
     'asc':'asc',
-    'desc':'desc'
+    'desc':'desc',
+    'rowtype':'rowtype',
+    'type':'type',
+    'record':'record',
+    'constant':'constant',
+    'if':'if',
+    'elsif':'elsif',
+    'else':'else',
+    'then': 'then',
+    'end':'end'
 
 }
 
@@ -141,7 +149,10 @@ tokens = [
              'cadenaString',
              'parc',
              'id',
-             'idPunto'
+             'idPunto',
+             'dospuntos',
+             'dolarn',
+     
          ] + list(reservadas.values())
 
 # Tokens
@@ -162,6 +173,7 @@ t_para = r'\('
 t_parc = r'\)'
 t_ptcoma = r';'
 t_coma = r','
+t_dospuntos= r':'
 
 
 
@@ -191,6 +203,11 @@ def t_int(t):
 def t_PUNTOPUNTO(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*\.([a-zA-Z_][a-zA-Z_0-9]*|\*)'
     t.type = reservadas.get(t.value.lower(), 'idPunto')
+    return t
+
+def t_DOLARN(t):
+    r'[$]\d+ | [$][$]'
+    t.type = reservadas.get(t.value.lower(), 'dolarn')
     return t
 
 def t_ID(t):
@@ -382,6 +399,13 @@ def p_instruccion14(t):
 
 def p_instruccion15(t):
     '''instruccion      : CREATEINDEX  WHERE ptcoma'''
+
+def p_instruccion16(t):
+    '''instruccion      : DECLARACIONES  ptcoma'''
+
+def p_instruccion17(t):
+    '''instruccion      : CONDICIONIF  ptcoma'''
+
 #INICIAMOS A RECONOCER LA FASE 2 -----------------------------------------------------------------
 
 def p_CREATEINDEX(t):
@@ -413,7 +437,65 @@ def p_ORDEN(t):
                  | '''
       
 
+def p_Declaraciones(t):
+    ''' DECLARACIONES : id TIPO not null ASIGNACION
+    '''
 
+def p_Declaraciones1(t):
+    ''' DECLARACIONES : id TIPO ASIGNACION
+    '''
+def p_Declaraciones2(t):
+    ''' DECLARACIONES : id constant TIPO not null ASIGNACION
+    '''
+
+def p_Declaraciones3(t):
+    ''' DECLARACIONES : id constant TIPO ASIGNACION
+    '''
+
+def p_ASIGNACION(t):
+    '''ASIGNACION : default LEXP
+                 | dospuntos igual LEXP
+                 | igual LEXP
+                 | '''
+
+
+
+def p_CONDICIONIF (t):
+    '''CONDICIONIF : if EXP  then LISTACONTENIDO  LELIF   ELSEF  end if
+    '''
+
+def p_CONDICIONIF1 (t):
+    '''CONDICIONIF : if EXP then LISTACONTENIDO ELSEF  end if 
+    '''
+def p_CONDICIONIF2 (t):
+    '''CONDICIONIF : if EXP then LISTACONTENIDO LELIF   end if
+    '''
+def p_CONDICIONIF3 (t):
+    '''CONDICIONIF : if EXP then LISTACONTENIDO end if
+    '''
+def p_CONDICIONIF24 (t):
+    '''LELIF : LELIF elsif EXP then LISTACONTENIDO
+    '''
+def p_ELIF (t):
+    '''LELIF : elsif EXP then LISTACONTENIDO
+    '''
+def p_ELSEF (t):
+    '''ELSEF : else LISTACONTENIDO  
+    '''
+def p_LISTACONTENIDO(t):
+    '''LISTACONTENIDO : LISTACONTENIDO CONTENIDO
+    '''
+def p_LISTACONTENIDO1(t):
+    '''LISTACONTENIDO : CONTENIDO
+                      | 
+    '''   
+
+def p_CONTENIDO(t):
+    '''CONTENIDO : ASIGNACION ptcoma
+    '''
+def p_CONTENIDO1(t):
+    '''CONTENIDO : DECLARACIONES ptcoma
+    '''
 
 #AQUI TERMINA LO DE LA FASE 2
 def p_CASE(t):
@@ -1008,6 +1090,7 @@ def p_TIPOE4(t):
     t[0] = tipo
 
 
+
 def p_TIPOE5(t):
     'TIPO : timestamp para int parc'
     listaBNF.append("TIPO ::= timestamp para " + str(t[3]) + " parc")
@@ -1049,6 +1132,13 @@ def p_TIPOE10(t):
     tipo = Tipo('varchar', None, t[4], -1)
     t[0] = tipo
 
+def p_TIPOe11(t):
+    '''TIPO : id  modulo rowtype
+    '''
+
+def p_TIPOe12(t):
+    '''TIPO : idPunto  modulo type
+    '''
 
 def p_TIPOL(t):
     ''' TIPO : timestamp para int parc without time zone
@@ -1071,7 +1161,9 @@ def p_TIPO(t):
             | date
             | time
             | interval
-            | boolean'''
+            | boolean
+            | record
+            | varchar'''
 
     listaBNF.append("TIPO ::= " + str(t[1]).lower())
     if str(t[1]).lower() == 'timestamp':
