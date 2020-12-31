@@ -249,7 +249,13 @@ reservadas = {
     'out': 'out',
     'constant': 'constant',
     'query': 'tquery',
-    'inout': 'inout' 
+    'inout': 'inout', 
+    'state': 'state',
+    'lower': 'lower',
+    'using': 'using',
+    'index':'index',
+    'hash': 'hash',
+    'include': 'include'
 }
 
 # LISTA DE TOKENS
@@ -527,6 +533,7 @@ def p_sentencia(t):
                  | USEDB
                  | CREATE_FUNCION
                  | BLOCKDO 
+                 | CREATE_INDEX
     '''
     t[0] = t[1]
 
@@ -749,6 +756,19 @@ def p_RETORNO2(t):
     '''
     t[0] = SReturn(False,t[2],False)
 
+
+def p_CONTINUE(t):
+    ''' CONTINUE : tcontinue EXPR_WHERE ptComa      
+    '''
+
+def p_EXIT(t):
+    '''   EXIT : texit EXPR_WHERE ptComa    
+               | texit ptComa     
+               | texit id ptComa
+               | texit id EXPR_WHERE ptComa
+    '''
+
+
 def p_OTROSTIPOS(t):
     '''   OTROSTIPOS :   tNumeric parAbre entero parCierra
                        | tVarchar 
@@ -828,6 +848,47 @@ def p_Raice_Note(t):
 
 
 
+
+#------------------------INDEX
+
+def p_index(t):
+    ''' CREATE_INDEX :  create index id on id OPCION_INDEX ptComa 
+                    |   create index id on id OPCION_INDEX EXPR_WHERE ptComa
+                    |   create tUnique index id on id OPCION_INDEX ptComa
+                    |	create tUnique index id on id OPCION_INDEX EXPR_WHERE ptComa
+    '''
+
+def p_createIndex1(t):
+    ''' OPCION_INDEX :  using hash parAbre id parCierra 
+                     |  parAbre OPT_INDEX_PAR parCierra
+                     |  parAbre OPT_INDEX_PAR parCierra include  parAbre OPT_INDEX_PAR parCierra
+                      '''
+
+def p_createIndex2(t):
+    ' OPT_INDEX_PAR : L_IDs'
+
+def p_createIndex2_1(t):
+    ' OPT_INDEX_PAR : id nulls FIRST_LAST'
+
+def p_createIndex2_2(t):
+    ' OPT_INDEX_PAR : id state '
+
+def p_createIndex2_3(t):
+    ' OPT_INDEX_PAR : lower parAbre id parCierra '
+
+def p_createIndex_5(t):
+    ' OPT_INDEX_PAR : id parAbre id parCierra '
+
+def p_createIndex_6(t):
+    ' OPT_INDEX_PAR : E '
+
+def p_createIndex_7(t):
+    ' OPT_INDEX_PAR : L_PARAMETROS '
+
+
+def p_first_last(t):
+    ''' FIRST_LAST : first
+                   | last '''
 
 
 
@@ -2103,7 +2164,9 @@ def p_LIST_CONDS(p):
 
 def p_LIST_ORAND(p):
     '''ORAND : or
-             | And'''
+             | And
+             | barraDoble
+             '''
     p[0]= [p[1]]
 
 
