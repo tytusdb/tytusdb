@@ -4,11 +4,13 @@ import re
 from Analisis_Ascendente.reportes.Reportes import RealizarReportes, Error
 from Analisis_Ascendente.storageManager.jsonMode import *
 from tkinter import messagebox as MessageBox
+from Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import TablaDeSimbolos
 
 L_errores_lexicos = []
 L_errores_sintacticos = []
 consola = []
 exceptions = []
+ts_global = TablaDeSimbolos({})
 columna = 0
 
 from graphviz import Digraph
@@ -157,7 +159,9 @@ reservadas = {
     'current_time': 'CURRENT_TIME',
     'date_part': 'date_part',
     'isnull': 'ISNULL',
-    'notnull': 'NOTNULL',
+    'notnull':'NOTNULL',
+    'not': 'NOT',
+    'null':'NULL',
     'unknown': 'UNKNOWN',
     'extract': 'EXTRACT',
     'inherits': 'INHERITS',
@@ -195,7 +199,40 @@ reservadas = {
     'end': 'END',
     'use': 'USE',
     'asc': 'ASC',
-    'desc': 'DESC'
+    'desc': 'DESC',
+    'constant':'CONSTANT',
+    'collate':'COLLATE',
+    'anyelement':'ANYELEMENT',
+    'anycompatible':'ANYCOMPATIBLE',
+    'out':'OUT',
+    'alias':'ALIAS',
+    'for':'FOR',
+    'function':'FUNCTION',
+    'returns':'RETURNS',
+    'language':'LANGUAGE',
+    'plpgsql':'PLPGSQL',
+    'declare':'DECLARE',
+    'begin':'BEGIN',
+    'end':'END',
+    'return':'RETURN',
+    'query':'QUERY',
+    'index' : 'INDEX',
+    'hash' : 'HASH',
+    'using' : 'USING',
+    'nulls' : 'NULLS',
+    'first' : 'FIRST',
+    'last' : 'LAST',
+    'lower' : 'LOWER',
+    'procedure': 'PROCEDURE',
+    'call' : 'CALL',
+    'next' : 'NEXT',
+    'else' : 'ELSE',
+    'elsif' : 'ELSIF',
+    'type': 'TYPE',
+    'rowtype': 'ROWTYPE',
+    'record':'RECORD',
+    'strict':'STRICT',
+    'returning':'RETURNING'
 
 }
 
@@ -233,7 +270,8 @@ tokens = [
              'MENMAY',
              'CRIZQ',
              'CRDR',
-
+             'DOSPT',
+             'DOLAR',
          ] + list(reservadas.values())
 
 # Tokens
@@ -266,7 +304,8 @@ t_LLIZQ = r'\{'
 t_LLDR = r'\}'
 t_CRIZQ = r'\['
 t_CRDR = r'\]'
-
+t_DOSPT = r':'
+t_DOLAR = r'\$'
 
 def t_NUMDECIMAL(t):
     r'\d+\.\d+'
@@ -443,9 +482,9 @@ def p_instruccion(t):
 
 
 def p_useDatabase(t):
-    'instruccion : USE DATABASE ID PTCOMA'
-    t[0] = Use(t[3])
-    varGramatical.append('instruccion ::= USE DATABASE ID PTCOMA')
+    'instruccion : USE ID PTCOMA'
+    t[0] = Use(t[2])
+    varGramatical.append('instruccion ::= USE ID PTCOMA')
     varSemantico.append('instruccion = Use(ID) ')
 
 
@@ -1767,7 +1806,7 @@ def p_order_limit(t):
         varSemantico.append('limit = Limit(False, t[2], None) ')
 
 
-def p_order_limit(t):
+def p_order_limit_1(t):
     '''limit    : LIMIT ENTERO OFFSET ENTERO
                 '''
     global columna
@@ -2187,12 +2226,337 @@ def p_checkopcional(t):
     varGramatical.append('checkprima ::= listaValores')
     varSemantico.append(' checkprima.append(listaValores)')
 
+# --------------------------- Fase 2 ------------------------------------------------
 
-# def p_condicion2(t):
-#   '''condi
-#   cion : andOr HAVING
-#              | andOr'''
-####################################################################
+# PLDECLA ********************************************
+def p_pldecla(t):
+    '''pldecla : ID CONSTANT tipo COLLATE CADENA NOT NULL plasig PTCOMA'''
+
+def p_pldecla1(t):
+    '''pldecla : ID tipo COLLATE CADENA NOT NULL plasig PTCOMA'''
+
+def p_pldecla2(t):
+    '''pldecla : ID CONSTANT tipo NOT NULL plasig PTCOMA'''
+
+def p_pldecla3(t):
+    '''pldecla : ID CONSTANT tipo COLLATE CADENA  plasig PTCOMA'''
+
+def p_pldecla4(t):
+    '''pldecla : ID CONSTANT tipo COLLATE CADENA NOT NULL PTCOMA'''
+
+def p_pldecla5(t):
+    '''pldecla : ID tipo NOT NULL plasig PTCOMA'''
+
+def p_pldecla6(t):
+    '''pldecla : ID CONSTANT tipo plasig PTCOMA'''
+
+def p_pldecla7(t):
+    '''pldecla : ID CONSTANT tipo NOT NULL PTCOMA'''
+
+def p_pldecla8(t):
+    '''pldecla : ID CONSTANT tipo COLLATE CADENA PTCOMA'''
+
+def p_pldecla9(t):
+    '''pldecla : ID tipo plasig PTCOMA'''
+
+def p_pldecla10(t):
+    '''pldecla : ID tipo NOT NULL PTCOMA'''
+
+def p_pldecla11(t):
+    '''pldecla : ID CONSTANT tipo PTCOMA'''
+
+def p_pldecla12(t):
+    '''pldecla : ID tipo COLLATE CADENA PTCOMA'''
+
+def p_pldecla13(t):
+    '''pldecla : ID tipo PTCOMA'''
+
+#PLASIG ********************************
+def p_plasig(t):
+    '''plasig : DEFAULT E
+              | DOSPT IGUAL E
+              | IGUAL E'''
+
+#PLALIAS ******************************
+def p_plalias(t):
+    '''plalias : ID ALIAS FOR DOLAR ENTERO PTCOMA
+               | ID ALIAS FOR ID PTCOMA'''
+
+#L_PARAM ********************************
+def p_l_param(t):
+    '''l_param : l_param COMA param
+               | param '''
+
+def p_param(t):
+    ''' param : ID typeparam '''
+
+def p_param1(t):
+    ''' param : OUT ID typeparam '''
+
+def p_param2(t):
+    ''' param : typeparam '''
+
+def p_typeparam(t):
+    '''typeparam : tipo
+                 | ANYELEMENT
+                 | ID
+                 | ANYCOMPATIBLE'''
+
+#PLRETURNS ******************************************
+def p_plreturns(t):
+    '''plreturns : typeparam'''
+
+def p_plreturns1(t):
+    '''plreturns : TABLE PARIZQ l_retable PARDR'''
+
+def p_lretable(t):
+    '''l_retable : l_retable COMA retable
+                 | retable'''
+
+def p_retable(t):
+    '''retable : ID tipo'''
+
+# FUNCTION *********************************************
+def p_plfunction(t):
+    '''plfunction : FUNCTION ID PARIZQ l_param PARDR RETURNS plreturns AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
+
+def p_plfunction1(t):
+    '''plfunction : FUNCTION ID PARIZQ PARDR RETURNS plreturns AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
+
+def p_plfunction2(t):
+    '''plfunction : FUNCTION ID PARIZQ l_param PARDR AS DOLAR DOLAR bloq DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA '''
+
+#BLOQUE ************************************************
+def p_bloq(t):
+    '''bloq : blodecla blobegin
+            | blobegin '''
+
+def p_blodecla(t):
+    '''blodecla : DECLARE l_pldeclare'''
+
+def p_l_pldeclare(t):
+    '''l_pldeclare : l_pldeclare pldeclare
+                   | pldeclare'''
+
+def p_pldeclare(t):
+    '''pldeclare : pldecla
+                 | plalias
+                 | pltypes'''
+
+def p_pltypes(t):
+    '''pltypes : ID ID PUNTO ID MODU TYPE PTCOMA'''
+
+def p_pltypes1(t):
+    '''pltypes : ID ID MODU ROWTYPE PTCOMA'''
+
+def p_pltypes2(t):
+    '''pltypes : ID RECORD PTCOMA'''
+
+
+#BLOBEGIN ***********************************
+def p_blobegin(t):
+    '''blobegin : BEGIN l_plsen END PTCOMA'''
+
+def p_l_plsen(t):
+    '''l_plsen : l_plsen plsen
+               | plsen '''
+#PLSEN *************************************
+def p_plsen(t):
+    '''plsen : pldecla
+             | plretu '''
+
+#PLRETU *************************************
+def p_plretu(t):
+    '''plretu : RETURN E PTCOMA
+              | RETURN QUERY select2 PTCOMA
+              | RETURN NEXT E PTCOMA
+              | RETURN E COLLATE CADENA PTCOMA'''
+
+# --------------- Instrucciones Query -------------------------
+# PLSELECT**************************
+def p_plselect(t):
+    '''instruccion : SELECT select_list INTO ID FROM ID WHERE where andOr PTCOMA'''
+
+def p_plselect1(t):
+    '''instruccion : SELECT select_list INTO STRICT ID FROM ID WHERE where andOr PTCOMA'''
+
+# PLINSERT**************************
+def p_plinsert(t):
+    'instruccion : INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO ID PTCOMA'
+
+def p_plinsert1(t):
+    'instruccion : INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO STRICT ID PTCOMA'
+
+# PLUPDATE**************************
+def p_pludapte(t):
+    'instruccion : UPDATE ID SET asignaciones WHERE where andOr RETURNING plreturning INTO ID PTCOMA'
+
+def p_pludapte1(t):
+    'instruccion : UPDATE ID SET asignaciones WHERE where andOr RETURNING plreturning INTO STRICT ID PTCOMA'
+
+# PLDELETE *************************
+def p_pldelete(t):
+    'instruccion : DELETE FROM ID WHERE where andOr RETURNING plreturning INTO ID PTCOMA'
+
+def p_pldelete1(t):
+    'instruccion : DELETE FROM ID WHERE where andOr RETURNING plreturning INTO STRICT ID PTCOMA'
+
+def p_plreturning(t):
+    '''plreturning : l_plid
+                   | MULT '''
+
+def p_l_plid(t):
+    '''l_plid : l_plid COMA plid
+              | plid'''
+
+def p_plid(t):
+    '''plid : ID
+            | ID AS ID'''
+
+# ------------- Estructuras de Control ---------------------
+
+def p_Call1(t):
+    'instruccion : plCall'
+
+# Call *************************
+
+def p_CAll(t):
+    'plCall : CALL ID PARIZQ opc_param PARDR PTCOMA'
+
+
+# IF ****************************
+def p_If(t):
+    ''' plIf : IF E THEN  statements_pl END IF PTCOMA '''
+
+def p_If1(t):
+    ''' plIf : IF E THEN statements_pl ELSE statements_pl END IF PTCOMA '''
+
+def p_If2(t):
+    ''' plIf : IF E THEN statements_pl plelsif  ELSE statements_pl END IF PTCOMA '''
+
+def p_plelsif(t):
+    ''' plelsif : plelsif elsif
+                | elsif '''
+
+def p_elsif(t):
+    'elsif : ELSIF boolean THEN statements_pl'
+
+def p_statements_pl(t):
+    ''' statements_pl : statements_pl statements
+                    | statements'''
+
+def p_statements(t):
+    ''' statements : plsen
+                    | instruccion '''
+    ## agregar la produccion de pl assigments
+
+# Case *******************
+
+def p_case(t):
+    'pl_Case : CASE ID opcCase elseCase END CASE PTCOMA'
+
+def p_case1(t):
+    'pl_Case : CASE opcCase elseCase END CASE PTCOMA'
+
+
+def p_case2(t):
+    '''opcCase : opcCase case
+               | case '''
+
+def p_case3(t):
+    ''' case : WHEN listaExpresiones THEN statements_pl'''
+
+def p_case4(t):
+    ''' elseCase : ELSE statements_pl
+                 | '''
+
+# -------------- Transaction Managament ---------------------
+
+def p_Procedure(t):
+    'procedure : CREATE PROCEDURE ID PARIZQ opc_param PARDR bloq1 BEGIN bloq3 END PTCOMA'
+
+def p_opc_Param(t):
+    '''opc_param : l_param
+               | '''
+
+def p_bloq1_pro(t):
+    ''' bloq1 : bloq1 bloq2
+               | bloq2 '''
+
+def p_bloq2_pro(t):
+    ''' bloq2 : LANGUAGE PLPGSQL
+              | blodecla
+              | AS DOLAR DOLAR
+              | AS ID
+              | '''
+
+def p_bloq3(t):
+    ''' bloq3 : bloq3 bloq4
+             | bloq4 '''
+
+def p_bloq4(t):
+    ''' bloq4 : BEGIN bloq4 END
+              | statements_pl
+              | plIf
+              | pl_Case '''
+
+# ----- INDICES ------------------------------------
+
+def p_Indice(t):
+    'instruccion : CREATE INDEX ID ON ID PARIZQ listaID PARDR whereIndice'
+    global columna
+
+def p_IndiceHash(t):
+    'instruccion : CREATE INDEX ID ON ID USING HASH PARIZQ listaID PARDR PTCOMA'
+    global columna
+
+def p_IndiceUnique(t):
+    'instruccion : CREATE UNIQUE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA'
+    global columna
+
+def p_IndiceOrderBY(t):
+    'instruccion : CREATE INDEX ID ON ID PARIZQ ID opc_Order PARDR PTCOMA'
+    global columna
+
+def p_opc_Order(t):
+    '''opc_Order : ASC
+                  | DESC '''
+
+def p_opc_Order1(t):
+    ''' opc_Order : ASC NULLS FIRST
+                    | DESC NULLS FIRST '''
+
+def p_opc_Order2(t):
+    ''' opc_Order : ASC NULLS LAST
+                    | DESC NULLS LAST '''
+
+def p_opc_Order3(t):
+    ''' opc_Order : NULLS LAST
+                    |    NULLS FIRST '''
+
+def p_IndiceLower(t):
+    'instruccion : CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDR PARDR PTCOMA'
+    global columna
+
+def p_IndiceWhere(t):
+    'whereIndice : WHERE asignacion PTCOMA'
+
+def p_IndiceWhere2(t):
+    'whereIndice : PTCOMA'
+
+def p_IndiceWhere3(t):
+    'whereIndice : WHERE NOT PARIZQ E valores AND E valores PARDR PTCOMA'
+
+def p_IndiceWhere4(t):
+    'whereIndice : WHERE PARIZQ E valores AND E valores PARDR PTCOMA'
+
+def p_DropIndice(t):
+    'instruccion : DROP INDEX ID PTCOMA'
+    global columna
+
+### falta agregar ultimo indice [consultar sintaxis]
+
+
 # MODO PANICO ***************************************
 def p_error(t):
     if not t:
@@ -2256,7 +2620,6 @@ import ply.yacc as yacc
 # import Tabla_simbolos.TablaSimbolos as TS
 import Analisis_Ascendente.reportes.AST.AST as AST
 from Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import Simbolo
-from Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import TablaDeSimbolos
 from Analisis_Ascendente.Instrucciones.Select.Select3 import Selectp4
 from Analisis_Ascendente.Instrucciones.Select.Select4 import Selectp7
 
@@ -2334,10 +2697,11 @@ def ejecutarAnalisis(entrada):
     global consola
     global exceptions
     global lexer
+    global ts_global
     # limpiar
     lexer.input("")
     lexer.lineno = 0
-    dropAll()
+    #dropAll()
     consola = []
     exceptions = []
     L_errores_lexicos = []
@@ -2351,8 +2715,8 @@ def ejecutarAnalisis(entrada):
     reporte = AST.AST(instrucciones)
     reporte.ReportarAST()
     # inicia analisis semantico
-    inicial = {}
-    ts_global = TablaDeSimbolos(inicial)
+    #inicial = {}
+    #ts_global = TablaDeSimbolos(inicial)
     print("analizando........")
     print(instrucciones)
     procesar_instrucciones(instrucciones, ts_global)
@@ -2381,3 +2745,5 @@ def ejecutarAnalisis(entrada):
     return consola
 
 # ejecutarAnalisis("prueba")
+'''comentario Brian'''
+#Yeah Broou!
