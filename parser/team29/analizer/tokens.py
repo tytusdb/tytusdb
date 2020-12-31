@@ -44,6 +44,7 @@ reservadas = {
     "CONSTRAINT": "R_CONSTRAINT",
     "DEFAULT": "R_DEFAULT",
     "NULL": "R_NULL",
+    "NULLS": "R_NULLS",
     "OWNER": "R_OWNER",
     "MODE": "R_MODE",
     "ALTER": "R_ALTER",

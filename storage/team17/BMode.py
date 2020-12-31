@@ -4,7 +4,6 @@
 
 from team17 import DataBase as db
 from team17 import Serializable as serializar
-from team17 import Interfaz as interfaz
 from team17 import Estructura_ArbolB as bt
 
 b = db.DB()
@@ -205,8 +204,3 @@ def truncate(database: str, table: str) -> int:
     except:
         pass
     return r
-
-# ---------------------INTERFAZ GRAFICA----------------------#
-
-def runInterface():
-    g = interfaz.PP()
