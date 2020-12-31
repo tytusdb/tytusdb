@@ -118,15 +118,17 @@ def symbolReport():
     for env in environments:
         vars = env.variables
         types = env.types
-        enc = [["Alias", "Nombre", "Tipo", "Fila", "Columna"]]
+        enc = [["Alias", "Nombre", "Tipo", "Columnas Formadas", "Consideraciones", "Fila", "Columna"]]
         filas = []
         for (key, symbol) in vars.items():
             r = [
                 key,
                 symbol.value,
-                symbol.type if not symbol.type else "Tabla",
+                symbol.type,
+                symbol.col_creada,
+                symbol.cons,
                 symbol.row,
-                symbol.column,
+                symbol.column
             ]
             filas.append(r)
 

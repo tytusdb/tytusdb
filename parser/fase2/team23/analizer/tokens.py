@@ -43,6 +43,7 @@ reservadas = {
     "REFERENCES": "R_REFERENCES",
     "CONSTRAINT": "R_CONSTRAINT",
     "DEFAULT": "R_DEFAULT",
+    "NULLS": "R_NULLS",
     "NULL": "R_NULL",
     "OWNER": "R_OWNER",
     "MODE": "R_MODE",
@@ -126,7 +127,9 @@ reservadas = {
     "WHEN": "R_WHEN",
     "THEN": "R_THEN",
     "ELSE": "R_ELSE",
-    "END": "R_END"
+    "END": "R_END",
+    "INDEX": "R_INDEX",
+    "HASH": "R_HASH"
 }
 
 reservadas.update(r_types)

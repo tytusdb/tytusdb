@@ -283,6 +283,8 @@ class FromClause(Instruction):
                     None,
                     self.tables[i].row,
                     self.tables[i].column,
+                    None,
+                    None
                 )
                 environment.addSymbol(self.tables[i].name, sym)
                 if self.aliases[i]:
@@ -1504,6 +1506,85 @@ class Except_(Instruction):
         new.addNode(self.s1.dot())
         new.addNode(self.s2.dot())
         return new
+
+class IndexCls(Instruction):
+
+    def __init__(self, unik, id1, nombre_tabal, lista, desc, null_, wherecl, row, column):
+        Instruction.__init__(self, row, column)
+        self.id1 = id1
+        self.unik = unik
+        self.lista = lista
+        self.desc = desc
+        self.null_ = null_
+        self.wherecl = wherecl
+        self.nombre_tabal = nombre_tabal
+
+    def execute(self, environment):
+       newEnv = Environment(environment, dbtemp)
+       global envVariables
+       envVariables.append(newEnv)
+
+       validar = str(self.desc)
+
+       if validar.lower() == "desc":
+           descendente = self.desc
+       elif validar.lower() == "asc":
+           descendente = self.desc
+       else:
+           descendente = None
+
+       if self.unik == None:
+           sym = Symbol(
+               str(self.id1),
+               "INDEX",
+               self.row,
+               self.column,
+               self.lista ,
+               descendente
+           )
+       else:
+           sym = Symbol(
+               str(self.id1),
+               "UNIQUE INDEX",
+               self.row,
+               self.column,
+               self.lista ,
+               descendente
+           )
+
+       newEnv.addSymbol(str(self.id1), sym)
+
+    def dot(self):
+        if self.unik == None:
+            new = Nodo.Nodo("CREATE INDEX")
+        else:
+            new = Nodo.Nodo("CREATE UNIQUE INDEX")
+
+        new.addNode(Nodo.Nodo(str(self.id1)))
+        new.addNode(Nodo.Nodo("ON"))
+        new.addNode(Nodo.Nodo(str(self.nombre_tabal)))
+        new.addNode(Nodo.Nodo("("))
+        new.addNode(Nodo.Nodo(str(self.lista)))
+
+        validar = str(self.desc)
+        if validar.lower() == "desc":
+            new.addNode(Nodo.Nodo(validar))
+        elif validar.lower() == "asc":
+            new.addNode(Nodo.Nodo(validar))
+
+        nulos = str(self.null_)
+        if nulos.lower() == "first":
+            new.addNode(Nodo.Nodo("NULLS FIRST"))
+        elif nulos.lower() == "last":
+            new.addNode(Nodo.Nodo("NULLS LAST"))
+
+        new.addNode(Nodo.Nodo(")"))
+
+        if self.wherecl != None:
+            new.addNode(self.wherecl.dot())
+
+        return new
+
 
 
 def returnErrors():
