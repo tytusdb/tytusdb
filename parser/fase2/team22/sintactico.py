@@ -35,6 +35,7 @@ lista_lexicos=lista_errores_lexico
 
 # INICIA EN ANALISIS SINTACTICO
 
+import Instrucciones.AST as AST 
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -1647,8 +1648,19 @@ def find_column(input,token):
     return column
 
 parser = yacc.yacc()
+
 def ejecutar_analisis(texto):
-    
+    instrucciones = parser.parse(texto)
+    reporte = AST.AST(instrucciones)
+    reporte.ReportarAST()
+
+    # try:
+    #     instrucciones = parser.parse(texto)
+    #     reporte = AST.AST(instrucciones)
+    #     reporte.ReportarAST()
+    # except:
+    #     print("SE TUVIERON PROBLEMAS AL CREAR EL AST.")
+
     #LIMPIAR VARIABLES
     columna=0
     lista_lexicos.clear()

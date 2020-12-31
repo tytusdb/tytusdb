@@ -22,6 +22,8 @@ from storageManager.jsonMode import *
 
 import sintactico
 
+# import AST as AST
+
 global arbol
 arbol = None
 '''
