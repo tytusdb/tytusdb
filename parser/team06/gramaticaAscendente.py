@@ -231,7 +231,10 @@ reservadas = {
     'extract' : 'EXTRACT',
     'date_part' : 'DATE_PART',
     'current_date' : 'CURRENT_DATE',
-    'current_time' : 'CURRENT_TIME'
+    'current_time' : 'CURRENT_TIME',
+    # INDEX
+    'index':'INDEX',
+    'hash':'HASH'
 
 
 # revisar funciones de tiempo y fechas
@@ -446,6 +449,7 @@ def p_query(t):
                     | contAlter                    
                     | selectData PUNTOYCOMA
                     | tipos
+                    | createIndex
     '''
     h.reporteGramatical1 +="query     ::=      opcion\n"
     h.reporteGramatical2 +="t[0]=t[1]\n"
@@ -457,7 +461,154 @@ def p_query(t):
 
 # empiezan las producciones de las operaciones finales
 #la englobacion de las operaciones
+#-----------------------------------------------------CREATE INDEX--------------------------------------------------------------------
+def p_createIndex_1(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[3])
+    print(t[5])
+    print(t[7])
 
+def p_createIndex_1_1(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[3])
+    print(t[5])
+    print(t[7])
+    print(t[8])
+
+def p_createIndex_1_2(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[3])
+    print(t[5])
+    print(t[7])
+    print(t[10])
+
+def p_createIndex_1_1_2(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions  PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[3])
+    print(t[5])
+    print(t[7])
+    print(t[8])
+    print(t[11])
+
+def p_createIndex_2(t):
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[3])
+    print(t[5])
+    print(t[7])
+    print(t[9])
+
+def p_createIndex_2_1(t):
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[3])
+    print(t[5])
+    print(t[7])
+    print(t[9])
+    print(t[10])
+
+def p_createIndex_2_2(t):
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[3])
+    print(t[5])
+    print(t[7])
+    print(t[9])
+    print(t[12])
+
+def p_createIndex_2_1_2(t):
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[3])
+    print(t[5])
+    print(t[7])
+    print(t[9])
+    print(t[10])
+    print(t[13])
+
+def p_createIndex_3(t):
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[4])
+    print(t[6])
+    print(t[8])
+
+def p_createIndex_3_1(t):
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[4])
+    print(t[6])
+    print(t[8])
+    print(t[9])
+
+def p_createIndex_3_2(t):
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[4])
+    print(t[6])
+    print(t[8])
+    print(t[11])
+
+def p_createIndex_3_1_2(t):
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    h.reporteGramatical1 +="createIndex    ::=        CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    print(t[4])
+    print(t[6])
+    print(t[8])
+    print(t[9])
+    print(t[12])
+
+def p_indexParams(t):
+    'indexParams    : sort'
+    h.reporteGramatical1 +="indexParams    ::=        sort\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    t[0] = t[1]
+
+def p_whereOptions_1(t):
+    'whereOptions    : asignaciones'
+    h.reporteGramatical1 +="whereOptions    ::=        asignaciones\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    t[0] = t[1]
+
+def p_whereOptions_2(t):
+    'whereOptions    : operacion'
+    h.reporteGramatical1 +="whereOptions    ::=        operacion\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    t[0] = t[1]
+
+def p_whereOptions_3(t):
+    'whereOptions    : search_condition'
+    h.reporteGramatical1 +="whereOptions    ::=        search_condition\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    t[0] = t[1]
+
+def p_sortOptions_1(t):
+    'sort    : NULLS FIRST'
+    h.reporteGramatical1 +="sort    ::=        NULLS FIRST\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    t[0] = t[2]
+
+def p_sortOptions_2(t):
+    'sort    : NULLS LAST'
+    h.reporteGramatical1 +="sort    ::=        NULLS LAST\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    t[0] = t[2]
 #-----------------------------------------------------CREATE DB--------------------------------------------------------------------
 
 def p_crearBaseDatos_1(t):
@@ -707,7 +858,7 @@ def p_listaID_2(t):
     '''
     h.reporteGramatical1 +="listaid    ::=          ID\n"
     h.reporteGramatical2 +="t[0]=[t[1]]"
-    t[0]=ExpresionIdentificador(t[1])
+    t[0]=[t[1]]
     
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
 
@@ -1387,7 +1538,7 @@ def p_deleteinBD_1(t):
 def p_deleteinBD_2(t):
     'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
     t[0] = DeleteinDataBases(t[3],t[5])
-    h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE asignaciones PUNTOYCOMA\n"
+    h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE operacion PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0]=DeleteinDataBases(t[3],t[5])\n"
 
 
