@@ -70,7 +70,7 @@ def executeInsertAll(self, InsertAll_):
                                                         values_list.append(values[i].value)
                                                     i += 1
                                                 replace_default(values_list, table_.columns)
-                                                result_insert= insert(database_.name, table_.name, values_list)
+                                                result_insert = insert(database_.name, table_.name, values_list)
                                                 if result_insert == 0:
                                                     print_success("QUERY", "Insert in " + str(table_.name) + " table, done successfully")
                                                 elif result_insert == 1:
@@ -162,17 +162,20 @@ def executeInsert(self, Insert_):
                                 while i < len(columns) and columns_exist == True:
                                     if not(columns[i] in table_columns_names) == True:
                                         columns_exist = False
-                                        columns_exist_error = 1
+                                        columns_exist_error = i
                                     i += 1
 
                                 if columns_exist == True:     
                                     new_list_of_values = []
                                     i = 0
-                                    j = 0
                                     while i < len(table_columns_names):
                                         if (table_columns_names[i] in columns) == True:
-                                            new_list_of_values.append(values[j])
-                                            j += 1
+                                            j = 0
+                                            while j < len(columns):
+                                                if table_columns_names[i] == columns[j]:
+                                                    new_list_of_values.append(values[j])
+                                                    j = len(columns) 
+                                                j += 1
                                         else:
                                             new_list_of_values.append(None)                                        
                                         i += 1

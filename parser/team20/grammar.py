@@ -130,6 +130,9 @@ reservedwords = (
     'SQRT',
     'TRUNC',
     'RANDOM',
+    'NOW',
+    'CURRENT_DATE',
+    'CURRENT_TIME',
     'MD5',
     'AND',
     'OR',
@@ -1134,10 +1137,13 @@ def p_expression_mathfunctions(t):
                   | MD5 BRACKET_OPEN expression BRACKET_CLOSE
                   | PI BRACKET_OPEN BRACKET_CLOSE 
                   | RANDOM BRACKET_OPEN BRACKET_CLOSE   
+                  | NOW BRACKET_OPEN BRACKET_CLOSE
+                  | CURRENT_DATE
+                  | CURRENT_TIME
                   '''
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = MathFunction('"+t[1]+"',expression.val) }\n" + grammarreport
-    if(t[1]=='PI' or t[1]=='RANDOM'): t[0]=MathFunction(t[1],0)
+    if(t[1]=='PI' or t[1]=='RANDOM' or t[1]=='NOW' or t[1]=='CURRENT_DATE' or t[1]=='CURRENT_TIME'): t[0]=MathFunction(t[1],0)
     else: t[0] = MathFunction(t[1],t[3])
 
 #TRIGONOMETRIC FUNCTIONS

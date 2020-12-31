@@ -77,6 +77,9 @@ def print_data_(hexadecimal_color_foreground: str, type_print: str, data_type: s
 def print_error_table(data_type: str, print_: str):
     print_report("#FFFFFF", "#FF0000", "error_table", data_type, print_)
 
+def print_symbol_table(data_type: str, print_: str):
+    print_report("#FFFFFF", "#0000FF", "symbol_table", data_type, print_)
+
 def print_messages(data_type: str, print_: str):
     print_report("#000000", "#FFFFFF", "message", data_type, print_)
 

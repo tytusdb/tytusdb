@@ -187,7 +187,7 @@ def get_string_json_TypeChecker_Manager(TypeChecker_Manager_: TypeChecker_Manage
                 json_ += "              \"" + TypeChecker_Manager_.databases[i].tables[j].columns[k].name + "\": {\n"
                 #****************************************
 
-                json_ += "                  \"CONS1\": {"   
+                json_ += "                  \"CONST\": {"   
                 
                 type_ = TypeChecker_Manager_.databases[i].tables[j].columns[k].type_
                 primary_ = TypeChecker_Manager_.databases[i].tables[j].columns[k].primary_
@@ -260,6 +260,10 @@ def get_string_json_TypeChecker_Manager(TypeChecker_Manager_: TypeChecker_Manage
         #----------------------------------------
     
     json_ += "}"
+    json_ = str(json_).replace("'", "\"")
+    json_ = str(json_).replace("\"[\"", "\"")
+    json_ = str(json_).replace("\"]\"", "\"")
+
     return json_
 
 
@@ -349,7 +353,7 @@ def get_column(column_name: str, table_: table) -> column:
         i = 0
         while i < len(table_.columns):
             if table_.columns[i].name == column_name:
-                table_ = table_.columns[i]
+                column_ = table_.columns[i]
                 i = len(table_.columns)
             i += 1
     except Exception as e:
