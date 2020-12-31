@@ -7,18 +7,15 @@ parser/team13/.vscode/settings.json
 parser/team13/.vscode/settings.json
 .vscode
 
-
-
 **/__pycache__/**
-/venv/*
-/.idea/*
+**/venv/*
+**/.idea/*
 **/.DS_Store
-*.svg
-*.gv
+**/.svg
+**/.gv
 
 **/parser.out
 **/parsetab.py
-/StoreManager/*
 
 **/data/**
 
