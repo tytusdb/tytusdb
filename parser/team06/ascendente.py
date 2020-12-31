@@ -2541,13 +2541,16 @@ def alter_table(query,ts):
                         print(contenido.id1)
                         print(contenido.tipo2.longitud)
                         print(tablatemp)
-                        ahora = TS.Simbolo(None,contenido.id1,contenido.tipo2.id,contenido.tipo2.longitud,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
+                        idNueva = ts.numerodeColumnas(h.bd_enuso,tablatemp)
+                        print("AQUI VIENE ID NUEVA ---::>> ",idNueva)
+                        ahora = TS.Simbolo(idNueva,contenido.id1,contenido.tipo2.id,contenido.tipo2.longitud,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
                         print("xd")
                         ts.agregarnuevaColumna(ahora)
                         ts.printcontsimbolos()
                     else:
                         print("POR ACÁ CREO")
-                        ahora = TS.Simbolo(None,contenido.id1,contenido.tipo2.id,None,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
+                        idNueva = ts.numerodeColumnas(h.bd_enuso,tablatemp)
+                        ahora = TS.Simbolo(idNueva,contenido.id1,contenido.tipo2.id,None,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
                         ts.agregarnuevaColumna(ahora)
                         ts.printcontsimbolos()              
             #METODO PARA ALTERAR LA COLUMNA
@@ -2632,6 +2635,26 @@ def alter_table(query,ts):
             print(nombreCol+h.bd_enuso+nombreTab)
             #simbTemp = ts.obtener2(nombreCol+h.bd_enuso+nombreTab)
             xd = ts.destruirColumna(nombreCol,h.bd_enuso,nombreTab)
+            #AQUI VA EL CODIGO DE LA REASIGNACIÓN DE IDS A LAS TABLAS RESTANTES
+            xd = ts.obtenerColumnas(nombreTab,h.bd_enuso)
+            print("TOTAL DE COLUMNAS")
+            print(len(xd))
+            for x in range(0,len(xd)):
+                tempCambioid = ts.verificarcolumnaBDAT(xd[x],h.bd_enuso,nombreTab)
+                print("ESTA ES LA COLUMNA QUE ESTOY USANDO AHORITA --> ",tempCambioid.nombre)
+                print("ESTE ES EL ID ANTERIOR--> ",tempCambioid.id)
+                tempCambioid.id = x
+                print("ESTE ES EL NUEVO ID ----> ",tempCambioid.id)
+            '''
+            nombreTab = query.id
+            xd = ts.obtenerColumnas(nombreTab,h.bd_enuso)
+            print("TOTAL DE COLUMNAS")
+            print(len(xd))
+            for x in range(0,len(xd)):
+            ts.destruirColumna(xd[x],h.bd_enuso,nombreTab)
+            print (xd[x])
+            xdd = ts.destruirTabla(nombreTab,h.bd_enuso)
+            '''
         else:
             print("DROPEARÉ UNA CONSTRAINT: ",contenido.id)
             print("LO QUE EXPLOTARA SERA: ", contenido.tipo)
@@ -2711,6 +2734,7 @@ def alter_table(query,ts):
 def procesar_queries(queries, ts) :
     ## lista de instrucciones recolectadas
 
+    #datos_de_prueba(ts)
     print("Entra a procesar queries",queries)
     for query in queries :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
