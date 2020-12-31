@@ -803,12 +803,16 @@ def p_EnumType(t):
 
 # PRODUCCIÓN PARA HACER UN UPDATE
 def p_produccion0(t):
-    ''' UpdateBase   : tUpdate id tSet L_ASIGN where CondicionBase ptComa
-                     | tUpdate id tSet L_ASIGN ptComa'''
+    ''' UpdateBase   : tUpdate id tSet L_ASIGN where CondicionBase ptComa'''
     if len(t)==5:
         t[0] = SUpdateBase(t[2], t[4], False)
     else:
         t[0] = SUpdateBase(t[2], t[4], t[6])
+
+
+def p_produccion0_0(t):
+    ''' UpdateBase   : tUpdate id tSet L_ASIGN ptComa '''
+    t[0] = SUpdateBase(t[2], t[4], False)
 
 
 # PRODUCCIÓN PARA HACER UN DELETE
@@ -2168,6 +2172,7 @@ def p_EXPR_LIMIT2(p):
 
 # FUNCIÓN PARA EL MANEJO DE LOS ERRORES SINTÁCTICOS
 def p_error(t):
+    if not t: return#Fin del archivo
     col = find_column(t)
     # print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col) )
     errores_sintacticos.append(Error(t.value, 'Error Sintáctico', 'Símbolo no esperado', col, t.lineno))

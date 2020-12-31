@@ -90,6 +90,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 my_dict[val.valor] = val.valor
             types[nodo.id] = my_dict
         elif isinstance(nodo, SUpdateBase):
+
             registros = jBase.extractTable(useActual, nodo.id)
             actualizar = []
 
@@ -102,7 +103,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 valores = []
                 tipos = []
                 diccionario = {}
-                primary = []
+                primary = tabla.get_pk_index()
                 llaves = []
 
                 for k in columnas:
@@ -117,15 +118,22 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     for c in r:
                         tupla["valor"].append(c)
 
-                    b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla)
+                    if nodo.listaWhere is not False:
+                        b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla)
+                    else:
+                        b = SExpresion(True,Expresion.BOOLEAN)
                     tupla["valor"].clear()
 
                     if b.valor:
                         actualizar.append(r)
-                        llaves.append([str(i) + "|"])
+                        if len(primary) == 0:
+                            llaves.append([str(i-1)])
+                        else:
+                            llaves.append([str(i) + "|"])                        
                     i += 1
+
                 bandera1 = False
-                primary = tabla.get_pk_index()
+                
 
                 for x in range(len(actualizar)):
 
@@ -148,7 +156,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 valores.append(SExpresion(actualizar[x][z],tipos[z].tipo))
 
 
-                    validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x])
+                    validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x],tupla)
                     valores.clear()
                     diccionario = {}
 
@@ -1362,7 +1370,7 @@ def InsertTable(nodo, tablaSimbolos):
             Error.ErrorS("Error Semantico", "la base de datos " + useActual + " no ha sido encontrada"))
 
 
-def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
+def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk,la_tupla):
     result = False
     flag = False
     global consola
@@ -1374,7 +1382,13 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
         # se validan tipos
         for i in range(len(columnas)):
             col = tabla.getColumna(columnas[i])
-            val = Interpreta_Expresion(tupla[i],tablaSimbolos,tabla)
+            # print("============== DENTRO DEL UPDATE ==============")
+            # print("============== tupla ==============")
+            # print(tupla[i])
+            # print("============== tabla ==============")
+            # print(tabla)
+            
+            val = Interpreta_Expresion(tupla[i],tablaSimbolos,la_tupla)
             if col.tipo.tipo == TipoDato.NUMERICO:
                 result = validarTiposNumericos(
                     col.tipo.dato.lower(), val)
@@ -1448,7 +1462,7 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
 
         if flag:
             flag = False
-            tuplas = validarDefault2(columnas,tupla,tabla,tablaSimbolos)
+            #tuplas = validarDefault2(columnas,tupla,tabla,tablaSimbolos)
             #print(tuplas)
             rs = jBase.update(useActual,tabla.nombre,diccionario,pk)
             #rs = jBase.insert(useActual,tabla.nombre,tuplas)
@@ -1463,10 +1477,13 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk):
 
 
             if rs == 0:
-                arr1=[]
-                for e in tupla:
-                    arr1.append(e.valor)
-                consola += "Se actualizó con éxito la tupla" + str(arr1) + "\n"
+                nueva_tupla = []
+                for e_x in tupla:
+                    nueva_tupla.append(e_x.valor)
+                    
+
+                consola += "Se actualizó con éxito la tupla " + str(nueva_tupla) + "\n"
+                nueva_tupla.clear()
 
             elif rs == 1:
 
@@ -1504,7 +1521,6 @@ def validarDefault(listaC, listaV, tabla, tablaSimbolos):
 
     for i in tabla.columnas:
         encontrado = False
-        print(tabla.columnas[i].index,indice)
 
         if tabla.columnas[i].index == indice:
 
@@ -2152,6 +2168,9 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
             # print("==============================================")
             # print("|              El ID es: '%s'                |" % expresion.valor)
             # print("==============================================")
+            print("=========================================================================")
+            print(tabla)
+            print("=========================================================================")
 
             for i in range(len(tabla["nombreC"])):
 
@@ -2289,12 +2308,28 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         return SExpresion(False,Expresion.BOOLEAN)
 
     elif isinstance(expresion,SNotExist):
-
-        qr = expresion.consulta
+        qr = expresion.consulta        
         base = tablaSimbolos.get(useActual)
         pT = PrettyTable()
         for tb in tabla["tablas"]:
             qr.ffrom.clist.append(tb)
+
+        print("=============== NO EXISTS ===============")
+        print("=============== NO EXISTS ===============")
+        print("=============== NO EXISTS ===============")
+        print()
+        print(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+        print()
+        print("=============== NO EXISTS ===============")
+        print("=============== NO EXISTS ===============")
+        print("=============== NO EXISTS ===============")
+        print()
+        print(expresion)
+        print()
+        print("=============== NO EXISTS ===============")
+        print("=============== NO EXISTS ===============")
+        print("=============== NO EXISTS ===============")
+        
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
 
         if len(resultado_sub) > 0:
