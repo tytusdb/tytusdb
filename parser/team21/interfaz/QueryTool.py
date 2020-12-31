@@ -3,13 +3,18 @@ import os
 import sys
 import tkinter as tk
 from tkinter import ttk, font, messagebox, Image, filedialog
+import tytus.parser.team21.Analisis_Ascendente.ascendente as parser
+import tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode as jm
+import webbrowser as wb
 # from PIL import Image,ImageTk
-# vscode://vscode.github-authentication/did-authenticate?windowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
+# vscode://vscode.github-authentication/did-authenticate?wi0ndowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
+
+
 class Ctxt(tk.Text):  # Custom Text Widget with Highlight Pattern   - - - - -
     # Credits to the owner of this custom class - - - - - - - - - - - - -
-    def __init__(self,*args, **kwargs):
-        tk.Text.__init__(self, *args, **kwargs)
-        #tk.Text.configure('name','nuevo_0')
+    def __init__(self, *args, **kwargs):
+        tk.Text.__init__(self, *args, **kwargs, bg='#323331', fg="#FDFEFD")
+        # tk.Text.configure('name','nuevo_0')
 
     def highlight_pattern(self, pattern, tag, start="1.0", end="end", regexp=False):
         start = self.index(start)
@@ -26,10 +31,14 @@ class Ctxt(tk.Text):  # Custom Text Widget with Highlight Pattern   - - - - -
                 break
             self.mark_set("matchStart", index)
             self.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
+            self.tag_remove("id", "matchStart", "matchEnd")
+            self.tag_remove("norm", "matchStart", "matchEnd")
+            self.tag_remove("cadena", "matchStart", "matchEnd")
+            self.tag_remove("green", "matchStart", "matchEnd")
+            self.tag_remove("blue", "matchStart", "matchEnd")
             self.tag_add(tag, "matchStart", "matchEnd")
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 
 
 class TextLineNumbers(tk.Canvas):
@@ -45,9 +54,10 @@ class TextLineNumbers(tk.Canvas):
         self.delete("all")
 
         i = self.textwidget.index("@0,0")
-        while True :
-            dline= self.textwidget.dlineinfo(i)
-            if dline is None: break
+        while True:
+            dline = self.textwidget.dlineinfo(i)
+            if dline is None:
+                break
             y = dline[1]
             linenum = str(i).split(".")[0]
             self.create_text(2, y, anchor="nw", text=linenum, fill="#FDFEFD")
@@ -115,6 +125,95 @@ class CreateToolTip(object):
 class Application(ttk.Frame):
     def __init__(self, ventana, iconos):
         super().__init__(ventana)
+        self.lista = [
+            "mode",
+            "smallint",
+            "int",
+            "integer",
+            "bigint",
+            "decimal",
+            "numeric",
+            "real",
+            "double",
+            "money",
+            "character",
+            "varying",
+            "varchar",
+            "char",
+            "text",
+            "timestamp",
+            "date",
+            "time",
+            "interval",
+            "boolean",
+            "create",
+            "type",
+            "as",
+            "enum",
+            "between",
+            "in",
+            "like",
+            "ilike",
+            "similar",
+            "is",
+            "null",
+            "not",
+            "and",
+            "or",
+            "show",
+            "databases",
+            "use",
+            "database",
+            "alter",
+            "rename",
+            "to",
+            "owner",
+            "table",
+            "drop",
+            "delete",
+            "if",
+            "exists",
+            "default",
+            "constraint",
+            "unique",
+            "check",
+            "primary",
+            "foreign",
+            "key",
+            "references",
+            "add",
+            "column",
+            "set",
+            "from",
+            "only",
+            "using",
+            "where",
+            "returning",
+            "inherits",
+            "insert",
+            "into",
+            "values",
+            "update",
+            "select",
+            "distinct",
+            "group",
+            "order",
+            "by",
+            "having",
+            "count",
+            "sum",
+            "avg",
+            "max",
+            "min",
+            "inner",
+            "left",
+            "right",
+            "full",
+            "outer",
+            "join",
+            "asc",
+            "desc"
+        ]
         self.contadorN = 1
         self.Copiado = ""
         ventana.title("Query Tool")
@@ -179,12 +278,6 @@ class Application(ttk.Frame):
         bot3.pack(side=tk.LEFT, padx=3, pady=3)
         button3_ttp = CreateToolTip(bot3, 'ABRIR')
 
-        imgBoton4 = tk.PhotoImage(file=iconos[3])
-        bot4 = tk.Button(BarraH, image=imgBoton4,
-                         height=50, width=50, command=self.f_guardar)
-        bot4.pack(side=tk.LEFT, padx=3, pady=3)
-        button4_ttp = CreateToolTip(bot4, 'GUARDAR')
-
         imgBoton5 = tk.PhotoImage(file=iconos[4])
         bot5 = tk.Button(BarraH, image=imgBoton5,
                          height=50, width=50, command=self.f_guardarcomo)
@@ -199,69 +292,64 @@ class Application(ttk.Frame):
 
         imgBoton7 = tk.PhotoImage(file=iconos[6])
         bot7 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command="")
+                         height=50, width=50, command=self.f_abrirSintactico)
         bot7.pack(side=tk.LEFT, padx=3, pady=3)
-        button7_ttp = CreateToolTip(bot7, 'START DEBBUGING')
+        button7_ttp = CreateToolTip(bot7, 'REPORTE SINTACTICO')
+
+        bot8 = tk.Button(BarraH, image=imgBoton7,
+                         height=50, width=50, command=self.f_abrirLexico)
+        bot8.pack(side=tk.LEFT, padx=3, pady=3)
+        button8_ttp = CreateToolTip(bot8, 'REPORTE LEXICO')
+
+        bot9 = tk.Button(BarraH, image=imgBoton7,
+                         height=50, width=50, command=self.f_abrirtablaSemanticos)
+        bot9.pack(side=tk.LEFT, padx=3, pady=3)
+        button9_ttp = CreateToolTip(bot9, 'REPORTE SEMANTICO')
 
         imgBoton8 = tk.PhotoImage(file=iconos[7])
-        bot8 = tk.Button(BarraH, image=imgBoton8,
-                         height=50, width=50, command="")
-        bot8.pack(side=tk.LEFT, padx=3, pady=3)
-        button8_ttp = CreateToolTip(bot8, 'NEXT')
+        bot10 = tk.Button(BarraH, image=imgBoton8,
+                         height=50, width=50, command=self.f_abrirAST)
+        bot10.pack(side=tk.LEFT, padx=3, pady=3)
+        button10_ttp = CreateToolTip(bot10, 'REPORTE AST')
+
+        imgBoton9 = tk.PhotoImage(file=iconos[8])
+        bot11 = tk.Button(BarraH, image=imgBoton9,
+                         height=50, width=50, command=self.f_abrirBNFascendente)
+        bot11.pack(side=tk.LEFT, padx=3, pady=3)
+        button11_ttp = CreateToolTip(bot11, 'REPORTE BNF ASCENDENTE')
+
+        bot12 = tk.Button(BarraH, image=imgBoton9,
+                         height=50, width=50, command=self.f_abrirBNFdescendente)
+        bot12.pack(side=tk.LEFT, padx=3, pady=3)
+        button12_ttp = CreateToolTip(bot12, 'REPORTE BNF DESCENDENTE')
+
+        imgBoton10 = tk.PhotoImage(file=iconos[9])
+        bot13 = tk.Button(BarraH, image=imgBoton10,
+                          height=50, width=50, command=self.f_abrirtablaSimbolos)
+        bot13.pack(side=tk.LEFT, padx=3, pady=3)
+        button13_ttp = CreateToolTip(bot13, 'REPORTE TABLA DE SIMBOLOS')
+
+
 
         # PESTAniAS ----------------------------------------------------------------------------
         PanelPestania = tk.Frame()
         PanelPestania.config(
-            bg="SteelBlue1", relief=tk.RAISED, width="700", bd=2)
+            bg="SteelBlue1", relief=tk.RAISED, height="400", bd=2)
 
         self.tab_control = ttk.Notebook(PanelPestania)
-        self.tab_control.config(width="600")
-        tab1 = ttk.Frame(self.tab_control, name='f_0')
-        self.tab_control.add(tab1, text='nuevo_0')
-        self.tab_control.pack(expand=1, fill='both')
+        self.tab_control.config(height="300")
 
-        S1 = tk.Scrollbar(tab1)
-        numberLines = TextLineNumbers(tab1, width=40, bg='#313335')
-        #T1 = tk.Text(tab1, bg="white", name='nuevo_0')
-        T1 = Ctxt(tab1)
-        numberLines.attach(T1)
-        S1.pack(side=tk.RIGHT, fill=tk.Y)
-        numberLines.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
-        T1.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-        
-        S1.config(command=T1.yview)
-        T1.config(yscrollcommand=S1.set)
-
-        T1.tag_config("green", foreground="green")
-        T1.highlight_pattern("\mread\M", "green", regexp=True)
-        
-
-        # self.f_crearTag(0)
-        def onScrollPress(event):
-            S1.bind("<B1-Motion>", numberLines.redraw)
-
-        def onScrollRelease(event):
-            S1.unbind("<B1-Motion>", numberLines.redraw)
-
-        def onPressDelay(event):
-            self.after(2,numberLines.redraw)
-            self.after(2, T1.highlight_pattern("(\/\*(\w|\s)*\*\/)", "green", regexp=True))
-
-        T1.bind("<Key>", onPressDelay)
-        T1.bind("<Button-1>", numberLines.redraw)
-        S1.bind("<Button-1>", onScrollPress)
-        T1.bind("<MouseWheel>", onPressDelay)
-
-        
+        self.f_nuevaPestania()
 
         # CONSOLA-------------------------------------------------------------------------------
         Consola = tk.Frame()
-        Consola.config(bg="SteelBlue1", relief=tk.RAISED, width="700", bd=2)
+        Consola.config(bg="SteelBlue1", relief=tk.RAISED, height="700", bd=2)
 
         S = tk.Scrollbar(Consola)
-        self.T = tk.Text(Consola, height=4, width=50, bg="black", fg="chartreuse2")
+        self.T = tk.Text(Consola, height=70, width=4,
+                         bg="black", fg="chartreuse2")
         S.pack(side=tk.RIGHT, fill=tk.Y)
-        self.T.pack(side=tk.LEFT, fill=tk.Y)
+        self.T.pack(side=tk.TOP, fill=tk.X)
         S.config(command=self.T.yview)
         self.T.config(yscrollcommand=S.set)
         quote = """>>>\n"""
@@ -273,6 +361,8 @@ class Application(ttk.Frame):
 
         def f_key(event):
             if(event.keycode == 13):
+                #ver esto
+                global T
                 T.insert(tk.END, """>>>""")
 
         def f_mostrarContext(event):
@@ -284,15 +374,16 @@ class Application(ttk.Frame):
         # metodos extras-------------------------------------------------------
 
         BarraH.pack(side=tk.TOP, fill=tk.X)
-        PanelPestania.pack(side=tk.LEFT, fill=tk.Y, pady=10, padx=10)
-        Consola.pack(side=tk.LEFT, fill=tk.Y, pady=10, padx=10)
+        PanelPestania.pack(side=tk.TOP, fill=tk.X, pady=10, padx=10)
+        Consola.pack(side=tk.TOP, fill=tk.X, pady=10, padx=10)
         ventana.config(menu=menu)
         ventana.mainloop()
 
     def f_cerrarPestania(self):
 
         # if(tab_control.tab(tab_control.select(), "text")) == "Nuevo":
-        respuesta = messagebox.askyesno(title="", message="¿Desea cerrar esta pestania sin guardar?")
+        respuesta = messagebox.askyesno(
+            title="", message="¿Desea cerrar esta pestania sin guardar?")
 
         if(respuesta):
             self.tab_control.forget(self.tab_control.select())
@@ -309,22 +400,24 @@ class Application(ttk.Frame):
     def f_nuevaPestania(self):
         tab1 = ttk.Frame(self.tab_control, name="f_"+str(self.contadorN))
         self.tab_control.add(tab1, text='nuevo_'+str(self.contadorN))
-        # self.tab_control.pack(expand=1, fill='both')
+        self.tab_control.pack(expand=1, fill='both')
         S1 = tk.Scrollbar(tab1)
         numberLines = TextLineNumbers(tab1, width=40, bg='#313335')
-        #T1 = tk.Text(tab1, bg="white")
+        # T1 = tk.Text(tab1, bg="white")
         T1 = Ctxt(tab1)
         numberLines.attach(T1)
         S1.pack(side=tk.RIGHT, fill=tk.Y)
         numberLines.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
-        T1.pack(side=tk.LEFT, fill='both')
+        T1.pack(side=tk.TOP, fill='both')
 
         S1.config(command=T1.yview)
         T1.config(yscrollcommand=S1.set)
 
-        T1.tag_config("green", foreground="green")
-        T1.highlight_pattern("\mread\M", "green", regexp=True)
-        
+        T1.tag_config("green", foreground="#0bde20")
+        T1.tag_config("blue", foreground="#09ebc9")
+        T1.tag_config("norm", foreground="white")
+        T1.tag_config("id", foreground="#f5ed00")
+        T1.tag_config("cadena", foreground="#f28900")
 
         def onScrollPress(event):
             S1.bind("<B1-Motion>", numberLines.redraw)
@@ -333,36 +426,34 @@ class Application(ttk.Frame):
             S1.unbind("<B1-Motion>", numberLines.redraw)
 
         def onPressDelay(event):
-            self.after(2,numberLines.redraw)
-            self.after(2, T1.highlight_pattern("(\/\*(\w|\s)*\*\/)", "green", regexp=True))
+            self.after(2, numberLines.redraw)
+            T1.highlight_pattern(
+                "(\w|\s|\n|\r|\_|\;|\=|\+|\-|\*|\'|\(|\)|\,)", "norm", regexp=True)
+
+            T1.highlight_pattern(
+                "([_a-zA-Z][a-zA-Z_0-9_]*)", "id", regexp=True)
+
+            for patt in self.lista:
+                T1.highlight_pattern("\m"+str(patt)+"\M", "blue", regexp=True)
+                T1.highlight_pattern(
+                    "\m"+str(patt).upper()+"\M", "blue", regexp=True)
+
+            T1.highlight_pattern(
+                "((\'.*?\')|(\".*?\"))", "cadena", regexp=True)
+
+            T1.highlight_pattern(
+                "((/\*(.|\n)*?\*/)|(--.*\n))", "green", regexp=True)
 
         T1.bind("<Key>", onPressDelay)
         T1.bind("<Button-1>", numberLines.redraw)
         S1.bind("<Button-1>", onScrollPress)
         T1.bind("<MouseWheel>", onPressDelay)
 
-        self.f_crearTag(self.contadorN)
         self.contadorN = self.contadorN+1
         idtab = self.tab_control.index("end")-1
         self.tab_control.select(idtab)
         return self.contadorN-1
         # print(str(self.tab_control.index(tk.END)))
-
-    def f_crearTag(self, idd):
-        # self.text.tag_config("start", background="black", foreground="yellow")
-        tabActual = "nuevo_"+str(idd)
-        if tabActual[0] != '/':
-            try:
-                self.tab_control.children[tabActual.replace("nuevo", "f")].children[tabActual].tag_config(
-                    "find", background="blue", foreground="white")
-            except:
-                print("")
-        else:
-            try:
-                self.tab_control.children[tabActual].children[tabActual].tag_config(
-                    "find", background="blue", foreground="white")
-            except:
-                self.Copiado = ""
 
     def f_guardarcomo(self):
         filename = filedialog.asksaveasfilename(
@@ -374,7 +465,8 @@ class Application(ttk.Frame):
                 "nuevo", "f")].winfo_children()[2].get("1.0", tk.END)
         else:
             # guardar
-            Contenido = self.tab_control.children[tabActual].winfo_children()[2].get("1.0", tk.END)
+            Contenido = self.tab_control.children[tabActual].winfo_children()[
+                2].get("1.0", tk.END)
 
         # escribir nuevo archivo con filename y contenido
         self.WriteFile(filename, Contenido)
@@ -392,7 +484,8 @@ class Application(ttk.Frame):
             self.f_guardarcomo()
         else:
             filename = "./pruebas/" + tabActual
-            Contenido = self.tab_control.children[tabActual].winfo_children()[2].get("1.0", tk.END)
+            Contenido = self.tab_control.children[tabActual].winfo_children()[
+                2].get("1.0", tk.END)
             # escribir nuevo archivo con filename y contenido
             self.WriteFile(filename, Contenido)
             messagebox.showinfo(title="Guardar",
@@ -412,11 +505,29 @@ class Application(ttk.Frame):
                 self.tab_control.select(idtab)
 
                 print(tabs)
-                print(self.tab_control.children["f_"+str(tabs)].winfo_children()[2])
-                
+                print(
+                    self.tab_control.children["f_"+str(tabs)].winfo_children()[2])
+
                 # insertar texto
                 self.tab_control.children["f_"+str(tabs)].winfo_children()[2].insert(
                     tk.END, Contenido)
+
+                self.tab_control.children["f_"+str(tabs)].winfo_children()[2].highlight_pattern(
+                    "(\w|\s|\n|\r|\_|\;|\=|\+|\-|\*|\'|\(|\)|\,)", "norm", regexp=True)
+
+                self.tab_control.children["f_"+str(tabs)].winfo_children()[2].highlight_pattern(
+                    "([_a-zA-Z][a-zA-Z_0-9_]*)", "id", regexp=True)
+
+                for patt in self.lista:
+                    self.tab_control.children["f_"+str(tabs)].winfo_children()[2].highlight_pattern("\m"+str(patt)+"\M", "blue", regexp=True)
+                    self.tab_control.children["f_"+str(tabs)].winfo_children()[2].highlight_pattern(
+                        "\m"+str(patt).upper()+"\M", "blue", regexp=True)
+
+                self.tab_control.children["f_"+str(tabs)].winfo_children()[2].highlight_pattern(
+                    "((\'.*?\')|(\".*?\"))", "cadena", regexp=True)
+
+                self.tab_control.children["f_"+str(tabs)].winfo_children()[2].highlight_pattern(
+                "((/\*(.|\n)*?\*/)|(--.*\n))", "green", regexp=True)
 
         except:
             print("no hacer nada")
@@ -442,10 +553,55 @@ class Application(ttk.Frame):
         else:
             sys.exit()
 
-    def f_parsear(self,texto):
-        self.T.insert(tk.END, texto)
-        print(texto)
+    def f_abrirSintactico(self):
+        try:
+            wb.open_new(r'ErroresSintacticos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
+    def f_abrirLexico(self):
+        try:
+            wb.open_new(r'ErroresLexicos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirBNFascendente(self):
+        try:
+            wb.open_new(r'reporteGramatica.gv.pdf')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirBNFdescendente(self):
+        try:
+            wb.open_new(r'')
+
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirAST(self):
+        try:
+            wb.open_new(r'AST.svg')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirtablaSimbolos(self):
+        try:
+            wb.open_new(r'Simbolos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirtablaSemanticos(self):
+        try:
+            wb.open_new(r'ErroresSemanticos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_parsear(self, texto):
+       self.T.delete(1.0,tk.END)
+       salida= parser.ejecutarAnalisis(texto)
+
+       for output in salida:
+        self.T.insert(tk.END,"\n>>>"+ output)
 
     def f_correr(self):
         lista = []
@@ -461,14 +617,9 @@ class Application(ttk.Frame):
             start = 0
             return self.f_parsear(texto)
 
-    
-        
-
-
-
 
 def main():
-
+    #jm.dropAll()
     ventana = tk.Tk()
 
     # INICIALIZAR VARIABLES CON RUTAS
@@ -484,8 +635,10 @@ def main():
               img_carpeta + "guardar.png",
               img_carpeta + "guardar_como.png",
               img_carpeta + "play.png",
-              img_carpeta + "debug.png",
-              img_carpeta + "next.png"
+              img_carpeta + "reporte.png",
+              img_carpeta + "arbol.png",
+              img_carpeta + "bnf.png",
+              img_carpeta + "tabla.png"
               )
     app = Application(ventana, iconos)
 

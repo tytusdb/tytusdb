@@ -1,0 +1,282 @@
+
+SQL :: = SENTENCIAS_SQL
+           |  EMPTY 
+
+SENTENCIAS_SQL :: = SENTENCIAS_SQL SENTENCIA_SQL
+                      | SENTENCIA_SQL
+
+SENTENCIA_SQL :: = SENTENCIAS_DML
+                  | SENTENCIAS_DDL
+
+SENTENCIAS_DML ::= SELECT_SQL pyc
+                   | t_insert t_into id INSERT_SQL pyc
+                   | t_update id t_set LISTA_EXP t_where EXP pyc
+                   | t_delete t_from id CONDICIONES pyc
+                   | t_use t_database id
+
+SELECT_SQL ::= t_select LISTA_EXP t_from TABLE_EXPRESSION CONDICIONES
+
+TABLE_EXPRESSION ::= ALIAS_TABLA
+                     | SUBQUERIES
+
+ALIAS_TABLA ::=  LISTA_ID
+                |  LISTA_ALIAS 
+
+SUBQUERIES ::= par1 t_select  par2
+
+INSERT_SQL ::= par1 LISTA_ID par2 t_values par1 EXP par2
+                |  t_values par1 EXP par2
+
+CONDICIONES ::= t_where EXP
+                 | empty
+
+SENTENCIAS_DML ::= SELECT_SQL pyc
+                   | t_insert t_into id INSERT_SQL pyc
+                   | t_update id t_set LISTA_EXP t_where EXP pyc
+                   | t_delete t_from id DELETE_COND pyc
+                   | t_use t_database id
+
+SELECT_SQL ::= t_select LISTA_ID t_from LISTA_ID CONDICIONES_SEL
+
+CONDICIONES_SEL ::= t_where
+                    | t_having
+
+INSERT_SQL ::= par1 LISTA_ID par2 t_values par1 EXP par2
+                | t_values par1 EXP par2
+
+DELETE_Cond ::= t_where EXP
+                | empty
+
+SENTENCIAS_DDL ::= t_show t_databases SHOW_DB_LIKE_CHAR pyc
+                    | ENUM_TYPE
+                    | t_drop DROP pyc
+                    | t_alter ALTER pyc 
+                    | t_create CREATE pyc
+
+SHOW_DB_LIKE_CHAR ::= t_like char 
+                     | empty
+
+ENUM_TYPE ::= t_create t_type id t_as t_enum par1 LISTA_ENUM par2 pyc
+
+DROP ::= t_database DROPDB id
+            | t_table  id 
+
+DROPDB ::= t_if t_exists
+            | empty
+
+ALTER ::= t_database id ALTERDB
+            | t_table id ALTERTB 
+
+ALTERDB ::= t_rename t_to id
+                | t_owner t_to SESIONDB
+
+SESIONDB ::= id
+                | t_current_user
+                | t_session_user 
+
+ALTERTB ::= t_add ADD_OPC
+                | t_drop DROP_Opc
+                | t_alter t_column ALTER_COLUMN
+                | t_rename t_column id t_to id 
+
+ADD_OPC ::= t_column id TIPO
+               | CONSTRAINT_ALTERTB t_foreign t_key par1 id par2 t_references id par1 Lista_ID par2
+               | CONSTRAINT_ALTERTB t_unique par1 id par2
+               | CONSTRAINT_ALTERTB t_check EXP 
+
+CONSTRAINT_ALTERTB ::=      t_constraint id
+                            | EMPTY'''
+
+DROP_OPC ::=  t_column id
+                 |  t_constraint id 
+
+ALTER_COLUMN ::=   id t_set t_not t_null
+                     |   ALTER_COLUMNS
+
+ALTER_COLUMNS ::= ALTER_COLUMNS coma ALTER_COLUMN1
+                    | ALTER_COLUMN1
+
+ALTER_COLUMN1 ::=  id t_type t_varchar par1 entero par2
+                    | t_alter t_column id t_type t_varchar par1 entero par2
+
+CREATE ::= CREATEDB   
+               | CREATETB
+
+CREATEDB ::= ORREPLACECREATEDB t_database IFNOTEXISTCREATEDB id SESION
+
+ORREPLACECREATEDB ::= t_or t_replace
+                     | empty
+
+IFNOTEXISTCREATEDB ::=      t_if t_not t_exists
+                            | empty
+
+SESION ::= t_owner OP_SESION SESION_MODE
+                | t_mode OP_MODE
+                | empty 
+
+OP_SESION ::= igual char
+            | char 
+
+SESION_MODE ::= t_mode OP_MODE
+                  | empty 
+
+OP_MODE ::= igual entero
+            | entero
+
+CREATETB ::= t_table id par1 COLUMNAS par2 INHERITS 
+
+INHERITS  ::= INHERITS  par1 id par2
+               | empty 
+
+COLUMNAS ::= COLUMNAS coma COLUMNA
+                | COLUMNA
+
+COLUMNA ::= id TIPO COND_CREATETB 
+                | CONSTRAINT
+
+COND_CREATETB ::= CONSTRAINT_CREATETB t_default id COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_not t_null COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_null COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_unique COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_check par1 EXP par2 COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_primary t_key COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_references id COND_CREATETB 
+                        | empty
+
+CONSTRAINT_CREATETB ::= t_constraint id
+                     | EMPTY
+
+CONSTRAINT ::= CONSTRAINT_CREATETB t_unique par1 LISTA_ID par2
+                    | CONSTRAINT_CREATETB t_check par1 EXP par2
+                    | CONSTRAINT_CREATETB t_primary t_key par1 LISTA_ID par2
+                    | CONSTRAINT_CREATETB t_foreign t_key par1 LISTA_ID par2 t_references id par1 LISTA_ID par2
+                    | empty 
+
+TIPO ::= t_smallint
+              | t_integer 
+              | t_bigint
+              | t_decimal 
+              | t_numeric 
+              | t_real
+              | t_double t_precision
+              | t_money
+              | t_character t_varying par1 Valor par2 
+              | t_varchar par1 Valor par2
+              | t_character par1 Valor par2
+              | t_charn par1 Valor par2
+              | t_text 
+              | t_boolean 
+
+VALOR ::= decimal
+            | entero
+            | string
+            | char 
+            | t_true
+            | t_false
+            | id
+
+EMPTY ::= vacia
+
+EXP ::= EXP mas EXP
+           | EXP menos EXP
+           | EXP asterisco EXP
+           | EXP div EXP
+           | EXP pot EXP
+           | EXP porcentaje EXP
+           | par1 EXP par2
+
+EXP ::= EXP mayor EXP
+           | EXP mayori EXP
+           | EXP menor EXP
+           | EXP menori EXP
+           | EXP igual EXP
+           | EXP diferente EXP
+           | EXP diferentede EXP
+
+EXP ::= EXP t_and EXP
+       | EXP t_or EXP
+
+EXP ::= mas EXP  %prec umas
+           | menos EXP  %prec umenos
+           | t_not EXP
+
+EXP ::= VALOR
+
+EXP ::=  t_avg par1 EXP par2
+            | t_sum par1 EXP par2
+            | t_count par1 EXP par2
+            | t_max par1 EXP par2
+            | t_min par1 EXP par2
+
+EXP ::= t_abs par1 EXP par2
+            | t_cbrt par1 EXP par2
+            | t_ceil par1 EXP par2
+            | t_ceiling par1 EXP par2
+            | t_degrees par1 EXP par2
+            | t_div par1 EXP coma EXP par2
+            | t_exp par1 EXP par2
+            | t_factorial par1 EXP par2
+            | t_floor par1 EXP par2
+            | t_gcd par1 EXP coma EXP par2
+            | t_ln par1 EXP par2
+            | t_log par1 EXP par2
+            | t_mod par1 EXP coma EXP par2
+            | t_pi par1  par2
+            | t_power par1 EXP coma EXP par2
+            | t_radians par1 EXP par2 
+            | t_round par1 EXP par2 
+            | t_min_scale par1 EXP par2
+            | t_scale par1 EXP par2
+            | t_sign par1 EXP par2
+            | t_sqrt par1 EXP par2 
+            | t_trim_scale par1 EXP par2
+            | t_trunc par1 EXP par2
+            | t_width_bucket par1 Lista_EXP par2
+            | t_random par1 par2
+            | t_setseed par1 EXP par2
+
+EXP ::= t_acos par1 EXP par2
+            | t_acosd par1 EXP par2
+            | t_asin par1 EXP par2
+            | t_asind par1 EXP par2
+            | t_atan par1 EXP par2
+            | t_atand par1 EXP par2
+            | t_atan2 par1 EXP coma EXP par2
+            | t_atan2d par1 EXP coma EXP par2
+            | t_cos par1 EXP par2
+            | t_cosd par1 EXP par2
+            | t_cot par1 EXP par2
+            | t_cotd par1 EXP par2
+            | t_sin par1 EXP par2
+            | t_sind par1 EXP par2
+            | t_tan par1 EXP par2
+            | t_tand par1 EXP par2 
+            
+EXP ::= t_length par1 id par2 
+            | t_substring par1 char coma integer coma integer par2
+            | t_trim par1 char par2
+            | t_md5 par1 char par2
+            | t_sha256 par1 par2
+            | t_substr par1 par2
+            | t_get_byte par1 par2
+            | t_set_byte par1 par2
+            | t_convert par1 EXP t_as Tipo par2
+            | t_encode par1 par2
+            | t_decode par1 par2 
+
+LISTA_ID ::= LISTA_ID coma id
+            | id 
+
+LISTA_ENUM ::= LISTA_ENUM coma char
+               | char
+        
+LISTA_EXP ::= LISTA_EXP coma EXP
+               | EXP 
+
+LISTA_ALIAS ::= LISTA_AlIAS coma NOMBRE_ALIAS
+               | NOMBRE_ALIAS
+
+NOMBRE_ALIAS ::= id id
+
+
+

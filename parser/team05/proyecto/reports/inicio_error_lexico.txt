@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Reporte Léxico</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<style>
+body {
+    font-family: arial, sans-serif;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>
+</head>
+<body class="container">
+<br><br>
+<div class="alert alert-secondary" role="alert">
+  <h2><strong>Tytus DB</strong><br><small>Organización de Lenguajes y Compiladores 2</small></h2>
+  <hr>
+  <p class="mb-0">201213062 - Mónica Raquel Calderon Muñoz</p>
+  <p class="mb-0">201213223 - Astrid Edith Hernandez Gonzalez</p>
+  <p class="mb-0">201213255 - Leonel Eduardo Avila Calvillo</p>
+  <p class="mb-0">201220159 - Diego Ahtohil Noj Armira</p>
+  <p class="mb-0">201220165 - Oscar Rolando Bernard Peralta</p>
+</div>
+<br>
+<h2>Errores Léxicos</h2>
+<p>A continuación se muestra una tabla con los errores léxicos obtenidos durante la ejecución del programa.</p>
+
+<table>
+<tr>
+<th>No.</th>
+<th>Carácter</th>
+<th>Descripción</th>
+<th>Línea</th>
+<th>Columna</th>
+</tr>

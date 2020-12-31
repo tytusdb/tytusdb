@@ -6,5 +6,5 @@ class instruccion(ABC):
         self.column = column
 
     @abstractmethod
-    def ejecutar(self, ambiente):
+    def ejecutar(self):
         pass

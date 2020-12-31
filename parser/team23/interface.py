@@ -3,10 +3,11 @@ from tkinter import ttk
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
-import grammar.execute as gramatica
+import grammar.sql_grammar as gramatica
 from graphviz import Source
-from tools.environment import *
 from tools.console_text import *
+from error.errores import *
+from tools.tabla_simbolos import *
 
 import os
 
@@ -32,9 +33,6 @@ class window:
         self.add_tab("Untitled-"+str(self.count_tabs))
         self.create_consola()
         self.create_status_bar()
-
-        #ambiente para ejecución
-        self.ambiente_ = environment()
 
         #Search and Replace vars
         self.search_text = ""
@@ -70,21 +68,31 @@ class window:
         file_menu.add_separator()
         file_menu.add_command(label="Open File", command=self.open_file , accelerator="Ctrl+O")
         file_menu.add_separator()
-        file_menu.add_command(label="Save File", command=self.save_file, accelerator="Ctrl+S")
-        file_menu.add_command(label="Save As", command=self.save_as, accelerator="Ctrl+Shift+S")
+        file_menu.add_command(label="Save File", command=self.save_file, accelerator="Ctrl+Shift-S")
+        file_menu.add_command(label="Save As", command=self.save_as, accelerator="Ctrl+S")
         file_menu.add_separator()
         file_menu.add_command(label="Close Tab", command=self.delete_tab, accelerator="Ctrl+W")
         file_menu.add_command(label="Exit", command=self.ventana.quit)
 
-        edit_menu.add_command(label="Copy", command=lambda:self.ventana.focus_get().event_generate('<<Copy>>'), accelerator="Ctrl+C")
-        edit_menu.add_command(label="Paste", command=lambda:self.ventana.focus_get().event_generate('<<Paste>>'), accelerator="Ctrl+P")
-        edit_menu.add_command(label="Cut", command=lambda:self.ventana.focus_get().event_generate('<<Cut>>'), accelerator="Ctrl+X")
+        edit_menu.add_command(label="Copy", command=lambda:self.ventana.focus_get().event_generate('<<Copy>>'))
+        edit_menu.add_command(label="Paste", command=lambda:self.ventana.focus_get().event_generate('<<Paste>>'))
+        edit_menu.add_command(label="Cut", command=lambda:self.ventana.focus_get().event_generate('<<Cut>>'))
         edit_menu.add_separator()
         edit_menu.add_command(label="Search", command=self.find_popup, accelerator="Ctrl+F")
         edit_menu.add_command(label="Replace", command=self.replace_popup, accelerator="Ctrl+H")
 
         tools_menu.add_command(label="Ejecutar", command=self.ejecutar_codigo, accelerator="F5")
-        tools_menu.add_command(label="AST")
+        tools_menu.add_separator()
+        tools_menu.add_command(label="AST", command = self.compilar_AST_pdf)
+        tools_menu.add_separator()
+        tools_menu.add_command(label = "Errores Lexicos", command = self.compilar_lexico_pdf)
+        tools_menu.add_command(label = "Errores Sintacticos", command = self.compilar_sintactico_pdf)
+        tools_menu.add_command(label = "Errores Semanticos", command = self.compilar_semantico_pdf)
+        tools_menu.add_command(label = "Todos los errores", command = self.compilar_Error_pdf)
+        tools_menu.add_separator()
+        tools_menu.add_command(label = "Reporte Gramatical", command = self.compilar_grammar_pdf)
+        tools_menu.add_separator()
+        tools_menu.add_command(label = "Tabla de Simbolos", command=self.compilar_ts_pdf)
         #tools_menu.add_command(label="Debug", command=self.open_file, accelerator="F5")
 
         theme_menu = Menu(options_menu, tearoff=0)
@@ -103,20 +111,20 @@ class window:
     def popup_about(self):        
         popup = Tk()
         popup.wm_title("About")
-        popup.geometry("330x180")
+        popup.geometry("330x190")
         popup.resizable(False, False)
 
         label = ttk.Label(popup, text="------------------ EDITOR COMPILADORES 2 ------------------", relief="sunken")
         label.pack(side="top", fill="x", pady=3)
         label = ttk.Label(popup, text="Versión: 1.51.1 (system setup)")
         label.pack(side="top", fill="x", pady=3)
-        label = ttk.Label(popup, text="Confirmación: e5a624b788d92b8d34d1392e4c4d9789406efe8f")
+        label = ttk.Label(popup, text="Confirmación: -----------------------------------")
         label.pack(side="top", fill="x", pady=3)
-        label = ttk.Label(popup, text="Fecha: 2020-11-10T23:34:32.027Z")
+        label = ttk.Label(popup, text="Fecha: 2020-12-10T08:44:32")
         label.pack(side="top", fill="x", pady=3)
         label = ttk.Label(popup, text="Sistema Operativo: Windows_NT x64 10.0.18363")
         label.pack(side="top", fill="x", pady=3)
-        label = ttk.Label(popup, text="Developer: Luis Fernando Arana Arias - 201700988")
+        label = ttk.Label(popup, text="Developer: Luis Fernando Arana Arias - 201700988\nPedro Rolando Ordoñez Carrillo - 201701187\nSteven Aaron Sis Hernandez - 201706357\nDavis Francisco Edward Enriquez - 201700972")
         label.pack(side="top", fill="x", pady=3)
 
         B1 = ttk.Button(popup, text="Close", command = popup.destroy)
@@ -304,9 +312,30 @@ class window:
         imgAst = Image.open(self.dir_os +'/assets/ast.png')
         imgAst = imgAst.resize((20, 20), Image.ANTIALIAS)
         imgAst = ImageTk.PhotoImage(imgAst)
-        AstBtn = Button(myTool, image=imgAst, command=self.compilar_AST_png)
+        AstBtn = Button(myTool, image=imgAst, command=self.compilar_AST_pdf)
         AstBtn.image = imgAst
         AstBtn.pack(side=LEFT, padx=2, pady=2)
+
+        imgErrores = Image.open(self.dir_os +'/assets/error.png')
+        imgErrores = imgErrores.resize((20, 20), Image.ANTIALIAS)
+        imgErrores = ImageTk.PhotoImage(imgErrores)
+        ErroresBtn = Button(myTool, image=imgErrores, command=self.compilar_Error_pdf)
+        ErroresBtn.image = imgErrores
+        ErroresBtn.pack(side=LEFT, padx=2, pady=2)
+
+        imgGrammar = Image.open(self.dir_os +'/assets/grammar.png')
+        imgGrammar = imgGrammar.resize((20, 20), Image.ANTIALIAS)
+        imgGrammar = ImageTk.PhotoImage(imgGrammar)
+        GrammarBtn = Button(myTool, image=imgGrammar, command=self.compilar_grammar_pdf)
+        GrammarBtn.image = imgGrammar
+        GrammarBtn.pack(side=LEFT, padx=2, pady=2)
+
+        imgSimbolo = Image.open(self.dir_os +'/assets/simbolos.png')
+        imgSimbolo = imgSimbolo.resize((20, 20), Image.ANTIALIAS)
+        imgSimbolo = ImageTk.PhotoImage(imgSimbolo)
+        SimboloBtn = Button(myTool, image=imgSimbolo, command=self.compilar_ts_pdf)
+        SimboloBtn.image = imgSimbolo
+        SimboloBtn.pack(side=LEFT, padx=2, pady=2)
 
         myTool.pack(side=TOP, fill=X)
 
@@ -553,7 +582,7 @@ class window:
 
         txt_number.config(state=DISABLED)
         
-    def highlight_pattern(self, pattern, tag, txt_area, start="1.0", end="end", regexp=False):
+    def highlight_pattern(self, pattern, tag, txt_area, start="1.0", end="end", regexp=False, case_sensitive = 0):
         start = txt_area.index(start)
         end = txt_area.index(end)
         txt_area.mark_set("matchStart", start)
@@ -562,7 +591,7 @@ class window:
 
         count = IntVar()
         while True:
-            index = txt_area.search(pattern, "matchEnd","searchLimit", count=count, regexp=regexp)
+            index = txt_area.search(pattern, "matchEnd","searchLimit", count=count, regexp=regexp, nocase=case_sensitive)
             if index == "": break
             if count.get() == 0: break # degenerate pattern which matches zero-length strings
             txt_area.mark_set("matchStart", index)
@@ -661,9 +690,110 @@ class window:
         txt_area.tag_config("boolean", foreground="#FA8C31")
 
         #Palabras
-        self.highlight_pattern("def", "reservada", txt_area)
-        self.highlight_pattern("if", "reservada", txt_area)
-        self.highlight_pattern("else", "reservada", txt_area)
+        self.highlight_pattern(r'/\*(.|\n)*?\*/', "comentario", txt_area, regexp=True)
+        self.highlight_pattern(r'--.*\n', "comentario", txt_area, regexp=True)
+
+        self.highlight_pattern("SELECT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("UPDATE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("WHERE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("JOIN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CREATE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DELETE", "reservada", txt_area, case_sensitive=1)        
+        self.highlight_pattern("COUNT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SUM", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FROM", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CASE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("THEN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ELSE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SMALLINT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INTEGER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("BIGINT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DECIMAL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("NUMERIC", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("REAL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("MONEY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CHAR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CHARACTER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("VARYING", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TIMESTAMP", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("WITHOUT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("WITH", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TIME", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ZONE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DATE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INTERVAL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FIELDS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("YEAR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("MONTH", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DAY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("HOUR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("MINUTE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SECOND", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TO", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("BOOLEAN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("AS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ENUM", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TYPE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("IS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ISNULL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("NOTNULL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("NOT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("AND", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("OR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("BETWEEN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LIKE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("IN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INLIKE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SIMILAR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("REPLACE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("MODE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("OWNER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("IF", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("EXISTS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ALTER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DATABASE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("RENAME", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DROP", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TABLE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("PRIMARY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FOREIGN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("KEY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("REFERENCES", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CONSTRAINT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CHECK", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SET", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INSERT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("BY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("GROUP", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("HAVING", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ORDER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("WHEN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("UNION", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("END", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("VALUES", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INTERSECT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LIMIT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INNER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LEFT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("RIGHT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("OUTER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ASC", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DESC", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("GREATEST", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LEAST", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("OFFSET", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FIRST", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LAST", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FULL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ALL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TRUE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FALSE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INHERITS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("NULL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SHOW", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DATABASES", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("USE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("VARCHAR", "reservada", txt_area, case_sensitive=1)
 
         self.highlight_pattern("==", "item", txt_area)
         self.highlight_pattern("!=", "item", txt_area)
@@ -684,21 +814,37 @@ class window:
         self.highlight_pattern("true", "boolean", txt_area)
         self.highlight_pattern("false", "boolean", txt_area)
         
-        self.highlight_pattern(r'/\*(.|\n)*?\*/', "comentario", txt_area, regexp=True)
         self.highlight_pattern(r'(\".*?\")|(\'.*?\')', "string", txt_area, regexp=True)
 
     def graficar_AST(self, ast_):
         if len(ast_) != 0:
             ast_str = 'digraph AST { \n node [shape=record];\n'
-            
+
+            count_nodos = 0
             for instruccion_ in ast_:
-                ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+instruccion_.nodo.valor +"\"];\n"
-                ast_str += 'start_ast -> node' + instruccion_.nodo.num + ';\n'
-                ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                if count_nodos != 0:                    
+                    ast_str += 'node' + str(count_nodos + 1000000) + '[label =\" Instruccion \"];\n'
+                    ast_str += 'node' + str(count_nodos + 10000) + '[label =\" Instrucciones \"];\n'
+
+                    ast_str += 'node' + str(count_nodos + 10000 - 1) + ' -> node' + str(count_nodos + 1000000) + ';\n'
+                    ast_str += 'node' + str(count_nodos + 10000 - 1) + ' -> node' + str(count_nodos + 10000) + ';\n'
+
+                    ast_str += 'node' + str(count_nodos + 1000000) + ' -> node' + instruccion_.nodo.num + ';\n'
+                    ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+ instruccion_.nodo.valor +"\"];\n"
+                    ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                else:
+                    ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+ instruccion_.nodo.valor +"\"];\n"
+                    ast_str += 'node' + str(count_nodos + 1000000) + '[label =\" Instruccion \"];\n'
+                    ast_str += 'node' + str(count_nodos + 10000) + '[label =\" Instrucciones \"];\n'
+                    ast_str += 'start_ast -> node' + str(count_nodos + 10000) + ';\n'
+                    ast_str += 'start_ast -> node' + str(count_nodos + 1000000) + ';\n'
+                    ast_str += 'node' + str(count_nodos + 1000000) + ' -> node' + instruccion_.nodo.num + ';\n'
+                    ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                count_nodos += 1
                 
             ast_str += '\n}'
 
-            with open('ast_reporte.dot', 'w') as f:
+            with open('ast_reporte.dot', 'w', encoding='utf8') as f:
                 f.write(ast_str)
 
     def graficar_AST_hijos(self, instr_):
@@ -711,10 +857,165 @@ class window:
 
         return t
 
+    def graficar_Gramatical(self, ast_):
+        if len(ast_) != 0:
+            grammar_str = 'digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n'
+            grammar_str += 'arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>PRODUCCIÓN</TD><TD>ACCIONES</TD></TR>\n'
+
+            grammar_str += '<TR><TD>INSTRUCCIONES ::= INSTRUCCION INSTRUCCIONES1</TD><TD>INSTRUCCIONES = INSTRUCCIONES1; INSTRUCCIONES.append(INSTRUCCION); </TD></TR>\n'
+            grammar_str += '<TR><TD>INSTRUCCIONES ::= </TD><TD>INSTRUCCIONES = [];</TD></TR>\n'
+
+            for instr in ast_:
+                grammar_str += instr.grammar_ + '\n'
+
+            grammar_str += '</TABLE>\n>, ];\n}'
+
+            with open('grammar_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(grammar_str)
+
+    def graficar_Errores(self):        
+        if len(errores) != 0:
+            reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
+            reporte_errores += "arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>Tipo Error</TD>\n<TD>Descripcion</TD>\n<TD>Linea</TD>\n<TD>Columna</TD>\n</TR>\n"
+
+            for error_ in errores:
+                reporte_errores += '<TR>'
+                reporte_errores += '<TD>' + error_.descripcion + '</TD>'
+                reporte_errores += '<TD>' + error_.valor +'</TD>'
+                reporte_errores += '<TD>' + error_.line +'</TD>'
+                reporte_errores += '<TD>' + error_.column +'</TD>'
+                reporte_errores += '</TR>\n'
+
+            reporte_errores += '</TABLE>\n>, ];\n}'
+
+            with open('errores_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(reporte_errores)
+
+    def graficar_errores_lexicos(self):
+        if len(errores) != 0:
+            reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
+            reporte_errores += "arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>Tipo Error</TD>\n<TD>Descripcion</TD>\n<TD>Linea</TD>\n<TD>Columna</TD>\n</TR>\n"
+
+            for error_ in errores:
+                if error_.descripcion.lower() == "léxico":
+                    reporte_errores += '<TR>'
+                    reporte_errores += '<TD>' + error_.descripcion + '</TD>'
+                    reporte_errores += '<TD>' + error_.valor +'</TD>'
+                    reporte_errores += '<TD>' + error_.line +'</TD>'
+                    reporte_errores += '<TD>' + error_.column +'</TD>'
+                    reporte_errores += '</TR>'
+
+            reporte_errores += '</TABLE>\n>, ];\n}'
+
+            with open('lexico_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(reporte_errores)
+
+    def graficar_errores_sintacticos(self):
+        if len(errores) != 0:
+            reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
+            reporte_errores += "arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>Tipo Error</TD>\n<TD>Descripcion</TD>\n<TD>Linea</TD>\n<TD>Columna</TD>\n</TR>\n"
+
+            for error_ in errores:
+                if error_.descripcion.lower() == "sintáctico":
+                    reporte_errores += '<TR>'
+                    reporte_errores += '<TD>' + error_.descripcion + '</TD>'
+                    reporte_errores += '<TD>' + error_.valor +'</TD>'
+                    reporte_errores += '<TD>' + error_.line +'</TD>'
+                    reporte_errores += '<TD>' + error_.column +'</TD>'
+                    reporte_errores += '</TR>'
+
+            reporte_errores += '</TABLE>\n>, ];\n}'
+
+            with open('sintactico_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(reporte_errores)
+
+    def graficar_errores_semanticos(self):
+        if len(errores) != 0:
+            reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
+            reporte_errores += "arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>Tipo Error</TD>\n<TD>Descripcion</TD>\n<TD>Linea</TD>\n<TD>Columna</TD>\n</TR>\n"
+
+            for error_ in errores:
+                if error_.descripcion.lower() == "semántico":
+                    reporte_errores += '<TR>'
+                    reporte_errores += '<TD>' + error_.descripcion + '</TD>'
+                    reporte_errores += '<TD>' + error_.valor +'</TD>'
+                    reporte_errores += '<TD>' + error_.line +'</TD>'
+                    reporte_errores += '<TD>' + error_.column +'</TD>'
+                    reporte_errores += '</TR>'
+
+            reporte_errores += '</TABLE>\n>, ];\n}'
+
+            with open('semantico_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(reporte_errores)
+
+    def graficar_TS(self):
+        reporte_ts = ts.reporte_ts()
+
+        with open('ts_reporte.dot', 'w', encoding='utf8') as f:
+            f.write(reporte_ts)
+
+    def compilar_ts_png(self):
+        img = Source.from_file("ts_reporte.dot", format = "png", encoding="utf8")
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "ts_reporte.dot.png")
+
+    def compilar_ts_pdf(self):
+        file_pdf = Source.from_file("ts_reporte.dot", format = "pdf", encoding="utf8")
+        file_pdf.view()
+
+    def compilar_grammar_png(self):
+        img = Source.from_file("grammar_reporte.dot", format = "png", encoding="utf8")
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "grammar_reporte.dot.png")
+
+    def compilar_grammar_pdf(self):
+        file_pdf = Source.from_file("grammar_reporte.dot", format = "pdf", encoding="utf8")
+        file_pdf.view()
+
+    def compilar_semantico_png(self):
+        img = Source.from_file("semantico_reporte.dot", format = "png", encoding='utf8')
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "semantico_reporte.dot.png")
+
+    def compilar_semantico_pdf(self):
+        file_pdf = Source.from_file("semantico_reporte.dot", format = "pdf", encoding='utf8')
+        file_pdf.view()
+
+    def compilar_sintactico_png(self):
+        img = Source.from_file("sintactico_reporte.dot", format = "png", encoding='utf8')
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "sintactico_reporte.dot.png")
+
+    def compilar_sintactico_pdf(self):
+        file_pdf = Source.from_file("sintactico_reporte.dot", format = "pdf", encoding='utf8')
+        file_pdf.view()
+
+    def compilar_lexico_png(self):
+        img = Source.from_file("lexico_reporte.dot", format = "png", encoding='utf8')
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "lexico_reporte.dot.png")
+    
+    def compilar_lexico_pdf(self):
+        file_pdf = Source.from_file("lexico_reporte.dot", format = "pdf", encoding='utf8')
+        file_pdf.view()
+
+    def compilar_Error_png(self):
+        img = Source.from_file("errores_reporte.dot", format="png", encoding='utf8')
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "errores_reporte.dot.png")
+
+    def compilar_Error_pdf(self):
+        file_pdf = Source.from_file("errores_reporte.dot", format="pdf", encoding='utf8')
+        file_pdf.view()
+
     def compilar_AST_png(self):
-        img = Source.from_file("ast_reporte.dot", format="png")
+        img = Source.from_file("ast_reporte.dot", format="png", encoding='utf8')
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "ast_reporte.dot.png")
+
+    def compilar_AST_pdf(self):
+        file_pdf = Source.from_file("ast_reporte.dot", format="pdf", encoding='utf8')
+        file_pdf.view()
 
     def popup_reporte_png(self, master, path):
         top = self.top = Toplevel(master) 
@@ -724,6 +1025,8 @@ class window:
         panel.pack(side = "bottom", fill = "both", expand = "yes")
 
     def ejecutar_codigo(self):
+        errores = []
+        
         tab_list = self.tabControl.winfo_children()
         current_tab = tab_list[self.tabControl.index(CURRENT)]
 
@@ -734,28 +1037,40 @@ class window:
 
         contenido = txt_box.get(1.0, END)
 
+        instruccions = []
+
         try:
             instruccions = gramatica.parse(contenido)
-            self.ejecutar_resultado(instruccions)  
-
-            for tab_item in self.tab_salida.winfo_children():
-                for widget_item in tab_item.winfo_children():                
-                    if isinstance(widget_item, Text):
-                            widget_item.delete('1.0', END)                                                   
-                            add_text("\nPS C:\\Users\\Luis Fer> ")
-                            widget_item.insert(INSERT, get_contenido())
-
-            self.graficar_AST(instruccions)
-        except:            
+            self.ejecutar_resultado(instruccions)
+        except:
             if len(contenido) == 1:
-                self.pop_alert("No hay código para ejecutar")
+                add_text("No hay código para ejecutar")
             else:
-                self.pop_alert("Error al ejecutar el código")
+                add_text("Error al ejecutar el código")
 
+        #Imprimir consola
+        for tab_item in self.tab_salida.winfo_children():
+            for widget_item in tab_item.winfo_children():                
+                if isinstance(widget_item, Text):
+                        widget_item.delete('1.0', END)                                                   
+                        add_text("\nPS C:\\Users\\Grupo 23> ")
+                        widget_item.insert(INSERT, get_contenido())                             
+
+
+        self.graficar_AST(instruccions)  
+        self.graficar_Errores()
+        self.graficar_errores_lexicos()
+        self.graficar_errores_sintacticos()
+        self.graficar_errores_semanticos()
+        self.graficar_Gramatical(instruccions)
+        self.graficar_TS()
+    
     def ejecutar_resultado(self,instrucciones_):
         for instruccion_ in instrucciones_:
-            instruccion_.ejecutar(self.ambiente_)
+            instruccion_.ejecutar()
 
 if __name__ == "__main__":
     index = window()
     index.run()
+
+    

@@ -1,0 +1,6 @@
+parser.out
+parsetab.py
+Graph.gv
+Graph.gv.pdf
+storageManager/
+**/__pycache__/**

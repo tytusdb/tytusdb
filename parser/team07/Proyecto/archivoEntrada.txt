@@ -1,0 +1,14 @@
+create database baseDatos1;
+use baseDatos1;
+create database prueba;
+create table estudiante(
+    idestudiante numeric primary key,
+    nombre varchar not null,
+    apellido varchar not null
+);
+
+insert into estudiante values (1,'jorge','Perez'),
+(2,'Mario','Hernandez'),
+(3,'Juan','Paredes');
+delete from estudiante where nombre = 'jorge';
+update estudiante set nombre = 'Roberto Eduardo' where idestudiante = 2;

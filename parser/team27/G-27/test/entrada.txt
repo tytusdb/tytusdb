@@ -1,0 +1,5 @@
+hola
+596
+SELECT
+56.30
+CREATE DATABASE nuevabase;
