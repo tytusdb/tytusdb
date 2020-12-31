@@ -20,6 +20,8 @@ from execution.symbol.typ import *
 from execution.main import Main
 from execution.symbol.error import *
 TokenError = list()
+ListaIndices = list()
+ListaAux = list()
 
 # ======================================================================
 #                          INSTRUCCIONES DDL
@@ -175,7 +177,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
               'LENGTH','TRIM','GET_BYTE','MD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS','SQRT','SIGN',
               'TRUNC','RADIANS','RANDOM','WIDTH_BUCKET'
-              ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL'
+              ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL','INDEX','HASH','INCLUDE','COLLATE'
               ]
 
 tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -295,16 +297,14 @@ def t_HORA(t):
 
 
 def t_CADENASIMPLE(t):
-    r'\'.*?\''
+    r'\'(\s*|.*?)\''
     t.value = str(t.value)
-    t.value = t.value[1:-1]
     return t
     
 # expresion regular para reconocer cadenas
 def t_CADENA(t):
-    r'\".*?\"'
+    r'\"(\s*|.*?)\"'
     t.value = str(t.value)
-    t.value = t.value[1:-1]
     return t
 
 # expresion regular para saltos de linea
@@ -385,7 +385,8 @@ def p_instrucciones_evaluar(t):
                    | instruccion_if
                    | instruccion_case
                    | procedure
-                   | call'''
+                   | call
+                   | create_index'''
     t[0] = t[1]
 
 def p_instruccion_use(t):
@@ -1651,6 +1652,156 @@ def p_parametros_call(t):
 def p_parametro_call(t):
     '''parametro_call : tipo_default'''
 
+
+
+# DECLARACION DE LA GRAMATICA DE LOS INDICES
+
+def p_create_index(t):
+    '''create_index : CREATE arg_unique INDEX ID ON ID arg_hash PARABRE param_index PARCIERRE arg_include arg_where_index arg_punto_coma'''
+    for item in ListaAux:
+        guardarIndice(t[4],t[6],item)
+    ListaAux.clear()
+    t[0] = t[1] +' '+ t[2] + t[3] +' '+ t[4] +' '+ t[5] +' '+ t[6] +' '+ t[7] + t[8] +' '+ t[9] +' '+t[10] +' '+t[11]+t[12]+t[13]
+
+def p_arg_include(t):
+    '''arg_include : INCLUDE PARABRE index_str PARCIERRE
+                   | '''#EPSILON
+
+    if len(t) == 5:
+        t[0] = t[1] +' '+ t[2]  +' '+ t[3] +' '+ t[4] +' '
+    else:
+        t[0] = ''
+
+def p_param_index(t):
+    '''param_index : id_list arg_order arg_null
+                   | PARABRE concat_list PARCIERRE
+                   | ID ID 
+                   | ID COLLATE tipo_cadena'''
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2] 
+        ListaAux.append(str(t[1])) 
+    elif len(t) == 4:
+        if  t.slice[1].type == 'PARABRE':
+            t[0] = t[1] +' '+ t[2]  +' '+ t[3]
+            ListaAux.append(str(t[2])) 
+        elif t.slice[2].type == 'COLLATE':
+            t[0] = t[1] +' '+ t[2]  +' '+ t[3]
+            ListaAux.append(str(t[1]))  
+        else:
+            if t[2] == '' and t[3] == '':
+                t[0] = t[1]
+            elif t[2] == '' and t[3] != '':
+                t[0] = t[1] +' '+ t[3]
+            elif t[2] != '' and t[3] == '':
+                t[0] = t[1] +' '+ t[2]
+            elif t[2] != '' and t[3] != '':
+                t[0] =t[1] +' '+ t[2]  +' '+ t[3] 
+
+def p_tipo_cadena(t):
+    '''tipo_cadena : CADENA
+                   | CADENASIMPLE'''
+    
+    t[0] = t[1]  
+
+def p_concat_list(t):
+    '''concat_list : concat_list SIGNO_DOBLE_PIPE index_str
+                   | index_str'''
+    if len(t) == 4:
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]      
+    else: 
+        t[0] = t[1]  
+        
+def p_index_str(t):
+    '''index_str : ID
+                 | ID PARABRE ID PARCIERRE
+                 | CADENA
+                 | CADENASIMPLE'''
+    if len(t) == 2:
+        t[0] = t[1]        
+    else:  
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]+' '+ t[4]
+
+def p_arg_hash(t):
+    '''arg_hash : USING HASH
+                | '''#EPSILON
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2]+' '
+    else: 
+        t[0] = ''
+
+def p_id_list(t):
+    '''id_list : id_list COMA index
+               | index'''
+    if len(t) == 4 :
+        t[0] = t[1] + t[2] + t[3]
+        ListaAux.append(str(t[3]))
+    else: 
+        t[0] = t[1]
+        ListaAux.append(str(t[1]))
+
+def p_index(t):
+    '''index : ID PARABRE ID PARCIERRE
+             | ID'''
+
+    if len(t) == 5:
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]+' '+ t[4]
+    else: 
+        t[0] = t[1]
+
+def p_arg_punto_coma(t):
+    '''arg_punto_coma : PUNTO_COMA
+                      | '''#EPSILON
+    
+    if len(t) == 2:
+        t[0] = t[1] 
+    else: 
+        t[0] = ''
+
+def p_arg_unique(t):
+    '''arg_unique : UNIQUE
+                  | '''#EPSILON
+
+    if len(t) == 2:
+        t[0] = t[1]+' '
+    else: 
+        t[0] = ''
+
+def p_arg_order(t):
+    '''arg_order : ASC 
+                 | DESC
+                 | '''#EPSILON
+
+    if len(t) == 2:
+        t[0] = t[1]
+    else: 
+        t[0] = ''
+
+def p_arg_null(t):
+    '''arg_null :  NULLS FIRST
+                 | NULLS LAST
+                 | '''#EPSILON}
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2]
+    else: 
+        t[0] = ''
+
+def p_arg_where_index(t):
+    '''arg_where_index : WHERE arg_where_param 
+                       | '''#EPSILON
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2]+' '
+    else: 
+        t[0] = ''
+def p_arg_where_param(t):
+    '''arg_where_param : PARABRE exp PARCIERRE
+                       | exp'''
+    if len(t) == 4:
+        t[0] = t[1] +' '+ str(t[2]) +' '+ t[3]
+    else: 
+        t[0] = str(t[1])
+
+
+
 def p_error(t):
     if t != None:
         err = T_error('SINTACTICO', t.value, 'ERROR SINTÁCTICO', str(t.lineno), str(t.lexpos))
@@ -1662,6 +1813,13 @@ def get_errores():
 
 def clear_errores():
     TokenError.clear()
+
+#metodo para guardar los indices en un arreglo de diccionarios
+#diccionario -> {'name':nombre_indice,'table':tabla donde se inserta el indice, 'columns':columnas o columnas donde se insertara ese indice}
+
+def guardarIndice(name,table,columns):
+    ind = {'name':name,'table':table,'columns':columns}
+    ListaIndices.append(ind)
 
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar
