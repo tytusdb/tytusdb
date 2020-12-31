@@ -2,6 +2,7 @@ from .expression_enum import OpArithmetic, OpRelational, OpLogic, OpPredicate
 from datetime import date, datetime
 from parse.errors import Error, ErrorType
 from parse.ast_node import ASTNode
+import hashlib
 
 
 class Numeric(ASTNode):
@@ -11,7 +12,7 @@ class Numeric(ASTNode):
         self.graph_ref = graph_ref
 
     def execute(self, table, tree):
-        super().execute(self, table, tree)
+        super().execute(table, tree)
         return self.val
 
     def generate(self, table, tree):
@@ -411,3 +412,18 @@ class Nullable(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         return ''
+
+
+class MD5_(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        try:
+            return hashlib.md5(exp.encode('utf-8')).hexdigest()
+        except :
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'MD5 error'))
