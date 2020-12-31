@@ -1879,7 +1879,6 @@ def p_EXPR_BINARIAS(p):
                      | E menormenor E
                      | E mayormayor E'''
     if len(p) == 3:
-        print("entro con trim xd")
         p[0] = SFuncBinary(p[1], p[2])
     if len(p) == 4:
         p[0] = SFuncBinary2(p[2], p[1], p[3])
