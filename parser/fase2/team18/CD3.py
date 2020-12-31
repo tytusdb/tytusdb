@@ -1,6 +1,6 @@
 from storageManager import jsonMode as EDD
 import json
-
+import copy
 
 #variables
 listaSalida=[]
@@ -170,6 +170,238 @@ def PDropTable(nombreBase,nombreTabla):
     txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
     txt+="\tCD3.EDropTable()\n"
     agregarInstr(drop_tb,txt)
+
+
+
+
+#EMPIEZA MIO *****************
+
+    TTv=""
+
+def PAlterRenameDatabase(nombreBaseOld,nombreBaseNew):
+    global TTv
+    valores=[nombreBaseOld,nombreBaseNew]
+    TTv=""
+    addLine("#ALTER Rename Database")
+    addLine("t"+str(numT())+"=\'"+nombreBaseOld+"\'")
+    addLine("t"+str(numT())+"=\'"+nombreBaseNew+"\'")
+    addLine("CD3.EAltRenameDatabase()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+def PAlterTbRenameConst(NombreTabla,ID1,ID2):
+    global TTv
+    valores=[NombreTabla,ID1,ID2]
+    TTv=""
+    addLine("#ALTER TABLE RENAME Constraint")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Old Name")
+    addLine("t"+str(numT())+"=\'"+ID1+"\'")
+    addLine("#New Name")
+    addLine("t"+str(numT())+"=\'"+ID2+"\'")
+    #addLine("    CD3.EAltRenameDatabase()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+def PAlterTbRenameTable(baseActiva, NombreTabla,ID1):
+    global TTv
+    valores=[baseActiva, NombreTabla,ID1]
+    TTv=""
+    addLine("#ALTER TABLE RENAME Table")
+    addLine("#Old Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#New Table Name")
+    addLine("t"+str(numT())+"=\'"+ID1+"\'")
+    addLine("CD3.EAltTbRenameTable()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+
+def PAlterTbRenameColum(baseActiva,NombreTabla,ID1,ID2):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID1,ID2]
+    TTv=""
+    addLine("#ALTER TABLE RENAME Column")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Old Name")
+    addLine("t"+str(numT())+"=\'"+ID1+"\'")
+    addLine("#New Name")
+    addLine("t"+str(numT())+"=\'"+ID2+"\'")
+    #addLine("    CD3.EAltRenameDatabase()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+def PAlterTbAlterSNN(baseActiva,NombreTabla,ID):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN set not null")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Columna:"+ID+" SET NOT NULL")
+    addLine("t"+str(numT())+"=\'"+ID+"\'")
+    #addLine("    CD3.EAltRenameDatabase()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+
+def PAlterTbAlterSDT(baseActiva,NombreTabla,ID,OPEE1):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID,OPEE1]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN set data type")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Columna:"+ID+" SET DATA TYPE")
+    addLine("t"+str(numT())+"=\'"+ID+"\'")
+    addLine("#New Type")
+    addLine("t"+str(numT())+"=\'"+OPEE1+"\'")
+    #addLine("    CD3.EAltRenameDatabase()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+def PAlterTbAlterSDef(baseActiva,NombreTabla,ID,valCOL):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID,valCOL]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN set default")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Columna:"+ID+" SET DEFAULT")
+    addLine("t"+str(numT())+"=\'"+ID+"\'")
+    addLine("#New Default")
+    addLine("t"+str(numT())+"=\'"+str(valCOL)+"\'")
+    #addLine("    CD3.EAltRenameDatabase()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+def PAlterTbAlterDNN(baseActiva,NombreTabla,ID):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN drop not null")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Columna:"+ID+" DROP NOT NULL")
+    addLine("t"+str(numT())+"=\'"+ID+"\'")
+    #addLine("    CD3.EAltRenameDatabase()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+def PAlterTbAlterDDef(baseActiva,NombreTabla,ID):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN drop default")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Columna:"+ID+" DROP DEFAULT")
+    addLine("t"+str(numT())+"=\'"+ID+"\'")
+    #addLine("    CD3.EAltRenameDatabase()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+
+def PAlterTbAlterDropCol(baseActiva,NombreTabla,ID):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN drop column")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Columna:"+ID+" DROP COLUMN")
+    addLine("t"+str(numT())+"=\'"+ID+"\'")
+    addLine("CD3.EAltTbAlterDropCol()")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+def PAlterTbAlterDropConst(baseActiva,NombreTabla,ID):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN drop constraint")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Constraint:"+ID+" DROP constraint")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)
+
+
+
+def PAlterTbAlterAddConstUni(baseActiva,NombreTabla,ColN,ID):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN add constraint unique")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Column Name")
+    addLine("t"+str(numT())+"=\'"+ColN+"\'")
+    addLine("#Constraint:"+ID+" ADD constraint unique")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)  
+
+
+def PAlterTbAlterAddConstPrim(baseActiva,NombreTabla,ColN,ID):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN add constraint primary")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Column Name")
+    addLine("t"+str(numT())+"=\'"+ColN+"\'")
+    addLine("#Constraint:"+ID+" ADD constraint primary")
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)  
+
+
+
+def PAlterTbAlterAddConstFor(baseActiva,NombreTabla,ColN,ID):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN add constraint foreign")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Column Name")
+    addLine("t"+str(numT())+"=\'"+ColN+"\'")
+    addLine("#Constraint:"+ID+" ADD constraint foreign")
+
+
+
+def PAlterTbAlterAddCol(baseActiva,NombreTabla,ID,TIPO):
+    global TTv
+    valores=[baseActiva,NombreTabla,ID]
+    TTv=""
+    addLine("#ALTER TABLE ALTER COLUMN add column")
+    addLine("#Table Name")
+    addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
+    addLine("#Column Name")
+    addLine("t"+str(numT())+"=\'"+ID+"\'")
+    addLine("#Column Type:"+TIPO)
+    addLine("CD3.EAltTbAlterAddCol()")
+
+    txt=copy.deepcopy(TTv)
+    agregarInstr(valores,txt)  
+
+
+def addLine(cadena):
+    global TTv
+    TTv+=("\t"+cadena+"\n")
+
+#FIN MIO *****************
+
+
 
 #escribir archivo
 def CrearArchivo():

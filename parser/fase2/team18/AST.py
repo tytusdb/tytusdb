@@ -1334,6 +1334,7 @@ def AlterDBF(instr,ts):
         retorno=EDD.alterDatabase(NombreBaseDatos, ValorInstruccion)
 
         if retorno==0:
+            CD3.PAlterRenameDatabase(NombreBaseDatos,ValorInstruccion)
             Rename_Database(NombreBaseDatos,ValorInstruccion)
             outputTxt='La base de datos Old_Name: '+NombreBaseDatos +', New_Name: '+ValorInstruccion 
             outputTxt+='\n> se ha renombrado exitosamente '
@@ -1485,7 +1486,7 @@ def AlterTBF(instr,ts):
                         col_new.nombre=ID
                         col_new.tipo=TIPO
                         col_new.constraint=constraint_name()
-
+                        CD3.PAlterTbAlterAddCol(baseActiva,NombreTabla,ID,TIPO)
                         if (VALORTIPO!="") and (VALORTIPO!=None) and (VALORTIPO!=0):
                             valor= resolver_operacion(VALORTIPO[0],ts)
                             if valor!=None:
@@ -1667,7 +1668,7 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
 
     #servira para escribir los cambios temporalmente
     tab_Temp=copy.deepcopy(tablab)
-
+    NombreTabla=(tablab[0]).nombre
 
 
     #Revisa que No exista el nombre constraint si se fuera a poner
@@ -1735,12 +1736,16 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                         #usara el objeto tempral tablab=tab_Temp ,
                         #Asigna el valor Verdadero
                         (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                        nobs=(((tab_Temp[0]).atributos)[subCont]).nombre
+                        CD3.PAlterTbAlterAddConstUni(baseActiva,NombreTabla,nobs,ID)
                     elif (ID==0 or ID==None or ID=="") and pre_con==None and not(DatoRepetido) and not(DatoRepetidoQuery):
                         print("INGRESO NO ID TIENE:")
                         #SI UNIQUE NO HA SIDO ASIGNADO, y NO se le puso ID , y si NO REGISTROS REPETIDOS
                         #ID= concatena columnas col_col2_col3_etc
                         ((((tab_Temp[0]).atributos)[subCont]).constraint).unique=new_id
                         #Asigna el valor Verdadero
+                        nobs=(((tab_Temp[0]).atributos)[subCont]).nombre
+                        CD3.PAlterTbAlterAddConstUni(baseActiva,NombreTabla,nobs,new_id)
                         (((tab_Temp[0]).atributos)[subCont]).unique='True'
                     else:
                         print("Unique Error")
@@ -1770,6 +1775,7 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
         print(((((tab_Temp[0]).atributos)[0]).constraint).unique)
         if existenCols==1:
             #procede a actualizar la tabla
+
             pre_con=((((tab_Temp[0]).atributos)[0]).constraint).unique
             pre_con1=((((tablab[0]).atributos)[1]).constraint).unique
             pre_con2=((((tablab[0]).atributos)[2]).constraint).unique
@@ -1853,7 +1859,9 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                         (((tab_Temp[0]).atributos)[subCont]).primary='True'
                         (((tab_Temp[0]).atributos)[subCont]).unique='True'
                         (((tab_Temp[0]).atributos)[subCont]).anulable='False'
-
+                        nobs=(((tab_Temp[0]).atributos)[subCont]).nombre
+                        CD3.PAlterTbAlterAddConstPrim(baseActiva,NombreTabla,nobs,ID)
+                        
                     elif (ID==0 or ID==None or ID=="") and (pre_con) and not(DatoRepetido) and not(DatoRepetidoQuery) and not(nulosR):
                         print("INGRESO NO ID TIENE:")
                         #SI UNIQUE NO HA SIDO ASIGNADO, y NO se le puso ID , y si NO REGISTROS REPETIDOS
@@ -1863,6 +1871,9 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                         (((tab_Temp[0]).atributos)[subCont]).primary='True'
                         (((tab_Temp[0]).atributos)[subCont]).unique='True'
                         (((tab_Temp[0]).atributos)[subCont]).anulable='False'
+                        nobs=(((tab_Temp[0]).atributos)[subCont]).nombre
+                        CD3.PAlterTbAlterAddConstPrim(baseActiva,NombreTabla,nobs,new_id)
+                    
                     else:
                         print("Unique Error")
                         existenCols=0
@@ -2085,9 +2096,14 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                         #asigna el nombre de la foranea
                         if (ID!=0 and ID!=None and ID!=""):
                             ((tabla_Temp.atributos)[(Colum_P[1])].constraint).foreign=ID
+                            nobs=((tabla_Temp.atributos)[(Colum_P[1])]).nombre
+                            CD3.PAlterTbAlterAddConstFor(baseActiva,NombreTabla,nobs,ID)
                             GuardaF=True
                         elif (ID==0 or ID==None or ID==""):
                             ((tabla_Temp.atributos)[(Colum_P[1])].constraint).foreign=new_id
+                            nobs=((tabla_Temp.atributos)[(Colum_P[1])]).nombre
+                            CD3.PAlterTbAlterAddConstFor(baseActiva,NombreTabla,nobs,new_id)
+                            
                             GuardaF=True
                         else:
                             ' '
@@ -2339,6 +2355,7 @@ def Msg_Alt_Rename(NombreTabla,ID1,retorno):
 def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
     NombreTabla=instr.Id
     global listaTablas
+    global baseActiva
 
     if 1==1:
         #Busca la tabla 
@@ -2395,6 +2412,7 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                             (columnab[0]).anulable="False"
                             #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
                             (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]])=columnab[0]
+                            CD3.PAlterTbAlterSNN(baseActiva,NombreTabla,ID)
                             msg='Se agrego exitosamente NOT NULL a:'+ID
                             agregarMensjae('normal',msg,'')
                         else:
@@ -2426,6 +2444,7 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                         print("1:",OPE1,"22:",OPE2,"3:",OPE3,"4:",OPEE1,"5:",OPEE2)
                         if algun_No_Cast==0 and (OPEE1!="" or OPEE1!=None or OPEE1!=''):
                             (columnab[0]).tipo=OPEE1
+                            CD3.PAlterTbAlterSDT(baseActiva,NombreTabla,ID,OPEE1)
                             if OPEE2!=0:
                                 OP=OPEE2[0]
                                 (columnab[0]).size=resolver_operacion(OP,ts)
@@ -2464,6 +2483,7 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                             print(T," ",valCOL)
                             #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
                             (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]]).default=valCOL
+                            CD3.PAlterTbAlterSDef(baseActiva,NombreTabla,ID,valCOL)
                             msg='Se agrego exitosamente DEFAULT a la columna:'+ID
                             agregarMensjae('normal',msg,'')
                     elif OPE1.upper()=="DROP" and OPE2.upper()=="NOT":
@@ -2471,6 +2491,7 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                         (columnab[0]).anulable=None
                         #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
                         (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]])=columnab[0]
+                        CD3.PAlterTbAlterDNN(baseActiva,NombreTabla,ID)
                         msg='Se Elimino exitosamente NOT NULL de la columna:'+ID
                         agregarMensjae('normal',msg,'')
                     elif OPE1.upper()=="DROP" and OPE2.upper()=="DEFAULT":
@@ -2478,6 +2499,7 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
                         (columnab[0]).default=None
                         #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
                         (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]])=columnab[0]
+                        CD3.PAlterTbAlterDDef(baseActiva,NombreTabla,ID)
                         msg='Se elimino exitosamente DEFAULT de la columna:'+ID
                         agregarMensjae('normal',msg,'')
                     else:
@@ -2516,6 +2538,7 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
         ' '
 
         RenomForanConstraint(NombreTabla,ID1,ID2)
+        CD3.PAlterTbRenameConst(NombreTabla,ID1,ID2)
         outputTxt="Se renombro exitosamente Constraint"+ID1+" por:"+ID2
         agregarMensjae('normal',outputTxt,"")
 
@@ -2530,6 +2553,7 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
             #hace copia de las tablas 
             #tablab=copy.copy(Get_Table(copy.deepcopy(NombreTabla)))
             #recorre las tablas para modificar el nombre de la tabla
+            CD3.PAlterTbRenameTable(baseActiva, NombreTabla,ID1)
             conta=0
             for tab_t in listaTablas:
                 if (tab_t.nombre)==NombreTabla:
@@ -2566,6 +2590,7 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
                 #Si el nombre no existe en la tabla procede a cambiarlo
                 if len(columnaComprueba)==0:
                     RenomForanCol(NombreTabla,ID1,ID2)
+                    CD3.PAlterTbRenameColum(baseActiva,NombreTabla,ID1,ID2)
                     head_Tabla_Cols=(tablab[0]).atributos
                     #Renombra la columna
                     (head_Tabla_Cols[columnab[1]]).nombre=ID2
@@ -2785,6 +2810,7 @@ def BuscForanCol(NombreTabla,ID1):
 
 
 def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
+    global baseActiva
     if INSTRUCCION.upper()=="COLUMN" or INSTRUCCION.upper()=="ID":
         #busco la Tabla en las cabeceras
         tablaB=Get_Table(NombreTabla)
@@ -2816,6 +2842,7 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
                 print (retorno)
                 if retorno==0:
                     ' '
+                    CD3.PAlterTbAlterDropCol(baseActiva,NombreTabla,ID)
                     posicion=ColumnInfo[1]
                     del ((listaTablas[tablaB[1]]).atributos)[posicion]
                     outputTxt="Se ha eliminado satisfactoriamente la columna"
@@ -2834,6 +2861,7 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
     elif INSTRUCCION.upper()=="CONSTRAINT":
         ' '
         DropForanConstraint(NombreTabla,ID)
+        CD3.PAlterTbAlterDropConst(baseActiva,NombreTabla,ID)
         outputTxt="Se ha eliminado satisfactoriamente Constraint:"+ID
         agregarMensjae('normal',outputTxt,"")
 
