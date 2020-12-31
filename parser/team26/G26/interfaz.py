@@ -1,6 +1,8 @@
 from tkinter import * #importando tkinter
 import tkinter as TK
+
 import gramatica as g
+import gramaticaF2 as g2
 import Utils.TablaSimbolos as table
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
@@ -39,7 +41,12 @@ def analisis():
 
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
+
+    code3d = g2.parse(texto)
+    print(code3d['text'])
+
     instrucciones = g.parse(texto)
+    
     erroresSemanticos = []
 
     try:
