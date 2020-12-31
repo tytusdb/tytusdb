@@ -4,8 +4,8 @@
 # Developers: SG#16
 
 
-from DataAccessLayer.handler import Handler
-from Models.avl_tree import AVLTree
+from ..DataAccessLayer.handler import Handler
+from ..Models.avl_tree import AVLTree
 
 
 class TableModule:
