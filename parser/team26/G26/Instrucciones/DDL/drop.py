@@ -54,6 +54,8 @@ class Drop(Instruccion):
             for id in pks :
                 for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas'] : 
                     for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][table]['columns'] :
+                        if col.fk == None :
+                            continue
                         for fk in col.fk:
                             if fk == None : 
                                 continue

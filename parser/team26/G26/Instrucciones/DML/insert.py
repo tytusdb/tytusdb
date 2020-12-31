@@ -302,7 +302,12 @@ class Insert(Instruccion):
                 for chk in checkk :
                     if chk == None:
                         continue
-                    if chk.val.executeInsert(data, diccionarioTabla) :
+                    try:
+                        pruebabool = chk.val.executeInsert(data, diccionarioTabla)
+                    except :
+                        pruebabool = chk.val.execute(data, diccionarioTabla)
+
+                    if pruebabool :
                         ''
                     else:
                         error = Error('Semántico', 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.', 0, 0)

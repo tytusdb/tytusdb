@@ -844,6 +844,15 @@ def p_funciones_matematicas_simples(t):
         reporte += "MIN PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
     t[0] = { 'ast' : select.FuncionMatematicaSimple(t[1].lower(),t[3]['ast']) , 'graph' :  grafo.index, 'reporte': reporte}
 
+def p_funciones_matematicas_simplesa(t):
+    'funcionesmatematicassimples  : COUNT PARENIZQ ASTERISCO  PARENDER '
+    grafo.newnode('F_MATH_SIM')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenE(t[3])
+    reporte = "<funcionesmatematicassimples> ::= "
+    reporte += "COUNT PARENIZQ ASTERISCO PARENDER\n"
+    t[0] = { 'ast' : select.FuncionMatematicaSimple(t[1].lower(),ident.Identificador(None, t[3])) , 'graph' :  grafo.index, 'reporte': reporte}
+
 def p_funciones_binarias(t):
     '''funcionesbinarias    : LENGTH PARENIZQ  argument   PARENDER
                             | SUBSTRING PARENIZQ  argument  COMA  ENTERO  COMA  ENTERO  PARENDER
@@ -1849,7 +1858,7 @@ def p_drop(t):
     reporte = "<drop> ::= "
     if t[1].lower() == 'database' :
         reporte +=  "DATABASE <dropdb> PTCOMA\n" + t[2]['reporte']
-        t[0] = {'ast' : t[2], 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == "table":
         grafo.newnode('DROP')
         grafo.newchildrenE('TABLE')
@@ -2281,18 +2290,19 @@ def p_comparacionlogica(t):
     t[0] = {'ast' : t[1].lower(), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicion(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
-    '''condicion    : NOT condicion
-                    | condicions'''
+    '''condicion    : NOT condicion'''
     grafo.newnode('CONDICION')
-    if isinstance(t[1]['ast'], condicion.Condicionales) :
-        grafo.newchildrenF(grafo.index, t[1]['graph'])
-        reporte = "<condicion> ::= <condicions>\n" + t[1]['reporte']
-        t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
-    else :
-        grafo.newchildrenE('NOT')
-        grafo.newchildrenF(grafo.index, t[2]['graph'])
-        reporte = "<condicion> ::= NOT <condicion>\n" + t[2]['reporte']
-        t[0] = {'ast' : condicion.IsNotOptions(True, t[2]['ast'], False), 'graph' : grafo.index, 'reporte': reporte}
+    grafo.newchildrenE('NOT')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<condicion> ::= NOT <condicion>\n" + t[2]['reporte']
+    t[0] = {'ast' : condicion.IsNotOptions(True, t[2]['ast'], False), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_condicionPs(t):
+    '''condicion    : condicions'''
+    grafo.newnode('CONDICION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<condicion> ::= <condicions>\n" + t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicions(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''condicions : argument MENORQUE argument
@@ -2398,13 +2408,13 @@ def p_betweenopcion(t):
     if isinstance(t[1]['ast'], primi.Primitive) or isinstance(t[1]['ast'], arit.Arithmetic) or isinstance(t[1]['ast'], ident.Identificador) :
         grafo.newchildrenF(grafo.index, t[1]['graph'])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
-        reporte = "<betweenopcion> ::= <symm> <argument> AND <argument>\n" + t[1]['reporte'] + t[2]['reporte'] + t[4]['reporte']
+        reporte = "<betweenopcion> ::= <argument> AND <argument>\n" + t[1]['reporte'] + t[3]['reporte']
         t[0] = {'ast' : condicion.Between(False, t[1]['ast'], t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE('SYMMETRIC')
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        reporte = "<betweenopcion> ::= <argument> AND <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+        reporte = "<betweenopcion> ::= <symm> <argument> AND <argument>\n" + t[1]['reporte'] + t[2]['reporte'] + t[4]['reporte']
         t[0] = {'ast' : condicion.Between(True, t[2]['ast'], t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_symmetric(t):

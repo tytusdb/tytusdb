@@ -4,7 +4,7 @@ import math
 
 def check( tipoDato:DBType , primitivo: Type, dato, lenght):
     if primitivo == Type.INT or primitivo  == Type.DECIMAL:
-        if not isinstance(dato, int):
+        if not isinstance(dato, int) and not isinstance(dato,float):
             return 'El tipo de la columna es numérico y el dato ingresado no coincide.'
         if tipoDato == DBType.smallint:
             #-32768 to +32767
@@ -44,6 +44,8 @@ def check( tipoDato:DBType , primitivo: Type, dato, lenght):
     elif primitivo == Type.STRING:
         if not isinstance(dato, str):
             return 'El tipo de la columna es tipo cadena y el valor que se desea insertar'
+        if tipoDato == DBType.text :
+            return True
         if len(dato) > lenght:
             return 'El dato a insertar cuenta con más de ' + str(lenght) + ' carácteres.'
         return True
@@ -55,19 +57,36 @@ def check( tipoDato:DBType , primitivo: Type, dato, lenght):
         return True
     elif primitivo == Type.DATE:
         # Limite máximo '5874897-12-31'
-        data = dato.split('-')
-        yCond = data[0] <= 5874897 and data[0] >= 0
-        mCond = data[1] <= 12 and data[1] >= 1
-        dCond = data[2] <= 31 and data[2] >= 1
+        data2 =''
+        data1= str(dato).split(' ')
+        if isinstance(data1,list):
+            data2 = data1[0]
+        else:
+            data2 = str(dato) 
+        data = data2.split('-')
+        yCond = int(data[0]) <= 5874897 and int(data[0]) >= 0
+        mCond = int(data[1]) <= 12 and int(data[1]) >= 1
+        dCond = int(data[2]) <= 31 and int(data[2]) >= 1
         if  not (yCond and  mCond and  dCond):
             return 'La fecha indicada no cumple con el formato o sobrepasa el limite: "5874897-12-31"'
         return True
     elif primitivo == Type.TIME:
         # Limite máximo '23:59:59'
-        data = dato.split(':')
-        hCond = data[0] <= 23 and data[0] >= 0
-        mCond = data[1] <= 59 and data[1] >= 0
-        sCond = data[2] <= 59 and data[2] >= 0
+        data2 =''
+        data1= str(dato).split(' ')
+        if isinstance(data1,list):
+            if len(data1) ==2:
+                data2 = data1[1]
+            else:
+                data2 = data1[0]
+
+        else:
+            data2 = str(dato) 
+
+        data = data2.split(':')
+        hCond = int(data[0]) <= 23 and int(data[0]) >= 0
+        mCond = int(data[1]) <= 59 and int(data[1]) >= 0
+        sCond = int(data[2]) <= 59 and int(data[2]) >= 0
         if  not (hCond and  mCond and  sCond):
             return 'La hora indicada no cumple con el formato adecuado o excede una hora válida.'
         return True
