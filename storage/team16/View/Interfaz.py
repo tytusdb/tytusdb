@@ -8,7 +8,7 @@ from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOT
     Scrollbar, Listbox, Grid, Entry, filedialog, messagebox, Toplevel, Canvas
 from tkinter.ttk import Combobox
 from PIL import Image, ImageTk
-from View.controller import Controller, Enums
+from .controller import Controller, Enums
 
 
 class GUI(Frame):
@@ -24,7 +24,7 @@ class GUI(Frame):
 
     def initComp(self):
         self.master.title("EDD - TytusDB")
-        self.master.iconbitmap('View/img/logo.ico')
+        self.master.iconbitmap('team16/View/img/logo.ico')
         self.master.deiconify()
         self.centrar()
         if self.val == 1:
@@ -53,7 +53,7 @@ class GUI(Frame):
     def ventanaFunciones(self):
         v2 = Toplevel()
         self.master.iconify()
-        image = Image.open('View/img/function.png')
+        image = Image.open('team16/View/img/function.png')
         background_image = ImageTk.PhotoImage(image.resize((1060, 680)))
         background_label = Label(v2, image=background_image)
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -438,7 +438,7 @@ class GUI(Frame):
 
 def run():
     v1 = Tk()
-    image = Image.open('View/img/main.png')
+    image = Image.open('team16/View/img/main.png')
     background_image = ImageTk.PhotoImage(image.resize((500, 500)))
     background_label = Label(v1, image=background_image)
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
