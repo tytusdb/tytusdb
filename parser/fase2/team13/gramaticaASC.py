@@ -242,8 +242,14 @@ reservadas = {
     'continue':'tcontinue',
     'exit':'texit',
     'raise':'raise',
-    'notice':'notice'
-
+    'notice':'notice',
+    'rowtype':'rowtype',
+    'procedure':'procedure',
+    'next':'next',
+    'out': 'out',
+    'constant': 'constant',
+    'query': 'tquery',
+    'inout': 'inout' 
 }
 
 # LISTA DE TOKENS
@@ -470,7 +476,7 @@ import re
 precedence = (
     ('right', 'not'),
     ('left', 'And'),
-    ('left', 'or'),
+    ('left', 'or','barraDoble'),
     ('left', 'diferente', 'igual', 'mayor', 'menor', 'menorIgual', 'mayorIgual'),
     ('left', 'punto'),
     ('right', 'umenos'),
@@ -519,7 +525,8 @@ def p_sentencia(t):
                  | INSERT
                  | QUERIES ptComa
                  | USEDB
-                 | CREATE_FUNCION 
+                 | CREATE_FUNCION
+                 | BLOCKDO 
     '''
     t[0] = t[1]
 
@@ -528,14 +535,26 @@ def p_sentencia(t):
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< Edi Yovani Tomas  <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+def p_BLOCKDO(t):
+    ''' BLOCKDO :   dobledolar BLOQUE dobledolar ptComa
+    '''
 
 def p_CrearFunciones(t):
-    ''' CREATE_FUNCION :  create function id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa
-                       |  create function id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
-                       |  create or replace function id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
-                       |  create or replace function id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
-     
+    ''' CREATE_FUNCION :  TIPOFUNCION id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa
+                       |  TIPOFUNCION id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
+                       |  TIPOFUNCION id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar  ptComa
+                       |  TIPOFUNCION id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar ptComa  
+                       
     '''
+     
+def p_TIPOFUNCION(t):
+    ''' TIPOFUNCION :   create function
+                      | create procedure
+                      | create or replace function
+                      | create or replace procedure  
+    '''
+
+
       
 def p_BLOQUE(t):
     ''' BLOQUE  : DECLARE STATEMENT 
@@ -554,15 +573,41 @@ def p_BODYDECLARE(t):
                     | DECLARATION
     '''
 
+
+
+
 def p_DECLARATION(t):
-    ''' DECLARATION :  id TIPO ptComa
-                    |  id TIPO asig E ptComa
-                    |  id talias tfor E ptComa      
+    ''' DECLARATION :  NAME_CONSTANT TIPO ptComa
+                    |  NAME_CONSTANT TIPO ASIGNAR E ptComa
+                    |  NAME_CONSTANT TIPO not null ptComa 
+                    |  NAME_CONSTANT TIPO not null ASIGNAR E ptComa 
+                    |  NAME_CONSTANT talias tfor E ptComa 
+                    |  NAME_CONSTANT ACCESO modulo ttype ptComa
+                    |  NAME_CONSTANT id modulo rowtype ptComa
+                    '''
+ 
+def p_ACCESO(t):
+    ''' ACCESO : ACCESO punto id
+               |  id  
+    '''
+ 
+
+
+
+def p_DECLARATION1(t):
+    ''' ASIGNAR :  asig
+                 | igual
+                 | tDefault              
     '''
 
+def p_DECLARATION2(t):
+    ''' NAME_CONSTANT : id
+                      | id constant              
+    '''
 
 def p_STATEMENT(t):
-    ''' STATEMENT   : begin L_BLOCK end ptComa    
+    ''' STATEMENT   : begin L_BLOCK end ptComa
+                    | begin end ptComa
     '''
 
 
@@ -579,12 +624,21 @@ def p_BLOCK(t):
                 | EXIT
                 | SENTENCIAS_CONTROL
                 | DECLARACION_RAICENOTE
-                | STATEMENT          
+                | STATEMENT
+                | CALL ptComa          
     '''
 
 
+def p_CALL(t):
+    ''' CALL :  id parAbre LISTA_EXP parCierra
+              | id parAbre  parCierra            
+    '''
+
+
+
 def p_ASIGNACION(t):
-    '''   ASIGNACION : id asig E ptComa         
+    '''   ASIGNACION : id asig E ptComa
+                     | id igual E ptComa         
     '''
 
 
@@ -595,11 +649,17 @@ def p_LISTA_PARAMETROS(t):
 
 def p_PARAMETROS(t):
     '''   PARAMETROS : id TIPO
-                     | TIPO      
+                     | TIPO 
+                     | out id TIPO 
+                     | inout id TIPO  
     '''
 
 def p_RETORNO(t):
-    '''   RETORNO : treturn E ptComa      
+    '''   RETORNO : treturn E ptComa
+                  | treturn next E ptComa
+                  | treturn QUERY  ptComa
+                  | treturn QUERY tquery ptComa
+                  | treturn ptComa
     '''
 
 def p_CONTINUE(t):
@@ -607,43 +667,29 @@ def p_CONTINUE(t):
     '''
 
 def p_EXIT(t):
-    '''   EXIT : texit EXPR_WHERE ptComa      
+    '''   EXIT : texit EXPR_WHERE ptComa    
+               | texit ptComa     
+               | texit id ptComa
+               | texit id EXPR_WHERE ptComa
+    '''
+
+def p_OTROSTIPOS(t):
+    '''   OTROSTIPOS :   tNumeric parAbre entero parCierra
+                       | tVarchar 
+                       | tChar    
     '''
 
 
 def p_SENTENCIAS_CONTROL(t):
-    '''   SENTENCIAS_CONTROL : FOR
-                             | IF
-                             | WHILE
-                             | LOOP
+    '''   SENTENCIAS_CONTROL : IF
                              | SEARCH_CASE
     '''
-#----------------FOR EN DUDA --------------------------------------  
-#    for item in    (SELECT * FROM Usuario) no se donde poner esta parte solo puse E Y va count     
-
-
-
-def p_FOR(t):
-    '''    FOR : tfor  id  in  Condiciones loop  L_BLOCK  end loop ptComa
-    '''
-#----------------WHILE--------------------------------------  
-
-def p_WHILE(t):
-    '''    WHILE : twhile Condiciones loop  L_BLOCK  end loop ptComa
-    '''
-
-#----------------LOOP--------------------------------------  
-
-def p_LOOP(t):
-    '''    LOOP : loop  L_BLOCK  end loop ptComa
-    '''
-    
 
 #----------------IF--------------------------------------  
 def p_IF(t):
-    '''    IF : if  Condiciones then  L_BLOCK  end if ptComa
-              | if  Condiciones then  L_BLOCK  ELSE
-              | if  Condiciones then  L_BLOCK  ELSEIF  ELSE     
+    '''    IF : if  E then  L_BLOCK  end if ptComa
+              | if  E then  L_BLOCK  ELSE
+              | if  E then  L_BLOCK  ELSEIF  ELSE
     '''
 
 def p_ELSE(t):
@@ -656,13 +702,13 @@ def p_ELSEIF(t):
     '''
 
 def p_SINOSI(t):
-    '''   SINOSI : elsif Condiciones then L_BLOCK  
+    '''   SINOSI :   elsif E then L_BLOCK
     '''
     
 
 def p_SEARCH_CASE(t):
-    '''  SEARCH_CASE : case Condiciones L_CASE end case ptComa
-                     | case Condiciones L_CASE SINO end case ptComa 
+    '''  SEARCH_CASE : case E L_CASE end case ptComa
+                     | case E L_CASE SINO end case ptComa 
                      | case L_CASE SINO end case ptComa
                      | case L_CASE end case ptComa
     '''
@@ -673,7 +719,8 @@ def p_CUERPOCASE(t):
     '''
 
 def p_CASE(t):
-    '''   CASE : where Condiciones then L_BLOCK   
+    '''   CASE :  when LISTA_EXP then L_BLOCK
+                | when Condiciones then L_BLOCK  
     '''
 
 def p_SINO(t):
@@ -1106,10 +1153,12 @@ def p_EXPR_TIPO(t):
             | CHAR_TYPES
             | DATE_TYPES
             | BOOL_TYPES
-            | E'''
+            | E
+            | OTROSTIPOS '''
+            
     t[0] = t[1]
 
-
+                    
 def p_EXPR_NUMERIC_TYPES(t):
     '''NUMERIC_TYPES : tSmallint
                      | tInteger
@@ -1298,7 +1347,7 @@ def p_LISTA_EXP(p):
 
 
 def p_E(p):
-    ''' E : E or E
+    ''' E :  E or E
           |  E And       E
           |  E diferente  E
           |  E igual      E
@@ -1313,6 +1362,7 @@ def p_E(p):
           |  E modulo     E
           |  E elevado    E
           |  E punto      E
+          |  E  barraDoble E
     '''
     if p[2].lower() == "or":
         p[0] = SOperacion(p[1], p[3], Logicas.OR)
@@ -1424,6 +1474,9 @@ def p_nulo(p):
 
 def p_val(p):
     '''E : val '''
+
+def p_LLAMADAFUNCION(p):
+    '''E : CALL '''
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
