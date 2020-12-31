@@ -1,18 +1,6 @@
 digraph g {
 	node [height=.1 shape=plaintext]
 	table [label=<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR><TR> 
- <TD> use_database → USE ID : </TD> 
- <TD> use_database = UseDatabase(t[2]) </TD> 
- </TR> 
-<TR> 
- <TD> DataManipulationLenguage → use_database : </TD> 
- <TD>  DataManipulationLenguage = UseDatabase() </TD> 
- </TR> 
-<TR> 
- <TD> instruction → DataManipulationLenguage : </TD> 
- <TD>  instruction = NodoAst(t[0]) </TD> 
- </TR> 
-<TR> 
  <TD> types → TIPOS: </TD> 
  <TD> types = t[1] </TD> 
  </TR> 
@@ -124,6 +112,898 @@ digraph g {
 <TR> 
  <TD> DataManipulationLenguage → createTB : </TD> 
  <TD>  DataManipulationLenguage = CreateTable() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> 
+ <TD> insert = Insert(t[3], t[5], t[9]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → insert : </TD> 
+ <TD>  DataManipulationLenguage = Insert() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> 
+ <TD> insert = Insert(t[3], t[5], t[9]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → insert : </TD> 
+ <TD>  DataManipulationLenguage = Insert() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+
+ <TR><TD> ID </TD><TD> ID(t[1]) </TD></TR><TR><TD> idList → idlist COMA ID </TD><TD> iidLista=t[1].append(t[2]) <BR/> idList=t[1] </TD></TR><TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> 
+ <TD> insert = Insert(t[3], t[5], t[9]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → insert : </TD> 
+ <TD>  DataManipulationLenguage = Insert() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> 
+ <TD> update = Update(t[2], t[4], t[6]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → update : </TD> 
+ <TD>  DataManipulationLenguage = Update() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> 
+ <TD> update = Update(t[2], t[4], t[6]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → update : </TD> 
+ <TD>  DataManipulationLenguage = Update() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → MULTI : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> condition →  WHERE exp | ORDER BY exp setOrder | GROUP BY exp_list | LIMIT exp | HAVING exp: </TD> 
+ <TD>  condition = t[1] </TD> 
+ </TR> 
+
+ <TR><TD> conditions → condition  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list FROM exp_list conditions: </TD> 
+ <TD>  select = Select(t[2], t[4], t[5]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> 
+ <TD>  time = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> 
+ <TD>  time = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> 
+ <TD>  time = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> 
+ <TD>  time = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> 
+ <TD>  time = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> 
+ <TD>  time = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> 
+ <TD>  time = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → CADENA: </TD> 
+ <TD> expSimple  = cadena(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> dataFunction → datef: </TD> 
+ <TD>  exp = dateFUNCTION(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list: </TD> 
+ <TD>  select = Select_simple(t[2]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> types → TIPOS: </TD> 
+ <TD> types = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> definitionTypes → types: </TD> 
+ <TD> definitionTypes = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> especificaciones → especs: </TD> 
+ <TD> especificaciones = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> especificaciones → especs: </TD> 
+ <TD> especificaciones = t[1] </TD> 
+ </TR> 
+<TR><TD> listaespecificaciones → listaespecificaciones especificaciones </TD><TD> listaespecificaciones=t[1].append(t[2]) <BR/> instrucciones=t[1] </TD></TR><TR> 
+ <TD> atributeTable  → ID definitionTypes: </TD> 
+ <TD> atributeTable  = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> creatTB  → CREATE TABLE ID PARIZQ atributesTable COMA especs inherits: </TD> 
+ <TD> createTB  = t[1] </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → createTB : </TD> 
+ <TD>  DataManipulationLenguage = CreateTable() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> exp → CBRT PARIZQ exp PARDER: </TD> 
+ <TD>  exp = cbrt(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> exp → DIV PARIZQ exp_list PARDER: </TD> 
+ <TD>  exp = div(t[3]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list FROM exp_list: </TD> 
+ <TD>  select = Select(t[2], N/A, t[5]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> exp → FACTORIAL PARIZQ exp PARDER: </TD> 
+ <TD>  exp = factorial(t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> 
+ <TD> insert = Insert(t[3], t[5], t[9]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → insert : </TD> 
+ <TD>  DataManipulationLenguage = Insert() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> 
+ <TD> insert = Insert(t[3], t[5], t[9]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → insert : </TD> 
+ <TD>  DataManipulationLenguage = Insert() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> 
+ <TD> insert = Insert(t[3], t[5], t[9]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → insert : </TD> 
+ <TD>  DataManipulationLenguage = Insert() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+
+ <TR><TD>  exp_list → exp_list COMA exp  </TD><TD> t[0] = t[1] </TD> </TR> <TR> 
+ <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> 
+ <TD> insert = Insert(t[3], t[5], t[9]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → insert : </TD> 
+ <TD>  DataManipulationLenguage = Insert() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> 
+ <TD> update = Update(t[2], t[4], t[6]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → update : </TD> 
+ <TD>  DataManipulationLenguage = Update() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> 
+ <TD> update = Update(t[2], t[4], t[6]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → update : </TD> 
+ <TD>  DataManipulationLenguage = Update() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> 
+ <TD> update = Update(t[2], t[4], t[6]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → update : </TD> 
+ <TD>  DataManipulationLenguage = Update() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> updateAsign → ID IGUAL exp: </TD> 
+ <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> 
+ <TD> update = Update(t[2], t[4], t[6]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → update : </TD> 
+ <TD>  DataManipulationLenguage = Update() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimples  → ENTERO: </TD> 
+ <TD> expSimple  = entorno(t[1]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → deletetable : </TD> 
+ <TD>  DataManipulationLenguage = DeleteTable() </TD> 
+ </TR> 
+<TR> 
+ <TD> instruction → DataManipulationLenguage : </TD> 
+ <TD>  instruction = NodoAst(t[0]) </TD> 
+ </TR> 
+<TR> 
+ <TD> expSimple  → MULTI : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> expSimple  → ID : </TD> 
+ <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> 
+ </TR> 
+
+ <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> <TR> 
+ <TD> select → SELECT exp_list FROM exp_list: </TD> 
+ <TD>  select = Select(t[2], N/A, t[5]) </TD> 
+ </TR> 
+<TR> 
+ <TD> DataManipulationLenguage → select : </TD> 
+ <TD>  DataManipulationLenguage = Select() </TD> 
  </TR> 
 <TR> 
  <TD> instruction → DataManipulationLenguage : </TD> 
