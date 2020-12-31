@@ -1,8 +1,9 @@
 
 from useDB.instanciaDB import DB_ACTUAL
 from reporteErrores.errorReport import ErrorReport
-from reporteErrores.instance import listaErrores
+from reporteErrores.instance import listaErrores , listaShowConsola
 import os
+from astSelect import matriz
 path = 'data/Reportes/'
 
 class Arbol:
@@ -11,6 +12,7 @@ class Arbol:
     
     def ejecutar(self):
         #es el primer ejecutar que se llama
+        listaShowConsola.clear()
         ts = [] #por el momento , pero deberia de ser otro tipo de tabla de simbolos
         for instruccion in self.instrucciones:
             nodoSintetizado = instruccion.ejecutar(ts)
@@ -19,8 +21,10 @@ class Arbol:
                 listaErrores.addError(nodoSintetizado)
                 print(nodoSintetizado.description)
             else:
-                print("instruccion OK")# SUBIR ESTE ARCHIVOOOOOOOOOOOOOOOOOOOOOOOOO
-                
+                if isinstance( nodoSintetizado, matriz):
+                    listaShowConsola.append(nodoSintetizado.getTablaToString()+'\n')
+                    print("instruccion OK")# SUBIR ESTE ARCHIVOOOOOOOOOOOOOOOOOOOOOOOOO
+
     
     def dibujar(self)->str:# no se como se inicia a graficar :v 
         g = "digraph g {" +'\n'

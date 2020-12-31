@@ -25,7 +25,7 @@ class UseDatabase(ASTNode):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
         table.set_current_db(result_name)
-        return True
+        return "You are using \'" + str(result_name) + "\' DB"
 
 
 class Union(ASTNode):

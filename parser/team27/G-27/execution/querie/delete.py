@@ -4,8 +4,8 @@ from execution.symbol.typ import *
 
 class Delete(Querie):
 
-    def __init__(self, idTable, condition, column, row) -> None:
-        super().__init__(self,row, column)
+    def __init__(self, idTable, condition, column, row):
+        Querie.__init__(self,row, column)
         self.idTable = idTable
         self.condition = condition
     
@@ -61,9 +61,11 @@ class Delete(Querie):
                 res = admin.delete(dbname, tbname, primaryKey)
                 switcher = {
                     0: 'Se ha realizado el delete en el registro con la FK: ' + str(primaryKey),
-                    1:{'Error:': 'Error en la operación delete.','Fila':self.row,'Columna':self.column},
-                    2:{'Error:': 'La base de datos' + dbname + 'no existe.','Fila':self.row,'Columna':self.column},
-                    3:{'Error:': 'La tabla ' + self.idTable + ' no existe.','Fila':self.row,'Columna':self.column},
-                    4:{'Error:': 'No existe el registro buscado: ' + str(primaryKey),'Fila':self.row,'Columna':self.column},
+                    1:{'Error': 'Error en la operación delete.','Fila':self.row,'Columna':self.column},
+                    2:{'Error': 'La base de datos' + dbname + 'no existe.','Fila':self.row,'Columna':self.column},
+                    3:{'Error': 'La tabla ' + self.idTable + ' no existe.','Fila':self.row,'Columna':self.column},
+                    4:{'Error': 'No existe el registro buscado: ' + str(primaryKey),'Fila':self.row,'Columna':self.column},
                 }
                 return switcher.get(res,'Error en la respuesta del update en el StorageManager.')
+        
+        return 'se realizo el delete en la tabla: '+ self.idTable+', correctamente'
