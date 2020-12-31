@@ -45,11 +45,11 @@ class InsertInto(ASTNode):
                                         f'Field {field_symbol.name} must be a take any of the follow: {str(StmENUM.value_list)}')
                         # TODO ADD HERE TYPE VALIDATIONS PER FIELD, JUST ONE ADDED BY NOW TO GIVE EXAMPLE
                         if field_symbol.field_type.upper() == 'INTEGER' and type(
-                                self.insert_list[value_related_to_match].val) != int:
+                                self.insert_list[value_related_to_match].execute(table, tree)) != int:
                             raise Error(0, 0, ErrorType.SEMANTIC, f'Field {field_symbol.name} must be an integer type')
                     else:
                         raise Error(0, 0, ErrorType.SEMANTIC, f'Field does not exists in table declaration')
-                    to_insert.append(self.insert_list[value_related_to_match].val)
+                    to_insert.append(self.insert_list[value_related_to_match].execute(table, tree))
                 # TODO ADD HERE CHECK VALIDATION
             else:
                 to_insert = list(map(lambda x: x.val, self.insert_list))
