@@ -11,8 +11,12 @@ class ShowDatabases(ASTNode):
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        #result_name = self.name.execute(table, tree) #To not execute because we show data bases without filters
+        # result_name = self.name.execute(table, tree) #To not execute because we show data bases without filters
         return showDB()  # add filter using name_like_regex... this has to be stored on TS or comes from function?
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class UseDatabase(ASTNode):
@@ -26,6 +30,10 @@ class UseDatabase(ASTNode):
         result_name = self.name.execute(table, tree)
         table.set_current_db(result_name)
         return "You are using \'" + str(result_name) + "\' DB"
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Union(ASTNode):
@@ -48,6 +56,10 @@ class Union(ASTNode):
             in_second_but_not_in_first = in_second - in_first
             return self.records_a + list(in_second_but_not_in_first)
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Intersect(ASTNode):
     def __init__(self, records_a, records_b, is_all, line, column, graph_ref):
@@ -66,6 +78,10 @@ class Intersect(ASTNode):
             if item_a in self.records_b:
                 inter_result.append(item_a)
         return inter_result
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Except(ASTNode):
@@ -99,3 +115,7 @@ class Except(ASTNode):
                 if item_a not in self.records_b:
                     inter_result.append(item_a)
             return inter_result
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''

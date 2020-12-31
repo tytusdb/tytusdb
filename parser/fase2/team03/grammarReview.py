@@ -306,7 +306,7 @@ def t_PATTERN_LIKE(t):
 def t_TEXTO(t):
     r'\'([^\\\n]|(\\.))*?\''
     t.value = t.value[1:-1]
-    t.type = 'TEXTO'  
+    t.type = 'TEXTO'
     return t
     
 def t_BOOLEAN_VALUE(t):
@@ -901,7 +901,7 @@ def p_time_ops(t):
         childsProduction  = addNotNoneChild(t,[3])
         graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
         addCad("**\<TIME_OPS>** ::=  tExtract '(' \<OPS_FROM_TS>  tFechaHora ')'  ")
-        t[0] = DateAST(t[4], t[3].option,token.lineno,token.lexpos,graph_ref)           
+        t[0] = DateAST(t[4], t[3].option,token.lineno,token.lexpos,graph_ref)
     elif len(t) == 8:
         graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]       ,[])
         addCad("**\<TIMES_OPS>** ::=   tDate_part '(' tText ',' tINTERVAL tText ')'   ")
@@ -921,7 +921,7 @@ def p_time_ops(t):
             graph_ref = graph_node(str("time_ops"),    [t[1]]       ,[])
             addCad("**\<TIME_OPS>** ::=  tCurrent_time")
             t[0] = NowTime(token.lineno, token.lexpos, graph_ref)
-    
+
 
 
 
@@ -2232,5 +2232,27 @@ class grammarReview:
 
     for e in errorsList:
         print(e,"\n")
-    ST.report_symbols()
-     """
+    ST.report_symbols() """
+
+
+def execute_from_wrapper(symbol_table: SymbolTable, command_input):
+    symbol_table.LoadMETADATA()
+    instructions = parse.parse(command_input)
+    result = []
+    for instruction in instructions:
+        try:
+            val = instruction.execute(symbol_table, None)
+            print("AST excute result: ", val)
+            if isinstance(instruction, Select) or isinstance(instruction, Union) \
+                    or isinstance(instruction, Intersect) or isinstance(instruction, Except):
+                val = tabulate(val[1], val[0], tablefmt="psql")
+                print(val)
+            result.append(val)
+        except our_error as named_error:
+            errorsList.append(named_error)
+
+    for e in errorsList:
+        print(e, "\n")
+    # symbol_table.report_symbols()
+
+    return result

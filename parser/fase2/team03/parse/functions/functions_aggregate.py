@@ -12,6 +12,10 @@ class Avg(ASTNode):
         super().execute(table, tree)
         return True
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Count(ASTNode):
     def __init__(self, exp, line, column):
@@ -21,6 +25,10 @@ class Count(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Greatest(ASTNode):
@@ -32,6 +40,10 @@ class Greatest(ASTNode):
         super().execute(table, tree)
         return True
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Least(ASTNode):
     def __init__(self, exp, line, column):
@@ -41,6 +53,10 @@ class Least(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Max(ASTNode):
@@ -52,6 +68,10 @@ class Max(ASTNode):
         super().execute(table, tree)
         return True
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Min(ASTNode):
     def __init__(self, exp, line, column):
@@ -61,6 +81,10 @@ class Min(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Sum(ASTNode):
@@ -72,6 +96,10 @@ class Sum(ASTNode):
         super().execute(table, tree)
         return True
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Top(ASTNode):
     def __init__(self, exp, line, column):
@@ -81,6 +109,10 @@ class Top(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 def test():
