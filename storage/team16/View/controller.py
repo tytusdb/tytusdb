@@ -4,9 +4,9 @@
 # Developers: SG#16
 
 
-import DataAccessLayer.reports as reports
-import avlMode as AVLTreeStructure
-from DataAccessLayer.handler import Handler
+from ..DataAccessLayer import reports
+from .. import avlMode as AVLTreeStructure
+from ..DataAccessLayer.handler import Handler
 
 
 class Controller:

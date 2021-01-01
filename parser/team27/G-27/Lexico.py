@@ -20,6 +20,8 @@ from execution.symbol.typ import *
 from execution.main import Main
 from execution.symbol.error import *
 TokenError = list()
+ListaIndices = list()
+ListaAux = list()
 
 # ======================================================================
 #                          INSTRUCCIONES DDL
@@ -175,6 +177,8 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
               'LENGTH','TRIM','GET_BYTE','MD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS','SQRT','SIGN',
               'TRUNC','RADIANS','RANDOM','WIDTH_BUCKET'
+              ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL','INDEX','HASH','INCLUDE','COLLATE', 'CONSTANT', 'ALIAS', 'FOR', 'RETURN', 'NEXT', 'ELSIF',
+              'ROWTYPE', 'RECORD', 'QUERY', 'STRICT', 'PERFORM', 'VAR', 'EXECUTE'
               ]
 
 tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -182,7 +186,8 @@ tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENAS
                        'CORCHETECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','MAYORQUE','MENORQUE',
                        'MAYORIGUALQUE','MENORIGUALQUE',
                        'SIGNO_PIPE','SIGNO_DOBLE_PIPE','SIGNO_AND','SIGNO_VIRGULILLA','SIGNO_NUMERAL','SIGNO_DOBLE_MENORQUE','SIGNO_DOBLE_MAYORQUE',
-                       'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT'
+                       'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT','DOSPUNTOS','DOLAR'
+                       
                        ]
 
 
@@ -214,6 +219,7 @@ t_LLAVECIERRE = r'\}'
 t_CORCHETEABRE = r'\['
 t_CORCHETECIERRE = r'\]'
 t_DOBLE_DOSPUNTOS= r'\:\:'
+t_DOSPUNTOS= r'\:'
 t_SIGNO_POTENCIA = r'\^'
 t_SIGNO_MODULO = r'\%'
 t_MAYORIGUALQUE = r'\>\='
@@ -221,6 +227,7 @@ t_MENORIGUALQUE = r'\<\='
 t_MAYORQUE = r'\>'
 t_MENORQUE = r'\<'
 t_COMILLA = r'\''
+t_DOLAR= r'\$'
 
 
 # expresion regular para los id´s
@@ -292,16 +299,14 @@ def t_HORA(t):
 
 
 def t_CADENASIMPLE(t):
-    r'\'.*?\''
+    r'\'(\s*|.*?)\''
     t.value = str(t.value)
-    t.value = t.value[1:-1]
     return t
     
 # expresion regular para reconocer cadenas
 def t_CADENA(t):
-    r'\".*?\"'
+    r'\"(\s*|.*?)\"'
     t.value = str(t.value)
-    t.value = t.value[1:-1]
     return t
 
 # expresion regular para saltos de linea
@@ -353,7 +358,7 @@ def p_inicio(t):
     '''inicio : instrucciones '''
     #envGlobal = Environment(None)
     #iniciarEjecucion = Main(t[1])
-    #iniciarEjecucion.execute(envGlobal)
+    #iniciarEjecucion.call(envGlobal)
     t[0] = t[1] 
 
 def p_instrucciones_lista(t):
@@ -375,7 +380,10 @@ def p_instrucciones_evaluar(t):
                    | ins_select
                    | ins_update
                    | ins_delete
-                   | exp'''
+                   | exp
+                   | instruccion_if
+                   | instruccion_case
+                   | create_index'''
     t[0] = t[1]
 
 def p_instruccion_use(t):
@@ -1548,6 +1556,370 @@ def p_ins_delete(t):
     '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''
     t[0] = Delete(t[3], t[5], t.slice[2].lexpos, t.slice[2].lineno)
 
+def p_declaracion(t):
+    '''declaracion  : ID constante tipo_dato not_null declaracion_default PUNTO_COMA'''
+    print('DECLARACION')
+
+def p_constante(t):
+    '''constante  : CONSTANT'''
+
+def p_constante_null(t):
+    '''constante  : '''
+
+def p_not_null(t):
+    '''not_null  : NOT NULL'''
+
+def p_not_null_null(t):
+    '''not_null : '''
+
+def p_declaracion_default(t):
+    '''declaracion_default  : DEFAULT exp'''
+
+def p_declaracion_default_dos(t):
+    '''declaracion_default  : SIGNO_IGUAL exp '''
+    print('ENTRA =')
+
+def p_declaracion_default_signo(t):
+    '''declaracion_default  : DOSPUNTOS SIGNO_IGUAL  exp'''
+    print('ENTRA :=')
+
+def p_declaracion_default_null(t):
+    '''declaracion_default  : '''
+
+def p_declaracionf_funcion(t):
+    '''declaracion_funcion : ID ALIAS FOR DOLAR NUMERO PUNTO_COMA'''
+    print('ALIAS')
+
+def p_declaracionf_funcion_rename(t):
+    '''declaracion_funcion : ID ALIAS FOR ID PUNTO_COMA'''
+    print('ALIAS RENAME')
+
+def p_declaracionc_copy(t):
+    '''declaracion_copy : ID ID PUNTO ID SIGNO_MODULO TYPE PUNTO_COMA'''
+    print('COPY TYPE')
+
+def p_declaracionr_row(t):
+    '''declaracion_row : ID ID SIGNO_MODULO ROWTYPE PUNTO_COMA'''
+    print('COPY ROW')
+
+def p_declaracionre_record(t):
+    '''declaracion_record : ID RECORD PUNTO_COMA'''
+    print('RECORD')
+
+def p_asignacion(t):
+    '''asignacion : ID referencia_id SIGNO_IGUAL exp PUNTO_COMA'''
+    print('ASIGNACION')
+    #t[0] = GenerarC3D()
+    #t[0].code =  t[1] + ' =  <EXPRESION>\n'
+
+def p_asignacion_igual(t):
+    '''asignacion : ID referencia_id SIGNO_IGUAL ins_select PUNTO_COMA'''
+    print('ASIGNACION')
+    #t[0] = GenerarC3D()
+    #t[0].code =  t[1] + ' =  <EXPRESION>\n'
+
+def p_asignacion_dos(t):
+    '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL exp PUNTO_COMA'''
+    print('ASIGNACION')
+    #t[0] = GenerarC3D()
+    #t[0].code =  t[1] + ' =  <EXPRESION>\n'
+
+def p_asignacion_dos_signo(t):
+    '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select PUNTO_COMA'''
+    print('ASIGNACION')
+    #t[0] = GenerarC3D()
+    #t[0].code =  t[1] + ' = parser.parse(<SELECT>)\n'
+
+def p_referencia_id(t):
+    '''referencia_id : PUNTO ID
+                | '''
+
+def p_return(t):
+    '''return : RETURN exp PUNTO_COMA'''
+    print('RETURN EXP')
+
+def p_return_next(t):
+    '''return : RETURN NEXT exp PUNTO_COMA'''
+    print('RETURN NEXT')
+
+def p_return_query(t):
+    '''return : RETURN QUERY query'''
+    print('RETURN QUERY')
+
+def p_query(t):
+    '''query : ins_insert
+                | ins_select
+                | ins_update
+                | ins_delete '''
+
+def p_instruccion_if(t):
+    '''instruccion_if : IF exp then else_if else END IF PUNTO_COMA'''
+    print('INSTRUCCION IF')
+
+def p_then(t):
+    '''then : THEN statements'''
+
+def p_else_if(t):
+    '''else_if : else_if instruccion_else '''
+
+def p_else_if_else(t):
+    '''else_if : instruccion_else '''
+
+def p_else_if_else_null(t):
+    '''else_if :  '''
+                
+def p_instruccion_else(t):
+    '''instruccion_else : ELSIF exp then'''
+
+def p_else(t):
+    '''else : ELSE sentencia  '''
+
+def p_else_null(t):
+    '''else : '''
+    print('NULL')
+
+def p_sentencia(t):
+    '''sentencia : statements'''
+
+def p_instruccion_case(t):
+    '''instruccion_case : CASE exp cases else END CASE PUNTO_COMA'''
+    print('CASE')
+
+def p_cases(t):
+    '''cases : cases instruccion_case_only '''
+
+def p_cases_ins(t):
+    '''cases : instruccion_case_only'''
+
+def p_cases_ins_null(t):
+    '''cases : '''
+    print('NULL')
+
+def p_instruccion_case_only(t):
+    '''instruccion_case_only : WHEN exp then'''
+
+def p_lista_exp(t):
+    ''' lista_exp : lista_exp COMA exp'''
+
+def p_lista_exp_only(t):
+    ''' lista_exp : exp'''
+
+#<statements>::= <statements> <statement>
+#              | <statemet>
+def p_statements(t):
+    ''' statements : statements statement '''
+
+def p_statements_only(t):
+    ''' statements : statement'''
+
+#<statement>::= <assignation>
+#            | <perform>
+#            | <f_query>
+def p_statement(t):
+      '''statement : asignacion
+                   | perform
+                   | f_query 
+                   | execute
+                   | null
+                   | declaracion
+                   | declaracion_default
+                   | asignacion
+                   | declaracion_funcion
+                   | declaracion_copy
+                   | declaracion_row
+                   | declaracion_record
+                   | return'''
+
+#<perform>::= PERFORM <instruccion>
+def p_perform(t):
+      '''perform : PERFORM instruccion'''
+
+#<f_query> ::= SELECT <arg_distict> <colum_list> <into> FROM <table_list> <arg_where> <arg_group_by> <arg_order_by> <arg_limit> <arg_offset>
+#             | <ins_insert> <return>
+#             | <ins_update> <return>
+#             | <ins_delete> <return>
+def p_f_query(t):
+    '''f_query : SELECT arg_distict colum_list into FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset
+                | ins_insert f_return
+                | ins_update f_return
+                | ins_delete f_return'''
+
+#<f_return> ::= RETURNING <exp> <into> 
+def p_f_return(t):
+    ''' f_return : RETURNING exp into '''
+
+#<into> ::= INTO STRICT id
+#         | INTO id 
+def p_into(t):
+    '''into : INTO ID '''
+
+def p_into_strict(t):
+    '''into : INTO STRICT ID '''
+
+#<execute> ::= EXECUTE CADENA <into> USING <exp_list>
+#            | EXECUTE CADENASIMPLE <into> USING <exp_list>
+#            | EXECUTE exp
+def p_execute(t):
+    '''execute : EXECUTE CADENA into USING exp_list'''
+
+def p_execute_use(t):
+    '''execute : EXECUTE CADENASIMPLE into USING exp_list'''
+
+def p_execute_exp(t):
+    '''execute : EXECUTE exp'''
+
+#<null> ::=  NULL
+def p_null(t):
+    '''null : NULL'''
+
+# DECLARACION DE LA GRAMATICA DE LOS INDICES
+
+def p_create_index(t):
+    '''create_index : CREATE arg_unique INDEX ID ON ID arg_hash PARABRE param_index PARCIERRE arg_include arg_where_index arg_punto_coma'''
+    for item in ListaAux:
+        guardarIndice(t[4],t[6],item)
+    ListaAux.clear()
+    t[0] = t[1] +' '+ t[2] + t[3] +' '+ t[4] +' '+ t[5] +' '+ t[6] +' '+ t[7] + t[8] +' '+ t[9] +' '+t[10] +' '+t[11]+t[12]+t[13]
+
+def p_arg_include(t):
+    '''arg_include : INCLUDE PARABRE index_str PARCIERRE
+                   | '''#EPSILON
+
+    if len(t) == 5:
+        t[0] = t[1] +' '+ t[2]  +' '+ t[3] +' '+ t[4] +' '
+    else:
+        t[0] = ''
+
+def p_param_index(t):
+    '''param_index : id_list arg_order arg_null
+                   | PARABRE concat_list PARCIERRE
+                   | ID ID 
+                   | ID COLLATE tipo_cadena'''
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2] 
+        ListaAux.append(str(t[1])) 
+    elif len(t) == 4:
+        if  t.slice[1].type == 'PARABRE':
+            t[0] = t[1] +' '+ t[2]  +' '+ t[3]
+            ListaAux.append(str(t[2])) 
+        elif t.slice[2].type == 'COLLATE':
+            t[0] = t[1] +' '+ t[2]  +' '+ t[3]
+            ListaAux.append(str(t[1]))  
+        else:
+            if t[2] == '' and t[3] == '':
+                t[0] = t[1]
+            elif t[2] == '' and t[3] != '':
+                t[0] = t[1] +' '+ t[3]
+            elif t[2] != '' and t[3] == '':
+                t[0] = t[1] +' '+ t[2]
+            elif t[2] != '' and t[3] != '':
+                t[0] =t[1] +' '+ t[2]  +' '+ t[3] 
+
+def p_tipo_cadena(t):
+    '''tipo_cadena : CADENA
+                   | CADENASIMPLE'''
+    
+    t[0] = t[1]  
+
+def p_concat_list(t):
+    '''concat_list : concat_list SIGNO_DOBLE_PIPE index_str
+                   | index_str'''
+    if len(t) == 4:
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]      
+    else: 
+        t[0] = t[1]  
+        
+def p_index_str(t):
+    '''index_str : ID
+                 | ID PARABRE ID PARCIERRE
+                 | CADENA
+                 | CADENASIMPLE'''
+    if len(t) == 2:
+        t[0] = t[1]        
+    else:  
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]+' '+ t[4]
+
+def p_arg_hash(t):
+    '''arg_hash : USING HASH
+                | '''#EPSILON
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2]+' '
+    else: 
+        t[0] = ''
+
+def p_id_list(t):
+    '''id_list : id_list COMA index
+               | index'''
+    if len(t) == 4 :
+        t[0] = t[1] + t[2] + t[3]
+        ListaAux.append(str(t[3]))
+    else: 
+        t[0] = t[1]
+        ListaAux.append(str(t[1]))
+
+def p_index(t):
+    '''index : ID PARABRE ID PARCIERRE
+             | ID'''
+
+    if len(t) == 5:
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]+' '+ t[4]
+    else: 
+        t[0] = t[1]
+
+def p_arg_punto_coma(t):
+    '''arg_punto_coma : PUNTO_COMA
+                      | '''#EPSILON
+    
+    if len(t) == 2:
+        t[0] = t[1] 
+    else: 
+        t[0] = ''
+
+def p_arg_unique(t):
+    '''arg_unique : UNIQUE
+                  | '''#EPSILON
+
+    if len(t) == 2:
+        t[0] = t[1]+' '
+    else: 
+        t[0] = ''
+
+def p_arg_order(t):
+    '''arg_order : ASC 
+                 | DESC
+                 | '''#EPSILON
+
+    if len(t) == 2:
+        t[0] = t[1]
+    else: 
+        t[0] = ''
+
+def p_arg_null(t):
+    '''arg_null :  NULLS FIRST
+                 | NULLS LAST
+                 | '''#EPSILON}
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2]
+    else: 
+        t[0] = ''
+
+def p_arg_where_index(t):
+    '''arg_where_index : WHERE arg_where_param 
+                       | '''#EPSILON
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2]+' '
+    else: 
+        t[0] = ''
+def p_arg_where_param(t):
+    '''arg_where_param : PARABRE exp PARCIERRE
+                       | exp'''
+    if len(t) == 4:
+        t[0] = t[1] +' '+ str(t[2]) +' '+ t[3]
+    else: 
+        t[0] = str(t[1])
+
+
+
 def p_error(t):
     if t != None:
         err = T_error('SINTACTICO', t.value, 'ERROR SINTÁCTICO', str(t.lineno), str(t.lexpos))
@@ -1559,6 +1931,13 @@ def get_errores():
 
 def clear_errores():
     TokenError.clear()
+
+#metodo para guardar los indices en un arreglo de diccionarios
+#diccionario -> {'name':nombre_indice,'table':tabla donde se inserta el indice, 'columns':columnas o columnas donde se insertara ese indice}
+
+def guardarIndice(name,table,columns):
+    ind = {'name':name,'table':table,'columns':columns}
+    ListaIndices.append(ind)
 
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar
