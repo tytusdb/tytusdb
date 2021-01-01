@@ -2842,7 +2842,7 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
                 print (retorno)
                 if retorno==0:
                     ' '
-                    CD3.PAlterTbAlterDropCol(baseActiva,NombreTabla,ID)
+                    CD3.PAlterTbAlterDropCol(baseActiva,NombreTabla,ID,No_col)
                     posicion=ColumnInfo[1]
                     del ((listaTablas[tablaB[1]]).atributos)[posicion]
                     outputTxt="Se ha eliminado satisfactoriamente la columna"
