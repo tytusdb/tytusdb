@@ -83,6 +83,7 @@ def p_stmt(t):
         | truncateStmt S_PUNTOCOMA
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
+        | functionStmt S_PUNTOCOMA
     """
     listInst.append(t[1].dot())
     try:
@@ -1306,15 +1307,16 @@ def p_ifExists(t):
 
 
 def p_selectStmt_1(t):
-    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl"""
+    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
     t[0] = instruction.Select(
         t[3].params,
         t[4],
         t[5],
         t[6][0],
         t[6][1],
-        t[7],
+        t[8],
         True,
+        t[7],
         t.slice[1].lineno,
         t.slice[1].lexpos,
     )
@@ -1323,15 +1325,16 @@ def p_selectStmt_1(t):
 
 # TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
 def p_selectStmt_2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl"""
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
     t[0] = instruction.Select(
         t[2].params,
         t[3],
         t[4],
         t[5][0],
         t[5][1],
-        t[6],
+        t[7],
         False,
+        t[6],
         t.slice[1].lineno,
         t.slice[1].lexpos,
     )
@@ -1340,11 +1343,6 @@ def p_selectStmt_2(t):
 
 def p_selectStmt__1(t):
     """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl orderByCl limitCl"""
-    repGrammar.append(t.slice)
-
-
-def p_selectStmt__2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
     repGrammar.append(t.slice)
 
 
@@ -1544,6 +1542,7 @@ def p_joinOpt(t):
     """
     repGrammar.append(t.slice)
 
+# region WHERE
 
 def p_whereCl(t):
     """whereCl : R_WHERE expBool"""
@@ -1559,6 +1558,9 @@ def p_whereCl_none(t):
     t[0] = None
     repGrammar.append(t.slice)
 
+# endregion
+
+# region GROUP BY
 
 def p_groupByCl_1(t):
     """
@@ -1589,11 +1591,14 @@ def p_groupList_1(t):
 def p_groupList_2(t):
     """
     groupList :  columnName
-            | INTEGER
+              | INTEGER
     """
     t[0] = [t[1]]
     repGrammar.append(t.slice)
 
+# endregion
+
+# region HAVING
 
 def p_havingCl_1(t):
     """havingCl : R_HAVING expBool"""
@@ -1606,16 +1611,32 @@ def p_havingCl_2(t):
     t[0] = None
     repGrammar.append(t.slice)
 
+# endregion
+
+# region ORDER BY REGION
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList"""
+    t[0] = t[3]
+    repGrammar.append(t.slice)
+
+
+def p_orderByCl2(t):
+    """orderByCl : """
+    t[0] = None
     repGrammar.append(t.slice)
 
 
 def p_orderList(t):
-    """orderList : orderList S_COMA orderByElem
-    | orderByElem
-    """
+    """orderList : orderList S_COMA orderByElem"""
+    t[1].append(t[3])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_orderList2(t):
+    """orderList : orderByElem"""
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -1624,28 +1645,40 @@ def p_orderByElem(t):
     orderByElem : columnName orderOpts orderNull
                 | INTEGER orderOpts orderNull
     """
+    t[0] = [t[1], t[2], t[3]]
     repGrammar.append(t.slice)
 
 
 def p_orderOpts(t):
     """orderOpts : R_ASC
-    | R_DESC
-    |
+                 | R_DESC
     """
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
+def p_orderOpts2(t):
+    """orderOpts : """
+    t[0] = 'ASC'
+    repGrammar.append(t.slice)
 
 def p_orderNull(t):
     """orderNull : R_NULL R_FIRST
-    | R_NULL R_LAST
-    |
-    """
+                 | R_NULL R_LAST"""
+    t[0] = t[2]
     repGrammar.append(t.slice)
 
+def p_ordenNull2(t):
+    """orderNull : """
+    t[0] = None
+    repGrammar.append(t.slice)
+
+# endregion
+
+# region LIMIT
 
 def p_limitCl(t):
     """limitCl : R_LIMIT INTEGER offsetLimit
-    | R_LIMIT R_ALL offsetLimit
+               | R_LIMIT R_ALL offsetLimit
     """
     t[0] = instruction.limitClause(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
@@ -1668,6 +1701,7 @@ def p_offsetLimit_n(t):
     t[0] = None
     repGrammar.append(t.slice)
 
+# endregion
 
 # endregion
 
@@ -1794,6 +1828,119 @@ def p_useStmt(t):
 
 # endregion
 
+# region FUNCTIONS
+
+def p_functionStmt(t):
+    """functionStmt : R_CREATE R_FUNCTION ID S_PARIZQ params_list S_PARDER returnsStmt R_AS S_DOLAR S_DOLAR bloqueFunction"""
+    t[0] = instruction.FunctionPL(t[3], t[5], t[7], t[11], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+def p_functionBloque(t):
+    """ bloqueFunction : declareStmt R_BEGIN beginStmt R_END labelEnd"""
+    t[0] = [t[0], t[3, t[5]]]
+    repGrammar.append(t.slice)
+
+
+def p_params_list_func(t):
+    """params_list : params_list S_COMA param_item"""
+    t[1].append(t[2])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_params_list_func_aux(t):
+    """params_list : param_item"""
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+def p_param_item_func(t):
+    """param_item : ID types"""
+    t[0] = [t[1], t[2]]
+    repGrammar.append(t.slice)
+
+
+def p_returnsStmt(t):
+    """returnsStmt : R_RETURNS types"""
+    t[0] = t[2]
+    repGrammar.append(t.slice)
+
+def p_returnsStmt_aux(t):
+    """returnsStmt : """
+    t[0] = None
+    repGrammar.append(t.slice)
+        
+
+def p_declareStmt(t):
+    """declareStmt : R_DECLARE declaracion_list"""
+    t[0] = t[2]
+    repGrammar.append(t.slice)
+                
+def p_declareStmt(t):
+    """declareStmt : """
+    t[0] = None
+    repGrammar.append(t.slice)
+
+def p_declaracion_list(t):
+    """declaracion_list : declaracion_list declaracion_item"""
+    t[1].append(t[2])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_declaracion_list_aux(t):
+    """declaracion_list : declaracion_item"""
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+def p_declaracion_item(t):
+    """declaracion_item : ID constant_opt types null_opt default_item S_PUNTOCOMA""" # name [ CONSTANT ] type [ COLLATE collation_name ] [ NOT NULL ] [ { DEFAULT | := | = } expression ];    
+    
+    repGrammar.append(t.slice)
+
+def p_declaracion_item_aux(t):
+    """declaracion_item : ID R_ALIAS R_FOR alias_declaracion S_PUNTOCOMA""" # name ALIAS FOR $n;
+    
+    repGrammar.append(t.slice)
+
+def p_constant_item(t):
+    """constant_opt : R_CONSTANT"""
+    t[0] = True
+    repGrammar.append(t.slice)
+
+def p_constant_item2(t):
+    """constant_opt : """
+    t[0] = False
+    repGrammar.append(t.slice)
+
+def p_default_item(t):
+    """default_opt : R_DEFAULT
+                   | S_DOSPUNTOS S_IGUAL
+                   | S_IGUAL"""
+    repGrammar.append(t.slice)
+
+def p_default_item2(t):
+    """default_item : default_opt """
+    t[0] = t[2]
+    repGrammar.append(t.slice)
+
+def p_default_item3(t):
+    """default_item : """
+    t[0] = None
+    repGrammar.append(t.slice)
+
+def p_alias_declaracion(t):
+    """alias_declaracion : ID 
+                         | IDEspecial"""
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_beingStmt(t):
+    """beginStmt : R_NULL"""
+    repGrammar.append(t.slice)
+
+def p_labelEnd(t):
+    """labelEnd : R_NULL"""
+    repGrammar.append(t.slice)
+
+# endregion
 
 syntax_errors = list()
 PostgreSQL = list()
