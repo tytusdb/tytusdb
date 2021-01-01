@@ -57,12 +57,6 @@ class Instruction:
         """
         Metodo que servira para ejecutar las expresiones
         """
-    
-    @abstractmethod
-    def c3d(self, environment):
-        """
-        Metodo que servira para ejecutar las expresiones
-        """
 
 
 class SelectParams(Instruction):
@@ -84,6 +78,7 @@ class Select(Instruction):
         havingCl,
         limitCl,
         distinct,
+        orderbyCl,
         row,
         column,
     ):
@@ -95,6 +90,7 @@ class Select(Instruction):
         self.havingCl = havingCl
         self.limitCl = limitCl
         self.distinct = distinct
+        self.orderbyCl = orderbyCl
 
     def execute(self, environment):
         try:
@@ -118,6 +114,7 @@ class Select(Instruction):
                     else:
                         params.append(p)
                 labels = [p.temp for p in params]
+
                 if self.groupbyCl != None:
                     value = []
                     for i in range(len(params)):
@@ -163,11 +160,45 @@ class Select(Instruction):
                     for j in range(len(labels)):
                         newEnv.types[labels[j]] = value[j].type
                         newEnv.dataFrame[labels[j]] = value[j].value
-            else:
+            else:                
                 value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
                 labels = [p for p in newEnv.dataFrame]
 
-            if value != []:
+
+            if self.orderbyCl != None:
+                order_build = []
+                kind_order = True
+                Nan_pos = None
+
+                for order_item in self.orderbyCl:
+                    #GENERAR LA LISTA DE COLUMNAS PARA ORDENAR
+                    result = order_item[0].execute(newEnv)
+                    order_build.append(result.value.name)
+                    
+                    #TIPO DE ORDEN
+                    if order_item[1].lower() == 'asc':
+                        kind_order = True
+                    else:
+                        kind_order = False
+
+                    # POSICIÓN DE NULOS
+                    if order_item[2] == None:
+                        pass
+                    elif order_item[2].lower() == 'first':
+                        Nan_pos = 'first'
+                    elif order_item[2].lower() == 'last':
+                        Nan_pos = 'last'
+
+                if Nan_pos != None:
+                    newEnv.dataFrame = newEnv.dataFrame.sort_values(by = order_build, ascending = kind_order, na_position = Nan_pos)
+                else:
+                    newEnv.dataFrame = newEnv.dataFrame.sort_values(by = order_build, ascending = kind_order)
+
+                if value != []:
+                    value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
+                    labels = [p for p in newEnv.dataFrame]                    
+
+            if value != []:                 
                 if self.wherecl == None:
                     df_ = newEnv.dataFrame.filter(labels)
                     if self.limitCl:
@@ -227,6 +258,19 @@ class Select(Instruction):
                 hv = Nodo.Nodo("HAVING")
                 new.addNode(hv)
                 hv.addNode(self.havingCl.dot())
+
+        if self.orderbyCl != None:
+            ob = Nodo.Nodo("ORDER_BY")
+            new.addNode(ob)
+            for o in self.orderbyCl:
+                ob.addNode(o[0].dot())
+                to = Nodo.Nodo(o[1])
+                ob.addNode(to)
+                coma = Nodo.Nodo(",")
+                ob.addNode(coma)
+                if o[2] != None:
+                    on = Nodo.Nodo(o[2])
+                    ob.addNode(on)
 
         if self.limitCl != None:
             new.addNode(self.limitCl.dot())
@@ -412,23 +456,6 @@ class SelectOnlyParams(Select):
                 paramNode.addNode(p.dot())
         return new
 
-    def c3d(self, environment):
-        try:
-            newEnv = Environment(environment, dbtemp)
-            global envVariables
-            envVariables.append(newEnv)
-            labels = []
-            values = {}
-            for i in range(len(self.params)):
-                v = self.params[i].c3d(environment)
-                values[self.params[i].temp] = [v.value]
-                labels.append(self.params[i].temp)
-                newEnv.types[labels[i]] = v.type
-            newEnv.dataFrame = pd.DataFrame(values)
-            return [newEnv.dataFrame, newEnv.types]
-        except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion SELECT")
-
 
 class Delete(Instruction):
     def __init__(self, fromcl, wherecl, row, column):
@@ -491,7 +518,7 @@ class Delete(Instruction):
         new.addNode(self.wherecl.dot())
         return new
 
-
+#ya
 class Update(Instruction):
     def __init__(self, fromcl, values, wherecl, row, column):
         Instruction.__init__(self, row, column)
@@ -504,11 +531,10 @@ class Update(Instruction):
             # Verificamos que no pueden venir mas de 1 tabla en el clausula FROM
             if len(self.fromcl.tables) > 1:
                 syntaxErrors.append(["Error sintactico cerco e en ','", self.row])
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42601: Error sintactico cerca de , en la linea "
                     + str(self.row)
                 )
-                return "Error: syntax error at or near ','"
             newEnv = Environment(environment, dbtemp)
             global envVariables
             envVariables.append(newEnv)
@@ -524,7 +550,7 @@ class Update(Instruction):
                 w2 = wh.filter(labels)
             # Si la clausula WHERE devuelve un dataframe vacio
             if w2.empty:
-                return "Operacion UPDATE completada"
+                print("Operacion UPDATE completada")
             # Logica para realizar el update
             table = self.fromcl.tables[0].name
             pk = Struct.extractPKIndexColumns(dbtemp, table)
@@ -535,17 +561,15 @@ class Update(Instruction):
                     rows.append([row[p] for p in pk])
             else:
                 rows.append([i for i in w2.index])
-            print(rows)
             # Obtenemos las variables a cambiar su valor
             ids = [p.id for p in self.values]
             values = [p.execute(newEnv).value for p in self.values]
             ids = Struct.getListIndex(dbtemp, table, ids)
             if len(ids) != len(values):
-                return "Error: Columnas no encontradas"
+                print("Error: Columnas no encontradas")
             temp = {}
             for i in range(len(ids)):
                 temp[ids[i]] = values[i]
-            print(temp, rows)
             # TODO: La funcion del STORAGE esta bugueada
             bug = False
             for row in rows:
@@ -554,10 +578,10 @@ class Update(Instruction):
                     bug = True
                     break
             if bug:
-                return ["Error: Funcion UPDATE del Storage", temp, rows]
-            return "Operacion UPDATE completada"
+                print(["Error: Funcion UPDATE del Storage", temp, rows])
+            print("Operacion UPDATE completada")
         except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion UPDATE")
+            print("Error: P0001: Error en la instruccion UPDATE")
 
     def dot(self):
         new = Nodo.Nodo("UPDATE")
@@ -568,6 +592,12 @@ class Update(Instruction):
             assigNode.addNode(v.dot())
         new.addNode(self.wherecl.dot())
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Eliminar\n\n"
+        environment.conta_exec += 1
 
 
 class Assignment(Instruction):
@@ -588,7 +618,7 @@ class Assignment(Instruction):
         new.addNode(self.value.dot())
         return new
 
-
+#ya
 class Drop(Instruction):
     """
     Clase que representa la instruccion DROP TABLE and DROP DATABASE
@@ -609,28 +639,24 @@ class Drop(Instruction):
                         semanticErrors.append(
                             ["La base de datos " + str(dbtemp) + " no existe", self.row]
                         )
-                        syntaxPostgreSQL.append(
+                        print(
                             "Error: 42000: La base de datos  "
                             + str(dbtemp)
                             + " no existe"
                         )
-                        return "La base de datos no existe"
                     if valor == 3:
                         semanticErrors.append(
                             ["La tabla " + str(self.name) + " no existe", self.row]
                         )
-                        syntaxPostgreSQL.append(
+                        print(
                             "Error: 42P01: La tabla  " + str(self.name) + " no existe"
                         )
-                        return "La tabla no existe en la base de datos"
                     if valor == 1:
-                        syntaxPostgreSQL.append("Error: XX000: Error interno")
-                        return "Hubo un problema en la ejecucion de la sentencia DROP"
+                        print("Hubo un problema en la ejecucion de la sentencia DROP")
                     if valor == 0:
                         Struct.dropTable(dbtemp, self.name)
-                        return "DROP TABLE Se elimino la tabla: " + self.name
-                syntaxPostgreSQL.append("Error: 42000: Base de datos no especificada ")
-                return "El nombre de la base de datos no esta especificado operacion no realizada"
+                        print("DROP TABLE Se elimino la tabla: " + self.name)
+                print("Error: 42000: Base de datos no especificada ")
             else:
                 valor = jsonMode.dropDatabase(self.name)
                 if valor == 1:
@@ -661,6 +687,7 @@ class Drop(Instruction):
         environment.codigo += "C3D.ejecutar() #Eliminar\n\n"
         environment.conta_exec += 1
 
+#ya
 class AlterDataBase(Instruction):
     def __init__(self, option, name, newname):
         self.option = option  # define si se renombra o se cambia de dueño
@@ -856,7 +883,7 @@ class InsertInto(Instruction):
         # ast.makeAst(root)
         return new
 
-
+#ya
 class useDataBase(Instruction):
     def __init__(self, db, row, column):
         Instruction.__init__(self, row, column)
@@ -888,7 +915,7 @@ class useDataBase(Instruction):
         environment.conta_exec += 1
 
 
-
+#ya
 class showDataBases(Instruction):
     def __init__(self, like):
         if like != None:
@@ -931,7 +958,7 @@ class showDataBases(Instruction):
         environment.conta_exec += 1
 
 
-
+#ya
 class CreateDatabase(Instruction):
     """
     Clase que representa la instruccion CREATE DATABASE
@@ -944,7 +971,6 @@ class CreateDatabase(Instruction):
         self.mode = mode
         self.owner = owner
         self.replace = replace
-        self.row = 0
 
     def execute(self, environment):
         result = jsonMode.createDatabase(self.name)
@@ -959,6 +985,7 @@ class CreateDatabase(Instruction):
 
         if result == 0:
             Struct.createDatabase(self.name, self.mode, self.owner)
+            report = "Base de datos: " + self.name + " insertada."
             print("Base de datos: " + self.name + " insertada.")
         elif result == 1:
             print("Error al insertar la base de datos: " + self.name)
@@ -1001,7 +1028,7 @@ class CreateDatabase(Instruction):
         environment.codigo += "C3D.ejecutar() #Crear Base de datos\n\n"
         environment.conta_exec += 1
 
-
+#ya
 class CreateTable(Instruction):
     def __init__(self, exists, name, inherits, columns=[]):
         self.exists = exists
@@ -1601,6 +1628,100 @@ class IndexCls(Instruction):
         return new
 
 
+
+class FunctionPL(Instruction):
+    """
+    Clase encargada de crear funciones PLSQL
+    """
+
+    def __init__(self, nombre, params, returnStmt, bloqueStmt, row, column):
+        Instruction.__init__(self, row, column)
+        self.nombre = nombre
+        self.params = params
+        self.returnStmt = returnStmt
+        self.bloqueStmt = bloqueStmt    
+
+    def execute(self, environment):
+        pass
+
+    def dot(self):
+        new = Nodo.Nodo("FUNCTION")
+
+        # NODO PARA EL ID DE LA FUNCION
+        id_function = Nodo.Nodo(self.nombre)
+        new.addNode(id_function)
+
+        # NODO PARA LOS PARAMETROS DE LA FUNCIÓN
+        for p in self.params:
+            new_param = Nodo.Nodo("PARAMETRO")
+            new.addNode(new_param)
+
+            param_id = Nodo.Nodo(p[0])
+            param_typ1 = Nodo.Nodo(p[1][0])
+
+            new_param.addNode(param_id)
+            new_param.addNode(param_typ1)
+
+        #NODO PARA EL RETURN DE LA FUNCIÓN
+        if self.returnStmt != None:
+            new_return = Nodo.Nodo("RETURN")
+
+        #NODO PARA EL DECLARE
+        if self.bloqueStmt[0] != None:
+            new.addNode(self.bloqueStmt[0].dot())
+
+        #NODO PARA EL BEGIN
+        if self.bloqueStmt[1] != None:
+            new.addNode(self.bloqueStmt[1].dot())
+
+        #NODO PARA EL END
+        if self.bloqueStmt[2] != None:
+            pass#new.addNode(self.bloqueStmt[2].dot())
+
+        return new
+
+    def generar_c3d(self):
+        pass
+
+
+class DeclarationPL(Instruction):
+    """
+    Clase encargada de ejecutar las declaraciones en la función
+    una función PLSQL
+    """
+
+    def __init__(self, row, column):
+        Instruction.__init__(self, row, column)
+
+    def execute(self, environment):
+        pass
+
+    def dot(self):
+        new = Nodo.Nodo("DECLARATION")
+        return new
+
+    def generar_c3d(self):
+        pass
+
+
+class BeginPL(Instruction):
+    """
+    Clase encargada de ejecutar el segmento Begin de una 
+    función PLSQL
+    """
+
+    def __init__(self, row, column):
+        Instruction.__init__(self, row, column)
+
+    def execute(self, environment):
+        pass
+
+    def dot(self):
+        new = Nodo.Nodo("BEGIN")
+        return new
+
+    def generar_c3d(self):
+        pass
 
 def returnErrors():
     list_ = list()
