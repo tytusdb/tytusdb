@@ -538,6 +538,7 @@ class Main(tk.Tk):
 
             # Start parser
             ins = g.parse(tytus)
+            C3D = g.codigo_3D
            ##g.analizar(tytus)
             st_global = st.SymbolTable()
             es_global = es.ListaErroresSemanticos()
