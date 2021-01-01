@@ -203,6 +203,29 @@ reserved = {
     'last' : 'LAST',
     'nulls' : 'NULLS',
     'use' : 'USE',
+    'constant' : 'CONSTANT',
+    'collate' : 'COLLATE',
+    'function' : 'FUNCTION',
+    'begin' : 'BEGIN',
+    'return' : 'RETURN',
+    'alias' : 'ALIAS',
+    'for' : 'FOR',
+    'languaje' : 'LANGUAJE',
+    'out' : 'OUT',
+    'declare' : 'DECLARE',
+    'rowtype' : 'ROWTYPE',
+    'record' : 'RECORD',
+    'collate' : 'COLLATE',
+    'prepare' : 'PREPARE',
+    'perform' : 'PERFORM',
+    'found' : 'FOUND',
+    'raise' : 'RAISE',
+    'no_data_found' : 'NO_DATA_FOUND',
+    'too_many_rows' : 'TOO_MANY_ROWS',
+    'execute' : 'EXECUTE',
+    'get' : 'GET',
+    'notice' : 'NOTICE',
+    'elseif' : 'ELSEIF',
 }
 
 tokens = [
@@ -356,11 +379,11 @@ precedence = (
     ('left', 'AS')
 )
 
-
 def p_init(t):
     ''' init : statements'''
     t[0] = t[1]
 
+#===================================== SQL =====================================
 
 def p_statements(t):
     ''' statements  :   statements statement    '''
