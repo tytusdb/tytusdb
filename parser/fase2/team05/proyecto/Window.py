@@ -27,7 +27,7 @@ from Expresiones import *
 from reporteTS import *
 import webbrowser
 from Graficar import Graficar
-
+from archivoC3D import *
 
 # MAIN CLASS
 class Main(tk.Tk):
@@ -539,6 +539,7 @@ class Main(tk.Tk):
             # Start parser
             ins = g.parse(tytus)
             C3D = g.codigo_3D
+            crearArchivo(C3D)
            ##g.analizar(tytus)
             st_global = st.SymbolTable()
             es_global = es.ListaErroresSemanticos()
