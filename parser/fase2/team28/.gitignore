@@ -148,7 +148,6 @@ parsetab.py
 
 ast.png
 errors.png
-error.png
 symbolTable.png
 typeChecker.png
 
@@ -157,5 +156,3 @@ test/
 data/
 view/
 .vscode/
-
-C3D.py

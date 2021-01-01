@@ -17,7 +17,6 @@ from controllers.error_controller import ErrorController
 from utils.reports.report_error import ReportError
 from utils.reports.symbol_report import SymbolTableReport
 from utils.reports.tchecker_report import TypeCheckerReport
-from controllers.three_address_code import ThreeAddressCode
 from views.data_window import DataWindow
 
 report_error = None
@@ -61,13 +60,8 @@ class MainWindow(object):
         archivoMenu.add_command(label='Guardar como...',
                                 command=self.guardar_como)
         archivoMenu.add_separator()
-        archivoMenu.add_command(label='Ejecutar SQL',
-                                command=self.ejecutar_sql)
-        archivoMenu.add_separator()
-        archivoMenu.add_command(label='Generar TAC',
-                                command=self.generar_tac)
-        archivoMenu.add_command(label='Ejecutar TAC',
-                                command=ThreeAddressCode().executeFile)
+        archivoMenu.add_command(label='Ejecutar',
+                                command=self.analizar_entrada)
         archivoMenu.add_separator()
         archivoMenu.add_command(label='Salir', command=self.terminar)
         #############################################MENU WINDOWS##############################################
@@ -118,14 +112,13 @@ class MainWindow(object):
         ver_scroll = Scrollbar(frame, orient='vertical')
         # Crea un scroll por si el texto es muy largo
         self.entrada = Text(frame, borderwidth=0, height=35,
-                            width=70, bg='#2e2e31', foreground='#fff', undo=True, wrap='none',
-                            xscrollcommand=hor_scroll.set, yscrollcommand=ver_scroll.set)
+                            width=70, bg='#2e2e31', foreground='#fff', undo=True, wrap='none', xscrollcommand=hor_scroll.set, yscrollcommand=ver_scroll.set)
         self.entrada.grid(row=4, column=0, padx=30)
 
         ver_scroll.config(command=self.entrada.yview)
-        ver_scroll.grid(column=0, row=4, sticky='NE', ipady=255, padx=12)
+        ver_scroll.grid(column=0, row=4, sticky='NE',ipady=255,padx=12)
         hor_scroll.config(command=self.entrada.xview)
-        hor_scroll.grid(column=0, row=5, sticky='NS', ipadx=255)
+        hor_scroll.grid(column=0, row=5, sticky='NS',ipadx=255)
 
         # Para este editor aun hay que ver si lo usamos como consola para errores, si no lo quitamos
         dataWindow = DataWindow()
@@ -171,13 +164,12 @@ class MainWindow(object):
         self.archivo = guardar_info
 
     # Opcion para ejecutar el texto de entrada del editor
-    def ejecutar_sql(self):
+    def analizar_entrada(self):
         global report_error
         global report_ast
 
         DataWindow().clearConsole()
         SymbolTable().destroy()
-        ThreeAddressCode().destroy()
 
         texto = self.entrada.get('1.0', END)
         result = parse(texto)
@@ -190,44 +182,25 @@ class MainWindow(object):
         else:
             result2 = parse2(texto)
             report_ast = result2
+            messagebox.showinfo('EXITO', 'SE FINALIZO EL ANALISIS CON EXITO')
 
+            # # ---------- TEST ---------
+            # for inst in result:
+            #     # esto es por los select anidados (subquerys), no encontre otra menera
+            #     # de retornar la tabla dibujada, lo hacia en mi clase
+            #     # pero si lo dejaba ahi me tronaban las subquery,
+            #     # prueben que no les de problema
+            #     if isinstance(inst, Select):
+            #         result = inst.process(0)
+            #         if isinstance(result, DataFrame):
+            #             DataWindow().consoleText(format_df(result))
+            #         elif isinstance(result, list):
+            #             DataWindow().consoleText(format_table_list(result))
+            #     else:
+            #         inst.process(0)
             # ---------- TEST ---------
-            for inst in result:
-                # esto es por los select anidados (subquerys), no encontre otra menera
-                # de retornar la tabla dibujada, lo hacia en mi clase
-                # pero si lo dejaba ahi me tronaban las subquery,
-                # prueben que no les de problema
-                if isinstance(inst, Select):
-                    result = inst.process(0)
-                    if isinstance(result, DataFrame):
-                        DataWindow().consoleText(format_df(result))
-                    elif isinstance(result, list):
-                        DataWindow().consoleText(format_table_list(result))
-                else:
-                    inst.process(0)
-            # ---------- TEST ---------
-
-    def generar_tac(self):
-        global report_error
-        global report_ast
-
-        DataWindow().clearConsole()
-        SymbolTable().destroy()
-        ThreeAddressCode().destroy()
-
-        texto = self.entrada.get('1.0', END)
-        parse(texto)
-
-        if len(ErrorController().getList()) > 0:
-            messagebox.showerror('ERRORES', 'Se encontraron errores')
-        else:
-            result2 = parse2(texto)
-            report_ast = result2
-            DataWindow().consoleText(ThreeAddressCode().getCode())
-            ThreeAddressCode().writeFile()
 
     # Para mostrar el editor
-
     def report_ast_ubuntu(self):
         global report_ast
         graficadora = GraficarAST()
