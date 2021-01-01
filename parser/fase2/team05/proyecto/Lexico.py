@@ -450,9 +450,13 @@ def p_instruccion2(t):
 
 def p_use(t):
     'I_USE           :   USE ID PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical, codigo_3D,contador
     reporte_gramatical.append('<I_USE> ::= "USE" "ID" ";"')
-    ret = Retorno(UseDatabase(t[2]), NodoAST("USE"))
+    C3D = 't' + str(contador) + ' = "use ' + str(t[2]) + ';"'
+    print(C3D)
+    contador = contador + 1
+    ret = Retorno(C3D, NodoAST("USE"))
+    codigo_3D.append(C3D)
     ret.getNodo().setHijo(NodoAST(t[2]))
     t[0] = ret
 
@@ -461,8 +465,12 @@ def p_use(t):
 
 def p_ctype(t):
     'I_CTYPE       : CREATE TYPE ID AS ENUM PABRE I_LVALUES PCIERRA PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,codigo_3D,contador
     reporte_gramatical.append('<I_CTYPE> ::= "CREATE" "TYPE" "ID" "AS" "ENUM" "(" <I_LVALUES> ")" ";"')
+    C3D = 't'+str(contador)+ ' = "create type ' + str(t[3]) + ' as enum ( '+str(t[7].getInstruccion()) + ');"'
+    print(C3D)
+    contador = contador + 1
+    codigo_3D.append(C3D)
     ret = Retorno(CreateType(t[3], t[7].getInstruccion()), NodoAST("CREATE TYPE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[7].getNodo())
@@ -473,8 +481,7 @@ def p_lcad1(t):
     'I_LVALUES          :   I_LVALUES COMA CONDI'
     global reporte_gramatical
     reporte_gramatical.append('<I_LVALUES> ::= <I_LVALUES> "," <CONDI>')
-    val = t[1].getInstruccion()
-    val.append(t[3].getInstruccion())
+    val = str(t[1].getInstruccion()) + ',' + str(t[3].getInstruccion())
     ret = Retorno(val, NodoAST("VALOR"))
     ret.getNodo().setHijo(t[1].getNodo())
     ret.getNodo().setHijo(t[3].getNodo())
@@ -485,7 +492,7 @@ def p_lcad2(t):
     'I_LVALUES          :   CONDI'
     global reporte_gramatical
     reporte_gramatical.append('<I_LVALUES> ::= <CONDI>')
-    val = [t[1].getInstruccion()]
+    val = t[1].getInstruccion()
     ret = Retorno(val, NodoAST("VALOR"))
     ret.getNodo().setHijo(t[1].getNodo())
     t[0] = ret
@@ -791,6 +798,15 @@ def p_cRef2(t):
 
 # TIPOS DE DATOS
 
+def p_tipoId(t):
+    'I_TIPO           : ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "ID" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
+
+
 def p_tipo(t):
     'I_TIPO           : SMALLINT'
     global reporte_gramatical
@@ -1058,19 +1074,15 @@ def p_fields4(t):
 
 
 # CREATE DATABASE
-def p_tipoId(t):
-    'I_TIPO           : ID'
-    global reporte_gramatical
-    reporte_gramatical.append('<I_TIPO> ::= "ID" ')
-    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
-    ret.getNodo().setHijo(NodoAST(t[1]))
-    t[0] = ret
-
 
 def p_ReplaceV(t):
     'I_REPLACE     : CREATE OR REPLACE DATABASE IF NOT EXISTS ID PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical, codigo_3D,contador
     reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "IF" "NOT" "EXISTS" "ID" ";"')
+    C3D = 't' + str(contador) + ' = "create or replace database if not exists ' + str(t[8]) + ';"'
+    print(C3D)
+    codigo_3D.append(C3D)
+    contador = contador + 1
     ret = Retorno(CreateDatabase(t[8],None,True,True),NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[8]))
     t[0] = ret
@@ -1078,8 +1090,12 @@ def p_ReplaceV(t):
 
 def p_Replace_1V(t):
     'I_REPLACE     : CREATE OR REPLACE DATABASE ID PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,codigo_3D,contador
     reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "ID"";"')
+    C3D = 't'+str(contador) + ' = "create or replace database '+ str(t[5]) + ';"'
+    contador = contador + 1
+    codigo_3D.append(C3D)
+    print(C3D)
     ret = Retorno(CreateDatabase(t[5],None,False,True),NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     t[0] = ret
@@ -1088,7 +1104,10 @@ def p_Replace_1V(t):
 
 def p_Replace1V(t):
     'I_REPLACE     : CREATE DATABASE IF NOT EXISTS ID PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,codigo_3D,contador
+    C3D = 't' + str(contador) + '= "create database if not exists ' + str(t[6]) + ';"'
+    contador = contador + 1
+    codigo_3D.append(C3D)
     reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "DATABASE" "IF" "NOT" "EXISTS" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
     ret = Retorno(CreateDatabase(t[6],None,True,False),NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[6]))
@@ -1097,17 +1116,25 @@ def p_Replace1V(t):
 
 def p_Replace2V(t):
     'I_REPLACE     : CREATE DATABASE ID PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,codigo_3D,contador
     reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "DATABASE" "ID" ";"')
+    C3D = 't' + str(contador) + ' =  "create database ' + str(t[3]) + ';"'
+    print(C3D)
+    contador = contador + 1
+    codigo_3D.append(C3D)
     ret = Retorno(CreateDatabase(t[3],None,False,False),NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
 
 def p_Replace(t):
     'I_REPLACE     : CREATE OR REPLACE DATABASE IF NOT EXISTS ID COMPLEMENTO_CREATE_DATABASE PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,codigo_3D,contador
     reporte_gramatical.append(
         '<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "IF" "NOT" "EXISTS" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    C3D = 't' + str(contador) + ' = "create or replace database if not exists ' + str(t[8]) + ' ' + str(t[9].getInstruccion()) + ';" '
+    contador = contador + 1
+    print(C3D)
+    codigo_3D.append(C3D)
     ret = Retorno(CreateDatabase(t[8], t[9].getInstruccion(), True, True), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[8]))
     ret.getNodo().setHijo(t[9].getNodo())
@@ -1117,9 +1144,13 @@ def p_Replace(t):
 
 def p_Replace_1(t):
     'I_REPLACE     : CREATE OR REPLACE DATABASE ID COMPLEMENTO_CREATE_DATABASE PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,contador,codigo_3D
     reporte_gramatical.append(
         '<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    C3D = 't'+str(contador) + ' = "create or replace database ' + str(t[5]) + ' ' + str(t[6].getInstruccion()) + ';"'
+    contador = contador + 1
+    codigo_3D.append(C3D)
+    print(C3D)
     ret = Retorno(CreateDatabase(t[5], t[6].getInstruccion(), False, True), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     ret.getNodo().setHijo(t[6].getNodo())
@@ -1128,9 +1159,13 @@ def p_Replace_1(t):
 
 def p_Replace1(t):
     'I_REPLACE     : CREATE DATABASE IF NOT EXISTS ID COMPLEMENTO_CREATE_DATABASE PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,contador,codigo_3D
     reporte_gramatical.append(
         '<I_REPLACE> ::= "CREATE" "DATABASE" "IF" "NOT" "EXISTS" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    C3D = 't'+str(contador) + ' = " create database if not exists ' + str(t[6]) + ' ' + str(t[7].getInstruccion()) + ';"'
+    contador = contador + 1
+    codigo_3D.append(C3D)
+    print(C3D)
     ret = Retorno(CreateDatabase(t[6], t[7].getInstruccion(), True, False), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[6]))
     ret.getNodo().setHijo(t[7].getNodo())
@@ -1139,8 +1174,12 @@ def p_Replace1(t):
 
 def p_Replace2(t):
     'I_REPLACE     : CREATE DATABASE ID COMPLEMENTO_CREATE_DATABASE PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,contador, codigo_3D
     reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "DATABASE" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    C3D = 't'+str(contador)+' = "create database ' + str(t[3]) + ' ' +str(t[4].getInstruccion()) + ';"'
+    contador = contador + 1
+    codigo_3D.append(C3D)
+    print(C3D)
     ret = Retorno(CreateDatabase(t[3], t[4].getInstruccion(), False, False), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[4].getNodo())
@@ -1151,7 +1190,8 @@ def p_Owmod(t):
     'COMPLEMENTO_CREATE_DATABASE        : OWNER IGUAL CADENA MODE IGUAL NUMERO'
     global reporte_gramatical
     reporte_gramatical.append('<COMPLEMENTO_CREATE_DATABASE> ::= "OWNER" "=" "CADENA" "MODE" "=" "NUMERO"')
-    ret = Retorno(OwnerMode(t[3], t[6]), NodoAST("VALORES"))
+    var = 'owner = ' + str(t[3]) + ' mode = ' + str(t[6])
+    ret = Retorno(var, NodoAST("VALORES"))
     ret.getNodo().setHijo(NodoAST("OWNER"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(NodoAST("MODE"))
@@ -1163,7 +1203,8 @@ def p_ModOwn(t):
     'COMPLEMENTO_CREATE_DATABASE        : MODE IGUAL NUMERO OWNER IGUAL CADENA '
     global reporte_gramatical
     reporte_gramatical.append('<COMPLEMENTO_CREATE_DATABASE> ::= "MODE" "=" "NUMERO" "OWNER" "=" "CADENA" ')
-    ret = Retorno(OwnerMode(t[6], t[3]), NodoAST("VALORES"))
+    var = 'mode = ' + str(t[3]) + ' owner = ' + str(t[6])
+    ret = Retorno(var, NodoAST("VALORES"))
     ret.getNodo().setHijo(NodoAST("MODE"))
     ret.getNodo().setHijo(NodoAST(str(t[3])))
     ret.getNodo().setHijo(NodoAST("OWNER"))
@@ -1174,8 +1215,9 @@ def p_ModOwn(t):
 def p_Owmod1(t):
     'COMPLEMENTO_CREATE_DATABASE       : OWNER IGUAL CADENA'
     global reporte_gramatical
+    var = 'owner = ' + str(t[3])
     reporte_gramatical.append('<COMPLEMENTO_CREATE_DATABASE> ::= "OWNER" "=" "CADENA" ')
-    ret = Retorno(OwnerMode(t[3], None), NodoAST("VALORES"))
+    ret = Retorno(var, NodoAST("VALORES"))
     ret.getNodo().setHijo(NodoAST("OWNER"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
@@ -1184,8 +1226,9 @@ def p_Owmod1(t):
 def p_OwmodN2(t):
     'COMPLEMENTO_CREATE_DATABASE       : MODE IGUAL NUMERO'
     global reporte_gramatical
+    var = 'mode = ' + str(t[3])
     reporte_gramatical.append('<COMPLEMENTO_CREATE_DATABASE> ::= "MODE" "=" "NUMERO" ')
-    ret = Retorno(OwnerMode(None, t[3]), NodoAST("VALORES"))
+    ret = Retorno(var, NodoAST("VALORES"))
     ret.getNodo().setHijo(NodoAST("MODE"))
     ret.getNodo().setHijo(NodoAST(str(t[3])))
     t[0] = ret
@@ -1198,7 +1241,11 @@ def p_OwmodN2(t):
 
 def p_tAlter(t):
     'I_ALTERDB    : ALTER DATABASE ID P_OPERACION_ALTERDB PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,contador,codigo_3D
+    C3D = 't' + str(contador) + ' = " alter database ' + str(t[3]) + ' ' + str(t[4].getInstruccion())
+    contador = contador + 1
+    print(C3D)
+    codigo_3D.append(C3D)
     reporte_gramatical.append('<I_ALTERDB> ::= "ALTER" "DATABASE" "ID" <P_OPERACION_ALTERDB> ";" ')
     ret = Retorno(AlterDB(t[3], t[4].getInstruccion()), NodoAST("ALTER DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
@@ -1209,8 +1256,9 @@ def p_tAlter(t):
 def p_tAlterOpDB(t):
     'P_OPERACION_ALTERDB    : OWNER TO P_TIPOS_OWNER'
     global reporte_gramatical
+    var = 'owner to ' + str(t[3])
     reporte_gramatical.append('<P_OPERACION_ALTERDB> ::= "OWNER" "TO" "ID" <P_TIPOS_OWNER>')
-    ret = Retorno(AlterDBOwner(t[3]), NodoAST(t[1]))
+    ret = Retorno(var, NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
 
@@ -1219,7 +1267,8 @@ def p_tAlterOpDB1(t):
     'P_OPERACION_ALTERDB    : MODE TO NUMERO'
     global reporte_gramatical
     reporte_gramatical.append('<P_OPERACION_ALTERDB> ::= "MODE" "TO" "NUMERO"')
-    ret = Retorno(AlterDBMode(t[3]), NodoAST(t[1]))
+    var = 'mode to ' + str(t[3])
+    ret = Retorno(var, NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(str(t[3])))
     t[0] = ret
 
@@ -1228,7 +1277,8 @@ def p_tAlterOpDB2(t):
     'P_OPERACION_ALTERDB    : RENAME TO CADENA'
     global reporte_gramatical
     reporte_gramatical.append('<P_OPERACION_ALTERDB> ::= "RENAME" "TO" "CADENA"')
-    ret = Retorno(AlterDBRename(t[3]), NodoAST(t[1]))
+    var = 'rename to ' + str(t[3])
+    ret = Retorno(var, NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
 
@@ -1691,7 +1741,11 @@ def p_FTUP1(t):
 
 def p_show(t):
     'I_SHOW       : SHOW DATABASES PCOMA'
-    global reporte_gramatical
+    global reporte_gramatical,codigo_3D,contador
+    C3D = 't' + str(contador) + ' = " show databases; "'
+    print(C3D)
+    contador = contador + 1
+    codigo_3D.append(C3D)
     reporte_gramatical.append('<I_SHOW> ::= "SHOW" "DATABASE" ";" ')
     ret = Retorno(Show(t[2]), NodoAST("SHOW"))
     # ret.getNodo().setHijo(NodoAST(t[2]))
