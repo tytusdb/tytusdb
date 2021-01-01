@@ -28,6 +28,10 @@ class Symbol:
         self.name = name
         self.position = position
 
+    @classmethod
+    def from_json(cls, data):
+        return cls(**data)
+
 
 class DatabaseSymbol(Symbol):
     def __init__(self, name, owner, mode):
@@ -181,6 +185,12 @@ class SymbolTable:
             result.append([symbol.name, symbol.type, belongs_to])
         print(tabulate(result, result2, tablefmt="psql"))
         return tabulate(result, result2, tablefmt="psql")
+
+    @classmethod
+    def from_json(cls, data):
+        symbols = list(map(Symbol.from_json, data["symbols"]))
+        return cls(symbols)
+
 
 # BLOCK TO TEST SYMBOL TABLE
 # db = DatabaseSymbol('test_db', None, 6)
