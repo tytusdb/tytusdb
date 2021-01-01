@@ -4,8 +4,8 @@
 # Developers: SG#16
 
 
-from DataAccessLayer.handler import Handler
-from Models.avl_tree import AVLTree
+from ..DataAccessLayer.handler import Handler
+from ..Models.avl_tree import AVLTree
 
 
 class TupleModule:
@@ -66,8 +66,10 @@ class TupleModule:
                 if db.name.upper() == database.upper():
                     if self.handler.exists(database, table):
                         result = []
+                        avl = self.handler.tableinstance(database, table)
                         for fila in reader:
-                            result.append(self.insert(database, table, fila))
+                            result.append(self.__insert(avl, fila))
+                        self.handler.tableupdate(avl)
                         return result
                     else:
                         return []
@@ -189,3 +191,33 @@ class TupleModule:
             res += "-" + str(pk)
         res = res[1:]
         return res
+
+    @staticmethod
+    def __insert(avl, register: list) -> int:
+        try:
+            if not isinstance(register, list):
+                raise
+            if len(register) != avl.numberColumns:
+                return 5
+            if not len(avl.pklist) == 0:
+                auxPk = ""
+                for key in avl.pklist:
+                    auxPk += "-" + str(register[key])
+                auxPk = auxPk[1:]
+                if avl.search(auxPk):
+                    return 4
+                else:
+                    avl.add(auxPk, register)
+            else:
+                index = avl.hidden
+                while True:
+                    if avl.search(str(index)):
+                        index += 1
+                        continue
+                    avl.add(str(index), register)
+                    break
+                avl.hidden = index
+
+            return 0
+        except:
+            return 1

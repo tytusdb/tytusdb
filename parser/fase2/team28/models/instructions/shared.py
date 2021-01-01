@@ -13,6 +13,10 @@ class Instruction:
     def process(self):
         ''' metodo para la ejecucion '''
         pass
+    @abstractmethod
+    def compile(self):
+        ''' metodo para la ejecucion '''
+        pass
 
 
 class From(Instruction):
