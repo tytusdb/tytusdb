@@ -25,9 +25,22 @@ class Select(Instruction):
         self.order_option = order_option
         self.limit_option = limit_option
         self.alias = f'{self.instrs.alias}'
+        self.line = 0
+        self.column = 0
+
     def __repr__(self):
         return str(vars(self))
-    
+    def compile(self):
+        instr = None
+        order = None
+        limit = None
+        # try:
+        instr = self.instrs.compile()
+
+        # except:
+        #     desc = "FATAL ERROR en Select, F  -- COMPILE"
+        #     ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
     def process(self, instrucction):
         instr = None
         order = None
@@ -134,6 +147,10 @@ class SelectQ(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def compile(self):
+        for val in self.select_list:
+            print(val.compile())
+
     def process(self, instrucction):
         list_select = None
         # print(self.alias)

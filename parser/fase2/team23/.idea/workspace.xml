@@ -2,7 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="760a120f-9dbd-4e99-b0b7-2da02e121234" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/ui/Databases.json" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Databases.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analizer/abstract/instruction.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/abstract/instruction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analizer/grammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/grammar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analizer/interpreter.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/interpreter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analizer/parser.out" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/parser.out" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analizer/parsetab.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/parsetab.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analizer/reports/BnfGrammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/reports/BnfGrammar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analizer/symbol/symbol.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/symbol/symbol.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analizer/tokens.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/tokens.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/test-output/round-table.gv" beforeDir="false" afterPath="$PROJECT_DIR$/ui/test-output/round-table.gv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/test-output/round-table.gv.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/ui/test-output/round-table.gv.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/test-output/round-table.gv.png" beforeDir="false" afterPath="$PROJECT_DIR$/ui/test-output/round-table.gv.png" afterDir="false" />
