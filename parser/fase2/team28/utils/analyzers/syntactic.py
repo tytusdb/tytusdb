@@ -5,6 +5,7 @@ from re import L
 
 import libs.ply.yacc as yacc
 import os
+import json
 
 from models.instructions.shared import *
 from models.instructions.DDL.database_inst import *
@@ -40,6 +41,8 @@ precedence = (
     ('left', 'DOT')  # Level 13
 )
 
+contador_instr = 0
+arr_instr = []
 # Definicion de Gramatica, un poco de defincion
 # Para que no se confundad, para crear la gramatica y se reconocida
 # siempre se empieza la funcion con la letra p, ejemplo p_name_function y
@@ -77,8 +80,10 @@ def p_sql_instruction(p):
                     | INDEXES_STATEMENT
                     | error SEMICOLON
     '''
+    global contador_instr, arr_instr
     p[0] = p[1]
-
+    if p.slice[1].type != "error":
+        contador_instr += 1
 
 def p_use_statement(p):
     '''usestatement : USE ID SEMICOLON'''
@@ -99,7 +104,8 @@ def p_ddl(p):
 def p_create_statement(p):
     '''createstatement : CREATE optioncreate SEMICOLON'''
     p[0] = p[2]
-
+    #Generacion de C3D
+    generateC3D(p)
 
 def p_option_create(p):
     '''optioncreate : TYPE SQLNAME AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS
@@ -488,7 +494,8 @@ def p_alter_statement(p):
     '''alterstatement : ALTER optionsalter SEMICOLON
     '''
     p[0] = p[2]
-
+    #Generacion de C3D
+    generateC3D(p)
 
 def p_options_alter(p):
     '''optionsalter : DATABASE alterdatabase
@@ -600,7 +607,8 @@ def p_rename_alter(p):
 def p_drop_statement(p):
     '''dropstatement : DROP optionsdrop SEMICOLON'''
     p[0] = p[2]
-
+    #Generacion de C3D
+    generateC3D(p)
 
 def p_options_drop(p):
     '''optionsdrop : DATABASE dropdatabase
@@ -645,6 +653,9 @@ def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
+    #Generacion de C3D
+    generateC3D(p)
+
     if(len(p) == 8):
         p[0] = Update(p[2], p[5], p[6], p.lineno(1), find_column(p.slice[1]))
     elif(len(p) == 7):
@@ -733,6 +744,9 @@ def p_options_list2(p):
 def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
+    #Generacion de C3D
+    generateC3D(p)
+    
     if (len(p) == 6):
         p[0] = Delete(p[3], p[4], p.lineno(1), find_column(p.slice[1]))
     else:
@@ -832,7 +846,9 @@ def p_insert_statement(p):
         p[0] = Insert(p[3], p[5], p[9], p.lineno(1), find_column(p.slice[1]))
     else:
         p[0] = Insert(p[3], None, p[6], p.lineno(1), find_column(p.slice[1]))
-
+    #Generacion de C3D
+    generateC3D(p)
+    
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
@@ -855,6 +871,9 @@ def p_select_statement(p):
                        | SELECTWITHOUTORDER ORDERBYCLAUSE 
                        | SELECTWITHOUTORDER LIMITCLAUSE 
                        | SELECTWITHOUTORDER'''
+    #Generacion de C3D
+    generateC3D(p)
+
     if (len(p) == 4):
         p[2] = p[2][1]
         [3].pop(0)
@@ -1534,8 +1553,6 @@ def p_trigonometric_functions(p):
     else:
         p[0] = ExpressionsTrigonometric(
             p[1], p[3], p[5], p.lineno(1), find_column(p.slice[1]))
-# TODO: REVISAR QUE SQLALIAS SEA OPCIONAL, Asi esta bien >:v pinche juan marcos
-
 
 def p_sql_alias(p):
     '''SQLALIAS : AS SQLNAME
@@ -1703,10 +1720,20 @@ parser = yacc.yacc()
 
 
 def parse(inpu):
-    global input
+    global input, contador_instr
+    contador_instr = 0
     ErrorController().destroy()
     lexer = lex.lex()
     lexer.lineno = 1
     input = inpu
     get_text(input)
     return parser.parse(inpu, lexer=lexer)
+
+#Generacion de C3D
+
+def generateC3D(p):
+    global contador_instr
+    arr_instr = p.lexer.lexdata.split(sep=";", maxsplit=contador_instr+1)
+    temp = ThreeAddressCode().newTemp()
+    aux = arr_instr[contador_instr].replace("\n","")
+    ThreeAddressCode().addCode(f"{temp} = \"{aux};\"")
