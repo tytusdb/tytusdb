@@ -18,9 +18,6 @@ class Environment:
         self.variables = {}
         self.tables = []
         self.types = {}
-        self.conta_temp = 0
-        self.conta_exec = 0
-        self.codigo = "import C3D\n\n"
 
     def updateVar(self, id, value, type_):
         """
@@ -133,10 +130,4 @@ class Environment:
                 symbol = env.variables[table]
                 return symbol.value + "." + column
             env = env.previous
-        return 
-        
-    def getTemp(self):
-        env = self
-        env.conta_temp += 1
-        return "t"+str(env.conta_temp) 
-        
+        return None
