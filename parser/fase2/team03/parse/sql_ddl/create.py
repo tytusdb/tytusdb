@@ -64,7 +64,7 @@ class CreateDatabase(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'CREATE DATABASE {"IF NOT EXISTS" if self.exists else ""}{f"MODE = {self.mode}" if self.mode else ""};'
 
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
@@ -117,7 +117,15 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        result_fields = self.fields
+        result_inherits_from = self.inherits_from.val if self.inherits_from else None
+        field_str = ''
+        for field in result_fields:
+            field_str = f'{field_str}{field.name} {field.field_type}' \
+                        f'{" IS NOT NULL" if field.allows_null is False else ""}' \
+                        f'{" PRIMARY KEY" if field.is_pk is True else ""},'
+        return f'CREATE TABLE {self.name} ({field_str[:-1]}) ' \
+               f'{f"INHERITS ({result_inherits_from})" if result_inherits_from is not None else ""};'
 
 
 class TableField(ASTNode):  # returns an item, grammar has to add it to a list and synthesize value to table
@@ -150,7 +158,8 @@ class TableField(ASTNode):  # returns an item, grammar has to add it to a list a
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        result_name = self.name.execute(table, tree)
+        return f'{result_name}'
 
 # table = SymbolTable([])
 # cdb_obj = CreateDatabase('db_test2', None, None, False, 1, 2)

@@ -2203,7 +2203,7 @@ class grammarReview:
         for instruccion in instrucciones:
             try:
                 val = instruccion.execute(ST, None)
-                print("AST excute result: ", val)
+                print("AST execute result: ", val)
                 if isinstance(instruccion, Select) or isinstance(instruccion, Union) \
                         or isinstance(instruccion, Intersect) or isinstance(instruccion, Except):
                     val = tabulate(val[1], val[0], tablefmt="psql")
@@ -2228,6 +2228,55 @@ class grammarReview:
         global ST
         return ST.report_symbols()
 
+
+    def report_errors(self):
+        result2 = ["LINEA", "COLUMNA", "TIPO", "DESCRIPCION"]
+        result = []
+        global errorsList
+        for our_error in errorsList:
+            result.append([our_error.line, our_error.column, our_error.error_type, our_error.message])
+        print(tabulate(result, result2, tablefmt="rst"))
+        return tabulate(result, result2, tablefmt="rst")
+
+
+class GrammarGenerate:
+    def __init__(self, texto):
+        print("Executing AST root, please wait ...")
+        global r
+        r = []
+        global errorsList
+        errorsList = []
+        global ST
+        ST.LoadMETADATA()
+        instructions = parse.parse(texto)
+        # generateReports()
+
+        for instruction in instructions:
+            try:
+                val = instruction.generate(ST, None)
+                print("AST Generation result: ", val)
+                if isinstance(instruction, Select) or isinstance(instruction, Union) \
+                        or isinstance(instruction, Intersect) or isinstance(instruction, Except):
+                    val = tabulate(val[1], val[0], tablefmt="psql")
+                self.set_result(str(val) + '\n\n')
+            except our_error as named_error:
+                errorsList.append(named_error)
+
+        for e in errorsList:
+            print(e, "\n")
+
+    def set_result(self, valor):
+        global r
+        r.append(valor)
+        return r
+
+    def get_result(self):
+        global r
+        return r
+
+    def getTablaTabulada(self):
+        global ST
+        return ST.report_symbols()
 
     def report_errors(self):
         result2 = ["LINEA", "COLUMNA", "TIPO", "DESCRIPCION"]
@@ -2282,6 +2331,5 @@ def execute_from_wrapper(symbol_table: SymbolTable, command_input):
 
     for e in errorsList:
         print(e, "\n")
-    # symbol_table.report_symbols()
 
-    return result
+    return {'result': result, 'errors': errorsList}
