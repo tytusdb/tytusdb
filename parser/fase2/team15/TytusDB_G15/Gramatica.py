@@ -200,7 +200,16 @@ reservadas = {
     'power': 'POWER',
     #AGREGADAS
     'notexist':'NOTEXIST',
-    'notin':'NOTIN'
+    'notin':'NOTIN',
+    #INDEX
+    'index' : 'INDEX',
+    'hash' : 'HASH',
+    'nulls' : 'NULLS',
+    'first' : 'FIRST',
+    'last' : 'LAST',
+    'lower' : 'LOWER',
+    'include' : 'INCLUDE',
+    'collate' : 'COLLATE'
 }
 
 tokens = [
@@ -453,9 +462,74 @@ def p_instruccion(t):
                     | DDL_COMANDOS
                     | DML_COMANDOS
                     | COMENTARIOMULTI
-                    | COMENTARIONORMAL '''
+                    | COMENTARIONORMAL
+                    | IMPLEMENTACION_INDEX '''
     if t[1] != 'COMENTARIONORMAL' and t[1] != 'COMENTARIOMULTI':
         t[0] = t[1]
+
+# ========================= INDEX ===========================================
+def p_index(t):
+    ' IMPLEMENTACION_INDEX :  CREATE INDEX ID ON ID opc_index PUNTOCOMA'
+    t[0] = instruccion_index(INDEX.INDEX,t[3],t[5],t[6],None)
+
+def p_index_1(t):
+    ' IMPLEMENTACION_INDEX :  CREATE INDEX ID ON ID opc_index WHERER PUNTOCOMA '
+    t[0] = instruccion_index(INDEX.INDEX_WHERE,t[3],t[5],t[6],t[7])
+
+def p_index_3(t):
+    ' IMPLEMENTACION_INDEX :  CREATE UNIQUE INDEX ID ON ID opc_index PUNTOCOMA'
+    t[0] = instruccion_index(INDEX.INDEX_INCLUDE,t[4],t[6],t[7],None)
+
+    
+def p_index_4(t):
+    ' IMPLEMENTACION_INDEX :  CREATE UNIQUE INDEX ID ON ID opc_index WHERER PUNTOCOMA'
+    t[0] = instruccion_index(INDEX.INDEX_UNIQUE_WHERE,t[4],t[6],t[7],t[8])
+
+
+def p_createIndex1(t):
+    '''opc_index :  USING HASH PARIZQ ID PARDER
+                   | PARIZQ opc_index_par PARDER'''
+    if t[1].upper() == 'USING':
+        t[0] = index_cuerpo(TIPO_INDEX.USING_HASH,t[4],None)
+    else:
+        t[0]= t[2]
+
+def p_createIndex2(t):
+    ' opc_index_par : campos_c '
+    t[0] = index_cuerpo(TIPO_INDEX.CAMPOS,t[1],None)
+
+def p_createIndex2_1(t):
+    ' opc_index_par : ID NULLS first_last'
+    t[0] = index_cuerpo(TIPO_INDEX.NULLS,t[1],t[3])
+
+
+def p_createIndex2_2(t):
+    ' opc_index_par : ID STATE '
+    t[0] = index_cuerpo(TIPO_INDEX.STATE,t[1],t[2])
+
+
+def p_createIndex2_3(t):
+    ' opc_index_par : LOWER PARIZQ ID PARDER '
+    t[0] = index_cuerpo(TIPO_INDEX.LOWER,t[3], None)
+
+def p_createIndex_5(t):
+    ' opc_index_par : ID PARIZQ ID PARDER '
+    t[0] = index_cuerpo(TIPO_INDEX.WITH_IDS,t[1],t[3])
+
+
+def p_first_last(t):
+    ''' first_last : FIRST
+                   | LAST'''
+    t[0] = t[1]
+
+def p_cons_campos(t):
+    'campos_c : campos_c COMA ID '
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_cons_campos_id(t):
+    ' campos_c : ID'
+    t[0] = [t[1]]
 
 
 
