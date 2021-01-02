@@ -43,6 +43,7 @@ reservadas = {
     "REFERENCES": "R_REFERENCES",
     "CONSTRAINT": "R_CONSTRAINT",
     "DEFAULT": "R_DEFAULT",
+    "NULLS": "R_NULLS",
     "NULL": "R_NULL",
     "OWNER": "R_OWNER",
     "MODE": "R_MODE",
@@ -126,7 +127,17 @@ reservadas = {
     "WHEN": "R_WHEN",
     "THEN": "R_THEN",
     "ELSE": "R_ELSE",
-    "END": "R_END"
+    "INDEX": "R_INDEX",
+    "HASH": "R_HASH"
+    "END": "R_END",
+    "FUNCTION" : "R_FUNCTION",
+    "DECLARE" : "R_DECLARE",
+    "BEGIN" : "R_BEGIN",
+    "RETURNS" : "R_RETURNS",
+    "LANGUAGE" : "R_LANGUAGE",
+    "ALIAS" : "R_ALIAS",
+    "FOR" : "R_FOR",
+    "CONSTANT" : "R_CONSTANT"
 }
 
 reservadas.update(r_types)
@@ -167,7 +178,9 @@ tokens = [
     "S_COMA",
     "S_PUNTOCOMA",
     "S_PUNTO",
+    "S_DOSPUNTOS"
     "S_IGUAL",
+    "S_DOLAR",
     # Tokens
     "ID",
     "DECIMAL",
@@ -175,6 +188,7 @@ tokens = [
     "COMMENT",
     "STRING",
     "CHARACTER",
+    "IDEspecial"
 ] + list(reservadas.values())
 
 """
@@ -205,13 +219,20 @@ t_S_PARIZQ = r"\("
 t_S_PARDER = r"\)"
 t_S_COMA = r","
 t_S_PUNTOCOMA = r";"
+t_S_DOSPUNTOS = r":"
 t_S_PUNTO = r"\."
 t_S_IGUAL = r"="
+t_S_DOLAR = r"\$"
 
 """
   Caracteres ignorados por el lexer
 """
 t_ignore = " \t"
+
+# Funcion para evaluar si el token reconocido es un ID especial
+def t_IDEspecial(t):
+    r"\$\d+"
+    return t
 
 # Funcion para evaluar si el token reconocido es un ID
 def t_ID(t):

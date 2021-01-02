@@ -1,5 +1,6 @@
 import arbol.AST as a
 import gramatica2 as g
+import GramaticaTrad as gt
 import os
 from tkinter import *
 from reportes import *
@@ -41,17 +42,26 @@ def send_data():
     jsonMode.dropAll()
 
     # Principal.database = "DB1"
+
     instrucciones = g.parse(contenido)
     variables.consola.insert(INSERT, "Salida de consultas\n")
     for instr in instrucciones:
         if instr != None:
             instr.ejecutar(Principal)
+            string=str(instr)
+            intrprueba=string
 
     variables.consola.configure(state='disabled')
     # variables.consola.configure()
 
     setContenido(Principal.mostrarSimbolos())
 
+def traducir():
+    # reporteerrores = []
+    contenido = Tentrada.get(1.0, 'end')
+    variables.consola.delete("1.0", "end")
+    variables.consola.configure(state='normal')
+    gt.parse(contenido)
 
 def reporte_lex_sin():
     if len(reporteerrores) != 0:
@@ -147,6 +157,7 @@ variables.ventana.config(menu=menu_bar)
 ej_menu = Menu(menu_bar)
 menu_bar.add_cascade(label="Ejecutar", menu=ej_menu)
 ej_menu.add_command(label="Analizar Entrada", command=send_data)
+ej_menu.add_command(label="Traducir a 3d", command=traducir)
 
 # Menu Reportes
 
@@ -156,5 +167,9 @@ reps_menu.add_command(label="Errores Lexicos y Sintacticos", command=mostrarimag
 reps_menu.add_command(label="Tabla de Simbolos", command=verSimbolos)
 reps_menu.add_command(label="AST", command=arbol_ast)
 reps_menu.add_command(label="Gramatica", command=gramatica)
+class Interfaz:
+    def desplegarinterfaz(self):
+        variables.ventana.mainloop()
 
-variables.ventana.mainloop()
+inter=Interfaz()
+inter.desplegarinterfaz()

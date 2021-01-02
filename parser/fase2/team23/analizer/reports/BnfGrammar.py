@@ -16,7 +16,8 @@ def grammarReport():
                 if r2 == r1[0]:
                     cad += "::= "
         cad += "\n"
-    crearArchivo(cad)
+    #crearArchivo(cad)
+   # crearArchivo(cad)
 
 
 def crearArchivo(cad):

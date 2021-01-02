@@ -15,6 +15,7 @@ from analizer.symbol.environment import Environment
 from analizer.reports import Nodo
 from analizer.reports import AST
 import analizer
+from prettytable import PrettyTable
 
 ast = AST.AST()
 root = None
@@ -56,12 +57,6 @@ class Instruction:
         """
         Metodo que servira para ejecutar las expresiones
         """
-    
-    @abstractmethod
-    def c3d(self, environment):
-        """
-        Metodo que servira para ejecutar las expresiones
-        """
 
 
 class SelectParams(Instruction):
@@ -83,6 +78,7 @@ class Select(Instruction):
         havingCl,
         limitCl,
         distinct,
+        orderbyCl,
         row,
         column,
     ):
@@ -94,6 +90,7 @@ class Select(Instruction):
         self.havingCl = havingCl
         self.limitCl = limitCl
         self.distinct = distinct
+        self.orderbyCl = orderbyCl
 
     def execute(self, environment):
         try:
@@ -117,6 +114,7 @@ class Select(Instruction):
                     else:
                         params.append(p)
                 labels = [p.temp for p in params]
+
                 if self.groupbyCl != None:
                     value = []
                     for i in range(len(params)):
@@ -162,11 +160,45 @@ class Select(Instruction):
                     for j in range(len(labels)):
                         newEnv.types[labels[j]] = value[j].type
                         newEnv.dataFrame[labels[j]] = value[j].value
-            else:
+            else:                
                 value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
                 labels = [p for p in newEnv.dataFrame]
 
-            if value != []:
+
+            if self.orderbyCl != None:
+                order_build = []
+                kind_order = True
+                Nan_pos = None
+
+                for order_item in self.orderbyCl:
+                    #GENERAR LA LISTA DE COLUMNAS PARA ORDENAR
+                    result = order_item[0].execute(newEnv)
+                    order_build.append(result.value.name)
+                    
+                    #TIPO DE ORDEN
+                    if order_item[1].lower() == 'asc':
+                        kind_order = True
+                    else:
+                        kind_order = False
+
+                    # POSICIÓN DE NULOS
+                    if order_item[2] == None:
+                        pass
+                    elif order_item[2].lower() == 'first':
+                        Nan_pos = 'first'
+                    elif order_item[2].lower() == 'last':
+                        Nan_pos = 'last'
+
+                if Nan_pos != None:
+                    newEnv.dataFrame = newEnv.dataFrame.sort_values(by = order_build, ascending = kind_order, na_position = Nan_pos)
+                else:
+                    newEnv.dataFrame = newEnv.dataFrame.sort_values(by = order_build, ascending = kind_order)
+
+                if value != []:
+                    value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
+                    labels = [p for p in newEnv.dataFrame]                    
+
+            if value != []:                 
                 if self.wherecl == None:
                     df_ = newEnv.dataFrame.filter(labels)
                     if self.limitCl:
@@ -227,6 +259,19 @@ class Select(Instruction):
                 new.addNode(hv)
                 hv.addNode(self.havingCl.dot())
 
+        if self.orderbyCl != None:
+            ob = Nodo.Nodo("ORDER_BY")
+            new.addNode(ob)
+            for o in self.orderbyCl:
+                ob.addNode(o[0].dot())
+                to = Nodo.Nodo(o[1])
+                ob.addNode(to)
+                coma = Nodo.Nodo(",")
+                ob.addNode(coma)
+                if o[2] != None:
+                    on = Nodo.Nodo(o[2])
+                    ob.addNode(on)
+
         if self.limitCl != None:
             new.addNode(self.limitCl.dot())
 
@@ -283,6 +328,8 @@ class FromClause(Instruction):
                     None,
                     self.tables[i].row,
                     self.tables[i].column,
+                    None,
+                    None
                 )
                 environment.addSymbol(self.tables[i].name, sym)
                 if self.aliases[i]:
@@ -409,23 +456,6 @@ class SelectOnlyParams(Select):
                 paramNode.addNode(p.dot())
         return new
 
-    def c3d(self, environment):
-        try:
-            newEnv = Environment(environment, dbtemp)
-            global envVariables
-            envVariables.append(newEnv)
-            labels = []
-            values = {}
-            for i in range(len(self.params)):
-                v = self.params[i].c3d(environment)
-                values[self.params[i].temp] = [v.value]
-                labels.append(self.params[i].temp)
-                newEnv.types[labels[i]] = v.type
-            newEnv.dataFrame = pd.DataFrame(values)
-            return [newEnv.dataFrame, newEnv.types]
-        except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion SELECT")
-
 
 class Delete(Instruction):
     def __init__(self, fromcl, wherecl, row, column):
@@ -488,7 +518,7 @@ class Delete(Instruction):
         new.addNode(self.wherecl.dot())
         return new
 
-
+#ya
 class Update(Instruction):
     def __init__(self, fromcl, values, wherecl, row, column):
         Instruction.__init__(self, row, column)
@@ -501,11 +531,10 @@ class Update(Instruction):
             # Verificamos que no pueden venir mas de 1 tabla en el clausula FROM
             if len(self.fromcl.tables) > 1:
                 syntaxErrors.append(["Error sintactico cerco e en ','", self.row])
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42601: Error sintactico cerca de , en la linea "
                     + str(self.row)
                 )
-                return "Error: syntax error at or near ','"
             newEnv = Environment(environment, dbtemp)
             global envVariables
             envVariables.append(newEnv)
@@ -521,7 +550,7 @@ class Update(Instruction):
                 w2 = wh.filter(labels)
             # Si la clausula WHERE devuelve un dataframe vacio
             if w2.empty:
-                return "Operacion UPDATE completada"
+                print("Operacion UPDATE completada")
             # Logica para realizar el update
             table = self.fromcl.tables[0].name
             pk = Struct.extractPKIndexColumns(dbtemp, table)
@@ -532,17 +561,15 @@ class Update(Instruction):
                     rows.append([row[p] for p in pk])
             else:
                 rows.append([i for i in w2.index])
-            print(rows)
             # Obtenemos las variables a cambiar su valor
             ids = [p.id for p in self.values]
             values = [p.execute(newEnv).value for p in self.values]
             ids = Struct.getListIndex(dbtemp, table, ids)
             if len(ids) != len(values):
-                return "Error: Columnas no encontradas"
+                print("Error: Columnas no encontradas")
             temp = {}
             for i in range(len(ids)):
                 temp[ids[i]] = values[i]
-            print(temp, rows)
             # TODO: La funcion del STORAGE esta bugueada
             bug = False
             for row in rows:
@@ -551,10 +578,10 @@ class Update(Instruction):
                     bug = True
                     break
             if bug:
-                return ["Error: Funcion UPDATE del Storage", temp, rows]
-            return "Operacion UPDATE completada"
+                print(["Error: Funcion UPDATE del Storage", temp, rows])
+            print("Operacion UPDATE completada")
         except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion UPDATE")
+            print("Error: P0001: Error en la instruccion UPDATE")
 
     def dot(self):
         new = Nodo.Nodo("UPDATE")
@@ -565,6 +592,12 @@ class Update(Instruction):
             assigNode.addNode(v.dot())
         new.addNode(self.wherecl.dot())
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Eliminar\n\n"
+        environment.conta_exec += 1
 
 
 class Assignment(Instruction):
@@ -585,7 +618,7 @@ class Assignment(Instruction):
         new.addNode(self.value.dot())
         return new
 
-
+#ya
 class Drop(Instruction):
     """
     Clase que representa la instruccion DROP TABLE and DROP DATABASE
@@ -606,49 +639,39 @@ class Drop(Instruction):
                         semanticErrors.append(
                             ["La base de datos " + str(dbtemp) + " no existe", self.row]
                         )
-                        syntaxPostgreSQL.append(
+                        print(
                             "Error: 42000: La base de datos  "
                             + str(dbtemp)
                             + " no existe"
                         )
-                        return "La base de datos no existe"
                     if valor == 3:
                         semanticErrors.append(
                             ["La tabla " + str(self.name) + " no existe", self.row]
                         )
-                        syntaxPostgreSQL.append(
+                        print(
                             "Error: 42P01: La tabla  " + str(self.name) + " no existe"
                         )
-                        return "La tabla no existe en la base de datos"
                     if valor == 1:
-                        syntaxPostgreSQL.append("Error: XX000: Error interno")
-                        return "Hubo un problema en la ejecucion de la sentencia DROP"
+                        print("Hubo un problema en la ejecucion de la sentencia DROP")
                     if valor == 0:
                         Struct.dropTable(dbtemp, self.name)
-                        return "DROP TABLE Se elimino la tabla: " + self.name
-                syntaxPostgreSQL.append("Error: 42000: Base de datos no especificada ")
-                return "El nombre de la base de datos no esta especificado operacion no realizada"
+                        print("DROP TABLE Se elimino la tabla: " + self.name)
+                print("Error: 42000: Base de datos no especificada ")
             else:
                 valor = jsonMode.dropDatabase(self.name)
                 if valor == 1:
-                    syntaxPostgreSQL.append("Error: XX000: Error interno")
-                    return "Hubo un problema en la ejecucion de la sentencia"
+                    print("Error: XX000: Error interno")
                 if valor == 2:
                     semanticErrors.append(
                         ["La base de datos " + dbtemp + " no existe", self.row]
                     )
-                    syntaxPostgreSQL.append(
-                        "Error: 42000: La base de datos  " + str(dbtemp) + " no existe"
-                    )
-                    return "La base de datos no existe"
+                    print("Error: 42000: La base de datos  " + str(dbtemp) + " no existe")
                 if valor == 0:
                     Struct.dropDatabase(self.name)
 
-                    return "Instruccion ejecutada con exito DROP DATABASE"
-            syntaxPostgreSQL.append("Error: XX000: Error interno DROPTABLE")
-            return "Fatal Error: DROP TABLE"
+                    print("Instruccion ejecutada con exito DROP DATABASE")
         except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion DROP")
+            print("Error: P0001: Error en la instruccion DROP")
 
     def dot(self):
         new = Nodo.Nodo("DROP")
@@ -658,7 +681,13 @@ class Drop(Instruction):
         new.addNode(n)
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Eliminar\n\n"
+        environment.conta_exec += 1
 
+#ya
 class AlterDataBase(Instruction):
     def __init__(self, option, name, newname):
         self.option = option  # define si se renombra o se cambia de dueño
@@ -673,12 +702,11 @@ class AlterDataBase(Instruction):
                     semanticErrors.append(
                         ["La base de datos " + str(self.name) + " no existe", self.row]
                     )
-                    syntaxPostgreSQL.append(
+                    print(
                         "Error: 42000: La base de datos  "
                         + str(self.name)
                         + " no existe"
                     )
-                    return "La base de datos no existe: '" + self.name + "'."
                 if valor == 3:
                     semanticErrors.append(
                         [
@@ -686,31 +714,25 @@ class AlterDataBase(Instruction):
                             self.row,
                         ]
                     )
-                    syntaxPostgreSQL.append(
+                    print(
                         "Error: 42P04: La base de datos  "
                         + str(self.newname)
                         + " ya existe"
                     )
-                    return "El nuevo nombre para la base de datos existe"
                 if valor == 1:
-                    syntaxPostgreSQL.append("Error: XX000: Error interno")
-                    return "Hubo un problema en la ejecucion de la sentencia"
+                    print("Error: XX000: Error interno")
                 if valor == 0:
                     Struct.alterDatabaseRename(self.name, self.newname)
-                    return (
+                    print(
                         "Base de datos renombrada: " + self.name + " - " + self.newname
                     )
-                return "Error ALTER DATABASE RENAME: " + self.newname
             elif self.option == "OWNER":
                 valor = Struct.alterDatabaseOwner(self.name, self.newname)
                 if valor == 0:
-                    return "Instruccion ejecutada con exito ALTER DATABASE OWNER"
-                syntaxPostgreSQL.append("Error: XX000: Error interno")
-                return "Error ALTER DATABASE OWNER"
-            syntaxPostgreSQL.append("Error: XX000: Error interno")
-            return "Fatal Error ALTER DATABASE: " + self.newname
+                    print("Instruccion ejecutada con exito ALTER DATABASE OWNER")
+                print("Error ALTER DATABASE OWNER")
         except:
-            syntaxPostgreSQL.append(
+            print(
                 "Error: P0001: Error en la instruccion ALTER DATABASE"
             )
 
@@ -725,6 +747,12 @@ class AlterDataBase(Instruction):
         optionNode.addNode(valOption)
 
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Alter Base de datos\n\n"
+        environment.conta_exec += 1
 
 
 class Truncate(Instruction):
@@ -855,7 +883,7 @@ class InsertInto(Instruction):
         # ast.makeAst(root)
         return new
 
-
+#ya
 class useDataBase(Instruction):
     def __init__(self, db, row, column):
         Instruction.__init__(self, row, column)
@@ -866,14 +894,12 @@ class useDataBase(Instruction):
         if self.db in dbs:
             global dbtemp
             dbtemp = self.db
-            return "Se cambio la base de datos a: " + dbtemp
-        syntaxPostgreSQL.append(
-            "Error: 42000: La base de datos " + self.db + " no existe"
-        )
-        semanticErrors.append(
-            ["La base de datos " + str(self.db) + " no existe", self.row]
-        )
-        return "La base de datos: " + self.db + " no existe."
+            print("Se cambio la base de datos a: " + str(dbtemp))
+        else:
+            semanticErrors.append(
+                ["La base de datos " + str(self.db) + " no existe", self.row]
+            )
+            print("Error: 42000: La base de datos " + self.db + " no existe")
 
     def dot(self):
         new = Nodo.Nodo("USE_DATABASE")
@@ -882,7 +908,14 @@ class useDataBase(Instruction):
 
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Usar Base de datos\n\n"
+        environment.conta_exec += 1
 
+
+#ya
 class showDataBases(Instruction):
     def __init__(self, like):
         if like != None:
@@ -899,8 +932,14 @@ class showDataBases(Instruction):
         else:
             lista = jsonMode.showDatabases()
         if len(lista) == 0:
-            return "No hay bases de datos"
-        return lista
+            print("No hay bases de datos")
+        else:
+            salidaTabla = PrettyTable()
+            salidaTabla.add_column("Bases de Datos",lista)
+            print(salidaTabla)
+            print("\n")
+            print("\n")
+        return None
 
     def dot(self):
         new = Nodo.Nodo("SHOW_DATABASES")
@@ -911,8 +950,15 @@ class showDataBases(Instruction):
             l.addNode(ls)
 
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Mostrar Bases de datos\n\n"
+        environment.conta_exec += 1
 
 
+#ya
 class CreateDatabase(Instruction):
     """
     Clase que representa la instruccion CREATE DATABASE
@@ -925,7 +971,6 @@ class CreateDatabase(Instruction):
         self.mode = mode
         self.owner = owner
         self.replace = replace
-        self.row = 0
 
     def execute(self, environment):
         result = jsonMode.createDatabase(self.name)
@@ -943,22 +988,18 @@ class CreateDatabase(Instruction):
             report = "Base de datos: " + self.name + " insertada."
             print("Base de datos: " + self.name + " insertada.")
         elif result == 1:
-            syntaxPostgreSQL.append("Error: XX000: Error interno")
-            report = "Error al insertar la base de datos: " + self.name
+            print("Error al insertar la base de datos: " + self.name)
         elif result == 2 and self.replace:
             Struct.replaceDatabase(self.name, self.mode, self.owner)
-            report = "Base de datos '" + self.name + " ' reemplazada."
+            print("Base de datos '" + self.name + " ' reemplazada.")
         elif result == 2 and self.exists:
-            report = "Base de datos no insertada, " + self.name + " ya existe."
+            print("Base de datos no insertada, " + self.name + " ya existe.")
         else:
             semanticErrors.append(
                 ["La base de datos " + str(self.name) + " ya existe", self.row]
             )
-            syntaxPostgreSQL.append(
-                "Error: 42P04: La base de datos  " + str(self.name) + " ya existe"
-            )
-            report = "Error: La base de datos ya existe"
-        return report
+            print("Error: 42P04: La base de datos  " + str(self.name) + " ya existe")
+        return None
 
     def dot(self):
         new = Nodo.Nodo("CREATE_DATABASE")
@@ -983,10 +1024,11 @@ class CreateDatabase(Instruction):
 
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.result["+str(cont)+"]"
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Crear Base de datos\n\n"
         environment.conta_exec += 1
 
-
+#ya
 class CreateTable(Instruction):
     def __init__(self, exists, name, inherits, columns=[]):
         self.exists = exists
@@ -1013,41 +1055,37 @@ class CreateTable(Instruction):
             if result == 0:
                 pass
             elif result == 1:
-                syntaxPostgreSQL.append("Error: XX000: Error interno")
-                return "Error: No se puede crear la tabla: " + self.name
+                print("Error: No se puede crear la tabla: " + self.name)
             elif result == 2:
                 semanticErrors.append("La base de datos " + dbtemp + " no existe")
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 3F000: base de datos" + dbtemp + " no existe"
                 )
-                return "Error: Base de datos no encontrada: " + dbtemp
             elif result == 3 and self.exists:
                 semanticErrors.append(
                     ["La tabla " + str(self.name) + " ya existe", self.row]
                 )
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42P07: La tabla  " + str(self.name) + " ya existe"
                 )
-                return "La tabla ya existe en la base de datos"
             else:
                 semanticErrors.append(
                     ["La tabla " + str(self.name) + " ya existe", self.row]
                 )
-                syntaxPostgreSQL.append("Error: 42P07: tabla duplicada")
-                return "Error: ya existe la tabla " + self.name
+                print("Error: 42P07: tabla duplicada")
             pk = Struct.extractPKIndexColumns(dbtemp, self.name)
             addPK = 0
             if pk:
                 addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
             if addPK != 0:
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 23505: Error en llaves primarias de la instruccion CREATE TABLE de la tabla "
                     + str(self.name)
                 )
-            return "Tabla " + self.name + " creada"
+            print("Tabla " + self.name + " creada")
         else:
             Struct.dropTable(dbtemp, self.name)
-            return error
+            print(error)
 
     def dot(self):
         new = Nodo.Nodo("CREATE_TABLE")
@@ -1148,6 +1186,12 @@ class CreateTable(Instruction):
             inhNode.addNode(inhNode2)
 
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "C3D.ejecutar() #Crear Tabla\n\n"
+        environment.conta_exec += 1
 
 
 class CreateType(Instruction):
@@ -1505,6 +1549,179 @@ class Except_(Instruction):
         new.addNode(self.s2.dot())
         return new
 
+class IndexCls(Instruction):
+
+    def __init__(self, unik, id1, nombre_tabal, lista, desc, null_, wherecl, row, column):
+        Instruction.__init__(self, row, column)
+        self.id1 = id1
+        self.unik = unik
+        self.lista = lista
+        self.desc = desc
+        self.null_ = null_
+        self.wherecl = wherecl
+        self.nombre_tabal = nombre_tabal
+
+    def execute(self, environment):
+       newEnv = Environment(environment, dbtemp)
+       global envVariables
+       envVariables.append(newEnv)
+
+       validar = str(self.desc)
+
+       if validar.lower() == "desc":
+           descendente = self.desc
+       elif validar.lower() == "asc":
+           descendente = self.desc
+       else:
+           descendente = None
+
+       if self.unik == None:
+           sym = Symbol(
+               str(self.id1),
+               "INDEX",
+               self.row,
+               self.column,
+               self.lista ,
+               descendente
+           )
+       else:
+           sym = Symbol(
+               str(self.id1),
+               "UNIQUE INDEX",
+               self.row,
+               self.column,
+               self.lista ,
+               descendente
+           )
+
+       newEnv.addSymbol(str(self.id1), sym)
+
+    def dot(self):
+        if self.unik == None:
+            new = Nodo.Nodo("CREATE INDEX")
+        else:
+            new = Nodo.Nodo("CREATE UNIQUE INDEX")
+
+        new.addNode(Nodo.Nodo(str(self.id1)))
+        new.addNode(Nodo.Nodo("ON"))
+        new.addNode(Nodo.Nodo(str(self.nombre_tabal)))
+        new.addNode(Nodo.Nodo("("))
+        new.addNode(Nodo.Nodo(str(self.lista)))
+
+        validar = str(self.desc)
+        if validar.lower() == "desc":
+            new.addNode(Nodo.Nodo(validar))
+        elif validar.lower() == "asc":
+            new.addNode(Nodo.Nodo(validar))
+
+        nulos = str(self.null_)
+        if nulos.lower() == "first":
+            new.addNode(Nodo.Nodo("NULLS FIRST"))
+        elif nulos.lower() == "last":
+            new.addNode(Nodo.Nodo("NULLS LAST"))
+
+        new.addNode(Nodo.Nodo(")"))
+
+        if self.wherecl != None:
+            new.addNode(self.wherecl.dot())
+
+        return new
+
+
+
+class FunctionPL(Instruction):
+    """
+    Clase encargada de crear funciones PLSQL
+    """
+
+    def __init__(self, nombre, params, returnStmt, bloqueStmt, row, column):
+        Instruction.__init__(self, row, column)
+        self.nombre = nombre
+        self.params = params
+        self.returnStmt = returnStmt
+        self.bloqueStmt = bloqueStmt    
+
+    def execute(self, environment):
+        pass
+
+    def dot(self):
+        new = Nodo.Nodo("FUNCTION")
+
+        # NODO PARA EL ID DE LA FUNCION
+        id_function = Nodo.Nodo(self.nombre)
+        new.addNode(id_function)
+
+        # NODO PARA LOS PARAMETROS DE LA FUNCIÓN
+        for p in self.params:
+            new_param = Nodo.Nodo("PARAMETRO")
+            new.addNode(new_param)
+
+            param_id = Nodo.Nodo(p[0])
+            param_typ1 = Nodo.Nodo(p[1][0])
+
+            new_param.addNode(param_id)
+            new_param.addNode(param_typ1)
+
+        #NODO PARA EL RETURN DE LA FUNCIÓN
+        if self.returnStmt != None:
+            new_return = Nodo.Nodo("RETURN")
+
+        #NODO PARA EL DECLARE
+        if self.bloqueStmt[0] != None:
+            new.addNode(self.bloqueStmt[0].dot())
+
+        #NODO PARA EL BEGIN
+        if self.bloqueStmt[1] != None:
+            new.addNode(self.bloqueStmt[1].dot())
+
+        #NODO PARA EL END
+        if self.bloqueStmt[2] != None:
+            pass#new.addNode(self.bloqueStmt[2].dot())
+
+        return new
+
+    def generar_c3d(self):
+        pass
+
+
+class DeclarationPL(Instruction):
+    """
+    Clase encargada de ejecutar las declaraciones en la función
+    una función PLSQL
+    """
+
+    def __init__(self, row, column):
+        Instruction.__init__(self, row, column)
+
+    def execute(self, environment):
+        pass
+
+    def dot(self):
+        new = Nodo.Nodo("DECLARATION")
+        return new
+
+    def generar_c3d(self):
+        pass
+
+
+class BeginPL(Instruction):
+    """
+    Clase encargada de ejecutar el segmento Begin de una 
+    función PLSQL
+    """
+
+    def __init__(self, row, column):
+        Instruction.__init__(self, row, column)
+
+    def execute(self, environment):
+        pass
+
+    def dot(self):
+        new = Nodo.Nodo("BEGIN")
+        return new
+
+    def generar_c3d(self):
+        pass
 
 def returnErrors():
     list_ = list()
