@@ -1,5 +1,6 @@
 from tkinter import * #importando tkinter
 import tkinter as TK
+#import gramaticaF2 as g2
 import gramatica as g
 import Utils.TablaSimbolos as table
 import Utils.Lista as l
@@ -28,7 +29,7 @@ def openFile():
         return
     editor.delete("1.0", TK.END)
     with open(route, "r") as input_file:
-        text = input_file.read()
+        text = input_file.read()    
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
@@ -39,6 +40,8 @@ def analisis():
 
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
+    #prueba = g2.parse(texto)
+    #print(prueba['text'])
     instrucciones = g.parse(texto)
     erroresSemanticos = []
 
