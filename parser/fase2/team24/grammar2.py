@@ -375,6 +375,7 @@ def p_inst(p):
             |   usedb
             |   query
             | createfunc
+            
     """
     p[0] = p[1]
     insertProduction(p.slice, len(p.slice))
@@ -1621,14 +1622,15 @@ def p_declareSingle(t):
 
 def p_declaresAsAlias(t):
     'declares : ID ALIAS FOR DOLAR INT PUNTOCOMA'
-    t[0] = declaration(t[1],int(t[5])-1,None,None,None)
+    t[0] = declaration(t[1],False,int(t[5])-1,None,False,None)
 
 def p_declaration(p):
     ''' declares : ID consta type coll  nn  ddiexp PUNTOCOMA'''
     p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
+    print('entro')
 
 def p_ddiexp(p):
-    '''ddiexp : ddi valortipo '''
+    '''ddiexp : ddi newexp '''
     p[0] = expre(p[1],p[2])
     
 
@@ -1646,21 +1648,37 @@ def p_ddi(p):
 
 def p_collate(p):
     '''coll : COLLATE ID
-            | '''
-    if p[1] == 'collate': p[0] = p[2]
-    else: p[0] = None
+            '''
+    p[0] = p[2]
+    
+    
+def p_collateN(p):
+    '''coll : 
+            '''
+     
+    p[0] = None
 
 def p_consta(p):
     ''' consta : CONSTANT
-            | '''
-    if p[1] == 'constant': p[0] = p[1]
-    else: p[0] = None
+            '''
+    p[0] = True
+    
+
+def p_constaN(p):
+    ''' consta :
+            '''
+    p[0] = False
 
 def p_nn(p):
     ''' nn : NOT NULL
-            | '''
-    if p[1] == 'not': p[0] = p[1]
-    else: p[0] = None
+        '''
+    p[0] = True
+    
+
+def p_nnN(p):
+    ''' nn :
+        '''
+    p[0] = False
 
 def p_instrucciones(t):
     'instrucciones : instrucciones instruccion'
@@ -1712,7 +1730,7 @@ def p_return(t):
 
 def p_newexp_id(t):
     '''newexp :  ID'''
-    t[0] = exp_idp(t[1])
+    #t[0] = exp_idp(t[1])
 
 def p_newexp_bool(t):
     '''newexp : TRUE
