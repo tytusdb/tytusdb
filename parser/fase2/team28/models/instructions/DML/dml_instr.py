@@ -1,3 +1,5 @@
+import pandas as pd
+
 from models.instructions.shared import Instruction
 from models.instructions.DDL.table_inst import CreateTB
 from models.instructions.DML.special_functions import loop_list
@@ -7,7 +9,8 @@ from controllers.error_controller import ErrorController
 from controllers.data_controller import DataController
 from models.instructions.shared import Where
 from models.instructions.DML.special_functions import storage_columns,storage_table
-import pandas as pd
+from controllers.three_address_code import ThreeAddressCode
+
 from storageManager import jsonMode as j
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
@@ -19,17 +22,22 @@ class Insert(Instruction):
             2. columnas donde insertar (puede estar vacio (se inserta en todas))
             3. valores a insertar
     '''
-    def __init__(self,  table, arr_columns, arr_values, line, column) :
+    def __init__(self,  table, arr_columns, arr_values, tac, line, column) :
         self.table = table
         self.arr_columns = arr_columns
         self.arr_values = arr_values
+        self._tac = tac
 
         self.line = line
         self.column = column
 
     def __repr__(self):
         return str(vars(self))
-        
+      
+    def compile(self):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+          
     def process(self, instruction):
         if self.arr_columns == None:
         #Solo nos dieron los valores, tienen que venir todos ---> Espino ya valida longitud? ---> CREO QUE SI -- TEST -- 
@@ -133,17 +141,22 @@ class Update(Instruction):
             2. array de columnas con el valor a insertar (ColumnVal[])
             3. recibe un array con todas los parametros OPCIONALES
     '''
-    def __init__(self,  table, arr_columns_vals, params, line, column) :
+    def __init__(self,  table, arr_columns_vals, params, tac, line, column) :
         self.table = table
         self.arr_columns_vals = arr_columns_vals
         self.params = params
+        self._tac = tac
 
         self.line = line
         self.column = column
 
     def __repr__(self):
         return str(vars(self))
-    
+
+    def compile(self):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+
     def process(self, instruction):
         #Obteniendo tabla de la cual voy a hacer el update
         database_id = SymbolTable().useDatabase
@@ -271,9 +284,10 @@ class Delete(Instruction):
         opt3 = WHERE
         opt4 = RETURNING
     '''
-    def __init__(self,  table, params, line, column ) :
+    def __init__(self,  table, params,tac, line, column ) :
         self.table = table
         self.params = params
+        self._tac = tac
     
         self.line = line
         self.column = column
@@ -281,6 +295,10 @@ class Delete(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def compile(self):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+
     def process(self, instrucction):
         #Obteniendo tabla de la cual voy a borrar
         database_id = SymbolTable().useDatabase

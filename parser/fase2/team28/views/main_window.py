@@ -217,18 +217,20 @@ class MainWindow(object):
 
         texto = self.entrada.get('1.0', END)
         result = parse(texto)
+        report_error = ReportError()
 
         if len(ErrorController().getList()) > 0:
             messagebox.showerror('ERRORES', 'Se encontraron errores')
         else:
             result2 = parse2(texto)
             report_ast = result2
-            # ---------- TEST ---------
+
             for inst in result:
                 inst.compile()
+
             DataWindow().consoleText(ThreeAddressCode().getCode())
             ThreeAddressCode().writeFile()
-        
+
     # Para mostrar el editor
 
     def report_ast_ubuntu(self):
