@@ -56,7 +56,7 @@ def ExisteInList(lista,valor):
 def imprir(string):
     global Ejecucion
     Ejecucion += string + "\n"
-    Lista.clear();
+    Lista.clear()
     Lista.append(Ejecucion)
 
 def mostrarConsulta(resultado):
@@ -8031,3 +8031,121 @@ class DatoTipo(Instruccion):
         self.bd = bd
         self.tipo = tipo
         self.valor = valor
+
+class instruccion_index(Instruccion):
+
+    def __init__(self,etiqueta,identificador, identificadorTabla, lista_1, lista_2):
+        self.etiqueta = etiqueta
+        self.identificador = identificador
+        self.identificadorTabla = identificadorTabla
+        self.lista_1 = lista_1
+        self.lista_2 = lista_2
+
+    def Ejecutar(self):
+        print('------------ viendo si entra al index-------------------')
+        print(self.identificador)
+        print(self.identificadorTabla)
+
+        print("por que entra aca.")
+        #Verificar que existe la base de datos
+        #Verificar que existe la tabla
+        #Verificar que existe la columna en la tabla
+        global ts_global, baseActual
+        global LisErr
+        r  = ts_global.obtenerBasesDatos(baseActual)  #buscamos en el diccionario de la base de datos
+
+        if r is not None:
+            print('------- tambien entra aqui ---------')
+
+            r2:CreateTable = ts_global.obtenerTabla(self.identificadorTabla)
+            print('-- imprimiendo el r2 -------')
+            print(r2)
+            print(self.identificadorTabla)
+
+
+
+            if r2 is not None:
+                    print('si entra aqui al r2 -----------')
+                    elemento       = self.lista_1.identificador
+                    print(' viendo que trae la variable elemento-------------')
+                    print(elemento)
+                    tipoReferencia = ""
+
+                    if True:
+
+                        bandera = False
+                        bandera2 = False
+
+
+                        for elemento22 in ts_global.Tablas:
+                            print('---- QUE TRAE LA VARIABLE ELEMENTO 22 --------')
+                            print(elemento22)
+                            x: CreateTable = ts_global.obtenerTabla(elemento22)
+
+                            print('que tra la x')
+                            print(x)
+
+                            if x.id == self.identificadorTabla:
+                                for ele in x.cuerpo:
+                                    if isinstance(ele, constraintTabla):
+                                        pass
+                                    else:
+                                        y: CampoTabla = ele
+
+                                       
+                                        if y.id == elemento:
+                                            bandera2=True
+                                            tipoReferencia=y.tipo
+
+
+                                if (bandera2 == False):
+
+                                        print('---------- si entra alas banderas -----------------')
+                                        # Se ingreso correctamente el valor
+                                        #validar que exista ese esa columna en alguna tabla
+
+                                        #### PRUEBA CAMBIO A INSERTAR TIPO CONSTRAIN AL CUERPO DE LA TABLA
+                                        temporal2 = constraintTabla("INDEX", self.identificador, None, elemento, None, self.identificadorTabla)
+                                        ts_global.agregarValidacion(temporal2)
+
+                                        print(ts_global.Validaciones)
+
+                                        #EN LA TABLA PEDIDA QUE ES elemento2.val
+                                        laTabla:CreateTable = ts_global.obtenerTabla(self.identificadorTabla)
+
+                                        #por cada campo que tenga hasta que encontremos elemento.val
+                                        for campo in laTabla.cuerpo:
+                                            if isinstance(campo, constraintTabla):
+                                                pass
+                                            else:
+                                                tt: CampoTabla = campo
+                                                if elemento == tt.id:
+                                                    tt.validaciones.append(temporal2)
+
+                                       
+                                        #r2.cuerpo.append(temporal)
+                                        imprir("ALTER TABLE: En Hora Buena Se Ingreso la Llave Foranea Correctamente")
+                                else:
+                                    imprir("ALTER TABLE: No se Ejecuto la Accion ")
+                            else:
+                                print("")
+                        else:
+                            imprir("ALTER TABLE: La columna a insertar ya existe ")
+
+                    else:
+                        imprir("ALTER TABLE: ERROR DE TIPO")
+            else:
+                imprir("ALTER TABLE:   La tabla no existe!   ")
+        else:
+            imprir("ALTER TABLE:   La Base de datos no existe")
+            #colocar error semantico
+
+
+class index_cuerpo(Instruccion):
+
+    def __init__(self,etiqueta,identificador, expresion):
+        self.etiqueta = etiqueta
+        self.identificador = identificador
+        self.expresion = expresion
+        
+

@@ -73,23 +73,24 @@ def p_instruction_list(p):
 
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
-                    | DML
-                    | usestatement
-                    | MULTI_LINE_COMMENT
-                    | SINGLE_LINE_COMMENT
-                    | INDEXES_STATEMENT
-                    | error SEMICOLON
+                      | DML
+                      | usestatement
+                      | MULTI_LINE_COMMENT
+                      | SINGLE_LINE_COMMENT
+                      | INDEXES_STATEMENT
+                      | error SEMICOLON
     '''
     global contador_instr, arr_instr
     p[0] = p[1]
     if p.slice[1].type != "error":
         contador_instr += 1
 
+
 def p_use_statement(p):
     '''usestatement : USE ID SEMICOLON'''
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
-    p[0] = UseDatabase(p[2], noLine, noColumn)
+    p[0] = UseDatabase(p[2], generateC3D(p), noLine, noColumn)
 
 
 def p_ddl(p):
@@ -104,8 +105,7 @@ def p_ddl(p):
 def p_create_statement(p):
     '''createstatement : CREATE optioncreate SEMICOLON'''
     p[0] = p[2]
-    #Generacion de C3D
-    generateC3D(p)
+
 
 def p_option_create(p):
     '''optioncreate : TYPE SQLNAME AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS
@@ -118,19 +118,19 @@ def p_option_create(p):
     noLine = p.slice[1].lineno
 
     if len(p) == 8:
-        p[0] = CreateType(p[2], p[6])
+        p[0] = CreateType(p[2], p[6], generateC3D(p))
 
     elif len(p) == 3:
-        p[0] = CreateDB(p[2], False, noLine, noColumn)
+        p[0] = CreateDB(p[2], False, generateC3D(p), noLine, noColumn)
 
     elif len(p) == 5:
-        p[0] = CreateDB(p[4], True, noLine, noColumn)
+        p[0] = CreateDB(p[4], True, generateC3D(p), noLine, noColumn)
 
     elif len(p) == 6:
-        p[0] = CreateTB(p[2], p[4], None)
+        p[0] = CreateTB(p[2], p[4], None, generateC3D(p))
 
     elif len(p) == 10:
-        p[0] = CreateTB(p[2], p[4], p[8])
+        p[0] = CreateTB(p[2], p[4], p[8], generateC3D(p))
 
 
 def p_type_list(p):
@@ -376,25 +376,31 @@ def p_options_col_list(p):
     else:
         p[0] = [p[1]]
 
+
 def p_indexes_statement(p):
     '''INDEXES_STATEMENT : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
     '''
+
+
 def p_type_index(p):
     ''' TYPE_INDEX : INDEX
                    | UNIQUE INDEX
     '''
 
+
 def p_options1_indexes(p):
     ''' OPTIONS1_INDEXES : USING TYPE_MODE_INDEX
     '''
+
 
 def p_type_mode_index(p):
     ''' TYPE_MODE_INDEX : BTREE 
                         | HASH
     '''
+
 
 def p_body_index(p):
     ''' BODY_INDEX : BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
@@ -407,6 +413,7 @@ def p_body_index(p):
                    | ID
     '''
 
+
 def p_options2_indexes(p):
     '''  OPTIONS2_INDEXES : ASC NULLS FIRST 
                           | DESC NULLS LAST
@@ -415,6 +422,7 @@ def p_options2_indexes(p):
                           | ASC
                           | DESC
     '''
+
 
 def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
@@ -485,17 +493,16 @@ def p_show_statement(p):
                      | SHOW DATABASES LIKE SQLNAME SEMICOLON
     '''
     if len(p) == 4:
-        p[0] = ShowDatabase(None)
+        p[0] = ShowDatabase(None, generateC3D(p))
     else:
-        p[0] = ShowDatabase(p[4])
+        p[0] = ShowDatabase(p[4], generateC3D(p))
 
 
 def p_alter_statement(p):
     '''alterstatement : ALTER optionsalter SEMICOLON
     '''
     p[0] = p[2]
-    #Generacion de C3D
-    generateC3D(p)
+
 
 def p_options_alter(p):
     '''optionsalter : DATABASE alterdatabase
@@ -511,9 +518,9 @@ def p_alter_database(p):
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if p[2].lower() == 'RENAME'.lower():  # Renombra la base de datos
-        p[0] = AlterDatabase(1, p[1], p[4], noLine, noColumn)
+        p[0] = AlterDatabase(1, p[1], p[4], generateC3D(p), noLine, noColumn)
     else:  # Le cambia el duenio a la base de datos
-        p[0] = AlterDatabase(2, p[1], p[4], noLine, noColumn)
+        p[0] = AlterDatabase(2, p[1], p[4], generateC3D(p), noLine, noColumn)
 
 
 def p_type_owner(p):
@@ -527,7 +534,7 @@ def p_type_owner(p):
 def p_alter_table(p):
     '''altertable : ID alterlist
     '''
-    p[0] = AlterTable(p[1], p[2])
+    p[0] = AlterTable(p[1], p[2], generateC3D(p))
 
 
 def p_alter_list(p):
@@ -607,12 +614,11 @@ def p_rename_alter(p):
 def p_drop_statement(p):
     '''dropstatement : DROP optionsdrop SEMICOLON'''
     p[0] = p[2]
-    #Generacion de C3D
-    generateC3D(p)
+
 
 def p_options_drop(p):
     '''optionsdrop : DATABASE dropdatabase
-                    | TABLE droptable
+                   | TABLE droptable
     '''
     p[0] = p[2]
 
@@ -624,9 +630,9 @@ def p_drop_database(p):
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if len(p) == 4:
-        p[0] = DropDB(True, p[3], noLine, noColumn)
+        p[0] = DropDB(True, p[3], generateC3D(p), noLine, noColumn)
     else:
-        p[0] = DropDB(False, p[1], noLine, noColumn)
+        p[0] = DropDB(False, p[1], generateC3D(p), noLine, noColumn)
 
 
 def p_drop_table(p):
@@ -634,7 +640,7 @@ def p_drop_table(p):
     '''
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
-    p[0] = DropTB(p[1], noLine, noColumn)
+    p[0] = DropTB(p[1], generateC3D(p), noLine, noColumn)
 
 
 # =====================================================================================
@@ -653,15 +659,15 @@ def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
-    #Generacion de C3D
-    generateC3D(p)
-
     if(len(p) == 8):
-        p[0] = Update(p[2], p[5], p[6], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2], p[5], p[6], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
     elif(len(p) == 7):
-        p[0] = Update(p[2], p[4], p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2], p[4], p[5], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Update(p[2], p[4], None, p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2], p[4], None, generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
 
 
 def p_set_list(p):
@@ -744,13 +750,12 @@ def p_options_list2(p):
 def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
-    #Generacion de C3D
-    generateC3D(p)
-    
     if (len(p) == 6):
-        p[0] = Delete(p[3], p[4], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Delete(p[3], p[4], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Delete(p[3], None, p.lineno(1), find_column(p.slice[1]))
+        p[0] = Delete(p[3], None, generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
 
 
 def p_options_list(p):
@@ -843,12 +848,12 @@ def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
     if(len(p) == 12):
-        p[0] = Insert(p[3], p[5], p[9], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Insert(p[3], p[5], p[9], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Insert(p[3], None, p[6], p.lineno(1), find_column(p.slice[1]))
-    #Generacion de C3D
-    generateC3D(p)
-    
+        p[0] = Insert(p[3], None, p[6], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
+
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
@@ -871,24 +876,21 @@ def p_select_statement(p):
                        | SELECTWITHOUTORDER ORDERBYCLAUSE 
                        | SELECTWITHOUTORDER LIMITCLAUSE 
                        | SELECTWITHOUTORDER'''
-    #Generacion de C3D
-    generateC3D(p)
-
     if (len(p) == 4):
         p[2] = p[2][1]
         [3].pop(0)
         p[3] = p[3][0]
-        p[0] = Select(p[1], p[2], p[3])
+        p[0] = Select(p[1], p[2], p[3], generateC3D(p))
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
             p[2] = p[2][1]
-            p[0] = Select(p[1], p[2], None)
+            p[0] = Select(p[1], p[2], None, generateC3D(p))
         elif ('LIMIT' in p[2]):
             [2].pop(0)
             p[2] = p[2][0]
-            p[0] = Select(p[1], None, p[2])
+            p[0] = Select(p[1], None, p[2], generateC3D(p))
     elif (len(p) == 2):
-        p[0] = Select(p[1], None, None)
+        p[0] = Select(p[1], None, None, generateC3D(p))
 
 
 def p_select_without_order(p):
@@ -1554,6 +1556,7 @@ def p_trigonometric_functions(p):
         p[0] = ExpressionsTrigonometric(
             p[1], p[3], p[5], p.lineno(1), find_column(p.slice[1]))
 
+
 def p_sql_alias(p):
     '''SQLALIAS : AS SQLNAME
                 | SQLNAME'''
@@ -1729,11 +1732,12 @@ def parse(inpu):
     get_text(input)
     return parser.parse(inpu, lexer=lexer)
 
-#Generacion de C3D
 
+# Generacion de C3D
 def generateC3D(p):
     global contador_instr
     arr_instr = p.lexer.lexdata.split(sep=";", maxsplit=contador_instr+1)
-    temp = ThreeAddressCode().newTemp()
-    aux = arr_instr[contador_instr].replace("\n","")
-    ThreeAddressCode().addCode(f"{temp} = \"{aux};\"")
+    aux = arr_instr[contador_instr].replace("\n", " ").strip()
+    return ' '.join(aux.split())
+    #temp = ThreeAddressCode().newTemp()
+    #ThreeAddressCode().addCode(f"{temp} = '{aux};'")
