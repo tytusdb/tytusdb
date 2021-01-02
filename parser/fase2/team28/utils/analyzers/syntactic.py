@@ -33,7 +33,7 @@ precedence = (
     ('nonassoc', 'BETWEEN', 'IN', 'LIKE', 'ILIKE', 'SIMILAR'),  # Level 5
     ('left', 'SEMICOLON', 'LEFT_PARENTHESIS',
      'RIGHT_PARENTHESIS', 'COMMA', 'COLON', 'NOT_EQUAL'),  # Level 6
-    ('left', 'PLUS', 'REST'),  # Level 7
+    ('left', 'PLUS', 'REST','CONCAT'),  # Level 7
     ('left', 'ASTERISK', 'DIVISION', 'MODULAR', 'BITWISE_SHIFT_RIGHT',
      'BITWISE_SHIFT_LEFT', 'BITWISE_AND', 'BITWISE_OR'),  # Level 8
     ('left', 'EXPONENT',  'BITWISE_XOR', 'SQUARE_ROOT', 'CUBE_ROOT'),  # Level 9
@@ -74,6 +74,8 @@ def p_instruction_list(p):
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
                       | DML
+                      | SQL_FUNCTIONS
+                      | SQL_PROCEDURES
                       | usestatement
                       | MULTI_LINE_COMMENT
                       | SINGLE_LINE_COMMENT
@@ -643,9 +645,207 @@ def p_drop_table(p):
     p[0] = DropTB(p[1], generateC3D(p), noLine, noColumn)
 
 
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+def p_sql_functions(p):
+    '''SQL_FUNCTIONS : CREATE FUNCTION ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS RETURNS typeReturns AS bodyBlock LANGUAGE PLPGSQL SEMICOLON
+                     | CREATE FUNCTION ID LEFT_PARENTHESIS RIGHT_PARENTHESIS  RETURNS typeReturns AS bodyBlock LANGUAGE PLPGSQL SEMICOLON
+                     | CREATE FUNCTION ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS  AS bodyBlock LANGUAGE PLPGSQL SEMICOLON
+                     | CREATE FUNCTION ID LEFT_PARENTHESIS RIGHT_PARENTHESIS AS bodyBlock LANGUAGE PLPGSQL SEMICOLON
+    '''
+
+def p_sql_procedures(p):
+    '''SQL_PROCEDURES : CREATE PROCEDURE ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
+                      | CREATE PROCEDURE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
+    '''
+
+def p_returns_type_func(p):
+    '''typeReturns : typecol
+                   | VOID
+                   | TABLE LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS
+    '''
+
+def p_list_argument(p):
+    '''LIST_ARGUMENT : LIST_ARGUMENT COMMA param
+                     | param
+    '''
+
+def p_param(p):
+    '''param : ID typecol
+             | typecol
+             | VARIADIC ID typecol
+             | ID ID
+    '''
+
+def p_body_block(p):
+    '''bodyBlock : DOUBLE_DOLLAR BODY_DECLARATION DOUBLE_DOLLAR
+                 | DOLLAR SQLNAME DOLLAR BODY_DECLARATION DOLLAR SQLNAME DOLLAR
+    '''
+
+def p_body_declaration(p):
+    '''BODY_DECLARATION : headerBodyList BEGIN STATEMENTS END ID SEMICOLON 
+                        | headerBodyList BEGIN STATEMENTS EXCEPTION bodyExceptionList END ID SEMICOLON
+                        | headerBodyList BEGIN STATEMENTS END SEMICOLON
+                        | headerBodyList BEGIN STATEMENTS EXCEPTION bodyExceptionList END SEMICOLON
+                        | BEGIN STATEMENTS END ID SEMICOLON
+                        | BEGIN STATEMENTS EXCEPTION bodyExceptionList END ID SEMICOLON
+                        | BEGIN STATEMENTS END SEMICOLON
+                        | BEGIN STATEMENTS EXCEPTION bodyExceptionList END SEMICOLON
+    '''
+
+def p_header_body_list(p):
+    '''headerBodyList : headerBodyList header
+                      | header
+    '''
+
+def p_header(p):
+    '''header : BITWISE_SHIFT_LEFT ID BITWISE_SHIFT_RIGHT
+              | DECLARE declarationsList
+    '''
+
+def p_declarations_list(p):
+    '''declarationsList : declarationsList SQL_VAR_DECLARATIONS
+                        | SQL_VAR_DECLARATIONS
+    '''
+
+def p_sql_var_declarations(p):
+    '''SQL_VAR_DECLARATIONS : ID CONSTANT typeDeclare optionsDeclaration SEMICOLON
+                            | ID CONSTANT typeDeclare SEMICOLON
+                            | ID typeDeclare optionsDeclaration SEMICOLON
+                            | ID typeDeclare SEMICOLON
+                            | ID ALIAS FOR DOLLAR SQLINTEGER SEMICOLON
+    '''
+
+def p_type_param(p):
+    '''typeDeclare : typecol
+                 | ID MODULAR ROWTYPE
+                 | ID DOT ID MODULAR TYPE
+                 | RECORD
+                 | OUT
+    '''
+
+def p_options_declaration(p):
+    '''optionsDeclaration : optionsDeclaration detailDeclaration
+                          | detailDeclaration
+    '''
+
+def p_detail_declaration(p):
+    '''detailDeclaration : COLLATE ID
+                         | NOT NULL
+                         | ASSIGNATION_SYMBOL SQLINTEGER 
+                         | ASSIGNATION_SYMBOL SQLNAME
+                         | ASSIGNATION_SYMBOL TRUE
+                         | ASSIGNATION_SYMBOL FALSE
+    '''
+
+def p_assignation_symbol(p):
+    '''ASSIGNATION_SYMBOL : EQUALS
+                          | COLONEQUALS
+                          | DEFAULT
+    '''
+
+#El primero es un opciones con un return de expresion
+#El segundo es solo un return expresion
+#El tercero es un cuerpo
+def p_staments(p):
+    '''STATEMENTS : OPTIONS_STATEMENTS RETURN PLPSQL_EXPRESSION SEMICOLON
+                  | RETURN PLPSQL_EXPRESSION SEMICOLON 
+                  | OPTIONS_STATEMENTS
+
+    '''
+
+
+def p_options_statements(p):
+    '''OPTIONS_STATEMENTS : OPTIONS_STATEMENTS statementType
+                          | statementType
+
+    '''
+
+def p_statement_type(p):
+    '''statementType : PLPSQL_EXPRESSION  SEMICOLON 
+                    |  RAISE_EXCEPTION 
+                    |  BODY_DECLARATION
+                    |  ifStatement
+                    |  CASECLAUSE
+    '''
+
+def p_plpsql_expression(p):
+    '''PLPSQL_EXPRESSION : PLPSQL_EXPRESSION CONCAT PLPSQL_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION NOT_EQUAL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION GREATE_EQUAL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION GREATE_THAN PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION LESS_THAN PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION LESS_EQUAL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION
+                         
+    '''
+def p_plpsql_primary_expression(p):
+    '''PLPSQL_PRIMARY_EXPRESSION : PLPSQL_PRIMARY_EXPRESSION PLUS PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION REST PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION ASTERISK PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION DIVISION PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION EXPONENT PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION MODULAR PLPSQL_PRIMARY_EXPRESSION
+                                 | REST PLPSQL_PRIMARY_EXPRESSION %prec UREST
+                                 | PLUS PLPSQL_PRIMARY_EXPRESSION %prec UPLUS
+                                 | AGGREGATEFUNCTIONS
+                                 | GREATESTORLEAST
+                                 | EXPRESSIONSTIME
+                                 | SQUARE_ROOT SQLSIMPLEEXPRESSION
+                                 | CUBE_ROOT SQLSIMPLEEXPRESSION
+                                 | MATHEMATICALFUNCTIONS
+                                 | BINARY_STRING_FUNCTIONS
+                                 | TRIGONOMETRIC_FUNCTIONS
+                                 | TRUE
+                                 | FALSE
+                                 | OBJECTREFERENCE
+                                 | SQLINTEGER
+                                 | DOLLAR SQLINTEGER
+    '''
+
+def p_if_statement(p):
+    '''ifStatement : IF SQLEXPRESSION THEN STATEMENTS elseIfBlocks ELSE STATEMENTS END IF SEMICOLON
+                   | IF SQLEXPRESSION THEN STATEMENTS elseIfBlocks END IF SEMICOLON
+                   | IF SQLEXPRESSION THEN STATEMENTS ELSE STATEMENTS END IF SEMICOLON
+                   | IF SQLEXPRESSION THEN STATEMENTS END IF SEMICOLON
+    '''
+
+def p_elseIfBlocks(p):
+    '''elseIfBlocks : elseIfBlocks elseIfBlock
+                    | elseIfBlock
+    '''
+
+def p_elseIfBlock(p):
+    '''elseIfBlock : elseIfWord SQLEXPRESSION THEN STATEMENTS
+    '''
+
+def p_else_word(p):
+    '''elseIfWord : ELSEIF
+                  | ELSIF
+    '''
+
+def p_bodyExceptionList(p):
+    '''bodyExceptionList : bodyExceptionList bodyException
+                         | bodyException
+    '''
+
+def p_bodyException(p):
+    '''bodyException : WHEN SQLEXPRESSION THEN STATEMENTS
+    '''
+
+def p_raise_exception(p):
+    '''RAISE_EXCEPTION : RAISE NOTICE SQLNAME COMMA OBJECTREFERENCE SEMICOLON
+                       | RAISE SQLNAME COMMA OBJECTREFERENCE SEMICOLON 
+    '''
+
 # =====================================================================================
 # =====================================================================================
 # =====================================================================================
+
+
+
 
 def p_dml(p):
     '''DML : QUERYSTATEMENT
@@ -701,6 +901,7 @@ def p_sql_expression2(p):
                       | SQLNAME
                       | SQLINTEGER
                       | TRUE
+                      | DOLLAR SQLINTEGER
                       | FALSE'''
     # TODO: CUALES SON LOS UNARIOS QUE ACEPTA ---> REVISAR
     if len(p) == 4:
@@ -1311,6 +1512,7 @@ def p_sql_simple_expression(p):
                            | OBJECTREFERENCE
                            | NULL
                            | TRUE
+                           | DOLLAR SQLINTEGER
                            | FALSE'''
     if (len(p) == 4):
         if (p[1] == "("):
