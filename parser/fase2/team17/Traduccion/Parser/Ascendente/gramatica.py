@@ -354,6 +354,15 @@ t_MAYORQUE  = r'>'
 t_MENORQUE  = r'<'
 t_DOSPTS    = r':'
 
+def t_TKDECIMAL(t):
+    r'\d+\.\d+'
+    try:
+        t.value = float(t.value)
+    except ValueError:
+        print("Float value too large %d", t.value)
+        t.value = 0
+    return t
+
 def t_ENTERO(t):
     r'\d+'
     try:
@@ -363,14 +372,6 @@ def t_ENTERO(t):
         t.value = 0
     return t
 
-def t_TKDECIMAL(t):
-    r'\d+\.\d+'
-    try:
-        t.value = float(t.value)
-    except ValueError:
-        print("Float value too large %d", t.value)
-        t.value = 0
-    return t
 
 
 def t_CADENA(t):
@@ -486,6 +487,10 @@ def p_instruction(t):
 
 
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
+def p_plpgsql_fun(t):
+    '''
+        plpgsql : PRUEBA
+    '''
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
 
 
@@ -1331,12 +1336,11 @@ def p_exp(t):
         elif t[2].lower()=='or':
             # exp OR exp
             pass
-        pass
     elif len(t) == 5:
-        #exp NOT IN exp
+        # exp NOT IN exp
         pass
     elif len(t) == 2:
-        #expSimple
+        # expSimple
         t[0] = t[1]
 
 # --------------------------------------------------------------------------------------
@@ -1363,6 +1367,7 @@ def p_dateFunction(t):
     if t[1].lower() == "extract":
         # SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
         t[0] = Select_simples_date(t.lineno, 0, 'extract', t[3], t[6])
+        print(t[0])
     elif t[1].lower() == "date_part":
         # SELECT DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
         t[0] = Select_simples_date(t.lineno, 0, 'date_part', t[3], t[6])
@@ -1695,11 +1700,12 @@ def p_types(t):
          types : SMALLINT
               | INTEGER
               | BIGINT
-              | DECIMAL
+              | DECIMAL PARIZQ exp COMA exp PARDER
               | NUMERIC
               | REAL
               | MONEY
               | TEXT
+              | FLOAT
               | TIME
               | DATE
               | TIMESTAMP
@@ -1716,7 +1722,7 @@ def p_types(t):
         t[0] = '4'
     elif t[1].lower() == 'bigint':
         t[0] = '5'
-    elif t[1].lower() == 'decimal':
+    elif t[1].lower() == 'decimal' or t[1].lower() == 'float':
         t[0] = '1'
     elif t[1].lower() == 'numeric':
         t[0] = '6'

@@ -11,7 +11,6 @@ Unused terminals:
     DOBPTS
     DOSPTS
     EXCEPT
-    EXP
     FIRST
     FLOAT
     FULL
@@ -105,7 +104,7 @@ Rule 56    exp -> CEIL PARIZQ exp PARDER
 Rule 57    exp -> CEILING PARIZQ exp PARDER
 Rule 58    exp -> DEGREES PARIZQ exp PARDER
 Rule 59    exp -> DIV PARIZQ listavalores PARDER
-Rule 60    exp -> TKEXP PARIZQ exp PARDER
+Rule 60    exp -> EXP PARIZQ exp PARDER
 Rule 61    exp -> FACTORIAL PARIZQ exp PARDER
 Rule 62    exp -> FLOOR PARIZQ exp PARDER
 Rule 63    exp -> GCD PARIZQ listavalores PARDER
@@ -412,7 +411,7 @@ ENTERO               : 173
 ENUM                 : 278
 EXCEPT               : 
 EXISTS               : 117 181 182 255 257 268 282
-EXP                  : 
+EXP                  : 60
 EXTRACT              : 20
 FACTORIAL            : 61
 FALSE                : 178
@@ -541,7 +540,7 @@ THEN                 : 166 167 168 169 172
 TIME                 : 217
 TIMESTAMP            : 20 25 219
 TKDECIMAL            : 174
-TKEXP                : 60 127
+TKEXP                : 127
 TKNOT                : 
 TO                   : 279 280 281
 TRIM                 : 101
@@ -928,7 +927,7 @@ state 18
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -1064,7 +1063,7 @@ state 18
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -1620,7 +1619,7 @@ state 51
 
 state 52
 
-    (60) exp -> TKEXP . PARIZQ exp PARDER
+    (60) exp -> EXP . PARIZQ exp PARDER
 
     PARIZQ          shift and go to state 184
 
@@ -1978,7 +1977,7 @@ state 101
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -2108,7 +2107,7 @@ state 101
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -2201,7 +2200,7 @@ state 102
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -2331,7 +2330,7 @@ state 102
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -2424,7 +2423,7 @@ state 103
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -2554,7 +2553,7 @@ state 103
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -2647,7 +2646,7 @@ state 104
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -2777,7 +2776,7 @@ state 104
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -2870,7 +2869,7 @@ state 105
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -3000,7 +2999,7 @@ state 105
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -3093,7 +3092,7 @@ state 106
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -3223,7 +3222,7 @@ state 106
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -3316,7 +3315,7 @@ state 107
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -3446,7 +3445,7 @@ state 107
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -3539,7 +3538,7 @@ state 108
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -3669,7 +3668,7 @@ state 108
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -3821,7 +3820,7 @@ state 110
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -3951,7 +3950,7 @@ state 110
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -4745,7 +4744,7 @@ state 136
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -4875,7 +4874,7 @@ state 136
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -4969,7 +4968,7 @@ state 137
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -5099,7 +5098,7 @@ state 137
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -5243,7 +5242,7 @@ state 143
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -5373,7 +5372,7 @@ state 143
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -5466,7 +5465,7 @@ state 144
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -5596,7 +5595,7 @@ state 144
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -5691,7 +5690,7 @@ state 145
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -5823,7 +5822,7 @@ state 145
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -5915,7 +5914,7 @@ state 146
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -6046,7 +6045,7 @@ state 146
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -6139,7 +6138,7 @@ state 147
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -6269,7 +6268,7 @@ state 147
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -6362,7 +6361,7 @@ state 148
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -6492,7 +6491,7 @@ state 148
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -6585,7 +6584,7 @@ state 149
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -6715,7 +6714,7 @@ state 149
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -6808,7 +6807,7 @@ state 150
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -6938,7 +6937,7 @@ state 150
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -7031,7 +7030,7 @@ state 151
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -7161,7 +7160,7 @@ state 151
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -7254,7 +7253,7 @@ state 152
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -7384,7 +7383,7 @@ state 152
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -7477,7 +7476,7 @@ state 153
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -7607,7 +7606,7 @@ state 153
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -7700,7 +7699,7 @@ state 154
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -7830,7 +7829,7 @@ state 154
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -7923,7 +7922,7 @@ state 155
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -8053,7 +8052,7 @@ state 155
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -8146,7 +8145,7 @@ state 156
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -8276,7 +8275,7 @@ state 156
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -8369,7 +8368,7 @@ state 157
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -8499,7 +8498,7 @@ state 157
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -8592,7 +8591,7 @@ state 158
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -8722,7 +8721,7 @@ state 158
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -8815,7 +8814,7 @@ state 159
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -8945,7 +8944,7 @@ state 159
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -9038,7 +9037,7 @@ state 160
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -9168,7 +9167,7 @@ state 160
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -9261,7 +9260,7 @@ state 161
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -9391,7 +9390,7 @@ state 161
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -9484,7 +9483,7 @@ state 162
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -9614,7 +9613,7 @@ state 162
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -9707,7 +9706,7 @@ state 163
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -9837,7 +9836,7 @@ state 163
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -9930,7 +9929,7 @@ state 164
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -10060,7 +10059,7 @@ state 164
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -10153,7 +10152,7 @@ state 165
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -10283,7 +10282,7 @@ state 165
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -10376,7 +10375,7 @@ state 166
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -10506,7 +10505,7 @@ state 166
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -10599,7 +10598,7 @@ state 167
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -10729,7 +10728,7 @@ state 167
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -10822,7 +10821,7 @@ state 168
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -10952,7 +10951,7 @@ state 168
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -11045,7 +11044,7 @@ state 169
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -11175,7 +11174,7 @@ state 169
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -11280,7 +11279,7 @@ state 171
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -11411,7 +11410,7 @@ state 171
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -11503,7 +11502,7 @@ state 172
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -11633,7 +11632,7 @@ state 172
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -11726,7 +11725,7 @@ state 173
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -11856,7 +11855,7 @@ state 173
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -11951,7 +11950,7 @@ state 174
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -12081,7 +12080,7 @@ state 174
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -12177,7 +12176,7 @@ state 175
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -12307,7 +12306,7 @@ state 175
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -12401,7 +12400,7 @@ state 176
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -12531,7 +12530,7 @@ state 176
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -12624,7 +12623,7 @@ state 177
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -12754,7 +12753,7 @@ state 177
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -12847,7 +12846,7 @@ state 178
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -12977,7 +12976,7 @@ state 178
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -13070,7 +13069,7 @@ state 179
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -13200,7 +13199,7 @@ state 179
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -13293,7 +13292,7 @@ state 180
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -13423,7 +13422,7 @@ state 180
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -13516,7 +13515,7 @@ state 181
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -13646,7 +13645,7 @@ state 181
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -13739,7 +13738,7 @@ state 182
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -13869,7 +13868,7 @@ state 182
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -13964,7 +13963,7 @@ state 183
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -14094,7 +14093,7 @@ state 183
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -14173,7 +14172,7 @@ state 183
 
 state 184
 
-    (60) exp -> TKEXP PARIZQ . exp PARDER
+    (60) exp -> EXP PARIZQ . exp PARDER
     (46) exp -> . COUNT PARIZQ exp PARDER
     (47) exp -> . COUNT PARIZQ MULTI PARDER
     (48) exp -> . SUM PARIZQ exp PARDER
@@ -14188,7 +14187,7 @@ state 184
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -14318,7 +14317,7 @@ state 184
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -14411,7 +14410,7 @@ state 185
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -14541,7 +14540,7 @@ state 185
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -14634,7 +14633,7 @@ state 186
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -14764,7 +14763,7 @@ state 186
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -14859,7 +14858,7 @@ state 187
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -14989,7 +14988,7 @@ state 187
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -15083,7 +15082,7 @@ state 188
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -15213,7 +15212,7 @@ state 188
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -15306,7 +15305,7 @@ state 189
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -15436,7 +15435,7 @@ state 189
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -15531,7 +15530,7 @@ state 190
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -15661,7 +15660,7 @@ state 190
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -15764,7 +15763,7 @@ state 192
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -15894,7 +15893,7 @@ state 192
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -15988,7 +15987,7 @@ state 193
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -16118,7 +16117,7 @@ state 193
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -16211,7 +16210,7 @@ state 194
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -16341,7 +16340,7 @@ state 194
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -16434,7 +16433,7 @@ state 195
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -16564,7 +16563,7 @@ state 195
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -16657,7 +16656,7 @@ state 196
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -16787,7 +16786,7 @@ state 196
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -16880,7 +16879,7 @@ state 197
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -17010,7 +17009,7 @@ state 197
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -17103,7 +17102,7 @@ state 198
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -17233,7 +17232,7 @@ state 198
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -17333,7 +17332,7 @@ state 200
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -17463,7 +17462,7 @@ state 200
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -17556,7 +17555,7 @@ state 201
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -17686,7 +17685,7 @@ state 201
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -17779,7 +17778,7 @@ state 202
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -17909,7 +17908,7 @@ state 202
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -18002,7 +18001,7 @@ state 203
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -18132,7 +18131,7 @@ state 203
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -18225,7 +18224,7 @@ state 204
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -18355,7 +18354,7 @@ state 204
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -18448,7 +18447,7 @@ state 205
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -18578,7 +18577,7 @@ state 205
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -18671,7 +18670,7 @@ state 206
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -18801,7 +18800,7 @@ state 206
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -18894,7 +18893,7 @@ state 207
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -19024,7 +19023,7 @@ state 207
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -19117,7 +19116,7 @@ state 208
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -19247,7 +19246,7 @@ state 208
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -19340,7 +19339,7 @@ state 209
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -19470,7 +19469,7 @@ state 209
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -19563,7 +19562,7 @@ state 210
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -19693,7 +19692,7 @@ state 210
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -19786,7 +19785,7 @@ state 211
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -19916,7 +19915,7 @@ state 211
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -20009,7 +20008,7 @@ state 212
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -20139,7 +20138,7 @@ state 212
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -20232,7 +20231,7 @@ state 213
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -20362,7 +20361,7 @@ state 213
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -20455,7 +20454,7 @@ state 214
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -20585,7 +20584,7 @@ state 214
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -20678,7 +20677,7 @@ state 215
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -20808,7 +20807,7 @@ state 215
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -20901,7 +20900,7 @@ state 216
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -21031,7 +21030,7 @@ state 216
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -21124,7 +21123,7 @@ state 217
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -21254,7 +21253,7 @@ state 217
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -21347,7 +21346,7 @@ state 218
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -21477,7 +21476,7 @@ state 218
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -21570,7 +21569,7 @@ state 219
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -21700,7 +21699,7 @@ state 219
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -21793,7 +21792,7 @@ state 220
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -21923,7 +21922,7 @@ state 220
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -22016,7 +22015,7 @@ state 221
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -22146,7 +22145,7 @@ state 221
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -22239,7 +22238,7 @@ state 222
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -22369,7 +22368,7 @@ state 222
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -22462,7 +22461,7 @@ state 223
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -22592,7 +22591,7 @@ state 223
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -22685,7 +22684,7 @@ state 224
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -22815,7 +22814,7 @@ state 224
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -22908,7 +22907,7 @@ state 225
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -23038,7 +23037,7 @@ state 225
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -23131,7 +23130,7 @@ state 226
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -23261,7 +23260,7 @@ state 226
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -23354,7 +23353,7 @@ state 227
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -23484,7 +23483,7 @@ state 227
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -23577,7 +23576,7 @@ state 228
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -23707,7 +23706,7 @@ state 228
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -23800,7 +23799,7 @@ state 229
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -23930,7 +23929,7 @@ state 229
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -24023,7 +24022,7 @@ state 230
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -24153,7 +24152,7 @@ state 230
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -24246,7 +24245,7 @@ state 231
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -24376,7 +24375,7 @@ state 231
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -24469,7 +24468,7 @@ state 232
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -24599,7 +24598,7 @@ state 232
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -25987,7 +25986,7 @@ state 243
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -26117,7 +26116,7 @@ state 243
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -26269,7 +26268,7 @@ state 245
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -26399,7 +26398,7 @@ state 245
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -26647,7 +26646,7 @@ state 261
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -26777,7 +26776,7 @@ state 261
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -27565,7 +27564,7 @@ state 283
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -27696,7 +27695,7 @@ state 283
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -27790,7 +27789,7 @@ state 284
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -27921,7 +27920,7 @@ state 284
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -28162,7 +28161,7 @@ state 286
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -28292,7 +28291,7 @@ state 286
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -32411,7 +32410,7 @@ state 326
 
 state 327
 
-    (60) exp -> TKEXP PARIZQ exp . PARDER
+    (60) exp -> EXP PARIZQ exp . PARDER
     (119) exp -> exp . BETWEEN exp AND exp
     (120) exp -> exp . IS DISTINCT FROM exp
     (121) exp -> exp . IS NOT DISTINCT FROM exp
@@ -35938,7 +35937,7 @@ state 386
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -36069,7 +36068,7 @@ state 386
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -36163,7 +36162,7 @@ state 387
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -36294,7 +36293,7 @@ state 387
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -36438,7 +36437,7 @@ state 394
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -36568,7 +36567,7 @@ state 394
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -36979,7 +36978,7 @@ state 419
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -37109,7 +37108,7 @@ state 419
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -37216,7 +37215,7 @@ state 422
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -37346,7 +37345,7 @@ state 422
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -37439,7 +37438,7 @@ state 423
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -37569,7 +37568,7 @@ state 423
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -37757,7 +37756,7 @@ state 429
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -37887,7 +37886,7 @@ state 429
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -37980,7 +37979,7 @@ state 430
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -38110,7 +38109,7 @@ state 430
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -38204,7 +38203,7 @@ state 431
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -38335,7 +38334,7 @@ state 431
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -39388,61 +39387,61 @@ state 446
 
 state 447
 
-    (60) exp -> TKEXP PARIZQ exp PARDER .
+    (60) exp -> EXP PARIZQ exp PARDER .
 
-    BETWEEN         reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    IS              reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    ANDBB           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    ORBB            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    NUMERAL         reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    SHIFTIZQ        reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    SHIFTDER        reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    TKEXP           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MULTI           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    DIVISION        reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MODULO          reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MAS             reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MENOS           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    LIKE            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    ILIKE           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    SIMILAR         reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    NOT             reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    IN              reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    IGUAL           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MAYORQUE        reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MENORQUE        reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MAYORIG         reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MENORIG         reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    ISNULL          reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    NOTNULL         reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    AND             reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    OR              reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    AS              reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    FROM            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    COMA            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    PTCOMA          reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    PARDER          reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    WHERE           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    ORDER           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    GROUP           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    LIMIT           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    HAVING          reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    PARIZQ          reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    THEN            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    CORDER          reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    MODE            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    ELSE            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    END             reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    WHEN            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    DEFAULT         reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    PRIMARY         reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    REFERENCES      reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    CONSTRAINT      reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    CHECK           reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    UNIQUE          reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    NULL            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    ASC             reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
-    DESC            reduce using rule 60 (exp -> TKEXP PARIZQ exp PARDER .)
+    BETWEEN         reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    IS              reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    ANDBB           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    ORBB            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    NUMERAL         reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    SHIFTIZQ        reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    SHIFTDER        reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    TKEXP           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MULTI           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    DIVISION        reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MODULO          reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MAS             reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MENOS           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    LIKE            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    ILIKE           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    SIMILAR         reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    NOT             reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    IN              reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    IGUAL           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MAYORQUE        reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MENORQUE        reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MAYORIG         reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MENORIG         reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    ISNULL          reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    NOTNULL         reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    AND             reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    OR              reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    AS              reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    FROM            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    COMA            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    PTCOMA          reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    PARDER          reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    WHERE           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    ORDER           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    GROUP           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    LIMIT           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    HAVING          reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    PARIZQ          reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    THEN            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    CORDER          reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    MODE            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    ELSE            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    END             reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    WHEN            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    DEFAULT         reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    PRIMARY         reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    REFERENCES      reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    CONSTRAINT      reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    CHECK           reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    UNIQUE          reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    NULL            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    ASC             reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
+    DESC            reduce using rule 60 (exp -> EXP PARIZQ exp PARDER .)
 
 
 state 448
@@ -40111,7 +40110,7 @@ state 459
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -40241,7 +40240,7 @@ state 459
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -40747,7 +40746,7 @@ state 467
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -40877,7 +40876,7 @@ state 467
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -40970,7 +40969,7 @@ state 468
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -41100,7 +41099,7 @@ state 468
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -42078,7 +42077,7 @@ state 484
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -42208,7 +42207,7 @@ state 484
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -42478,7 +42477,7 @@ state 488
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -42608,7 +42607,7 @@ state 488
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -42701,7 +42700,7 @@ state 489
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -42831,7 +42830,7 @@ state 489
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -42924,7 +42923,7 @@ state 490
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -43054,7 +43053,7 @@ state 490
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -43195,7 +43194,7 @@ state 492
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -43325,7 +43324,7 @@ state 492
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -43418,7 +43417,7 @@ state 493
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -43548,7 +43547,7 @@ state 493
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -43703,7 +43702,7 @@ state 495
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -43833,7 +43832,7 @@ state 495
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -44094,7 +44093,7 @@ state 504
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -44224,7 +44223,7 @@ state 504
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -44388,7 +44387,7 @@ state 506
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -44518,7 +44517,7 @@ state 506
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -44688,7 +44687,7 @@ state 509
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -44818,7 +44817,7 @@ state 509
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -44929,7 +44928,7 @@ state 512
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -45059,7 +45058,7 @@ state 512
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -45152,7 +45151,7 @@ state 513
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -45282,7 +45281,7 @@ state 513
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -45452,7 +45451,7 @@ state 516
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -45582,7 +45581,7 @@ state 516
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -45676,7 +45675,7 @@ state 517
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -45806,7 +45805,7 @@ state 517
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -45899,7 +45898,7 @@ state 518
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -46029,7 +46028,7 @@ state 518
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -46122,7 +46121,7 @@ state 519
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -46252,7 +46251,7 @@ state 519
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -46359,7 +46358,7 @@ state 522
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -46489,7 +46488,7 @@ state 522
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -46589,7 +46588,7 @@ state 524
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -46719,7 +46718,7 @@ state 524
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -46893,7 +46892,7 @@ state 532
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -47023,7 +47022,7 @@ state 532
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -47337,7 +47336,7 @@ state 547
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -47467,7 +47466,7 @@ state 547
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -47562,7 +47561,7 @@ state 548
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -47692,7 +47691,7 @@ state 548
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -48364,7 +48363,7 @@ state 556
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -48494,7 +48493,7 @@ state 556
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -49732,7 +49731,7 @@ state 595
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -49863,7 +49862,7 @@ state 595
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -50026,7 +50025,7 @@ state 597
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -50156,7 +50155,7 @@ state 597
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -51069,7 +51068,7 @@ state 620
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -51199,7 +51198,7 @@ state 620
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -51611,7 +51610,7 @@ state 634
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -51741,7 +51740,7 @@ state 634
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -51952,7 +51951,7 @@ state 637
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -52082,7 +52081,7 @@ state 637
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -52175,7 +52174,7 @@ state 638
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -52305,7 +52304,7 @@ state 638
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -52457,7 +52456,7 @@ state 640
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -52587,7 +52586,7 @@ state 640
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -52756,7 +52755,7 @@ state 643
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -52886,7 +52885,7 @@ state 643
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -52979,7 +52978,7 @@ state 644
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -53109,7 +53108,7 @@ state 644
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -53209,7 +53208,7 @@ state 646
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -53339,7 +53338,7 @@ state 646
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -53550,7 +53549,7 @@ state 649
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -53680,7 +53679,7 @@ state 649
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -53786,7 +53785,7 @@ state 651
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -53916,7 +53915,7 @@ state 651
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -54206,7 +54205,7 @@ state 666
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -54337,7 +54336,7 @@ state 666
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -54498,7 +54497,7 @@ state 668
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -54628,7 +54627,7 @@ state 668
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -54752,7 +54751,7 @@ state 673
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -54882,7 +54881,7 @@ state 673
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -54985,7 +54984,7 @@ state 675
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -55115,7 +55114,7 @@ state 675
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -55228,7 +55227,7 @@ state 678
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -55358,7 +55357,7 @@ state 678
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -56044,7 +56043,7 @@ state 695
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -56174,7 +56173,7 @@ state 695
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -56403,7 +56402,7 @@ state 698
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -56533,7 +56532,7 @@ state 698
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -56807,7 +56806,7 @@ state 707
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -56937,7 +56936,7 @@ state 707
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -57067,7 +57066,7 @@ state 712
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -57197,7 +57196,7 @@ state 712
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -57435,7 +57434,7 @@ state 716
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -57565,7 +57564,7 @@ state 716
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -57863,7 +57862,7 @@ state 720
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -57993,7 +57992,7 @@ state 720
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -58103,7 +58102,7 @@ state 722
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -58233,7 +58232,7 @@ state 722
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -58622,7 +58621,7 @@ state 730
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -58752,7 +58751,7 @@ state 730
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55
@@ -59530,7 +59529,7 @@ state 754
     (57) exp -> . CEILING PARIZQ exp PARDER
     (58) exp -> . DEGREES PARIZQ exp PARDER
     (59) exp -> . DIV PARIZQ listavalores PARDER
-    (60) exp -> . TKEXP PARIZQ exp PARDER
+    (60) exp -> . EXP PARIZQ exp PARDER
     (61) exp -> . FACTORIAL PARIZQ exp PARDER
     (62) exp -> . FLOOR PARIZQ exp PARDER
     (63) exp -> . GCD PARIZQ listavalores PARDER
@@ -59660,7 +59659,7 @@ state 754
     CEILING         shift and go to state 49
     DEGREES         shift and go to state 50
     DIV             shift and go to state 51
-    TKEXP           shift and go to state 52
+    EXP             shift and go to state 52
     FACTORIAL       shift and go to state 53
     FLOOR           shift and go to state 54
     GCD             shift and go to state 55

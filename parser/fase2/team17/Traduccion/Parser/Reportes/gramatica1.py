@@ -317,21 +317,21 @@ t_MAYORQUE  = r'>'
 t_MENORQUE  = r'<'
 t_DOSPTS    = r':'
 
-def t_ENTERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
-    return t
-
 def t_TKDECIMAL(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
     except ValueError:
         print("Float value too large %d", t.value)
+        t.value = 0
+    return t
+
+def t_ENTERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
         t.value = 0
     return t
 
@@ -785,7 +785,7 @@ def p_exp_div(t):
 
 def p_exp_tkexp(t):
     '''
-        exp   : TKEXP PARIZQ exp PARDER
+        exp   : EXP PARIZQ exp PARDER
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))

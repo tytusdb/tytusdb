@@ -86,6 +86,7 @@ class Insert(NodoArbol):
                             values: list = self.getValues(self.listValues, entorno, arbol)
                             j.insert(databaseName, self.tableName, values)
                             print(self.tableName, '1 una fila a sido afectada')
+                            arbol.console.append('1 una fila a sido afectada\n')
 
 
 
@@ -129,8 +130,9 @@ class Insert(NodoArbol):
                             newRow = Meta.getRowByValues(self.listColumn, listvalues, headColumns)
                             j.insert(databaseName, self.tableName, newRow)
 
-                            arbol.console.append('1 una fila a sido afectada \n')
                             print(self.tableName, '1 una fila a sido afectada')
+                            arbol.console.append('1 una fila a sido afectada \n')
+
     # ================================================================================================
 
     def getValues(self, listValues, entorno, arbol) -> list:
