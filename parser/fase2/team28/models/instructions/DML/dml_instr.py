@@ -121,7 +121,7 @@ class Insert(Instruction):
             ErrorController().add(28, 'Execution', desc, self.line, self.column)
             return False
 
-        checker = CreateTB(None, None, None)
+        checker = CreateTB(None, None, None, None)
         dic =  dict(zip(headers, array_values))
         for index, name_col in enumerate(headers):
             column = TypeChecker().searchColumn(table_tp, name_col).__dict__
