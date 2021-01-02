@@ -190,7 +190,13 @@ reservadas = {
     'constant' : 'CONSTANT',
     'collate' : 'COLLATE',
     'declare' : 'DECLARE',
-    'for' : 'FOR'
+    'for' : 'FOR',
+    'time'  :   'TIME',
+    'index' :   'INDEX',
+    'on'    :   'ON',
+    'using' :   'USING',
+    'hash'  :   'HASH',
+    'first' : 'FIRST'
 }
 
 tokens = [
@@ -375,6 +381,7 @@ def p_inst(p):
             |   usedb
             |   query
             | createfunc
+            
     """
     p[0] = p[1]
     insertProduction(p.slice, len(p.slice))
@@ -980,6 +987,110 @@ def p_delete(p):
     "delete :   DELETE FROM id WHERE wherecond PTCOMA"
     p[0] = inst.delete(p[3],p[5])
     insertProduction(p.slice, len(p.slice))
+
+#CREATE INDEX
+def p_createind(p):
+    "createind  :   CREATE uniqueind INDEX id ON id createind2"
+
+def p_uniqueind(p):
+    "uniqueind  :   UNIQUE"
+    p[0] = p[1]
+
+def p_uniqueind1(p):
+    "uniqueind  :   "
+    p[0] = ""
+
+def p_createind2(p):
+    "createind2 :   USING HASH createind3"
+
+def p_createind21(p):
+    "createind2 :   createind3"
+    p[0] = p[1]
+
+def p_createind3(p):
+    "createind3 :   PARA id contind PARC indwhere PTCOMA"  
+
+def p_contind(p):
+    "contind    :   COMA id"
+
+def p_contind1(p):
+    "contind    :   indorder NULLS indorder2"
+
+def p_contind11(p):
+    """
+    contind :   CORCHETEA collist CORCHETEC
+            |   PARA id PARC
+    """      
+
+def p_contind111(p):
+    "contind    :   "
+    p[0] = ""
+
+def p_indorder(p):
+    """
+    indorder    :   ASC
+                |   DESC
+    """
+    p[0] = p[1]
+
+def p_indorder1(p):
+    "indorder   :   "
+    p[0] = ""
+
+def p_indorder2(p):
+    """
+    indorder2   :   FIRST
+                |   LAST
+    """
+    p[0] = p[1]
+
+def p_collist(p):
+    "collist    :   collist COMA id"
+
+def p_collist1(p):
+    "collist    :   id"
+    p[0] = p[1]
+
+def p_indwhere(p):
+    "indwhere   :   WHERE indnot indwherecond"
+
+def p_indwhere1(p):
+    "indwhere   :   "
+    p[0] = p[1]
+
+def p_indnot(p):
+    "indnot :   NOT PARA notcond PARC"
+
+def p_indnot1(p):
+    "indnot :   "
+    p[0] = ""
+
+def p_notcond(p):
+    "notcond    :   notcond AND notval"
+
+def p_notcond1(p):
+    "notcond    :   notval"
+    p[0] = p[1]
+
+def p_notval(p):
+    "notval :   id signo id valortipo"
+
+def p_indwherecond(p):
+    "indwherecond   :   id IGUAL valortipo"
+
+def p_indwherecond1(p):
+    "indwherecond   :   "
+    p[0] = ""
+
+def p_signo(p):
+    """
+    signo   :   MAYOR
+            |   MENOR
+            |   IGUAL  
+            |   MAYOR_IGUAL
+            |   MENOR_IGUAL
+    """
+    p[0] = p[1]
 
 """FIN ANALIZADOR SINTACTICO ASCENDENTE"""
 
@@ -1621,14 +1732,15 @@ def p_declareSingle(t):
 
 def p_declaresAsAlias(t):
     'declares : ID ALIAS FOR DOLAR INT PUNTOCOMA'
-    t[0] = declaration(t[1],int(t[5])-1,None,None,None)
+    t[0] = declaration(t[1],False,int(t[5])-1,None,False,None)
 
 def p_declaration(p):
     ''' declares : ID consta type coll  nn  ddiexp PUNTOCOMA'''
     p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
+    print('entro')
 
 def p_ddiexp(p):
-    '''ddiexp : ddi valortipo '''
+    '''ddiexp : ddi newexp '''
     p[0] = expre(p[1],p[2])
     
 
@@ -1646,21 +1758,37 @@ def p_ddi(p):
 
 def p_collate(p):
     '''coll : COLLATE ID
-            | '''
-    if p[1] == 'collate': p[0] = p[2]
-    else: p[0] = None
+            '''
+    p[0] = p[2]
+    
+    
+def p_collateN(p):
+    '''coll : 
+            '''
+     
+    p[0] = None
 
 def p_consta(p):
     ''' consta : CONSTANT
-            | '''
-    if p[1] == 'constant': p[0] = p[1]
-    else: p[0] = None
+            '''
+    p[0] = True
+    
+
+def p_constaN(p):
+    ''' consta :
+            '''
+    p[0] = False
 
 def p_nn(p):
     ''' nn : NOT NULL
-            | '''
-    if p[1] == 'not': p[0] = p[1]
-    else: p[0] = None
+        '''
+    p[0] = True
+    
+
+def p_nnN(p):
+    ''' nn :
+        '''
+    p[0] = False
 
 def p_instrucciones(t):
     'instrucciones : instrucciones instruccion'
@@ -1712,7 +1840,7 @@ def p_return(t):
 
 def p_newexp_id(t):
     '''newexp :  ID'''
-    t[0] = exp_idp(t[1])
+    #t[0] = exp_idp(t[1])
 
 def p_newexp_bool(t):
     '''newexp : TRUE

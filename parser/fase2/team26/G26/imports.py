@@ -19,3 +19,4 @@ import Expresiones.Identificador as ident
 import Expresiones.Type as type
 
 import Reportes.graph as graph
+import C3D.temporales as temp
