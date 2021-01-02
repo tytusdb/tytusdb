@@ -37,7 +37,7 @@ class NumericPositive(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val.execute(table, tree)
+        return f'+{self.val.generate(table, tree)}'
 
 
 class NumericNegative(ASTNode):
@@ -55,7 +55,7 @@ class NumericNegative(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val.execute(table, tree)
+        return f'-{self.val.generate(table, tree)}'
 
 
 class Text(ASTNode):
@@ -85,13 +85,13 @@ class BoolAST(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val
+        return 'TRUE' if self.val else 'FALSE'
 
 
 class DateAST(ASTNode):
     def __init__(self, val, option, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self. val = val
+        self.val = val
         self.option = option
         self.graph_ref = graph_ref
         try:
@@ -108,14 +108,15 @@ class DateAST(ASTNode):
                 self.result = self.val.month
             elif self.option == 'DAY':
                 self.result = self.val.day
-            
+
         except:
             self.result = None
             raise Error(self.line, self.column, ErrorType.SEMANTIC, 'it is not a date time format')
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return self.option +' '+ str(self.result)
+        return self.option + ' ' + str(self.result)
+
 
 class DateAST_2(ASTNode):
     def __init__(self, option, line, column, graph_ref):
@@ -126,10 +127,6 @@ class DateAST_2(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return str(self.option)
-
-
-
-
 
     def generate(self, table, tree):
         super().generate(table, tree)
@@ -179,6 +176,11 @@ class Now(ASTNode):
         super().execute(table, tree)
         return datetime.now()
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return 'NOW()'
+
+
 class NowDate(ASTNode):
     def __init__(self, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -187,6 +189,11 @@ class NowDate(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return str(date.today())
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return 'CURRENT_DATE'
+
 
 class NowTime(ASTNode):
     def __init__(self, line, column, graph_ref):
@@ -200,7 +207,7 @@ class NowTime(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return 'CURRENT_TIME'
 
 
 class BinaryExpression(ASTNode):
@@ -232,7 +239,20 @@ class BinaryExpression(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        if self.operator is None:  # 'Number' or 'artirmetic function' production for example
+            return self.exp1.generate(table, tree)
+        if self.operator == OpArithmetic.PLUS:
+            return f'{self.exp1.execute(table, tree)} + {self.exp2.execute(table, tree)}'
+        if self.operator == OpArithmetic.MINUS:
+            return f'{self.exp1.execute(table, tree)} - {self.exp2.execute(table, tree)}'
+        if self.operator == OpArithmetic.TIMES:
+            return f'{self.exp1.execute(table, tree)} * {self.exp2.execute(table, tree)}'
+        if self.operator == OpArithmetic.DIVIDE:
+            return f'{self.exp1.execute(table, tree)} / {self.exp2.execute(table, tree)}'
+        if self.operator == OpArithmetic.MODULE:
+            return f'{self.exp1.execute(table, tree)} % {self.exp2.execute(table, tree)}'
+        if self.operator == OpArithmetic.POWER:
+            return f'{self.exp1.execute(table, tree)} ^ {self.exp2.execute(table, tree)}'
 
 
 class RelationalExpression(ASTNode):
@@ -266,7 +286,22 @@ class RelationalExpression(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        if self.operator == OpRelational.GREATER:
+            return f'{self.exp1.generate(table, tree)} > {self.exp2.execute(table, tree)}'
+        if self.operator == OpRelational.LESS:
+            return f'{self.exp1.generate(table, tree)} < {self.exp2.execute(table, tree)}'
+        if self.operator == OpRelational.EQUALS:
+            return f'{self.exp1.generate(table, tree)} = {self.exp2.execute(table, tree)}'
+        if self.operator == OpRelational.NOT_EQUALS:
+            return f'{self.exp1.generate(table, tree)} != {self.exp2.execute(table, tree)}'
+        if self.operator == OpRelational.GREATER_EQUALS:
+            return f'{self.exp1.generate(table, tree)} >= {self.exp2.execute(table, tree)}'
+        if self.operator == OpRelational.LESS_EQUALS:
+            return f'{self.exp1.generate(table, tree)} <= {self.exp2.execute(table, tree)}'
+        if self.operator == OpRelational.LIKE:  # TODO add execution to [NOT] LIKE, Regex maybe?
+            return f'{self.exp1.generate(table, tree)} LIKE {self.exp2.execute(table, tree)}'
+        if self.operator == OpRelational.NOT_LIKE:
+            return f'{self.exp1.generate(table, tree)} NOT LIKE {self.exp2.execute(table, tree)}'
 
 
 class PredicateExpression(ASTNode):  # TODO check operations and call to exceute function
@@ -304,7 +339,26 @@ class PredicateExpression(ASTNode):  # TODO check operations and call to exceute
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        if self.operator == OpPredicate.NULL:
+            return f'{self.exp1.generate(table, tree)} IS NULL'
+        if self.operator == OpPredicate.NOT_NULL:
+            return f'{self.exp1.generate(table, tree)} IS NOT NULL'
+        if self.operator == OpPredicate.DISTINCT:
+            return f'{self.exp1.generate(table, tree)} IS DISTINCT FROM {self.exp1.generate(table, tree)}'
+        if self.operator == OpPredicate.NOT_DISTINCT:
+            return f'{self.exp1.generate(table, tree)} IS NOT DISTINCT FROM {self.exp1.generate(table, tree)}'
+        if self.operator == OpPredicate.TRUE:
+            return f'{self.exp1.generate(table, tree)} IS TRUE'
+        if self.operator == OpPredicate.NOT_TRUE:
+            return f'{self.exp1.generate(table, tree)} IS NOT TRUE'
+        if self.operator == OpPredicate.FALSE:
+            return f'{self.exp1.generate(table, tree)} IS FALSE'
+        if self.operator == OpPredicate.NOT_FALSE:
+            return f'{self.exp1.generate(table, tree)} IS NOT FALSE'
+        if self.operator == OpPredicate.UNKNOWN:
+            return f'{self.exp1.generate(table, tree)} IS UNKNOWN'
+        if self.operator == OpPredicate.NOT_UNKNOWN:
+            return f'{self.exp1.generate(table, tree)} IS NOT UNKNOWN'
 
 
 class BoolExpression(ASTNode):
@@ -330,7 +384,12 @@ class BoolExpression(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        exec1 = self.exp1.generate(table, tree)
+        exec2 = self.exp2.generate(table, tree)
+        if self.operator == OpLogic.AND:
+            return f'{exec1} AND {exec2}'
+        if self.operator == OpLogic.OR:
+            return f'{exec1} OR {exec2}'
 
 
 class Negation(ASTNode):
@@ -350,7 +409,10 @@ class Negation(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        exec1 = self.exp1.generate(table, tree)
+        if exec1 != 'TRUE' and exec1 != 'FALSE':
+            raise Exception("The result of operation isn't boolean value")
+        return 'TRUE' if exec1 == 'FALSE' else 'FALSE'
 
 
 class Identifier(ASTNode):
@@ -370,7 +432,7 @@ class Identifier(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return self.val
 
 
 class TypeDef(ASTNode):
@@ -396,7 +458,7 @@ class TypeDef(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return self.val
 
 
 class Nullable(ASTNode):
@@ -411,7 +473,7 @@ class Nullable(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return self.val
 
 
 class MD5_(ASTNode):
@@ -425,9 +487,9 @@ class MD5_(ASTNode):
         exp = self.exp.execute(table, tree)
         try:
             return hashlib.md5(exp.encode('utf-8')).hexdigest()
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'MD5 error'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'MD5 error'))
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'MD5({self.exp.generate(table, tree)})'
