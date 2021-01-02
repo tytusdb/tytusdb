@@ -392,7 +392,7 @@ def p_instruccionSelect(t):
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionQuerys(t):
-    'instruccion  : querys'
+    'instruccion  : querys PTCOMA'
     reporte = "<instruccion> ::= <querys>\n" +t[1]['reporte']
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
