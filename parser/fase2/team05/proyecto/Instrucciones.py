@@ -828,3 +828,9 @@ class DatePart(Instruccion):
     def __init__(self, val1, val2):
         self.val1 = val1
         self.val2 = val2
+
+class FuncionesSistema(Instruccion): #servira para length substring y substr
+    def _init_(self, funcion, valores, alias):
+        self.funcion = funcion
+        self.valores = valores
+        self.alias = alias

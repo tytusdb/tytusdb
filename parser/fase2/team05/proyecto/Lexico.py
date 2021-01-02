@@ -23,175 +23,190 @@ contador = 0
 
 # LISTADO DE PALABRAS RESERVADAS
 palabras_reservadas = {
-    'select': 'SELECT',
-    'where': 'WHERE',
-    'limit': 'LIMIT',
-    'group': 'GROUP',
-    'by': 'BY',
-    'having': 'HAVING',
-    'order': 'ORDER',
-    'asc': 'ASC',
-    'desc': 'DESC',
-    'offset': 'OFFSET',
-    'nulls': 'NULLS',
-    'last': 'LAST',
-    'first': 'FIRST',
-    'as': 'AS',
-    'is': 'IS',
-    'and': 'AND',
-    'or': 'OR',
-    'true': 'TRUE',
-    'false': 'FALSE',
-    'not': 'NOT',
-    'distinct': 'DISTINCT',
-    'count': 'COUNT',
-    'avg': 'AVG',
-    'sum': 'SUM',
-    'max': 'MAX',
-    'min': 'MIN',
-    'greatest': 'GREATEST',
-    'least': 'LEAST',
-    'unknown': 'UNKNOWN',
-    'between': 'BETWEEN',
-    'simmetric': 'SIMMETRIC',
-    'null': 'NULL',
-    'union': 'UNION',
-    'all': 'ALL',
-    'intersect': 'INTERSECT',
-    'except': 'EXCEPT',
-    'case': 'CASE',
-    'when': 'WHEN',
-    'end': 'END',
-    'then': 'THEN',
-    'else': 'ELSE',
-    'pi': 'PI',
-    'in': 'IN',
-    'any': 'ANY',
-    'some': 'SOME',
-    'like': 'LIKE',
-    'substring': 'SUBSTRING',
-    'substr': 'SUBSTR',
-    'trim': 'TRIM',
-    'leading': 'LEADING',
-    'trailing': 'TRAILING',
-    'both': 'BOTH',
-    'encode': 'ENCODE',
-    'decode': 'DECODE',
-    'abs': 'ABS',
-    'cbrt': 'CBRT',
-    'ceil': 'CEIL',
-    'ceiling': 'CEILING',
-    'degrees': 'DEGREES',
-    'div': 'DIV',
-    'factorial': 'FACTORIAL',
-    'floor': 'FLOOR',
-    'gcd': 'GCD',
-    'ln': 'LN',
-    'log': 'LOG',
-    'mod': 'MOD',
-    'power': 'POWER',
-    'radians': 'RADIANS',
-    'round': 'ROUND',
-    'sign': 'SIGN',
-    'sqrt': 'SQRT',
-    'width_bucket': 'WIDTH_BUCKET',
-    'trunc': 'TRUNC',
-    'random': 'RANDOM',
-    'exp': 'FEXP',
-    'extract': 'EXTRACT',
-    'now': 'NOW',
-    'hour': 'HOUR',
-    'minute': 'MINUTE',
-    'second': 'SECOND',
-    'year': 'YEAR',
-    'month': 'MONTH',
-    'day': 'DAY',
-    'timestamp': 'TIMESTAMP',
-    'interval': 'INTERVAL',
-    'date_part': 'DATE_PART',
-    'current_date': 'CURRENT_DATE',
-    'current_time': 'CURRENT_TIME',
-    'length': 'LENGTH',
-    'sha256': 'SHA256',
-    'date': 'DATE',
-    'integer': 'INTEGER',
-    'convert': 'CONVERT',
-    'create': 'CREATE',
-    'replace': 'REPLACE',
-    'database': 'DATABASE',
-    'databases': 'DATABASES',
-    'if': 'IF',
-    'exists': 'EXISTS',
-    'owner': 'OWNER',
-    'mode': 'MODE',
-    'alter': 'ALTER',
-    'drop': 'DROP',
-    'show': 'SHOW',
-    'rename': 'RENAME',
-    'to': 'TO',
-    'insert': 'INSERT',
-    'update': 'UPDATE',
-    'set': 'SET',
-    'into': 'INTO',
-    'values': 'VALUES',
-    'table': 'TABLE',
-    'from': 'FROM',
-    'delete': 'DELETE',
-    'acos': 'ACOS',
-    'acosd': 'ACOSD',
-    'asin': 'ASIN',
-    'asind': 'ASIND',
-    'atan': 'ATAN',
-    'atand': 'ATAND',
-    'atan2': 'ATAN2',
-    'atan2d': 'ATAN2D',
-    'cos': 'COS',
-    'cosd': 'COSD',
-    'cot': 'COT',
-    'cotd': 'COTD',
-    'sin': 'SIN',
-    'sind': 'SIND',
-    'tan': 'TAN',
-    'tand': 'TAND',
-    'sinh': 'SINH',
-    'cosh': 'COSH',
-    'tanh': 'TANH',
-    'asinh': 'ASINH',
-    'acosh': 'ACOSH',
-    'atanh': 'ATANH',
-    'get_byte': 'GETBYTE',
-    'set_byte': 'SETBYTE',
-    'inherits': 'INHERITS',
-    'primary': 'PRIMARY',
-    'key': 'KEY',
-    'foreign': 'FOREIGN',
-    'references': 'REFERENCES',
-    'constraint': 'CONSTRAINT',
-    'check': 'CHECK',
-    'unique': 'UNIQUE',
-    'default': 'DEFAULT',
-    'smallint': 'SMALLINT',
-    'bigint': 'BIGINT',
-    'numeric': 'NUMERIC',
-    'real': 'REAL',
-    'double': 'DOUBLE',
-    'money': 'MONEY',
-    'character': 'CHARACTER',
-    'varchar': 'VARCHAR',
-    'char': 'CHAR',
-    'text': 'TEXT',
-    'time': 'TIME',
-    'boolean': 'BOOLEAN',
-    'varying': 'VARYING',
-    'type': 'TYPE',
-    'enum': 'ENUM',
-    'add': 'ADD',
-    'column': 'COLUMN',
-    'use': 'USE',
-    'md5': 'MD5',
-    'decimal': 'DECIMAL',
-    'current_user': 'CURRENT_USER',
-    'session_user': 'SESSION_USER'
+    'select'        : 'SELECT',
+    'where'         : 'WHERE',
+    'limit'         : 'LIMIT',
+    'group'         : 'GROUP',
+    'by'            : 'BY',
+    'having'        : 'HAVING',
+    'order'         : 'ORDER',
+    'asc'           : 'ASC',
+    'desc'          : 'DESC',
+    'offset'        : 'OFFSET',
+    'nulls'         : 'NULLS',
+    'last'          : 'LAST',
+    'first'         : 'FIRST',
+    'as'            : 'AS',
+    'is'            : 'IS',
+    'and'           : 'AND',
+    'or'            : 'OR',
+    'true'          : 'TRUE',
+    'false'         : 'FALSE',
+    'not'           : 'NOT',
+    'distinct'      : 'DISTINCT',
+    'count'         : 'COUNT',
+    'avg'           : 'AVG',
+    'sum'           : 'SUM',
+    'max'           : 'MAX',
+    'min'           : 'MIN',
+    'greatest'      : 'GREATEST',
+    'least'         : 'LEAST',
+    'unknown'       : 'UNKNOWN',
+    'between'       : 'BETWEEN',
+    'simmetric'     : 'SIMMETRIC',
+    'null'          : 'NULL',
+    'union'         : 'UNION',
+    'all'           : 'ALL',
+    'intersect'     : 'INTERSECT',
+    'except'        : 'EXCEPT',
+    'case'          : 'CASE',
+    'when'          : 'WHEN',
+    'end'           : 'END',
+    'then'          : 'THEN',
+    'else'          : 'ELSE',
+    'pi'            : 'PI',
+    'in'            : 'IN',
+    'any'           : 'ANY',
+    'some'          : 'SOME',
+    'like'          : 'LIKE',
+    'substring'     : 'SUBSTRING',
+    'substr'        : 'SUBSTR',
+    'trim'          : 'TRIM',
+    'leading'       : 'LEADING',
+    'trailing'      : 'TRAILING',
+    'both'          : 'BOTH',
+    'encode'        : 'ENCODE',
+    'decode'        : 'DECODE',
+    'abs'           : 'ABS',
+    'cbrt'          : 'CBRT',
+    'ceil'          : 'CEIL',
+    'ceiling'       : 'CEILING',
+    'degrees'       : 'DEGREES',
+    'div'           : 'DIV',
+    'factorial'     : 'FACTORIAL',
+    'floor'         : 'FLOOR',
+    'gcd'           : 'GCD',
+    'ln'            : 'LN',
+    'log'           : 'LOG',
+    'mod'           : 'MOD',
+    'power'         : 'POWER',
+    'radians'       : 'RADIANS',
+    'round'         : 'ROUND',
+    'sign'          : 'SIGN',
+    'sqrt'          : 'SQRT',
+    'width_bucket'  : 'WIDTH_BUCKET',
+    'trunc'         : 'TRUNC',
+    'random'        : 'RANDOM',
+    'exp'           : 'FEXP',
+    'extract'       : 'EXTRACT',
+    'now'           : 'NOW',
+    'hour'          : 'HOUR',
+    'minute'        : 'MINUTE',
+    'second'        : 'SECOND',
+    'year'          : 'YEAR',
+    'month'         : 'MONTH',
+    'day'           : 'DAY',
+    'timestamp'     : 'TIMESTAMP',
+    'interval'      : 'INTERVAL',
+    'date_part'     : 'DATE_PART',
+    'current_date'  : 'CURRENT_DATE',
+    'current_time'  : 'CURRENT_TIME',
+    'length'        : 'LENGTH',
+    'sha256'        : 'SHA256',
+    'date'          : 'DATE',
+    'integer'       : 'INTEGER',
+    'convert'       : 'CONVERT',
+    'create'        : 'CREATE',
+    'replace'       : 'REPLACE',
+    'database'      : 'DATABASE',
+    'databases'     : 'DATABASES',
+    'if'            : 'IF',
+    'exists'        : 'EXISTS',
+    'owner'         : 'OWNER',
+    'mode'          : 'MODE',
+    'alter'         : 'ALTER',
+    'drop'          : 'DROP',
+    'show'          : 'SHOW',
+    'rename'        : 'RENAME',
+    'to'            : 'TO',
+    'insert'        : 'INSERT',
+    'update'        : 'UPDATE',
+    'set'           : 'SET',
+    'into'          : 'INTO',
+    'values'        : 'VALUES',
+    'table'         : 'TABLE',
+    'from'          : 'FROM',
+    'delete'        : 'DELETE',
+    'acos'          : 'ACOS',
+    'acosd'         : 'ACOSD',
+    'asin'          : 'ASIN',
+    'asind'         : 'ASIND',
+    'atan'          : 'ATAN',
+    'atand'         : 'ATAND',
+    'atan2'         : 'ATAN2',
+    'atan2d'        : 'ATAN2D',
+    'cos'           : 'COS',
+    'cosd'          : 'COSD',
+    'cot'           : 'COT',
+    'cotd'          : 'COTD',
+    'sin'           : 'SIN',
+    'sind'          : 'SIND',
+    'tan'           : 'TAN',
+    'tand'          : 'TAND',
+    'sinh'          : 'SINH',
+    'cosh'          : 'COSH',
+    'tanh'          : 'TANH',
+    'asinh'         : 'ASINH',
+    'acosh'         : 'ACOSH',
+    'atanh'         : 'ATANH',
+    'get_byte'      : 'GETBYTE',
+    'set_byte'      : 'SETBYTE',
+    'inherits'      : 'INHERITS',
+    'primary'       : 'PRIMARY',
+    'key'           : 'KEY',
+    'foreign'       : 'FOREIGN',
+    'references'    : 'REFERENCES',
+    'constraint'    : 'CONSTRAINT',
+    'check'         : 'CHECK',
+    'unique'        : 'UNIQUE',
+    'default'       : 'DEFAULT',
+    'smallint'      : 'SMALLINT',
+    'bigint'        : 'BIGINT',
+    'numeric'       : 'NUMERIC',
+    'real'          : 'REAL',
+    'double'        : 'DOUBLE',
+    'money'         : 'MONEY',
+    'character'     : 'CHARACTER',
+    'varchar'       : 'VARCHAR',
+    'char'          : 'CHAR',
+    'text'          : 'TEXT',
+    'time'          : 'TIME',
+    'boolean'       : 'BOOLEAN',
+    'varying'       : 'VARYING',
+    'type'          : 'TYPE',
+    'enum'          : 'ENUM',
+    'add'           : 'ADD',
+    'column'        : 'COLUMN',
+    'use'           : 'USE',
+    'md5'           : 'MD5',
+    'decimal'       : 'DECIMAL',
+    'current_user'  : 'CURRENT_USER',
+    'session_user'  : 'SESSION_USER',
+    'index'         : 'INDEX',
+    'using'         : 'USING',
+    'hash'          : 'HASH',
+    'on'            : 'ON',
+    'lower'         : 'LOWER',
+    'end'           : 'END',
+    'if'            : 'IF',
+    'else'          : 'ELSE',
+    'elsif'         : 'ELSIF',
+    'create'        : 'CREATE',
+    'function'      : 'FUNCTION',
+    'returns'       : 'RETURNS',
+    'return'        : 'RETURN',
+    'begin'         : 'BEGIN',
+    'declare'       : 'DECLARE'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -226,7 +241,10 @@ tokens = [
              'BXor',
              'BNot',
              'DesplazaI',
-             'DesplazaD'
+             'DesplazaD',
+             'ARROBA',
+             'DPUNTOS',
+             'FINF'
          ] + list(palabras_reservadas.values())
 
 # EXPRESIONES REGULARES PARA TOKENS
@@ -256,6 +274,9 @@ t_BXor = r'#'
 t_BNot = r'~'
 t_DesplazaI = r'<<'
 t_DesplazaD = r'>>'
+t_ARROBA          = r'@'
+t_DPUNTOS         = r':'
+t_FINF            = r'\$\$'
 
 # TOKENS IGNORADOS
 t_ignore = " \t"
@@ -444,6 +465,8 @@ def p_instruccion2(t):
                         |   I_DELETE
                         |   I_USE
                         |   I_ALTERTB
+                        |   I_CINDEX
+                        |   FUNCION_N
     """
     t[0] = t[1]
 
@@ -706,7 +729,7 @@ def p_llave(t):
 
 
 def p_llave2(t):
-    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA'
+    'I_LLAVES         : REFERENCES ID PAB   RE I_CREFERENCE PCIERRA'
     global reporte_gramatical
     reporte_gramatical.append('<I_LLAVES> ::= "REFERENCES" "ID" "(" <I_CREFERENCE> ")"')
     var = ' references ' + str(t[2]) + ' (' + str(t[4].getInstruccion()) + ') '
@@ -888,7 +911,7 @@ def p_tipo5_1(t):
     'I_TIPO           : NUMERIC PABRE NUMERO COMA NUMERO PCIERRA'
     global reporte_gramatical
     reporte_gramatical.append('<I_TIPO> ::= "NUMERIC" "(" "NUMERO" "," "NUMERO" ")" ')
-    var = ' ' + str(t[1]) + '(' + str(t[3]) + ',' + str(t[5]) + ') '
+    var = ' ' + str(t[1]) + '(' + str(t[3])     + ',' + str(t[5]) + ') '
     ret = Retorno(var, NodoAST("TIPO DATO"))
     ret.getNodo().setHijo(NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(str(t[3])))
@@ -1865,6 +1888,63 @@ def p_delete(t):
 
 # TERMINA DELETE
 
+# ------------------------------------------------------- INDEX-------------------------------------------------
+def p_CIndex(t):
+   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE LCINDEX PCIERRA PCOMA'
+   
+def p_CIndex2(t):
+   'I_CINDEX        :   CREATE INDEX ID ON ID USING HASH PABRE ID PCIERRA PCOMA'
+
+def p_CIndex3(t):
+   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE NUMERO COMA NUMERO PCIERRA PCOMA'
+  
+def p_CIndex4(t):
+   'I_CINDEX        :   CREATE UNIQUE INDEX ID ON ID PABRE LCINDEX PCIERRA PCOMA'
+
+def p_CIndex5(t):
+   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE LCINDEX PCIERRA PWHERE PCOMA'
+
+def p_CIndex6(t):
+   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE ID COMPLEMENTOINDEX PCIERRA PCOMA'
+
+
+def p_LCINDEX(t):
+   'LCINDEX        :   LCINDEX COMA VALINDEX'
+
+def p_LCINDEX2(t):
+   'LCINDEX        :   VALINDEX'
+
+
+def p_VALINDEX(t):
+   'VALINDEX        :   ID'
+
+def p_VALINDEX2(t):
+   'VALINDEX        :   LOWER PABRE ID PCIERRA'
+
+def p_VALINDEX3(t):
+   'VALINDEX        :   CADENA'
+
+
+def p_ComplementoOrderIndex(t):
+    'COMPLEMENTOINDEX  :   NULLS FIRST'
+
+def p_ComplementoOrderIndexOD(t):
+    'COMPLEMENTOINDEX  :   NULLS LAST'
+
+def p_ComplementoOrderIndexOANF(t):
+    'COMPLEMENTOINDEX  :   ASC NULLS FIRST  '
+
+def p_ComplementoOrderIndexOANL(t):
+    'COMPLEMENTOINDEX  :   ASC NULLS LAST   '
+
+def p_ComplementoOrderIndexODNF(t):
+    'COMPLEMENTOINDEX  :   DESC NULLS FIRST '
+
+def p_ComplementoOrderIndexODNL(t):
+    'COMPLEMENTOINDEX  :   DESC NULLS LAST  '
+
+# ----------------------------FIN INDEX-----------------------
+
 # --------------------------------------------------------------------------------
 
 def p_ISelect(t):
@@ -1972,8 +2052,8 @@ def p_ISelect6(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + + ' ' + str(t[6].getInstruccion()) + ';"'
-
         contador = contador + 1
+        codigo_3D.append(C3D)
         ret = Retorno(
             Select3(t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), t[6].getInstruccion(), True),
             NodoAST("SELECT"))
@@ -1991,7 +2071,6 @@ def p_ISelect3(t):
     if isinstance(t[2], str):
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ';"'
-
         contador = contador + 1
         codigo_3D.append(C3D)
         ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
@@ -2002,7 +2081,6 @@ def p_ISelect3(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2].getInstruccion()) + ' ' + str(
             t[3].getInstruccin()) + ' ' + str(t[4].getInstruccion()) + ';"'
-
         contador = contador + 1
         codigo_3D.append(C3D)
         ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False),
@@ -4043,7 +4121,7 @@ def p_CondicionNull(t):
     'CONDICION  :   NULL '
     global reporte_gramatical
     reporte_gramatical.append("<CONDICION> ::= \"NULL\"")
-    ret = Retorno('null()', NodoAST('NULL'))
+    ret = Retorno('null', NodoAST('NULL'))
     t[0] = ret
 
 
@@ -4051,7 +4129,7 @@ def p_CondicionUnknown(t):
     'CONDICION  :   UNKNOWN '
     global reporte_gramatical
     reporte_gramatical.append("<CONDICION> ::= \"UNKNOWN\"")
-    ret = Retorno('unknow()', NodoAST('UNKNOW'))
+    ret = Retorno('unknow', NodoAST('UNKNOW'))
     t[0] = ret
 
 
@@ -4534,6 +4612,276 @@ def p_PTimestamIdP(t):
     ret = Retorno(str(t[1] + '.' + str(t[3])), NodoAST('.'))
     ret.getNodo().setHijo(NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(t[3]))
+
+# -------------------------------------------------FUNCIONES
+#----------------------------------------------------
+def p_Funcion(t):
+    'FUNCION_N  :   CREATE FUNCTION ID PABRE PARAMS PCIERRA RETORNO DECLAREF STAMENT '
+
+def p_Funcion2(t):
+    'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PARAMS PCIERRA RETORNO DECLAREF STAMENT '
+
+def p_Funcion3(t):
+    'FUNCION_N  :   CREATE FUNCTION ID PABRE PCIERRA RETORNO DECLAREF STAMENT '
+
+def p_Funcion4(t):
+    'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PCIERRA RETORNO DECLAREF STAMENT '
+
+def p_Retorno(t):
+    'RETORNO  :   RETURNS I_TIPO AS FINF '
+
+def p_Retorno1(t):
+    'RETORNO  :   AS FINF '
+
+def p_Params(t):
+    'PARAMS  :   PARAMS COMA PARAM '
+
+def p_Params1(t):
+    'PARAMS  :   PARAM '
+
+
+def p_Param(t):
+    'PARAM  :   ID I_TIPO '
+
+def p_Param1(t):
+    'PARAM  :   ARROBA ID I_TIPO '
+
+def p_Declare(t):
+    'DECLAREF  :   DECLARE DECLARACIONES '
+
+def p_Declaraciones(t):
+    'DECLARACIONES  :   DECLARACIONES DECLARACION '
+
+def p_Declaraciones1(t):
+    'DECLARACIONES  :   DECLARACION '
+
+
+def p_Declaracion(t):
+    'DECLARACION  :   ID I_TIPO PCOMA'
+
+def p_Declaracion1(t):
+    'DECLARACION  :   ARROBA ID I_TIPO PCOMA '
+
+def p_Statement(t):
+    'STAMENT  :   BEGIN LINSTRUCCIONESFN END PCOMA '
+
+def p_LInstruccionesFN(t):
+    'LINSTRUCCIONESFN  :   LINSTRUCCIONESFN INSTRUCCIONFN '
+
+def p_LInstruccionesFN1(t):
+    'LINSTRUCCIONESFN  :   INSTRUCCIONFN'
+
+def p_InstruccionFN(t):
+    'INSTRUCCIONFN  :   ASIGNACION'
+
+def p_InstruccionFN1(t):
+    'INSTRUCCIONFN  :   PIF'
+
+def p_InstruccionFN2(t):
+    'INSTRUCCIONFN  :   PRETURN'
+
+def p_InstruccionFN3(t):
+    'INSTRUCCIONFN  :   INSTRUCCION'
+
+def p_Asignacion(t):
+    'ASIGNACION  :   ID DPUNTOS IGUAL VALORF PCOMA'
+
+def p_Asignacion1(t):
+    'ASIGNACION  :   ID IGUAL VALORF PCOMA'
+
+def p_If(t):
+    'PIF  :   IF VALORF THEN CUERPOIF END IF'
+
+def p_If2(t):
+    'PIF  :   IF VALORF CUERPOIF END IF'
+
+def p_If3(t):
+    'PIF  :   IF VALORF THEN CUERPOIF PELSE'
+
+def p_If4(t):
+    'PIF  :   IF VALORF CUERPOIF PELSE'
+
+def p_Else(t):
+    'PELSE  :   ELSIF VALORF THEN CUERPOIF ELSE'
+
+def p_Else2(t):
+    'PELSE  :   ELSIF VALORF CUERPOIF ELSE'
+
+def p_Else3(t):
+    'PELSE  :   ELSIF VALORF THEN CUERPOIF END IF'
+
+def p_Else4(t):
+    'PELSE  :   ELSIF VALORF CUERPOIF END IF'
+    
+def p_Else5(t):
+    'PELSE  :   ELSE CUERPOIF END IF'
+
+def p_Return(t):
+    'PRETURN  :   RETURN PCOMA'
+
+def p_Return2(t):
+    'PRETURN  :   RETURN VALORF PCOMA'
+
+def p_CuerpoIf(t):
+    'CUERPOIF  :   LINSTRUCCIONESFN'
+
+def p_VALORFIgual(t):
+    'VALORF  :   VALORF IGUAL VALORF '
+  
+
+def p_VALORFDif(t):
+    'VALORF  :   VALORF DIF VALORF '
+
+
+def p_VALORFDif1(t):
+    'VALORF  :   VALORF DIF1 VALORF '
+
+
+def p_VALORFMenor(t):
+    'VALORF  :   VALORF MENOR VALORF '
+ 
+def p_VALORFMenorI(t):
+    'VALORF  :   VALORF MENORIGUAL VALORF '
+   
+
+def p_VALORFMayor(t):
+    'VALORF  :   VALORF MAYOR VALORF '
+    
+
+def p_VALORFMayorI(t):
+    'VALORF  :   VALORF MAYORIGUAL VALORF '
+    
+
+def p_VALORFAnd(t):
+    'VALORF  :   VALORF AND VALORF '
+    
+
+def p_VALORFOr(t):
+    'VALORF  :   VALORF OR VALORF '
+   
+
+def p_VALORFNot(t):
+    'VALORF  :   NOT VALORF '
+    
+
+def p_VALORFParentesis(t):
+    'VALORF  :   PABRE VALORF PCIERRA '
+
+def p_VALORFMas(t):
+    'VALORF  :   VALORF MAS VALORF '
+    
+
+def p_VALORFMenos(t):
+    'VALORF  :   VALORF MENOS VALORF '
+   
+
+def p_VALORFPor(t):
+    'VALORF  :   VALORF POR VALORF '
+    
+
+def p_VALORFDiv(t):
+    'VALORF  :   VALORF DIVIDIDO VALORF '
+   
+
+def p_VALORFMod(t):
+    'VALORF  :   VALORF MODULO VALORF '
+   
+
+def p_VALORFExp(t):
+    'VALORF  :   VALORF EXP VALORF '
+   
+
+def p_VALORFIs(t):
+    'VALORF  :   VALORF IS VALORF '
+
+def p_VALORFIsN(t):
+    'VALORF  :   VALORF IS NULL VALORF '
+    
+
+def p_VALORFInn(t):
+    'VALORF  :   VALORF NOT NULL VALORF '
+    
+
+def p_VALORFM(t):
+    'VALORF  :   MENOS VALORF'
+
+def p_VALORFP(t):
+    'VALORF  :   MAS VALORF'
+
+def p_VALORFExtract(t):
+    'VALORF  :   EXTRACT PABRE DATETIME FROM PTIMESTAMP PCIERRA '
+
+def p_VALORFNum(t):
+    'VALORF  :   NUMERO '
+
+def p_VALORFDec(t):
+    'VALORF  :   DECIMALN'
+
+def p_VALORFCad(t):
+    'VALORF  :   CADENA'
+
+def p_VALORFTrue(t):
+    'VALORF  :   TRUE '
+
+def p_VALORFFalse(t):
+    'VALORF  :   FALSE '
+
+def p_VALORFId(t):
+    'VALORF  :   ID '
+
+def p_VALORFDatePart(t):
+    'VALORF  :   DATE_PART PABRE VALOR COMA INTERVAL VALOR PCIERRA '
+
+def p_VALORFCurrentDate(t):
+    'VALORF  :   CURRENT_DATE '
+
+def p_VALORFCurrentTime(t):
+    'VALORF  :   CURRENT_TIME '
+
+def p_VALORFTimeStamp(t):
+    'VALORF  :   TIMESTAMP CADENA '
+
+def p_VALORFBetween(t):
+    'VALORF  :   VALORF BETWEEN VALORF '
+
+def p_VALORFNotBetween(t):
+    'VALORF  :   VALORF NOT BETWEEN VALORF'
+
+def p_VALORFBetweenSimetric(t):
+    'VALORF  :   VALORF BETWEEN SIMMETRIC VALORF '
+
+def p_VALORFBetweenNotSimetric(t):
+    'VALORF  :   VALORF NOT BETWEEN SIMMETRIC VALORF'
+
+def p_VALORFIsDistinct(t):
+    'VALORF  :   VALORF IS DISTINCT FROM VALORF '
+
+def p_VALORFIsNotDistinct(t):
+    'VALORF  :   VALORF IS NOT DISTINCT FROM VALORF '
+
+def p_VALORFNull(t):
+    'VALORF  :   NULL '
+
+def p_VALORFUnknown(t):
+    'VALORF  :   UNKNOWN '
+
+def p_VALORFNow(t):
+    'VALORF  :   NOW PABRE PCIERRA '
+
+def p_VALORFAvg(t):
+    'VALORF  :   AVG PABRE VALOR PCIERRA '
+
+def p_VALORFSum(t):
+    'VALORF  :   SUM PABRE VALOR PCIERRA '
+
+def p_VALORFMin(t):
+    'VALORF  :   MIN PABRE VALOR PCIERRA '
+
+def p_VALORFMax(t):
+    'VALORF  :   MAX PABRE VALOR PCIERRA '
+
+
+# -----------------------------------------------
 
 
 def p_empty(t):
