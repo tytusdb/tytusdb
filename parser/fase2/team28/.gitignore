@@ -148,8 +148,11 @@ parsetab.py
 
 ast.png
 errors.png
+error.png
 symbolTable.png
 typeChecker.png
+
+C3D.py
 
 storageManager/
 test/
