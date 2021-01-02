@@ -178,7 +178,9 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'LENGTH','TRIM','GET_BYTE','MD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS','SQRT','SIGN',
               'TRUNC','RADIANS','RANDOM','WIDTH_BUCKET'
               ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL','INDEX','HASH','INCLUDE','COLLATE', 'CONSTANT', 'ALIAS', 'FOR', 'RETURN', 'NEXT', 'ELSIF',
-              'ROWTYPE', 'RECORD', 'QUERY', 'STRICT', 'PERFORM', 'VAR', 'EXECUTE'
+              'ROWTYPE', 'RECORD', 'QUERY', 'STRICT', 'PERFORM', 'VAR', 'EXECUTE',
+              'FUNCTION','LANGUAGE','RETURNS','ANYELEMENT','ANYCOMPATIBLE','VOID'
+               
               ]
 
 tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -186,8 +188,8 @@ tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENAS
                        'CORCHETECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','MAYORQUE','MENORQUE',
                        'MAYORIGUALQUE','MENORIGUALQUE',
                        'SIGNO_PIPE','SIGNO_DOBLE_PIPE','SIGNO_AND','SIGNO_VIRGULILLA','SIGNO_NUMERAL','SIGNO_DOBLE_MENORQUE','SIGNO_DOBLE_MAYORQUE',
-                       'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT','DOSPUNTOS','DOLAR'
-                       
+                       'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT','DOSPUNTOS','DOLAR',
+                       'DOLAR_LABEL'
                        ]
 
 
@@ -228,6 +230,10 @@ t_MAYORQUE = r'\>'
 t_MENORQUE = r'\<'
 t_COMILLA = r'\''
 t_DOLAR= r'\$'
+
+def t_DOLAR_LABEL(t):
+    r'\$.*?\$'
+    return t
 
 
 # expresion regular para los id´s
@@ -381,6 +387,7 @@ def p_instrucciones_evaluar(t):
                    | ins_update
                    | ins_delete
                    | exp
+                   | ins_create_pl
                    | instruccion_if
                    | instruccion_case
                    | create_index'''
@@ -1556,9 +1563,63 @@ def p_ins_delete(t):
     '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''
     t[0] = Delete(t[3], t[5], t.slice[2].lexpos, t.slice[2].lineno)
 
+def p_ins_create_pl(t):
+    '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameters PARCIERRE returns AS  block LANGUAGE ID PUNTO_COMA
+                    | CREATE op_replace PROCEDURE ID PARABRE parameters PARCIERRE AS  block LANGUAGE ID PUNTO_COMA
+    '''
+
+def p_op_replace(t):
+    '''op_replace :  OR REPLACE
+                    | '''
+
+def p_parameters(t):
+    '''parameters : parameters COMA ID tipo_dato
+                | parameters COMA tipo_dato
+                | ID tipo_dato
+                | tipo_dato
+                |
+    '''
+
+def p_retruns(t):
+    '''returns : RETURNS exp
+            | RETURNS ANYELEMENT
+            | RETURNS TABLE PARABRE parameters PARCIERRE 
+            | RETURNS ANYCOMPATIBLE
+            | RETURNS tipo_dato
+            | RETURNS VOID
+            | 
+            '''
+
+def p_block(t):
+    '''block : DOLAR_LABEL  body PUNTO_COMA DOLAR_LABEL
+    '''
+
+def p_body(t):
+    '''body :  declare_statement BEGIN internal_block END 
+    '''
+
+def p_declare(t):
+    '''declare_statement :  DECLARE
+                        | declare_statement statements 
+                        | '''
+
 def p_declaracion(t):
     '''declaracion  : ID constante tipo_dato not_null declaracion_default PUNTO_COMA'''
     print('DECLARACION')
+
+def p_internal_block(t):
+    '''internal_block : internal_block internal_body 
+                        | internal_body 
+                        | 
+                        '''
+
+def p_internal_body(t):
+    '''internal_body : body PUNTO_COMA
+                   | instruccion_if
+                   | instruccion_case
+                   | return
+                   | statements
+    '''
 
 def p_constante(t):
     '''constante  : CONSTANT'''
@@ -1722,8 +1783,6 @@ def p_statement(t):
                    | execute
                    | null
                    | declaracion
-                   | declaracion_default
-                   | asignacion
                    | declaracion_funcion
                    | declaracion_copy
                    | declaracion_row
