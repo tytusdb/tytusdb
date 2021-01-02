@@ -38,6 +38,14 @@ class Ast2:
                 print("Es Una Instruccion Select")
                 self.GrafoSelect(i.Lista_Campos, i.Nombres_Tablas, i.unionn, padre)
 
+            elif isinstance(i, instruccion_index):
+                print('Es una Introduccion del Index')
+                self.grafoIndex(i.etiqueta,i.identificador, i.identificadorTabla, i.lista_1, i.lista_2, padre)
+
+            elif isinstance(i, index_cuerpo):
+                print('Es para el cuerpo del index')
+                self.grafoCuerpo_index(i.etiqueta,i.identificador, i.expresion, padre)
+
             elif isinstance(i, Select2):
                 print("Es Una Instruccion Select2")
                 self.GrafoSelect2(i.Lista_Campos, i.Nombres_Tablas, i.Cuerpo, i.unionn, padre)
@@ -2619,6 +2627,119 @@ class Ast2:
 
         # dot.edge('Node' + str(nuevoPadre), str(self.i + 1))
         self.RecorrerListadeCampos(listaCampos, 'Node' + str(self.i))
+
+
+    def grafoIndex(self, etiqueta ,identificador, identificadorTabla, lista_1, lista_2, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION de Index")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        if etiqueta == INDEX.INDEX:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(etiqueta))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificador))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificadorTabla))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        elif etiqueta == INDEX.INDEX_WHERE:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(etiqueta))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificador))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificadorTabla))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        elif etiqueta == INDEX.INDEX_INCLUDE:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(etiqueta))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificador))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificadorTabla))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        elif etiqueta == INDEX.INDEX_UNIQUE_WHERE:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(etiqueta))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificador))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificadorTabla))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+    def grafoCuerpo_index(self, etiqueta, identificador, expresion, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "Cuerpo Index")
+        dot.edge(padre, 'Node' + str(self.i))
+            
+        if etiqueta == TIPO_INDEX.USING_HASH:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificador))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        elif etiqueta == TIPO_INDEX.CAMPOS:
+            for datos in identificador:
+                self.inc()
+                dot.node('Node' + str(self.i), 'datos: ' + str(datos))
+                dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        elif etiqueta == TIPO_INDEX.NULLS:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificador))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'expresion: ' + str(expresion))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        elif etiqueta == TIPO_INDEX.STATE:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificador))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'expresion: ' + str(expresion))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        elif etiqueta == TIPO_INDEX.LOWER:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(expresion))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        elif etiqueta == TIPO_INDEX.WITH_IDS:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(identificador))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'expresion: ' + str(expresion))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
 
 # crearBASEDATOS(objeto)
 
