@@ -227,6 +227,7 @@ reserved = {
     'notice' : 'NOTICE',
     'elseif' : 'ELSEIF',
     'exception' :  'EXCEPTION',
+    'diagnostics' : 'DIAGNOSTICS',
 }
 
 tokens = [
@@ -425,7 +426,9 @@ def p_statement(t):
                     | stm_perform  PUNTOCOMA 
                     | stm_begin PUNTOCOMA
                     | stm_if PUNTOCOMA  
-                    | stm_create_function PUNTOCOMA               
+                    | stm_create_function PUNTOCOMA      
+                    | stm_execute PUNTOCOMA     
+                    | stm_get PUNTOCOMA    
                     '''
 
     #                    |    stm_select PUNTOCOMA
@@ -822,6 +825,95 @@ def p_return_opt0(t):
 
 
 
+
+
+def p_stm_execute(t):
+    '''stm_execute :   EXECUTE    TEXTO   INTO  ID  USING  group_list 
+                    |  EXECUTE    ID PARA  TEXTO  COMA column_list PARC INTO ID USING  group_list
+                    |  EXECUTE    ID PARA  TEXTO TEXTO COMA column_list PARC INTO ID USING  group_list
+                    |  EXECUTE    ID PARA  TEXTO  COMA column_list PARC  USING  group_list
+                    |  EXECUTE    ID PARA  TEXTO  TEXTO COMA column_list PARC  USING  group_list                     
+                    |  EXECUTE    ID PARA  TEXTO  COMA  column_list  PARC  
+                         '''
+
+    token = t.slice[1]
+    if len(t) == 7:
+        childsProduction  = addNotNoneChild(t,[6])
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],t[6]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  TEXTO    tInto  tIdentifier  tUsing    \<GROUP_LIST>      ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 12:
+        childsProduction  = addNotNoneChild(t,[11])
+        lista = None
+        if t[6] != None:
+            lista = t[6][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],lista,t[7],t[8],t[9],t[10],t[11]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   \<COLUMN_LIST>   ’)’  tInto tIdentifier  tUsing    \<GROUP_LIST> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 13:
+        childsProduction  = addNotNoneChild(t,[12])
+        lista = None
+        if t[7] != None:
+            lista = t[7][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],t[6],lista,t[8],t[9],t[10],t[11],t[12]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  tIdentifier  ‘(’  TEXTO  TEXTO   ‘,’   \<COLUMN_LIST>   ’)’  tInto tIdentifier  tUsing    \<GROUP_LIST> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 10:
+        childsProduction  = addNotNoneChild(t,[9])
+        lista = None
+        if t[6] != None:
+            lista = t[6][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],lista,t[7],t[8],t[9]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=    tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   \<COLUMN_LIST>   ’)’   tUsing    \<GROUP_LIST>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 11:
+        childsProduction  = addNotNoneChild(t,[10])
+        lista = None
+        if t[7] != None:
+            lista = t[7][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],t[6],lista,t[8],t[9],t[10]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=    tExecute  tIdentifier  ‘(’  TEXTO  TEXTO   ‘,’   \<COLUMN_LIST>   ’)’   tUsing    \<GROUP_LIST>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 8:
+        childsProduction  = []
+        lista = None
+        if t[6] != None:
+            lista = t[6][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],lista,t[7]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=   tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   \<COLUMN_LIST>   ’)’   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+
+
+
+
+def p_stm_get(t):
+    '''stm_get :   GET DIAGNOSTICS asig_basica 
+                         '''
+
+    token = t.slice[1]
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[3])
+        graph_ref = graph_node(str("STM_GET"), [t[1], t[2],t[3]],childsProduction )
+        addCad("**\<STM_GET>** ::=  tGet  tDiagnostics \<ASIGNACION_BASICA>      ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+
+
+
+
+
+
 def p_statements_sql(t):
     '''statements_sql    : stm_show
                     | stm_create
@@ -963,7 +1055,7 @@ def p_not_null_opt(t):
     else:                      
         t[0] = None
 
-#TODO Revisar grafo
+
 def p_expression_opt(t):
     '''expression_opt   : DEFAULT expression
                         | DOSPUNTOS IGUAL expression
@@ -1067,7 +1159,7 @@ def p_where_clause_opt(t):
         addCad("**\<WHERE_CLAUSE_OPT>** ::= \<WHERE_CLAUSE_OPT> ")
         t[1].graph_ref = graph_ref
         t[0] = t[1]
-        # TODO: Check the graph paint wuith empty
+   
     else:
         t[0] = None
 
