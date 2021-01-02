@@ -104,6 +104,52 @@ def procesar_expresion(expresiones, ts):
         print('Error:Expresion no reconocida')
 
 
+def procesar_index(instr):
+    print('-------- entro aqui--------')
+    if instr != []:
+        for instruccion in instr:
+            if instruccion.etiqueta == INDEX.INDEX:
+                print(instruccion.etiqueta)
+                print(instruccion.identificador)
+                print(instruccion.identificadorTabla)
+                obtener_indexbody(instruccion.lista_1)
+            elif instruccion.etiqueta == INDEX.INDEX_WHERE:
+                print(instruccion.etiqueta)
+                print(instruccion.identificador)
+                print(instruccion.identificadorTabla)
+                obtener_indexbody(instruccion.lista_1)
+            elif instruccion.etiqueta == INDEX.INDEX_INCLUDE:
+                print(instruccion.etiqueta)
+                print(instruccion.identificador)
+                print(instruccion.identificadorTabla)
+                obtener_indexbody(instruccion.lista_1)
+            elif instruccion.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
+                print(instruccion.etiqueta)
+                print(instruccion.identificador)
+                print(instruccion.identificadorTabla)
+                obtener_indexbody(instruccion.lista_1)
+
+
+def obtener_indexbody(instr):
+    if instr.etiqueta == TIPO_INDEX.USING_HASH:
+        print(instr.identificador)
+    elif instr.etiqueta == TIPO_INDEX.CAMPOS:
+        for datos in instr.identificador:
+            print(datos)
+    elif instr.etiqueta == TIPO_INDEX.NULLS:
+        print(instr.identificador)
+        print(instr.expresion)
+    elif instr.etiqueta == TIPO_INDEX.STATE:
+        print(instr.identificador)
+        print(instr.expresion)
+    elif instr.etiqueta == TIPO_INDEX.LOWER:
+        print(instr.expresion)
+    elif instr.etiqueta == TIPO_INDEX.WITH_IDS:
+        print(instr.identificador)
+        print(instr.expresion)
+
+
+
 def procesar_aritmetica(expresion, ts):
     global LisErr
     val = procesar_expresion(expresion.exp1, ts)
@@ -561,7 +607,7 @@ def procesar_unitaria_aritmetica(expresion, ts):
     elif expresion.operador == OPERACION_BIT_A_BIT.COMPLEMENTO:
 
         if isinstance(val, int):
-            return ~val
+            return val
         else:
             agregarErrorDatosOperacion(val, "", "~", "entero", 0, 0)
             return None
@@ -1574,6 +1620,8 @@ class interprete2:
         global ts_global
         for i in sente:
             if isinstance(i, CreateDataBase):
+                i.Ejecutar()
+            elif isinstance(i, instruccion_index):
                 i.Ejecutar()
             elif isinstance(i, ShowDatabases):
                 i.Ejecutar()

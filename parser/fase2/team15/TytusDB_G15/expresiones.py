@@ -143,6 +143,25 @@ class CONSTANTES(Enum):
     CURRENT_DATE = 1
     CURRENT_TIME = 2
 
+class TIPO_INDEX(Enum):
+    CAMPOS = 1
+    NULLS = 2
+    STATE = 3
+    LOWER = 4
+    COLLATE = 5
+    WITH_IDS = 6
+    EXPRESION = 7
+    USING_HASH = 8
+
+class INDEX(Enum):
+    INDEX = 1
+    INDEX_WHERE = 2
+    INDEX_INCLUDE = 3
+    INDEX_UNIQUE = 4
+    INDEX_UNIQUE_WHERE = 5
+    INDEX_UNIQUE_INCLUDE = 6
+
+
 #------------------------------------------------------------------------
 
 class Casteo() :
