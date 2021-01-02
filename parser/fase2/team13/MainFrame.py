@@ -5,7 +5,7 @@ from tkinter import colorchooser as ColorChooser
 from tkinter import messagebox as MessageBox
 from goto import with_goto
 
-#import Graficar as graficando
+import Graficar as graficando
 import principal as principal
 import os
 from tkinter import filedialog
@@ -215,7 +215,7 @@ if __name__ == "__main__":
         entrada = my_editor.text.get('1.0', END)
 
         arbol = g.parse(entrada)
-
+                
         if len(g.errores_lexicos) == 0:
 
             if len(g.errores_sintacticos) == 0:

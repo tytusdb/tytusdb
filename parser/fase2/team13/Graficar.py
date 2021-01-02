@@ -241,8 +241,38 @@ reservadas = {
     'order':'order',
     'use': 'tuse',
     'unknown':'unknown',
-    'bytea':'bytea'
- 
+    'bytea':'bytea',
+# nuevos
+    'return':  'treturn',
+    'returns': 'returns',
+    'declare': 'declare',
+    'begin': 'begin',
+    'function': 'function',
+    'language': 'language',
+    'for': 'tfor',
+    'alias': 'talias',
+    'loop': 'loop',
+    'while': 'twhile',
+    'do': 'do',
+    'elsif':'elsif',
+    'continue':'tcontinue',
+    'exit':'texit',
+    'raise':'raise',
+    'notice':'notice',
+    'rowtype':'rowtype',
+    'procedure':'procedure',
+    'next':'next',
+    'out': 'out',
+    'constant': 'constant',
+    'query': 'tquery',
+    'inout': 'inout', 
+    'state': 'state',
+    'lower': 'lower',
+    'using': 'using',
+    'index':'index',
+    'hash': 'hash',
+    'include': 'include'
+
 }
 
 # LISTA DE TOKENS
@@ -290,8 +320,11 @@ tokens = [
              'hora',
              'fecha_hora',
              'intervaloc',
-             'notEqual'
-
+             'notEqual',
+             'dobledolar',
+             'val',
+             'asig'
+              
          ] + list(reservadas.values())
 
 # DEFINICIÓN DE TOKENS
@@ -329,6 +362,8 @@ t_virgulilla = r'~'
 t_mayormayor = r'>>'
 t_menormenor = r'<<'
 t_notEqual = r'!='
+t_dobledolar = r'\$\$'
+t_asig = r':='
 
 
 # DEFINICIÓN DE UN NÚMERO DECIMAL
@@ -370,6 +405,7 @@ def t_fecha(t):
     return t
 
 
+
 #DEFINICIÓN PARA TIMESTAMP
 def t_fecha_hora(t):
     r'\'([0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9])(\s)([0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])\''
@@ -386,6 +422,12 @@ def t_cadenaLike(t):
 # DEFINICIÓN DE UNA CADENA
 def t_cadena(t):
     r'\'.*?\'|\".*?\"'
+    t.value = t.value[1:-1]
+    return t
+
+# DEFINICIÓN DE UN ID
+def t_val(t):
+    r'\$\d+' 
     t.value = t.value[1:-1]
     return t
 
@@ -441,7 +483,7 @@ lex.lex(reflags=re.IGNORECASE)
 precedence = (
     ('right', 'not'),
     ('left', 'And'),
-    ('left', 'or'),
+    ('left', 'or','barraDoble' ),
     ('left', 'diferente','notEqual', 'igual', 'mayor', 'menor', 'menorIgual', 'mayorIgual'),
     ('left', 'punto'),
     ('right', 'umenos'),
@@ -502,11 +544,1383 @@ def p_sentencia(t):
                  | INSERT
                  | QUERY ptComa
                  | USEDB
+                 | CREATE_FUNCION
+                 | BLOCKDO 
+                 | CREATE_INDEX
     '''
     t[0] =t[1]
        
     lista.append("<SENTENCIAS> :: = < "+str(t[1].Etiqueta)+">\n") 
      
+
+
+
+
+# <<<<<<<<<<<<<<<<<<<<<<<<<<< Edi Yovani Tomas  <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+def p_BLOCKDO(t):
+    ''' BLOCKDO :   dobledolar BLOQUE dobledolar ptComa
+    '''
+    global cont
+    t[0]  = Node("BLOCKDO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("dobledolar", t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo3 = Node("id",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+     
+
+
+
+
+    
+
+def p_CrearFunciones1(t):
+    ''' CREATE_FUNCION :  TIPOFUNCION id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa
+    '''
+    global cont
+    t[0]  = Node("CREATE_FUNCION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id", t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("returns",t[6],cont,t.lineno(6) ,t.lexpos(6))
+    cont  = cont+1
+    nodo4 = Node("as",t[8],cont,t.lineno(8) ,t.lexpos(8))
+    cont  = cont+1
+    nodo5 = Node("dobledolar", t[9],cont,t.lineno(9) ,t.lexpos(9))
+    cont  = cont+1
+    nodo6 = Node("dobledolar", t[11],cont,t.lineno(11) ,t.lexpos(11))
+    cont  = cont+1
+    nodo7 = Node("lenguage", t[12],cont,t.lineno(12) ,t.lexpos(12))
+    cont  = cont+1
+    nodo8 = Node("id", t[13],cont,t.lineno(13) ,t.lexpos(13))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[4])
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(t[7])
+    t[0].AddHijos(nodo4)
+    t[0].AddHijos(nodo5)
+    t[0].AddHijos(t[10])
+    t[0].AddHijos(nodo6)
+    t[0].AddHijos(nodo7)
+    t[0].AddHijos(nodo8)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+     
+
+def p_CrearFunciones2(t):
+    ''' CREATE_FUNCION :  TIPOFUNCION id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
+    '''
+    global cont
+    t[0]  = Node("CREATE_FUNCION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id", t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("returns",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    nodo4 = Node("as",t[7],cont,t.lineno(7) ,t.lexpos(7))
+    cont  = cont+1
+    nodo5 = Node("dobledolar", t[8],cont,t.lineno(8) ,t.lexpos(8))
+    cont  = cont+1
+    nodo6 = Node("dobledolar", t[10],cont,t.lineno(10) ,t.lexpos(10))
+    cont  = cont+1
+    nodo7 = Node("lenguage", t[11],cont,t.lineno(11) ,t.lexpos(11))
+    cont  = cont+1
+    nodo8 = Node("id", t[12],cont,t.lineno(12) ,t.lexpos(12))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(t[6])
+    t[0].AddHijos(nodo4)
+    t[0].AddHijos(nodo5)
+    t[0].AddHijos(t[9])
+    t[0].AddHijos(nodo6)
+    t[0].AddHijos(nodo7)
+    t[0].AddHijos(nodo8)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+     
+    
+def p_CrearFunciones3(t):
+    ''' CREATE_FUNCION : TIPOFUNCION id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar  ptComa
+    '''
+    global cont
+    t[0]  = Node("CREATE_FUNCION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id", t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("returns",t[6],cont,t.lineno(6) ,t.lexpos(6))
+    cont  = cont+1
+    nodo4 = Node("as",t[8],cont,t.lineno(8) ,t.lexpos(8))
+    cont  = cont+1
+    nodo5 = Node("dobledolar", t[9],cont,t.lineno(9) ,t.lexpos(9))
+    cont  = cont+1
+    nodo6 = Node("dobledolar", t[11],cont,t.lineno(11) ,t.lexpos(11))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[4])
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(t[7])
+    t[0].AddHijos(nodo4)
+    t[0].AddHijos(nodo5)
+    t[0].AddHijos(t[10])
+    t[0].AddHijos(nodo6)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+    
+
+def p_CrearFunciones4(t):
+    ''' CREATE_FUNCION :   TIPOFUNCION id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar ptComa  
+    '''
+    global cont
+    t[0]  = Node("CREATE_FUNCION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id", t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("returns",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    nodo4 = Node("as",t[7],cont,t.lineno(7) ,t.lexpos(7))
+    cont  = cont+1
+    nodo5 = Node("dobledolar", t[8],cont,t.lineno(8) ,t.lexpos(8))
+    cont  = cont+1
+    nodo6 = Node("dobledolar", t[10],cont,t.lineno(10) ,t.lexpos(10))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(t[6])
+    t[0].AddHijos(nodo4)
+    t[0].AddHijos(nodo5)
+    t[0].AddHijos(t[9])
+    t[0].AddHijos(nodo6)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+     
+
+     
+def p_TIPOFUNCION1(t):
+    ''' TIPOFUNCION :   create function
+    '''
+    global cont
+    t[0]  = Node("TIPOFUNCION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("create", t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo3 = Node("function",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+    
+
+
+
+def p_TIPOFUNCION2(t):
+    ''' TIPOFUNCION :   create procedure
+    '''
+    global cont
+    t[0]  = Node("TIPOFUNCION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("create", t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo3 = Node("procedure",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+     
+
+def p_TIPOFUNCION3(t):
+    ''' TIPOFUNCION :   create or replace function
+    '''
+    global cont
+    t[0]  = Node("TIPOFUNCION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("create", t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("or",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("replace",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo4 = Node("function",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(nodo4)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+    
+
+def p_TIPOFUNCION4(t):
+    ''' TIPOFUNCION :    create or replace procedure  
+    '''
+    global cont
+    t[0]  = Node("TIPOFUNCION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("create", t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("or",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("replace",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo4 = Node("procedure",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(nodo4)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+    
+
+
+      
+def p_BLOQUE(t):
+    ''' BLOQUE  : DECLARE STATEMENT 
+    '''
+    global cont
+    t[0]  = Node("BLOQUE","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+    
+def p_BLOQUE1(t):
+    ''' BLOQUE  : DECLARE
+                | STATEMENT 
+    '''
+    global cont
+    t[0]  = Node("BLOQUE","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+    
+
+
+
+def p_DECLARE(t):
+    ''' DECLARE : declare BODYDECLARE
+    '''
+    global cont
+    t[0]  = Node("DECLARE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("declare", t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+    
+
+def p_BODYDECLARE(t):
+
+    ''' BODYDECLARE : BODYDECLARE DECLARATION
+                    
+    '''
+    global cont
+    t[0]  = Node("BODYDECLARE","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+    
+
+def p_BODYDECLARE1(t):
+
+    ''' BODYDECLARE : DECLARATION
+    '''
+    global cont
+    t[0]  = Node("BODYDECLARE","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+    
+
+def p_DECLARATION1(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO ptComa
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+    
+def p_DECLARATION2(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO ASIGNAR E ptComa
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(t[3])
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+    
+
+def p_DECLARATION4(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO not null ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("not", t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo2 = Node("null",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+    
+
+
+
+
+
+def p_DECLARATION5(t):
+    ''' DECLARATION :   NAME_CONSTANT TIPO not null ASIGNAR E ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("not", t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo2 = Node("null",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[5])
+    t[0].AddHijos(t[6])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+    
+
+def p_DECLARATION6(t):
+    ''' DECLARATION :  NAME_CONSTANT talias tfor E ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("talias", t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("for",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+    
+
+
+def p_DECLARATION7(t):
+    ''' DECLARATION :  NAME_CONSTANT ACCESO modulo ttype ptComa
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("modulo",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo2 = Node("ttype",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+     
+
+
+
+def p_DECLARATION8(t):
+    ''' DECLARATION :  NAME_CONSTANT id modulo rowtype ptComa
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("modulo",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo3 = Node("rowtype",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+     
+
+
+def p_ACCESO(t):
+    ''' ACCESO : ACCESO punto id
+    '''
+    global cont
+    t[0]  = Node("ACCESO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("punto",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("id",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+
+
+def p_ACCESO1(t):
+    ''' ACCESO :  id  
+    '''
+    global cont
+    t[0]  = Node("ACCESO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_DECLARATION9(t):
+    ''' ASIGNAR :  asig
+                 | igual
+                 | tDefault              
+    '''
+    global cont
+    t[0]  = Node("ASIGNAR","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node(str(t[1]),t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_DECLARATION10(t):
+    ''' NAME_CONSTANT : id
+    '''
+    global cont
+    t[0]  = Node("NAME_CONSTANT","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_DECLARATION11(t):
+    ''' NAME_CONSTANT : id constant              
+    '''
+    global cont
+    t[0]  = Node("NAME_CONSTANT","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("constant",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+
+def p_STATEMENT(t):
+    ''' STATEMENT   : begin L_BLOCK end ptComa
+    '''
+    global cont
+    t[0]  = Node("STATEMENT","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("begin",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("end",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_STATEMENT1(t):
+    ''' STATEMENT   : begin end ptComa
+    '''
+    global cont
+    t[0]  = Node("STATEMENT","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("begin",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("end",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_L_BLOCK(t):
+    ''' L_BLOCK : L_BLOCK BLOCK 
+    '''
+    t[0]  = t[1]
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+def p_L_BLOCK1(t):
+    ''' L_BLOCK : BLOCK         
+    '''
+    global cont
+    t[0]  = Node("L_BLOCK","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+
+
+def p_BLOCK(t):
+    ''' BLOCK :   sentencias 
+                | ASIGNACION
+                | RETORNO
+                | CONTINUE
+                | EXIT
+                | SENTENCIAS_CONTROL
+                | DECLARACION_RAICENOTE
+                | STATEMENT
+                | CALL ptComa          
+    '''
+    t[0] =t[1]
+    lista.append("<BLOCK> :: = < "+str(t[1].Etiqueta)+">\n") 
+    
+
+def p_CALL(t):
+    ''' CALL :  id parAbre LISTA_EXP parCierra
+    '''
+    global cont
+    t[0]  = Node("CALL","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+def p_CALL1(t):
+    ''' CALL :  id parAbre  parCierra            
+    '''
+    global cont
+    t[0]  = Node("CALL","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+def p_ASIGNACION(t):
+    '''   ASIGNACION : id igual E ptComa         
+    '''
+    global cont
+    t[0]  = Node("ASIGNACION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("igual",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+def p_ASIGNACION1(t):
+    '''   ASIGNACION : id asig E ptComa
+    '''
+    global cont
+    t[0]  = Node("ASIGNACION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("asig",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+def p_LISTA_PARAMETROS(t):
+    '''   L_PARAMETROS :   L_PARAMETROS coma PARAMETROS 
+    '''
+    t[0]  = t[1]
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+def p_LISTA_PARAMETROS1(t):
+    '''   L_PARAMETROS :   PARAMETROS      
+    '''
+    global cont
+    t[0]  = Node("L_PARAMETROS","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+ 
+
+
+
+def p_PARAMETROS1(t):
+    '''   PARAMETROS : id TIPO
+    '''
+    global cont
+    t[0]  = Node("PARAMETROS","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+  
+def p_PARAMETROS2(t):
+    '''   PARAMETROS : TIPO 
+    '''
+    global cont
+    t[0]  = Node("PARAMETROS","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+  
+
+def p_PARAMETROS3(t):
+    '''   PARAMETROS : out id TIPO 
+                     | inout id TIPO  
+    '''  
+    global cont
+    t[0]  = Node("PARAMETROS","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node(str(t[1]),t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("id",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+  
+
+
+
+def p_RETORNO1(t):
+    '''   RETORNO : treturn E ptComa
+    '''
+    global cont
+    t[0]  = Node("RETORNO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("treturn",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+
+def p_RETORNO2(t):
+    '''   RETORNO :  treturn next E ptComa
+    '''
+    global cont
+    t[0]  = Node("RETORNO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("treturn",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("next",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+def p_RETORNO3(t):
+    '''   RETORNO : treturn QUERY  ptComa
+    '''
+    global cont
+    t[0]  = Node("RETORNO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("treturn",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+def p_RETORNO4(t):
+    '''   RETORNO : treturn QUERY tquery ptComa
+    '''
+    global cont
+    t[0]  = Node("RETORNO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("treturn",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("tquery",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+def p_RETORNO5(t):
+    '''   RETORNO : treturn ptComa
+    '''
+    global cont
+    t[0]  = Node("RETORNO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("treturn",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+def p_CONTINUE(t):
+    ''' CONTINUE : tcontinue EXPR_WHERE ptComa      
+    '''
+    global cont
+    t[0]  = Node("CONTINUE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("continue",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+
+
+
+def p_EXIT1(t):
+    '''   EXIT : texit EXPR_WHERE ptComa    
+    '''
+    global cont
+    t[0]  = Node("EXIT","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("exit",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+def p_EXIT2(t):
+    '''   EXIT : texit ptComa     
+    '''
+    global cont
+    t[0]  = Node("EXIT","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("exit",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+def p_EXIT3(t):
+    '''   EXIT : texit id ptComa
+    '''
+    global cont
+    t[0]  = Node("EXIT","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("exit",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("id",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_EXIT4(t):
+    '''   EXIT : texit id EXPR_WHERE ptComa
+    '''
+    global cont
+    t[0]  = Node("EXIT","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("exit",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("id",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_OTROSTIPOS(t):
+    '''   OTROSTIPOS :   tNumeric parAbre entero parCierra
+    '''
+    global cont
+    t[0]  = Node("OTROSTIPOS","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("Numeric",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("entero",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+def p_OTROSTIPOS1(t):
+    '''   OTROSTIPOS :   tVarchar 
+                       | tChar    
+    '''
+    global cont
+    t[0]  = Node("OTROSTIPOS","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node(str(t[1]),t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_SENTENCIAS_CONTROL(t):
+    '''   SENTENCIAS_CONTROL : IF
+                             | SEARCH_CASE
+    '''
+    t[0] =t[1]
+    lista.append("<SENTENCIAS_CONTROL> :: = < "+str(t[1].Etiqueta)+">\n") 
+    
+#----------------IF--------------------------------------  
+def p_IF(t):
+    '''    IF : if  E then  L_BLOCK  end if ptComa
+    '''
+    global cont
+    t[0]  = Node("IF","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("if",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("then",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo3 = Node("end",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    nodo4 = Node("if",t[6],cont,t.lineno(6) ,t.lexpos(6))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(nodo4)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+def p_IF1(t):
+    '''    IF : if  E then  L_BLOCK  ELSE
+    '''
+    global cont
+    t[0]  = Node("IF","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("if",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("then",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    t[0].AddHijos(t[5])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+def p_IF2(t):
+    '''    IF : if  E then  L_BLOCK  ELSEIF  ELSE
+    '''
+    global cont
+    t[0]  = Node("IF","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("if",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("then",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    t[0].AddHijos(t[5])
+    t[0].AddHijos(t[6])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_ELSE(t):
+    '''   ELSE : else L_BLOCK end if ptComa
+    '''
+    global cont
+    t[0]  = Node("ELSE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("else",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("end",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo3 = Node("if",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+def p_ELSEIF(t):
+    '''   ELSEIF : ELSEIF SINOSI
+    '''
+    t[0]  = t[1]
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+def p_ELSEIF1(t):
+    '''   ELSEIF : SINOSI
+    '''
+    global cont
+    t[0]  = Node("ELSEIF","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_SINOSI(t):
+    '''   SINOSI :   elsif E then L_BLOCK
+    '''
+    global cont
+    t[0]  = Node("SINOSI","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("elsif",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("then",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+
+
+
+def p_SEARCH_CASE1(t):
+    '''  SEARCH_CASE : case E L_CASE end case ptComa
+    '''
+    global cont
+    t[0]  = Node("SEARCH_CASE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("case",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("end",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    nodo3 = Node("case",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(t[3])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_SEARCH_CASE2(t):
+    '''  SEARCH_CASE : case E L_CASE SINO end case ptComa 
+    '''
+    global cont
+    t[0]  = Node("SEARCH_CASE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("case",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("end",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    nodo3 = Node("case",t[6],cont,t.lineno(6) ,t.lexpos(6))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(t[3])
+    t[0].AddHijos(t[4])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+
+def p_SEARCH_CASE3(t):
+    '''  SEARCH_CASE :  case L_CASE SINO end case ptComa
+    '''
+    global cont
+    t[0]  = Node("SEARCH_CASE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("case",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("end",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    nodo3 = Node("case",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(t[3])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+def p_SEARCH_CASE4(t):
+    '''  SEARCH_CASE : case L_CASE end case ptComa
+    '''
+    global cont
+    t[0]  = Node("SEARCH_CASE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("case",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("end",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo3 = Node("case",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+
+
+def p_CUERPOCASE(t):
+    '''   L_CASE :  L_CASE CASE   
+    '''
+    t[0]  = t[1]
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+def p_CUERPOCASE1(t):
+    '''   L_CASE :  CASE
+    '''
+    global cont
+    t[0]  = Node("L_CASE","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_CASE(t):
+    '''   CASE :  when LISTA_EXP then L_BLOCK
+                | when COND1 then L_BLOCK  
+    '''
+    global cont
+    t[0]  = Node("CASE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("when",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("then",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+def p_SINO(t):
+    '''   SINO : else L_BLOCK   
+    '''
+    global cont
+    t[0]  = Node("SINO","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("else",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+
+def p_Raice_Note(t):
+    ' DECLARACION_RAICENOTE : raise notice LISTA_EXP ptComa'
+    global cont
+    t[0]  = Node("DECLARACION_RAICENOTE","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("raise",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("notice",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+#------------------------INDEX
+
+
+def p_index1(t):
+    ''' CREATE_INDEX :  create index id on id OPCION_INDEX ptComa 
+    '''
+    global cont
+    t[0]  = Node("CREATE_INDEX","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("create",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("index",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("id",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo4 = Node("on",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    nodo5 = Node("id",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(nodo4)
+    t[0].AddHijos(nodo5)
+    t[0].AddHijos(t[6])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_index2(t):
+    ''' CREATE_INDEX :  create index id on id OPCION_INDEX EXPR_WHERE ptComa
+    '''
+    global cont
+    t[0]  = Node("CREATE_INDEX","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("create",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("index",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("id",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo4 = Node("on",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    nodo5 = Node("id",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(nodo4)
+    t[0].AddHijos(nodo5)
+    t[0].AddHijos(t[6])
+    t[0].AddHijos(t[7])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_index3(t):
+    ''' CREATE_INDEX :  create tUnique index id on id OPCION_INDEX ptComa
+    '''
+    global cont
+    t[0]  = Node("CREATE_INDEX","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("create",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("tUnique",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("index",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo4 = Node("id",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    nodo5 = Node("on",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    nodo6 = Node("id",t[6],cont,t.lineno(6) ,t.lexpos(6))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(nodo4)
+    t[0].AddHijos(nodo5)
+    t[0].AddHijos(nodo6)
+    t[0].AddHijos(t[7])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_index4(t):
+    ''' CREATE_INDEX : 	create tUnique index id on id OPCION_INDEX EXPR_WHERE ptComa
+    '''
+    global cont
+    t[0]  = Node("CREATE_INDEX","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("create",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("tUnique",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo3 = Node("index",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo4 = Node("id",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    nodo5 = Node("on",t[5],cont,t.lineno(5) ,t.lexpos(5))
+    cont  = cont+1
+    nodo6 = Node("id",t[6],cont,t.lineno(6) ,t.lexpos(6))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo3)
+    t[0].AddHijos(nodo4)
+    t[0].AddHijos(nodo5)
+    t[0].AddHijos(nodo6)
+    t[0].AddHijos(t[7])
+    t[0].AddHijos(t[8])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+
+
+
+def p_createIndex1(t):
+    ''' OPCION_INDEX :  using hash parAbre id parCierra 
+    '''
+    global cont
+    t[0]  = Node("OPCION_INDEX","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("using",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("hash",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo4 = Node("id",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(nodo4)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+ 
+def p_createIndex2(t):
+    ''' OPCION_INDEX :  parAbre OPT_INDEX_PAR parCierra
+    '''
+    global cont
+    t[0]  = Node("OPCION_INDEX","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[2])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+ 
+def p_createIndex3(t):
+    ''' OPCION_INDEX :  parAbre OPT_INDEX_PAR parCierra include  parAbre OPT_INDEX_PAR parCierra
+    '''
+    global cont
+    t[0]  = Node("OPCION_INDEX","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("include",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(t[2])
+    nodo1 = Node("include",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(t[6])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+
+def p_createIndex4(t):
+    ' OPT_INDEX_PAR : L_IDs'
+    global cont
+    t[0]  = Node("OPT_INDEX_PAR","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+def p_createIndex2_1(t):
+    ' OPT_INDEX_PAR : id nulls FIRST_LAST'
+    global cont
+    t[0]  = Node("OPT_INDEX_PAR","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("nulls",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+def p_createIndex2_2(t):
+    ' OPT_INDEX_PAR : id state '
+    global cont
+    t[0]  = Node("OPT_INDEX_PAR","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("state",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_createIndex2_3(t):
+    ' OPT_INDEX_PAR : lower parAbre id parCierra '
+    global cont
+    t[0]  = Node("OPT_INDEX_PAR","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("lower",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("id",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+ 
+def p_createIndex_5(t):
+    ' OPT_INDEX_PAR : id parAbre id parCierra '
+    global cont
+    t[0]  = Node("OPT_INDEX_PAR","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("id",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+ 
+
+
+
+def p_createIndex_6(t):
+    ' OPT_INDEX_PAR : E '
+    global cont
+    t[0]  = Node("OPT_INDEX_PAR","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+def p_createIndex_7(t):
+    ' OPT_INDEX_PAR : L_PARAMETROS '
+    global cont
+    t[0]  = Node("OPT_INDEX_PAR","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+def p_first_last(t):
+    ''' FIRST_LAST : first
+                   | last '''
+    global cont
+    t[0]  = Node("FIRST_LAST","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node(str(t[1]),t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def p_USEDB(t):
     ''' USEDB : tuse id ptComa'''
@@ -1546,7 +2960,9 @@ def p_EXPR_TIPO(t):
             | CHAR_TYPES
             | DATE_TYPES
             | BOOL_TYPES
-            | E'''
+            | E
+            | OTROSTIPOS 
+            '''
     t[0] = t[1]
     lista.append("<TIPO> ::= <"+str(t[1].Etiqueta)+">") 
     
@@ -2292,6 +3708,8 @@ def p_E(p):
           |  E modulo     E
           |  E elevado    E
           |  E punto      E
+          |  E barraDoble E
+          
     '''
     global cont
     if p[2].lower() == "or":
@@ -2443,6 +3861,17 @@ def p_E(p):
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
            lista.append(str(recorrerGramatica(p[0],0))+"\n")
+    elif p[2] == "||":
+           p[0]  = Node("E","",cont,0,0)
+           cont  = cont+1
+           nodo1 = Node("or",p[2],cont,p.lineno(2) ,p.lexpos(2))
+           cont  = cont+1
+           p[0].AddHijos(p[1])
+           p[0].AddHijos(nodo1)
+           p[0].AddHijos(p[3])
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
+
+
 
 def p_OpNot(p):
     ''' E : not E '''
@@ -2575,6 +4004,30 @@ def p_Intervaloc(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     lista.append(str(recorrerGramatica(p[0],0))+"\n")
+
+
+
+def p_val(p):   
+    ''' E : val    
+    '''
+    global cont
+    p[0]  = Node("E","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("val",p[1],cont,p.lineno(1) ,p.lexpos(1))
+    cont  = cont+1
+    p[0].AddHijos(nodo1)
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
+
+
+def p_CALL(p):   
+    ''' E : CALL    
+    '''
+    global cont
+    p[0]  = Node("E","",cont,0,0)
+    cont  = cont+1
+    p[0].AddHijos(t[1])
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
+
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -3828,7 +5281,9 @@ def p_LIST_CONDS3(p):
 
 def p_LIST_ORAND(p):
     '''ORAND :  or
-              | And  '''
+              | And  
+              | barraDoble
+              '''
     global cont
     p[0]  = Node("ORAND","",cont,0,0)
     cont  = cont+1
