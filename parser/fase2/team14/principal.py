@@ -1,5 +1,6 @@
 import arbol.AST as a
 import gramatica2 as g
+import GramaticaTrad as gt
 import os
 from tkinter import *
 from reportes import *
@@ -55,6 +56,12 @@ def send_data():
 
     setContenido(Principal.mostrarSimbolos())
 
+def traducir():
+    # reporteerrores = []
+    contenido = Tentrada.get(1.0, 'end')
+    variables.consola.delete("1.0", "end")
+    variables.consola.configure(state='normal')
+    gt.parse(contenido)
 
 def reporte_lex_sin():
     if len(reporteerrores) != 0:
@@ -150,6 +157,7 @@ variables.ventana.config(menu=menu_bar)
 ej_menu = Menu(menu_bar)
 menu_bar.add_cascade(label="Ejecutar", menu=ej_menu)
 ej_menu.add_command(label="Analizar Entrada", command=send_data)
+ej_menu.add_command(label="Traducir a 3d", command=traducir)
 
 # Menu Reportes
 
@@ -165,4 +173,3 @@ class Interfaz:
 
 inter=Interfaz()
 inter.desplegarinterfaz()
-

@@ -12,8 +12,6 @@ class Column(object):
         self._primaryKey = False
         self._foreignKey = None
         self._autoincrement = False
-        # TODO FOREIGN KEY implementation
-        # {'refTable':None,'refColumn':None} {'Referenced table': None}
 
     def __str__(self):
         return self._name
