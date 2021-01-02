@@ -44,6 +44,7 @@ reservadas = {
     "CONSTRAINT": "R_CONSTRAINT",
     "DEFAULT": "R_DEFAULT",
     "NULL": "R_NULL",
+    "NULLS": "R_NULLS",
     "OWNER": "R_OWNER",
     "MODE": "R_MODE",
     "ALTER": "R_ALTER",
@@ -86,18 +87,9 @@ reservadas = {
     "UNKNOWN": "R_UNKNOWN",
     "LIKE": "R_LIKE",
     "ALL": "R_ALL",
-    "ANY": "R_ANY",
-    "SOME": "R_SOME",
     "IN": "R_IN",
-    "JOIN": "R_JOIN",
     "ON": "R_ON",
     "USING": "R_USING",
-    "NATURAL": "R_NATURAL",
-    "INNER": "R_INNER",
-    "LEFT": "R_LEFT",
-    "OUTER": "R_OUTER",
-    "RIGHT": "R_RIGHT",
-    "FULL": "R_FULL",
     "WHERE": "R_WHERE",
     "GROUP": "R_GROUP",
     "BY": "R_BY",
@@ -127,37 +119,35 @@ reservadas = {
     "THEN": "R_THEN",
     "ELSE": "R_ELSE",
     "END": "R_END",
+    "INDEX": "R_INDEX",
+    "HASH": "R_HASH",
     "BEGIN": "R_BEGIN",
     "DECLARE": "R_DECLARE",
     "ALIAS": "R_ALIAS",
-    "FOR" : "R_FOR",
-    "RECORD":"R_RECORD",
+    "FOR": "R_FOR",
+    "RECORD": "R_RECORD",
     "DEFAULT": "R_DEFAULT",
     "RETURN": "R_RETURN",
-    "EXIT": "R_EXIT",
-    "CONTINUE": "R_CONTINUE",
-    "QUERY":"R_QUERY",
-    "ELSEIF": "R_ELSEIF",
+    "QUERY": "R_QUERY",
     "ELSIF": "R_ELSEIF",
-    "WHILE":"R_WHILE",
-    "LOOP": "R_LOOP",
-    "REVERSE": "R_REVERSE",
     "ROWTYPE": "R_ROWTYPE",
-    "RETURNING":"R_RETURNING",
+    "RETURNING": "R_RETURNING",
     "STRICT": "R_STRICT",
     "CONSTANT": "R_CONSTANT",
-    "PERFORM":"R_PERFORM",
-    "EXECUTE":"R_EXECUTE",
-    "GET":"R_GET",
-    "DIAGNOSTICS":"R_DIAGNOSTIC",
-    "CURRENT":"R_CURRENT",
-    "ROW_COUNT":"R_ROW_COUNT",
-    "EXCEPTION":"R_EXCEPTION",
-    "RAISE":"R_RAISE",
-    "NOTICE":"R_NOTICE",
+    "PERFORM": "R_PERFORM",
+    "EXECUTE": "R_EXECUTE",
+    "GET": "R_GET",
+    "DIAGNOSTICS": "R_DIAGNOSTIC",
+    "CURRENT": "R_CURRENT",
+    "ROW_COUNT": "R_ROW_COUNT",
+    "EXCEPTION": "R_EXCEPTION",
+    "RAISE": "R_RAISE",
+    "NOTICE": "R_NOTICE",
     "NEXT": "R_NEXT",
-
-
+    "FUNCTION": "R_FUNCTION",
+    "RETURNS": "R_RETURNS",
+    "LANGUAGE": "R_LANGUAGE",
+    "PLPGSQL": "R_PLPGSQL",
 }
 
 reservadas.update(r_types)
@@ -187,10 +177,7 @@ tokens = [
     "OL_MENORIGUALQUE",
     # Operadores de cadena
     "OC_CONCATENAR",
-    "OC_AND",
     "OC_OR",
-    "OC_XOR",
-    "OC_NOT",
     "OC_SHIFTL",
     "OC_SHIFTR",
     # Simbolos
@@ -220,7 +207,7 @@ t_O_PRODUCTO = r"\*"
 t_O_DIVISION = r"/"
 t_O_EXPONENTE = r"\^"
 t_O_MODULAR = r"%"
-t_O_ASIGNACION= r":="
+t_O_ASIGNACION = r":="
 
 t_OL_DISTINTODE = r"!=|<>"
 t_OL_MAYORQUE = r">"
@@ -229,10 +216,7 @@ t_OL_MAYORIGUALQUE = r">="
 t_OL_MENORIGUALQUE = r"<="
 
 t_OC_CONCATENAR = r"\|\|"
-t_OC_AND = r"&"
 t_OC_OR = r"\|"
-t_OC_XOR = r"\#"
-t_OC_NOT = r"~"
 t_OC_SHIFTL = r"<<"
 t_OC_SHIFTR = r">>"
 
@@ -311,11 +295,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
-
-
 # Funcion de error para el lexer
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
-
-
