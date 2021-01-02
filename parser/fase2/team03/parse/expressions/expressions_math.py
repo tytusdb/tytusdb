@@ -19,10 +19,15 @@ class Abs(ASTNode):
         try:
             return abs(exp)
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
-class Cbrt(ASTNode):  
+class Cbrt(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
@@ -34,10 +39,15 @@ class Cbrt(ASTNode):
         try:
             return np.cbrt(exp)
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
-class Ceil(ASTNode): 
+class Ceil(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
@@ -49,7 +59,12 @@ class Ceil(ASTNode):
         try:
             return math.ceil(exp)
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Degrees(ASTNode):
@@ -64,7 +79,12 @@ class Degrees(ASTNode):
         try:
             return math.degrees(exp)
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Div(ASTNode):
@@ -81,9 +101,14 @@ class Div(ASTNode):
         try:
             return exp1 // exp2
         except ZeroDivisionError:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ZeroDivisionError: integer division or modulo by zero'))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'ZeroDivisionError: integer division or modulo by zero'))
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a real number'))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a real number'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Exp(ASTNode):
@@ -97,8 +122,14 @@ class Exp(ASTNode):
         exp = self.exp.execute(table, tree)
         try:
             return math.exp(exp)
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Factorial(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
@@ -109,10 +140,15 @@ class Factorial(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        try:            
+        try:
             return math.factorial()
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: only accepts integral positive values'))
+        except:
+            raise (
+                Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: only accepts integral positive values'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Floor(ASTNode):
@@ -126,8 +162,14 @@ class Floor(ASTNode):
         exp = self.exp.execute(table, tree)
         try:
             return math.floor(exp)
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Gcd(ASTNode):
     def __init__(self, exp1, exp2, line, column, graph_ref):
@@ -142,8 +184,13 @@ class Gcd(ASTNode):
         exp2 = self.exp2.execute(table, tree)
         try:
             return math.gcd(exp1, exp2)
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a integral number'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: Both arguments must be a integral number'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python version
@@ -159,8 +206,13 @@ class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python 
         exp2 = self.exp2.execute(table, tree)
         try:
             return math.lcm(exp1, exp2)
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a integral number'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: Both arguments must be a integral number'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Ln(ASTNode):
@@ -175,10 +227,14 @@ class Ln(ASTNode):
         try:
             return math.log2(exp)
         except ValueError:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: math domain error'))
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: math domain error'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Log(ASTNode):
@@ -193,10 +249,14 @@ class Log(ASTNode):
         try:
             return math.log(exp)
         except ValueError:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: math domain error'))
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: math domain error'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Log10(ASTNode):
@@ -211,11 +271,17 @@ class Log10(ASTNode):
         try:
             return math.log10(exp)
         except ValueError:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: math domain error'))
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: math domain error'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
 
-#TODO MINSCALE() function not implemented, only returns the value of the argument
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
+
+# TODO MINSCALE() function not implemented, only returns the value of the argument
 class MinScale(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -225,10 +291,16 @@ class MinScale(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        if isinstance(exp,int) or isinstance(exp,float):
+        if isinstance(exp, int) or isinstance(exp, float):
             return exp
         else:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Mod(ASTNode):
     def __init__(self, exp1, exp2, line, column, graph_ref):
@@ -243,8 +315,12 @@ class Mod(ASTNode):
         exp2 = self.exp2.execute(table, tree)
         try:
             return math.fmod(exp1, exp2)
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a number'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a number'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class PI(ASTNode):
@@ -256,6 +332,10 @@ class PI(ASTNode):
         super().execute(table, tree)
         return math.pi
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Power(ASTNode):
     def __init__(self, exp1, exp2, line, column, graph_ref):
@@ -264,15 +344,18 @@ class Power(ASTNode):
         self.exp2 = exp2
         self.graph_ref = graph_ref
 
-
     def execute(self, table, tree):
         super().execute(table, tree)
         exp1 = self.exp1.execute(table, tree)
         exp2 = self.exp2.execute(table, tree)
-        try: 
+        try:
             return math.pow(exp1, exp2)
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a real number'))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a real number'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Radians(ASTNode):
@@ -286,13 +369,16 @@ class Radians(ASTNode):
         exp = self.exp.execute(table, tree)
         try:
             return math.radians(exp)
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
-        
-        
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
-class Random(ASTNode):  
+class Random(ASTNode):
     def __init__(self, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.graph_ref = graph_ref
@@ -300,6 +386,10 @@ class Random(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return random.random()
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Round(ASTNode):
@@ -314,13 +404,17 @@ class Round(ASTNode):
         exp1 = self.exp1.execute(table, tree)
         if self.exp2 != 0:
             exp2 = self.exp2.execute(table, tree)
-        #try:
+        # try:
         if self.exp2 == 0:
             return round(exp1)
         else:
-            return round(exp1, exp2)            
-        #except :
+            return round(exp1, exp2)
+            # except :
         #    raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a real number'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Scale(ASTNode):
@@ -332,7 +426,7 @@ class Scale(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         r = self.exp.execute(table, tree)
-        if isinstance(r, float) or isinstance(r,int):
+        if isinstance(r, float) or isinstance(r, int):
             if isinstance(r, float):
                 arr = r.__str__().split(".")
                 if len(arr) == 1:
@@ -342,7 +436,12 @@ class Scale(ASTNode):
             else:
                 return 0
         else:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(r))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(r))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class SetSeed(ASTNode):
@@ -357,8 +456,11 @@ class SetSeed(ASTNode):
         try:
             return random.seed(exp)
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Sign(ASTNode):
@@ -371,13 +473,18 @@ class Sign(ASTNode):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
         try:
-            if isinstance(exp, float) or isinstance(exp,int):
+            if isinstance(exp, float) or isinstance(exp, int):
                 exp = int(np.sign(exp))
                 return exp
             else:
-                raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError:  must be real number'))
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+                raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError:  must be real number'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Sqrt(ASTNode):
@@ -392,11 +499,18 @@ class Sqrt(ASTNode):
         try:
             return math.sqrt(exp)
         except ValueError:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: only accepts integral positive values'))
+            raise (
+                Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: only accepts integral positive values'))
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
 
-#TODO TRIMSCALE() function not implemented, only returns the value of the argument
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
+
+# TODO TRIMSCALE() function not implemented, only returns the value of the argument
 class TrimScale(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -406,10 +520,15 @@ class TrimScale(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        if isinstance(exp,int) or isinstance(exp,float):
+        if isinstance(exp, int) or isinstance(exp, float):
             return exp
         else:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Trunc(ASTNode):
@@ -423,11 +542,16 @@ class Trunc(ASTNode):
         exp = self.exp.execute(table, tree)
         try:
             return math.trunc(exp)
-        except :
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC,
+                         'TypeError: must be real number, not ' + str(type(exp))))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
-#TODO WIDTHBUCKET()function not implemented, only returns the sum of the arguments
+# TODO WIDTHBUCKET()function not implemented, only returns the sum of the arguments
 class WidthBucket(ASTNode):
     def __init__(self, exp1, exp2, exp3, exp4, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -445,11 +569,16 @@ class WidthBucket(ASTNode):
         exp4 = self.exp4.execute(table, tree)
 
         try:
-            if exp3 == exp2: 
+            if exp3 == exp2:
                 return 0
             else:
-                return math.ceil( (exp4 * exp1) / (exp3 - exp2) ) 
+                return math.ceil((exp4 * exp1) / (exp3 - exp2))
         except ValueError:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: only accepts integral positive values'))
+            raise (
+                Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: only accepts integral positive values'))
         except:
-            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError:all arguments must be integers'))
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError:all arguments must be integers'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''

@@ -1,15 +1,13 @@
 from analizer import grammar as g
-import analizer
-import os
-
-rep = g.getRepGrammar()
+import ply
 
 
 def grammarReport():
+    rep = g.getRepGrammar()
     cad = ""
     for r1 in rep:
         for r2 in r1:
-            if isinstance(r2, analizer.ply.lex.LexToken):
+            if isinstance(r2, ply.lex.LexToken):
                 cad += str(r2.type) + " "
             else:
                 cad += "<" + str(r2) + "> "

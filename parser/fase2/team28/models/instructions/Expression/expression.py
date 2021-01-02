@@ -1,4 +1,5 @@
 from controllers.error_controller import ErrorController
+from controllers.three_address_code import ThreeAddressCode
 from models.objects.columns_select import ColumnsSelect
 from models.objects.id import Id
 from models.objects.table_select import TablaSelect
@@ -15,6 +16,9 @@ import re
 class Expression:
     @abstractmethod
     def process(self):
+        pass
+    @abstractmethod
+    def compile(self):
         pass
 
 
@@ -33,6 +37,51 @@ class ArithmeticBinaryOperation(Expression):
 
     def __repr__(self):
         return str(vars(self))
+
+    def getOperador(self, operador):
+        value = 0
+        if operador == SymbolsAritmeticos.PLUS:
+            value = "+"
+        elif operador == SymbolsAritmeticos.MINUS:
+            value = "-"
+        elif operador == SymbolsAritmeticos.TIMES:
+            value = "*"
+        elif operador == SymbolsAritmeticos.DIVISON:
+            value = "/"
+        elif operador == SymbolsAritmeticos.EXPONENT:
+            value = "**"
+        elif operador == SymbolsAritmeticos.MODULAR:
+            value = "%"
+        elif operador == SymbolsAritmeticos.BITWISE_SHIFT_LEFT:
+            value = "<<"
+        elif operador == SymbolsAritmeticos.BITWISE_SHIFT_RIGHT:
+            value = ">>"
+        elif operador == SymbolsAritmeticos.BITWISE_AND:
+            value = "&" 
+        elif operador == SymbolsAritmeticos.BITWISE_OR:
+            value = "|" 
+        elif operador == SymbolsAritmeticos.BITWISE_XOR:
+            value = "^" 
+        return value
+
+    def compile(self):
+        value1 = self.value1.compile()
+        value2 = self.value2.compile()
+        try:
+            if value1.data_type != DATA_TYPE.NUMBER and value2.data_type != DATA_TYPE.NUMBER:
+                desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
+                ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal} = {value1.value} {self.getOperador(self.operador)} {value2.value}")
+
+            return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
+        except TypeError:
+            desc = "Error de tipo"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+        except:
+            desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
     def process(self, expression):
         value1 = self.value1.process(expression)
@@ -66,6 +115,9 @@ class ArithmeticBinaryOperation(Expression):
             elif operador == SymbolsAritmeticos.BITWISE_XOR:
                 value = round(value1.value ^ value2.value)
             return PrimitiveData(DATA_TYPE.NUMBER, value, self.line, self.column)
+        except TypeError:
+            desc = "Error de tipo"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
         except:
             desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -420,4 +472,7 @@ class PrimitiveData(Expression):
         return str(vars(self))
 
     def process(self, expression):
+        return self
+        
+    def compile(self):
         return self
