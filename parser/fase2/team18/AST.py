@@ -2910,7 +2910,7 @@ def ejecutar_select(instr,ts):
                 elif isinstance (val.nombre, Operacion_String_Compuesta):
                     tablaresult.field_names = [ str(val.nombre.operador) ]
                     CD3.PSelectFunciones(str(val.nombre.operador),result)
-                elif isinstance (val.nombre, Operacion_Cubos):
+                elif isinstance (val.nombre, Operacion__Cubos):
                     tablaresult.field_names = [ str(val.nombre.operador) ]
                     CD3.PSelectFunciones(str(val.nombre.operador),result)
                 elif isinstance (val.nombre, Operacion_Patron):

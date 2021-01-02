@@ -26,13 +26,15 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'between':'BETWEEN' ,'offset':'OFFSET',
                'greatest':'GREATEST' , 'least':'LEAST','md5':'MD5','extract':'EXTRACT','now':'NOW' ,'date_part':'DATE_PART' ,
                'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME', 'use':'USE', 'count':'COUNT', 'sum':'SUM', 'avg':'AVG', 'max':'MAX', 'min':'MIN', 'index':'INDEX',
-               'hash':'HASH', 'lower':'lower'
+               'hash':'HASH', 'lower':'lower', 'function':'FUNCTION', 'returns':'RETURNS', 'language':'LANGUAGE', 'plpgsql':'PLPGSQL', 'declare':'DECLARE',
+               'begin':'BEGIN', 'return':'RETURN', 'raise':'RAISE', 'elsif':'ELSIF'
              } 
  
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
            'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO', 'RESTA','SUMA','DIVISION', 
-           'POTENCIA', 'MODULO', 'DOSPUNTOS', 'SQRT2', 'CBRT2', 'AND2', 'NOT2', 'XOR', 'SH_LEFT', 'SH_RIGHT' ] + list(Reservadas.values())
+           'POTENCIA', 'MODULO', 'DOSPUNTOS', 'SQRT2', 'CBRT2', 'AND2', 'NOT2', 'XOR', 'SH_LEFT', 'SH_RIGHT', 'ASIGNACION', 
+           'DOBLEDOLLAR', 'DOLLAR'] + list(Reservadas.values())
 
 t_PTCOMA = r';'
 t_PAR_A = r'\('
@@ -48,6 +50,9 @@ t_NOT2 = r'\~'
 t_XOR = r'\#'
 t_SH_LEFT = r'\<\<'
 t_SH_RIGHT = r'\>\>'
+t_ASIGNACION = r'\:\='
+t_DOBLEDOLLAR = r'\$\$'
+t_DOLLAR = r'\$'
 
 #Comparision operators
 t_IGUAL = r'\='
@@ -1077,6 +1082,13 @@ def p_funciones_select_restantes(t):
 def p_funtion_math_lower(t):
      '''funcion_math : lower PAR_A exp PAR_C'''
 
+def p_funtion_math_function(t):
+     '''funcion_math : ID PAR_A parametros_fun PAR_C'''
+
+def p_funcion_math_params(t):
+     '''parametros_fun : lista_exp
+                       | empty'''
+
 def p_funcion_date(t):
      '''funcion_date : extract'''
      t[0] = t[1]                                            
@@ -1311,7 +1323,61 @@ def p_tipo_index(t):
 def p_cond_where(t):
      '''cond_where : WHERE exp
                    | empty'''
-     
+
+def p_crear_function(t):
+     '''crear : CREATE reemplazar FUNCTION ID PAR_A lparametros PAR_C RETURNS tipo lenguaje_funcion AS dollar_var cuerpo_funcion dollar_var lenguaje_funcion'''
+
+def p_funcion_dollar(t):
+     '''dollar_var : DOBLEDOLLAR
+                   | DOLLAR ID DOLLAR''' 
+
+def p_lenguaje_function(t):
+     '''lenguaje_funcion : LANGUAGE PLPGSQL
+                         | empty'''
+
+def p_listado_parametros(t):
+     '''lparametros : lparametros COMA parametro
+                    | parametro'''
+
+def p_parametro(t):
+     '''parametro : ID tipo
+                  | ID ASIGNACION exp
+                  | empty'''
+
+def p_cuerpo_funcion(t):
+     '''cuerpo_funcion : DECLARE declaraciones PTCOMA BEGIN funcionalidad END PTCOMA'''
+
+def p_declaracion_funcion(t):
+     '''declaraciones : declaraciones PTCOMA parametro
+	                 | parametro'''
+
+def p_funcionalidad_funcion(t):
+     '''funcionalidad : seleccion_funcion
+                      | operacion_expresiones
+	                 | sentencia_If'''
+
+def p_op_funcionalidad_funcion(t):
+     '''seleccion_funcion : SELECT cantidad_select parametros_select asignation cuerpo_select PTCOMA RETURN exp PTCOMA'''
+
+def p_asignacion_select(t):
+     '''asignation : INTO ID'''
+
+def p_operaciones_expresiones(t):
+     '''operacion_expresiones : operacion_expresiones operacion_exp 
+                              | operacion_exp'''
+
+def p_operacion_exp(t):
+     '''operacion_exp : ID ASIGNACION exp PTCOMA
+                      | RAISE exp PTCOMA
+                      | RETURN exp PTCOMA'''
+
+def p_sentencia_if(t):
+     '''sentencia_If : IF exp THEN funcionalidad sentencia_elif_else END IF PTCOMA'''
+
+def p_sentencia_if_else(t):
+     '''sentencia_elif_else : ELSIF exp THEN  funcionalidad sentencia_elif_else 
+                            | ELSE funcionalidad '''
+
 def p_reemplazar(t):
      '''reemplazar : OR REPLACE
                    | empty'''
