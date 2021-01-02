@@ -351,3 +351,41 @@ class Operacion__Cubos(Expresion):
         self.op3 = op3
         self.op4 = op4
         self.operador = operador
+
+class Select_Asigacion(Expresion):
+    '''
+        Esta clase representa un select que asigna un valor a una variable
+    '''
+    def __init__(self,cantidad,parametros,asignacion,cuerpo,retorno):
+        self.cantidad=cantidad
+        self.parametros=parametros
+        self.asignacion=asignacion
+        self.cuerpo=cuerpo
+        self.retorno=retorno
+
+class Operacion_Expresion(Expresion):
+    '''
+        Esta clase representa una operacion para expresiones en funciones
+    '''
+    def __init__(self,tipo,variable,expresion):
+        self.tipo=tipo
+        self.variable=variable
+        self.expresion=expresion
+
+class Sentencia_IF(Expresion):
+    '''
+        Esta clase representa a una sentencia if
+    '''
+    def __init__(self,condicion,sentencias,elsif_else):
+        self.condicion=condicion
+        self.sentencias=sentencias
+        self.elsif_else=elsif_else
+
+class Sentencia_ELSIF_ELSE(Expresion):
+    '''
+        Esta clase representa a una sentencia elsif o else
+    '''
+    def __init__(self,tipo,condicion,sentencias):
+        self.tipo = tipo
+        self.codicion = condicion
+        self.sentencias = sentencias

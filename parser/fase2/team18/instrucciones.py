@@ -349,3 +349,32 @@ class Indice(Instruccion):
         self.tipo=tipo
         self.columnas=columnas
 
+class Funcion(Instruccion):
+    '''
+        Esta clase representa a una funcion 
+    '''
+    def __init__(self,reemplazar,nombre,parametros,tipo,dollarvar,cuerpo):
+        self.reemplazar=reemplazar
+        self.nombre=nombre
+        self.parametros=parametros
+        self.tipo=tipo
+        self.dollarvar=dollarvar
+        self.cuerpo=cuerpo
+
+class Parametro(Instruccion):
+    '''
+        Esta clase representa a un parametro o variable en una funcion
+    '''
+    def __init__(self,nombre,tipo,tamano,valor):
+        self.nombre=nombre
+        self.tipo=tipo
+        self.tamano=tamano
+        self.valor=valor
+
+class Cuerpo_Funcion(Instruccion):
+    '''
+        Esta clase representa el cuerpo de una funcion
+    '''
+    def __init__(self,declaraciones,funcionalidad):
+        self.declaraciones=declaraciones
+        self.funcionalidad=funcionalidad
