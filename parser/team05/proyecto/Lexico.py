@@ -1321,7 +1321,7 @@ def p_TiposAlter4(t):
 def p_TiposAlter5(t):
     'TIPOS_ALTER    : CONSTRAINT ID FOREIGN KEY PABRE L_ID PCIERRA REFERENCES ID PABRE L_ID PCIERRA'
     global reporte_gramatical
-    reporte_gramatical.append('<TIPOS_ALTER> ::= "CONSTRAINT" "ID" "FOREIGN" "KEY" "(" <L_ID> ")" "REFERENCES" "ID" "(" <L_ID ")"') 
+    reporte_gramatical.append('<TIPOS_ALTER> ::= "CONSTRAINT" "ID" "FOREIGN" "KEY" "(" <L_ID> ")" "REFERENCES" "ID" "(" <L_ID> ")"') 
     ret = Retorno(AlterFK(t[2],t[6].getInstruccion(),t[9],t[11].getInstruccion()),NodoAST("FOREIGN KEY"))
     ret.getNodo().setHijo(NodoAST(t[2]))
     ret.getNodo().setHijo(t[6].getNodo())
@@ -3836,7 +3836,7 @@ def p_error(t):
         return
     while True:
         entry = parser.token()
-        if not entry or entry.type == 'RBRACE':
+        if not entry or entry.type == 'PCOMA':
             break
     parser.restart()
 
@@ -3850,3 +3850,12 @@ def parse(p_input):
     counter_lexical_error = 1
     counter_syntactic_error = 1
     return parser.parse(p_input)
+
+def analizar(input):
+    global reporte_gramatical
+    instrucciones_bnf = []  
+    file = open ("proyecto/gramatica.md","w")
+    for instruccion_bnf in reversed(reporte_gramatical) :
+        file.write(instruccion_bnf)
+        file.write("\n")
+    file.close()

@@ -29,6 +29,9 @@ def print_success(data_type: str, print_: str):
 def print_text(data_type: str, print_: str):
     print_data_("FFFFFF", "text", data_type, print_)
 
+def print_table(data_type, print_: str):
+    print_data_("FFFFFF", "table", data_type, print_)
+
 
 #Tytus_GUI.console.tag_add("tag name", "initial_line.initial_column", "end_line.end_column")
 #       Always initial position line starts at 1, end position line starts at 1
@@ -36,12 +39,14 @@ def print_text(data_type: str, print_: str):
 #Tytus_GUI.console.insert("line.column", "text")
 #       line starts at 1, column starts at 0
 
+
 def print_data_(hexadecimal_color_foreground: str, type_print: str, data_type: str, print_: str):
 
     # We save the print
     prints.append( print_data(type_print,data_type,print_) )
 
-    print_ = data_type + ">>    " + print_  
+    if type_print != "table":
+        print_ = data_type + ">>    " + print_  
 
     text_console_before = Tytus_GUI.console.get(1.0,'end-1c')
     number_of_lines_before = 0

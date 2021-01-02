@@ -20,13 +20,13 @@ class TabsStruct:
 
 
 class Tables:
-    def __init__(self):
+    def __init__(self, ruta):
         self.Tabs = {}
         self.load(ruta)
 
 
-    def createTable(self, database, table, numberColumns,ruta):
-         if not table in self.Tabs:
+    def createTable(self, table, numberColumns, ruta):
+        if not table in self.Tabs:
             self.initCheck(str(ruta)+"/"+str(table))
             tab = TabsStruct(table, numberColumns,
                              'data/databases/'+ruta+"/"+str(table))
@@ -68,7 +68,7 @@ class Tables:
             return None
 
     def alterAddPK(self, table, columns, ruta):
-         try:
+        try:
             if table in self.Tabs:
                 bool = True
                 for i in columns:

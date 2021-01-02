@@ -25,8 +25,9 @@ class Select(query) :
         Recibe como parámetro la variable como tal
     '''
 
-    def __init__(self, tipo, operacion) :
+    def __init__(self, tipo,bandera, operacion) :
         self.tipo = tipo
+        self.bandera=bandera
         self.operacion = operacion
 
 class Select2(query) :
@@ -37,7 +38,7 @@ class Select2(query) :
 
     def __init__(self, tipo, operacion1, operacion2) :
         self.tipo = tipo
-        self.operacion1 = operacion2
+        self.operacion1 = operacion1
         self.operacion2 = operacion2
 
 class CreateDatabases(query) :
@@ -367,3 +368,15 @@ class Select5(query) :
         self.operacion2 = operacion2
         self.operacion3 = operacion3
         self.operacion4 = operacion4
+
+class Tipo(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+
+    def __init__(self, operacion1,operacion2) :
+        self.operacion1 = operacion1
+        self.operacion2 = operacion2

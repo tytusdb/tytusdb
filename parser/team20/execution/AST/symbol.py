@@ -7,4 +7,5 @@ class Symbol():
         self.value = value
         self.row = row
         self.column = column
+        self.op = ''
         self.references = []

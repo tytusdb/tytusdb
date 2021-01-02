@@ -17,6 +17,8 @@ import Tytus_GUI_console
 from graphviz import Source
 import webbrowser
 
+from prettytable import PrettyTable
+
 
 class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
     def __init__(self, *args, **kwargs):
@@ -127,9 +129,10 @@ def process_results_and_display_reports(result_analyze, result_execute):
     #generate_grammar_report(result_analyze.grammarreport)
     global content_grammar_report
     content_grammar_report = result_analyze.grammarreport
-    print_error_table_(result_analyze.grammarerrors, result_execute.errors)
-    print_messages_(result_execute.messages)
-    print_querys_(result_execute.querys)
+    #print_error_table_(result_analyze.grammarerrors, result_execute.errors)
+    print_alternative_error_table_()
+    #print_messages_(result_execute.messages)
+    #print_querys_(result_execute.querys)
 
 def generate_report(report_number: int):
     if report_number == 0:
@@ -213,6 +216,18 @@ def print_error_table_(grammarerrors,executionerrors):
         i += 1
     print_error_table("Error Table", print_)
 
+def print_alternative_error_table_():
+    x = PrettyTable(["Number", "Type", "Description"])
+    i = 0
+    j = 1
+    while i < len(Tytus_GUI_console.prints):        
+        if ("ERROR" in str(Tytus_GUI_console.prints[i].data_type).upper()) == True:
+            x.add_row([j, str(Tytus_GUI_console.prints[i].data_type), str(Tytus_GUI_console.prints[i].print_)])
+            j += 1
+        i += 1
+    print_ = x.get_string(title="Error Table")
+    print_error_table("Error Table", print_)
+
 def print_messages_(messages):
     print_ = "MESSAGES"
     if len(messages)>0:
@@ -221,7 +236,7 @@ def print_messages_(messages):
     while i<len(messages):
         if(i!=0):
             print_ += "\n"
-        print_ += messages[i].toString()
+        print_ += messages[i]
         i += 1
     print_messages("Message", print_)
 
@@ -266,16 +281,15 @@ menubar.add_cascade(menu=filemenu, label="Reports")
 text = CustomText_follow_line_and_column_in_text()
 text.pack(fill="both", expand=1)
 text.configure(bg="#000000", fg="#FFFFFF", insertbackground='#FFFFFF')
-text.config(bd=0, padx=6, pady=4, font=("consoles",12))
+text.config(bd=0, padx=6, pady=4, font=("consolas",12))
 text.bind("<<CursorChange>>", _on_change)
 
 # Console
 console = scrolledtext.ScrolledText(root, width=100, height=20)
 console.pack(fill="both", expand=1)
 console.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
-console.config(bd=0, padx=6, pady=4, font=("consoles",12))
+console.config(bd=0, padx=6, pady=4, font=("consolas",12))
 console.configure(state="disabled")
-
 # Lower monitor
 message = StringVar()
 message.set("Welcome to Tytus")

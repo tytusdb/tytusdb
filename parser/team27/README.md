@@ -11,7 +11,13 @@
 
 ## __GRAMÁTICA ASCENDENTE__
 
-### INICIO  DE INSTRUCCIN EN SQL POSTGRES
+### INICIO  DE INSTRUCCIN EN SQL POSTGRESQL
+
+
+La elección de gramática ascendente se debe a que es más sencillo utilizar atributos sintetizados al momento de recorrer el AST. Analizando el comportamiento de la gramática descendente concluimos que es la peor opción al momento de ejecutar las instrucciones ya que tenemos dos opciones generar el árbol de análisis sintáctico y posteriormente recorrerlo para ir ejecutando las instrucciones o la otra opción es manipular la pila para ir heredando atributos para posteriormente sintetizarlos, el problema de utilizar la pila es que si hacemos una mala referencia a una parte de memoria inexistente entonces el programa va a tender a tener bugs, tambien el uso de una gramática descendente en el momento de ejecución lo vuelve lento ya que debe de realizar dos veces el recorrido, mientras que con una gramática ascendente se sintetizan los atributos por lo tanto no hay que realizar dos o mas veces el recorrido del árbol, con una pasada es suficiente para poder ejecutar las instrucciones.
+
+
+
 ~~~
 <inicio> ::= <instrucciones>
 

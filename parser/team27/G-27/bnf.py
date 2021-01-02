@@ -46,7 +46,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'CASE','WHEN','THEN','ELSE','END','LIMIT',
               'UNION','INTERSECT','EXCEPT','OFFSET','GREATEST','LEAST','WHERE','DEFAULT','CASCADE','NO','ACTION',
               'COUNT','SUM','AVG','MAX','MIN',
-              'CBRT','CEIL','CEILING','DEGREES','DIV','EXP','FACTORIAL','FLOOR','GCD','IN','LOG','MOD','PI','POWER','ROUND',
+              'ABS','CBRT','CEIL','CEILING','DEGREES','DIV','EXP','FACTORIAL','FLOOR','GCD','IN','LN','LOG','MOD','PI','POWER','ROUND',
               'ACOS','ACOSD','ASIN','ASIND','ATAN','ATAND','ATAN2','ATAN2D','COS','COSD','COT','COTD','SIN','SIND','TAN','TAND',
               'SINH','COSH','TANH','ASINH','ACOSH','ATANH',
               'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
@@ -191,7 +191,8 @@ precedence = (
     ('left','SIGNO_MAS','SIGNO_MENOS'),
     ('left','SIGNO_POR','SIGNO_DIVISION'),
     ('left','SIGNO_POTENCIA','SIGNO_MODULO'),    
-    )              
+    ('right','UMENOS')
+    )                  
 
 # Definición de la gramática
 def p_inicio(t):
@@ -293,10 +294,9 @@ def p_definicion_columna(t):
 
 def p_columna(t):
     '''columna : ID tipo_dato definicion_valor_defecto ins_constraint
-                | ID definicion_valor_defecto ins_constraint
-                | ID TYPE tipo_dato definicion_valor_defecto ins_constraint
                 | primary_key 
-                | foreign_key '''
+                | foreign_key 
+                | unique'''
     if len(t) == 6:
         t[0] = GenerarBNF()
         t[0].produccion = '<COLUMNA>'
@@ -327,6 +327,12 @@ def p_foreign_key(t):
     t[0].produccion = '<FOREIGN_KEY>'
     t[0].code += '\n' + '<FOREIGN_KEY>' + ' ::= ' + str(t[1]) + ' ' +  str(t[2])+ ' ' +  str(t[3]) + ' ' +  t[4].produccion + ' ' +  str(t[5]) + ' ' +  str(t[6]) + ' ' +  str(t[7]) + ' ' +  str(t[8])+ ' ' +  t[9].produccion + ' ' +  str(t[10]) + ' ' +  t[11].produccion + ' ' +  t[4].code + ' ' +  t[9].code + ' ' +  t[11].code
     
+def p_unique(t):
+    ''' unique : UNIQUE PARABRE nombre_columnas PARCIERRE  '''
+    t[0] = GenerarBNF()
+    t[0].produccion = '<UNIQUE>'
+    t[0].code += '\n' + '<UNIQUE>' + ' ::= ' + str(t[1]) + ' ' +  str(t[2])+ ' ' +  t[3].produccion + ' ' +  str(t[4]) + ' ' +  t[3].code
+
 def p_nombre_columnas(t):
     '''nombre_columnas : nombre_columnas COMA ID 
                           | ID '''
@@ -530,6 +536,11 @@ def p_accion(t):
 def p_tipo_default(t): #ESTE NO SE SI SON RESERVADAS O LOS VALORES
     '''tipo_default : NUMERIC
                     | DECIMAL
+                    | CADENA
+                    | TRUE
+                    | FALSE
+                    | DATE
+                    | TIME
                     | NULL'''
     t[0] = GenerarBNF()
     t[0].produccion = '<TIPO_DEFAULT>'
@@ -618,12 +629,21 @@ def p_alteracion_tabla(t):
 def p_alterar_tabla(t): 
     #alter column viene como una lista
     '''alterar_tabla : ADD COLUMN ID tipo_dato
-                     | ADD CONSTRAINT ins_constraint
+                     | ADD CONSTRAINT ID ins_constraint_dos
+                     | ADD ins_constraint_dos
                      | ALTER COLUMN ID TYPE tipo_dato
                      | ALTER COLUMN ID SET NOT NULL
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
-    if len(t) == 4: 
+    if len(t) == 3: 
+        t[0] = GenerarBNF()
+        t[0].produccion = '<ALTERAR_TABLA>'
+        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + t[2].produccion + ' ' + t[2].code
+    elif len(t) == 5: 
+        t[0] = GenerarBNF()
+        t[0].produccion = '<ALTERAR_TABLA>'
+        t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + t[4].code
+    elif len(t) == 4: 
         if t[1] == 'DROP':
             t[0] = GenerarBNF()
             t[0].produccion = '<ALTERAR_TABLA>'
@@ -644,6 +664,29 @@ def p_alterar_tabla(t):
         t[0] = GenerarBNF()
         t[0].produccion = '<ALTERAR_TABLA>'
         t[0].code += '\n' + '<ALTERAR_TABLA>' + ' ::= ' + str(t[1])+ ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + t[4].code
+
+def p_ins_constraint_dos(t):
+    '''ins_constraint_dos : UNIQUE PARABRE ID PARCIERRE
+                    | FOREIGN KEY PARABRE ID PARCIERRE REFERENCES PARABRE ID PARCIERRE
+                    | CHECK PARABRE exp PARCIERRE 
+                    | PRIMARY KEY PARABRE ID PARCIERRE'''
+    if len(t) == 5:
+        if t[1] == 'UNIQUE':
+            t[0] = GenerarBNF()
+            t[0].produccion = '<CONSTRAINT_DOS>'
+            t[0].code += '\n' + '<CONSTRAINT_DOS>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4])
+        else:
+            t[0] = GenerarBNF()
+            t[0].produccion = '<CONSTRAINT_DOS>'
+            t[0].code += '\n' + '<CONSTRAINT_DOS>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[3].code 
+    if len(t) == 6:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<CONSTRAINT_DOS>'
+        t[0].code += '\n' + '<CONSTRAINT_DOS>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5])
+    else: 
+        t[0] = GenerarBNF()
+        t[0].produccion = '<CONSTRAINT_DOS>'
+        t[0].code += '\n' + '<CONSTRAINT_DOS>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6]) + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + str(t[9])
 
 def p_alter_database(t): 
     '''alter_database : RENAME TO ID
@@ -727,15 +770,30 @@ def p_ins_select(t):
     '''ins_select : ins_select UNION option_all ins_select PUNTO_COMA
                     |    ins_select INTERSECT option_all ins_select PUNTO_COMA
                     |    ins_select EXCEPT option_all ins_select PUNTO_COMA
-                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA'''
-    if len(t) == 6:
+                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_having arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
+                    |    SELECT functions as_id'''
+    if len(t) == 4:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<SELECT>'
+        t[0].code += '\n' + '<SELECT>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[3].produccion + ' '  + t[2].code + ' ' + t[3].code 
+    elif len(t) == 6:
         t[0] = GenerarBNF()
         t[0].produccion = '<SELECT>'
         t[0].code += '\n' + '<SELECT>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + t[4].produccion + ' ' + str(t[5]) + ' ' + t[1].code + ' ' + t[3].code + ' ' + t[4].code
     else: 
         t[0] = GenerarBNF()
         t[0].produccion = '<SELECT>'
-        t[0].code += '\n' + '<SELECT>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + t[6].produccion + ' ' + t[7].produccion + ' ' + t[8].produccion + ' ' + t[9].produccion + ' ' + t[10].produccion + ' ' + str(t[11]) + ' ' + t[2].code + ' ' + t[3].code + ' ' + t[5].code + ' ' + t[6].code + ' ' + t[7].code + ' ' + t[8].code + ' ' + t[9].code + ' ' + t[10].code
+        t[0].code += '\n' + '<SELECT>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + t[6].produccion + ' ' + t[7].produccion + ' ' + t[8].produccion + ' ' + t[9].produccion + ' ' + t[10].produccion + ' ' + t[11].produccion + ' ' + str(t[12]) + ' ' + t[2].code + ' ' + t[3].code + ' ' + t[5].code + ' ' + t[6].code + ' ' + t[7].code + ' ' + t[8].code + ' ' + t[9].code + ' ' + t[10].code + ' ' + t[11].code
+
+def p_arg_having(t):
+    '''arg_having    :   HAVING PARABRE exp PARCIERRE
+                    |    '''
+    if len(t) == 5:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<HAVING>'
+        t[0].code += '\n' + '<HAVING>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[3].code
+    else:
+        t[0] = None
 
 def p_option_all(t):
     '''option_all   :   ALL
@@ -815,6 +873,7 @@ def p_as_id(t): #  REVISRA CADENA Y AS CADENA
     '''as_id    :   AS ID
                     |   AS CADENA
                     |   CADENA
+                    |   ID
                     |   '''
     if len(t) == 3: 
         t[0] = GenerarBNF()
@@ -851,66 +910,80 @@ def p_functions(t):
 
 
 def p_math(t):
-    '''math :   AVG PARABRE NUMERO PARCIERRE
-                |   CBRT PARABRE NUMERO PARCIERRE
-                |   CEIL PARABRE NUMERO PARCIERRE
-                |   CEILING PARABRE NUMERO PARCIERRE
-                |   DEGREES PARABRE NUMERO PARCIERRE
-                |   DIV PARABRE NUMERO COMA NUMERO PARCIERRE
-                |   EXP PARABRE NUMERO PARCIERRE
-                |   FACTORIAL PARABRE NUMERO PARCIERRE
-                |   FLOOR PARABRE NUMERO PARCIERRE
-                |   GCD PARABRE NUMERO COMA NUMERO PARCIERRE
-                |   IN PARABRE NUMERO PARCIERRE
-                |   LOG PARABRE NUMERO PARCIERRE
-                |   MOD PARABRE NUMERO COMA NUMERO PARCIERRE
+    '''math :   ABS PARABRE op_numero PARCIERRE
+                |   CBRT PARABRE op_numero PARCIERRE
+                |   CEIL PARABRE op_numero PARCIERRE
+                |   CEILING PARABRE op_numero PARCIERRE
+                |   DEGREES PARABRE op_numero PARCIERRE
+                |   DIV PARABRE op_numero COMA op_numero PARCIERRE
+                |   EXP PARABRE op_numero PARCIERRE
+                |   FACTORIAL PARABRE op_numero PARCIERRE
+                |   FLOOR PARABRE op_numero PARCIERRE
+                |   GCD PARABRE op_numero COMA op_numero PARCIERRE
+                |   LN PARABRE op_numero PARCIERRE
+                |   LOG PARABRE op_numero PARCIERRE
+                |   MOD PARABRE op_numero COMA op_numero PARCIERRE
                 |   PI PARABRE  PARCIERRE
-                |   POWER PARABRE NUMERO COMA NUMERO PARCIERRE 
-                |   ROUND PARABRE NUMERO PARCIERRE '''
+                |   POWER PARABRE op_numero COMA op_numero PARCIERRE 
+                |   ROUND PARABRE op_numero PARCIERRE '''
     if len(t) == 5:
         t[0] = GenerarBNF()
         t[0].produccion = '<MATH>'
-        t[0].code += '\n' + '<MATH>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4])
+        t[0].code += '\n' + '<MATH>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[3].code 
     elif len(t) == 7:
         t[0] = GenerarBNF()
         t[0].produccion = '<MATH>'
-        t[0].code += '\n' + '<MATH>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6])
+        t[0].code += '\n' + '<MATH>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + str(t[6]) + ' ' + t[3].code  + ' ' + t[5].code 
     elif len(t) == 4:
         t[0] = GenerarBNF()
         t[0].produccion = '<MATH>'
         t[0].code += '\n' + '<MATH>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3])
 
 def p_trig(t):
-    '''trig :   ACOS PARABRE NUMERO PARCIERRE
-                |   ACOSD PARABRE NUMERO PARCIERRE
-                |   ASIN PARABRE NUMERO PARCIERRE
-                |   ASIND PARABRE NUMERO PARCIERRE
-                |   ATAN PARABRE NUMERO PARCIERRE
-                |   ATAND PARABRE NUMERO PARCIERRE
-                |   ATAN2 PARABRE NUMERO COMA NUMERO PARCIERRE
-                |   ATAN2D PARABRE NUMERO COMA NUMERO PARCIERRE
-                |   COS PARABRE NUMERO PARCIERRE
-                |   COSD PARABRE NUMERO PARCIERRE
-                |   COT PARABRE NUMERO PARCIERRE
-                |   COTD PARABRE NUMERO PARCIERRE
-                |   SIN PARABRE NUMERO PARCIERRE
-                |   SIND PARABRE NUMERO PARCIERRE
-                |   TAN PARABRE NUMERO PARCIERRE
-                |   TAND PARABRE NUMERO PARCIERRE
-                |   SINH PARABRE NUMERO PARCIERRE
-                |   COSH PARABRE NUMERO PARCIERRE
-                |   TANH PARABRE NUMERO PARCIERRE
-                |   ASINH PARABRE NUMERO PARCIERRE
-                |   ACOSH PARABRE NUMERO PARCIERRE
-                |   ATANH PARABRE NUMERO PARCIERRE  '''
+    '''trig :   ACOS PARABRE op_numero PARCIERRE
+                |   ACOSD PARABRE op_numero PARCIERRE
+                |   ASIN PARABRE op_numero PARCIERRE
+                |   ASIND PARABRE op_numero PARCIERRE
+                |   ATAN PARABRE op_numero PARCIERRE
+                |   ATAND PARABRE op_numero PARCIERRE
+                |   ATAN2 PARABRE op_numero COMA op_numero PARCIERRE
+                |   ATAN2D PARABRE op_numero COMA op_numero PARCIERRE
+                |   COS PARABRE op_numero PARCIERRE
+                |   COSD PARABRE op_numero PARCIERRE
+                |   COT PARABRE op_numero PARCIERRE
+                |   COTD PARABRE op_numero PARCIERRE
+                |   SIN PARABRE op_numero PARCIERRE
+                |   SIND PARABRE op_numero PARCIERRE
+                |   TAN PARABRE op_numero PARCIERRE
+                |   TAND PARABRE op_numero PARCIERRE
+                |   SINH PARABRE op_numero PARCIERRE
+                |   COSH PARABRE op_numero PARCIERRE
+                |   TANH PARABRE op_numero PARCIERRE
+                |   ASINH PARABRE op_numero PARCIERRE
+                |   ACOSH PARABRE op_numero PARCIERRE
+                |   ATANH PARABRE op_numero PARCIERRE  '''
     if len(t) == 5:
         t[0] = GenerarBNF()
         t[0].produccion = '<TRIG>'
-        t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4])
+        t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[3].code
     else:
         t[0] = GenerarBNF()
         t[0].produccion = '<TRIG>'
-        t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6])
+        t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + str(t[6]) + ' ' + t[3].code + ' ' + t[5].code
+
+def p_op_numero(t):
+    '''  op_numero : NUMERO 
+                | DECIMAL
+                | SIGNO_MENOS NUMERO %prec UMENOS
+                | SIGNO_MENOS DECIMAL %prec UMENOS'''
+    if len(t) == 2:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<NUMERO>'
+        t[0].code += '\n' + '<NUMERO>' + ' ::= ' + str(t[1])
+    else:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<NUMERO>'
+        t[0].code += '\n' + '<NUMERO>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[4])
 
 def p_string_func(t):
     '''string_func  :   LENGTH PARABRE s_param PARCIERRE
@@ -957,12 +1030,13 @@ def p_string_func(t):
         t[0].code += '\n' + '<TRIG>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + t[3].code + ' ' + t[6].code
 
 def p_s_param(t):
-    '''s_param  :   s_param string_op CADENA
-                |   CADENA '''
+    '''s_param  :   s_param string_op s_param
+                |   CADENA 
+                |   NUMERO'''
     if len(t) == 4:
         t[0] = GenerarBNF()
         t[0].produccion = '<S_PARAM>'
-        t[0].code += '\n' + '<S_PARAM>' + ' ::= ' + t[1].produccion + ' ' + t[2].produccion + ' ' + str(t[3]) + ' ' + t[1].code + ' ' + t[2].code
+        t[0].code += '\n' + '<S_PARAM>' + ' ::= ' + t[1].produccion + ' ' + t[2].produccion + ' ' + t[3].produccion + ' ' + t[1].code + ' ' + t[2].code + ' ' + t[3].code
     else: 
         t[0] = GenerarBNF()
         t[0].produccion = '<S_PARAM>'
@@ -1050,12 +1124,12 @@ def p_table_list(t):
         t[0].code += '\n' + '<TABLE_LIST>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[2].code
 
 def p_arg_where(t):
-    '''arg_where    :   WHERE exp
+    '''arg_where    :   WHERE PARABRE exp PARCIERRE
                     |    '''
     if len(t) == 3: 
         t[0] = GenerarBNF()
         t[0].produccion = '<ARG_WHERE>'
-        t[0].code += '\n' + '<ARG_WHERE>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[2].code
+        t[0].code += '\n' + '<ARG_WHERE>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[3].code
     else:
         t[0] = GenerarBNF()
         t[0].produccion = '<ARG_WHERE>'

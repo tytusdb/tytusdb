@@ -10,6 +10,6 @@ class BOOLEANO(NodoArbol):
         super().__init__(line, column)
         self.data = data
 
-    def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+    def execute(self, entorno:Tabla_de_simbolos, arbol:Arbol):
         value:Valor = Valor(TIPO.BOOLEAN, self.data)
         return value

@@ -12,6 +12,16 @@ class Logical(Expression):
     def isBool(self, value):
         return isinstance(value, bool)
 
+    def getGraph(self, graph, idParent):
+        _id = str(id(self))
+        _label = self.__class__.__name__
+        graph.node(_id, label=_label)
+        graph.edge(idParent, _id)
+
+        self.left.getGraph(graph, _id)
+        if self.right:
+            self.right.getGraph(graph, _id)
+
 
 class And_class(Logical):
     def __init__(self, left, right):

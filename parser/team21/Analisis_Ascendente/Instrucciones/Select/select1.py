@@ -1,8 +1,8 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import  Time
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select as Select
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import  Time
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select as Select
 
 from prettytable import PrettyTable
 
@@ -25,7 +25,7 @@ class selectTime(Instruccion):
            self.momento = momento
            self.cadena = cadena
            self.cadena2 = cadena2'''
-    def ejecutar(Select,ts, Consola,exceptions):
+    def ejecutar(Select,ts, Consola,exceptions,Mostrar):
 
         # Error semantico - numero error - descripcion - fila - columna
         #si pueden ir a buscar la bd actual
@@ -70,6 +70,7 @@ class selectTime(Instruccion):
             x.field_names = ["current_time"]
             x.add_row([str(datet)])
 
-        Consola.append(x.get_string()+'\n')
+        if(Mostrar):
+            Consola.append('\n'+x.get_string()+'\n')
         return str(datet)
 
