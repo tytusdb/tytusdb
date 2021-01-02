@@ -357,10 +357,26 @@ def p_instruccion(t) :
                         #| DELETE delete
                         #| INSERT insert
                         #| UPDATE update
-    txt = tempos.newTemp() + ' = \'' + t[1] + t[2]['text'] + '\'\n'
-    txt += 'heap.append('+str(tempos.index)+')\n'
-    txt += 'mediador()\n'
-    t[0] = {'text' : txt, 'c3d': ''}
+    
+    text = ""
+    if t[1].lower() == 'create':
+        txt = tempos.newTemp() + ' = \'' + t[1] + t[2]['text'] + '\'\n'
+        txt += 'heap.append('+str(tempos.index)+')\n'
+        txt += 'mediador()\n'
+        text = txt
+    elif t[1].lower() == 'use':
+        text = "USE "+  t[2]['text'] + "\n"
+    elif t[1].lower() == 'show':
+        text = "SHOW "+  t[2]['text'] + "\n"
+    elif t[1].lower() == 'drop':
+        text = "DROP "+  t[2]['text'] + "\n"
+    elif t[1].lower() == 'delete':
+        text = "DROP "+  t[2]['text'] + "\n"
+    elif t[1].lower() == 'insert':
+        text = "INSERT "+  t[2]['text'] + "\n"
+    elif t[1].lower() == 'update':
+        text = "UPDATE "+  t[2]['text'] + "\n"
+    t[0] = {'text' : text, 'c3d': ''}
 
 #----------------testing condiciones--------------------
 def p_instrcond(t):
@@ -1680,6 +1696,360 @@ def p_fields(t):
 def p_fieldsE(t):
     'fields :'
     t[0] = {'text' : '', 'c3d': ''}
+
+#----------------------------------------------USE-------------------------------------------------------- 
+
+def p_use(t):
+    '''use  : DATABASE ID PTCOMA
+            | ID PTCOMA'''
+    text =""
+    if t[1].lower() == "database":
+        text = "DATABASE " + t[2]+"; \n"
+    else:
+        text = t[1] + "; \n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_useE(t):
+    'use    : problem'
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+#----------------------------------------------SHOW-------------------------------------------------------- 
+def p_show(t):
+    '''show   :    DATABASES likeopcional'''
+    text = ""
+    if t[1].lower() == "databases":
+        text = "DATABASES " + t[2]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_showw(t):
+    '''show   :  problem'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_likeopcional(t):
+    '''likeopcional   :   LIKE CADENA PTCOMA
+                    | PTCOMA '''
+    text =""
+    if t[1].lower() == 'like' :
+        text = "LIKE " + t[2] + "; \n"
+    else :
+        text = "; \n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+#----------------------------------------------DROP-------------------------------------------------------- 
+
+
+def p_drop(t):
+    '''drop :   DATABASE dropdb PTCOMA
+            |   TABLE ID PTCOMA'''
+    text =""
+    if t[1].lower() == 'database' :
+        text = "DATABASE " + t[2]+" ;\n"
+    elif t[1].lower() == "table":
+        text = "TABLE " + t[2]+ ";\n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_drop_e(t):
+    '''drop : problem'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_dropdb(t):
+    '''dropdb   : IF EXISTS ID
+                |   ID'''
+    text =""
+    if t[1].lower() == 'if' :
+        text = "IF EXISTS "+ t[2]
+    else :
+        text = t[1]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+#----------------------------------------------ALTER-------------------------------------------------------- 
+
+def p_alterp(t):
+    '''alter    :   DATABASE ID alterdbs PTCOMA
+                |   TABLE ID altertables PTCOMA'''
+    text = ""
+    if t[1].lower() == 'database' :
+        text = "DATABASE " + t[2] + " " +t[3]['text'] + ";\n"
+    else :
+        text = "TABLE " + t[2] + " " +t[3]['text'] + ";\n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+
+def p_alterp_err(t):
+    "alter : problem"
+    text = "\n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_alterdbsr(t):
+    'alterdbs   : alterdbs COMA alterdb'
+    text = t[1]['text'] + ' , '+ t[3]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_alterdbs(t):
+    'alterdbs   : alterdb'
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+#alter database
+def p_alterdb(t):
+    '''alterdb  :   RENAME TO ID
+                |   OWNER TO tipodeowner'''
+    text = ""
+    if t[1].lower() == 'rename' :
+        text = "RENAME TO " +t[1]
+    else :
+        text = "OWNER TO " + t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+    
+def p_tipodeowner(t):
+    '''tipodeowner  :   ID
+                    |   CURRENT_USER
+                    |   SESSION_USER'''
+    text = ""
+    if t[1].lower() == 'current_user' :
+        text = "CURRENT_USER"
+    elif t[1].lower() == 'session_user' :
+        text = "SESSION_USER"
+    else :
+        text = t[1]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+#alter table
+def p_altertablesr(t):
+    'altertables   : altertables COMA altertable'
+    text = t[1]['text'] + " , " + t[3]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_altertables(t):
+    'altertables   : altertable'
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_altertable(t):
+    '''altertable   : ADD alteraddc
+                    | ALTER COLUMN ID SET opcionesalterset
+                    | DROP tipodedrop
+                    | RENAME COLUMN ID TO ID'''
+    text =""
+    if t[1].lower() == 'add' :
+        text = "ADD " + t[2]['text']
+    elif t[1].lower() == 'alter' :
+        text = "ALTER COLUMN " +t[3] +" SET " + t[5]['text']
+    elif t[1].lower() == 'drop' :
+        text = "DROP "+ t[2]['text']
+    elif t[1].lower() == 'rename' :
+        text = 'RENAME COLUMN '+ t[3]+ " TO "+ t[5]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_altertableRT(t):
+    '''altertable   : RENAME ID TO ID'''
+    text = "RENAME "+ t[2]+ " TO "+ t[4]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_altertableP(t):
+    'altertable : ALTER COLUMN ID TYPE tipo'
+    text = "ALTER COLUMN  "+ t[3]+ " TYPE "+ t[5]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+#agregar tipo, condiciones, listaids opcionsalter
+def p_addConstraintU(t):
+    '''alteraddc    : CONSTRAINT ID UNIQUE PARENIZQ listaidcts PARENDER
+                    | COLUMN ID tipo'''
+    text =""
+    if t[1].lower() == 'constraint' :
+        text = "CONSTRAINT "+t[2]+ " UNIQUE ( " + t[5]['text'] +" )"
+    elif t[1].lower() == 'column' :
+        text = "COLUMN "+ t[2] + t[3]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_listaidcts_r(t):
+    'listaidcts : listaidcts COMA ID PUNTO ID'
+    text = t[1]['text'] + " , "+ t[3] +" . "+ t[5]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_listaidcts_re(t):
+    'listaidcts : listaidcts COMA ID'
+    text = t[1]['text'] + " , "+ t[3]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_listaidcts(t):
+    'listaidcts : ID PUNTO ID'
+    text = t[1] + " . "+ t[3]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_listaidctse(t):
+    'listaidcts : ID'
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_addConstraint(t):
+    '''alteraddc    : CONSTRAINT ID alteradd'''
+    text = "CONSTRAINT " + t[2] +" "+ t[3]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_addConstraintS(t):
+    '''alteraddc    : alteradd'''
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_alteradd(t):
+    '''alteradd     : CHECK PARENIZQ condiciones PARENDER
+                    | FOREIGN KEY PARENIZQ listaids PARENDER REFERENCES ID PARENIZQ listaids PARENDER
+                    | PRIMARY KEY PARENIZQ listaids PARENDER'''
+    text =""
+    if t[1].lower() == 'check' :
+        text = "CHECK ( "+ t[3]['text'] + " )"
+    elif t[1].lower() == 'foreign' :
+        text = "FOREIGN KEY ( "+ t[4]['text'] +" ) REFERENCES "+ t[7] + " ( "+ t[9]['text']+" )"
+    elif t[1].lower() == 'primary' :
+        text = "PRIMARY KEY ( " +t[4]['text']+ " )"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+
+def p_opcionesalterset(t):
+    '''opcionesalterset :   NOT NULL
+                            | NULL '''
+    text = ""
+    if t[1].lower() == 'not' :
+        text = "NOT NULL"
+    else :
+        text = "NULL"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_tipodedrop(t):
+    '''tipodedrop   : COLUMN ID
+                    | CONSTRAINT ID
+                    | PRIMARY KEY PARENIZQ listaids PARENDER
+                    | FOREIGN KEY PARENIZQ listaids PARENDER'''
+    text = ""
+    if t[1].lower() == 'column' :
+        text = "COLUMN "+ t[2]
+    elif t[1].lower() == 'constraint' :
+        text = "CONSTRAINT " + t[2]
+    elif t[1].lower() == 'primary':
+        text = "PRIMARY KEY ( " +t[4]['text'] +" )"
+    elif t[1].lower() == 'foreign':
+        text = "FOREIGN KEY ( " +t[4]['text'] +" )"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+
+#------------------------------------------------------------DELETE----------------------------------------------------
+def p_instrucciones_delete(t) :
+    '''delete    : FROM ID condicionesops PTCOMA'''
+    text = "FROM " + t[2] + " "+ t[3]['text']+ "; \n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_instruccionesdelete_e(t):
+    '''delete : problem'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+
+#-------------------------------------------------------INSERT------------------------------------------
+def p_instrucciones_insert(t):
+    '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
+    text = ""
+    if t[1].lower() == "into":
+        text = "INTO "+t[2] + " VALUES ( " +t[5]['text']+ " ) ;\n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_instrucciones_insert_err(t):
+    "insert : problem"
+    text = "\n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_values_rec(t):
+    '''values   : values COMA value'''
+    text = t[1]['text'] + " , " +t[3]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_values(t):
+    '''values   : value'''
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_value(t):
+    '''value   : ENTERO'''
+    text = t[1]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_valuef(t):
+    '''value   : DECIMAL'''
+    text = t[1]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_valuec(t):
+    '''value   : CADENA'''
+    text = t[1]
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_valueb(t):
+    '''value   : boleano'''
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_value_md(t):
+    'value : MD5 PARENIZQ argument PARENDER'
+    text = "MD5 ("+t[3]['text']+" )"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_value_now(t):
+    '''value   : NOW PARENIZQ PARENDER'''
+    text = "NOW () "
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_value_trim(t):
+    '''value   : TRIM PARENIZQ argument PARENDER'''
+    text = "TRIM ("+t[3]['text']+" )"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_value_substring(t):
+    '''value   :  SUBSTRING PARENIZQ argument COMA ENTERO COMA ENTERO PARENDER'''
+    text = "SUBSTRING ("+t[3]['text']+" , "+ t[5]+" , "+t[7]+")"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_value_substr(t):
+    '''value   :  SUBSTR PARENIZQ argument COMA ENTERO COMA ENTERO PARENDER'''
+    text = "SUBSTR ("+t[3]['text']+" , "+ t[5]+" , "+t[7]+")"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+
+#-------------------------------------------------UPDATE-----------------------------------------------
+def p_instrucciones_update(t):
+    '''update    : ID SET asignaciones condicionesops PTCOMA'''
+    text=""
+    if t[2].lower() == "set":
+        text = t[1] + " SET "+t[3]['text']+t[4]['text']+"; \n"
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_instruccions_update_e(t):
+    '''update : problem'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_asignaciones_rec(t):
+    '''asignaciones     : asignaciones COMA ID IGUAL argument'''
+    text =t[1]['text']+" , "+ t[3]+" = "+ t[5]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_asignaciones(t):
+    '''asignaciones : ID IGUAL argument'''
+    text = t[1]+ " = " + t[3]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_instrucciones_update_condsops(t):
+    'condicionesops    : WHERE condiciones'
+    text = "WHERE "+ t[2]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_instrucciones_update_condsopsE(t):
+    'condicionesops    : '
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
 
 
 
