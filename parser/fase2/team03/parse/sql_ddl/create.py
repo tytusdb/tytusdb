@@ -23,7 +23,10 @@ class CreateEnum(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        all_val = ''
+        for val in self.value_list:
+            all_val = f'{all_val}\'{val.generate(table, tree)}\','
+        return f'CREATE TYPE {self.name} AS ENUM({all_val[:-1]});'
 
 
 class CreateDatabase(ASTNode):
@@ -43,7 +46,7 @@ class CreateDatabase(ASTNode):
         # result_mode = self.owner.mode(table, tree) if self.mode else 6  # Change to 1 when default mode from EDD available
         result_name = self.name.execute(table, tree)
         result_owner = self.owner
-        result_mode = self.mode
+        result_mode = self.mode.execute(table, tree) if self.mode is not None else 1
         result = 0
         if self.replace:
             dropDatabase(result_name)
@@ -64,7 +67,9 @@ class CreateDatabase(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'CREATE DATABASE {"IF NOT EXISTS" if self.exists else ""}{f"MODE = {self.mode}" if self.mode else ""};'
+        result_mode = self.mode.generate(table, tree) if self.mode is not None else 1
+        result_name = self.name.generate(table, tree)
+        return f'CREATE DATABASE{" IF NOT EXISTS" if self.exists else ""} {result_name} MODE = {result_mode};'
 
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
