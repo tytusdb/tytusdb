@@ -85,7 +85,11 @@ reservadas = (
     'RETURNS',
     'ROWTYPE',
     'COLLATE',
-    'ALIAS'
+    'ALIAS',
+    'SQLSTATE',
+    'EXCEPTION',
+    'ELSIF',
+    'ELSEIF'
 )
 
 tokens = reservadas + (

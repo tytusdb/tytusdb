@@ -597,7 +597,7 @@ def p_lista_case(t):
     '''
     t[0] = t[1].append(t[2])
 
-def p_lista_case(t):
+def p_lista_case_case(t):
     '''lcase : case
     '''
     t[0] = t[1]
@@ -668,7 +668,7 @@ def p_instruccion_rows(t):
         strGram = "<rows> ::= LIMIT ENTERO"
         t[0] = Limit.Limit(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def P_instruccion_row2(t):
+def p_instruccion_row2(t):
     '''rows : LIMIT ENTERO OFFSET ENTERO'''
     #LIMIT(LIMITE,FILAS_A_EXCLUIR,fila,columna)
     strGram = "<rows> ::= LIMIT ENTERO OFFSET ENTERO"
@@ -1747,9 +1747,81 @@ def p_aisgnacion_valor_e(t):
 
 def p_contenido_funcion(t):
     '''
-    contenido_funcion   :   CADENA
+    contenido_funcion   : contenido_funcion cont_funcion
+                        | cont_funcion ''' 
+    
+    
+def p_cont_funcion(t):    
+    '''
+     cont_funcion : IF expre THEN instrucciones_if condicionesif ELSE  instrucciones_if END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if condicionesif END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if ELSE  instrucciones_if END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if END IF PUNTO_COMA
+				  | CASE ID condiciones_cuando ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE ID condiciones_cuando END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB END CASE PUNTO_COMA
+				  | BEGIN instrucciones EXCEPTION WHEN l_identificadores THEN instrucciones END PUNTO_COMA
+				  | BEGIN instrucciones EXCEPTION WHEN sql_states THEN instrucciones END PUNTO_COMA
     '''
 
+def p_instrucciones_if(t):
+    ''' 
+    instrucciones_if : contenido_funcion
+                     | instrucciones
+    '''
+
+def p_condiciones_if(t):
+    '''
+condicionesif : condicionesif condicionif
+			  | condicionif
+    '''
+
+def p_condicion_if(t):
+    '''
+condicionif : ELSIF expre THEN instrucciones_if 
+			| ELSEIF expre THEN instrucciones_if 
+    '''
+
+def p_condiciones_cuando(t):
+    '''
+condiciones_cuando : condiciones_cuando condicion_cuando
+				   | condicion_cuando
+    '''
+
+def p_condicion_cuando(t):
+    '''
+condicion_cuando : WHEN l_expresiones THEN instrucciones
+
+    '''
+
+def p_condiciones_cuando_B(t):
+    '''
+condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
+					| condicion_cuandoB
+    '''
+
+def p_condicion_cuando_B(t):
+    '''
+condicion_cuandoB ::= WHEN expre THEN instrucciones
+    '''
+
+def p_sql_states(t):
+    '''
+sql_states ::= sql_states OR sql_state
+			 | sql_state
+    '''
+
+def p_sql_state(t):
+    '''
+sql_state ::= SQLSTATE CADENA
+    '''
+
+def p_identificadores(t):
+    '''
+    l_identificadores : l_identificadores OR ID
+                      | ID
+    '''
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
