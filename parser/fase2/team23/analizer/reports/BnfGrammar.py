@@ -17,6 +17,7 @@ def grammarReport():
                     cad += "::= "
         cad += "\n"
     #crearArchivo(cad)
+   # crearArchivo(cad)
 
 
 def crearArchivo(cad):

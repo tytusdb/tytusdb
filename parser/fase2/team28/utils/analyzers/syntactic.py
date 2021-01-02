@@ -1,10 +1,12 @@
 # from generate_ast import GraficarAST
+from models.Indexes.indexes import Indexes
 from models.instructions.Expression.trigonometric_functions import ExpressionsTrigonometric
 from models.instructions.Expression.extract_from_column import ExtractFromIdentifiers
 from re import L
 
 import libs.ply.yacc as yacc
 import os
+import json
 
 from models.instructions.shared import *
 from models.instructions.DDL.database_inst import *
@@ -32,7 +34,7 @@ precedence = (
     ('nonassoc', 'BETWEEN', 'IN', 'LIKE', 'ILIKE', 'SIMILAR'),  # Level 5
     ('left', 'SEMICOLON', 'LEFT_PARENTHESIS',
      'RIGHT_PARENTHESIS', 'COMMA', 'COLON', 'NOT_EQUAL'),  # Level 6
-    ('left', 'PLUS', 'REST'),  # Level 7
+    ('left', 'PLUS', 'REST','CONCAT'),  # Level 7
     ('left', 'ASTERISK', 'DIVISION', 'MODULAR', 'BITWISE_SHIFT_RIGHT',
      'BITWISE_SHIFT_LEFT', 'BITWISE_AND', 'BITWISE_OR'),  # Level 8
     ('left', 'EXPONENT',  'BITWISE_XOR', 'SQUARE_ROOT', 'CUBE_ROOT'),  # Level 9
@@ -40,6 +42,8 @@ precedence = (
     ('left', 'DOT')  # Level 13
 )
 
+contador_instr = 0
+arr_instr = []
 # Definicion de Gramatica, un poco de defincion
 # Para que no se confundad, para crear la gramatica y se reconocida
 # siempre se empieza la funcion con la letra p, ejemplo p_name_function y
@@ -70,21 +74,26 @@ def p_instruction_list(p):
 
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
-                    | DML
-                    | usestatement
-                    | MULTI_LINE_COMMENT
-                    | SINGLE_LINE_COMMENT
-                    | INDEXES_STATEMENT
-                    | error SEMICOLON
+                      | DML
+                      | SQL_FUNCTIONS
+                      | SQL_PROCEDURES
+                      | usestatement
+                      | MULTI_LINE_COMMENT
+                      | SINGLE_LINE_COMMENT
+                      | INDEXES_STATEMENT
+                      | error SEMICOLON
     '''
+    global contador_instr, arr_instr
     p[0] = p[1]
+    if p.slice[1].type != "error":
+        contador_instr += 1
 
 
 def p_use_statement(p):
     '''usestatement : USE ID SEMICOLON'''
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
-    p[0] = UseDatabase(p[2], noLine, noColumn)
+    p[0] = UseDatabase(p[2], generateC3D(p), noLine, noColumn)
 
 
 def p_ddl(p):
@@ -112,19 +121,19 @@ def p_option_create(p):
     noLine = p.slice[1].lineno
 
     if len(p) == 8:
-        p[0] = CreateType(p[2], p[6])
+        p[0] = CreateType(p[2], p[6], generateC3D(p))
 
     elif len(p) == 3:
-        p[0] = CreateDB(p[2], False, noLine, noColumn)
+        p[0] = CreateDB(p[2], False, generateC3D(p), noLine, noColumn)
 
     elif len(p) == 5:
-        p[0] = CreateDB(p[4], True, noLine, noColumn)
+        p[0] = CreateDB(p[4], True, generateC3D(p), noLine, noColumn)
 
     elif len(p) == 6:
-        p[0] = CreateTB(p[2], p[4], None)
+        p[0] = CreateTB(p[2], p[4], None, generateC3D(p))
 
     elif len(p) == 10:
-        p[0] = CreateTB(p[2], p[4], p[8])
+        p[0] = CreateTB(p[2], p[4], p[8], generateC3D(p))
 
 
 def p_type_list(p):
@@ -370,25 +379,43 @@ def p_options_col_list(p):
     else:
         p[0] = [p[1]]
 
+
 def p_indexes_statement(p):
     '''INDEXES_STATEMENT : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
     '''
+    generateC3D(p)
+    
+    if len(p) == 10:
+        p[0] = Indexes(p[2],p[5], p[3], None,p[7], None, p.lineno(1), find_column(p.slice[1]),generateC3D(p))
+    elif len(p) == 11:
+        if p.slice[6].type == "LEFT_PARENTHESIS":
+            p[0] = Indexes(p[2], p[5], p[3], None, p[7], p[9], p.lineno(1), find_column(p.slice[1]), generateC3D(p))
+        else:
+            p[0] = Indexes(p[2], p[5], p[3], p[6], p[8], None, p.lineno(1), find_column(p.slice[1]), generateC3D(p))
+    else:
+        p[0] = Indexes(p[2], p[5], p[3], p[6], p[8], p[10], p.lineno(1), find_column(p.slice[1]), generateC3D(p))
 def p_type_index(p):
     ''' TYPE_INDEX : INDEX
                    | UNIQUE INDEX
     '''
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = p[1]
 
 def p_options1_indexes(p):
     ''' OPTIONS1_INDEXES : USING TYPE_MODE_INDEX
     '''
+    p[0] = p[2]
 
 def p_type_mode_index(p):
     ''' TYPE_MODE_INDEX : BTREE 
                         | HASH
     '''
+    p[0] = p[1]
 
 def p_body_index(p):
     ''' BODY_INDEX : BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
@@ -400,6 +427,32 @@ def p_body_index(p):
                    | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
                    | ID
     '''
+    lista_body = []
+    if len(p) == 2:
+        p[0] = [p[1]]
+    elif len(p) == 3:
+        p[0] = [p[1], p[2]]
+    elif len(p) == 5:
+        if p.slice[1].type == "LOWER":
+            p[0] = [p[3]]
+        else:
+            p[1].append(p[3])
+            p[1].append(p[4])
+            p[0] = p[1]
+    elif len(p) == 6:
+        lista_body.append(p[3])
+        lista_body.append(p[5])
+        p[0] = lista_body
+    elif len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
+    elif len(p) ==  7:
+        p[1].append(p[5])
+        p[0] = p[1]
+    elif len(p) == 8:
+        p[1].append(p[5])
+        p[1].append(p[7])
+        p[0] = p[1]
 
 def p_options2_indexes(p):
     '''  OPTIONS2_INDEXES : ASC NULLS FIRST 
@@ -409,6 +462,22 @@ def p_options2_indexes(p):
                           | ASC
                           | DESC
     '''
+    if len(p) == 4:
+        if p.slice[1].type == 'ASC':
+            p[0] = False
+        else:
+            p[0] = True
+    elif len(p) == 3:
+        if p.slice[2].type == 'FIRST':
+            p[0] = True
+        else:
+            p[0] = False
+    else:
+        if p.slice[1].type == 'ASC':
+            p[0] = False
+        else:
+            p[0] = True
+
 
 def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
@@ -479,9 +548,9 @@ def p_show_statement(p):
                      | SHOW DATABASES LIKE SQLNAME SEMICOLON
     '''
     if len(p) == 4:
-        p[0] = ShowDatabase(None)
+        p[0] = ShowDatabase(None, generateC3D(p))
     else:
-        p[0] = ShowDatabase(p[4])
+        p[0] = ShowDatabase(p[4], generateC3D(p))
 
 
 def p_alter_statement(p):
@@ -504,9 +573,9 @@ def p_alter_database(p):
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if p[2].lower() == 'RENAME'.lower():  # Renombra la base de datos
-        p[0] = AlterDatabase(1, p[1], p[4], noLine, noColumn)
+        p[0] = AlterDatabase(1, p[1], p[4], generateC3D(p), noLine, noColumn)
     else:  # Le cambia el duenio a la base de datos
-        p[0] = AlterDatabase(2, p[1], p[4], noLine, noColumn)
+        p[0] = AlterDatabase(2, p[1], p[4], generateC3D(p), noLine, noColumn)
 
 
 def p_type_owner(p):
@@ -520,7 +589,7 @@ def p_type_owner(p):
 def p_alter_table(p):
     '''altertable : ID alterlist
     '''
-    p[0] = AlterTable(p[1], p[2])
+    p[0] = AlterTable(p[1], p[2], generateC3D(p))
 
 
 def p_alter_list(p):
@@ -604,7 +673,7 @@ def p_drop_statement(p):
 
 def p_options_drop(p):
     '''optionsdrop : DATABASE dropdatabase
-                    | TABLE droptable
+                   | TABLE droptable
     '''
     p[0] = p[2]
 
@@ -616,9 +685,9 @@ def p_drop_database(p):
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if len(p) == 4:
-        p[0] = DropDB(True, p[3], noLine, noColumn)
+        p[0] = DropDB(True, p[3], generateC3D(p), noLine, noColumn)
     else:
-        p[0] = DropDB(False, p[1], noLine, noColumn)
+        p[0] = DropDB(False, p[1], generateC3D(p), noLine, noColumn)
 
 
 def p_drop_table(p):
@@ -626,12 +695,210 @@ def p_drop_table(p):
     '''
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
-    p[0] = DropTB(p[1], noLine, noColumn)
+    p[0] = DropTB(p[1], generateC3D(p), noLine, noColumn)
 
 
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+def p_sql_functions(p):
+    '''SQL_FUNCTIONS : CREATE FUNCTION ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS RETURNS typeReturns AS bodyBlock LANGUAGE PLPGSQL SEMICOLON
+                     | CREATE FUNCTION ID LEFT_PARENTHESIS RIGHT_PARENTHESIS  RETURNS typeReturns AS bodyBlock LANGUAGE PLPGSQL SEMICOLON
+                     | CREATE FUNCTION ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS  AS bodyBlock LANGUAGE PLPGSQL SEMICOLON
+                     | CREATE FUNCTION ID LEFT_PARENTHESIS RIGHT_PARENTHESIS AS bodyBlock LANGUAGE PLPGSQL SEMICOLON
+    '''
+
+def p_sql_procedures(p):
+    '''SQL_PROCEDURES : CREATE PROCEDURE ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
+                      | CREATE PROCEDURE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
+    '''
+
+def p_returns_type_func(p):
+    '''typeReturns : typecol
+                   | VOID
+                   | TABLE LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS
+    '''
+
+def p_list_argument(p):
+    '''LIST_ARGUMENT : LIST_ARGUMENT COMMA param
+                     | param
+    '''
+
+def p_param(p):
+    '''param : ID typecol
+             | typecol
+             | VARIADIC ID typecol
+             | ID ID
+    '''
+
+def p_body_block(p):
+    '''bodyBlock : DOUBLE_DOLLAR BODY_DECLARATION DOUBLE_DOLLAR
+                 | DOLLAR SQLNAME DOLLAR BODY_DECLARATION DOLLAR SQLNAME DOLLAR
+    '''
+
+def p_body_declaration(p):
+    '''BODY_DECLARATION : headerBodyList BEGIN STATEMENTS END ID SEMICOLON 
+                        | headerBodyList BEGIN STATEMENTS EXCEPTION bodyExceptionList END ID SEMICOLON
+                        | headerBodyList BEGIN STATEMENTS END SEMICOLON
+                        | headerBodyList BEGIN STATEMENTS EXCEPTION bodyExceptionList END SEMICOLON
+                        | BEGIN STATEMENTS END ID SEMICOLON
+                        | BEGIN STATEMENTS EXCEPTION bodyExceptionList END ID SEMICOLON
+                        | BEGIN STATEMENTS END SEMICOLON
+                        | BEGIN STATEMENTS EXCEPTION bodyExceptionList END SEMICOLON
+    '''
+
+def p_header_body_list(p):
+    '''headerBodyList : headerBodyList header
+                      | header
+    '''
+
+def p_header(p):
+    '''header : BITWISE_SHIFT_LEFT ID BITWISE_SHIFT_RIGHT
+              | DECLARE declarationsList
+    '''
+
+def p_declarations_list(p):
+    '''declarationsList : declarationsList SQL_VAR_DECLARATIONS
+                        | SQL_VAR_DECLARATIONS
+    '''
+
+def p_sql_var_declarations(p):
+    '''SQL_VAR_DECLARATIONS : ID CONSTANT typeDeclare optionsDeclaration SEMICOLON
+                            | ID CONSTANT typeDeclare SEMICOLON
+                            | ID typeDeclare optionsDeclaration SEMICOLON
+                            | ID typeDeclare SEMICOLON
+                            | ID ALIAS FOR DOLLAR SQLINTEGER SEMICOLON
+    '''
+
+def p_type_param(p):
+    '''typeDeclare : typecol
+                 | ID MODULAR ROWTYPE
+                 | ID DOT ID MODULAR TYPE
+                 | RECORD
+                 | OUT
+    '''
+
+def p_options_declaration(p):
+    '''optionsDeclaration : optionsDeclaration detailDeclaration
+                          | detailDeclaration
+    '''
+
+def p_detail_declaration(p):
+    '''detailDeclaration : COLLATE ID
+                         | NOT NULL
+                         | ASSIGNATION_SYMBOL SQLINTEGER 
+                         | ASSIGNATION_SYMBOL SQLNAME
+                         | ASSIGNATION_SYMBOL TRUE
+                         | ASSIGNATION_SYMBOL FALSE
+    '''
+
+def p_assignation_symbol(p):
+    '''ASSIGNATION_SYMBOL : EQUALS
+                          | COLONEQUALS
+                          | DEFAULT
+    '''
+
+#El primero es un opciones con un return de expresion
+#El segundo es solo un return expresion
+#El tercero es un cuerpo
+def p_staments(p):
+    '''STATEMENTS : OPTIONS_STATEMENTS RETURN PLPSQL_EXPRESSION SEMICOLON
+                  | RETURN PLPSQL_EXPRESSION SEMICOLON 
+                  | OPTIONS_STATEMENTS
+
+    '''
+
+
+def p_options_statements(p):
+    '''OPTIONS_STATEMENTS : OPTIONS_STATEMENTS statementType
+                          | statementType
+
+    '''
+
+def p_statement_type(p):
+    '''statementType : PLPSQL_EXPRESSION  SEMICOLON 
+                    |  RAISE_EXCEPTION 
+                    |  BODY_DECLARATION
+                    |  ifStatement
+                    |  CASECLAUSE
+    '''
+
+def p_plpsql_expression(p):
+    '''PLPSQL_EXPRESSION : PLPSQL_EXPRESSION CONCAT PLPSQL_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION NOT_EQUAL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION GREATE_EQUAL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION GREATE_THAN PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION LESS_THAN PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION LESS_EQUAL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION
+                         
+    '''
+def p_plpsql_primary_expression(p):
+    '''PLPSQL_PRIMARY_EXPRESSION : PLPSQL_PRIMARY_EXPRESSION PLUS PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION REST PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION ASTERISK PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION DIVISION PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION EXPONENT PLPSQL_PRIMARY_EXPRESSION
+                                 | PLPSQL_PRIMARY_EXPRESSION MODULAR PLPSQL_PRIMARY_EXPRESSION
+                                 | REST PLPSQL_PRIMARY_EXPRESSION %prec UREST
+                                 | PLUS PLPSQL_PRIMARY_EXPRESSION %prec UPLUS
+                                 | AGGREGATEFUNCTIONS
+                                 | GREATESTORLEAST
+                                 | EXPRESSIONSTIME
+                                 | SQUARE_ROOT SQLSIMPLEEXPRESSION
+                                 | CUBE_ROOT SQLSIMPLEEXPRESSION
+                                 | MATHEMATICALFUNCTIONS
+                                 | BINARY_STRING_FUNCTIONS
+                                 | TRIGONOMETRIC_FUNCTIONS
+                                 | TRUE
+                                 | FALSE
+                                 | OBJECTREFERENCE
+                                 | SQLINTEGER
+                                 | DOLLAR SQLINTEGER
+    '''
+
+def p_if_statement(p):
+    '''ifStatement : IF SQLEXPRESSION THEN STATEMENTS elseIfBlocks ELSE STATEMENTS END IF SEMICOLON
+                   | IF SQLEXPRESSION THEN STATEMENTS elseIfBlocks END IF SEMICOLON
+                   | IF SQLEXPRESSION THEN STATEMENTS ELSE STATEMENTS END IF SEMICOLON
+                   | IF SQLEXPRESSION THEN STATEMENTS END IF SEMICOLON
+    '''
+
+def p_elseIfBlocks(p):
+    '''elseIfBlocks : elseIfBlocks elseIfBlock
+                    | elseIfBlock
+    '''
+
+def p_elseIfBlock(p):
+    '''elseIfBlock : elseIfWord SQLEXPRESSION THEN STATEMENTS
+    '''
+
+def p_else_word(p):
+    '''elseIfWord : ELSEIF
+                  | ELSIF
+    '''
+
+def p_bodyExceptionList(p):
+    '''bodyExceptionList : bodyExceptionList bodyException
+                         | bodyException
+    '''
+
+def p_bodyException(p):
+    '''bodyException : WHEN SQLEXPRESSION THEN STATEMENTS
+    '''
+
+def p_raise_exception(p):
+    '''RAISE_EXCEPTION : RAISE NOTICE SQLNAME COMMA OBJECTREFERENCE SEMICOLON
+                       | RAISE SQLNAME COMMA OBJECTREFERENCE SEMICOLON 
+    '''
+
 # =====================================================================================
 # =====================================================================================
 # =====================================================================================
+
+
+
 
 def p_dml(p):
     '''DML : QUERYSTATEMENT
@@ -646,11 +913,14 @@ def p_update_statement(p):
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
     if(len(p) == 8):
-        p[0] = Update(p[2], p[5], p[6], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2], p[5], p[6], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
     elif(len(p) == 7):
-        p[0] = Update(p[2], p[4], p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2], p[4], p[5], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Update(p[2], p[4], None, p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2], p[4], None, generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
 
 
 def p_set_list(p):
@@ -684,6 +954,7 @@ def p_sql_expression2(p):
                       | SQLNAME
                       | SQLINTEGER
                       | TRUE
+                      | DOLLAR SQLINTEGER
                       | FALSE'''
     # TODO: CUALES SON LOS UNARIOS QUE ACEPTA ---> REVISAR
     if len(p) == 4:
@@ -734,9 +1005,11 @@ def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
     if (len(p) == 6):
-        p[0] = Delete(p[3], p[4], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Delete(p[3], p[4], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Delete(p[3], None, p.lineno(1), find_column(p.slice[1]))
+        p[0] = Delete(p[3], None, generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
 
 
 def p_options_list(p):
@@ -829,9 +1102,11 @@ def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
     if(len(p) == 12):
-        p[0] = Insert(p[3], p[5], p[9], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Insert(p[3], p[5], p[9], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Insert(p[3], None, p[6], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Insert(p[3], None, p[6], generateC3D(p),
+                      p.lineno(1), find_column(p.slice[1]))
 
 
 def p_list_params_insert(p):
@@ -859,17 +1134,17 @@ def p_select_statement(p):
         p[2] = p[2][1]
         [3].pop(0)
         p[3] = p[3][0]
-        p[0] = Select(p[1], p[2], p[3])
+        p[0] = Select(p[1], p[2], p[3], generateC3D(p))
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
             p[2] = p[2][1]
-            p[0] = Select(p[1], p[2], None)
+            p[0] = Select(p[1], p[2], None, generateC3D(p))
         elif ('LIMIT' in p[2]):
             [2].pop(0)
             p[2] = p[2][0]
-            p[0] = Select(p[1], None, p[2])
+            p[0] = Select(p[1], None, p[2], generateC3D(p))
     elif (len(p) == 2):
-        p[0] = Select(p[1], None, None)
+        p[0] = Select(p[1], None, None, generateC3D(p))
 
 
 def p_select_without_order(p):
@@ -1290,6 +1565,7 @@ def p_sql_simple_expression(p):
                            | OBJECTREFERENCE
                            | NULL
                            | TRUE
+                           | DOLLAR SQLINTEGER
                            | FALSE'''
     if (len(p) == 4):
         if (p[1] == "("):
@@ -1534,7 +1810,6 @@ def p_trigonometric_functions(p):
     else:
         p[0] = ExpressionsTrigonometric(
             p[1], p[3], p[5], p.lineno(1), find_column(p.slice[1]))
-# TODO: REVISAR QUE SQLALIAS SEA OPCIONAL, Asi esta bien >:v pinche juan marcos
 
 
 def p_sql_alias(p):
@@ -1703,10 +1978,21 @@ parser = yacc.yacc()
 
 
 def parse(inpu):
-    global input
+    global input, contador_instr
+    contador_instr = 0
     ErrorController().destroy()
     lexer = lex.lex()
     lexer.lineno = 1
     input = inpu
     get_text(input)
     return parser.parse(inpu, lexer=lexer)
+
+
+# Generacion de C3D
+def generateC3D(p):
+    global contador_instr
+    arr_instr = p.lexer.lexdata.split(sep=";", maxsplit=contador_instr+1)
+    aux = arr_instr[contador_instr].replace("\n", " ").strip()
+    return ' '.join(aux.split())
+    #temp = ThreeAddressCode().newTemp()
+    #ThreeAddressCode().addCode(f"{temp} = '{aux};'")

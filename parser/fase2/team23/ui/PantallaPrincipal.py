@@ -10,7 +10,6 @@ from ui.Pantalla_AST import *
 from ui.Pantalla_Error import *
 import tkinter.messagebox
 from analizer import interpreter
-from prettytable import PrettyTable
 
 class Pantalla:
     def __init__(self):
@@ -22,7 +21,6 @@ class Pantalla:
         self.inicializarScreen()
 
     def inicializarScreen(self):
-        self.Codigo3Direcciones = ""
         # inicializacion de la pantalla
         self.window = Tk()
         self.window.geometry("700x750")
@@ -50,10 +48,10 @@ class Pantalla:
 
         self.window.config(menu=navMenu)
         frame_btn = Frame(self.window)
-        btn_1 = Button(frame_btn, text="Parsear", command=self.parse)
-        btn_1.pack(side=LEFT, anchor=E, padx=25, pady=20)
         btn = Button(frame_btn, text="Consultar", command=self.analize)
         btn.pack(side=LEFT, anchor=E, padx=25, pady=20)
+        btn_1 = Button(frame_btn, text="Parsear", command=self.parse)
+        btn_1.pack(side=LEFT, anchor=E, padx=25, pady=20)
         frame_btn.pack()
         # Creacion del notebook
         self.tabControl = ttk.Notebook(self.window, width=650, height=300)
@@ -61,7 +59,7 @@ class Pantalla:
         self.text_Consola = tk.Text(console_frame, height=20, width=150)
         self.text_Consola.pack(fill=BOTH)
         console_frame.pack(fill=BOTH)
-        self.tabControl.add(console_frame, text="Codigo 3 Direcciones")
+        self.tabControl.add(console_frame, text="Consola")
         self.tabControl.pack()
         self.window.mainloop()
 
@@ -120,7 +118,6 @@ class Pantalla:
             "1.0", END
         )  # variable de almacenamiento de la entrada
         result = interpreter.execution(entrada)
-        result_c3d = interpreter.getc3d(entrada)
         self.lexicalErrors = result["lexical"]
         self.syntacticErrors = result["syntax"]
         self.semanticErrors = result["semantic"]
@@ -143,16 +140,6 @@ class Pantalla:
                     self.text_Consola.insert(INSERT, self.postgreSQL[i] + "\n")
                     i += 1
         querys = result["querys"]
-        '''for consult in querys:
-            salidaTabla = PrettyTable()
-            encabezados = consult[0]
-            salidaTabla.field_names = encabezados
-            cuerpo = consult[1]
-            salidaTabla.add_rows(cuerpo)
-            print(salidaTabla)
-            print("\n")
-            print("\n")
-        '''
         self.show_result(querys)
         messages = result["messages"]
         if len(messages) > 0:
@@ -161,10 +148,6 @@ class Pantalla:
             while i < len(messages):
                 self.text_Consola.insert(INSERT, str(messages[i]) + "\n")
                 i += 1
-        self.text_Consola.insert(INSERT, "-----------Codigo 3 Direcciones----------" + "\n")
-        codigo = result_c3d["codigo"]
-        self.text_Consola.insert(INSERT, codigo)
-        self.Codigo3Direcciones = codigo
 
         self.tabControl.pack()
 
