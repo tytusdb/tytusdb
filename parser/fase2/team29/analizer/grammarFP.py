@@ -1,7 +1,7 @@
 import ply.yacc as yacc
 # Construccion del analizador léxico
 import ply.lex as lex
-from tokensFP import *
+from tokens import *
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 listInst = []
@@ -33,87 +33,53 @@ precedence = (
 
 # Definición de la gramática
 
-#region PL/SQL
-
-# block
+#block
 
 def p_init(t):
-    """
-    blockList : blockList block
-                | block
-    """
-
-def p_block(t):
     """block :  declaration_stmt R_BEGIN block_stmts exception R_END label S_PUNTOCOMA"""
 
-# region declaration
+#declaration
 
 def p_declaration_stmt(t):
-    """
-    declaration_stmt : label_stmt R_DECLARE global_variable_declaration
-        |   
-    """
-
+    """declaration_stmt : label_stmt R_DECLARE global_variable_declaration
+        |   """
 
 def p_global_variable_declaration(t):
-    """
-    global_variable_declaration : global_variable_declaration declaration
-                                | declaration 
-    """
-
+    """global_variable_declaration : declaration 
+                                    | global_variable_declaration declaration"""
 
 def p_global_vd(t):
-    """
-    declaration : ID constant types_d assignment S_PUNTOCOMA
+    """declaration : ID constant types_d assignment S_PUNTOCOMA
         | ID R_ALIAS R_FOR S_DOLAR INTEGER S_PUNTOCOMA
         | ID R_RECORD S_PUNTOCOMA
-        | ID R_ALIAS R_FOR ID S_PUNTOCOMA
-    """
-
+        | ID R_ALIAS R_FOR ID S_PUNTOCOMA"""
 
 def p_constant(t):
-    """
-    constant : R_CONSTANT
-        |
-    """
-
+    """constant : R_CONSTANT
+        |"""
 
 def p_assignment(t):
-    """
-    assignment : assignment_operator_D datatype_d
-            |
-    """
-
-
+    """assignment : assignment_operator_D datatype_d
+        |"""
 def p_assignment_operator_D(t):
-    """
-    assignment_operator_D : R_DEFAULT
+    """assignment_operator_D : R_DEFAULT
         | O_ASIGNACION
-        | OL_ESIGUAL
-    """
-
+        | OL_ESIGUAL"""
 
 def p_label_stmt(t):
     """label_stmt : OC_SHIFTL ID OC_SHIFTR
-                | 
-    """
-
+                | """
 
 def p_label(t):
     """label : ID
-    |
-    """
+    |"""
 
-#endregion
-
-# region typedeclaration
-
+#typedeclaration
 
 def p_types_d(t):
     """
     types_d :  ID
     """
-
 
 def p_types_d_simple(t):
     """
@@ -130,7 +96,6 @@ def p_types_d_simple(t):
     | T_TIME
     """
 
-
 def p_types_d_params(t):
     """
     types_d : T_DECIMAL optParams
@@ -140,28 +105,28 @@ def p_types_d_params(t):
     | T_CHAR optParams
     """
 
-
 def p_typesvar(t):
     """
     types_d : T_CHARACTER T_VARYING optParams
     """
-
+    
+def p_timeType_interval_d(t):
+    """
+    types_d : R_INTERVAL intervalFields
+    """
 
 def p_vartype(t):
     """types_d :  ID O_MODULAR R_TYPE"""
 
-
 def p_columntype(t):
     """types_d :  ID S_PUNTO ID O_MODULAR R_TYPE"""
-
 
 def p_rowtypes(t):
     """types_d :  ID O_MODULAR R_ROWTYPE """
 
-#endregion
 
-# region datatype
-
+#datatype
+ 
 def p_datatype_operadores_binarios1_d(t):
     """
     datatype_d : datatype_d O_SUMA datatype_d
@@ -172,12 +137,10 @@ def p_datatype_operadores_binarios1_d(t):
     | datatype_d O_MODULAR datatype_d
     """
 
-
 def p_datatype_operadores_binarios2_d(t):
     """
-    datatype_d : datatype_d OC_CONCATENAR datatype_d
+    datatype_d : datatype_d OC_CONCATENAR datatype
     """
-
 
 def p_datatype_operadores_unarios_d(t):
     """
@@ -185,19 +148,20 @@ def p_datatype_operadores_unarios_d(t):
     | O_SUMA datatype_d %prec UO_SUMA
     """
 
-
 def p_datatype_operandos_d(t):
     """
     datatype_d : literal_d
-
+    | funcCall
+    | extract
+    | datePart
+    | current
+    | parameter
     """
-
 
 def p_datatype_agrupacion_d(t):
     """
     datatype_d : S_PARIZQ datatype_d S_PARDER
     """
-
 
 def p_literal_d(t):
     """
@@ -210,301 +174,240 @@ def p_literal_d(t):
     | ID
     """
 
-#endregion
-
-# region block stmts
-
+#block stmts
 
 def p_block_stmts(t):
-    """
-    block_stmts : block_stmts block_stmt 
-                | block_stmt
-    """
+    """block_stmts : block_stmts block_stmt """
 
+def p_empty(t):
+    """block_stmts :
+    exception :"""
 
 def p_block_stmt(t):
-    """
-    block_stmt : local_variable_declaration
+    """block_stmt : local_variable_declaration
                 | statement
-                | stmt
-    """
+                | stmt"""
 
-#endregion
-
-# region local variable declaration
-
-def p_local_variable_declaration(t):
-    """local_variable_declaration : ID assignment_operator datatype_d S_PUNTOCOMA"""
-
-
-def p_assignment_operator(t):
-    """
-    assignment_operator : O_ASIGNACION
-        | S_IGUAL
-    """
-
-#endregion
-
-# region Control Structures
+#Control Structures
 
 def p_statement(t):
-    """
-    statement : if_stmt
-            | case_stmt
-            | stmt_without_substmt
-    """
+    """statement : if_stmt
+        | loop_stmt
+        | while_stmt
+        | for_stmt_int
+        | for_stmt_query
+        | case_stmt
+        | stmt_without_substmt"""
 
 def p_stmt_without_substmt(t):
-    """
-    stmt_without_substmt : R_NULL S_PUNTOCOMA
-                        | R_RETURN return_stmt
-                        | query_single_row
-    """
+    """stmt_without_substmt : R_NULL S_PUNTOCOMA
+        | R_RETURN return_stmt
+        | R_EXIT exit_stmt
+        | R_CONTINUE continue_stmt
+        | query_single_row
+        """
 
-#endregion
 
-# region CONDITIONALS IF, CASE
-# IF
+
+#local variable declaration
+
+def p_local_variable_declaration(t):
+    """local_variable_declaration : ID assignment_operator datatype S_PUNTOCOMA"""
+
+def p_assignment_operator(t):
+    """assignment_operator : O_ASIGNACION
+        | S_IGUAL"""
+
+#return
+
+def p_return_stmt(t):
+    """return_stmt : expresion S_PUNTOCOMA
+                | R_NEXT expresion S_PUNTOCOMA
+                | R_QUERY  selectStmt S_PUNTOCOMA
+                | S_PUNTOCOMA
+                | R_QUERY execute_return S_PUNTOCOMA"""
+
+
+
+#CONDITIONALS IF, CASE
+#IF
 def p_if_stmt(t):
-    """if_stmt : R_IF expBool R_THEN block_stmts elseif_stmts_opt else_stmt_opt R_END R_IF S_PUNTOCOMA"""
+    """if_stmt : R_IF expBool R_THEN block_stmts elseif_stmts else_stmt_opt R_END R_IF S_PUNTOCOMA"""
 
-def p_elseif_stmts_opt(t):
-    """
-    elseif_stmts_opt : elseif_stmts
-                |
-    """
-
-def p_elseif_stmts(t):
-    """
-    elseif_stmts : elseif_stmts elseif_stmt
-                | elseif_stmt
-    """
+def p_else_stmt(t):
+    """elseif_stmts : elseif_stmts elseif_stmt"""
 
 def p_elseif_stmt(t):
     """elseif_stmt :  R_ELSEIF expBool R_THEN block_stmts"""
 
 def p_else_stmt_opt(t):
-    """
-    else_stmt_opt : R_ELSE block_stmts
-                |
-    """
+    """else_stmt_opt : R_ELSE block_stmts"""
 
-#endregion
+def p_else_empty_stmt(t):
+    """elseif_stmts :
+        else_stmt_opt :"""
 
-# region CASE
-
+#CASE
 def p_case_stmt(t):
-    """
-    case_stmt : case_stmt_n
-            | case_stmt_bool
-    """
+    """case_stmt : case_stmt_n
+        | case_stmt_bool"""
 
 def p_case_stmt_n(t):
-    """case_stmt_n : R_CASE ID R_WHEN list_expression R_THEN block_stmts else_case_stmt_n_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
-
-def p_else_case_stmt_n_opt(t):
-    """
-    else_case_stmt_n_opt : else_case_stmt_n 
-                        |
-    """
+    """case_stmt_n : R_CASE ID R_WHEN list_expression R_THEN block_stmts else_case_stmt_n else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
 
 def p_else_case_stmt_n(t):
-    """
-    else_case_stmt_n : else_case_stmt_n R_WHEN list_expression R_THEN block_stmts 
+    """else_case_stmt_n : else_case_stmt_n R_WHEN list_expression R_THEN block_stmts 
     | R_WHEN list_expression R_THEN block_stmts  
-    """
-
+    |"""
 
 def p_case_stmt_bool(t):
-    """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
-
-
-def p_else_case_stmt_bool_opt(t):
-    """
-    else_case_stmt_bool_opt : else_case_stmt_bool 
-                        |
-    """
+    """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
 
 def p_else_case_stmt_bool(t):
-    """
-    else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts  
+    """else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts  
                         |  R_WHEN expBool R_THEN block_stmts 
-    """
+                        |"""
 
 def p_list_expression(t):
-    """
-    list_expression : exp1
-                    | list_expression S_COMA exp1
-    """
-
+    """list_expression : exp1
+        | list_expression S_COMA exp1"""
 
 def p_exp1(t):
-    """
-    exp1 : INTEGER
+    """exp1 : INTEGER
     | STRING
     | DECIMAL
     | CHARACTER
     | R_TRUE
-    | R_FALSE
-    """
+    | R_FALSE"""
+
+#LOOPS 
+
+#loop
+
+def p_loop_stmt(t):
+    """loop_stmt : label_stmt R_LOOP block_stmts R_END R_LOOP label S_PUNTOCOMA"""
 
 
-#endregion
+#exit
+def p_exit_stmt(t):
+    """exit_stmt : S_PUNTOCOMA
+        | label R_WHEN expBool S_PUNTOCOMA"""
 
-# region return
+#continue
 
-def p_return_stmt(t):
-    """
-    return_stmt : expresion S_PUNTOCOMA
-                | R_NEXT expresion S_PUNTOCOMA
-                | R_QUERY selectStmt S_PUNTOCOMA
-                | S_PUNTOCOMA
-                | R_QUERY execute_return S_PUNTOCOMA
-    """
+def p_continue_stmt(t):
+    """continue_stmt : S_PUNTOCOMA
+        | label R_WHEN expBool S_PUNTOCOMA"""
 
-#endregion
+#while
 
-# region EXECUTE
+def p_while_stmt(t):
+    """while_stmt : label_stmt R_WHILE expBool R_LOOP block_stmts R_END R_LOOP label S_PUNTOCOMA"""
 
-def p_execute_return(t):
-    """execute_return : R_EXECUTE exp_string  using  """
+#for integer variant
+def p_for_stmt_int(t):
+    """for_stmt_int : label_stmt R_FOR ID R_IN reverse INTEGER S_DOSPUNTOS INTEGER by_stmt R_LOOP block_stmts R_END R_LOOP label S_PUNTOCOMA"""
 
-def p_execute(t):
-    """execute : R_EXECUTE exp_string into_strict using """
+def p_reverse(t):
+    """reverse : R_REVERSE
+        |"""
 
+def p_by_stmt(t):
+    """by_stmt : R_BY INTEGER
+        |"""
 
-def p_into_strict(t):
-    """
-    into_strict : R_INTO strict ID
-    |
-    """
-
-
-def p_exp_string(t):
-    """
-    exp_string : id_or_string 
-                | exp_string OC_CONCATENAR id_or_string
-    """
+#for query result
+def p_for_stmt_query(t):
+    """for_stmt_query : label_stmt R_FOR ID R_IN selectStmt R_LOOP block_stmts R_END R_LOOP label S_PUNTOCOMA"""
 
 
-def p_using(t):
-    """
-    using : R_USING list_expression_2
-    |
-    """
 
 
-def p_list_expression_2(t):
-    """
-    list_expression_2 : ID
-                    | list_expression_2 S_COMA ID
-    """
 
-
-def p_exp_string_id(t):
-    """
-    id_or_string : STRING
-    | ID 
-    | funcCall
-    """
-
-#endregion
-
-#region query single row
+#EXECUTE QUERY SINGLE ROW
 
 def p_query_single_row(t):
-    """
-    query_single_row : insertStmt_SR S_PUNTOCOMA
-                    | updateStmt_SR S_PUNTOCOMA
-                    | deleteStmt_SR S_PUNTOCOMA
-                    | selectStmt_SR S_PUNTOCOMA
-                    | perform S_PUNTOCOMA
-                    | execute S_PUNTOCOMA
-                    | get S_PUNTOCOMA
-    """
+    """query_single_row : insertStmt_SR S_PUNTOCOMA
+    | updateStmt_SR S_PUNTOCOMA
+    | deleteStmt_SR S_PUNTOCOMA
+    | selectStmt_SR S_PUNTOCOMA
+    | perform S_PUNTOCOMA
+    | execute S_PUNTOCOMA
+    | get S_PUNTOCOMA"""
 
+#insert
 
-# insert
 def p_insertStmt_single_row(t):
     """insertStmt_SR : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER R_RETURNING returnParams  R_INTO strict ID """
 
-# update
+
+#update
+
 def p_updateStmt_single_row(t):
     """updateStmt_SR : R_UPDATE fromBody R_SET updateCols whereCl R_RETURNING returnParams R_INTO strict ID """
 
+   
 
-# delete
+#delete
+
 def p_deleteStmt_single_row(t):
     """deleteStmt_SR : R_DELETE fromCl whereCl R_RETURNING returnParams R_INTO strict ID """
 
-
-# region select
-
+#select
 def p_selectStmt_single_row_1(t):
     """selectStmt_SR : R_SELECT R_DISTINCT selectParams R_INTO strict ID fromCl whereCl groupByCl limitCl """
+
 
 
 def p_selectStmt_single_row_2(t):
     """selectStmt_SR : R_SELECT selectParams R_INTO strict ID fromCl whereCl groupByCl limitCl"""
 
 
+def p_selectStmt__single_row_1(t):
+    """selectStmt_SR : R_SELECT selectParams R_INTO strict ID fromCl joinList whereCl groupByCl orderByCl limitCl"""
+   
+
+
+def p_selectStmt__single_row_2(t):
+    """selectStmt_SR : R_SELECT selectParams R_INTO strict ID fromCl whereCl groupByCl orderByCl limitCl"""
+   
+
+
+def p_selectStmt__single_row_3(t):
+    """selectStmt_SR : R_SELECT selectParams R_INTO strict ID fromCl joinList whereCl groupByCl limitCl"""
+    
+
+
 def p_selectStmt_union_single_row(t):
     """selectStmt_SR : selectStmt_SR R_UNION allOpt selectStmt_SR"""
+    
 
 
 def p_selectStmt_intersect_single_row(t):
     """selectStmt_SR : selectStmt_SR R_INTERSECT allOpt selectStmt_SR"""
+    
 
 
 def p_selectStmt_except_single_row(t):
     """selectStmt_SR : selectStmt_SR R_EXCEPT allOpt selectStmt_SR"""
+    
 
 
 def p_selectStmt_agrupacion_single_row(t):
     """selectStmt_SR : S_PARIZQ selectStmt_SR S_PARDER"""
-
+    
 
 def p_selectstmt_only_params_single_row(t):
     """selectStmt_SR : R_SELECT selectParams R_INTO strict ID"""
+   
 
-# endregion
-
-# perform
-def p_perform(t):
-    """perform : R_PERFORM STRING """
-
-# region GET
-
-def p_get(t):
-    """get : R_GET current_ R_DIAGNOSTIC ID assignment_operator item """
-
-
-def p_current_g(t):
-    """
-    current_ : R_CURRENT
-    |
-    """
-
-
-def p_item(t):
-    """item : R_ROW_COUNT"""
-
-#endregion
-
-#endregion
-
-# region strict
+#strict
 
 def p_strict(t):
-    """
-    strict : R_STRICT
-    |
-    """
+    """strict : R_STRICT
+    |"""
 
-#endregion
-
-# region returnParams
-
+#returnParams
 def p_returnparams_all(t):
     """returnParams : O_PRODUCTO"""
 
@@ -525,59 +428,99 @@ def p_returnlist_u(t):
 
 def p_returnlistParams_1(t):
     """returnlistParams : expresion"""
-
+   
 
 def p_returnlistParams_2(t):
     """returnlistParams : ID S_PUNTO O_PRODUCTO"""
+    
 
-#endregion
 
-# region EXCEPTION
+
+#PERFORM
+
+def p_perform(t):
+    """perform : R_PERFORM STRING """
+
+#EXECUTE
+
+def p_execute_return(t):
+    """execute_return : R_EXECUTE exp_string  using  """
+
+def p_execute(t):
+    """execute : R_EXECUTE exp_string into_strict using """
+
+def p_into_strict(t):
+    """into_strict : R_INTO strict ID
+    |"""
+
+def p_using(t):
+    """using : R_USING list_expression_2
+    |"""
+
+def p_list_expression_2(t):
+    """list_expression_2 : ID
+                        | list_expression_2 S_COMA ID"""
+
+def p_exp_string(t):
+    """exp_string : id_or_string 
+                | exp_string OC_CONCATENAR id_or_string"""
+
+def p_exp_string_id(t):
+    """id_or_string : STRING
+    | ID 
+    | funcCall"""
+
+#GET 
+
+def p_get(t):
+    """get : R_GET current R_DIAGNOSTIC ID assignment_operator item """
+
+def p_current_g(t):
+    """current : R_CURRENT
+    |"""
+
+def p_item(t):
+    """item : R_ROW_COUNT"""
+
+#EXCEPTION
 
 def p_exception(t):
     """exception : R_EXCEPTION when_stmt R_END S_PUNTOCOMA """
-
 
 def p_while_stmt_exp(t):
     """when_stmt : R_WHEN expBoolOR R_THEN handler_statements
     | when_stmt R_WHEN expBoolOR R_THEN handler_statements  """
 
-
 def p_expBoolOR(t):
     """expBoolOR : ID
                 | expBoolOR OC_OR ID  """
 
-
 def p_handler_statements(t):
     """handler_statements : handler_statements handler_statement """
 
-
 def p_empty_handler_stmt(t):
     """handler_statements :"""
-
 
 def p_handler_statement(t):
     """handler_statement : R_RAISE R_NOTICE STRING S_PUNTOCOMA
     | R_RETURN return_stmt  
     | R_NULL S_PUNTOCOMA"""
 
-#endregion
+#gramatica actual
 
-#endregion
+   
 
-# region Fase 1
 
 def p_stmt_list(t):
     """stmtList : stmtList stmt"""
-    t[1].append(t[2])
-    t[0] = t[1]
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_stmt_u(t):
     """stmtList : stmt"""
-    t[0] = [t[1]]
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_stmt(t):
@@ -593,7 +536,8 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 # Statement para el CREATE
@@ -604,80 +548,92 @@ def p_id_string(t):
     | STRING
     | CHARACTER
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createstmt(t):
     """createStmt : R_CREATE createBody"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createbody(t):
     """
     createBody : createOpts
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createopts_table(t):
     """createOpts : R_TABLE ifNotExists idOrString S_PARIZQ createTableList S_PARDER inheritsOpt """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_createopts_db(t):
     """
     createOpts : orReplace R_DATABASE ifNotExists idOrString createOwner createMode
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_replace_true(t):
     """
     orReplace : R_OR R_REPLACE
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_replace_false(t):
     """
     orReplace :
     """
-    repGrammar.append(t.slice)
+  
+    
 
 
 def p_createopts_type(t):
     """
     createOpts : R_TYPE ifNotExists ID R_AS R_ENUM S_PARIZQ paramsList S_PARDER
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_ifnotexists_true(t):
     """
     ifNotExists : R_IF R_NOT R_EXISTS
     """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_ifnotexists_false(t):
     """
     ifNotExists :
     """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_inheritsOpt(t):
     """
     inheritsOpt : R_INHERITS S_PARIZQ ID S_PARDER
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_inheritsOpt_none(t):
     """
     inheritsOpt :
     """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_createowner(t):
@@ -685,7 +641,8 @@ def p_createowner(t):
     createOwner : R_OWNER ID
     | R_OWNER STRING
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createowner_asg(t):
@@ -693,52 +650,60 @@ def p_createowner_asg(t):
     createOwner :  R_OWNER S_IGUAL ID
     | R_OWNER S_IGUAL STRING
     """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_createowner_none(t):
     """
     createOwner :
     """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_createmode(t):
     """
     createMode : R_MODE INTEGER
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createMode_asg(t):
     """
     createMode : R_MODE S_IGUAL INTEGER
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createmode_none(t):
     """
     createMode :
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createtable_list(t):
     """createTableList : createTableList S_COMA createTable"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createtable_u(t):
     """createTableList :  createTable"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createTable_id(t):
     """
     createTable :  ID types createColumns
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createTable(t):
@@ -748,74 +713,86 @@ def p_createTable(t):
     | createPrimary
     | createForeign
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createColumNs(t):
     """
     createColumns : colOptionsList
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createColumNs_none(t):
     """
     createColumns :
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createConstraint(t):
     """createConstraint : constrName R_CHECK S_PARIZQ booleanCheck S_PARDER"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createPrimary(t):
     """createPrimary : R_PRIMARY R_KEY S_PARIZQ idList S_PARDER"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_createForeign(t):
     """
     createForeign : constrName R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_constrName(t):
     """
     constrName : R_CONSTRAINT ID
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_constrName_none(t):
     """
     constrName :
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_id_list(t):
     """idList : idList S_COMA ID"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_id_u(t):
     """idList : ID"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_types(t):
     """
     types :  ID
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_types_simple(t):
@@ -832,10 +809,7 @@ def p_types_simple(t):
     | T_DATE
     | T_TIME
     """
-    repGrammar.append(t.slice)
 
-
-# TODO: Cambiar el optParams
 def p_types_params(t):
     """
     types : T_DECIMAL optParams
@@ -844,21 +818,24 @@ def p_types_params(t):
     | T_CHARACTER optParams
     | T_CHAR optParams
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_types_var(t):
     """
     types : T_CHARACTER T_VARYING optParams
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_timeType_interval(t):
     """
     types : R_INTERVAL intervalFields
     """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_intervalFields(t):
@@ -870,34 +847,39 @@ def p_intervalFields(t):
     | R_MINUTE
     | R_SECOND
     """
-    repGrammar.append(t.slice)
+
 
 
 def p_intervalFields_none(t):
     """
     intervalFields :
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_optParams(t):
     """optParams : S_PARIZQ literalList S_PARDER"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_optParams_none(t):
     """optParams : """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_colOptions_list(t):
     """colOptionsList : colOptionsList colOptions"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_colOptions_u(t):
     """colOptionsList : colOptions"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_colOptions(t):
@@ -908,27 +890,30 @@ def p_colOptions(t):
     | primaryOpt
     | referencesOpt
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 # cambiar literal
 def p_defaultVal(t):
     """defaultVal : R_DEFAULT literal"""
-    repGrammar.append(t.slice)
+    
 
 
 def p_nullOpt_true(t):
     """
     nullOpt : R_NOT R_NULL
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_nullOpt_false(t):
     """
     nullOpt : R_NULL
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 # cambiar literal
@@ -938,24 +923,28 @@ def p_constraintOpt_unique(t):
     """
     constraintOpt : constrName R_UNIQUE
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_constraintOpt_check(t):
     """
     constraintOpt : constrName R_CHECK S_PARIZQ booleanCheck S_PARDER
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_primaryOpt(t):
     """primaryOpt : R_PRIMARY R_KEY"""
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_referencesOpt(t):
     """referencesOpt : R_REFERENCES ID"""
-    repGrammar.append(t.slice)
+    
+    
 
 
 # endregion CREATE
@@ -968,21 +957,23 @@ def p_expresion(t):
     expresion : datatype
             | expBool
     """
-    repGrammar.append(t.slice)
+    t[0] = t[1]
+    
 
 
 def p_expresion_(t):
     """
     expresion : S_PARIZQ selectStmt S_PARDER
     """
-    repGrammar.append(t.slice)
+    t[0] = t[2]
+    
 
 
 def p_funcCall_1(t):
     """
     funcCall : ID S_PARIZQ paramsList S_PARDER
     """
-    repGrammar.append(t.slice)
+    
 
 
 def p_funcCall_2(t):
@@ -990,7 +981,8 @@ def p_funcCall_2(t):
     funcCall : ID S_PARIZQ S_PARDER
             | R_NOW S_PARIZQ S_PARDER
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_funcCall_3(t):
@@ -1000,21 +992,25 @@ def p_funcCall_3(t):
             | R_SUM S_PARIZQ datatype S_PARDER
             | R_PROM S_PARIZQ datatype S_PARDER
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_extract_1(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
     """
-    repGrammar.append(t.slice)
+    
+
+    
 
 
 def p_extract_2(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM columnName S_PARDER
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_timeStamp(t):
@@ -1022,7 +1018,7 @@ def p_timeStamp(t):
     timeStamp : R_TIMESTAMP STRING
           | R_INTERVAL STRING
     """
-    repGrammar.append(t.slice)
+    
 
 
 def p_optsExtract(t):
@@ -1034,14 +1030,16 @@ def p_optsExtract(t):
                   | R_MINUTE
                   | R_SECOND
     """
-    repGrammar.append(t.slice)
+  
+    
 
 
 def p_datePart(t):
     """
     datePart : R_DATE_PART S_PARIZQ STRING S_COMA dateSource S_PARDER
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_dateSource(t):
@@ -1052,7 +1050,8 @@ def p_dateSource(t):
           | R_INTERVAL STRING
           | R_NOW S_PARIZQ S_PARDER
     """
-    repGrammar.append(t.slice)
+    t[0] = [t[1], t[2]]
+    
 
 
 def p_current(t):
@@ -1060,24 +1059,29 @@ def p_current(t):
     current : R_CURRENT_DATE
           | R_CURRENT_TIME
     """
-    repGrammar.append(t.slice)
+   
+
+    
 
 
 def p_current_1(t):
     """
     current : timeStamp
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_literal_list(t):
     """literalList : literalList S_COMA literal"""
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_literal_u(t):
     """literalList : literal"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_literal(t):
@@ -1090,17 +1094,21 @@ def p_literal(t):
     | R_FALSE
     | R_NULL
     """
-    repGrammar.append(t.slice)
+
+
+    
 
 
 def p_params_list(t):
     """paramsList : paramsList S_COMA datatype"""
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_params_u(t):
     """paramsList : datatype"""
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_datatype_operadores_binarios1(t):
@@ -1112,14 +1120,16 @@ def p_datatype_operadores_binarios1(t):
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
     """
-    repGrammar.append(t.slice)
+    
+
+    
 
 
 def p_datatype_operadores_binarios2(t):
     """
     datatype : datatype OC_CONCATENAR datatype
     """
-    repGrammar.append(t.slice)
+    
 
 
 def p_datatype_case_when(t):
@@ -1150,7 +1160,8 @@ def p_datatype_operadores_unarios(t):
     datatype : O_RESTA datatype %prec UO_RESTA
     | O_SUMA datatype %prec UO_SUMA
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_datatype_operandos(t):
@@ -1161,15 +1172,20 @@ def p_datatype_operandos(t):
     | extract
     | datePart
     | current
+    | parameter
     """
-    repGrammar.append(t.slice)
+ 
+def p_datatype_parameter(t):
+     """parameter :  S_DOLAR INTEGER"""
+    
 
 
 def p_datatype_agrupacion(t):
     """
     datatype : S_PARIZQ datatype S_PARDER
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_expCompBinario_1(t):
@@ -1181,28 +1197,32 @@ def p_expCompBinario_1(t):
     | datatype S_IGUAL datatype
     | datatype OL_DISTINTODE datatype
     """
-    repGrammar.append(t.slice)
+  
+    
 
 
 def p_expCompBinario_2(t):
     """
     expComp : datatype R_IS R_DISTINCT R_FROM datatype
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_expCompBinario_3(t):
     """
     expComp : datatype R_IS R_NOT R_DISTINCT R_FROM datatype
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_expComp_ternario_1(t):
     """
     expComp :  datatype R_BETWEEN datatype R_AND datatype
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_expComp_ternario_2(t):
@@ -1210,7 +1230,9 @@ def p_expComp_ternario_2(t):
     expComp : datatype R_NOT R_BETWEEN datatype R_AND datatype
     | datatype R_BETWEEN R_SYMMETRIC datatype R_AND datatype
     """
-    repGrammar.append(t.slice)
+   
+
+    
 
 
 def p_expComp_unario_1(t):
@@ -1218,7 +1240,9 @@ def p_expComp_unario_1(t):
     expComp : datatype R_ISNULL
     | datatype R_NOTNULL
     """
-    repGrammar.append(t.slice)
+ 
+
+    
 
 
 def p_expComp_unario_2(t):
@@ -1228,7 +1252,8 @@ def p_expComp_unario_2(t):
     | datatype R_IS R_FALSE
     | datatype R_IS R_UNKNOWN
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_expComp_unario_3(t):
@@ -1238,35 +1263,83 @@ def p_expComp_unario_3(t):
     | datatype R_IS R_NOT R_FALSE
     | datatype R_IS R_NOT R_UNKNOWN
     """
-    repGrammar.append(t.slice)
+   
+    
+
+
+def p_expSubq(t):
+    """
+    expSubq : datatype OL_MENORQUE  subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype OL_MAYORQUE  subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype OL_MAYORIGUALQUE subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype OL_MENORIGUALQUE subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype OL_ESIGUAL  subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype OL_DISTINTODE subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_BETWEEN datatype R_AND datatype subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_NOT R_BETWEEN datatype R_AND datatype subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_BETWEEN R_SYMMETRIC datatype R_AND datatype subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_DISTINCT R_FROM datatype subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_NOT R_DISTINCT R_FROM datatype subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_NULL subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_NOT R_NULL subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_ISNULL subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_NOTNULL subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_TRUE subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_NOT R_TRUE subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_FALSE subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_NOT R_FALSE subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_UNKNOWN subqValues S_PARIZQ selectStmt S_PARDER
+              | datatype R_IS R_NOT R_UNKNOWN subqValues S_PARIZQ selectStmt S_PARDER
+              | stringExp R_LIKE STRING
+    """
+    
+
+
+def p_stringExp(t):
+    """
+    stringExp : STRING
+          | columnName
+    """
+    
+
+
+def p_subqValues(t):
+    """
+    subqValues : R_ALL
+                  | R_ANY
+                  | R_SOME
+    """
+    
 
 
 def p_boolean_1(t):
     """
     boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_boolean_2(t):
     """
     boolean : datatype R_IN S_PARIZQ selectStmt S_PARDER
     """
-    repGrammar.append(t.slice)
-
+   
 
 def p_boolean_3(t):
     """
     boolean : datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
     """
-    repGrammar.append(t.slice)
+    
 
 
 def p_boolean_4(t):
     """
     boolean : expComp
+            | expSubq
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_expBool_1(t):
@@ -1274,35 +1347,39 @@ def p_expBool_1(t):
     expBool : expBool R_AND expBool
             | expBool R_OR expBool
     """
-    repGrammar.append(t.slice)
+  
+    
 
 
 def p_expBool_2(t):
     """
     expBool : R_NOT expBool
     """
-    repGrammar.append(t.slice)
+   
 
 
 def p_expBool_3(t):
     """
     expBool : S_PARIZQ expBool S_PARDER
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_expBool_5(t):
     """
     expBool : expBool optBoolPredicate
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_expBool_4(t):
     """
     expBool : boolean
     """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_optBoolPredicate_1(t):
@@ -1311,7 +1388,8 @@ def p_optBoolPredicate_1(t):
     | R_IS R_FALSE
     | R_IS R_UNKNOWN
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_optBoolPredicate_2(t):
@@ -1320,21 +1398,25 @@ def p_optBoolPredicate_2(t):
     | R_IS R_NOT R_FALSE
     | R_IS R_NOT R_UNKNOWN
     """
-    repGrammar.append(t.slice)
+  
+    
 
 
 def p_columnName_id(t):
     """
     columnName : ID
     """
-    repGrammar.append(t.slice)
+    
+
+    
 
 
 def p_columnName_table_id(t):
     """
     columnName : ID S_PUNTO ID
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 # En caso de errores descomentar este metodo
@@ -1356,21 +1438,26 @@ def p_booleanCheck_1(t):
     | idOrLiteral S_IGUAL idOrLiteral
     | idOrLiteral OL_DISTINTODE idOrLiteral
     """
-    repGrammar.append(t.slice)
+
+   
 
 
 def p_booleanCheck_2(t):
     """
     booleanCheck : idOrLiteral R_IS R_DISTINCT R_FROM idOrLiteral
     """
-    repGrammar.append(t.slice)
+
+    
+    
 
 
 def p_booleanCheck_3(t):
     """
     booleanCheck : idOrLiteral R_IS R_NOT R_DISTINCT R_FROM idOrLiteral
     """
-    repGrammar.append(t.slice)
+
+    
+    
 
 
 def p_idOrLiteral(t):
@@ -1383,7 +1470,8 @@ def p_idOrLiteral(t):
     | R_TRUE
     | R_FALSE
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 # endregion
@@ -1396,14 +1484,17 @@ def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
     | R_ALTER R_TABLE idOrString alterTableList
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_alterDb(t):
     """alterDb : R_RENAME R_TO idOrString
     | R_OWNER R_TO ownerOPts
     """
-    repGrammar.append(t.slice)
+   
+
+    
 
 
 def p_ownerOpts(t):
@@ -1412,21 +1503,24 @@ def p_ownerOpts(t):
     | R_CURRENT_USER
     | R_SESSION_USER
     """
-    repGrammar.append(t.slice)
+  
+    
 
 
 def p_alterTableList(t):
     """
     alterTableList : alterTableList S_COMA alterTable
     """
-    repGrammar.append(t.slice)
+  
+    
 
 
 def p_alterTableList_u(t):
     """
     alterTableList : alterTable
     """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_alterTable(t):
@@ -1436,14 +1530,16 @@ def p_alterTable(t):
     | R_DROP alterDrop
     | R_RENAME alterRename
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_alterAdd_column(t):
     """
     alterAdd : R_COLUMN ID types
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_alterAdd_constraint(t):
@@ -1452,14 +1548,16 @@ def p_alterAdd_constraint(t):
     | createPrimary
     | createForeign
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_alterAdd_unique(t):
     """
     alterAdd : constrName R_UNIQUE S_PARIZQ ID S_PARDER
     """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_alterAlter(t):
@@ -1468,7 +1566,8 @@ def p_alterAlter(t):
     | R_COLUMN ID R_SET defaultVal
     | R_COLUMN ID R_TYPE types
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_alterDrop(t):
@@ -1476,14 +1575,16 @@ def p_alterDrop(t):
     alterDrop : R_CONSTRAINT ID
     | R_COLUMN ID
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_alterRename(t):
     """
     alterRename : R_COLUMN ID R_TO ID
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 # endregion
@@ -1501,14 +1602,16 @@ def p_dropStmt(t):
     dropStmt : R_DROP R_TABLE ifExists idOrString
     | R_DROP R_DATABASE ifExists idOrString
     """
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_ifExists(t):
     """ifExists : R_IF R_EXISTS
     |
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 # endregion
@@ -1518,147 +1621,223 @@ def p_ifExists(t):
 
 
 def p_selectStmt_1(t):
-    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl orderByCl"""
-    repGrammar.append(t.slice)
+    """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl"""
+
+    
 
 
+# TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
 def p_selectStmt_2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl orderByCl"""
-    repGrammar.append(t.slice)
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl"""
+
+    
+
+
+def p_selectStmt__1(t):
+    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl orderByCl limitCl"""
+    
+
+
+def p_selectStmt__2(t):
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl orderByCl limitCl"""
+    
+
+
+def p_selectStmt__3(t):
+    """selectStmt : R_SELECT selectParams fromCl joinList whereCl groupByCl limitCl"""
+    
 
 
 def p_selectStmt_union(t):
     """selectStmt : selectStmt R_UNION allOpt selectStmt"""
-    repGrammar.append(t.slice)
+     
 
 
 def p_selectStmt_intersect(t):
     """selectStmt : selectStmt R_INTERSECT allOpt selectStmt"""
-    repGrammar.append(t.slice)
+    
+    
 
 
 def p_selectStmt_except(t):
     """selectStmt : selectStmt R_EXCEPT allOpt selectStmt"""
-    repGrammar.append(t.slice)
+       
 
 
 def p_selectStmt_agrupacion(t):
     """selectStmt : S_PARIZQ selectStmt S_PARDER"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_fromClause(t):
     """
     fromCl : R_FROM tableExp
     """
-    repGrammar.append(t.slice)
+    
 
 
 def p_selectstmt_only_params(t):
     """selectStmt : R_SELECT selectParams"""
-    repGrammar.append(t.slice)
+    
+
+    
 
 
 def p_allOpt(t):
     """allOpt : R_ALL
     |
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_selectparams_all(t):
     """selectParams : O_PRODUCTO"""
-    repGrammar.append(t.slice)
+
+
+    
 
 
 def p_selectparams_params(t):
     """selectParams : selectList"""
-    repGrammar.append(t.slice)
-
+   
 
 # En caso de errores cambiar selectListParams -> expresion
 def p_selectList_list(t):
     """selectList : selectList S_COMA selectListParams optAlias"""
-    repGrammar.append(t.slice)
+
+    
 
 
 # En caso de errores cambiar selectListParams -> expresion
 def p_selectList_u(t):
     """selectList : selectListParams optAlias"""
-    repGrammar.append(t.slice)
+
+
+    
 
 
 def p_selectListParams_1(t):
     """selectListParams : expresion"""
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_selectListParams_2(t):
     """selectListParams : ID S_PUNTO O_PRODUCTO"""
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_optalias_as(t):
     """
     optAlias : R_AS idOrString
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_optalias_id(t):
     """
     optAlias : idOrString
     """
-    repGrammar.append(t.slice)
+
+    
 
 
 def p_optalias_none(t):
     """optAlias : """
-    repGrammar.append(t.slice)
+  
+    
 
 
 def p_tableexp_list(t):
     """tableExp : tableExp S_COMA fromBody """
-    repGrammar.append(t.slice)
+ 
+    
 
 
 def p_tableexp_u(t):
     """tableExp : fromBody """
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_fromBody(t):
     """fromBody : ID optAlias"""
-    repGrammar.append(t.slice)
+   
+    
 
 
 def p_tableexp_subq(t):
     """fromBody : S_PARIZQ selectStmt S_PARDER R_AS idOrString"""
-    repGrammar.append(t.slice)
+    
+
+    
+
+
+def p_joinList(t):
+    """joinList : joinList2"""
+    
+
+
+def p_joinList_2(t):
+    """joinList2 : joinList2 joinCl
+    | joinCl"""
+    
+
+
+def p_joinCl(t):
+    """joinCl : joinOpt R_JOIN columnName optAlias R_ON expBool
+    | joinOpt R_JOIN columnName optAlias R_USING S_PARIZQ nameList S_PARDER
+    | R_NATURAL joinOpt R_JOIN columnName optAlias
+    """
+
+    
+
+
+def p_nameList(t):
+    """nameList : nameList S_COMA columnName
+    | columnName
+    """
+    
+
+
+def p_joinOpt(t):
+    """joinOpt : R_INNER
+    | R_LEFT
+    | R_LEFT R_OUTER
+    | R_RIGHT
+    | R_RIGHT R_OUTER
+    | R_FULL
+    | R_FULL R_OUTER
+    """
+    
 
 
 def p_whereCl(t):
     """whereCl : R_WHERE expBool"""
-    repGrammar.append(t.slice)
+
 
 
 def p_whereCl_none(t):
     """whereCl : """
-    repGrammar.append(t.slice)
+
 
 
 def p_groupByCl_1(t):
     """
     groupByCl : R_GROUP R_BY groupList havingCl
     """
-    repGrammar.append(t.slice)
+
 
 
 def p_groupByCl_2(t):
     """
     groupByCl :
     """
-    repGrammar.append(t.slice)
+
 
 
 def p_groupList_1(t):
@@ -1666,7 +1845,7 @@ def p_groupList_1(t):
     groupList :  groupList S_COMA columnName
             | groupList S_COMA INTEGER
     """
-    repGrammar.append(t.slice)
+
 
 
 def p_groupList_2(t):
@@ -1674,37 +1853,29 @@ def p_groupList_2(t):
     groupList :  columnName
             | INTEGER
     """
-    repGrammar.append(t.slice)
+
 
 
 def p_havingCl_1(t):
     """havingCl : R_HAVING expBool"""
-    repGrammar.append(t.slice)
+
 
 
 def p_havingCl_2(t):
     """havingCl :"""
-    repGrammar.append(t.slice)
+
 
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList"""
-    repGrammar.append(t.slice)
 
-
-def p_orderByCl_n(t):
-    """orderByCl : """
-    repGrammar.append(t.slice)
 
 
 def p_orderList(t):
-    """orderList : orderList S_COMA orderByElem"""
-    repGrammar.append(t.slice)
+    """orderList : orderList S_COMA orderByElem
+    | orderByElem
+    """
 
-
-def p_orderList_1(t):
-    """orderList : orderByElem"""
-    repGrammar.append(t.slice)
 
 
 def p_orderByElem(t):
@@ -1712,53 +1883,44 @@ def p_orderByElem(t):
     orderByElem : columnName orderOpts orderNull
                 | INTEGER orderOpts orderNull
     """
-    repGrammar.append(t.slice)
+ 
 
 
 def p_orderOpts(t):
     """orderOpts : R_ASC
     | R_DESC
+    |
     """
-    repGrammar.append(t.slice)
 
-
-def p_orderOpts_n(t):
-    """orderOpts :"""
-    repGrammar.append(t.slice)
 
 
 def p_orderNull(t):
-    """orderNull : R_NULLS R_FIRST
-    | R_NULLS R_LAST
+    """orderNull : R_NULL R_FIRST
+    | R_NULL R_LAST
+    |
     """
-    repGrammar.append(t.slice)
 
-
-def p_orderNull_n(t):
-    """orderNull :"""
-    repGrammar.append(t.slice)
 
 
 def p_limitCl(t):
     """limitCl : R_LIMIT INTEGER offsetLimit
     | R_LIMIT R_ALL offsetLimit
     """
-    repGrammar.append(t.slice)
+
 
 
 def p_limitCl_n(t):
     """limitCl :"""
-    repGrammar.append(t.slice)
+
 
 
 def p_offsetLimit(t):
     """offsetLimit : R_OFFSET INTEGER"""
-    repGrammar.append(t.slice)
 
 
 def p_offsetLimit_n(t):
     """offsetLimit :"""
-    repGrammar.append(t.slice)
+
 
 
 # endregion
@@ -1770,17 +1932,13 @@ def p_offsetLimit_n(t):
 
 def p_insertStmt(t):
     """insertStmt : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER"""
-    repGrammar.append(t.slice)
 
 
 def p_paramsColumn(t):
     """paramsColumn : S_PARIZQ idList S_PARDER"""
-    repGrammar.append(t.slice)
 
 
-def p_paramsColumn_none(t):
-    """paramsColumn :"""
-    repGrammar.append(t.slice)
+
 
 
 # endregion
@@ -1792,29 +1950,29 @@ def p_paramsColumn_none(t):
 
 def p_updateStmt(t):
     """updateStmt : R_UPDATE fromBody R_SET updateCols whereCl"""
-    repGrammar.append(t.slice)
+
 
 
 def p_updateCols_list(t):
     """updateCols : updateCols S_COMA updateVals"""
-    repGrammar.append(t.slice)
+
 
 
 def p_updateCols_u(t):
     """updateCols : updateVals """
-    repGrammar.append(t.slice)
+
 
 
 def p_updateVals(t):
     """updateVals : ID S_IGUAL updateExp"""
-    repGrammar.append(t.slice)
+
 
 
 def p_updateExp(t):
     """updateExp : datatype
     | R_DEFAULT
     """
-    repGrammar.append(t.slice)
+
 
 
 # endregion
@@ -1826,62 +1984,43 @@ def p_updateExp(t):
 
 def p_deleteStmt(t):
     """deleteStmt : R_DELETE fromCl whereCl"""
-    repGrammar.append(t.slice)
 
 
 def p_truncateStmt(t):
     """truncateStmt : R_TRUNCATE tableOpt ID"""
-    repGrammar.append(t.slice)
 
 
 def p_tableOpt(t):
     """tableOpt : R_TABLE
     |
     """
-    repGrammar.append(t.slice)
 
 
 def p_showStmt(t):
     """showStmt : R_SHOW R_DATABASES likeOpt"""
-    repGrammar.append(t.slice)
-
 
 def p_likeOpt(t):
     """likeOpt : R_LIKE STRING
     |
     """
-    repGrammar.append(t.slice)
+
 
 
 def p_useStmt(t):
     """useStmt : R_USE ID"""
-    repGrammar.append(t.slice)
-
-
-# endregion
-
-# endregion
-
-syntax_errors = list()
-PostgreSQL = list()
 
 
 def p_error(t):
     try:
-        print(t)
         print("Error sintáctico en '%s'" % t.value)
+        print(t.lineno)
     except AttributeError:
         print("end of file")
 
-
 parser = yacc.yacc()
-
 
 def parse(input):
     try:
-        global repGrammar
-        repGrammar = []
-        lexer.lineno = 1
         result = parser.parse(input)
         return result
     except Exception as e:
