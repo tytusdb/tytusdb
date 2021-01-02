@@ -857,13 +857,18 @@ def p_stm_create_function(t):
     t[0] = upNodo("token", 0, 0, graph_ref)
     ##### 
 
-#TODO @SergioUnix ayuda con graficar el arbol en la primera produccion
+
 def p_list_param_function_opt(t):
     '''list_param_function_opt  : column_list 
                                 | empty'''
     token = t.slice[1]
     if token.type == "column_list":
-        graph_ref = graph_node(str(t[1]) )
+        lista = None
+        childsProduction = []
+        if t[1] != None:
+            lista = t[1][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("list_param_function"), [lista] ,childsProduction )
         addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<COLUMN_LIST>] ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####
@@ -896,13 +901,12 @@ def p_declare_opt(t):
     else:
         t[0]=None
 
-#TODO @SergioUnix ayuda con graficar el arbol en la primera produccion
 def p_declarations(t):
     '''declarations : declarations declaration
                     | declaration'''
     token = t.slice[1]
     if token.type == "declarations":
-        childsProduction  = addNotNoneChild(t,[1])
+        childsProduction  = addNotNoneChild(t,[1,2])
         graph_ref = graph_node(str("declarations"), [t[1],t[2]],  childsProduction )
         addCad("**\<DECLARATIONS>** ::= [\<DECLARATIONS>] DECLARATION ")
         t[0] = upNodo("token", 0, 0, graph_ref)
@@ -918,8 +922,8 @@ def p_declaration(t):
 #                    | ID ID PORCENTAJE ROWTYPE
 #                    | ID ID PUNTO ID PORCENTAJE TYPE
 #                    | ID RECORD
-    childsProduction  = addNotNoneChild(t,[2,3,4,5])
-    graph_ref = graph_node(str("declaration"), [t[1],t[2],t[3],t[4],t[5],t[6]],  childsProduction )
+    childsProduction  = addNotNoneChild(t,[2,3,4,5,6])
+    graph_ref = graph_node(str("declaration"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]],  childsProduction )
     addCad("**\<DECLARATION>** ::= P E N D I E N T E ")
     t[0] = upNodo(True, 0, 0, graph_ref)
 
