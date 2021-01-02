@@ -1,4 +1,5 @@
 # from generate_ast import GraficarAST
+from models.Indexes.indexes import Indexes
 from models.instructions.Expression.trigonometric_functions import ExpressionsTrigonometric
 from models.instructions.Expression.extract_from_column import ExtractFromIdentifiers
 from re import L
@@ -385,24 +386,36 @@ def p_indexes_statement(p):
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
     '''
-
-
+    generateC3D(p)
+    
+    if len(p) == 10:
+        p[0] = Indexes(p[2],p[5], p[3], None,p[7], None, p.lineno(1), find_column(p.slice[1]),generateC3D(p))
+    elif len(p) == 11:
+        if p.slice[6].type == "LEFT_PARENTHESIS":
+            p[0] = Indexes(p[2], p[5], p[3], None, p[7], p[9], p.lineno(1), find_column(p.slice[1]), generateC3D(p))
+        else:
+            p[0] = Indexes(p[2], p[5], p[3], p[6], p[8], None, p.lineno(1), find_column(p.slice[1]), generateC3D(p))
+    else:
+        p[0] = Indexes(p[2], p[5], p[3], p[6], p[8], p[10], p.lineno(1), find_column(p.slice[1]), generateC3D(p))
 def p_type_index(p):
     ''' TYPE_INDEX : INDEX
                    | UNIQUE INDEX
     '''
-
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = p[1]
 
 def p_options1_indexes(p):
     ''' OPTIONS1_INDEXES : USING TYPE_MODE_INDEX
     '''
-
+    p[0] = p[2]
 
 def p_type_mode_index(p):
     ''' TYPE_MODE_INDEX : BTREE 
                         | HASH
     '''
-
+    p[0] = p[1]
 
 def p_body_index(p):
     ''' BODY_INDEX : BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
@@ -414,7 +427,32 @@ def p_body_index(p):
                    | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
                    | ID
     '''
-
+    lista_body = []
+    if len(p) == 2:
+        p[0] = [p[1]]
+    elif len(p) == 3:
+        p[0] = [p[1], p[2]]
+    elif len(p) == 5:
+        if p.slice[1].type == "LOWER":
+            p[0] = [p[3]]
+        else:
+            p[1].append(p[3])
+            p[1].append(p[4])
+            p[0] = p[1]
+    elif len(p) == 6:
+        lista_body.append(p[3])
+        lista_body.append(p[5])
+        p[0] = lista_body
+    elif len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
+    elif len(p) ==  7:
+        p[1].append(p[5])
+        p[0] = p[1]
+    elif len(p) == 8:
+        p[1].append(p[5])
+        p[1].append(p[7])
+        p[0] = p[1]
 
 def p_options2_indexes(p):
     '''  OPTIONS2_INDEXES : ASC NULLS FIRST 
@@ -424,6 +462,21 @@ def p_options2_indexes(p):
                           | ASC
                           | DESC
     '''
+    if len(p) == 4:
+        if p.slice[1].type == 'ASC':
+            p[0] = False
+        else:
+            p[0] = True
+    elif len(p) == 3:
+        if p.slice[2].type == 'FIRST':
+            p[0] = True
+        else:
+            p[0] = False
+    else:
+        if p.slice[1].type == 'ASC':
+            p[0] = False
+        else:
+            p[0] = True
 
 
 def p_option_col(p):  # TODO verificar

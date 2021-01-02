@@ -577,7 +577,58 @@ def p_createopts_db(t):
     createOpts : orReplace R_DATABASE ifNotExists idOrString createOwner createMode
     """
    
+def p_createopts_index(t):
+    """
+    createOpts : indexUnique R_INDEX ID R_ON ID usingHash S_PARIZQ indexList S_PARDER whereCl
+    """
+  
+def p_indexList(t):
+    """
+    indexList : indexList S_COMA ID indexOrder indexNull firstLast 
+    """
+
+def p_indexList2(t):
+    """
+    indexList : ID indexOrder indexNull firstLast 
+    """
     
+
+def p_usingHash(t):
+    """
+    usingHash : R_USING R_HASH
+    |
+    """
+
+
+def p_indexOrder(t):
+    """
+    indexOrder : R_DESC
+    | R_ASC
+    |
+    """
+
+
+def p_indexNull(t):
+    """
+    indexNull : R_NULL
+    |
+    """
+
+
+def p_indexFirstLast(t):
+    """
+    firstLast : R_FIRST
+    | R_LAST
+    |
+    """
+
+def p_createindex_unique(t):
+    """
+    indexUnique : R_UNIQUE
+    |
+    """
+
+
 
 
 def p_replace_true(t):
