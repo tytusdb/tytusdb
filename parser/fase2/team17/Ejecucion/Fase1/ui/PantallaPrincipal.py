@@ -1,5 +1,6 @@
 from sys import path
 from os.path import dirname as dir
+import tkinter.font as font
 
 path.append(dir(path[0]))
 from tkinter import ttk

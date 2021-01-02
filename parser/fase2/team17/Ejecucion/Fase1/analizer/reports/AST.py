@@ -1,5 +1,5 @@
 from graphviz import Digraph
-from analizer.reports.Nodo import Nodo
+from Fase1.analizer.reports.Nodo import Nodo
 
 dot = Digraph(comment="AST")
 
@@ -27,7 +27,7 @@ class AST:
 
     def drawGraph(self):
         global dot
-        dot.render("test-output/round-table.gv", view=True)
+        dot.render("test-output/round-table.gv", view=False)
         "test-output/round-table.gv.jpg"
         dot.format = "png"
         dot.render("test-output/round-table.gv", view=False)

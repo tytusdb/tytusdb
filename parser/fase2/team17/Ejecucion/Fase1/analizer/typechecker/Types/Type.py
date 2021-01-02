@@ -1,5 +1,5 @@
 from enum import Enum
-from analizer.abstract.expression import TYPE
+from Fase1.analizer.abstract.expression import TYPE
 
 
 Type = {

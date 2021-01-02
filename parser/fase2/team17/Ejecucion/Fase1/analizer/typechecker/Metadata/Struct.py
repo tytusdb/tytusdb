@@ -1,7 +1,7 @@
 from os import error
-from analizer.typechecker.Metadata import File
-from storage.storageManager import jsonMode
-from analizer.typechecker.Types import Type as TYPE
+from Fase1.analizer.typechecker.Metadata import File
+from Fase1.storage.storageManager import jsonMode
+from Fase1.analizer.typechecker.Types import Type as TYPE
 from datetime import datetime
 
 
@@ -143,7 +143,7 @@ def extractTable(dbName, tableName):
                     return table
             Error.append("Tabla no encontrada")
             return 1
-    Error.append("Dase de datos no encontrada")
+    Error.append("Base de datos no encontrada")
     return 0
 
 

@@ -1,5 +1,5 @@
-from analizer.symbol import symbol as sym
-from analizer.typechecker.Metadata import Struct
+from Fase1.analizer.symbol import symbol as sym
+from Fase1.analizer.typechecker.Metadata import Struct
 
 
 class Environment:

@@ -1,12 +1,12 @@
 from sys import path
 from os.path import dirname as dir
-from shutil import rmtree
 
 path.append(dir(path[0]))
 
-from analizer.abstract import instruction as inst
-from analizer import grammar
-from analizer.reports import BnfGrammar
+from Fase1.analizer.statement.instructions.select.select import Select
+from Fase1.analizer.abstract.instruction import envVariables
+from Fase1.analizer import grammar
+from Fase1.analizer.reports import BnfGrammar
 
 
 def execution(input):
@@ -20,16 +20,20 @@ def execution(input):
     syntaxErrors = grammar.returnSyntacticErrors()
     if len(lexerErrors) + len(syntaxErrors) == 0 and result:
         for v in result:
-            if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
+            if isinstance(v, Select):
                 r = v.execute(None)
                 if r:
                     list_ = r[0].values.tolist()
                     labels = r[0].columns.tolist()
                     querys.append([labels, list_])
+                    messages.append("Select ejecutado con exito.")
                 else:
                     querys.append(None)
+                    messages.append("Error: Select.")
+                #print(r)
             else:
                 r = v.execute(None)
+                #print(r)
                 messages.append(r)
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
@@ -69,7 +73,8 @@ def astReport():
 
 
 def symbolReport():
-    environments = inst.envVariables
+    global envVariables
+    environments = envVariables
     report = []
     for env in environments:
         vars = env.variables
@@ -85,14 +90,10 @@ def symbolReport():
                 symbol.column,
             ]
             filas.append(r)
-
         for (key, symbol) in types.items():
             r = [key, key, str(symbol) if not symbol else "Columna", "-", "-"]
             filas.append(r)
         enc.append(filas)
         report.append(enc)
-    inst.envVariables = []
+    envVariables = []
     return report
-
-
-# BnfGrammar.grammarReport()
