@@ -16,7 +16,7 @@ class ShowDatabases(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return 'SHOW DATABASES;'
 
 
 class UseDatabase(ASTNode):
@@ -33,7 +33,8 @@ class UseDatabase(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+
+        return 'USE DATABASE '
 
 
 class Union(ASTNode):
