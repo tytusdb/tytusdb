@@ -208,6 +208,7 @@ reserved = {
     'function' : 'FUNCTION',
     'begin' : 'BEGIN',
     'return' : 'RETURN',
+    'returns' : 'RETURNS',
     'alias' : 'ALIAS',
     'for' : 'FOR',
     'languaje' : 'LANGUAJE',
@@ -215,7 +216,6 @@ reserved = {
     'declare' : 'DECLARE',
     'rowtype' : 'ROWTYPE',
     'record' : 'RECORD',
-    'collate' : 'COLLATE',
     'prepare' : 'PREPARE',
     'perform' : 'PERFORM',
     'found' : 'FOUND',
@@ -264,6 +264,7 @@ tokens = [
     'PRIME',
     'SHIFT_L',
     'SHIFT_R',
+    'DOLLAR',
 ] +list(reserved.values()) 
 
 t_PARA = r'\('
@@ -280,6 +281,7 @@ t_POR = r'\*'
 t_DIAGONAL = r'\/'
 t_EXPONENCIANCION = r'\^'
 t_PORCENTAJE = r'%'
+t_DOLLAR = r'\$'
 t_MAYOR = r'>'
 t_MENOR = r'<'
 t_IGUAL = r'='
@@ -413,9 +415,10 @@ def p_statement(t):
                     | stm_select INTERSECT all_opt stm_select PUNTOCOMA
                     | stm_select EXCEPT all_opt stm_select PUNTOCOMA
                     | asig_basica PUNTOCOMA
-                    | stm_perform  PUNTOCOMA
-                    | stm_begin PUNTOCOMA 
-                    | stm_if PUNTOCOMA                    
+                    | stm_perform  PUNTOCOMA 
+                    | stm_begin PUNTOCOMA
+                    | stm_if PUNTOCOMA  
+                    | stm_create_function PUNTOCOMA               
                     '''
 
 #                    |    stm_select PUNTOCOMA
@@ -599,12 +602,12 @@ def p_if_inst0(t):
 
 
 
-
+#TODO @SergioUnix Arreglar grafo y reporte gramatical
 def p_stm_begin(t):
-    '''stm_begin   : BEGIN statements_begin    exception_opt  return_opt   END  if_opt '''
-    childsProduction  = addNotNoneChild(t,[2,3,4,6])
-    graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6]], childsProduction)
-    addCad("**\<STM_BEGIN>** ::=  tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf   ")
+    '''stm_begin   : declare_opt BEGIN statements_begin    exception_opt  return_opt   END  if_opt '''
+    childsProduction  = addNotNoneChild(t,[1,3,4,5,7])
+    graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7]], childsProduction)
+    addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf   ")
     t[0] = upNodo("token", 0, 0, graph_ref)
     #print(t)
 
@@ -635,20 +638,11 @@ def p_statements_begin(t):
         #print(t)
 
 
-
-
 def p_statements_begin0(t):
     '''statements_begin   :  empty     '''
 
                 
     t[0]= None
-
-
-
-
-
-
-
 
 def p_exception_opt(t):
     '''exception_opt   : EXCEPTION    when_opt   '''
@@ -758,11 +752,6 @@ def p_then_op(t):
         #print(t)
 
 
-
-
-
-
-
 def p_raise_op(t):
     ''' raise_op   : RAISE atr_raise  TEXTO  COMA  col_name  PUNTOCOMA 
                  |   RAISE atr_raise  TEXTO  PUNTOCOMA'''
@@ -814,7 +803,7 @@ def p_return_opt(t):
     
     
     if len(t) == 4:
-        graph_ref = graph_node(str("return_opt"), [t[1], t[2], t[3], t[4]], [] )
+        graph_ref = graph_node(str("return_opt"), [t[1], t[2], t[3]], [] )
         addCad("**\<RETURN_OPT>** ::=   tReturn tIdentifier  ';'    ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
@@ -823,11 +812,6 @@ def p_return_opt(t):
 def p_return_opt0(t):
     '''return_opt   : empty  '''
     t[0]=None
-
-
-
-
-
 
 
 
@@ -844,12 +828,6 @@ def p_statements_sql(t):
                     '''
     t[0]=t[1]
 
-
-
-
-
-
-
 def p_if_opt(t):
     '''if_opt  : IF
                 | empty'''
@@ -864,19 +842,147 @@ def p_if_opt(t):
 
 
 
+def p_stm_create_function(t):
+    '''stm_create_function : CREATE FUNCTION ID PARA list_param_function_opt PARC RETURNS type as_opt stm_begin'''
+    childsProduction  = addNotNoneChild(t,[5,8,9,10])
+    graph_ref = graph_node(str("stm_create_function"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10]],  childsProduction )
+    addCad("**\<BLOCK_PLSQL>** ::= [\<DECLARE>] \<ASIG_BASICA> ';' ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    ##### 
+
+#TODO @SergioUnix ayuda con graficar el arbol en la primera produccion
+def p_list_param_function_opt(t):
+    '''list_param_function_opt  : column_list 
+                                | empty'''
+    token = t.slice[1]
+    if token.type == "column_list":
+        graph_ref = graph_node(str(t[1]) )
+        addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<COLUMN_LIST>] ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+    else:
+        t[0]=None
 
 
+def p_as_opt(t):
+    '''as_opt   : AS DOLLAR DOLLAR
+                | empty'''
+    if len(t) == 4:
+        graph_ref = graph_node(str("as_opt"), [t[1],t[2],t[3]],  [] )
+        addCad("**\<AS_OPT>** ::= tAs '$$' ';' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+    else:
+        t[0]=None
 
 
+def p_declare_opt(t):
+    '''declare_opt  : DECLARE declarations
+                        | empty'''
+    token = t.slice[1]
+    if token.type != "empty":
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("declare_opt"), [t[1],t[2]],  childsProduction )
+        addCad("**\<DECLARE_OPT>** ::= tDeclare \<DECLARATIONS> ';' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+    else:
+        t[0]=None
 
+#TODO @SergioUnix ayuda con graficar el arbol en la primera produccion
+def p_declarations(t):
+    '''declarations : declarations declaration
+                    | declaration'''
+    token = t.slice[1]
+    if token.type == "declarations":
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("declarations"), [t[1],t[2]],  childsProduction )
+        addCad("**\<DECLARATIONS>** ::= [\<DECLARATIONS>] DECLARATION ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+    else:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("declarations"), [t[1]],  childsProduction )
+        addCad("**\<DECLARATIONS>** ::= [\<DECLARATIONS>] DECLARATION ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+    
+def p_declaration(t):
+    '''declaration  : ID constant_opt type collate_opt not_null_opt expression_opt PUNTOCOMA '''
+#                    | ID ID PORCENTAJE ROWTYPE
+#                    | ID ID PUNTO ID PORCENTAJE TYPE
+#                    | ID RECORD
+    childsProduction  = addNotNoneChild(t,[2,3,4,5])
+    graph_ref = graph_node(str("declaration"), [t[1],t[2],t[3],t[4],t[5],t[6]],  childsProduction )
+    addCad("**\<DECLARATION>** ::= P E N D I E N T E ")
+    t[0] = upNodo(True, 0, 0, graph_ref)
 
+def p_constant_opt(t):
+    '''constant_opt : CONSTANT
+                    | empty'''
+    token = t.slice[1]
+    if token.type != "empty":
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<CONSTANT>** ::= tConstant ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####       
+    else:                      
+        t[0] = None 
 
+def p_collate_opt(t):
+    '''collate_opt  : COLLATE ID
+                    | empty'''
+    token = t.slice[1]
+    if token.type != "empty":
+        graph_ref = graph_node(str("collate_opt"), [t[1],t[2]],  [] )
+        addCad("**\<COLLATE>** ::= tCollate ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####       
+    else:                      
+        t[0] = None
 
+def p_not_null_opt(t):
+    '''not_null_opt : NOT NULL
+                    | empty'''    
+    token = t.slice[1]
+    if token.type != "empty":
+        graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])  ))
+        addCad("**\<NOT_NULL>** ::= tNot tNull ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####       
+    else:                      
+        t[0] = None
 
-
-
-
-
+#TODO Revisar grafo
+def p_expression_opt(t):
+    '''expression_opt   : DEFAULT expression
+                        | DOSPUNTOS IGUAL expression
+                        | IGUAL expression
+                        | empty'''
+    token = t.slice[1]
+    if token.type == "DEFAULT":
+        print('--------------1')
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("expression_opta"),    [t[1], t[2]]       , childsProduction)
+        addCad("**\<EXPRESSION_OPT>** ::= tDefault \<EXPRESSION> ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####       
+    elif token.type == "DOSPUNTOS":
+        print('--------------2')
+        childsProduction  = addNotNoneChild(t,[3])
+        graph_ref = graph_node(str("expression_opt"),    [str(t[1]) + " " + str(t[2]),t[3]]       , childsProduction)
+        addCad("**\<EXPRESSION_OPT>** ::= ':=' \<EXPRESSION> ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        ##### 
+    elif token.type == "IGUAL":
+        print('--------------3')
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("expression_opt"),    [t[1], t[2]]       , childsProduction)
+        addCad("**\<EXPRESSION_OPT>** ::= '=' \<EXPRESSION> ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####             
+    else:                     
+        print('--------------4') 
+        t[0] = None
 
 ##################################################
 
