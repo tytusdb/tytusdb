@@ -89,7 +89,10 @@ reservadas = (
     'SQLSTATE',
     'EXCEPTION',
     'ELSIF',
-    'ELSEIF'
+    'ELSEIF',
+    'RAISE',
+    'NOTICE',
+    'RETURN'
 )
 
 tokens = reservadas + (

@@ -1761,14 +1761,27 @@ def p_cont_funcion(t):
 				  | CASE ID condiciones_cuando END CASE PUNTO_COMA
 				  | CASE condiciones_cuandoB ELSE instrucciones END CASE PUNTO_COMA
 				  | CASE condiciones_cuandoB END CASE PUNTO_COMA
-				  | BEGIN instrucciones EXCEPTION WHEN l_identificadores THEN instrucciones END PUNTO_COMA
-				  | BEGIN instrucciones EXCEPTION WHEN sql_states THEN instrucciones END PUNTO_COMA
+				  | BEGIN instrucciones_if EXCEPTION WHEN l_identificadores THEN instrucciones_if END PUNTO_COMA
+				  | BEGIN instrucciones_if EXCEPTION WHEN sql_states THEN instrucciones_if END PUNTO_COMA
     '''
 
 def p_instrucciones_if(t):
     ''' 
-    instrucciones_if : contenido_funcion
-                     | instrucciones
+    instrucciones_if : instrucciones_if instruccion_if 
+                     | instruccion_if
+    '''
+    
+def p_instruccion_if(t):
+    '''
+    instruccion_if : contenido_funcion
+                   | instrucciones
+                   | expre PUNTO_COMA
+                   | RETURN PUNTO_COMA
+                   | RETURN expre PUNTO_COMA
+                   | RAISE NOTICE CADENA PUNTO_COMA
+                   | RAISE NOTICE CADENA COMA ID PUNTO_COMA
+                   | RAISE NOTICE CARACTER PUNTO_COMA
+                   | RAISE NOTICE CARACTER COMA ID PUNTO_COMA
     '''
 
 def p_condiciones_if(t):
