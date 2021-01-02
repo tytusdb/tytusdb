@@ -4,11 +4,14 @@ from .executeSentence import executeSentence
 from .generateASTReport import graphAST
 from .generateSymbolTableReport import printSymbolTable
 from .execute_result import *
+from .intermediateFunctions import *
 class Execute():
     nodes = []
     errors = []
     messages = []
     querys = []
+    intermediate = IntermediateFunctions()
+    code = "from goto import with_goto\n@with_goto\ndef c3d():\n"
     types = {
         1: 'Entero',
         2: 'Decimal',
@@ -30,9 +33,20 @@ class Execute():
         if(self.nodes is not None):
            for node in self.nodes:
                executeSentence(self,node)
+        else:
+            self.code += "\tt0=0\n"
+            self.code += "\tlabel .begin\n"
+            self.code += "\tif t0 == 10: goto .end\n"
+            self.code += "\tprint(t0)\n"
+            self.code += "\tt0=t0+1\n"
+            self.code += "\tgoto .begin\n"
+            self.code += "\tlabel .end\n"
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)
-
+        self.code += "c3d()"
+        inter_exec_file = open("C3D.py", "w")
+        inter_exec_file.write(self.code)
+        inter_exec_file.close()
         result = execute_result(dotAST, printSymbolTable_, self.errors, self.messages, self.querys)
         return result
 
