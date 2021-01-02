@@ -14,6 +14,10 @@ class Numeric(ASTNode):
         super().execute(table, tree)
         return self.val
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return self.val
+
 
 class NumericPositive(ASTNode):
     def __init__(self, val, line, column, graph_ref):
@@ -25,11 +29,14 @@ class NumericPositive(ASTNode):
         super().execute(table, tree)
         self.val = self.val.execute(table, tree)
         print(type(self.val))
-        if(type(self.val) == int or type(self.val) == float):
+        if type(self.val) == int or type(self.val) == float:
             return self.val * 1
         else:
             raise Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be number')
-        
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return self.val.execute(table, tree)
 
 
 class NumericNegative(ASTNode):
@@ -40,11 +47,14 @@ class NumericNegative(ASTNode):
 
     def execute(self, table, tree):
         self.val = self.val.execute(table, tree)
-        if(type(self.val) == int or type(self.val) == float):
+        if (type(self.val) == int or type(self.val) == float):
             return self.val * -1
         else:
             raise Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be number')
-        
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return self.val.execute(table, tree)
 
 
 class Text(ASTNode):
@@ -57,6 +67,10 @@ class Text(ASTNode):
         super().execute(table, tree)
         return self.val
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return self.val
+
 
 class BoolAST(ASTNode):
     def __init__(self, val, line, column, graph_ref):
@@ -66,6 +80,10 @@ class BoolAST(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
+        return self.val
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
         return self.val
 
 
@@ -81,6 +99,10 @@ class DateAST(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
+        return self.val
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
         return self.val
 
 
@@ -100,18 +122,22 @@ class ColumnName(ASTNode):
         else:
             fullname = self.tName + "." + self.cName  # TODO check if is necesary go to symbol table to get the value or check if the object exists
 
-        #yes we have to get the value of colname
+        # yes we have to get the value of colname
         # if this AST have tree  == list it means the execute have to search for the value of colunn
         # in this case table have a row to evaluate where exp and tree has the columns header
-        if isinstance(tree,list):                            
+        if isinstance(tree, list):
             try:
                 index = tree.index(fullname)
                 return table[index]
             except:
-                raise Error(self.line, self.column, ErrorType.RUNTIME, f'[AST] the name {fullname} is not belong of the selected table(s)')
+                raise Error(self.line, self.column, ErrorType.RUNTIME,
+                            f'[AST] the name {fullname} is not belong of the selected table(s)')
         else:
             return fullname
-            
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Now(ASTNode):
@@ -122,6 +148,10 @@ class Now(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return date.today()
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class BinaryExpression(ASTNode):
@@ -150,6 +180,10 @@ class BinaryExpression(ASTNode):
             return self.exp1.execute(table, tree) % self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.POWER:
             return pow(self.exp1, self.exp2)
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class RelationalExpression(ASTNode):
@@ -180,6 +214,10 @@ class RelationalExpression(ASTNode):
             return self.exp1.execute(table, tree) == self.exp2.execute(table, tree)
         if self.operator == OpRelational.NOT_LIKE:
             return self.exp1.execute(table, tree) != self.exp2.execute(table, tree)
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class PredicateExpression(ASTNode):  # TODO check operations and call to exceute function
@@ -215,6 +253,10 @@ class PredicateExpression(ASTNode):  # TODO check operations and call to exceute
         if self.operator == OpPredicate.NOT_UNKNOWN:  # Same as previous comment about Unknown
             return False
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class BoolExpression(ASTNode):
     def __init__(self, exp1, exp2, operator, line, column, graph_ref):
@@ -223,34 +265,44 @@ class BoolExpression(ASTNode):
         self.exp2 = exp2
         self.operator = operator
         self.graph_ref = graph_ref
+
     def execute(self, table, tree):
         super().execute(table, tree)
         exec1 = self.exp1.execute(table, tree)
         exec2 = self.exp2.execute(table, tree)
 
-        if isinstance(exec1,bool) and isinstance(exec2,bool):
+        if isinstance(exec1, bool) and isinstance(exec2, bool):
             if self.operator == OpLogic.AND:
                 return exec1 and exec2
             if self.operator == OpLogic.OR:
                 return exec1 or exec2
         else:
             raise Exception("The result of operation isn't boolean value")
-        
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Negation(ASTNode):
     def __init__(self, exp1, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.exp1 = exp1        
+        self.exp1 = exp1
         self.graph_ref = graph_ref
+
     def execute(self, table, tree):
         super().execute(table, tree)
         exec1 = self.exp1.execute(table, tree)
-        
-        if isinstance(exec1,bool):          
+
+        if isinstance(exec1, bool):
             return not exec1
         else:
             raise Exception("The result of operation isn't boolean value")
-        
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class Identifier(ASTNode):
     def __init__(self, val, line, column, graph_ref):
@@ -258,46 +310,56 @@ class Identifier(ASTNode):
         self.val = val
         self.graph_ref = graph_ref
 
-    #Must return lexeme of ID
-    def execute(self, table, tree): 
+    # Must return lexeme of ID
+    def execute(self, table, tree):
         super().execute(table, tree)
         return self.val
 
-    def executeSTVal(self, table, tree): #TODO: Symbol value from ST :S
+    def executeSTVal(self, table, tree):  # TODO: Symbol value from ST :S
         super().execute(table, tree)
         return self.val
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class TypeDef(ASTNode):
     def __init__(self, val, min_size, max_size, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.val = val #token name: CHAR, INTEGER,...
+        self.val = val  # token name: CHAR, INTEGER,...
         self.min_size = min_size,
         self.max_size = max_size,
         self.graph_ref = graph_ref
 
-    #Must return lexeme of ID
-    def execute(self, table, tree): 
+    # Must return lexeme of ID
+    def execute(self, table, tree):
         super().execute(table, tree)
         return self.val
 
-    def minSize(self, table, tree): 
+    def minSize(self, table, tree):
         super().execute(table, tree)
         return self.min_size
-    
-    def maxSize(self, table, tree): 
+
+    def maxSize(self, table, tree):
         super().execute(table, tree)
         return self.max_size
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class Nullable(ASTNode):
     def __init__(self, val, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.val = val #True: accept null values other wise False
+        self.val = val  # True: accept null values other wise False
         self.graph_ref = graph_ref
-    
-    def execute(self, table, tree): 
+
+    def execute(self, table, tree):
         super().execute(table, tree)
         return self.val
 
-    
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''

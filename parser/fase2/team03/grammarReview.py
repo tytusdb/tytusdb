@@ -2214,4 +2214,26 @@ class grammarReview:
     for e in errorsList:
         print(e,"\n")
     ST.report_symbols() '''
-    
+
+
+def execute_from_wrapper(symbol_table: SymbolTable, command_input):
+    symbol_table.LoadMETADATA()
+    instructions = parse.parse(command_input)
+    result = []
+    for instruction in instructions:
+        try:
+            val = instruction.execute(symbol_table, None)
+            print("AST excute result: ", val)
+            if isinstance(instruction, Select) or isinstance(instruction, Union) \
+                    or isinstance(instruction, Intersect) or isinstance(instruction, Except):
+                val = tabulate(val[1], val[0], tablefmt="psql")
+                print(val)
+            result.append(val)
+        except our_error as named_error:
+            errorsList.append(named_error)
+
+    for e in errorsList:
+        print(e, "\n")
+    # symbol_table.report_symbols()
+
+    return result

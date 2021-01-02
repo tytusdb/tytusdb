@@ -18,50 +18,52 @@ class Handler:
     def rootinstance() -> list:
         if not os.path.exists('data'):
             os.makedirs('data')
-        if not os.path.exists('data/root.dat'):
-            f = open('data/root.dat', 'wb')
+        if not os.path.exists('data/avlMode'):
+            os.makedirs('data/avlMode')
+        if not os.path.exists('./data/avlMode/root.dat'):
+            f = open('./data/avlMode/root.dat', 'wb')
             f.close()
-        if os.path.getsize('data/root.dat') > 0:
-            with open('data/root.dat', 'rb') as f:
+        if os.path.getsize('./data/avlMode/root.dat') > 0:
+            with open('./data/avlMode/root.dat', 'rb') as f:
                 return pickle.load(f)
         return []
 
     @staticmethod
     def rootupdate(databases):
-        f = open('data/root.dat', 'wb')
+        f = open('./data/avlMode/root.dat', 'wb')
         pickle.dump(databases, f)
         f.close()
 
     # Tables
     @staticmethod
     def tableinstance(database: str, tableName: str):
-        if os.path.getsize('data/' + str(database) + '_' + str(tableName) + '.tbl') > 0:
-            with open('data/' + str(database) + '_' + str(tableName) + '.tbl', 'rb') as f:
+        if os.path.getsize('./data/avlMode/' + str(database) + '_' + str(tableName) + '.tbl') > 0:
+            with open('./data/avlMode/' + str(database) + '_' + str(tableName) + '.tbl', 'rb') as f:
                 return pickle.load(f)
         else:
             return None
 
     @staticmethod
     def tableupdate(table):
-        f = open('data/' + str(table.database) + '_' + str(table.name) + '.tbl', 'wb')
+        f = open('./data/avlMode/' + str(table.database) + '_' + str(table.name) + '.tbl', 'wb')
         pickle.dump(table, f)
         f.close()
 
     @staticmethod
     def exists(database: str, tableName: str):
-        return os.path.isfile('data/' + str(database) + '_' + str(tableName) + '.tbl')
+        return os.path.isfile('./data/avlMode/' + str(database) + '_' + str(tableName) + '.tbl')
 
     @staticmethod
     def delete(filename):
         try:
-            os.remove('data/' + filename)
+            os.remove('./data/avlMode/' + filename)
         except:
             print("No se encontró el archivo")
 
     @staticmethod
     def rename(oldName, newName):
         try:
-            os.rename('data/' + oldName, 'data/' + newName)
+            os.rename('./data/avlMode/' + oldName, './data/avlMode/' + newName)
         except:
             print("No se pudo renombrar")
 
@@ -70,7 +72,7 @@ class Handler:
         tmp = []
         for i in tablesName:
             try:
-                if os.path.isfile('data/' + str(database) + '_' + str(i) + '.tbl'):
+                if os.path.isfile('./data/avlMode/' + str(database) + '_' + str(i) + '.tbl'):
                     tmp.append(str(i))
             except:
                 continue
@@ -91,15 +93,17 @@ class Handler:
 
     @staticmethod
     def reset():
-        shutil.rmtree("data")
+        if os.path.exists("data"):
+            shutil.rmtree("data")
         os.makedirs('data')
-        f = open('data/root.dat', 'wb')
+        os.makedirs('./data/avlMode')
+        f = open('./data/avlMode/root.dat', 'wb')
         f.close()
-        if os.path.exists("DataAccessLayer/imaging"):
-            shutil.rmtree("DataAccessLayer/imaging")
+        if os.path.exists("tmp"):
+            shutil.rmtree("tmp")
 
     # Reports
     @staticmethod
     def init_DirReports():
-        if not os.path.exists("DataAccessLayer/imaging"):
-            os.makedirs("DataAccessLayer/imaging")
+        if not os.path.exists("tmp"):
+            os.makedirs("tmp")

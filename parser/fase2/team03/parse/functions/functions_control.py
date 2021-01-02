@@ -12,6 +12,10 @@ class Case(ASTNode):
         # iterate all cases result maybe and returns result or else_exp if no one was returned
         return True
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
+
 
 class CaseInner(ASTNode):
     def __init__(self, condition, result, line, column):
@@ -25,3 +29,7 @@ class CaseInner(ASTNode):
             return self.result
         else:
             return None
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''

@@ -172,7 +172,6 @@ class Ctable(Instruccion):
 
     def __init__(self, i_id,inherits):
         self.i_id = i_id
-        self.atributos = atributos
         self.inherits = inherits
 
 # ----------FIN DE CTABLE------------------
@@ -829,3 +828,9 @@ class DatePart(Instruccion):
     def __init__(self, val1, val2):
         self.val1 = val1
         self.val2 = val2
+
+class FuncionesSistema(Instruccion): #servira para length substring y substr
+    def _init_(self, funcion, valores, alias):
+        self.funcion = funcion
+        self.valores = valores
+        self.alias = alias
