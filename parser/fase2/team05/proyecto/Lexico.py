@@ -729,7 +729,7 @@ def p_llave(t):
 
 
 def p_llave2(t):
-    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA'
+    'I_LLAVES         : REFERENCES ID PAB   RE I_CREFERENCE PCIERRA'
     global reporte_gramatical
     reporte_gramatical.append('<I_LLAVES> ::= "REFERENCES" "ID" "(" <I_CREFERENCE> ")"')
     var = ' references ' + str(t[2]) + ' (' + str(t[4].getInstruccion()) + ') '
@@ -911,7 +911,7 @@ def p_tipo5_1(t):
     'I_TIPO           : NUMERIC PABRE NUMERO COMA NUMERO PCIERRA'
     global reporte_gramatical
     reporte_gramatical.append('<I_TIPO> ::= "NUMERIC" "(" "NUMERO" "," "NUMERO" ")" ')
-    var = ' ' + str(t[1]) + '(' + str(t[3]) + ',' + str(t[5]) + ') '
+    var = ' ' + str(t[1]) + '(' + str(t[3])     + ',' + str(t[5]) + ') '
     ret = Retorno(var, NodoAST("TIPO DATO"))
     ret.getNodo().setHijo(NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(str(t[3])))
@@ -2052,8 +2052,8 @@ def p_ISelect6(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + + ' ' + str(t[6].getInstruccion()) + ';"'
-
         contador = contador + 1
+        codigo_3D.append(C3D)
         ret = Retorno(
             Select3(t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), t[6].getInstruccion(), True),
             NodoAST("SELECT"))
@@ -2071,7 +2071,6 @@ def p_ISelect3(t):
     if isinstance(t[2], str):
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ';"'
-
         contador = contador + 1
         codigo_3D.append(C3D)
         ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
@@ -2082,7 +2081,6 @@ def p_ISelect3(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2].getInstruccion()) + ' ' + str(
             t[3].getInstruccin()) + ' ' + str(t[4].getInstruccion()) + ';"'
-
         contador = contador + 1
         codigo_3D.append(C3D)
         ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False),
@@ -4123,7 +4121,7 @@ def p_CondicionNull(t):
     'CONDICION  :   NULL '
     global reporte_gramatical
     reporte_gramatical.append("<CONDICION> ::= \"NULL\"")
-    ret = Retorno('null()', NodoAST('NULL'))
+    ret = Retorno('null', NodoAST('NULL'))
     t[0] = ret
 
 
@@ -4131,7 +4129,7 @@ def p_CondicionUnknown(t):
     'CONDICION  :   UNKNOWN '
     global reporte_gramatical
     reporte_gramatical.append("<CONDICION> ::= \"UNKNOWN\"")
-    ret = Retorno('unknow()', NodoAST('UNKNOW'))
+    ret = Retorno('unknow', NodoAST('UNKNOW'))
     t[0] = ret
 
 
