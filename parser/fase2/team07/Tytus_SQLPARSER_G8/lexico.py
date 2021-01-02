@@ -76,7 +76,16 @@ reservadas = (
     'UNION', 'INTERSECT', 'EXCEPT', 'ALL',
     # Begin
     'FUNCTION', 'BEGIN', 'END',
-    'DECLARE'
+    'DECLARE',
+    #PALABRAS DE LA FASE 2
+    'CONSTANT',
+    'LANGUAGE',
+    'PLPGSQL',
+    'FOR',
+    'RETURNS',
+    'ROWTYPE',
+    'COLLATE',
+    'ALIAS'
 )
 
 tokens = reservadas + (
@@ -109,7 +118,10 @@ tokens = reservadas + (
     'CARACTER',
     'COMENTARIO_MULTILINEA',
     'COMENTARIO_SIMPLE',
-    'ARROBA'
+    'ARROBA',
+    #TOKENS FASE 2
+    'DOLLAR',
+    'DOSP_IGUAL'
 )
 
 # EXPRESIONES REGULARES BASICAS
@@ -135,6 +147,9 @@ t_MAYORQ = r'\>'
 t_MENORQ = r'\<'
 t_MAYOR_IGUALQ = r'\>\='
 t_MENOR_IGUALQ = r'\<\='
+# TOKENS FASE 2
+t_DOLLAR = r'\$'
+t_DOSP_IGUAL = r'\:\='
 
 
 

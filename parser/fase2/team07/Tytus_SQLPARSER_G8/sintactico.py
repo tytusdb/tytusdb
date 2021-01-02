@@ -257,26 +257,26 @@ def p_columunas_delete(t):
     t[0] = DeleteTable.DeleteTable(t[3],None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 #FUNCIONES
-def p_funciones(t):
-    '''
-     instruccion : CREATE FUNCTION ID BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, None, None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+#def p_funciones(t):
+    #'''
+    # instruccion : CREATE FUNCTION ID BEGIN instrucciones END PUNTO_COMA
+    #'''
+#    strGram = "<instruccion> ::= CREATE FUNCTION ID BEGIN <instrucciones> END PUNTO_COMA"
+#    t[0] = CreateFunction.CreateFunction(t[3],None, None, None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones2(t):
-    '''
-     instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], None, t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
+#def p_funciones2(t):
+    #'''
+    # instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER BEGIN instrucciones END PUNTO_COMA
+    #'''
+#    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER BEGIN <instrucciones> END PUNTO_COMA"
+#    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], None, t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones3(t):
-    '''
-     instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER AS <expresion> BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], t[8], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
+#def p_funciones3(t):
+    #'''
+    # instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
+    #'''
+#    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER AS <expresion> BEGIN <instrucciones> END PUNTO_COMA"
+#    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], t[8], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 
 def p_declaracion(t):
@@ -1613,6 +1613,143 @@ def p_tipo_datos2(t):
     '''
     t[0] = Tipo(Tipo_Dato.TIPOENUM)
     t[0].nombre = t[1]
+
+
+
+
+
+
+########################################### GRAMATICA FASE 2 ########################################
+
+
+#DECLARACION DE UNA FUNCION
+def p_funciones(t):
+    '''
+    instruccion    :   CREATE FUNCTION ID PARIZQ parametros_funcion PARDER returns_n retorno_funcion declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
+    '''
+
+def p_parametros_funcion(t):
+    '''
+    parametros_funcion  : lista_parametros_funcion 
+    '''
+def p_parametros_funcion_e(t):
+    '''
+    parametros_funcion  :
+    '''
+
+def p_lista_parametros_funcion(t):
+    '''
+    lista_parametros_funcion    :   lista_parametros_funcion COMA parametro_fucion
+						        |	parametro_fucion
+    '''
+
+def p_parametro_fucion(t):
+    '''
+    parametro_fucion 	: 	ID tipo
+					    |	tipo
+    '''
+
+def p_returns(t):
+    '''
+    returns_n 	:	RETURNS
+    '''
+def p_returns_e(t):
+    '''
+    returns_n   :
+    '''
+
+def p_retorno_funcion(t):
+    '''
+    retorno_funcion :   tipo AS DOLLAR DOLLAR
+				    |   TABLE PARIZQ lista_campos_tabla PARDER AS DOLLAR DOLLAR
+				    |   AS DOLLAR DOLLAR
+    '''
+
+def p_lista_campos_tabla(t):
+    '''
+    lista_campos_tabla  :	lista_campos_tabla COMA ID tipo
+					    |	ID tipo
+    '''
+
+def p_declaraciones_funcion(t):
+    '''
+    declaraciones_funcion 	: 	DECLARE list_dec_var_funcion
+    '''
+def p_declaraciones_funcion_e(t):
+    '''
+    declaraciones_funcion   :
+    '''    
+
+def p_list_dec_var_funcion(t):
+    '''
+    list_dec_var_funcion 	:	list_dec_var_funcion dec_var_funcion PUNTO_COMA
+						    |	dec_var_funcion PUNTO_COMA
+    '''
+
+def p_dec_var_funcion(t):
+    '''
+    dec_var_funcion : 	ID constant_n tipo collate_n nnull aisgnacion_valor 
+				    |	ID ALIAS FOR DOLLAR ENTERO
+				    |	ID ALIAS FOR ID
+				    |	ID tabla_typerow MODULO type_row
+    '''
+
+
+def p_tabla_typerow(t):
+    '''
+    tabla_typerow   :   ID PUNTO ID
+                    |   ID
+    '''
+
+def p_constant(t):
+    '''
+    constant_n  :   CONSTANT
+    '''
+def p_constant_e(t):
+    '''
+    constant_n  :   
+    '''
+
+def p_type_row(t):
+    '''
+    type_row 	:	TYPE
+			    |	ROWTYPE
+    '''
+
+def p_collate(t):
+    '''
+    collate_n : COLLATE CADENA
+    '''
+def p_collate_e(t):
+    '''
+    collate_n :
+    '''
+
+def p_nnull(t):
+    '''
+    nnull : NOT NULL
+    '''
+def p_nnull_e(t):
+    '''
+    nnull :
+    '''
+
+def p_aisgnacion_valor(t):
+    '''
+    aisgnacion_valor 	: 	DEFAULT expre 
+					    |	DOSP_IGUAL expre 
+					    |	IGUAL expre 
+    '''
+def p_aisgnacion_valor_e(t):
+    '''
+    aisgnacion_valor    :
+    '''
+
+def p_contenido_funcion(t):
+    '''
+    contenido_funcion   :   CADENA
+    '''
+
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
