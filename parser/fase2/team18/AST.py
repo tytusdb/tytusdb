@@ -2916,8 +2916,26 @@ def ejecutar_select(instr,ts):
                 elif isinstance (val.nombre, Operacion_Patron):
                     tablaresult.field_names = [ str(val.nombre.operador) ]
                     CD3.PSelectFunciones(str(val.nombre.operador),result)
-            
-            
+                elif isinstance (val.nombre, Operacion_TIMESTAMP):
+                    tablaresult.field_names = [ "TIMESTAMP" ]
+                    CD3.PSelectFunciones("TIMESTAMP",result)
+                elif isinstance (val.nombre, Operacion_CURRENT):
+                    tablaresult.field_names = [ "CURRENT_"+str(val.nombre.tipo) ]
+                    CD3.PSelectFunciones("CURRENT"+str(val.nombre.tipo),result)
+                elif isinstance (val.nombre, Operacion_DATE_PART):
+                    tablaresult.field_names = [ "DATE PART" ]
+                    CD3.PSelectFunciones("DATE PART",result)
+                elif isinstance (val.nombre, Operando_EXTRACT):
+                    tablaresult.field_names = [ "EXTRACT_"+str(val.nombre.medida) ]
+                    CD3.PSelectFunciones("EXTRACT_"+str(val.nombre.medida),result)
+                elif isinstance (val.nombre, Operacion_Great_Least):
+                    tablaresult.field_names = [ "GREAT_LEAST"+str(val.nombre.tipo) ]
+                    CD3.PSelectFunciones("GREAT_LEAST_"+str(val.nombre.tipo),result)
+                elif isinstance (val.nombre, Operacion_NOW):
+                    tablaresult.field_names = [ "NOW" ]
+                    CD3.PSelectFunciones("NOW",result)
+                
+
             tablaresult.add_row([ str(result) ])
             agregarMensjae('table',tablaresult,'')
 
