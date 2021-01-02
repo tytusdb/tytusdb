@@ -41,11 +41,14 @@ def send_data():
     jsonMode.dropAll()
 
     # Principal.database = "DB1"
+
     instrucciones = g.parse(contenido)
     variables.consola.insert(INSERT, "Salida de consultas\n")
     for instr in instrucciones:
         if instr != None:
             instr.ejecutar(Principal)
+            string=str(instr)
+            intrprueba=string
 
     variables.consola.configure(state='disabled')
     # variables.consola.configure()
@@ -156,5 +159,10 @@ reps_menu.add_command(label="Errores Lexicos y Sintacticos", command=mostrarimag
 reps_menu.add_command(label="Tabla de Simbolos", command=verSimbolos)
 reps_menu.add_command(label="AST", command=arbol_ast)
 reps_menu.add_command(label="Gramatica", command=gramatica)
+class Interfaz:
+    def desplegarinterfaz(self):
+        variables.ventana.mainloop()
 
-variables.ventana.mainloop()
+inter=Interfaz()
+inter.desplegarinterfaz()
+

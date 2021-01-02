@@ -8,11 +8,13 @@ class OptMirilla:
     #Esta lista servirá para ignorar ciertas instrucciones que en nuestro análisis determinamos
     #que son código no óptimo
 
-    def __init__(self, pila = []):
+    def __init__(self, pila = [], reporte = []):
         #lista que contendra los datos para el reporte de optimizaciones
         self.reporteOptimizado = []
         self.ListaOptimizada = []
         self.ElementosIgnorar = []
+        if reporte != []:
+            self.reporteOptimizado = reporte
         #Revision de cada regla en mirilla será un método
         for indice in range(0,len(pila)):
             if indice not in self.ElementosIgnorar:
@@ -60,10 +62,6 @@ class OptMirilla:
                 else:
                     if indice not in self.ElementosIgnorar:
                         self.ListaOptimizada.append(pila[indice])
-        self.generarReporte()
-        self.GenerarCodigo3D(self.ListaOptimizada)
-        #for optimizados in self.ListaOptimizada:
-         #   self.Imprimir(optimizados)
 
     def regla1(self, pila, operacion, indice):
         if type(operacion.Valor) == C3D.Identificador:
@@ -422,10 +420,10 @@ class OptMirilla:
                 optimizado = ""
                 if op1 == '0':
                     termino = asignado + " = " + op1 + " * " + op2
-                    optimizado = asignado + " = " + op2
+                    optimizado = asignado + " = " + op1
                 elif op2 == '0':
                     termino = asignado + " = " + op1 + " * " + op2
-                    optimizado = asignado + " = " + op1
+                    optimizado = asignado + " = " + op2
 
                 self.reporteOptimizado.append(["Regla 17", termino, optimizado, str(indice + 1)])
                 return nuevaOperacion
@@ -566,7 +564,7 @@ class OptMirilla:
             if type(comando) == C3D.Asignacion:
                 Codigo3D = Codigo3D + '' + comando.Tx.Id + ' = '
                 if type(comando.Valor) == C3D.Valor:
-                    Codigo3D = Codigo3D + '' + comando.Valor.Valor
+                    Codigo3D = Codigo3D + '' + str(comando.Valor.Valor)
                 elif type(comando.Valor) == C3D.Identificador:
                     Codigo3D = Codigo3D + '' + comando.Valor.Id
                 elif type(comando.Valor) == C3D.Operacion:
