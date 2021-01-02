@@ -427,3 +427,7 @@ class MD5_(ASTNode):
             return hashlib.md5(exp.encode('utf-8')).hexdigest()
         except :
             raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'MD5 error'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''

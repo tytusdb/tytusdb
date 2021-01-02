@@ -19,3 +19,5 @@ t1 = 1+1
 exec_sql(f'insert into tbcalifica(iditem, item, puntos) values ({t1},\'Funcionalidades X\',3.0);')
 
 exec_sql(f'insert into tbcalifica(iditem, item, puntos) values (3*2,\'Funcionalidades Meh\',4.0);')
+
+report_stored_st()
