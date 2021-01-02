@@ -8,6 +8,9 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 from team17 import BMode as B
 
+def runInterface():
+        r = PP()
+
 class PP:
 #------------------------------ PANTALLA INICIAL----------------------------------#
 
@@ -23,6 +26,9 @@ class PP:
         self.isAcerca = False
         self.dell = False
         self.pantalla1()
+
+    
+
 
     def pantalla1(self):
         if self.isPantalla1 == 1:
