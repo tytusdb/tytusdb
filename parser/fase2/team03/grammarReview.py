@@ -672,13 +672,12 @@ def p_exception_opt1(t):
 def p_when_opt(t):
     '''when_opt   : when_opt WHEN   atr_when   then_op
                  | WHEN    atr_when   then_op
-                 | WHEN
-                 | empty     '''
+                 | WHEN   '''
     
     token = t.slice[1]
     if len(t) == 5:
         childsProduction  = addNotNoneChild(t,[1,3,4])
-        graph_ref = graph_node(str("when_opt"), [t[1], t[2],t[3],t[4],t[5]],childsProduction )
+        graph_ref = graph_node(str("when_opt"), [t[1], t[2],t[3],t[4]],childsProduction )
         addCad("**\<WHEN_OPT>** ::=   \<WHEN_OPT> tWhen  \<ATR_WHEN> \<then_op>     ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
@@ -694,9 +693,11 @@ def p_when_opt(t):
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
 
-    else:
-        t[0]= None
 
+def p_when_opt0(t):
+    '''when_opt   :  empty     '''
+    
+    t[0]= None
 
 
 
@@ -727,17 +728,10 @@ def p_atr_when(t):
 
 
 def p_then_op(t):
-    ''' then_op   : THEN 
-                 | THEN raise_op 
+    ''' then_op   : THEN raise_op 
                     '''
     
-    token = t.slice[1]
-    if len(t) == 2:
-        graph_ref = graph_node(str("then_op"), [t[1]],[] )
-        addCad("**\<then_op>** ::= tTHEN  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #print(t)
-    elif len(t) == 3:
+    if len(t) == 3:
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("then_op"), [t[1],t[2]],  childsProduction )
         addCad("**\<then_op>** ::= tTHEN \<RAISE_OP>  ")
@@ -746,7 +740,7 @@ def p_then_op(t):
 
 
 
-def p_then_op(t):
+def p_then_op1(t):
     ''' then_op   : THEN NULL PUNTOCOMA
                   '''
     
@@ -781,6 +775,10 @@ def p_raise_op(t):
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
 
+def p_raise_op1(t):
+    ''' raise_op   : empty  '''
+    t[0] = None
+        #print(t)
 
 
 
@@ -814,7 +812,7 @@ def p_return_opt(t):
     
     
     if len(t) == 4:
-        graph_ref = graph_node(str("return_opt"), [t[1], t[2], t[3], t[4]], [] )
+        graph_ref = graph_node(str("return_opt"), [t[1], t[2], t[3]], [] )
         addCad("**\<RETURN_OPT>** ::=   tReturn tIdentifier  ';'    ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
