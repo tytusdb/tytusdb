@@ -718,6 +718,14 @@ class CreateTable(Sentence):
             dot+= column.graphAST('',str(hash("columns") + hash(self)))
         return dot
 
+class CreateIndex(Sentence):
+    def __init__(self, name):
+        self.name = name
+    def graphAST(self, dot, parent):
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"CreateIndex\"]\n'
+        return dot
+
 class Select(Sentence):
     def __init__(self, columns, distinct, tables, options):
         self.columns = columns
