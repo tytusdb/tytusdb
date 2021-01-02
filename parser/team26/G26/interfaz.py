@@ -10,12 +10,14 @@ import webbrowser
 from Utils.fila import fila
 from Error import *
 import Instrucciones.DML.select as select
+import json
 #from select import *
 
 ##########################################################################
 
-storage.dropAll()
+#storage.dropAll()
 datos = l.Lista({}, '')
+
 ##################################FUNCIONES#################################
 def openFile():
     route = files(
@@ -30,8 +32,11 @@ def openFile():
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
+
+
 def analisis():
     global datos
+
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
     instrucciones = g.parse(texto)
@@ -42,22 +47,36 @@ def analisis():
     except:
         print("")
 
+    try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
+
+        print(text)
+        datos.reInsertarValores(json.loads(text))
+        print(str(datos))
+    except:
+        print('error')
 
     for instr in instrucciones['ast'] :
 
             if instr != None:
                 result = instr.execute(datos)
-                print(result)
                 if isinstance(result, Error):
-                    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                     escribirEnSalidaFinal(str(result.desc))
                     erroresSemanticos.append(result)
-                elif isinstance(instr, select.Select):
-                    print("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
+                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
                     escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
                 else:
                     escribirEnSalidaFinal(str(result))
 
+
+    f = open("./Utils/tabla.txt", "w")
+    f.write(str(datos))
+    f.close()
 
     errores = g.getMistakes()
     recorrerErrores(errores)
