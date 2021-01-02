@@ -216,15 +216,55 @@ reservadas = {
     'some' : 'SOME',
     'any' : 'ANY',
     ##----- COMBINING QUERIES -----------
-    'left' : 'LEFT',
-    'right' : 'RIGHT',
-    'full' : 'FULL',
-    'natural' : 'NATURAL',
-    'outer' : 'OUTER',
+   # 'left' : 'LEFT',
+   # 'right' : 'RIGHT',
+   # 'full' : 'FULL',
+   # 'natural' : 'NATURAL',
+   # 'outer' : 'OUTER',
     'bytea' : 'BYTEA',    
     'trunc' : 'TRUNC',
     'greatest' : 'GREATEST',
-    'least' : 'LEAST'
+    'least' : 'LEAST',
+    # ----- AGREGADOS INDEX -----------------
+    'index' : 'INDEX',
+    'hash' : 'HASH',
+    'nulls' : 'NULLS',
+    'first' : 'FIRST',
+    'last' : 'LAST',
+    'lower' : 'LOWER',
+    'include' : 'INCLUDE',
+    'collate' : 'COLLATE',
+    
+    ##--------------- PARTE DE LA SEGUNDA FASE --------
+    'function' : 'FUNCTION',
+    'returns' : 'RETURNS',
+    'declare' : 'DECLARE',
+    'begin' : 'BEGIN',
+    'raise' : 'RAISE',
+    'notice' : 'NOTICE',
+    'return' : 'RETURN',
+    'record' : 'RECORD',
+    'constant' : 'CONSTANT',
+    'alias' : 'ALIAS',
+    'for' : 'FOR',
+    'real' : 'REAL',
+
+#-------------Agregado por Dulce :D ---------------
+    'if' : 'IF',
+    'prepare' : 'PREPARE',
+    'perform' : 'PERFORM',
+
+# ANCHOR   ----------- NUEVOS----------------
+    'exception' : 'EXCEPTION',
+    'next' : 'NEXT',
+    'query' : 'QUERY',
+    'execute' : 'EXECUTE',
+    'call' : 'CALL',
+    'loop' : 'LOOP',
+    'exit' : 'EXIT',
+    'text_pattern_ops' : 'TEXT_PATTERN_OPS',
+    'varchar_pattern_ops' : 'VARCHAR_PATTERN_OPS',
+    'bpchar_pattern_ops' : 'BPCHAR_PATTERN_OPS'
 
 }
 
@@ -247,6 +287,19 @@ tokens = [
     'MAYIGQUE',
     'MAYMAY',
     'MENMEN',
+    'AMPERMEN',
+    'AMPERMAY',
+    'MENMENOR',
+    'AMPMENOR',
+    'ORAMPMAY',
+    'ORMAYMAY',
+    'ARROBAMAY',
+    'MENARROBA',
+    'CEJILLAIGUAL',
+    'AMPERSON_D',
+    'MENPOT',
+    'MAYPOT',
+
     'MENQUE',
     'MAYQUE',
     'DOBLEIG',
@@ -261,9 +314,10 @@ tokens = [
     'HASHTAG',
     'CEJILLA',
     'D_DOSPTS',
-    'D_OR'
+    'D_OR',
+    'DOSPUNTOS'
 
-    
+   
 ] + list(reservadas.values())
 
 #tokens
@@ -278,7 +332,21 @@ t_NOIG          = r'<>'
 t_NOIGUAL       = r'!='
 t_DOBLEIG       = r'=='
 
+# ANCHOR
+t_AMPERMEN      = r'&<'
+t_AMPERMAY      = r'&>'
+t_MENMENOR      = r'<<\|'
+t_AMPMENOR      = r'&<\|'
+t_ORAMPMAY      = r'\|&>'
+t_ORMAYMAY      = r'\|>>'
+t_ARROBAMAY     = r'@>'
+t_MENARROBA     = r'<@'
+t_CEJILLAIGUAL  = r'~='
+t_AMPERSON_D    = r'&&'
+t_MENPOT        = r'<\^'
+t_MAYPOT        = r'>\^'
 
+t_DOSPUNTOS     = r'\:'
 t_SUMA          = r'\+'
 t_RESTA         = r'\-'
 t_DIVISION      = r'\\'
@@ -295,6 +363,7 @@ t_Y             = r'\&'
 t_S_OR          = r'\|'
 t_HASHTAG       = r'\#'
 t_CEJILLA       = r'\~'
+
 
 
 
@@ -495,7 +564,10 @@ def p_instruccion_f_select_union(t):
     reporte_bnf.append("<instruccion> ::= <select_uniones> PTOCOMA") 
     t[0] = Select_Uniones(t[1][0],t[1][1])
 
-def p_instruccion_error(t) :
+
+def p_instruccion_f_select_uodate(t):
+    'instruccion : update_insrt'  
+'''def p_instruccion_error(t) :
     'instruccion      : createDB_insrt error'
     reporte_bnf.append("<instruccion> ::= <createDB_insrt><error>")
 
@@ -546,7 +618,7 @@ def p_instruccion_error11(t) :
 def p_instruccion_error12(t) :
     'instruccion      : delete_insrt error'
     reporte_bnf.append("<instruccion> ::= <delete_insrt><error>")
-
+'''
 #?######################################################
 # TODO        GRAMATICA INSTRUCCION DELETE
 #?######################################################
@@ -982,7 +1054,7 @@ def p_instruccion_show_databases(t):
 
 
 #?######################################################
-# SECTION        GRAMATICA INSTRUCCION SHOW DATABASE
+# ANCHOR        GRAMATICA INSTRUCCION SHOW DATABASE
 #?######################################################
 
 
@@ -996,7 +1068,7 @@ def p_instruccion_showTables(t):
 #?######################################################
 
 #?######################################################
-# SECTION        SIMPLE
+# ANCHOR        SIMPLE
 #?######################################################
 
 def p_createDB(t):
@@ -1020,7 +1092,7 @@ def p_createDB_wRP_wIN(t):
     t[0] = CreateDatabase(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[8]), ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,""), ExpresionNumeroSimple(1), 1)
 
 #?######################################################
-# SECTION        UN PARAMETRO
+# ANCHOR        UN PARAMETRO
 #?######################################################
 
 def p_createDB_up(t):
@@ -1080,7 +1152,7 @@ def p_createDB_unParam_Owner(t):
 
             
 #?######################################################
-# SECTION        DOS PARAMETROS
+# ANCHOR          DOS PARAMETROS
 #?######################################################
 
 def p_createDB_dp(t):
@@ -1153,7 +1225,7 @@ def p_createDB_dosParam_Owner(t):
     t[0] = temp
 
 #?######################################################
-# SECTION        ADD PRODUCCIONES
+# TODO        ADD PRODUCCIONES
 #?######################################################
 
 def p_constraint_esp_(t):
@@ -2437,7 +2509,7 @@ def p_agrupacion_expresion(t):
     reporte_bnf.append("<agrupacion_expresion> ::= PAR_A <expresion> PAR_C")
     t[0] = t[2]
       
-
+#! modificaciones 
 def p_expresion(t):
     ''' expresion :    expresion SUMA expresion
                      | expresion RESTA expresion
@@ -2455,7 +2527,8 @@ def p_expresion(t):
                      | MAX PAR_A expresion PAR_C
                      | MIN PAR_A expresion PAR_C             
                      | ALL PAR_A select_insrt PAR_C
-                     | SOME PAR_A select_insrt PAR_C '''
+                     | SOME PAR_A select_insrt PAR_C 
+                     | expresion D_OR expresion'''
 
     if t[2] == '+':
         reporte_bnf.append("<expresion> ::= <expresion> SUMA <expresion>")
@@ -3029,6 +3102,17 @@ def p_expresion_wherea2(t):
     reporte_bnf.append("<expresion_wherea> ::= <expresion>")
     t[0] = t[1]
 
+#? #########################################################
+#ANCHOR       EXPRESIONES AGREGADAS AL WHERE
+#? ##################################################
+def p_expresion_wherea3(t):
+    ''' expresion_wherea : LOWER PAR_A string_type PAR_C '''
+
+def p_expresion_wherea4(t):
+    ''' expresion_wherea : ID PAR_A ID PAR_C'''
+
+
+
 def p_expresion_isnull_(t):
     ''' expresion_whereb : expresion_dato IS NULL '''
     reporte_bnf.append("<expresion_whereb> ::= <expresion_dato> IS NULL")
@@ -3171,25 +3255,142 @@ def p_expresion_logica_w3(t):
     t[0] = t[1]
 
 
+
+
+#? ###################################################################
+# SECTION             AGREGADOS CAPITULO 11
+#? ###################################################################
+
+
+#? ###################################################################
+# TODO                         INDEX
+#? ###################################################################
+def p_ins_createIndex(t):
+    'instruccion : createIndex'
+    t[0] = t[1]
+
+def p_createIndex(t):
+    ' createIndex : CREATE INDEX ID ON ID opc_index PTCOMA '
+    t[0] = Funcion_Index(INDEX.INDEX,t[3],t[5],t[6],None)
+    
+def p_createIndex1(t):
+    ' createIndex : CREATE INDEX ID ON ID opc_index cond_where PTCOMA '
+    t[0] = Funcion_Index(INDEX.INDEX_WHERE,t[3],t[5],t[6],t[7])
+
+def p_createIndex2(t):
+    ' createIndex : CREATE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA '
+    t[0] = Funcion_Index(INDEX.INDEX_INCLUDE,t[3],t[5],t[6],t[8])
+
+def p_createIndex3(t):
+    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index PTCOMA '
+    t[0] = Funcion_Index(INDEX.INDEX_UNIQUE_WHERE,t[4],t[6],t[7],None)
+
+def p_createIndex4(t):
+    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index cond_where PTCOMA '
+    t[0] = Funcion_Index(INDEX.INDEX_INCLUDE,t[4],t[6],t[7],t[8])
+
+def p_createIndex5(t):
+    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA '
+    t[0] = Funcion_Index(INDEX.INDEX_INCLUDE,t[4],t[6],t[7],t[9])
+
+def p_otro_index(t):
+    'createIndex : CREATE INDEX ID ON ID PAR_A ID opclass PAR_C PTCOMA'
+    t[0] = Funcion_Index(INDEX.INDEX_CLASS,t[3],t[5],t[7],t[8])
+    
+def p_otro_index1(t):
+    'createIndex : CREATE INDEX ID ON ID PAR_A ID opclass sortoptions PAR_C PTCOMA'
+    t[0] = Funcion_Index(t[3],t[5],t[7],t[8],t[9])
+
+def p_createIndex6(t):
+    '''opc_index :  USING HASH PAR_A ID PAR_C
+                  | PAR_A opc_index_par PAR_C'''
+    if t[1].upper() == 'USING':
+        t[0] = index_cuerpo(TIPO_INDEX.USING_HASH,t[4],None)
+    else:
+        t[0]= t[2]
+
+def p_createIndex2_0(t):
+    ' opc_index_par : campos_c '
+    t[0] = index_cuerpo(TIPO_INDEX.CAMPOS,t[1],None)
+
+def p_createIndex2_1(t):
+    ' opc_index_par : ID NULLS first_last'
+    t[0] = index_cuerpo(TIPO_INDEX.NULLS,t[1],t[3])
+
+def p_createIndex2_1_1(t):
+    ' opc_index_par : ID orden NULLS first_last '
+    t[0] = index_cuerpo(TIPO_INDEX.NULLS,t[1], t[4])
+
+def p_createIndex2_3(t):
+    ' opc_index_par : ID COLLATE string_type '   
+    t[0] = index_cuerpo(TIPO_INDEX.COLLATE,t[1],t[3])
+
+def p_createIndex2_30(t):
+    ' opc_index_par : LOWER PAR_A ID PAR_C '
+    t[0] = index_cuerpo(TIPO_INDEX.LOWER,t[3],None)
+
+def p_createIndex_5(t):
+    ' opc_index_par : ID PAR_A ID PAR_C '
+    t[0] = index_cuerpo(TIPO_INDEX.WITH_IDS,t[1],t[3])
+
+def p_first_last(t):
+    ''' first_last : FIRST
+                   | LAST'''
+    t[0] = t[1]
+
+
+def p_sortoptions(t):
+    'sortoptions : sortoptions sortoption'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_sortoptions0(t):
+    'sortoptions : sortoption'
+    t[0] = t[1]
+
+def p_sortoptions1(t):
+    '''sortoption : COLLATE
+                    | ASC
+                    | DESC '''
+    t[0] = t[1]
+
+
+ 
+def p_sortoptions2(t):
+    '''sortoption :  NULLS FIRST
+                    | NULLS LAST '''
+    t[0] = t[2]
+
+def p_opclass(t):
+    '''opclass : TEXT_PATTERN_OPS
+               | VARCHAR_PATTERN_OPS
+               | BPCHAR_PATTERN_OPS '''
+    t[0] = t[1]
+
+
 def p_error(t):
-    #print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(entradaa), t))
+    print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
     global reporte_sintactico
-    #reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
-    errorSintactico = Error(str(t.value),int(t.lineno),int(find_column(str(entradaa),t)), "Error Sintactico")
-    listaErrores.append(errorSintactico) 
+    reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
+    
 
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
+    print((token.lexpos - line_start) + 1)
     return (token.lexpos - line_start) + 1
 
 import ply.yacc as yacc
 parser = yacc.yacc()
 
+'''f = open("./entrada.txt", "r")
+input = f.read()
+print(input)'''
 
 def parse(input) :
-    global entradaa
-    entradaa = input
-    return parser.parse(input)
+   global entradaa
+   entradaa = input
+   return parser.parse(input)
+  
 
 def get_array(lista):
     lista_repo = lista
@@ -3201,3 +3402,5 @@ def get_array(lista):
         f.write(items)
 
     f.close()
+
+'''parser.parse(input)'''

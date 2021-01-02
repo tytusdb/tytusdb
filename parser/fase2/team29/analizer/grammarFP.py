@@ -1,7 +1,14 @@
 import ply.yacc as yacc
+from sys import path
+from os.path import dirname as dir
+
+path.append(dir(path[0]))
+
+
 # Construccion del analizador léxico
 import ply.lex as lex
-from tokensFP import *
+from analizer.tokensFP import *
+
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 listInst = []
@@ -45,23 +52,74 @@ def p_init(t):
     """
 
 
+# TODO: block_stmts exception
 def p_block(t):
-    """block :  declaration_stmt R_BEGIN block_stmts exception R_END label S_PUNTOCOMA"""
+    """
+    block : function_stmt R_AS S_DOLAR S_DOLAR declaration_stmt R_BEGIN block_stmts R_END label S_PUNTOCOMA S_DOLAR S_DOLAR language_function S_PUNTOCOMA
+    """
+
+
+# region function
+
+
+def p_function_stmt(t):
+    """
+    function_stmt : R_CREATE orReplace R_FUNCTION ID function_opt
+    """
+
+
+def p_function_opt(t):
+    """
+    function_opt : S_PARIZQ params_function S_PARDER returns_function
+    | S_PARIZQ S_PARDER returns_function
+    """
+
+
+def p_params_function(t):
+    """
+    params_function : params_function S_COMA param_function
+    | param_function
+    """
+
+
+def p_param_function(t):
+    """
+    param_function : ID types_d
+    | types_d
+    """
+
+
+def p_returns_function(t):
+    """
+    returns_function : R_RETURNS types_d
+    |
+    """
+
+
+def p_language_function(t):
+    """
+    language_function : R_LANGUAGE R_PLPGSQL
+    |
+    """
+
+
+# endregion
+
 
 # region declaration
 
 
 def p_declaration_stmt(t):
     """
-    declaration_stmt : label_stmt R_DECLARE global_variable_declaration
-        |   
+    declaration_stmt : R_DECLARE global_variable_declaration
+        |
     """
 
 
 def p_global_variable_declaration(t):
     """
     global_variable_declaration : global_variable_declaration declaration
-                                | declaration 
+                                | declaration
     """
 
 
@@ -96,16 +154,11 @@ def p_assignment_operator_D(t):
     """
 
 
-def p_label_stmt(t):
-    """label_stmt : OC_SHIFTL ID OC_SHIFTR
-                | 
-    """
-
-
 def p_label(t):
     """label : ID
     |
     """
+
 
 # endregion
 
@@ -161,6 +214,7 @@ def p_columntype(t):
 def p_rowtypes(t):
     """types_d :  ID O_MODULAR R_ROWTYPE """
 
+
 # endregion
 
 # region datatype
@@ -214,6 +268,7 @@ def p_literal_d(t):
     | ID
     """
 
+
 # endregion
 
 # region block stmts
@@ -221,7 +276,7 @@ def p_literal_d(t):
 
 def p_block_stmts(t):
     """
-    block_stmts : block_stmts block_stmt 
+    block_stmts : block_stmts block_stmt
                 | block_stmt
     """
 
@@ -233,13 +288,16 @@ def p_block_stmt(t):
                 | stmt
     """
 
+
 # endregion
 
 # region local variable declaration
 
 
 def p_local_variable_declaration(t):
-    """local_variable_declaration : ID assignment_operator datatype_d S_PUNTOCOMA"""
+    """
+    local_variable_declaration : ID assignment_operator datatype_d S_PUNTOCOMA
+    """
 
 
 def p_assignment_operator(t):
@@ -247,6 +305,7 @@ def p_assignment_operator(t):
     assignment_operator : O_ASIGNACION
         | S_IGUAL
     """
+
 
 # endregion
 
@@ -267,6 +326,7 @@ def p_stmt_without_substmt(t):
                         | R_RETURN return_stmt
                         | query_single_row
     """
+
 
 # endregion
 
@@ -302,6 +362,7 @@ def p_else_stmt_opt(t):
                 |
     """
 
+
 # endregion
 
 # region CASE
@@ -320,15 +381,15 @@ def p_case_stmt_n(t):
 
 def p_else_case_stmt_n_opt(t):
     """
-    else_case_stmt_n_opt : else_case_stmt_n 
+    else_case_stmt_n_opt : else_case_stmt_n
                         |
     """
 
 
 def p_else_case_stmt_n(t):
     """
-    else_case_stmt_n : else_case_stmt_n R_WHEN list_expression R_THEN block_stmts 
-    | R_WHEN list_expression R_THEN block_stmts  
+    else_case_stmt_n : else_case_stmt_n R_WHEN list_expression R_THEN block_stmts
+    | R_WHEN list_expression R_THEN block_stmts
     """
 
 
@@ -338,15 +399,15 @@ def p_case_stmt_bool(t):
 
 def p_else_case_stmt_bool_opt(t):
     """
-    else_case_stmt_bool_opt : else_case_stmt_bool 
+    else_case_stmt_bool_opt : else_case_stmt_bool
                         |
     """
 
 
 def p_else_case_stmt_bool(t):
     """
-    else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts  
-                        |  R_WHEN expBool R_THEN block_stmts 
+    else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts
+                        |  R_WHEN expBool R_THEN block_stmts
     """
 
 
@@ -372,6 +433,7 @@ def p_exp1(t):
 
 # region return
 
+
 def p_return_stmt(t):
     """
     return_stmt : expresion S_PUNTOCOMA
@@ -380,6 +442,7 @@ def p_return_stmt(t):
                 | S_PUNTOCOMA
                 | R_QUERY execute_return S_PUNTOCOMA
     """
+
 
 # endregion
 
@@ -403,7 +466,7 @@ def p_into_strict(t):
 
 def p_exp_string(t):
     """
-    exp_string : id_or_string 
+    exp_string : id_or_string
                 | exp_string OC_CONCATENAR id_or_string
     """
 
@@ -425,9 +488,10 @@ def p_list_expression_2(t):
 def p_exp_string_id(t):
     """
     id_or_string : STRING
-    | ID 
+    | ID
     | funcCall
     """
+
 
 # endregion
 
@@ -450,6 +514,7 @@ def p_query_single_row(t):
 def p_insertStmt_single_row(t):
     """insertStmt_SR : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER R_RETURNING returnParams  R_INTO strict ID """
 
+
 # update
 
 
@@ -463,6 +528,7 @@ def p_deleteStmt_single_row(t):
 
 
 # region select
+
 
 def p_selectStmt_single_row_1(t):
     """selectStmt_SR : R_SELECT R_DISTINCT selectParams R_INTO strict ID fromCl whereCl groupByCl limitCl """
@@ -491,6 +557,7 @@ def p_selectStmt_agrupacion_single_row(t):
 def p_selectstmt_only_params_single_row(t):
     """selectStmt_SR : R_SELECT selectParams R_INTO strict ID"""
 
+
 # endregion
 
 # perform
@@ -498,6 +565,7 @@ def p_selectstmt_only_params_single_row(t):
 
 def p_perform(t):
     """perform : R_PERFORM STRING """
+
 
 # region GET
 
@@ -516,6 +584,7 @@ def p_current_g(t):
 def p_item(t):
     """item : R_ROW_COUNT"""
 
+
 # endregion
 
 # endregion
@@ -528,6 +597,7 @@ def p_strict(t):
     strict : R_STRICT
     |
     """
+
 
 # endregion
 
@@ -559,6 +629,7 @@ def p_returnlistParams_1(t):
 def p_returnlistParams_2(t):
     """returnlistParams : ID S_PUNTO O_PRODUCTO"""
 
+
 # endregion
 
 # region EXCEPTION
@@ -570,12 +641,12 @@ def p_exception(t):
 
 def p_while_stmt_exp(t):
     """when_stmt : R_WHEN expBoolOR R_THEN handler_statements
-    | when_stmt R_WHEN expBoolOR R_THEN handler_statements  """
+    | when_stmt R_WHEN expBoolOR R_THEN handler_statements"""
 
 
 def p_expBoolOR(t):
     """expBoolOR : ID
-                | expBoolOR OC_OR ID  """
+    | expBoolOR OC_OR ID"""
 
 
 def p_handler_statements(t):
@@ -588,8 +659,9 @@ def p_empty_handler_stmt(t):
 
 def p_handler_statement(t):
     """handler_statement : R_RAISE R_NOTICE STRING S_PUNTOCOMA
-    | R_RETURN return_stmt  
+    | R_RETURN return_stmt
     | R_NULL S_PUNTOCOMA"""
+
 
 # endregion
 
@@ -670,13 +742,13 @@ def p_createopts_index(t):
 
 def p_indexList(t):
     """
-    indexList : indexList S_COMA ID indexOrder indexNull firstLast 
+    indexList : indexList S_COMA ID indexOrder indexNull firstLast
     """
 
 
 def p_indexList2(t):
     """
-    indexList : ID indexOrder indexNull firstLast 
+    indexList : ID indexOrder indexNull firstLast
     """
 
 
@@ -1247,6 +1319,14 @@ def p_datatype_operandos(t):
     | extract
     | datePart
     | current
+    | parameter
+    """
+    repGrammar.append(t.slice)
+
+
+def p_datatype_parameter(t):
+    """
+    parameter : S_DOLAR INTEGER
     """
     repGrammar.append(t.slice)
 
