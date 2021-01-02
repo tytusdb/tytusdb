@@ -350,32 +350,18 @@ def p_instruciones(t):
 
 
 def p_instruccion(t) :
-    '''instruccion      : CREATE createops'''
-                        #| USE use
-                        #| SHOW show
-                        #| DROP drop
-                        #| DELETE delete
-                        #| INSERT insert
-                        #| UPDATE update
+    '''instruccion      : CREATE createops
+                        | USE use
+                        | SHOW show
+                        | DROP drop
+                        | DELETE delete
+                        | INSERT insert
+                        | UPDATE update
+                        | ALTER alter'''
     
-    text = ""
-    if t[1].lower() == 'create':
-        txt = tempos.newTemp() + ' = \'' + t[1] + t[2]['text'] + '\'\n'
-        txt += 'heap.append('+str(tempos.index)+')\n'
-        txt += 'mediador()\n'
-        text = txt
-    elif t[1].lower() == 'use':
-        text = "USE "+  t[2]['text'] + "\n"
-    elif t[1].lower() == 'show':
-        text = "SHOW "+  t[2]['text'] + "\n"
-    elif t[1].lower() == 'drop':
-        text = "DROP "+  t[2]['text'] + "\n"
-    elif t[1].lower() == 'delete':
-        text = "DROP "+  t[2]['text'] + "\n"
-    elif t[1].lower() == 'insert':
-        text = "INSERT "+  t[2]['text'] + "\n"
-    elif t[1].lower() == 'update':
-        text = "UPDATE "+  t[2]['text'] + "\n"
+    text = tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
+    text += 'heap.append('+"t"+str(tempos.index)+')\n'
+    text += 'mediador()\n'
     t[0] = {'text' : text, 'c3d': ''}
 
 #----------------testing condiciones--------------------
@@ -394,12 +380,16 @@ def p_instruccion_ccreateind(t):
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
-    text = t[1]['text'] + ";\n"
+    text = tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
+    text += 'heap.append('+"t"+str(tempos.index)+')\n'
+    text += 'mediador()\n'
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instruccionQuerys(t):
-    'instruccion  : querys'
-    text = t[1]['text'] 
+    'instruccion  : querys PTCOMA'
+    text = tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
+    text += 'heap.append('+"t"+str(tempos.index)+')\n'
+    text += 'mediador()\n'
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instruccionError(t):
@@ -483,11 +473,11 @@ def p_querys(t):
               | select EXCEPT  allopcional select'''
     text = ""
     if t[2].lower() == 'union' :
-        text = t[1]['text'] + "\n UNION \n" + t[3]['text'] + t[4]['text']
+        text = t[1]['text'] + " UNION " + t[3]['text'] + t[4]['text']
     elif t[2].lower() == 'intersect' :
-        text = t[1]['text'] + "\n INTERSECT \n" + t[3]['text'] + t[4]['text']
+        text = t[1]['text'] + " INTERSECT " + t[3]['text'] + t[4]['text']
     elif t[2].lower() == 'except' :
-        text = t[1]['text'] + "\n EXCEPT \n" + t[3]['text'] + t[4]['text']
+        text = t[1]['text'] + " EXCEPT" + t[3]['text'] + t[4]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_all_opcional(t):
@@ -673,7 +663,7 @@ def p_else_case(t):
 
 def p_else_case_null(t):
     'elsecase  : '
-    text = t[1]['text']
+    text = ""
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_operadores_select_t(t):
@@ -719,17 +709,17 @@ def p_argumento_de_operadores(t):
                                 | argumentodeoperadores POTENCIA argumentodeoperadores'''
     text = ""
     if t[2] == '+'   :
-        text = t[1]['text'] + " + " + t[3]['reporte']
+        text = str(t[1]['text']) + " + " + str(t[3]['text'])
     elif t[2] == '-' :
-        text = t[1]['text'] + " - " + t[3]['reporte']
+        text = str(t[1]['text']) + " - " + str(t[3]['text'])
     elif t[2] == '/' :
-        text = t[1]['text'] + " / " + t[3]['reporte']
+        text = str(t[1]['text']) + " / " + str(t[3]['text'])
     elif t[2] == '*' :
-        text = t[1]['text'] + " * " + t[3]['reporte']
+        text = str(t[1]['text']) + " * " + str(t[3]['text'])
     elif t[2] == '%' :
-        text = t[1]['text'] + " % " + t[3]['reporte']
+        text = str(t[1]['text']) + " % " + str(t[3]['text'])
     elif t[2] == '^' :
-        text = t[1]['text'] + " ^ " + t[3]['reporte']
+        text = str(t[1]['text']) + " ^ " + str(t[3]['text'])
     t[0] =  {'text': text, 'c3d' : '' }
 
 
@@ -788,7 +778,7 @@ def p_funciones_binarias(t):
     if t[1].lower() == 'length' :
         text = "LENG(" + t[3]['text'] + ")"
     elif t[1].lower() == 'substring' :
-        text = "SUBSTRING(" + t[3]['text'] + ", " + t[5] + ", " + t[7] + ")"
+        text = "SUBSTRING(" + str(t[3]['text']) + ", " + str(t[5]) + ", " + str(t[7]) + ")"
     elif t[1].lower() == 'trim' :
         text = "TRIM(" + t[3]['text'] + ")"
     elif t[1].lower() == 'md5' :
@@ -796,7 +786,7 @@ def p_funciones_binarias(t):
     elif t[1].lower() == 'sha256' :
         text = "SHA256(" + t[3]['text'] + ")"
     elif t[1].lower() == 'substr' :
-        text = "SUBSTR(" + t[3]['text'] + ", " + t[5] + ", " + t[7] + ")"
+        text = "SUBSTR(" + t[3]['text'] + ", " + str(t[5]) + ", " + str(t[7]) + ")"
     elif t[1].lower() == 'get_byte' :
         text = "GET_BYTE(" + t[3]['text'] + ":: BYTEA" + ", " + t[8]['text'] + ", " + t[10]['text'] + ")"
     elif t[1].lower() == 'set_byte' :
@@ -1123,49 +1113,49 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
     text = ''
     c3 = ''
     if t[2] == '<'    :
-        text = t[1]['text']  + "<" + t[3]['text']
+        text = str(t[1]['text'])  + "<" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     elif t[2] == '>'  :
-        text = t[1]['text']  + ">" + t[3]['text']
+        text = str(t[1]['text'])  + ">" +str( t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     elif t[2] == '='  :
-        text = t[1]['text']  + "=" + t[3]['text']
+        text = str(t[1]['text'])  + "=" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' == ' + t[3]['tflag'] + '\n'
         
     elif t[2] == '<=' :
-        text = t[1]['text']  + "<=" + t[3]['text']
+        text = str(t[1]['text'])  + "<=" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     elif t[2] == '>=' :
-        text = t[1]['text']  + ">=" + t[3]['text']
+        text = str(t[1]['text'])  + ">=" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 = t[3]['c3d']
         c3 = tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     elif t[2] == '<>' or t[2] == '!=' :
-        text = t[1]['text']  + "<>" + t[3]['text']
+        text = str(t[1]['text'])  + "<>" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' != ' + t[3]['tflag'] + '\n'
 
     elif t[2].lower() == 'between' :
-        text = t[1]['text']  + " BETWEEN " + t[3]['text']
+        text = str(t[1]['text'])  + " BETWEEN " + str(t[3]['text'])
 
         tp = tempos.newTemp()
         c3 = tp + ' = ' + t[1]['tflag'] + ' >= ' + t[3]['c3d'] + '\n'
@@ -1175,7 +1165,7 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
 
     elif t[2].lower() == 'not' :
         if t[3].lower() == 'between':
-            text = t[1]['text']  + " NOT BETWEEN" + t[4]['text']
+            text = str(t[1]['text'])  + " NOT BETWEEN" + str(t[4]['text'])
             
             tp = tempos.newTemp()
             c3 = tp + ' = ' + t[1]['tflag'] + ' >= ' + t[4]['c3d'] + '\n'
@@ -1184,10 +1174,10 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
             c3 += tempos.newTemp() + ' = ' + tp + ' and ' + ts + '\n'
 
         else :
-            text = t[1]['text']  + " NOT IN(" + t[5]['text'] + ")"
+            text = str(t[1]['text'])  + " NOT IN(" + str(t[5]['text']) + ")"
             t[0] =  {'text': text, 'c3d' : '' }
     elif t[2].lower() == 'isnull' :
-        text = t[1]['text']  + " ISNULL " 
+        text = str(t[1]['text'])  + " ISNULL " 
         
         tp = tempos.newTemp()
         c3 = tempos.newTemp() + ' = ' + t[1]['tflag'] + ' == \'null\' \n'
@@ -1196,7 +1186,7 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
         c3 += tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
 
     elif t[2].lower() == 'notnull' :
-        text = t[1]['text']  + " NOTNULL " + t[3]['text']
+        text = str(t[1]['text'])  + " NOTNULL "
         
         tp = tempos.newTemp()
         c3 = tempos.newTemp() + ' = ' + t[1]['tflag'] + ' != \'null\' \n'
@@ -1205,18 +1195,18 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
         c3 += tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
 
     elif t[2].lower() == 'is' :
-        text = t[1]['text']  + " IS " + t[3]['text']
+        text = str(t[1]['text'])  + " IS " + str(t[3]['text'])
         
         c3 = t[3]['c3d']
 
     elif t[2].lower() == 'any' :
-        text = t[1]['text']  + " ANY(" + t[4]['text'] + ")"
+        text = str(t[1]['text'])  + " ANY(" + str(t[4]['text']) + ")"
     elif t[2].lower() == 'all' :
-        text = t[1]['text']  + " ALL(" + t[4]['text'] + ")"
+        text = str(t[1]['text'])  + " ALL(" + str(t[4]['text']) + ")"
     elif t[2].lower() == 'some' :
-        text = t[1]['text']  + " SOME(" + t[4]['text'] + ")"
+        text = str(t[1]['text'])  + " SOME(" + str(t[4]['text']) + ")"
     else :
-        text = t[1]['text']  + " IN(" + t[4]['text'] + ")"
+        text = str(t[1]['text'])  + " IN(" + str(t[4]['text']) + ")"
 
     t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
 
@@ -1580,7 +1570,7 @@ def p_tableconstraintcheck(t):
     '''tableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ condiciones PARENDER
                             | CHECK PARENIZQ condiciones PARENDER'''
     if t[1].lower() == 'constraint' :
-        txt = ' CONSTRAINT ' + t[2] + ' CHECK (' + t[4]['text'] + ')'
+        txt = ' CONSTRAINT ' + t[2] + ' CHECK (' + t[5]['text'] + ')'
     else :
         txt = ' CHECK (' + t[3]['text'] + ')'
     
@@ -1704,9 +1694,9 @@ def p_use(t):
             | ID PTCOMA'''
     text =""
     if t[1].lower() == "database":
-        text = "DATABASE " + t[2]+"; \n"
+        text = "DATABASE " + t[2]+";"
     else:
-        text = t[1] + "; \n"
+        text = t[1] + ";"
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_useE(t):
@@ -1732,9 +1722,9 @@ def p_likeopcional(t):
                     | PTCOMA '''
     text =""
     if t[1].lower() == 'like' :
-        text = "LIKE " + t[2] + "; \n"
+        text = "LIKE " + t[2] + ";"
     else :
-        text = "; \n"
+        text = "; "
     t[0] =  {'text': text, 'c3d' : '' }
 
 #----------------------------------------------DROP-------------------------------------------------------- 
@@ -1745,9 +1735,9 @@ def p_drop(t):
             |   TABLE ID PTCOMA'''
     text =""
     if t[1].lower() == 'database' :
-        text = "DATABASE " + t[2]+" ;\n"
+        text = "DATABASE " + t[2]['text']+" ;"
     elif t[1].lower() == "table":
-        text = "TABLE " + t[2]+ ";\n"
+        text = "TABLE " + t[2]+ ";"
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_drop_e(t):
@@ -1772,9 +1762,9 @@ def p_alterp(t):
                 |   TABLE ID altertables PTCOMA'''
     text = ""
     if t[1].lower() == 'database' :
-        text = "DATABASE " + t[2] + " " +t[3]['text'] + ";\n"
+        text = "DATABASE " + t[2] + " " +t[3]['text'] + ";"
     else :
-        text = "TABLE " + t[2] + " " +t[3]['text'] + ";\n"
+        text = "TABLE " + t[2] + " " +t[3]['text'] + ";"
     t[0] =  {'text': text, 'c3d' : '' }
 
 
@@ -1866,25 +1856,6 @@ def p_addConstraintU(t):
         text = "COLUMN "+ t[2] + t[3]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
-def p_listaidcts_r(t):
-    'listaidcts : listaidcts COMA ID PUNTO ID'
-    text = t[1]['text'] + " , "+ t[3] +" . "+ t[5]
-    t[0] =  {'text': text, 'c3d' : '' }
-
-def p_listaidcts_re(t):
-    'listaidcts : listaidcts COMA ID'
-    text = t[1]['text'] + " , "+ t[3]
-    t[0] =  {'text': text, 'c3d' : '' }
-
-def p_listaidcts(t):
-    'listaidcts : ID PUNTO ID'
-    text = t[1] + " . "+ t[3]
-    t[0] =  {'text': text, 'c3d' : '' }
-
-def p_listaidctse(t):
-    'listaidcts : ID'
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_addConstraint(t):
     '''alteraddc    : CONSTRAINT ID alteradd'''
@@ -1940,7 +1911,7 @@ def p_tipodedrop(t):
 #------------------------------------------------------------DELETE----------------------------------------------------
 def p_instrucciones_delete(t) :
     '''delete    : FROM ID condicionesops PTCOMA'''
-    text = "FROM " + t[2] + " "+ t[3]['text']+ "; \n"
+    text = "FROM " + t[2] + " "+ t[3]['text']+ ";"
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instruccionesdelete_e(t):
@@ -1954,7 +1925,7 @@ def p_instrucciones_insert(t):
     '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
     text = ""
     if t[1].lower() == "into":
-        text = "INTO "+t[2] + " VALUES ( " +t[5]['text']+ " ) ;\n"
+        text = "INTO "+t[2] + " VALUES ( " +t[5]['text']+ " ) ;"
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instrucciones_insert_err(t):
@@ -1964,7 +1935,7 @@ def p_instrucciones_insert_err(t):
 
 def p_values_rec(t):
     '''values   : values COMA value'''
-    text = t[1]['text'] + " , " +t[3]['text']
+    text = str(t[1]['text']) + " , " +str(t[3]['text'])
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_values(t):
@@ -2023,7 +1994,7 @@ def p_instrucciones_update(t):
     '''update    : ID SET asignaciones condicionesops PTCOMA'''
     text=""
     if t[2].lower() == "set":
-        text = t[1] + " SET "+t[3]['text']+t[4]['text']+"; \n"
+        text = t[1] + " SET "+t[3]['text']+t[4]['text']+";"
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instruccions_update_e(t):
