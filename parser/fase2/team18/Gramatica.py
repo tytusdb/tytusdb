@@ -34,7 +34,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
            'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO', 'RESTA','SUMA','DIVISION', 
            'POTENCIA', 'MODULO', 'DOSPUNTOS', 'SQRT2', 'CBRT2', 'AND2', 'NOT2', 'XOR', 'SH_LEFT', 'SH_RIGHT', 'ASIGNACION', 
-           'DOBLEDOLLAR', 'DOLLAR'] + list(Reservadas.values())
+           'DOBLEDOLLAR', 'DOLLAR', 'ARROBA'] + list(Reservadas.values())
 
 t_PTCOMA = r';'
 t_PAR_A = r'\('
@@ -53,6 +53,7 @@ t_SH_RIGHT = r'\>\>'
 t_ASIGNACION = r'\:\='
 t_DOBLEDOLLAR = r'\$\$'
 t_DOLLAR = r'\$'
+t_ARROBA = r'\@'
 
 #Comparision operators
 t_IGUAL = r'\='
@@ -1082,8 +1083,8 @@ def p_funciones_select_restantes(t):
 def p_funtion_math_lower(t):
      '''funcion_math : lower PAR_A exp PAR_C'''
 
-def p_funtion_math_function(t):
-     '''funcion_math : ID PAR_A parametros_fun PAR_C'''
+def p_llamado_funcion(t):
+     '''funcion_math : ARROBA ID PAR_A parametros_fun PAR_C'''
 
 def p_funcion_math_params(t):
      '''parametros_fun : lista_exp

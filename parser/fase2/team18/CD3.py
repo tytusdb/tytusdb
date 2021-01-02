@@ -5,25 +5,41 @@ import copy
 #variables
 listaSalida=[]
 listaMemoria=[]
+listaoptimizaciones=[]
 memoriTrue=0
 contT=-1;
+contOP=-1
 
 #Funciones para generear codigo de 3 direcciones
 def numT():
     global contT
+    global contOP
     contT+=1
-    return contT
+    contOP+=1
+    return contOP
+
+def reinicar_contOP():
+    global contOP
+    global listaoptimizaciones
+    if contOP != -1 or contT != -1:
+        regla = "Regla 1"
+        msg = "Se reutilizo la t"+str(contOP)+" en lugar del t"+str(contT)  
+        listaoptimizaciones.append([regla,msg])
+    contOP=-1
+
 
 def agregarInstr(datoMemoria,instruccion):
     #agregar a la lista de parametros
     global listaMemoria
-    listaMemoria.append(datoMemoria)
+    if datoMemoria != '':
+        listaMemoria.append(datoMemoria)
     #agregar a la lista de salida
     global listaSalida
     if(instruccion!=''):
         listaSalida.append(instruccion)
 
 def PCreateDatabase(nombreBase,result):
+    reinicar_contOP()
     txt="\t#Create DataBase\n"
     txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
     varT="t"+str(numT())
@@ -47,23 +63,26 @@ def PCreateDatabase(nombreBase,result):
     agregarInstr(nombreBase,txt3)#agregar create
 
 def PDropDatabase(nombreBase):
+    reinicar_contOP()
     txt="\t#Drop DataBase\n"
     txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
     txt+="\tCD3.EDropDatabase()\n"
     agregarInstr(nombreBase,txt)
 
 def PSelectFunciones(alias,resultado):
+    reinicar_contOP()
     txt="\t#Select funcion\n"
     varT="t"+str(numT())
-    txt+="\tt"+str(contT)+"='"+alias+"'\n"
+    txt+="\t"+varT+"='"+alias+"'\n"
     varR="t"+str(numT())
-    txt+="\tt"+str(contT)+"='"+str(resultado)+"'\n"
+    txt+="\t"+varR+"='"+str(resultado)+"'\n"
     
 
     txt+='\tprint("Cabecera:  " + '+ varT  + ' + " Resultado: "+ str('+ varR +'))\n'
     agregarInstr("",txt)
        
 def PUseDatabase(nombreBase):
+    reinicar_contOP()
     txt="\t#Use Database\n"
     txt+="\tt"+str(numT())+"='"+nombreBase+"'\n"
     txt+="\tCD3.EUseDatabase()\n"
@@ -78,6 +97,7 @@ def PCreateType(nombreBase,nombreTabla,cantidadcol,valores):
         var=[1,1,1,1,1] #cargar en memoria la lista
         CD3.EInsert()
     '''
+    reinicar_contOP()
     txt="\t#Create Type\n"
     txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
     var="t"+str(numT())
@@ -95,6 +115,7 @@ def PCreateType(nombreBase,nombreTabla,cantidadcol,valores):
     agregarInstr(inserT,txt)
 
 def PCreateTable(nombreBase,nombreTabla,cantidadcol,llaves,nombresC):
+    reinicar_contOP()
     txt="\t#Create Table\n"
     txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
     txt+="\tt"+str(numT())+"="+str(nombresC)+"\n"
@@ -113,6 +134,7 @@ def PCreateTable(nombreBase,nombreTabla,cantidadcol,llaves,nombresC):
     agregarInstr(pkT,txt)
 
 def PInsert(nombreBase,nombreTabla,valores):
+    reinicar_contOP()
     Data_insert=[nombreBase,nombreTabla,valores]
     txt="\t#Insert\n"
     txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
@@ -129,6 +151,7 @@ def PInsert(nombreBase,nombreTabla,valores):
     agregarInstr(Data_insert,txt)
 
 def PUpdate(nombreBase,nombreTabla,indice,valor,nvalores):
+    reinicar_contOP()
     update_data=[nombreBase,nombreTabla,indice,valor,nvalores]
     busqueda_tb=[nombreBase,nombreTabla]
     txt="\t#Update Registro\n"
@@ -144,6 +167,7 @@ def PUpdate(nombreBase,nombreTabla,indice,valor,nvalores):
     agregarInstr(update_data,txt)
 
 def PDelete(nombreBase,nombreTabla,cols):
+    reinicar_contOP()
     delete_data=[nombreBase,nombreTabla,cols]
     busqueda_tb=[nombreBase,nombreTabla]
     txt="\t#Delete Registro\n"
@@ -159,12 +183,14 @@ def PDelete(nombreBase,nombreTabla,cols):
     agregarInstr(delete_data,txt)
 
 def PShowDatabases(dataBases):
+    reinicar_contOP()
     txt="\t#Show Databases\n"
     txt+="\tt"+str(numT())+"="+str(dataBases)+"\n"
     txt+="\tCD3.EShowDatabases()\n"
     agregarInstr(dataBases,txt)
 
 def PDropTable(nombreBase,nombreTabla):
+    reinicar_contOP()
     drop_tb=[nombreBase,nombreTabla]
     txt="\t#Drop Table\n"
     txt+="\tt"+str(numT())+"='"+nombreTabla+"'\n"
@@ -180,6 +206,7 @@ def PDropTable(nombreBase,nombreTabla):
 #^^^
 def PAlterRenameDatabase(nombreBaseOld,nombreBaseNew):
     global TTv
+    reinicar_contOP()
     valores=[nombreBaseOld,nombreBaseNew]
     TTv=""
     addLine("#ALTER Rename Database")
@@ -192,6 +219,7 @@ def PAlterRenameDatabase(nombreBaseOld,nombreBaseNew):
 
 def PAlterTbRenameConst(NombreTabla,ID1,ID2):
     global TTv
+    reinicar_contOP()
     valores=[NombreTabla,ID1,ID2]
     TTv=""
     addLine("#ALTER TABLE RENAME Constraint")
@@ -207,6 +235,7 @@ def PAlterTbRenameConst(NombreTabla,ID1,ID2):
 #^^^
 def PAlterTbRenameTable(baseActiva, NombreTabla,ID1):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva, NombreTabla,ID1]
     TTv=""
     addLine("#ALTER TABLE RENAME Table")
@@ -222,6 +251,7 @@ def PAlterTbRenameTable(baseActiva, NombreTabla,ID1):
 
 def PAlterTbRenameColum(baseActiva,NombreTabla,ID1,ID2):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID1,ID2]
     TTv=""
     addLine("#ALTER TABLE RENAME Column")
@@ -238,6 +268,7 @@ def PAlterTbRenameColum(baseActiva,NombreTabla,ID1,ID2):
 
 def PAlterTbAlterSNN(baseActiva,NombreTabla,ID):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN set not null")
@@ -253,6 +284,7 @@ def PAlterTbAlterSNN(baseActiva,NombreTabla,ID):
 
 def PAlterTbAlterSDT(baseActiva,NombreTabla,ID,OPEE1):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID,OPEE1]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN set data type")
@@ -268,6 +300,7 @@ def PAlterTbAlterSDT(baseActiva,NombreTabla,ID,OPEE1):
 
 def PAlterTbAlterSDef(baseActiva,NombreTabla,ID,valCOL):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID,valCOL]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN set default")
@@ -284,6 +317,7 @@ def PAlterTbAlterSDef(baseActiva,NombreTabla,ID,valCOL):
 
 def PAlterTbAlterDNN(baseActiva,NombreTabla,ID):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN drop not null")
@@ -298,6 +332,7 @@ def PAlterTbAlterDNN(baseActiva,NombreTabla,ID):
 
 def PAlterTbAlterDDef(baseActiva,NombreTabla,ID):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN drop default")
@@ -313,6 +348,7 @@ def PAlterTbAlterDDef(baseActiva,NombreTabla,ID):
 #^^^
 def PAlterTbAlterDropCol(baseActiva,NombreTabla,ID,No_col):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID,No_col]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN drop column")
@@ -327,6 +363,7 @@ def PAlterTbAlterDropCol(baseActiva,NombreTabla,ID,No_col):
 
 def PAlterTbAlterDropConst(baseActiva,NombreTabla,ID):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN drop constraint")
@@ -340,6 +377,7 @@ def PAlterTbAlterDropConst(baseActiva,NombreTabla,ID):
 
 def PAlterTbAlterAddConstUni(baseActiva,NombreTabla,ColN,ID):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN add constraint unique")
@@ -354,6 +392,7 @@ def PAlterTbAlterAddConstUni(baseActiva,NombreTabla,ColN,ID):
 #^^^
 def PAlterTbAlterAddConstPrim(baseActiva,NombreTabla,ColN,ID):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN add constraint primary")
@@ -370,6 +409,7 @@ def PAlterTbAlterAddConstPrim(baseActiva,NombreTabla,ColN,ID):
 
 def PAlterTbAlterAddConstFor(baseActiva,NombreTabla,ColN,ID):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN add constraint foreign")
@@ -385,6 +425,7 @@ def PAlterTbAlterAddConstFor(baseActiva,NombreTabla,ColN,ID):
 #^^^
 def PAlterTbAlterAddCol(baseActiva,NombreTabla,ID,TIPO):
     global TTv
+    reinicar_contOP()
     valores=[baseActiva,NombreTabla,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN add column")
@@ -428,6 +469,9 @@ def CrearArchivo():
     
     f.write("main()")
     f.close()
+    print("Optimizacion")
+    for i in listaoptimizaciones:
+        print(i)
 
     #crear memoria
     with open('memoria.json','w') as file:
@@ -598,36 +642,41 @@ def EAltRenameDatabase():
     cargarMemoria()
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
-        EDD.alterDatabase(listaMemoria[0],listaMemoria[1])
+        EDD.alterDatabase(listaMemoria[0][0],listaMemoria[0][1])
         print("Base de datos Renombrada Exitosamente")
+        listaMemoria.pop(0)
 
 def EAltTbAlterAddCol():
     cargarMemoria()
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
-        res=EDD.alterAddColumn(listaMemoria[0],listaMemoria[1],"")
-        print("Resultado de la creacion de la columna:"+res)
+        res=EDD.alterAddColumn(listaMemoria[0][0],listaMemoria[0][1],"")
+        print("Resultado de la creacion de la columna:"+str(res))
+        listaMemoria.pop(0)
 
 def EAltTbAlterAddConstPrim():
     cargarMemoria()
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
-        res=EDD.alterAddPK(listaMemoria[0],listaMemoria[1],[listaMemoria[2]])
-        print("Resultado de la creacion de primary key:"+res)
+        res=EDD.alterAddPK(listaMemoria[0][0],listaMemoria[0][1],[listaMemoria[0][2]])
+        print("Resultado de la creacion de primary key:"+str(res))
+        listaMemoria.pop(0)
 
 def EAltTbAlterDropCol():
     cargarMemoria()
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
-        res=EDD.alterDropColumn(listaMemoria[0],listaMemoria[1],[listaMemoria[3]])
-        print("Resultado de la eliminacion de la columna:"+res)
+        res=EDD.alterDropColumn(listaMemoria[0][0],listaMemoria[0][1],[listaMemoria[0][3]])
+        print("Resultado de la eliminacion de la columna:"+str(res))
+        listaMemoria.pop(0)
 
 def EAltTbRenameTable():
     cargarMemoria()
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
-        res=EDD.alterTable(listaMemoria[0],listaMemoria[1],[listaMemoria[2]])
-        print("Resultado de renombrar tabla:"+res)
+        res=EDD.alterTable(listaMemoria[0][0],listaMemoria[0][1],[listaMemoria[0][2]])
+        print("Resultado de renombrar tabla:"+str(res))
+        listaMemoria.pop(0)
 
 
 
