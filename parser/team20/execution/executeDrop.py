@@ -1,5 +1,6 @@
 from .storageManager import jsonMode
 from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase
+from .AST.error import * 
 
 def executeDropDatabase(self,database):
     if(database.ifExistsFlag):
@@ -15,7 +16,7 @@ def executeDropDatabase(self,database):
         elif res==8:
             return jsonMode.dropDatabase(database.name)
         else:
-            print("ERROR: Mode between 1-5")
+            print_error("SEMANTIC ERROR","Mode between 1-5")
     else:
         res=TCSearchDatabase(database.name)
         if res==1:
@@ -29,7 +30,7 @@ def executeDropDatabase(self,database):
         elif res==8:
             return jsonMode.dropDatabase(database.name)
         else:
-            print("ERROR: Mode between 1-5")
+            print_error("SEMANTIC ERROR","Mode between 1-5")
 
 def executeDropTable(self,table):
     database=TCgetDatabase()
@@ -45,4 +46,4 @@ def executeDropTable(self,table):
     elif res==8:
         return jsonMode.dropTable(database,table.name)
     else:
-        print("ERROR: Mode between 1-5")
+        print_error("SEMANTIC ERROR","Mode between 1-5")

@@ -1627,6 +1627,8 @@ class interprete2:
                 i.Ejecutar()
             elif isinstance(i, Alter_table_Alter_Column_Set):
                 i.Ejecutar()
+            elif isinstance(i, useClase):
+                i.Ejecutar()
             else:
                 print("NO ejecuta")
 
@@ -1729,7 +1731,14 @@ def procesar_expresion_select(expresiones, ts):
 
 #exist
     elif isinstance(expresiones, UnitariaLogicaEXIST):
-        return ProcesoSub(expresiones, ts_global)
+        result = ProcesoSub(expresiones.expresion, ts_global)
+
+        if(len(result)>0):
+            return True
+        else:
+            return False
+
+        # return ProcesoSub(expresiones.expresion, ts_global)
 
 
 
@@ -1744,6 +1753,9 @@ def procesar_expresion_select(expresiones, ts):
         except:
             print('Error no se puede aplicar abs() por el tipo de dato')
             return None
+
+    elif isinstance(expresiones, ExpresionTiempo):
+        return procesar_unidad_tiempo(expresiones, ts)
     else:
         print('<<<<<<<<><<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>a')
         print(expresiones)
@@ -1875,42 +1887,42 @@ def procesar_relacional_select(expresion, ts):
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) == val2:
+                if int(Vd.calculado) == val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) != val2:
+                if int(Vd.calculado) != val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) >= val2:
+                if int(Vd.calculado) >= val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) <= val2:
+                if int(Vd.calculado) <= val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) > val2:
+                if int(Vd.calculado) > val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) < val2:
+                if int(Vd.calculado) < val2:
                     listaV.append(Vd)
             return listaV
 
@@ -1921,7 +1933,7 @@ def procesar_relacional_select(expresion, ts):
                 Vd:DatoInsert = v
                 for v2 in val2:
                     Vd2:DatoInsert = v2
-                    if str(Vd.valor) == str(Vd2.valor):
+                    if str(Vd.calculado) == str(Vd2.calculado):
                         listaV.append(Vd)
                         listaV.append(Vd2)
             return listaV
@@ -1931,7 +1943,7 @@ def procesar_relacional_select(expresion, ts):
                 Vd:DatoInsert = v
                 for v2 in val:
                     Vd2:DatoInsert = v2
-                    if str(Vd.valor) != str(Vd2.valor):
+                    if str(Vd.calculado) != str(Vd2.calculado):
                         listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
@@ -1940,7 +1952,7 @@ def procesar_relacional_select(expresion, ts):
                 Vd:DatoInsert = v
                 for v2 in val:
                     Vd2:DatoInsert = v2
-                    if int(Vd.valor) >= int(Vd2.valor):
+                    if int(Vd.calculado) >= int(Vd2.calculado):
                         listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
@@ -1949,7 +1961,7 @@ def procesar_relacional_select(expresion, ts):
                 Vd:DatoInsert = v
                 for v2 in val:
                     Vd2:DatoInsert = v2
-                    if int(Vd.valor) <= int(Vd2.valor):
+                    if int(Vd.calculado) <= int(Vd2.calculado):
                         listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
@@ -1958,7 +1970,7 @@ def procesar_relacional_select(expresion, ts):
                 Vd:DatoInsert = v
                 for v2 in val:
                     Vd2:DatoInsert = v2
-                    if int(Vd.valor) > int(Vd2.valor):
+                    if int(Vd.calculado) > int(Vd2.calculado):
                         listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
@@ -1967,7 +1979,7 @@ def procesar_relacional_select(expresion, ts):
                 Vd:DatoInsert = v
                 for v2 in val:
                     Vd2:DatoInsert = v2
-                    if int(Vd.valor) < int(Vd2.valor):
+                    if int(Vd.calculado) < int(Vd2.calculado):
                         listaV.append(Vd)
             return listaV
     elif isinstance(val[0], DatoInsert) and isinstance(val2, string_types):
@@ -1975,14 +1987,14 @@ def procesar_relacional_select(expresion, ts):
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if str(Vd.valor) == str(val2):
+                if str(Vd.calculado) == str(val2):
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
             listaV = []
             for v in val:
                 Vd: DatoInsert = v
-                if str(Vd.valor) != str(val2):
+                if str(Vd.calculado) != str(val2):
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
@@ -1990,28 +2002,28 @@ def procesar_relacional_select(expresion, ts):
             listaV = []
             for v in val:
                 Vd: DatoInsert = v
-                if str(Vd.valor) >= str(val2):
+                if str(Vd.calculado) >= str(val2):
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
             listaV = []
             for v in val:
                 Vd: DatoInsert = v
-                if str(Vd.valor) <= str(val2):
+                if str(Vd.calculado) <= str(val2):
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
             listaV = []
             for v in val:
                 Vd: DatoInsert = v
-                if str(Vd.valor) > str(val2):
+                if str(Vd.calculado) > str(val2):
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
             listaV = []
             for v in val:
                 Vd: DatoInsert = v
-                if str(Vd.valor) < str(val2):
+                if str(Vd.calculado) < str(val2):
                     listaV.append(Vd)
             return listaV
     else:
@@ -2211,7 +2223,7 @@ def procesar_variable_select(tV, ts):
         # Se obtienen los datos de la columna.
         if str(v.columna) == str(variable.campoid) and str(v.bd) == str(baseN[0]) and str(v.tabla) == str(variable.tablaid):
             print(" <> En listar: " + str(v.valor))
-            listaRes.append(v)
+            listaRes.append(DatoInsert(v.bd, v.tabla, v.columna, v.valor, v.fila))
     print(" <><>")
     if listaRes.__len__() == 0:
         print(" >>> No hay datos para esta validación.")
@@ -2254,6 +2266,18 @@ def procesar_unitaria_aritmetica_select(expresion, ts):
 
 
 def procesar_funcion_select(expresion, ts):
+
+    if expresion.exp1 is None:
+        if expresion.id_funcion == FUNCION_NATIVA.PI:
+            return math.pi
+        elif expresion.id_funcion == FUNCION_NATIVA.RANDOM:
+            return random()
+        elif expresion.id_funcion == FUNCION_NATIVA.NOW:
+            fecha = datetime.today()
+            fechaString = '{:%Y-%m-%d %H:%M:%S}'.format(fecha)
+            return fechaString
+
+
     if expresion.exp1 is not None:
         val1 = procesar_expresion_select(expresion.exp1, ts)
 
@@ -2262,12 +2286,14 @@ def procesar_funcion_select(expresion, ts):
             if isinstance(val1, list):
                 result = []
                 for v in val1:
-                    if isinstance(v, int) or isinstance(v, float):
-                        result.append(abs(v))
+                    if isinstance(v.calculado, int) or isinstance(v.calculado, float):
+                        v.calculado = abs(v.calculado)
+                        result.append(v)
                     else:
-                        result.append(0)
+                        v.calculado = 0
+                        result.append(v)
                         agregarErrorFuncion(v, None,None, None, "ABS", "numerico", 0, 0)
-                return result.copy()
+                return result
 
             if isinstance(val1, int) or isinstance(val1, float):
                 return abs(val1)
@@ -2278,12 +2304,14 @@ def procesar_funcion_select(expresion, ts):
             if isinstance(val1, list):
                 result = []
                 for v in val1:
-                    if isinstance(v, int) or isinstance(v, float):
-                        result.append(v ** (1/3))
+                    if isinstance(v.calculado, int) or isinstance(v.calculado, float):
+                        v.calculado =  v.calculado ** (1/3)
+                        result.append(v)
                     else:
-                        result.append(0)
+                        v.calculado = 0
+                        result.append(v)
                         agregarErrorFuncion(v, None, None, None, "CBRT", "numerico", 0, 0)
-                return result.copy()
+                return result
 
             if isinstance(val1, int) or isinstance(val1, float):
                 return val1 ** (1/3)
@@ -2294,12 +2322,14 @@ def procesar_funcion_select(expresion, ts):
             if isinstance(val1, list):
                 result = []
                 for v in val1:
-                    if isinstance(v, int) or isinstance(v, float):
-                        result.append(math.ceil(v))
+                    if isinstance(v.calculado, int) or isinstance(v.calculado, float):
+                        v.calculado = math.ceil(v.calculado)
+                        result.append(v)
                     else:
-                        result.append(0)
+                        v.calculado = 0
+                        result.append(v)
                         agregarErrorFuncion(v, None, None, None, "CEIL", "numerico", 0, 0)
-                return result.copy()
+                return result
 
             if isinstance(val1, int) or isinstance(val1, float):
                 return math.ceil(val1)
@@ -2310,17 +2340,18 @@ def procesar_funcion_select(expresion, ts):
             if isinstance(val1, list):
                 result = []
                 for v in val1:
-                    if isinstance(v, float):
+                    if isinstance(v.calculado, float):
                         if val1 > 0:
-                            return result.append(int(v) + 1)
+                           v.calculado = int(v.calculado) + 1
                         else:
-                            return result.append(int(v))
-                    elif isinstance(v, int):
-                        return result.append(v)
+                            v.calculado = int(v.calculado)
+                    elif isinstance(v.calculado, int):
+                        v.calculado = v.calculado
                     else:
-                        result.append(0)
+                        v.calculado = 0
                         agregarErrorFuncion(v, None, None, None, "CEILING", "numerico", 0, 0)
-                return result.copy()
+                    result.append(v)
+                return result
 
             if isinstance(val1, float):
                 if val1 > 0:
@@ -2332,6 +2363,302 @@ def procesar_funcion_select(expresion, ts):
             else:
                 agregarErrorFuncion(val1, None,None, None, "CEILING", "numerico", 0, 0)
                 return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.LENGTH:
+            if isinstance(val1, list):
+                result = []
+                for v in val1:
+                    if isinstance(v.calculado, string_types):
+                        v.calculado = len(v.calculado)
+                        result.append(v)
+                    else:
+                        v.calculado = 0
+                        result.append(v)
+                        agregarErrorFuncion(v, None, None, None, "LENGTH", "string", 0, 0)
+                return result
+            if isinstance(val1, string_types):
+                return len(val1)
+            else:
+                agregarErrorFuncion(val1, None, None, None, "LENGTH", "string", 0, 0)
+                return None
+
+
+    if expresion.exp2 is not None:
+        val1 = procesar_expresion_select(expresion.exp1, ts)
+        val2 = procesar_expresion_select(expresion.exp2, ts)
+
+        if expresion.id_funcion == FUNCION_NATIVA.TRIM:
+            parametro1 = None
+            parametro2 = None
+
+            if isinstance(val1, string_types):
+                parametro1 = val1
+
+            if isinstance(val2, string_types) or isinstance(val2, list):
+                parametro2 = val2
+
+            if parametro1 is not None and parametro2 is not None:
+                if isinstance(parametro2, list):
+                    result = []
+                    for v in parametro2:
+                        if isinstance(v.calculado, string_types):
+                            if v.calculado != "":
+                                v.calculado = v.calculado.strip(parametro1)
+                            else:
+                                v.calculado = ""
+                                agregarErrorFuncion(v, None, None, None, "TRIM", "string con una longitud mayor a 0", 0, 0)
+                            result.append(v)
+                        else:
+                            agregarErrorFuncion(val1, None, None, None, "TRIM", "string", 0, 0)
+                    return result
+                elif isinstance(parametro2, string_types):
+                    if parametro1 != "":
+                        return parametro2.strip(parametro1)
+                    else:
+                        agregarErrorFuncion(val1, None, None, None, "TRIM", "string con una longitud mayor a 0", 0, 0)
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "TRIM", "string", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "TRIM", "string", 0, 0)
+
+            return None
+        elif expresion.id_funcion == FUNCION_NATIVA.EXTRACT:
+            parametro1 = None
+            parametro2 = None
+
+            if isinstance(val1, string_types):
+                parametro1 = val1
+
+            if isinstance(val2, string_types):
+                try:
+                    if re.compile("^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])$").match(val2):
+                        print('Es una fecha sin hora')
+                        print(val2 + " 00:00:00")
+                        parametro2 = datetime.strptime(val2 + " 00:00:00", '%Y-%m-%d %H:%M:%S')
+                    elif re.compile("^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])[ ]+(00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$").match(val2):
+                        parametro2 = datetime.strptime(val2, '%Y-%m-%d %H:%M:%S')
+
+                except ValueError:
+                    # raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+                    agregarErrorFuncion(val2, None, None, None, "EXTRACT", "string con formato de fecha", 0, 0)
+
+            if isinstance(val2, list):
+                try:
+                    parametro2 = []
+                    for v in val2:
+                        if isinstance(v.calculado, string_types):
+                            if re.compile("^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])$").match(v.calculado):
+                                print('Es una fecha sin hora')
+                                print(v.calculado + " 00:00:00")
+                                v.calculado = datetime.strptime(v.calculado + " 00:00:00", '%Y-%m-%d %H:%M:%S')
+                                parametro2.append(v)
+                            elif re.compile(
+                                    "^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])[ ]+(00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$").match(
+                                    v.calculado):
+                                v.calculado = datetime.strptime(v.calculado, '%Y-%m-%d %H:%M:%S')
+                                parametro2.append(v)
+                            else:
+                                v.calculado = datetime.strptime("1990-01-01 01:01:01", '%Y-%m-%d %H:%M:%S')
+                                parametro2.append(v)
+                                agregarErrorFuncion(v.calculado, None, None, None, "EXTRACT", "string con formato de fecha", 0, 0)
+
+                except ValueError:
+                    agregarErrorFuncion(val2, None, None, None, "EXTRACT", "string con formato de fecha", 0, 0)
+
+            if parametro1 is not None and parametro2 is not None:
+                if isinstance(parametro2, list):
+                    result = []
+
+                    for v in parametro2:
+                        if parametro1 == 'YEAR':
+                            v.calculado = v.calculado.year
+                            result.append(v)
+                        elif parametro1 == 'MONTH':
+                            v.calculado = v.calculado.month
+                            result.append(v)
+                        elif parametro1 == 'DAY':
+                            v.calculado = v.calculado.day
+                            result.append(v)
+                        elif parametro1 == 'HOUR':
+                            v.calculado = v.calculado.hour
+                            result.append(v)
+                        elif parametro1 == 'MINUTE':
+                            v.calculado = v.calculado.minute
+                            result.append(v)
+                        elif parametro1 == 'SECOND':
+                            v.calculado = v.calculado.second
+                            result.append(v)
+                        else:
+                            v.calculado = 0
+                            result.append(v)
+                            agregarErrorFuncion(val1, None, None, None, "EXTRACT", "unidad de tiempo", 0, 0)
+                    return result
+                else:
+
+                    if parametro1 == 'YEAR':
+                        return parametro2.year
+                    elif parametro1 == 'MONTH':
+                        return parametro2.month
+                    elif parametro1 == 'DAY':
+                        return parametro2.day
+                    elif parametro1 == 'HOUR':
+                        return parametro2.hour
+                    elif parametro1 == 'MINUTE':
+                        return parametro2.minute
+                    elif parametro1 == 'SECOND':
+                        return parametro2.second
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "EXTRACT", "unidad de tiempo", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "EXTRACT", "string", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.DATE_PART:
+            parametro1 = None
+            parametro2 = None
+
+            if isinstance(val1, string_types):
+                parametro1 = val1
+
+            if isinstance(val2, string_types):
+                try:
+                    parametro2 = IntervalParser.parse(val2)
+
+                except ValueError:
+                    # raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+                    agregarErrorFuncion(val2, None, None, None, "DATE_PART", "string con sintaxys de intervalo de tiempo", 0, 0)
+                    print('ERROR AL CONVERTIR CADENA EN OBJETO DATETIME')
+
+            if isinstance(val2, list):
+                try:
+                    parametro2 = []
+                    for v in val2:
+                        if isinstance(v.calculado, string_types):
+                            v.calculado = IntervalParser.parse(v.calculado)
+                            parametro2.append(v)
+                        else:
+                            v.calculado = IntervalParser.parse("1 years")
+                            parametro2.append(v)
+                            agregarErrorFuncion(v.calculado, None, None, None, "DATE_PART",
+                                                "string con sintaxys de intervalo de tiempo", 0, 0)
+
+                except ValueError:
+                    # raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+                    agregarErrorFuncion(val2, None, None, None, "DATE_PART", "string con sintaxys de intervalo de tiempo", 0, 0)
+                    print('ERROR AL CONVERTIR CADENA EN OBJETO DATETIME')
+
+
+            if parametro1 is not None and parametro2 is not None:
+
+                if isinstance(parametro2, list):
+                    result = []
+                    for v in parametro2:
+                        if isinstance(v.calculado, relativedelta):
+                            if parametro1 == 'year' or parametro1 == 'years':
+                                v.calculado = v.calculado.years
+                                result.append(v)
+                            elif parametro1 == 'month' or parametro1 == 'months':
+                                v.calculado = v.calculado.months
+                                result.append(v)
+                            elif parametro1 == 'day' or parametro1 == 'days':
+                                v.calculado = v.calculado.days
+                                result.append(v)
+                            elif parametro1 == 'hour' or parametro1 == 'hours':
+                                v.calculado = v.calculado.hours
+                                result.append(v)
+                            elif parametro1 == 'minute' or parametro1 == 'minutes':
+                                v.calculado = v.calculado.minutes
+                                result.append(v)
+                            elif parametro1 == 'second' or parametro1 == 'seconds':
+                                v.calculado = v.calculado.seconds
+                                result.append(v)
+                        else:
+                            v.calculado = 0
+                            result.append(v)
+                            agregarErrorFuncion(v.calculado, None, None, None, "DATE_PART", "relativedelta, error en conversion", 0, 0)
+
+                    return result
+
+                elif isinstance(parametro2, relativedelta):
+                    if parametro1 == 'year' or parametro1 == 'years':
+                        return parametro2.years
+                    elif parametro1 == 'month' or parametro1 == 'months':
+                        return parametro2.months
+                    elif parametro1 == 'day' or parametro1 == 'days':
+                        return parametro2.days
+                    elif parametro1 == 'hour' or parametro1 == 'hours':
+                        return parametro2.hours
+                    elif parametro1 == 'minute' or parametro1 == 'minutes':
+                        return parametro2.minutes
+                    elif parametro1 == 'second' or parametro1 == 'seconds':
+                        return parametro2.seconds
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "DATE_PART", "string de unidad de tiempo", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "DATE_PART", "string con sintaxys de intervalo de tiempo", 0, 0)
+
+            return None
+
+
+    if expresion.exp3 is not None:
+        val1 = procesar_expresion_select(expresion.exp1, ts)
+        val2 = procesar_expresion_select(expresion.exp2, ts)
+        val3 = procesar_expresion_select(expresion.exp3, ts)
+
+        if expresion.id_funcion == FUNCION_NATIVA.SUBSTRING or expresion.id_funcion == FUNCION_NATIVA.SUBSTR:
+            parametro1 = None
+            parametro2 = None
+            parametro3 = None
+
+            if isinstance(val1, string_types) or isinstance(val1, list):
+                parametro1 = val1
+
+            if isinstance(val2, int):
+                parametro2 = val2
+
+            if isinstance(val3, int):
+                parametro3 = val3
+
+            if parametro1 is not None and parametro2 is not None and parametro3 is not None:
+                if isinstance(parametro1, list):
+                    result = []
+                    for v in parametro1:
+                        if isinstance(v.calculado, string_types):
+                            if parametro2 <= len(v.calculado) and parametro3 <= len(v.calculado):
+                                if parametro2 <= parametro3:
+                                    v.calculado = v.calculado[parametro2:parametro3]
+                                else:
+                                    agregarErrorFuncion(val2, None, None, None, "SUBSTRING",
+                                                        "entero menor o igual tercer parametro", 0, 0)
+                            else:
+                                agregarErrorFuncion(val2, val3, None, None, "SUBSTRING",
+                                                    "entero dentro de la longitud de la cadena", 0, 0)
+                        else:
+                            agregarErrorFuncion(v, None, None, None, "SUBSTRING", "string", 0, 0)
+                        result.append(v)
+                    return result
+
+                elif isinstance(parametro1, string_types):
+                    if parametro2 <= len(parametro1) and parametro3 <= len(parametro1):
+                        if parametro2 <= parametro3:
+                            return parametro1[parametro2:parametro3]
+                        else:
+                            agregarErrorFuncion(val2, None, None, None, "SUBSTRING", "entero menor o igual tercer parametro", 0, 0)
+                    else:
+                        agregarErrorFuncion(val1, val2, None, None, "SUBSTRING", "entero dentro de la longitud de la cadena", 0, 0)
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "SUBSTRING", "string", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "SUBSTRING", "entero como segundo parametro", 0, 0)
+            if parametro3 is None:
+                agregarErrorFuncion(val3, None, None, None, "SUBSTRING", "entero como tercer parametro", 0, 0)
+
+            return None
 
 def procesar_expresion_columna(expresiones, ts):
 
@@ -2935,11 +3262,11 @@ def procesar_funcion_columna(expresion, ts):
                 for v in val1:
                     if isinstance(v, float):
                         if val1 > 0:
-                            return result.append(int(v) + 1)
+                            result.append(int(v) + 1)
                         else:
-                            return result.append(int(v))
+                            result.append(int(v))
                     elif isinstance(v, int):
-                        return result.append(v)
+                        result.append(v)
                     else:
                         result.append(0)
                         agregarErrorFuncion(v, None, None, None, "CEILING", "numerico", 0, 0)

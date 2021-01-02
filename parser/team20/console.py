@@ -27,8 +27,9 @@ def print_text(data_type: str, print_: str):
         Tytus_GUI_console.print_text(data_type, print_)
     except Exception as e:
         i=0#print(e)
-def print_table(print_: str):
+
+def print_table(data_type: str, print_: str):
     try:
-        Tytus_GUI_console.print_table(print_) 
+        Tytus_GUI_console.print_table(data_type, print_) 
     except Exception as e:
         i=0#print(e)

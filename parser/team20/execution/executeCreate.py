@@ -17,7 +17,7 @@ def executeCreateDatabase(self, database):
     if(database.OwnerMode[1]!= None):
         res = executeExpression(self,database.OwnerMode[1])
         if(isinstance(res,Error)): 
-            print_error("SEMANTIC ERROR",r)
+            print_error("SEMANTIC ERROR",res.toString())
         else: mode = res.value
         
     if(database.ifNotExistsFlag and not(database.OrReplace)):
@@ -41,7 +41,7 @@ def executeCreateDatabase(self, database):
             if(database.OwnerMode[1]!= None ):
                 res = executeExpression(self,database.OwnerMode[1])
                 if(isinstance(res,Error)): 
-                    print_error("SEMANTIC ERROR",r)
+                    print_error("SEMANTIC ERROR",res.toString())
                 else: mode = res.value
             if mode==1:
                 return jsonMode.createDatabase(database.name)
@@ -72,7 +72,7 @@ def executeCreateDatabase(self, database):
             if(database.OwnerMode[1]!= None ):
                 res = executeExpression(self,database.OwnerMode[1])
                 if(isinstance(res,Error)): 
-                    print_error("SEMANTIC ERROR",r)
+                    print_error("SEMANTIC ERROR",res.toString())
                 else: mode = res.value
             if mode==1:
                 return jsonMode.createDatabase(database.name)
@@ -150,7 +150,7 @@ def executeCreateTable(self, table):
     ids={}
     primary=0
 
-    primaryskey=[]
+    
 
     if(table.columns!= None):
         for node in table.columns:
@@ -171,7 +171,6 @@ def executeCreateTable(self, table):
                     if'primary' in node.options:
                         primary+=1
                         new={'PRIMARY':node.options['primary']}
-                        primaryskey.append(NColumns-1)
                         constrains1.update(new)
                     if 'default' in node.options:
                         default+=1
@@ -266,7 +265,6 @@ def executeCreateTable(self, table):
                     new={'PRIMARY':True}
                     if x in array:
                         array[x]['CONST'].update(new)
-                        primaryskey.append(list(array).index(x))
                     else:
                         print_error("SEMANTIC ERROR",'column '+x+' does not exist ')
                         return 1
@@ -279,19 +277,15 @@ def executeCreateTable(self, table):
             array.update(n)
             for i in n:
                 if i in ids:
-                    print_error("SEMANTIC ERROR",'column '+i+' specified more than once SQL state: 42701')
+                    print_error("SEMANTIC ERROR",'column '+node.name+' specified more than once SQL state: 42701')
                     return 1
                 NColumns+=1
-                if 'PRIMARY' in n[i]['CONST']:
-                    primaryskey.append(NColumns-1)
-
                 #array.update(i)
 
     if(primary>1):
         print_error("SEMANTIC ERROR",'multiple primary keys for table '+ table.name+' are not allowed SQL state: 42P16')
         return 1
 
-    
     
     result=TCcreateTable(database,table.name,array)
     if(result!=0):
@@ -300,25 +294,13 @@ def executeCreateTable(self, table):
     mode=TCSearchDatabase(database)
     
     if(mode==1):
-        res= jsonMode.createTable(database,table.name,NColumns)
-        if res==0:
-            jsonMode.alterAddPK(database, table.name, primaryskey)
-        return res
+        return jsonMode.createTable(database,table.name,NColumns)
     elif(mode==2):
-        res= jsonMode.createTable(database,table.name,NColumns)
-        if res==0:
-            jsonMode.alterAddPK(database, table.name, primaryskey)
-        return res
+        return jsonMode.createTable(database,table.name,NColumns)
     elif(mode==3):
-        res= jsonMode.createTable(database,table.name,NColumns)
-        if res==0:
-            jsonMode.alterAddPK(database, table.name, primaryskey)
-        return res
+        return jsonMode.createTable(database,table.name,NColumns)
     elif(mode==5):
-        res= jsonMode.createTable(database,table.name,NColumns)
-        if res==0:
-            jsonMode.alterAddPK(database, table.name, primaryskey)
-        return res
+        return jsonMode.createTable(database,table.name,NColumns)
     else:
         print_error("SEMANTIC ERROR",'Mode between 1-5')
         return 1

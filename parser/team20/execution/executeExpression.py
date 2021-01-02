@@ -791,3 +791,38 @@ def executeExpression(self, expression):
                         except Exception as e:
                             return Error('Semantico', 'Error : ' + str(e), 0, 0)
                         #Falta funcion matematica width_bucket
+
+
+            # EXTRACT
+            elif isinstance(expression, ExtractFunction):
+                e = executeExpression(self,expression.expression)
+                if isinstance(e, Error):
+                    return e
+                else:
+                    try:
+                        if(expression.function == 'HOUR'):
+                            s.value = e.value[11:13]
+                            s.type = 3
+                            return s
+                        elif(expression.function == 'MINUTE'):
+                            s.value = e.value[14:16]
+                            s.type = 3
+                            return s
+                        if(expression.function == 'SECOND'):
+                            s.value = e.value[17:19]
+                            s.type = 3
+                            return s
+                        if(expression.function == 'YEAR'):
+                            s.value = e.value[0:4]
+                            s.type = 3
+                            return s
+                        if(expression.function == 'MONTH'):
+                            s.value = e.value[5:7]
+                            s.type = 3
+                            return s
+                        if(expression.function == 'DAY'):
+                            s.value = e.value[8:10]
+                            s.type = 3
+                            return s
+                    except Exception as e:
+                        return Error('Semantico', 'Error : ' + str(e), 0, 0) 

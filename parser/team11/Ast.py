@@ -340,7 +340,43 @@ class AST:
                 
             #     print("====================================")
             self.output.append(filtrada)
-      
+##################---UPDATE---################################
+    def update(self,nodo):
+        #print("=============================")
+        #print(self.usingDB)
+        tb_id = nodo.valor
+        for hijos in nodo.hijos:
+            for hijos2 in hijos.hijos:
+                r = jsonMode.update(self.usingDB, tb_id, hijos2.valor)
+        #print(r)
+        if r == 0:
+            self.output.append('La tabla \"'+ tb_id+'\" de la base de datos \"' + self.usingDB + '\" ha sido actualizada con nuevos datos.')
+        elif r == 1:   # Error en la operación
+            self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+        elif r == 2:   # Base de datos inexistente
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+        elif r == 3:   # Tabla existente
+            self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
+
+        
+
+##################---DELETE---################################
+    def delete(self,nodo):
+        a = ''
+        print(self.usingDB) #BDD
+        tb_id = nodo.valor # id
+        for hijos in nodo.hijos:
+            a = hijos.valor #condiciones
+        result = jsonMode.delete(self.usingDB, tb_id, a)
+        print('>>>>>>>>>>>>>>>>>>>>------',result)
+
+
+##################---TRUNCATE---################################
+    def truncate(self,nodo):
+        tb_name=''
+        for hijos in nodo.hijos:
+            tb_name = hijos.valor
+        result = jsonMode.truncate(self.usingDB, tb_name)   
  #----------------------------------------------------------------------------------------------------------------   
     def printOutputs(self):
         global output2
@@ -411,7 +447,189 @@ class AST:
         file.close()
         
 #-----------------------------------------------------------------------------------------------------------------------------------------
+#  C R E A T E  -  T A B L E   
+    def crearTabla(self,nodo):
+        tb_name = nodo.valor
+        tb_padre = ''
+        tb_parent = {}
+        if len(nodo.hijos) == 2:
+            tb_padre = nodo.hijos[1].valor
+            if not(self.usingDB in self.ts):
+                self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+                return
+            db = self.ts[self.usingDB]
+            if not(tb_padre in db.tables):
+                self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+                return
+            tb_parent = db.tables[tb_padre]
+            columnas = nodo.hijos[0]
+            count_cols = 0
+            for c in columnas.hijos:
+                if c.etiqueta == 'COLUMN':
+                    count_cols += 1
+            count_cols += len(tb_parent)
+            result = jsonMode.createTable(self.usingDB,str(nodo.valor),count_cols)
+            #Inicia la creación de Columnas
+            if result == 0:     # Operación exitosa
+                self.output.append('Creación de tabla \"'+tb_name+'\" exitosa.')
+                c = 0
+                table = {}
+                for col in columnas.hijos:
+                    if col.etiqueta == 'COLUMN':
+                        new_col = Column(col.valor,c)
+                        new_col.columnType = self.getColType(col.hijos[0])
+                        for atrib in col.hijos[1].hijos:
+                            if atrib.etiqueta == 'NOT NULL':
+                                new_col.isNull = False
+                            elif atrib.etiqueta == 'PRIMARY KEY':
+                                new_col.isPrimaryKey = True
+                            elif atrib.etiqueta == 'CONSTRAINT':
+                                cnst = Constraint(atrib.valor,atrib.hijos[0])
+                                new_col.constraint = cnst
+                            elif atrib.etiqueta == 'CHECK':
+                                new_col.constraint = Constraint('',atrib)
+                            elif atrib.etiqueta == 'UNIQUE':
+                                new_col.isUnique = True
+                        #Se añade a la tabla la nueva columna
+                        new_col.line = col.linea
+                        table[col.valor] = new_col
+                        c += 1
+                    else:
+                        col_name = col.hijos[0].valor
+                        if col_name in table:
+                            table[col_name].isPrimaryKey = True
+                # Se copian las columnas del padre al hijo
+                for name,col in tb_parent.items():
+                    table[name] = col
+                    c += 1
+                # Se añade a la Base de datos la nueva Tabla
+                db.tables[tb_name] = table
+            elif result == 1:   # Error en la operación
+                self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+            elif result == 2:   # Base de datos inexistente
+                self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+            elif result == 3:   # Tabla existente
+                self.errors.append(Error('42P07', EType.SEMANTICO, 'duplicate_table',nodo.linea))
+            return
+        #----------------------------------------------------------------------------------------------
+        columnas = nodo.hijos[0]
+        col_count = 0
+        for h in columnas.hijos:
+            if h.etiqueta == 'COLUMN':
+                col_count += 1
+        #Verificar que la base de dato exista o se haya seleccionado una...
+        if not(self.usingDB in self.ts):
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+            return
+        database = self.ts[self.usingDB]
+        table = {}
 
+        result = jsonMode.createTable(self.usingDB,str(tb_name),col_count)
+        if result == 0:     # Operación exitosa
+            self.output.append('Creación de tabla \"'+tb_name+'\" exitosa.')
+            c = 0
+            for col in columnas.hijos:
+                if col.etiqueta == 'COLUMN':
+                    new_col = Column(col.valor,c)
+                    new_col.columnType = self.getColType(col.hijos[0])
+                    for atrib in col.hijos[1].hijos:
+                        if atrib.etiqueta == 'NOT NULL':
+                            new_col.isNull = False
+                        elif atrib.etiqueta == 'PRIMARY KEY':
+                            new_col.isPrimaryKey = True
+                        elif atrib.etiqueta == 'CONSTRAINT':
+                            cnst = Constraint(atrib.valor,atrib.hijos[0])
+                            new_col.constraint = cnst
+                        elif atrib.etiqueta == 'CHECK':
+                            new_col.constraint = Constraint('',atrib)
+                        elif atrib.etiqueta == 'UNIQUE':
+                            new_col.isUnique = True
+                    #Se añade a la tabla la nueva columna
+                    new_col.line = col.linea
+                    table[col.valor] = new_col
+                    c += 1
+                    # Se añade a la Base de datos la nueva Tabla
+                    database.tables[tb_name] = table
+                else:
+                    col_name = col.hijos[0].valor
+                    if col_name in table:
+                        table[col_name].isPrimaryKey = True
+        elif result == 1:   # Error en la operación
+            self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+        elif result == 2:   # Base de datos inexistente
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+        elif result == 3:   # Tabla existente
+            self.errors.append(Error('42P07', EType.SEMANTICO, 'duplicate_table',nodo.linea))
+
+# G E T  -  C O L U M N  -  T Y P E            
+    def getColType(self,nodo_tipo) -> ColType:
+        # Verificación del límite
+        l = 0
+        if len(nodo_tipo.hijos) == 1:
+            l = nodo_tipo.hijos[0].valor
+        
+        # Verificación del tipo
+        tipo = str(nodo_tipo.valor).upper()
+        if tipo == 'SMALLINT':
+            return ColType(Types.SMALLINT,l)
+        elif tipo == 'INTEGER':
+            return ColType(Types.INTEGER,l)
+        elif tipo == 'BIGINT':
+            return ColType(Types.BIGINT,l)
+        elif tipo == 'DECIMAL':
+            return ColType(Types.DECIMAL,l)
+        elif tipo == 'NUMERIC':
+            return ColType(Types.NUMERIC,l)
+        elif tipo == 'REAL':
+            return ColType(Types.REAL,l)
+        elif tipo == 'NUMERIC':
+            return ColType(Types.FLOAT,l)
+        elif tipo == 'INT':
+            return ColType(Types.INT,l)
+        elif tipo == 'DOUBLE':
+            return ColType(Types.DOUBLE,l)
+        elif tipo == 'MONEY':
+            return ColType(Types.MONEY,l)
+        elif tipo == 'VARCHAR':
+            return ColType(Types.VARCHAR,l)
+        elif tipo == 'CHARACTER_VARYING':
+            return ColType(Types.CHARACTER_VARYING,l)
+        elif tipo == 'CHARACTER':
+            return ColType(Types.CHARACTER,l)
+        elif tipo == 'CHAR':
+            return ColType(Types.CHAR,l)
+        elif tipo == 'TEXT':
+            return ColType(Types.TEXT,l)
+        elif tipo == 'TIMESTAMP':
+            return ColType(Types.TIMESTAMP,l)
+        elif tipo == 'DATE':
+            return ColType(Types.DATE,l)
+        elif tipo == 'TIME':
+            return ColType(Types.TIME,l)
+        elif tipo == 'BOOLEAN':
+            return ColType(Types.BOOLEAN,l)
+        elif tipo == 'INTERVAL':
+            return ColType(Types.INTERVAL,l)
+        else:
+            return ColType(Types.ENUM,l)
+        
+#-----------------------------------------------------------------------------------------------------------------------------------------
+# D R O P  -  T A B L E
+    def eliminarTabla(self,nodo):
+        tb_name = nodo.valor
+        result = jsonMode.dropTable(self.usingDB,tb_name)
+        if result == 0: # Operación exitosa
+            self.output.append('Eliminación de tabla \"'+tb_name+'\" exitosa.')
+            database = self.ts[self.usingDB]
+            del database.tables[tb_name]
+        elif result == 1: # Error en la operación
+            self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+        elif result == 2: # Base de datos no existe
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+        elif result == 3: # Tabla no existe
+            self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
+  #-----------------------------------------------------------------------------------------------------------------------------------------
+  # C R E A T E  -  E N U M  
     def crearEnum(self,nodo):
         nombre = nodo.valor
         valores = []
@@ -752,7 +970,7 @@ class AST:
         now = datetime.now()
         resultados.append(str(now))
 
-def resolverFuncionMatematica(self, nodo, resultado):
+    def resolverFuncionMatematica(self, nodo, resultado):
         if nodo.valor.lower()  == 'degrees':
             a = math.degrees(self.expresion_aritmetica(nodo.hijos[0], [], [], []))
             resultado.append(a)
@@ -849,7 +1067,7 @@ def resolverFuncionMatematica(self, nodo, resultado):
             c = math.ceil(a)
             resultado.append(c)
 
-def resolverFuncionTrigonometrica(self, nodo, resultado):
+    def resolverFuncionTrigonometrica(self, nodo, resultado):
         if nodo.valor.lower()  == 'acos':
             a = self.expresion_aritmetica(nodo.hijos[0], [], [], [])
             c = math.acos(a)

@@ -160,6 +160,13 @@ reservedwords = (
     'ATANH',
     'TRUE',
     'FALSE',
+    'EXTRACT',
+    'HOUR',
+    'SECOND',
+    'MINUTE',
+    'YEAR',
+    'MONTH',
+    'DAY',
 )
 
 symbols = (
@@ -1182,6 +1189,20 @@ def p_expression_aggfunctions(t):
     t[0] = AggFunction(t[1],t[3])
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = AggFunction('"+t[1]+"',expression.val) }\n" + grammarreport
+
+#EXTRACT
+def p_expression_extractfunctions(t):
+    '''expression : EXTRACT BRACKET_OPEN HOUR FROM TIMESTAMP expression BRACKET_CLOSE 
+                  | EXTRACT BRACKET_OPEN MINUTE FROM TIMESTAMP expression BRACKET_CLOSE
+                  | EXTRACT BRACKET_OPEN SECOND FROM TIMESTAMP expression BRACKET_CLOSE
+                  | EXTRACT BRACKET_OPEN YEAR FROM TIMESTAMP expression BRACKET_CLOSE
+                  | EXTRACT BRACKET_OPEN MONTH FROM TIMESTAMP expression BRACKET_CLOSE
+                  | EXTRACT BRACKET_OPEN DAY FROM TIMESTAMP expression BRACKET_CLOSE
+                  '''
+    t[0] = ExtractFunction(t[3],t[6])
+    global grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = ExtractFunction('"+t[3]+"',expression.val) }\n" + grammarreport
+
 #VALUES
 def p_expression_int(t):
     '''expression : INT'''
@@ -1267,19 +1288,6 @@ precedence = (
 ```
 ## Gramatica\n'''
 
-# f = open(Path(__file__).parent / "./testCarlos.txt", "r")
-# input = f.read()
-# print(input)
-# parser.parse(input.upper())
-
-# try:
-#     archivobnf = open("bnf.md", "w")
-#     archivobnf.write(grammarreport)
-#     archivobnf.close()
-#     webbrowser.open_new_tab('bnf.md')
-#     #print(grammarreport)
-# except Exception as e:
-#     print('Error reporte gramatical', str(e))
 
 def analyze(input_text: str):
     #clear analyzer data

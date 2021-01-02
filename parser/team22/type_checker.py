@@ -97,6 +97,13 @@ class TypeChecker():
         else:
             self.addError(Codigos().database_undefined_object(database), line)
 
+    def showTables(self, line: int):
+        query_result = jsonMode.showTables(self.actual_database)
+        print("====> ", query_result)
+
+    
+
+
     def createTable(self, table: str, columns: [], line: int):
         # 0 -> operación exitosa
         # 1 -> error en la operación
@@ -108,21 +115,26 @@ class TypeChecker():
         query_result = jsonMode.createTable(self.actual_database, table, contador)
         if query_result == 0:
             self.consola.append(Codigos().table_successful(table))
-            self.tabla_simbolos.agregar(Simbolo(self.actual_database + '.' +table, 'TABLE', '', line))
+            self.tabla_simbolos.agregar(Simbolo(self.actual_database + '.' + table, 'TABLE', '', line))
             self.type_checker[self.actual_database][table] = {}
             for columna in columns:
-                print(columna)
                 if 'nombre' in columna:
                     self.type_checker[self.actual_database][table][columna['nombre']] = columna['col']
+                    self.tabla_simbolos.agregar(Simbolo(self.actual_database + '.' + table + '.' + columna['nombre'], 'COLUMN', columna['col'].tipo['tipo'].name, columna['col'].line))
                 elif 'primary' in columna:
                     for primaria in columna['primary']:
-                        self.type_checker[self.actual_database][table][primaria['valor']].addPrimaryKey(1)
+                        const = self.type_checker[self.actual_database][table][primaria].addPrimaryKey(1)
+                        self.tabla_simbolos.agregar(Simbolo(const.name, 'CONSTRAINT', '', const.line))
                 elif 'foreign' in columna:
                     temp = 0
                     for foranea in columna['foreign']:
-                        self.type_checker[self.actual_database][table][foranea['valor']].addReference(columna['table'] + '.' + columna['references'][temp]['valor'])
+                        const = self.type_checker[self.actual_database][table][foranea].addReference(columna['table'] + '.' + columna['references'][temp])
                         temp += 1
-                        self.type_checker[self.actual_database][table][foranea['valor']].printCol()
+                        self.tabla_simbolos.agregar(Simbolo(const.name, 'CONSTRAINT', '', const.line))
+                elif 'unique' in columna:
+                    for unique in columna['unique']:
+                        const = self.type_checker[self.actual_database][table][unique].addUnique(1)
+                        self.tabla_simbolos.agregar(Simbolo(const.name, 'CONSTRAINT', '', const.line))
 
             #self.saveTypeChecker()
         elif query_result == 1:
@@ -142,6 +154,14 @@ class TypeChecker():
         if query_result == 0:
             self.consola.append(Codigos().successful_completion('DROP TABLE «' + table + '»'))
             self.type_checker[self.actual_database].pop(table)
+            self.tabla_simbolos.simbolos.pop(self.actual_database + '.' + table)
+            delete = []
+            for symbol in self.tabla_simbolos.simbolos:
+                array = symbol.split('.')
+                if len(array) > 1 and array[1] == table:
+                    delete.append(symbol)
+            for element in delete:
+                self.tabla_simbolos.simbolos.pop(element)
         elif query_result == 1:
             self.addError(Codigos().database_internal_error(table), line)
         elif query_result == 2:
@@ -191,32 +211,39 @@ class TypeChecker():
     def Validando_Operaciones_Aritmeticas(self, valor1, valor2, operando):
         v1 = float(valor1)
         v2 = float(valor2)
-
+        
         if operando == '+':
+            self.consola.append(Codigos().successful_completion(' SUMA (' + str(v1) + ', ' + str(v2) + ')'))
             val = v1 + v2
             return val
 
         elif operando == '-':
+            self.consola.append(Codigos().successful_completion(' RESTA (' + str(v1) + ', ' + str(v2) + ')'))
             val = v1 - v2
             return val
 
         elif operando == '*':
+            self.consola.append(Codigos().successful_completion(' MULTIPLICACION (' +str(v1) + ', ' + str(v2) + ')'))
             val = v1 * v2
             return val
 
         elif operando == '/':
+            self.consola.append(Codigos().successful_completion(' DIVISION (' + str(v1) + ', ' + str(v2)+ ')'))
             val = v1 / v2
             return val
 
         elif operando == '%':
+            self.consola.append(Codigos().successful_completion(' MODULO (' + str(v1) + ', ' + str(v2) + ')'))
             val = v1 % v2
             return val
 
         elif operando == '^':
+            self.consola.append(Codigos().successful_completion(' POTENCIA (' + str(v1) + ', ' + str(v2) + ')'))
             val = v1 ** v2
             return val
 
         elif operando == 'NEGATIVO':
+            self.consola.append(Codigos().successful_completion(' NEGATIVO (' + str(v1) + ', ' + str(v2) + ')'))
             val = -1 * v1
             return val
 

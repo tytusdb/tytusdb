@@ -1,4 +1,4 @@
-from Parser.Reportes.Nodo import Nodo
+from Parser.Reportes.Nodo1 import Nodo
 
 
 class TourTree:

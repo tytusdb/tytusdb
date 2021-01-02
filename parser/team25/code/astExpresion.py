@@ -74,7 +74,7 @@ class ExpresionAritmetica(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 
@@ -338,29 +338,20 @@ class ExpresionID(Expresion):
         else:# supongo que es para lo del check :v 
             try:
                 symbol = ts.buscarSimbolo(self.val)
-
-                if symbol.tipo == 'SMALLINT' \
-                or symbol.tipo == 'BIGINT' \
-                or symbol.tipo == 'INTEGER':
+                if symbol.tipo == 'INTEGER':
                     return ExpresionNumero(symbol.valor, TIPO_DE_DATO.ENTERO, self.linea)
-                elif symbol.tipo == 'DECIMAL' \
-                or symbol.tipo == 'NUMERIC' \
-                or symbol.tipo == 'REAL' \
-                or symbol.tipo == 'DOUBLE_PRECISION' \
-                or symbol.tipo == 'MONEY':
+                elif symbol.tipo == 'DECIMAL':
                     return ExpresionNumero(symbol.valor, TIPO_DE_DATO.DECIMAL, self.linea)
-                elif symbol.tipo == 'CHAR' \
-                or symbol.tipo == 'VARCHAR' \
-                or symbol.tipo == 'TEXT' \
-                or symbol.tipo == 'ENUM':
+                elif symbol.tipo == 'STRING' or \
+                symbol.tipo == 'ENUM':
                     return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea)
                 elif symbol.tipo == 'BOOLEAN':
                     return ExpresionBooleano(symbol.valor, self.linea)
                 elif symbol.tipo == 'DATE':
                     return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea, isFecha=True)
-                return Exception()
+                return ErrorReport('Semantico', 'Variable ' + self.val + ' not defined', self.linea)
             except:
-                return Exception()    
+                return ErrorReport('Semantico', 'Variable ' + self.val + ' not defined', self.linea)   
     def evaluacionCheck(self ,ts)-> int:
         try:
             symbol = ts.buscarSimbolo(self.val)
@@ -408,7 +399,7 @@ class ExpresionComparacion(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 
@@ -493,7 +484,7 @@ class ExpresionLogica(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 
