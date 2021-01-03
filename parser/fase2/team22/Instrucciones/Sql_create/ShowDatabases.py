@@ -1,6 +1,9 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
+
 class ShowDatabases(Instruccion):
     def __init__(self, id, tipo, strGram ,linea, columna):
         Instruccion.__init__(self,tipo,linea,columna, strGram)
@@ -34,6 +37,23 @@ class ShowDatabases(Instruccion):
         print(lista)
         arbol.getMensajeTabla(columna,lista)
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "SHOW DATABASES"))
+        t1 = c3d.getTemporal()
+        if self.valor != None:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor("\" LIKE " + "\\'" + self.valor + "\\'\" ", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.aumentarP())
+
+        return code
 '''
 instruccion = ShowDatabases("hola mundo",None, 1,2)
 

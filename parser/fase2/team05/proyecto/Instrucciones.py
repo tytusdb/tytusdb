@@ -830,7 +830,42 @@ class DatePart(Instruccion):
         self.val2 = val2
 
 class FuncionesSistema(Instruccion): #servira para length substring y substr
-    def _init_(self, funcion, valores, alias):
+    def __init__(self, funcion, valores, alias):
         self.funcion = funcion
         self.valores = valores
         self.alias = alias
+
+class ValorIndex(Instruccion):
+    def __init__(self, valor, Lower):
+        self.valor = valor
+        self.Lower = Lower
+
+class Index(Instruccion):
+    def __init__(self,name,table,Lindex,Unique,Using):
+        self.name = name
+        self.table = table
+        self.Lindex = Lindex
+        self.Unique = Unique
+        self.Using = Using
+
+class IndexOrden(Instruccion):
+    def __init__(self,name,table,valor,Orden):
+        self.name = name
+        self.table = table
+        self.valor = valor
+        self.Orden = Orden
+
+class IndexW(Instruccion):
+    def __init__(self,name,table,Lindex,Lwhere):
+        self.name = name
+        self.table = table
+        self.Lindex = Lindex
+        self.Lwhere = Lwhere
+
+class IndexMM(Instruccion):
+    def __init__(self,name,table,Lindex,major,minor):
+        self.name = name
+        self.table = table
+        self.Lindex = Lindex
+        self.major = major
+        self.minor = minor
