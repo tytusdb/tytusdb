@@ -211,7 +211,7 @@ reserved = {
     'returns' : 'RETURNS',
     'alias' : 'ALIAS',
     'for' : 'FOR',
-    'languaje' : 'LANGUAJE',
+    'language' : 'LANGUAGE',
     'out' : 'OUT',
     'declare' : 'DECLARE',
     'rowtype' : 'ROWTYPE',
@@ -227,6 +227,7 @@ reserved = {
     'notice' : 'NOTICE',
     'elseif' : 'ELSEIF',
     'exception' :  'EXCEPTION',
+    'plpgsql' : 'PLPGSQL',
 }
 
 tokens = [
@@ -425,7 +426,8 @@ def p_statement(t):
                     | stm_perform  PUNTOCOMA 
                     | stm_begin PUNTOCOMA
                     | stm_if PUNTOCOMA  
-                    | stm_create_function PUNTOCOMA               
+                    | stm_create_function PUNTOCOMA  
+                    | stm_language PUNTOCOMA             
                     '''
 
     #                    |    stm_select PUNTOCOMA
@@ -615,7 +617,7 @@ def p_if_inst0(t):
 def p_stm_begin(t):
     '''stm_begin   : declare_opt BEGIN statements_begin    exception_opt  return_opt   END  if_opt '''
     childsProduction  = addNotNoneChild(t,[1,3,4,5,7])
-    graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7]], childsProduction)
+    graph_ref = graph_node(str("stm_begin"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7]], childsProduction)
     addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf   ")
     t[0] = upNodo("token", 0, 0, graph_ref)
     #print(t)
@@ -853,28 +855,58 @@ def p_stm_create_function(t):
     '''stm_create_function : CREATE FUNCTION ID PARA list_param_function_opt PARC RETURNS type as_opt stm_begin'''
     childsProduction  = addNotNoneChild(t,[5,8,9,10])
     graph_ref = graph_node(str("stm_create_function"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10]],  childsProduction )
-    addCad("**\<BLOCK_PLSQL>** ::= [\<DECLARE>] \<ASIG_BASICA> ';' ")
+    addCad("**\<STM_CREATE FUNCTION>** ::= P E N D I E N T E")
     t[0] = upNodo("token", 0, 0, graph_ref)
     ##### 
 
 
 def p_list_param_function_opt(t):
-    '''list_param_function_opt  : column_list 
+    '''list_param_function_opt  : params_function 
                                 | empty'''
     token = t.slice[1]
-    if token.type == "column_list":
-        lista = None
-        childsProduction = []
-        if t[1] != None:
-            lista = t[1][0]
-            childsProduction.append(lista.graph_ref)
-        graph_ref = graph_node(str("list_param_function"), [lista] ,childsProduction )
-        addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<COLUMN_LIST>] ")
+    if token.type == "params_function":
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("list_params_function"), [t[1]],  childsProduction )
+        addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<PARAMS_FUNCTION>] ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####
     else:
         t[0]=None
 
+
+def p_params_function(t):
+    '''params_function  : params_function COMA param_function
+                        | param_function'''
+    token = t.slice[1]
+    if token.type == "params_function":
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("params_function"), [t[1],t[2],t[3]],  childsProduction )
+        addCad("**\<PARAMS_FUNCTION>** ::= \<PARAMS_FUNCTION> ','  \<PARAM_FUNCTION> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+    else:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("params_function"), [t[1]],  childsProduction )
+        addCad("**\<PARAMS_FUNCTION>** ::= \<PARAM_FUNCTION> ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+
+
+def p_param_function(t):
+    '''param_function   : ID
+                        | type'''
+    token = t.slice[1]
+    if token.type == "ID":
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<PARAM_FUNCTION>** ::=  tIdentifier ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####   
+    else:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("param_function"), [t[1]],  childsProduction )
+        addCad("**\<PARAM_FUNCTION>** ::=  tIdentifier ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+        
 
 def p_as_opt(t):
     '''as_opt   : AS DOLLAR DOLLAR
@@ -890,7 +922,7 @@ def p_as_opt(t):
 
 def p_declare_opt(t):
     '''declare_opt  : DECLARE declarations
-                        | empty'''
+                    | empty'''
     token = t.slice[1]
     if token.type != "empty":
         childsProduction  = addNotNoneChild(t,[2])
@@ -918,14 +950,20 @@ def p_declarations(t):
         t[0] = upNodo(True, 0, 0, graph_ref)
     
 def p_declaration(t):
-    '''declaration  : ID constant_opt type collate_opt not_null_opt expression_opt PUNTOCOMA '''
+    '''declaration  : ID constant_opt type collate_opt not_null_opt expression_opt PUNTOCOMA 
+                    | ID ALIAS FOR DOLLAR ENTERO PUNTOCOMA'''
 #                    | ID ID PORCENTAJE ROWTYPE
 #                    | ID ID PUNTO ID PORCENTAJE TYPE
 #                    | ID RECORD
-    childsProduction  = addNotNoneChild(t,[2,3,4,5,6])
-    graph_ref = graph_node(str("declaration"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]],  childsProduction )
-    addCad("**\<DECLARATION>** ::= P E N D I E N T E ")
-    t[0] = upNodo(True, 0, 0, graph_ref)
+    if len(t) == 8:
+        childsProduction  = addNotNoneChild(t,[2,3,4,5,6])
+        graph_ref = graph_node(str("declaration"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]],  childsProduction )
+        addCad("**\<DECLARATION>** ::= P E N D I E N T E ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+    elif len(t) == 7:
+        graph_ref = graph_node(str("declaration"), [t[1],t[2],t[3],t[4],t[5],t[6]],  [] )
+        addCad("**\<DECLARATION>** ::= tId tAlias tFor tDollar tEntero")
+        t[0] = upNodo("token", 0, 0, graph_ref)
 
 def p_constant_opt(t):
     '''constant_opt : CONSTANT
@@ -963,7 +1001,7 @@ def p_not_null_opt(t):
     else:                      
         t[0] = None
 
-#TODO Revisar grafo
+
 def p_expression_opt(t):
     '''expression_opt   : DEFAULT expression
                         | DOSPUNTOS IGUAL expression
@@ -971,30 +1009,32 @@ def p_expression_opt(t):
                         | empty'''
     token = t.slice[1]
     if token.type == "DEFAULT":
-        print('--------------1')
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("expression_opta"),    [t[1], t[2]]       , childsProduction)
         addCad("**\<EXPRESSION_OPT>** ::= tDefault \<EXPRESSION> ")
         t[0] = upNodo(True, 0, 0, graph_ref)
         #####       
     elif token.type == "DOSPUNTOS":
-        print('--------------2')
         childsProduction  = addNotNoneChild(t,[3])
         graph_ref = graph_node(str("expression_opt"),    [str(t[1]) + " " + str(t[2]),t[3]]       , childsProduction)
         addCad("**\<EXPRESSION_OPT>** ::= ':=' \<EXPRESSION> ")
         t[0] = upNodo(True, 0, 0, graph_ref)
         ##### 
     elif token.type == "IGUAL":
-        print('--------------3')
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("expression_opt"),    [t[1], t[2]]       , childsProduction)
         addCad("**\<EXPRESSION_OPT>** ::= '=' \<EXPRESSION> ")
         t[0] = upNodo(True, 0, 0, graph_ref)
         #####             
-    else:                     
-        print('--------------4') 
+    else:
         t[0] = None
 
+def p_stm_language(t):
+    '''stm_language : DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+    graph_ref = graph_node(str("stm_language"), [str(t[1]) + " " + str(t[2]),t[3],t[4]],  [] )
+    addCad("**\<STM_LANGUAGE>** ::= '$$' tLanguage tPlpgsql ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    ##### 
 ##################################################
 
 
@@ -2000,7 +2040,8 @@ def p_type(t):
                 | TIME
                 | INTERVAL
                 | BOOLEAN
-                | ID'''
+                | ID
+                | VARCHAR'''
     token = t.slice[1]
 
     if token.type == "DOUBLE":
