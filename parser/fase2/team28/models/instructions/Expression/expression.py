@@ -17,6 +17,7 @@ class Expression:
     @abstractmethod
     def process(self):
         pass
+
     @abstractmethod
     def compile(self):
         pass
@@ -57,11 +58,11 @@ class ArithmeticBinaryOperation(Expression):
         elif operador == SymbolsAritmeticos.BITWISE_SHIFT_RIGHT:
             value = ">>"
         elif operador == SymbolsAritmeticos.BITWISE_AND:
-            value = "&" 
+            value = "&"
         elif operador == SymbolsAritmeticos.BITWISE_OR:
-            value = "|" 
+            value = "|"
         elif operador == SymbolsAritmeticos.BITWISE_XOR:
-            value = "^" 
+            value = "^"
         return value
 
     def compile(self):
@@ -73,7 +74,8 @@ class ArithmeticBinaryOperation(Expression):
                 ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
             temporal = ThreeAddressCode().newTemp()
-            ThreeAddressCode().addCode(f"{temporal} = {value1.value} {self.getOperador(self.operador)} {value2.value}")
+            ThreeAddressCode().addCode(
+                f"{temporal} = {value1.value} {self.getOperador(self.operador)} {value2.value}")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -401,6 +403,36 @@ class UnaryOrSquareExpressions(Expression):
             desc = "FATAL ERROR --- UnaryOrSquareExpressions"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self):
+        expression1 = self.value.compile()
+        type_unary_or_other = self.sign
+        temporal = ThreeAddressCode().newTemp()
+
+        try:
+            if expression1.data_type != DATA_TYPE.NUMBER:
+                print('error')
+                return
+            dataTemp = f"{temporal} = 0"
+
+            if type_unary_or_other == SymbolsUnaryOrOthers.UMINUS or type_unary_or_other == SymbolsUnaryOrOthers.BITWISE_NOT:
+                dataTemp = f"{temporal} = -{expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.UPLUS:
+                dataTemp = f"{temporal} = {expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.SQUARE_ROOT:
+                resExpression = self.value.process(self)
+                result = round(math.sqrt(resExpression.value), 2)
+                dataTemp = f"{temporal} = {result} # |/{expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.CUBE_ROOT:
+                resExpression = self.value.process(self)
+                result = round(resExpression.value ** (1 / 3), 2)
+                dataTemp = f"{temporal} = {result} # ||/{expression1.value}"
+
+            ThreeAddressCode().addCode(dataTemp)
+            return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- UnaryOrSquareExpressions"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
 
 class LogicalOperators(Expression):
     '''
@@ -473,6 +505,6 @@ class PrimitiveData(Expression):
 
     def process(self, expression):
         return self
-        
+
     def compile(self):
         return self

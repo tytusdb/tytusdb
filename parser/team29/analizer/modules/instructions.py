@@ -16,7 +16,7 @@ from analizer.statement.instructions.select import where
 from analizer.statement.instructions.select import limit
 from analizer.statement.instructions.select import orderby
 from analizer.statement.instructions.select import operators
-
+from analizer.statement.instructions.create import create_index
 
 def Select(
     params,
@@ -132,3 +132,6 @@ def showDataBases(like, row, column):
 
 def Assignment(id, value, row, column):
     return assignment.Assignment(id, value, row, column)
+
+def CreateIndex(unique, idIndex, idTable, usingHash, whereCl, optList):
+    return create_index.CreateIndex(unique, idIndex, idTable, usingHash, whereCl, optList)

@@ -7,6 +7,7 @@ from controllers.error_controller import ErrorController
 # Definitions of tokens reserved
 k_reserved = {
     'ADD': 'ADD',
+    'ALIAS': 'ALIAS',
     'ALL': 'ALL',
     'ALTER': 'ALTER',
     'ABS': 'ABS',
@@ -14,6 +15,7 @@ k_reserved = {
     'AS': 'AS',
     'ASC': 'ASC',
     'AVG': 'AVG',
+    'BEGIN': 'BEGIN',
     'BETWEEN': 'BETWEEN',
     'BTREE': 'BTREE',
     'BIGINT': 'BIGINT',
@@ -29,6 +31,9 @@ k_reserved = {
     'CHECK': 'CHECK',
     'CREATE': 'CREATE',
     'COLUMN': 'COLUMN',
+    'COLLATE': 'COLLATE',
+    'CONCAT' : 'CONCAT',
+    'CONSTANT': 'CONSTANT',
     'CONSTRAINT': 'CONSTRAINT',
     'COUNT': 'COUNT',
     'CURRENT_DATE': 'CURRENT_DATE',
@@ -55,15 +60,20 @@ k_reserved = {
     'EXCEPT': 'EXCEPT',
     'EXP': 'EXP',
     'ELSE': 'ELSE',
+    'ELSEIF' : 'ELSEIF',
+    'ELSIF' : 'ELSIF',
     'END': 'END',
+    'EXCEPTION' : 'EXCEPTION',
     'EXTRACT': 'EXTRACT',
     'FACTORIAL': 'FACTORIAL',
     'FALSE': 'FALSE',
     'FIRST': 'FIRST',
+    'FOR': 'FOR',
     'FOREIGN': 'FOREIGN',
     'FROM': 'FROM',
     'FLOOR': 'FLOOR',
     'FULL': 'FULL',
+    'FUNCTION': 'FUNCTION',
     'GROUP': 'GROUP',
     'GREATEST': 'GREATEST',
     'GCD': 'GCD',
@@ -85,6 +95,7 @@ k_reserved = {
     'ISNULL': 'ISNULL',
     'JOIN': 'JOIN',
     'KEY': 'KEY',
+    'LANGUAGE':'LANGUAGE',
     'LEFT': 'LEFT',
     'LEAST': 'LEAST',
     'LENGTH': 'LENGTH',
@@ -103,12 +114,14 @@ k_reserved = {
     'MONTH': 'MONTH',
     'MD5': 'MD5',
     'NOT': 'NOT',
+    'NOTICE': 'NOTICE',
     'NOTNULL': 'NOTNULL',
     'NOW': 'NOW',
     'NULL': 'NULL',
     'NUMERIC': 'NUMERIC',
     'NULLS': 'NULLS',
     'ON': 'ON',
+    'OUT':'OUT',
     'OUTER': 'OUTER',
     'OR': 'OR',
     'ORDER': 'ORDER',
@@ -117,16 +130,23 @@ k_reserved = {
     'PRECISION': 'PRECISION',
     'PRIMARY': 'PRIMARY',
     'PI': 'PI',
+    'PLPGSQL':'PLPGSQL',
     'POWER': 'POWER',
+    'PROCEDURE' : 'PROCEDURE',
+    'RAISE' : 'RAISE',
     'RANDOM': 'RANDOM',
     'RADIANS': 'RADIANS',
     'REAL': 'REAL',
+    'RECORD': 'RECORD',
     'REFERENCES': 'REFERENCES',
     'RENAME': 'RENAME',
     'REPLACE': 'REPLACE',
+    'RETURN' : 'RETURN',
+    'RETURNS':'RETURNS',
     'RETURNING': 'RETURNING',
     'RIGHT': 'RIGHT',
     'ROUND': 'ROUND',
+    'ROWTYPE': 'ROWTYPE',
     'SELECT': 'SELECT',
     'SECOND': 'SECOND',
     'SESSION_USER': 'SESSION_USER',
@@ -159,7 +179,9 @@ k_reserved = {
     'UNIQUE': 'UNIQUE',
     'VALUES': 'VALUES',
     'VARCHAR': 'VARCHAR',
+    'VARIADIC': 'VARIADIC',
     'VARYING': 'VARYING',
+    'VOID': 'VOID',
     'WHERE': 'WHERE',
     'WHEN': 'WHEN',
     'WIDTH_BUCKET': 'WIDTH_BUCKET',
@@ -204,6 +226,8 @@ tokens = [
     'RIGHT_PARENTHESIS',
     'SEMICOLON',
     'COLON',
+    'DOUBLE_DOLLAR',
+    'DOLLAR',
 
     'SQUARE_ROOT',
     'CUBE_ROOT',
@@ -230,6 +254,7 @@ tokens = [
     'MODULAR',
     # Assignment Operators
     'EQUALS',
+    'COLONEQUALS',
 
     # Types of Contents
     'INT_NUMBER',
@@ -257,6 +282,8 @@ multi_line = r'/\*(.|\n)*?\*/'
 # Definition of Symbols
 t_COMMA = r'\,'
 t_SEMICOLON = r'\;'
+t_DOUBLE_DOLLAR = r'\$\$'
+t_DOLLAR = r'\$'
 t_DOT = r'\.'
 t_ASTERISK = r'\*'
 t_LEFT_PARENTHESIS = r'\('
@@ -267,6 +294,7 @@ t_GREATE_THAN = r'\>'
 t_GREATE_EQUAL = r'\>\='
 t_NOT_EQUAL = r'\!\='
 t_NOT_EQUAL_LR = r'\<\>'
+t_COLONEQUALS = r'\:\='
 t_EQUALS = r'\='
 t_COLON = r'\:'
 t_PLUS = r'\+'
