@@ -571,3 +571,37 @@ class TablaDeSimbolos() :
             print("si termino")
             print("A es: ",a)
             return df
+
+
+
+#obtiene un dato cuando se mandan varias tablas y todos los datos
+    def obtenerSelect5Todo(self, tabla, bd) :
+        print("a este entra metodo----------------------")
+        print("la bd: ",bd)
+        print("la tabla: ",tabla)
+        if bd=="" or len(tabla)==0: return 0
+        a=""
+        columnas=[]
+        datos={}
+        for x in range(0,len(tabla)):
+            for simb in self.simbolos:   
+                print(simb)         
+                key=str(self.simbolos[simb].nombre)+str(self.simbolos[simb].BD)+str(self.simbolos[simb].tabla)
+                print("el nombre sera ====",key)
+                if self.simbolos[simb].tabla == tabla[x] and self.simbolos[simb].BD == bd:                
+                    print("res: ",self.simbolos[simb].valor)
+                    print( simb,"  = ",self.simbolos[simb].valor)
+                    a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
+                    datos[simb]=self.simbolos[simb].valor
+                    #columnas.append(simb)
+                
+        if a=="": 
+            print("A va vacio")
+            return 0
+        else:
+            print("vera si genera el dataframe")
+            df=pd.DataFrame(datos)
+            print(df)
+            print("si termino")
+            print("A es: ",a)
+            return df

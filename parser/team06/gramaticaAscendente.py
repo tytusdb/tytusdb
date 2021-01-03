@@ -162,8 +162,8 @@ reservadas = {
     'current_user':'CURRENT_USER',
     'session_user':'SESSION_USER',
     'symmetric':'SYMMETRIC',
-    'izquierda' : 'LEFT',
-    'derecha' : 'RIGHT',
+    'left' : 'LEFT',
+    'right' : 'RIGHT',
     'full' : 'FULL',
     'join' : 'JOIN',
     'natural' : 'NATURAL',
@@ -234,7 +234,8 @@ reservadas = {
     'current_time' : 'CURRENT_TIME',
     # INDEX
     'index':'INDEX',
-    'hash':'HASH'
+    'hash':'HASH',
+    'perform' : 'PERFORM'
 
 
 # revisar funciones de tiempo y fechas
@@ -450,6 +451,7 @@ def p_query(t):
                     | selectData PUNTOYCOMA
                     | tipos
                     | createIndex
+                    | combinacionSelects PUNTOYCOMA
     '''
     h.reporteGramatical1 +="query     ::=      opcion\n"
     h.reporteGramatical2 +="t[0]=t[1]\n"
@@ -2056,7 +2058,30 @@ def p_search_condition_2(t):
     print(t[5])
     t[0]=ExpresionNotIn(t[1],t[5])
 
+#agregar eeste al arbol y 3D
+def p_search_condition_5(t):
+    'search_condition   : NOT EXISTS PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
+    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
+    print("esta condicion es del not con operacion******************")
+    print(t[4])
+    t[0]=ExpresionNotExists(t[4])
 
+#agregar eeste al arbol y 3D
+def p_search_condition_6(t):
+    'search_condition   : EXISTS PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
+    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
+    print("esta condicion es del not con operacion******************")
+    print(t[3])
+    t[0]=ExpresionExists(t[3])
+
+#agregar eeste al arbol y 3D
+def p_search_condition_7(t):
+    'search_condition   : final  IN PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
+    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
+    print("esta condicion es del not con operacion******************")
+    print(t[1])
+    print(t[4])
+    t[0]=ExpresionIn(t[1],t[4])
 
 # PARA ABAJO YA ESTA
 def p_search_condition_3(t):
@@ -2190,6 +2215,90 @@ def p_tipos(t):
     print(t[7])
     t[0]=Tipo(t[3],t[7])
 
+#debo agregar estos al arbol y a la 3D
+#--------------------------------------------------------------------------------------------------------------------
+#                                           AGREGACION DEL UNION
+def p_combinacionSelects(t):
+    '''combinacionSelects  : selectData UNION selectData
+                            | selectData INTERSECT selectData
+                            | selectData EXCEPT selectData
+     
+    '''
+    print("*************************Entra a procesar el UNION********************")
+    if t[2].upper()=="UNION":
+        t[0]=QueryUnion(t[1],t[3])
+    elif t[2].upper()=="INTERSECT":
+        t[0]=QueryIntersect(t[1],t[3])
+    elif t[2].upper()=="EXCEPT":
+        t[0]=QueryExcept(t[1],t[3])
+
+
+def p_select_4(t):
+    '''selectData       : SELECT select_list FROM   tipoJoin
+                        | SELECT POR FROM  tipoJoin
+    '''
+    if t[2]=='*':
+       print("entro al select * tipo join ++++++++++++++++++++++++++++++")
+       print(t[2])
+       t[0]=Select6(t[2],t[4])
+    else:
+        print("entro al select lista tipo join ++++++++++++++++++++++++++++++")
+        print(t[2])
+        t[0]=Select6(t[2],t[4])
+        
+
+
+def p_tipoJoin_1(t):
+    '''tipoJoin   :   select_list  INNER JOIN select_list ON operacion
+                  |   select_list NATURAL INNER JOIN select_list 
+     '''
+    if t[2].upper()=="INNER":
+        print("entro al tipoJoin1 INNER----------------------------------------------------")
+        print(t[1])
+        print(t[2])
+        print(t[4])
+        print(t[6])
+        t[0]=ExpresionJoinA(t[1],t[2],t[4],t[6])
+    elif t[2].upper()=="NATURAL":
+        print("entro al NATURAL ----------------------------------------------------")
+        print(t[1])
+        print(t[2])
+        print(t[3])
+        print(t[5])    
+        t[0]=ExpresionJoinB(t[1],t[2],t[3],t[5])
+
+
+def p_tipoJoin_2(t):
+    '''tipoJoin   :  select_list  otroTipoJoin OUTER JOIN select_list ON operacion
+                  |  select_list  NATURAL otroTipoJoin OUTER JOIN select_list
+    '''
+    if t[2].upper()=="NATURAL":
+        print("entro al tipoJoin2 NATURAL ----------------------------------------------------")
+        print(t[1])
+        print(t[2])
+        print(t[3])
+        print(t[4])
+        print(t[6])
+        t[0]=ExpresionJoinC(t[1],t[2],t[3],t[4],t[6])
+    else:
+        print("entro al tipoJoin2 ELSE ----------------------------------------------------")
+        print(t[1])
+        print(t[2])
+        print(t[3])
+        print(t[5])
+        print(t[7])
+        t[0]=ExpresionJoinD(t[1],t[2],t[3],t[5],t[7])
+    
+
+
+def p_otroTipoJoin(t):
+    ''' otroTipoJoin    :   LEFT
+                        |   RIGHT
+                        |   FULL
+    '''
+    print("entra al otro tipo de join para su condicion")
+    t[0]=t[1]
+    
 
 #para manejar los errores sintacticos
 #def p_error(t): #en modo panico :v
