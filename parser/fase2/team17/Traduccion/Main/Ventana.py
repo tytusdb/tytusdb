@@ -2,8 +2,8 @@ import traceback
 from tkinter import *
 from tkinter import filedialog
 from Parser.Ascendente.gramatica import parse as AnaParse
-from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
-from Parser.Reportes.gramatica1 import parse as ReportParse
+#from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
+#from Parser.Reportes.gramatica1 import parse as ReportParse
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
@@ -14,7 +14,7 @@ from Interprete.Manejo_errores.ReporteTS import ReporteTS
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-from Parser.Reportes.Nodo import Nodo
+from Parser.Reportes.Nodo1 import Nodo
 from Parser.Reportes.TourTree import TourTree
 
 from graphviz import Source
@@ -128,54 +128,54 @@ def analizador():
 def Seleccionar():
     try:
         cadena = my_text.get(SEL_FIRST, SEL_LAST)
-        print('>> ' + cadena)
 
         result: Arbol = AnaParse(cadena)
-        entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
-        entornoCero.NuevoAmbito()
+        #entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
+        #entornoCero.NuevoAmbito()
 
-        for item in result.instrucciones:
-            item.execute(entornoCero, result)
+        #for item in result.instrucciones:
+        #    item.execute(entornoCero, result)
 
-        consola = ""
-        for item in result.console:
-            consola = consola + item
+        #consola = ""
+        #for item in result.console:
+        #    consola = consola + item
 
-        my_text1.insert(END, consola)
+        my_text1.insert(END, 'success')
+        print('SIntactico realizado con exito')
     except:
         my_text1.insert(END, 'Ocurrio un error al compilar')
 
 
 def ReporteSelect():
     global dotString
-    cadena = my_text.get(SEL_FIRST, SEL_LAST)
-    result: Nodo = ReportParse(cadena)
-    tour:TourTree = TourTree()
-    dotString = tour.getDot(result)
-    graph = Source(dotString)
-    #graph.render(view=True, format='svg')
+    #cadena = my_text.get(SEL_FIRST, SEL_LAST)
+    #result: Nodo = ReportParse(cadena)
+    #tour:TourTree = TourTree()
+    #dotString = tour.getDot(result)
+    #graph = Source(dotString)
+    ##graph.render(view=True, format='svg')
 
-    try:
-        graph.render(format='svg')
-        print('Reporte Generado Con exito')
-    except:
-        print('No se genero el reporte:w')
+    #try:
+    #    graph.render(format='svg')
+    #    print('Reporte Generado Con exito')
+    #except:
+    #    print('No se genero el reporte:w')
 
 
 def Reporte():
      global dotString
-     cadena = my_text.get("1.0", END)
-     result: Nodo = ReportParse(cadena)
-     tour:TourTree = TourTree()
-     dotString = tour.getDot(result)
-     graph = Source(dotString)
-    #graph.render(view=True, format='svg')
+     #cadena = my_text.get("1.0", END)
+     #result: Nodo = ReportParse(cadena)
+     #tour:TourTree = TourTree()
+     #dotString = tour.getDot(result)
+     #graph = Source(dotString)
+    ##graph.render(view=True, format='svg')
 
-     try:
-        graph.render(format='svg')
-        print('Reporte Generado Con exito')
-     except:
-        print('No se genero el reporte:w')
+     #try:
+     #   graph.render(format='svg')
+     #   print('Reporte Generado Con exito')
+     #except:
+     #   print('No se genero el reporte:w')
 
 
 

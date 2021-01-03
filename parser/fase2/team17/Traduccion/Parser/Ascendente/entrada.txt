@@ -1,10 +1,11 @@
 
+begin
+
 tax := subtotal * 0.06;
 my_recoser_id := 20;
+SELECT table1.column1 INTO STRICT lol FROM table1;
 
-
-
-
+end;
 
 
 

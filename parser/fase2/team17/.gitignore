@@ -1,4 +1,8 @@
 
+**/*.out
+**/*.png
+**/*.gv
+**/*.svg
+**/entrada.txt
 
-*.gv
-*.svg
+

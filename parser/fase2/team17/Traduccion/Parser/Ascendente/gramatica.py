@@ -40,6 +40,8 @@ ArbolErrores:Arbol = Arbol(None)
 
 reservadas = {
 
+    'strict': 'STRICT',
+    'perfom': 'PERFORM',
     # Boolean Type
     'boolean': 'BOOLEAN',
     'true': 'TRUE',
@@ -148,7 +150,7 @@ reservadas = {
     'or'  : 'OR',
     'not'   : 'NOT',
 
-    # PREDICADOS DE COMPARACION
+    # PREDICADOS DE STRICT
     'between'   : 'BETWEEN',
     'unknown' : 'UNKNOWN',
     'is'    : 'IS',
@@ -495,8 +497,6 @@ def p_plpgsql(t):
 
 # TODO: Hay que agregarle que la funcion pueda traer return
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
-
-
 def p_declare(t):
     '''
          declare : DECLARE
@@ -556,10 +556,7 @@ def p_conditionals(t):
         conditionals : if
                      | case
     '''
-
 # ================= IF =================
-
-
 def p_if(t):
     '''
         if : IF exp THEN stmts END IF
@@ -628,12 +625,41 @@ def p_other_when(t):
 
 
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
-def p_plpgsql_fun(t):
-    '''
-        plpgsql : PRUEBA
-    '''
-# -------------------------------Jonathan PL/PGSQL ---------------------------------------------
 
+def p_statements_assign(t):
+    '''
+        statements   : ID  DOSPTS IGUAL exp
+                     | ID  IGUAL exp
+    '''
+    pass
+
+
+def p_statements_perfom(t):
+    '''
+        statements : PERFORM select
+    '''
+    pass
+
+
+def p_statements_select(t):
+    '''
+        statements  : SELECT exp_list INTO exp_list FROM exp_list
+                    | SELECT exp_list INTO exp_list FROM exp_list conditions
+    '''
+    pass
+
+
+
+def p_statements_select_strict(t):
+    '''
+        statements : SELECT exp_list INTO STRICT ID FROM exp_list
+                   | SELECT exp_list INTO STRICT ID FROM exp_list conditions
+    '''
+    pass
+
+
+
+# -------------------------------Jonathan PL/PGSQL ---------------------------------------------
 
 
 
@@ -2248,10 +2274,7 @@ def p_error(t):
             if not token or token.type == 'PTCOMA' or token.type == 't_PARDER':
                 break
 
-
         #parser.restart()
-
-
 
 
 
@@ -2264,8 +2287,8 @@ def parse(input) :
     #parser = yacc.yacc()
     lexer2.lineno=1
     par = parser.parse(input)
-    dot.node('table', '<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR>' + graph + '</TABLE>>')
-    dot.view()
+    #dot.node('table', '<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR>' + graph + '</TABLE>>')
+    #dot.view()
     #print(par)
     return par
 

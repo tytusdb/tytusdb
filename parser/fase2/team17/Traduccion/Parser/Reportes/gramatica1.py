@@ -3,6 +3,8 @@ from Parser.Reportes.Nodo1 import Nodo
 
 reservadas = {
 
+    'strict': 'STRICT',
+    'perfom': 'PERFORM',
     # Boolean Type
     'boolean': 'BOOLEAN',
     'true': 'TRUE',
@@ -109,7 +111,7 @@ reservadas = {
     'or'  : 'OR',
     'not'   : 'NOT',
 
-    # PREDICADOS DE COMPARACION
+    # PREDICADOS DE STRICT
     'between'   : 'BETWEEN',
     'unknown' : 'UNKNOWN',
     'is'    : 'IS',
