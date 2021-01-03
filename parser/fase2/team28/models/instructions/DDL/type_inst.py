@@ -25,6 +25,6 @@ class CreateType(Instruction):
         SymbolTable().add(typeNew._name, str(typeNew._values), 'TYPE', 'DB', None, '0', '0')
         print(typeNew)
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")

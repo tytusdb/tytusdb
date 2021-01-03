@@ -25,6 +25,8 @@ r_types = {
   Palabras reservadas del lenguaje SQL 'R_'
 """
 reservadas = {
+    "BEGIN":"R_BEGIN",#f2
+    "END": "R_END",#f2
     "CREATE": "R_CREATE",
     "REPLACE": "R_REPLACE",
     "TABLE": "R_TABLE",

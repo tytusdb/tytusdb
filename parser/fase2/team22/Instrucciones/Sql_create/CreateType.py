@@ -2,6 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.Expresiones.Enum import Enum
 from storageManager.jsonMode import *
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class CreateType(Instruccion):
     def __init__(self, id, tipo, listaExpre, strGram,linea, columna):
@@ -28,3 +30,26 @@ class CreateType(Instruccion):
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
         arbol.consola.append("Consulta devuelta correctamente.")
 
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        '''code = []
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "CREATE TYPE " + self.valor + "AS ENUM ("))
+        t1 = c3d.getTemporal()
+
+        sizeCol = len(self.listaExpre)
+        contador = 1
+        for enum in self.listaExpre:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor("\\'" + enum + "\\'", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = t1 = c3d.getTemporal()
+            if contador != sizeCol:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\\', \\'", "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, Identificador(t0), Valor('");"', "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.aumentarP())'''
+        
+        return []

@@ -7,6 +7,10 @@ from Instrucciones.Excepcion import Excepcion
 from storageManager.jsonMode import *
 from Instrucciones.Tablas.Tablas import Tablas
 from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
+from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
+from Instrucciones.Tablas.Campo import Campo
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class CreateTable(Instruccion):
     def __init__(self, tabla, tipo, campos, herencia, strGram ,linea, columna):
@@ -183,6 +187,41 @@ class CreateTable(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
 
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "CREATE TABLE " + self.tabla + " (\\n"))
+        
+        sizeCol = len(self.campos)
+        contador = 1
+        for col in self.campos:
+            if isinstance(col, Campo):
+                sizeCol -= 1
+            elif not isinstance(col, Campo):
+                lista = col.generar3D(tabla, arbol)
+                code += lista
+                tLast = c3d.getLastTemporal()
+                if contador != sizeCol:
+                    t3 = c3d.getTemporal()
+                    code.append(c3d.operacion(t3, Identificador(tLast), Valor('",\\n"', "STRING"), OP_ARITMETICO.SUMA))
+                    contador += 1
+                    tLast = t3
+                t2 = c3d.getTemporal()
+                code.append(c3d.operacion(t2, Identificador(t0), Identificador(tLast), OP_ARITMETICO.SUMA))
+                t0 = t2
+
+        t1 = c3d.getTemporal()
+        if self.herencia != None:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor('"\\n) INHERITS (' + self.herencia + '"', "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, Identificador(t0), Valor('");"', "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.aumentarP())
+        
+        return code
+
 class IdentificadorColumna(Instruccion):
     def __init__(self, id, linea, columna):
         self.id = id
@@ -198,3 +237,6 @@ class IdentificadorColumna(Instruccion):
             return error
         self.tipo = variable.tipo
         return variable.valor.ejecutar(tabla, arbol)
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)

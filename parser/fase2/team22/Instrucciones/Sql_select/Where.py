@@ -17,7 +17,8 @@ class Where(Instruccion):
         print("hola me ejecuto en el where porque ahora soy un update")
         return val
         
-        
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
 
 '''
 instruccion = Where("hola mundo",None, 1,2)
