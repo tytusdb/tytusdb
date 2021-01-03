@@ -13,3 +13,6 @@ class Campo():
     
     def obtenerNombre(self):
         return self.nombre
+
+    def generar3D(self, tabla, arbol):
+        pass
