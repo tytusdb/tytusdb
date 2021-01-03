@@ -75,7 +75,7 @@ reservadas = {
     'key' : 'KEY',
     'null' : 'NULL',
     'nulls':'NULLS',
-
+    'call':'CALL',
     'unique' : 'UNIQUE',
     'check' : 'CHECK',
     'cbrt' : 'CBRT',
@@ -477,6 +477,7 @@ def p_query(t):
                     | tipos
                     | createIndex
                     | combinacionSelects PUNTOYCOMA
+                    | callFunction
     '''
     nodeFather = nodeAst()
     nodeFather.token = 'QUERY'
@@ -1096,6 +1097,50 @@ def p_sortOptions_1(t):
 
     t[0] = nodeFather
 
+def p_sortOptions_1_1(t):
+    'sort    : DESC NULLS FIRST'
+    nodeFather = nodeAst()
+    nodeFather.token = 'SORT'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DESC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NULLS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'FIRST'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
+
+def p_sortOptions_1_2(t):
+    'sort    : ASC NULLS FIRST'
+    nodeFather = nodeAst()
+    nodeFather.token = 'SORT'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ASC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NULLS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'FIRST'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
+
 def p_sortOptions_2(t):
     'sort    : NULLS LAST'
     nodeFather = nodeAst()
@@ -1110,6 +1155,50 @@ def p_sortOptions_2(t):
     nodeSon2.token = 'LAST'
     nodeSon2.lexeme = t[2]
     nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+
+def p_sortOptions_2_1(t):
+    'sort    : DESC NULLS LAST'
+    nodeFather = nodeAst()
+    nodeFather.token = 'SORT'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DESC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NULLS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'LAST'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
+
+def p_sortOptions_2_2(t):
+    'sort    : ASC NULLS LAST'
+    nodeFather = nodeAst()
+    nodeFather.token = 'SORT'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ASC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NULLS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'LAST'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
 
     t[0] = nodeFather
 #-----------------------------------------------------CREATE DB--------------------------------------------------------------------
@@ -5644,6 +5733,59 @@ def p_otroTipoJoin(t):
 
 
 
+def p_callFunction(t):
+    'callFunction    : CALL ID PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CALL_FUNCTION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CALL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+
+def p_callFunction_1(t):
+    'callFunction    : CALL ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CALL_FUNCTION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CALL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
+
+def p_callFunction_2(t):
+    'callFunction    : CALL ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CALL_FUNCTION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CALL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
 
 
 def find_column(input, token):

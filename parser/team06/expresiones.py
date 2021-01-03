@@ -1049,3 +1049,12 @@ class ExpresionJoinD(ExpresionNumerica):
         self.tipo=tipo
         self.tabla2=tabla2
         self.operacion=operacion
+        
+class SortOptions(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, sort, option):
+        self.sort = sort
+        self.option = option

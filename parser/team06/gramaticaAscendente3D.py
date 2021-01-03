@@ -37,7 +37,7 @@ reservadas = {
     'in' : 'IN',
     'concat' : 'CONCAT',
     'only':'ONLY',
-
+    'call':'CALL',
     'as' : 'AS',
     'upper' : 'UPPER',
     'sqrt' : 'SQRT',
@@ -232,11 +232,14 @@ reservadas = {
     'date_part' : 'DATE_PART',
     'current_date' : 'CURRENT_DATE',
     'current_time' : 'CURRENT_TIME',
-    'perform' : 'PERFORM'
+    'perform' : 'PERFORM',
+    'hash':'HASH',
+    'index':'INDEX'
 
 
 # revisar funciones de tiempo y fechas
 }
+
 # listado de tokens que manejara el lenguaje (solo la forma en la que los llamare  en las producciones)
 tokens  = [
     'PUNTOYCOMA',
@@ -471,6 +474,8 @@ def p_query(t):
                     | tipos
                     | operacionJJBH
                     | statementValores
+                    | createIndex
+                    | callFunction
     '''
     t[0]=t[1]
  
@@ -503,52 +508,91 @@ def p_crearBaseDatos_1(t):
 
 def p_crearBaseDatos_2(t):
     'crearBD    : CREATE DATABASE IF NOT EXISTS ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE DATABASE IF NOT EXISTS "+str(t[6])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 
 def p_crear_replace_BaseDatos_1(t):
     'crearBD    : CREATE OR REPLACE DATABASE ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE OR REPLACE DATABASE "+str(t[5])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 
 def p_crear_replace_BaseDatos_2(t):
     'crearBD    : CREATE OR REPLACE DATABASE IF NOT EXISTS ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE OR REPLACE DATABASE IF NOT EXISTS "+str(t[8])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 
 def p_crear_param_BaseDatos_1(t):
     'crearBD    : CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA'
+    parametro = ""
+    for param in t[4]:
+        parametro+=param+" "
+    a="t"+str(h.conteoTemporales)+"= \"CREATE DATABASE "+str(t[3])+" "+ str(parametro)+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
 
 
 def p_crear_param_BaseDatos_2(t):
     'crearBD    : CREATE  DATABASE IF NOT EXISTS ID parametrosCrearBD PUNTOYCOMA'
-
+    parametro = ""
+    for param in t[7]:
+        parametro+=param+" "
+    a="t"+str(h.conteoTemporales)+"= \"CREATE  DATABASE IF NOT EXISTS "+str(t[6])+" "+ str(parametro)+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 def p_crear_replace_param_BaseDatos_1(t):
     'crearBD    : CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA'
-
+    parametro = ""
+    for param in t[6]:
+        parametro+=param+" "
+    a="t"+str(h.conteoTemporales)+"= \"CREATE OR REPLACE DATABASE ID "+str(t[5])+" "+ str(parametro)+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 def p_crear_replace_param_BaseDatos_2(t):
     'crearBD    : CREATE OR REPLACE DATABASE IF NOT EXISTS ID parametrosCrearBD PUNTOYCOMA'
-
+    parametro = ""
+    for param in t[9]:
+        parametro+=param+" "
+    a="t"+str(h.conteoTemporales)+"= \"CREATE OR REPLACE DATABASE IF NOT EXISTS "+str(t[8])+" "+ str(parametro)+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 def p_parametrosCrearBD_1(t):
     'parametrosCrearBD : parametrosCrearBD parametroCrearBD'
+    t[1].append(t[2])
+    t[0]=t[1]
 
 
 def p_parametrosCrearBD_2(t):
     'parametrosCrearBD :  parametroCrearBD'
+    t[0] = [t[1]]
 
 
 def p_parametroCrearBD(t):
     '''parametroCrearBD :  OWNER IGUAL final
                         |  MODE IGUAL final
     '''
-    h.reporteGramatical1 +="parametroCrearBD    ::=        "+str(t[1])+"   IGUAL  "+str(t[3])+"\n"
-    
     if t[1] == "OWNER":
-        h.reporteGramatical2 +="t[0]=ExpresionOwner(t[1],t[3])\n"
-        t[0]=ExpresionOwner(t[1],t[3])
+        a="OWNER = "+str(t[3])
+        t[0]= a
     elif t[1] == "MODE":
-        h.reporteGramatical2 +="t[0]=ExpresionMode(t[1],t[3])\n"
-        t[0]=ExpresionMode(t[1],t[3])
+        a="MODE = "+str(t[3])
+        t[0]= a
 #-----------------------------------------------------SHOW DB--------------------------------------------------------------------
 def p_mostrarBD(t):
     'mostrarBD  : SHOW DATABASES PUNTOYCOMA'
@@ -559,14 +603,26 @@ def p_mostrarBD(t):
 
 def p_usarBaseDatos(t):
     'useBD    : USE ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"USE "+str(t[2])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 #-----------------------------------------------------ALTER BD--------------------------------------------------------------------
 def p_alterBD_1(t):
     'alterBD    : ALTER DATABASE ID RENAME TO ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER DATABASE "+str(t[3])+" RENAME TO "+ str(t[6])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 
 def p_alterBD_2(t):
     'alterBD    : ALTER DATABASE ID OWNER TO parametroAlterUser PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER DATABASE "+str(t[3])+ " " + "OWNER TO "+ str(t[6])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 
 def p_parametroAlterUser(t):
@@ -575,6 +631,7 @@ def p_parametroAlterUser(t):
                         |   SESSION_USER
                         |   final
     '''
+    t[0]= t[1]
  
 #-----------------------------------------------------DROP TABLE-----------------------------------------------------------------
 def p_dropTable(t) :
@@ -701,8 +758,6 @@ def p_listaID(t):
     '''
     listaid     :   listaid COMA ID
     '''
-    h.reporteGramatical1 +="listaid    ::=         listaid COMA ID\n"
-    h.reporteGramatical2 +="t[1].append(t[3])\nt[0]=t[1]\n"
     t[1].append(t[3])
     t[0]=t[1]
 
@@ -710,29 +765,25 @@ def p_listaID_2(t):
     '''
     listaid     :   ID
     '''
-    h.reporteGramatical1 +="listaid    ::=          ID\n"
-    h.reporteGramatical2 +="t[0]=[t[1]]"
-    t[0]=ExpresionIdentificador(t[1])
+    t[0]=[t[1]]
     
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
 
 
 def p_dropBD_1(t):
     'dropBD    : DROP DATABASE ID PUNTOYCOMA'
-    h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE  "+str(t[3])+" PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0]= DropDB(t[3])\n"
-    t[0]= DropDB(t[3])
+    a="t"+str(h.conteoTemporales)+"= \"DROP DATABASE "+str(t[3])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 
 def p_dropBD_2(t):
     'dropBD    : DROP DATABASE IF EXISTS ID PUNTOYCOMA'
-    h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE IF EXISTS  "+str(t[5])+" PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0]= DropDBIF(t[3],t[5])\n"
-    t[0]= DropDBIF(t[3],t[5])
-
-
-
-
+    a="t"+str(h.conteoTemporales)+"= \"DROP DATABASE IF EXISTS "+str(t[5])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 #-----------------------------------------------------OPERACIONES Y EXPRESIONES--------------------------------------------------------------------
 def p_operacionJJBH(t):
     '''operacionJJBH      : operacionJJBH MAS operacionJJBH
@@ -2333,13 +2384,185 @@ def p_statementValores(t):
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                           STATEMENTS - CALL
+def p_callFunction(t):
+    'callFunction    : CALL ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \""+str(t[2])+ "\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
+def p_callFunction_1(t):
+    'callFunction    : CALL ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    parametro = ""
+    for param in t[4]:
+        parametro+=param+","
+    param = parametro[0:-1]
+    a="t"+str(h.conteoTemporales)+"= \""+str(t[2])+ "(" + param + ")"  + "\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
-
+def p_callFunction_2(t):
+    'callFunction    : CALL ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \""+str(t[2])+ "()\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                           STATEMENTS - INDEX
+#-----------------------------------------------------CREATE INDEX--------------------------------------------------------------------
+def p_createIndex(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    parametro = ""
+    for param in t[7]:
+        parametro+=param+","
+    param = parametro[0:-1]
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(param) + " )"+  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+def p_createIndex_1_1(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) + str(t[8]) + " )"+  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
+def p_createIndex_1_2(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    parametro = ""
+    for param in t[7]:
+        parametro+=param+","
+    param = parametro[0:-1]
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(param) +" ) "+ "WHERE "+str(t[11]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_createIndex_1_1_2(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions  PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) +" "+ str(t[8]) +" ) "+ "WHERE "+str(t[11]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+def p_createIndex_2(t):
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    parametro = ""
+    for param in t[9]:
+        parametro+=param+","
+    param = parametro[0:-1]
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " USING HASH ( "+ str(param) +" )" +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_createIndex_2_1(t):
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " USING HASH ( "+ str(t[9]) +" "+ str(t[10]) +" )" +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_createIndex_2_2(t):
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    parametro = ""
+    for param in t[9]:
+        parametro+=param+","
+    param = parametro[0:-1]
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " USING HASH ( "+ str(param) +" ) "+ "WHERE "+str(t[12]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_createIndex_2_1_2(t):
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " USING HASH ( "+ str(t[9]) +" "+ str(t[10]) +" ) "+ "WHERE "+str(t[13]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_createIndex_3(t):
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    parametro = ""
+    for param in t[8]:
+        parametro+=param+","
+    param = parametro[0:-1]
+    a="t"+str(h.conteoTemporales)+"= \"CREATE UNIQUE INDEX "+str(t[4])+ " ON " + str(t[6])+ "( "+ str(param) +" ) " +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+def p_createIndex_3_1(t):
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE UNIQUE INDEX "+str(t[4])+ " ON " + str(t[6])+ "( "+ str(t[8]) +" "+ str(t[9]) +" ) " +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_createIndex_3_2(t):
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    parametro = ""
+    for param in t[8]:
+        parametro+=param+","
+    param = parametro[0:-1]
+    a="t"+str(h.conteoTemporales)+"= \"CREATE UNIQUE INDEX "+str(t[4])+ " ON " + str(t[6])+ "( "+ str(param) +" ) " + "WHERE "+str(t[11]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_createIndex_3_1_2(t):
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE UNIQUE INDEX "+str(t[4])+ " ON " + str(t[6])+ "( "+ str(t[8]) +" "+ str(t[9]) +" ) " + "WHERE "+str(t[12]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+
+def p_indexParams(t):
+    'indexParams    : sort'
+    t[0] = t[1]
+
+def p_whereOptions_1(t):
+    'whereOptions    : asignaciones'
+    t[0] = t[1]
+
+def p_whereOptions_2(t):
+    'whereOptions    : operacion'
+    t[0] = t[1]
+
+def p_whereOptions_3(t):
+    'whereOptions    : search_condition'
+    t[0] = t[1]
+
+def p_sortOptions_1(t):
+    'sort    : NULLS FIRST'
+    a="NULLS FIRST"
+    t[0]= a
+
+def p_sortOptions_1_1(t):
+    'sort    : DESC NULLS FIRST'
+    a="DESC NULLS FIRST"
+    t[0]= a
+
+def p_sortOptions_1_2(t):
+    'sort    : ASC NULLS FIRST'
+    a="ASC NULLS FIRST"
+    t[0]= a
+
+def p_sortOptions_2(t):
+    'sort    : NULLS LAST'
+    a="NULLS LAST"
+    t[0]= a
+
+def p_sortOptions_2_1(t):
+    'sort    : DESC NULLS LAST'
+    a="DESC NULLS LAST"
+    t[0]= a
+
+def p_sortOptions_2_2(t):
+    'sort    : ASC NULLS LAST'
+    a="ASC NULLS LAST"
+    t[0]= a
 
 
 

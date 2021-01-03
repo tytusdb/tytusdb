@@ -71,11 +71,78 @@ def procesar_except(query,ts):
 
 def procesar_showdb(query,ts):
     verificacion =  ts.verificacionShowBD()
-    if verificacion == 0:
+    showbd = verificacion
+    if showbd == []:
         h.textosalida+="TYTUS>> " + " No hay BD que mostrar "+"\n"
+
+        return h.textosalida
     else:
-        h.textosalida+="TYTUS>> "+str(verificacion)+"\n"
-    #llamo al metodo de EDD
+        h.textosalida+="TYTUS>> "+str(showbd)+"\n"
+        return h.textosalida
+
+def procesar_createindex(query,ts):
+    print(query.id1)
+    print(query.id2)
+    print(query.listaid)
+    idIndex = query.id1
+    idTabla = query.id2
+
+    if ts.verificarIndex(idIndex,h.bd_enuso,idTabla) == 0:
+        simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,query.listaid,None,None,None)
+        ts.agregarnuevoIndex(simbolo)
+        print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+        h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+    else:
+        print("TYTUS>> Ya existe un indice con el mismo nombre en" + h.bd_enuso)
+        h.textosalida+="TYTUS>> Ya existe un indice con el mismo nombre en" + str(h.bd_enuso) + "\n"
+        return "Ya existe una Tabla con id: "+str(query.idTable)
+
+def procesar_createindexParams(query,ts):
+    print(query.id1)
+    print(query.id2)
+    print(query.id3)
+    print(query.indexParams)
+    idIndex = query.id1
+    idTabla = query.id2
+    idColumn = query.id3
+    idParams = query.indexParams
+    parametro = ""
+
+    if ts.verificarIndex(idIndex,h.bd_enuso,idTabla) == 0:
+        if isinstance(idParams,SortOptions):
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,[idColumn,idParams.sort,idParams.option],None,None,None)
+            ts.agregarnuevoIndex(simbolo)
+            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+        else:
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,[idColumn,idParams],None,None,None)
+            ts.agregarnuevoIndex(simbolo)
+            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+    else:
+        print("TYTUS>> Ya existe un indice con el mismo nombre en " + h.bd_enuso)
+        h.textosalida+="TYTUS>> Ya existe un indice con el mismo nombre en " + str(h.bd_enuso) + "\n"
+        return "Ya existe una Tabla con id: "+str(query.idTable)
+
+def procesar_createindexWhere(query,ts):
+    print(query.id1)
+    print(query.id2)
+    print(query.id3)
+    print(query.whereOptions)
+
+def procesar_createindexParamsWhere(query,ts):
+    print(query.id1)
+    print(query.id2)
+    print(query.id3)
+    print(query.indexParams)
+    print(query.whereOptions)
+
+def procesar_callFunction(query,ts):
+    print(query.id1)
+
+def procesar_callFunctionParams(query,ts):
+    print(query.id1)
+    print(query.listaid)
 
 def procesar_useBD(query,ts):
     verificacion =  ts.verificacionUseBD(query.bd_id)
@@ -797,7 +864,7 @@ def procesar_createdb(query,ts):
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
-        
+
 def procesar_create_if_db(query,ts):
     verificacion =  ts.verificacionCrearBD(query.variable)
     if verificacion==0:
@@ -3008,6 +3075,10 @@ def procesar_queries(queries, ts) :
         elif isinstance(query, Select4) : procesar_select_Tipo4(query, ts)
         elif isinstance(query, Select5) : procesar_select_Tipo5(query, ts)
         elif isinstance(query, CreateDatabases) : procesar_createdb(query, ts)
+        elif isinstance(query, CreateIndex) : procesar_createindex(query, ts)
+        elif isinstance(query, CreateIndexParams) : procesar_createindexParams(query, ts)
+        elif isinstance(query, CreateIndexWhere) : procesar_createindexWhere(query, ts)
+        elif isinstance(query, CreateIndexParamsWhere) : procesar_createindexParamsWhere(query, ts)
         elif isinstance(query, Create_IF_Databases) : procesar_create_if_db(query, ts)
         elif isinstance(query, Create_Replace_Databases) : procesar_create_replace_db(query, ts)
         elif isinstance(query, Create_Replace_IF_Databases) : procesar_create_replace_if_db(query, ts)
@@ -3041,6 +3112,8 @@ def procesar_queries(queries, ts) :
         elif isinstance(query,QueryIntersect): procesar_intersect(query,ts)
         elif isinstance(query,QueryExcept): procesar_except(query,ts)
         elif isinstance(query,Select6): procesar_select_Tipo6(query,ts)
+        elif isinstance(query, callFunction) : procesar_callFunction(query, ts)
+        elif isinstance(query, callFunctionParams) : procesar_callFunctionParams(query, ts)
         else : 
             print('Error: instrucción no válida')
             h.errores+=  "<tr><td>"+str(query)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La consulta no es valida.</td></tr>\n"  
@@ -3056,7 +3129,7 @@ def ejecucionAscendente(input):
     print("--------------------------------Archivo Ejecucion---------------------------------------")
 
     prueba =g.parse(input)
-    #arbol =gt.parse(input)
+    arbol =gt.parse(input)
     ts_global=TS.TablaDeSimbolos()
     h.todo=prueba
     procesar_queries(prueba,ts_global)

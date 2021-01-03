@@ -428,3 +428,64 @@ class Select6(query) :
     def __init__(self, columnas,join) :
         self.columnas = columnas
         self.join = join
+class CreateIndex(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1, id2, listaid):
+        self.id1 = id1
+        self.id2 = id2
+        self.listaid = listaid
+
+class CreateIndexParams(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1,id2,id3,indexParams):
+        self.id1 = id1
+        self.id2 = id2
+        self.id3 = id3
+        self.indexParams = indexParams
+
+class CreateIndexWhere(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1,id2,id3,whereOptions):
+        self.id1 = id1
+        self.id2 = id2
+        self.id3 = id3
+        self.whereOptions = whereOptions
+
+
+class CreateIndexParamsWhere(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1,id2,id3,indexParams,whereOptions):
+        self.id1 = id1
+        self.id2 = id2
+        self.id3 = id3
+        self.indexParams = indexParams
+        self.whereOptions = whereOptions
+
+class callFunction(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1):
+        self.id1 = id1
+
+class callFunctionParams(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1,listaid):
+        self.id1 = id1
+        self.listaid = listaid
