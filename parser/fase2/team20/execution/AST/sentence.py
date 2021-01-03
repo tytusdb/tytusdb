@@ -1,3 +1,6 @@
+from io import StringIO  # Python3
+import sys
+
 class Sentence:
     ''' '''
 
@@ -7,6 +10,15 @@ class CreateDatabase(Sentence):
         self.ifNotExistsFlag = ifNotExistsFlag
         self.OrReplace = OrReplace
         self.OwnerMode = OwnerMode
+    def __str__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.OwnerMode)
+        output = new_stdout.getvalue()
+        sys.stdout = old_stdout
+        #print(output)
+        return "executeSentence(CreateDatabase,CreateDatabase('"+self.name+"',"+str(self.ifNotExistsFlag)+","+str(self.OrReplace)+","+str(output)[:-1]+"))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"CreateDatabase\"]\n'
@@ -68,6 +80,8 @@ class CreateDatabase(Sentence):
 
 class ShowDatabases(Sentence):
     ''''''
+    def __str__(self):
+        return "executeSentence(ShowDatabases,ShowDatabases())"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"ShowDatabases\"]\n'
@@ -85,6 +99,8 @@ class DropDatabase(Sentence):
     def __init__(self, name, ifExistsFlag):
         self.name = name
         self.ifExistsFlag = ifExistsFlag
+    def __str__(self):
+        return "executeSentence(DropDatabase,DropDatabase('"+self.name+"',"+str(self.ifExistsFlag)+"))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"DropDatabase\"]\n'
@@ -114,6 +130,8 @@ class DropDatabase(Sentence):
 class DropTable(Sentence):
     def __init__(self, name):
         self.name = name
+    def __str__(self):
+        return "executeSentence(DropTable,DropTable('"+self.name+"'))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"DropTable\"]\n'
@@ -134,6 +152,8 @@ class DropTable(Sentence):
 class Use(Sentence):
     def __init__(self, name):
         self.name = name
+    def __str__(self):
+        return "executeSentence(Use,Use('"+self.name+"'))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"Use\"]\n'
@@ -217,6 +237,8 @@ class AlterTableDropColumn(Sentence):
     def __init__(self, table, column):
         self.table = table
         self.column = column
+    def __str__(self):
+        return "executeSentence(AlterTableDropColumn,AlterTableDropColumn('"+self.table+"','"+self.column+"'))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"AlterTableDropColumn\"]\n'
@@ -390,6 +412,14 @@ class AlterTableAlterColumnType(Sentence):
         self.table = table
         self.column = column
         self.newtype = newtype # type [type,length] or type = [type]
+    def __str__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.newtype)
+        ty = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "executeSentence(AlterTableAlterColumnType,AlterTableAlterColumnType('"+self.table+"','"+self.column+"',"+ty+"))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"AlterTableAlterColumnType\"]\n'
@@ -502,6 +532,9 @@ class Insert(Sentence):
         self.table = table
         self.columns = columns
         self.values = values
+    def __str__(self):
+        return "executeSentence(Insert,Insert('"+str(self.table)+"',"+str(self.columns)+","+str(self.values)+"))"
+    
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"Insert\"]\n'
@@ -542,6 +575,9 @@ class InsertAll(Sentence):
     def __init__(self, table, values):
         self.table = table
         self.values = values
+    def __str__(self):
+        return "executeSentence(InsertAll,InsertAll('"+str(self.table)+"',"+str(self.values)+"))"
+
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"InsertAll\"]\n'
@@ -657,6 +693,10 @@ class CreateType(Sentence):
     def __init__(self, name, expressions):
         self.name = name
         self.expressions = expressions #expressions = [expression1,expression2,...,expressionn]
+    def __str__(self):
+       
+        return "executeSentence(CreateType,CreateType('"+str(self.name)+"',"+str(self.expressions)+"))"
+    
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"CreateType\"]\n'
@@ -695,6 +735,19 @@ class CreateTable(Sentence):
         self.inherits = inherits
         #Types:
         #column -> {ColumnId,ColumnCheck,ColumnConstraint,ColumnUnique,ColumnPrimaryKey,ColumnForeignKey}
+    def __str__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.columns)
+        col = new_stdout.getvalue()
+        sys.stdout = old_stdout
+        #print(col)
+        inh="None"
+        if self.inherits != None:
+            inh="'"+self.inherits+"'"
+        return "executeSentence(CreateTable,CreateTable('"+self.name+"',"+str(col)[:-1]+","+str(inh)+"))"
+    
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"CreateTable\"]\n'
@@ -733,6 +786,32 @@ class Select(Sentence):
             # If both OFFSET and LIMIT appear, then OFFSET rows are skipped before starting to count the LIMIT rows that are returned.
         # groupby -> ExpressionList
         # having -> Expression
+    def __str__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.columns)
+        col = new_stdout.getvalue()
+        sys.stdout = old_stdout
+        tab="None"
+        opt="None"
+        if self.tables!=None:
+            old_stdout = sys.stdout
+            new_stdout = StringIO()
+            sys.stdout = new_stdout
+            print(self.tables)
+            tab = new_stdout.getvalue()[:-1]
+            sys.stdout = old_stdout
+        if self.options!=None:
+            old_stdout = sys.stdout
+            new_stdout = StringIO()
+            sys.stdout = new_stdout
+            print(self.options)
+            opt = new_stdout.getvalue()[:-1]
+            sys.stdout = old_stdout
+        #print(output)
+        return "executeSentence(Select,Select("+col[:-1]+","+str(self.distinct)+","+tab+","+opt+"))"
+    
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"Select\"]\n'
@@ -890,6 +969,20 @@ class ColumnId(CreateTableOpt):
         # constraintunique -> ID
         # check -> Expression
         # constraintcheck -> ID,Expression
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.type)
+        ty = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.options)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "ColumnId('"+self.name+"',"+ty+","+val2+")"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"ColumnId\"]\n'
@@ -1002,6 +1095,14 @@ class ColumnId(CreateTableOpt):
 class ColumnCheck(CreateTableOpt):
     def __init__(self, expression):
         self.expression = expression
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.expression)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "ColumnCheck("+str(val2)+")"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"ColumnCheck\"]\n'
@@ -1016,6 +1117,14 @@ class ColumnConstraint(CreateTableOpt):
     def __init__(self, name,expression):
         self.name = name
         self.expression = expression
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.expression)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "ColumnConstraint('"+self.name+"',"+str(val2)+")"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"ColumnConstraint\"]\n'
@@ -1037,6 +1146,14 @@ class ColumnConstraint(CreateTableOpt):
 class ColumnUnique(CreateTableOpt):
     def __init__(self, columnslist):
         self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.columnslist)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "ColumnUnique("+str(val2)+")"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"ColumnUnique\"]\n'
@@ -1058,6 +1175,14 @@ class ColumnUnique(CreateTableOpt):
 class ColumnPrimaryKey(CreateTableOpt):
     def __init__(self, columnslist):
         self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.columnslist)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "ColumnPrimaryKey("+str(val2)+")"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"ColumnPrimaryKey\"]\n'

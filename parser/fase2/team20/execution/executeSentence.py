@@ -20,8 +20,9 @@ def executeSentence(self, sentence):
         result= executeCreateDatabase(self,sentence)
         if(result==0):
             mode=1
-            if(sentence.OwnerMode[1]!= None ):
+            if(sentence.OwnerMode[1]!= None):
                 res = executeExpression(self,sentence.OwnerMode[1])
+                print(res.value)
                 if(isinstance(res,Error)): 
                     print(res.toString())
                     print_error('SEMANTIC ERROR','owner mode out of range')
@@ -58,6 +59,7 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence,CreateTable):
         result=executeCreateTable(self,sentence)
+        print(CreateTable)
         if(result==0):
             print_success("QUERY"," Table "+sentence.name+" has been created")
         elif(result==1):

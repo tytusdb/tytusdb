@@ -1,3 +1,6 @@
+from io import StringIO  # Python3
+import sys
+
 class Expression:
     ''' '''
 
@@ -14,7 +17,11 @@ class Value(Expression):
     def __init__(self, type, value):
         self.type = type
         self.value = value
-    
+    def __repr__(self):
+        v="'"+str(self.value)+"'"
+        if self.type==1:
+            v=int(str(self.value))
+        return "Value("+str(self.type)+","+str(v)+")"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         if(self.types[self.type]!='Cadena'): dot += str(hash(self)) + '[label=\"' + str(self.value) + '\"]\n'
@@ -26,6 +33,19 @@ class Arithmetic(Expression):
         self.value1 = value1
         self.value2 = value2
         self.type = type
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.value1)
+        val1 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.value2)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "Arithmetic("+val1+","+val2+",'"+str(self.type)+"')"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.type) + '\"]\n'
@@ -50,6 +70,7 @@ class Logical(Expression):
         self.value1 = value1
         self.value2 = value2
         self.type = type
+    
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.type) + '\"]\n'
@@ -65,6 +86,19 @@ class Relational(Expression):
         self.value1 = value1
         self.value2 = value2
         self.type = type
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.value1)
+        val1 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.value2)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "Relational("+val1+","+val2+",'"+str(self.type)+"')" 
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.type) + '\"]\n'
@@ -129,6 +163,9 @@ class ExtractFunction(Expression):
     def __init__(self, function, expression):
         self.function = function
         self.expression = expression
+    def __repr__(self):
+        
+        return "ExtractFunction('"+self.function+"',"+str(self.expression)+")" 
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
