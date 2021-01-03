@@ -205,7 +205,9 @@ palabras_reservadas = {
     'returns'       : 'RETURNS',
     'return'        : 'RETURN',
     'begin'         : 'BEGIN',
-    'declare'       : 'DECLARE'
+    'declare'       : 'DECLARE',
+    'plpgsql'       : 'PLPGSQL',
+    'language'      : 'LANGUAGE'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -4734,6 +4736,18 @@ def p_Funcion3(t):
 def p_Funcion4(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PCIERRA RETORNO DECLAREF STAMENT '
 
+def p_Funcion5(t):
+    'FUNCION_N  :   CREATE FUNCTION ID PABRE PARAMS PCIERRA RETORNO STAMENT '
+
+def p_Funcion6(t):
+    'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PARAMS PCIERRA RETORNO STAMENT '
+
+def p_Funcion7(t):
+    'FUNCION_N  :   CREATE FUNCTION ID PABRE PCIERRA RETORNO STAMENT '
+
+def p_Funcion8(t):
+    'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PCIERRA RETORNO STAMENT '
+
 def p_Retorno(t):
     'RETORNO  :   RETURNS I_TIPO AS FINF '
 
@@ -4770,7 +4784,7 @@ def p_Declaracion1(t):
     'DECLARACION  :   ARROBA ID I_TIPO PCOMA '
 
 def p_Statement(t):
-    'STAMENT  :   BEGIN LINSTRUCCIONESFN END PCOMA '
+    'STAMENT  :   BEGIN LINSTRUCCIONESFN END PCOMA FINF LANGUAGE PLPGSQL PCOMA'
 
 def p_LInstruccionesFN(t):
     'LINSTRUCCIONESFN  :   LINSTRUCCIONESFN INSTRUCCIONFN '
@@ -4797,10 +4811,10 @@ def p_Asignacion1(t):
     'ASIGNACION  :   ID IGUAL VALORF PCOMA'
 
 def p_If(t):
-    'PIF  :   IF VALORF THEN CUERPOIF END IF'
+    'PIF  :   IF VALORF THEN CUERPOIF END IF PCOMA'
 
 def p_If2(t):
-    'PIF  :   IF VALORF CUERPOIF END IF'
+    'PIF  :   IF VALORF CUERPOIF END IF PCOMA'
 
 def p_If3(t):
     'PIF  :   IF VALORF THEN CUERPOIF PELSE'
@@ -4809,19 +4823,19 @@ def p_If4(t):
     'PIF  :   IF VALORF CUERPOIF PELSE'
 
 def p_Else(t):
-    'PELSE  :   ELSIF VALORF THEN CUERPOIF ELSE'
+    'PELSE  :   ELSIF VALORF THEN CUERPOIF PELSE'
 
 def p_Else2(t):
-    'PELSE  :   ELSIF VALORF CUERPOIF ELSE'
+    'PELSE  :   ELSIF VALORF CUERPOIF PELSE'
 
 def p_Else3(t):
-    'PELSE  :   ELSIF VALORF THEN CUERPOIF END IF'
+    'PELSE  :   ELSIF VALORF THEN CUERPOIF END IF PCOMA'
 
 def p_Else4(t):
-    'PELSE  :   ELSIF VALORF CUERPOIF END IF'
+    'PELSE  :   ELSIF VALORF CUERPOIF END IF PCOMA'
     
 def p_Else5(t):
-    'PELSE  :   ELSE CUERPOIF END IF'
+    'PELSE  :   ELSE CUERPOIF END IF PCOMA'
 
 def p_Return(t):
     'PRETURN  :   RETURN PCOMA'
@@ -4986,6 +5000,130 @@ def p_VALORFMin(t):
 
 def p_VALORFMax(t):
     'VALORF  :   MAX PABRE VALOR PCIERRA '
+
+def p_VALORFAbs(t):
+    'VALORF  :   ABS PABRE LVALOR PCIERRA '
+
+def p_VALORFCbrt(t):
+    'VALORF  :   CBRT PABRE LVALOR PCIERRA '
+
+def p_VALORFCeil(t):
+    'VALORF  :   CEIL PABRE LVALOR PCIERRA '
+
+def p_VALORFCeiling(t):
+    'VALORF  :   CEILING PABRE LVALOR PCIERRA '
+
+def p_VALORFSubstring(t):
+    'VALORF  :   SUBSTRING PABRE LVALOR PCIERRA '
+
+def p_VALORFLength(t):
+    'VALORF  :   LENGTH PABRE LVALOR PCIERRA '
+
+def p_VALORFTrim(t):
+    'VALORF  :   TRIM PABRE LBOTHF CADENA FROM CADENA PCIERRA '
+
+def p_VALORFTrim1(t):
+    'VALORF  :   TRIM PABRE LBOTHF FROM CADENA COMA CADENA PCIERRA '
+
+def p_VALORFAcos(t):
+    'VALORF  :   ACOS  PABRE LNUMF PCIERRA '
+
+def p_VALORFAcosd(t):
+    'VALORF  :   ACOSD PABRE LNUMF PCIERRA  '
+
+def p_VALORFAsin(t):
+    'VALORF  :   ASIN  PABRE LNUMF PCIERRA '
+
+def p_VALORFAsind(t):
+    'VALORF  :   ASIND PABRE LNUMF PCIERRA  '
+
+def p_VALORFAtan(t):
+    'VALORF  :   ATAN  PABRE LNUMF PCIERRA '
+
+def p_VALORFAtand(t):
+    'VALORF  :   ATAND PABRE LNUMF PCIERRA  '
+
+def p_VALORFAtan2(t):
+    'VALORF  :   ATAN2D PABRE LNUMF PCIERRA  '
+
+def p_VALORFAtan2d(t):
+    'VALORF  :   ATAN2 PABRE LNUMF PCIERRA '
+
+def p_VALORFCos(t):
+    'VALORF  :   COS PABRE LNUMF PCIERRA '
+
+def p_VALORFCosd(t):
+    'VALORF  :   COSD  PABRE LNUMF PCIERRA '
+
+def p_VALORFCot(t):
+    'VALORF  :   COT PABRE LNUMF PCIERRA '
+
+def p_VALORFCotd(t):
+    'VALORF  :   COTD PABRE LNUMF PCIERRA '
+
+def p_VALORFSin(t):
+    'VALORF  :   SIN PABRE LNUMF PCIERRA '
+
+def p_VALORFSind(t):
+    'VALORF  :   SIND  PABRE LNUMF PCIERRA '
+
+def p_VALORFTan(t):
+    'VALORF  :   TAN PABRE LNUMF PCIERRA '
+
+def p_VALORFTand(t):
+    'VALORF  :   TAND  PABRE LNUMF PCIERRA '
+
+def p_VALORFSinh(t):
+    'VALORF  :   SINH  PABRE LNUMF PCIERRA '
+
+def p_VALORFCosh(t):
+    'VALORF  :   COSH  PABRE LNUMF PCIERRA '
+
+def p_VALORFTanh(t):
+    'VALORF  :   TANH  PABRE LNUMF PCIERRA '
+
+def p_VALORFAsinh(t):
+    'VALORF  :   ASINH PABRE LNUMF PCIERRA  '
+
+def p_VALORFAcosh(t):
+    'VALORF  :   ACOSH PABRE LNUMF PCIERRA  '
+
+def p_VALORFAtanh(t):
+    'VALORF  :   ATANH PABRE LNUMF PCIERRA  '
+
+
+def p_LVALOR(t):
+    'LVALOR  :   VALORF  '
+
+def p_LVALOR1(t):
+    'LVALOR  :   VALORF COMA NUMERO COMA NUMERO  '
+
+
+def p_LNumFunc(t):
+    'LNUMF  : LNUMF COMA NUMF'
+
+def p_LNumNumF(t):
+    'LNUMF   : NUMF'
+
+
+def p_NumFNumero(t):  
+    'NUMF    : NUMERO '
+
+def p_NumFDecimal(t):
+    'NUMF  :   DECIMALN '
+
+def p_NumFCadena(t):
+    'NUMF  :   CADENA '
+
+def p_LBOTHFLeading(t):
+    'LBOTHF  :   LEADING   '
+
+def p_LBOTHFTrailing(t):
+    'LBOTHF  :   TRAILING   '
+
+def p_LBOTHFBoth(t):
+    'LBOTHF  :   BOTH   '
+
 
 
 # -----------------------------------------------
