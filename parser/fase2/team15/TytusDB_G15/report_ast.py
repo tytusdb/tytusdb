@@ -55,10 +55,71 @@ class AST:
                 self.crearNodo_SelectTable("node2",instruccion)
             elif isinstance(instruccion, Create_select_time):
                 self.crearNode_SelectTime("node2",instruccion)
+            elif isinstance(instruccion, Funcion_Index):
+                self.crearNodoIndex("node2", instruccion)
             '''elif isinstance(instruccion, Create_select_uno):
                 self.crearNode_SelectGL("node2",instruccion)'''
             indice = indice +1
         dot.view('reportes/AST', cleanup=True)
+
+
+    def crearNodoIndex(self, padre, instruccion):
+        global  contadorNodos, dot
+        contadorNodos = contadorNodos + 1
+        dot.node("node" + str(contadorNodos), 'CREATE INDEX')
+        dot.edge(padre, "node" + str(contadorNodos))
+        temp1 = "node" + str(contadorNodos)
+        if instruccion.etiqueta == INDEX.INDEX:
+            self.crearNodoExpresion(temp1,instruccion.identificador)
+            self.crearNodoExpresion(temp1,instruccion.nombre_index)
+            self.obtener_indexbody(temp1,instruccion.lista_index)
+    
+        elif instruccion.etiqueta == INDEX.INDEX_WHERE:
+            self.crearNodoExpresion(temp1,instruccion.identificador)
+            self.crearNodoExpresion(temp1,instruccion.nombre_index)
+            for lis in instruccion.lista_index.identificador:
+                self.crearNodoExpresion(temp1,lis.val)
+
+        elif instruccion.etiqueta == INDEX.INDEX_INCLUDE:
+            self.crearNodoExpresion(temp1,instruccion.identificador)
+            self.crearNodoExpresion(temp1,instruccion.nombre_index)
+            for lis in instruccion.lista_index.identificador:
+                self.crearNodoExpresion(temp1,lis.val)
+
+        elif instruccion.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
+            self.crearNodoExpresion(temp1,instruccion.identificador)
+            self.crearNodoExpresion(temp1,instruccion.nombre_index)
+            for lis in instruccion.lista_index.identificador:
+                self.crearNodoExpresion(temp1,lis.val)
+
+        elif instruccion.etiqueta == INDEX.INDEX_INCLUDE:
+            self.crearNodoExpresion(temp1,instruccion.identificador)
+            self.crearNodoExpresion(temp1,instruccion.nombre_index)
+
+        elif instruccion.etiqueta == INDEX.INDEX_CLASS:
+            self.crearNodoExpresion(temp1,instruccion.identificador)
+            self.crearNodoExpresion(temp1,instruccion.nombre_index)
+
+
+    def obtener_indexbody(self,padre,instruccion):
+        if instruccion.etiqueta == TIPO_INDEX.USING_HASH:
+            self.crearNodoExpresion(padre,instruccion.identificador)
+        elif instruccion.etiqueta == TIPO_INDEX.CAMPOS:
+            
+            for datos in instruccion.identificador:
+                self.crearNodoExpresion(padre,datos.val)
+            
+        elif instruccion.etiqueta == TIPO_INDEX.NULLS:
+            self.crearNodoExpresion(padre,instruccion.identificador)
+        elif instruccion.etiqueta == TIPO_INDEX.STATE:
+            self.crearNodoExpresion(padre,instruccion.identificador)
+            self.crearNodoExpresion(padre,instruccion.expresion)
+        elif instruccion.etiqueta == TIPO_INDEX.LOWER:
+            self.crearNodoExpresion(padre,instruccion.expresion)
+        elif instruccion.etiqueta == TIPO_INDEX.WITH_IDS:
+            self.crearNodoExpresion(padre,instruccion.identificador)
+            self.crearNodoExpresion(padre,instruccion.expresion)
+
 
     def crearNodoCreateDatabase(self, padre, instruccion):
         global  contadorNodos, dot
