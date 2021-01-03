@@ -74,9 +74,14 @@ reservadas = (
     'LIMIT', 'OFFSET',
     #COMBINING QUERIES
     'UNION', 'INTERSECT', 'EXCEPT', 'ALL',
-    # Begin
+    # BEGIN
     'FUNCTION', 'BEGIN', 'END',
-    'DECLARE'
+    'DECLARE', 'TXT_PTN_OPS', 'VRCH_PTN_OPS', 'BPCH_PTN_OPS', 
+    'LANGUAGE', 'PLPGSQL', 'RAISE', 'NOTICE', 'RETURN', 'CONSTANT', 'ALIAS',
+    'RETURNS', 'OUT', 'QUERY', 'PERFORM', 'FOUND', 'EXCEPTION', 'EXECUTE',
+    'GET', 'CURRENT', 'DIAGNOSTICS', 'FOR',
+    # INDEX
+    'INDEX', 'USING', 'HASH', 'INCLUDE', 'COLLATE'
 )
 
 tokens = reservadas + (
@@ -109,11 +114,17 @@ tokens = reservadas + (
     'CARACTER',
     'COMENTARIO_MULTILINEA',
     'COMENTARIO_SIMPLE',
-    'ARROBA'
+    'ARROBA',
+    'PIPE',
+    'PROC',
+    'DOS_PUNTOS'
 )
 
 # EXPRESIONES REGULARES BASICAS
 t_ARROBA = r'@'
+t_PROC   = r'\$\$'
+t_DOS_PUNTOS        = r'\:'
+t_PIPE   = r'\|'
 t_PARIZQ = r'\('
 t_PARDER = r'\)'
 t_CORIZQ = r'\['
