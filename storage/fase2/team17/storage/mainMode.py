@@ -9,6 +9,7 @@ class main():
         self.listMode = ['avl', 'hash', 'b', 'bplus', 'dict', 'isam', 'json']
         self.listEncoding = ['ascii', 'iso-8859-1', 'utf8']
         
+
     #---------------------FUNCIONES BASES DE DATOS (NUEVAS)----------------------#
 
     # CREAR BASE DE DATOS
@@ -29,7 +30,7 @@ class main():
                 return 2
             return 3
         return 1
-    
+
     # CAMBIA EL MODO DE UNA TABLA
     
     def alterTableMode(self, database, table, mode):
@@ -107,6 +108,7 @@ class main():
                 return 2
             return 4
         return 1
+    
     #---------------------FUNCIONES BASES DE DATOS (ANTERIORES)----------------------#
 
     # LISTA DE BASES DE DATOS ALMACENADAS
@@ -150,7 +152,183 @@ class main():
                 if database in self.godGuide[i].keys():
                     self.godGuide[i].pop(database)
         return re
-        
+
+    # ---------------------FUNCIONES TABLAS----------------------#
+
+    # CREAR TABLA EN UNA DETERMINADA BASE DE DATOS
+
+    def createTable(self, database, table, numberColumns):
+        re = switch.switchMode(self.guiaModos[database]).createTable(database, table, numberColumns)
+        if re == 0:
+            mod = self.guiaModos[database]
+            self.godGuide[mod][database][0][table] = [numberColumns, None, self.godGuide[self.guiaModos[database]][database][1]]
+        return re
+       
+
+    # LISTA DE TABLAS AGREGADAS A UNA BASE DE DATOS
+
+    def showTables(self, database):
+        re = []
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                re = re + switch.switchMode(i).showTables(database)
+        return re
+
+    # LISTA DE REGISTROS DE UNA TABLA EN UN BASE DE DATOS
+
+    def extractTable(self, database, table):
+        re = []
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    re = re + switch.switchMode(i).extractTable(database, table)
+        return re
+
+    #LISTA REGISTROS EN UN RANGO DE UNA TABLA
+
+    def extractRangeTable(self, database, table, columnNumber, lower, upper):
+        re = []
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    re = re + switch.switchMode(i).extractRangeTable(database, table, columnNumber, lower, upper)
+        return re
+
+    # AGREGAR LISTA DE LLAVES PRIMARIAS A UNA TABLA
+
+    def alterAddPK(self, database, table, columns):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    re = switch.switchMode(i).alterAddPK(database, table, columns)
+        if re == 0:
+            for i in self.listMode:
+                for j in self.godGuide[i].keys():
+                    if table in self.godGuide[i][j][0].keys() and j == database:
+                        self.godGuide[i][j][0][table][1] = columns
+        return re
+
+    # ELIMINAR LAS LLAVES PRIMARIAS DE UNA TABLA
+
+    def alterDropPK(self, database, table):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    re = switch.switchMode(i).alterDropPK(database, table)
+        if re == 0:
+            for i in self.listMode:
+                for j in self.godGuide[i].keys():
+                    if table in self.godGuide[i][j][0].keys() and j == database:
+                        self.godGuide[i][j][0][table][1] = None
+        return re
+
+    # CAMBIAR EL NOMBRE DE UNA TABLA
+
+    def alterTable(self, database, tableOld, tableNew):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if tableOld in switch.switchMode(i).showTables(database):
+                    re = switch.switchMode(i).alterTable(database, tableOld, tableNew)
+        if re == 0:
+            for i in self.listMode:
+                for j in self.godGuide[i].keys():
+                    if tableOld in self.godGuide[i][j][0].keys() and j == database:
+                        ward = self.godGuide[i][j][0].pop(tableOld)
+                        self.godGuide[i][j][0][tableNew] = ward
+        return re
+
+    # AGREGAR UN NUEVO REGISTRO A LAS TABLAS EXISTENTES
+
+    def alterAddColumn(self, database,  table, default):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    re = switch.switchMode(i).alterAddColumn(database, table, default)
+        if re == 0:
+            for i in self.listMode:
+                for j in self.godGuide[i].keys():
+                    if table in self.godGuide[i][j][0].keys() and j == database:
+                        self.godGuide[i][j][0][table][0] += 1
+        return re
+
+    # ELIMINAR UNA COLUMNA ESPECIFICA DE UNA TABLA
+
+    def alterDropColumn(self, database, table, columnNumber):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    re = switch.switchMode(i).alterDropColumn(database, table, columnNumber)
+        if re == 0:
+            for i in self.listMode:
+                for j in self.godGuide[i].keys():
+                    if table in self.godGuide[i][j][0].keys() and j == database:
+                        self.godGuide[i][j][0][table][0] -= 1
+        return re
+
+    # ELIMINAR UNA TABLA DE LA BASE DE DATOS
+
+    def dropTable(self, database, table):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    re = switch.switchMode(i).dropTable(database, table)
+        if re == 0:
+            for i in self.listMode:
+                for j in self.godGuide[i].keys():
+                    if table in self.godGuide[i][j][0].keys() and j == database:
+                        self.godGuide[i][j][0].pop(table)
+        return re
+
+    # ---------------------FUNCIONES TUPLAS----------------------#
+
+    # AÑADIR REGISTROS A UNA TABLA
+
+    def insert(self, database, table, register):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    return switch.switchMode(i).insert(database, table, register)
+
+    # CARGA DE REGISTROS MEDIANTE UN CSV
+
+    def loadCSV(self, file, database, table):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    return switch.switchMode(i).loadCSV(file, database, table)
+
+    # REGISTRO SEGUN LLAVE PRIMARIA
+
+    def extractRow(self, database, table, columns):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    return switch.switchMode(i).extractRow(database, table, columns)
+
+    # MODIFICA UN REGISTRO EN ESPECIFICO
+
+    def update(self, database, table, register, columns):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    return switch.switchMode(i).update(database, table, register, columns)
+
+    # ELIMINA UN REGISTRO EN ESPECIFICO
+
+    def delete(self, database, table, columns):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    return switch.switchMode(i).delete(database, table, columns)
+
+    # ELIMINA TODOS LOS REGISTROS DE UNA TABLA
+
+    def truncate(self, database, table):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    return switch.switchMode(i).truncate(database, table)
+
     # -------------------------UTILIDADES-------------------------#
 
     def identify(self, id):
@@ -160,16 +338,6 @@ class main():
         else:
             if id[0].isdigit():
                 return False
-        return False
-    
-    def verifyMode(self, mode):
-        if mode in self.listMode:
-            return True
-        return False
-
-    def verifyEncoding(self, encoding):
-        if encoding in self.listEncoding:
-            return True
         return False
 
     def searchDB(self, key, mode):
@@ -181,4 +349,34 @@ class main():
         for i in self.listMode:
             if key in switch.switchMode(i).showDatabases():
                 return True
+        return False
+    
+    def searchTB(self, database, table):
+        for i in self.listMode:
+            for j in switch.switchMode(i).showDatabases():
+                if table in switch.switchMode(i).showTables(j):
+                        return True
+        return False
+    
+    def extTB(self, database, table):
+        for i in self.listMode:
+            for j in switch.switchMode(i).showDatabases():
+                if table in switch.switchMode(i).showTables(j):
+                        return switch.switchMode(i).extractTable(j, table)
+    
+    def delTB(self, database, table):
+        for i in self.listMode:
+            for j in switch.switchMode(i).showDatabases():
+                if table in switch.switchMode(i).showTables(j):
+                    switch.switchMode(i).dropTable(j, table)
+                    return None
+
+    def verifyMode(self, mode):
+        if mode in self.listMode:
+            return True
+        return False
+
+    def verifyEncoding(self, encoding):
+        if encoding in self.listEncoding:
+            return True
         return False
