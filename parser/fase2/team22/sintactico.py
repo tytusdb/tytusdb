@@ -1621,6 +1621,12 @@ def p_tipo_datos2(t):
 def p_instruccion_creacion(t) :
     '''instruccion  : CREATE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
                     | CREATE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
+    # if len(t) == 11:
+    #     t[0] = index.index(t[3], t[5] , t[7], t[10], t[9], t.lexer.lineno, t.lexer.lexpos)
+    # else:
+    #     t[0] = index.index(t[3], t[5] , t[9], t[12], t[11], t.lexer.lineno, t.lexer.lexpos)
+
+    # t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_creacion_unique(t) :
     '''instruccion  : CREATE UNIQUE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where

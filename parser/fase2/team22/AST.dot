@@ -9,20 +9,38 @@ Nodo3[label="IF NOT EXISTS"]
 Nodo2 -> Nodo3;
 Nodo4[label="test"]
 Nodo2 -> Nodo4;
-Nodo5[label="OWNER: root"]
+Nodo5[label="MODE: 1"]
 Nodo2 -> Nodo5;
-Nodo6[label="MODE: 1"]
-Nodo2 -> Nodo6;
-Nodo12[label="USE DATABASE [test]"]
-Nodo1 -> Nodo12;
-Nodo13[label="Instruccion: CREATE TABLE"]
-Nodo1 -> Nodo13;
-Nodo14[label="Id: tabla"]
+Nodo10[label="USE DATABASE [test]"]
+Nodo1 -> Nodo10;
+Nodo11[label="Instruccion: CREATE TABLE"]
+Nodo1 -> Nodo11;
+Nodo12[label="Id: tbcalifica"]
+Nodo11 -> Nodo12;
+Nodo13[label="Campo"]
+Nodo11 -> Nodo13;
+Nodo14[label="Id: iditem"]
 Nodo13 -> Nodo14;
-Nodo15[label="Campo"]
+Nodo15[label="Tipo: Tipo_Dato.INTEGER"]
 Nodo13 -> Nodo15;
-Nodo16[label="Id: id"]
-Nodo15 -> Nodo16;
-Nodo17[label="Tipo: Tipo_Dato.INTEGER"]
-Nodo15 -> Nodo17;
+Nodo16[label="Tipo_Dato_Constraint.NOT_NULL"]
+Nodo13 -> Nodo16;
+Nodo17[label="Tipo_Dato_Constraint.PRIMARY_KEY"]
+Nodo13 -> Nodo17;
+Nodo18[label="Campo"]
+Nodo11 -> Nodo18;
+Nodo19[label="Id: item"]
+Nodo18 -> Nodo19;
+Nodo20[label="Tipo: Tipo_Dato.VARCHAR"]
+Nodo18 -> Nodo20;
+Nodo21[label="Tipo_Dato_Constraint.NOT_NULL"]
+Nodo18 -> Nodo21;
+Nodo22[label="Campo"]
+Nodo11 -> Nodo22;
+Nodo23[label="Id: puntos"]
+Nodo22 -> Nodo23;
+Nodo24[label="Tipo: Tipo_Dato.DECIMAL"]
+Nodo22 -> Nodo24;
+Nodo25[label="Tipo_Dato_Constraint.NOT_NULL"]
+Nodo22 -> Nodo25;
 }
