@@ -54,3 +54,14 @@ class Columna_run:
         self.constraint.refence=None
         self.constraint.check=None
         
+class Funcion_run:
+    def __init__(self, nombre, tipo, contenido, parametros=[]):
+        self.nombre=nombre
+        self.tipo=tipo
+        self.contenido=contenido
+        self.parametros=parametros
+class Parametro_run:
+        nombre=None
+        tipo=None
+        tamano=None
+        valor=None

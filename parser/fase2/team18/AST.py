@@ -24,7 +24,7 @@ listaTablas = [] #guarda las cabeceras de las tablas creadas
 outputTxt = [] #guarda los mensajes a mostrar en consola
 outputTS = [] #guarda el reporte tabla simbolos
 baseActiva = "" #Guarda la base temporalmente activa
-
+listaFunciones=[]
 Errores_Semanticos = []
 #--------Ejecucion Datos temporales-----------
 def reiniciarVariables():
@@ -36,8 +36,48 @@ def reiniciarVariables():
     listaTablas=[]
     global outputTS
     outputTS = []
+    global listaFunciones
+    listaFunciones=[]
     EDD.dropAll() #eliminar para ir haciendo pruebas, quitarlo al final
     baseActiva =""#eliminar para ir haciendo pruebas, quitarlo al final
+    
+def agregarFuncion(nombre,tipo,contenido,parametros):
+    global listaFunciones
+    listaFunciones.append(Funcion_run(nombre,tipo,contenido,parametros))
+
+def buscarFuncion(nombre):
+    pos=0
+    while pos< len(listaFunciones):
+            if(listaFunciones[pos].nombre==nombre):
+                return listaFunciones[pos]
+            else:
+                pos=pos+1
+    return None
+
+def validarTipoF(T):
+    if(T=="smallint" or T=="integer" or T=="bigint"):
+        return True
+    elif(T=="decimal" or T=="numeric" or T=="real" or T=="double precision" or T=="money"):
+        return True
+    elif(T=="character varying" or T=="varchar" or T=="text" or T=="character" or T=="char"):
+        return True
+    elif(T=="date" or T=="timestamp" or T=="time" or T=="interval"):
+        return True
+    elif(T=="boolean"):
+        return True
+    else:
+        #aca se pueden agregar los tipos TYPE
+        return False
+
+def eliminarFuncion(nombre):
+    global listaFunciones
+    pos=0
+    while pos< len(listaFunciones):
+        if(listaFunciones[pos].nombre==nombre):
+            listaFunciones.pop(pos)
+            break
+        else:
+            pos=pos+1
 
 def insertartabla(columnas,nombre):
     global listaTablas
@@ -3296,9 +3336,103 @@ def Indexs(instr,ts):
 
 
 def Funciones(instr,ts):
-    print("reemplazar",instr.reemplazar,"nombre",instr.nombre,"parametros",instr.parametros,"tipo",instr.tipo,"dollar_var",instr.dollarvar,"cuerpo",instr.cuerpo)
+    #   Pendiente
+    #   -validar el cuerpo
+    #   -parametros
+    #       -valor
+    #       -tama;o
+    print("\n\n---------------------------------------------")
+    print("cuerpo",instr.cuerpo)
+    print("---------------------------------------------\n\n")
+    #variables
+    reemplazarF=instr.reemplazar
+    nombreF=instr.nombre.lower()
+    tipoF=instr.tipo.lower()
+    parametrosF=[]
+    contenidoF=instr.cuerpo
+    funOK=True
+    
+    #mensaje inicial
+    msg="creando funcion: "+nombreF
+    agregarMensjae("normal",msg,"")
 
-#-------------
+    #verificar los parametros 
+    if(instr.parametros[0]!=False):
+        #recorrer la lista de parametros
+        for x in instr.parametros:
+            #crear el objeto parametro
+            parEx=False
+            parAux=Parametro_run()
+            parAux.nombre=x.nombre.lower()
+            
+            #revisar parametros repetidos
+            for parF in parametrosF:
+                if (parF.nombre==parAux.nombre):
+                    parEx=True
+                    msg="El parametro "+x.nombre+" ya existe declarado"
+                    agregarMensjae("error",msg,"")
+                    funOK=False
+                    break;
+            #agregar tipo
+            if(isinstance(x.tipo,Operando_ID)):
+                msg="no es posible asiganar el parametro "+parAux.nombre +" de tipo ID"
+                agregarMensjae("error",msg,"")
+                funOK=False
+            else:  
+                parAux.tipo=x.tipo.lower()
+                #validar el tipo
+                if(validarTipoF(parAux.tipo)==False):
+                    msg="El tipo "+parAux.tipo+" no es posible asignarlo al parametro "+parAux.nombre
+                    agregarMensjae("error",msg,"")
+                    funOK=False
+            #agregar size
+            if(x.tamano!=False):
+                parAux.tamano=resolver_operacion(x.tamano[0],ts)
+            #agregar valor
+            if(x.valor!=False):
+                parAux.valor=x.valor
+            #agregar a la lista de parametros
+            if(parEx==False):
+                parametrosF.append(parAux)
+                print(parAux.nombre,parAux.tipo,parAux.tamano,parAux.valor)
+
+    #verificar tipo
+    if(validarTipoF(tipoF)==False):
+        msg="El tipo "+tipoF+" no es posible asignarlo a una funcion"
+        agregarMensjae("error",msg,"")
+        funOK=False
+
+    #agregar la funcion
+    if(funOK):
+        #verificar que no exista
+        if(buscarFuncion(nombreF)==None):
+            agregarFuncion(nombreF,tipoF,contenidoF,parametrosF)
+            msg="Todo OK"
+            agregarMensjae("exito",msg,"")
+        else:
+            #verificar el replace
+            if(reemplazarF):
+                #eliminar la funcion
+                eliminarFuncion(nombreF)
+                agregarFuncion(nombreF,tipoF,contenidoF,parametrosF)
+                msg="Funcion reemplazada"
+                agregarMensjae("alert",msg,"")
+            else:
+                msg="la funcion "+nombreF+" ya se encuentra declarada"
+                agregarMensjae("error",msg,"")
+        
+
+def Eliminar_Funcion(instr,ts):
+    agregarMensjae('normal','Drop Function','')
+    CD3.PDropFuncion(instr.nombres)
+    for nm in instr.nombres:
+        if buscarFuncion(nm.lower()) is not None:
+            eliminarFuncion(nm.lower())
+            agregarMensjae('exito', 'Funcion '+nm.lower()+' eliminada','')
+        else:
+            agregarMensjae('error', '42883:Funcion no registrada','42883')
+
+
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
         op = resolver_operacion(operacion.op, ts)
@@ -3520,6 +3654,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, MostrarTB) : Mostrar_TB(instr,ts)
             elif isinstance(instr, Indice) : Indexs(instr,ts)
             elif isinstance(instr, Funcion): Funciones(instr,ts)
+            elif isinstance(instr, Drop_Function): Eliminar_Funcion(instr,ts)
             else: 
                 if instr is not None:
                     for val in instr:

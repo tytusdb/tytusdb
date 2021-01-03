@@ -378,3 +378,10 @@ class Cuerpo_Funcion(Instruccion):
     def __init__(self,declaraciones,funcionalidad):
         self.declaraciones=declaraciones
         self.funcionalidad=funcionalidad
+
+class Drop_Function(Instruccion):
+    '''
+        Esta clase representa la eliminacion de una funcion
+    '''
+    def __init__(self,nombres):
+        self.nombres=nombres

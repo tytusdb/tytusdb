@@ -1387,8 +1387,8 @@ def p_cuerpo_funcion(t):
      '''cuerpo_funcion : declare_variables funcion_begin
                        | tipo_funcionalidad  '''
      if len(t) == 3:
-          t[0] = t[1]
-          #t[0] = Cuerpo_Funcion(t[1],t[2])
+          #t[0] = t[1]
+          t[0] = Cuerpo_Funcion(t[1],t[2])
      else:
           t[0] = t[1]
 
@@ -1397,7 +1397,7 @@ def p_declaracion_variables(t):
      '''declare_variables : DECLARE declaraciones PTCOMA
                           | empty'''
      if len(t) == 4:
-          t[0] = t[1]
+          t[0] = t[2]
      else:
           t[0] = False
 
@@ -1706,6 +1706,10 @@ def p_liberar(t):
           t[0]=EliminarTabla(t[3],Operando_ID(t[4]))
      else:
           t[0]=EliminarDB(t[3],Operando_ID(t[4]))
+
+def p_liberar_funtion(t):
+     '''liberar : DROP FUNCTION lnombres'''
+     t[0] = Drop_Function(t[3])
 
 
 def p_existencia(t):
