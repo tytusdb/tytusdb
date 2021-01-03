@@ -29,6 +29,84 @@ class main():
                 return 2
             return 3
         return 1
+    
+    # CAMBIA EL MODO DE UNA TABLA
+    
+    def alterTableMode(self, database, table, mode):
+        if self.identify(str(database)):
+            if self.verifyMode(mode):
+                if self.searchDB2(database):
+                    if self.searchTB(database, table):
+                        try:
+                            if database in switch.switchMode(mode).showDatabases():
+                                if table not in switch.switchMode(mode).showTables(database):
+                                    for i in self.listMode:
+                                        if database in self.godGuide[i].keys():
+                                            if table in self.godGuide[i][database][0].keys():
+                                                lis = self.godGuide[i][database][0].pop(table)
+                                    self.godGuide[mode][database][0][table] = lis
+                                    tabla = self.extTB(database, table)
+                                    self.delTB(database, table)
+                                    switch.switchMode(mode).createTable(database, table, lis[0])
+                                    for i in tabla:
+                                        switch.switchMode(mode).insert(database, table, i)
+                                else:
+                                    return 1
+                            else:
+                                for i in self.listMode:
+                                    if database in self.godGuide[i].keys():
+                                        if table in self.godGuide[i][database][0].keys():
+                                            encoding = self.godGuide[i][database][1]
+                                            lis = self.godGuide[i][database][0].pop(table)
+                                self.godGuide[mode][database] = [{}, encoding]
+                                self.godGuide[mode][database][0][table] = lis
+
+                                #self.createDatabase(database, mode, encoding)
+                                switch.switchMode(mode).createDatabase(database)
+                                tabla = self.extTB(database, table)
+                                self.delTB(database, table)
+                                switch.switchMode(mode).createTable(database, table, lis[0])
+                                for i in tabla:
+                                    switch.switchMode(mode).insert(database, table, i)
+                            return 0
+                        except:
+                            return 1
+                    return 3
+                return 2
+            return 4
+        return 1
+
+    # CAMBIA EL MODO DE UNA BASE DE DATOS
+    
+    def alterDatabaseMode(self, database, mode):
+        if self.identify(str(database)):
+            if self.verifyMode(mode):
+                if self.searchDB2(database):
+                    try:
+                        for i in self.listMode:
+                            if i != mode:
+                                if database in switch.switchMode(i).showDatabases():
+                                    if len(switch.switchMode(i).showTables(database)) == 0:
+                                        modoA = i
+                                        lis = self.godGuide[modoA].pop(database)
+                                        self.guiaModos[database] = mode
+                                        self.godGuide[mode][database] = lis
+                                        #self.createDatabase(database, mode, lis[1])
+                                        switch.switchMode(mode).createDatabase(database)
+                                    else:
+                                        modoA = i
+                                        self.guiaModos[database] = mode
+                                        for j in switch.switchMode(i).showTables(database):
+                                            self.alterTableMode(database, j, mode)
+                                        self.godGuide[modoA].pop(database)
+                                        #self.godGuide[mode][database] = lis
+                                    switch.switchMode(i).dropDatabase(database)
+                        return 0
+                    except:
+                        return 1
+                return 2
+            return 4
+        return 1
     #---------------------FUNCIONES BASES DE DATOS (ANTERIORES)----------------------#
 
     # LISTA DE BASES DE DATOS ALMACENADAS
