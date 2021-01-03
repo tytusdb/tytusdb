@@ -107,8 +107,11 @@ keywords = {
 'ATANH' : 'ATANH',
 'AVG' : 'AVG',
 'BETWEEN' : 'BETWEEN',
+'BEGIN':'BEGIN',
 'BIGINT' : 'BIGINT',
 'BOOLEAN' : 'BOOLEAN',
+'BRIN':'BRIN',
+'BTREE' : 'BTREE',
 'BY' : 'BY',
 'BYTEA':'BYTEA',
 'CASE' : 'CASE',
@@ -138,6 +141,7 @@ keywords = {
 'DATE_PART' : 'DATE_PART',
 'DAY' : 'DAY',
 'DECIMAL' : 'DECIMAL',
+'DECLARE' : 'DECLARE',
 'DECODE' : 'DECODE',
 'DEFAULT' : 'DEFAULT',
 'DEGREES' : 'DEGREES',
@@ -148,6 +152,7 @@ keywords = {
 'DOUBLE' : 'DOUBLE',
 'DROP' : 'DROP',
 'ELSE' : 'ELSE',
+'ELSIF': 'ELSIF',
 'ENCODE' : 'ENCODE',
 'END' : 'END',
 'ENUM' : 'ENUM',
@@ -164,15 +169,20 @@ keywords = {
 'FOREIGN' : 'FOREIGN',
 'FROM' : 'FROM',
 'FULL' : 'FULL',
+'FUNCTION':'FUNCTION',
 'GCD' : 'GCD',
 'GET_BYTE' : 'GET_BYTE',
+'GIN':'GIN',
+'GIST':'GIST',
 'GREATEST' : 'GREATEST',
 'GROUP' : 'GROUP',
+'HASH':'HASH',
 'HAVING' : 'HAVING',
 'HOUR' : 'HOUR',
 'IF' : 'IF',
 'ILIKE' : 'ILIKE',
 'IN' : 'IN',
+'INDEX' : 'INDEX',
 'INHERITS' : 'INHERITS',
 'INNER' : 'INNER',
 'INSERT' : 'INSERT',
@@ -180,6 +190,7 @@ keywords = {
 'INTEGER' : 'INTEGER',
 'INTERSECT' : 'INTERSECT',
 'INTERVAL' : 'INTERVAL',
+'INOUT' : 'INOUT',
 'INTO' : 'INTO',
 'IS' : 'IS',
 'JOIN' : 'JOIN',
@@ -216,12 +227,14 @@ keywords = {
 'ONLY' : 'ONLY',
 'OR' : 'OR',
 'ORDER' : 'ORDER',
+'OUT':'OUT',
 'OUTER' : 'OUTER',
 'OWNER' : 'OWNER',
 'PI' : 'PI',
 'POWER' : 'POWER',
 'PRECISION' : 'PRECISION',
 'PRIMARY' : 'PRIMARY',
+'PROCEDURE' : 'PROCEDURE',
 'RADIANS' : 'RADIANS',
 'RANDOM' : 'RANDOM',
 'REAL' : 'REAL',
@@ -247,6 +260,7 @@ keywords = {
 'SINH' : 'SINH',
 'SMALLINT' : 'SMALLINT',
 'SOME' : 'SOME',
+'SPGIST':'SPGIST',
 'SQRT' : 'SQRT',
 'SUBSTR' : 'SUBSTR',
 'SUBSTRING' : 'SUBSTRING',
@@ -275,6 +289,7 @@ keywords = {
 'USING' : 'USING',
 'VALUES' : 'VALUES',
 'VARCHAR' : 'VARCHAR',
+'VARIADIC' : 'VARIADIC',
 'VARYING' : 'VARYING',
 'WHEN' : 'WHEN',
 'WHERE' : 'WHERE',
@@ -307,6 +322,7 @@ tokens = [
     'POTENCIA',
     'PUNTO',
     'PUNTOYCOMA',
+    'DOSPUNTOS',
     'SLASH',
     'IDENTIFICADOR',
     'CADENA',
@@ -334,6 +350,7 @@ t_PARENTESISIZQ = r'\('
 t_PORCENTAJE = r'%'
 t_POTENCIA = r'\^'
 t_PUNTO = r'\.'
+t_DOSPUNTOS = r':'
 t_PUNTOYCOMA = r';'
 t_SLASH = r'/'
 
@@ -436,6 +453,8 @@ def p_instruccion(t):
                     | sentencia_union_all
                     | sentencia_intersect
                     | sentencia_except
+                    | sentencia_index
+                    | sentencia_procedure
                     | Exp
                     | error'''
     reportebnf.append(bnf["p_instruccion"])                    
@@ -1544,6 +1563,288 @@ def p_sentencia_use(t):
     temporal.createTerminal(t.slice[2])
     t[0] = temporal
 #------------------------------ Termina sentencia USE --------------------------------------
+
+#------------------------Inician sentencias PROCEDURE y FUNCTION----------------------------
+
+#--------------------------------DECLARACION DE VARIABLES-----------------------------------
+def p_instrucciones_asignacion_1(t):
+    '''instrucciones_asignacion : instrucciones_asignacion declaracion_variable PUNTOYCOMA'''
+    t[0] = Start("INSTRUCCIONES_ASIGNACION")
+    for hijo in t[1].hijos:
+        t[0].addChild(hijo)
+    t[0].addChild(t[2])
+
+def p_instrucciones_asignacion_2(t):
+    '''instrucciones_asignacion : declaracion_variable PUNTOYCOMA'''
+    t[0] = Start("INSTRUCCIONES_ASIGNACION")
+    t[0].addChild(t[1])
+
+def p_declaracion_variable_1(t):
+    '''declaracion_variable : IDENTIFICADOR tipo_declaracion asignacion_variable'''
+    t[0] = Start("DECLARACION_VARIABLE")
+    t[0].createTerminal(t.slice[1])
+    t[0].addChild(t[2])
+    t[0].addChild(t[3])
+    
+
+def p_declaracion_variable_2(t):
+    '''declaracion_variable : IDENTIFICADOR tipo_declaracion'''
+    t[0] = Start("DECLARACION_VARIABLE")
+    t[0].createTerminal(t.slice[1])
+    t[0].addChild(t[2])
+
+def p_asignacion_variable(t):
+    '''asignacion_variable : DEFAULT Exp
+                            | DOSPUNTOS IGUAL Exp'''
+    t[0] = Start("ASIGNACION_VARIABLE")
+    if len(t) == 3:
+        t[0].addChild(t[2])
+    elif len(t) == 4:
+        t[0].addChild(t[3])
+    
+#--------------------------------DECLARACION DE VARIABLES-----------------------------------
+
+#-------------------------------------SENTENCIA IF------------------------------------------
+def p_sentencia_if_1(t):
+    '''sentencia_if : IF Exp THEN instrucciones_procedure sentencias_opcionales_if END IF'''
+    t[0] = Start("SENTENCIA_IF")
+    t[0].addChild(t[2])
+    t[0].addChild(t[4])
+    t[0].addChild(t[5])
+
+def p_sentencia_if_2(t):
+    '''sentencia_if : IF Exp THEN instrucciones_procedure sentencia_opcional_else END IF'''
+    t[0] = Start("SENTENCIA_IF")
+    t[0].addChild(t[2])
+    t[0].addChild(t[4])
+    t[0].addChild(t[5])
+
+def p_sentencia_if_3(t):
+    '''sentencia_if : IF Exp THEN instrucciones_procedure sentencias_opcionales_if sentencia_opcional_else END IF'''
+    t[0] = Start("SENTENCIA_IF")
+    t[0].addChild(t[2])
+    t[0].addChild(t[4])
+    t[0].addChild(t[5])
+    t[0].addChild(t[6])
+
+def p_sentencia_if_4(t):
+    '''sentencia_if : IF Exp THEN instrucciones_procedure END IF'''
+    t[0] = Start("SENTENCIA_IF")
+    t[0].addChild(t[2])
+    t[0].addChild(t[4])
+
+def p_sentencias_opcionales_if_1(t):
+    '''sentencias_opcionales_if : sentencias_opcionales_if sentencia_elsif'''
+    t[0] = Start("SENTENCIA_ELSIF")
+    for hijo in t[1].hijos:
+        t[0].addChild(hijo)
+    t[0].addChild(t[2])
+
+def p_sentencias_opcionales_if_2(t):
+    '''sentencias_opcionales_if : sentencia_elsif'''
+    t[0] = Start("SENTENCIA_ELSIF")
+    t[0].addChild(t[1])
+
+def p_sentencia_opcional_else(t):
+    '''sentencia_opcional_else :  ELSE instrucciones_procedure'''
+    t[0] = Start("SENTENCIA_ELSE")
+    t[0].addChild(t[2])
+
+def p_sentencia_else_if(t):
+    '''sentencia_elsif : ELSIF Exp THEN instrucciones_procedure'''
+    t[0] = Start("SENTENCIA_ELSIF")
+    t[0].addChild(t[2])
+    t[0].addChild(t[4])
+
+#-------------------------------------SENTENCIA IF------------------------------------------
+
+
+#--------------------------------------PROCEDURE--------------------------------------------
+def p_sentencia_procedure(t):
+    '''sentencia_procedure : CREATE sentencia_orreplace PROCEDURE IDENTIFICADOR argumentos_procedure definicion_procedure'''
+    t[0] = Start("SENTENCIA_PROCEDURE")
+    if t[2] != None:
+        t[0].addChild(t[2])
+    t[0].createTerminal(t.slice[4])
+    if t[5] != None:
+        t[0].addChild(t[5])
+    t[0].addChild(t[6])
+
+def p_argumentos_procedure(t):
+    '''argumentos_procedure : PARENTESISIZQ PARENTESISDER'''
+    
+def p_definicion_procedure_1(t):
+    '''definicion_procedure : declaraciones_procedure cuerpo_procedure END'''
+    t[0] = Start("DEFINICION_PROCEDURE")
+    t[0].addChild(t[1])
+    t[0].addChild(t[2])
+
+def p_definicion_procedure_2(t):
+    '''definicion_procedure : cuerpo_procedure END'''
+    t[0] = Start("DEFINICION_PROCEDURE")
+    t[0].addChild(t[1])
+
+def p_declaraciones_procedure(t):
+    '''declaraciones_procedure : DECLARE instrucciones_asignacion'''
+    t[0] = Start("DECLARACIONES_PROCEDURE")
+    t[0].addChild(t[2])
+
+def p_cuerpo_procedure(t):
+    '''cuerpo_procedure :  BEGIN instrucciones_procedure'''
+    t[0] = Start("CUERPO_PROCEDURE")
+    for hijo in t[2].hijos:
+        t[0].addChild(hijo)
+
+def p_instrucciones_procedure_1(t):
+    '''instrucciones_procedure : instrucciones_procedure instruccion_procedure PUNTOYCOMA'''
+    t[0] = Start("INSTRUCCIONES_PROCEDURE")
+    for hijo in t[1].hijos:
+        t[0].addChild(hijo)
+    t[0].addChild(t[2])
+
+def p_instrucciones_procedure_2(t):
+    '''instrucciones_procedure : instruccion_procedure PUNTOYCOMA'''
+    t[0] = Start("INSTRUCCIONES_PROCEDURE")
+    t[0].addChild(t[1])
+    
+def p_instruccion_procedure(t):
+    '''instruccion_procedure : sent_insertar
+                            | sent_update 
+                            | sent_delete
+                            | sentencia_select
+                            | sentencia_union
+                            | sentencia_union_all
+                            | sentencia_intersect
+                            | sentencia_except
+                            | sentencia_asignacion
+                            | sentencia_if'''
+    t[0] = t[1]
+
+def p_asignacion_procedure(t):
+    '''sentencia_asignacion : IDENTIFICADOR DOSPUNTOS IGUAL Exp'''
+    t[0] = Start("SENTENCIA_ASIGNACION")
+    t[0].createTerminal(t.slice[1])
+    t[0].addChild(t[4])
+
+
+#--------------------------------------PROCEDURE--------------------------------------------
+
+
+
+#------------------------Termina sentencias PROCEDURE y FUNCTION----------------------------
+
+#------------------------------Inician las sentencias INDEX---------------------------------
+
+def p_opcional_where_index(t):
+    '''opcional_where_index : WHERE Exp
+                            | '''
+    if len(t) > 1:
+        t[0] = t[2]
+    
+
+def p_sentencia_index_1(t):
+    '''sentencia_index : CREATE INDEX IDENTIFICADOR ON IDENTIFICADOR sentencia_index_p opcional_where_index'''
+    nuevo = Start("CREATE_INDEX")
+    nuevo.createTerminal(t.slice[3])
+    nuevo.createTerminal(t.slice[5])
+    nuevo.addChild(t[6])
+    if t[7] != None:
+        nuevo.addChild(t[7])
+    t[0] = nuevo
+
+def p_sentencia_index_2(t):
+    '''sentencia_index : CREATE UNIQUE INDEX IDENTIFICADOR ON IDENTIFICADOR sentencia_index_p opcional_where_index'''
+    nuevo = Start("CREATE_UNIQUE_INDEX")
+    nuevo.createChild(t.slice[4])
+    nuevo.createChild(t.slice[6])
+    nuevo.addChild(t[7])
+    if t[8] != None:
+        nuevo.addChild(t[8])
+    t[0] = nuevo
+
+def p_sentencia_index_p(t):
+    '''sentencia_index_p : PARENTESISIZQ exp_index PARENTESISDER'''
+    t[0] = Start("INDEX_NORMAL")
+    for child in t[2].hijos:
+        t[0].addChild(child)
+
+def p_sentencia_index_p_2(t):
+    '''sentencia_index_p : USING sentencia_method_index PARENTESISIZQ exp_index PARENTESISDER'''
+    t[0] = Start("INDEX_USING")
+    t[0].addChild(t[2])
+    for child in t[4].hijos:
+        t[0].addChild(child)
+    
+
+def p_sentencia_method_index(t):
+    '''sentencia_method_index : BTREE
+                                | HASH
+                                | GIST
+                                | SPGIST
+                                | GIN
+                                | BRIN'''
+    t[0] = Start("SENTENCIA_METHOD_INDEX")
+    t[0].createTerminal(t.slice[1])
+
+def p_exp_index_1(t):
+    '''exp_index : exp_index COMA atrib_exp_index'''
+    t[0] = Start("EXP_INDEX")
+    for child in t[1].hijos:
+        t[0].addChild(child)
+    t[0].addChild(t[3])
+
+def p_exp_index_2(t):
+    '''exp_index : atrib_exp_index'''
+    t[0] = Start("EXP_INDEX")
+    t[0].addChild(t[1])
+
+def p_atrib_exp_index(t):
+    '''atrib_exp_index : IDENTIFICADOR opc_order opc_nulls'''
+    t[0] = Start("ATRIB_E")
+    t[0].createTerminal(t.slice[1])
+    if t[2] != None:
+        t[0].addChild(t[2])
+    if t[3] != None:
+        t[0].addChild(t[3])
+    
+
+def p_opc_order(t):
+    '''opc_order : ASC
+                    | DESC
+                    | '''
+    if len(t) == 1:
+        return
+    t[0] = Start("OPC_ORDER")
+    t[0].createTerminal(t.slice[1])
+
+def p_opc_nulls(t):
+    '''opc_nulls :  NULLS opc_nulls_pos
+                    |'''
+    if len(t) == 1:
+        return
+    t[0] = Start("OPC_NULLS")
+    t[0].addChild(t[2])
+    
+def p_opc_nulls_pos(t):
+    '''opc_nulls_pos : FIRST
+                        | LAST
+                        | '''
+    if len(t) > 1 :
+        t[0] = Start(t[1])
+    else:
+        t[0] = Start("FIRST")
+
+
+#def p_sentencia_index_1(t):
+#    '''sentencia_index : CREATE INDEX IDENTIFICADOR ON IDENTIFICADOR PARENTESISDER exp_index PARENTESISDER'''
+    
+
+#def p_sentencia_index_2(t):
+#    '''sentencia_index : CREATE INDEX IDENTIFICADOR ON IDENTIFICADOR USING sentencia_method_index PARENTESISDER lista_exp PARENTESISDER'''
+    
+
+
+#------------------------------Terminan las sentencias INDEX--------------------------------
 
 #---------------Inician las sentencias con la palabra reservada SELECT.---------------------
 
