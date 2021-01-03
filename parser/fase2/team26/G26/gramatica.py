@@ -191,7 +191,13 @@ reservadas = {
     'some' : 'SOME',
     'in': 'IN',
     'all': 'ALL',
-    'order': 'ORDER'
+    'order': 'ORDER',
+    'index': 'INDEX',
+    'using': 'USING',
+    'hash': 'HASH',
+    'lower': 'LOWER',
+    'desc': 'DESC',
+    'asc' : 'ASC'
 }
 
 tokens = [
@@ -352,19 +358,18 @@ def p_instruciones(t):
 
 
 def p_instruccion(t) :
-    '''instruccion      : CREATE create
+    '''instruccion      : CREATE createops
                         | USE use
                         | SHOW show
                         | DROP drop
                         | DELETE delete
                         | INSERT insert
                         | UPDATE update'''
-                        #CREATE__USE__SHOW__DROP__DELETE__INSERT_UPDATE YA,
     grafo.newnode('INSTRUCCION')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = '<instruccion> ::= '
     if t[1].lower() == 'create':
-        reporte += 'CREATE <create>\n' + t[2]['reporte']
+        reporte += 'CREATE <createops>\n' + t[2]['reporte']
     elif t[1].lower() == 'use':
         reporte += 'USE <use>\n' + t[2]['reporte']
     elif t[1].lower() == 'show':
@@ -379,6 +384,24 @@ def p_instruccion(t) :
         reporte += 'UPDATE <update>\n' + t[2]['reporte']
     t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
+
+
+def p_instruccion_ccreate(t):
+    'createops    : create'
+    grafo.newnode('CREATEOPS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<createops> ::= <createindex>\n' + t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+
+def p_instruccion_ccreateind(t):
+    'createops    : createindex'
+    grafo.newnode('CREATEOPS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<createops> ::= <createindex>\n' + t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+
+
+
 def p_instruccionAlter(t):
     '''instruccion  :  ALTER alter'''
     grafo.newnode('INSTRUCCION')
@@ -392,7 +415,7 @@ def p_instruccionSelect(t):
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionQuerys(t):
-    'instruccion  : querys'
+    'instruccion  : querys PTCOMA'
     reporte = "<instruccion> ::= <querys>\n" +t[1]['reporte']
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
@@ -405,6 +428,100 @@ def p_problem(t):
     '''problem  :  error PTCOMA'''
     reporte = "<problem> ::= <error> PTCOMA\n"
     t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
+
+#---------------------------------------------------------------------------INDEX------------------------------------------------------------
+def p_createindex(t):
+    '''createindex  : UNIQUE INDEX ID ON ID predicadoindexU PTCOMA
+                    | INDEX ID ON ID predicadoindex PTCOMA'''
+    grafo.newnode('CREATEINDEX')
+    if t[1].lower() == 'unique':
+        grafo.newchildrenE('UNIQUE INDEX')
+        grafo.newchildrenE(t[3])
+        grafo.newchildrenE(t[5])
+        grafo.newchildrenF(grafo.index, t[6]['graph'])
+        reporte = "<createindex> ::=  UNIQUE INDEX ID ON ID PARENIZQ <listaids> PARENDER PTCOMA \n" + t[6]['reporte']
+        t[0] = {'ast' : index.UniqueIndex(t[3], t[5], t[6]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+    elif t[1].lower() == 'index':
+        grafo.newchildrenE('INDEX')
+        grafo.newchildrenE(t[2])
+        grafo.newchildrenE(t[4])
+        grafo.newchildrenF(grafo.index, t[5]['graph'])
+        reporte = "<createindex> ::= INDEX ID ON ID <predicadoindex> PTCOMA\n" + t[5]['reporte']
+        t[0] = {'ast' : index.Index(t[2], t[4], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_indexPredicateU(t):
+    'predicadoindexU   : PARENIZQ listaids PARENDER WHERE condiciones'
+    grafo.newnode('PREDICADOINDEXU')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    reporte = "<predicadoindexU> ::= PARENIZQ <listaids> PARENDER <condiciones>\n" + t[2]['reporte']+ t[5]['reporte']
+    t[0] = {'ast' : index.PredIndexU(t[2]['ast'], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_indexPredicateUP(t):
+    'predicadoindexU   : PARENIZQ listaids PARENDER'
+    grafo.newnode('PREDICADOINDEXU')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<predicadoindexU> ::= PARENIZQ <listaids> PARENDER\n" + t[2]['reporte']
+    t[0] = {'ast' : index.PredIndexU(t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_indexPredicate(t):
+    'predicadoindex   : USING HASH PARENIZQ ID PARENDER'
+    grafo.newnode('PREDICADOINDEX')
+    grafo.newchildrenE('USING HASH')
+    grafo.newchildrenE(t[4])
+    reporte = "<predicadoindex> ::= USING HASH PARENIZQ ID PARENDER\n"
+    t[0] = {'ast' : index.PredIndexLH(t[4], True), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_indexPredicateP(t):
+    'predicadoindex   : PARENIZQ indexargs PARENDER WHERE condiciones'
+    grafo.newnode('PREDICADOINDEX')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    reporte = "<predicadoindex> ::= PARENIZQ <indexargs> PARENDER <condiciones>\n" + t[2]['reporte']+ t[5]['reporte']
+    t[0] = {'ast' : index.PredIndex(t[2]['ast'], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_indexPredicateS(t):
+    'predicadoindex   : PARENIZQ indexargs PARENDER'
+    grafo.newnode('PREDICADOINDEX')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<predicadoindex> ::= PARENIZQ <indexargs> PARENDER\n" + t[2]['reporte']
+    t[0] = {'ast' : index.PredIndex(t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_indexargs(t):
+    'indexargs   : listaids'
+    t[0] = t[1]
+
+def p_indexargsP(t):
+    'indexargs   : LOWER PARENIZQ ID PARENDER'
+    grafo.newnode('INDEXARGS')
+    grafo.newchildrenE('LOWER')
+    grafo.newchildrenE(t[3])
+    reporte = "<indexargs> ::= LOWER PARENIZQ ID PARENDER\n"
+    t[0] = {'ast' : index.PredIndexLH(t[3], False), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_indexargsS(t):
+    'indexargs   : ID asdcordesc NULLS firstorlast'
+    grafo.newnode('INDEXARGS')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[2])
+    grafo.newchildrenE('NULLS')
+    grafo.newchildrenF(grafo.index, t[4])
+    reporte = "<indexargs> ::= ID <asdcordesc> NULLS <firstorlast>\n"
+    t[0] = {'ast' : index.IndexArgs(t[1], t[2], t[4]), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_asdcordesc(t):
+    '''asdcordesc   : ASC
+                    | DESC'''
+    t[0] = t[1]
+
+def p_asdcordescE(t):
+    'asdcordesc   : '
+    t[0] = None
+
+def p_firstorlast(t):
+    '''firstorlast   : FIRST
+                    | LAST'''
+    t[0] = t[1]
 
 #----------------------------------------------------------------SELECT---------------------------------
 def p_querys(t):

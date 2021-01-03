@@ -1,5 +1,32 @@
 // AST
 digraph {
+<<<<<<< HEAD
+	229 [label=INSTRUCTION_LIST]
+	230 [label=SELECT]
+	231 [label=PARAMS]
+	232 [label="*"]
+	233 [label=FROM]
+	234 [label=usuario]
+	235 [label=""]
+	236 [label=ORDER_BY]
+	237 [label=user]
+	238 [label=ASC]
+	239 [label=","]
+	240 [label=FIRST]
+	241 [label=INST]
+	229 -> 230
+	230 -> 231
+	231 -> 232
+	230 -> 233
+	233 -> 234
+	233 -> 235
+	230 -> 236
+	236 -> 237
+	236 -> 238
+	236 -> 239
+	236 -> 240
+	229 -> 241
+=======
 	35 [label=INSTRUCTION_LIST]
 	36 [label=CREATE_TABLE]
 	37 [label=usuario]
@@ -57,4 +84,5 @@ digraph {
 	60 -> 61
 	61 -> 62
 	60 -> 63
+>>>>>>> main
 }

@@ -2,6 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import Excepcion
 from storageManager.jsonMode import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class Use(Instruccion):
     def __init__(self, id, strGram ,linea, columna):
@@ -29,6 +31,17 @@ class Use(Instruccion):
         arbol.excepciones.append(error)
         arbol.consola.append(error.toString())
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "USE " + self.valor + ';'))
+        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.aumentarP())
+
+        return code
+
 '''
 instruccion = Use("hola mundo",None, 1,2)
 

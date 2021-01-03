@@ -1,3 +1,5 @@
+import pandas as pd
+
 from models.instructions.shared import Instruction
 from models.instructions.DDL.table_inst import CreateTB
 from models.instructions.DML.special_functions import loop_list
@@ -6,12 +8,15 @@ from controllers.symbol_table import SymbolTable
 from controllers.error_controller import ErrorController
 from controllers.data_controller import DataController
 from models.instructions.shared import Where
-from models.instructions.DML.special_functions import storage_columns,storage_table
-import pandas as pd
+from models.instructions.DML.special_functions import storage_columns, storage_table
+from controllers.three_address_code import ThreeAddressCode
+
 from storageManager import jsonMode as j
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
 '''
+
+
 class Insert(Instruction):
     '''
         INSERT recibe tres parametros: 
@@ -19,20 +24,26 @@ class Insert(Instruction):
             2. columnas donde insertar (puede estar vacio (se inserta en todas))
             3. valores a insertar
     '''
-    def __init__(self,  table, arr_columns, arr_values, line, column) :
+
+    def __init__(self,  table, arr_columns, arr_values, tac, line, column):
         self.table = table
         self.arr_columns = arr_columns
         self.arr_values = arr_values
+        self._tac = tac
 
         self.line = line
         self.column = column
 
     def __repr__(self):
         return str(vars(self))
-        
+
+    def compile(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+
     def process(self, instruction):
         if self.arr_columns == None:
-        #Solo nos dieron los valores, tienen que venir todos ---> Espino ya valida longitud? ---> CREO QUE SI -- TEST -- 
+            # Solo nos dieron los valores, tienen que venir todos ---> Espino ya valida longitud? ---> CREO QUE SI -- TEST --
             vals_insert = []
             for column in self.arr_values:
                 val = column.process(instruction)
@@ -53,14 +64,15 @@ class Insert(Instruction):
                         ErrorController().add(29, 'Execution', desc, self.line, self.column)
                         return None
                     else:
-                        dic[id_col] = self.arr_values[i].process(instruction).value
+                        dic[id_col] = self.arr_values[i].process(
+                            instruction).value
 
-                #Pidiendo tabla
+                # Pidiendo tabla
                 database_id = SymbolTable().useDatabase
                 table_tp = TypeChecker().searchTable(database_id, self.table.alias)
                 headers = TypeChecker().searchColumnHeadings(table_tp)
                 checker = CreateTB(None, None, None)
-                #validando nombres de columnas ingresados
+                # validando nombres de columnas ingresados
                 for key in dic:
                     if not key in headers:
                         desc = f'Nombre de columna invalido, {key}'
@@ -68,10 +80,11 @@ class Insert(Instruction):
                         return None
                 for name_col in headers:
                     column = TypeChecker().searchColumn(table_tp, name_col).__dict__
-                    if not name_col in dic: #Valor Nulo --> ver si se puede
+                    if not name_col in dic:  # Valor Nulo --> ver si se puede
                         if column['_default'] is not None:
                             if isinstance(column['_default'], str):
-                                dic[name_col] = column['_default'].replace("\'","")
+                                dic[name_col] = column['_default'].replace(
+                                    "\'", "")
                             else:
                                 dic[name_col] = column['_default']
                         else:
@@ -82,29 +95,31 @@ class Insert(Instruction):
                                 return None
                             else:
                                 dic[name_col] = None
-                        
-                    else: #validar valor
-                        is_correct = checker.validateType(column['_dataType'], dic.get(name_col), False)
+
+                    else:  # validar valor
+                        is_correct = checker.validateType(
+                            column['_dataType'], dic.get(name_col), False)
                         if not is_correct:
                             desc = f'Valor no valido para la columna {name_col}'
                             ErrorController().add(9, 'Execution', desc, self.line, self.column)
                             return None
-                        #VALIDAR CHECK
+                        # VALIDAR CHECK
                         if not realizeCheck(column, dic, self.line, self.column):
                             return None
 
-                #TODO: METER EL WHERE, VALIDAR UNIQUE Y VALIDAR CHECK
+                # TODO: METER EL WHERE, VALIDAR UNIQUE Y VALIDAR CHECK
                 ordered_vals = []
                 for name_col in headers:
                     ordered_vals.append(dic.get(name_col))
                 print(ordered_vals)
-                DataController().insert(self.table.alias, ordered_vals,0,1) # Enviar numero de fila y columna
+                DataController().insert(self.table.alias, ordered_vals,
+                                        0, 1)  # Enviar numero de fila y columna
             else:
                 desc = "Error Datos incompletos"
                 ErrorController().add(28, 'Execution', desc, self.line, self.column)
         return None
-        
-    def validateValues(self, array_values:[]):
+
+    def validateValues(self, array_values: []):
         database_id = SymbolTable().useDatabase
         table_tp = TypeChecker().searchTable(database_id, self.table.alias)
         headers = TypeChecker().searchColumnHeadings(table_tp)
@@ -113,11 +128,12 @@ class Insert(Instruction):
             ErrorController().add(28, 'Execution', desc, self.line, self.column)
             return False
 
-        checker = CreateTB(None, None, None)
-        dic =  dict(zip(headers, array_values))
+        checker = CreateTB(None, None, None, None)
+        dic = dict(zip(headers, array_values))
         for index, name_col in enumerate(headers):
             column = TypeChecker().searchColumn(table_tp, name_col).__dict__
-            is_correct = checker.validateType(column['_dataType'], array_values[index], False)
+            is_correct = checker.validateType(
+                column['_dataType'], array_values[index], False)
             if not is_correct:
                 desc = f'Valor no valido para la columna {name_col}'
                 ErrorController().add(9, 'Execution', desc, self.line, self.column)
@@ -126,6 +142,7 @@ class Insert(Instruction):
                 return False
         return True
 
+
 class Update(Instruction):
     '''
         UPDATE recibe tres parametros: 
@@ -133,63 +150,71 @@ class Update(Instruction):
             2. array de columnas con el valor a insertar (ColumnVal[])
             3. recibe un array con todas los parametros OPCIONALES
     '''
-    def __init__(self,  table, arr_columns_vals, params, line, column) :
+
+    def __init__(self,  table, arr_columns_vals, params, tac, line, column):
         self.table = table
         self.arr_columns_vals = arr_columns_vals
         self.params = params
+        self._tac = tac
 
         self.line = line
         self.column = column
 
     def __repr__(self):
         return str(vars(self))
-    
+
+    def compile(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+
     def process(self, instruction):
-        #Obteniendo tabla de la cual voy a hacer el update
+        # Obteniendo tabla de la cual voy a hacer el update
         database_id = SymbolTable().useDatabase
         table_tp = TypeChecker().searchTable(database_id, self.table)
-        table_cont = DataController().extractTable(self.table,self.line, self.column)
+        table_cont = DataController().extractTable(self.table, self.line, self.column)
         headers = TypeChecker().searchColumnHeadings(table_tp)
         table_update = pd.DataFrame(table_cont)
 
-        tuplas = [] #t[0] = nombre columna, t[1] = valor a cambiar
+        tuplas = []  # t[0] = nombre columna, t[1] = valor a cambiar
 
         for column in self.arr_columns_vals:
             tuplas.append(column.process(instruction))
         d = {}
         d_col_names = {}
-        #validando nombres de columnas ingresados
+        # validando nombres de columnas ingresados
         for t in tuplas:
             if not t[0] in headers:
                 desc = f'Nombre de columna invalido, {t[0]}'
                 ErrorController().add(26, 'Execution', desc, self.line, self.column)
                 return None
             else:
-                d[ headers.index(t[0]) ] = t[1].value
+                d[headers.index(t[0])] = t[1].value
                 d_col_names[t[0]] = t[1].value
-        
-        #validando tipo de valores para las columnas
+
+        # validando tipo de valores para las columnas
         print(d_col_names)
         checker = CreateTB(None, None, None)
         for key in list(d_col_names.keys()):
-                column = TypeChecker().searchColumn(table_tp, key).__dict__
-                is_correct = checker.validateType(column['_dataType'], d_col_names.get(key), False)
-                if not is_correct:
-                    desc = f'Valor no valido para la columna {key}'
-                    ErrorController().add(9, 'Execution', desc, self.line, self.column)
-                    return None 
-                if not realizeCheck(column, d_col_names, self.line, self.column):
-                    return None
-        #CAMBIAR TODOS LOS REGISTROS DE LA TABLA
-        if self.params == None: 
-            
+            column = TypeChecker().searchColumn(table_tp, key).__dict__
+            is_correct = checker.validateType(
+                column['_dataType'], d_col_names.get(key), False)
+            if not is_correct:
+                desc = f'Valor no valido para la columna {key}'
+                ErrorController().add(9, 'Execution', desc, self.line, self.column)
+                return None
+            if not realizeCheck(column, d_col_names, self.line, self.column):
+                return None
+        # CAMBIAR TODOS LOS REGISTROS DE LA TABLA
+        if self.params == None:
+
             pk_col_name = TypeChecker().searchColPrimaryKey(table_tp)
-            if pk_col_name == []: #NO HAY LLAVE PRIMARIA
+            if pk_col_name == []:  # NO HAY LLAVE PRIMARIA
 
                 pk_list = range(len(table_update.index))
                 print(pk_list)
                 for pk in pk_list:
-                    DataController().update(self.table, d, [pk], self.line, self.column)
+                    DataController().update(self.table, d, [
+                        pk], self.line, self.column)
             else:
                 list_pks = []
                 for col in pk_col_name:
@@ -199,23 +224,27 @@ class Update(Instruction):
                 pk_list = table_update[list_pks].values.tolist()
                 print(pk_list)
                 for pk in pk_list:
-                    DataController().update(self.table, d, [pk], self.line, self.column)
-  
+                    DataController().update(self.table, d, [
+                        pk], self.line, self.column)
+
         else:
             for option in self.params:
                 if isinstance(option, Where):
                     table_update.columns = headers
-                    storage_columns(table_cont, headers, self.line, self.column)
-                    storage_table(table_cont,headers, self.table, self.line, self.column)
-                    table_result = option.process(instruction, table_update, self.table)
-
+                    storage_columns(table_cont, headers,
+                                    self.line, self.column)
+                    storage_table(table_cont, headers, self.table,
+                                  self.line, self.column)
+                    table_result = option.process(
+                        instruction, table_update, self.table)
 
                     pk_col_name = TypeChecker().searchColPrimaryKey(table_tp)
-                    if pk_col_name == []: #NO HAY LLAVE PRIMARIA
+                    if pk_col_name == []:  # NO HAY LLAVE PRIMARIA
                         pk_list = table_result.index.to_list()
                         print(pk_list)
                         for pk in pk_list:
-                            DataController().update(self.table, d, [pk], self.line, self.column)
+                            DataController().update(self.table, d, [
+                                pk], self.line, self.column)
                     else:
                         table_result.columns = headers
                         list_pks = []
@@ -225,42 +254,48 @@ class Update(Instruction):
                         pk_list = table_result[list_pks].values.tolist()
                         print(pk_list)
                         for pk in pk_list:
-                            DataController().update(self.table, d, [pk], self.line, self.column)
+                            DataController().update(self.table, d, [
+                                pk], self.line, self.column)
         return None
+
+
 class ColumnVal(Instruction):
     '''
         ColumnVal recibe dos parametros: 
             1. nombre del campo a insertar
             2. valor a poner
     '''
-    def __init__(self,  column, value) :
+
+    def __init__(self,  column, value):
         self.column = column
         self.value = value
-    
+
     def __repr__(self):
         return str(vars(self))
-    
+
     def process(self, instruction):
 
         id_col = self.column.alias
         val = self.value.process(instruction)
 
         return [id_col, val]
-    
+
 
 class Opt1(Instruction):
     '''
         Recibe si se ha introducido un ALIAS y un asterisco (true || false)
     '''
-    def __init__(self, isAsterisco, alias) :
+
+    def __init__(self, isAsterisco, alias):
         self.isAsterisco = isAsterisco
         self.alias = alias
-    
+
     def __repr__(self):
         return str(vars(self))
-    
+
     def process(self, instrucction):
         pass
+
 
 class Delete(Instruction):
     '''
@@ -271,28 +306,34 @@ class Delete(Instruction):
         opt3 = WHERE
         opt4 = RETURNING
     '''
-    def __init__(self,  table, params, line, column ) :
+
+    def __init__(self,  table, params, tac, line, column):
         self.table = table
         self.params = params
-    
+        self._tac = tac
+
         self.line = line
         self.column = column
 
     def __repr__(self):
         return str(vars(self))
-    
+
+    def compile(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+
     def process(self, instrucction):
-        #Obteniendo tabla de la cual voy a borrar
+        # Obteniendo tabla de la cual voy a borrar
         database_id = SymbolTable().useDatabase
         table_tp = TypeChecker().searchTable(database_id, self.table)
-        table_cont = DataController().extractTable(self.table,self.line, self.column)
+        table_cont = DataController().extractTable(self.table, self.line, self.column)
         headers = TypeChecker().searchColumnHeadings(table_tp)
         table_delete = pd.DataFrame(table_cont)
 
-        if self.params == None: 
-            
+        if self.params == None:
+
             pk_col_name = TypeChecker().searchColPrimaryKey(table_tp)
-            if pk_col_name == []: #NO HAY LLAVE PRIMARIA
+            if pk_col_name == []:  # NO HAY LLAVE PRIMARIA
                 pk_list = table_delete.index.tolist()
                 print(pk_list)
                 for pk in pk_list:
@@ -313,13 +354,15 @@ class Delete(Instruction):
             for option in self.params:
                 if isinstance(option, Where):
                     table_delete.columns = headers
-                    storage_columns(table_cont, headers, self.line, self.column)
-                    storage_table(table_cont,headers, self.table, self.line, self.column)
-                    table_result = option.process(instrucction, table_delete, self.table)
-
+                    storage_columns(table_cont, headers,
+                                    self.line, self.column)
+                    storage_table(table_cont, headers, self.table,
+                                  self.line, self.column)
+                    table_result = option.process(
+                        instrucction, table_delete, self.table)
 
                     pk_col_name = TypeChecker().searchColPrimaryKey(table_tp)
-                    if pk_col_name == []: #NO HAY LLAVE PRIMARIA
+                    if pk_col_name == []:  # NO HAY LLAVE PRIMARIA
                         pk_list = table_result.index.to_list()
                         print(pk_list)
                         for pk in pk_list:
@@ -338,19 +381,20 @@ class Delete(Instruction):
                     break
         return None
 
-def realizeCheck(column: dict, dic:dict, line, pos_column):
-        #VALIDAR CHECK
-        if column['_check'] == []:
-            print("NO tiene check")
-            #no tiene check
-        else:
-            print("tiene check")
-            condition = column['_check']['_condition_check']
-            print(condition)
-            val = eval(condition, dic)
-            print(val)
-            if not val:
-                desc = f'Valor no cumple la condicion {condition} del check'
-                ErrorController().add(9, 'Execution', desc, line, pos_column)
-                return False
-        return True
+
+def realizeCheck(column: dict, dic: dict, line, pos_column):
+    # VALIDAR CHECK
+    if column['_check'] == []:
+        print("NO tiene check")
+        # no tiene check
+    else:
+        print("tiene check")
+        condition = column['_check']['_condition_check']
+        print(condition)
+        val = eval(condition, dic)
+        print(val)
+        if not val:
+            desc = f'Valor no cumple la condicion {condition} del check'
+            ErrorController().add(9, 'Execution', desc, line, pos_column)
+            return False
+    return True

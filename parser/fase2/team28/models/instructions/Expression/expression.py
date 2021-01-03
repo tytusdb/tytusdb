@@ -1,4 +1,5 @@
 from controllers.error_controller import ErrorController
+from controllers.three_address_code import ThreeAddressCode
 from models.objects.columns_select import ColumnsSelect
 from models.objects.id import Id
 from models.objects.table_select import TablaSelect
@@ -17,6 +18,10 @@ class Expression:
     def process(self):
         pass
 
+    @abstractmethod
+    def compile(self):
+        pass
+
 
 class ArithmeticBinaryOperation(Expression):
     '''
@@ -33,6 +38,52 @@ class ArithmeticBinaryOperation(Expression):
 
     def __repr__(self):
         return str(vars(self))
+
+    def getOperador(self, operador):
+        value = 0
+        if operador == SymbolsAritmeticos.PLUS:
+            value = "+"
+        elif operador == SymbolsAritmeticos.MINUS:
+            value = "-"
+        elif operador == SymbolsAritmeticos.TIMES:
+            value = "*"
+        elif operador == SymbolsAritmeticos.DIVISON:
+            value = "/"
+        elif operador == SymbolsAritmeticos.EXPONENT:
+            value = "**"
+        elif operador == SymbolsAritmeticos.MODULAR:
+            value = "%"
+        elif operador == SymbolsAritmeticos.BITWISE_SHIFT_LEFT:
+            value = "<<"
+        elif operador == SymbolsAritmeticos.BITWISE_SHIFT_RIGHT:
+            value = ">>"
+        elif operador == SymbolsAritmeticos.BITWISE_AND:
+            value = "&"
+        elif operador == SymbolsAritmeticos.BITWISE_OR:
+            value = "|"
+        elif operador == SymbolsAritmeticos.BITWISE_XOR:
+            value = "^"
+        return value
+
+    def compile(self, expression):
+        value1 = self.value1.compile(expression)
+        value2 = self.value2.compile(expression)
+        try:
+            if value1.data_type != DATA_TYPE.NUMBER and value2.data_type != DATA_TYPE.NUMBER:
+                desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
+                ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(
+                f"{temporal} = {value1.value} {self.getOperador(self.operador)} {value2.value}")
+
+            return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
+        except TypeError:
+            desc = "Error de tipo"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+        except:
+            desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
     def process(self, expression):
         value1 = self.value1.process(expression)
@@ -66,6 +117,9 @@ class ArithmeticBinaryOperation(Expression):
             elif operador == SymbolsAritmeticos.BITWISE_XOR:
                 value = round(value1.value ^ value2.value)
             return PrimitiveData(DATA_TYPE.NUMBER, value, self.line, self.column)
+        except TypeError:
+            desc = "Error de tipo"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
         except:
             desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -169,6 +223,9 @@ class Identifiers(Expression):
 
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self, expression):
+        return self.alias
 
     def process(self, expression):
         try:
@@ -349,6 +406,36 @@ class UnaryOrSquareExpressions(Expression):
             desc = "FATAL ERROR --- UnaryOrSquareExpressions"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, expression):
+        expression1 = self.value.compile(expression)
+        type_unary_or_other = self.sign
+        temporal = ThreeAddressCode().newTemp()
+
+        try:
+            if expression1.data_type != DATA_TYPE.NUMBER:
+                print('error')
+                return
+            dataTemp = f"{temporal} = 0"
+
+            if type_unary_or_other == SymbolsUnaryOrOthers.UMINUS or type_unary_or_other == SymbolsUnaryOrOthers.BITWISE_NOT:
+                dataTemp = f"{temporal} = -{expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.UPLUS:
+                dataTemp = f"{temporal} = {expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.SQUARE_ROOT:
+                resExpression = self.value.process(self)
+                result = round(math.sqrt(resExpression.value), 2)
+                dataTemp = f"{temporal} = {result} # |/{expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.CUBE_ROOT:
+                resExpression = self.value.process(self)
+                result = round(resExpression.value ** (1 / 3), 2)
+                dataTemp = f"{temporal} = {result} # ||/{expression1.value}"
+
+            ThreeAddressCode().addCode(dataTemp)
+            return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- UnaryOrSquareExpressions"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
 
 class LogicalOperators(Expression):
     '''
@@ -420,4 +507,7 @@ class PrimitiveData(Expression):
         return str(vars(self))
 
     def process(self, expression):
+        return self
+
+    def compile(self, expression):
         return self

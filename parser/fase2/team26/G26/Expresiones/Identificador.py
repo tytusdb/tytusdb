@@ -58,7 +58,11 @@ class Identificador(Instruccion):
                 elif columna.type == 'text' or columna.type == 'varchar' or columna.type == 'char' or columna.type == 'character':
                     typeN = 'string'
                 else: typeN = columna.type
-                nuevoPrimitivo = Primitive(typeN, filaTabla[contador])
+                try:
+                    nuevoPrimitivo = Primitive(typeN, filaTabla[contador])
+                except:
+                    nuevoPrimitivo = Primitive(typeN, 1)
+                
                 break
             contador += 1
         if isinstance(nuevoPrimitivo, Primitive):

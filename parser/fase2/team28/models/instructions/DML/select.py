@@ -20,14 +20,23 @@ class Select(Instruction):
     '''
         SELECT recibe un array con todas los parametros
     '''
-    def __init__(self,  instrs, order_option, limit_option) :
+    def __init__(self,  instrs, order_option, limit_option, tac) :
         self.instrs = instrs
         self.order_option = order_option
         self.limit_option = limit_option
         self.alias = f'{self.instrs.alias}'
+        self._tac = tac
+        self.line = 0
+        self.column = 0
+
     def __repr__(self):
         return str(vars(self))
-    
+
+    def compile(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        self.instrs.compile(instrucction) #TODO QUITAR AL TERMINAR
+
     def process(self, instrucction):
         instr = None
         order = None
@@ -134,6 +143,10 @@ class SelectQ(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def compile(self,instrucction):
+        for val in self.select_list:
+            print(val.compile(instrucction))
+
     def process(self, instrucction):
         list_select = None
         # print(self.alias)

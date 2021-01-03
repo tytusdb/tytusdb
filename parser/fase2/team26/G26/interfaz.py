@@ -1,6 +1,9 @@
 from tkinter import * #importando tkinter
 import tkinter as TK
 import gramatica as g
+
+import gramaticaF2 as g2
+
 import Utils.TablaSimbolos as table
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
@@ -15,7 +18,7 @@ import json
 
 ##########################################################################
 
-#storage.dropAll()
+storage.dropAll()
 datos = l.Lista({}, '')
 
 ##################################FUNCIONES#################################
@@ -28,7 +31,7 @@ def openFile():
         return
     editor.delete("1.0", TK.END)
     with open(route, "r") as input_file:
-        text = input_file.read()
+        text = input_file.read()    
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
@@ -39,6 +42,74 @@ def analisis():
 
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
+
+    try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        f.close()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
+
+        print(text)
+        datos.reInsertarValores(json.loads(text))
+        print(str(datos))
+    except:
+        print('error')
+    
+    #g2.tempos.restartTemp() #reinicia el contador de temporales.
+    prueba = g2.parse(texto)
+    #print(prueba['text'])
+
+    exepy = '''
+#imports
+from goto import with_goto
+import gramatica as g
+import Utils.Lista as l
+import Librerias.storageManager.jsonMode as storage
+
+storage.dropAll()
+
+heap = []
+
+datos = l.Lista({}, '') 
+'''
+    exepy += '''
+#funcion intermedia    
+def mediador():
+    global heap
+    # Analisis sintactico
+    instrucciones = g.parse(heap.pop())
+    for instr in instrucciones['ast'] :
+        print(instr.execute(datos))
+'''
+
+    exepy += '''
+#funciones de plg-sql   
+
+
+'''
+
+    exepy += '''
+#main
+#@with_goto
+def main():
+    global heap
+'''
+
+    exepy += str(prueba['text'])
+
+    exepy += '''
+#Ejecucion del main
+if __name__ == "__main__":
+    main()    
+'''
+
+    f = open("./c3d.py", "w")
+    f.write(exepy)
+    f.close()
+
     instrucciones = g.parse(texto)
     erroresSemanticos = []
 
@@ -47,7 +118,7 @@ def analisis():
     except:
         print("")
 
-    try:
+    '''try:
         f = open("./Utils/tabla.txt", "r")
         text = f.read()
         text = text.replace('\'','"')
@@ -59,8 +130,7 @@ def analisis():
         datos.reInsertarValores(json.loads(text))
         print(str(datos))
     except:
-        print('error')
-
+        print('error')'''
     for instr in instrucciones['ast'] :
 
             if instr != None:

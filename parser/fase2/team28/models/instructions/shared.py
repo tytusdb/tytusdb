@@ -13,6 +13,10 @@ class Instruction:
     def process(self):
         ''' metodo para la ejecucion '''
         pass
+    @abstractmethod
+    def compile(self):
+        ''' metodo para la ejecucion '''
+        pass
 
 
 class From(Instruction):
@@ -464,3 +468,6 @@ class ObjectReference(Instruction):
     
     def process(self, instruction):
         return self.reference_column.process(instruction)
+
+    def compile(self, enviroment):
+        return self.reference_column.compile()
