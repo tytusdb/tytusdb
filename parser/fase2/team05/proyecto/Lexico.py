@@ -1224,7 +1224,6 @@ def p_Replace1(t):
         t[7].getInstruccion()) + ';"'
     contador = contador + 1
     codigo_3D.append(C3D)
-
     ret = Retorno(CreateDatabase(t[6], t[7].getInstruccion(), True, False), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[6]))
     ret.getNodo().setHijo(t[7].getNodo())
@@ -1861,7 +1860,6 @@ def p_show(t):
     'I_SHOW       : SHOW DATABASES PCOMA'
     global reporte_gramatical, codigo_3D, contador
     C3D = 't' + str(contador) + ' = " show databases; "'
-
     contador = contador + 1
     codigo_3D.append(C3D)
     reporte_gramatical.append('<I_SHOW> ::= "SHOW" "DATABASE" ";" ')
@@ -1879,6 +1877,8 @@ def p_delete(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append('<I_DELETE> ::= "DELETE" "FROM" "ID" <PWHERE> ";" ')
     C3D = 't' + str(contador) + ' = "delete from ' + str(t[3]) + ' ' + str(t[4].getInstruccion()) + ';"'
+    codigo_3D.append(C3D)
+    contador = contador + 1
     ret = Retorno(DeleteFrom(t[3], t[4].getInstruccion()), NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[4].getNodo())
@@ -1890,6 +1890,11 @@ def p_delete(t):
 # ------------------------------------------------------- INDEX-------------------------------------------------
 def p_CIndex(t):
    'I_CINDEX        :   CREATE INDEX ID ON ID PABRE LCINDEX PCIERRA PCOMA'
+   global reporte_gramatical, contador, codigo_3D
+   reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" <LCINDEX> ")" ";" ')
+   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7].getInstruccion()) + ')' + ';"'
+   codigo_3D.append(C3D)
+   contador = contador + 1
    ret = Retorno(Index(t[3],t[5],t[7].getInstruccion(),False,False),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
@@ -1898,6 +1903,11 @@ def p_CIndex(t):
 
 def p_CIndex2(t):
    'I_CINDEX        :   CREATE INDEX ID ON ID USING HASH PABRE ID PCIERRA PCOMA'
+   global reporte_gramatical, contador, codigo_3D
+   reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "USING" "HASH" "(" "ID" ")" ";" ')
+   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7]) + ')' + ';"'
+   codigo_3D.append(C3D)
+   contador = contador + 1
    ret = Retorno(Index(t[3],t[5],t[9],False,True),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
@@ -1906,6 +1916,11 @@ def p_CIndex2(t):
 
 def p_CIndex3(t):
    'I_CINDEX        :   CREATE INDEX ID ON ID PABRE NUMERO COMA NUMERO PCIERRA PCOMA'
+   global reporte_gramatical, contador, codigo_3D
+   reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID"  "(" "NUMERO" "," "NUMERO"  ")" ";" ')
+   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7]) + ',' + str(t[9]) + ')' + ';"'
+   codigo_3D.append(C3D)
+   contador = contador + 1
    ret = Retorno(IndexMM(t[3],t[5],t[7],t[9]),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
@@ -1915,6 +1930,11 @@ def p_CIndex3(t):
   
 def p_CIndex4(t):
    'I_CINDEX        :   CREATE UNIQUE INDEX ID ON ID PABRE LCINDEX PCIERRA PCOMA'
+   global reporte_gramatical, contador, codigo_3D
+   reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "UNIQUE" "INDEX" "ID" "ON" "ID"  "(" <LCINDEX> ")" ";" ')
+   C3D = 't' + str(contador) + ' = "create unique index ' + str(t[4]) + ' on ' + str(t[6]) + '(' + str(t[8].getInstruccion()) + ')' + ';"'
+   codigo_3D.append(C3D)
+   contador = contador + 1
    ret = Retorno(Index(t[4],t[6],t[8].getInstruccion(),True,False),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[4]))
    ret.getNodo().setHijo(NodoAST(t[6]))
@@ -1923,6 +1943,11 @@ def p_CIndex4(t):
 
 def p_CIndex5(t):
    'I_CINDEX        :   CREATE INDEX ID ON ID PABRE LCINDEX PCIERRA PWHERE PCOMA'
+   global reporte_gramatical, contador, codigo_3D
+   reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" <LCINDEX> ")" <PWHERE> ";" ')
+   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7].getInstruccion()) + ')' + str(t[9].getInstruccion()) + ';"'
+   codigo_3D.append(C3D)
+   contador = contador + 1
    ret = Retorno(IndexW(t[3],t[5],t[7].getInstruccion(),t[9].getInstruccion()),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
@@ -1945,6 +1970,11 @@ def p_CIndex6(t):
        comp = 'NULLS FIRST'
    elif t[8] == 'NL':
        comp = 'NULLS LAST'
+   global reporte_gramatical, contador, codigo_3D
+   reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" "ID" <COMPLEMENTOINDEX> ")" ";" ')
+   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7]) + ' ' + str(comp) + ')' + ';"'
+   codigo_3D.append(C3D)
+   contador = contador + 1
    ret = Retorno(IndexOrden(t[3],t[5],t[7],t[8]), NodoAST('INDEX'))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
@@ -2032,7 +2062,7 @@ def p_ISelect(t):
     if isinstance(t[2], str):
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ';"'
-
+        codigo_3D.append(C3D)
         contador = contador + 1
         ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[2]))
@@ -2042,7 +2072,7 @@ def p_ISelect(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2].getInstruccion()) + ' ' + str(
             t[3].getInstruccion()) + ' ' + str(t[4].getInstruccion()) + ';"'
-
+        codigo_3D.append(C3D)
         contador = contador + 1
         ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False),
                       NodoAST("SELECT"))
@@ -2059,7 +2089,7 @@ def p_ISelect4(t):
     if isinstance(t[3], str):
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
-
+        codigo_3D.append(C3D)
         contador = contador + 1
         ret = Retorno(Select3(t[3], t[4].getInstruccion(), None, t[5].getInstruccion(), True), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[3]))
@@ -2069,7 +2099,7 @@ def p_ISelect4(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
-
+        codigo_3D.append(C3D)
         contador = contador + 1
         ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), None, t[5].getInstruccion(), True),
                       NodoAST("SELECT"))
@@ -2086,7 +2116,7 @@ def p_ISelect2(t):
     if isinstance(t[2], str):
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
-
+        codigo_3D.append(C3D)
         contador = contador + 1
         ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), False),
                       NodoAST("SELECT"))
@@ -2098,7 +2128,7 @@ def p_ISelect2(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
-
+        codigo_3D.append(C3D)
         contador = contador + 1
         ret = Retorno(
             Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), False),
