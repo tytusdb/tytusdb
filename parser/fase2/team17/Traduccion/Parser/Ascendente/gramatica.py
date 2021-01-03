@@ -33,7 +33,6 @@ from Interprete.SELECT.except_ import except_
 from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
 from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
 from graphviz import Digraph
-
 #import Interprete.Arbol as ArbolErrores
 
 ArbolErrores:Arbol = Arbol(None)
@@ -152,6 +151,7 @@ reservadas = {
     'and' : 'AND',
     'or'  : 'OR',
     'not'   : 'NOT',
+    'return': 'RETURN',
 
     # PREDICADOS DE STRICT
     'between'   : 'BETWEEN',
@@ -226,6 +226,11 @@ reservadas = {
     'acosh   ' : 'ACOSH',
     'atanh' : 'ATANH',
     'SIZE' : 'SIZE',
+    'next': 'NEXT',
+    'query': 'QUERY',
+    'execute': 'EXECUTE',
+    'using': 'USING',
+    'call': 'CALL',
 
     # FUNCIONES DE CADENA BINARIAS
     'length' : 'LENGTH',
@@ -288,7 +293,8 @@ reservadas = {
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
     'except' : 'EXCEPT',
-
+    'language': 'LANGUAGE',
+    'returns': 'RETURNS',
     'prueba' : 'PRUEBA'
 
 }
@@ -328,7 +334,8 @@ tokens  = [
     'ENTERO',
     'CADENA',
     'CADENADOBLE',
-    'ID'
+    'ID',
+    'DOLAR'
 ] + list(reservadas.values())
 
 # Tokens
@@ -336,7 +343,7 @@ t_PT        = r'\.'
 t_DOBPTS    = r'::'
 t_CORIZQ      = r'\['
 t_CORDER      = r']'
-
+t_DOLAR     = r'\$'
 t_MAS       = r'\+'
 t_MENOS     = r'-'
 t_TKEXP     = r'\^'
@@ -476,7 +483,7 @@ def p_definition(t):
 def p_instruction(t):
     '''
         instruction     : DataManipulationLenguage
-                        | plpgsql
+                        |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
                         | callfunction
     '''
     t[0] = t[1]
@@ -499,7 +506,6 @@ def p_plpgsql(t):
                 | BEGIN stmts END
     '''
 
-# TODO: Hay que agregarle que la funcion pueda traer return
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
 def p_declare(t):
     '''
@@ -509,10 +515,18 @@ def p_declare(t):
 
 def p_function(t):
     '''
-        function : CREATE FUNCTION ID PARIZQ arguments PARDER
-                 | CREATE OR REPLACE FUNCTION ID PARIZQ arguments PARDER
-                 | CREATE FUNCTION ID PARIZQ PARDER
-                 | CREATE OR REPLACE FUNCTION ID PARIZQ PARDER
+        function : CREATE FUNCTION ID PARIZQ arguments function_ending
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+                 | CREATE FUNCTION ID PARIZQ function_ending
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
+    '''
+
+
+def p_function_ending(t):
+    '''
+        function_ending : PARDER RETURNS types
+                        | PARDER RETURNS types AS DOLAR DOLAR
+                        | PARDER
     '''
 
 
@@ -552,6 +566,26 @@ def p_stmt(t):
 def p_statements_conditionals(t):
     '''
         statements : conditionals
+                   | return
+                   | calling_procedure
+    '''
+
+
+def p_calling_procedure(t):
+    '''
+        calling_procedure : CALL ID PARIZQ exp_list PARDER
+    '''
+
+
+# ================= RETURN =================
+
+def p_statements_return(t):
+    '''
+        return : RETURN exp
+               | RETURN NEXT exp
+               | RETURN QUERY select
+               | RETURN QUERY EXECUTE exp
+               | RETURN QUERY EXECUTE exp USING exp_list
     '''
 
 
@@ -585,7 +619,7 @@ def p_elsif(t):
 
 def p_else(t):
     '''
-        else : ELSE statements
+        else : ELSE stmts
     '''
 
 # ================= CASE =================
@@ -593,10 +627,10 @@ def p_else(t):
 
 def p_case(t):
     '''
-        case : CASE exp WHEN exp_list THEN statements END CASE PTCOMA
-             | CASE WHEN exp_list THEN statements END CASE PTCOMA
-             | CASE exp WHEN exp_list THEN statements when_or_else END CASE PTCOMA
-             | CASE WHEN exp_list THEN statements when_or_else END CASE PTCOMA
+        case : CASE exp WHEN exp_list THEN stmts END CASE
+             | CASE WHEN exp_list THEN stmt END CASE
+             | CASE exp WHEN exp_list THEN stmts when_or_else END CASE
+             | CASE WHEN exp_list THEN stmts when_or_else END CASE
     '''
 
 
@@ -617,7 +651,7 @@ def p_other_when_list(t):
 
 def p_other_when(t):
     '''
-        other_when : WHEN exp_list THEN statements
+        other_when : WHEN exp_list THEN stmts
     '''
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
