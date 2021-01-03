@@ -1985,6 +1985,16 @@ def p_delete(t):
     nuevo.hijos.append(Delete('FROM',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[3]))
     t[0] = nuevo
+
+def p_delete_2(t):
+    '''sent_delete : DELETE FROM IDENTIFICADOR sentencia_where'''
+    reportebnf.append(bnf["p_delete"])    
+    nuevo = Delete('SENTENCIA_DELETE')
+    nuevo.hijos.append(Delete('DELETE',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(Delete('FROM',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(t[4])
+    t[0] = nuevo    
     
 # FIN SENTENCIA DELETE
 

@@ -90,7 +90,7 @@ class Start(Nodo):
             elif hijo.nombreNodo == "SENTENCIA_DROP":
                 self.listaSemanticos.append(hijo.execute(None))
             elif hijo.nombreNodo == "SENTENCIA_DELETE":
-                hijo.execute(enviroment)
+                self.listaSemanticos.append(hijo.execute(None))
             elif hijo.nombreNodo == 'SENTENCIA_UNION_ALL':
                 nuevoUnionAll = UnionAll()
                 resp = nuevoUnionAll.execute(hijo)

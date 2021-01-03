@@ -36,6 +36,15 @@ class Column():
         self.isCheck = None
         self.referenceColumn = None
 
+class Index():
+    def __init__(self):
+        self.name = None
+        self.table = None
+        self.method = None
+        self.listaAttribb = []
+        self.sentenciaWhere = None
+
+
 file_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))+ '\\estructura.json')
 
 
@@ -51,9 +60,8 @@ class TypeChecker():
     def UseDB(self,database : str):
         return self.existeDB(database)
 
-            
     #.#############################################Adds a new database
-    def createDatabase(self,database : str,owner : str, mode) -> bool:
+    def createDatabase(self,database : str,owner : str, mode, indexes = []) -> bool:
         dataFinal = None
         with open(file_dir) as file:
             #Load data as a dictionary
@@ -63,7 +71,8 @@ class TypeChecker():
                     database:{
                         "tables" : {},
                         "owner" : owner,
-                        "mode" : mode
+                        "mode" : mode,
+                        "indexes" : indexes
                     }   
                 }
                 data.update(creacion)
@@ -93,6 +102,57 @@ class TypeChecker():
     #.##################################################Replace database
     def replaceDatabase(self,database : str, owner : str = None, mode : str = None):
         return self.deleteDatabase(database) and self.createDatabase(database,owner,mode)
+
+
+
+
+    ######################## CreateIndex
+    def create_index(self, database : str, index : Index):
+        dataFinal = None
+        with open(file_dir) as file:
+            data = json.load(file)
+            if database in data:
+                indices = data[database]["indexes"]
+                listanombres = []
+                for ind in indices:
+                    listanombres.append(ind["name"])
+                if index.name not in listanombres:
+                    indices.append({
+                        "name" : index.name,
+                        "table" : index.table,
+                        "method" : index.method,
+                        "listaAttribb" : index.listaAttribb,
+                        "sentenciaWhere" : index.sentenciaWhere
+                        })
+                    dataFinal = json.dumps(data)
+                else:
+                    return None
+            else:
+                return None
+        if dataFinal is not None:
+            file = open(file_dir,'w')
+            file.write(dataFinal)
+            file.close()
+
+    def return_indexJSON(self, database : str):
+        if self.existeDB(database):
+            with open(file_dir) as file:
+                data = json.load(file)
+                return data[database]["indexes"]
+        return []        
+
+    def return_indexesObject(self,database : str):
+        lista = self.return_indexJSON(database)
+        retorno = []
+        for indx in lista:
+            index_tmp = Index()
+            index_tmp.name = indx["name"]
+            index_tmp.table = indx["table"]
+            index_tmp.method = indx["method"]
+            index_tmp.listaAttribb = indx["listaAttribb"]
+            index_tmp.sentenciaWhere = indx["sentenciaWhere"]
+            retorno.append(index_tmp)
+        return retorno
 
 
     #.####################################Creates a table in the database
