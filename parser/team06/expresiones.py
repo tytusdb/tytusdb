@@ -815,7 +815,15 @@ class ExpresionIsNotDistinct(ExpresionNumerica):
         self.valor2 = valor2
 
 
-
+class ExpresionIgualdad(ExpresionNumerica):
+    '''
+        Esta clase representa que valor sera actualizado en una
+        columna, o la condicion que debe cumplir la columna para 
+        poder actulizar
+    '''
+    def __init__(self,exp1,exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
 
 #---------- expresiones complementarias del where--------------
 class ExpresionLimit(ExpresionNumerica):

@@ -25,6 +25,7 @@ class gramaticaAscendenteTree:
 #                       INICIA ANALIZADOR LEXICO
 # -----------------------------------------------------------------------------
 #palabras reservadas del lenguaje
+
 reservadas = {
     #   PALABRAS RESERVADAS POR SQL
     'show' : 'SHOW',
@@ -47,9 +48,7 @@ reservadas = {
     'in' : 'IN',
     'concat' : 'CONCAT',
     'only':'ONLY',
-
     'as' : 'AS',
-    'upper' : 'UPPER',
     'sqrt' : 'SQRT',
     'avg' : 'AVG',
     'sum' : 'SUM',
@@ -64,7 +63,6 @@ reservadas = {
     'union' : 'UNION',
     'all' : 'ALL',
     'insert' : 'INSERT',
-    'unknown':'UNKNOWN',
     'into' : 'INTO',
     'values' : 'VALUES',
     'update' : 'UPDATE',
@@ -75,7 +73,7 @@ reservadas = {
     'key' : 'KEY',
     'null' : 'NULL',
     'nulls':'NULLS',
-    'call':'CALL',
+
     'unique' : 'UNIQUE',
     'check' : 'CHECK',
     'cbrt' : 'CBRT',
@@ -101,7 +99,6 @@ reservadas = {
     'column' : 'COLUMN',
     'rename' : 'RENAME',
     'to' : 'TO',
-    'view' : 'VIEW',
     'replace' : 'REPLACE',
     'type' : 'TYPE',
     'enum' : 'ENUM',
@@ -178,7 +175,6 @@ reservadas = {
     'join' : 'JOIN',
     'natural' : 'NATURAL',
     'case' : 'CASE',
-    'when' : 'WHEN',
     'then' : 'THEN',
     'begin' : 'BEGIN',
     'end' : 'END',
@@ -220,7 +216,7 @@ reservadas = {
     'function' : 'FUNCTION',
     'returns' : 'RETURNS',
     'returning':'RETURNING',
-
+    'call':'CALL',
     'between' : 'BETWEEN',
     'ilike' : 'ILIKE',
     'is':'IS',
@@ -245,10 +241,13 @@ reservadas = {
     # INDEX
     'index':'INDEX',
     'hash':'HASH',
-    'perform' : 'PERFORM'
+    'perform' : 'PERFORM',
 
+    'procedure' : 'PROCEDURE',
+    'out' : 'OUT'
 # revisar funciones de tiempo y fechas
 }
+
 # listado de tokens que manejara el lenguaje (solo la forma en la que los llamare  en las producciones)
 tokens  = [
     'PUNTOYCOMA',
@@ -283,6 +282,7 @@ tokens  = [
     'COLOCHO',
     'DESPLAZAMIENTODERECHA',
     'DESPLAZAMIENTOIZQUIERDA',
+    'DOLAR',
 
 
 #tokens que si devuelven valor
@@ -325,7 +325,7 @@ t_NUMERAL                               = r'\#' #REVISAR
 t_COLOCHO                               = r'~'  #REVISAR
 t_DESPLAZAMIENTODERECHA                 = r'>>'
 t_DESPLAZAMIENTOIZQUIERDA               = r'<<'
-
+t_DOLAR                                 = r'\$'
 
 
 #definife la estructura de los decimales
@@ -3968,7 +3968,7 @@ def p_updateBD(t):
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_asignaciones(t):
-    'asignaciones         : asignaciones COMA asigna'
+    'asignaciones         : asignaciones COMA operacion'
     nodeFather = nodeAst()
     nodeFather.token = 'ASIGNACIONES'
 
@@ -3982,28 +3982,12 @@ def p_asignaciones(t):
 
 
 def p_asignaciones_2(t):
-    'asignaciones         : asigna'
+    'asignaciones         : operacion'
     nodeFather = nodeAst()
     nodeFather.token = 'ASIGNACIONES'
 
     nodeSon1 = t[1]
     nodeFather.son.append(nodeSon1)
-
-    t[0] = nodeFather
-
-
-def p_asigna(t):
-    'asigna               : ID IGUAL operacion'
-    nodeFather = nodeAst()
-    nodeFather.token = 'ASIGNA'
-
-    nodeSon1 = nodeAst()
-    nodeSon1.token = 'ID'
-    nodeSon1.lexeme = t[1]
-    nodeFather.son.append(nodeSon1)
-
-    nodeSon3 = t[3]
-    nodeFather.son.append(nodeSon3)
 
     t[0] = nodeFather
 
@@ -4494,8 +4478,6 @@ def p_tipo(t):
     '''tipo            :  SMALLINT
                         | INTEGER
                         | BIGINT
-                        | DECIMAL
-                        | DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA
                         | NUMERIC
                         | REAL
                         | DOUBLE PRECISION
@@ -4554,47 +4536,11 @@ def p_tipo(t):
         t[0] = nodeFather
 
     # -------------------------------------------------------------------------------------------------------------- 
-    elif t[1].upper()=="DECIMAL":
-        nodeFather = nodeAst()
-        nodeFather.token = 'TIPO'
+    
+    
+    
 
-        nodeSon1 = nodeAst()
-        nodeSon1.token = 'DECIMAL'
-        nodeSon1.lexeme = t[1]
-        nodeFather.son.append(nodeSon1)
-
-        t[0] = nodeFather
-
-    elif t[1].upper()=="DECIMAL" and t[2]=="(":
-        nodeFather = nodeAst()
-        nodeFather.token = 'tipo'
-
-        nodeSon1 = nodeAst()
-        nodeSon1.token = 'DECIMAL'
-        nodeSon1.lexeme = t[1]
-        nodeFather.son.append(nodeSon1)
-
-        nodeSon2 = nodeAst()
-        nodeSon2.token = '('
-        nodeSon2.lexeme = t[2]
-        nodeFather.son.append(nodeSon2)
-
-        nodeSon3 = nodeAst()
-        nodeSon3.token = 'ENTERO'
-        nodeSon3.lexeme = t[3]
-        nodeFather.son.append(nodeSon3)
-
-        nodeSon4 = nodeAst()
-        nodeSon4.token = 'ENTERO'
-        nodeSon4.lexeme = t[5]
-        nodeFather.son.append(nodeSon3)
-
-        nodeSon5 = nodeAst()
-        nodeSon5.token = ')'
-        nodeSon5.lexeme = t[6]
-        nodeFather.son.append(nodeSon2)
-
-        t[0] = nodeFather
+    
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="NUMERIC":
@@ -4852,6 +4798,52 @@ def p_tipo(t):
         nodeFather.son.append(nodeSon1)
 
         t[0] = nodeFather
+
+
+def p_tipo_2(t):
+    'tipo               : DECIMAL'
+    nodeFather = nodeAst()
+    nodeFather.token = 'TIPO'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DECIMAL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
+
+def p_tipo_3(t):
+    'tipo               : DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA '
+    nodeFather = nodeAst()
+    nodeFather.token = 'tipo'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DECIMAL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = '('
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ENTERO'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'ENTERO'
+    nodeSon4.lexeme = t[5]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = ')'
+    nodeSon5.lexeme = t[6]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+    
 
     
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------

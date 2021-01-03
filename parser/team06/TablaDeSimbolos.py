@@ -377,6 +377,16 @@ class TablaDeSimbolos() :
                 self.simbolos[simb].valor.pop(posvalor)
         return 0
 
+#--------------- Update de Registro
+    def UpdateRegistro(self,nombre,BD,tabla,dato,pos):
+        clave = str(nombre) + str(BD) + str(tabla)
+        if not clave in self.simbolos :
+            print('Error: La tabla: ', nombre, ' no definida.')
+            return 0
+        
+        self.simbolos[clave].valor[pos] = dato
+        return 1
+
     def printcontsimbolos(self):
         tm = 0
         for simb in self.simbolos:
