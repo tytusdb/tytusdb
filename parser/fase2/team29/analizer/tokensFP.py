@@ -119,33 +119,37 @@ reservadas = {
     "THEN": "R_THEN",
     "ELSE": "R_ELSE",
     "END": "R_END",
-    "INDEX":"R_INDEX",
-    "HASH":"R_HASH",
+    "INDEX": "R_INDEX",
+    "HASH": "R_HASH",
     "BEGIN": "R_BEGIN",
     "DECLARE": "R_DECLARE",
     "ALIAS": "R_ALIAS",
-    "FOR" : "R_FOR",
-    "RECORD":"R_RECORD",
+    "FOR": "R_FOR",
+    "RECORD": "R_RECORD",
     "DEFAULT": "R_DEFAULT",
     "RETURN": "R_RETURN",
-    "QUERY":"R_QUERY",
+    "QUERY": "R_QUERY",
     "ELSIF": "R_ELSEIF",
     "ROWTYPE": "R_ROWTYPE",
-    "RETURNING":"R_RETURNING",
+    "RETURNING": "R_RETURNING",
     "STRICT": "R_STRICT",
     "CONSTANT": "R_CONSTANT",
-    "PERFORM":"R_PERFORM",
-    "EXECUTE":"R_EXECUTE",
-    "GET":"R_GET",
-    "DIAGNOSTICS":"R_DIAGNOSTIC",
-    "CURRENT":"R_CURRENT",
-    "ROW_COUNT":"R_ROW_COUNT",
-    "EXCEPTION":"R_EXCEPTION",
-    "RAISE":"R_RAISE",
-    "NOTICE":"R_NOTICE",
+    "PERFORM": "R_PERFORM",
+    "EXECUTE": "R_EXECUTE",
+    "GET": "R_GET",
+    "DIAGNOSTICS": "R_DIAGNOSTIC",
+    "CURRENT": "R_CURRENT",
+    "ROW_COUNT": "R_ROW_COUNT",
+    "EXCEPTION": "R_EXCEPTION",
+    "RAISE": "R_RAISE",
+    "NOTICE": "R_NOTICE",
     "NEXT": "R_NEXT",
-
-
+    "FUNCTION": "R_FUNCTION",
+    "RETURNS": "R_RETURNS",
+    "LANGUAGE": "R_LANGUAGE",
+    "PLPGSQL": "R_PLPGSQL",
+    "SQLSTATE": "R_SQLSTATE",
+    "OTHERS": "R_OTHERS",
 }
 
 reservadas.update(r_types)
@@ -205,7 +209,7 @@ t_O_PRODUCTO = r"\*"
 t_O_DIVISION = r"/"
 t_O_EXPONENTE = r"\^"
 t_O_MODULAR = r"%"
-t_O_ASIGNACION= r":="
+t_O_ASIGNACION = r":="
 
 t_OL_DISTINTODE = r"!=|<>"
 t_OL_MAYORQUE = r">"
@@ -293,11 +297,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
-
-
 # Funcion de error para el lexer
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
-
-
