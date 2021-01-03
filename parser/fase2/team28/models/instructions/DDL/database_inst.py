@@ -45,7 +45,7 @@ class CreateDB(Instruction):
         typeChecker.createDatabase(database, self._noLine,
                                    self._noColumn)
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
@@ -62,7 +62,7 @@ class DropDB(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
@@ -83,7 +83,7 @@ class ShowDatabase(Instruction):
         self._patherMatch = patherMatch
         self._tac = tac
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
@@ -138,7 +138,7 @@ class AlterDatabase(Instruction):
         self._noColumn = noColumn
         self._tac = tac
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
@@ -164,7 +164,7 @@ class UseDatabase(Instruction):
         self._noColumn = noColumn
         self._tac = tac
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 

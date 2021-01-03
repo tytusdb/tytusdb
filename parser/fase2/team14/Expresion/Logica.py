@@ -1,6 +1,7 @@
 from Expresion.Binaria import Binaria
 from Entorno import Entorno
 from Expresion.Terminal import Terminal
+from Expresion.Id import Identificador
 from tkinter import *
 from Expresion.variablesestaticas import *
 from reportes import *
@@ -12,9 +13,8 @@ class Logica(Binaria):
 
 
     def getval(self, entorno):
-        if isinstance(self.exp1, Terminal) and isinstance(self.exp2, Terminal):
-            if (self.exp1.tipo.tipo == 'identificador' or self.exp2.tipo.tipo == 'identificador'):
-                return self
+        if isinstance(self.exp1, Identificador) and isinstance(self.exp2, Identificador):
+            return self
 
         valizq=self.exp1.getval(entorno)
         valder=self.exp2.getval(entorno)
@@ -37,3 +37,16 @@ class Logica(Binaria):
 
         self.tipo='boolean'
         return self
+
+    def traducir(self,entorno):
+        self.temp = entorno.newtemp()
+        nt=self.temp
+        exp1=self.exp1.traducir(entorno)
+        exp2=self.exp2.traducir(entorno)
+        cad = exp1.codigo3d
+        cad += exp2.codigo3d
+        cad += nt + '=' + str(exp1.temp) + ' ' + self.operador + ' ' + str(exp2.temp) + '\n'
+        self.codigo3d=cad
+
+        return self
+
