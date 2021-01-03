@@ -84,6 +84,7 @@ def list_expressions_groupby(array, enviroment):
 
 def loop_list(array, enviroment):
     lista1 = []
+    lista_alias = []
     tabla = None
     try:
         for _, data in enumerate(array):
@@ -92,8 +93,9 @@ def loop_list(array, enviroment):
                 tabla = valores
             else:
                 lista1.append(valores.value)
+                lista_alias.append(valores.alias)
         if len(lista1) >= 1:
-            return lista1
+            return [lista1, lista_alias]
         else:
             return tabla
     except:
@@ -168,7 +170,7 @@ def convert_dictionary(array1, array2):
     # print(dictionary) working uwu 
     return dictionary
 
-def select_all(array,linea, column):
+def select_all(table_for_type_checker, linea, column, name_tabla):
     database_id = SymbolTable().useDatabase
     lista = []
     if not database_id:
@@ -176,17 +178,17 @@ def select_all(array,linea, column):
         ErrorController().add(4, 'Execution', desc, linea,column)#manejar linea y columna
         return None
         #Base de datos existe --> Obtener tabla
-    table_tp = TypeChecker().searchTable(database_id, array)
+    table_tp = TypeChecker().searchTable(database_id, table_for_type_checker)
     if not table_tp:
         desc = f": Table does not exists"
         ErrorController().add(4, 'Execution', desc, linea , column)#manejar linea y columna
         return None
-    table_cont = DataController().extractTable(array,linea,column)
+    table_cont = DataController().extractTable(table_for_type_checker,linea,column)
     
     headers = TypeChecker().searchColumnHeadings(table_tp)
     
     storage_columns(table_cont, headers, linea, column)
-    storage_table(table_cont,headers, array, linea, column)
+    storage_table(table_cont,headers, name_tabla, linea, column)
     
     tabla_select = pd.DataFrame(table_cont)
     # print(headers)
@@ -214,6 +216,7 @@ def storage_columns(table_cont, headers, linea, column):
             pass
         else:
             SymbolTable().add(valor, data,'Columns_Select', None, None, linea, column)
+
 
 def storage_table(table_cont,headers, name,  linea, column):
     lista = []

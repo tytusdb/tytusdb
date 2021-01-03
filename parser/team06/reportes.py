@@ -17,7 +17,8 @@ reporteGramatical2 = " "
 
 global conteoTemporales
 conteoTemporales=0
-
+global conteoEtiquetas
+conteoEtiquetas=0
 
 def invertir_cadena_manual(cadena):
     cadena_invertida = ""

@@ -1,3 +1,7 @@
+from Instrucciones.Asignacion import Asignacion
+from Instrucciones.Declaracion import Declaracion
+from Instrucciones.Ifclass import Ifclass
+from Instrucciones.Raise import Raise
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -122,7 +126,29 @@ reservadas = {
     'elsif': 'elsif',
     'else': 'else',
     'then': 'then',
-    'end': 'end'
+    'end': 'end',
+    'procedure':'procedure',
+    'language':'language',
+    'begin':'begin',
+    'end':'end',
+    'as':'as',
+    'call':'call',
+    'do':'do',
+    'raise':'raise',
+    'notice':'notice',
+    'plpgsql':'plpgsql',
+    'inout':'inout',
+    'info': 'info',
+    'debug': 'debug',
+    'log': 'log',
+    'notice': 'notice',
+    'warning': 'warning',
+    'exception': 'exception',
+    'format':'format',
+    'declare':'declare',
+    'returns':'returns',
+    'return':'return',
+    'function':'function'
 
 }
 
@@ -419,17 +445,101 @@ def p_instruccion15(t):
 
 def p_instruccion16(t):
     'instruccion      : DECLARACIONES  ptcoma'
-
+    t[0]=t[1]
 
 def p_instruccion17(t):
     'instruccion      : ASIGNACION  ptcoma'
-
+    t[0]=t[1]
 
 def p_instruccion18(t):
     '''instruccion      : CONDICIONIF  ptcoma'''
+    t[0] = t[1]
+
+def p_instruccion19(t):
+    '''instruccion      : PROCEDIMIENTOS '''
+
+def p_instruccion20(t):
+    '''instruccion      : FUNCIONES'''
 
 
 # INICIAMOS A RECONOCER LA FASE 2 -----------------------------------------------------------------
+
+def p_RETURN(t):
+    '''RETURN : return LEXP
+    '''
+def p_RETURN1(t):
+    '''RETURN : return id para LEXP parc 
+    '''
+
+def p_FUNCIONES(t):
+    '''FUNCIONES : create function id para LPARAM parc RETURNP LENGUAJE LCONTENIDOP
+    '''
+def p_FUNCIONES1(t):
+    '''FUNCIONES : create function id para LPARAM parc RETURNP LCONTENIDOP LENGUAJE 
+    '''
+
+def p_RETURNP(t):
+    '''RETURNP : returns  TIPO as dolarn
+    '''
+
+
+def p_CALLPROCEDURE(t):
+    '''CALLPROCEDURE : call id para LEXP parc 
+    '''
+
+def p_PROCEDIMIENTOS(t):
+    '''PROCEDIMIENTOS : create procedure id para LPARAM parc LENGUAJE  LCONTENIDOP
+    '''
+def p_PROCEDIMIENTOS1(t):
+    '''PROCEDIMIENTOS : create procedure id para LPARAM parc LCONTENIDOP LENGUAJE
+    '''
+
+def p_LCONTENIDOP(t):
+    '''LCONTENIDOP : LCONTENIDOP CONTENIDOP 
+    '''
+def p_LCONTENIDOP1(t):
+    '''LCONTENIDOP : CONTENIDOP
+    '''
+
+def p_CONTENIDOP(t):
+    '''CONTENIDOP : as dolarn LISTACONTENIDO dolarn ptcoma
+    '''
+def p_CONTENIDOP1(t):
+    '''CONTENIDOP : do dolarn LISTACONTENIDO dolarn ptcoma
+    '''
+
+def p_CONTENIDOP2(t):
+    '''CONTENIDOP :  LISTACONTENIDO
+    '''
+
+def p_LPARA(t):
+    '''LPARAM : LPARAM coma inout id TIPO
+    '''
+def p_LPARA2(t):
+    '''LPARAM : LPARAM coma  id TIPO
+    '''
+
+def p_LPARA1(t):
+    '''LPARAM :  inout id TIPO
+    '''
+def p_LPARA4(t):
+    '''LPARAM :  id TIPO
+    '''
+
+def p_LENGUAJE(t):
+    '''LENGUAJE : language plpgsql
+    '''
+def p_LENGUAJE1(t):
+    '''LENGUAJE : dolarn language plpgsql
+    '''
+def p_LENGUAJE2(t):
+    '''LENGUAJE : dolarn language plpgsql ptcoma
+    '''
+
+def p_BEGINEND(t):
+    '''BEGINEND : begin LISTACONTENIDO end
+    '''
+
 
 def p_CREATEINDEX(t):
     '''CREATEINDEX      : create index id on id para LEXP parc '''
@@ -462,25 +572,40 @@ def p_ORDEN(t):
                  | asc nulls last
                  | '''
 
+#def p_LDECLARE(t):
+#    ''' LDECLARE : LDECLARE  DECLARACIONES ptcoma
+ #   '''
+#def p_LDECLARE1(t): 
+#    ''' LDECLARE :   DECLARACIONES ptcoma
+#    '''
 
 def p_Declaraciones(t):
     ''' DECLARACIONES : id TIPO not null ASIG
     '''
-
+    if t[4]==None:
+        print('Error se le intenta asignar un valor nulo a una variable not null')
+        return
+    else:
+        t[0] = Declaracion(t[1],False, t[2], t[5],False)
 
 def p_Declaraciones1(t):
-    ''' DECLARACIONES : id TIPO ASIG
-    '''
+    ' DECLARACIONES : id TIPO ASIG'
+    t[0] = Declaracion(t[1], False, t[2], t[3])
 
 
 def p_Declaraciones2(t):
     ''' DECLARACIONES : id constant TIPO not null ASIG
     '''
-
+    if t[4]==None:
+        print('Error se le intenta asignar un valor nulo a una variable not null')
+        return
+    else:
+        t[0] = Declaracion(t[1], t[2], t[3], t[6],False)
 
 def p_Declaraciones3(t):
     ''' DECLARACIONES : id constant TIPO ASIG
     '''
+    t[0]=Declaracion(t[1],t[2],t[3],t[4])
 
 
 def p_ASIG(t):
@@ -488,67 +613,135 @@ def p_ASIG(t):
                  | dospuntos igual EXP
                  | igual EXP
                  | '''
+    if len(t) == 1:
+        t[0] = None
+    elif len(t) == 4:
+        t[0] = t[3]
+    else:
+        t[0] = t[2]
 
 
 def p_ASIGNACION(t):
     '''ASIGNACION : id dospuntos igual EXP
                  | id igual EXP'''
-
-
-def p_CONDICIONIF(t):
-    '''CONDICIONIF : if EXP  then LISTACONTENIDO  LELIF   ELSEF  end if
-    '''
-
+    if len(t)==4:
+        t[0]=Asignacion(t[1],t[3])
+    else:
+        t[0] = Asignacion(t[1], t[4])
 
 def p_CONDICIONIF1(t):
-    '''CONDICIONIF : if EXP then LISTACONTENIDO ELSEF  end if
-    '''
-
+    'CONDICIONIF : if EXP then LISTACONTENIDO ELSEF  end if'
+    t[0] = Ifclass(t[2], t[4],None, t[5])
 
 def p_CONDICIONIF2(t):
-    '''CONDICIONIF : if EXP then LISTACONTENIDO LELIF   end if
-    '''
-
+    'CONDICIONIF : if EXP then LISTACONTENIDO LELIF   end if'
+    t[0] = Ifclass(t[2], t[4],t[5])
 
 def p_CONDICIONIF3(t):
-    '''CONDICIONIF : if EXP then LISTACONTENIDO end if
-    '''
+    'CONDICIONIF : if EXP then LISTACONTENIDO end if'
+    t[0]=Ifclass(t[2],t[4])
 
+def p_CONDICIONIF4(t):
+    'CONDICIONIF : if EXP then LISTACONTENIDO LELIF ELSEF end if'
+
+    t[0]=Ifclass(t[2],t[4],t[5],t[6])
 
 def p_CONDICIONIF24(t):
-    '''LELIF : LELIF elsif EXP then LISTACONTENIDO
-    '''
-
+    'LELIF : LELIF elsif EXP then LISTACONTENIDO'
+    elsif = Ifclass(t[3], t[5], None, None)
+    t[1].append(elsif)
+    t[0] = t[1]
 
 def p_ELIF(t):
-    '''LELIF : elsif EXP then LISTACONTENIDO
-    '''
-
+    'LELIF : elsif EXP then LISTACONTENIDO'
+    t[0] = [Ifclass(t[2], t[4])]
 
 def p_ELSEF(t):
-    '''ELSEF : else LISTACONTENIDO
-    '''
+    'ELSEF : else LISTACONTENIDO'
+    t[0]=t[2]
+  
 
 
 def p_LISTACONTENIDO(t):
-    '''LISTACONTENIDO : LISTACONTENIDO CONTENIDO
-    '''
+    'LISTACONTENIDO : LISTACONTENIDO CONTENIDO'
+    t[1].append(t[2])
+    t[0] = t[1]
+
 
 
 def p_LISTACONTENIDO1(t):
-    '''LISTACONTENIDO : CONTENIDO
-                      |
-    '''
+    'LISTACONTENIDO : CONTENIDO'
+    t[0] = [t[1]]
 
 
 def p_CONTENIDO(t):
     '''CONTENIDO : ASIGNACION ptcoma
     '''
-
+    t[0]=t[1]
 
 def p_CONTENIDO1(t):
     '''CONTENIDO : DECLARACIONES ptcoma
     '''
+    t[0] = t[1]
+
+def p_CONTENIDO2(t):
+    'CONTENIDO : CONDICIONIF ptcoma'
+    t[0] = t[1]
+
+def p_CONTENIDO3(t):
+    'CONTENIDO : RAISE ptcoma'
+    t[0] = t[1]
+
+def p_CONTENIDO4(t):
+    'CONTENIDO : BEGINEND ptcoma'
+    t[0] = t[1]
+
+def p_CONTENIDO5(t):
+    'CONTENIDO : CALLPROCEDURE ptcoma '
+    t[0] = t[1]
+
+#def p_CONTENIDO6(t):
+#    'CONTENIDO : DECLARACIONES ptcoma  '
+#    t[0] = t[1]
+
+def p_CONTENIDO7(t):
+    'CONTENIDO : RETURN ptcoma  '
+    t[0] = t[1]
+
+def p_RAISE(t):
+    'RAISE :  raise LEVEL FORMAT'
+    t[0]=Raise(t[2],t[3])
+
+def p_RAISE1(t):
+    'RAISE :  raise LEVEL EXP'
+    t[0]=Raise(t[2],t[3])
+def p_RAISE2(t):
+    'RAISE : raise LEVEL '
+    t[0]=Raise(t[2],None)
+def p_RAISE3(t):
+    'RAISE : raise'
+    t[0]=Raise(None,None)
+
+
+def p_RAISE4(t):
+    'RAISE : raise LEVEL cadena coma id'
+
+
+def p_LEVEL(t):
+    '''LEVEL : info
+        | debug
+        | log
+        | notice
+        | warning
+        | exception'''
+    t[0]=t[1]
+
+
+def p_FORMAT(t):
+    'FORMAT : format para EXP  coma LEXP parc'
+
+
+
 
 
 # AQUI TERMINA LO DE LA FASE 2
