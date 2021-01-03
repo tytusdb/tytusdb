@@ -3077,6 +3077,7 @@ def alter_table(query,ts):
             res = ts.verificarcolumnaBDAT(columnaNew,h.bd_enuso,tablatemp)
             if res!=0:
                 print("ENCONTRE LA #$%& COLUMNA :V, YA ESTABA CREADA")
+                h.textosalida+="TYTUS>> La columna ya estaba creada: "+columnaNew+"\n"
                 """x = res.valor
                 if x!=None:
                     #NO PUEDO CAMBIAR EL TIPO PORQUE YA HAY VALORES ASOCIADOS A LA COLUMNA
@@ -3100,6 +3101,7 @@ def alter_table(query,ts):
                 tempTab = ts.obtener2(tablatemp+h.bd_enuso)
                 if tempTab == 0:
                     print("NO EXISSTE LA TABLA, NO PUEDO CREAR LA COLUMNA, F!!")
+                    h.textosalida+="TYTUS>> No encontré la tabla: "+query.id+"\n"
                 else:
                     print("EXISTE LA TABLA, PUEDO CREAR LA COLUMNAAAA")
                     #debo contar que id le toca
@@ -3111,29 +3113,35 @@ def alter_table(query,ts):
                         print(contenido.tipo2.longitud)
                         print(tablatemp)
                         idNueva = ts.numerodeColumnas(h.bd_enuso,tablatemp)
+                        longitudinal = str(contenido.tipo2.longitud)
                         print("AQUI VIENE ID NUEVA ---::>> ",idNueva)
+                        print("ESTA ES LA LONGITUD A GUARDAR ---::>> ",contenido.tipo2.longitud)
                         ahora = TS.Simbolo(idNueva,contenido.id1,contenido.tipo2.id,contenido.tipo2.longitud,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
                         print("xd")
                         ts.agregarnuevaColumna(ahora)
-                        ts.printcontsimbolos()
+                        #ts.printcontsimbolos()
+                        h.textosalida+="TYTUS>> Se agrego la columna: "+contenido.id1+" en la tabla: "+query.id+"\n"+" de tipo: "+contenido.tipo2.id+"("+longitudinal+")"+"\n"
                     else:
                         print("POR ACÁ CREO")
                         idNueva = ts.numerodeColumnas(h.bd_enuso,tablatemp)
                         ahora = TS.Simbolo(idNueva,contenido.id1,contenido.tipo2.id,None,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
                         ts.agregarnuevaColumna(ahora)
-                        ts.printcontsimbolos()              
+                        #ts.printcontsimbolos()
+                        h.textosalida+="TYTUS>> Se agrego la columna: "+contenido.id1+" en la tabla: "+query.id+" de tipo: "+contenido.tipo2.id+"\n"              
             #METODO PARA ALTERAR LA COLUMNA
             #h.bde_nuso
             #alterAddColumn(baseActual,contenido.id1,anyxd)
         elif contenido.tipo.upper()=="CHECK":
             print("SE AGREGARA UN CHECK")
             operacion = contenido.operacion
+            operaciontxt = str(contenido.operacion)
             id1byron = contenido.operacion.exp1.id
             print("exp1: ",id1byron)
             id2byron = contenido.operacion.exp2.id
             print("exp2: ",id2byron)
             ans = ts.actualizarcheckColumna(id1byron,h.bd_enuso,tablatemp,None,operacion)
-            ans = ts.actualizarcheckColumna(id2byron,h.bd_enuso,tablatemp,None,operacion)
+            h.textosalida+="TYTUS>> Se agrego el check en la columna: "+id1byron+" en la tabla: "+tablatemp+"\n"
+            #ans = ts.actualizarcheckColumna(id2byron,h.bd_enuso,tablatemp,None,operacion)
             '''if not id1byron.isnumeric():
                 ans = ts.actualizarcheckColumna(id1byron,h.bd_enuso,tablatemp,None,operacion)
             else:
@@ -3150,11 +3158,13 @@ def alter_table(query,ts):
             #print("nuevamente jejeje: ",contenidox.id2)
             #print(query.id)
             res = ts.actualizafkcolumna(contenidox.id1,h.bd_enuso,tabla,contenidox.id2,None)
+            h.textosalida+="TYTUS>> Se agrego la llave foránea en la columna: "+contenidox.id1+" en la tabla: "+tabla+" con referencia hacia: "+contenidox.id2+"\n"
         elif contenido.tipo.upper()=="PRIMARY":
             #print("SE AGREGARA UNA LLAVE PRIMARIA")
             contenidox = query.querys.contenido
             tabla = query.id
             res = ts.actualizapkcolumna(contenidox.id1,h.bd_enuso,tabla)
+            h.textosalida+="TYTUS>> Se agrego la llave primaria en la columna: "+contenidox.id1+" en la tabla: "+tabla+"\n"
         elif contenido.tipo.upper()=="CONSTRAINT":
             print("SE VIENE UN CONSTRAINT")
             if contenido.tipo2.upper()=="FOREIGN":
@@ -3167,6 +3177,7 @@ def alter_table(query,ts):
                 print(contenidox.id3)
                 print(contenidox.id4)
                 res = ts.actualizafkcolumnaAT(contenidox.id2,h.bd_enuso,tabla,contenidox.id3,contenidox.id4,idConstraint)
+                h.textosalida+="TYTUS>> Se agrego el constraint de FK: "+idConstraint+" en la columna: "+contenidox.id2+" de la tabla: "+tabla+" con referencia a: "+contenidox.id3+" y "+contenidox.id4+"\n"
             elif contenido.tipo2.upper()=="PRIMARY":
                 print("Y DENTRO VIENE UNA LLAVE PRIMARIA")
                 contenidox = query.querys.contenido
@@ -3177,6 +3188,7 @@ def alter_table(query,ts):
                 print(idConstraint)
                 print(nombre)
                 res = ts.actualizapkcolumnaAT(nombre,h.bd_enuso,tabla,idConstraint)
+                h.textosalida+="TYTUS>> Se agrego el constraint de PK: "+idConstraint+" en la columna: "+nombre+" de la tabla: "+tabla+"\n"
             elif contenido.tipo2.upper()=="UNIQUE":
                 print("Y DENTRO VIENE UN UNIQUE")
                 contenidox = query.querys.contenido
@@ -3187,6 +3199,7 @@ def alter_table(query,ts):
                 print(idConstraint)
                 print(nombre)
                 rs = ts.actualizauniqueColumnaAT(nombre,h.bd_enuso,tabla,idConstraint)
+                h.textosalida+="TYTUS>> Se agrego el constraint UNIQUE: "+idConstraint+" en la columna: "+nombre+" de la tabla: "+tabla+"\n"
         #print("VIENE UN ADD, POR TANTO SE AGREGA ALGO A LA TABLA")
         #print("SE AGREGARÁ UNA: ", query.querys.contenido.tipo)
         #print("DE NOMBRE: ",query.querys.contenido.id1)
@@ -3206,7 +3219,7 @@ def alter_table(query,ts):
             xd = ts.destruirColumna(nombreCol,h.bd_enuso,nombreTab)
             #AQUI VA EL CODIGO DE LA REASIGNACIÓN DE IDS A LAS TABLAS RESTANTES
             xd = ts.obtenerColumnas(nombreTab,h.bd_enuso)
-            print("TOTAL DE COLUMNAS")
+            #print("TOTAL DE COLUMNAS")
             print(len(xd))
             for x in range(0,len(xd)):
                 tempCambioid = ts.verificarcolumnaBDAT(xd[x],h.bd_enuso,nombreTab)
@@ -3214,6 +3227,8 @@ def alter_table(query,ts):
                 print("ESTE ES EL ID ANTERIOR--> ",tempCambioid.id)
                 tempCambioid.id = x
                 print("ESTE ES EL NUEVO ID ----> ",tempCambioid.id)
+            h.textosalida+="TYTUS>> Se eliminó la columna: "+nombreCol+" de la tabla: "+nombreTab+"\n"
+            
             '''
             nombreTab = query.id
             xd = ts.obtenerColumnas(nombreTab,h.bd_enuso)
@@ -3232,6 +3247,7 @@ def alter_table(query,ts):
             print(idConstraint)
             print(tabla)
             xd = ts.destruirConstraint(idConstraint,h.bd_enuso,tabla)
+            h.textosalida+="TYTUS>> Se eliminó el constraint: "+idConstraint+" de la tabla: "+tabla+"\n"
 
     elif(temp.upper()=="ALTER"):
         print("VIENE UN ALTER DENTRO DE OTRO ALTER")
@@ -3248,9 +3264,11 @@ def alter_table(query,ts):
                     print("ENCONTRE LA COLUMNA")
                     if res.valor!=None:
                         print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                        h.textosalida+="TYTUS>> Ya hay valores asignados, no se puede cambiar la columna : "+contenido.id+" a NOT NULL"+"\n"
                     else:
                         print("NO HAY VALORES, SE PUEDE CAMBIAR EL TIPO")
                         res.obligatorio = 0
+                        h.textosalida+="TYTUS>> Se cambio la columna : "+contenido.id+" a NOT NULL"+"\n"
             else:
                 print("VAMOS A SETEAR EL VALOR DE LA COLUMNA A NULL")
                 res = ts.verificarcolumnaBDAT(contenido.id,h.bd_enuso,tabla)
@@ -3258,8 +3276,10 @@ def alter_table(query,ts):
                     print("ENCONTRE LA COLUMNA")
                     if res.valor!=None:
                         print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                        h.textosalida+="TYTUS>> No se puede cambiar el tipo de : "+contenido.id+" a NULL"+" porque ya hay valores"+"\n"
                     else:
                         print("NO HAY VALORES, SE PUEDE CAMBIAR EL TIPO")
+                        h.textosalida+="TYTUS>> Se cambio la columna : "+contenido.id+" a NULL"+"\n"
                         res.obligatorio = 1
         elif contenido.tipo.upper()=="TYPE":
             print("SE LE ASIGNARA UN VALOR DIFERENTE A NULL Y NOT NULL, ESTE ES : ", contenido.tipoAsignar.id)
@@ -3270,16 +3290,21 @@ def alter_table(query,ts):
                 print("encontre la columna")
                 if res.valor!=None:
                     print("YA HAY VALORES ASIGNADOS, NO SE PUEDE CAMBIAR EL TIPO AHORA")
+                    h.textosalida+="TYTUS>> No se pudo cambiar el tipo de la columna : "+contenido.id+" a "+contenido.tipoAsignar.id+"\n"
                 else:
                     print("NO HAY VALORES, PUEDO CAMBIAR EL TIPO")
                     if nuevotipo.upper()=="VARCHAR":
                             longitud = contenido.tipoAsignar.longitud
+                            print("ESTA ES LA NUEVA LONGITUD--->: ",longitud)
                             res.tipo = nuevotipo
                             res.tamanoCadena = longitud
+                            h.textosalida+="TYTUS>> Se pudo cambiar el tipo de la columna : "+contenido.id+" a "+contenido.tipoAsignar.id+"\n"
                     else:
                             res.tipo = nuevotipo
+                            h.textosalida+="TYTUS>> Se pudo cambiar el tipo de la columna : "+contenido.id+" a "+contenido.tipoAsignar.id+"\n"
             else:
                 print("NO SE ENCONTRÓ LA TABLA, F")
+                h.textosalida+="TYTUS>> No se encontró la tabla : "+tabla+"\n"
                 
 
             #print("ESTE ES EL TIPO NUEVO-->: ",contenido.tipo2.id)

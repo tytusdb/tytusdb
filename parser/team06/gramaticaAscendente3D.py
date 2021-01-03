@@ -483,6 +483,7 @@ def p_query(t):
                     | callFunction
                     | createFunction
                     | createProcedure
+                    | statements
     '''
     t[0]=t[1]
  
@@ -2345,6 +2346,65 @@ def p_statementValores(t):
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                           STATEMENTS - IF
+#----------------------------------------------------- IF --------------------------------------------------------------------
+def p_if_1(t):
+    '''
+    if          :  IF  operacion THEN operacion END IF
+    '''
+    a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+    a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
+    h.conteoEtiquetas+=1
+    t[0]=a 
+def p_if_2(t):
+    '''
+    if          : IF operacion THEN operacion ELSE if 
+    '''
+    a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+    a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
+    a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
+    h.conteoEtiquetas+=2
+    a+= t[6]
+    t[0]=a
+def p_if_3(t):
+    '''
+    if          : IF operacion THEN operacion ELSE operacion END IF
+    '''
+    a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+    a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
+    a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
+    a+= "L"+str(h.conteoEtiquetas+1)+":"+"\n    "+str(t[6])+"\n"
+    h.conteoEtiquetas+=2
+    t[0]=a
+#-----------------------------------------------------DROP BD--------------------------------------------------------------------
+def p_case(t):
+    '''
+    case        : CASE contCase ELSE operacion END CASE
+    '''
+    a = "CASE"
+
+def p_case_1(t):
+    '''
+    case        : CASE contCaseInd ELSE operacion END CASE
+    '''
+def p_contCaseInd(t):
+    '''
+    contCaseInd : WHEN operacion THEN operacion
+    '''
+def p_contCase(t):
+    '''
+    contCase    : contCase contCaseInd
+         
+    '''
+def p_contCase_1(t):
+    '''
+    contCase    : contCaseInd
+    '''
+def p_statements(t):
+    '''
+    statements  : if
+                 
+    '''
+    t[0]=t[1]
 
 
 
