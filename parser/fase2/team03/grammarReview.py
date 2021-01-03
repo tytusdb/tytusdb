@@ -14,6 +14,8 @@ from parse.sql_dml.update import *
 from parse.sql_dml.delete import *
 from treeGraph import *
 from parse.symbol_table import *
+from parse.plpgsql.function import *
+from parse.plpgsql.declaration import *
 
 # ===========================================================================================
 # ==================================== LEXICAL ANALYSIS ==================================
@@ -482,14 +484,12 @@ def p_asig_basica(t):
         childsProduction  = addNotNoneChild(t,[4])
         graph_ref = graph_node(str("asig_basica"),    [t[1], t[2],t[3],t[4]]       , childsProduction)
         addCad("**\<ASIG_BASICA>** ::=  ':''='   \<EXP>  ';'       ")
-        t[0] = upNodo(True, 0, 0, graph_ref)
-    #####
+        t[0] = Declaration(t[1], False, None, True, t[4], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif len(t) == 4:
         childsProduction  = addNotNoneChild(t,[3])
         graph_ref = graph_node(str("asig_basica"),    [t[1], t[2],t[3]]       , childsProduction)
         addCad("**\<ASIG_BASICA>** ::=  '='   \<EXP>  ';'       ")
-        t[0] = upNodo(True, 0, 0, graph_ref)
-    #####
+        t[0] = Declaration(t[1], False, None, True, t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 
 
@@ -614,10 +614,11 @@ def p_if_inst0(t):
 #TODO @SergioUnix Arreglar grafo y reporte gramatical
 def p_stm_begin(t):
     '''stm_begin   : declare_opt BEGIN statements_begin    exception_opt  return_opt   END  if_opt '''
-    childsProduction  = addNotNoneChild(t,[1,3,4,5,7])
-    graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7]], childsProduction)
+    ##childsProduction  = addNotNoneChild(t,[1,3,4,5,7])
+    ##graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7]], childsProduction)
+    graph_ref = None
     addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf   ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    t[0] = FunctionBody(t[1], t[3], t[4], t[5], t.slice[2].lineno, t.slice[2].lexpos, graph_ref)
     #print(t)
 
 
@@ -640,11 +641,14 @@ def p_statements_begin(t):
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
     elif token.type == "asig_basica":
-        childsProduction  = addNotNoneChild(t,[1,2])
-        graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
+        ##childsProduction  = addNotNoneChild(t,[1,2])
+        ##graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<ASIG_BASICA>   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #print(t)
+        if t[1] is None:
+            t[0] = [t[2]]            
+        else:
+            t[1].append(t[2])
+            t[0] = t[1]        
 
 
 def p_statements_begin0(t):
@@ -854,8 +858,7 @@ def p_stm_create_function(t):
     childsProduction  = addNotNoneChild(t,[5,8,9,10])
     graph_ref = graph_node(str("stm_create_function"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10]],  childsProduction )
     addCad("**\<BLOCK_PLSQL>** ::= [\<DECLARE>] \<ASIG_BASICA> ';' ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    ##### 
+    t[0] = Function(t[3], t[5], t[8], t[10], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 
 def p_list_param_function_opt(t):
@@ -870,8 +873,7 @@ def p_list_param_function_opt(t):
             childsProduction.append(lista.graph_ref)
         graph_ref = graph_node(str("list_param_function"), [lista] ,childsProduction )
         addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<COLUMN_LIST>] ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####
+        t[0] = t[1]
     else:
         t[0]=None
 

@@ -1,6 +1,8 @@
 from parse.expressions.expression_enum import *
-from tac_enum import *
+from TAC.tac_enum import *
 import copy
+import os
+
 class Quadruple(object):
     def __init__(self, op: Enum, arg1:str, arg2:str, res:str, instType:Enum):
         self.op = op
@@ -81,7 +83,9 @@ class Quadruple(object):
         return False
     def __str__(self):
         if self.instType == OpTAC.ASSIGNMENT:
-            return f'{self.res} = {self.arg1} {self.op} {self.arg2}'
+            oper = self.op.strSymbol() if self.op else ''
+            arg2_ = self.arg2 if self.arg2 else ''
+            return f'{self.res} = {self.arg1} {oper} {arg2_}'            
         elif self.instType == OpTAC.GOTO:
             return f'goto {self.arg1}'
         elif self.instType == OpTAC.LABEL:
@@ -89,8 +93,82 @@ class Quadruple(object):
         elif self.instType == OpTAC.CONDITIONAL:
             return f'if {self.arg1} {self.op} {self.arg2} {self.res}'
         
-        #return f'[{str(self.op)},{str(self.arg1)},{str(self.arg2)},{str(self.res)}]'
+#This Funtion will unquewe each TAC (Quadruplees) from param list, aply each rule for each TAC and push that TAC to reslut
+# Ohh and save a log for wich rule was applied
+# return [result, reoved items]
+def DoOptimization(quadL: list):
+    #We need an list for the optiization result, a list for the log of the optimization
+    #Each Rule function modifi the current Quadruple (changing its values) and the list (remoing items)
+    #Each Rule function returns the elemens removed fro list (for log)
+    result = []
+    rulesApplied = []
+    while len(quadL) > 0:
+        tmp = quadL.pop(0)
+        removedItems = Rule1(quadL, tmp)
+        rulesApplied += removedItems
+
+        removedItems = Rule2(quadL, tmp)
+        rulesApplied += removedItems
+
+        removedItems = Rule3(quadL, tmp)
+        rulesApplied += removedItems
+
+        removedItems = Rule4(quadL, tmp)
+        rulesApplied += removedItems
+
+        removedItems = Rule5(quadL, tmp)
+        rulesApplied += removedItems
+        removedItems = Rule6(quadL, tmp)
+        rulesApplied += removedItems
+
+        removedItems = Rule7(quadL, tmp)
+        rulesApplied += removedItems
+
+        #Rule 8 - 11
+        if tmp.neutralElement():
+            removedItems.append(tmp)
+            continue
+
+        Rule12(tmp)
+        Rule13(tmp)
+        Rule14_16_17(tmp)
+        Rule15_18(tmp)
+        result.append(tmp)
+    return [result, removedItems]
+
+def printL(quadL: list):
+    for q in quadL:
+        print (q)
+
+def strTAC(quadL: list):
+    r = ''
+    for q in quadL:
+        r+= q.__str__() + '\n'
+    return r
+
+def getImports():
+    return f'from grammarReview import *\n'
+
+def getPlpgFolder():    
+    if not os.path.exists('data'):
+        os.makedirs('data')
+    if not os.path.exists('data/plpgObj'):
+        os.makedirs('data/plpgObj')
     
+    return 'data/plpgObj/'
+
+#Takes a list of Quadrupes (TAC) aply optimization rules
+#Write files .py for DB objects
+def Save_TAC_obj(objname: str, quadL: list):
+    optimiR = DoOptimization(quadL)
+    result = optimiR[0]
+    removed_items = optimiR[1]
+
+    f = open(f'{getPlpgFolder()}{objname}.py', "w")
+    content = getImports() + strTAC(result)
+    f.write(content)
+    f.close()
+
 
 def Rule1(quadL: list, currQuad: Quadruple):
     #Si existe una asignación de valor de la forma a = b y posteriormente existe una asignación de forma b = a, 
