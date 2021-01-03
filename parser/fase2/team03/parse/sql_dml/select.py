@@ -96,7 +96,16 @@ class Select(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        col_str = ''
+        table_str = ''
+        for col in self.col_names:
+            col_str = f'{col_str}{col.generate(table, tree)},'
+
+        for table in self.tables:
+            table_str = f'{table_str}{table.generate(table, tree)},'
+
+        return f'SELECT{" DISTINCT" if self.is_distinct else ""} {col_str[:-1]}' \
+               f'{f" FROM {table_str[:-1]}" if self.tables is not None else ""} {self.where.generate(table, tree)};'
 
 
 class Names(ASTNode):
@@ -104,6 +113,7 @@ class Names(ASTNode):
         ASTNode.__init__(self, line, column)
         self.is_asterisk = is_asterisk
         self.exp = exp
+        self.edited = alias is None
         if alias is None:
             self.alias = 'C_' + str(id(self))
         else:
@@ -118,7 +128,10 @@ class Names(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        if self.is_asterisk:
+            return '*'
+        else:
+            return f'{self.exp.generate(table, tree)}{f" AS {self.alias}" if not self.edited else ""}'
 
 
 class TableReference(ASTNode):
@@ -161,7 +174,10 @@ class Table(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        if self.subquery:
+            return f'({self.subquery.generate(table, tree)})'
+        else:
+            return f'{self.name}{f" AS {self.alias}" if self.alias is not None and self.alias != self.name else ""}'
 
 
 class Where(ASTNode):
@@ -182,7 +198,7 @@ class Where(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'WHERE {self.exp.generate(table, tree)}'
 
 
 #  Probably not needed but added anyways

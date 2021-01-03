@@ -52,7 +52,7 @@ class NumericNegative(ASTNode):
 
     def execute(self, table, tree):
         self.val = self.val.execute(table, tree)
-        if (type(self.val) == int or type(self.val) == float):
+        if type(self.val) == int or type(self.val) == float:
             return self.val * -1
         else:
             raise Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be number')
@@ -74,7 +74,7 @@ class Text(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val
+        return f"'{self.val}'"
 
 
 class BoolAST(ASTNode):
@@ -121,6 +121,10 @@ class DateAST(ASTNode):
         super().execute(table, tree)
         return self.option + ' ' + str(self.result)
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'EXTRACT ({self.option.generate(table, tree)} {self.val})'
+
 
 class DateAST_2(ASTNode):
     def __init__(self, option, line, column, graph_ref):
@@ -134,7 +138,7 @@ class DateAST_2(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val
+        return f'{str(self.option)} FROM TIMESTAMP'
 
 
 class ColumnName(ASTNode):
@@ -167,8 +171,11 @@ class ColumnName(ASTNode):
             return fullname
 
     def generate(self, table, tree):
-        super().generate(table, tree)
-        return self.cName
+        super().generate(table, tree)        
+        fullname = self.cName
+        if self.tName is not None and self.tName != "":
+            fullname = f'{self.tName}.{fullname}'
+        return fullname
 
 
 class Now(ASTNode):
@@ -320,7 +327,7 @@ class RelationalExpression(ASTNode):
             return f'{self.exp1.generate(table, tree)} >= {self.exp2.execute(table, tree)}'
         if self.operator == OpRelational.LESS_EQUALS:
             return f'{self.exp1.generate(table, tree)} <= {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.LIKE:  # TODO add execution to [NOT] LIKE, Regex maybe?
+        if self.operator == OpRelational.LIKE:
             return f'{self.exp1.generate(table, tree)} LIKE {self.exp2.execute(table, tree)}'
         if self.operator == OpRelational.NOT_LIKE:
             return f'{self.exp1.generate(table, tree)} NOT LIKE {self.exp2.execute(table, tree)}'

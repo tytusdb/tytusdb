@@ -229,6 +229,7 @@ reserved = {
     'notice' : 'NOTICE',
     'elseif' : 'ELSEIF',
     'exception' :  'EXCEPTION',
+    'diagnostics' : 'DIAGNOSTICS',
 }
 
 tokens = [
@@ -427,7 +428,10 @@ def p_statement(t):
                     | stm_perform  PUNTOCOMA 
                     | stm_begin PUNTOCOMA
                     | stm_if PUNTOCOMA  
-                    | stm_create_function PUNTOCOMA               
+                    | stm_create_function PUNTOCOMA      
+                    | stm_execute PUNTOCOMA     
+                    | stm_get PUNTOCOMA 
+                    
                     '''
 
     #                    |    stm_select PUNTOCOMA
@@ -517,7 +521,9 @@ def p_stm_if(t):
 
 def p_condition(t):
     '''condition   : NOT FOUND
-                    | predicateExpression      '''
+                    | predicateExpression 
+                    | group_list
+                       '''
 
 
     if len(t) == 3:
@@ -528,7 +534,7 @@ def p_condition(t):
     elif len(t) == 2:
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("condition"), [t[1]], childsProduction)
-        addCad("**\<CONDITION>** ::=  \<EXP_PREDICATE>   ")
+        addCad("**\<CONDITION>** ::=  [\<EXP_PREDICATE> | \<GROUP_LIST>]   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
 
@@ -626,7 +632,8 @@ def p_stm_begin(t):
 def p_statements_begin(t):
     '''statements_begin   : statements_begin statements_sql PUNTOCOMA
                           | statements_begin   stm_if  PUNTOCOMA
-                          | statements_begin   asig_basica  PUNTOCOMA    '''
+                          | statements_begin   asig_basica  PUNTOCOMA
+                          | statements_begin  stm_case PUNTOCOMA    '''
     token = t.slice[2]
     if token.type == "statements_sql":
         childsProduction  = addNotNoneChild(t,[1,2])
@@ -648,7 +655,13 @@ def p_statements_begin(t):
             t[0] = [t[2]]            
         else:
             t[1].append(t[2])
-            t[0] = t[1]        
+            t[0] = t[1]                
+    elif token.type == "stm_case":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
+        addCad("**\<statements_begin>** ::= statements_begin  \<STM_CASE>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
 
 
 def p_statements_begin0(t):
@@ -826,6 +839,175 @@ def p_return_opt0(t):
 
 
 
+
+
+def p_stm_execute(t):
+    '''stm_execute :   EXECUTE    TEXTO   INTO  ID  USING  group_list 
+                    |  EXECUTE    ID PARA  TEXTO  COMA column_list PARC INTO ID USING  group_list
+                    |  EXECUTE    ID PARA  TEXTO TEXTO COMA column_list PARC INTO ID USING  group_list
+                    |  EXECUTE    ID PARA  TEXTO  COMA column_list PARC  USING  group_list
+                    |  EXECUTE    ID PARA  TEXTO  TEXTO COMA column_list PARC  USING  group_list                     
+                    |  EXECUTE    ID PARA  TEXTO  COMA  column_list  PARC  
+                         '''
+
+    token = t.slice[1]
+    if len(t) == 7:
+        childsProduction  = addNotNoneChild(t,[6])
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],t[6]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  TEXTO    tInto  tIdentifier  tUsing    \<GROUP_LIST>      ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 12:
+        childsProduction  = addNotNoneChild(t,[11])
+        lista = None
+        if t[6] != None:
+            lista = t[6][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],lista,t[7],t[8],t[9],t[10],t[11]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   \<COLUMN_LIST>   ’)’  tInto tIdentifier  tUsing    \<GROUP_LIST> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 13:
+        childsProduction  = addNotNoneChild(t,[12])
+        lista = None
+        if t[7] != None:
+            lista = t[7][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],t[6],lista,t[8],t[9],t[10],t[11],t[12]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  tIdentifier  ‘(’  TEXTO  TEXTO   ‘,’   \<COLUMN_LIST>   ’)’  tInto tIdentifier  tUsing    \<GROUP_LIST> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 10:
+        childsProduction  = addNotNoneChild(t,[9])
+        lista = None
+        if t[6] != None:
+            lista = t[6][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],lista,t[7],t[8],t[9]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=    tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   \<COLUMN_LIST>   ’)’   tUsing    \<GROUP_LIST>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 11:
+        childsProduction  = addNotNoneChild(t,[10])
+        lista = None
+        if t[7] != None:
+            lista = t[7][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],t[6],lista,t[8],t[9],t[10]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=    tExecute  tIdentifier  ‘(’  TEXTO  TEXTO   ‘,’   \<COLUMN_LIST>   ’)’   tUsing    \<GROUP_LIST>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 8:
+        childsProduction  = []
+        lista = None
+        if t[6] != None:
+            lista = t[6][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2],t[3],t[4],t[5],lista,t[7]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=   tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   \<COLUMN_LIST>   ’)’   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+
+
+
+
+def p_stm_get(t):
+    '''stm_get :   GET DIAGNOSTICS asig_basica 
+                         '''
+
+    token = t.slice[1]
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[3])
+        graph_ref = graph_node(str("STM_GET"), [t[1], t[2],t[3]],childsProduction )
+        addCad("**\<STM_GET>** ::=  tGet  tDiagnostics \<ASIGNACION_BASICA>      ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+
+
+
+
+
+
+def p_stm_case(t):
+    '''stm_case   : CASE ID when_inst  case_else   END CASE  '''
+    
+    token = t.slice[1]
+    if len(t) == 7:
+        childsProduction  = addNotNoneChild(t,[3,4])
+        graph_ref = graph_node(str("stm_case"), [t[1], t[2],t[3],t[4],t[5],t[6]],childsProduction )
+        addCad("**\<STM_CASE>** ::=   tCase  tIdentifier     [\<WHEN_INST>]   [\<CASE_ELSE>]   tEnd  tCase      ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+
+def p_when_inst(t):
+    '''when_inst   : when_inst WHEN condition THEN case_inst
+                   | WHEN condition THEN case_inst   '''
+    token = t.slice[1]
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[1,3,5])
+        graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],t[4],t[5]],childsProduction )
+        addCad("**\<WHEN_INST>** ::=  \<WHEN_INST >         tWhen  \<CONDITION> tThen   \<CASE_INST>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 5:
+        childsProduction  = addNotNoneChild(t,[2,4])
+        graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],t[4]],childsProduction )
+        addCad("**\<WHEN_INST>** ::=     tWhen  \<CONDITION> tThen   \<CASE_INST>      ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+   
+
+
+def p_case_else(t):
+    '''case_else   : ELSE case_inst
+                   | empty   '''
+    
+    token = t.slice[1]
+    if len(t) == 3:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("case_else"), [t[1], t[2]],childsProduction )
+        addCad("**\<CASE_ELSE>** ::= tElse    \<CASE_INST>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 2:
+        t[0] = None
+        #print(t)
+
+def p_case_inst(t):
+    '''case_inst   : case_inst  statements_sql PUNTOCOMA
+                   | case_inst  raise_op
+                   | case_inst  asig_basica  PUNTOCOMA '''
+    
+    token = t.slice[2]
+    if token.type == "statements_sql":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("case_inst"), [t[1], t[2]],childsProduction )
+        addCad("**\<CASE_INST>** ::= [\<CASE_INST>]  \<STATEMENTS_SQL>  ';'     ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif token.type == "raise_op":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("case_inst"), [t[1], t[2]],childsProduction )
+        addCad("**\<CASE_INST>** ::=  [\<CASE_INST>]   \<RAISE_OP>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif token.type == "asig_basica":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("case_inst"), [t[1], t[2]],childsProduction )
+        addCad("**\<CASE_INST>** ::= [\<CASE_INST>]    \<ASIG_BASICA> ';'  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+
+
+def p_case_inst0(t):
+    '''case_inst   : empty   '''
+    t[0] = None
+    #print(t)
+
+
+
+
+
 def p_statements_sql(t):
     '''statements_sql    : stm_show
                     | stm_create
@@ -965,7 +1147,7 @@ def p_not_null_opt(t):
     else:                      
         t[0] = None
 
-#TODO Revisar grafo
+
 def p_expression_opt(t):
     '''expression_opt   : DEFAULT expression
                         | DOSPUNTOS IGUAL expression
@@ -1069,7 +1251,7 @@ def p_where_clause_opt(t):
         addCad("**\<WHERE_CLAUSE_OPT>** ::= \<WHERE_CLAUSE_OPT> ")
         t[1].graph_ref = graph_ref
         t[0] = t[1]
-        # TODO: Check the graph paint wuith empty
+   
     else:
         t[0] = None
 
@@ -1627,7 +1809,7 @@ def p_stm_delete(t):
         addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier \<WHERE_CLAUSE>")
         t[0] = Delete(t[3], t[4], token_del.lineno, token_del.lexpos, graph_ref)
     else:
-        childsProduction = addNotNoneChild(t, [2, 5, 6])
+        childsProduction = None
         graph_ref = graph_node(str("stm_delete"), [t[1], t[2], t[3]], childsProduction)
         addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier ")
         t[0] = Delete(t[3], None, token_del.lineno, token_del.lexpos, graph_ref)
@@ -2833,9 +3015,9 @@ class GrammarGenerate:
             try:
                 val = instruction.generate(ST, None)
                 print("AST Generation result: ", val)
-                if isinstance(instruction, Select) or isinstance(instruction, Union) \
-                        or isinstance(instruction, Intersect) or isinstance(instruction, Except):
-                    val = tabulate(val[1], val[0], tablefmt="psql")
+                # if isinstance(instruction, Select) or isinstance(instruction, Union) \
+                #        or isinstance(instruction, Intersect) or isinstance(instruction, Except):
+                #    val = tabulate(val[1], val[0], tablefmt="psql")
                 self.set_result(str(val) + '\n\n')
             except our_error as named_error:
                 errorsList.append(named_error)
