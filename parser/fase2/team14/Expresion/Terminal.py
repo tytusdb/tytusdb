@@ -57,3 +57,15 @@ class Terminal(Expresion) :
                 if len(str(self.valor)) >= 8:
                     self.tipo = Tipo('time without time zone', None, -1, -1)
             return self
+
+    def traducir(self,entorno):
+
+        self.temp=self.getval(entorno).valor
+        if self.tipo.tipo=='varchar':
+            self.temp='\''+self.temp+'\''
+
+        if str(self.temp).lower()=='true':
+            self.temp='1'
+        elif str(self.temp).lower()=='false':
+            self.temp='0'
+        return self

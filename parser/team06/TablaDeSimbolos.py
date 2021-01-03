@@ -1,6 +1,6 @@
 from enum import Enum
 import pandas as pd
-
+import reportes as h
 class TIPO_DE_DATO(Enum) :
     NUMERO = 1
     FLOTANTE=2
@@ -377,6 +377,16 @@ class TablaDeSimbolos() :
                 self.simbolos[simb].valor.pop(posvalor)
         return 0
 
+#--------------- Update de Registro
+    def UpdateRegistro(self,nombre,BD,tabla,dato,pos):
+        clave = str(nombre) + str(BD) + str(tabla)
+        if not clave in self.simbolos :
+            print('Error: La tabla: ', nombre, ' no definida.')
+            return 0
+        
+        self.simbolos[clave].valor[pos] = dato
+        return 1
+
     def printcontsimbolos(self):
         tm = 0
         for simb in self.simbolos:
@@ -452,12 +462,13 @@ class TablaDeSimbolos() :
 
     def verificacionShowBD(self) :
         bd = []
-        for simb in self.simbolos:            
-            if self.simbolos[simb].nombre != None and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:                
-                for simb in self.simbolos:
-                    bd.append(self.simbolos[simb].nombre)      
-                return bd
-        return 0 
+        for simb in self.simbolos:
+            print("entro a for")            
+            if self.simbolos[simb].nombre != None and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:                     
+                bd.append(self.simbolos[simb].nombre)
+        return bd
+            
+            
 
 
 
@@ -571,3 +582,47 @@ class TablaDeSimbolos() :
             print("si termino")
             print("A es: ",a)
             return df
+
+
+
+#obtiene un dato cuando se mandan varias tablas y todos los datos
+    def obtenerSelect5Todo(self, tabla, bd) :
+        print("a este entra metodo----------------------")
+        print("la bd: ",bd)
+        print("la tabla: ",tabla)
+        if bd=="" or len(tabla)==0: return 0
+        a=""
+        columnas=[]
+        datos={}
+        for x in range(0,len(tabla)):
+            for simb in self.simbolos:   
+                print(simb)         
+                key=str(self.simbolos[simb].nombre)+str(self.simbolos[simb].BD)+str(self.simbolos[simb].tabla)
+                print("el nombre sera ====",key)
+                if self.simbolos[simb].tabla == tabla[x] and self.simbolos[simb].BD == bd:                
+                    print("res: ",self.simbolos[simb].valor)
+                    print( simb,"  = ",self.simbolos[simb].valor)
+                    a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
+                    datos[simb]=self.simbolos[simb].valor
+                    #columnas.append(simb)
+                
+        if a=="": 
+            print("A va vacio")
+            return 0
+        else:
+            print("vera si genera el dataframe")
+            df=pd.DataFrame(datos)
+            print(df)
+            print("si termino")
+            print("A es: ",a)
+            return df
+    def agregarnuevoIndex(self,simbolo):
+        clave = str(simbolo.nombre) + str(simbolo.BD) + str(simbolo.tabla)
+        self.simbolos[clave] = simbolo
+
+    def verificarIndex(self,nombre,BD,tabla):
+        clave = str(nombre) + str(BD) + str(tabla)
+        if not clave in self.simbolos :
+            h.textosalida+='Error: El indice: ' + nombre + ' no definida.'+"\n"
+            return 0
+        return 1
