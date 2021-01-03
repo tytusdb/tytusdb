@@ -1,7 +1,7 @@
 from Interprete.simbolo import Simbolo
 from Interprete.Valor.Valor import Valor
 from StoreManager import jsonMode as dbms
-
+from Interprete.Mode import MODE
 
 class Tabla_de_simbolos(Simbolo):
 
@@ -9,6 +9,7 @@ class Tabla_de_simbolos(Simbolo):
 		super().__init__("", "", "")
 		self.Pila_de_tablas = [[]]
 		self.Tabla_deSimbolos = []
+		self.mode:MODE = MODE.C3D
 		self.BD = ""
 		self.actual_table = []
 
