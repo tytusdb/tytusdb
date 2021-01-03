@@ -40,6 +40,8 @@ ArbolErrores:Arbol = Arbol(None)
 
 reservadas = {
 
+
+    'returning': 'RETURNING',
     'strict': 'STRICT',
     'perfom': 'PERFORM',
     # Boolean Type
@@ -626,29 +628,27 @@ def p_other_when(t):
 
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
 
+# ================= assign =================
 def p_statements_assign(t):
     '''
         statements   : ID  DOSPTS IGUAL exp
                      | ID  IGUAL exp
     '''
     pass
-
-
+# ================= perform =================
 def p_statements_perfom(t):
     '''
         statements : PERFORM select
     '''
     pass
 
-
+# ================= select =================
 def p_statements_select(t):
     '''
         statements  : SELECT exp_list INTO exp_list FROM exp_list
                     | SELECT exp_list INTO exp_list FROM exp_list conditions
     '''
     pass
-
-
 
 def p_statements_select_strict(t):
     '''
@@ -657,6 +657,43 @@ def p_statements_select_strict(t):
     '''
     pass
 
+# ================= insert =================
+
+def p_statements_insert(t):
+    '''
+        statements : INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER returning
+                   | INSERT INTO ID                      VALUES PARIZQ exp_list PARDER returning
+    '''
+
+# ================= update =================
+def p_statements_update(t):
+    '''
+        statements : UPDATE ID SET setcolumns WHERE exp returning
+                   | UPDATE ID SET setcolumns           returning
+    '''
+
+# ================= update =================
+
+#deletetable: DELETE FROM ID WHERE exp
+#           | DELETE FROM ID
+#           | DELETE groupatributes FROM ID WHERE exp
+#           | DELETE groupatributes FROM ID
+
+def p_statements_delete(t):
+    '''
+    statements : DELETE                FROM ID WHERE exp returning
+               | DELETE 			   FROM ID           returning
+               | DELETE groupatributes FROM ID WHERE exp returning
+               | DELETE groupatributes FROM ID           returning
+    '''
+
+
+
+def p_returning(t):
+    '''
+        returning :  RETURNING idlist INTO        ID
+                  |  RETURNING idlist INTO STRICT ID
+    '''
 
 
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
