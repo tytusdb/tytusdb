@@ -65,9 +65,9 @@ class ArithmeticBinaryOperation(Expression):
             value = "^"
         return value
 
-    def compile(self):
-        value1 = self.value1.compile()
-        value2 = self.value2.compile()
+    def compile(self, expression):
+        value1 = self.value1.compile(expression)
+        value2 = self.value2.compile(expression)
         try:
             if value1.data_type != DATA_TYPE.NUMBER and value2.data_type != DATA_TYPE.NUMBER:
                 desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
@@ -223,6 +223,9 @@ class Identifiers(Expression):
 
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self, expression):
+        return self.alias
 
     def process(self, expression):
         try:
@@ -403,8 +406,8 @@ class UnaryOrSquareExpressions(Expression):
             desc = "FATAL ERROR --- UnaryOrSquareExpressions"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
-        expression1 = self.value.compile()
+    def compile(self, expression):
+        expression1 = self.value.compile(expression)
         type_unary_or_other = self.sign
         temporal = ThreeAddressCode().newTemp()
 
@@ -506,5 +509,5 @@ class PrimitiveData(Expression):
     def process(self, expression):
         return self
 
-    def compile(self):
+    def compile(self, expression):
         return self

@@ -2,7 +2,7 @@ from analizer.abstract.expression import Expression, TYPE
 from analizer.abstract import expression
 from analizer.reports import Nodo
 from analizer.statement.expressions import primitive
-
+from analizer.c3d.codigo3d import instancia_codigo3d
 
 class Arithmetic(Expression):
     """
@@ -78,3 +78,17 @@ class Arithmetic(Expression):
         new.addNode(n1)
         new.addNode(n2)
         return new
+
+    def generate3d(self ,environment , fase =2):
+        exp1 = self.exp1.generate3d(environment , fase)
+        exp2 = self.exp2.generate3d(environment , fase)
+        operator = self.operator
+
+        if fase == 1:
+            f1 =''
+            f1 += f'{exp1} {operator} {exp2}'
+            return f1
+        else:
+            tn = instancia_codigo3d.getNewTemporal()
+            instancia_codigo3d.addToCode(f'\t{tn} = {exp1} {operator} {exp2}')
+            return tn

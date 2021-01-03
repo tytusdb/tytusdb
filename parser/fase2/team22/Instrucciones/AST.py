@@ -99,10 +99,6 @@ class AST:
         self.contador = self.contador + 1
         self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.base + '"]\n' 
         self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-        if inst.owner != None:
-            self.contador = self.contador + 1
-            self.c += 'Nodo'+ str(self.contador)+ '[label="OWNER: ' + inst.owner + '"]\n' 
-            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         if inst.mode != None:
             self.contador = self.contador + 1
             self.c += 'Nodo'+ str(self.contador)+ '[label="MODE: ' + str(inst.mode) + '"]\n' 
@@ -393,7 +389,7 @@ class AST:
             elif 'Relacional' in str(inst.where.valor):
                 self.CrearNodo('WHERE', np)
                 self.Relacional(inst.where.valor, np)
-                
+
             # self.CrearNodo('WHERE', np)
             # #where
             # #puede ser expresion, primitivo o where

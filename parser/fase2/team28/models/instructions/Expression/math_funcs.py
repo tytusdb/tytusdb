@@ -50,10 +50,10 @@ class Abs(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -112,10 +112,10 @@ class Cbrt(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -175,10 +175,10 @@ class Ceil(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -237,10 +237,10 @@ class Ceiling(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -258,7 +258,7 @@ class Ceiling(Expression):
 
 class Degrees(Expression):
     '''
-        Se usa para devolver los valores en grados de radianes 
+        Se usa para devolver los valores en grados de radianes
         como se especifica en el argumento.
     '''
 
@@ -299,10 +299,10 @@ class Degrees(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -381,12 +381,12 @@ class Div(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value1 = self.dividendo.process(0)
-            temp1 = self.dividendo.compile()
+            temp1 = self.dividendo.compile(environment)
             value2 = self.divisor.process(0)
-            temp2 = self.divisor.compile()
+            temp2 = self.divisor.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -445,10 +445,10 @@ class Exp(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -506,10 +506,10 @@ class Factorial(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -528,8 +528,8 @@ class Factorial(Expression):
 
 class Floor(Expression):
     '''
-        Se usa para devolver el valor después de redondear 
-        cualquier valor decimal positivo o negativo 
+        Se usa para devolver el valor después de redondear
+        cualquier valor decimal positivo o negativo
         como más pequeño que el argumento.
     '''
 
@@ -571,10 +571,10 @@ class Floor(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -592,7 +592,7 @@ class Floor(Expression):
 
 class Gcd(Expression):
     '''
-        Se puede utilizar la libreria Math de Python. 
+        Se puede utilizar la libreria Math de Python.
         Maximo Comun Divisor *
     '''
 
@@ -655,12 +655,12 @@ class Gcd(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value1 = self.value1.process(0)
-            temp1 = self.value1.compile()
+            temp1 = self.value1.compile(environment)
             value2 = self.value2.process(0)
-            temp2 = self.value2.compile()
+            temp2 = self.value2.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -719,10 +719,10 @@ class Ln(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -780,10 +780,10 @@ class Log(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -802,7 +802,7 @@ class Log(Expression):
 class Mod(Expression):
     '''
         La función se usa para devolver el resto de una
-        división de dos números, como se especifica 
+        división de dos números, como se especifica
         en el argumento
     '''
 
@@ -863,12 +863,12 @@ class Mod(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value1 = self.value1.process(0)
-            temp1 = self.value1.compile()
+            temp1 = self.value1.compile(environment)
             value2 = self.value2.process(0)
-            temp2 = self.value2.compile()
+            temp2 = self.value2.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -905,7 +905,7 @@ class Pi(Expression):
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
             return
 
-    def compile(self):
+    def compile(self, environment):
         try:
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -919,8 +919,8 @@ class Pi(Expression):
 
 class Power(Expression):
     '''
-        La función se usa para devolver el valor de un 
-        número elevado a la potencia de otro número, 
+        La función se usa para devolver el valor de un
+        número elevado a la potencia de otro número,
         proporcionado en el argumento.
     '''
 
@@ -981,12 +981,12 @@ class Power(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value1 = self.base.process(0)
-            temp1 = self.base.compile()
+            temp1 = self.base.compile(environment)
             value2 = self.exp.process(0)
-            temp2 = self.exp.compile()
+            temp2 = self.exp.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -1003,7 +1003,7 @@ class Power(Expression):
 
 class Radians(Expression):
     '''
-        La función se usa para devolver el valor en radianes 
+        La función se usa para devolver el valor en radianes
         a partir de grados, proporcionado en el argumento.
     '''
 
@@ -1044,10 +1044,10 @@ class Radians(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -1065,8 +1065,8 @@ class Radians(Expression):
 
 class Round(Expression):
     '''
-        La función se usa para devolver el valor después de 
-        redondear un número hasta un decimal específico, 
+        La función se usa para devolver el valor después de
+        redondear un número hasta un decimal específico,
         proporcionado en el argumento.
     '''
 
@@ -1128,13 +1128,13 @@ class Round(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp1 = self.value.compile()
+            temp1 = self.value.compile(environment)
 
             digits = self.n_digits.process(0)
-            temp2 = self.n_digits.compile()
+            temp2 = self.n_digits.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             if digits.value == 0:
@@ -1157,8 +1157,8 @@ class Round(Expression):
 
 class Sign(Expression):
     '''
-        La función se usa para devolver el valor después de 
-        redondear un número hasta un decimal específico, 
+        La función se usa para devolver el valor después de
+        redondear un número hasta un decimal específico,
         proporcionado en el argumento.
     '''
 
@@ -1203,10 +1203,10 @@ class Sign(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
             temporal = ThreeAddressCode().newTemp()
 
             if value.value >= 0:
@@ -1228,8 +1228,8 @@ class Sign(Expression):
 
 class Sqrt(Expression):
     '''
-        La función se usa para devolver el valor después de 
-        redondear un número hasta un decimal específico, 
+        La función se usa para devolver el valor después de
+        redondear un número hasta un decimal específico,
         proporcionado en el argumento.
     '''
 
@@ -1270,10 +1270,10 @@ class Sqrt(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -1291,8 +1291,8 @@ class Sqrt(Expression):
 
 class WithBucket(Expression):
     '''
-        La función se usa para devolver el valor después de 
-        redondear un número hasta un decimal específico, 
+        La función se usa para devolver el valor después de
+        redondear un número hasta un decimal específico,
         proporcionado en el argumento.
     '''
 
@@ -1323,16 +1323,16 @@ class WithBucket(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             expr1 = self.expre.process(0)
-            temp1 = self.expre.compile()
+            temp1 = self.expre.compile(environment)
             min_value = self.min_value.process(0)
-            temp2 = self.min_value.compile()
+            temp2 = self.min_value.compile(environment)
             max_value = self.max_value.process(0)
-            temp3 = self.max_value.compile()
+            temp3 = self.max_value.compile(environment)
             index = self.index.process(0)
-            temp4 = self.index.compile()
+            temp4 = self.index.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             tac = f"{temporal} = {width_bucket_func(expr1.value, min_value.value, max_value.value, index.value)} "
@@ -1351,8 +1351,8 @@ class WithBucket(Expression):
 
 class Trunc(Expression):
     '''
-        La función se usa para devolver el valor después de 
-        redondear un número hasta un decimal específico, 
+        La función se usa para devolver el valor después de
+        redondear un número hasta un decimal específico,
         proporcionado en el argumento.
     '''
 
@@ -1393,10 +1393,10 @@ class Trunc(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             value = self.value.process(0)
-            temp = self.value.compile()
+            temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -1414,8 +1414,8 @@ class Trunc(Expression):
 
 class Random(Expression):
     '''
-        La función se usa para devolver el valor después de 
-        redondear un número hasta un decimal específico, 
+        La función se usa para devolver el valor después de
+        redondear un número hasta un decimal específico,
         proporcionado en el argumento.
     '''
 
@@ -1438,7 +1438,7 @@ class Random(Expression):
             desc = "FATAL ERROR --- MathFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
+    def compile(self, environment):
         try:
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -1456,8 +1456,8 @@ class Random(Expression):
 
 class Greatest(Expression):  # TODO IMPLEMENTAR COMPILE
     '''
-        La función se usa para devolver el valor después de 
-        redondear un número hasta un decimal específico, 
+        La función se usa para devolver el valor después de
+        redondear un número hasta un decimal específico,
         proporcionado en el argumento.
     '''
 
@@ -1474,6 +1474,35 @@ class Greatest(Expression):  # TODO IMPLEMENTAR COMPILE
         try:
             array = operating_list_number(self.val_array, environment)
             return PrimitiveData(DATA_TYPE.NUMBER, max(array), self.line, self.column)
+        except TypeError:
+            desc = "Tipo de dato invalido para Greatest"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
+            return
+        except:
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+    def compile(self, environment):
+        try:
+            tempList = []
+            array = []
+
+            for tac in self.val_array:
+                tmpInstr = tac.compile(environment)
+                array.append(tac.process(0).value)
+
+                if isinstance(tmpInstr.value, int) or isinstance(tmpInstr.value, float):
+                    temporal = ThreeAddressCode().newTemp()
+                    ThreeAddressCode().addCode(
+                        f"{temporal} = {tmpInstr.value}")
+                    tmpInstr.value = temporal
+                tempList.append(tmpInstr.value)
+
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(
+                f"{temporal} = {tempList[array.index(max(array))]} # GREATEST {tempList}")
+
+            return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Greatest"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -1503,6 +1532,35 @@ class Least(Expression):  # TODO IMPLEMENTAR COMPILE
         try:
             array = operating_list_number(self.val_array, environment)
             return PrimitiveData(DATA_TYPE.NUMBER, min(array), self.line, self.column)
+        except TypeError:
+            desc = "Tipo de dato invalido para Least"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
+            return
+        except:
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+    def compile(self, environment):
+        try:
+            tempList = []
+            array = []
+
+            for tac in self.val_array:
+                tmpInstr = tac.compile(environment)
+                array.append(tac.process(0).value)
+
+                if isinstance(tmpInstr.value, int) or isinstance(tmpInstr.value, float):
+                    temporal = ThreeAddressCode().newTemp()
+                    ThreeAddressCode().addCode(
+                        f"{temporal} = {tmpInstr.value}")
+                    tmpInstr.value = temporal
+                tempList.append(tmpInstr.value)
+
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(
+                f"{temporal} = {tempList[array.index(min(array))]} # LEAST {tempList}")
+
+            return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Least"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
