@@ -39,6 +39,7 @@ import Instrucciones.AST as AST
 
 # Asociación de operadores y precedencia
 precedence = (
+    ('left', 'PIPE'),
     ('left', 'CHECK'),
     ('left', 'OR'),
     ('left', 'AND'),
@@ -513,9 +514,9 @@ def p_instruccion_select(t):
     '''
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol>"
     strGram2 = ""
-    val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, None, None, strGram ,t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    expre = []
+    expre.append(Select.Select(t[2], t[3], t[5], None, None, None, strGram ,t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select1(t):
     '''
@@ -524,9 +525,9 @@ def p_instruccion_select1(t):
     #            dist  tipo  lcol  lcol  linners where lrows
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <instructionWhere> <lrows>"
     strGram2 = ""
-    val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, t[6], t[7], strGram ,t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    expre = []
+    expre.append(Select.Select(t[2], t[3], t[5], None, t[6], t[7], strGram ,t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(expre, strGram2 ,t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select2(t):
     '''
@@ -535,9 +536,9 @@ def p_instruccion_select2(t):
     #            dist  tipo  lcol  lcol  linners where lrows
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <instructionWhere>"
     strGram2 = ""
-    val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    expre = []
+    expre.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select3(t):
     '''
@@ -546,9 +547,9 @@ def p_instruccion_select3(t):
     #            dist  tipo  lcol  lcol  linners where lrows
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <linners>"
     strGram2 = ""
-    val = []
-    val.append(Select.Select(t[2], t[3], t[5], t[6], None, None, strGram,t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2 , t.lexer.lineno, t.lexer.lexpos)
+    expre = []
+    expre.append(Select.Select(t[2], t[3], t[5], t[6], None, None, strGram,t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(expre, strGram2 , t.lexer.lineno, t.lexer.lexpos)
 
 
 def p_instruccion_select4(t):
@@ -558,9 +559,9 @@ def p_instruccion_select4(t):
     #            dist  tipo  lcol  lcol  linners where lrows
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <linners> <instructionWhere> <lrows>"
     strGram2 = ""
-    val = []
-    val.append(Select.Select(t[2], t[3], t[5], t[6], t[7], t[8], strGram, t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    expre = []
+    expre.append(Select.Select(t[2], t[3], t[5], t[6], t[7], t[8], strGram, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select5(t):
     '''
@@ -569,9 +570,9 @@ def p_instruccion_select5(t):
     #            dist  tipo  lcol  lcol  linners where lrows
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <linners> <instructionWhere>"
     strGram2 = ""
-    val = []
-    val.append(Select.Select(t[2], t[3], t[5], t[6], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    expre = []
+    expre.append(Select.Select(t[2], t[3], t[5], t[6], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select6(t):
     '''
@@ -589,16 +590,16 @@ def p_instruccion_select7(t):
     #            dist  tipo  lcol  lcol  linners where lrows
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <lrows>"
     strGram2 = ""
-    val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    expre = []
+    expre.append(Select.Select(t[2], t[3], t[5], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 def p_lista_case(t):
     '''lcase : lcase case
     '''
     t[0] = t[1].append(t[2])
 
-def p_lista_case(t):
+def p_lista_case2(t):
     '''lcase : case
     '''
     t[0] = t[1]
@@ -669,7 +670,7 @@ def p_instruccion_rows(t):
         strGram = "<rows> ::= LIMIT ENTERO"
         t[0] = Limit.Limit(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def P_instruccion_row2(t):
+def p_instruccion_row2(t):
     '''rows : LIMIT ENTERO OFFSET ENTERO'''
     #LIMIT(LIMITE,FILAS_A_EXCLUIR,fila,columna)
     strGram = "<rows> ::= LIMIT ENTERO OFFSET ENTERO"
@@ -1615,6 +1616,213 @@ def p_tipo_datos2(t):
     t[0] = Tipo(Tipo_Dato.TIPOENUM)
     t[0].nombre = t[1]
 
+
+#INDEX
+def p_instruccion_creacion(t) :
+    '''instruccion  : CREATE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
+                    | CREATE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
+
+def p_instruccion_creacion_unique(t) :
+    '''instruccion  : CREATE UNIQUE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
+                    | CREATE UNIQUE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
+
+def p_can_where(t):
+    '''can_where    : instructionWhere PUNTO_COMA
+                    | PUNTO_COMA'''
+
+def p_l_expresiones_atri(t) :
+    '''l_expresiones    : l_expresiones COMA expre lista_options'''
+
+def p_l_expresiones_atri_ind(t) :
+    '''l_expresiones    : expre lista_options'''
+
+def p_operadores_is_not_true(t):
+    '''expre    : expre IS NOT TRUE
+    '''
+
+def p_lista_options(t) :
+    'lista_options  : lista_options options'
+
+def p_lista_options_2(t) :
+    'lista_options  : options'
+
+def p_options(t) :
+    '''options      : ASC
+                    | DESC
+                    | NULLS FIRST
+                    | NULLS LAST
+                    | TXT_PTN_OPS
+                    | VRCH_PTN_OPS
+                    | BPCH_PTN_OPS
+                    | COLLATE expre
+                    | expre'''
+
+def p_params_crt_indx(t) :
+    '''params_crt_indx  : INCLUDE PARIZQ expre PARDER
+                        | '''
+
+def p_instruccion_drop_index(t) :
+    '''instruccion  : DROP INDEX ID PUNTO_COMA'''
+
+def p_lista_or(t) :
+    '''expre     : expre PIPE PIPE expre'''
+
+
+#FUNCIONES
+def p_instruccion_creacion_funct(t) :
+    '''instruccion  : CREATE FUNCTION ID PARIZQ list_params_funct PARDER return_funct as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
+                    | CREATE FUNCTION ID PARIZQ list_params_funct PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
+                    | CREATE FUNCTION ID PARIZQ PARDER return_funct as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
+                    | CREATE FUNCTION ID PARIZQ PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA'''
+
+
+def p_return_funct(t) :
+    '''return_funct     : RETURNS tipo
+                        | RETURNS ID
+                        | RETURNS TABLE PARIZQ list_params_funct PARDER'''
+
+
+def p_list_params_funct(t) :
+    '''list_params_funct    : list_params_funct COMA ID tipo
+                            | list_params_funct COMA OUT ID tipo
+                            | list_params_funct COMA ID ID
+                            | list_params_funct COMA OUT ID ID'''
+
+def p_list_params_funct2(t) :
+    '''list_params_funct    : ID tipo
+                            | OUT ID tipo
+                            | ID ID
+                            | OUT ID ID'''
+
+
+def p_as_def(t) :
+    '''as_def   : AS expre
+                | AS 
+                | '''
+
+
+def p_def_funct(t) :
+    '''def_funct    : dec_def beg_def END PUNTO_COMA'''
+
+
+def p_dec_def(t) :
+    '''dec_def  : DECLARE list_declare
+                | '''
+
+
+def p_list_declare(t) :
+    '''list_declare : list_declare declare'''
+
+def p_list_declare2(t) :
+    '''list_declare : declare'''
+
+
+def p_declare(t) :
+    '''declare  : ID constant def_tipos_declare list_params_declare symbol_declare expre PUNTO_COMA
+                | ID constant def_tipos_declare symbol_declare expre PUNTO_COMA'''
+
+def p_declare2(t) :
+    '''declare  : ID constant def_tipos_declare list_params_declare PUNTO_COMA
+                | ID constant def_tipos_declare PUNTO_COMA'''
+
+def p_declare3(t) :
+    '''declare  : ID ALIAS FOR expre PUNTO_COMA'''
+
+
+def p_def_tipos_declare(t) :
+    '''def_tipos_declare    : tipo
+                            | expre MODULO ID'''
+
+
+def p_constant(t) :
+    '''constant : CONSTANT
+                | '''
+
+
+def p_symbol_declare(t) :
+    '''symbol_declare   : DEFAULT
+                        | DOS_PUNTOS IGUAL
+                        | IGUAL'''
+
+
+def p_list_params_declare(t) :
+    '''list_params_declare  : list_params_declare params_declare'''
+
+def p_list_params_declare2(t) :
+    '''list_params_declare  : params_declare'''
+
+
+def p_params_declare(t) :
+    '''params_declare   : COLLATE expre
+                        | NOT NULL'''
+
+
+def p_beg_def(t) :
+    '''beg_def  : BEGIN list_begin'''
+
+
+def p_list_begin(t) :
+    '''list_begin : list_begin content_begin'''
+
+def p_list_begin2(t) :
+    '''list_begin : content_begin'''
+
+
+def p_content_begin(t) :
+    '''content_begin    : RAISE NOTICE l_expresiones PUNTO_COMA
+                        | RAISE EXCEPTION l_expresiones PUNTO_COMA
+                        | asign PUNTO_COMA
+                        | def_funct
+                        | RETURN def_return PUNTO_COMA
+                        | EXCEPTION list_exception
+                        | query PUNTO_COMA'''
+
+
+def p_def_return(t) :
+    '''def_return   : expre
+                    | expre COLLATE expre
+                    | QUERY query'''
+
+
+def p_asign(t) :
+    '''asign    : expre DOS_PUNTOS IGUAL expre'''
+
+
+def p_list_exception(t) :
+    '''list_exception   : list_exception except
+                        | except'''
+
+
+def p_exception(t) :
+    '''except   : WHEN expre THEN content_except
+                | WHEN expre THEN'''
+
+
+def p_content_except(t) :
+    '''content_except   : RAISE EXCEPTION l_expresiones PUNTO_COMA
+                        | NULL PUNTO_COMA'''
+
+def p_inst_perf(t) :
+    '''instruccion  : PERFORM function_call PUNTO_COMA'''
+
+
+def p_inst_if(t) :
+    '''instruccion  : IF NOT FOUND THEN list_begin END IF PUNTO_COMA'''
+
+
+def p_inst_exec(t) :
+    '''instruccion  : EXECUTE function_call can_where
+                    | EXECUTE query PUNTO_COMA'''
+
+def p_function_call(t) :
+    '''function_call    : ID PARIZQ l_expresiones PARDER'''
+
+def p_inst_get(t) :
+    '''instruccion  : GET CURRENT DIAGNOSTICS expre symbol_declare expre PUNTO_COMA
+                    | GET DIAGNOSTICS expre symbol_declare expre PUNTO_COMA
+                    | GET PUNTO_COMA'''
+
+
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
 
@@ -1670,5 +1878,4 @@ def ejecutar_analisis(texto):
     #se obtiene la acción de analisis sintactico
     print("inicio")
     return parser.parse(texto)
-
 
