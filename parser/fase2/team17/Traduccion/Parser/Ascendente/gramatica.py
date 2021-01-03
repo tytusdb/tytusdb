@@ -87,6 +87,7 @@ reservadas = {
     'set' : 'SET',
     'key' : 'KEY',
     'if' : 'IF',
+    'elsif' : 'ELSIF',
     'else' : 'ELSE',
     'unique' : 'UNIQUE',
     'references' : 'REFERENCES',
@@ -102,6 +103,7 @@ reservadas = {
     'null' : 'NULL',
     'now' : 'NOW',
     'bytea' : 'BYTEA',
+    'begin' : 'BEGIN',
 
     # TIPOS NUMERICOS
     'smallint' : 'SMALLINT',
@@ -185,6 +187,7 @@ reservadas = {
     'setseed' : 'SETSEED',
     'contains' : 'CONTAINS',
     'remove': 'REMOVE',
+    'function': 'FUNCTION',
 
     # FUNCIONES DE AGREGACION
     'count' : 'COUNT',
@@ -198,6 +201,7 @@ reservadas = {
     'acosd' : 'ACOSD',
     'asin' : 'ASIN',
     'asind' : 'ASIND',
+    'constant' : 'CONSTANT',
     'atan' : 'ATAN',
     'atand' : 'ATAND',
     'atan2' : 'ATAN2',
@@ -237,6 +241,7 @@ reservadas = {
     'similar' : 'SIMILAR',
     'as' : 'AS',
     'couter' : 'COUTER',
+    'collate' : 'COLLATE',
 
     # SUBQUERYS
     'in' : 'IN',
@@ -253,6 +258,7 @@ reservadas = {
     'full' : 'FULL',
     'outer' : 'OUTER',
     'on' : 'ON',
+    'declare' : 'DECLARE',
 
     # ORDENAMIENTO DE FILAS
     'asc' : 'ASC',
@@ -473,10 +479,145 @@ def p_instruction(t):
 # ------------------------------- PL/PGSQL ---------------------------------------------
 # --------------------------------------------------------------------------------------
 
+def p_plpgsql(t):
+    '''
+        plpgsql : function label declare BEGIN stmts END ID
+                | function label declare BEGIN stmts END
+                | function declare BEGIN stmts END
+                | function BEGIN stmts END
+                | label declare BEGIN stmts END ID
+                | label declare BEGIN stmts END
+                | label BEGIN stmts END ID
+                | label BEGIN stmts END
+                | declare BEGIN stmts END
+                | BEGIN stmts END
+    '''
 
+# TODO: Hay que agregarle que la funcion pueda traer return
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
 
 
+def p_declare(t):
+    '''
+         declare : DECLARE
+    '''
+
+
+def p_function(t):
+    '''
+        function : CREATE FUNCTION ID PARIZQ arguments PARDER
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ arguments PARDER
+                 | CREATE FUNCTION ID PARIZQ PARDER
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ PARDER
+    '''
+
+
+def p_arguments(t):
+    '''
+        arguments : arguments COMA argument
+                  | argument
+    '''
+
+
+def p_argument(t):
+    '''
+      argument : ID types
+    '''
+
+
+def p_label(t):
+    '''
+        label : SHIFTIZQ ID SHIFTDER
+    '''
+
+
+def p_stmts(t):
+    '''
+        stmts : stmts stmt
+              | stmt
+    '''
+
+
+def p_stmt(t):
+    '''
+        stmt : DataManipulationLenguage PTCOMA
+             | statements PTCOMA
+    '''
+
+
+def p_statements_conditionals(t):
+    '''
+        statements : conditionals
+    '''
+
+
+def p_conditionals(t):
+    '''
+        conditionals : if
+                     | case
+    '''
+
+# ================= IF =================
+
+
+def p_if(t):
+    '''
+        if : IF exp THEN stmts END IF
+           | IF exp THEN stmts elsiflist END IF
+           | IF exp THEN stmts elsiflist else END IF
+           | IF exp THEN stmts else END IF
+    '''
+
+
+def p_elsiflist(t):
+    '''
+        elsiflist : elsiflist elsif
+                  | elsif
+    '''
+
+
+def p_elsif(t):
+    '''
+        elsif : ELSIF exp THEN stmts
+    '''
+
+
+def p_else(t):
+    '''
+        else : ELSE statements
+    '''
+
+# ================= CASE =================
+
+
+def p_case(t):
+    '''
+        case : CASE exp WHEN exp_list THEN statements END CASE PTCOMA
+             | CASE WHEN exp_list THEN statements END CASE PTCOMA
+             | CASE exp WHEN exp_list THEN statements when_or_else END CASE PTCOMA
+             | CASE WHEN exp_list THEN statements when_or_else END CASE PTCOMA
+    '''
+
+
+def p_when_or_else(t):
+    '''
+        when_or_else : other_when_list else
+                     | other_when_list
+                     | else
+    '''
+
+
+def p_other_when_list(t):
+    '''
+        other_when_list : other_when_list other_when
+                        | other_when
+    '''
+
+
+def p_other_when(t):
+    '''
+        other_when : WHEN exp_list THEN statements
+    '''
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
 
@@ -1197,11 +1338,6 @@ def p_exp_opunary(t):
         # IS exp
         pass
 
-def p_exp_case(t):
-    '''
-        exp : case
-    '''
-    pass
 
 def p_exp_between(t):
     '''
@@ -1463,15 +1599,6 @@ def p_subquery(t):
     set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
 
 
-# ---------------CASE---------------
-def p_case(t):
-    '''
-     case : CASE WHEN exp THEN exp groupwhens ELSE exp END
-          | CASE WHEN exp THEN exp groupwhens END
-          | CASE WHEN exp THEN exp ELSE exp END
-          | CASE WHEN exp THEN exp END
-    '''
-    # t[0] = interprete
 
 def p_groupwhens(t):
     '''
