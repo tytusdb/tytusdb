@@ -1334,6 +1334,7 @@ def p_cond_where(t):
 
 def p_crear_function(t):
      '''crear : CREATE reemplazar FUNCTION ID PAR_A lparametros PAR_C RETURNS tipo lenguaje_funcion AS dollar_var cuerpo_funcion dollar_var lenguaje_funcion'''
+     t[0] = Funcion(t[2],t[4],t[6],t[9],t[12],t[13])
 
 def p_crear_procedure(t):
      '''crear : CREATE reemplazar PROCEDURE ID PAR_A lparametros PAR_C lenguaje_funcion AS dollar_var cuerpo_funcion dollar_var'''
@@ -1341,7 +1342,12 @@ def p_crear_procedure(t):
 
 def p_funcion_dollar(t):
      '''dollar_var : DOBLEDOLLAR
-                   | DOLLAR ID DOLLAR''' 
+                   | DOLLAR ID DOLLAR'''
+     if len(t) == 4:
+          t[0] = Operando_ID(t[2])
+     else:
+          t[0] = False
+
 
 def p_lenguaje_function(t):
      '''lenguaje_funcion : LANGUAGE PLPGSQL
@@ -1351,11 +1357,30 @@ def p_lenguaje_function(t):
 def p_listado_parametros(t):
      '''lparametros : lparametros COMA parametro
                     | parametro'''
+     if len(t) == 4:
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
 
 def p_parametro(t):
-     '''parametro : ID tipo
+     '''parametro : ID tipo valortipo asig_valor
                   | ID ASIGNACION exp
                   | empty'''
+     if len(t) == 5:
+          t[0] = Parametro(t[1],t[2],t[3],t[4])
+     elif len(t) == 4:
+          t[0] = Parametro(t[1],None,None,t[3])
+     else:
+          t[0] = False
+     
+def p_asig_valor_parametros(t):
+     '''asig_valor : ASIGNACION exp
+                   | empty'''
+     if len(t)==3:
+          t[0] = t[2]
+     else:
+          t[0] = False
 
 
 def p_cuerpo_funcion(t):
@@ -1398,11 +1423,17 @@ def p_func_proc(t):
 def p_declaracion_funcion(t):
      '''declaraciones : declaraciones PTCOMA parametro
 	                 | parametro'''
+     if len(t)==4:
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
 
 def p_funcionalidad_funcion(t):
      '''funcionalidad : seleccion_funcion
                       | operacion_expresiones
 	                 | sentencia_If'''
+     t[0] = t[1]
 
 def p_insertar_proc(t):
      '''insert_proc : INSERT INTO ID par_op VALUES PAR_A lista_exp PAR_C PTCOMA'''
@@ -1410,26 +1441,57 @@ def p_insertar_proc(t):
 
 def p_op_funcionalidad_funcion(t):
      '''seleccion_funcion : SELECT cantidad_select parametros_select asignation cuerpo_select PTCOMA RETURN exp PTCOMA'''
+     t[0] = Select_Asigacion(t[2],t[3],t[4],t[5],t[8])
 
 def p_asignacion_select(t):
      '''asignation : INTO ID'''
+     t[0] = Operando_ID(t[2])
 
 def p_operaciones_expresiones(t):
      '''operacion_expresiones : operacion_expresiones operacion_exp 
                               | operacion_exp'''
+     if len(t) == 3:
+          t[1].append(t[2])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
 
 def p_operacion_exp(t):
      '''operacion_exp : ID ASIGNACION exp PTCOMA
                       | RAISE exp PTCOMA
                       | RETURN exp PTCOMA'''
-
+     if len(t) == 5:
+          t[0] = Operacion_Expresion("asignacion",Operando_ID(t[1]),t[3])
+     else:
+          if t[1].lower() == "raise":
+               t[0] = Operacion_Expresion("raise",None,t[2])
+          else:
+               t[0] = Operacion_Expresion('return',None,t[2])
+     
 def p_sentencia_if(t):
      '''sentencia_If : IF exp THEN funcionalidad sentencia_elif_else END IF PTCOMA'''
+     t[0] = Sentencia_IF(t[2],t[4],t[5])
 
 def p_sentencia_if_else(t):
-     '''sentencia_elif_else : ELSIF exp THEN  funcionalidad sentencia_elif_else 
-                            | ELSE funcionalidad '''
+     '''sentencia_elif_else : sentencia_elif_else sentencia_condicional 
+                            | sentencia_condicional'''
+     if len(t) == 3:
+          t[1].append(t[2])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
 
+def p_sentencia_if_else_empty(t):
+     '''sentencia_condicional : ELSIF exp THEN funcionalidad
+                              | ELSE funcionalidad
+                              | empty'''
+     if len(t) == 5:
+          t[0] = Sentencia_ELSIF_ELSE('elsif',t[2],t[4])
+     elif len(t) == 3:
+          t[0] = Sentencia_ELSIF_ELSE('else',None,t[2])
+     else:
+          t[0] = False
+          
 def p_reemplazar(t):
      '''reemplazar : OR REPLACE
                    | empty'''

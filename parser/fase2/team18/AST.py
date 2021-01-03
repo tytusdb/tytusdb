@@ -3295,6 +3295,9 @@ def Indexs(instr,ts):
         agregarTSRepor('',nombre,'Normal',nmtabla,'1')
 
 
+def Funciones(instr,ts):
+    print("reemplazar",instr.reemplazar,"nombre",instr.nombre,"parametros",instr.parametros,"tipo",instr.tipo,"dollar_var",instr.dollarvar,"cuerpo",instr.cuerpo)
+
 #-------------
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
@@ -3516,6 +3519,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, ALTERTBO) : AlterTBF(instr,ts)
             elif isinstance(instr, MostrarTB) : Mostrar_TB(instr,ts)
             elif isinstance(instr, Indice) : Indexs(instr,ts)
+            elif isinstance(instr, Funcion): Funciones(instr,ts)
             else: 
                 if instr is not None:
                     for val in instr:
