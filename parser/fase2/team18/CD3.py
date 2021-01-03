@@ -228,9 +228,9 @@ def PAlterTbRenameConst(NombreTabla,ID1,ID2):
     addLine("t"+str(numT())+"=\'"+ID1+"\'")
     addLine("#New Name")
     addLine("t"+str(numT())+"=\'"+ID2+"\'")
-    #addLine("    CD3.EAltRenameDatabase()")
+    addLine("CD3.EAltTbRenameConst()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)
+    agregarInstr(valores,txt)
 
 #^^^
 def PAlterTbRenameTable(baseActiva, NombreTabla,ID1):
@@ -261,9 +261,9 @@ def PAlterTbRenameColum(baseActiva,NombreTabla,ID1,ID2):
     addLine("t"+str(numT())+"=\'"+ID1+"\'")
     addLine("#New Name")
     addLine("t"+str(numT())+"=\'"+ID2+"\'")
-    #addLine("    CD3.EAltRenameDatabase()")
+    addLine("CD3.EAltTbRenameColum()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)
+    agregarInstr(valores,txt)
 
 
 def PAlterTbAlterSNN(baseActiva,NombreTabla,ID):
@@ -276,9 +276,9 @@ def PAlterTbAlterSNN(baseActiva,NombreTabla,ID):
     addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
     addLine("#Columna:"+ID+" SET NOT NULL")
     addLine("t"+str(numT())+"=\'"+ID+"\'")
-    #addLine("    CD3.EAltRenameDatabase()")
+    addLine("CD3.EAltTbAlterSNN()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)
+    agregarInstr(valores,txt)
 
 
 
@@ -294,9 +294,9 @@ def PAlterTbAlterSDT(baseActiva,NombreTabla,ID,OPEE1):
     addLine("t"+str(numT())+"=\'"+ID+"\'")
     addLine("#New Type")
     addLine("t"+str(numT())+"=\'"+OPEE1+"\'")
-    #addLine("    CD3.EAltRenameDatabase()")
+    addLine("CD3.EAltTbAlterSDT()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)
+    agregarInstr(valores,txt)
 
 def PAlterTbAlterSDef(baseActiva,NombreTabla,ID,valCOL):
     global TTv
@@ -310,9 +310,9 @@ def PAlterTbAlterSDef(baseActiva,NombreTabla,ID,valCOL):
     addLine("t"+str(numT())+"=\'"+ID+"\'")
     addLine("#New Default")
     addLine("t"+str(numT())+"=\'"+str(valCOL)+"\'")
-    #addLine("    CD3.EAltRenameDatabase()")
+    addLine("CD3.EAltTbAlterSDef()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)
+    agregarInstr(valores,txt)
 
 
 def PAlterTbAlterDNN(baseActiva,NombreTabla,ID):
@@ -325,9 +325,9 @@ def PAlterTbAlterDNN(baseActiva,NombreTabla,ID):
     addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
     addLine("#Columna:"+ID+" DROP NOT NULL")
     addLine("t"+str(numT())+"=\'"+ID+"\'")
-    #addLine("    CD3.EAltRenameDatabase()")
+    addLine("CD3.EAltTbAlterDNN()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)
+    agregarInstr(valores,txt)
 
 
 def PAlterTbAlterDDef(baseActiva,NombreTabla,ID):
@@ -340,9 +340,9 @@ def PAlterTbAlterDDef(baseActiva,NombreTabla,ID):
     addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
     addLine("#Columna:"+ID+" DROP DEFAULT")
     addLine("t"+str(numT())+"=\'"+ID+"\'")
-    #addLine("    CD3.EAltRenameDatabase()")
+    addLine("CD3.EAltTbAlterDDef()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)
+    agregarInstr(valores,txt)
 
 
 #^^^
@@ -370,15 +370,16 @@ def PAlterTbAlterDropConst(baseActiva,NombreTabla,ID):
     addLine("#Table Name")
     addLine("t"+str(numT())+"=\'"+NombreTabla+"\'")
     addLine("#Constraint:"+ID+" DROP constraint")
+    addLine("CD3.EAltTbAlterDropConst()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)
+    agregarInstr(valores,txt)
 
 
 
 def PAlterTbAlterAddConstUni(baseActiva,NombreTabla,ColN,ID):
     global TTv
     reinicar_contOP()
-    valores=[baseActiva,NombreTabla,ID]
+    valores=[baseActiva,NombreTabla,ColN,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN add constraint unique")
     addLine("#Table Name")
@@ -386,14 +387,15 @@ def PAlterTbAlterAddConstUni(baseActiva,NombreTabla,ColN,ID):
     addLine("#Column Name")
     addLine("t"+str(numT())+"=\'"+ColN+"\'")
     addLine("#Constraint:"+ID+" ADD constraint unique")
+    addLine("CD3.EAltTbAlterAddConstUni()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt)  
+    agregarInstr(valores,txt)
 
 #^^^
 def PAlterTbAlterAddConstPrim(baseActiva,NombreTabla,ColN,ID):
     global TTv
     reinicar_contOP()
-    valores=[baseActiva,NombreTabla,ID]
+    valores=[baseActiva,NombreTabla,ColN,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN add constraint primary")
     addLine("#Table Name")
@@ -410,7 +412,7 @@ def PAlterTbAlterAddConstPrim(baseActiva,NombreTabla,ColN,ID):
 def PAlterTbAlterAddConstFor(baseActiva,NombreTabla,ColN,ID):
     global TTv
     reinicar_contOP()
-    valores=[baseActiva,NombreTabla,ID]
+    valores=[baseActiva,NombreTabla,ColN,ID]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN add constraint foreign")
     addLine("#Table Name")
@@ -418,15 +420,16 @@ def PAlterTbAlterAddConstFor(baseActiva,NombreTabla,ColN,ID):
     addLine("#Column Name")
     addLine("t"+str(numT())+"=\'"+ColN+"\'")
     addLine("#Constraint:"+ID+" ADD constraint foreign")
+    addLine("CD3.EAltTbAlterAddConstFor()")
     txt=copy.deepcopy(TTv)
-    agregarInstr("",txt) 
+    agregarInstr(valores,txt)
 
 
 #^^^
 def PAlterTbAlterAddCol(baseActiva,NombreTabla,ID,TIPO):
     global TTv
     reinicar_contOP()
-    valores=[baseActiva,NombreTabla,ID]
+    valores=[baseActiva,NombreTabla,ID,TIPO]
     TTv=""
     addLine("#ALTER TABLE ALTER COLUMN add column")
     addLine("#Table Name")
@@ -435,7 +438,6 @@ def PAlterTbAlterAddCol(baseActiva,NombreTabla,ID,TIPO):
     addLine("t"+str(numT())+"=\'"+ID+"\'")
     addLine("#Column Type:"+TIPO)
     addLine("CD3.EAltTbAlterAddCol()")
-
     txt=copy.deepcopy(TTv)
     agregarInstr(valores,txt)  
 
@@ -651,7 +653,9 @@ def EAltTbAlterAddCol():
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
         res=EDD.alterAddColumn(listaMemoria[0][0],listaMemoria[0][1],"")
-        print("Resultado de la creacion de la columna:"+str(res))
+        print("Agregando en Tabla:"+listaMemoria[0][1])
+        print("\tADD COLUMN:"+listaMemoria[0][2])
+        print("\tResultado de la creacion de la columna:"+str(res))
         listaMemoria.pop(0)
 
 def EAltTbAlterAddConstPrim():
@@ -659,23 +663,116 @@ def EAltTbAlterAddConstPrim():
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
         res=EDD.alterAddPK(listaMemoria[0][0],listaMemoria[0][1],[listaMemoria[0][2]])
-        print("Resultado de la creacion de primary key:"+str(res))
+        print("Agregando en Tabla:"+listaMemoria[0][1])
+        print("\tADD Primary Key:"+listaMemoria[0][3])
+        print("\tResultado de la creacion de primary key:"+str(res))
         listaMemoria.pop(0)
 
 def EAltTbAlterDropCol():
     cargarMemoria()
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
-        res=EDD.alterDropColumn(listaMemoria[0][0],listaMemoria[0][1],[listaMemoria[0][3]])
-        print("Resultado de la eliminacion de la columna:"+str(res))
+        res=EDD.alterDropColumn(listaMemoria[0][0],listaMemoria[0][1],listaMemoria[0][3])
+        print("Eliminando en Tabla:"+listaMemoria[0][1])
+        print("\tDROP COLUMN:"+listaMemoria[0][2])
+        print("\tResultado de la eliminacion de la columna:"+str(res))
         listaMemoria.pop(0)
 
 def EAltTbRenameTable():
     cargarMemoria()
     #llamar la funcion de EDD
     if(len(listaMemoria)>0):
-        res=EDD.alterTable(listaMemoria[0][0],listaMemoria[0][1],[listaMemoria[0][2]])
-        print("Resultado de renombrar tabla:"+str(res))
+        res=EDD.alterTable(listaMemoria[0][0],listaMemoria[0][1],listaMemoria[0][2])
+        print("Modificando en Tabla:"+listaMemoria[0][1])
+        print("\tRENAME TABLE:"+listaMemoria[0][2])
+        print("\tResultado de renombrar tabla:"+str(res))
+        listaMemoria.pop(0)
+
+
+#solo imprimenllll
+
+def EAltTbRenameConst():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Modificando en Tabla:"+listaMemoria[0][0])
+        print("\tRENAME Constraint:"+listaMemoria[0][1])
+        print("\tTO:"+listaMemoria[0][2])
+        listaMemoria.pop(0)
+
+def EAltTbRenameColum():    
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Modificando en Tabla:"+listaMemoria[0][1])
+        print("\tRENAME Column:"+listaMemoria[0][2])
+        print("\tTO:"+listaMemoria[0][3])
+        listaMemoria.pop(0)
+
+
+def EAltTbAlterSNN():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Agregando en Tabla:"+listaMemoria[0][1])
+        print("\tSET NOT NULL:"+listaMemoria[0][2])
+        listaMemoria.pop(0)
+
+
+def EAltTbAlterSDT():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Agregando en Tabla:"+listaMemoria[0][1])
+        print("\tSET DATA TYPE:"+listaMemoria[0][3])
+        listaMemoria.pop(0)
+
+def EAltTbAlterSDef():    
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Agregando en Tabla:"+listaMemoria[0][1])
+        print("\tSET DEFAULT:"+listaMemoria[0][2])
+        listaMemoria.pop(0)
+
+def EAltTbAlterDNN():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Eliminando en Tabla:"+listaMemoria[0][1])
+        print("\tNOT NULL:"+listaMemoria[0][2])
+        listaMemoria.pop(0)
+
+def EAltTbAlterDDef():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Eliminando en Tabla:"+listaMemoria[0][1])
+        print("\tDEFAULT:"+listaMemoria[0][2])
+        listaMemoria.pop(0)
+
+def EAltTbAlterDropConst():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Eliminando en Tabla:"+listaMemoria[0][1])
+        print("\tConstraint:"+listaMemoria[0][2])
+        listaMemoria.pop(0)
+
+def EAltTbAlterAddConstUni():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Agregando en Tabla:"+listaMemoria[0][1])
+        print("\tConstraint Unique:"+listaMemoria[0][3])
+        listaMemoria.pop(0)
+
+def EAltTbAlterAddConstFor():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        print("Agregando en Tabla:"+listaMemoria[0][1])
+        print("\tConstraint Foreign:"+listaMemoria[0][3])
         listaMemoria.pop(0)
 
 
