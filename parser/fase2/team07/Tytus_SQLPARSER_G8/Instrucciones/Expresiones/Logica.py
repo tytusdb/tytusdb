@@ -3,8 +3,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 
 class Logica(Instruccion):
-    def __init__(self, opIzq, opDer, operador, strGram, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.BOOLEAN),linea,columna,strGram)
+    def __init__(self, opIzq, opDer, operador, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,Tipo(Tipo_Dato.BOOLEAN),linea,columna,strGram,strSent)
         self.opIzq = opIzq
         self.opDer = opDer
         self.operador = operador

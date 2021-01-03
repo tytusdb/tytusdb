@@ -262,7 +262,16 @@ def p_instruccion_update(t):
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> <instructionWhere> PUNTO_COMA"
     strGram2 = ""
     id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
-    strSent = "UPDATE " + t[2] + " SET " + t[4].strSent + " " + t[5].strSent + ";"
+    
+    strSent = "UPDATE " + t[2] + " SET "
+    for col in t[4]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + " " + t[5].strSent + ";"
+
     t[0] = UpdateTable.UpdateTable(id1, None, t[4], t[5], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # update tabla set campo = valor , campo 2= valor;
@@ -274,7 +283,16 @@ def p_instruccion_update2(t):
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> PUNTO_COMA"
     strGram2 = ""
     id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
-    strSent = "UPDATE " + t[2] + " SET " + t[4].strSent + ";"
+    
+    strSent = "UPDATE " + t[2] + " SET "
+    for col in t[4]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ";"
+
     t[0] = UpdateTable.UpdateTable(id1, None, t[4], None, strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
@@ -624,8 +642,24 @@ def p_instruccion_select(t):
     strGram2 = ""
     val = []
     val.append(Select.Select(t[2], t[3], t[5], None, None, None, strGram ,t.lexer.lineno, t.lexer.lexpos))
-    strSent = "SELECT " + t[2] +
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "SELECT " + t[2] + " "
+    for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + " FROM "
+    for col in t[5]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+
+    print(strSent)
+    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 def p_instruccion_select1(t):
     '''
@@ -636,7 +670,27 @@ def p_instruccion_select1(t):
     strGram2 = ""
     val = []
     val.append(Select.Select(t[2], t[3], t[5], None, t[6], t[7], strGram ,t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "SELECT " + t[2] 
+    for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + " FROM "
+    for col in t[5]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + " " + t[6].strSent
+    for col in t[7]:
+        strSent = strSent + " " + col.strSent
+    
+
+    t[0] = SelectLista.SelectLista(val, strGram2 ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_select2(t):
     '''
@@ -647,7 +701,25 @@ def p_instruccion_select2(t):
     strGram2 = ""
     val = []
     val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "SELECT " + t[2]
+    for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + " FROM "
+    for col in t[5]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + " " + t[6].strSent
+
+
+    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_select3(t):
     '''
@@ -658,7 +730,7 @@ def p_instruccion_select3(t):
     strGram2 = ""
     val = []
     val.append(Select.Select(t[2], t[3], t[5], t[6], None, None, strGram,t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2 , t.lexer.lineno, t.lexer.lexpos)
+    t[0] = SelectLista.SelectLista(val, strGram2 , t.lexer.lineno, t.lexer.lexpos,"")
 
 
 def p_instruccion_select4(t):
@@ -670,7 +742,7 @@ def p_instruccion_select4(t):
     strGram2 = ""
     val = []
     val.append(Select.Select(t[2], t[3], t[5], t[6], t[7], t[8], strGram, t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos,"")
 
 def p_instruccion_select5(t):
     '''
@@ -681,7 +753,7 @@ def p_instruccion_select5(t):
     strGram2 = ""
     val = []
     val.append(Select.Select(t[2], t[3], t[5], t[6], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos,"")
 
 def p_instruccion_select6(t):
     '''
@@ -689,7 +761,16 @@ def p_instruccion_select6(t):
     '''
     #            dist  tipo  lcol  lcol  linners where lrows
     strGram = "<query> ::= SELECT <dist> <lcol>"
-    t[0] = SelectLista.SelectLista(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "SELECT " + t[2]
+    for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+
+    t[0] = SelectLista.SelectLista(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 def p_instruccion_select7(t):
@@ -701,7 +782,25 @@ def p_instruccion_select7(t):
     strGram2 = ""
     val = []
     val.append(Select.Select(t[2], t[3], t[5], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos))
-    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "SELECT " + t[2]
+    for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + " FROM "
+    for col in t[5]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    for col in t[7]:
+        strSent = strSent + " " + col.strSent
+
+    t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_lista_case(t):
     '''lcase : lcase case
@@ -733,13 +832,13 @@ def p_instruccion_lrows2(t):
 
 def p_dist(t):
     '''dist : DISTINCT
-        | 
     '''
-    try:
-        t[0] = t[1]
-    except:
-        #error
-        pass
+    t[0] = t[1]
+
+def p_dist1(t):
+    '''dist : 
+    '''
+    t[0] = ""
 
 def p_instruccion_rows(t):
     '''
@@ -754,36 +853,62 @@ def p_instruccion_rows(t):
     '''
     if(t[1] == "ORDER"):
         strGram = "<rows> ::= ORDER BY <l_expresiones>"
+        
+        strSent = "ORDER BY "
+        for col in t[3]:
+            strSent = strSent + col.strSent + ","
+        strSent = strSent[:-1]
+        
         if t[4]:
             if t[4] == "DESC":
                 strGram = strGram + " DESC"
+                strSent = strSent + " DESC"
             elif t[4] == "ASC":
                 strGram = strGram + " ASC"
+                strSent = strSent + " ASC"
             else:
                 if t[5]:
                     if t[5] == "FIRST":
                         strGram = strGram + " FIRST"
+                        strSent = strSent + " NULLS FIRST"
                     else:
                         strGram = strGram + " LAST"
+                        strSent = strSent + " NULLS LAST"
 
 
-        t[0] = OrderBy.OrderBy(t[3], t[4], strGram,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = OrderBy.OrderBy(t[3], t[4], strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
     elif(t[1] == "GROUP"):
         strGram = "<rows> ::= GROUP BY <l_expresiones>"
-        t[0] = GroupBy.GroupBy(t[3], None, strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "GROUP BY "
+        or col in t[3]:
+            strSent = strSent + col.strSent + ","
+        strSent = strSent[:-1]
+
+        t[0] = GroupBy.GroupBy(t[3], None, strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
     elif(t[1] == "HAVING"):
         strGram = "<rows> ::= HAVING <lcol>"
-        t[0] = Having.Having(t[2], None, t.lexer.lineno, t.lexer.lexpos)   
+        
+        strSent = "HAVING "
+        for col in t[2]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+        strSent = strSent[:-1]
+        
+        t[0] = Having.Having(t[2], None, t.lexer.lineno, t.lexer.lexpos, strSent)   
     elif(t[1] == "LIMIT"):
         #LIMIT(LIMITE,None,fila,columna)
         strGram = "<rows> ::= LIMIT ENTERO"
-        t[0] = Limit.Limit(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "LIMIT " + t[2]
+        t[0] = Limit.Limit(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_row2(t):
     '''rows : LIMIT ENTERO OFFSET ENTERO'''
     #LIMIT(LIMITE,FILAS_A_EXCLUIR,fila,columna)
     strGram = "<rows> ::= LIMIT ENTERO OFFSET ENTERO"
-    t[0] = Limit.Limit(t[2], t[4], strGram, t.lexer.lineno, t.lexer.lexpos) 
+    strSent = "LIMIT " + t[2] + " OFFSET " + t[4]
+    t[0] = Limit.Limit(t[2], t[4], strGram, t.lexer.lineno, t.lexer.lexpos, strSent) 
 
 
 def p_linner_join(t):
@@ -810,19 +935,23 @@ def p_operadores_logicos(t):
             | expre AND expre
     '''
     strGram = ""
+    strSent = ""
     if t[2] == "OR":
         strGram = "<expre> ::= <expre> OR <expre>"
+        strSent = t[1].strSent + " OR " + t[3].strSent
     elif t[2] == "AND":
         strGram = "<expre> ::= <expre> AND <expre>"
+        strSent = t[1].strSent + " AND " + t[3].strSent
 
-    t[0] = Logica.Logica(t[1], t[3], t[2].upper(), strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Logica.Logica(t[1], t[3], t[2].upper(), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 def p_operadores_unarios(t):
     ''' expre : NOT expre
     '''
     strGram = "<expre> ::= NOT <expre>"
-    t[0] = Logica.Logica(t[2], None, 'NOT', strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "NOT " + t[2].strSent
+    t[0] = Logica.Logica(t[2], None, 'NOT', strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_operadores_relacionales(t):
     ''' expre : expre IGUAL expre
@@ -833,21 +962,28 @@ def p_operadores_relacionales(t):
             | expre DISTINTO expre
     '''
     strGram = ""
+    strSent = ""
     if t[2] == "IGUAL":
         strGram = "<expre> ::= <expre> IGUAL <expre>"
+        strSent = t[1].strSent + " = " + t[3].strSent
     elif t[2] == "MAYORQ":
         strGram = "<expre> ::= <expre> MAYORQ <expre>"
+        strSent = t[1].strSent + " > " + t[3].strSent
     elif t[2] == "MENORQ":
         strGram = "<expre> ::= <expre> MENORQ <expre>"
+        strSent = t[1].strSent + " < " + t[3].strSent
     elif t[2] == "MAYOR_IGUALQ":
         strGram = "<expre> ::= <expre> MAYOR_IGUALQ <expre>"
+        strSent = t[1].strSent + " >= " + t[3].strSent
     elif t[2] == "MENOR_IGUALQ":
         strGram = "<expre> ::= <expre> MENOR_IGUALQ <expre>"
+        strSent = t[1].strSent + " <= " + t[3].strSent
     elif t[2] == "DISTINTO":
         strGram = "<expre> ::= <expre> DISTINTO <expre>"
+        strSent = t[1].strSent + " <> " + t[3].strSent
 
     
-    t[0] = Relacional.Relacional(t[1], t[3], t[2],strGram ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Relacional.Relacional(t[1], t[3], t[2],strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_operadores_aritmeticos(t):
     '''expre : expre MAS expre
@@ -859,25 +995,33 @@ def p_operadores_aritmeticos(t):
     '''
     
     strGram = ""
+    strSent = ""
     if t[2] == "MAS":
         strGram = "<expre> ::= <expre> MAS <expre>"
+        strSent = t[1].strSent + " + " + t[3].strSent
     elif t[2] == "MENOS":
         strGram = "<expre> ::= <expre> MENOS <expre>"
+        strSent = t[1].strSent + " - " + t[3].strSent
     elif t[2] == "POR":
         strGram = "<expre> ::= <expre> POR <expre>"
+        strSent = t[1].strSent + " * " + t[3].strSent
     elif t[2] == "DIVIDIDO":
         strGram = "<expre> ::= <expre> DIVIDIDO <expre>"
+        strSent = t[1].strSent + " / " + t[3].strSent
     elif t[2] == "EXPONENCIACION":
         strGram = "<expre> ::= <expre> EXPONENCIACION <expre>"
+        strSent = t[1].strSent + " ^ " + t[3].strSent
     elif t[2] == "MODULO":
         strGram = "<expre> ::= <expre> MODULO <expre>"
+        strSent = t[1].strSent + " % " + t[3].strSent
 
-    t[0] = Aritmetica.Aritmetica(t[1], t[3], t[2], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Aritmetica.Aritmetica(t[1], t[3], t[2], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_operador_unario(t):
     'expre : MENOS expre %prec UMENOS'
     strGram = "<expre> ::= MENOS <expre> %prec UMENOS"
-    t[0] = Aritmetica.Aritmetica(t[2], None, '-', strGram,t.lexer.lineno, t.lexer.lexpos)
+    strSent = "-" + t[2].strSent
+    t[0] = Aritmetica.Aritmetica(t[2], None, '-', strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_operadores_like(t):
     '''expre : expre LIKE expre
@@ -886,11 +1030,13 @@ def p_operadores_like(t):
     strGram = ""
     if t[2] == "NOT":
         strGram = "<expre> ::= <expre> NOT LIKE <expre>"
-        t[0] = Relacional.Relacional(t[1], t[4], "NOT LIKE", strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = t[1].strSent + " LIKE " + t[3].strSent
+        t[0] = Relacional.Relacional(t[1], t[4], "NOT LIKE", strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
     else: 
         strGram = "<expre> ::= <expre> LIKE <expre>"
-        t[0] = Relacional.Relacional(t[1], t[3], "LIKE", strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = t[1].strSent + " NOT LIKE " + t[3].strSent
+        t[0] = Relacional.Relacional(t[1], t[3], "LIKE", strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         
     #t[0] = PatternMatching(t[1], t[3], 'LIKE', t.lexer.lineno, t.lexer.lexpos) if t[2] == 'LIKE' else PatternMatching(t[1], t[3], 'NOT_LIKE', t.lexer.lineno, t.lexer.lexpos)
 
@@ -901,11 +1047,13 @@ def p_operadores_between(t):
 
     if t[2] == "NOT":
         strGram = "<expre> ::= <expre> NOT BETWEEN <expresion> AND <expresion>"
-        t[0] = Between.Between(t[1], t[4], t[6], "NOT", strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = t[0].strSent + " BETWEEN " + t[3].strSent + " AND " + t[5].strSent
+        t[0] = Between.Between(t[1], t[4], t[6], "NOT", strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
     else:
         strGram = "<expre> ::= <expre> BETWEEN <expresion> AND <expresion>"
-        t[0] = Between.Between(t[1], t[3], t[5], "", strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = t[0].strSent + " NOT BETWEEN " + t[3].strSent + " AND " + t[5].strSent
+        t[0] = Between.Between(t[1], t[3], t[5], "", strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
     #t[0] = Between(t[1], t[3], t[5], 'BETWEEN', t.lexer.lineno, t.lexer.lexpos) if t[2] == 'LIKE' else Between(t[1], t[4], t[5], 'NOT_BETWEEN', t.lexer.lineno, t.lexer.lexpos)
 
@@ -916,11 +1064,13 @@ def p_operadores_in(t):
     strGram = ""
     if t[2] == "NOT":
         strGram = "<expre> ::= <expre> NOT INT <expre>"
-        t[0] = Relacional.Relacional(t[1], t[4], "NOT IN", strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = t[1].strSent + " IN " + t[3].strSent
+        t[0] = Relacional.Relacional(t[1], t[4], "NOT IN", strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
 
     else: 
         strGram = "<expre> ::= <expre> IN <expre>"
-        t[0] = Relacional.Relacional(t[1], t[3], "IN", strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = t[1].strSent + " NOT IN " + t[3].strSent
+        t[0] = Relacional.Relacional(t[1], t[3], "IN", strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_operadores_is(t):
     '''expre : expre IS NULL
@@ -953,35 +1103,64 @@ def p_operadores_agregacion(t):
     '''
     if t[1] == 'AVG':
         strGram = "<expre> ::= AVG PARIZQ <expre> PARDER"
-        t[0] = Avg.Avg(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "AVG (" + t[3].strSent + ")"
+        t[0] = Avg.Avg(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'COUNT':
         strGram = "<expre> ::= COUNT PARIZQ <expre> PARDER"
-        t[0] = Count.Count(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "COUNT (" + t[3].strSent + ")"
+        t[0] = Count.Count(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'GREATEST':
         strGram = "<expre> ::= GREATEST PARIZQ <lcol> PARDER"
-        t[0] = Greatest.Greatest(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "GREATEST ("
+        for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+        strSent = strSent[:-1]
+        strSent = strSent + ")"
+        t[0] = Greatest.Greatest(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'LEAST':
         strGram = "<expre> ::= LEAST PARIZQ <lcol> PARDER"
-        t[0] = Least.Least(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "LEAST ("
+        for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+        strSent = strSent[:-1]
+        strSent = strSent + ")"
+        t[0] = Least.Least(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'MAX':
         strGram = "<expre> ::= MAX PARIZQ <expre> PARDER"
-        t[0] = Max.Max(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "MAX (" + t[3].strSent + ")"
+        t[0] = Max.Max(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'MIN':
         strGram = "<expre> ::= MIN PARIZQ <expre> PARDER"
-        t[0] = Min.Min(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "MIN (" + t[3].strSent + ")"
+        t[0] = Min.Min(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'SUM':
         strGram = "<expre> ::= MAX PARIZQ <expre> PARDER"
-        t[0] = Sum.Sum(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SUM (" + t[3].strSent + ")"
+        t[0] = Sum.Sum(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'TOP':
         strGram = "<expre> ::= TOP PARIZQ <lcol> PARDER"
-        t[0] = Top.Top(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "TOP ("
+        for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+        strSent = strSent[:-1]
+        strSent = strSent + ")"
+        t[0] = Top.Top(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
 
 def p_operadores_matematica(t):
@@ -1557,13 +1736,13 @@ def p_lista_columas(t):
 def p_lista_columas1(t):
     '''lcol : lcol COMA expre nombre
     '''
-    t[1].append(SelectLista.Alias(t[4],t[3]))
+    t[1].append(SelectLista.Alias(t[4],t[3], t[3].strSent + " " + t[4]))
     t[0] = t[1]
 
 def p_lista_columas2(t):
     '''lcol : lcol COMA expre AS nombre
     '''
-    t[1].append(SelectLista.Alias(t[5],t[3]))
+    t[1].append(SelectLista.Alias(t[5],t[3], t[3].strSent + " AS " + t[5]))
     t[0] = t[1]
 
 
@@ -1580,12 +1759,12 @@ def p_lista_columas3(t):
 def p_lista_columas4(t):
     '''lcol : expre nombre
     '''
-    t[0] = [SelectLista.Alias(t[2],t[1])]
+    t[0] = [SelectLista.Alias(t[2],t[1], t[1].strSent + " " + t[2])]
 
 def p_lista_columas5(t):
     '''lcol : expre AS nombre
     '''
-    t[0] = [SelectLista.Alias(t[3],t[1])]
+    t[0] = [SelectLista.Alias(t[3],t[1], t[1].strSent + " AS " + t[3])]
 
 def p_nombre(t):
     '''nombre : ID
