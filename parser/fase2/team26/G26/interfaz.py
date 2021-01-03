@@ -42,6 +42,21 @@ def analisis():
 
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
+
+    try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        f.close()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
+
+        print(text)
+        datos.reInsertarValores(json.loads(text))
+        print(str(datos))
+    except:
+        print('error')
     
     #g2.tempos.restartTemp() #reinicia el contador de temporales.
     prueba = g2.parse(texto)

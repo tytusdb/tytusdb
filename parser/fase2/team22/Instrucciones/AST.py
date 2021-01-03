@@ -96,11 +96,6 @@ class AST:
         self.contador = self.contador + 1
         self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.base + '"]\n' 
         self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-        if inst.owner != None:
-            if 'ComplementoCR' in str(inst.complemento):
-                self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="OWNER: ' + inst.owner + '"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         if inst.mode != None:
             self.contador = self.contador + 1
             self.c += 'Nodo'+ str(self.contador)+ '[label="MODE: ' + str(inst.mode) + '"]\n' 

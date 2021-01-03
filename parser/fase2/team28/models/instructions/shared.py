@@ -469,5 +469,15 @@ class ObjectReference(Instruction):
     def process(self, instruction):
         return self.reference_column.process(instruction)
 
-    def compile(self, enviroment):
-        return self.reference_column.compile()
+    def compile(self, environment):
+        val = self.reference_column.compile(environment)
+        val = environment.getVar(val)
+
+        if val is None: 
+            print("VARIABLE NO DECLARADA")
+            return None
+            
+        position = val.position
+        temporal = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temporal} = Stack[{position}]")
+        return PrimitiveData(None, temporal, 0, 0)
