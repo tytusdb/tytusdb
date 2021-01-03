@@ -1996,8 +1996,7 @@ def p_CIndex6(t):
 
 def p_LCINDEX(t):
    'LCINDEX        :   LCINDEX COMA VALINDEX'
-   val = t[1].getInstruccion()
-   val.append(t[3].getInstruccion())
+   val = str(t[1].getInstruccion()) + ' ' + str(t[3].getInstruccion())
    ret = Retorno(val,NodoAST("VALOR"))
    ret.getNodo().setHijo(t[1].getNodo())
    ret.getNodo().setHijo(t[3].getNodo())  
@@ -2005,7 +2004,7 @@ def p_LCINDEX(t):
 
 def p_LCINDEX2(t):
    'LCINDEX        :   VALINDEX'
-   val = [t[1].getInstruccion()]
+   val = t[1].getInstruccion()
    ret = Retorno(val,NodoAST("VALOR"))
    ret.getNodo().setHijo(t[1].getNodo())
    t[0] = ret
@@ -2013,17 +2012,17 @@ def p_LCINDEX2(t):
 
 def p_VALINDEX(t):
    'VALINDEX        :   ID'
-   ret = Retorno(ValorIndex(t[1],False),NodoAST(t[1]))
+   ret = Retorno(t[1],NodoAST(t[1]))
    t[0] = ret
 
 def p_VALINDEX2(t):
    'VALINDEX        :   LOWER PABRE ID PCIERRA'
-   ret = Retorno(ValorIndex(t[1],True),NodoAST(t[3]))
+   ret = Retorno(t[1],NodoAST(t[3]))
    t[0] = ret
 
 def p_VALINDEX3(t):
    'VALINDEX        :   CADENA'
-   ret = Retorno(ValorIndex(t[1],False),NodoAST(t[1]))
+   ret = Retorno(t[1],NodoAST(t[1]))
    t[0] = ret
 
 
