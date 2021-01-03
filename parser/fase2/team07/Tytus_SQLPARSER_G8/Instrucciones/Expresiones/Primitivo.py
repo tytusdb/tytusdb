@@ -3,8 +3,8 @@ from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 
 class Primitivo(Instruccion):
-    def __init__(self, valor, tipo, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
        
 

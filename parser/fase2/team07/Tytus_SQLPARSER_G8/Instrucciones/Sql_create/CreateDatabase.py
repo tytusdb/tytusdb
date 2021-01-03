@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Instruccion import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 from storageManager.jsonMode import *
 class CreateDatabase(Instruccion):
-    def __init__(self, base, tipo, existe, owner, mode, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, base, tipo, existe, owner, mode, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.base=base
         self.tipo=tipo
         self.existe = existe

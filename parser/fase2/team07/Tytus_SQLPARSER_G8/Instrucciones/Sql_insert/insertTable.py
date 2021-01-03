@@ -13,8 +13,8 @@ from storageManager.jsonMode import *
 # lexpre ----> lista de expresiones a insertar
 
 class insertTable(Instruccion):
-    def __init__(self, valor, tipo, lcol, lexpre, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, lcol, lexpre, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.lcol = lcol
         self.lexpre = lexpre

@@ -22,6 +22,7 @@ class Instruccion(ABC):
         self.nodoPadre = None
         self.nodosLista = []
         self.strGram = strGram
+        self.strSent = strSent
 
     #@abstractmethod
     #def nodoGraphviz(self, nodoPadre, nodosLista):

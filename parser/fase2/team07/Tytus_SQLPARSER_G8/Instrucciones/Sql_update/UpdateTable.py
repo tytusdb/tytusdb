@@ -7,8 +7,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
 import numpy as np
 
 class UpdateTable(Instruccion):
-    def __init__(self, id, tipo, lCol, insWhere, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, lCol, insWhere, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.identificador = id
         self.listaDeColumnas = lCol
         self.insWhere = insWhere

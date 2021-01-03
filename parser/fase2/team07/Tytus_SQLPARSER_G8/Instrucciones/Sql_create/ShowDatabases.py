@@ -2,8 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 class ShowDatabases(Instruccion):
-    def __init__(self, id, tipo, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = id
 
     def ejecutar(self, tabla, arbol):

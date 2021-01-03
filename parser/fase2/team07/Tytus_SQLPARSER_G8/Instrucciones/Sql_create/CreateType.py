@@ -4,8 +4,8 @@ from Instrucciones.Expresiones.Enum import Enum
 from storageManager.jsonMode import *
 
 class CreateType(Instruccion):
-    def __init__(self, id, tipo, listaExpre, strGram,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, listaExpre, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = id
         self.listaExpre = listaExpre
 

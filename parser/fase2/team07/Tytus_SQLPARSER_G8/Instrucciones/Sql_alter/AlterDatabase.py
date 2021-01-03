@@ -3,8 +3,8 @@ from Instrucciones.Sql_create.ShowDatabases import ShowDatabases
 from Instrucciones.Excepcion import Excepcion
 from storageManager.jsonMode import *
 class AlterDatabase(Instruccion):
-    def __init__(self, id, tipo, opcion, id2, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, opcion, id2, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.nombreAntiguo = id
         self.nombreNuevo = id2
         self.opcion = opcion

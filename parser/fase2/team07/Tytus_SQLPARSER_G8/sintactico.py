@@ -77,53 +77,61 @@ def p_instruccion_create_database1(t):
     '''
     #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID PUNTO_COMA"
-    t[0] =CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE DATABASE " + t[3].strSent + " " + t[4] + ";"
+    t[0] =CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, 1, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_database2(t):
     '''instruccion : CREATE DATABASE if_not_exists ID OWNER IGUAL cowner PUNTO_COMA
     '''
     #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> ID PUNTO_COMA"
-    t[0] =CreateDatabase.CreateDatabase(t[4],None,t[3].valor, t[7], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE DATABASE " + t[3].strSent + " " + t[4] + " OWNER = " + t[7] + ";"
+    t[0] =CreateDatabase.CreateDatabase(t[4],None,t[3].valor, t[7], 1, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_database3(t):
     '''instruccion : CREATE DATABASE if_not_exists ID OWNER IGUAL cowner MODE IGUAL ENTERO PUNTO_COMA
     '''
     #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE IGUAL ENTERO PUNTO_COMA"
-    t[0] =CreateDatabase.CreateDatabase(t[4],None,t[3].valor, t[7], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE DATABASE " + t[3].strSent + " " + t[4] + " OWNER = " + t[7] + " MODE = " + t[10] + ";"
+    t[0] =CreateDatabase.CreateDatabase(t[4],None,t[3].valor, t[7], t[10], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_database4(t):
     '''instruccion : CREATE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
     '''
     #                     ID    tipo  opcion ID2  ENTERO
-    strGram  = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
-    t[0] =CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
+    strSent = "CREATE DATABASE " + t[3].strSent + " " + t[4] + " MODE = " + t[7] + ";"
+    t[0] =CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, t[7], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # CREATE OR REPLACE DATABASE
 def p_instruccion_create_or_database1(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID PUNTO_COMA"
-    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, None, 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE OR REPLACE DATABASE " + t[5].strSent + " " + t[6] + ";"
+    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, None, 1, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_or_database2(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL cowner PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> PUNTO_COMA"
-    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE OR REPLACE DATABASE " + t[5].strSent + " " + t[6] + " OWNER = " + t[9] + ";"
+    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_or_database3(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL cowner MODE IGUAL ENTERO PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE IGUAL ENTERO PUNTO_COMA"
-    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], t[12], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE OR REPLACE DATABASE " + t[5].strSent + " " + t[6] + " OWNER = " + t[9] + " MODE = " + t[12] + ";"
+    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], t[12], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_or_database4(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
     '''
     strGram = "<instruccion> : CREATE OR REPLACE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
-    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE OR REPLACE DATABASE " + t[5].strSent + " " + t[6] + " MODE = " + t[9] + ";"
+    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_owner(t):
     '''cowner : ID
@@ -136,56 +144,70 @@ def p_if_not_exists(t):
     '''if_not_exists : IF NOT EXISTS
     '''
     strGram = "<if_not_exists> ::= IF NOT EXISTS"
-    t[0] = Primitivo.Primitivo("IF NOT EXISTS",Tipo_Dato.VARCHAR, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "IF NOT EXISTS"
+    t[0] = Primitivo.Primitivo("IF NOT EXISTS",Tipo_Dato.VARCHAR, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_if_not_exists1(t):
     '''if_not_exists : 
     '''
     strGram = "<if_not_exists> ::= "
-    t[0] = Primitivo.Primitivo("NULL",Tipo_Dato.VARCHAR, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = ""
+    t[0] = Primitivo.Primitivo("NULL",Tipo_Dato.VARCHAR, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create1(t):
     '''instruccion : CREATE TABLE ID PARIZQ campos PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE TABLE ID PARIZQ <campos> PARDER PUNTO_COMA"
-    t[0] =CreateTable.CreateTable(t[3], None, t[5], None, strGram,t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE TABLE " + t[3] + "(" + t[5].strSent + ");"
+    t[0] =CreateTable.CreateTable(t[3], None, t[5], None, strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create2(t):
     '''instruccion : CREATE TABLE ID PARIZQ campos PARDER INHERITS PARIZQ ID PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE TABLE ID PARIZQ <campos> PARDER INHERITS PARIZQ ID PARDER PUNTO_COMA"
-    t[0] =CreateTable.CreateTable(t[3],None, t[5], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE TABLE " + t[3] + "(" + t[5].strSent + ") INHERITS (" + t[9] + ");"
+    t[0] =CreateTable.CreateTable(t[3],None, t[5], t[9], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_use(t):
     '''instruccion : USE ID PUNTO_COMA
     '''
     strGram = "<instruccion> ::= USE ID PUNTO_COMA"
-    t[0] =Use.Use(t[2], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "USE " + t[2] + ";"
+    t[0] =Use.Use(t[2], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_show_database1(t):
     '''instruccion : SHOW DATABASES PUNTO_COMA
     '''
     strGram = "<instruccion> ::= SHOW DATABASES PUNTO_COMA"
-    t[0] =ShowDatabases.ShowDatabases(None, None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "SHOW DATABASES;"
+    t[0] =ShowDatabases.ShowDatabases(None, None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_show_database2(t):
     '''instruccion : SHOW DATABASES LIKE CARACTER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= SHOW DATABASES LIKE CARACTER PUNTO_COMA"
-    t[0] =ShowDatabases.ShowDatabases(t[4],None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "SHOW DATABASES LIKE " + t[4] + ";"
+    t[0] =ShowDatabases.ShowDatabases(t[4],None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_enumerated_type(t):
     '''instruccion : CREATE TYPE ID AS ENUM PARIZQ l_expresiones PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE TYPE ID AS ENUM PARIZQ <l_expresiones> PARDER PUNTO_COMA"
-    t[0] =CreateType.CreateType(t[3],None,t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "CREATE TYPE " + t[3] + " AS ENUM ("
+    for col in t[7]:
+        strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ");"
+
+    t[0] =CreateType.CreateType(t[3],None,t[7], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 def p_instruccion_truncate(t):
     '''instruccion : TRUNCATE TABLE ID PUNTO_COMA
     '''
     strGram = "<instruccion> ::= TRUNCATE TABLE ID PUNTO_COMA"
-    t[0] =Truncate.Truncate(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "TRUNCATE TABLE " + t[3] + ";"
+    t[0] =Truncate.Truncate(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # DROP DATABASE
 def p_instruccion_drop_database1(t):
@@ -193,14 +215,16 @@ def p_instruccion_drop_database1(t):
 
     '''
     strGram = "<instruccion> ::= DROP DATABASE ID PUNTO_COMA"
-    t[0] =DropDatabase.DropDatabase(t[3],None,False,0, strGram,t.lexer.lineno, t.lexer.lexpos)
+    strSent = "DROP DATABASE " + t[3] + ";"
+    t[0] =DropDatabase.DropDatabase(t[3],None,False,0, strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_drop_database2(t):
     '''instruccion : DROP DATABASE IF EXISTS ID PUNTO_COMA
 
     '''
     strGram = "<instruccion> ::= DROP DATABASE IF EXISTS ID PUNTO_COMA"
-    t[0] =DropDatabase.DropDatabase(t[5],None,True,1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "DROP DATABASE IF EXISTS " + t[5] + ";"
+    t[0] =DropDatabase.DropDatabase(t[5],None,True,1, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # DROP TABLE
 def p_instruccion_drop(t):
@@ -208,14 +232,16 @@ def p_instruccion_drop(t):
 
     '''
     strGram = "<instruccion> ::= DROP TABLE ID PUNTO_COMA"
-    t[0] =DropTable.DropTable(t[3],None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "DROP TABLE " + t[3] + ";"
+    t[0] =DropTable.DropTable(t[3],None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_drop2(t):
     '''instruccion : DROP ID
 
     '''
     strGram = "<instruccion> ::= DROP ID"
-    t[0] =DropTable.DropTable(t[2],None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "DROP " + t[2]
+    t[0] =DropTable.DropTable(t[2],None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 def p_instruccion_where(t):
@@ -223,7 +249,8 @@ def p_instruccion_where(t):
         instructionWhere :  WHERE expre
     '''
     strGram = "<instructionWhere> ::=  WHERE <expre>"
-    t[0] = Where.Where(t[2],None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "WHERE " + t[2].strSent
+    t[0] = Where.Where(t[2],None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 # update tabla set campo = valor , campo 2= valor where condicion
@@ -235,7 +262,8 @@ def p_instruccion_update(t):
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> <instructionWhere> PUNTO_COMA"
     strGram2 = ""
     id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
-    t[0] = UpdateTable.UpdateTable(id1, None, t[4], t[5], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    strSent = "UPDATE " + t[2] + " SET " + t[4].strSent + " " + t[5].strSent + ";"
+    t[0] = UpdateTable.UpdateTable(id1, None, t[4], t[5], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # update tabla set campo = valor , campo 2= valor;
 
@@ -246,7 +274,8 @@ def p_instruccion_update2(t):
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> PUNTO_COMA"
     strGram2 = ""
     id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
-    t[0] = UpdateTable.UpdateTable(id1, None, t[4], None, strGram ,t.lexer.lineno, t.lexer.lexpos)
+    strSent = "UPDATE " + t[2] + " SET " + t[4].strSent + ";"
+    t[0] = UpdateTable.UpdateTable(id1, None, t[4], None, strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
 def p_columunas_delete(t):
@@ -254,29 +283,30 @@ def p_columunas_delete(t):
      instruccion : DELETE FROM ID instructionWhere PUNTO_COMA
     '''
     strGram = "<instruccion> ::= DELETE FROM ID <instructionWhere> PUNTO_COMA"
-    t[0] = DeleteTable.DeleteTable(t[3],None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "DELETE FROM " + t[3] + " " + t[4].strSent + ";"
+    t[0] = DeleteTable.DeleteTable(t[3],None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 #FUNCIONES
-def p_funciones(t):
-    '''
-     instruccion : CREATE FUNCTION ID BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, None, None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+#def p_funciones(t):
+    #'''
+    # instruccion : CREATE FUNCTION ID BEGIN instrucciones END PUNTO_COMA
+    #'''
+#    strGram = "<instruccion> ::= CREATE FUNCTION ID BEGIN <instrucciones> END PUNTO_COMA"
+#    t[0] = CreateFunction.CreateFunction(t[3],None, None, None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones2(t):
-    '''
-     instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], None, t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
+#def p_funciones2(t):
+    #'''
+    # instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER BEGIN instrucciones END PUNTO_COMA
+    #'''
+#    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER BEGIN <instrucciones> END PUNTO_COMA"
+#    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], None, t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones3(t):
-    '''
-     instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER AS <expresion> BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], t[8], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
+#def p_funciones3(t):
+    #'''
+    # instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
+    #'''
+#    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER AS <expresion> BEGIN <instrucciones> END PUNTO_COMA"
+#    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], t[8], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 
 def p_declaracion(t):
@@ -284,21 +314,24 @@ def p_declaracion(t):
      instruccion : DECLARE expresion AS expresion PUNTO_COMA
     '''
     strGram = "<instruccion> ::= DECLARE <expresion> AS <expresion> PUNTO_COMA"
-    t[0] = Declare.Declare(t[2], None, t[4], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    strSent = "DECLARE " + t[2].strSent + " AS " + t[4].strSent + ";"
+    t[0] = Declare.Declare(t[2], None, t[4], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_declaracion1(t):
     '''
      instruccion : DECLARE expresion tipo PUNTO_COMA
     '''
     strGram = "<instruccion> ::= DECLARE <expresion> tipo PUNTO_COMA"
-    t[0] = Declare.Declare(t[2], t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "DECLARE " + t[2].strSent + " " + t[3].toString() + ";"
+    t[0] = Declare.Declare(t[2], t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     
 def p_set(t):
     '''
      instruccion : SET expresion IGUAL expre PUNTO_COMA
     '''
     strGram = "<instruccion> ::= SET <expresion> IGUAL <expre> PUNTO_COMA"
-    t[0] =Set.Set(t[2], None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "SET " + t[2].strSent + " = " + t[4].strSent + ";"
+    t[0] =Set.Set(t[2], None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 # ALTER DATABASE name RENAME TO new_name
@@ -306,7 +339,8 @@ def p_instruccion_alter_database1(t):
     '''instruccion : ALTER DATABASE ID RENAME TO ID PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER DATABASE ID RENAME TO ID PUNTO_COMA"
-    t[0] = AlterDatabase.AlterDatabase(t[3], None, t[4], t[6], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    strSent = "ALTER DATABASE " + t[3] + " RENAME TO " + t[6] + ";"
+    t[0] = AlterDatabase.AlterDatabase(t[3], None, t[4], t[6], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 # ALTER DATABASE name OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
@@ -315,8 +349,8 @@ def p_instruccion_alter_database2(t):
     '''
     strGram = "<instruccion> ::= ALTER DATABASE ID OWNER TO <list_owner> PUNTO_COMA\n"
     strGram = strGram + "<list_owner> ::= ID| CURRENT_USER| SESSION_USER" 
-    
-    t[0] = AlterDBOwner.AlterDBOwner(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "ALTER DATABASE " + t[3] + " OWNER TO " + t[6] + ";"
+    t[0] = AlterDBOwner.AlterDBOwner(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 # { new_owner | CURRENT_USER | SESSION_USER }
@@ -335,7 +369,14 @@ def p_instruccion_alter1(t):
     strGram = "<instruccion> ::= ALTER TABLE ID <l_add_column> PUNTO_COMA\n"
     strGram = strGram + "<l_add_column> ::= <l_add_column> COMA <add_column>\n"
     strGram = strGram + "<l_add_column> ::= <add_column>"
-    t[0] = AlterTableAddColumn.AlterTableAddColumn(t[3], t[4], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "ALTER TABLE " + t[3] + " "
+    for col in t[4]:
+        strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ";"
+    print(strSent)
+    t[0] = AlterTableAddColumn.AlterTableAddColumn(t[3], t[4], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_l_add_column1(t):
     '''l_add_column : l_add_column COMA add_column
@@ -351,7 +392,8 @@ def p_l_add_column2(t):
 def p_add_column(t):
     '''add_column : ADD COLUMN ID tipo'''
     strGram = "<add_column> ::= ADD COLUMN ID <tipo>"
-    t[0] = Columna.Columna(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "ADD COLUMN " + t[3] + " " + t[4].toString()
+    t[0] = Columna.Columna(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # ALTER TABLE 'NOMBRE_TABLA' DROP COLUMN NOMBRE_COLUMNA;
 def p_instruccion_alter2(t):
@@ -360,7 +402,14 @@ def p_instruccion_alter2(t):
     strGram = "<instruccion> ::= ALTER TABLE ID <l_drop_column> PUNTO_COMA\n"
     strGram = strGram + "<l_drop_column> ::= <l_drop_column> COMA <drop_column>\n"
     strGram = strGram + "<l_drop_column> ::= <drop_column>"
-    t[0] = AlterTableDropColumn.AlterTableDropColumn(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "ALTER TABLE " + t[3] + " "
+    for col in t[4]:
+        strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ";"
+
+    t[0] = AlterTableDropColumn.AlterTableDropColumn(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_l_drop_column1(t):
     '''l_drop_column : l_drop_column COMA drop_column'''
@@ -374,56 +423,96 @@ def p_l_drop_column2(t):
 def p_drop_column(t):
     'drop_column : DROP COLUMN ID'
     strGram = "<drop_column> ::= DROP COLUMN ID"
-    t[0] = Columna.Columna(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "DROP COLUMN " + t[3]
+    t[0] = Columna.Columna(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # ALTER TABLE 'NOMBRE_TABLA' ADD CHECK EXP;
 def p_instruccion_alter3(t):
     '''instruccion : ALTER TABLE ID ADD CHECK expre PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID ADD CHECK <expre> PUNTO_COMA"
-    t[0] = AlterTableAddCheck.AlterTableAddCheck(t[3],t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "ALTER TABLE " + t[3] + " ADD CHECK " + t[6].strSent + ";"
+    t[0] = AlterTableAddCheck.AlterTableAddCheck(t[3],t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # ALTER TABLE 'NOMBRE_TABLA' ADD CONSTRAINT 'NOMBRE' UNIQUE (LISTA_ID);
 def p_instruccion_alter4(t):
     '''instruccion : ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ lista_id PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ <lista_id> PARDER PUNTO_COMA"
-    t[0] = AlterTableAddConstraint.AlterTableAddConstraint(t[3], t[6], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "ALTER TABLE " + t[3] + " ADD CONSTRAINT " + t[6] + " UNIQUE ("
+    for col in t[9]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ");"
+    
+    t[0] = AlterTableAddConstraint.AlterTableAddConstraint(t[3], t[6], t[9], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 
 def p_instruccion_altercfk(t):
     '''instruccion : ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PARIZQ <lista_id> PARDER REFERENCES ID PARIZQ <lista_id> PARDER PUNTO_COMA"
-    t[0] = AlterTableAddConstraintFK.AlterTableAddConstraintFK(t[3], t[6], t[10], t[13], t[15], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "ALTER TABLE " + t[3] + " ADD CONSTRAINT " + t[6] + " FOREIGN KEY ( "
+    for col in t[10]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ") REFERENCES " + t[13] + "( "
+    for col in t[15]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ");"
+    
+    t[0] = AlterTableAddConstraintFK.AlterTableAddConstraintFK(t[3], t[6], t[10], t[13], t[15], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # ALTER TABLE child_table ADD FOREIGN KEY (fk_columns) REFERENCES parent_table (parent_key_columns);
 def p_instruccion_alter5(t):
     '''instruccion : ALTER TABLE ID ADD FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID ADD FOREIGN KEY PARIZQ <lista_id> PARDER REFERENCES ID PARIZQ <lista_id> PARDER PUNTO_COMA"
-    t[0] = AlterTableAddFK.AlterTableAddFK(t[3], t[8], t[11], t[13], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "ALTER TABLE " + t[3] + " ADD FOREIGN KEY ( "
+    for col in t[8]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ") REFERENCES " + t[11] + "( "
+    for col in t[13]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ");"
+
+    t[0] = AlterTableAddFK.AlterTableAddFK(t[3], t[8], t[11], t[13], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # ALTER TABLE 'NOMBRE_TABLA' ALTER COLUMN 'NOMBRE' SET NOT NULL;
 def p_instruccion_alter6(t):
     '''instruccion : ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PUNTO_COMA"
-    t[0] = AlterTableAlterColumn.AlterTableAlterColumn(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "ALTER TABLE " + t[3] + " ALTER COLUMN " + t[6] + " SET NOT NULL;"
+    t[0] = AlterTableAlterColumn.AlterTableAlterColumn(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # ALTER TABLE 'NOMBRE_TABLA' DROP CONSTRAINT 'NOMBRE';
 def p_instruccion_alter7(t):
     '''instruccion : ALTER TABLE ID DROP CONSTRAINT ID PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID DROP CONSTRAINT ID PUNTO_COMA"
-    t[0] = AlterTableDropConstraint.AlterTableDropConstraint(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "ALTER TABLE " + t[3] + " DROP CONSTRAINT " + t[6] + ";"
+    t[0] = AlterTableDropConstraint.AlterTableDropConstraint(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # ALTER TABLE 'NOMBRE_TABLA' ADD CONSTRAINT 'NOMBRE' CHECK expre;
 def p_instruccion_alter8(t):
     '''instruccion : ALTER TABLE ID l_alter PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID <l_alter> PUNTO_COMA"
-    t[0] = AlterTableAlterColumnType.AlterTableAlterColumnType(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "ALTER TABLE " + t[3] " "
+    for col in t[4]:
+        strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ";"
+
+    t[0] = AlterTableAlterColumnType.AlterTableAlterColumnType(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_l_alter1(t):
     'l_alter : l_alter COMA alter_column'
@@ -437,7 +526,8 @@ def p_l_alter2(t):
 def p_alter_column(t):
     'alter_column : ALTER COLUMN ID TYPE tipo'
     strGram = "<alter_column> ::= ALTER COLUMN ID TYPE tipo"
-    t[0] = Columna.Columna(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "ALTER COLUMN " + t[3] + " TYPE " + t[4].toString()
+    t[0] = Columna.Columna(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # insert into tabla (campo1,campo2,campo3,campo4) values (valor1, valor2, valor3, valor4)
 # unicamente validar que tengan los mismos campos y la mismas cantidad de valores
@@ -446,7 +536,18 @@ def p_instruccion_insert(t):
     '''instruccion : INSERT INTO ID PARIZQ lista_id PARDER VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= INSERT INTO ID PARIZQ <lista_id> PARDER VALUES PARIZQ <l_expresiones> PARDER PUNTO_COMA"
-    t[0] = insertTable.insertTable(t[3], None, t[5], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "INSERT INTO " + t[3] + "("
+    for col in t[5]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ") VALUES ("
+    for col in t[9]:
+        strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ");"
+
+    t[0] = insertTable.insertTable(t[3], None, t[5], t[9], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 #insert into tabla values (valor1,valor2,valor3)
 # debe validar que la cantidad de valores coincida con la cantidad de columnas de la tabla y el tipo de dato
@@ -455,7 +556,14 @@ def p_instruccion_insert2(t):
     instruccion : INSERT INTO ID VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= INSERT INTO ID VALUES PARIZQ <l_expresiones> PARDER PUNTO_COMA"
-    t[0] = insertTable.insertTable(t[3], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+    strSent = "INSERT INTO " + t[3] + " VALUES ("
+    for col in t[6]:
+        strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ");"
+
+    t[0] = insertTable.insertTable(t[3], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # SELECT col, col FROM id;
 # SELECT * from id;
@@ -463,13 +571,15 @@ def p_instruccion_query(t):
     '''
     instruccion : lquery PUNTO_COMA
     '''
+    t[1].strSent = t[1].strSent + ";"
     t[0]=t[1]
 
 def p_lista_querys(t):
     '''lquery : lquery relaciones query
     '''
-    strGram = "<lquery> ::= <lquery> <relaciones> <query>"    
-    t[0] = Relaciones.Relaciones(t[1],t[2],t[3],strGram,t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<lquery> ::= <lquery> <relaciones> <query>"   
+    strSent = t[1].strSent + " " +  t[2] + " " + t[3].strSent
+    t[0] = Relaciones.Relaciones(t[1],t[2],t[3],strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_lista_querys2(t):
     '''
@@ -514,6 +624,7 @@ def p_instruccion_select(t):
     strGram2 = ""
     val = []
     val.append(Select.Select(t[2], t[3], t[5], None, None, None, strGram ,t.lexer.lineno, t.lexer.lexpos))
+    strSent = "SELECT " + t[2] +
     t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_select1(t):
@@ -597,7 +708,7 @@ def p_lista_case(t):
     '''
     t[0] = t[1].append(t[2])
 
-def p_lista_case(t):
+def p_lista_case_case(t):
     '''lcase : case
     '''
     t[0] = t[1]
@@ -668,7 +779,7 @@ def p_instruccion_rows(t):
         strGram = "<rows> ::= LIMIT ENTERO"
         t[0] = Limit.Limit(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def P_instruccion_row2(t):
+def p_instruccion_row2(t):
     '''rows : LIMIT ENTERO OFFSET ENTERO'''
     #LIMIT(LIMITE,FILAS_A_EXCLUIR,fila,columna)
     strGram = "<rows> ::= LIMIT ENTERO OFFSET ENTERO"
@@ -1613,6 +1724,228 @@ def p_tipo_datos2(t):
     '''
     t[0] = Tipo(Tipo_Dato.TIPOENUM)
     t[0].nombre = t[1]
+
+
+
+
+
+
+########################################### GRAMATICA FASE 2 ########################################
+
+
+#DECLARACION DE UNA FUNCION
+def p_funciones(t):
+    '''
+    instruccion    :   CREATE FUNCTION ID PARIZQ parametros_funcion PARDER returns_n retorno_funcion declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
+    '''
+
+def p_parametros_funcion(t):
+    '''
+    parametros_funcion  : lista_parametros_funcion 
+    '''
+def p_parametros_funcion_e(t):
+    '''
+    parametros_funcion  :
+    '''
+
+def p_lista_parametros_funcion(t):
+    '''
+    lista_parametros_funcion    :   lista_parametros_funcion COMA parametro_fucion
+						        |	parametro_fucion
+    '''
+
+def p_parametro_fucion(t):
+    '''
+    parametro_fucion 	: 	ID tipo
+					    |	tipo
+    '''
+
+def p_returns(t):
+    '''
+    returns_n 	:	RETURNS
+    '''
+def p_returns_e(t):
+    '''
+    returns_n   :
+    '''
+
+def p_retorno_funcion(t):
+    '''
+    retorno_funcion :   tipo AS DOLLAR DOLLAR
+				    |   TABLE PARIZQ lista_campos_tabla PARDER AS DOLLAR DOLLAR
+				    |   AS DOLLAR DOLLAR
+    '''
+
+def p_lista_campos_tabla(t):
+    '''
+    lista_campos_tabla  :	lista_campos_tabla COMA ID tipo
+					    |	ID tipo
+    '''
+
+def p_declaraciones_funcion(t):
+    '''
+    declaraciones_funcion 	: 	DECLARE list_dec_var_funcion
+    '''
+def p_declaraciones_funcion_e(t):
+    '''
+    declaraciones_funcion   :
+    '''    
+
+def p_list_dec_var_funcion(t):
+    '''
+    list_dec_var_funcion 	:	list_dec_var_funcion dec_var_funcion PUNTO_COMA
+						    |	dec_var_funcion PUNTO_COMA
+    '''
+
+def p_dec_var_funcion(t):
+    '''
+    dec_var_funcion : 	ID constant_n tipo collate_n nnull aisgnacion_valor 
+				    |	ID ALIAS FOR DOLLAR ENTERO
+				    |	ID ALIAS FOR ID
+				    |	ID tabla_typerow MODULO type_row
+    '''
+
+
+def p_tabla_typerow(t):
+    '''
+    tabla_typerow   :   ID PUNTO ID
+                    |   ID
+    '''
+
+def p_constant(t):
+    '''
+    constant_n  :   CONSTANT
+    '''
+def p_constant_e(t):
+    '''
+    constant_n  :   
+    '''
+
+def p_type_row(t):
+    '''
+    type_row 	:	TYPE
+			    |	ROWTYPE
+    '''
+
+def p_collate(t):
+    '''
+    collate_n : COLLATE CADENA
+    '''
+def p_collate_e(t):
+    '''
+    collate_n :
+    '''
+
+def p_nnull(t):
+    '''
+    nnull : NOT NULL
+    '''
+def p_nnull_e(t):
+    '''
+    nnull :
+    '''
+
+def p_aisgnacion_valor(t):
+    '''
+    aisgnacion_valor 	: 	DEFAULT expre 
+					    |	DOSP_IGUAL expre 
+					    |	IGUAL expre 
+    '''
+def p_aisgnacion_valor_e(t):
+    '''
+    aisgnacion_valor    :
+    '''
+
+def p_contenido_funcion(t):
+    '''
+    contenido_funcion   : contenido_funcion cont_funcion
+                        | cont_funcion ''' 
+    
+    
+def p_cont_funcion(t):    
+    '''
+     cont_funcion : IF expre THEN instrucciones_if condicionesif ELSE  instrucciones_if END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if condicionesif END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if ELSE  instrucciones_if END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if END IF PUNTO_COMA
+				  | CASE ID condiciones_cuando ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE ID condiciones_cuando END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB END CASE PUNTO_COMA
+				  | BEGIN instrucciones_if EXCEPTION WHEN l_identificadores THEN instrucciones_if END PUNTO_COMA
+				  | BEGIN instrucciones_if EXCEPTION WHEN sql_states THEN instrucciones_if END PUNTO_COMA
+    '''
+
+def p_instrucciones_if(t):
+    ''' 
+    instrucciones_if : instrucciones_if instruccion_if 
+                     | instruccion_if
+    '''
+    
+def p_instruccion_if(t):
+    '''
+    instruccion_if : contenido_funcion
+                   | instrucciones
+                   | expre PUNTO_COMA
+                   | RETURN PUNTO_COMA
+                   | RETURN expre PUNTO_COMA
+                   | RAISE NOTICE CADENA PUNTO_COMA
+                   | RAISE NOTICE CADENA COMA ID PUNTO_COMA
+                   | RAISE NOTICE CARACTER PUNTO_COMA
+                   | RAISE NOTICE CARACTER COMA ID PUNTO_COMA
+    '''
+
+def p_condiciones_if(t):
+    '''
+condicionesif : condicionesif condicionif
+			  | condicionif
+    '''
+
+def p_condicion_if(t):
+    '''
+condicionif : ELSIF expre THEN instrucciones_if 
+			| ELSEIF expre THEN instrucciones_if 
+    '''
+
+def p_condiciones_cuando(t):
+    '''
+condiciones_cuando : condiciones_cuando condicion_cuando
+				   | condicion_cuando
+    '''
+
+def p_condicion_cuando(t):
+    '''
+condicion_cuando : WHEN l_expresiones THEN instrucciones
+
+    '''
+
+def p_condiciones_cuando_B(t):
+    '''
+condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
+					| condicion_cuandoB
+    '''
+
+def p_condicion_cuando_B(t):
+    '''
+condicion_cuandoB ::= WHEN expre THEN instrucciones
+    '''
+
+def p_sql_states(t):
+    '''
+sql_states ::= sql_states OR sql_state
+			 | sql_state
+    '''
+
+def p_sql_state(t):
+    '''
+sql_state ::= SQLSTATE CADENA
+    '''
+
+def p_identificadores(t):
+    '''
+    l_identificadores : l_identificadores OR ID
+                      | ID
+    '''
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
