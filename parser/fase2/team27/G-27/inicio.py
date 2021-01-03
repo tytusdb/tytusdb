@@ -2,12 +2,7 @@
 #import tkinter
 from tkinter import *
 import tkinter
-from gramatica import analizarASTLex, analizarASTSin
-from bnf import analizarBNFLex, analizarBNFSin
-from execution.symbol.environment import Environment
-from execution.main import Main
-from Lexico import analizarLex ,analizarSin, get_errores,clear_errores
-from execution.symbol.error import T_error
+from c3d import analizarLex, analizarSin
 
 # creamos una nueva ventana
 ventana = Tk()
@@ -16,7 +11,6 @@ ventana.geometry("900x600")
 ventana.configure(bg = "gray")
 
 consola = []
-env = Environment(None)
 
 # creamos una etiqueta para mostrar
 etiqueta = Label(ventana, text = "SQL PARSER", bg = "green")
@@ -36,26 +30,9 @@ etiqueta2.place(x = 100 , y = 350)
 # ======================================================================
 # Metodo de analisis de gramatica
 def analizar_texto():
-    result= txt_consultas.get("1.0","end")
-    entorno = analizarSin(result)  # se envia el texto a el analizador sintactico
-    iniciarEjecucion = Main(entorno)
-    _res = iniciarEjecucion.execute(env)
-    txt_salida.insert('end','>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
-    for item in _res[0]:
-        txt_salida.insert('end',item+'\n')
-    
-    txt_salida.insert('end','=========================================ERRORES==============================================\n')
-    
-    for item in _res[1]:
-        txt_salida.insert('end',item+'\n')
-    
-    for item in get_errores():
-        txt_salida.insert('end',item.toString()+'\n')
-    txt_salida.insert('end','=====================================TABLA DE SIMBOLOS=========================================\n')
-    txt_salida.insert('end', env.tsString()+'\n')
-    txt_salida.insert('end','>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n\n\n')
-    clear_errores()
-    env.clearTablaSimbolos()
+    response= txt_consultas.get("1.0","end")
+    salida_lexico_ast = analizarLex(response)
+    analizarSin(response)
 
 # Metodo para limpiar la salida de gramatica
 def limpiar():
@@ -66,18 +43,11 @@ def limpiar():
 def reporte():
     print("REPORTE AST")
     response = txt_consultas.get("1.0","end")
-    salida_lexico_ast = analizarASTLex(response)  # se envia el texto a el analizador lexico
-    print(salida_lexico_ast)
-    analizarASTSin(response)  # se envia el texto a el analizador sintactico
-    print(salida_lexico_ast)
 
 # Metodo reporte AST
 def reporteBNF():
     print("REPORTE BNF")
     result= txt_consultas.get("1.0","end")
-    salida_Lexico = analizarBNFLex(result)  # se envia el texto a el analizador lexico
-    analizarBNFSin(result)  # se envia el texto a el analizador sintactico
-    print(salida_Lexico)
     
 # ======================================================================
 #                               BOTONES
