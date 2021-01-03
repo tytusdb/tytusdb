@@ -113,7 +113,8 @@ reservadas = {
     'null' : 'NULL',
     'now' : 'NOW',
     'bytea' : 'BYTEA',
-    'begin' : 'BEGIN',
+    'begin': 'BEGIN',
+    'exception': 'EXCEPTION',
 
     # TIPOS NUMERICOS
     'smallint' : 'SMALLINT',
@@ -148,6 +149,7 @@ reservadas = {
     'session_user': 'SESSION_USER',
     'date_part' : 'DATE_PART',
     'month' : 'MONTH',
+    'exit': 'EXIT',
 
 
     # ENUM
@@ -490,6 +492,7 @@ def p_instruction(t):
     '''
         instruction     : DataManipulationLenguage
                         |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
+                        |  plpgsql
                         |  stmts
     '''
     t[0] = t[1]
@@ -500,23 +503,63 @@ def p_instruction(t):
 
 def p_plpgsql(t):
     '''
-        plpgsql : function label declare BEGIN stmts END ID
-                | function label declare BEGIN stmts END
-                | function declare BEGIN stmts END
-                | function BEGIN stmts END
-                | label declare BEGIN stmts END ID
-                | label declare BEGIN stmts END
-                | label BEGIN stmts END ID
-                | label BEGIN stmts END
-                | declare BEGIN stmts END
-                | BEGIN stmts END
+        plpgsql : function label declare BEGIN stmts plpgsql_ending
+                | function declare BEGIN stmts plpgsql_ending
+                | function BEGIN stmts plpgsql_ending
+                | label declare BEGIN stmts plpgsql_ending
+                | label BEGIN stmts plpgsql_ending
+                | declare BEGIN stmts plpgsql_ending
+                | BEGIN stmts plpgsql_ending
     '''
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
+
+# ================= EXCEPTION =================
+
+
+def p_plpgsql_ending(t):
+    '''
+        plpgsql_ending : exception end
+                       | end
+    '''
+
+
+def p_exception(t):
+    '''
+        exception : EXCEPTION exception_whens
+    '''
+
+
+def p_end(t):
+    '''
+        end : END ID
+            | END
+    '''
+
+
+def p_exception_whens(t):
+    '''
+        exception_whens : exception_whens exception_when
+                        | exception_when
+    '''
+
+
+def p_exception_when(t):
+    '''
+        exception_when : WHEN exp THEN stmts
+    '''
+
+
+# ================= DECLARE =================
+
+
 def p_declare(t):
     '''
          declare : DECLARE
     '''
+
+
+# ================= FUNCTION =================
 
 
 def p_function(t):
@@ -565,8 +608,8 @@ def p_stmts(t):
 
 def p_stmt(t):
     '''
-        stmt : DataManipulationLenguage
-             | statements
+        stmt : DataManipulationLenguage PTCOMA
+             | statements PTCOMA
     '''
     t[0] = t[1]
 
@@ -578,6 +621,16 @@ def p_statements_conditionals(t):
                    | calling_procedure
                    | PRAISE
                    | callfunction
+                   | exit
+    '''
+
+
+def p_exit(t):
+    '''
+        exit : EXIT
+             | EXIT ID
+             | EXIT WHEN exp
+             | EXIT ID WHEN exp
     '''
     t[0] = t[1]
 
@@ -585,6 +638,7 @@ def p_statements_conditionals(t):
 def p_calling_procedure(t):
     '''
         calling_procedure : CALL ID PARIZQ exp_list PARDER
+                          | CALL ID PARIZQ PARDER
     '''
 
 
@@ -666,6 +720,8 @@ def p_other_when(t):
         other_when : WHEN exp_list THEN stmts
     '''
 
+# -------------------------------Pablo PL/PGSQL ---------------------------------------------
+
 # ================= RAISE ================= its Nery bitch
 
 def p_Raise_simple(t):
@@ -680,7 +736,7 @@ def p_Raise_complex(t):
     '''
     t[0] = RAISE_complex(t[3], t[5], 1, 1)
 
-# -------------------------------Pablo PL/PGSQL ---------------------------------------------
+# ================= RAISE ================= its Nery bitch
 
 
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
