@@ -222,6 +222,9 @@ class Identifiers(Expression):
     def __repr__(self):
         return str(vars(self))
 
+    def compile(self):
+        return self.alias
+
     def process(self, expression):
         try:
             symbol = search_symbol(self.value)
