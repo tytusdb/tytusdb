@@ -14,11 +14,16 @@ class CADENAS(NodoArbol):
         return TIPO.CADENA.value
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        value:Valor = Valor(TIPO.CADENA, self.data)
-        return value
+        temp = arbol.getTemp()
+        arbol.addC3D(temp + " = " + '\'' + str(self.data) + '\'')
+        return temp
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         pass
 
     def getString(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         return str(self.data)
+
+    def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        value:Valor = Valor(TIPO.CADENA, self.data)
+        return value

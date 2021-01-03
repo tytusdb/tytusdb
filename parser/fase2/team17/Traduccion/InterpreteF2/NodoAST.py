@@ -22,6 +22,10 @@ class NodoArbol (ABC):
     def getString(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         pass
 
+    @abstractmethod
+    def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        pass
+
     def __init__(self, linea, columna):
         self.linea = linea
         self.columna = columna

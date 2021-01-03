@@ -21,18 +21,20 @@ class SUMA(NodoArbol):
             pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        izquierdo: Valor = self.izq.traducir(entorno, arbol)
-        derecho: Valor = self.der.traducir(entorno, arbol)
+        izquierdo = self.izq.traducir(entorno, arbol) # <-- tiene un temporal
+        derecho = self.der.traducir(entorno, arbol) # <-- tiene un temporal
         if self.analizar_semanticamente(entorno, arbol) == 0:
-            newValor:Valor = Valor(TIPO.ENTERO, izquierdo.data + derecho.data)
-            return newValor
+            tmp = arbol.getTemp()
+            arbol.addC3D(tmp + " = int(" + izquierdo + ") + int(" + derecho + ")")
+            return tmp
         elif self.analizar_semanticamente(entorno, arbol) == 1:
-            newValor:Valor = Valor(TIPO.DECIMAL, izquierdo.data + derecho.data)
-            return newValor
+            tmp = arbol.getTemp()
+            arbol.addC3D(tmp + " = float(" + izquierdo + ") + float(" + derecho + ")")
+            return tmp
         elif self.analizar_semanticamente(entorno, arbol) == 2:
-            newValor:Valor = Valor(TIPO.CADENA, str(izquierdo.data) + str(derecho.data))
-            print(newValor.data)
-            return newValor
+            tmp = arbol.getTemp()
+            arbol.addC3D(tmp + " = str(" + izquierdo + ") + str(" + derecho + ")")
+            return tmp
 
     def getString(self, entorno: Tabla_de_simbolos, arbol:Arbol) -> str:
         cadena:str = self.izq.getString(entorno, arbol) + str(" + ") + self.der.getString(entorno, arbol)
@@ -40,3 +42,16 @@ class SUMA(NodoArbol):
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         pass
+
+    def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        izquierdo: Valor = self.izq.getValueAbstract(entorno, arbol) # <-- tiene un temporal
+        derecho: Valor = self.der.getValueAbstract(entorno, arbol) # <-- tiene un temporal
+        if self.analizar_semanticamente(entorno, arbol) == 0:
+            newVal: Valor = Valor(TIPO.ENTERO, int(str(izquierdo.data)) + int(str(derecho.data)))
+            return newVal
+        elif self.analizar_semanticamente(entorno, arbol) == 1:
+            newVal: Valor = Valor(TIPO.DECIMAL, float(str(izquierdo.data)) + float(str(derecho.data)))
+            return newVal
+        elif self.analizar_semanticamente(entorno, arbol) == 2:
+            newVal: Valor = Valor(TIPO.CADENA, str(str(izquierdo.data)) + str(derecho.data))
+            return newVal

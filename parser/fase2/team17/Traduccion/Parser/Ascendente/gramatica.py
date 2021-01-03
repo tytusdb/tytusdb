@@ -33,6 +33,7 @@ from graphviz import Digraph
 
 from InterpreteF2.Primitivos.CADENAS import CADENAS
 from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
+from InterpreteF2.RAISE.RAISE_complex import RAISE_complex
 from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
 
 ArbolErrores:Arbol = Arbol(None)
@@ -668,6 +669,12 @@ def p_Raise_simple(t):
         PRAISE : RAISE NOTICE exp
     '''
     t[0] = RAISE_simple(t[3],1,1)
+
+def p_Raise_complex(t):
+    '''
+        PRAISE : RAISE NOTICE exp COMA ID
+    '''
+    t[0] = RAISE_complex(t[3], t[5], 1, 1)
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
 
