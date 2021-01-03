@@ -380,3 +380,51 @@ class Tipo(query) :
     def __init__(self, operacion1,operacion2) :
         self.operacion1 = operacion1
         self.operacion2 = operacion2
+
+#--------------------------------------------------------------------------------------------------
+#                        selects con union, intersect y except
+
+class QueryUnion(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, select1,select2) :
+        self.select1 = select1
+        self.select2 = select2
+
+class QueryIntersect(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, select1,select2) :
+        self.select1 = select1
+        self.select2 = select2
+
+class QueryExcept(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, select1,select2) :
+        self.select1 = select1
+        self.select2 = select2
+
+
+class Select6(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, columnas,join) :
+        self.columnas = columnas
+        self.join = join
