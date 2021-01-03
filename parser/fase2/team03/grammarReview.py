@@ -428,7 +428,8 @@ def p_statement(t):
                     | stm_if PUNTOCOMA  
                     | stm_create_function PUNTOCOMA      
                     | stm_execute PUNTOCOMA     
-                    | stm_get PUNTOCOMA    
+                    | stm_get PUNTOCOMA 
+                    
                     '''
 
     #                    |    stm_select PUNTOCOMA
@@ -520,7 +521,9 @@ def p_stm_if(t):
 
 def p_condition(t):
     '''condition   : NOT FOUND
-                    | predicateExpression      '''
+                    | predicateExpression 
+                    | group_list
+                       '''
 
 
     if len(t) == 3:
@@ -531,7 +534,7 @@ def p_condition(t):
     elif len(t) == 2:
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("condition"), [t[1]], childsProduction)
-        addCad("**\<CONDITION>** ::=  \<EXP_PREDICATE>   ")
+        addCad("**\<CONDITION>** ::=  [\<EXP_PREDICATE> | \<GROUP_LIST>]   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
 
@@ -628,7 +631,8 @@ def p_stm_begin(t):
 def p_statements_begin(t):
     '''statements_begin   : statements_begin statements_sql PUNTOCOMA
                           | statements_begin   stm_if  PUNTOCOMA
-                          | statements_begin   asig_basica  PUNTOCOMA    '''
+                          | statements_begin   asig_basica  PUNTOCOMA
+                          | statements_begin  stm_case PUNTOCOMA    '''
     token = t.slice[2]
     if token.type == "statements_sql":
         childsProduction  = addNotNoneChild(t,[1,2])
@@ -646,6 +650,12 @@ def p_statements_begin(t):
         childsProduction  = addNotNoneChild(t,[1,2])
         graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<ASIG_BASICA>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif token.type == "stm_case":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
+        addCad("**\<statements_begin>** ::= statements_begin  \<STM_CASE>   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
 
@@ -909,6 +919,86 @@ def p_stm_get(t):
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
 
+
+
+
+
+
+def p_stm_case(t):
+    '''stm_case   : CASE ID when_inst  case_else   END CASE  '''
+    
+    token = t.slice[1]
+    if len(t) == 7:
+        childsProduction  = addNotNoneChild(t,[3,4])
+        graph_ref = graph_node(str("stm_case"), [t[1], t[2],t[3],t[4],t[5],t[6]],childsProduction )
+        addCad("**\<STM_CASE>** ::=   tCase  tIdentifier     [\<WHEN_INST>]   [\<CASE_ELSE>]   tEnd  tCase      ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+
+def p_when_inst(t):
+    '''when_inst   : when_inst WHEN condition THEN case_inst
+                   | WHEN condition THEN case_inst   '''
+    token = t.slice[1]
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[1,3,5])
+        graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],t[4],t[5]],childsProduction )
+        addCad("**\<WHEN_INST>** ::=  \<WHEN_INST >         tWhen  \<CONDITION> tThen   \<CASE_INST>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 5:
+        childsProduction  = addNotNoneChild(t,[2,4])
+        graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],t[4]],childsProduction )
+        addCad("**\<WHEN_INST>** ::=     tWhen  \<CONDITION> tThen   \<CASE_INST>      ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+   
+
+
+def p_case_else(t):
+    '''case_else   : ELSE case_inst
+                   | empty   '''
+    
+    token = t.slice[1]
+    if len(t) == 3:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("case_else"), [t[1], t[2]],childsProduction )
+        addCad("**\<CASE_ELSE>** ::= tElse    \<CASE_INST>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif len(t) == 2:
+        t[0] = None
+        #print(t)
+
+def p_case_inst(t):
+    '''case_inst   : case_inst  statements_sql PUNTOCOMA
+                   | case_inst  raise_op
+                   | case_inst  asig_basica  PUNTOCOMA '''
+    
+    token = t.slice[2]
+    if token.type == "statements_sql":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("case_inst"), [t[1], t[2]],childsProduction )
+        addCad("**\<CASE_INST>** ::= [\<CASE_INST>]  \<STATEMENTS_SQL>  ';'     ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif token.type == "raise_op":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("case_inst"), [t[1], t[2]],childsProduction )
+        addCad("**\<CASE_INST>** ::=  [\<CASE_INST>]   \<RAISE_OP>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+    elif token.type == "asig_basica":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("case_inst"), [t[1], t[2]],childsProduction )
+        addCad("**\<CASE_INST>** ::= [\<CASE_INST>]    \<ASIG_BASICA> ';'  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #print(t)
+
+
+def p_case_inst0(t):
+    '''case_inst   : empty   '''
+    t[0] = None
+    #print(t)
 
 
 
