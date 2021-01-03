@@ -486,6 +486,7 @@ def p_instruction(t):
         instruction     : DataManipulationLenguage
                         |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
                         |  stmts
+                        | callfunction
     '''
     t[0] = t[1]
     set('<TR> \n <TD> instruction → DataManipulationLenguage : </TD> \n <TD>  instruction = NodoAst(t[0]) </TD> \n </TR> \n')
@@ -722,12 +723,6 @@ def p_statements_update(t):
     '''
 
 # ================= update =================
-
-#deletetable: DELETE FROM ID WHERE exp
-#           | DELETE FROM ID
-#           | DELETE groupatributes FROM ID WHERE exp
-#           | DELETE groupatributes FROM ID
-
 def p_statements_delete(t):
     '''
     statements : DELETE                FROM ID WHERE exp returning
@@ -749,17 +744,21 @@ def p_returning(t):
 
 
 
-# --------------------------------------------------------------------------------------
-# -------------------------------Fin PL/PGSQL ---------------------------------------------
-# --------------------------------------------------------------------------------------
+#callfunction
+
+def p_callfunction(t):
+    '''
+        callfunction : SELECT ID PARIZQ exp_list PARDER
+    '''
+
+# ------------------------------------------------------------------------------------------
+# --------------------------------Fin PL/PGSQL ---------------------------------------------
+# ------------------------------------------------------------------------------------------
 
 
-
-
-
-# --------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 # ------------------------------------ DataManipulationLenguage ---------------------------------------------
-# --------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 
 def p_DataManipulationLenguage_select(t):
     '''
@@ -929,7 +928,7 @@ def p_conditions(t):
 
 def p_condition(t):
     '''
-        condition  : WHERE exp
+        condition       : WHERE exp
                         | ORDER BY exp setOrder
                         | GROUP BY exp_list
                         | LIMIT exp
