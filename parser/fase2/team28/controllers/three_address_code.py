@@ -10,6 +10,7 @@ class ThreeAddressCode(object):
         self.__code = ''
 
         self.__tempCounter = 0
+        self.__tempLabel = 0
 
         self.__stack = []
         self.__stackCounter = 0
@@ -27,6 +28,11 @@ class ThreeAddressCode(object):
         self.__tempCounter += 1
         return tmp
 
+    def newLabel(self):
+        lbl = f"L{self.__tempLabel}"
+        self.__tempLabel += 1
+        return lbl
+
     # ------------------------- Stack -------------------------
     @property
     def stack(self):
@@ -35,17 +41,18 @@ class ThreeAddressCode(object):
     @property
     def stackCounter(self):
         stackCounter = self.__stackCounter
-        self.__stackCounter += 1
+        # self.__stackCounter += 1
         return stackCounter
 
-    def addStack(self, function):
+    def addStack(self, value):
         """
         Method to add to stack
 
         :param function: Function to add
         :return: Returns nothing
         """
-        self.__stack.append(function)
+        self.addCode(f"Stack[{self.__stackCounter}] = {value}")
+        # self.__stack.append(function)
         self.__stackCounter += 1
 
     def execute(self, tmp):
