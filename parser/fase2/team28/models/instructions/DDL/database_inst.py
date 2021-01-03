@@ -6,17 +6,19 @@ from controllers.type_checker import TypeChecker
 from controllers.data_controller import DataController
 from controllers.symbol_table import SymbolTable
 from controllers.error_controller import ErrorController
+from controllers.three_address_code import ThreeAddressCode
 from views.data_window import DataWindow
 
 
 class CreateDB(Instruction):
 
-    def __init__(self, properties, replace, noLine, noColumn):
+    def __init__(self, properties, replace, tac, noLine, noColumn):
         # if_not_exists:bool, id:str, listpermits: []
         self._properties = properties
         self._replace = replace
         self._noLine = noLine
         self._noColumn = noColumn
+        self._tac = tac
 
     def __repr__(self):
         return str(vars(self))
@@ -43,17 +45,26 @@ class CreateDB(Instruction):
         typeChecker.createDatabase(database, self._noLine,
                                    self._noColumn)
 
+    def compile(self):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+
 
 class DropDB(Instruction):
 
-    def __init__(self, if_exists, database_name, noLine, noColumn):
+    def __init__(self, if_exists, database_name, tac, noLine, noColumn):
         self._if_exists = if_exists
         self._database_name = database_name
         self._noLine = noLine
         self._noColumn = noColumn
+        self._tac = tac
 
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
     def process(self, instrucction):
         typeChecker = TypeChecker()
@@ -68,8 +79,13 @@ class DropDB(Instruction):
 
 class ShowDatabase(Instruction):
 
-    def __init__(self, patherMatch):
+    def __init__(self, patherMatch, tac):
         self._patherMatch = patherMatch
+        self._tac = tac
+
+    def compile(self):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
     def process(self, instrucction):
         databases = DataController().showDatabases()
@@ -114,12 +130,17 @@ class AlterDatabase(Instruction):
         si recibe un 2 es porque es el duenio
     '''
 
-    def __init__(self, alterType, oldValue, newValue, noLine, noColumn):
+    def __init__(self, alterType, oldValue, newValue, tac, noLine, noColumn):
         self._alterType = alterType
         self._oldValue = oldValue
         self._newValue = newValue
         self._noLine = noLine
         self._noColumn = noColumn
+        self._tac = tac
+
+    def compile(self):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
     def process(self, instrucction):
         if self._alterType == 1:
@@ -137,10 +158,15 @@ class UseDatabase(Instruction):
         Use database recibe el nombre de la base de datos que sera utilizada
     '''
 
-    def __init__(self, dbActual, noLine, noColumn):
+    def __init__(self, dbActual, tac, noLine, noColumn):
         self._dbActual = dbActual
         self._noLine = noLine
         self._noColumn = noColumn
+        self._tac = tac
+
+    def compile(self):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
     def process(self, instrucction):
         typeChecker = TypeChecker()

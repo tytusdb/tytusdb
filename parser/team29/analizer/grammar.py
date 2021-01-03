@@ -131,6 +131,77 @@ def p_createopts_db(t):
     repGrammar.append(t.slice)
 
 
+def p_createopts_index(t):
+    """
+    createOpts : indexUnique R_INDEX ID R_ON ID usingHash S_PARIZQ indexList S_PARDER whereCl
+    """
+    t[0] = instruction2.CreateIndex(t[1], t[3], t[5],t[6],t[10],t[8])
+def p_indexList(t):
+    """
+    indexList : indexList S_COMA ID indexOrder indexNull firstLast 
+    """
+    t[1].append([t[3],t[4],t[5],t[6]])
+    t[0] = t[1]
+def p_indexList2(t):
+    """
+    indexList : ID indexOrder indexNull firstLast 
+    """
+    t[0] = [[t[1],t[2],t[3],t[4]]]
+
+def p_usingHash(t):
+    """
+    usingHash : R_USING R_HASH
+    |
+    """
+
+    if len(t) == 1:
+        t[0] = False
+    else:
+        t[0] = True
+def p_indexOrder(t):
+    """
+    indexOrder : R_DESC
+    | R_ASC
+    |
+    """
+
+    if len(t) == 1:
+        t[0] = None
+    else:
+        t[0] = t[1]
+
+def p_indexNull(t):
+    """
+    indexNull : R_NULL
+    |
+    """
+    if len(t) == 1:
+        t[0] = False
+    else:
+        t[0] = True
+
+def p_indexFirstLast(t):
+    """
+    firstLast : R_FIRST
+    | R_LAST
+    |
+    """
+    if len(t) == 1:
+        t[0] = None
+    else:
+        t[0] = t[1]
+
+def p_createindex_unique(t):
+    """
+    indexUnique : R_UNIQUE
+    |
+    """
+
+    if len(t) == 1:
+        t[0] = False
+    else:
+        t[0] = True
+
 def p_replace_true(t):
     """
     orReplace : R_OR R_REPLACE
