@@ -31,6 +31,9 @@ class SymbolType(Enum):
     TABLE = 2
     FIELD = 3
     TYPE = 4
+    FUNCTION = 5
+    STOREPROCEDURE = 6
+    INDEX = 7
 
 
 class Symbol:
@@ -84,6 +87,14 @@ class TypeSymbol(Symbol):
     def __init__(self, enum_name, value_list):
         Symbol.__init__(self, SymbolType.TYPE, enum_name)
         self.value_list = value_list
+
+
+class FunctionSymbol(Symbol):
+    def __init__(self, db_id, func_name, tac_label):
+        Symbol.__init__(self, SymbolType.FUNCTION, func_name)
+        self.db_id = db_id
+        self.func_name = func_name
+        self.tac_label = tac_label
 
 
 class SymbolTable:

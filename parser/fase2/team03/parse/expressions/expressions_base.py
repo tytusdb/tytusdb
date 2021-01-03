@@ -3,6 +3,10 @@ from datetime import date, datetime
 from parse.errors import Error, ErrorType
 from parse.ast_node import ASTNode
 import hashlib
+from TAC.quadruple import Quadruple
+from TAC.tac_enum import *
+from parse.symbol_table import generate_tmp
+
 
 
 class Numeric(ASTNode):
@@ -17,7 +21,7 @@ class Numeric(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val
+        return str(self.val)
 
 
 class NumericPositive(ASTNode):
@@ -48,7 +52,7 @@ class NumericNegative(ASTNode):
 
     def execute(self, table, tree):
         self.val = self.val.execute(table, tree)
-        if (type(self.val) == int or type(self.val) == float):
+        if type(self.val) == int or type(self.val) == float:
             return self.val * -1
         else:
             raise Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be number')
@@ -70,7 +74,7 @@ class Text(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val
+        return f"'{self.val}'"
 
 
 class BoolAST(ASTNode):
@@ -117,6 +121,10 @@ class DateAST(ASTNode):
         super().execute(table, tree)
         return self.option + ' ' + str(self.result)
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'EXTRACT ({self.option.generate(table, tree)} {self.val})'
+
 
 class DateAST_2(ASTNode):
     def __init__(self, option, line, column, graph_ref):
@@ -130,7 +138,7 @@ class DateAST_2(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val
+        return f'{str(self.option)} FROM TIMESTAMP'
 
 
 class ColumnName(ASTNode):
@@ -163,8 +171,11 @@ class ColumnName(ASTNode):
             return fullname
 
     def generate(self, table, tree):
-        super().generate(table, tree)
-        return ''
+        super().generate(table, tree)        
+        fullname = self.cName
+        if self.tName is not None and self.tName != "":
+            fullname = f'{self.tName}.{fullname}'
+        return fullname
 
 
 class Now(ASTNode):
@@ -239,20 +250,38 @@ class BinaryExpression(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        if self.operator is None:  # 'Number' or 'artirmetic function' production for example
-            return self.exp1.generate(table, tree)
-        if self.operator == OpArithmetic.PLUS:
-            return f'{self.exp1.execute(table, tree)} + {self.exp2.execute(table, tree)}'
-        if self.operator == OpArithmetic.MINUS:
-            return f'{self.exp1.execute(table, tree)} - {self.exp2.execute(table, tree)}'
-        if self.operator == OpArithmetic.TIMES:
-            return f'{self.exp1.execute(table, tree)} * {self.exp2.execute(table, tree)}'
-        if self.operator == OpArithmetic.DIVIDE:
-            return f'{self.exp1.execute(table, tree)} / {self.exp2.execute(table, tree)}'
-        if self.operator == OpArithmetic.MODULE:
-            return f'{self.exp1.execute(table, tree)} % {self.exp2.execute(table, tree)}'
-        if self.operator == OpArithmetic.POWER:
-            return f'{self.exp1.execute(table, tree)} ^ {self.exp2.execute(table, tree)}'
+        if tree:
+            if self.operator is None:  # 'Number' or 'artirmetic function' production for example
+                return self.exp1.generate(table, tree)
+            if self.operator == OpArithmetic.PLUS:
+                return f'{self.exp1.execute(table, tree)} + {self.exp2.execute(table, tree)}'
+            if self.operator == OpArithmetic.MINUS:
+                return f'{self.exp1.execute(table, tree)} - {self.exp2.execute(table, tree)}'
+            if self.operator == OpArithmetic.TIMES:
+                return f'{self.exp1.execute(table, tree)} * {self.exp2.execute(table, tree)}'
+            if self.operator == OpArithmetic.DIVIDE:
+                return f'{self.exp1.execute(table, tree)} / {self.exp2.execute(table, tree)}'
+            if self.operator == OpArithmetic.MODULE:
+                return f'{self.exp1.execute(table, tree)} % {self.exp2.execute(table, tree)}'
+            if self.operator == OpArithmetic.POWER:
+                return f'{self.exp1.execute(table, tree)} ^ {self.exp2.execute(table, tree)}'
+        else:#TAC
+            #Classes who return scalar values NOT expressions: Numeric, Text, BoolAST, ColumnName for ID's, expressions_math.py, expressions_trig.py        
+            arg1 = None
+            arg2 = None
+            gen_exp1 = self.exp1.generate(table, tree)
+            if isinstance(gen_exp1,Quadruple):
+                arg1 = gen_exp1.res
+            else:
+                arg1 = gen_exp1 #if isn´t Cuadrupe must be scallar value such as 1,45,'OLC2 100 pts', False
+            #same as arg2 but with ternary operator syntax ;)
+            gen_exp2 = self.exp2.generate(table, tree)
+            arg2 = gen_exp2.res if isinstance(gen_exp2,Quadruple) else gen_exp2
+
+            this_tac = Quadruple(self.operator, arg1, arg2, generate_tmp(), OpTAC.ASSIGNMENT)
+            tree.append(this_tac)
+            return this_tac
+
 
 
 class RelationalExpression(ASTNode):
@@ -298,7 +327,7 @@ class RelationalExpression(ASTNode):
             return f'{self.exp1.generate(table, tree)} >= {self.exp2.execute(table, tree)}'
         if self.operator == OpRelational.LESS_EQUALS:
             return f'{self.exp1.generate(table, tree)} <= {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.LIKE:  # TODO add execution to [NOT] LIKE, Regex maybe?
+        if self.operator == OpRelational.LIKE:
             return f'{self.exp1.generate(table, tree)} LIKE {self.exp2.execute(table, tree)}'
         if self.operator == OpRelational.NOT_LIKE:
             return f'{self.exp1.generate(table, tree)} NOT LIKE {self.exp2.execute(table, tree)}'
