@@ -20,13 +20,15 @@ def numT():
 
 def reinicar_contOP():
     global contOP
-    global listaoptimizaciones
     if contOP != -1 or contT != -1:
         regla = "Regla 1"
         msg = "Se reutilizo la t"+str(contOP)+" en lugar del t"+str(contT)  
-        listaoptimizaciones.append([regla,msg])
+        agregarOptimizacion(regla,msg)
     contOP=-1
 
+def agregarOptimizacion(regla,msg):
+    global listaoptimizaciones
+    listaoptimizaciones.append([regla,msg])
 
 def agregarInstr(datoMemoria,instruccion):
     #agregar a la lista de parametros
@@ -204,6 +206,32 @@ def PDropFuncion(nombres):
     txt+="\tt"+str(numT())+"="+str(nombres)+"\n"
     txt+="\tCD3.EDropFuncion()\n"
     agregarInstr(drop_funcion,txt)
+
+def PCreateFuncion(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
+    reinicar_contOP()
+    txt="\t#Crear Funcion\n"
+    txt+="\tt"+str(numT())+"='"+nombreF+"'\n"
+    txt+="\tt"+str(numT())+"="+str(parametrosF)+"\n"
+    txt+="\treplaceF="+str(reemplazada)+"\n"
+    varT="t"+str(numT())
+    txt+="\t"+varT+"=CD3.ECreateFuncion()\n"
+     #------------------optimizacion---------------
+    regla="Regla 3"
+    msg="Se optimizo el siguiente bloque de codigo:\n"
+    msg+="if("+varT+"):\n"
+    msg+="\tgoto .bodyFun"+str(contT)+"\n"
+    msg+="else:\n"
+    msg+="\tgoto .endFun"+str(contT)
+    agregarOptimizacion(regla,msg)
+    #---------------------------------------------
+    txt+="\tif("+varT+"==False):\n"
+    txt+="\t\tgoto .endFun"+str(contT)+"\n"
+    txt+="\tlabel.bodyFun"+str(contT)+"\n"
+    txt+="\t'"+str(contenidoF)+"'\n"
+    txt+="\tlabel.endFun"+str(contT)+"\n"
+
+    dataC=[nombreF,tipoF,str(contenidoF),parametrosF,reemplazada]
+    agregarInstr(dataC,txt)
 
 #EMPIEZA MIO *****************
 
@@ -476,10 +504,10 @@ def CrearArchivo():
     
     f.write("main()")
     f.close()
-    print("Optimizacion")
+    print("\n-------------------Optimizacion----------------")
     for i in listaoptimizaciones:
-        print(i)
-
+        print(i[0],i[1])
+    print("-------------------------------------------------\n")
     #crear memoria
     with open('memoria.json','w') as file:
         json.dump(listaMemoria,file,indent=4)
@@ -650,6 +678,19 @@ def EDropFuncion():
             print("funcion eliminada: ",fn.lower())
         listaMemoria.pop(0)
 
+def ECreateFuncion():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        creaF=listaMemoria[0]
+        if(creaF[4]):
+            print("funcion ",creaF[0]," reemplazada de tipo:",creaF[1])
+            print("\tparametros:",creaF[3])
+        else:
+            print("funcion ",creaF[0]," creada de tipo:",creaF[1])
+            print("\tparametros:",creaF[3])
+
+        listaMemoria.pop(0)
 #2INICIO MIO *****************
 
 

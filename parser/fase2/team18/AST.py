@@ -3404,9 +3404,14 @@ def Funciones(instr,ts):
 
     #agregar la funcion
     if(funOK):
+        #parAux
+        parAuxF=[]
+        for i in parametrosF:
+            parAuxF.append(i.nombre)
         #verificar que no exista
         if(buscarFuncion(nombreF)==None):
             agregarFuncion(nombreF,tipoF,contenidoF,parametrosF)
+            CD3.PCreateFuncion(nombreF,tipoF,contenidoF,parAuxF,False)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
         else:
@@ -3415,6 +3420,7 @@ def Funciones(instr,ts):
                 #eliminar la funcion
                 eliminarFuncion(nombreF)
                 agregarFuncion(nombreF,tipoF,contenidoF,parametrosF)
+                CD3.PCreateFuncion(nombreF,tipoF,contenidoF,parAuxF,True)
                 msg="Funcion reemplazada"
                 agregarMensjae("alert",msg,"")
             else:
@@ -3723,7 +3729,9 @@ def mostrarTablasTemp():
             for col in tab.atributos:
                 texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check])
         misTablas.append(texTab)
-    #agregar tabla de simbolos a los reportes
+    #agregar las funciones
+    for x in mostrarFun():
+        misTablas.append(x)
     return misTablas
 
 def generarTSReporte():
@@ -3734,7 +3742,21 @@ def generarTSReporte():
     for x in outputTS:
         textTs.add_row([x.instruccion,x.identificador,x.tipo,x.referencia,x.dimension])
     return textTs
-   
+
+def mostrarFun():
+    global listaFunciones
+    misTablas=[]
+    for tab in listaFunciones:
+        texTab=PrettyTable()
+        texTab.title='Funcion:'+tab.nombre+'\tTipo:'+tab.tipo
+        texTab.field_names = ["parametro","tipo","size","valor"]
+        #recorrer las columans
+        for col in tab.parametros:
+            texTab.add_row([col.nombre,col.tipo,col.tamano,col.valor])
+        misTablas.append(texTab)
+    #agregar tabla de simbolos a los reportes
+    return misTablas
+
 
 def agregarSalida(listaMensajes):
     consola = tkinter.Tk() # Create the object
