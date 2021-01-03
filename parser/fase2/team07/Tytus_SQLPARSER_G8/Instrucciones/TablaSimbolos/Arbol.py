@@ -18,6 +18,8 @@ class Arbol():
         self.comprobacionCreate = False
         self.columnaCheck = None
         self.order = None
+        self.numeroTemporal = 0
+        self.numeroEtiqueta = 0
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)
@@ -218,4 +220,15 @@ class Arbol():
     
     def getOrder(self):
         return self.order
+
+    def generaEtiqueta(self):
+        self.numeroEtiqueta = self.numeroEtiqueta + 1
+        etiqueta = "L" + str(self.numeroEtiqueta)
+        return etiqueta
+    
+    def generaTemporal(self):
+        self.numeroTemporal = self.numeroTemporal + 1
+        temporal = "t" + str(self.numeroTemporal)
+        return temporal
+
     

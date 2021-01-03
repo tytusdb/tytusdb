@@ -1,4 +1,6 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 
 class Primitivo(Instruccion):
     def __init__(self, valor, tipo, strGram, linea, columna):
@@ -9,6 +11,15 @@ class Primitivo(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         return self.valor
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        super().ejecutar(tabla,arbol)
+        temporal = arbol.generaTemporal()
+        codigo = temporal + " = " + self.valor + "\n"
+        nuevo = Simbolo3d(self.tipo,temporal,codigo,None,None)
+        return nuevo
+
+
 '''        
 p = Primitivo(1,Tipo(Tipo_Dato.INTEGER),1,2)
 print(p.tipo.toString())
