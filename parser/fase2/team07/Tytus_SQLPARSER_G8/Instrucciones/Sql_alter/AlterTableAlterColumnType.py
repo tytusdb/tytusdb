@@ -5,8 +5,8 @@ import collections
 # Solo reconocerlo en la gramatica y modificarlo en tu table de tipos
 
 class AlterTableAlterColumnType(Instruccion):
-    def __init__(self, tabla, lista_col, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, tabla, lista_col, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.tabla = tabla
         self.lista_col = lista_col
 

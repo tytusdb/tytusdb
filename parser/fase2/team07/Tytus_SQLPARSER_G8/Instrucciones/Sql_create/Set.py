@@ -1,8 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 
 class Set(Instruccion):
-    def __init__(self, id, tipo, id2, strGram,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, id2, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = id
         self.id2 = id2
 

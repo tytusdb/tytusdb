@@ -2,8 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 # Para todas las definiciones que incluyan owner solamente aceptarlo en la sintaxis no hacer nada con ellos
 
 class AlterDBOwner(Instruccion):
-    def __init__(self, id, owner, strGram,linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, id, owner, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.id = id
         self.owner = owner
         

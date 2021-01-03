@@ -9,8 +9,8 @@ from Instrucciones.Tablas.Tablas import Tablas
 from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 
 class CreateTable(Instruccion):
-    def __init__(self, tabla, tipo, campos, herencia, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, tabla, tipo, campos, herencia, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.tabla = tabla
         self.campos = campos
         self.herencia = herencia

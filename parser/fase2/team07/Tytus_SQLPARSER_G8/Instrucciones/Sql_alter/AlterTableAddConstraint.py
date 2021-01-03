@@ -4,8 +4,8 @@ from Instrucciones.Excepcion import Excepcion
 #from storageManager.jsonMode import *
 
 class AlterTableAddConstraint(Instruccion):
-    def __init__(self, tabla, id, lista_col, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, tabla, id, lista_col, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.tabla = tabla
         self.id = id
         self.lista_col = lista_col

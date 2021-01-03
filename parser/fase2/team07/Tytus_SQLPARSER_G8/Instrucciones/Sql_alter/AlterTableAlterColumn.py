@@ -4,8 +4,8 @@ from Instrucciones.Excepcion import Excepcion
 
 
 class AlterTableAlterColumn(Instruccion):
-    def __init__(self, tabla, col, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, tabla, col, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.tabla = tabla
         self.col = col
 
