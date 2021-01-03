@@ -32,10 +32,10 @@ class Select(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
-        self.instrs.compile() #TODO QUITAR AL TERMINAR
+        self.instrs.compile(instrucction) #TODO QUITAR AL TERMINAR
 
     def process(self, instrucction):
         instr = None
@@ -143,9 +143,9 @@ class SelectQ(Instruction):
     def __repr__(self):
         return str(vars(self))
     
-    def compile(self):
+    def compile(self,instrucction):
         for val in self.select_list:
-            print(val.compile())
+            print(val.compile(instrucction))
 
     def process(self, instrucction):
         list_select = None

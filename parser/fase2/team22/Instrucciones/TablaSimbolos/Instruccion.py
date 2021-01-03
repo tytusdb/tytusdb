@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 #from graphviz import Digraph
 
-
 class Instruccion(ABC):
         
     @abstractmethod
@@ -10,7 +9,11 @@ class Instruccion(ABC):
         if  self.strGram:
             arbol.lRepDin.append(self.strGram)
         pass
-    
+
+    @abstractmethod
+    def generar3D(self, tabla, arbol):
+        pass
+
     def __init__(self, tipo, linea, columna, strGram):
         self.tipo = tipo
         self.linea = linea

@@ -1,5 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
+
 class DropDatabase(Instruccion):
     def __init__(self, id, tipo, existe, opcion, strGram, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna, strGram)
@@ -34,6 +37,19 @@ class DropDatabase(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        if self.existe:
+            code.append(c3d.asignacionString(t0, "DROP DATABASE IF EXISTS " + self.id + ";"))
+        else:
+            code.append(c3d.asignacionString(t0, "DROP DATABASE " + self.id + ";"))
+        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.aumentarP())
+
+        return code
         
 '''
 instruccion = Use("hola mundo",None, 1,2)

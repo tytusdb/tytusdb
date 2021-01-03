@@ -191,3 +191,18 @@ class Funcion_Exclusivas_insert(Instruccion):
         self.exp1 = exp1
         self.exp2 = exp2
         self.exp3 = exp3
+
+class Funcion_Index(Instruccion):
+
+    def __init__(self, etiqueta, identificador, nombre_index, lista_index , lista_index2 ):
+        self.etiqueta = etiqueta
+        self.identificador = identificador
+        self.nombre_index = nombre_index
+        self.lista_index = lista_index
+        self.lista_index2 = lista_index2
+
+class index_cuerpo(Instruccion):
+    def __init__(self,etiqueta,identificador,expresion):
+        self.etiqueta = etiqueta
+        self.identificador = identificador
+        self.expresion = expresion

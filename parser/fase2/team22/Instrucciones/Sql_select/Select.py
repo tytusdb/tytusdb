@@ -386,6 +386,9 @@ class Select(Instruccion):
                 print(nodo)
         return tablaRes2
 
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+
 '''
 columnas y filas
 matrix = np.array(([[1,"k","t"],[2,"L","a"],[3,"N","y"]]))

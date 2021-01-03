@@ -468,3 +468,6 @@ class ObjectReference(Instruction):
     
     def process(self, instruction):
         return self.reference_column.process(instruction)
+
+    def compile(self, enviroment):
+        return self.reference_column.compile()
