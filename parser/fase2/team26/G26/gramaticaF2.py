@@ -302,6 +302,7 @@ t_DOLARS        = r'\$\$'
 t_IGUALESP      = r':='
 t_DOLAR         = r'\$'
 
+
 def t_DECIMAL(t):
     r'\d+\.\d+'
     try:
@@ -398,20 +399,19 @@ def p_instruccion(t) :
                         | UPDATE update
                         | ALTER alter'''
     
-    text = tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
-    text += 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += 'mediador()\n'
+    text = '    ' + tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
+    text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
+    text += '    ' + 'mediador()\n'
     t[0] = {'text' : text, 'c3d': ''}
 
 #----------------testing condiciones--------------------
-def p_instrcond(t):
-    'instruccion    : condiciones'
-    t[0] = {'text' : t[1]['c3d'], 'c3d': ''}
+#def p_instrcond(t):
+#    'instruccion    : condiciones'
+#    t[0] = {'text' : t[1]['c3d'], 'c3d': ''}
 #-------------------------------------------------------
 
 def p_instruccion_ccreate(t):
-    '''createops    : create
-                | createfunction'''
+    'createops    : create'
     t[0] = {'text' : t[1]['text'], 'c3d': ''}
 
 def p_instruccion_ccreateind(t):
@@ -420,16 +420,16 @@ def p_instruccion_ccreateind(t):
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
-    text = tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
-    text += 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += 'mediador()\n'
+    text = '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
+    text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
+    text += '    ' + 'mediador()\n'
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instruccionQuerys(t):
     'instruccion  : querys PTCOMA'
-    text = tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
-    text += 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += 'mediador()\n'
+    text = '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
+    text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
+    text += '    ' + 'mediador()\n'
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instruccionError(t):
@@ -558,7 +558,7 @@ def p_from_opcional_null(t):
 
 def p_where_opcional(t):
     'whereopcional :  WHERE condiciones groupbyopcional'
-    text = " FROM "+ t[2]['text'] + t[3]['text']
+    text = " WHERE "+ t[2]['text'] + t[3]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_where_opcional_null(t):
@@ -603,12 +603,12 @@ def p_group_by_opcional_null(t):
 
 def p_parametros_from(t):
     'parametrosfrom : parametrosfrom COMA parametrosfromr asopcional'
-    text = t[1]['text'] + ", " + t[3]['text'] + t[4]['text'] 
+    text = t[1]['text'] + ", " + t[3]['text'] + ' ' + t[4]['text'] 
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_parametros_from_r(t):
     'parametrosfrom : parametrosfromr asopcional'
-    text = t[1]['text'] + t[2]['text']
+    text = t[1]['text'] + ' ' + t[2]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_parametros_fromr(t):
@@ -661,7 +661,7 @@ def p_lista_de_seleccionados(t):
         text = "(" + t[2]['text'] + ")"
     t[0] =  {'text': text, 'c3d' : '' }
 
-def p_lista_de_seleeccionados_noterminal(t):
+def p_lista_de_seleccionados_noterminal(t):
     '''listadeseleccionados : funcionesmatematicassimples
                             | funcionestrigonometricas
                             | funcionesmatematicas
@@ -693,7 +693,7 @@ def p_casos_r(t):
 
 def p_case(t):
     'case : WHEN condiciones  THEN  argument'
-    text = " WHEN " + t[2]['text'] + " THEN " +t[2]['text'] 
+    text = " WHEN " + t[2]['text'] + " THEN " +t[4]['text'] 
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_else_case(t):
@@ -816,7 +816,7 @@ def p_funciones_binarias(t):
                             | DECODE PARENIZQ argument COMA CADENA PARENDER '''
     text = ""
     if t[1].lower() == 'length' :
-        text = "LENG(" + t[3]['text'] + ")"
+        text = "LENGTH(" + t[3]['text'] + ")"
     elif t[1].lower() == 'substring' :
         text = "SUBSTRING(" + str(t[3]['text']) + ", " + str(t[5]) + ", " + str(t[7]) + ")"
     elif t[1].lower() == 'trim' :
@@ -834,9 +834,9 @@ def p_funciones_binarias(t):
     elif t[1].lower() == 'convert' :
         text = "CONVERT(" + t[3]['text'] + ") AS " + t[5]['text']
     elif t[1].lower() == 'decode' :
-        text = "DECODE(" + t[3]['text'] + ", " + t[5] + ")"
+        text = "DECODE(" + t[3]['text'] + ", \\\'" + t[5] + "\\\')"
     elif t[1].lower() == 'encode' :
-        text = "ENCODE(" + t[3]['text'] + ":: BYTEA , " + t[8] + ")"
+        text = "ENCODE(" + t[3]['text'] + ":: BYTEA , " + ' \\\'' + t[8] + '\\\'' + ")"
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_funciones_matematicas_S (t):
@@ -929,7 +929,7 @@ def p_tipo_de_round_null(t):
 
 def p_funciones_matematicas_4 (t):
     'funcionesmatematicas : BUCKET PARENIZQ  argument COMA argument COMA argument COMA argument PARENDER'
-    text = "BUCKET(" + t[3]['text'] + ", " + t[5]['text'] + ", " + t[7]['text'] + ", " + t[9]['text'] + ")"
+    text = " width_bucket (" + t[3]['text'] + ", " + t[5]['text'] + ", " + t[7]['text'] + ", " + t[9]['text'] + ")"
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_funciones_trigonometricas(t):
@@ -1015,13 +1015,13 @@ def p_funciones_de_fechas(t):
     if t[1].lower() == 'extract' :
         text = "EXTRACT(" + t[3]['text'] + " FROM TIMESTAMP " + t[6]['text'] + ")"
     elif t[1].lower() == 'date_part' :
-        text = "DATEPART (" + t[3]['text'] + ", INTERVAL " + t[6]['text'] + ")"
+        text = "DATE_PART (" + t[3]['text'] + ", INTERVAL " + t[6]['text'] + ")"
     elif t[1].lower() == 'now' :
         text = "NOW()"
     elif t[1].lower() == 'current_date' :
-        text = "CURRENTDATE"
+        text = "CURRENT_DATE"
     elif t[1].lower() == 'current_time' :
-        text = "CURRENTTIME"
+        text = "CURRENT_TIME"
     elif t[1].lower() == 'timestamp' :
         text = "TIMESTAMP " + t[2]['text']
     t[0] =  {'text': text, 'c3d' : '' }
@@ -1051,7 +1051,7 @@ def p_parte_de_la_decha(t):
 
 def p_lista_de_seleccionados_id(t):
     'listadeseleccionados : ID'
-    text = "ID"
+    text = t[1]
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_lista_de_seleccionados_id_punto_id(t):
@@ -1076,12 +1076,12 @@ def p_asopcional_argument(t):
 
 def p_asopcionalS(t):
     'asopcional  : AS CADENA '
-    text = " AS "+ t[2] 
+    text = " AS "+' \\\''+ t[2] +'\\\' '
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_asopcional_argumentS(t):
     'asopcional  : CADENA'
-    text = t[1] 
+    text = ' \\\'' + t[1] + '\\\''
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_asopcional_null(t):
@@ -1103,7 +1103,7 @@ def p_argument_noterminal(t):
 #------------------------------------------------------CONDICIONES-----------------------------------------
 def p_condiciones_recursivo(t):
     'condiciones    : condiciones comparacionlogica condicion'
-    text = t[1]['text'] + t[2] + t[3]['text']
+    text = t[1]['text'] + ' ' + t[2] + ' ' + t[3]['text']
 
     c3 = t[1]['c3d']
     c3 += t[3]['c3d']
@@ -1384,7 +1384,7 @@ def p_argument_decimal(t):
 
 def p_argument_cadena(t):
     '''argument : CADENA'''
-    t[0] = {'text' : t[1], 'c3d' : '', 'tflag' : str(t[1])}
+    t[0] = {'text' : '\\\'' + t[1] + '\\\'', 'c3d' : '', 'tflag' : str(t[1])}
 
 def p_argument_id(t):
     '''argument : ID'''
@@ -1431,12 +1431,12 @@ def p_createenum(t):
 
 def p_listacadenas_recursiva(t):
     'listacadenas : listacadenas COMA CADENA'
-    txt = t[1]['text'] + ', ' + t[3]
+    txt = t[1]['text'] + ', \\\' ' + t[3] + '\\\' '
     t[0] = {'text' : txt, 'c3d': ''}
 
 def p_listacadenas(t):
     'listacadenas : CADENA'
-    txt = ' \'' + t[1] + '\' '
+    txt = ' \\\'' + t[1] + '\\\' '
     t[0] = {'text' : txt, 'c3d': ''}
 
 def p_createdatabase(t):
@@ -1466,7 +1466,7 @@ def p_tipoowner_id(t) :
 
 def p_tipoowner_cadena(t) :
     'tipoowner : CADENA'
-    txt = ' \'' + t[1] + '\' '
+    txt = ' \\\'' + t[1] + '\\\' '
     t[0] = {'text' : txt, 'c3d': ''}
 
 def p_databaseownerP(t):
@@ -1762,7 +1762,7 @@ def p_likeopcional(t):
                     | PTCOMA '''
     text =""
     if t[1].lower() == 'like' :
-        text = "LIKE " + t[2] + ";"
+        text = "LIKE " + ' \\\'' + t[2] + '\\\'' + ";"
     else :
         text = "; "
     t[0] =  {'text': text, 'c3d' : '' }
@@ -1790,7 +1790,7 @@ def p_dropdb(t):
                 |   ID'''
     text =""
     if t[1].lower() == 'if' :
-        text = "IF EXISTS "+ t[2]
+        text = "IF EXISTS "+ t[3]
     else :
         text = t[1]
     t[0] =  {'text': text, 'c3d' : '' }
@@ -1893,7 +1893,7 @@ def p_addConstraintU(t):
     if t[1].lower() == 'constraint' :
         text = "CONSTRAINT "+t[2]+ " UNIQUE ( " + t[5]['text'] +" )"
     elif t[1].lower() == 'column' :
-        text = "COLUMN "+ t[2] + t[3]['text']
+        text = "COLUMN "+ t[2] + ' ' + t[3]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
 
@@ -1995,7 +1995,7 @@ def p_valuef(t):
 
 def p_valuec(t):
     '''value   : CADENA'''
-    text = t[1]
+    text = ' \\\'' + t[1] + '\\\''
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_valueb(t):
@@ -2054,13 +2054,14 @@ def p_asignaciones(t):
 
 def p_instrucciones_update_condsops(t):
     'condicionesops    : WHERE condiciones'
-    text = "WHERE "+ t[2]['text']
+    text = " WHERE "+ t[2]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instrucciones_update_condsopsE(t):
     'condicionesops    : '
     text = ""
     t[0] =  {'text': text, 'c3d' : '' }
+
 #----------------------------------------NUEVO---------------------------------------------------------
 def p_createfunction(t):
     'createfunction :  FUNCTION ID PARENIZQ argumentos PARENDER RETURNS tipo AS body LANGUAGE ID PTCOMA'
@@ -2291,13 +2292,14 @@ def p_casewhens(t):
     t[0] = {'text': text, 'c3d': ''}
 
 
+
+
 #---------------------------------------------------------------------------------------------------- fffffff
 
 def p_error(t):
     description = "Error sintactico con: " + t.value
     mistake = error("Sintactico", description, str(t.lineno))
     errores.append(mistake)
-    print(mistake.toString())
     return None
 
 def getMistakes():
