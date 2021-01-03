@@ -15,7 +15,9 @@ class RAISE_simple(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         value:Valor = self.exp.traducir(entorno, arbol)
-        print(str(value.data))
+        temp = arbol.getTemp()
+        arbol.addC3D(temp + " = " + str(value.data))
+        arbol.addC3D("print(" + temp + ")")
         return
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):

@@ -6,7 +6,7 @@ from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relaci
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
 from Interprete.SELECT.indexador_auxiliar import indexador_auxiliar
-from Interprete.Arbol import Arbol
+from InterpreteF2.Arbol import Arbol
 from Interprete.Insert.insert import Insert
 from Interprete.SELECT.select_simples_date import Select_simples_date
 from Interprete.SHOW_DATABASES.show_databases import ShowDatabases
@@ -33,6 +33,7 @@ from graphviz import Digraph
 
 from InterpreteF2.Primitivos.CADENAS import CADENAS
 from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
+from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -458,11 +459,11 @@ precedence = (
 
 def p_init(t):
     'init : definitions'
-    aux:Arbol = Arbol(t[1])
+    #aux:Arbol = Arbol(t[1])
     #aux.ErroresLexicos = ArbolErrores.ErroresLexicos
     #aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
-    #t[0] = Arbol(t[1])
-    t[0] = aux
+    t[0] = Arbol(t[1])
+    #t[0] = aux
 
 def p_definitions(t):
     '''
@@ -486,7 +487,6 @@ def p_instruction(t):
         instruction     : DataManipulationLenguage
                         |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
                         |  stmts
-                        | callfunction
     '''
     t[0] = t[1]
     set('<TR> \n <TD> instruction → DataManipulationLenguage : </TD> \n <TD>  instruction = NodoAst(t[0]) </TD> \n </TR> \n')
@@ -561,8 +561,8 @@ def p_stmts(t):
 
 def p_stmt(t):
     '''
-        stmt : DataManipulationLenguage PTCOMA
-             | statements PTCOMA
+        stmt : DataManipulationLenguage
+             | statements
     '''
     t[0] = t[1]
 
@@ -573,6 +573,7 @@ def p_statements_conditionals(t):
                    | return
                    | calling_procedure
                    | PRAISE
+                   | callfunction
     '''
     t[0] = t[1]
 
@@ -1532,6 +1533,7 @@ def p_exp(t):
             pass
         elif t[2]=='+':
             # exp MAS exp
+            t[0] = SUMA(t[1], t[3], 1, 1)
             pass
         elif t[2]=='-':
             # exp MENOS exp

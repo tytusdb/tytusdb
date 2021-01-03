@@ -11,7 +11,7 @@ class CADENAS(NodoArbol):
         self.data = data
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        return TIPO.CADENA
+        return TIPO.CADENA.value
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         value:Valor = Valor(TIPO.CADENA, self.data)
