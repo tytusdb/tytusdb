@@ -35,6 +35,9 @@ from InterpreteF2.Primitivos.CADENAS import CADENAS
 from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
 from InterpreteF2.RAISE.RAISE_complex import RAISE_complex
 from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
+from InterpreteF2.OperacionesPrimitivas.OperaRelacional import OperaRelacional
+from InterpreteF2.IF.SI import SI
+from InterpreteF2.IF.SIELSE import SIELSE
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -602,6 +605,7 @@ def p_conditionals(t):
         conditionals : if
                      | case
     '''
+    t[0] = t[1]
 # ================= IF =================
 def p_if(t):
     '''
@@ -610,7 +614,7 @@ def p_if(t):
            | IF exp THEN stmts elsiflist else END IF
            | IF exp THEN stmts else END IF
     '''
-
+    t[0] = SI(t[2], t[4], 1, 1)
 
 def p_elsiflist(t):
     '''
@@ -1563,20 +1567,20 @@ def p_exp(t):
         elif t[2]=='=':
             # exp IGUAL exp
             #t[0] = OperadoresCondicionales(t[1], t[3], "=")
-            t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
+            t[0] = OperaRelacional(t[1], t[3], "=", 1, 1)
             pass
         elif t[2]=='>':
             # exp MAYORQUE exp
-            t[0] = OperadoresCondicionales(t[1], t[3], ">")
+            t[0] = OperaRelacional(t[1], t[3], ">", 1, 1)
         elif t[2]=='<':
             # exp MENORQUE exp
-            t[0] = OperadoresCondicionales(t[1], t[3], "<")
+            t[0] = OperaRelacional(t[1], t[3], "<", 1, 1)
         elif t[2]=='>=':
             # exp MAYORIG exp
-            t[0] = OperadoresCondicionales(t[1], t[3], ">=")
+            t[0] = OperaRelacional(t[1], t[3], ">=", 1, 1)
         elif t[2]=='<=':
             # exp MENO
-            t[0] = OperadoresCondicionales(t[1], t[3], "<=")
+            t[0] = OperaRelacional(t[1], t[3], "<=", 1, 1)
         elif t[2].lower()=='is':
             # exp IS exp
             pass

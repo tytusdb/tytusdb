@@ -138,11 +138,12 @@ def Seleccionar():
 
         print("C3D generado:")
         print(result.getC3D())
-        #consola = ""
+
+        consola = result.getC3D()
         #for item in result.console:
         #    consola = consola + item
 
-        my_text1.insert(END, 'success')
+        my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
     except:
         my_text1.insert(END, 'Ocurrio un error al compilar')

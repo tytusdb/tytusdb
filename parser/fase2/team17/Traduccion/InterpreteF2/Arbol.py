@@ -31,7 +31,10 @@ class Arbol:
         return str(label)
 
     def addC3D(self, data):
-        self.C3D = self.C3D + str(data) + "\n"
+        if data != None:
+            self.C3D = self.C3D + str(data) + "\n"
+        else:
+            pass
 
     def getC3D(self):
         return self.C3D
