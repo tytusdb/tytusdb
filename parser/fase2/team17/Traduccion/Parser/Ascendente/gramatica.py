@@ -7,10 +7,6 @@ from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
 from Interprete.SELECT.indexador_auxiliar import indexador_auxiliar
 from Interprete.Arbol import Arbol
-from Interprete.Primitivos.ENTERO import ENTERO
-from Interprete.Primitivos.DECIMAL import DECIMAL
-from Interprete.Primitivos.CADENAS import CADENAS
-from Interprete.Primitivos.BOOLEANO import BOOLEANO
 from Interprete.Insert.insert import Insert
 from Interprete.SELECT.select_simples_date import Select_simples_date
 from Interprete.SHOW_DATABASES.show_databases import ShowDatabases
@@ -35,12 +31,17 @@ from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
 from graphviz import Digraph
 #import Interprete.Arbol as ArbolErrores
 
+from InterpreteF2.Primitivos.CADENAS import CADENAS
+from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
+
 ArbolErrores:Arbol = Arbol(None)
 
 
 reservadas = {
 
 
+    'raise': 'RAISE',
+    'notice': 'NOTICE',
     'returning': 'RETURNING',
     'strict': 'STRICT',
     'perfom': 'PERFORM',
@@ -458,8 +459,8 @@ precedence = (
 def p_init(t):
     'init : definitions'
     aux:Arbol = Arbol(t[1])
-    aux.ErroresLexicos = ArbolErrores.ErroresLexicos
-    aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
+    #aux.ErroresLexicos = ArbolErrores.ErroresLexicos
+    #aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
     #t[0] = Arbol(t[1])
     t[0] = aux
 
@@ -484,6 +485,7 @@ def p_instruction(t):
     '''
         instruction     : DataManipulationLenguage
                         |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
+                        |  stmts
     '''
     t[0] = t[1]
     set('<TR> \n <TD> instruction → DataManipulationLenguage : </TD> \n <TD>  instruction = NodoAst(t[0]) </TD> \n </TR> \n')
@@ -553,6 +555,7 @@ def p_stmts(t):
         stmts : stmts stmt
               | stmt
     '''
+    t[0] = t[1]
 
 
 def p_stmt(t):
@@ -560,6 +563,7 @@ def p_stmt(t):
         stmt : DataManipulationLenguage PTCOMA
              | statements PTCOMA
     '''
+    t[0] = t[1]
 
 
 def p_statements_conditionals(t):
@@ -567,7 +571,9 @@ def p_statements_conditionals(t):
         statements : conditionals
                    | return
                    | calling_procedure
+                   | PRAISE
     '''
+    t[0] = t[1]
 
 
 def p_calling_procedure(t):
@@ -652,6 +658,14 @@ def p_other_when(t):
     '''
         other_when : WHEN exp_list THEN stmts
     '''
+
+# ================= RAISE ================= its Nery bitch
+
+def p_Raise_simple(t):
+    '''
+        PRAISE : RAISE NOTICE exp
+    '''
+    t[0] = RAISE_simple(t[3],1,1)
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
 
@@ -1718,7 +1732,7 @@ def p_expSimples_entero(t):
     '''
         expSimple   :   ENTERO
     '''
-    t[0] = ENTERO(t[1],1,1)
+    #t[0] = ENTERO(t[1],1,1)
     set('<TR> \n <TD> expSimples  → ENTERO: </TD> \n <TD> expSimple  = entorno(t[1]) </TD> \n </TR> \n')
 
 
@@ -1726,7 +1740,7 @@ def p_expSimples_decimal(t):
     '''
         expSimple   :   TKDECIMAL
     '''
-    t[0] = DECIMAL(t[1],1,1)
+    #t[0] = DECIMAL(t[1],1,1)
     set('<TR> \n <TD> expSimples  → DECIMAL: </TD> \n <TD> expSimple  = decimal(t[1]) </TD> \n </TR> \n')
 
 
@@ -1749,13 +1763,13 @@ def p_expSimples_true(t):
     '''
         expSimple   :   TRUE
     '''
-    t[0] = BOOLEANO(True,1,1)
+    #t[0] = BOOLEANO(True,1,1)
 
 def p_expSimples_false(t):
     '''
         expSimple  :   FALSE
     '''
-    t[0] = BOOLEANO(False,1,1)
+    #t[0] = BOOLEANO(False,1,1)
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- TABLE CREATE --------------------------------------
