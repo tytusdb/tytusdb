@@ -1196,10 +1196,12 @@ def p_operadores_matematica(t):
     
     if t[1] == 'ABS':
         strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        t[0] = Abs.Abs(t[3], strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "ABS (" + t[3].strSent + ")"
+        t[0] = Abs.Abs(t[3], strGram,t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'CBRT':
         strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        t[0] = Cbrt.Cbrt(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "CBRT (" + t[3].strSent + ")"
+        t[0] = Cbrt.Cbrt(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'CEIL':
         strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
         t[0] = Ceil.Ceil(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)

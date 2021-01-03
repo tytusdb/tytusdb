@@ -4,8 +4,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 
 class Abs(Instruccion):
-    def __init__(self, valor, strGram,linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, valor, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram,strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
