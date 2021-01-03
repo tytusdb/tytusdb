@@ -1,3 +1,7 @@
+from Instrucciones.Asignacion import Asignacion
+from Instrucciones.Declaracion import Declaracion
+from Instrucciones.Ifclass import Ifclass
+from Instrucciones.Raise import Raise
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -441,14 +445,15 @@ def p_instruccion15(t):
 
 def p_instruccion16(t):
     'instruccion      : DECLARACIONES  ptcoma'
-
+    t[0]=t[1]
 
 def p_instruccion17(t):
     'instruccion      : ASIGNACION  ptcoma'
-
+    t[0]=t[1]
 
 def p_instruccion18(t):
     '''instruccion      : CONDICIONIF  ptcoma'''
+    t[0] = t[1]
 
 def p_instruccion19(t):
     '''instruccion      : PROCEDIMIENTOS '''
@@ -567,85 +572,93 @@ def p_ORDEN(t):
                  | asc nulls last
                  | '''
 
-def p_LDECLARE(t):
-    ''' LDECLARE : LDECLARE  DECLARACIONES ptcoma
-    '''
-def p_LDECLARE1(t): 
-    ''' LDECLARE :   DECLARACIONES ptcoma
-    '''
+#def p_LDECLARE(t):
+#    ''' LDECLARE : LDECLARE  DECLARACIONES ptcoma
+ #   '''
+#def p_LDECLARE1(t): 
+#    ''' LDECLARE :   DECLARACIONES ptcoma
+#    '''
 
 def p_Declaraciones(t):
     ''' DECLARACIONES : id TIPO not null ASIG
     '''
-    
+    if t[4]==None:
+        print('Error se le intenta asignar un valor nulo a una variable not null')
+        return
+    else:
+        t[0] = Declaracion(t[1],False, t[2], t[5],False)
 
 def p_Declaraciones1(t):
     ' DECLARACIONES : id TIPO ASIG'
-
+    t[0] = Declaracion(t[1], False, t[2], t[3])
 
 
 def p_Declaraciones2(t):
     ''' DECLARACIONES : id constant TIPO not null ASIG
     '''
-    
+    if t[4]==None:
+        print('Error se le intenta asignar un valor nulo a una variable not null')
+        return
+    else:
+        t[0] = Declaracion(t[1], t[2], t[3], t[6],False)
 
 def p_Declaraciones3(t):
     ''' DECLARACIONES : id constant TIPO ASIG
     '''
+    t[0]=Declaracion(t[1],t[2],t[3],t[4])
 
-
-def p_DECLARE(t):
-    ''' DECLARE : declare LDECLARE
-    '''
 
 def p_ASIG(t):
     '''ASIG : default EXP
                  | dospuntos igual EXP
                  | igual EXP
                  | '''
-   
+    if len(t) == 1:
+        t[0] = None
+    elif len(t) == 4:
+        t[0] = t[3]
+    else:
+        t[0] = t[2]
+
 
 def p_ASIGNACION(t):
     '''ASIGNACION : id dospuntos igual EXP
                  | id igual EXP'''
-
+    if len(t)==4:
+        t[0]=Asignacion(t[1],t[3])
+    else:
+        t[0] = Asignacion(t[1], t[4])
 
 def p_CONDICIONIF1(t):
-    '''CONDICIONIF : if EXP then LISTACONTENIDO ELSEF  end if
-    '''
-   
-
-
-
+    'CONDICIONIF : if EXP then LISTACONTENIDO ELSEF  end if'
+    t[0] = Ifclass(t[2], t[4],None, t[5])
 
 def p_CONDICIONIF2(t):
-    '''CONDICIONIF : if EXP then LISTACONTENIDO LELIF   end if
-    '''
-   
+    'CONDICIONIF : if EXP then LISTACONTENIDO LELIF   end if'
+    t[0] = Ifclass(t[2], t[4],t[5])
+
 def p_CONDICIONIF3(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO end if'
-   
+    t[0]=Ifclass(t[2],t[4])
 
+def p_CONDICIONIF4(t):
+    'CONDICIONIF : if EXP then LISTACONTENIDO LELIF ELSEF end if'
 
+    t[0]=Ifclass(t[2],t[4],t[5],t[6])
 
 def p_CONDICIONIF24(t):
     'LELIF : LELIF elsif EXP then LISTACONTENIDO'
- 
-def p_CONDICIONIF25(t):
-    'LELIF : LELIF elsif EXP then LISTACONTENIDO ELSEF'
- 
+    elsif = Ifclass(t[3], t[5], None, None)
+    t[1].append(elsif)
+    t[0] = t[1]
 
 def p_ELIF(t):
     'LELIF : elsif EXP then LISTACONTENIDO'
-   
-
-def p_ELIF1(t):
-    'LELIF : elsif EXP then LISTACONTENIDO ELSEF'
-
+    t[0] = [Ifclass(t[2], t[4])]
 
 def p_ELSEF(t):
-    '''ELSEF : else LISTACONTENIDO
-    '''
+    'ELSEF : else LISTACONTENIDO'
+    t[0]=t[2]
   
 
 
@@ -687,9 +700,9 @@ def p_CONTENIDO5(t):
     'CONTENIDO : CALLPROCEDURE ptcoma '
     t[0] = t[1]
 
-def p_CONTENIDO6(t):
-    'CONTENIDO : DECLARE  '
-    t[0] = t[1]
+#def p_CONTENIDO6(t):
+#    'CONTENIDO : DECLARACIONES ptcoma  '
+#    t[0] = t[1]
 
 def p_CONTENIDO7(t):
     'CONTENIDO : RETURN ptcoma  '
@@ -697,21 +710,17 @@ def p_CONTENIDO7(t):
 
 def p_RAISE(t):
     'RAISE :  raise LEVEL FORMAT'
-
+    t[0]=Raise(t[2],t[3])
 
 def p_RAISE1(t):
-    '''RAISE :  raise LEVEL EXP'''
-    cad=t[3][1]
-    if str(t[2]).lower()=='notice':
-        cad+='print (' +t[3][0] +') \n'
-    t[0]=cad
-
-
+    'RAISE :  raise LEVEL EXP'
+    t[0]=Raise(t[2],t[3])
 def p_RAISE2(t):
     'RAISE : raise LEVEL '
-
+    t[0]=Raise(t[2],None)
 def p_RAISE3(t):
     'RAISE : raise'
+    t[0]=Raise(None,None)
 
 
 def p_RAISE4(t):
