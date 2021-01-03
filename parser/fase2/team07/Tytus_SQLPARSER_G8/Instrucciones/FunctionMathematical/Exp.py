@@ -4,8 +4,8 @@ from Instrucciones.Excepcion import Excepcion
 import math
 
 class Exp(Instruccion):
-    def __init__(self, valor, tipo, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna, strGram)
+    def __init__(self, valor, tipo, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna, strGram, strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
@@ -22,9 +22,9 @@ class Exp(Instruccion):
             arbol.consola.append(error.toString())
             return error
         if isinstance(resultado,int):
-            self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
+            self.tipo = Tipo("",Tipo_Dato.DOUBLE_PRECISION)
             return math.exp(resultado)
         else:
-            self.tipo = Tipo(Tipo_Dato.NUMERIC)
+            self.tipo = Tipo("",Tipo_Dato.NUMERIC)
             return math.exp(resultado)
         

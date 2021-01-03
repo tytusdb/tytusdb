@@ -64,11 +64,17 @@ def p_init(t):
 
 def p_instrucciones_lista1(t):
     'instrucciones    :  instrucciones instruccion '
+    print("INSTRUCCION:\n")
+    print(t[2].strSent)
+    print("\n\n")
     t[1].append(t[2])
     t[0] = t[1]
     
 def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
+    print("INSTRUCCION:\n\n")
+    print(t[1].strSent)
+    print("\n\n")
     t[0] = [t[1]]
     
 # CREATE DATABASE
@@ -93,7 +99,7 @@ def p_instruccion_create_database3(t):
     '''
     #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE IGUAL ENTERO PUNTO_COMA"
-    strSent = "CREATE DATABASE " + t[3].strSent + " " + t[4] + " OWNER = " + t[7] + " MODE = " + t[10] + ";"
+    strSent = "CREATE DATABASE " + t[3].strSent + " " + t[4] + " OWNER = " + t[7] + " MODE = " + str(t[10]) + ";"
     t[0] =CreateDatabase.CreateDatabase(t[4],None,t[3].valor, t[7], t[10], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_database4(t):
@@ -101,7 +107,7 @@ def p_instruccion_create_database4(t):
     '''
     #                     ID    tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
-    strSent = "CREATE DATABASE " + t[3].strSent + " " + t[4] + " MODE = " + t[7] + ";"
+    strSent = "CREATE DATABASE " + t[3].strSent + " " + t[4] + " MODE = " + str(t[7]) + ";"
     t[0] =CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, t[7], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # CREATE OR REPLACE DATABASE
@@ -123,14 +129,14 @@ def p_instruccion_create_or_database3(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL cowner MODE IGUAL ENTERO PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE IGUAL ENTERO PUNTO_COMA"
-    strSent = "CREATE OR REPLACE DATABASE " + t[5].strSent + " " + t[6] + " OWNER = " + t[9] + " MODE = " + t[12] + ";"
+    strSent = "CREATE OR REPLACE DATABASE " + t[5].strSent + " " + t[6] + " OWNER = " + t[9] + " MODE = " + str(t[12]) + ";"
     t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], t[12], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create_or_database4(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
     '''
     strGram = "<instruccion> : CREATE OR REPLACE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
-    strSent = "CREATE OR REPLACE DATABASE " + t[5].strSent + " " + t[6] + " MODE = " + t[9] + ";"
+    strSent = "CREATE OR REPLACE DATABASE " + t[5].strSent + " " + t[6] + " MODE = " + str(t[9]) + ";"
     t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_owner(t):
@@ -158,14 +164,25 @@ def p_instruccion_create1(t):
     '''instruccion : CREATE TABLE ID PARIZQ campos PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE TABLE ID PARIZQ <campos> PARDER PUNTO_COMA"
-    strSent = "CREATE TABLE " + t[3] + "(" + t[5].strSent + ");"
+
+    strSent = "CREATE TABLE " + t[3] + "("
+    for col in t[5]:
+        strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ");"
+
     t[0] =CreateTable.CreateTable(t[3], None, t[5], None, strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_create2(t):
     '''instruccion : CREATE TABLE ID PARIZQ campos PARDER INHERITS PARIZQ ID PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE TABLE ID PARIZQ <campos> PARDER INHERITS PARIZQ ID PARDER PUNTO_COMA"
-    strSent = "CREATE TABLE " + t[3] + "(" + t[5].strSent + ") INHERITS (" + t[9] + ");"
+    strSent = "CREATE TABLE " + t[3] + "(" 
+    for col in t[5]:
+        strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ") INHERITS (" + t[9] + ");"
+
     t[0] =CreateTable.CreateTable(t[3],None, t[5], t[9], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_use(t):
@@ -340,7 +357,7 @@ def p_declaracion1(t):
      instruccion : DECLARE expresion tipo PUNTO_COMA
     '''
     strGram = "<instruccion> ::= DECLARE <expresion> tipo PUNTO_COMA"
-    strSent = "DECLARE " + t[2].strSent + " " + t[3].toString() + ";"
+    strSent = "DECLARE " + t[2].strSent + " " + t[3].strSent + ";"
     t[0] = Declare.Declare(t[2], t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     
 def p_set(t):
@@ -410,7 +427,7 @@ def p_l_add_column2(t):
 def p_add_column(t):
     '''add_column : ADD COLUMN ID tipo'''
     strGram = "<add_column> ::= ADD COLUMN ID <tipo>"
-    strSent = "ADD COLUMN " + t[3] + " " + t[4].toString()
+    strSent = "ADD COLUMN " + t[3] + " " + t[4].strSent
     t[0] = Columna.Columna(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # ALTER TABLE 'NOMBRE_TABLA' DROP COLUMN NOMBRE_COLUMNA;
@@ -524,7 +541,7 @@ def p_instruccion_alter8(t):
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID <l_alter> PUNTO_COMA"
     
-    strSent = "ALTER TABLE " + t[3] " "
+    strSent = "ALTER TABLE " + t[3] + " "
     for col in t[4]:
         strSent = strSent + col.strSent + ","
     strSent = strSent[:-1]
@@ -544,7 +561,7 @@ def p_l_alter2(t):
 def p_alter_column(t):
     'alter_column : ALTER COLUMN ID TYPE tipo'
     strGram = "<alter_column> ::= ALTER COLUMN ID TYPE tipo"
-    strSent = "ALTER COLUMN " + t[3] + " TYPE " + t[4].toString()
+    strSent = "ALTER COLUMN " + t[3] + " TYPE " + t[4].strSent
     t[0] = Columna.Columna(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 # insert into tabla (campo1,campo2,campo3,campo4) values (valor1, valor2, valor3, valor4)
@@ -640,9 +657,7 @@ def p_instruccion_select(t):
     '''
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol>"
     strGram2 = ""
-    val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, None, None, strGram ,t.lexer.lineno, t.lexer.lexpos))
-    
+
     strSent = "SELECT " + t[2] + " "
     for col in t[3]:
         if isinstance(col, str):
@@ -658,7 +673,9 @@ def p_instruccion_select(t):
             strSent = strSent + col.strSent + ","
     strSent = strSent[:-1]
 
-    print(strSent)
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, None, None, strGram ,t.lexer.lineno, t.lexer.lexpos, strSent))
+    
     t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 def p_instruccion_select1(t):
@@ -880,7 +897,7 @@ def p_instruccion_rows(t):
     elif(t[1] == "GROUP"):
         strGram = "<rows> ::= GROUP BY <l_expresiones>"
         strSent = "GROUP BY "
-        or col in t[3]:
+        for col in t[3]:
             strSent = strSent + col.strSent + ","
         strSent = strSent[:-1]
 
@@ -890,24 +907,24 @@ def p_instruccion_rows(t):
         
         strSent = "HAVING "
         for col in t[2]:
-        if isinstance(col, str):
-            strSent = strSent + col + ","
-        else:
-            strSent = strSent + col.strSent + ","
+            if isinstance(col, str):
+                strSent = strSent + col + ","
+            else:
+                strSent = strSent + col.strSent + ","
         strSent = strSent[:-1]
         
         t[0] = Having.Having(t[2], None, t.lexer.lineno, t.lexer.lexpos, strSent)   
     elif(t[1] == "LIMIT"):
         #LIMIT(LIMITE,None,fila,columna)
         strGram = "<rows> ::= LIMIT ENTERO"
-        strSent = "LIMIT " + t[2]
+        strSent = "LIMIT " + str(t[2])
         t[0] = Limit.Limit(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_row2(t):
     '''rows : LIMIT ENTERO OFFSET ENTERO'''
     #LIMIT(LIMITE,FILAS_A_EXCLUIR,fila,columna)
     strGram = "<rows> ::= LIMIT ENTERO OFFSET ENTERO"
-    strSent = "LIMIT " + t[2] + " OFFSET " + t[4]
+    strSent = "LIMIT " + str(t[2]) + " OFFSET " + str(t[4])
     t[0] = Limit.Limit(t[2], t[4], strGram, t.lexer.lineno, t.lexer.lexpos, strSent) 
 
 
@@ -1104,63 +1121,63 @@ def p_operadores_agregacion(t):
     if t[1] == 'AVG':
         strGram = "<expre> ::= AVG PARIZQ <expre> PARDER"
         strSent = "AVG (" + t[3].strSent + ")"
-        t[0] = Avg.Avg(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        t[0] = Avg.Avg(t[3], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'COUNT':
         strGram = "<expre> ::= COUNT PARIZQ <expre> PARDER"
         strSent = "COUNT (" + t[3].strSent + ")"
-        t[0] = Count.Count(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        t[0] = Count.Count(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'GREATEST':
         strGram = "<expre> ::= GREATEST PARIZQ <lcol> PARDER"
         strSent = "GREATEST ("
         for col in t[3]:
-        if isinstance(col, str):
-            strSent = strSent + col + ","
-        else:
-            strSent = strSent + col.strSent + ","
+            if isinstance(col, str):
+                strSent = strSent + col + ","
+            else:
+                strSent = strSent + col.strSent + ","
         strSent = strSent[:-1]
         strSent = strSent + ")"
-        t[0] = Greatest.Greatest(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        t[0] = Greatest.Greatest(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'LEAST':
         strGram = "<expre> ::= LEAST PARIZQ <lcol> PARDER"
         strSent = "LEAST ("
         for col in t[3]:
-        if isinstance(col, str):
-            strSent = strSent + col + ","
-        else:
-            strSent = strSent + col.strSent + ","
+            if isinstance(col, str):
+                strSent = strSent + col + ","
+            else:
+                strSent = strSent + col.strSent + ","
         strSent = strSent[:-1]
         strSent = strSent + ")"
-        t[0] = Least.Least(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        t[0] = Least.Least(t[3], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'MAX':
         strGram = "<expre> ::= MAX PARIZQ <expre> PARDER"
         strSent = "MAX (" + t[3].strSent + ")"
-        t[0] = Max.Max(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        t[0] = Max.Max(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'MIN':
         strGram = "<expre> ::= MIN PARIZQ <expre> PARDER"
         strSent = "MIN (" + t[3].strSent + ")"
-        t[0] = Min.Min(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        t[0] = Min.Min(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'SUM':
         strGram = "<expre> ::= MAX PARIZQ <expre> PARDER"
         strSent = "SUM (" + t[3].strSent + ")"
-        t[0] = Sum.Sum(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        t[0] = Sum.Sum(t[3], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'TOP':
         strGram = "<expre> ::= TOP PARIZQ <lcol> PARDER"
         strSent = "TOP ("
         for col in t[3]:
-        if isinstance(col, str):
-            strSent = strSent + col + ","
-        else:
-            strSent = strSent + col.strSent + ","
+            if isinstance(col, str):
+                strSent = strSent + col + ","
+            else:
+                strSent = strSent + col.strSent + ","
         strSent = strSent[:-1]
         strSent = strSent + ")"
-        t[0] = Top.Top(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        t[0] = Top.Top(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
 
 def p_operadores_matematica(t):
@@ -1196,90 +1213,116 @@ def p_operadores_matematica(t):
     
     if t[1] == 'ABS':
         strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        strSent = "ABS (" + t[3].strSent + ")"
+        strSent = "ABS(" + t[3].strSent + ")"
         t[0] = Abs.Abs(t[3], strGram,t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'CBRT':
         strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        strSent = "CBRT (" + t[3].strSent + ")"
+        strSent = "CBRT(" + t[3].strSent + ")"
         t[0] = Cbrt.Cbrt(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'CEIL':
         strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        t[0] = Ceil.Ceil(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "CEIL(" + t[3].strSent + ")" 
+        t[0] = Ceil.Ceil(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'CEILING':
         strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        t[0] = Ceiling.Ceiling(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "CEILING(" + t[3].strSent + ")"
+        t[0] = Ceiling.Ceiling(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'DEGREES':
         strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        t[0] = Degrees.Degrees(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "DEGREES(" + t[3].strSent + ")"
+        t[0] = Degrees.Degrees(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'DIV':
         strGram = "<expre> ::= DIV PARIZQ <expre> COMA <expre>  PARDER"
-        t[0] = Div.Div(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "DIV(" + t[3].strSent + "," + t[5].strSent + ")"
+        t[0] = Div.Div(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'EXP':
         strGram = "<expre> ::= EXP PARIZQ <expre> PARDER"
-        t[0] = Exp.Exp(t[3], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "EXP(" + t[3].strSent + ")"
+        t[0] = Exp.Exp(t[3], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'FACTORIAL':
         strGram = "<expre> ::= FACTORIAL PARIZQ <expre> PARDER"
-        t[0] = Factorial.Factorial(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "FACTORIAL(" + t[3].strSent + ")"
+        t[0] = Factorial.Factorial(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'FLOOR':
         strGram = "<expre> ::= FLOOR PARIZQ <expre> PARDER"
-        t[0] = Floor.Floor(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "FLOOR(" + t[3].strSent + ")"
+        t[0] = Floor.Floor(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'GCD':
         strGram = "<expre> ::= GCD PARIZQ <expre> COMA <expre> PARDER"
-        t[0] = Gcd.Gcd(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "GDC(" + t[3].strSent + "," + t[5].strSent + ")"
+        t[0] = Gcd.Gcd(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'LCM':
         strGram = "<expre> ::= LCM PARIZQ <expre> PARDER"
-        t[0] = Lcm.Lcm(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "LCM(" + t[3].strSent + ")"
+        t[0] = Lcm.Lcm(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'LN':
         strGram = "<expre> ::= LN PARIZQ <expre> PARDER"
-        t[0] = Ln.Ln(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "LN(" + t[3].strSent + ")"
+        t[0] = Ln.Ln(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'LOG':
         strGram = "<expre> ::= LOG PARIZQ <expre> PARDER"
-        t[0] = Log.Log(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "LOG(" + t[3].strSent + ")"
+        t[0] = Log.Log(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'LOG10':
         strGram = "<expre> ::= LOG10 PARIZQ <expre> PARDER"
-        t[0] = Log10.Log10(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "LOG10(" + t[3].strSent + ")"
+        t[0] = Log10.Log10(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'MIN_SCALE':
         strGram = "<expre> ::= MIN_SCALE PARIZQ <expre> PARDER"
-        t[0] = MinScale.MinScale(t[3], t.lexer.lineno, t.lexer.lexpos)
+        strSent = "MIN_SCALE(" + t[3].strSent + ")"
+        t[0] = MinScale.MinScale(t[3], t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'MOD':
         strGram = "<expre> ::= MOD PARIZQ <expre> COMA <expre> PARDER"
-        t[0] = Mod.Mod(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "MOD(" + t[3].strSent + "," + t[5].strSent + ")"
+        t[0] = Mod.Mod(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'PI':
         strGram = "PI PARIZQ PARDER "
-        t[0] = PI.PI(strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "PI()"
+        t[0] = PI.PI(strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'POWER':
         strGram = "<expre> ::= POWER PARIZQ <expre> COMA <expre> PARDER"
-        t[0] = Power.Power(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "POWER(" + t[3].strSent + "," + t[5].strSent + ")"
+        t[0] = Power.Power(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'RADIANS':
         strGram = "<expre> ::= RADIANS PARIZQ <expre> PARDER "
-        t[0] = Radians.Radians(t[3], strGram ,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "RADIANS(" + t[3].strSent + ")"
+        t[0] = Radians.Radians(t[3], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'RANDOM':
         strGram = "RANDOM PARIZQ PARDER"
-        t[0] = Random.Random(strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "RANDOM()"
+        t[0] = Random.Random(strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'ROUND':
         strGram = "<expre> ::= ROUND PARIZQ <expre> PARDER "
-        t[0] = Round.Round(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "ROUND(" + t[3].strSent + ")"
+        t[0] = Round.Round(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'SCALE':
         strGram = "<expre> ::= SCALE PARIZQ <expre> PARDER "
-        t[0] = Scale.Scale(t[3], strGram ,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SCALE(" + t[3].strSent + ")"
+        t[0] = Scale.Scale(t[3], strGram ,t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'SETSEED':
         strGram = "<expre> ::= SETSEED PARIZQ <expre> PARDER"
-        t[0] = SetSeed.SetSeed(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SETSEED(" + t[3].strSent + ")"
+        t[0] = SetSeed.SetSeed(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'SIGN':
         strGram = "<expre> ::= SIGN PARIZQ <expre> PARDER"
-        t[0] = Sign.Sign(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SIGN(" + t[3].strSent + ")"
+        t[0] = Sign.Sign(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'SQRT':
         strGram = "<expre> ::= SQRT PARIZQ <expre> PARDER"
-        t[0] = Sqrt.Sqrt(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SQRT(" + t[3].strSent + ")"
+        t[0] = Sqrt.Sqrt(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'TRIM_SCALE':
         strGram = "<expre> ::= TRIM_SCALE PARIZQ <expre> PARDER"
-        t[0] = TrimScale.TrimScale(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "TRIM_SCALE(" + t[3].strSent + ")"
+        t[0] = TrimScale.TrimScale(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'TRUNC':
         strGram = "<expre> ::= TRUNC PARIZQ <expre> PARDER"
-        t[0] = Trunc.Trunc(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "TRUNC(" + t[3].strSent + ")"
+        t[0] = Trunc.Trunc(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'WIDTH_BUCKET':
         strGram = "<expre> ::= WIDTH_BUCKET PARIZQ <expresion> COMA <expresion> COMA <expresion> COMA <expresion> PARDER "
-        t[0] = WidthBucket.WidthBucket(t[3], t[5], t[7], t[9], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "WIDTH_BUCKET(" + t[3].strSent + "," + t[5].strSent + "," + t[7].strSent + "," + t[9].strSent + ")"
+        t[0] = WidthBucket.WidthBucket(t[3], t[5], t[7], t[9], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_operadores_binarias(t):  
     ''' expre : CONVERT PARIZQ expre AS tipo PARDER
@@ -1297,46 +1340,57 @@ def p_operadores_binarias(t):
 
     if t[1] == 'CONVERT':
         strGram = "<expre> ::= CONVERT PARIZQ <expre> AS <tipo> PARDER"
-        t[0] = Convert.Convert(t[3], None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "CONVERT(" + t[3].strSent + " AS " + t[5].strSent + ")"
+        t[0] = Convert.Convert(t[3], None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'DECODE':
         strGram = "<expre> ::= DECODE PARIZQ <expre> PARDER"
-        t[0] = Decode.Decode(t[3],  None, t[5],strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "DECODE(" + t[3].strSent + ")"
+        t[0] = Decode.Decode(t[3],  None, t[5],strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'ENCODE':
         strGram = "<expre> ::= ENCODE PARIZQ <expre> PARDER"
-        t[0] = Encode.Encode(t[3],  None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "ENCODE(" + t[3].strSent + ")"
+        t[0] = Encode.Encode(t[3],  None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'GET_BYTE':
         strGram = "<expre> ::= GET_BYTE PARIZQ <expre> COMA ENTERO PARDER"
-        t[0] = GetByte.GetByte(t[3], None,t[5], strGram,t.lexer.lineno, t.lexer.lexpos)
+        strSent = "GET_BYTE(" + t[3].strSent + "," + str(t[5]) + ")"
+        t[0] = GetByte.GetByte(t[3], None,t[5], strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'LENGTH':
         strGram = "<expre> ::= LENGTH PARIZQ <expre> PARDER"
-        t[0] = Length.Length(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "LENGTH(" + t[3].strSent + ")"
+        t[0] = Length.Length(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'MD5':
         strGram = "<expre> ::= MD5 PARIZQ <expre> PARDER"
-        t[0] = Md5.Md5(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "MD5(" + t[3].strSent + ")"
+        t[0] = Md5.Md5(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'SET_BYTE':
         strGram = "<expre> ::= SET_BYTE PARIZQ <expre> COMA ENTERO COMA ENTERO PARDER"
-        t[0] = SetByte.SetByte(t[3], None, t[5], t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SET_BYTE(" + t[3].strSent + "," + str(t[5]) + "," + str(t[7]) +")"
+        t[0] = SetByte.SetByte(t[3], None, t[5], t[7], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'SHA256':
         strGram = "<expre> ::= SHA256 PARIZQ <expre> PARDER"
-        t[0] = Sha256.Sha256(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SHA256(" + t[3].strSent + ")"
+        t[0] = Sha256.Sha256(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
     elif t[1] == 'SUBSTR':
         strGram = "<expre> ::= SUBSTR PARIZQ <expre> COMA ENTERO COMA ENTERO PARDER"
-        t[0] = Substring.Substring(t[3], t[5], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SUBSTR(" + t[3].strSent + "," + str(t[5]) + "," + str(t[7]) +")"
+        t[0] = Substring.Substring(t[3], t[5], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
         pass
     elif t[1] == 'SUBSTRING':
         strGram = "<expre> ::= SUBSTRING PARIZQ <expre> COMA ENTERO COMA ENTERO PARDER"
-        t[0] = Substring.Substring(t[3], t[5], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "SUBSTRING(" + t[3].strSent + "," + str(t[5]) + "," + str(t[7]) +")"
+        t[0] = Substring.Substring(t[3], t[5], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
         pass
     elif t[1] == 'TRIM':
         strGram = "<expre> ::= TRIM PARIZQ <expre> PARDER"
-        t[0] = Trim.Trim(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "TRIM(" + t[3].strSent + ")"
+        t[0] = Trim.Trim(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
         pass
 
 def p_operadores_trigonometricas(t):  
@@ -1364,53 +1418,56 @@ def p_operadores_trigonometricas(t):
             | TANH PARIZQ expre PARDER
     '''
     strGram = "<expre> ::= "+ t[1] +" PARIZQ <expre> PARDER"
+    strSent = t[1] + "(" + t[3].strSent + ")"
     if t[1] == 'ACOS':
-        t[0] = Acos.Acos(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Acos.Acos(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'ACOSD':
-        t[0] = Acosd.Acosd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Acosd.Acosd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'ACOSH':
-        t[0] = Acosh.Acosh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Acosh.Acosh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     elif t[1] == 'ASIN':
-        t[0] = Asin.Asinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Asin.Asinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'ASIND':
-        t[0] = Asind.Asind(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Asind.Asind(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'ASINH':
-        t[0] = Asinh.Asinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Asinh.Asinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'ATAN':
         
-        t[0] = Atan.Atan(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atan.Atan(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'ATAN2':
         strGram = "<expre> ::= ATAN2 PARIZQ <expre> COMA <expre> PARDER"
-        t[0] = Atan2.Atan2(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = t[1] + "(" + t[3].strSent + "," + t[5].strSent + ")"
+        t[0] = Atan2.Atan2(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'ATAN2D':
         strGram = "<expre> ::= ATAN2D PARIZQ <expre> COMA <expre> PARDER"
-        t[0] = Atan2d.Atan2d(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = t[1] + "(" + t[3].strSent + "," + t[5].strSent + ")"
+        t[0] = Atan2d.Atan2d(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'ATAND':
-        t[0] = Atand.Atand(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atand.Atand(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'ATANH':
-        t[0] = Atanh.Atanh(t[3], strGram,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atanh.Atanh(t[3], strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'COS':
-        t[0] = Cos.Cos(t[3], strGram,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cos.Cos(t[3], strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'COSD':
-        t[0] = Cosd.Cosd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cosd.Cosd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'COSH':
-        t[0] = Cosh.Cosh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cosh.Cosh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'COT':
-        t[0] = Cot.Cot(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cot.Cot(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'COTD':
-        t[0] = Cotd.Cotd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cotd.Cotd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'SIN':
-        t[0] = Sin.Sin(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Sin.Sin(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'SIND':
-        t[0] = Sind.Sind(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Sind.Sind(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'SINH':
-        t[0] = Sinh.Sinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Sinh.Sinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'TAN':
-        t[0] = Tan.Tan(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Tan.Tan(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'TAND':
-        t[0] = Tand.Tand(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Tand.Tand(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'TANH':
-        t[0] = Tanh.Tanh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Tanh.Tanh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
             
 def p_operadores_otros(t):
     ''' expre : EXTRACT PARIZQ tiempo FROM TIMESTAMP CARACTER PARDER
@@ -1423,32 +1480,39 @@ def p_operadores_otros(t):
     '''
     if t[1] == 'EXTRACT':
         strGram = "<expre> ::= EXTRACT PARIZQ <tiempo> FROM TIMESTAMP CARACTER PARDER"
-        t[0] = Extract.Extract(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "EXTRACT(" + t[3] + " FROM TIMESTAMP " + t[6] + ")"
+        t[0] = Extract.Extract(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'NOW':
         strGram = "<expre> ::= NOW PARIZQ PARDER"
-        t[0] = Now.Now( strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "NOW()"
+        t[0] = Now.Now( strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'DATE_PART':
         strGram = "<expre> ::= DATE_PART PARIZQ CARACTER COMA INTERVAL CARACTER PARDER"
-        t[0] = DatePart.DatePart(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "DATE_PART(" + t[3] + "," + t[5] + " " + t[6] + ")"
+        t[0] = DatePart.DatePart(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'CURRENT_DATE':
         strGram = "<expre> ::= CURRENT_DATE"
-        t[0] = CurrentDate.CurrentDate(strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "CURRENT_DATE"
+        t[0] = CurrentDate.CurrentDate(strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'CURRENT_TIME':
         strGram = "<expre> ::= CURRENT_TIME"
-        t[0] = CurrentTime.CurrentTime(strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "CURRENT_TIME"
+        t[0] = CurrentTime.CurrentTime(strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'TIMESTAMP':
         strGram = "<expre> ::= TIMESTAMP CARACTER"
-        t[0] = TimeStamp.TimeStamp(t[2], strGram, t.lexer.lineno, t.lexer.lexpos)
+        strSent = "TIMESTAMP " + t[2]
+        t[0] = TimeStamp.TimeStamp(t[2], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
     elif t[1] == 'POR':
         t[0] = 'Pendiente'
     elif t[1] == 'CASE':
         strGram = "<expre> ::= CASE <lcase> END "
-        t[0] = Case.Case(t[2], strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Case.Case(t[2], strGram, t.lexer.lineno, t.lexer.lexpos, strSent, "")
 
 def p_operadores_parentesis(t):
     ''' expre : PARIZQ expre PARDER
             | PARIZQ query PARDER
     '''
+    t[2].strSent = "(" + t[2].strSent + ")"
     t[0] = t[2]
 
  
@@ -1493,14 +1557,20 @@ def p_campos_tablas(t):
     '''
     #ESTOY HACIENDO ESTA
     strGram = "<campos> ::= <campos> COMA ID <tipo> <lista_op>"
-    t[1].append(CColumna.Columna(t[3],t[4],t[5], strGram, t.lineno,t.lexpos))
+    
+    strSent = t[3] + " " + t[4].strSent
+    for col in t[5]:
+        strSent = strSent + " " + col.strSent
+    
+    t[1].append(CColumna.Columna(t[3],t[4],t[5], strGram, t.lineno,t.lexpos,strSent))
     t[0] =t[1]
 
 def p_campos_tablas1(t):
     '''campos : campos COMA ID tipo
     '''
     strGram = "<campos> ::= <campos> COMA ID tipo"
-    t[1].append(CColumna.Columna(t[3],t[4],None,strGram,t.lineno,t.lexpos))
+    strSent = t[3] + " " + t[4].strSent
+    t[1].append(CColumna.Columna(t[3],t[4],None,strGram,t.lineno,t.lexpos, strSent))
     t[0] =t[1]
 
 #def p_campos_tablas2(t):
@@ -1520,33 +1590,62 @@ def p_campos_tablas4(t):
     '''campos : campos COMA UNIQUE PARIZQ lista_id PARDER
     '''
     strGram = "<campos> ::= <campos> COMA UNIQUE PARIZQ <lista_id> PARDER"
-    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.UNIQUE,t[5]))
+    
+    strSent = "UNIQUE("
+    for col in t[5]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ")"
+
+    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.UNIQUE,t[5],strSent))
     t[0] = t[1]
 
 def p_campos_tablas5(t):
     '''campos : campos COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
     '''
     strGram = "<campos> ::= <campos> COMA FOREIGN KEY PARIZQ <lista_id> PARDER REFERENCES ID PARIZQ <lista_id> PARDER"
-    t[1].append(Tipo_Constraint(t[6],Tipo_Dato_Constraint.FOREIGN_KEY,Tipo_Constraint([9],Tipo_Dato_Constraint.REFERENCES,t[11])))
+    
+    strSent = "FOREIGN KEY("
+    for col in t[6]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ") REFERENCES " + t[9] + "("
+    for col in t[11]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ")"
+
+    t[1].append(Tipo_Constraint(t[6],Tipo_Dato_Constraint.FOREIGN_KEY,Tipo_Constraint([9],Tipo_Dato_Constraint.REFERENCES,t[11]),strSent))
     t[0] = t[1]
 
 def p_campos_tablas6(t):
     '''campos : campos COMA PRIMARY KEY PARIZQ lista_id PARDER
     '''
-    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.PRIMARY_KEY,t[6]))
+    strSent = "PRIMARY KEY("
+    for col in t[6]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ")"
+
+    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.PRIMARY_KEY,t[6],strSent))
     t[0] = t[1]
 
 def p_campos_tablas7(t):
     '''campos : ID tipo lista_op
     '''
     strGram = "<campos> ::= ID <tipo> <lista_op>"
-    t[0] = [CColumna.Columna(t[1],t[2],t[3], strGram, t.lineno,t.lexpos)]
+    strSent = t[1] + " " + t[2].strSent
+    for col in t[3]:
+        strSent = strSent + " " + col.strSent
+    
+    t[0] = [CColumna.Columna(t[1],t[2],t[3], strGram, t.lineno,t.lexpos, strSent)]
 
 def p_campos_tablas8(t):
     '''campos : ID tipo
     '''
     strGram = "<campos> ::= ID <tipo>"
-    t[0] = [CColumna.Columna(t[1],t[2],None,strGram,t.lineno,t.lexpos)]
+    strSent = t[1] + " " + t[2].strSent
+    t[0] = [CColumna.Columna(t[1],t[2],None,strGram,t.lineno,t.lexpos,strSent)]
 
 def p_lista_id1(t):
     '''lista_id : lista_id COMA ID
@@ -1575,47 +1674,61 @@ def p_lista_op2(t):
 def p_opcion(t):
     '''opcion : PRIMARY KEY
     '''
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.PRIMARY_KEY, None)
+    strSent = "PRIMARY KEY"
+    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.PRIMARY_KEY, None, strSent)
 
 def p_opcion1(t):
     '''opcion : REFERENCES ID PARIZQ lista_id PARDER
     '''
-    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.REFERENCES, t[4])
+    strSent = "REFERENCES " + t[2] + "("
+    for col in t[4]:
+        strSent = strSent + col + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ")"
+
+    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.REFERENCES, t[4],strSent)
 
 def p_opcion2(t):
     '''opcion : DEFAULT expresion
     '''
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.DEFAULT, t[2])
+    strSent = "DEFAULT " + t[2].strSent
+    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.DEFAULT, t[2],strSent)
 
 def p_opcion3(t):
     '''opcion : NOT NULL
     '''
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.NOT_NULL, None)
+    strSent = "NOT NULL"
+    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.NOT_NULL, None, strSent)
 
 def p_opcion4(t):
     '''opcion : NULL
     '''
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.NULL, None)
+    strSent = "NULL"
+    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.NULL, None, strSent)
 
 def p_opcion5(t):
     '''opcion : UNIQUE
     '''
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.UNIQUE, None)
+    strSent = "UNIQUE"
+    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.UNIQUE, None, strSent)
 
 def p_opcion6(t):
     '''opcion : CONSTRAINT ID UNIQUE
     '''
-    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.UNIQUE, None)
+    strSent = "CONSTRAINT " + t[2] + " UNIQUE"
+    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.UNIQUE, None, strSent)
 
 def p_opcion7(t):
     '''opcion : CONSTRAINT ID CHECK expre
     '''
-    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.CHECK, t[4])
+    strSent = "CONSTRAINT " + t[2] + " CHECK " + t[4].strSent
+    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.CHECK, t[4], strSent)
 
 def p_opcion8(t):
     '''opcion : CHECK expre
     '''
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.CHECK, t[2])
+    strSent = "CHECK " + t[2].strSent
+    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.CHECK, t[2], strSent)
 
 def p_lista_expresiones(t):
     '''
@@ -1637,7 +1750,8 @@ def p_expresion(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= CADENA"
-    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.TEXT), strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = t[1]
+    t[0] = Primitivo.Primitivo(t[1],Tipo("",Tipo_Dato.TEXT), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 def p_expresion1(t):
     '''expresion : CARACTER
@@ -1645,7 +1759,8 @@ def p_expresion1(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= CARACTER"
-    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.CHAR), strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = t[1]
+    t[0] = Primitivo.Primitivo(t[1],Tipo("",Tipo_Dato.CHAR), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     
 
 def p_expresion2(t):
@@ -1654,7 +1769,8 @@ def p_expresion2(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= ENTERO"
-    t[0] = Primitivo.Primitivo(t[1], Tipo(Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = str(t[1])
+    t[0] = Primitivo.Primitivo(t[1], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
     
 def p_expresion3(t):
     '''expresion : FDECIMAL
@@ -1662,7 +1778,8 @@ def p_expresion3(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= FDECIMAL"
-    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.NUMERIC), strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = str(t[1])
+    t[0] = Primitivo.Primitivo(t[1],Tipo("",Tipo_Dato.NUMERIC), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 def p_expresion4(t):
     '''expresion : DOUBLE
@@ -1670,7 +1787,8 @@ def p_expresion4(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram +"<expresion> ::= DOUBLE"
-    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.DOUBLE_PRECISION), strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = str(t[1])
+    t[0] = Primitivo.Primitivo(t[1],Tipo("",Tipo_Dato.DOUBLE_PRECISION), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 def p_expresion5(t):
     '''expresion : ID
@@ -1679,7 +1797,8 @@ def p_expresion5(t):
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= ID"
     #t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
-    t[0] = Identificador(t[1], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = t[1]
+    t[0] = Identificador(t[1], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_expresion61(t):
     '''expresion : ID PUNTO ID
@@ -1687,7 +1806,8 @@ def p_expresion61(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= ID PUNTO ID"
-    t[0] = SelectLista.Alias(t[1],t[3])
+    strSent = t[1] + "." + t[3]
+    t[0] = SelectLista.Alias(t[1],t[3],strSent)
     #t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, strGram,t.lexer.lineno, t.lexer.lexpos)
 
 def p_expresion62(t):
@@ -1696,7 +1816,8 @@ def p_expresion62(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= ID PUNTO POR"
-    t[0] = SelectLista.Alias(t[1],t[3])
+    strSent = t[1] + ".*"
+    t[0] = SelectLista.Alias(t[1],t[3],strSent)
     #t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 
@@ -1706,7 +1827,8 @@ def p_expresion7(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= ARROBA ID"
-    t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ARROBA, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "@" + t[2]
+    t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ARROBA, strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 def p_expresion8(t):
     '''expresion : ID PARIZQ lcol PARDER
@@ -1718,7 +1840,8 @@ def p_expresion9(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= TRUE"
-    t[0] = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN), strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "TRUE"
+    t[0] = Primitivo.Primitivo(True,Tipo("",Tipo_Dato.BOOLEAN), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 def p_expresion10(t):
     '''expresion : FALSE
@@ -1726,7 +1849,8 @@ def p_expresion10(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= FALSE"
-    t[0] = Primitivo.Primitivo(False,Tipo(Tipo_Dato.BOOLEAN), strGram, t.lexer.lineno, t.lexer.lexpos)
+    strSent = "FALSE"
+    t[0] = Primitivo.Primitivo(False,Tipo("",Tipo_Dato.BOOLEAN), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
 
 def p_lista_columas(t):
     '''lcol : lcol COMA expre
@@ -1779,12 +1903,14 @@ def p_nombre(t):
 def p_tipo_datos(t):
     '''tipo : INT
     '''
-    t[0] = Tipo(Tipo_Dato.INTEGER)
+    strSent = t[1]
+    t[0] = Tipo(strSent, Tipo_Dato.INTEGER)
 
 def p_tipo_datos1(t):
     '''tipo : DATE
     '''
-    t[0]=Tipo(Tipo_Dato.DATE)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.DATE)
 
 # NO RECUERDO PARA QUE IMPLEMENTAMOS ESTA PARTE ENTONCES LA COMENTE
 #def p_tipo_datos2(t):
@@ -1795,43 +1921,50 @@ def p_tipo_datos1(t):
 def p_tipo_datos_varchar(t):
     '''tipo : VARCHAR PARIZQ ENTERO PARDER
     '''
-    t[0] = Tipo(Tipo_Dato.VARCHAR,t[3])
+    strSent = "VARCHAR(" + str(t[3]) + ")"
+    t[0] = Tipo(strSent, Tipo_Dato.VARCHAR,t[3])
 
 def p_tipo_datos_varchar1(t):
     '''tipo : CHAR PARIZQ ENTERO PARDER
     '''
-    t[0] = Tipo(Tipo_Dato.CHAR,t[3])
+    strSent = "CHAR(" + str(t[3]) + ")"
+    t[0] = Tipo(strSent, Tipo_Dato.CHAR,t[3])
 
 def p_tipo_datos_varchar2(t):
     '''tipo : CHARACTER VARYING PARIZQ ENTERO PARDER
     '''
-    t[0]= Tipo(Tipo_Dato.VARYING,t[4])
+    strSent = "CHARACTER VARYING(" + str(t[4]) + ")"
+    t[0]= Tipo(strSent, Tipo_Dato.VARYING,t[4])
 
 def p_tipo_datos_varchar3(t):
     '''tipo : CHARACTER PARIZQ ENTERO PARDER
     '''
-    t[0]= Tipo(Tipo_Dato.CHARACTER,t[3])
+    strSent = "CHARACTER(" + str(t[3]) + ")"
+    t[0]= Tipo(strSent, Tipo_Dato.CHARACTER,t[3])
 
 def p_tipo_datos_varchar4(t):
     '''tipo : TEXT
     '''
-    t[0]=Tipo(Tipo_Dato.TEXT)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.TEXT)
 
 #ESTE NO SE CONTEMPLO EN LA GRAMATICA DE MAEDA
 def p_tipo_datos_decimal(t):
     '''tipo : DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
     '''
-    t[0]= Tipo(Tipo_Dato.DECIMAL,[t[3],t[5]])
+    strSent = "DECIMAL(" + str(t[3]) + "," + str(t[5]) + ")"
+    t[0]= Tipo(strSent, Tipo_Dato.DECIMAL,[t[3],t[5]])
 
 #def p_tipo_datos_decimal1(t):
 #    '''tipo : DOUBLE
 #    '''
-#    t[0] = Tipo(Tipo_Dato.DOUBLE_PRECISION)
+#    t[0] = Tipo("",Tipo_Dato.DOUBLE_PRECISION)
     
 def p_tipo_datos_decimal2(t):
     '''tipo : DECIMAL
     '''
-    t[0]=Tipo(Tipo_Dato.DECIMAL)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.DECIMAL)
 
 #ESTE NO SE CONTEMPLO EN LA GRAMATICA
 #def p_tipo_datos_decimal3(t):
@@ -1843,67 +1976,79 @@ def p_tipo_datos_decimal2(t):
 #def p_tipo_datos_int(t):
 #    '''tipo : ENTERO
 #    '''
-#    t[0]=Tipo(Tipo_Dato.INTEGER)
+#    t[0]=Tipo("",Tipo_Dato.INTEGER)
 
 def p_tipo_datos_int1(t):
     '''tipo : SMALLINT
     '''
-    t[0]=Tipo(Tipo_Dato.SMALLINT)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.SMALLINT)
 
 def p_tipo_datos_int2(t):
     '''tipo : INTEGER
     '''
-    t[0]=Tipo(Tipo_Dato.INTEGER)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.INTEGER)
 
 def p_tipo_datos_int3(t):
     '''tipo : BIGINT
     '''
-    t[0]=Tipo(Tipo_Dato.BIGINT)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.BIGINT)
 
 def p_tipo_datos_int4(t):
     '''tipo : NUMERIC
     '''
-    t[0]=Tipo(Tipo_Dato.NUMERIC)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.NUMERIC)
 
 def p_tipo_datos_int5(t):
     '''tipo : REAL
     '''
-    t[0]=Tipo(Tipo_Dato.REAL)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.REAL)
 
 def p_tipo_datos_int6(t):
     '''tipo : DOUBLE PRECISION
     '''
-    t[0]=Tipo(Tipo_Dato.DOUBLE_PRECISION)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.DOUBLE_PRECISION)
 
 def p_tipo_datos_int7(t):
     '''tipo : MONEY
     '''
-    t[0]=Tipo(Tipo_Dato.MONEY)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.MONEY)
 
 def p_tipo_datos_int8(t):
     '''tipo : BOOLEAN
     '''
-    t[0]=Tipo(Tipo_Dato.BOOLEAN)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.BOOLEAN)
 
 def p_tipo_datos_date(t):
     '''tipo : TIMESTAMP
     '''
-    t[0]=Tipo(Tipo_Dato.TIMESTAMP)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.TIMESTAMP)
 
 def p_tipo_datos_date1(t):
     '''tipo : TIME
     '''
-    t[0]=Tipo(Tipo_Dato.TIME)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.TIME)
 
 def p_tipo_datos_date2(t):
     '''tipo : INTERVAL
     '''
-    t[0]=Tipo(Tipo_Dato.INTERVAL)
+    strSent = t[1]
+    t[0]=Tipo(strSent, Tipo_Dato.INTERVAL)
 
 def p_tipo_datos2(t):
     '''tipo : ID 
     '''
-    t[0] = Tipo(Tipo_Dato.TIPOENUM)
+    strSent = t[1]
+    t[0] = Tipo(strSent, Tipo_Dato.TIPOENUM)
     t[0].nombre = t[1]
 
 
@@ -2172,5 +2317,6 @@ def ejecutar_analisis(texto):
     #se obtiene la acción de analisis sintactico
     print("inicio")
     return parser.parse(texto)
+    
 
 

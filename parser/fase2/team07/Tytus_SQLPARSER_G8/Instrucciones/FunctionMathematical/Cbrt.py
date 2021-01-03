@@ -6,7 +6,7 @@ import numpy as np
 
 class Cbrt(Instruccion):
     def __init__(self, valor, strGram, linea, columna, strSent):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.DOUBLE_PRECISION),linea,columna,strGram,strSent)
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.DOUBLE_PRECISION),linea,columna,strGram,strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):

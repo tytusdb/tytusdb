@@ -32,8 +32,8 @@ instruccion.ejecutar(None,None)
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Expresiones import Primitivo, Logica
 
-p1 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
-p2 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
+p1 = Primitivo.Primitivo(True,Tipo("",Tipo_Dato.BOOLEAN),1,1)
+p2 = Primitivo.Primitivo(True,Tipo("",Tipo_Dato.BOOLEAN),1,1)
 a = Arbol([])
 op = Logica.Logica(p1,p2,'AND',1,2)
 print('Resultado logica: ' + str(suma.ejecutar(None,a)))
@@ -42,8 +42,8 @@ print('Resultado logica: ' + str(suma.ejecutar(None,a)))
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Expresiones import Primitivo, Aritmetica
 
-p1 = Primitivo.Primitivo(1,Tipo(Tipo_Dato.BOOLEAN),1,1)
-p2 = Primitivo.Primitivo(2,Tipo(Tipo_Dato.INTEGER),1,1)
+p1 = Primitivo.Primitivo(1,Tipo("",Tipo_Dato.BOOLEAN),1,1)
+p2 = Primitivo.Primitivo(2,Tipo("",Tipo_Dato.INTEGER),1,1)
 a = Arbol([])
 suma = Aritmetica.Aritmetica(p1,p2,'+',1,2)
 suma.ejecutar(None,a)

@@ -3,8 +3,8 @@ from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 from datetime import datetime 
 
 class TimeStamp(Instruccion):
-    def __init__(self, id, strGram,linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, id, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.identificador = id
 
     def ejecutar(self, ts, arbol):

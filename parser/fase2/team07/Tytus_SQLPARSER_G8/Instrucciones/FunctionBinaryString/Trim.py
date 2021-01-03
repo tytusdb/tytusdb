@@ -6,8 +6,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
 
 class Trim(Instruccion):
-    def __init__(self, valor, tipo, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
@@ -16,7 +16,7 @@ class Trim(Instruccion):
         if isinstance(resultado, Excepcion):
             return resultado
         if self.valor.tipo.tipo== Tipo_Dato.CHAR or self.valor.tipo.tipo== Tipo_Dato.VARCHAR or self.valor.tipo.tipo== Tipo_Dato.VARYING or self.valor.tipo.tipo== Tipo_Dato.CHARACTER or self.valor.tipo.tipo== Tipo_Dato.TEXT:
-            self.tipo = Tipo(Tipo_Dato.TEXT)
+            self.tipo = Tipo("",Tipo_Dato.TEXT)
             return strip(str(resultado)) 
         error = Excepcion('42883',"Semántico",f"No existe la función TRIM({self.valor.tipo.toString()})",self.linea,self.columna)
         arbol.excepciones.append(error)

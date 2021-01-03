@@ -3,8 +3,8 @@ from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 import datetime
 
 class Extract(Instruccion):
-    def __init__(self, tiempo, caracter, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, tiempo, caracter, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.tiempo = tiempo
         self.caracter = caracter
 

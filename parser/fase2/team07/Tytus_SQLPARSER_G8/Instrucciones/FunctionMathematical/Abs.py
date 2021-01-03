@@ -19,8 +19,8 @@ class Abs(Instruccion):
             arbol.consola.append(error.toString())
             return error
         if isinstance(resultado,int):
-            self.tipo = Tipo(Tipo_Dato.INTEGER)
+            self.tipo = Tipo("",Tipo_Dato.INTEGER)
             return int(abs(resultado))
         else:
-            self.tipo = Tipo(Tipo_Dato.NUMERIC)
+            self.tipo = Tipo("",Tipo_Dato.NUMERIC)
             return abs(resultado)

@@ -4,8 +4,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from datetime import datetime 
 
 class Now(Instruccion):
-    def __init__(self, strGram,linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.TIMESTAMP),linea,columna,strGram)
+    def __init__(self, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.TIMESTAMP),linea,columna,strGram, strSent)
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)

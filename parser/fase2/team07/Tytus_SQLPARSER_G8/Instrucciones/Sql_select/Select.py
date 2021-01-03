@@ -13,8 +13,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 
 class Select(Instruccion):
                        #dist  tipo  lcol  lcol  linners where lrows
-    def __init__(self, dist, lcol, lcol2, linners, where, lrows, strGram, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.QUERY),linea,columna,strGram)
+    def __init__(self, dist, lcol, lcol2, linners, where, lrows, strGram, linea, columna,strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.QUERY),linea,columna,strGram,strSent)
         self.dist = dist
         self.lcol = lcol
         self.lcol2 = lcol2

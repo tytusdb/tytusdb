@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
 
 class SetByte(Instruccion):
-    def __init__(self, valor, tipo, indice, caracter, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, indice, caracter, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.tipo = tipo
         self.indice = indice
@@ -31,7 +31,7 @@ class SetByte(Instruccion):
                     cadena += letra
                     cont +=1
                 resultado= cadena
-                self.tipo = Tipo(Tipo_Dato.TEXT)
+                self.tipo = Tipo("",Tipo_Dato.TEXT)
                 return resultado
         else:
             error = Excepcion('2202E',"Semántico",f"El índice {self.indice} esta fuera de rango [0..{len(self.valor.valor)}]",self.linea,self.columna)

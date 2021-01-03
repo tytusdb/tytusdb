@@ -7,7 +7,7 @@ import numpy as np
 
 class Between(Instruccion):
     def __init__(self, opIzq, opDer, opDer2, operador, strGram,linea, columna, strSent):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.BOOLEAN),linea,columna,strGram, strSent)
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.BOOLEAN),linea,columna,strGram, strSent)
         self.opIzq = opIzq
         self.opDer = opDer
         self.opDer2 = opDer2

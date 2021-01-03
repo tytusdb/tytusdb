@@ -7,7 +7,7 @@ from Instrucciones.Tablas.Tablas import Tablas
 
 class SelectLista(Instruccion):
     def __init__(self, lista, strGram, linea, columna, strSent):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.QUERY),linea,columna,strGram,strSent)
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.QUERY),linea,columna,strGram,strSent)
         self.lista = lista
 
     def ejecutar(self, tabla, arbol):

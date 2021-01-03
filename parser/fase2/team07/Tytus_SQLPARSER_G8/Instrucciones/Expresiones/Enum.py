@@ -2,8 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 
 class Enum(Instruccion):
-    def __init__(self, id, tipo, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.TIPOENUM),linea,columna,"")
+    def __init__(self, id, tipo, linea, columna, strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.TIPOENUM),linea,columna,"", strSent)
         self.id = id
         self.listaValores = []
 
