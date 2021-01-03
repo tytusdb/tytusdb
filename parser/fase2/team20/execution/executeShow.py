@@ -2,7 +2,7 @@ from .storageManager.jsonMode import showDatabases
 from console import print_success, print_table 
 from prettytable import PrettyTable
 def executeShowDatabases(self):
-    self.intermediate.memory.append(self)
+    #self.intermediate.memory.append(self)
     x = PrettyTable()
     dbs = showDatabases()
     #self.messages.append("Databases:")

@@ -13,7 +13,7 @@ class Execute():
     errors = []
     messages = []
     querys = []
-    intermediate = IntermediateFunctions()
+    #intermediate = IntermediateFunctions()
     code = "from goto import with_goto\n@with_goto\ndef c3d():\n"
     types = {
         1: 'Entero',
@@ -57,10 +57,10 @@ class Execute():
                 executeSentence2(self,node)
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)
-        self.code += "c3d()"
+        '''self.code += "c3d()"
         inter_exec_file = open("C3D.py", "w")
         inter_exec_file.write(self.code)
-        inter_exec_file.close()
+        inter_exec_file.close()'''
         result = execute_result(dotAST, printSymbolTable_, self.errors, self.messages, self.querys)
         return result
 

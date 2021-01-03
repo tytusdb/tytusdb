@@ -316,6 +316,8 @@ class AlterTableAddForeignKey(Sentence):
         self.column = column
         self.rel_table = rel_table
         self.rel_column = rel_column
+    def __str__(self):
+        return "executeSentence(AlterTableAddForeignKey,AlterTableAddForeignKey('"+self.table+"','"+self.column+"','"+self.rel_table+"','"+self.rel_column+"'))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"AlterTableAddForeignKey\"]\n'
@@ -461,6 +463,14 @@ class AlterTableAddColumn(Sentence):
         self.table = table
         self.column = column
         self.type = type # type [type,length] or type = [type]
+    def __str__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.type)
+        ty = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "executeSentence(AlterTableAddColumn,AlterTableAddColumn('"+self.table+"','"+self.column+"',"+ty+"))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"AlterTableAddColumn\"]\n'
@@ -657,6 +667,8 @@ class Update(Sentence):
         self.table = table
         self.values = values #values = [value1,value2,...,valuen] -> value = [id,expression]  
         self.expression = expression
+    def __str__(self):
+        return "executeSentence(Update,Update('"+self.table+"',"+str(self.values)+","+str(self.expression)+"))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"Update\"]\n'

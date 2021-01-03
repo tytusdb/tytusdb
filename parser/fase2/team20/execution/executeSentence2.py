@@ -43,10 +43,7 @@ def executeSentence2(self, sentence):
         archivo.write("ICreateDatabase("+sentence.name+","+sentence.ifNotExistsFlag+","+sentence.OrReplace+","+sentence.OwnerMode+")") 
         archivo.close()
     elif isinstance(sentence,Update):
-        archivo = open("C3D.py", 'a')
-        archivo.write("\n")
-        archivo.write("ICreateDatabase("+sentence.name+","+sentence.ifNotExistsFlag+","+sentence.OrReplace+","+sentence.OwnerMode+")") 
-        archivo.close()
+        h=0
     elif isinstance(sentence,AlterTableDropConstraint):
         archivo = open("C3D.py", 'a')
         archivo.write("\n")
