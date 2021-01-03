@@ -1435,13 +1435,13 @@ def p_table_reference(p):
                       | SQLNAME'''
     if (len(p) == 2):
         p[0] = TableReference(
-            p[1], None, p.slice[1].value.line, p.slice[1].value.column)
+            p[1], None, None, p.slice[1].value.line, p.slice[1].value.column)
     elif (len(p) == 3):
         p[0] = TableReference(
-            p[1], p[2], p.slice[1].value.line, p.slice[1].value.column)
+            p[1], p[2], p[2], p.slice[1].value.line, p.slice[1].value.column)
     elif (len(p) == 4):
         p[0] = TableReference(
-            p[1], p[2], p.slice[1].value.line, p.slice[1].value.column)
+            p[1], p[3], p[2], p.slice[1].value.line, p.slice[1].value.column)
 
 
 def p_order_by_clause(p):
@@ -2021,9 +2021,12 @@ def p_sql_object_reference(p):
                        | SQLNAME DOT SQLNAME
                        | SQLNAME'''
     if (len(p) == 2):
-        p[0] = ObjectReference(p[1], None)
+        p[0] = ObjectReference(p[1], None, None)
     elif (len(p) == 4):
-        p[0] = ObjectReference(p[1], p[3])
+        if p[3] == "*":
+            p[0] = ObjectReference(p[1], p[3], None)
+        else:
+            p[0] = ObjectReference(p[3], None, p[1])
 
 
 def p_list_values_insert(p):
