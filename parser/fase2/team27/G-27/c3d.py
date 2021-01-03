@@ -242,7 +242,7 @@ def p_instrucciones_evaluar(t):
                    | ins_drop
                    | ins_create
                    | ins_insert
-                   | ins_select
+                   | ins_select PUNTO_COMA
                    | ins_update
                    | ins_delete
                    | exp
@@ -271,6 +271,7 @@ def p_definicion_columna(t):
 def p_columna(t):
     '''columna : ID tipo_dato definicion_valor_defecto ins_constraint
                 | primary_key 
+                | ID ID
                 | foreign_key 
                 | unique'''
 
@@ -440,8 +441,8 @@ def p_list_id(t):
                | ID'''
 
 def p_list_vls(t):
-    '''list_vls : list_vls COMA val_value
-                | val_value '''
+    '''list_vls : list_vls COMA exp
+                | exp '''
 
 def p_val_value(t):
     '''val_value : CADENA
@@ -453,23 +454,26 @@ def p_val_value(t):
                 |   FALSE 
                 |   NULL
                 |   F_HORA
-                |   functions
                 |   FECHA
                 |   HORA'''
 
 def p_ins_select(t):
-    '''ins_select :      ins_select UNION option_all ins_select PUNTO_COMA
-                    |    ins_select INTERSECT option_all ins_select PUNTO_COMA
-                    |    ins_select EXCEPT option_all ins_select PUNTO_COMA
-                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_having arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
-                    |    SELECT functions as_id PUNTO_COMA'''
+    '''ins_select :      ins_select UNION option_all ins_select 
+                    |    ins_select INTERSECT option_all ins_select 
+                    |    ins_select EXCEPT option_all ins_select 
+                    |    SELECT arg_distict colum_list from'''
+
+def p_from(t):
+    '''from :  FROM table_list arg_where arg_having arg_group_by arg_order_by arg_limit arg_offset 
+                |''' 
+
+def p_column_function(t):
+    '''column_function : column_function COMA functions
+                        | functions
+                        | val_value'''
 
 def p_option_all(t):
     '''option_all   :   ALL
-                    |    '''
-
-def p_puntoycoma(t):
-    '''puntoycoma   :   PUNTO_COMA
                     |    '''
 
 def p_arg_distict(t):
@@ -486,10 +490,11 @@ def p_s_list(t):
 
 def p_columns(t):
     '''columns   : ID dot_table 
-                    |   aggregates '''
+                    |   exp'''
        
 def p_dot_table(t):
     '''dot_table    :   PUNTO ID
+                    |   PUNTO SIGNO_POR
                     |    '''
 
 def p_as_id(t):
@@ -546,6 +551,7 @@ def p_arg_num(t):
 def p_op_numero(t):
     '''  op_numero : NUMERO 
                 | NUM_DECIMAL
+                | ID
                 | SIGNO_MENOS NUMERO %prec UMENOS
                 | SIGNO_MENOS NUM_DECIMAL %prec UMENOS'''
 
@@ -583,14 +589,17 @@ def p_string_func(t):   # CORREGIR GRAMÁTICA
                     |   SHA256 PARABRE s_param PARCIERRE
                     |   SUBSTR PARABRE s_param COMA NUMERO COMA NUMERO PARCIERRE
                     |   CONVERT PARABRE tipo_dato COMA ID dot_table PARCIERRE
+                    |   CONVERT PARABRE s_param AS tipo_dato PARCIERRE
                     |   ENCODE PARABRE s_param COMA s_param PARCIERRE
                     |   DECODE PARABRE s_param COMA s_param PARCIERRE '''
 
 def p_s_param(t):
     '''s_param  :   s_param string_op s_param
                 |   CADENA
+                |   FECHA
                 |   CADENASIMPLE
-                |   NUMERO'''
+                |   NUMERO
+                |   ID'''
 
 def p_string_op(t):
     '''string_op    :   SIGNO_PIPE
@@ -604,10 +613,14 @@ def p_string_op(t):
 def p_time_func(t):
     '''time_func    :   DATE_PART PARABRE  h_m_s  COMA INTERVAL F_HORA PARCIERRE 
                     |   NOW PARABRE PARCIERRE
-                    |   EXTRACT PARABRE reserv_time  FROM TIMESTAMP FECHA_HORA PARCIERRE
+                    |   EXTRACT PARABRE reserv_time  FROM  time_param PARCIERRE
                     |   TIMESTAMP CADENASIMPLE
                     |   CURRENT_TIME
                     |   CURRENT_DATE'''
+
+def p_time_param(t):
+    '''time_param : TIMESTAMP FECHA_HORA
+                    | ID '''
 
 def p_reserv_time(t):
     '''reserv_time  :   h_m_s 
@@ -627,7 +640,8 @@ def p_param(t):
 
 def p_table_list(t):
     '''table_list   :   table_list COMA ID as_id
-                    |   ID as_id'''
+                    |   ID as_id
+                    |   PARABRE ins_select PARCIERRE ID'''
 
 def p_arg_where(t):
     '''arg_where    :   WHERE PARABRE exp PARCIERRE
@@ -666,7 +680,9 @@ def p_exp(t):
             | arg_case
             | arg_greatest
             | arg_least 
-            | val_value'''
+            | val_value
+            | ID PARABRE list_vls PARCIERRE
+            | data NOT IN PARABRE ins_select PARCIERRE '''
     
 def p_arg_greatest(t):
     '''arg_greatest  : GREATEST PARABRE exp_list PARCIERRE''' 
@@ -717,8 +733,8 @@ def p_sub_consulta(t):
     '''sub_consulta   : PARABRE ins_select  PARCIERRE''' 
     
 def p_arg_pattern(t):
-    '''arg_pattern   : data LIKE CADENA   
-                     | data NOT LIKE CADENA ''' 
+    '''arg_pattern   : data LIKE CADENASIMPLE   
+                     | data NOT LIKE CADENASIMPLE ''' 
 
 def p_arg_group_by(t):
     '''arg_group_by    :   GROUP BY g_list
@@ -776,7 +792,8 @@ def p_arg_offset(t):
                     |  ''' #epsilon
     
 def p_ins_update(t):
-    '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
+    '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA
+                    | UPDATE ID SET asign_list PUNTO_COMA '''
 
 def p_ins_asign_list(t):
     '''asign_list  : asign_list COMA ID SIGNO_IGUAL exp 
