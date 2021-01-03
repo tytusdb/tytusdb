@@ -127,7 +127,25 @@ reservadas = {
     "WHEN": "R_WHEN",
     "THEN": "R_THEN",
     "ELSE": "R_ELSE",
+    "ELSIF": "R_ELSIF",
     "END": "R_END",
+    # NUEVAS COSAS
+    # INDICES
+    "HASH": "R_HASH",
+    "INDEX": "R_INDEX",
+    # PROCESOS
+    "PROCEDURE": "R_PROCEDURE",
+    "DECLARE": "R_DECLARE",
+    "FUNCTION": "R_FUNCTION",
+    "RETURN": "R_RETURN",
+    "RETURNS": "R_RETURNS",
+    "BEGIN": "R_BEGIN",
+    "RAISE": "R_RAISE",
+    "EXCEPTION": "R_EXCEPTION",
+    "NOTICE": "R_NOTICE",
+    "LANGUAGE": "R_LANGUAGE",
+    "PLPGSQL": "R_PLPGSQL",
+    "EXECUTE": "R_EXECUTE"
 }
 
 reservadas.update(r_types)
@@ -176,6 +194,9 @@ tokens = [
     "COMMENT",
     "STRING",
     "CHARACTER",
+    # NUEVOS
+    "S_ASIGNACION",
+    "S_DOBLEDOLAR"
 ] + list(reservadas.values())
 
 """
@@ -207,7 +228,10 @@ t_S_PARDER = r"\)"
 t_S_COMA = r","
 t_S_PUNTOCOMA = r";"
 t_S_PUNTO = r"\."
+t_S_ASIGNACION =  r":="
 t_S_IGUAL = r"="
+
+t_S_DOBLEDOLAR = r"\$\$"
 
 """
   Caracteres ignorados por el lexer
@@ -279,7 +303,7 @@ syntax_errors = list()
 
 # Funcion de error para el lexer
 def t_error(t):
-    """ print("Illegal character '%s'" % t.value[0]) """
+    print("Illegal character '%s'" % t.value[0]) 
     syntax_errors.insert(
         len(syntax_errors), ["Illegal character '%s'" % t.value[0], t.lineno]
     )

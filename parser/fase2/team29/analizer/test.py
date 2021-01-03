@@ -1,82 +1,62 @@
-import grammarFP as grammar2
+from sys import path
+from os.path import dirname as dir
 
+path.append(dir(path[0]))
 
+import analizer.grammarFP as grammar2
 
 s = """ 
-DECLARE
-user_id integer;
-quantity numeric(5);
-url varchar;
-myrow tablename%ROWTYPE;
-myfield tablename.columnname%TYPE;
-arow RECORD;
- v_string ALIAS FOR $1;
-    index ALIAS FOR $2;
+CREATE DATABASE DBFase2;
+
+USE DBFase2;
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
 BEGIN
-    sum_ := x + y;
-    prod := x * y;
-    
-    
-    RETURN QUERY SELECT s.quantity, s.quantity * s.price FROM sales AS s
-                 WHERE s.itemno = p_itemno;
-    
-    result := v1 + v2 + v3;
-    RETURN result;
-    
-    SELECT * INTO myrec FROM emp WHERE empname = myname;
-    
-    EXECUTE 'UPDATE tbl SET '
-        || quote_ident(colname)
-        || ' = '
-        || quote_nullable(newvalue)
-        || ' WHERE key = '
-        || quote_nullable(keyvalue);
-    GET DIAGNOSTICS integer_var = ROW_COUNT;
-    
-    
-    RETURN QUERY SELECT flightid
-                   FROM flight
-                  WHERE flightdate >= var
-                    AND flightdate < (alv + 1);
-    
-    IF v_count > 0 THEN
-    INSERT INTO users_count (count_) VALUES (v_count);
-    RETURN 't';
-    ELSE
-        RETURN 'f';
-    END IF;
-
-    IF number = 0 THEN
-        result := 'zero';
-    ELSIF number > 0 THEN
-        result := 'positive';
-    ELSIF number < 0 THEN
-        result := 'negative';
-    ELSE
-
-        result := 'NULL';
-    END IF;
-
-    CASE x
-    WHEN 1, 2 THEN
-        msg := 'one or two';
-    ELSE
-        msg := 'other value than one or two';
-    END CASE;
-
-    CASE
-    WHEN x BETWEEN 0 AND 10 THEN
-        msg := 'value is between zero and ten';
-    WHEN x BETWEEN 11 AND 20 THEN
-        msg := 'value is between eleven and twenty';
-    END CASE;
-
-
-
-    EXCEPTION WHEN unique_violation THEN
-           NULL;
-        
+	RETURN texto;
 END;
+$$ LANGUAGE plpgsql;
+
+select myFuncion('INICIO CALIFICACION FASE 2');
+
+CREATE TABLE tbProducto (idproducto integer not null primary key,
+  						 producto varchar(150) not null,
+  						 fechacreacion date not null,
+						 estado integer);
+
+CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
+
+CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
+							 item varchar(100) not null,
+							 punteo integer not null);
+
+CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
+						 
+INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
+INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
+INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
+INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
+INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+	if tabla = 'tbProducto' then
+	    resultado := (SELECT COUNT(*) FROM tbProducto);
+    	if cantidad = resultado then
+			retorna = 1;
+		else 
+			retorna = 0;
+		end if;
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+
+insert into tbCalificacion values(1,'Create Table and Insert',ValidaRegistros('tbProducto',2));
+																			  
+select * from tbCalificacion;
 """
 result = grammar2.parse(s)
 print(result)

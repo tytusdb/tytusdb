@@ -4,6 +4,7 @@ from Expresion.Binaria import Binaria
 from Entorno import Entorno
 from Tipo import Tipo
 from Expresion.Terminal import Terminal
+from Expresion.Id import Identificador
 import math
 from tkinter import *
 from Expresion.variablesestaticas import *
@@ -15,7 +16,7 @@ class Aritmetica(Binaria):
 
     def getval(self,entorno):
 
-        if (self.exp1.tipo.tipo == 'identificador' or self.exp2.tipo.tipo == 'identificador'):
+        if isinstance(self.exp1,Identificador) and isinstance(self.exp2,Identificador):
             return self
 
 
@@ -49,3 +50,23 @@ class Aritmetica(Binaria):
         tipo= Tipo(self.valor,'decimal')
         self.tipo=tipo
         return self
+
+    def traducir(self,entorno):
+        ''
+        if str(self.operador).lower() == '%':
+            ''
+        elif str(self.operador).lower() == '^':
+            ''
+        else:
+            self.temp = entorno.newtemp()
+            nt=self.temp
+            exp1=self.exp1.traducir(entorno)
+            exp2=self.exp2.traducir(entorno)
+            cad = exp1.codigo3d
+            cad += exp2.codigo3d
+            cad += nt + '=' + str(exp1.temp) + ' ' + self.operador + ' ' + str(exp2.temp) + '\n'
+            self.codigo3d=cad
+
+        return self
+
+    

@@ -62,3 +62,6 @@ class Logica(Instruccion):
                 arbol.excepciones.append(error)
                 arbol.consola.append(error.toString())
                 return error
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)

@@ -63,7 +63,7 @@ class CreateTB(Instruction):
         # Agrego llaves primarias a la base de datos si no hubo clavo con la tabla
         self.addPKToDB(nombreTabla)
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
@@ -628,7 +628,7 @@ class DropTB(Instruction):
         typeChecker.deleteTable(self._table_name,
                                 self._noLine, self._noColumn)
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
@@ -643,7 +643,7 @@ class AlterTable(Instruction):
         self._listaCambios = listaCambios
         self._tac = tac
 
-    def compile(self):
+    def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 

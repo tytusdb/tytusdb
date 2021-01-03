@@ -2748,6 +2748,88 @@ def procesar_select_for_UNIONES(instr,ts,tc):
 
         return arrayReturn
 
+def procesar_index(instr, ts, tc):
+    global salida
+    #print('---------------- si entra al index ---------------------')
+    if instr.etiqueta == INDEX.INDEX:
+        #print(instr.identificador)
+        #print(instr.nombre_index)
+        if type(instr.lista_index.identificador) == type([]):
+            for lista in instr.lista_index.identificador:
+                print(lista.val)
+        else:
+            print(instr.lista_index.identificador)
+        
+        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
+        ts.agregar(temp)
+    
+    elif instr.etiqueta == INDEX.INDEX_WHERE:
+        #print(instr.identificador)
+        #print(instr.nombre_index)
+        for lis in instr.lista_index.identificador:
+            print(lis.val)
+        
+        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
+        ts.agregar(temp)
+
+    elif instr.etiqueta == INDEX.INDEX_INCLUDE:
+        #print(instr.identificador)
+        #print(instr.nombre_index)
+        for lis in instr.lista_index.identificador:
+            print(lis.val)
+
+        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
+        ts.agregar(temp)
+
+    elif instr.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
+        #print(instr.identificador)
+        #print(instr.nombre_index)
+        for lis in instr.lista_index.identificador:
+            print(lis.val)
+        
+        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
+        ts.agregar(temp)
+
+    elif instr.etiqueta == INDEX.INDEX_INCLUDE:
+        #print(instr.identificador)
+        #print(instr.nombre_index)
+    
+        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
+        ts.agregar(temp)
+
+    elif instr.etiqueta == INDEX.INDEX_CLASS:
+        #print(instr.identificador)
+        #print(instr.nombre_index)
+
+        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
+        ts.agregar(temp)
+
+    
+    
+    
+    
+def obtener_indexbody(instr):
+    if instr.etiqueta == TIPO_INDEX.USING_HASH:
+        print(instr.identificador)
+    elif instr.etiqueta == TIPO_INDEX.CAMPOS:
+        
+        for datos in instr.identificador:
+            print(datos.val)
+        
+    elif instr.etiqueta == TIPO_INDEX.NULLS:
+        print(instr.identificador)
+    elif instr.etiqueta == TIPO_INDEX.STATE:
+        print(instr.identificador)
+        print(instr.expresion)
+    elif instr.etiqueta == TIPO_INDEX.LOWER:
+        print(instr.expresion)
+    elif instr.etiqueta == TIPO_INDEX.WITH_IDS:
+        print(instr.identificador)
+        print(instr.expresion)
+
+    
+    salida = 'hola'
+    
 
 def procesar_instrucciones(instrucciones,ts,tc) :
     try:
@@ -2766,6 +2848,8 @@ def procesar_instrucciones(instrucciones,ts,tc) :
                     salida = "\nSELECT DATABASE"
             elif isinstance(instr, ExpresionRelacional) : 
                 procesar_Expresion_Relacional(instr,ts,tc)
+            elif isinstance(instr, Funcion_Index) :
+                procesar_index(instr,ts,tc)
             elif isinstance(instr, ExpresionBinaria) : 
                 procesar_Expresion_Binaria(instr,ts,tc)
             elif isinstance(instr, ExpresionLogica) : 
@@ -2819,7 +2903,7 @@ def procesar_instrucciones(instrucciones,ts,tc) :
     except:
         pass
 
-'''f = open("./entrada.txt", "r")
+f = open("./entrada.txt", "r")
 input = f.read()
 instrucciones = g.parse(input)
 
@@ -2837,7 +2921,7 @@ if listaErrores == []:
 else:
     erroressss = ErrorHTML()
     erroressss.crearReporte()
-    listaErrores = []'''
+    listaErrores = []
 
 
 

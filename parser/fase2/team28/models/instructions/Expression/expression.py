@@ -17,28 +17,12 @@ class Expression:
     @abstractmethod
     def process(self):
         pass
+
     @abstractmethod
     def compile(self):
         pass
 
-
-class ArithmeticBinaryOperation(Expression):
-    '''
-        Una operacion binaria recibe, sus dos operandos y el operador
-    '''
-
-    def __init__(self, value1, value2, operador, op, line, column):
-        self.value1 = value1
-        self.value2 = value2
-        self.operador = operador
-        self.line = line
-        self.column = column
-        self.alias = str(self.value1.alias) + str(op) + str(self.value2.alias)
-
-    def __repr__(self):
-        return str(vars(self))
-
-    def getOperador(self, operador):
+def getOperador(operador):
         value = 0
         if operador == SymbolsAritmeticos.PLUS:
             value = "+"
@@ -57,23 +41,47 @@ class ArithmeticBinaryOperation(Expression):
         elif operador == SymbolsAritmeticos.BITWISE_SHIFT_RIGHT:
             value = ">>"
         elif operador == SymbolsAritmeticos.BITWISE_AND:
-            value = "&" 
+            value = "&"
         elif operador == SymbolsAritmeticos.BITWISE_OR:
-            value = "|" 
+            value = "|"
         elif operador == SymbolsAritmeticos.BITWISE_XOR:
-            value = "^" 
+            value = "^"
+        elif operador == SymbolsRelop.LESS_THAN:
+            value = "<"
+        elif operador == SymbolsRelop.GREATE_THAN:
+            value = ">"
+        elif operador == SymbolsRelop.GREATE_EQUAL:
+            value = ">="
+        elif operador == SymbolsRelop.LESS_EQUAL:
+            value = "<="
+        elif operador == SymbolsRelop.EQUALS:
+            value = "=="
+        elif operador == SymbolsRelop.NOT_EQUAL or operator == SymbolsRelop.NOT_EQUAL_LR:
+            value = "!="
         return value
 
-    def compile(self):
-        value1 = self.value1.compile()
-        value2 = self.value2.compile()
-        try:
-            if value1.data_type != DATA_TYPE.NUMBER and value2.data_type != DATA_TYPE.NUMBER:
-                desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
-                ErrorController().add(34, 'Execution', desc, self.line, self.column)
+class ArithmeticBinaryOperation(Expression):
+    '''
+        Una operacion binaria recibe, sus dos operandos y el operador
+    '''
 
+    def __init__(self, value1, value2, operador, op, line, column):
+        self.value1 = value1
+        self.value2 = value2
+        self.operador = operador
+        self.line = line
+        self.column = column
+        self.alias = str(self.value1.alias) + str(op) + str(self.value2.alias)
+
+    def __repr__(self):
+        return str(vars(self))
+
+    def compile(self, environment):
+        value1 = self.value1.compile(environment)
+        value2 = self.value2.compile(environment)
+        try:
             temporal = ThreeAddressCode().newTemp()
-            ThreeAddressCode().addCode(f"{temporal} = {value1.value} {self.getOperador(self.operador)} {value2.value}")
+            ThreeAddressCode().addCode(f"{temporal} = {value1.value} {getOperador(self.operador)} {value2.value}")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -83,7 +91,7 @@ class ArithmeticBinaryOperation(Expression):
             desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def process(self, expression):
+    def process(self, expression):            
         value1 = self.value1.process(expression)
         value2 = self.value2.process(expression)
         operador = self.operador
@@ -141,6 +149,21 @@ class Relop(Expression):
 
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self, environment):
+            value1 = self.value1.compile(environment)
+            value2 = self.value2.compile(environment)
+            try:
+                temporal = ThreeAddressCode().newTemp()
+                ThreeAddressCode().addCode(f"{temporal} = {value1.value} {getOperador(self.operator)} {value2.value}")
+
+                return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
+            except TypeError:
+                desc = "Error de tipo"
+                ErrorController().add(34, 'Execution', desc, self.line, self.column)
+            except:
+                desc = "FATAL ERROR, Relop, no acepta ids"
+                ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
     def process(self, expression):
         value1 = self.value1.process(expression)
@@ -221,6 +244,9 @@ class Identifiers(Expression):
 
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self, expression):
+        return self.alias
 
     def process(self, expression):
         try:
@@ -401,6 +427,36 @@ class UnaryOrSquareExpressions(Expression):
             desc = "FATAL ERROR --- UnaryOrSquareExpressions"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, expression):
+        expression1 = self.value.compile(expression)
+        type_unary_or_other = self.sign
+        temporal = ThreeAddressCode().newTemp()
+
+        try:
+            if expression1.data_type != DATA_TYPE.NUMBER:
+                print('error')
+                return
+            dataTemp = f"{temporal} = 0"
+
+            if type_unary_or_other == SymbolsUnaryOrOthers.UMINUS or type_unary_or_other == SymbolsUnaryOrOthers.BITWISE_NOT:
+                dataTemp = f"{temporal} = -{expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.UPLUS:
+                dataTemp = f"{temporal} = {expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.SQUARE_ROOT:
+                resExpression = self.value.process(self)
+                result = round(math.sqrt(resExpression.value), 2)
+                dataTemp = f"{temporal} = {result} # |/{expression1.value}"
+            elif type_unary_or_other == SymbolsUnaryOrOthers.CUBE_ROOT:
+                resExpression = self.value.process(self)
+                result = round(resExpression.value ** (1 / 3), 2)
+                dataTemp = f"{temporal} = {result} # ||/{expression1.value}"
+
+            ThreeAddressCode().addCode(dataTemp)
+            return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- UnaryOrSquareExpressions"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
 
 class LogicalOperators(Expression):
     '''
@@ -473,6 +529,6 @@ class PrimitiveData(Expression):
 
     def process(self, expression):
         return self
-        
-    def compile(self):
+
+    def compile(self, expression):
         return self

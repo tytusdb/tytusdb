@@ -1,7 +1,14 @@
 import ply.yacc as yacc
+from sys import path
+from os.path import dirname as dir
+
+path.append(dir(path[0]))
+
+
 # Construccion del analizador léxico
 import ply.lex as lex
-from tokensFP import *
+from analizer.tokensFP import *
+
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 listInst = []
@@ -35,34 +42,113 @@ precedence = (
 
 # region PL/SQL
 
-# block
-
 
 def p_init(t):
     """
-    blockList : blockList block
-                | block
+    init : istructionList
     """
+    t[0] = t[1]
+
+
+def p_instruction_list(t):
+    """istructionList : istructionList instruction"""
+    t[1].append(t[2])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_instruction_u(t):
+    """istructionList : instruction"""
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+
+def p_instruction(t):
+    """
+    instruction : stmt
+    | block
+    """
+    t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_block(t):
-    """block :  declaration_stmt R_BEGIN block_stmts exception R_END label S_PUNTOCOMA"""
+    """
+    block : function_stmt R_AS S_DOLAR S_DOLAR declaration_stmt R_BEGIN block_stmts exception_stmts R_END label S_PUNTOCOMA S_DOLAR S_DOLAR language_function S_PUNTOCOMA
+    """
+    repGrammar.append(t.slice)
+
+
+# region function
+
+
+def p_function_stmt(t):
+    """
+    function_stmt : R_CREATE orReplace R_FUNCTION ID function_opt
+    """
+    repGrammar.append(t.slice)
+
+
+def p_function_opt(t):
+    """
+    function_opt : S_PARIZQ params_function S_PARDER returns_function
+    | S_PARIZQ S_PARDER returns_function
+    """
+    repGrammar.append(t.slice)
+
+
+def p_params_function(t):
+    """
+    params_function : params_function S_COMA param_function
+    | param_function
+    """
+    repGrammar.append(t.slice)
+
+
+def p_param_function(t):
+    """
+    param_function : ID types_d
+    | types_d
+    """
+    repGrammar.append(t.slice)
+
+
+def p_returns_function(t):
+    """
+    returns_function : R_RETURNS types_d
+    |
+    """
+    repGrammar.append(t.slice)
+
+
+def p_language_function(t):
+    """
+    language_function : R_LANGUAGE R_PLPGSQL
+    |
+    """
+    repGrammar.append(t.slice)
+
+
+# endregion
+
 
 # region declaration
 
 
 def p_declaration_stmt(t):
     """
-    declaration_stmt : label_stmt R_DECLARE global_variable_declaration
-        |   
+    declaration_stmt : R_DECLARE global_variable_declaration
+        |
     """
+    repGrammar.append(t.slice)
 
 
 def p_global_variable_declaration(t):
     """
     global_variable_declaration : global_variable_declaration declaration
-                                | declaration 
+                                | declaration
     """
+    repGrammar.append(t.slice)
 
 
 def p_global_vd(t):
@@ -72,6 +158,7 @@ def p_global_vd(t):
         | ID R_RECORD S_PUNTOCOMA
         | ID R_ALIAS R_FOR ID S_PUNTOCOMA
     """
+    repGrammar.append(t.slice)
 
 
 def p_constant(t):
@@ -79,13 +166,15 @@ def p_constant(t):
     constant : R_CONSTANT
         |
     """
+    repGrammar.append(t.slice)
 
 
 def p_assignment(t):
     """
-    assignment : assignment_operator_D datatype_d
+    assignment : assignment_operator_D expresion
             |
     """
+    repGrammar.append(t.slice)
 
 
 def p_assignment_operator_D(t):
@@ -94,18 +183,15 @@ def p_assignment_operator_D(t):
         | O_ASIGNACION
         | OL_ESIGUAL
     """
-
-
-def p_label_stmt(t):
-    """label_stmt : OC_SHIFTL ID OC_SHIFTR
-                | 
-    """
+    repGrammar.append(t.slice)
 
 
 def p_label(t):
     """label : ID
     |
     """
+    repGrammar.append(t.slice)
+
 
 # endregion
 
@@ -116,6 +202,7 @@ def p_types_d(t):
     """
     types_d :  ID
     """
+    repGrammar.append(t.slice)
 
 
 def p_types_d_simple(t):
@@ -132,6 +219,7 @@ def p_types_d_simple(t):
     | T_DATE
     | T_TIME
     """
+    repGrammar.append(t.slice)
 
 
 def p_types_d_params(t):
@@ -142,86 +230,40 @@ def p_types_d_params(t):
     | T_CHARACTER optParams
     | T_CHAR optParams
     """
+    repGrammar.append(t.slice)
 
 
 def p_typesvar(t):
     """
     types_d : T_CHARACTER T_VARYING optParams
     """
+    repGrammar.append(t.slice)
 
 
 def p_vartype(t):
     """types_d :  ID O_MODULAR R_TYPE"""
+    repGrammar.append(t.slice)
 
 
 def p_columntype(t):
     """types_d :  ID S_PUNTO ID O_MODULAR R_TYPE"""
+    repGrammar.append(t.slice)
 
 
 def p_rowtypes(t):
     """types_d :  ID O_MODULAR R_ROWTYPE """
+    repGrammar.append(t.slice)
+
 
 # endregion
 
-# region datatype
-
-
-def p_datatype_operadores_binarios1_d(t):
-    """
-    datatype_d : datatype_d O_SUMA datatype_d
-    | datatype_d O_RESTA datatype_d
-    | datatype_d O_PRODUCTO datatype_d
-    | datatype_d O_DIVISION datatype_d
-    | datatype_d O_EXPONENTE datatype_d
-    | datatype_d O_MODULAR datatype_d
-    """
-
-
-def p_datatype_operadores_binarios2_d(t):
-    """
-    datatype_d : datatype_d OC_CONCATENAR datatype_d
-    """
-
-
-def p_datatype_operadores_unarios_d(t):
-    """
-    datatype_d : O_RESTA datatype_d %prec UO_RESTA
-    | O_SUMA datatype_d %prec UO_SUMA
-    """
-
-
-def p_datatype_operandos_d(t):
-    """
-    datatype_d : literal_d
-
-    """
-
-
-def p_datatype_agrupacion_d(t):
-    """
-    datatype_d : S_PARIZQ datatype_d S_PARDER
-    """
-
-
-def p_literal_d(t):
-    """
-    literal_d :  INTEGER
-    | STRING
-    | DECIMAL
-    | CHARACTER
-    | R_TRUE
-    | R_FALSE
-    | ID
-    """
-
-# endregion
 
 # region block stmts
 
 
 def p_block_stmts(t):
     """
-    block_stmts : block_stmts block_stmt 
+    block_stmts : block_stmts block_stmt
                 | block_stmt
     """
 
@@ -232,6 +274,8 @@ def p_block_stmt(t):
                 | statement
                 | stmt
     """
+    repGrammar.append(t.slice)
+
 
 # endregion
 
@@ -239,7 +283,10 @@ def p_block_stmt(t):
 
 
 def p_local_variable_declaration(t):
-    """local_variable_declaration : ID assignment_operator datatype_d S_PUNTOCOMA"""
+    """
+    local_variable_declaration : ID assignment_operator expresion S_PUNTOCOMA
+    """
+    repGrammar.append(t.slice)
 
 
 def p_assignment_operator(t):
@@ -247,6 +294,8 @@ def p_assignment_operator(t):
     assignment_operator : O_ASIGNACION
         | S_IGUAL
     """
+    repGrammar.append(t.slice)
+
 
 # endregion
 
@@ -259,6 +308,7 @@ def p_statement(t):
             | case_stmt
             | stmt_without_substmt
     """
+    repGrammar.append(t.slice)
 
 
 def p_stmt_without_substmt(t):
@@ -267,6 +317,8 @@ def p_stmt_without_substmt(t):
                         | R_RETURN return_stmt
                         | query_single_row
     """
+    repGrammar.append(t.slice)
+
 
 # endregion
 
@@ -276,6 +328,7 @@ def p_stmt_without_substmt(t):
 
 def p_if_stmt(t):
     """if_stmt : R_IF expBool R_THEN block_stmts elseif_stmts_opt else_stmt_opt R_END R_IF S_PUNTOCOMA"""
+    repGrammar.append(t.slice)
 
 
 def p_elseif_stmts_opt(t):
@@ -283,6 +336,7 @@ def p_elseif_stmts_opt(t):
     elseif_stmts_opt : elseif_stmts
                 |
     """
+    repGrammar.append(t.slice)
 
 
 def p_elseif_stmts(t):
@@ -290,10 +344,12 @@ def p_elseif_stmts(t):
     elseif_stmts : elseif_stmts elseif_stmt
                 | elseif_stmt
     """
+    repGrammar.append(t.slice)
 
 
 def p_elseif_stmt(t):
     """elseif_stmt :  R_ELSEIF expBool R_THEN block_stmts"""
+    repGrammar.append(t.slice)
 
 
 def p_else_stmt_opt(t):
@@ -301,6 +357,8 @@ def p_else_stmt_opt(t):
     else_stmt_opt : R_ELSE block_stmts
                 |
     """
+    repGrammar.append(t.slice)
+
 
 # endregion
 
@@ -312,42 +370,49 @@ def p_case_stmt(t):
     case_stmt : case_stmt_n
             | case_stmt_bool
     """
+    repGrammar.append(t.slice)
 
 
 def p_case_stmt_n(t):
     """case_stmt_n : R_CASE ID R_WHEN list_expression R_THEN block_stmts else_case_stmt_n_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
+    repGrammar.append(t.slice)
 
 
 def p_else_case_stmt_n_opt(t):
     """
-    else_case_stmt_n_opt : else_case_stmt_n 
+    else_case_stmt_n_opt : else_case_stmt_n
                         |
     """
+    repGrammar.append(t.slice)
 
 
 def p_else_case_stmt_n(t):
     """
-    else_case_stmt_n : else_case_stmt_n R_WHEN list_expression R_THEN block_stmts 
-    | R_WHEN list_expression R_THEN block_stmts  
+    else_case_stmt_n : else_case_stmt_n R_WHEN list_expression R_THEN block_stmts
+    | R_WHEN list_expression R_THEN block_stmts
     """
+    repGrammar.append(t.slice)
 
 
 def p_case_stmt_bool(t):
     """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
+    repGrammar.append(t.slice)
 
 
 def p_else_case_stmt_bool_opt(t):
     """
-    else_case_stmt_bool_opt : else_case_stmt_bool 
+    else_case_stmt_bool_opt : else_case_stmt_bool
                         |
     """
+    repGrammar.append(t.slice)
 
 
 def p_else_case_stmt_bool(t):
     """
-    else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts  
-                        |  R_WHEN expBool R_THEN block_stmts 
+    else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts
+                        |  R_WHEN expBool R_THEN block_stmts
     """
+    repGrammar.append(t.slice)
 
 
 def p_list_expression(t):
@@ -355,6 +420,7 @@ def p_list_expression(t):
     list_expression : exp1
                     | list_expression S_COMA exp1
     """
+    repGrammar.append(t.slice)
 
 
 def p_exp1(t):
@@ -366,11 +432,13 @@ def p_exp1(t):
     | R_TRUE
     | R_FALSE
     """
+    repGrammar.append(t.slice)
 
 
 # endregion
 
 # region return
+
 
 def p_return_stmt(t):
     """
@@ -380,6 +448,8 @@ def p_return_stmt(t):
                 | S_PUNTOCOMA
                 | R_QUERY execute_return S_PUNTOCOMA
     """
+    repGrammar.append(t.slice)
+
 
 # endregion
 
@@ -388,10 +458,12 @@ def p_return_stmt(t):
 
 def p_execute_return(t):
     """execute_return : R_EXECUTE exp_string  using  """
+    repGrammar.append(t.slice)
 
 
 def p_execute(t):
     """execute : R_EXECUTE exp_string into_strict using """
+    repGrammar.append(t.slice)
 
 
 def p_into_strict(t):
@@ -399,13 +471,15 @@ def p_into_strict(t):
     into_strict : R_INTO strict ID
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_exp_string(t):
     """
-    exp_string : id_or_string 
+    exp_string : id_or_string
                 | exp_string OC_CONCATENAR id_or_string
     """
+    repGrammar.append(t.slice)
 
 
 def p_using(t):
@@ -413,6 +487,7 @@ def p_using(t):
     using : R_USING list_expression_2
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_list_expression_2(t):
@@ -420,14 +495,17 @@ def p_list_expression_2(t):
     list_expression_2 : ID
                     | list_expression_2 S_COMA ID
     """
+    repGrammar.append(t.slice)
 
 
 def p_exp_string_id(t):
     """
     id_or_string : STRING
-    | ID 
+    | ID
     | funcCall
     """
+    repGrammar.append(t.slice)
+
 
 # endregion
 
@@ -444,52 +522,74 @@ def p_query_single_row(t):
                     | execute S_PUNTOCOMA
                     | get S_PUNTOCOMA
     """
+    repGrammar.append(t.slice)
 
 
 # insert
 def p_insertStmt_single_row(t):
     """insertStmt_SR : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER R_RETURNING returnParams  R_INTO strict ID """
+    repGrammar.append(t.slice)
+
 
 # update
 
 
 def p_updateStmt_single_row(t):
-    """updateStmt_SR : R_UPDATE fromBody R_SET updateCols whereCl R_RETURNING returnParams R_INTO strict ID """
+    """
+    updateStmt_SR : R_UPDATE fromBody R_SET updateCols whereCl R_RETURNING returnParams R_INTO strict ID
+    """
+    repGrammar.append(t.slice)
 
 
 # delete
 def p_deleteStmt_single_row(t):
-    """deleteStmt_SR : R_DELETE fromCl whereCl R_RETURNING returnParams R_INTO strict ID """
+    """
+    deleteStmt_SR : R_DELETE fromCl whereCl R_RETURNING returnParams R_INTO strict ID
+    """
+    repGrammar.append(t.slice)
 
 
 # region select
 
+
 def p_selectStmt_single_row_1(t):
-    """selectStmt_SR : R_SELECT R_DISTINCT selectParams R_INTO strict ID fromCl whereCl groupByCl limitCl """
+    """
+    selectStmt_SR : R_SELECT R_DISTINCT selectParams R_INTO strict ID fromCl whereCl groupByCl limitCl
+    """
+    repGrammar.append(t.slice)
 
 
 def p_selectStmt_single_row_2(t):
-    """selectStmt_SR : R_SELECT selectParams R_INTO strict ID fromCl whereCl groupByCl limitCl"""
+    """
+    selectStmt_SR : R_SELECT selectParams R_INTO strict ID fromCl whereCl groupByCl limitCl
+    """
+    repGrammar.append(t.slice)
 
 
 def p_selectStmt_union_single_row(t):
     """selectStmt_SR : selectStmt_SR R_UNION allOpt selectStmt_SR"""
+    repGrammar.append(t.slice)
 
 
 def p_selectStmt_intersect_single_row(t):
     """selectStmt_SR : selectStmt_SR R_INTERSECT allOpt selectStmt_SR"""
+    repGrammar.append(t.slice)
 
 
 def p_selectStmt_except_single_row(t):
     """selectStmt_SR : selectStmt_SR R_EXCEPT allOpt selectStmt_SR"""
+    repGrammar.append(t.slice)
 
 
 def p_selectStmt_agrupacion_single_row(t):
     """selectStmt_SR : S_PARIZQ selectStmt_SR S_PARDER"""
+    repGrammar.append(t.slice)
 
 
 def p_selectstmt_only_params_single_row(t):
     """selectStmt_SR : R_SELECT selectParams R_INTO strict ID"""
+    repGrammar.append(t.slice)
+
 
 # endregion
 
@@ -498,6 +598,7 @@ def p_selectstmt_only_params_single_row(t):
 
 def p_perform(t):
     """perform : R_PERFORM STRING """
+
 
 # region GET
 
@@ -516,6 +617,7 @@ def p_current_g(t):
 def p_item(t):
     """item : R_ROW_COUNT"""
 
+
 # endregion
 
 # endregion
@@ -528,6 +630,7 @@ def p_strict(t):
     strict : R_STRICT
     |
     """
+
 
 # endregion
 
@@ -559,56 +662,67 @@ def p_returnlistParams_1(t):
 def p_returnlistParams_2(t):
     """returnlistParams : ID S_PUNTO O_PRODUCTO"""
 
+
 # endregion
 
 # region EXCEPTION
 
 
-def p_exception(t):
-    """exception : R_EXCEPTION when_stmt R_END S_PUNTOCOMA """
+def p_exception_stmts(t):
+    """
+    exception_stmts : R_EXCEPTION when_stmt
+    |
+    """
 
 
 def p_while_stmt_exp(t):
-    """when_stmt : R_WHEN expBoolOR R_THEN handler_statements
-    | when_stmt R_WHEN expBoolOR R_THEN handler_statements  """
+    """
+    when_stmt : R_WHEN expBoolOR R_THEN handler_statements_opt
+            | when_stmt R_WHEN expBoolOR R_THEN handler_statements_opt
+    """
 
 
 def p_expBoolOR(t):
-    """expBoolOR : ID
-                | expBoolOR OC_OR ID  """
+    """
+    expBoolOR : expBoolExcept
+            | expBoolOR OC_OR expBoolExcept
+    """
+
+
+def p_expBoolExcept(t):
+    """
+    expBoolExcept : ID
+                | R_SQLSTATE STRING
+                | R_OTHERS
+    """
+
+
+def p_handler_statements_opt(t):
+    """
+    handler_statements_opt : handler_statements
+    |
+    """
 
 
 def p_handler_statements(t):
-    """handler_statements : handler_statements handler_statement """
-
-
-def p_empty_handler_stmt(t):
-    """handler_statements :"""
+    """
+    handler_statements : handler_statements handler_statement
+                        | handler_statement
+    """
 
 
 def p_handler_statement(t):
-    """handler_statement : R_RAISE R_NOTICE STRING S_PUNTOCOMA
-    | R_RETURN return_stmt  
-    | R_NULL S_PUNTOCOMA"""
+    """
+    handler_statement : R_RAISE R_NOTICE STRING S_PUNTOCOMA
+                    | R_RAISE R_EXCEPTION STRING S_PUNTOCOMA
+                    | R_RETURN return_stmt
+                    | R_NULL S_PUNTOCOMA
+    """
 
-# endregion
 
 # endregion
 
 # region Fase 1
-
-
-def p_stmt_list(t):
-    """stmtList : stmtList stmt"""
-    t[1].append(t[2])
-    t[0] = t[1]
-    repGrammar.append(t.slice)
-
-
-def p_stmt_u(t):
-    """stmtList : stmt"""
-    t[0] = [t[1]]
-    repGrammar.append(t.slice)
 
 
 def p_stmt(t):
@@ -666,18 +780,21 @@ def p_createopts_index(t):
     """
     createOpts : indexUnique R_INDEX ID R_ON ID usingHash S_PARIZQ indexList S_PARDER whereCl
     """
+    repGrammar.append(t.slice)
 
 
 def p_indexList(t):
     """
-    indexList : indexList S_COMA ID indexOrder indexNull firstLast 
+    indexList : indexList S_COMA ID indexOrder indexNull firstLast
     """
+    repGrammar.append(t.slice)
 
 
 def p_indexList2(t):
     """
-    indexList : ID indexOrder indexNull firstLast 
+    indexList : ID indexOrder indexNull firstLast
     """
+    repGrammar.append(t.slice)
 
 
 def p_usingHash(t):
@@ -685,6 +802,7 @@ def p_usingHash(t):
     usingHash : R_USING R_HASH
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_indexOrder(t):
@@ -693,6 +811,7 @@ def p_indexOrder(t):
     | R_ASC
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_indexNull(t):
@@ -700,6 +819,7 @@ def p_indexNull(t):
     indexNull : R_NULL
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_indexFirstLast(t):
@@ -708,6 +828,7 @@ def p_indexFirstLast(t):
     | R_LAST
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_createindex_unique(t):
@@ -715,6 +836,7 @@ def p_createindex_unique(t):
     indexUnique : R_UNIQUE
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_replace_true(t):
@@ -1247,6 +1369,14 @@ def p_datatype_operandos(t):
     | extract
     | datePart
     | current
+    | parameter
+    """
+    repGrammar.append(t.slice)
+
+
+def p_datatype_parameter(t):
+    """
+    parameter : S_DOLAR INTEGER
     """
     repGrammar.append(t.slice)
 
