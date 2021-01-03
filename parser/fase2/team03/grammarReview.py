@@ -1807,7 +1807,7 @@ def p_stm_delete(t):
         addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier \<WHERE_CLAUSE>")
         t[0] = Delete(t[3], t[4], token_del.lineno, token_del.lexpos, graph_ref)
     else:
-        childsProduction = addNotNoneChild(t, [2, 5, 6])
+        childsProduction = None
         graph_ref = graph_node(str("stm_delete"), [t[1], t[2], t[3]], childsProduction)
         addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier ")
         t[0] = Delete(t[3], None, token_del.lineno, token_del.lexpos, graph_ref)
@@ -3013,9 +3013,9 @@ class GrammarGenerate:
             try:
                 val = instruction.generate(ST, None)
                 print("AST Generation result: ", val)
-                if isinstance(instruction, Select) or isinstance(instruction, Union) \
-                        or isinstance(instruction, Intersect) or isinstance(instruction, Except):
-                    val = tabulate(val[1], val[0], tablefmt="psql")
+                # if isinstance(instruction, Select) or isinstance(instruction, Union) \
+                #        or isinstance(instruction, Intersect) or isinstance(instruction, Except):
+                #    val = tabulate(val[1], val[0], tablefmt="psql")
                 self.set_result(str(val) + '\n\n')
             except our_error as named_error:
                 errorsList.append(named_error)

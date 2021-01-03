@@ -34,7 +34,7 @@ class UseDatabase(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
 
-        return 'USE DATABASE '
+        return 'USE DATABASE;'
 
 
 class Union(ASTNode):
@@ -47,10 +47,10 @@ class Union(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        self.records_a = self.records_a.execute(table, tree)#[1]
-        self.records_b = self.records_b.execute(table, tree)#[1]
+        self.records_a = self.records_a.execute(table, tree)  # [1]
+        self.records_b = self.records_b.execute(table, tree)  # [1]
         if self.is_all:
-            return [self.records_a[0] ,self.records_a[1] + self.records_b[1]]
+            return [self.records_a[0], self.records_a[1] + self.records_b[1]]
         else:
             in_first = self.records_a[1]
             in_second = self.records_b[1]
@@ -59,7 +59,7 @@ class Union(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'{self.records_a.generate(table, tree)} UNION {self.records_b.generate(table, tree)};'
 
 
 class Intersect(ASTNode):
@@ -82,7 +82,7 @@ class Intersect(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'{self.records_a.generate(table, tree)} INTERSECT {self.records_b.generate(table, tree)};'
 
 
 class Except(ASTNode):
@@ -119,4 +119,4 @@ class Except(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'{self.records_a.generate(table, tree)} EXCEPT {self.records_b.generate(table, tree)};'
