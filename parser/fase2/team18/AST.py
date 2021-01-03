@@ -3422,7 +3422,17 @@ def Funciones(instr,ts):
                 agregarMensjae("error",msg,"")
         
 
-#-------------
+def Eliminar_Funcion(instr,ts):
+    agregarMensjae('normal','Drop Function','')
+    CD3.PDropFuncion(instr.nombres)
+    for nm in instr.nombres:
+        if buscarFuncion(nm.lower()) is not None:
+            eliminarFuncion(nm.lower())
+            agregarMensjae('exito', 'Funcion '+nm.lower()+' eliminada','')
+        else:
+            agregarMensjae('error', '42883:Funcion no registrada','42883')
+
+
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
         op = resolver_operacion(operacion.op, ts)
@@ -3644,6 +3654,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, MostrarTB) : Mostrar_TB(instr,ts)
             elif isinstance(instr, Indice) : Indexs(instr,ts)
             elif isinstance(instr, Funcion): Funciones(instr,ts)
+            elif isinstance(instr, Drop_Function): Eliminar_Funcion(instr,ts)
             else: 
                 if instr is not None:
                     for val in instr:

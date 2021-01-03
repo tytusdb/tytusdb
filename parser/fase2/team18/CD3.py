@@ -197,8 +197,13 @@ def PDropTable(nombreBase,nombreTabla):
     txt+="\tCD3.EDropTable()\n"
     agregarInstr(drop_tb,txt)
 
-
-
+def PDropFuncion(nombres):
+    reinicar_contOP()
+    drop_funcion=[nombres]
+    txt="\t#Drop Funcion\n"
+    txt+="\tt"+str(numT())+"="+str(nombres)+"\n"
+    txt+="\tCD3.EDropFuncion()\n"
+    agregarInstr(drop_funcion,txt)
 
 #EMPIEZA MIO *****************
 
@@ -634,6 +639,14 @@ def EDropTable():
         print("tabla eliminada: ",drop_tb[1])
         listaMemoria.pop(0)
 
+def EDropFuncion():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        drop_fn=listaMemoria[0]
+        for fn in drop_fn:
+            print("funcion eliminada: ",fn.lower())
+        listaMemoria.pop(0)
 
 #2INICIO MIO *****************
 
