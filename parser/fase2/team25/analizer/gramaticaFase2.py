@@ -132,9 +132,160 @@ def p_fase2_stmt(t): # ACA GUARDARIA EL CODIGO 3 DIRECCIONES DE LA FASE 2
     count_ins += 1#solo lo incremento donde hay punto y coma
 
 
+# region FASE 2
+# Indices
+def p_createopts_index(t):
+    """
+    createOpts : R_INDEX ID R_ON ID S_PARIZQ ID orderOpts orderNull S_PARDER whereCl
+        | R_INDEX ID R_ON ID R_USING R_HASH S_PARIZQ ID S_PARDER
+        | R_INDEX ID R_ON ID S_PARIZQ ID S_COMA ID S_PARDER
+        | R_INDEX ID R_ON ID S_PARIZQ funcCall S_PARDER
+        | R_UNIQUE R_INDEX ID R_ON ID S_PARIZQ idList S_PARDER
+    """
+    repGrammar.append(t.slice)
 
+# Procedimientos
+def p_createopts_procedure(t):
+    """
+    createOpts : R_PROCEDURE ID S_PARIZQ S_PARDER R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
+    """
+    repGrammar.append(t.slice)
 
+def p_createopts_procedure_params(t):
+    """
+    createOpts : R_PROCEDURE ID S_PARIZQ typeParamsList S_PARDER R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
+    """
+    repGrammar.append(t.slice)
 
+def p_createopts_function(t):
+    """
+    createOpts : R_FUNCTION ID S_PARIZQ S_PARDER R_RETURNS types R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
+    """
+    repGrammar.append(t.slice)
+
+def p_createopts_function_params(t):
+    """
+    createOpts : R_FUNCTION ID S_PARIZQ typeParamsList S_PARDER R_RETURNS types R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
+    """
+    repGrammar.append(t.slice)
+
+def p_typeParamsList(t):
+    """
+    typeParamsList : typeParamsList S_COMA typeParam
+        | typeParam
+    """
+    repGrammar.append(t.slice)
+
+def p_typeParam(t):
+    """
+    typeParam : ID types
+    """
+    repGrammar.append(t.slice)
+
+# Instrucciones de los procedimentos
+def p_codeBlock(t):
+    """
+    codeBlock : R_DECLARE declarationList R_BEGIN plInstructions R_END
+    | R_BEGIN plInstructions R_END
+    """
+    repGrammar.append(t.slice)
+
+def p_declarationList(t):
+    """
+    declarationList : declarationList declaration
+        | declaration
+    """
+    repGrammar.append(t.slice)
+
+def p_declaration(t):
+    """
+    declaration : ID types S_PUNTOCOMA
+        | ID types S_ASIGNACION expresion S_PUNTOCOMA
+        | ID types S_IGUAL expresion S_PUNTOCOMA
+    """
+    repGrammar.append(t.slice)
+
+def p_plInstructions(t):
+    """
+    plInstructions : plInstructions plInstruction
+    | plInstruction
+    """
+    repGrammar.append(t.slice)
+
+def p_plInstruction(t):
+    """
+    plInstruction : assignment S_PUNTOCOMA
+    | insertStmt S_PUNTOCOMA
+    | updateStmt S_PUNTOCOMA
+    | deleteStmt S_PUNTOCOMA
+    | selectStmt S_PUNTOCOMA
+    | executeStmt S_PUNTOCOMA
+    | ifStmt S_PUNTOCOMA 
+    | caseStmt S_PUNTOCOMA
+    | codeBlock S_PUNTOCOMA 
+    | returnStmt S_PUNTOCOMA
+    """
+    repGrammar.append(t.slice)
+
+def p_assignment(t):
+    """
+    assignment : ID S_ASIGNACION expresion
+    | ID S_IGUAL expresion
+    """
+    repGrammar.append(t.slice)
+
+def p_executeStmt(t):
+    """
+    executeStmt : R_EXECUTE STRING 
+    """
+    repGrammar.append(t.slice)
+
+def p_ifStmt(t):
+    """
+    ifStmt : R_IF expBool R_THEN plInstructions elsifList R_ELSE plInstructions R_END R_IF
+    | R_IF expBool R_THEN plInstructions elsifList R_END R_IF
+    | R_IF expBool R_THEN plInstructions R_ELSE plInstructions R_END R_IF
+    | R_IF expBool R_THEN plInstructions R_END R_IF
+    """
+    repGrammar.append(t.slice)
+
+def p_elsifList(t):
+    """
+    elsifList : elsifList elsifStmt 
+    | elsifStmt
+    """
+    repGrammar.append(t.slice)
+
+def p_elsifStmt(t):
+    """
+    elsifStmt : R_ELSIF expBool R_THEN plInstructions
+    """
+    repGrammar.append(t.slice)
+
+def p_caseStmt(t):
+    """
+    caseStmt : R_CASE expresion caseListStmt R_ELSE plInstructions R_END R_CASE
+            | R_CASE expresion caseListStmt R_END R_CASE
+    """
+    repGrammar.append(t.slice)
+
+def p_caseListStmt(t):
+    """
+    caseListStmt : caseListStmt caseWhenStmt
+            | caseWhenStmt
+    """
+    repGrammar.append(t.slice)
+
+def p_caseWhenStmt(t):
+    """caseWhenStmt : R_WHEN expBool R_THEN plInstructions"""
+    repGrammar.append(t.slice)
+
+def p_returnStmt(t):
+    """
+    returnStmt : R_RETURN expresion
+    """
+    repGrammar.append(t.slice)
+#endregion
 
 
 
