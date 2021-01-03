@@ -9,6 +9,9 @@ class Primitivo(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         return self.valor
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
 '''        
 p = Primitivo(1,Tipo(Tipo_Dato.INTEGER),1,2)
 print(p.tipo.toString())

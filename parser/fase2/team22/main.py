@@ -17,10 +17,12 @@ from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
-
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 from storageManager.jsonMode import *
 
 import sintactico
+
+# import AST as AST
 
 global arbol
 arbol = None
@@ -205,9 +207,22 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         
+        #3D
+        file3D = open("Codigo3D.py", "w")
+        file3DOptimizado = open("Codigo3DOptimizado.py", "w")
+
+        content = c3d.getEncabezado()
+        
+        file3D.write(content)
+        file3DOptimizado.write(content)
+
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            resultado = i.ejecutar(tablaGlobal,arbol)
+            if i != None:
+                resultado = i.ejecutar(tablaGlobal,arbol)
+                codigo = i.generar3D(tablaGlobal,arbol)
+                for line in codigo:
+                    file3D.write("\n    " + str(line))
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
@@ -216,6 +231,13 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+
+        #3D
+        file3D.write(c3d.getPie())
+        file3DOptimizado.write(c3d.getPie())
+        
+        file3D.close()
+        file3DOptimizado.close()
         
         
 
