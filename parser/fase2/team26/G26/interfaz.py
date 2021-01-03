@@ -116,7 +116,6 @@ if __name__ == "__main__":
         print(str(datos))
     except:
         print('error')'''
-
     for instr in instrucciones['ast'] :
 
             if instr != None:
