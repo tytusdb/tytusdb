@@ -1,5 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
+
 class Truncate(Instruccion):
     def __init__(self, id, tipo, strGram, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna, strGram)
@@ -24,6 +27,16 @@ class Truncate(Instruccion):
                 error = Exception('XX000',"Semantico","La tabla no existe",self.linea,self.columna)
                 arbol.excepciones.append(error)
                 arbol.consola.append(error.toString())
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "TRUNCATE TABLE " + self.valor + ";"))
+        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.aumentarP())
+        
+        return code
 
 '''
 instruccion = DropDatabase("hola mundo",None, 1,2)
