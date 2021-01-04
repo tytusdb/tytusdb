@@ -68,7 +68,12 @@ class Convert(Instruccion):
             arbol.consola.append(error.toString())
             return error
 
+    def analizar(self, tabla, arbol):
+        pass
 
+    def traducir(self, tabla, arbol):
+        pass
+    
         '''
         try:
             if self.tipo.tipo == Tipo_Dato.SMALLINT:

@@ -23,7 +23,10 @@ class CreateEnum(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        all_val = ''
+        for val in self.value_list:
+            all_val = f'{all_val}\'{val.generate(table, tree)}\','
+        return f'CREATE TYPE {self.name} AS ENUM({all_val[:-1]});'
 
 
 class CreateDatabase(ASTNode):
@@ -43,7 +46,7 @@ class CreateDatabase(ASTNode):
         # result_mode = self.owner.mode(table, tree) if self.mode else 6  # Change to 1 when default mode from EDD available
         result_name = self.name.execute(table, tree)
         result_owner = self.owner
-        result_mode = self.mode
+        result_mode = self.mode.execute(table, tree) if self.mode is not None else 1
         result = 0
         if self.replace:
             dropDatabase(result_name)
@@ -64,7 +67,9 @@ class CreateDatabase(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        result_mode = self.mode.generate(table, tree) if self.mode is not None else 1
+        result_name = self.name.generate(table, tree)
+        return f'CREATE DATABASE{" IF NOT EXISTS" if self.exists else ""} {result_name} MODE = {result_mode};'
 
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
@@ -117,7 +122,15 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        result_fields = self.fields
+        result_inherits_from = self.inherits_from.val if self.inherits_from else None
+        field_str = ''
+        for field in result_fields:
+            field_str = f'{field_str}{field.name} {field.field_type}' \
+                        f'{" IS NOT NULL" if field.allows_null is False else ""}' \
+                        f'{" PRIMARY KEY" if field.is_pk is True else ""},'
+        return f'CREATE TABLE {self.name} ({field_str[:-1]}) ' \
+               f'{f"INHERITS ({result_inherits_from})" if result_inherits_from is not None else ""};'
 
 
 class TableField(ASTNode):  # returns an item, grammar has to add it to a list and synthesize value to table
@@ -150,7 +163,8 @@ class TableField(ASTNode):  # returns an item, grammar has to add it to a list a
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        result_name = self.name.execute(table, tree)
+        return f'{result_name}'
 
 # table = SymbolTable([])
 # cdb_obj = CreateDatabase('db_test2', None, None, False, 1, 2)

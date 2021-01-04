@@ -17,7 +17,13 @@ class Where(Instruccion):
         print("hola me ejecuto en el where porque ahora soy un update")
         return val
         
-        
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        cadena ="WHERE "
+        cadena += self.valor.concatenar(tabla,arbol)
+        return cadena
 
 '''
 instruccion = Where("hola mundo",None, 1,2)

@@ -12,6 +12,12 @@ class Random(Instruccion):
         super().ejecutar(tabla,arbol)
         return random.random()
 
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        return f"RANDOM()"
 '''
 instruccion = Random("hola mundo",None, 1,2)
 instruccion.ejecutar(None,None)
