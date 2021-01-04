@@ -17,7 +17,7 @@ class Declaracion(Instruccion):
 
     def ejecutar(self, ent:Entorno):
         'ejecutar declaracion'
-        simbolo=Simbolo(self.tipo,self.id,self.valor,-1)
+        simbolo=Simbolo(self.tipo,self.id,self.valor.getval(ent).valor,-1)
         simbolo.atributos = {'constant': self.constant, 'nullable': self.nullable}
         s=ent.nuevoSimbolo(simbolo)
 
@@ -27,7 +27,7 @@ class Declaracion(Instruccion):
         elif self.valor!=None:
             exp=self.valor.traducir(entorno)
             cad=exp.codigo3d
-            cad=self.id+'='+str(exp.temp)+'\n'
+            cad+=self.id+'='+str(exp.temp)+'\n'
 
         self.codigo3d=cad
         return self

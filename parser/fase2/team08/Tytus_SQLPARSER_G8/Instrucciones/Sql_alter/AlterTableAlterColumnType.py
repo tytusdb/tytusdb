@@ -61,3 +61,9 @@ class AlterTableAlterColumnType(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+    
+    def analizar(self, tabla, arbol):
+        pass
+    
+    def traducir(self, tabla, arbol):
+        pass

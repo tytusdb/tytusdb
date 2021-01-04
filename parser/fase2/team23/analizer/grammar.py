@@ -83,7 +83,8 @@ def p_stmt(t):
         | truncateStmt S_PUNTOCOMA
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
-        | functionStmt S_PUNTOCOMA
+        | functionStmt
+        | ifStmt R_END R_IF S_PUNTOCOMA
     """
     listInst.append(t[1].dot())
     try:
@@ -92,6 +93,97 @@ def p_stmt(t):
         return
     repGrammar.append(t.slice)
 
+# Statement para el IF
+def p_ifStmt(t):
+
+    """ifStmt : R_IF S_PARIZQ expresion S_PARDER R_THEN List_body  else_"""
+    t[0] = instruction.IfCls(t[3],t[6], None, t[7],t.lineno(1), t.lexpos(1))
+    print("todo bien, nada mal")
+    repGrammar.append(t.slice)
+
+def p_els_(t):
+    """else_ : R_ELSE List_body
+           | Lista_elsif_
+           |
+    """
+    try:
+        if (str(t[1]).lower() == "else"):
+            t[0] = t[2]
+        else:
+            t[0] = t[1]
+        print("todo bien, nada mal -> R_ELSE")
+    except:
+        t[0]=[]
+
+    repGrammar.append(t.slice)
+
+def p_Lista_elsif_(t):
+    """
+    Lista_elsif_ : Lista_elsif_ elsif_
+    """
+    t[1].append(t[2])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_aux_Lista_elsif_(t):
+    """
+    Lista_elsif_ : elsif_
+    """
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+def p_elsif_(t):
+    """elsif_ : R_ELSIF S_PARIZQ expresion S_PARDER R_THEN List_body
+
+    """
+    try:
+        t[0] = instruction.IfCls(t[3], t[6], [], [], t.lineno(1), t.lexpos(1))
+
+        print("todo bien, nada mal -> R_ELSIF")
+    except:
+        pass
+        print("todo bien, nada mal -> epsilon")
+
+    repGrammar.append(t.slice)
+
+def p_lista_cuerpo(t):
+    """
+    List_body : List_body body
+    """
+    t[1].append(t[2])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_aux_lista_cuerpo(t):
+    """
+    List_body : body
+    """
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+def p_body(t):
+    """
+    body : createStmt  S_PUNTOCOMA
+        | showStmt S_PUNTOCOMA
+        | alterStmt S_PUNTOCOMA
+        | dropStmt S_PUNTOCOMA
+        | insertStmt S_PUNTOCOMA
+        | updateStmt S_PUNTOCOMA
+        | deleteStmt S_PUNTOCOMA
+        | truncateStmt S_PUNTOCOMA
+        | useStmt S_PUNTOCOMA
+        | selectStmt S_PUNTOCOMA
+        | functionStmt
+        | ifStmt R_END R_IF S_PUNTOCOMA
+    """
+    try:
+        t[0] = t[1]
+    except:
+        return
+    repGrammar.append(t.slice)
+
+# endregion IF
+# endregion IF
 
 # Statement para el CREATE
 # region CREATE
@@ -569,7 +661,6 @@ def p_referencesOpt(t):
 # endregion CREATE
 
 # Gramatica para expresiones
-
 # region Expresiones
 def p_expresion(t):
     """
@@ -1272,11 +1363,7 @@ def p_alterRename(t):
 
 # endregion
 
-
-"""
-Statement para el DROP
-"""
-
+#Statement para el DROP
 # region DROP
 
 
@@ -1706,7 +1793,6 @@ def p_offsetLimit_n(t):
 # endregion
 
 # Statement para el INSERT
-
 # region INSERT
 
 
@@ -1733,7 +1819,6 @@ def p_paramsColumn_none(t):
 # endregion
 
 # Statement para el UPDATE
-
 # region UPDATE
 
 
@@ -1778,7 +1863,6 @@ def p_updateExp(t):
 # endregion
 
 # Statement para el DELETE y OTROS
-
 # region DELETE, ETC
 
 
@@ -1828,6 +1912,7 @@ def p_useStmt(t):
 
 # endregion
 
+# Statement para FUNCTIONS
 # region FUNCTIONS
 
 def p_functionStmt(t):
@@ -1835,15 +1920,20 @@ def p_functionStmt(t):
     t[0] = instruction.FunctionPL(t[3], t[5], t[7], t[11], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
+def p_functionStmt2(t):
+    """functionStmt : R_CREATE R_FUNCTION ID S_PARIZQ S_PARDER returnsStmt R_AS S_DOLAR S_DOLAR bloqueFunction"""
+    t[0] = instruction.FunctionPL(t[3], None, t[6], t[10], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
 def p_functionBloque(t):
-    """ bloqueFunction : declareStmt R_BEGIN beginStmt R_END labelEnd"""
-    t[0] = [t[0], t[3, t[5]]]
+    """bloqueFunction : declareStmt R_BEGIN beginStmt R_END S_PUNTOCOMA labelEnd"""
+    t[0] = [t[1], t[3], t[6]]
     repGrammar.append(t.slice)
 
 
 def p_params_list_func(t):
     """params_list : params_list S_COMA param_item"""
-    t[1].append(t[2])
+    t[1].append(t[3])
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -1869,7 +1959,7 @@ def p_returnsStmt_aux(t):
     repGrammar.append(t.slice)
         
 
-def p_declareStmt(t):
+def p_declareStmt2(t):
     """declareStmt : R_DECLARE declaracion_list"""
     t[0] = t[2]
     repGrammar.append(t.slice)
@@ -1891,13 +1981,13 @@ def p_declaracion_list_aux(t):
     repGrammar.append(t.slice)
 
 def p_declaracion_item(t):
-    """declaracion_item : ID constant_opt types null_opt default_item S_PUNTOCOMA""" # name [ CONSTANT ] type [ COLLATE collation_name ] [ NOT NULL ] [ { DEFAULT | := | = } expression ];    
-    
+    """declaracion_item : ID constant_opt types null_opt default_item S_PUNTOCOMA""" # name [ CONSTANT ] type [ COLLATE collation_name ] [ NOT NULL ] [ { DEFAULT | := | = } expression ];        
+    t[0] = instruction.DeclarationPL(t[1], t[2], t[3], t[4], t[5], None, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 def p_declaracion_item_aux(t):
     """declaracion_item : ID R_ALIAS R_FOR alias_declaracion S_PUNTOCOMA""" # name ALIAS FOR $n;
-    
+    t[0] = instruction.DeclarationPL(t[1], None, None, None, None, t[4], t.slice[1].lineno, t.slice(1).lexpos)
     repGrammar.append(t.slice)
 
 def p_constant_item(t):
@@ -1907,17 +1997,27 @@ def p_constant_item(t):
 
 def p_constant_item2(t):
     """constant_opt : """
-    t[0] = False
+    t[0] = None
+    repGrammar.append(t.slice)
+
+def p_null_option(t):
+    """null_opt : R_NOT R_NULL"""
+    t[0] = True
+    repGrammar.append(t.slice)
+
+def p_null_option2(t):
+    """null_opt : """
+    t[0] = None
     repGrammar.append(t.slice)
 
 def p_default_item(t):
-    """default_opt : R_DEFAULT
+    """default_opt : R_DEFAULT  
                    | S_DOSPUNTOS S_IGUAL
                    | S_IGUAL"""
     repGrammar.append(t.slice)
 
 def p_default_item2(t):
-    """default_item : default_opt """
+    """default_item : default_opt expresion"""
     t[0] = t[2]
     repGrammar.append(t.slice)
 
@@ -1933,11 +2033,35 @@ def p_alias_declaracion(t):
     repGrammar.append(t.slice)
 
 def p_beingStmt(t):
-    """beginStmt : R_NULL"""
+    """beginStmt : beginStmt beginItem"""
+    t[1].append(t[2])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_beingStmt2(t):
+    """beginStmt : beginItem"""
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+def p_beginItem(t):
+    """beginItem : stmt
+                 | returnStmt S_PUNTOCOMA"""
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_returnStmt(t):
+    """returnStmt : R_RETURN expresion"""
+    t[0] = instruction.returnStmt(t[2], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+def p_labelEnd2(t):
+    """labelEnd : """
+    t[0] = None
     repGrammar.append(t.slice)
 
 def p_labelEnd(t):
-    """labelEnd : R_NULL"""
+    """labelEnd : S_DOLAR S_DOLAR R_LANGUAGE ID S_PUNTOCOMA"""
+    t[0] = t[4]
     repGrammar.append(t.slice)
 
 # endregion

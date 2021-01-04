@@ -46,3 +46,13 @@ class WidthBucket(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error 
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"WIDTH_BUCKET({self.valor.traducir(tabla,arbol).temporalAnterior},{self.min.traducir(tabla,arbol).temporalAnterior},{self.max.traducir(tabla,arbol).temporalAnterior},{self.count.traducir(tabla,arbol).temporalAnterior})"

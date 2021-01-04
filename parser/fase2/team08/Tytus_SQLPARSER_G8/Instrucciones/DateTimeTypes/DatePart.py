@@ -40,6 +40,14 @@ class DatePart(Instruccion):
             #print(str(hora))
             return hora
         
+    def analizar(self, ts, arbol):      
+        pass
+    def traducir(self, ts, arbol):
+        #self.identificador = id
+        #self.valor = id2
+        cadena = f"date_part( '{self.identificador}', INTERVAL '{self.valor}' )"
+        return cadena
+        
 '''
 instruccion = Declare("hola mundo",None, 1,2)
 
