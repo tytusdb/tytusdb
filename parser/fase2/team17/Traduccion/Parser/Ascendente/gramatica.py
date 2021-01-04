@@ -38,6 +38,7 @@ from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
 from InterpreteF2.OperacionesPrimitivas.OperaRelacional import OperaRelacional
 from InterpreteF2.IF.SI import SI
 from InterpreteF2.IF.SIELSE import SIELSE
+from InterpreteF2.Soporte_aVar.var_asignacion import var_asignacion
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -626,7 +627,11 @@ def p_stmts(t):
         stmts : stmts stmt
               | stmt
     '''
-    t[0] = t[1]
+    if len(t) == 3:
+        t[0] = t[1]
+        t[0].append(t[2])
+    else:
+        t[0] = [t[1]]
 
 
 def p_stmt(t):
@@ -645,8 +650,9 @@ def p_statements_conditionals(t):
                    | PRAISE
                    | callfunction
                    | exit
+                   | asignacionvar
     '''
-
+    t[0] = t[1]
 
 def p_exit(t):
     '''
@@ -720,7 +726,9 @@ def p_case(t):
 
 def p_when_or_else(t):
     '''
-        when_or_else : other_when_list
+        when_or_else : other_when_list ELSE
+                     | other_when_list
+                     | ELSE
     '''
 
 
@@ -757,6 +765,23 @@ def p_Raise_complex(t):
 
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
+def p_declare(t):
+
+    '''
+         declare :  ID INTEGER NOTNULL PREDICATEDECLARATION PTCOMA
+                    | ID VARCHAR NOTNULL PREDICATEDECLARATION PTCOMA
+                    | ID INTEGER  PREDICATEDECLARATION PTCOMA
+                    | ID VARCHAR  PREDICATEDECLARATION PTCOMA
+                    | ID NUMERIC  PREDICATEDECLARATION PTCOMA
+                    | ID NUMERIC NOTNULL PREDICATEDECLARATION PTCOMA
+    '''
+
+def p_plpgsql_predicatedeclaration(t):
+    '''
+        PREDICATEDECLARATION : DOSPTS IGUAL exp
+                             | IGUAL exp
+                             | DEFAULT
+    '''
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
 
@@ -765,10 +790,14 @@ def p_Raise_complex(t):
 # ================= assign =================
 def p_statements_assign(t):
     '''
-        statements   : ID  DOSPTS IGUAL exp
-                     | ID  IGUAL exp
+        asignacionvar   : ID  DOSPTS IGUAL exp
+                        | ID  IGUAL exp
     '''
-    pass
+    if len(t) == 5:
+        t[0] = var_asignacion(t[1], t[4], 1, 1)
+    else:
+        t[0] = var_asignacion(t[1], t[3], 1, 1)
+
 # ================= perform =================
 def p_statements_perfom(t):
     '''
