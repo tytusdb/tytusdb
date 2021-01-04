@@ -25,6 +25,7 @@ class Execute():
         5: 'Regex'
     }
     def __init__(self, nodes):
+        self.tempcount = -1
         self.nodes = nodes
         self.errors = []
         self.messages = []
@@ -41,6 +42,7 @@ class Execute():
             archivo.write("\nfrom execution.AST.sentence import *")
             archivo.write("\nfrom execution.AST.expression import *")
             archivo.write("\ndef up():")
+            archivo.write("\n\tprint(1)")
             archivo.close()
             if(len(self.nodes)==0):
                 archivo = open("C3D.py", 'a')
@@ -71,6 +73,13 @@ class Execute():
         printSymbolTable_ = printSymbolTable(self)
         result = execute_result(dotAST, printSymbolTable_, self.errors, self.messages, self.querys)
         return result
+    def generateTemp(self):
+        self.tempcount+=1
+        temp = 't'+str(self.tempcount)
+        return temp
+    def getLastTemp(self):
+        temp = 't'+str(self.tempcount)
+        return temp
 
 
 

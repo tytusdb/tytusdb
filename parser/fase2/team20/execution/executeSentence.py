@@ -18,9 +18,7 @@ from console import *
 
 def executeSentence(self, sentence):
 
-    if isinstance(sentence, Instruction):
-        translate(self,sentence)
-    elif isinstance(sentence, CreateDatabase):
+    if isinstance(sentence, CreateDatabase):
         result= executeCreateDatabase(self,sentence)
         if(result==0):
             mode=1

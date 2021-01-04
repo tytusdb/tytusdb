@@ -1467,7 +1467,7 @@ def p_pl_declarationvar_8(t):
 
 def p_pl_declarationvar_9(t):#assignment
     '''declarationVar : ID type assigDeclaration'''
-    t[0] = VariableDeclaration(t[1],False,t[2],None,False,None)
+    t[0] = VariableDeclaration(t[1],False,t[2],None,False,t[3])
 
 def p_pl_declarationvar_10(t):
     '''declarationVar : ID CONSTANT type assigDeclaration'''
