@@ -11,6 +11,7 @@ L_errores_sintacticos = []
 consola = []
 exceptions = []
 ts_global = TablaDeSimbolos({})
+lista_optimizaciones_C3D = []
 columna = 0
 
 from graphviz import Digraph
@@ -2762,6 +2763,8 @@ def p_DropIndice(t):
     varGramatical.append('instruccion ::= DROP INDEX ID PTCOMA')
     varSemantico.append('instruccion =  ')
 
+
+
 # MODO PANICO ***************************************
 def p_error(t):
     if not t:
@@ -2890,32 +2893,32 @@ def procesar_instrucciones(instrucciones, ts):
         else:
             print('Error: instrucción no válida')
 
-def generar_Codigo3D(instrucciones, ts, code3d):
-    if instrucciones is None:
-        return
-    else:
-        for inst in instrucciones:
-            if isinstance(inst, Select):
-                if inst.caso == 1:
+def generar_Codigo3D(instrucciones, ts, codigo_3d_generado):
+    if instrucciones is not None:
+        for instruccion in instrucciones:
+            if isinstance(instruccion, Select):
+                if instruccion.caso == 1:
                     consola.append('caso 1')
-                    #selectTime.ejecutar(inst, ts, consola, exceptions, True)
-                elif inst.caso == 2:
+                    # selectTime.ejecutar(inst, ts, consola, exceptions, True)
+                elif instruccion.caso == 2:
                     consola.append('caso 2')
-                    #variable = SelectDist.Select_Dist()
-                    #SelectDist.Select_Dist.ejecutar(variable, inst, ts, consola, exceptions)
-                elif inst.caso == 3:
+                    # variable = SelectDist.Select_Dist()
+                    # SelectDist.Select_Dist.ejecutar(variable, inst, ts, consola, exceptions)
+                elif instruccion.caso == 3:
                     consola.append('caso 3')
-                    #variable = selectInst.Select_inst()
-                    #selectInst.Select_inst.ejecutar(variable, inst, ts, consola, exceptions)
-                    code3d += selectInst.Select_inst.codigo3D()
-                elif inst.caso == 4:
-                    consola.append('caso 4')
-                    #Selectp3.ejecutar(inst, ts, consola, exceptions, True)
-                elif inst.caso == 5:
+                    variable = selectInst.Select_inst()
+                    codigo_3d_generado += selectInst.Select_inst.get3D(ts, variable)
+                elif instruccion.caso == 4:
+                    codigo_3d_generado += Selectp3.get3D(ts)
+                elif instruccion.caso == 5:
                     consola.append('caso 5')
-                    #Selectp4.ejecutar(inst, ts, consola, exceptions, True)
-                elif inst.caso == 6:
+                    # Selectp4.ejecutar(inst, ts, consola, exceptions, True)
+                elif instruccion.caso == 6:
                     consola.append('caso 6')
+            else:
+                codigo_3d_generado += instruccion.getC3D(lista_optimizaciones_C3D)
+    return codigo_3d_generado
+
 
 
 def ejecutarAnalisis(entrada):
@@ -2972,6 +2975,7 @@ def crear_Codido3D(entrada):
     global exceptions
     global lexer
     global ts_global
+    global lista_optimizaciones_C3D
     # limpiar
     lexer.input("")
     lexer.lineno = 0
@@ -2980,12 +2984,13 @@ def crear_Codido3D(entrada):
     exceptions = []
     L_errores_lexicos = []
     L_errores_sintacticos = []
+    lista_optimizaciones_C3D = []
     # realiza analisis lexico y semantico
     instrucciones = parser.parse(entrada)  #
     reporte = AST.AST(instrucciones)
     reporte.ReportarAST()
 
-    generar_Codigo3D(instrucciones, ts_global)
+    code3d = generar_Codigo3D(instrucciones, ts_global, '')
     '''print("-----------------------------------")
     print("Simbolos: \n",ts_global)
     for simbolo in ts_global.simbolos:
@@ -3004,9 +3009,7 @@ def crear_Codido3D(entrada):
     reportes.generar_reporte_sintactico(L_errores_sintacticos)
     reportes.generar_reporte_tablaSimbolos(ts_global.simbolos)
     reportes.generar_reporte_semanticos(exceptions)
-
-    print("Fin de analisis")
-    print("Realizando reporte gramatical")
+    reportes.generar_reporte_optimizacion(lista_optimizaciones_C3D)
     graphstack(varGramatical, varSemantico)
     return code3d
 

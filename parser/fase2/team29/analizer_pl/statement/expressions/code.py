@@ -1,4 +1,4 @@
-from analizer.abstract.expression import Expression
+from analizer_pl.abstract.expression import Expression
 
 
 class C3D(Expression):
