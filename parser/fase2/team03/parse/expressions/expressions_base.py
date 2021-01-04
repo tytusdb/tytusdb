@@ -315,23 +315,33 @@ class RelationalExpression(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        if self.operator == OpRelational.GREATER:
-            return f'{self.exp1.generate(table, tree)} > {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.LESS:
-            return f'{self.exp1.generate(table, tree)} < {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.EQUALS:
-            return f'{self.exp1.generate(table, tree)} = {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.NOT_EQUALS:
-            return f'{self.exp1.generate(table, tree)} != {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.GREATER_EQUALS:
-            return f'{self.exp1.generate(table, tree)} >= {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.LESS_EQUALS:
-            return f'{self.exp1.generate(table, tree)} <= {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.LIKE:
-            return f'{self.exp1.generate(table, tree)} LIKE {self.exp2.execute(table, tree)}'
-        if self.operator == OpRelational.NOT_LIKE:
-            return f'{self.exp1.generate(table, tree)} NOT LIKE {self.exp2.execute(table, tree)}'
-
+        if tree is None:
+            if self.operator == OpRelational.GREATER:
+                return f'{self.exp1.generate(table, tree)} > {self.exp2.execute(table, tree)}'
+            if self.operator == OpRelational.LESS:
+                return f'{self.exp1.generate(table, tree)} < {self.exp2.execute(table, tree)}'
+            if self.operator == OpRelational.EQUALS:
+                return f'{self.exp1.generate(table, tree)} = {self.exp2.execute(table, tree)}'
+            if self.operator == OpRelational.NOT_EQUALS:
+                return f'{self.exp1.generate(table, tree)} != {self.exp2.execute(table, tree)}'
+            if self.operator == OpRelational.GREATER_EQUALS:
+                return f'{self.exp1.generate(table, tree)} >= {self.exp2.execute(table, tree)}'
+            if self.operator == OpRelational.LESS_EQUALS:
+                return f'{self.exp1.generate(table, tree)} <= {self.exp2.execute(table, tree)}'
+            if self.operator == OpRelational.LIKE:
+                return f'{self.exp1.generate(table, tree)} LIKE {self.exp2.execute(table, tree)}'
+            if self.operator == OpRelational.NOT_LIKE:
+                return f'{self.exp1.generate(table, tree)} NOT LIKE {self.exp2.execute(table, tree)}'
+        else:
+            arg1 = None
+            arg2 = None
+            gen_exp1 = self.exp1.generate(table, tree)            
+            arg1 = gen_exp1.res if isinstance(gen_exp1,Quadruple) else gen_exp1 
+            gen_exp2 = self.exp2.generate(table, tree)
+            arg2 = gen_exp2.res if isinstance(gen_exp2,Quadruple) else gen_exp2
+            this_tac = Quadruple(self.operator, arg1, arg2, generate_tmp(), OpTAC.ASSIGNMENT)
+            tree.append(this_tac)
+            return this_tac
 
 class PredicateExpression(ASTNode):  # TODO check operations and call to exceute function
     # Class that handles every logic expression
@@ -368,28 +378,29 @@ class PredicateExpression(ASTNode):  # TODO check operations and call to exceute
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        if self.operator == OpPredicate.NULL:
-            return f'{self.exp1.generate(table, tree)} IS NULL'
-        if self.operator == OpPredicate.NOT_NULL:
-            return f'{self.exp1.generate(table, tree)} IS NOT NULL'
-        if self.operator == OpPredicate.DISTINCT:
-            return f'{self.exp1.generate(table, tree)} IS DISTINCT FROM {self.exp1.generate(table, tree)}'
-        if self.operator == OpPredicate.NOT_DISTINCT:
-            return f'{self.exp1.generate(table, tree)} IS NOT DISTINCT FROM {self.exp1.generate(table, tree)}'
-        if self.operator == OpPredicate.TRUE:
-            return f'{self.exp1.generate(table, tree)} IS TRUE'
-        if self.operator == OpPredicate.NOT_TRUE:
-            return f'{self.exp1.generate(table, tree)} IS NOT TRUE'
-        if self.operator == OpPredicate.FALSE:
-            return f'{self.exp1.generate(table, tree)} IS FALSE'
-        if self.operator == OpPredicate.NOT_FALSE:
-            return f'{self.exp1.generate(table, tree)} IS NOT FALSE'
-        if self.operator == OpPredicate.UNKNOWN:
-            return f'{self.exp1.generate(table, tree)} IS UNKNOWN'
-        if self.operator == OpPredicate.NOT_UNKNOWN:
-            return f'{self.exp1.generate(table, tree)} IS NOT UNKNOWN'
-
-
+        if tree is None:
+            if self.operator == OpPredicate.NULL:
+                return f'{self.exp1.generate(table, tree)} IS NULL'
+            if self.operator == OpPredicate.NOT_NULL:
+                return f'{self.exp1.generate(table, tree)} IS NOT NULL'
+            if self.operator == OpPredicate.DISTINCT:
+                return f'{self.exp1.generate(table, tree)} IS DISTINCT FROM {self.exp1.generate(table, tree)}'
+            if self.operator == OpPredicate.NOT_DISTINCT:
+                return f'{self.exp1.generate(table, tree)} IS NOT DISTINCT FROM {self.exp1.generate(table, tree)}'
+            if self.operator == OpPredicate.TRUE:
+                return f'{self.exp1.generate(table, tree)} IS TRUE'
+            if self.operator == OpPredicate.NOT_TRUE:
+                return f'{self.exp1.generate(table, tree)} IS NOT TRUE'
+            if self.operator == OpPredicate.FALSE:
+                return f'{self.exp1.generate(table, tree)} IS FALSE'
+            if self.operator == OpPredicate.NOT_FALSE:
+                return f'{self.exp1.generate(table, tree)} IS NOT FALSE'
+            if self.operator == OpPredicate.UNKNOWN:
+                return f'{self.exp1.generate(table, tree)} IS UNKNOWN'
+            if self.operator == OpPredicate.NOT_UNKNOWN:
+                return f'{self.exp1.generate(table, tree)} IS NOT UNKNOWN'
+        else:
+            pass
 class BoolExpression(ASTNode):
     def __init__(self, exp1, exp2, operator, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -415,11 +426,19 @@ class BoolExpression(ASTNode):
         super().generate(table, tree)
         exec1 = self.exp1.generate(table, tree)
         exec2 = self.exp2.generate(table, tree)
-        if self.operator == OpLogic.AND:
-            return f'{exec1} AND {exec2}'
-        if self.operator == OpLogic.OR:
-            return f'{exec1} OR {exec2}'
-
+        if tree is None:
+            if self.operator == OpLogic.AND:
+                return f'{exec1} AND {exec2}'
+            if self.operator == OpLogic.OR:
+                return f'{exec1} OR {exec2}'
+        else:
+            arg1 = None
+            arg2 = None            
+            arg1 = exec1.res if isinstance(exec1,Quadruple) else exec1             
+            arg2 = exec2.res if isinstance(exec2,Quadruple) else exec2
+            this_tac = Quadruple(self.operator, arg1, arg2, generate_tmp(), OpTAC.ASSIGNMENT)
+            tree.append(this_tac)
+            return this_tac
 
 class Negation(ASTNode):
     def __init__(self, exp1, line, column, graph_ref):
@@ -439,10 +458,15 @@ class Negation(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         exec1 = self.exp1.generate(table, tree)
-        if exec1 != 'TRUE' and exec1 != 'FALSE':
-            raise Exception("The result of operation isn't boolean value")
-        return 'TRUE' if exec1 == 'FALSE' else 'FALSE'
-
+        if tree is None:
+            if exec1 != 'TRUE' and exec1 != 'FALSE':
+                raise Exception("The result of operation isn't boolean value")
+            return 'TRUE' if exec1 == 'FALSE' else 'FALSE'
+        else:                       
+            arg1 = exec1.res if isinstance(exec1,Quadruple) else exec1                         
+            this_tac = Quadruple(OpLogic.NOT, arg1, None, generate_tmp(), OpTAC.ASSIGNMENT)
+            tree.append(this_tac)
+            return this_tac
 
 class Identifier(ASTNode):
     def __init__(self, val, line, column, graph_ref):

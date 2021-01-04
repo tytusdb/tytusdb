@@ -91,8 +91,24 @@ class Quadruple(object):
         elif self.instType == OpTAC.LABEL:
             return f'{self.arg1}:'
         elif self.instType == OpTAC.CONDITIONAL:
-            return f'if {self.arg1} {self.op} {self.arg2} {self.res}'
+            oper = self.op.strSymbol() if self.op else ''
+            ar2 = self.arg2 if self.arg2 else ''
+            return f'if {self.arg1} {oper} {ar2}: goto {self.res}'
         
+    def strpy(self):
+        if self.instType == OpTAC.ASSIGNMENT:
+            oper = self.op.strSymbol() if self.op else ''
+            arg2_ = self.arg2 if self.arg2 else ''
+            return f'{self.res} = {self.arg1} {oper} {arg2_}'            
+        elif self.instType == OpTAC.GOTO:
+            return f'goto.{self.arg1}'
+        elif self.instType == OpTAC.LABEL:
+            return f'label.{self.arg1}'
+        elif self.instType == OpTAC.CONDITIONAL:
+            oper = self.op.strSymbol() if self.op else ''
+            ar2 = self.arg2 if self.arg2 else ''
+            return f'if {self.arg1} {oper} {ar2}:\n{getFileTab()}goto.{self.res}'
+
 #This Funtion will unquewe each TAC (Quadruplees) from param list, aply each rule for each TAC and push that TAC to reslut
 # Ohh and save a log for wich rule was applied
 # return [result, reoved items]
@@ -140,14 +156,32 @@ def printL(quadL: list):
     for q in quadL:
         print (q)
 
-def strTAC(quadL: list):
+def strTAC(quadL: list, ntabs):
     r = ''
+    tabs = ''
+    for i in range(ntabs):
+        tabs+= getFileTab()
     for q in quadL:
-        r+= q.__str__() + '\n'
+        r+= f'{tabs}{q.__str__()}\n'
     return r
 
-def getImports():
-    return f'from grammarReview import *\n'
+def strTAC_pySyntax(quadL: list, ntabs):
+    r = ''
+    tabs = ''
+    for i in range(ntabs):
+        tabs+= getFileTab()
+    for q in quadL:
+        r+= f'{tabs}{q.strpy()}\n'
+    return r    
+
+def getHeader():
+    return f'from from goto import with_goto\nfrom wrapper import *\n\n@with_goto\n'
+
+def getFooter():
+    return f'all_code()\nreport_stored_st()\n'
+
+def getFileTab():
+    return '    '
 
 def getPlpgFolder():    
     if not os.path.exists('data'):
@@ -165,7 +199,7 @@ def Save_TAC_obj(objname: str, quadL: list):
     removed_items = optimiR[1]
 
     f = open(f'{getPlpgFolder()}{objname}.py', "w")
-    content = getImports() + strTAC(result)
+    content = getHeader() + strTAC_pySyntax(result) + getFooter()
     f.write(content)
     f.close()
 
