@@ -55,6 +55,27 @@ class Simbolo:
                 for col in range(1,len(columnas),1):
                     cadena += "<TR><TD>" + columnas[col].valor + "</TD></TR>\n"
 
+            elif self.tipo == TipoSimbolo.INDEX:
+                un = self.valor.get('unique')
+                orden = self.valor.get('orden')
+                hsh = self.valor.get('hash')
+                tam:int = 1
+                aux:str = ""
+                if un != None: 
+                    tam += 1
+                    aux += "<TR><TD>unique</TD></TR>\n"
+
+                if orden != None: 
+                    tam += 1
+                    aux += "<TR><TD>orden: " + orden +"</TD></TR>\n"
+
+                if hsh != None: 
+                    tam += 1
+                    aux += "<TR><TD>using hash</TD></TR>\n"
+
+                cadena += "<TR><TD rowspan='" + str(tam) + "'>" + self.valor['id'] + "</TD><TD rowspan='" + str(tam) + "'>INDEX</TD><TD rowspan='" + str(tam) + "'>" + self.baseDatos + "</TD><TD rowspan='" + str(tam) + "'>"
+                cadena += self.tabla + "</TD><TD> columna : " + self.valor['columna'] + "</TD></TR>\n"
+                cadena += aux
+
 
         return cadena
-        
