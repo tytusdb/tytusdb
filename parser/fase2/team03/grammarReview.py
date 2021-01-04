@@ -490,20 +490,53 @@ def p_statement_error(t):
 
 def p_asig_basica(t):
     '''asig_basica  : ID DOSPUNTOS IGUAL  expression
-                    |  ID IGUAL  expression      '''
-
+                    | ID IGUAL  expression
+                    | ID       '''
     if len(t) == 5:
         childsProduction  = addNotNoneChild(t,[4])
-        graph_ref = graph_node(str("asig_basica"),    [t[1], t[2],t[3],t[4]]       , childsProduction)
+        graph_ref = graph_node(str("asig_basica"),    [t[1], str(t[2]) +" "+ str(t[3]),t[4]]       , childsProduction)
         addCad("**\<ASIG_BASICA>** ::=  ':''='   \<EXP>  ';'       ")
-        t[0] = Declaration(t[1], False, None, True, t[4], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        #t[0] = Declaration(t[1], False, None, True, t[4], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        t[0] = upNodo("token", 0, 0, graph_ref)
     elif len(t) == 4:
         childsProduction  = addNotNoneChild(t,[3])
         graph_ref = graph_node(str("asig_basica"),    [t[1], t[2],t[3]]       , childsProduction)
         addCad("**\<ASIG_BASICA>** ::=  '='   \<EXP>  ';'       ")
-        t[0] = Declaration(t[1], False, None, True, t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        #t[0] = Declaration(t[1], False, None, True, t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        t[0] = upNodo("token", 0, 0, graph_ref)
 
+# def p_asig_basica(t):
+#     '''asig_basica  : ID sig_asignacion 
+#                     | ID'''
+#     if len(t) == 3:
+#         childsProduction  = addNotNoneChild(t,[2])
+#         graph_ref = graph_node(str("asig_basica"),    [t[1], t[2]]       , childsProduction)
+#         addCad("**\<ASIG_BASICA>** ::=  tId \<SIG_ASIGNACION>   \<VALOR_ASIGNACION>  ';'       ")
+#         t[0] = upNodo("token", 0, 0, graph_ref)
+#         #t[0] = Declaration(t[1], False, None, True, t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+#     else: 
+#         t[0] = t[1]
 
+def p_sig_asignacion(t):
+    '''sig_asignacion   : DOSPUNTOS IGUAL
+                        | IGUAL'''
+    if len(t) == 3:
+        graph_ref = graph_node(str(t[1] + " " + t[2]))
+        addCad("**\<SIG_ASIGNACION>** ::= tDospuntos tIgual ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    if len(t) == 2:
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<ASIGNACION>** ::= tIgual ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####    
+
+def p_valor_asignacion(t):
+    '''valor_asignacion : expression'''
+    graph_ref = graph_node(str(t[1]))
+    addCad("**\<VALOR_ASIGNACION>** ::= \<EXPRESSION> ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    #####  
 
 
 def p_stm_perform(t):
@@ -628,13 +661,20 @@ def p_if_inst0(t):
 #TODO @SergioUnix Arreglar grafo y reporte gramatical
 def p_stm_begin(t):
     '''stm_begin   : declares_opt BEGIN statements_begin    exception_opt  return_opt   END  if_opt '''
-    childsProduction  = addNotNoneChild(t,[1,3,4,5,7])
-    graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7]], childsProduction)
+
+    childsProduction  = addNotNoneChild(t,[1,4,5,7])
+    lista = None
+    if t[3] != None:
+        lista = t[3][0]
+        childsProduction.append(lista.graph_ref)
+    graph_ref = graph_node(str("stm_if"), [t[1], t[2], lista, t[4],t[5],t[6],t[7]], childsProduction)
     ##- graph_ref = None
     addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf   ")
     ##-t[0] = FunctionBody(t[1], t[3], t[4], t[5], t.slice[2].lineno, t.slice[2].lexpos, graph_ref)
     #print(t)
     t[0] = upNodo("token", 0, 0, graph_ref)
+
+
 
 
 
@@ -648,28 +688,30 @@ def p_statements_begin(t):
         childsProduction  = addNotNoneChild(t,[1,2])
         graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<STATEMENTS_SQL>  ';'     ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = [upNodo("token", 0, 0, graph_ref)]
         #print(t)
     elif token.type == "stm_if":
         childsProduction  = addNotNoneChild(t,[1,2])
         graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<STM_IF>   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = [upNodo("token", 0, 0, graph_ref)]
         #print(t)
     elif token.type == "asig_basica":
-        ##childsProduction  = addNotNoneChild(t,[1,2])
-        ##graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<ASIG_BASICA>   ")
         if t[1] is None:
+            t[2].graph_ref = graph_ref
             t[0] = [t[2]]            
         else:
+            t[1][0].graph_ref = graph_ref 
             t[1].append(t[2])
             t[0] = t[1]                
     elif token.type == "stm_case":
         childsProduction  = addNotNoneChild(t,[1,2])
         graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<STM_CASE>   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = [upNodo("token", 0, 0, graph_ref)]
         #print(t)
 
 
