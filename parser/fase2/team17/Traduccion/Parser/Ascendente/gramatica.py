@@ -496,7 +496,7 @@ def p_instruction(t):
         instruction     : DataManipulationLenguage
                         |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
                         |  plpgsql
-                        |  stmt
+                        |  statements
     '''
     t[0] = t[1]
     set('<TR> \n <TD> instruction → DataManipulationLenguage | plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp | plpgsql | stmts : </TD> \n <TD>  instruction = NodoAst(t[0]) </TD> \n </TR> \n')
