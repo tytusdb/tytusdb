@@ -11,7 +11,7 @@ from ui.Pantalla_Error import *
 import tkinter.messagebox
 from analizer import interpreter
 from analizer.gramaticaFase2 import parserTo3D , getCodigo
-
+from analizer.reports import BnfGrammar
 class Pantalla:
     def __init__(self):
         self.lexicalErrors = list()
@@ -27,8 +27,9 @@ class Pantalla:
         self.window.geometry("700x750")
         self.window.resizable(0, 0)
         self.window.title("Query Tool")
+        self.window.config( bg="black")
         self.frame_entrada = Frame(
-            self.window, height=300, width=520, bd=10, bg="#d3d3d3"
+            self.window, height=300, width=520, bd=10, bg="black"
         )
         self.txt_scroll = Scrollbar(self.frame_entrada)
         self.txt_scroll.pack(side=RIGHT, fill=Y)
@@ -40,12 +41,10 @@ class Pantalla:
         self.frame_entrada.pack()
         # Definicion del menu de items
         navMenu = Menu(self.window)
-        navMenu.add_command(label="Tabla de Simbolos", command=self.open_ST)
+        navMenu.add_command(label="TABLA DE SIMBOLOS", command=self.open_ST)
         navMenu.add_command(label="AST", command=self.open_AST)
-        navMenu.add_command(
-            label="Reporte de errores",
-            command=self.open_Reporte,
-        )
+        navMenu.add_command(label="REPORTE GRAMATICAL", command=self.reporteGramatical)
+        navMenu.add_command(label="REPORTE DE ERRORES",command=self.open_Reporte,)
 
         self.window.config(menu=navMenu)
         frame_btn = Frame(self.window)
@@ -55,6 +54,7 @@ class Pantalla:
         btn_1.pack(side=LEFT, anchor=E, padx=25, pady=20)
         btn_codigo_3d = Button(frame_btn, text="Generar Codigo 3D", command=self.generarCodigo3d)
         btn_codigo_3d.pack(side=LEFT, anchor=E, padx=25, pady=20)
+        frame_btn.configure( bg="black")
         frame_btn.pack()
         # Creacion del notebook
         self.tabControl = ttk.Notebook(self.window, width=650, height=300)
@@ -161,9 +161,24 @@ class Pantalla:
         self.refresh()
         entrada = ""
         entrada = self.txt_entrada.get( "1.0", END)
-        parserTo3D(entrada)
-        cadena_codigo_3d = getCodigo()
-        self.text_Consola.insert(INSERT,cadena_codigo_3d)
+        res     = interpreter.generar_codigo_3d(entrada)
+        self.lexicalErrors = res["err_lexicos"]
+        self.syntacticErrors = res["err_sintacticos"]
+        #self.semanticErrors = res["semantic"]
+        self.ts = res["symbols"]
+        if (
+            len(self.lexicalErrors)
+            + len(self.syntacticErrors)
+           # + len(self.semanticErrors)
+           # + len(self.postgreSQL)
+            > 0
+        ):
+            tkinter.messagebox.showerror(
+                title="Error", message="la entrada posee errores"
+            )
+        else:
+            cadena_codigo_3d = getCodigo()
+            self.text_Consola.insert(INSERT,cadena_codigo_3d)
 
 
     def refresh(self):
@@ -218,6 +233,9 @@ class Pantalla:
         windowTableS = Pantalla_Error(
             self.window, self.lexicalErrors, self.syntacticErrors, self.semanticErrors
         )
+
+    def reporteGramatical(self):
+        os.system('cd test-output & ReporteGramatica.bnf')
 
 
 def main():  # Funcion main
