@@ -5,6 +5,7 @@ class Tabla():
         self.anterior = anterior
         self.variables = []
         self.funciones = []
+        self.reporte = []
         self.temporal = 0
         self.etiqueta = 0
         self.heap = 0
@@ -61,6 +62,36 @@ class Tabla():
     
     def getEtiquetaActual(self):
         return "l" + str(self.etiqueta)
+
+    def agregarReporteSimbolo(self,simbolo):
+        tabla = self
+        while tabla != None:
+            if tabla.anterior == None:
+                tabla.reporte.append(simbolo)
+            tabla = tabla.anterior
+        return None
+
+    def agregarSimbolo(self,simbolo):
+        self.variables.append(simbolo)
+        return None
+
+    def getSimboloVariable(self,id):
+        tabla = self
+        while tabla != None:
+            for variable in tabla.variables:
+                if variable.id == id and variable.rol != "Metodo":
+                    return variable 
+            tabla = tabla.anterior
+        return None
+
+    def getSimboloFuncion(self,id):
+        tabla = self
+        while tabla != None:
+            for variable in tabla.variables:
+                if variable.id == id and variable.rol == "Metodo":
+                    return variable 
+            tabla = tabla.anterior
+        return None
 
 
 '''

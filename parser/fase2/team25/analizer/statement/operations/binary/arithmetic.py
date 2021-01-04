@@ -79,16 +79,11 @@ class Arithmetic(Expression):
         new.addNode(n2)
         return new
 
-    def generate3d(self ,environment , fase =2):
-        exp1 = self.exp1.generate3d(environment , fase)
-        exp2 = self.exp2.generate3d(environment , fase)
+    def generate3d(self ,environment , instanciaAux):
+        exp1 = self.exp1.generate3d(environment ,instanciaAux)
+        exp2 = self.exp2.generate3d(environment ,instanciaAux)
         operator = self.operator
 
-        if fase == 1:
-            f1 =''
-            f1 += f'{exp1} {operator} {exp2}'
-            return f1
-        else:
-            tn = instancia_codigo3d.getNewTemporal()
-            instancia_codigo3d.addToCode(f'\t{tn} = {exp1} {operator} {exp2}')
-            return tn
+        tn = instanciaAux.getNewTemporal()#va llevar su control de getTempola tambien
+        instanciaAux.addToCode(f'\t{tn} = {exp1} {operator} {exp2}')
+        return tn

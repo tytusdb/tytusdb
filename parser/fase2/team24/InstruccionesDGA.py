@@ -14,13 +14,9 @@ NombreDB = ""
 contregistro = 0
 
 def Textoresultado():
-    global tabla
-    global resultadotxt
-    print(resultadotxt)
     for simbolo in tabla.simbolos:
-        print("ID: " + str(tabla.simbolos[simbolo].id) + " Nombre: " + tabla.simbolos[simbolo].nombre + " Ambito: " + str(tabla.simbolos[simbolo].ambito))
+        print("ID: " + str(tabla.simbolos[simbolo].id) + " Nombre: " + tabla.simbolos[simbolo].nombre + " Ambito: " + str(tabla.simbolos[simbolo].ambito) + " Tipo indice: " + str(tabla.simbolos[simbolo].tipoind) + " Orden Indice: " + str(tabla.simbolos[simbolo].ordenind) + " Columna ind: " + str(tabla.simbolos[simbolo].columnaind) + " Tabla indice: " + str(tabla.simbolos[simbolo].tablaind))
     print("\n")
-    resultadotxt = ""
 
 class instruccion:
     """INSTRUCCION"""
@@ -71,7 +67,7 @@ class createdb(instruccion):
                 cont+=1
                 contambito += 1
                 tabla.agregar(NuevoSimbolo)
-                resultadotxt += "Se creo la base de datos " + self.iden + "\n"
+                #resultadotxt += "Se creo la base de datos " + self.iden + "\n"
                 return "Se creo la base de datos " + self.iden + "\n"
             elif resultado == 2 and not self.replacedb:
                 e = errores.CError(0,0,"Ya existe la base de datos " + self.iden,'Semantico') 
@@ -1469,7 +1465,6 @@ class fun_now2(funciongen):
         d1 = today.strftime("%Y-%m-%d %H:%M:%S")
         return d1
 
-
 def VerificarTipo(TipoColumna,ValorColumna):
     """try:
         if float(ValorColumna):
@@ -1742,3 +1737,97 @@ class delete(instruccion):
         except:
             """ERROR"""
         return resultadotxt
+
+#--------------------------------------------CLASES PARA LOS INDICES--------------------------------------------------
+class IndexCreate(instruccion):
+    'Clase principal para la creacion de indices'
+
+    def __init__(self,uniqueind, id1, id2, createind2):
+        self.uniqueind = uniqueind
+        self.id1 = id1
+        self.id2 = id2
+        self.createind2 = createind2
+
+    def ejecutar(self):
+        global resultadotxt
+        global cont
+        global tabla
+        global NombreDB
+        global contambito
+        try:
+            NuevoIndice = TS.Simbolo(cont,self.id1,TS.TIPO.INDICE,contambito)
+            cont+=1
+            contambito+=1
+            NuevoIndice.uniqueind = self.uniqueind
+            NuevoIndice.tablaind = self.id2
+            if self.uniqueind != "":
+                NuevoIndice.tipoind = "UNIQUE INDEX"
+            else:
+                NuevoIndice.tipoind = "INDEX"
+            if isinstance(self.createind2, createind3):
+                "createind2 es createind3"
+                columnasdeindice = []
+                if isinstance(self.createind2.listacolind, listacolind):
+                    "es el objeto de listas listacolind"
+                    for elemento in self.createind2.listacolind.listacolind:
+                        if isinstance(elemento, columnaind):
+                            if isinstance(elemento.propiedad, ordenind):
+                                if NuevoIndice.ordenind == "":
+                                    NuevoIndice.ordenind = elemento.propiedad.orden
+                            else:
+                                columnasdeindice.append(elemento.propiedad)
+                            columnasdeindice.append(elemento.id)
+                        else:
+                            columnasdeindice.append(elemento)
+                else:
+                    "es una lista con un elemento"
+                    if isinstance(self.createind2.listacolind, columnaind):
+                        if isinstance(self.createind2.listacolind.propiedad, ordenind):
+                            if NuevoIndice.ordenind == "":
+                                NuevoIndice.ordenind = self.createind2.listacolind.propiedad.orden
+                            else:
+                                columnasdeindice.append(self.createind2.listacolind.id)
+                            columnasdeindice.append(elemento.id)
+                        else:
+                            columnasdeindice.append(elemento)
+            tabla.agregar(NuevoIndice)
+            return "Se agrego el indice " + self.id1 + " a la tabla de simbolos"
+        except:
+            return "Error al crear indice"
+
+class createind3(instruccion):
+    def __init__(self,listacolind, indwhere):
+        self.listacolind = listacolind
+        self.indhwere = indwhere
+
+class listacolind(instruccion):
+    def __init__(self,listacolind):
+        self.listacolind = listacolind
+
+class columnaind(instruccion):
+    def __init__(self,id, propiedad):
+        self.id = id
+        self.propiedad = propiedad
+
+class ordenind(instruccion):
+    def __init__(self,orden):
+        self.orden = orden
+
+class indwhere(instruccion):
+    def __init__(self,indnot, indwherecond):
+        self.indnot = indnot
+        self.indwherecond = indwherecond
+
+class notval(instruccion):
+    def __init__(self, id1, signo, id2, valortipo):
+        self.id1 = id1
+        self.signo = signo
+        self.id2 = id2
+        self.valortipo = valortipo
+
+class indwherecond(instruccion):
+    def __init__(self, id, signo, valortipo):
+        self.id = id
+        self.signo = signo
+        self.valortipo = valortipo
+#----------------------------------------------------------------------------------------------------------------------
