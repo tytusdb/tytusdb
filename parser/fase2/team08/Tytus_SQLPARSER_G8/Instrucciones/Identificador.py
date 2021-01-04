@@ -4,6 +4,7 @@ from Instrucciones.Sql_create.ShowDatabases import ShowDatabases
 from Instrucciones.TablaSimbolos.Instruccion import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
+from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
 from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.Tablas.Campo import Campo
 from storageManager.jsonMode import *
@@ -21,7 +22,7 @@ class Identificador(Instruccion):
             encontrado = 0
             #aqui deberia tener un arbol con lista de columnas
             for x in range(0,len(arbol.getColumnasActual())):
-                print(x)
+                #print(x)
                 valor = arbol.getColumnasActual()
                 if(isinstance(valor[x],Campo)):
                     if(valor[x].nombre == self.id):
@@ -71,7 +72,7 @@ class Identificador(Instruccion):
             print("Esto provoca un error, tabla no existe")
             return 0
         else:
-            print("tabla encontrada")
+            #print("tabla encontrada")
             return self.id
 
     def comprobar(self,tabla,arbol):
@@ -86,7 +87,26 @@ class Identificador(Instruccion):
         return variable.valor.ejecutar(tabla, arbol)
 
     def analizar(self, tabla, arbol):
-        pass
+        super().analizar(tabla,arbol)
+        variable = tabla.getSimboloVariable(self.id)
+        if variable == None:
+            error = Excepcion("42P10","Semantico","La columna "+str(self.id)+" no existe",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+        return variable.tipo
         
     def traducir(self, tabla, arbol):
-        pass
+        super().traducir(tabla,arbol)
+        variable = tabla.getSimboloVariable(self.id)
+        retorno = Nodo3D()
+        temporal1 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal1} = P + {variable.posicion}")
+        temporal2 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal2} = Pila[{temporal1}]")
+        retorno.temporalAnterior = temporal2
+
+        return retorno
+
+    def concatenar(self, tabla, arbol):
+        return f"{self.id}"

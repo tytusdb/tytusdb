@@ -375,8 +375,26 @@ class insertTable(Instruccion):
         # lcol ------> lista con el nombre de las columnas
         # lexpre ----> lista de expresiones a insertar
 
-        cadena = "\""+"insert "
-        cadena += self.valor + ";\""
+        cadena = "\""+"insert into "
+        cadena += self.valor 
+        '''
+        if(self.lcol != None):
+            cadena += " ( "
+            for x in range(0,len(self.lcol)):
+                if(x > 0):
+                    cadena += ", "
+                cadena += self.lcol[x].traducir(tabla,arbol)
+            cadena += " )"
+
+        if(self.lexpre != None):
+            cadena += " values ( "
+            for x in range(0,len(self.lexpre)):
+                if(x > 0):
+                    cadena += ", "
+                cadena += self.lexpre[x].traducir(tabla,arbol)
+            cadena += " )"
+        '''
+        cadena += ";\""
         arbol.addComen("Asignar cadena")
         temporal1 = tabla.getTemporal()
         arbol.addc3d(f"{temporal1} = { cadena }")
