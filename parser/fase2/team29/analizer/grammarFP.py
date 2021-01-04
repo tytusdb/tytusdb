@@ -41,6 +41,7 @@ precedence = (
 # Definición de la gramática
 from abstract.expression import TYPE
 from abstract.expression import newTemp
+from abstract.expression import incTemp
 import modules.expressions as expression
 from modules import code
 
@@ -365,6 +366,7 @@ def p_if_stmt(t):
     """if_stmt : R_IF expBool R_THEN block_stmts elseif_stmts_opt else_stmt_opt R_END R_IF S_PUNTOCOMA"""
     repGrammar.append(t.slice)
     t[0] = t[2]
+    #expBool contiene el C3D de la expresion
 
 def p_elseif_stmts_opt(t):
     """
@@ -384,6 +386,7 @@ def p_elseif_stmts(t):
 
 def p_elseif_stmt(t):
     """elseif_stmt :  R_ELSEIF expBool R_THEN block_stmts"""
+    #expBool contiene el C3D de la expresion
     repGrammar.append(t.slice)
 
 
@@ -433,7 +436,7 @@ def p_else_case_stmt_n(t):
 def p_case_stmt_bool(t):
     """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
     t[0] = t[3]
-    #TODO: agregar el else case
+        #expBool contiene el C3D de la expresion
     repGrammar.append(t.slice)
 
 
@@ -457,6 +460,7 @@ def p_else_case_stmt_bool(t):
     """
     else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts
     """
+    #expBool contiene el C3D de la expresion
     t[1].append(t[3])
     t[0]=t[1]
     repGrammar.append(t.slice)
@@ -466,6 +470,7 @@ def p_else_case_stmt_bool_u(t):
     """
     else_case_stmt_bool : R_WHEN expBool R_THEN block_stmts 
     """
+    #expBool contiene el C3D de la expresion
     t[0] = [t[2]]
     repGrammar.append(t.slice)
 
@@ -752,8 +757,13 @@ def p_while_stmt_exp(t):
 
 def p_expBoolOR(t):
     """
+    expBoolOR : expBoolOR OC_OR expBoolExcept
+    """
+
+
+def p_expBoolOR_u(t):
+    """
     expBoolOR : expBoolExcept
-            | expBoolOR OC_OR expBoolExcept
     """
 
 
@@ -1245,7 +1255,6 @@ def p_expresion(t):
             | expBool
     """
     t[0] = t[1]
-    #code.Assignment("xd",t[1],0,0).execute(0)
     repGrammar.append(t.slice)
 
 
@@ -1497,14 +1506,26 @@ def p_expComp_ternario_1(t):
     """
     expComp :  datatype R_BETWEEN datatype R_AND datatype
     """
+    t[0] = code.TernaryOperation(newTemp(), t[1],t[3],t[5],t[2],t[1].row,t[3].column)
+    incTemp(2)
     repGrammar.append(t.slice)
 
 
 def p_expComp_ternario_2(t):
     """
     expComp : datatype R_NOT R_BETWEEN datatype R_AND datatype
-    | datatype R_BETWEEN R_SYMMETRIC datatype R_AND datatype
     """
+    t[0] = code.TernaryOperation(newTemp(), t[1],t[4],t[6],t[2]+t[3],t[1].row,t[1].column)
+    incTemp(3)
+    repGrammar.append(t.slice)
+
+
+def p_expComp_ternario_3(t):
+    """
+    expComp : datatype R_BETWEEN R_SYMMETRIC datatype R_AND datatype
+    """
+    t[0] = code.TernaryOperation(newTemp(), t[1],t[4],t[6],t[2]+t[3],t[1].row,t[1].column)
+    incTemp(6)
     repGrammar.append(t.slice)
 
 
@@ -1581,6 +1602,7 @@ def p_expBool_2(t):
     """
     expBool : R_NOT expBool
     """
+    t[0] = code.UnaryOperation(newTemp(),t[2],t[1],t[2].row, t[2].column)
     repGrammar.append(t.slice)
 
 
