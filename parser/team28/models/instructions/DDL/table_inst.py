@@ -396,10 +396,13 @@ class CreateTB(Instruction):
             try:
                 datetime.datetime.strptime(valorDef, '%Y-%m-%d')
             except:
-                desc = f": invalid format in date column"
-                ErrorController().add(17, 'Execution', desc, 0, 0)
-                self._can_create_flag = False
-                return False
+                try:
+                    datetime.datetime.strptime(valorDef,'%Y/%m/%d  %H:%M:%S')
+                except:
+                    desc = f": invalid format in date column"
+                    ErrorController().add(17, 'Execution', desc, 0, 0)
+                    self._can_create_flag = False
+                    return False
 
         # -->
         elif columnType == 'ColumnsTypes.DECIMAL' or columnType == 'ColumnsTypes.NUMERIC':
@@ -570,8 +573,10 @@ class CreateTB(Instruction):
         for colExt in tablaToExtract._colums:
             if colExt._primaryKey == True:
                 indicesPrimarios.append(colExt._number)
-
-        DataController().alterAddPK(tableCreated, indicesPrimarios, 0, 0)
+        if len(indicesPrimarios) == 0:
+            pass
+        else:
+            DataController().alterAddPK(tableCreated, indicesPrimarios, 0, 0)
 
     def existsPK(self, tableCreated):
         indicesPrimarios = 0

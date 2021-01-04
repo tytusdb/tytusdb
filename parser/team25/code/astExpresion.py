@@ -74,7 +74,7 @@ class ExpresionAritmetica(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 
@@ -399,7 +399,7 @@ class ExpresionComparacion(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 
@@ -484,7 +484,7 @@ class ExpresionLogica(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 

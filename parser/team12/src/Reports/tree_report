@@ -1,5 +1,0 @@
-digraph Arbol_AST{ node[shape="box"]n1[label = "S"];n1 -> n2;
-n2[label = "SENTENCIA_SELECT"];n2 -> n3;
-n3[label = "*"];n2 -> n4;
-n4[label = "TABLE_EXPRESION"];n4 -> n5;
-n5[label = "Identificador\ntblibrosalario"];}

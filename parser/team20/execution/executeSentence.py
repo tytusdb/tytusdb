@@ -7,7 +7,8 @@ from .executeDrop import executeDropDatabase,executeDropTable
 from .executeUse import executeUse, executeUseAlter
 from .executeExpression import executeExpression
 from .executeInsert import executeInsertAll, executeInsert
-from .executeAlter import executeAlterDatabaseRename,executeAlterTableDropPK,executeAlterType
+from .executeDelete import executeDelete
+from .executeAlter import executeAlterDatabaseRename,executeAlterTableDropPK,executeAlterType, executeAlterTableAddColumn, executeAlterTableDropColumn
 from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable,TCalterDatabase
 from .AST.error import * 
 import sys
@@ -28,7 +29,7 @@ def executeSentence(self, sentence):
             TCcreateDatabase(sentence.name,mode)
             print_success('QUERY',"Database "+sentence.name+" has been created Query returned successfully")
         elif(result==2 and sentence.ifNotExistsFlag):
-            print_warning("NOTICE",'Database '+sentence.name+' already exists Query returned successfully')
+            print_warning("RUNTIME ERROR",'Database '+sentence.name+' already exists Query returned successfully')
         elif(result==2 and not sentence.ifNotExistsFlag):
             print_error('SEMANTIC ERROR','Database '+sentence.name+' already exists')
         else:
@@ -42,7 +43,7 @@ def executeSentence(self, sentence):
             TCdropDatabase(sentence.name)
             print_success("QUERY","DataBase "+sentence.name+" has been dropped")
         elif(result==2 and sentence.ifExistsFlag): 
-            print_warning("NOTICE:", "Database "+sentence.name+" does not exist, skipping Query returned successfully with no result")
+            print_warning("RUNTIME ERROR", "Database "+sentence.name+" does not exist, skipping Query returned successfully with no result")
         elif(result==2 and not sentence.ifExistsFlag): 
             print_error("SEMANTIC ERROR","Database "+sentence.name+" does not exist")
         else:
@@ -83,7 +84,8 @@ def executeSentence(self, sentence):
         executeInsertAll(self, sentence)
     elif isinstance(sentence, Insert):
         executeInsert(self, sentence)
-    # #Resto de sentencias posibles
+    elif isinstance(sentence, Delete):
+        executeDelete(self, sentence)
     elif isinstance(sentence,Select):
         executeSelect(self,sentence) 
     elif isinstance(sentence,DropTable):
@@ -116,7 +118,7 @@ def executeSentence(self, sentence):
         else:
             print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence,Update):
-        executeUpdate(self,sentence)
+       executeUpdate(self,sentence)
     elif isinstance(sentence,AlterTableDropConstraint):
         if(len(sentence.constraint)>2):
             if(sentence.constraint[len(sentence.constraint)-2:len(sentence.constraint)]=='PK'):
@@ -145,6 +147,7 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR","Type can not change")
         else:
             print_error("SEMANTIC ERROR",'error in the operation')
-
-
-    
+    elif isinstance(sentence, AlterTableAddColumn):
+        executeAlterTableAddColumn(self, sentence)
+    elif isinstance(sentence, AlterTableDropColumn):
+        executeAlterTableDropColumn(self, sentence)

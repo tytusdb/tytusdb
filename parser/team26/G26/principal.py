@@ -31,6 +31,8 @@ instrucciones = g.parse(input)
 #print("***************************************************")
 
 for instr in instrucciones['ast'] :
+    if instr == None:
+        continue
     result = instr.execute(datos)
     if isinstance(result, error.Error):
         print(result)

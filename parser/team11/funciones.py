@@ -1,5 +1,5 @@
 from tkinter import ttk,scrolledtext,simpledialog,filedialog,messagebox,END,INSERT
-import gramatica as g
+import gramatica_asc as g
 import Ast as ast
 class Funciones2:
 

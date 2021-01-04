@@ -11,11 +11,13 @@ from execution.execute_result import *
 
 from execution.AST.error import *
 
-from Tytus_GUI_console import print_error, print_error_table, print_messages, print_querys
+from Tytus_GUI_console import print_error, print_symbol_table, print_error_table, print_messages, print_querys
 import Tytus_GUI_console
 
 from graphviz import Source
 import webbrowser
+
+from prettytable import PrettyTable
 
 
 class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
@@ -127,9 +129,11 @@ def process_results_and_display_reports(result_analyze, result_execute):
     #generate_grammar_report(result_analyze.grammarreport)
     global content_grammar_report
     content_grammar_report = result_analyze.grammarreport
-    print_error_table_(result_analyze.grammarerrors, result_execute.errors)
-    print_messages_(result_execute.messages)
-    print_querys_(result_execute.querys)
+    #print_error_table_(result_analyze.grammarerrors, result_execute.errors)
+    print_alternative_error_table_()
+    print_symbol_table_(result_execute.printSymbolTable)
+    #print_messages_(result_execute.messages)
+    #print_querys_(result_execute.querys)
 
 def generate_report(report_number: int):
     if report_number == 0:
@@ -212,6 +216,21 @@ def print_error_table_(grammarerrors,executionerrors):
         print_ += errors_[i].toString()
         i += 1
     print_error_table("Error Table", print_)
+
+def print_alternative_error_table_():
+    x = PrettyTable(["Number", "Type", "Description"])
+    i = 0
+    j = 1
+    while i < len(Tytus_GUI_console.prints):        
+        if ("ERROR" in str(Tytus_GUI_console.prints[i].data_type).upper()) == True:
+            x.add_row([j, str(Tytus_GUI_console.prints[i].data_type), str(Tytus_GUI_console.prints[i].print_)])
+            j += 1
+        i += 1
+    print_ = x.get_string(title="Error Table")
+    print_error_table("Error Table", print_)
+
+def print_symbol_table_(printSymbolTable: str):
+    print_symbol_table("Symbol Table", printSymbolTable)
 
 def print_messages_(messages):
     print_ = "MESSAGES"

@@ -8,11 +8,16 @@ from tkinter.filedialog import askopenfilename as files
 import os
 import webbrowser
 from Utils.fila import fila
+from Error import *
+import Instrucciones.DML.select as select
+import json
+#from select import *
 
 ##########################################################################
-errores = list()
-storage.dropAll()
+
+#storage.dropAll()
 datos = l.Lista({}, '')
+
 ##################################FUNCIONES#################################
 def openFile():
     route = files(
@@ -27,26 +32,63 @@ def openFile():
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
-def analisis():
-    global errores 
-    global datos 
 
+
+def analisis():
+    global datos
+
+    salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
     instrucciones = g.parse(texto)
+    erroresSemanticos = []
 
-    hacerReporteGramatica(instrucciones['reporte'])
+    try:
+        hacerReporteGramatica(instrucciones['reporte'])
+    except:
+        print("")
+
+    try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
+
+        print(text)
+        datos.reInsertarValores(json.loads(text))
+        print(str(datos))
+    except:
+        print('error')
+
     for instr in instrucciones['ast'] :
-        print(instr.execute(datos))
+
+            if instr != None:
+                result = instr.execute(datos)
+                if isinstance(result, Error):
+                    escribirEnSalidaFinal(str(result.desc))
+                    erroresSemanticos.append(result)
+                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
+                    escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
+                else:
+                    escribirEnSalidaFinal(str(result))
+
+
+    f = open("./Utils/tabla.txt", "w")
+    f.write(str(datos))
+    f.close()
 
     errores = g.getMistakes()
-    recorrerErrores()
-    Rerrores()
+    recorrerErrores(errores)
+    Rerrores(errores, erroresSemanticos)
     errores.clear()
+    erroresSemanticos.clear()
 
     reporteTabla()
+    del instrucciones
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
 
-def Rerrores():
+def Rerrores(errores, semanticos):
     f = open("./Reportes/Reporte_Errores.html", "w")
     f.write("<!DOCTYPE html>\n")
     f.write("<html>\n")
@@ -63,6 +105,8 @@ def Rerrores():
     f.write("           <tr class='titulo'>   <td><b>Tipo</b></td>   <td><b>Descripcion</b></td>   <td><b>Linea</b></td> </tr>\n")
     for error in errores:
         f.write("           <tr> <td>" + error.getTipo() + "</td> <td>" + error.getDescripcion() + "</td> <td>"+ error.getLinea()  + "</td> </tr>\n")
+    for semantico in semanticos:
+        f.write("           <tr> <td>Semantico"  + "</td> <td>" + semantico.desc + "</td> <td>" + str(semantico.line) + "</td> </tr>\n")
     f.write("       </table>\n")
     f.write("         </div>")
     f.write("   </body>\n")
@@ -89,20 +133,25 @@ def mistakes():
     ruta = ".\\Reportes\\Reporte_Errores.html"
     webbrowser.open(ruta)
 
-def recorrerErrores():
+def recorrerErrores(errores):
     salidaE = ""
     for error in errores:
         salidaE += error.toString() + "\n"
     salida.insert("1.0", salidaE)
 
 def hacerReporteGramatica(gramatica):
-    f = open("./Reportes/GramaticaAutomatica.md", "w")
-    f.write("#Gramatica Generada Automaticamente\n")
-    f.write("La gramatica que se genero en el analisis realizado es la siguiente:\n")
-    f.write("******************************************************************\n")
-    f.write(gramatica)
-    f.write("\n******************************************************************")
-    f.close()
+    if gramatica != None:
+        f = open("./Reportes/GramaticaAutomatica.md", "w")
+        f.write("# Gramatica Generada Automaticamente\n")
+        f.write("La gramatica que se genero en el analisis realizado es la siguiente:\n")
+        f.write("******************************************************************\n")
+        f.write(gramatica)
+        f.write("\n******************************************************************")
+        f.close()
+    else:
+        f = open("./Reportes/GramaticaAutomatica.md", "w")
+        f.write("#Gramatica Generada Automaticamente\n")
+        f.write("No se detecto")
 
 def reporteTabla():
     f = open("./Reportes/Reporte_TablaSimbolos.html", "w")
@@ -126,17 +175,59 @@ def reporteTabla():
         for table in datos.tablaSimbolos[a]['tablas']:
                 columnas = []
                 for column in datos.tablaSimbolos[a]['tablas'][table]['columns']:
-                    nombre = column.name
-                    tipo = column.type
-                    size = column.size
+                    cc = ""
+                    try:
+                        cc = column['name']
+                    except:
+                        cc = column.name
+                    nombre = cc
+
+                    tt = ""
+                    try:
+                        tt = column.type
+                    except:
+                        tt = column['type']
+                    tipo = tt
+
+                    yy = ""
+                    try:
+                        yy = column.size
+                    except:
+                        yy = column['size']
+                    size = yy
+
                     c = fila(nombre, tipo, size)
-                    if column.pk != None:
+
+                    ff = ""
+                    try:
+                        ff = column['pk']
+                    except:
+                        ff = column.pk
+                    if ff != None:
                         c.setPK()
-                    if column.fk != None:
+
+                    gg = ""
+                    try:
+                        gg = column['fk']
+                    except:
+                        gg = column.fk
+                    if gg != None:
                         c.setFK()
-                    if column.unique != None:
+
+                    aa = ""
+                    try:
+                        aa = column['unique']
+                    except:
+                        aa = column.unique
+                    if aa != None:
                         c.setUnique()
-                    if column.default == None:
+
+                    bb = ""
+                    try:
+                        bb = column['default']
+                    except:
+                        bb = column.default
+                    if bb == None:
                         c.setDefault('None')
                     else:
                         c.setDefault(column.default)
@@ -178,16 +269,16 @@ def reporteTabla():
     f.write("</html>\n")
     f.close()
 
-
 def escribirEnSalidaInicio(texto): #borra lo que hay y escribe al inicio
     salida.insert("1.0", texto)
 
-def escribirEnSalidaFinal(texto): # no borra y escribe al final de lo que ya esta
-    salida.insert("END", texto) 
+def escribirEnSalidaFinal(texto): # no borra y escribe al final de lo que ya estaACTIVE
+    text = texto + "\n"
+    salida.insert("end", text)
 #root
 ################################Configuracion#################################
 root = Tk()
-root.title("TytusDB_Manager")#titulo 
+root.title("TytusDB_Manager")#titulo
 root.resizable(0,0)
 root.geometry("1300x700")#ajustar tamaño
 root.config(bg="black", cursor="pirate")
@@ -203,13 +294,13 @@ barra.add_cascade(label="Archivo", menu=archivoMenu)
 herramientaMenu=Menu(barra, tearoff=0)
 herramientaMenu.add_command(label="Ejecutar Analisis", command=analisis)
 barra.add_cascade(label="Analisis", menu=herramientaMenu)
- 
+
 reporteMenu = Menu(barra, tearoff=0)
 reporteMenu.add_command(label="Reporte errores", command=mistakes)
 reporteMenu.add_command(label="Tabla de simbolos", command=tabla)
 reporteMenu.add_command(label="Reporte AST", command=ast)
 reporteMenu.add_command(label="Reporte Gramatical", command=gramatica)
-barra.add_cascade(label="Reportes", menu=reporteMenu) 
+barra.add_cascade(label="Reportes", menu=reporteMenu)
 
 ayudaMenu=Menu(barra, tearoff=0)
 ayudaMenu.add_command(label="Ayuda", command=ayuda)
@@ -227,6 +318,3 @@ salida.place(x=300, y=380)
 
 
 root.mainloop() #mostrar interfaz
-
-
-

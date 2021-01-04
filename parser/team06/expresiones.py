@@ -815,7 +815,15 @@ class ExpresionIsNotDistinct(ExpresionNumerica):
         self.valor2 = valor2
 
 
-
+class ExpresionIgualdad(ExpresionNumerica):
+    '''
+        Esta clase representa que valor sera actualizado en una
+        columna, o la condicion que debe cumplir la columna para 
+        poder actulizar
+    '''
+    def __init__(self,exp1,exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
 
 #---------- expresiones complementarias del where--------------
 class ExpresionLimit(ExpresionNumerica):
@@ -833,7 +841,7 @@ class ExpresionLimitOffset(ExpresionNumerica):
     '''
     def __init__(self, valor1, valor2):
         self.valor1 = valor1
-        self.valor1 = valor1
+        self.valor2 = valor2
 
 class ExpresionGroup(ExpresionNumerica):
     '''
@@ -869,7 +877,24 @@ class ExpresionNotIn(ExpresionNumerica):
         self.valor1 = valor1
         self.valor2 = valor2
 
+class ExpresionIn(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1,valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
 class ExpresionNotExists(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1):
+        self.valor1 = valor1
+
+class ExpresionExists(ExpresionNumerica):
     '''
         Esta clase represente la variante de un alter anidado
         Recibe el ID, tipo de variante y tipo a asignar
@@ -982,3 +1007,62 @@ class ExpresionEXTRACT(ExpresionNumerica):
     def __init__(self, exp1,exp2) :
         self.exp1 = exp1
         self.exp2 = exp2
+
+# -----------------------------------------------------------------------------------------------------
+#                       EXPRESIONES PARA JOINS
+
+class ExpresionJoinA(ExpresionNumerica):
+    '''
+        Esta clase representa la expresión para castear datos.
+        Esta clase recibe un tipo a convertir y el dato
+    '''
+    def __init__(self, tabla1,tipo,tabla2,condicion) :
+        self.tabla1=tabla1
+        self.tipo=tipo
+        self.tabla2=tabla2
+        self.condicion=condicion
+
+class ExpresionJoinB(ExpresionNumerica):
+    '''
+        Esta clase representa la expresión para castear datos.
+        Esta clase recibe un tipo a convertir y el dato
+    '''
+    def __init__(self, tabla1,natural,tipo,tabla2) :
+        self.tabla1=tabla1
+        self.natural=natural
+        self.tipo=tipo
+        self.tabla2=tabla2
+
+class ExpresionJoinC(ExpresionNumerica):
+    '''
+        Esta clase representa la expresión para castear datos.
+        Esta clase recibe un tipo a convertir y el dato
+    '''
+    def __init__(self, tabla1,natural,auxiliar,tipo,tabla2) :
+        self.tabla1=tabla1
+        self.natural=natural
+        self.auxiliar=auxiliar
+        self.tipo=tipo
+        self.tabla2=tabla2
+
+
+class ExpresionJoinD(ExpresionNumerica):
+    '''
+        Esta clase representa la expresión para castear datos.
+        Esta clase recibe un tipo a convertir y el dato
+    '''
+    def __init__(self, tabla1,auxiliar,tipo,tabla2,operacion) :
+        self.tabla1=tabla1
+        self.auxiliar=auxiliar
+        self.tipo=tipo
+        self.tabla2=tabla2
+        self.operacion=operacion
+        
+class SortOptions(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, sort, option):
+        self.sort = sort
+        self.option = option

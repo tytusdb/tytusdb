@@ -125,6 +125,16 @@ class AggFunction(Expression):
         dot += self.expression.graphAST('',hash(self))
         return dot
 
+class ExtractFunction(Expression):
+    def __init__(self, function, expression):
+        self.function = function
+        self.expression = expression
+    def graphAST(self, dot, parent):
+        dot += str(parent) + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
+        dot += self.expression.graphAST('',hash(self))
+        return dot
+
 class ExpressionAsStringFunction(Expression):
     def __init__(self, expression):
         self.expression = expression

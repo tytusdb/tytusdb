@@ -216,6 +216,9 @@ class CreateTable(Nodo):
         if nombre_DB == 'None':
             Errores.insertar(err.Nodo_Error('P0002', 'no data found, no hay una base de datos seleccionada', self.fila, self.columna))
             return 'P0002: no data found, no hay una base de datos seleccionada\n'
+        if self.nombre_tabla == self.inherits:
+            Errores.insertar(err.Nodo_Error('42P01', 'No existe la tabla <<%s>>' % self.inherits, self.fila, self.columna))
+            return '42P01: No existe la tabla <<%s>>\n' % self.nombre_tabla
         respuesta = TypeChecker.createTable(nombre_DB, self.nombre_tabla, self.get_cantidad_columnas())
         if respuesta == 0:
             for col in self.columnas:
@@ -382,6 +385,10 @@ class CreateTableConstraint(Nodo):
                 for i, columna in enumerate(self.extra['lista_columnas']):
                     tipo_lista_columna = TypeChecker.obtenerTipoColumna(nombre_DB, self.nombre_tabla, columna)
                     tipo_lista_columna_ref = TypeChecker.obtenerTipoColumna(nombre_DB, self.extra['nombre_ref'], self.extra['lista_columnas_ref'][i])
+                    if tipo_lista_columna_ref is None or tipo_lista_columna is None:
+                        _id_columna = self.extra['lista_columnas_ref'][i] if tipo_lista_columna_ref is None else columna
+                        Errores.insertar(err.Nodo_Error('42703', 'No existe la columna <<%s>> referida en la llave foránea' % _id_columna, self.fila, self.columna))
+                        return 1
                     if tipo_lista_columna['tipo'] != tipo_lista_columna_ref['tipo']:
                         Errores.insertar(err.Nodo_Error('42804', 
                         'datatype_mismatch, Las columnas llave «%s» y «%s» son de tipos incompatibles: %s y %s' % (columna, self.extra['lista_columnas_ref'][i], tipo_lista_columna['tipo'], tipo_lista_columna_ref['tipo'])))
@@ -473,8 +480,11 @@ class AlterTable(Nodo):
         if nombre_DB == 'None':
             Errores.insertar(err.Nodo_Error('P0002', 'no data found, no hay una base de datos seleccionada', self.fila, self.columna))
             return 'P0002: no data found, no hay una base de datos seleccionada\n'
-        return self.hijo.ejectuar(TS, Errores)
-
+        respuesta = self.hijo.ejecutar(TS, Errores)
+        if respuesta == 0:
+            return 'ALTER TABLE EXITOSO\n'
+        else:
+            return '%s: %s\n' % (Errores.fin.tipo, Errores.fin.descripcion)
 
     def getC3D(self, TS):
         pass
@@ -493,7 +503,78 @@ class AlterTBAdd(Nodo):
         self.extra = extra
 
     def ejecutar(self, TS, Errores):
-        pass
+        nombre_DB = os.environ['DB']
+        respuesta = 0
+        if self.numero_tipo_add == 1: #Column id tipo
+            respuesta = TypeChecker.getIfTipoColumnaIsReserverd(self.extra['tipo']['tipo'])
+            if respuesta == 14:#Si el tipo no es uno determinado
+                respuesta = TypeChecker.obtenerTiposEnum(self.extra['tipo']['tipo'])
+                if respuesta is None:
+                    Errores.insertar(err.Nodo_Error('42704', 'undefined_object, no existe el tipo <<%s>>' % self.extra['tipo']['tipo'], self.fila, self.columna))
+                    return 1
+            elif respuesta == 4:#Si el tipo es Numeric
+                if self.extra['tipo']['size'] > 1000 or self.extra['tipo']['size'] < 1:
+                    Errores.insertar(err.Nodo_Error('22023', 'la precisión %s de NUMERIC debe estar entre 1 y 1000' % str(self.extra['tipo']['size']), self.fila, self.columna))
+                    return 1
+            elif respuesta >= 8 and respuesta <= 11:#Si el tipo es char, varchar, character, character varying
+                if self.extra['tipo']['size'] < 1:
+                    Errores.insertar(err.Nodo_Error('22023', 'el largo para el tipo %s debe ser al menos 1' % self.extra['tipo']['tipo'], self.fila, self.columna))
+                    return 1
+
+            respuesta = JM.alterAddColumn(nombre_DB, self.nombre_tabla, None)
+            if respuesta == 0:
+                respuesta = TypeChecker.createColumn(nombre_DB, self.nombre_tabla, self.extra['id'], self.extra['tipo'])
+                if respuesta == 0:
+                    return 0
+            #Se elimina la columna cualquier cosa
+            TypeChecker.dropColumn(nombre_DB, self.nombre_tabla, self.extra['id'])
+        elif self.numero_tipo_add == 2: #id_constraint t_foreign t_key Lista_ID t_references id Lista_ID
+            '''Validar que ambas listas sean del mismo tamaño'''
+            if len(self.extra['Lista_ID_ref']) == len(self.extra['Lista_ID']):
+                '''validar foraneas sean del mismo tipo'''
+                for i, columna in enumerate(self.extra['Lista_ID']):
+                    tipo_lista_columna = TypeChecker.obtenerTipoColumna(nombre_DB, self.nombre_tabla, columna)
+                    tipo_lista_columna_ref = TypeChecker.obtenerTipoColumna(nombre_DB, self.extra['id_ref'], self.extra['Lista_ID_ref'][i])
+                    if tipo_lista_columna_ref is None or tipo_lista_columna is None:
+                        _id_columna = self.extra['Lista_ID_ref'][i] if tipo_lista_columna_ref is None else columna
+                        Errores.insertar(err.Nodo_Error('42703', 'No existe la columna <<%s>> referida en la llave foránea' % _id_columna, self.fila, self.columna))
+                        return 1
+                    if tipo_lista_columna['tipo'] != tipo_lista_columna_ref['tipo']:
+                        Errores.insertar(err.Nodo_Error('42804', 
+                        'datatype_mismatch, Las columnas llave «%s» y «%s» son de tipos incompatibles: %s y %s' % (columna, self.extra['Lista_ID_ref'][i], tipo_lista_columna['tipo'], tipo_lista_columna_ref['tipo'])))
+                        return 1
+                respuesta = TypeChecker.alterAddFK(nombre_DB, self.nombre_tabla, self.extra['id_constraint'], self.extra['Lista_ID'], self.extra['id_ref'], self.extra['Lista_ID_ref'])
+            else:
+                Errores.insertar(err.Nodo_Error('42830', 'el número de columnas referidas en la llave foránea no coincide con el número de columnas de referencia', self.fila, self.columna))
+                return 1
+        elif self.numero_tipo_add == 3:#id_constraint t_unique par1 id par2
+            _constraint = TypeChecker.create_new_constraint(self.extra['id_constraint'], self.numero_tipo_add, None)
+            respuesta = TypeChecker.addConstraint(nombre_DB, self.nombre_tabla, self.extra['id'], _constraint)
+        elif self.numero_tipo_add == 4: #id_constraint t_check EXP
+            _constraint = TypeChecker.create_new_constraint(self.extra['id_constraint'], self.numero_tipo_add, self.extra['EXP'])
+            respuesta = TypeChecker.add_constraint_general_check(nombre_DB, self.nombre_tabla, _constraint)
+
+        if respuesta == 0:
+            return 0
+        elif respuesta == 1:
+            Errores.insertar(err.Nodo_Error('XX000', 'internal_error', self.fila, self.columna))
+        elif respuesta == 2:
+            Errores.insertar(err.Nodo_Error('3D000', 'No existe base de datos <<%s>>' % nombre_DB, self.fila, self.columna))
+        elif respuesta == 3:
+            Errores.insertar(err.Nodo_Error('42P01', 'No existe la tabla <<%s>>' % self.nombre_tabla, self.fila, self.columna))
+        elif respuesta == 4:
+            if self.numero_tipo_add == 2:
+                Errores.insertar(err.Nodo_Error('42710', 'duplicate_object <<%s>>' % self.extra['id_constraint'], self.fila, self.columna))
+            elif self.numero_tipo_add == 3:
+                Errores.insertar(err.Nodo_Error('42703', 'undefined_column <<%s>>' % self.extra['id'], self.fila, self.columna))
+            else:
+                Errores.insertar(err.Nodo_Error('42701', 'duplicate_column <<%s>>' % self.extra['id'], self.fila, self.columna))
+        elif respuesta == 5:
+            Errores.insertar(err.Nodo_Error('42710', 'duplicate_object, propiedad ya existente <<%s>>' % self.extra['id_constraint'], self.fila, self.columna))
+        return 1
+        
+        
+
 
     def getC3D(self, TS):
         pass
@@ -518,8 +599,8 @@ class AlterTBAdd(Nodo):
             #Lista_ID
             grafica.node('1altertb%s' % self.mi_id, 'Lista_ID')
             grafica.edge(self.mi_id, '1altertb%s' % self.mi_id)
-            for i, id in self.extra['Lista_ID']:
-                grafica.node('%saltertb_lista_id%s' % (str(i), self.mi_id), 'Column: %s' % self.extra['id'])
+            for i, id in enumerate(self.extra['Lista_ID']):
+                grafica.node('%saltertb_lista_id%s' % (str(i), self.mi_id), 'Column: %s' % id)
                 grafica.edge('1altertb%s' % self.mi_id, '%saltertb_lista_id%s' % (str(i), self.mi_id))
             #id_ref
             grafica.node('2altertb%s' % self.mi_id, 'Tabla Referencia: %s' % self.extra['id_ref'])
@@ -527,8 +608,8 @@ class AlterTBAdd(Nodo):
             #Lista_ID_ref
             grafica.node('3altertb%s' % self.mi_id, 'Lista_ID_References')
             grafica.edge(self.mi_id, '3altertb%s' % self.mi_id)
-            for i, id in self.extra['Lista_ID_ref']:
-                grafica.node('%saltertb_lista_id_references%s' % (str(i), self.mi_id), 'Column: %s' % self.extra['id'])
+            for i, id in enumerate(self.extra['Lista_ID_ref']):
+                grafica.node('%saltertb_lista_id_references%s' % (str(i), self.mi_id), 'Column: %s' % id)
                 grafica.edge('3altertb%s' % self.mi_id, '%saltertb_lista_id_references%s' % (str(i), self.mi_id))
         elif self.numero_tipo_add == 3: #id_constraint t_unique par1 id par2
             #id_constraint
@@ -552,11 +633,67 @@ class AlterTBAdd(Nodo):
 class AlterTBDrop(Nodo):
     def __init__(self, fila, columna, numero_tipo_drop, nombre):
         super().__init__(fila, columna)
+        self.nombre_tabla = None
         self.numero_tipo_drop = numero_tipo_drop
         self.nombre = nombre
 
     def ejecutar(self, TS, Errores):
-        pass
+        nombre_DB = os.environ['DB']
+        respuesta = 0
+        if self.numero_tipo_drop == 1: #t_column id
+            respuesta = TypeChecker.dropColumn(nombre_DB, self.nombre_tabla, self.nombre)
+        else: #t_constraint id
+            base = TypeChecker.obtenerBase(nombre_DB)
+            if base is not None:
+                tablaActual = base.listaTablas.obtenerTabla(self.nombre_tabla)
+                if tablaActual is not None:
+                    #Busco si esta en el check general
+                    for i, _check in enumerate(tablaActual.check_general):
+                        if _check.nombreConstraint == self.nombre:
+                            tablaActual.check_general.pop(i)
+                            return 0
+                    #Busco si esta en la llave primaria
+                    if tablaActual.primary.nombreConstraint == self.nombre:
+                        respuesta = TypeChecker.alterDropPk(nombre_DB, self.nombre_tabla)
+                        if respuesta == 0:
+                            return 0
+                        else:
+                            Errores.insertar(err.Nodo_Error('XX000', 'internal_error <<%s>>' % str(respuesta), self.fila, self.columna))
+                            return 1
+                    #Busco si esta en las llaves foraneas
+                    respuesta = TypeChecker.alterDropFK(nombre_DB, self.nombre_tabla, self.nombre)
+                    if respuesta == 0:
+                        return 0
+                    elif respuesta == 4:
+                        columnas = TypeChecker.showColumns(nombre_DB, self.nombre_tabla)
+                        #Busco si esta entre las columnas
+                        for columna in columnas:
+                            respuesta = TypeChecker.dropConstraint(nombre_DB, self.nombre_tabla, columna, self.nombre)
+                            if respuesta == 0:
+                                return 0
+                            elif respuesta != 5:
+                                break
+                        if respuesta == 5:
+                            Errores.insertar(err.Nodo_Error('42704', 'No existe la constraint <<%s>> en la tabla <<%s>>' % (self.nombre, self.nombre_tabla), self.fila, self.columna))
+                            return 1
+                else:
+                    respuesta = 3
+            else:
+                respuesta = 2
+
+        if respuesta == 0:
+            return 0
+        elif respuesta == 1:
+            Errores.insertar(err.Nodo_Error('XX000', 'internal_error', self.fila, self.columna))
+        elif respuesta == 2:
+            Errores.insertar(err.Nodo_Error('3D000', 'No existe base de datos <<%s>>' % nombre_DB, self.fila, self.columna))
+        elif respuesta == 3:
+            Errores.insertar(err.Nodo_Error('42P01', 'No existe la tabla <<%s>>' % self.nombre_tabla, self.fila, self.columna))
+        elif respuesta == 4:
+            Errores.insertar(err.Nodo_Error('42703', 'undefined_column <<%s>>' % self.nombre, self.fila, self.columna))
+        elif respuesta == 5:
+            Errores.insertar(err.Nodo_Error('P0004', 'No se puede borrar la columna <<%s>> porque es llave primaria' % self.nombre, self.fila, self.columna))
+        return 1
 
     def getC3D(self, TS):
         pass
@@ -572,7 +709,125 @@ class AlterTBDrop(Nodo):
         grafica.node('altertbdrop_id%s' % self.mi_id, 'Nombre: %s' % self.nombre)
         grafica.edge(self.mi_id, 'altertbdrop_id%s' % self.mi_id)
         
+class AlterTBAlter(Nodo):
+    def __init__(self, fila, columna, nombre_columna, alter_columns):
+        super().__init__(fila, columna)
+        self.nombre_tabla = None
+        self.nombre_columna = nombre_columna
+        self.alter_columns = alter_columns
 
+    def ejecutar(self, TS, Errores):
+        nombre_DB = os.environ['DB']
+        respuesta = 0
+        if self.nombre_columna is not None: #id t_set t_not t_null
+            _constraint = TypeChecker.create_new_constraint(None, 2, False)
+            respuesta = TypeChecker.addConstraint(nombre_DB, self.nombre_tabla, self.nombre_columna, _constraint)
+        else: #alter_columns
+            #Primero compruebo que puedo hacer el cambio a las columnas
+            is_error = False
+            for column in self.alter_columns:
+                tipoActual = TypeChecker.obtenerTipoColumna(nombre_DB, self.nombre_tabla, column['nombre_columna'])
+                if tipoActual is not None:
+                    if tipoActual['tipo'] != 'varchar':
+                        Errores.insertar(err.Nodo_Error('XX000', 'internal_error, el tipo debe ser un varchar pero viene un <<%s>>' % tipoActual['tipo'], self.fila, self.columna))
+                        return 1
+                    if tipoActual['size'] > column['entero']:
+                        Errores.insertar(err.Nodo_Error('XX000', 'internal_error, el nuevo valor <<%s>> debe ser mayor al valor que hay: %s' % (column['entero'], str(tipoActual['size'])), self.fila, self.columna))
+                        return 1
+                else:
+                    actualBase = TypeChecker.obtenerBase(nombre_DB)
+                    if actualBase is not None:
+                        if not actualBase.listaTablas.existeTabla(self.nombre_tabla): 
+                            respuesta = 3
+                            is_error = True
+                            break
+                        else:
+                            respuesta = 4
+                            is_error = True
+                            break
+                    else:
+                        respuesta = 2
+                        is_error = True
+                        break
+            if not is_error:
+                for column in self.alter_columns:
+                    tipoActual = TypeChecker.obtenerTipoColumna(nombre_DB, self.nombre_tabla, column['nombre_columna'])
+                    tipoActual['size'] = column['entero']
+                    respuesta = TypeChecker.alterTypeColumn(nombre_DB, self.nombre_tabla, column['nombre_columna'], tipoActual)
+                    if respuesta != 0:
+                        Errores.insertar(err.Nodo_Error('XX000', 'internal_error, se hicieron algunos cambios en los tipos pero no fueron todos, error de <<%s>>' % str(respuesta), self.fila, self.columna))
+                        return 1
+
+        if respuesta == 0:
+            return 0
+        elif respuesta == 1:
+            Errores.insertar(err.Nodo_Error('XX000', 'internal_error', self.fila, self.columna))
+        elif respuesta == 2:
+            Errores.insertar(err.Nodo_Error('3D000', 'No existe base de datos <<%s>>' % nombre_DB, self.fila, self.columna))
+        elif respuesta == 3:
+            Errores.insertar(err.Nodo_Error('42P01', 'No existe la tabla <<%s>>' % self.nombre_tabla, self.fila, self.columna))
+        elif respuesta == 4:
+            Errores.insertar(err.Nodo_Error('42703', 'undefined_column <<%s>>' % self.nombre, self.fila, self.columna))
+        elif respuesta == 5:
+            Errores.insertar(err.Nodo_Error('42710', 'duplicate_object, propiedad ya existente para columna <<%s>> de tabla <<%s>>' % (self.nombre_columna, self.nombre_tabla), self.fila, self.columna))
+        return 1
+
+    def getC3D(self, TS):
+        pass
+
+    def graficarasc(self, padre, grafica):
+        super().graficarasc(padre, grafica)
+        if self.nombre_columna is not None:
+            #Nombre Columna
+            grafica.node('1altertbalter%s' % self.mi_id, 'Columna: %s' % self.nombre_columna)
+            grafica.edge(self.mi_id, '1altertbalter%s' % self.mi_id)
+            grafica.node('2altertbalter%s' % self.mi_id, 'Set Not Null')
+            grafica.edge(self.mi_id, '2altertbalter%s' % self.mi_id)
+        else:
+            #alter_columns
+            for i,column in enumerate(self.alter_columns):
+                #Nombre Columna
+                grafica.node('%saltertbalter_column_name%s' % (str(i), self.mi_id), 'Columna: %s' % column['nombre_columna'])
+                grafica.edge(self.mi_id, '%saltertbalter_column_name%s' % (str(i), self.mi_id))
+                grafica.node('%saltertbalter_col%s' % (str(i), self.mi_id), 'Type Varchar')
+                grafica.edge('%saltertbalter_column_name%s' % (str(i), self.mi_id), '%saltertbalter_col%s' % (str(i), self.mi_id))
+                #Entero
+                grafica.node('%saltertbalter_entero%s' % (str(i), self.mi_id), str(column['entero']))
+                grafica.edge('%saltertbalter_column_name%s' % (str(i), self.mi_id), '%saltertbalter_entero%s' % (str(i), self.mi_id))
+
+class AlterTBRename(Nodo):
+    def __init__(self, fila, columna, nombre_columna_anterior, nombre_columna_nueva):
+        super().__init__(fila, columna)
+        self.nombre_tabla = None
+        self.nombre_columna_anterior = nombre_columna_anterior
+        self.nombre_columna_nueva = nombre_columna_nueva
+
+    def ejecutar(self, TS, Errores):
+        nombre_DB = os.environ['DB']
+        respuesta = TypeChecker.alterRenameColumn(nombre_DB, self.nombre_tabla, self.nombre_columna_anterior, self.nombre_columna_nueva)
+        if respuesta == 0:
+            return 0
+        elif respuesta == 1:
+            Errores.insertar(err.Nodo_Error('XX000', 'internal_error', self.fila, self.columna))
+        elif respuesta == 2:
+            Errores.insertar(err.Nodo_Error('3D000', 'No existe base de datos <<%s>>' % nombre_DB, self.fila, self.columna))
+        elif respuesta == 3:
+            Errores.insertar(err.Nodo_Error('42P01', 'No existe la tabla <<%s>>' % self.nombre_tabla, self.fila, self.columna))
+        elif respuesta == 4:
+            Errores.insertar(err.Nodo_Error('42703', 'undefined_column <<%s>>' % self.nombre_columna_anterior, self.fila, self.columna))
+        elif respuesta == 5:
+            Errores.insertar(err.Nodo_Error('42710', 'duplicate_object, ya existe una columna con nombre <<%s>>' % self.nombre_columna_nueva, self.fila, self.columna))
+        return 1
+
+    def getC3D(self, TS):
+        pass
+
+    def graficarasc(self, padre, grafica):
+        super().graficarasc(padre, grafica)
+        grafica.node('1altertbrename%s' % self.mi_id, 'Nombre antes: %s' % self.nombre_columna_anterior)
+        grafica.edge(self.mi_id, '1altertbrename%s' % self.mi_id)
+        grafica.node('2altertbrename%s' % self.mi_id, 'Nombre nuevo: %s' % self.nombre_columna_nueva)
+        grafica.edge(self.mi_id, '2altertbrename%s' % self.mi_id)
 
 class DropTable(Nodo):
     def __init__(self, fila, columna, nombre_tabla):

@@ -1,13 +1,14 @@
 import  math
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import *
+import tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
 
 class Trigonometrica(Instruccion):
-    def __init__(self, trig, E,fila,columna):
+    def __init__(self, trig, E, E2,fila,columna):
         self.trig = trig
         self.E = E
+        self.E2 = E2
         self.fila = fila
         self.columna = columna
 
@@ -33,11 +34,31 @@ class Trigonometrica(Instruccion):
                     rad = math.atan(num)
                     return rad
                 elif (str(Trigo.trig).upper() == 'ATAND'):
-                    return math.atan(math.radians(num))
+                    return math.degrees(math.atan((num)))
                 elif (str(Trigo.trig).upper() == 'ATAN2'):
-                    return 0.1111
-                elif (str(Trigo.trig).upper() == 'atan2d'):
-                    return 0.1111
+                    num1 = Trigonometrica.Resolver(Trigo.E,ts,Consola,exceptions)
+                    num2 = Trigonometrica.Resolver(Trigo.E2,ts,Consola,exceptions)
+
+                    if isinstance(num1,int) or isinstance(num1,float):
+                        if isinstance(num2,int) or isinstance(num2,float):
+                            arg = num1 /  num2
+                            return math.atan(float(arg))
+                        else:
+                            return 'error'
+                    else:
+                        return 'error'
+                elif (str(Trigo.trig).upper() == 'ATAN2D'):
+                    num1 = Trigonometrica.Resolver(Trigo.E,ts,Consola,exceptions)
+                    num2 = Trigonometrica.Resolver(Trigo.E2,ts,Consola,exceptions)
+
+                    if isinstance(num1, int) or isinstance(num1, float):
+                        if isinstance(num2, int) or isinstance(num2, float):
+                            arg = num1 / num2
+                            return math.degrees(math.atan(float((arg))))
+                        else:
+                            return 'error'
+                    else:
+                        return 'error'
                 elif (str(Trigo.trig).upper() == 'COS'):
                     rad = math.cos(num)
                     return rad

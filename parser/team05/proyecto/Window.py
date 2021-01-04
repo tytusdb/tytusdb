@@ -104,7 +104,8 @@ class Main(tk.Tk):
         self.menu_bar.add_cascade(label="Reportes", menu=self.sm_report)
         # Submenu [Help]
         self.sm_help = Menu(self.menu_bar, tearoff=False)
-        self.sm_help.add_command(label="Ayuda")
+        self.sm_help.add_command(label="Manual de Usuario", command=lambda: self.help_user_manual())
+        self.sm_help.add_command(label="Manual Técnico", command=lambda: self.help_technical_manual())
         self.sm_help.add_command(label="Acerca de", command=lambda: self.help_about_it())
         self.menu_bar.add_cascade(label="Ayuda", menu=self.sm_help)
         # Input Frame & Widget
@@ -435,6 +436,12 @@ class Main(tk.Tk):
         g = Graficar()
         g.graficar_arbol(self.raiz_ast)
 
+    def help_user_manual(self):
+        webbrowser.open('file://' + os.path.realpath("documents/Manual de Usuario.pdf"))
+
+    def help_technical_manual(self):
+        webbrowser.open('file://' + os.path.realpath("documents/Manual Técnico.pdf"))
+
     # About it section
     def help_about_it(self):
         messagebox.showinfo("Tytus DB",
@@ -580,7 +587,7 @@ class Main(tk.Tk):
         print("--- ANÁLISIS TERMINADO ---")
 
     # MODIFICACION NOMBRE BASE DE DATOS
-    def do_alter_db(self,p_inst,p_st,p_es):
+    def do_alter_db(self, p_inst, p_st, p_es):
         key = 'CBD_' + p_inst.nombreDB
         existe = p_st.get(key)
         if existe:
@@ -588,7 +595,7 @@ class Main(tk.Tk):
             key = 'ADB_' + p_inst.nombreDB
             simbolo = st.Symbol(key, p_inst.nombreDB, 'Alter database', newDB)
             p_st.add(simbolo)
-            alterDatabase(p_inst.nombreDB,newDB)
+            alterDatabase(p_inst.nombreDB, newDB)
 
         else:
             error = es.errorSemantico('ADB_' + p_inst.nombreDB, 'La base de datos ' + p_inst.nombreDB + ' no existe')
@@ -750,12 +757,7 @@ class Main(tk.Tk):
     def do_show(self, p_inst, p_st, es_global, ct_global):
         output = ""
         key = 1
-        listado = []
-        for keys, value in p_st.symbols.items():
-            if value.type == 'create':
-                listado.append(value.id)
-            if value.type == 'drop':
-                listado.remove(value.id)
+        listado = showDatabases()
 
         for db in listado:
             output += str(key) + '. ' + str(db) + '\n'
@@ -768,10 +770,8 @@ class Main(tk.Tk):
 
     # SELECT A TABLAS EN BASE DE DATOS
     def do_select(self, p_inst, p_st, p_es, ct_global):
-        output = ""
         valor2 = 0
         list = []
-        listI = []
 
         for keys, value in p_st.symbols.items():
             if value.type == 'use':
@@ -810,6 +810,34 @@ class Main(tk.Tk):
                         out += '\n'
                     else:
                         out += table.valor + '\n'
+                        out += '---------------------------------------\n'
+                        out += '... TABLA VACIA ...' + '\n\n'
+                self.new_output(out)
+            else:
+                listado = []
+                listado2 = []
+                for col in p_inst.valores:
+                    listado.append(col.valor.valor)
+
+                for col in p_inst.valores:
+                    if col.alias is None:
+                        listado2.append(col.valor.valor)
+                    else:
+                        listado2.append(col.alias.valor)
+
+                out = ""
+                for table in p_inst.pfrom:
+                    output = extractRow(self.use_db, table.valor, listado)
+                    if len(output) > 0:
+                        out += table.valor + '\n'
+                        out += str(listado2) + '\n'
+                        out += '---------------------------------------\n'
+                        for item in output:
+                            out += str(item) + '\n'
+                        out += '\n'
+                    else:
+                        out += table.valor + '\n'
+                        out += str(listado2) + '\n'
                         out += '---------------------------------------\n'
                         out += '... TABLA VACIA ...' + '\n\n'
                 self.new_output(out)

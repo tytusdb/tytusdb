@@ -49,8 +49,14 @@ class Select(Instruccion):
                         if contadorNombre == 0: nombreTabla = nombreColumna.operador
                         else: nombreTabla = nombreColumna.operador + str(contadorNombre)
                     except:
-                        if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
-                        else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+                        try:
+                            if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
+                            else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+                        except:
+                            if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
+                            else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
+                        
+
 
                 comprobar = nombreColumna.execute(data, None)
                 if isinstance(comprobar, Error):
@@ -129,7 +135,6 @@ class Select(Instruccion):
             elif tablasSeleccionadas.asop == None:
                 directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': '', 'temporal': False}
             else:
-                print(nombreColumna)
                 directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': tablasSeleccionadas.asop.upper(), 'temporal': False}
 
         try:
@@ -196,8 +201,13 @@ class Select(Instruccion):
                             if contadorNombre == 0: nombreTabla = nombreColumna.operador
                             else: nombreTabla = nombreColumna.operador + str(contadorNombre)
                         except:
-                            if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
-                            else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+                            try:
+                                if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
+                                else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+                            except :
+                                if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
+                                else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
+
 
 
                     try:
@@ -245,8 +255,6 @@ class Select(Instruccion):
             duplicadas = 0
             for route in routes:
                 if tuple(route) in dups:
-                    #nuevoArregloDistinct.append(route)
-                    juntarValores.pop(contador)
                     duplicadas = duplicadas + 1
                 else:
                     nuevoArregloDistinct.append(route)
@@ -365,12 +373,11 @@ class Select(Instruccion):
                 duplicadas = 0
                 for route in routes:
                     if tuple(route) in dups:
-                        juntarValores.pop(contador)
                         duplicadas = duplicadas + 1
                     else:
                         nuevoArregloDistinct.append(route)
                         dups.add(tuple(route))
-                contador = contador + 1
+                    contador = contador + 1
 
                 if duplicadas == 0:
                     nuevoArregloDistinct = juntarValores
@@ -448,6 +455,7 @@ class Select(Instruccion):
     def ImprimirTabla(self, columnasMostrar):
         juntarValores = []
         inicio = 0
+        print(columnasMostrar)
         for keys in columnasMostrar.keys():
             contador = 0
             for val in columnasMostrar[keys]['columnas']:
@@ -481,10 +489,11 @@ class Casos(Instruccion):
 
 class FromOpcional(Instruccion):
 
-    def __init__(self,parametros, whereogroup, groupbyopcional):
+    def __init__(self, parametros, whereogroup, groupbyopcional, orderby):
         self.parametros = parametros
         self.whereopcional = whereogroup
         self.groupbyopcional = groupbyopcional
+        self.orderby = orderby
 
     def execute(self,data):
         return self
@@ -523,12 +532,15 @@ class ListaDeSeleccionadosConOperador(Instruccion):
 
                 if isinstance(condit, Error):
                     return condit
-                
+
                 if condit :
                     return Primitive(str(arg.caso.thenCase.type), arg.caso.thenCase.val)
-            
+
                 if arg.elsecase != None :
                     left = arg.elsecase.elseopcional
+            if left == None :
+                error = Error('Semántico', 'Error(????): Else case no específicado.', 0, 0)
+                return error
 
             return left
         else :
@@ -550,7 +562,7 @@ class ListaDeSeleccionadosConOperador(Instruccion):
                 elif tipo != resp.type :
                     error = Error('Semántico', 'Error(????): Error de tipos.', 0, 0)
                     return error
-                
+
                 if resp.type == 'string' :
                     try :
                         dextraccion = resp
@@ -571,18 +583,18 @@ class ListaDeSeleccionadosConOperador(Instruccion):
                                     error = Error('Semántico', 'Error(????): Error de tipos.', 0, 0)
                                     return error
 
-                    
+
 
                 items.append(resp.val)
 
             if  self.operador.upper() == 'GREATEST' :
-                
+
                 try:
                     return Primitive('integer', int(max(items)))
                 except:
                     return Primitive('string', max(items))
-                
-            else : 
+
+            else :
                 'LEAST'
                 return Primitive('string', min(items))
 
@@ -622,10 +634,59 @@ class QuerysSelect(Instruccion):
         self.select2 = select2
 
     def execute(self,data):
+        query1 = self.select1.execute(data)
+        if isinstance(query1, Error):
+            return query1
+
+        query2 = self.select2.execute(data)
+        if isinstance(query2, Error):
+            return query2
+
+        if len(query1.keys()) != len(query2.keys()):
+            return Error('Semantico', 'La cantidad de columnas en el ' + self.operador + ' tiene que ser la misma.', 0, 0)
+
+        if self.operador == 'union':
+            keys2 = []
+            for key in query2.keys():
+                keys2.append(key)
+
+            cont = 0
+            for key in query1.keys():
+                query1[key]['columnas'] = query1[key]['columnas'] + query2[keys2[cont]]['columnas']
+                cont = cont + 1
+
+            return query1
+
+        elif self.operador == 'intersect':
+
+            return query1
+
         return self
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def ImprimirTabla(self, columnasMostrar):
+        juntarValores = []
+        inicio = 0
+        for keys in columnasMostrar.keys():
+            contador = 0
+            for val in columnasMostrar[keys]['columnas']:
+                if inicio == 0:
+                    juntarValores.append(val)
+                else:
+                    juntarValores[contador].append(val[0])
+                contador = contador + 1
+            inicio = inicio + 1
+
+        x = PrettyTable()
+
+        keys = columnasMostrar.keys()
+        x.field_names = keys
+        x.add_rows(
+            juntarValores
+        )
+        return x
 
 class ParametrosFrom(Instruccion):
     #true select
@@ -759,7 +820,7 @@ class FuncionBinaria(Instruccion):
         self.arg2 = arg2
         self.arg3 = arg3
 
-    def execute(self, data, directorioTablas):
+    def execute(self, data, valoresTabla):
         tipo = str(self.operador)
         if tipo == 'length':
             try:
@@ -1442,7 +1503,7 @@ class FuncionMatematica(Instruccion):
                 return argumento
 
             if argumento.type == 'integer' or argumento.type == 'float' :
-                return Primitive('float', math.fabs(argumento.val))
+                return Primitive('float', math.fabs(float(argumento.val)))
             else :
                 error = Error('Semántico', 'Error de tipos en ABS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
@@ -1731,7 +1792,7 @@ class FuncionMatematica(Instruccion):
 
         elif tipo == 'pi' :
             'PI'
-            return math.pi
+            return Primitive('float', math.pi)
 
 
         elif tipo == 'power' :
@@ -2107,14 +2168,16 @@ class FuncionMatematicaSimple(Instruccion):
         for keys in columnasAceptadas:
             contador = 0
             for columnas in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][keys]['columns']:
-                if columnas.name == self.argumento.column.upper():
+                if columnas.name.upper() == self.argumento.column.upper():
                     noEncontrado = False
                     tablaAceptada = keys
                     columnaImprimir = columnas
                     diccionarioRetorno['type'] = columnas.type
-                    break;
+                    break
                 else:
                     contador = contador + 1
+            if not noEncontrado :
+                break
         if noEncontrado:
             if self.operador == 'count':
                 if self.argumento.column == '*':
@@ -2145,14 +2208,14 @@ class FuncionMatematicaSimple(Instruccion):
         elif self.operador == 'sum':
             if columnaImprimir.type == 'integer' or columnaImprimir.type == 'float':
                 val = 0
-
                 for key in diccionarioAgrupacion:
+                    print (key)
                     val = 0
                     for pos in diccionarioAgrupacion[key]:
                         val = val + columnasAceptadas[tablaAceptada][pos][contador]
                     diccionarioRetorno['val'][key] = [val]
 
-                    return diccionarioRetorno
+                return diccionarioRetorno
             else:
                 return Error('Semantico', 'El tipo para SUM debe ser numerico o float.', 0, 0)
         elif self.operador == 'count':
