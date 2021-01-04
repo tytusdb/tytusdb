@@ -1,4 +1,4 @@
-SELECT nombre,indentificacion,sum(salario)
+/*SELECT nombre,indentificacion,sum(salario)
 FROM tbsujeto
 where nombre = 'carros' and a.apellido LIKE 'santos' or apellido ILIKE 'compiladores'
 GROUP BY nombre,indentificacion
@@ -18,7 +18,16 @@ where a.nombre = 'carros'
 GROUP BY a.nombre,a.indentificacion
 HAVING sum(salario)<>100000;
 
+SELECT s.id, s.nombre 
+FROM sujeto s
+GROUP BY s.id ASC;
 
+SELECT u.dpi, u.apellido
+FROM usuario u
+GROUP BY u.dpi DESC
+HAVING sum(algo) > 1200;
+*/
+/*
 SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
 SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
 SELECT now();
@@ -34,7 +43,7 @@ CREATE TABLE prueba(
     name varchar(10),
      PRIMARY KEY(contact_id)
 );
-CREATE TABLE usuario
+CREATE TABLE usuario(
     id integer not NULL primary key,
     email varchar(23) unique not null default 1234,
     foto VARCHAR(200) DEFAULT '/assets/fotoperfil.png',
@@ -43,13 +52,10 @@ CREATE TABLE usuario
 );
 
 INSERT INTO customers(customer_name)
-VALUES('BlueBird Inc'),
-      ('Dolphin LLC');
+VALUES('BlueBird Inc');
 
 INSERT INTO contacts(customer_id, contact_name, phone, email)
-VALUES(1,'John Doe','(408)-111-1234','john.doe@bluebird.dev'),
-      (1,'Jane Doe','(408)-111-1235','jane.doe@bluebird.dev'),
-      (2,'David Wright','(408)-222-1234','david.wright@dolphin.dev');
+VALUES(1,'John Doe','(408)-111-1234','john.doe@bluebird.dev');
 
 INSERT INTO products VALUES (1, 'Cheese', 9.99);
 
@@ -80,9 +86,6 @@ salary numeric CHECK (salary >0)
 );
 
 
-select *
-from tbsujeto
-where fechanacimiento between '2004-01-01' and '2005-01-01';
 
 select *
 from tbsujeto
@@ -153,8 +156,8 @@ UNION
  where substring(nombre,1,4) = 'suje'
  and A.id not in (select idcolaborador from
 tbidentificacioncolaborador B) order by marcos limit 5 offset 9);
-
-
+*/
+/*
 select CASE when nombre = 'sujeto3' then 'Juan Carlos'
  when nombre = 'sujeto4' then 'Luis Espino'
  end Nombrecambiado
@@ -163,3 +166,71 @@ select CASE when nombre = 'sujeto3' then 'Juan Carlos'
  and A.id not in (select idcolaborador from
 tbidentificacioncolaborador B) ;
 
+*/
+/*
+alter table nombretabla
+add constraint nombre
+foreign key (nombre)
+references  nombre (campo);
+
+alter table marocs
+add constraint asddasd_asdas_Asd
+unique (documento)
+add constraint nombre
+primary key (hola)
+add column af, sg char(4)
+drop column c1, c3, c4;
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+
+
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20i:38:40');
+SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
+SELECT now();
+SELECT CURRENT_DATE;
+SELECT CURRENT_TIME;
+SELECT TIMESTAMP 'now';
+
+INSERT INTO tbcolaborador values (5,'sujeto5', now());
+
+ALTER DATABASE NAME OWNER TO 'JC';*/
+
+--SELECT TIMESTAMP 'now';
+/*
+select *
+from tbsujeto ;*/
+
+use database basededatos1;
+
+/*select nombre , count (id)
+from tbcolaboradeores c
+inner join tbindentificadorcolaborardor A on A.idcolaborador= C.id
+group by nombre asc;*/
+/*
+drop database db1;
+drop database if exists db2;
+drop table t1;
+INSERT INTO products VALUES (1, 'Cheese', 9.99);
+UPDATE products SET price = -!10 ^ !-6, price = !price + !!10, id = 2 <> 3, unario = !!!u + 8, neg = !!!n WHERE 4 > 5 and e = 3 or f = n or not true
+and p.price IS NOT DISTINCT FROM 32;
+*/
+--insert into tbpuesto values (2,'Asistente Contable','4,500',false);
+/*INSERT INTO products VALUES (1, 'Cheese', 9.99, count(*) + cos(2), tan(id) - factorial(3) * now());
+INSERT INTO products (id, producto, precio) VALUES (1, 'Cheese', 9.99, sum(2), 2 + 2, now());
+
+not false;
+price not in (5,6,7,8);
+price not in (select * from producto);
+price between 5 and 8;
+price = 5;
+p.price is false;
+col like 2;
+exists (3, '23', m);
+exists (select * from producto);*/

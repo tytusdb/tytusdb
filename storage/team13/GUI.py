@@ -1,7 +1,13 @@
+# Package:      BPlusMode
+# License:      Released under MIT License
+# Notice:       Copyright (c) 2020 TytusDB Team
+
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
+from BPlusMode import *
+from PIL import Image
 
 
 def centrar_ventana(app, ancho, alto):
@@ -21,14 +27,21 @@ def configuracion_defecto(app):
 
 
 def ventana_imagen(imagen):
-    app = Toplevel()
-    configuracion_defecto(app)
-    app.state('zoomed')
+    try:
+        app = Toplevel()
+        configuracion_defecto(app)
+        app.state('zoomed')
 
-    img = PhotoImage(file='./images/'+imagen+'')
-    label = Label(app, image=img)
-    label.image = img
-    label.grid(row=0, column=0)
+        img = PhotoImage(file='../team13/'+imagen+'')
+        label = Label(app, image=img)
+        label.image = img
+        label.grid(row=0, column=0)
+        label.pack(side="bottom", fill="both", expand="yes")
+        
+        abrir_img = Image.open('../team13/' + imagen + '')
+        abrir_img.show()
+    except:
+        print('Imagen no existe')
 
 
 def fondo(app):
@@ -57,7 +70,7 @@ def ventana_principal():
     db.place(x=500, y=200)
 
     img_subir = PhotoImage(file="./images/subir.png")
-    db = Button(text="Cargar", bg="#FFFFFF", image=img_subir, compound="top", font=("Georgia", 16), command=abrir_archivo)
+    db = Button(text="Cargar", bg="#FFFFFF", image=img_subir, compound="top", font=("Georgia", 16), command=ventana_loadCSV)
     db.place(x=600, y=400)
 
     img_func = PhotoImage(file="./images/codificacion.png")
@@ -94,21 +107,26 @@ def ventana_db(ventana):
 
     # Selección del combobox
     def selection_changed(event):
-        ventana_lista_tablas(app2, combo.get())
+        seleccion = combo.get()
+        ventana_lista_tablas(app2, seleccion)
 
     # Combobox
     fuente = ("Georgia", 10)
     combo = ttk.Combobox(app2, font=fuente)
     combo.place(x=150, y=330)
 
-    Label(app2, text="Seleccionar DB",  bg="#F0FFFF", font=("Georgia", 13)).place(x=180, y=300)
-    combo["values"] = ["DB1"]
-    combo.bind("<<ComboboxSelected>>", selection_changed)
+    if CheckData():
+        DB_archivo = Load("BD")
 
-    # Obtener imagen de la lista de db
-    img = 'Alien.png'
-    boton_estructura = Button(app2, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
-    boton_estructura.place(x=380, y=5)
+        Label(app2, text="Seleccionar DB",  bg="#F0FFFF", font=("Georgia", 13)).place(x=180, y=300)
+        combo["values"] = DB_archivo.lista_bases()
+        combo.bind("<<ComboboxSelected>>", selection_changed)
+
+        # Obtener imagen de la lista de db
+        DB_archivo.graficar()
+        img = 'AVL_DB.png'
+        boton_estructura = Button(app2, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
+        boton_estructura.place(x=380, y=5)
 
 
 def ventana_lista_tablas(ventana, db):
@@ -131,31 +149,33 @@ def ventana_lista_tablas(ventana, db):
     fuente = ("Georgia", 10)
     combo = ttk.Combobox(app, font=fuente)
     combo.place(x=150, y=350)
-
-    Label(app, text="Tuplas de DB:\n"+db, bg="#F0FFFF", font=("Georgia", 13)).place(x=190, y=300)
-    combo["values"] = ["lista de tablas"]
-    combo.bind("<<ComboboxSelected>>", selection_changed)
-
-    # Obtener imagen de la lista de db
-    img = 'fondo.png'
-    boton_estructura = Button(app, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
-    boton_estructura.place(x=380, y=5)
-
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_db(app))
     boton_regresar.place(x=10, y=5)
 
-    # ---------------------------------------------------- FUNCIONES ---------------------------------------------------
-    def cargar_tablas(combo_box):
-        # Cargar datos de prueba
-        array = []
-        for i in range(0, 100):
-            array.append(i)
-        combo_box['values'] = array
+    Label(app, text="Tablas de DB:\n"+db, bg="#F0FFFF", font=("Georgia", 13)).place(x=190, y=300)
 
-    cargar_tablas(combo)
+    if CheckData():
+        DataBase = Load("BD")
+        db = DataBase.buscar(db)
+        lista_tablas = db.avlTable.lista_tablas()
+        print(db.name + ' ', lista_tablas)
+
+        if lista_tablas is None:
+            messagebox.showinfo('', 'LA DB "'+db.name+'" NO TIENE TABLAS')
+            ventana_db(app)
+        else:
+            combo["values"] = lista_tablas
+            combo.bind("<<ComboboxSelected>>", selection_changed)
+
+            db.avlTable.graficar()
+            img = 'AVL_T.png'
+            boton_estructura = Button(app, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10),
+                                      command=lambda: ventana_imagen(img))
+            boton_estructura.place(x=380, y=5)
 
 
 def ventana_tupla(ventana, tupla, db):
+    print(tupla)
     if ventana != '':
         ventana.withdraw()
     app = Toplevel()
@@ -167,23 +187,51 @@ def ventana_tupla(ventana, tupla, db):
     label.image = img
     label.place(x=95, y=25)
 
-    # Combobox
-    def selection_changed(event):
-        mensaje = combo.get()+'\nnombre: Kevin\n'+'Apellido: Sandoval'
-        messagebox.showinfo(tupla, mensaje)
-        ventana_tupla('', tupla, db)
-
-    combo = ttk.Combobox(app, font=("Georgia", 10))
-    combo.place(x=150, y=300)
-
     Label(app, text="Registro de la tupla:\n" + tupla, bg="#F0FFFF", font=("Georgia", 13)).place(x=180, y=250)
-    combo["values"] = ['Registro1', 'Registro2', 'Registro3']
-    combo.bind("<<ComboboxSelected>>", selection_changed)
 
-    img = 'B+.png'
-    boton_estructura = Button(app, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
-    boton_estructura.place(x=380, y=5)
-    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_lista_tablas(app, db))
+    def mensaje():
+        if CheckData():
+            DataBase = Load("BD")
+            base = DataBase.buscar(str(db.name))
+            table = base.avlTable.buscar(tupla)
+            try:
+                lista = table.bPlus.lista_nodos()
+                if lista is not None:
+                    table.bPlus.graphTree()
+                    img = 'ArbolB+.png'
+                    boton_estructura = Button(app, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
+                    boton_estructura.place(x=380, y=5)
+
+                    app2 = Toplevel()
+                    color = "#F0FFFF"
+                    configuracion_defecto(app2)
+                    centrar_ventana(app2, 900, 700)
+
+                    tabla = ttk.Treeview(app2, height=32)
+                    tabla["columns"] = "#0"
+                    tabla.column("#0", width=650, minwidth=400)
+                    tabla.heading("#0", text="Registros", anchor="center")
+
+                    tabla.place(x=20, y=20)
+
+                    #tabla.place(x=50, y=350)
+                    mensaje = ''
+                    contador = 0
+                    for i in lista:
+                        contador += 1
+                        for x in i:
+                            mensaje += str(x) + "  "
+                        print(mensaje)
+                        tabla.insert('', 'end', text=mensaje)
+                        mensaje = ''
+            except:
+                messagebox.showinfo('', 'LA TABLA NO TIENE REGISTROS')
+                ventana_lista_tablas(app, db.name)
+
+    bt = Button(app, text="Ver registros", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=200, y=310)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_lista_tablas(app, db.name))
     boton_regresar.place(x=10, y=5)
 
 
@@ -197,17 +245,19 @@ def ventana_funciones(ventana):
 
     # Combobox db
     def selection_changed_db(event):
-        seleccion = combo_db.get()
-        if seleccion == 'createDatabase':
-            ventana_create_database(app)
-        if seleccion == 'showDatabases':
-            ventana_show_database()
-            ventana_funciones(app)
-        if seleccion == 'alterDatabase':
-            ventana_alter_database(app)
-        if seleccion == 'dropDatabase':
-            ventana_drop_database(app)
-        print(combo_db.get())
+        try:
+            seleccion = combo_db.get()
+            if seleccion == 'createDatabase':
+                ventana_create_database(app)
+            if seleccion == 'showDatabases':
+                ventana_show_database()
+            if seleccion == 'alterDatabase':
+                ventana_alter_database(app)
+            if seleccion == 'dropDatabase':
+                ventana_drop_database(app)
+            print(combo_db.get())
+        except:
+            print('--')
 
     combo_db = ttk.Combobox(app, font=("Georgia", 10))
     combo_db.place(x=150, y=230)
@@ -220,30 +270,32 @@ def ventana_funciones(ventana):
         seleccion = combo_tabla.get()
         if seleccion == 'createTable':
             ventana_create_table(app)
-        if seleccion == 'definePK':
-            ventana_define_pk(app)
-        if seleccion == 'showTables':
-            ventana_show_tables()
-            ventana_funciones(app)
-        if seleccion == 'alterTable':
-            ventana_alter_table(app)
-        if seleccion == 'dropTable':
-            ventana_drop_table(app)
-        if seleccion == 'alterAddColumn':
-            ventana_alter_addcolumn(app)
-        if seleccion == 'alterDropColumn':
-            ventana_alter_dropcolumn(app)
-        if seleccion == 'extractTable':
+        elif seleccion == 'showTables':
+            ventana_show_tables(app)
+        elif seleccion == 'extractTable':
             ventana_extract_table(app)
-        if seleccion == 'extractRangeTable':
+        elif seleccion == 'extractRangeTable':
             ventana_extract_rangetable(app)
+        elif seleccion == 'alterAddPK':
+            ventana_define_pk(app)
+        elif seleccion == 'alterDropPK':
+            ventana_alterDropPK(app)
+        elif seleccion == 'alterTable':
+            ventana_alter_table(app)
+        elif seleccion == 'alterAddColumn':
+            ventana_alter_addcolumn(app)
+        elif seleccion == 'alterDropColumn':
+            ventana_alter_dropcolumn(app)
+        elif seleccion == 'dropTable':
+            ventana_drop_table(app)
+
         print(combo_tabla.get())
 
     combo_tabla = ttk.Combobox(app, font=("Georgia", 10))
     combo_tabla.place(x=150, y=330)
     Label(app, text='Tablas', bg="#F0FFFF", font=("Georgia", 13)).place(x=210, y=300)
-    combo_tabla["values"] = ['createTable', 'definePK', 'defineFK', 'showTables', 'alterTable', 'dropTable',
-                             'alterAddColumn', 'alterDropColumn', 'extractTable', 'extractRangeTable']
+    combo_tabla["values"] = ['createTable', 'showTables', 'extractTable', 'extractRangeTable','alterAddPK', 'alterDropPK',
+                             'alterAddFK', 'alterAddIndex', 'alterTable', 'alterAddColumn', 'alterDropColumn', 'dropTable']
     combo_tabla.bind("<<ComboboxSelected>>", selection_changed_tablas)
 
     # Combobox tuplas
@@ -251,20 +303,23 @@ def ventana_funciones(ventana):
         seleccion = combo_tuplas.get()
         if seleccion == 'insert':
             ventana_tupla_insert(app)
-        if seleccion == 'update':
+        elif seleccion == 'loadCSV':
+            print('Cargar archivo')
+        elif seleccion == 'extractRow':
+            ventana_extract_row(app)
+        elif seleccion == 'update':
             ventana_tupla_update(app)
-        if seleccion == 'deleteTable':
+        if seleccion == 'delete':
             ventana_deletetable(app)
         if seleccion == 'truncate':
             ventana_tupla_truncate(app)
-        if seleccion == 'extractRow':
-            ventana_extract_row(app)
+
         print(combo_tuplas.get())
 
     combo_tuplas = ttk.Combobox(app, font=("Georgia", 10))
     combo_tuplas.place(x=150, y=430)
     Label(app, text='Tuplas', bg="#F0FFFF", font=("Georgia", 13)).place(x=210, y=400)
-    combo_tuplas["values"] = ['insert', 'update', 'deleteTable', 'truncate', 'extractRow']
+    combo_tuplas["values"] = ['insert','loadCSV', 'extractRow', 'update', 'delete', 'truncate']
     combo_tuplas.bind("<<ComboboxSelected>>", selection_changed_tuplas)
 
 
@@ -282,7 +337,18 @@ def ventana_create_database(ventana):
     nombre_database = Entry(app, width=25, font=("Georgia", 10))
     nombre_database.grid(row=0, column=0, padx=180, pady=200)
 
-    bt = Button(app, text="Guardar", font='Georgia 10', bg='#98FB98')
+    def guardar(nameDb):
+        valor_retorno = str(createDatabase(nameDb))
+        print(valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB EXISTENTE')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Guardar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_database.get()))
     bt.place(x=220, y=260)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -290,8 +356,21 @@ def ventana_create_database(ventana):
 
 
 def ventana_show_database():
-    bases_datos = '--------------------\nDB1\nDB2\nDB2\n--------------------'
-    messagebox.showinfo('BASES DE DATOS', bases_datos)
+    app = Tk()
+    color = "#F0FFFF"
+    configuracion_defecto(app)
+    centrar_ventana(app, 700, 500)
+
+    tabla = ttk.Treeview(app, height=21)
+    tabla["columns"] = "#0"
+    tabla.column("#0", width=450, minwidth=450)
+    tabla.heading("#0", text="BASES DE DATOS", anchor="center")
+
+    tabla.place(x=20, y=20)
+    for i in showDatabases():
+        tabla.insert('', 'end', text=i)
+
+    app.mainloop()
 
 
 def ventana_alter_database(ventana):
@@ -311,11 +390,20 @@ def ventana_alter_database(ventana):
     nombre_nuevo = Entry(app, font=("Georgia", 10))
     nombre_nuevo.place(x=190, y=230, width=200)
 
-    def mensaje():
-        messagebox.showinfo('', 'Proceso realizado exitosamente')
+    def guardar(databaseOld, databaseNew):
+        valor_retorno = str(alterDatabase(databaseOld, databaseNew))
+        print('alterDatabase: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'databaseOld NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'databaseNew EXISTENTE')
         ventana_funciones(app)
 
-    bt = Button(app, text="Guardar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Guardar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_actual.get(), nombre_nuevo.get()))
     bt.place(x=220, y=260)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -335,10 +423,18 @@ def ventana_drop_database(ventana):
     nombre_database = Entry(app, font=("Georgia", 10))
     nombre_database.place(x=180, y=200, width=200)
 
-    def mensaje_drop_database():
-        messagebox.showinfo('', 'DB eliminada correctamente')
+    def guardar(database):
+        valor_retorno = str(dropDatabase(database))
+        print('dropDatabase: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje_drop_database)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_database.get()))
     bt.place(x=220, y=260)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -367,11 +463,20 @@ def ventana_create_table(ventana):
     numero_columnas = Entry(app, font=("Georgia", 10))
     numero_columnas.place(x=215, y=260, width=200)
 
-    def mensaje():
-        messagebox.showinfo('', 'Proceso realizado exitosamente')
+    def guardar(database, table, numberColumns):
+        valor_retorno = str(createTable(database, table, numberColumns))
+        print('createTable: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA EXISTENTE')
         ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), nombre_tabla.get(), int(numero_columnas.get())))
     bt.place(x=220, y=290)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -396,24 +501,126 @@ def ventana_define_pk(ventana):
     nombre_tabla.place(x=215, y=230, width=245)
 
     Label(app, text='Lista de columnas:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
-    lista_columnas = Text(app, height=6, width=30)
-    lista_columnas.place(x=215, y=260)
+    columnas = Entry(app, font=("Georgia", 10))
+    columnas.place(x=215, y=260, width=245)
 
-    def mensaje():
-        messagebox.showinfo('', 'Proceso realizado exitosamente')
-        print(lista_columnas.get("1.0", END), end='')
+
+    def guardar(database, table):
+        texto = columnas.get()
+        lista = texto.split(',')
+
+        lista = list(map(int, lista))
+
+        print('COLUMNAS: ', lista)
+        valor_retorno = str(alterAddPK(database, table, lista))
+        print('alterAddPK: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA NO EXISTENTE')
+        elif valor_retorno == '4':
+            messagebox.showinfo('', 'PK EXISTENTE')
+        elif valor_retorno == '5':
+            messagebox.showinfo('', 'COLUMNAS FUERA DE LÍMITE')
         ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), nombre_tabla.get()))
     bt.place(x=215, y=380)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
     boton_regresar.place(x=10, y=5)
 
 
-def ventana_show_tables():
-    tablas = '--------------------\nT1\nT2\nT3\n--------------------'
-    messagebox.showinfo('showTables', tablas)
+def ventana_alterDropPK(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='alterDropPK', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=190, y=200, width=200)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    tabla = Entry(app, font=("Georgia", 10))
+    tabla.place(x=190, y=230, width=200)
+
+    def guardar(database, table):
+        valor_retorno = str(alterDropPK(database, table))
+        print('alterDropPK: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA NO EXISTENTE')
+        elif valor_retorno == '4':
+            messagebox.showinfo('', 'PK NO EXISTE')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), tabla.get()))
+    bt.place(x=220, y=290)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_show_tables(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='showTables', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=200)
+
+    def guardar(database):
+        valor_retorno = showTables(database)
+        if valor_retorno: # No vacia
+            ver_tablas(database)
+        elif valor_retorno is None:
+            messagebox.showinfo('', 'DB NO EXISTE')
+            ventana_funciones(app)
+        else:
+            messagebox.showinfo('', 'NO EXISTEN TABLAS')
+            ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get()))
+    bt.place(x=220, y=290)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ver_tablas(database):
+    app = Tk()
+    color = "#F0FFFF"
+    configuracion_defecto(app)
+    centrar_ventana(app, 700, 500)
+
+    tabla = ttk.Treeview(app, height=21)
+    tabla["columns"] = "#0"
+    tabla.column("#0", width=450, minwidth=450)
+    tabla.heading("#0", text="TABLAS DE DB", anchor="center")
+
+    tabla.place(x=20, y=20)
+    for i in showTables(database):
+        tabla.insert('', 'end', text=i)
+
+    app.mainloop()
 
 
 def ventana_alter_table(ventana):
@@ -437,11 +644,22 @@ def ventana_alter_table(ventana):
     nombre_nuevo = Entry(app, font=("Georgia", 10))
     nombre_nuevo.place(x=190, y=260, width=200)
 
-    def mensaje():
-        messagebox.showinfo('', 'Proceso realizado exitosamente')
+    def guardar(database, tableOld, tableNew):
+        valor_retorno = str(alterTable(database, tableOld, tableNew))
+        print('alterTable: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'tableOld NO EXISTENTE')
+        elif valor_retorno == '4':
+            messagebox.showinfo('', 'tableNew EXISTENTE')
         ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda:guardar(nombre_db.get(), nombre_actual.get(), nombre_nuevo.get()))
     bt.place(x=220, y=290)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -462,14 +680,26 @@ def ventana_drop_table(ventana):
     nombre_db.place(x=190, y=200, width=200)
 
     Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
-    nombre_actual = Entry(app, font=("Georgia", 10))
-    nombre_actual.place(x=190, y=230, width=200)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=190, y=230, width=200)
 
-    def mensaje():
-        messagebox.showinfo('', 'Tabla eliminanda\n  exitosamente')
+    def guardar(database, table):
+        print('DB:', database, 'TABLA:',table)
+        valor_retorno = str(dropTable(database, table))
+
+        print('dropTable: ', valor_retorno)
+        print(showTables(database))
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA NO EXISTENTE')
         ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), nombre_tabla.get()))
     bt.place(x=220, y=290)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -497,11 +727,20 @@ def ventana_alter_addcolumn(ventana):
     columna = Entry(app, font=("Georgia", 10))
     columna.place(x=190, y=260, width=200)
 
-    def mensaje():
-        messagebox.showinfo('', 'Proceso realizado\n  exitosamente')
+    def guardar(database, table, default):
+        valor_retorno = str(alterAddColumn(database, table, default))
+        print('alterAddColumn: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA NO EXISTENTE')
         ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), nombre_tabla.get(), columna.get()))
     bt.place(x=220, y=290)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -529,15 +768,47 @@ def ventana_alter_dropcolumn(ventana):
     columna = Entry(app, font=("Georgia", 10))
     columna.place(x=190, y=260, width=200)
 
-    def mensaje():
-        messagebox.showinfo('', 'Proceso realizado\n  exitosamente')
+    def guardar(database, table, columnNumber):
+        valor_retorno = str(alterDropColumn(database, table, columnNumber))
+        print('alterAddColumn: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA NO EXISTENTE')
+        elif valor_retorno == '4':
+            messagebox.showinfo('', 'LLAVE NO PUEDE ELIMINARSE\nTABLA NO PUEDE QUEDARSE SIN COLUMNAS')
+        elif valor_retorno == '5':
+            messagebox.showinfo('', 'COLUMNA FUERA DE LÍMITES')
         ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), nombre_tabla.get(), int(columna.get())))
     bt.place(x=220, y=290)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
     boton_regresar.place(x=10, y=5)
+
+
+def ver_extract_table(lista):
+    app = Tk()
+    color = "#F0FFFF"
+    configuracion_defecto(app)
+    centrar_ventana(app, 700, 500)
+
+    tabla = ttk.Treeview(app, height=21)
+    tabla["columns"] = "#0"
+    tabla.column("#0", width=450, minwidth=450)
+    tabla.heading("#0", text="TABLAS DE DB", anchor="center")
+
+    tabla.place(x=20, y=20)
+    print(lista)
+    for i in lista:
+        tabla.insert('', 'end', text=i)
+
+    app.mainloop()
 
 
 def ventana_extract_table(ventana):
@@ -557,11 +828,18 @@ def ventana_extract_table(ventana):
     nombre_tabla = Entry(app, font=("Georgia", 10))
     nombre_tabla.place(x=190, y=230, width=200)
 
-    def mensaje():
-        registros = '--------------------\nTABLA: Estudiante\nRegistro1\nRegistro2\nRegistro3\n--------------------'
-        messagebox.showinfo('extractTable', registros)
+    def guardar(database, table):
+        valor_retorno = extractTable(database, table)
+        if valor_retorno: # No vacia
+            ver_extract_table(valor_retorno)
+        elif valor_retorno is None:
+            messagebox.showinfo('', 'DB NO EXISTE')
+            ventana_funciones(app)
+        else:
+            messagebox.showinfo('', 'NO EXISTEN TABLAS')
+            ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), nombre_tabla.get()))
     bt.place(x=220, y=250)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -585,25 +863,51 @@ def ventana_extract_rangetable(ventana):
     nombre_tabla = Entry(app, font=("Georgia", 10))
     nombre_tabla.place(x=190, y=230, width=200)
 
-    Label(app, text='Límite inferior:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    Label(app, text='Columna:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    numero_columna = Entry(app, font=("Georgia", 10))
+    numero_columna.place(x=190, y=260, width=200)
+
+    Label(app, text='Límite inferior:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=290)
     limite_inferior = Entry(app, font=("Georgia", 10))
-    limite_inferior.place(x=190, y=260, width=200)
+    limite_inferior.place(x=190, y=290, width=200)
 
-    Label(app, text='Límite superior:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=290)
+    Label(app, text='Límite superior:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=320)
     limite_superior = Entry(app, font=("Georgia", 10))
-    limite_superior.place(x=190, y=290, width=200)
+    limite_superior.place(x=190, y=320, width=200)
 
-    def mensaje():
-        registros_rango = '--------------------\nRegistros de una tabla\nen un rango especifico\n--------------------'
-        messagebox.showinfo('extractTable', registros_rango)
-        ventana_funciones(app)
+    def guardar(database, table, columnNumber, lower, upper):
+        valor_retorno = extractRangeTable(database, table, columnNumber, lower, upper)
+        print('extractRangeTable: ', valor_retorno)
+        if valor_retorno:  # No vacia
+            ver_extractRangeTable(valor_retorno)
+        else:
+            messagebox.showinfo('', 'LISTA VACIA O CON PROBLEMAS')
+            ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
-    bt.place(x=220, y=310)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda:guardar(nombre_db.get(), nombre_tabla.get(), int(numero_columna.get()), limite_inferior.get(), limite_superior.get()))
+    bt.place(x=220, y=370)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
     boton_regresar.place(x=10, y=5)
 
+
+def ver_extractRangeTable(lista):
+    app = Tk()
+    color = "#F0FFFF"
+    configuracion_defecto(app)
+    centrar_ventana(app, 700, 500)
+
+    tabla = ttk.Treeview(app, height=21)
+    tabla["columns"] = "#0"
+    tabla.column("#0", width=450, minwidth=450)
+    tabla.heading("#0", text="extractRangeTable", anchor="center")
+
+    tabla.place(x=20, y=20)
+    print(lista)
+    for i in lista:
+        tabla.insert('', 'end', text=i)
+
+    app.mainloop()
 
 # ------------------------------------------------- FUNCIONES DE TUPLAS ------------------------------------------------
 def ventana_tupla_insert(ventana):
@@ -624,15 +928,30 @@ def ventana_tupla_insert(ventana):
     nombre_tabla.place(x=215, y=230, width=245)
 
     Label(app, text='Lista de campos:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
-    lista_campos = Text(app, height=6, width=30)
-    lista_campos.place(x=215, y=260)
+    lista_campos = Entry(app, font=("Georgia", 10))
+    lista_campos.place(x=215, y=260, width=245)
 
-    def mensaje():
-        messagebox.showinfo('', 'Proceso realizado exitosamente')
-        print(lista_campos.get("1.0", END), end='')
+
+    def guardar(database, table):
+        texto = lista_campos.get()
+        register = texto.split(',')
+        valor_retorno = str(insert(database, table, register))
+        print('alterAddColumn: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA NO EXISTENTE')
+        elif valor_retorno == '4':
+            messagebox.showinfo('', 'LLAVE PRIMARIA DUPLICADA')
+        elif valor_retorno == '5':
+            messagebox.showinfo('', 'COLUMNA FUERA DE LÍMITES')
         ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), nombre_tabla.get()))
     bt.place(x=215, y=380)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -656,23 +975,52 @@ def ventana_tupla_update(ventana):
     nombre_tabla = Entry(app, font=("Georgia", 10))
     nombre_tabla.place(x=210, y=230, width=200)
 
-    Label(app, text='ID:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
-    id_tabla = Entry(app, font=("Georgia", 10))
-    id_tabla.place(x=210, y=260, width=200)
+    Label(app, text='Llave primaria:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    pk = Entry(app, font=("Georgia", 10))
+    pk.place(x=210, y=260, width=200)
 
-    Label(app, text='Número de columna:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=290)
-    numero_columna = Entry(app, font=("Georgia", 10))
-    numero_columna.place(x=210, y=290, width=200)
+    Label(app, text='LLave:Valor :', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=290)
+    diccionario = Entry(app, font=("Georgia", 10))
+    diccionario.place(x=210, y=290, width=250)
 
-    Label(app, text='Valor:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=320)
-    valor = Entry(app, font=("Georgia", 10))
-    valor.place(x=210, y=320, width=200)
+    def guardar(database, table):
+        # Diccionarios
+        dic = {}
+        dic_texto = diccionario.get()
+        clave_valor = dic_texto.split(',')
+        lista_final = []
+        for i in clave_valor:
+            lista_final.append(i.split(':'))
 
-    def mensaje():
-        mensaje = 'Proceso realizado\n  exitosamente'
-        messagebox.showinfo('extractTable', mensaje)
+        for i in lista_final:
+            for x in range(0, len(i)):
+                dic[i[0]] = i[1]
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+        # Llave primaria
+        texto = pk.get()
+        lista = texto.split(',')
+        print('TYPE:', type(dic))
+        print('DB: ', database)
+        print('TABLE: ', table)
+        print('LISTA FINAL: ', dic)
+        print('PK: ', lista)
+
+        valor_retorno = str(update(database, table, dic, lista))
+        print('update: ', valor_retorno)
+        if valor_retorno == '0':
+
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA NO EXISTENTE')
+        elif valor_retorno == '4':
+            messagebox.showinfo('', 'LLAVE PRIMARIA NO EXISTE')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda: guardar(nombre_db.get(), nombre_tabla.get()))
     bt.place(x=220, y=370)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -728,11 +1076,21 @@ def ventana_tupla_truncate(ventana):
     nombre_tabla = Entry(app, font=("Georgia", 10))
     nombre_tabla.place(x=215, y=230, width=245)
 
-    def mensaje():
-        messagebox.showinfo('', 'Proceso realizado exitosamente')
+    def guardar(database, table):
+        valor_retorno = str(truncate(database, table))
+        print('truncate: ', valor_retorno)
+        if valor_retorno == '0':
+            messagebox.showinfo('', 'OPERACIÓN EXITOSA')
+        elif valor_retorno == '1':
+            messagebox.showinfo('', 'ERROR EN LA APLICACIÓN')
+        elif valor_retorno == '2':
+            messagebox.showinfo('', 'DB NO EXISTENTE')
+        elif valor_retorno == '3':
+            messagebox.showinfo('', 'TABLA NO EXISTENTE')
+
         ventana_funciones(app)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda:guardar(nombre_db.get(), nombre_tabla.get()))
     bt.place(x=215, y=290)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
@@ -757,30 +1115,57 @@ def ventana_extract_row(ventana):
     nombre_tabla.place(x=215, y=230, width=245)
 
     Label(app, text='ID:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
-    id_registro = Entry(app, font=("Georgia", 10))
-    id_registro.place(x=215, y=260, width=245)
+    lista_registros = Entry(app, font=("Georgia", 10))
+    lista_registros.place(x=215, y=260, width=245)
 
-    def mensaje():
-        tupla = 'devuelve una tupla especificada'
-        messagebox.showinfo('', tupla)
-        ventana_funciones(app)
+    def guardar(database, table):
+        texto = lista_registros.get()
+        register = texto.split(',')  #['1','2']
+        print(register)
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+        valor_retorno = extractRow(database, table, register)
+        print('extractRow: ', valor_retorno)
+        if valor_retorno:  # No vacia
+            messagebox.showinfo('', valor_retorno)
+        else:
+            messagebox.showinfo('', 'LISTA VACIA O CON PROBLEMAS')
+            ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98',command=lambda:guardar(nombre_db.get(), nombre_tabla.get()))
     bt.place(x=215, y=300)
 
     boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
     boton_regresar.place(x=10, y=5)
 
 
-# CARGAR ARCHIVO
-def abrir_archivo():
-    nombre_archivo = filedialog.askopenfilename(title='Seleccione archivo')
-    if nombre_archivo != '':
-        archivo = open(nombre_archivo, 'r', encoding='utf-8')
-        contenido = archivo.read()
-        archivo.close()
-        print(contenido)
+
+def ventana_loadCSV():
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='loadCSV', bg="#F0FFFF", font=("Georgia", 20)).place(x=200, y=140)
+
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=245)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=215, y=230, width=245)
+
+    Label(app, text='Ruta:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    ruta = Entry(app, font=("Georgia", 10))
+    ruta.place(x=215, y=260, width=245)
+
+    def guardar(ruta_, database, table):
+        valor_retorno = loadCSV(ruta_, database, table)
+        print('loadCSV: ', valor_retorno)
+        messagebox.showinfo('', 'ARCHIVO PROCESADO')
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98',command=lambda:guardar(ruta.get(), nombre_db.get(), nombre_tabla.get()))
+    bt.place(x=215, y=300)
 
 
 ventana_principal()
+
 

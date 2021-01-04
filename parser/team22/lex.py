@@ -1,3 +1,6 @@
+from tabla_errores import *
+tabla_errores = TablaDeErrores()
+
 ##-------------------------GRAMATICA ASCENDENTE-------------------------------
 reservadas = {
     'create' : 'CREATE',
@@ -186,7 +189,8 @@ reservadas = {
     'sqrt' : 'SQRT',
     'width_bucket' : 'WIDTH_BUCKET',
     'trunc' : 'TRUNC',
-    'random' : 'RANDOM'
+    'random' : 'RANDOM',
+    'exp' : 'EXP'
 }
 
 tokens  = [
@@ -202,7 +206,6 @@ tokens  = [
     'MODULO',
     'CONCAT',
     'PIPE',
-    'EXP',
     'IGUAL',
     'MAYORIGUAL',
     'MAYOR',
@@ -220,7 +223,6 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
-    'CADENA_DOBLE',
     'ID',
     'COMILLA_SIMPLE'
 ] + list(reservadas.values())
@@ -278,12 +280,7 @@ def t_ID(t):
      return t
 
 def t_CADENA(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] # remuevo las comillas
-    return t 
-
-def t_CADENA_DOBLE(t):
-    r'\".*?\"'
+    r'(\'.*?\')|(\".*?\")'
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
 
@@ -302,9 +299,10 @@ t_ignore = " \t"
 
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+    t.lexer.lineno += len(t.value)
     
 def t_error(t):
-    print("Caracter desconocido '%s'" % t.value[0])
-    # print("Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+"\n" )
+    error = Error('Léxico', "Caracter desconocido '%s'" % t.value[0], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    print(error.imprimir())
     t.lexer.skip(1)

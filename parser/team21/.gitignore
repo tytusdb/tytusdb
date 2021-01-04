@@ -1,0 +1,14 @@
+AST.dot
+AST.png
+team21/Analisis_Ascendente/__pycache__/
+team21/Analisis_Ascendente/parser.out
+team21/Analisis_Ascendente/parsetab.py
+parser.out
+parsetab.py
+**/__pycache__/**
+
+
+ErroresLexicos.html
+ErroresSintacticos.html
+reporteGramatica.gv
+reporteGramatica.gv.pdf

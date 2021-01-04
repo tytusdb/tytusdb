@@ -4,11 +4,19 @@ class Column(object):
         self._name = name
         self._dataType = dataType
         self._length = None
+        self._default = None
         self._notNull = False
         self._unique = False
+        self._constraint = None
+        self._check = []
         self._primaryKey = False
+        self._foreignKey = None
+        self._autoincrement = False
         # TODO FOREIGN KEY implementation
-        self._foreignKey = {'refTable': None, 'refColumn': None}
+        # {'refTable':None,'refColumn':None} {'Referenced table': None}
+
+    def __str__(self):
+        return self._name
 
     @property
     def name(self):
@@ -73,3 +81,35 @@ class Column(object):
     @unique.setter
     def unique(self, unique):
         self._unique = unique
+
+    @property
+    def constraint(self):
+        return self._constraint
+
+    @constraint.setter
+    def constraint(self, constraint):
+        self._constraint = constraint
+
+    @property
+    def default(self):
+        return self._default
+
+    @default.setter
+    def default(self, default):
+        self._default = default
+
+    @property
+    def autoincrement(self):
+        return self._autoincrement
+
+    @autoincrement.setter
+    def autoincrement(self, autoincrement):
+        self._autoincrement = autoincrement
+
+    @property
+    def check(self):
+        return self._check
+
+    @check.setter
+    def check(self, check):
+        self._check = check

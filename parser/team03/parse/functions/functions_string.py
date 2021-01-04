@@ -1,8 +1,5 @@
-import sys
 from hashlib import md5, sha256
-
-sys.path.insert(0, '..')
-from ast_node import ASTNode
+from parse.ast_node import ASTNode
 
 
 # From here on, classes describing aggregate functions

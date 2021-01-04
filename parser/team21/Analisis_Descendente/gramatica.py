@@ -3,7 +3,7 @@ from graphviz import Digraph
 import ply.lex as lex
 import ply.yacc as yacc
 import re
-import ReporteGramatical as ReporteGramatical
+import Compi2RepoAux.team21.Analisis_Descendente.ReporteGramatical as ReporteGramatical
 
 # Analisis lexico
 lista = []
@@ -304,6 +304,7 @@ def p_instruccion_showdatabase(t):
     t[0] = t[1]
 
 
+
 def p_alterfacotizar(t):
     ''' factorizar_alter : DATABASE alterp
                          | TABLE l_campo
@@ -510,7 +511,7 @@ def p_create_campo_tabla(t):
     gramatica = 'l_campo ::= tipo  l_campo'
     lista.append(gramatica)
 
-    
+
 def p_create_campo_tabla1(t):
     '''l_campo : '''
     gramatica = 'l_campo ::= epsilon'

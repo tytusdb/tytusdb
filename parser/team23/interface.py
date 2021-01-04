@@ -7,6 +7,7 @@ import grammar.sql_grammar as gramatica
 from graphviz import Source
 from tools.console_text import *
 from error.errores import *
+from tools.tabla_simbolos import *
 
 import os
 
@@ -67,8 +68,8 @@ class window:
         file_menu.add_separator()
         file_menu.add_command(label="Open File", command=self.open_file , accelerator="Ctrl+O")
         file_menu.add_separator()
-        file_menu.add_command(label="Save File", command=self.save_file, accelerator="Ctrl+S")
-        file_menu.add_command(label="Save As", command=self.save_as, accelerator="Ctrl+Shift+S")
+        file_menu.add_command(label="Save File", command=self.save_file, accelerator="Ctrl+Shift-S")
+        file_menu.add_command(label="Save As", command=self.save_as, accelerator="Ctrl+S")
         file_menu.add_separator()
         file_menu.add_command(label="Close Tab", command=self.delete_tab, accelerator="Ctrl+W")
         file_menu.add_command(label="Exit", command=self.ventana.quit)
@@ -82,16 +83,16 @@ class window:
 
         tools_menu.add_command(label="Ejecutar", command=self.ejecutar_codigo, accelerator="F5")
         tools_menu.add_separator()
-        tools_menu.add_command(label="AST", command = self.compilar_AST_png)
+        tools_menu.add_command(label="AST", command = self.compilar_AST_pdf)
         tools_menu.add_separator()
-        tools_menu.add_command(label = "Errores Lexicos", command = self.compilar_lexico_png)
-        tools_menu.add_command(label = "Errores Sintacticos", command = self.compilar_sintactico_png)
-        tools_menu.add_command(label = "Errores Semanticos", command = self.compilar_semantico_png)
-        tools_menu.add_command(label = "Todos los errores", command = self.compilar_Error_png)
+        tools_menu.add_command(label = "Errores Lexicos", command = self.compilar_lexico_pdf)
+        tools_menu.add_command(label = "Errores Sintacticos", command = self.compilar_sintactico_pdf)
+        tools_menu.add_command(label = "Errores Semanticos", command = self.compilar_semantico_pdf)
+        tools_menu.add_command(label = "Todos los errores", command = self.compilar_Error_pdf)
         tools_menu.add_separator()
-        tools_menu.add_command(label = "Reporte Gramatical")
+        tools_menu.add_command(label = "Reporte Gramatical", command = self.compilar_grammar_pdf)
         tools_menu.add_separator()
-        tools_menu.add_command(label = "Tabla de Simbolos")
+        tools_menu.add_command(label = "Tabla de Simbolos", command=self.compilar_ts_pdf)
         #tools_menu.add_command(label="Debug", command=self.open_file, accelerator="F5")
 
         theme_menu = Menu(options_menu, tearoff=0)
@@ -311,28 +312,28 @@ class window:
         imgAst = Image.open(self.dir_os +'/assets/ast.png')
         imgAst = imgAst.resize((20, 20), Image.ANTIALIAS)
         imgAst = ImageTk.PhotoImage(imgAst)
-        AstBtn = Button(myTool, image=imgAst, command=self.compilar_AST_png)
+        AstBtn = Button(myTool, image=imgAst, command=self.compilar_AST_pdf)
         AstBtn.image = imgAst
         AstBtn.pack(side=LEFT, padx=2, pady=2)
 
         imgErrores = Image.open(self.dir_os +'/assets/error.png')
         imgErrores = imgErrores.resize((20, 20), Image.ANTIALIAS)
         imgErrores = ImageTk.PhotoImage(imgErrores)
-        ErroresBtn = Button(myTool, image=imgErrores, command=self.compilar_Error_png)
+        ErroresBtn = Button(myTool, image=imgErrores, command=self.compilar_Error_pdf)
         ErroresBtn.image = imgErrores
         ErroresBtn.pack(side=LEFT, padx=2, pady=2)
 
         imgGrammar = Image.open(self.dir_os +'/assets/grammar.png')
         imgGrammar = imgGrammar.resize((20, 20), Image.ANTIALIAS)
         imgGrammar = ImageTk.PhotoImage(imgGrammar)
-        GrammarBtn = Button(myTool, image=imgGrammar, command=self.compilar_grammar_png)
+        GrammarBtn = Button(myTool, image=imgGrammar, command=self.compilar_grammar_pdf)
         GrammarBtn.image = imgGrammar
         GrammarBtn.pack(side=LEFT, padx=2, pady=2)
 
         imgSimbolo = Image.open(self.dir_os +'/assets/simbolos.png')
         imgSimbolo = imgSimbolo.resize((20, 20), Image.ANTIALIAS)
         imgSimbolo = ImageTk.PhotoImage(imgSimbolo)
-        SimboloBtn = Button(myTool, image=imgSimbolo, command=self.compilar_Error_png)
+        SimboloBtn = Button(myTool, image=imgSimbolo, command=self.compilar_ts_pdf)
         SimboloBtn.image = imgSimbolo
         SimboloBtn.pack(side=LEFT, padx=2, pady=2)
 
@@ -689,6 +690,9 @@ class window:
         txt_area.tag_config("boolean", foreground="#FA8C31")
 
         #Palabras
+        self.highlight_pattern(r'/\*(.|\n)*?\*/', "comentario", txt_area, regexp=True)
+        self.highlight_pattern(r'--.*\n', "comentario", txt_area, regexp=True)
+
         self.highlight_pattern("SELECT", "reservada", txt_area, case_sensitive=1)
         self.highlight_pattern("UPDATE", "reservada", txt_area, case_sensitive=1)
         self.highlight_pattern("WHERE", "reservada", txt_area, case_sensitive=1)
@@ -786,6 +790,10 @@ class window:
         self.highlight_pattern("FALSE", "reservada", txt_area, case_sensitive=1)
         self.highlight_pattern("INHERITS", "reservada", txt_area, case_sensitive=1)
         self.highlight_pattern("NULL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SHOW", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DATABASES", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("USE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("VARCHAR", "reservada", txt_area, case_sensitive=1)
 
         self.highlight_pattern("==", "item", txt_area)
         self.highlight_pattern("!=", "item", txt_area)
@@ -806,17 +814,33 @@ class window:
         self.highlight_pattern("true", "boolean", txt_area)
         self.highlight_pattern("false", "boolean", txt_area)
         
-        self.highlight_pattern(r'/\*(.|\n)*?\*/', "comentario", txt_area, regexp=True)
         self.highlight_pattern(r'(\".*?\")|(\'.*?\')', "string", txt_area, regexp=True)
 
     def graficar_AST(self, ast_):
         if len(ast_) != 0:
             ast_str = 'digraph AST { \n node [shape=record];\n'
-            
+
+            count_nodos = 0
             for instruccion_ in ast_:
-                ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+instruccion_.nodo.valor +"\"];\n"
-                ast_str += 'start_ast -> node' + instruccion_.nodo.num + ';\n'
-                ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                if count_nodos != 0:                    
+                    ast_str += 'node' + str(count_nodos + 1000000) + '[label =\" Instruccion \"];\n'
+                    ast_str += 'node' + str(count_nodos + 10000) + '[label =\" Instrucciones \"];\n'
+
+                    ast_str += 'node' + str(count_nodos + 10000 - 1) + ' -> node' + str(count_nodos + 1000000) + ';\n'
+                    ast_str += 'node' + str(count_nodos + 10000 - 1) + ' -> node' + str(count_nodos + 10000) + ';\n'
+
+                    ast_str += 'node' + str(count_nodos + 1000000) + ' -> node' + instruccion_.nodo.num + ';\n'
+                    ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+ instruccion_.nodo.valor +"\"];\n"
+                    ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                else:
+                    ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+ instruccion_.nodo.valor +"\"];\n"
+                    ast_str += 'node' + str(count_nodos + 1000000) + '[label =\" Instruccion \"];\n'
+                    ast_str += 'node' + str(count_nodos + 10000) + '[label =\" Instrucciones \"];\n'
+                    ast_str += 'start_ast -> node' + str(count_nodos + 10000) + ';\n'
+                    ast_str += 'start_ast -> node' + str(count_nodos + 1000000) + ';\n'
+                    ast_str += 'node' + str(count_nodos + 1000000) + ' -> node' + instruccion_.nodo.num + ';\n'
+                    ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                count_nodos += 1
                 
             ast_str += '\n}'
 
@@ -860,7 +884,7 @@ class window:
                 reporte_errores += '<TD>' + error_.valor +'</TD>'
                 reporte_errores += '<TD>' + error_.line +'</TD>'
                 reporte_errores += '<TD>' + error_.column +'</TD>'
-                reporte_errores += '</TR>'
+                reporte_errores += '</TR>\n'
 
             reporte_errores += '</TABLE>\n>, ];\n}'
 
@@ -924,35 +948,74 @@ class window:
             with open('semantico_reporte.dot', 'w', encoding='utf8') as f:
                 f.write(reporte_errores)
 
+    def graficar_TS(self):
+        reporte_ts = ts.reporte_ts()
+
+        with open('ts_reporte.dot', 'w', encoding='utf8') as f:
+            f.write(reporte_ts)
+
+    def compilar_ts_png(self):
+        img = Source.from_file("ts_reporte.dot", format = "png", encoding="utf8")
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "ts_reporte.dot.png")
+
+    def compilar_ts_pdf(self):
+        file_pdf = Source.from_file("ts_reporte.dot", format = "pdf", encoding="utf8")
+        file_pdf.view()
+
     def compilar_grammar_png(self):
         img = Source.from_file("grammar_reporte.dot", format = "png", encoding="utf8")
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "grammar_reporte.dot.png")
+
+    def compilar_grammar_pdf(self):
+        file_pdf = Source.from_file("grammar_reporte.dot", format = "pdf", encoding="utf8")
+        file_pdf.view()
 
     def compilar_semantico_png(self):
         img = Source.from_file("semantico_reporte.dot", format = "png", encoding='utf8')
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "semantico_reporte.dot.png")
 
+    def compilar_semantico_pdf(self):
+        file_pdf = Source.from_file("semantico_reporte.dot", format = "pdf", encoding='utf8')
+        file_pdf.view()
+
     def compilar_sintactico_png(self):
         img = Source.from_file("sintactico_reporte.dot", format = "png", encoding='utf8')
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "sintactico_reporte.dot.png")
 
+    def compilar_sintactico_pdf(self):
+        file_pdf = Source.from_file("sintactico_reporte.dot", format = "pdf", encoding='utf8')
+        file_pdf.view()
+
     def compilar_lexico_png(self):
         img = Source.from_file("lexico_reporte.dot", format = "png", encoding='utf8')
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "lexico_reporte.dot.png")
+    
+    def compilar_lexico_pdf(self):
+        file_pdf = Source.from_file("lexico_reporte.dot", format = "pdf", encoding='utf8')
+        file_pdf.view()
 
     def compilar_Error_png(self):
         img = Source.from_file("errores_reporte.dot", format="png", encoding='utf8')
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "errores_reporte.dot.png")
 
+    def compilar_Error_pdf(self):
+        file_pdf = Source.from_file("errores_reporte.dot", format="pdf", encoding='utf8')
+        file_pdf.view()
+
     def compilar_AST_png(self):
         img = Source.from_file("ast_reporte.dot", format="png", encoding='utf8')
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "ast_reporte.dot.png")
+
+    def compilar_AST_pdf(self):
+        file_pdf = Source.from_file("ast_reporte.dot", format="pdf", encoding='utf8')
+        file_pdf.view()
 
     def popup_reporte_png(self, master, path):
         top = self.top = Toplevel(master) 
@@ -977,21 +1040,22 @@ class window:
         instruccions = []
 
         try:
-            instruccions = gramatica.parse(contenido)            
-            self.ejecutar_resultado(instruccions)  
-
-            for tab_item in self.tab_salida.winfo_children():
-                for widget_item in tab_item.winfo_children():                
-                    if isinstance(widget_item, Text):
-                            widget_item.delete('1.0', END)                                                   
-                            add_text("\nPS C:\\Users\\Grupo 23> ")
-                            widget_item.insert(INSERT, get_contenido())                             
-
-        except:            
+            instruccions = gramatica.parse(contenido)
+            self.ejecutar_resultado(instruccions)
+        except:
             if len(contenido) == 1:
-                self.pop_alert("No hay código para ejecutar")
+                add_text("No hay código para ejecutar")
             else:
-                self.pop_alert("Error al ejecutar el código")
+                add_text("Error al ejecutar el código")
+
+        #Imprimir consola
+        for tab_item in self.tab_salida.winfo_children():
+            for widget_item in tab_item.winfo_children():                
+                if isinstance(widget_item, Text):
+                        widget_item.delete('1.0', END)                                                   
+                        add_text("\nPS C:\\Users\\Grupo 23> ")
+                        widget_item.insert(INSERT, get_contenido())                             
+
 
         self.graficar_AST(instruccions)  
         self.graficar_Errores()
@@ -999,7 +1063,8 @@ class window:
         self.graficar_errores_sintacticos()
         self.graficar_errores_semanticos()
         self.graficar_Gramatical(instruccions)
-
+        self.graficar_TS()
+    
     def ejecutar_resultado(self,instrucciones_):
         for instruccion_ in instrucciones_:
             instruccion_.ejecutar()
@@ -1007,3 +1072,5 @@ class window:
 if __name__ == "__main__":
     index = window()
     index.run()
+
+    

@@ -18,7 +18,7 @@ class ListaErrores:
         muestra = self.principio
         while (muestra != None):
 
-            texto += "TIPO: " + muestra.tipo + " DESCRIPCION: " + muestra.descripcion + " LINEA: " + muestra.fila + " COLUMNA: " + muestra.columna + " \n"
+            texto += "TIPO: " + muestra.tipo + " DESCRIPCION: " + muestra.descripcion + " LINEA: " + str(muestra.fila) + " COLUMNA: " + str(muestra.columna) + " \n"
             muestra = muestra.siguiente
         
         return texto

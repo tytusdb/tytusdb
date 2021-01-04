@@ -3,7 +3,7 @@ from tools.console_text import *
 from tools.tabla_tipos import *
 from storage import jsonMode as funciones
 from error.errores import *
-from storage.jsonMode import *
+from tools.tabla_simbolos import *
 
 class drop(instruccion):
 
@@ -24,19 +24,25 @@ class drop(instruccion):
             self.nodo.hijos.append(nodo_AST(id, num_nodo + 3))
 
         # Gramatica
-        self.grammar_ = "<TR><TD>INSTRUCCION ::= drop_statement; </TD><TD>INSTRUCCION = falta poner accicon;</TD></TR>"
-
+        self.grammar_ = "<TR><TD> INSTRUCCION ::= DROP DATABASE IF_EXISTS " + id + " </TD><TD>INSTRUCCION = new drop(" + id + ", IF_EXISTS); </TD></TR>\n"
+        if if_exists != None:
+            self.grammar_ += "<TR><TD> IF_EXISTS ::= IF EXISTS </TD><TD> IF_EXISTS =  True; </TD></TR>\n"
+        else:
+            self.grammar_ += "<TR><TD> IF_EXISTS ::= Epsilon </TD><TD> IF_EXISTS =  None; </TD></TR>\n"
 
     def ejecutar(self):
         try:
             drop_aux = funciones.dropDatabase(self.id)
+            # Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente.
 
             if (drop_aux == 2):
-                add_text("Base de datos no existe, con nombre "+ self.id)
+                add_text("E-42602 invalid name: the database with the following name does not exist "+ self.id + "\n")
             elif (drop_aux == 0):
-                add_text("Base de datos eliminada, con nombre "+ self.id)
+                ts.delete_db(self.id)
+                add_text("M-57P04 database dropped with the following name "+ self.id + "\n")
             else:
-                add_text("Base de datos no se pudo eliminar, con nombre "+ self.id)
+                add_text("E-22005 error_in_assignment: The database with the following name could not be dropped "+ self.id + "\n")
+                errores.append(nodo_error(self.line,self.column,'E-22005 error_in_assignment: The database with the following name could not be dropped','Semantico'))
         except:
-            errores.append(nodo_error(self.line,self.column,'Error en drop DataBase','Semantico'))
-        pass
+            errores.append(nodo_error(self.line,self.column,'E-22005 error_in_assignment: The database with the following name could not be dropped','Semantico'))
+            add_text("E-22005 error_in_assignment: The database with the following name could not be dropped "+ self.id + "\n")

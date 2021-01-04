@@ -1,0 +1,70 @@
+## - Gitignore file to use on root of the proyect in order to help avoid mistakes while pushing changes.
+##   (this only works for Compiladores 2 students, other courses need to tweak the rules).
+##
+## - Uncomment Line 18 after put file in your root directory.
+##
+## - Uncomment Line 18-21 (just this one, not the root one) and DON'T push the file if you want to use storageManager
+##   inside team folder (not recommended, refactor would be needed anyways)
+
+
+#IDEs files
+.idea/
+.vscode/
+.history/
+*.sw*
+
+#Preventing versioning of forbidden folders and files
+client/
+# /docs/
+# storageManager/
+# test.py
+# data
+parser/team01/
+parser/team02/
+parser/team04/
+parser/team05/
+parser/team06/
+parser/team07/
+parser/team08/
+parser/team09/
+parser/team10/
+parser/team11/
+parser/team12/
+parser/team13/
+parser/team14/
+parser/team15/
+parser/team16/
+parser/team17/
+parser/team18/
+parser/team19/
+parser/team20/
+parser/team21/
+parser/team22/
+parser/team23/
+parser/team24/
+parser/team25/
+parser/team26/
+parser/team27/
+parser/team28/
+parser/team29/
+server/
+storage/
+README.md
+LICENSE.md
+
+# Other usefull rules
+build/
+dist/
+pip-log.txt
+pip-delete-this-directory.txt
+.env
+parser.out
+parsetab.py
+**/__pycache__/**
+Digraph.gv
+Digraph.gv.pdf
+reportGrammar.md
+debug.log
+grap.dot
+grap.png
+stored_st.bin
