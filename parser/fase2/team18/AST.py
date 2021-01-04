@@ -3033,6 +3033,12 @@ def cuerpo_select(cuerpo,ts):
         result=filtroOrderBy(result,cuerpo.b_order,ts)
     
     #mostrar el resultado
+    lfilas = []
+    for row in result:
+        row.border = False
+        row.header = False
+        lfilas.append(row.get_string())
+    CD3.PSelectTablas(ltablas,lcabeceras,lfilas,len(lfilas))
     agregarMensjae('table',result,'')
     #agregar reporteTS
     agregarTSRepor('SELECT','','','','')
@@ -3104,7 +3110,13 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
         # ORDER BY --------------------------------------------------------
         if cuerpo.b_order != False:
             result=filtroOrderBy(result,cuerpo.b_order,ts)
-        
+
+        lfilas = []
+        for row in result:
+            row.border = False
+            row.header = False
+            lfilas.append(row.get_string(fields=lcolumnas))
+        CD3.PSelectTablas(ltablas,lcolumnas,lfilas,len(lfilas))
         #filtro col a mostrar    
         result = result.get_string(fields=lcolumnas)
         agregarMensjae('table',result,'')
@@ -3330,7 +3342,7 @@ def Indexs(instr,ts):
     agregarMensjae('exito',msg,'')
     agregarTSRepor('INDEX','','','','')
     if tipo:
-        agregarTSRepor('',nombre,'Hash',nmtabla,'1')
+        agregarTSRepor('',nombre,'Hash',nmtabla,'1') #agregar columnas,unique,orden
     else:
         agregarTSRepor('',nombre,'Normal',nmtabla,'1')
 

@@ -82,7 +82,30 @@ def PSelectFunciones(alias,resultado):
 
     txt+='\tprint("Cabecera:  " + '+ varT  + ' + " Resultado: "+ str('+ varR +'))\n'
     agregarInstr("",txt)
-       
+
+def PSelectTablas(nombreTabla,cabeceras,filas,cantidadRegistros):
+    reinicar_contOP()
+    registros=[cantidadRegistros]
+    txt="\t#Select table\n"
+    varT="t"+str(numT())
+    txt+="\t"+varT+"="+str(nombreTabla)+"\n"
+    varC="t"+str(numT())
+    txt+="\t"+varC+"="+str(cabeceras)+"\n"
+    varR="t"+str(numT())
+    txt+="\t"+varR+"=CD3.ECantidadRegistros()\n"
+    varfilas="t"+str(numT())
+    txt+="\t"+varfilas+"="+str(filas)+"\n"
+    varCont="t"+str(numT())
+    txt+="\t"+varCont+"=0\n"
+    txt+="\tprint(\'tablas seleccionadas:\',str("+varT+"))\n"
+    txt+="\tprint(\'cabeceras:\',str("+varC+"))\n"
+    txt+="\tlabel.mostrarFila"+str(contT)+"\n"
+    txt+="\tif("+varCont+"<"+varR+"):"+"\n"
+    txt+="\t\tprint(\'\t\',"+varfilas+"["+varCont+"])\n"
+    txt+="\t\t"+varCont+"="+varCont+"+1\n"
+    txt+="\t\tgoto.mostrarFila"+str(contT)+"\n"
+    agregarInstr(registros,txt)
+
 def PUseDatabase(nombreBase):
     reinicar_contOP()
     txt="\t#Use Database\n"
@@ -691,6 +714,16 @@ def ECreateFuncion():
             print("\tparametros:",creaF[3])
 
         listaMemoria.pop(0)
+
+def ECantidadRegistros():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    if(len(listaMemoria)>0):
+        registros=listaMemoria[0]
+        listaMemoria.pop(0)
+        return registros[0]
+    return 0
+
 #2INICIO MIO *****************
 
 
