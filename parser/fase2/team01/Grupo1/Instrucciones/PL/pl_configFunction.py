@@ -42,8 +42,11 @@ class PrintStrictParam(Instruccion):
 
 class ReturnParams(Instruccion):
 
-    def __init__(self, parametros):
-        self.parametros = parametros
+    def __init__(self, paramReturn, paramNext, paramQuery, paramArg):
+        self.paramReturn = paramReturn
+        self.paramNext = paramNext
+        self.paramQuery = paramQuery
+        self.paramArg = paramArg
 
     def execute(self,data):
         return self
@@ -61,6 +64,20 @@ class pl_execute(Instruccion):
         self.arg4idinto = arg4idinto
         self.arg5using = arg5using
         self.arg6lstexp = arg6lstexp
+
+    def execute(self,data):
+        return self
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+
+class pl_call(Instruccion):
+
+    def __init__(self, argCall,argNameStoreProcedure,arglist):
+        self.argCall = argCall  
+        self.argNameStoreProcedure = argNameStoreProcedure
+        self.arglist = arglist
 
     def execute(self,data):
         return self
