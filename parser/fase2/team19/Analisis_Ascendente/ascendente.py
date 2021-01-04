@@ -440,6 +440,7 @@ from Analisis_Ascendente.Instrucciones.Type.type import CreateType
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Declaracion import Declaracion
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Alias import Alias
 from Analisis_Ascendente.Instrucciones.PLPGSQL.plinsert import plinsert
+from Analisis_Ascendente.Instrucciones.Index.Index import Index
 
 
 precedence = (
@@ -2653,57 +2654,113 @@ def p_bloq4(t):
 def p_Indice(t):
     'instruccion : CREATE INDEX ID ON ID PARIZQ listaID PARDR whereIndice'
     global columna
+    t[0] = Index(1, str(t[3]), str(t[5]), t[7], t[9], None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ listaID PARDR whereIndice')
+    varSemantico.append('instruccion = Index(1,t[3],t[5],t[7],t[9], lexer.lineno, columna)  ')
 
 def p_IndiceHash(t):
     'instruccion : CREATE INDEX ID ON ID USING HASH PARIZQ listaID PARDR PTCOMA'
     global columna
+    t[0] = Index(2, str(t[3]), str(t[5]), t[9], None, None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID USING HASH PARIZQ listaID PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(2, str(t[3]), str(t[5]), t[9], None, lexer.lineno, columna) ')
+
 
 def p_IndiceUnique(t):
     'instruccion : CREATE UNIQUE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA'
     global columna
+    t[0] = Index(3, str(t[4]), str(t[6]), t[8], None, None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE UNIQUE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(3, str(t[4]), str(t[6]), t[8], None, lexer.lineno, columna) ')
 
 def p_IndiceOrderBY(t):
     'instruccion : CREATE INDEX ID ON ID PARIZQ ID opc_Order PARDR PTCOMA'
     global columna
+    t[0] = Index(4, str(t[3]), str(t[5]), t[7], None, t[8], lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ ID opc_Order PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(4, str(t[3]), str(t[5]), t[7], None, lexer.lineno, columna) ')
 
 def p_opc_Order(t):
     '''opc_Order : ASC
                   | DESC '''
+    if t[1].lower() == 'asc':
+        t[0] = 'asc'
+        varGramatical.append('opc_Order ::= ASC')
+        varSemantico.append('opc_Order =  ')
+    else:
+        t[0] = 'desc'
+        varGramatical.append('opc_Order ::= DESC')
+        varSemantico.append('opc_Order = ')
 
 def p_opc_Order1(t):
     ''' opc_Order : ASC NULLS FIRST
                     | DESC NULLS FIRST '''
+    if t[1].lower() == 'asc':
+        t[0] = 'asc nulls first'
+        varGramatical.append('opc_Order ::= ASC NULLS FIRST')
+        varSemantico.append('opc_Order =  ')
+    else:
+        t[0] = 'desc nulls first'
+        varGramatical.append('opc_Order ::= DESC NULLS FIRST')
+        varSemantico.append('opc_Order = ')
+
 
 def p_opc_Order2(t):
     ''' opc_Order : ASC NULLS LAST
                     | DESC NULLS LAST '''
+    if t[1].lower() == 'asc' :
+        t[0] = 'asc nulls last'
+        varGramatical.append('opc_Order ::= ASC NULLS LAST')
+        varSemantico.append('opc_Order =  ')
+    else:
+        t[0] = 'desc nulls last'
+        varGramatical.append('opc_Order ::= DESC NULLS LAST')
+        varSemantico.append('opc_Order = ')
 
 def p_opc_Order3(t):
     ''' opc_Order : NULLS LAST
                     |    NULLS FIRST '''
+    if t[2].lower() == 'last' :
+        t[0] = 'nulls last'
+        varGramatical.append('opc_Order ::= NULLS LAST')
+        varSemantico.append('opc_Order =  ')
+    else:
+        t[0] = 'nulls first'
+        varGramatical.append('opc_Order ::= NULLS FIRST')
+        varSemantico.append('opc_Order = ')
 
 def p_IndiceLower(t):
     'instruccion : CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDR PARDR PTCOMA'
-    global columna
-
-def p_IndiceWhere(t):
-    'whereIndice : WHERE asignacion PTCOMA'
+    t[0] = Index(5, str(t[3]), str(t[5]), t[9], None, None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDR PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(5, str(t[3]), str(t[5]), t[9], None, lexer.lineno, columna) ')
 
 def p_IndiceWhere2(t):
     'whereIndice : PTCOMA'
+    t[0] = None
 
 def p_IndiceWhere3(t):
     'whereIndice : WHERE NOT PARIZQ E valores AND E valores PARDR PTCOMA'
+    t[0] = t[4]
+    varGramatical.append('whereIndice ::= WHERE NOT PARIZQ E valores AND E valores PARDR PTCOMA')
+    varSemantico.append('whereIndice =  Expresion(t[4],t[7]) ')
 
 def p_IndiceWhere4(t):
     'whereIndice : WHERE PARIZQ E valores AND E valores PARDR PTCOMA'
+    t[0] = t[3]
+    varGramatical.append('whereIndice ::= WHERE PARIZQ E valores AND E valores PARDR PTCOMA')
+    varSemantico.append('whereIndice = Expresion(t[3], t[6]) ')
+
+def p_IndiceWhere(t):
+    'whereIndice : WHERE where PTCOMA'
+    t[0] = t[2]
+    varGramatical.append('whereIndice ::= WHERE where PTCOMA')
+    varSemantico.append('whereIndice = Where(t[2]) ')
 
 def p_DropIndice(t):
     'instruccion : DROP INDEX ID PTCOMA'
-    global columna
-
-### falta agregar ultimo indice [consultar sintaxis]
-
+    varGramatical.append('instruccion ::= DROP INDEX ID PTCOMA')
+    varSemantico.append('instruccion =  ')
 
 # MODO PANICO ***************************************
 def p_error(t):
@@ -2827,7 +2884,9 @@ def procesar_instrucciones(instrucciones, ts):
             CreateType.ejecutar(instr,ts,consola,exceptions)
         elif isinstance(instr,Show):
             Show.ejecutar(instr,ts,consola,exceptions)
-
+        elif isinstance(instr, Index):
+            Index.ejecutar(instr, ts, consola, exceptions)
+            print("Ejecute Index")
         else:
             print('Error: instrucción no válida')
 
