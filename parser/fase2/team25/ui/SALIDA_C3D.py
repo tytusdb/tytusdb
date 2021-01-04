@@ -10,7 +10,7 @@ def principal():
 	t0 = "use test;"
 	stack.push(t0)
 	funcionIntermedia()
-	t1 = "insert into nacha values (3,45,6);"
+	t1 = "insert into h values (3,45,6);"
 	stack.push(t1)
 	funcionIntermedia()
 
