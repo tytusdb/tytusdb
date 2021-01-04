@@ -1910,16 +1910,24 @@ def p_greatest_or_least(p):
 
 def p_case_clause(p):
     '''CASECLAUSE : CASE CASECLAUSELIST END CASE SEMICOLON
-                  | CASE CASECLAUSELIST ELSE STATEMENTS END CASE SEMICOLON'''
-    if(len(p) == 6):
-        p[0] = Case(p[2], None, p.lineno(1), find_column(p.slice[1]))
-    else:
-        p[0] = Case(p[2], p[4], p.lineno(1), find_column(p.slice[1]))
+                  | CASE CASECLAUSELIST ELSE STATEMENTS END CASE SEMICOLON
+                  | CASE OBJECTREFERENCE CASECLAUSELIST END CASE SEMICOLON
+                  | CASE OBJECTREFERENCE CASECLAUSELIST ELSE STATEMENTS END CASE SEMICOLON'''
+    if p.slice[2].type == "OBJECTREFERENCE": 
+        if(len(p) == 7):
+            p[0] = Case(p[2], p[3], None, p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = Case(p[2], p[3], p[5], p.lineno(1), find_column(p.slice[1]))
+    else:             
+        if(len(p) == 6):
+            p[0] = Case(None, p[2], None, p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = Case(None, p[2], p[4], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_case_clause_list(p):
-    '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLEXPRESSION THEN STATEMENTS
-                      | WHEN SQLEXPRESSION THEN STATEMENTS'''
+    '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLEXPRESSIONLIST THEN STATEMENTS
+                      | WHEN SQLEXPRESSIONLIST THEN STATEMENTS'''
 
     if (len(p) == 6):
         p[1].append( CaseOption(p[3], p[5], 0, 0) )
