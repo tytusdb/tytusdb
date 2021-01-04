@@ -65,6 +65,8 @@ class mainWindow:
         entrada = self.textArea.get("1.0",END)
         resp = run_method(entrada)
         resp.compile(None)
+        var = resp.getText()
+        print(var)
         self.resp = resp
         
 
