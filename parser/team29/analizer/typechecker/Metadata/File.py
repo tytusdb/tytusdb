@@ -13,6 +13,6 @@ def importFile(name):
             databases = json.load(file)
             return databases
     except:
-        if name == "Types":
-            return {}
-        return []
+        if name == "Databases":
+            return []
+        return {}

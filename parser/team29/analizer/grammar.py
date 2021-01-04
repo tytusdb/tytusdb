@@ -133,31 +133,68 @@ def p_createopts_db(t):
 
 def p_createopts_index(t):
     """
-    createOpts : indexUnique R_INDEX ID R_ON ID usingHash S_PARIZQ indexList S_PARDER whereCl
+    createOpts : indexUnique R_INDEX ID R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
     """
-    t[0] = instruction2.CreateIndex(t[1], t[3], t[5],t[6],t[10],t[8])
+    t[0] = instruction2.CreateIndex(t[1], t[3], t[5], t[6], t[10], t[8])
+
+
 def p_indexList(t):
     """
-    indexList : indexList S_COMA ID indexOrder indexNull firstLast 
+    indexList : indexList S_COMA columnIndex
     """
-    t[1].append([t[3],t[4],t[5],t[6]])
+    t[1].append(t[3])
     t[0] = t[1]
+
+
 def p_indexList2(t):
     """
-    indexList : ID indexOrder indexNull firstLast 
+    indexList : columnIndex
     """
-    t[0] = [[t[1],t[2],t[3],t[4]]]
+    t[0] = [t[1]]
 
-def p_usingHash(t):
-    """
-    usingHash : R_USING R_HASH
-    |
-    """
 
-    if len(t) == 1:
-        t[0] = False
-    else:
-        t[0] = True
+
+
+def p_columnIndex(t):
+    """
+    columnIndex : columnOpt indexOrder indexNull
+    """
+    t[0] = [t[1],t[2],t[3]]
+
+
+def p_index_columnOpt(t):
+    """
+    columnOpt : ID
+    """
+    t[0] = t[1]
+
+
+def p_index_functionIndex(t):
+    """
+    columnOpt : ID S_PARIZQ ID S_PARDER
+    """
+    t[0] = t[1]+t[2]+t[3]+t[4]
+
+
+def p_usingMethod(t):
+    """
+    usingMethod : R_USING R_HASH
+    | R_USING R_BTREE
+    | R_USING R_GIST
+    | R_USING R_SPGIST
+    | R_USING R_GIN
+    | R_USING R_BRIN
+    """
+    t[0] = t[2]
+
+
+def p_usingMethod_none(t):
+    """
+    usingMethod : 
+    """
+    t[0] = "BTREE"
+
+
 def p_indexOrder(t):
     """
     indexOrder : R_DESC
@@ -166,19 +203,20 @@ def p_indexOrder(t):
     """
 
     if len(t) == 1:
-        t[0] = None
+        t[0] = "ASC"
     else:
         t[0] = t[1]
 
 def p_indexNull(t):
     """
-    indexNull : R_NULL
+    indexNull : R_NULLS firstLast 
     |
     """
     if len(t) == 1:
-        t[0] = False
+        t[0] = None
     else:
-        t[0] = True
+        t[0] = [True,t[2]]
+
 
 def p_indexFirstLast(t):
     """
@@ -191,6 +229,7 @@ def p_indexFirstLast(t):
     else:
         t[0] = t[1]
 
+
 def p_createindex_unique(t):
     """
     indexUnique : R_UNIQUE
@@ -201,6 +240,7 @@ def p_createindex_unique(t):
         t[0] = False
     else:
         t[0] = True
+
 
 def p_replace_true(t):
     """
