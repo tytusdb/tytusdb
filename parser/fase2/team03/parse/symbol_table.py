@@ -97,6 +97,17 @@ class FunctionSymbol(Symbol):
         self.tac_label = tac_label
 
 
+class IndexSymbol(Symbol):
+    def __init__(self, name, tabla, lista=[], db_id):
+        Symbol.__init__(self, SymbolType.FUNCTION, func_name)
+        self.db_id = db_id
+        self.name =name
+        self.table = table
+        self.lista = lista
+
+
+
+
 class SymbolTable:
     # Symbol Table itself
 
