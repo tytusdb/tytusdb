@@ -9,14 +9,14 @@ from .generateSymbolTableReport import printSymbolTable
 from .execute_result import *
 from io import StringIO  # Python3
 import sys
-from .intermediateFunctions import *
 class Execute():
     nodes = []
     errors = []
     messages = []
     querys = []
+    ts = []
+    plcode = ""
     #intermediate = IntermediateFunctions()
-    code = "from goto import with_goto\n@with_goto\ndef c3d():\n"
     types = {
         1: 'Entero',
         2: 'Decimal',
@@ -42,7 +42,10 @@ class Execute():
             archivo.write("\nfrom execution.AST.expression import *")
             archivo.write("\ndef up():")
             archivo.close()
-            
+            if(len(self.nodes)==0):
+                archivo = open("C3D.py", 'a')
+                archivo.write("\n\tprint(1)")
+                archivo.close() 
             for node in self.nodes:
                 #pprint(vars(node))
                 if isinstance(node,Sentence):
@@ -60,13 +63,12 @@ class Execute():
                     executeInstruction(self,node)
                 
                 #executeSentence2(self,node)
-
+        archivo = open("C3D.py", 'a')
+        archivo.write("\n")
+        archivo.write(self.plcode) 
+        archivo.close()
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)
-        '''self.code += "c3d()"
-        inter_exec_file = open("C3D.py", "w")
-        inter_exec_file.write(self.code)
-        inter_exec_file.close()'''
         result = execute_result(dotAST, printSymbolTable_, self.errors, self.messages, self.querys)
         return result
 

@@ -1,4 +1,5 @@
 from .AST.sentence import *
+from .AST.instruction import Instruction
 from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType
 from .executeShow import executeShowDatabases
 from .executeUpdate import executeUpdate
@@ -16,7 +17,10 @@ sys.path.append("../")
 from console import *
 
 def executeSentence(self, sentence):
-    if isinstance(sentence, CreateDatabase):
+
+    if isinstance(sentence, Instruction):
+        translate(self,sentence)
+    elif isinstance(sentence, CreateDatabase):
         result= executeCreateDatabase(self,sentence)
         if(result==0):
             mode=1
