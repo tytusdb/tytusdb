@@ -29,7 +29,17 @@ class Ceil(Instruccion):
         else:
             self.tipo = Tipo(Tipo_Dato.NUMERIC)
             return math.ceil(resultado)
+    
+    def analizar(self, tabla, arbol):
+        pass
 
+    def traducir(self, tabla, arbol):
+        
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"CEIL({self.valor.traducir(tabla,arbol).temporalAnterior})"
 #el ceil solo permite que sean tipo float :D
 '''
 instruccion = Ceil(0.50,None, 1,2)

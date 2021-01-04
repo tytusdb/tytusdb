@@ -382,7 +382,8 @@ def p_inst(p):
             |   delete
             |   usedb
             |   query
-            | createfunc
+            |   createfunc
+            |   createind
             
     """
     p[0] = p[1]
@@ -993,6 +994,7 @@ def p_delete(p):
 #CREATE INDEX
 def p_createind(p):
     "createind  :   CREATE uniqueind INDEX id ON id createind2"
+    p[0] = inst.IndexCreate(p[2],p[4],p[6],p[7])
 
 def p_uniqueind(p):
     "uniqueind  :   UNIQUE"
@@ -1004,29 +1006,43 @@ def p_uniqueind1(p):
 
 def p_createind2(p):
     "createind2 :   USING HASH createind3"
+    p[0] = p[3]
 
 def p_createind21(p):
     "createind2 :   createind3"
     p[0] = p[1]
 
 def p_createind3(p):
-    "createind3 :   PARA id contind PARC indwhere PTCOMA"  
+    "createind3 :   PARA listacolind PARC indwhere PTCOMA" 
+    p[0] = inst.createind3(p[2],p[4]) 
 
-def p_contind(p):
-    "contind    :   COMA id"
+def p_listacolind(p):
+    "listacolind    :   listacolind COMA columnaind"
+    p[1].append(p[3])
+    p[0] = inst.listacolind(p[1])
 
-def p_contind1(p):
-    "contind    :   indorder NULLS indorder2"
+def p_listacolind1(p):
+    "listacolind    :   columnaind"
+    p[0] = [p[1]]
 
-def p_contind11(p):
+def p_columnaind(p):
     """
-    contind :   CORCHETEA collist CORCHETEC
-            |   PARA id PARC
-    """      
+    columnaind          :   id ordenind
+                        |   id idcondind  
+    """
+    p[0] = inst.columnaind(p[1], p[2])
 
-def p_contind111(p):
-    "contind    :   "
-    p[0] = ""
+def p_columnaind1(p):
+    "columnaind :   id"
+    p[0] = p[1]
+
+def p_ordenind(p):
+    "ordenind   :   indorder NULL indorder2"
+    p[0] = inst.ordenind(p[2] + " " + p[3] + " " + p[4])
+
+def p_idcondind(p):
+    "idcondind :  PARA id PARC"
+    p[0] = p[2]
 
 def p_indorder(p):
     """
@@ -1046,40 +1062,45 @@ def p_indorder2(p):
     """
     p[0] = p[1]
 
-def p_collist(p):
-    "collist    :   collist COMA id"
-
-def p_collist1(p):
-    "collist    :   id"
-    p[0] = p[1]
+def p_indorder21(p):
+    """
+    indorder2   :  
+    """
+    p[0] = ""
 
 def p_indwhere(p):
     "indwhere   :   WHERE indnot indwherecond"
+    p[0] = inst.indwhere(p[2],p[3])
 
 def p_indwhere1(p):
     "indwhere   :   "
-    p[0] = p[1]
+    p[0] = ""
 
 def p_indnot(p):
     "indnot :   NOT PARA notcond PARC"
-
+    p[0] = p[3]
+ 
 def p_indnot1(p):
     "indnot :   "
     p[0] = ""
 
 def p_notcond(p):
     "notcond    :   notcond AND notval"
+    p[1].append(p[3])
+    p[0] = p[1]
 
 def p_notcond1(p):
     "notcond    :   notval"
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 def p_notval(p):
     "notval :   id signo id valortipo"
+    p[0] = inst.notval(p[1],p[2],p[3],p[4])
 
 def p_indwherecond(p):
-    "indwherecond   :   id IGUAL valortipo"
-
+    "indwherecond   :   id signo valortipo"
+    p[0] = inst.indwherecond(p[1],p[2],p[3])
+    
 def p_indwherecond1(p):
     "indwherecond   :   "
     p[0] = ""
