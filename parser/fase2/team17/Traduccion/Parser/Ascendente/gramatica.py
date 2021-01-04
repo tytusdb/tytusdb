@@ -6,11 +6,7 @@ from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relaci
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
 from Interprete.SELECT.indexador_auxiliar import indexador_auxiliar
-from Interprete.Arbol import Arbol
-from Interprete.Primitivos.ENTERO import ENTERO
-from Interprete.Primitivos.DECIMAL import DECIMAL
-from Interprete.Primitivos.CADENAS import CADENAS
-from Interprete.Primitivos.BOOLEANO import BOOLEANO
+from InterpreteF2.Arbol import Arbol
 from Interprete.Insert.insert import Insert
 from Interprete.SELECT.select_simples_date import Select_simples_date
 from Interprete.SHOW_DATABASES.show_databases import ShowDatabases
@@ -35,11 +31,23 @@ from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
 from graphviz import Digraph
 #import Interprete.Arbol as ArbolErrores
 
+from InterpreteF2.Primitivos.CADENAS import CADENAS
+from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
+from InterpreteF2.RAISE.RAISE_complex import RAISE_complex
+from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
+from InterpreteF2.OperacionesPrimitivas.OperaRelacional import OperaRelacional
+from InterpreteF2.IF.SI import SI
+from InterpreteF2.IF.SIELSE import SIELSE
+
 ArbolErrores:Arbol = Arbol(None)
 
 
 reservadas = {
 
+
+    'raise': 'RAISE',
+    'notice': 'NOTICE',
+    'returning': 'RETURNING',
     'strict': 'STRICT',
     'perfom': 'PERFORM',
     # Boolean Type
@@ -105,7 +113,8 @@ reservadas = {
     'null' : 'NULL',
     'now' : 'NOW',
     'bytea' : 'BYTEA',
-    'begin' : 'BEGIN',
+    'begin': 'BEGIN',
+    'exception': 'EXCEPTION',
 
     # TIPOS NUMERICOS
     'smallint' : 'SMALLINT',
@@ -140,6 +149,7 @@ reservadas = {
     'session_user': 'SESSION_USER',
     'date_part' : 'DATE_PART',
     'month' : 'MONTH',
+    'exit': 'EXIT',
 
 
     # ENUM
@@ -149,6 +159,7 @@ reservadas = {
     'and' : 'AND',
     'or'  : 'OR',
     'not'   : 'NOT',
+    'return': 'RETURN',
 
     # PREDICADOS DE STRICT
     'between'   : 'BETWEEN',
@@ -223,6 +234,11 @@ reservadas = {
     'acosh   ' : 'ACOSH',
     'atanh' : 'ATANH',
     'SIZE' : 'SIZE',
+    'next': 'NEXT',
+    'query': 'QUERY',
+    'execute': 'EXECUTE',
+    'using': 'USING',
+    'call': 'CALL',
 
     # FUNCIONES DE CADENA BINARIAS
     'length' : 'LENGTH',
@@ -285,7 +301,8 @@ reservadas = {
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
     'except' : 'EXCEPT',
-
+    'language': 'LANGUAGE',
+    'returns': 'RETURNS',
     'prueba' : 'PRUEBA'
 
 }
@@ -325,7 +342,8 @@ tokens  = [
     'ENTERO',
     'CADENA',
     'CADENADOBLE',
-    'ID'
+    'ID',
+    'DOLAR'
 ] + list(reservadas.values())
 
 # Tokens
@@ -333,7 +351,7 @@ t_PT        = r'\.'
 t_DOBPTS    = r'::'
 t_CORIZQ      = r'\['
 t_CORDER      = r']'
-
+t_DOLAR     = r'\$'
 t_MAS       = r'\+'
 t_MENOS     = r'-'
 t_TKEXP     = r'\^'
@@ -447,11 +465,11 @@ precedence = (
 
 def p_init(t):
     'init : definitions'
-    aux:Arbol = Arbol(t[1])
-    aux.ErroresLexicos = ArbolErrores.ErroresLexicos
-    aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
-    #t[0] = Arbol(t[1])
-    t[0] = aux
+    #aux:Arbol = Arbol(t[1])
+    #aux.ErroresLexicos = ArbolErrores.ErroresLexicos
+    #aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
+    t[0] = Arbol(t[1])
+    #t[0] = aux
 
 def p_definitions(t):
     '''
@@ -473,7 +491,9 @@ def p_definition(t):
 def p_instruction(t):
     '''
         instruction     : DataManipulationLenguage
+                        |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
                         |  plpgsql
+                        |  stmts
     '''
     t[0] = t[1]
     set('<TR> \n <TD> instruction → DataManipulationLenguage : </TD> \n <TD>  instruction = NodoAst(t[0]) </TD> \n </TR> \n')
@@ -483,6 +503,7 @@ def p_instruction(t):
 
 def p_plpgsql(t):
     '''
+<<<<<<< HEAD
         plpgsql : function label declare BEGIN stmts END ID
                 | function label declare BEGIN stmts END
                 | function declare BEGIN stmts END
@@ -494,19 +515,83 @@ def p_plpgsql(t):
                 | declare BEGIN stmts END
                 | BEGIN stmts END
 
+=======
+        plpgsql : function label declare BEGIN stmts plpgsql_ending
+                | function declare BEGIN stmts plpgsql_ending
+                | function BEGIN stmts plpgsql_ending
+                | label declare BEGIN stmts plpgsql_ending
+                | label BEGIN stmts plpgsql_ending
+                | declare BEGIN stmts plpgsql_ending
+                | BEGIN stmts plpgsql_ending
+>>>>>>> c2cb26116e1c26c09e04e866e01ab3967377e3b0
     '''
 
-# TODO: Hay que agregarle que la funcion pueda traer return
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
 
+
+# ================= EXCEPTION =================
+
+
+def p_plpgsql_ending(t):
+    '''
+        plpgsql_ending : exception end
+                       | end
+    '''
+
+
+def p_exception(t):
+    '''
+        exception : EXCEPTION exception_whens
+    '''
+
+
+def p_end(t):
+    '''
+        end : END ID
+            | END
+    '''
+
+
+def p_exception_whens(t):
+    '''
+        exception_whens : exception_whens exception_when
+                        | exception_when
+    '''
+
+
+def p_exception_when(t):
+    '''
+        exception_when : WHEN exp THEN stmts
+    '''
+
+
+# ================= DECLARE =================
+
+
+def p_declare(t):
+    '''
+         declare : DECLARE
+    '''
+>>>>>>> c2cb26116e1c26c09e04e866e01ab3967377e3b0
+
+
+# ================= FUNCTION =================
 
 
 def p_function(t):
     '''
-        function : CREATE FUNCTION ID PARIZQ arguments PARDER
-                 | CREATE OR REPLACE FUNCTION ID PARIZQ arguments PARDER
-                 | CREATE FUNCTION ID PARIZQ PARDER
-                 | CREATE OR REPLACE FUNCTION ID PARIZQ PARDER
+        function : CREATE FUNCTION ID PARIZQ arguments function_ending
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+                 | CREATE FUNCTION ID PARIZQ function_ending
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
+    '''
+
+
+def p_function_ending(t):
+    '''
+        function_ending : PARDER RETURNS types
+                        | PARDER RETURNS types AS DOLAR DOLAR
+                        | PARDER
     '''
 
 
@@ -534,6 +619,7 @@ def p_stmts(t):
         stmts : stmts stmt
               | stmt
     '''
+    t[0] = t[1]
 
 
 def p_stmt(t):
@@ -541,56 +627,87 @@ def p_stmt(t):
         stmt : DataManipulationLenguage PTCOMA
              | statements PTCOMA
     '''
+    t[0] = t[1]
 
 
 def p_statements_conditionals(t):
     '''
         statements : conditionals
+                   | return
+                   | calling_procedure
+                   | PRAISE
+                   | callfunction
+                   | exit
+    '''
+
+
+def p_exit(t):
+    '''
+        exit : EXIT
+             | EXIT ID
+             | EXIT WHEN exp
+             | EXIT ID WHEN exp
+    '''
+    t[0] = t[1]
+
+
+def p_calling_procedure(t):
+    '''
+        calling_procedure : CALL ID PARIZQ exp_list PARDER
+                          | CALL ID PARIZQ PARDER
+    '''
+
+
+# ================= RETURN =================
+
+def p_statements_return(t):
+    '''
+        return : RETURN exp
+               | RETURN NEXT exp
+               | RETURN QUERY select
+               | RETURN QUERY EXECUTE exp
+               | RETURN QUERY EXECUTE exp USING exp_list
     '''
 
 
 def p_conditionals(t):
     '''
-        conditionals : if
+        conditionals : ifheader
                      | case
     '''
+    t[0] = t[1]
 # ================= IF =================
+
+def p_ifheader(t):
+    '''
+        ifheader : IF if END IF
+    '''
+    t[0] = t[2]
+
 def p_if(t):
     '''
-        if : IF exp THEN stmts END IF
-           | IF exp THEN stmts elsiflist END IF
-           | IF exp THEN stmts elsiflist else END IF
-           | IF exp THEN stmts else END IF
+        if : exp THEN stmts
+           | exp THEN stmts ELSE stmts
+           | exp THEN stmts ELSIF if
     '''
+    if len(t) == 6:
+        if t[4].lower() == "else":
+            t[0] = SIELSE(t[1], t[3], t[5], 1, 1)
+        elif t[4].lower() == "elsif":
+            t[0] = SIELSE(t[1], t[3], t[5], 1, 1)
+    else:
+        t[0] = SI(t[1], t[3], 1, 1)
 
-
-def p_elsiflist(t):
-    '''
-        elsiflist : elsiflist elsif
-                  | elsif
-    '''
-
-
-def p_elsif(t):
-    '''
-        elsif : ELSIF exp THEN stmts
-    '''
-
-
-def p_else(t):
-    '''
-        else : ELSE statements
-    '''
 
 # ================= CASE =================
 
 
 def p_case(t):
     '''
-        case : CASE exp WHEN exp_list THEN statements END CASE PTCOMA
-             | CASE WHEN exp_list THEN statements END CASE PTCOMA
-             | CASE exp WHEN exp_list THEN statements when_or_else END CASE PTCOMA
-             | CASE WHEN exp_list THEN statements when_or_else END CASE PTCOMA
+        case : CASE exp WHEN exp_list THEN stmts END CASE
+             | CASE WHEN exp_list THEN stmt END CASE
+             | CASE exp WHEN exp_list THEN stmts when_or_else END CASE
+             | CASE WHEN exp_list THEN stmts when_or_else END CASE
     '''
 
 
@@ -611,10 +728,26 @@ def p_other_when_list(t):
 
 def p_other_when(t):
     '''
-        other_when : WHEN exp_list THEN statements
+        other_when : WHEN exp_list THEN stmts
     '''
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
+
+# ================= RAISE ================= its Nery bitch
+
+def p_Raise_simple(t):
+    '''
+        PRAISE : RAISE NOTICE exp
+    '''
+    t[0] = RAISE_simple(t[3],1,1)
+
+def p_Raise_complex(t):
+    '''
+        PRAISE : RAISE NOTICE exp COMA ID
+    '''
+    t[0] = RAISE_complex(t[3], t[5], 1, 1)
+
+# ================= RAISE ================= its Nery bitch
 
 
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
@@ -641,29 +774,27 @@ def p_plpgsql_predicatedeclaration(t):
 
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
 
+# ================= assign =================
 def p_statements_assign(t):
     '''
         statements   : ID  DOSPTS IGUAL exp
                      | ID  IGUAL exp
     '''
     pass
-
-
+# ================= perform =================
 def p_statements_perfom(t):
     '''
         statements : PERFORM select
     '''
     pass
 
-
+# ================= select =================
 def p_statements_select(t):
     '''
         statements  : SELECT exp_list INTO exp_list FROM exp_list
                     | SELECT exp_list INTO exp_list FROM exp_list conditions
     '''
     pass
-
-
 
 def p_statements_select_strict(t):
     '''
@@ -672,23 +803,58 @@ def p_statements_select_strict(t):
     '''
     pass
 
+# ================= insert =================
+
+def p_statements_insert(t):
+    '''
+        statements : INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER returning
+                   | INSERT INTO ID                      VALUES PARIZQ exp_list PARDER returning
+    '''
+
+# ================= update =================
+def p_statements_update(t):
+    '''
+        statements : UPDATE ID SET setcolumns WHERE exp returning
+                   | UPDATE ID SET setcolumns           returning
+    '''
+
+# ================= update =================
+def p_statements_delete(t):
+    '''
+    statements : DELETE                FROM ID WHERE exp returning
+               | DELETE 			   FROM ID           returning
+               | DELETE groupatributes FROM ID WHERE exp returning
+               | DELETE groupatributes FROM ID           returning
+    '''
+
+
+
+def p_returning(t):
+    '''
+        returning :  RETURNING idlist INTO        ID
+                  |  RETURNING idlist INTO STRICT ID
+    '''
 
 
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
 
 
 
-# --------------------------------------------------------------------------------------
-# -------------------------------Fin PL/PGSQL ---------------------------------------------
-# --------------------------------------------------------------------------------------
+#callfunction
+
+def p_callfunction(t):
+    '''
+        callfunction : SELECT ID PARIZQ exp_list PARDER
+    '''
+
+# ------------------------------------------------------------------------------------------
+# --------------------------------Fin PL/PGSQL ---------------------------------------------
+# ------------------------------------------------------------------------------------------
 
 
-
-
-
-# --------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 # ------------------------------------ DataManipulationLenguage ---------------------------------------------
-# --------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 
 def p_DataManipulationLenguage_select(t):
     '''
@@ -858,7 +1024,7 @@ def p_conditions(t):
 
 def p_condition(t):
     '''
-        condition  : WHERE exp
+        condition       : WHERE exp
                         | ORDER BY exp setOrder
                         | GROUP BY exp_list
                         | LIMIT exp
@@ -1462,6 +1628,7 @@ def p_exp(t):
             pass
         elif t[2]=='+':
             # exp MAS exp
+            t[0] = SUMA(t[1], t[3], 1, 1)
             pass
         elif t[2]=='-':
             # exp MENOS exp
@@ -1484,20 +1651,20 @@ def p_exp(t):
         elif t[2]=='=':
             # exp IGUAL exp
             #t[0] = OperadoresCondicionales(t[1], t[3], "=")
-            t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
+            t[0] = OperaRelacional(t[1], t[3], "=", 1, 1)
             pass
         elif t[2]=='>':
             # exp MAYORQUE exp
-            t[0] = OperadoresCondicionales(t[1], t[3], ">")
+            t[0] = OperaRelacional(t[1], t[3], ">", 1, 1)
         elif t[2]=='<':
             # exp MENORQUE exp
-            t[0] = OperadoresCondicionales(t[1], t[3], "<")
+            t[0] = OperaRelacional(t[1], t[3], "<", 1, 1)
         elif t[2]=='>=':
             # exp MAYORIG exp
-            t[0] = OperadoresCondicionales(t[1], t[3], ">=")
+            t[0] = OperaRelacional(t[1], t[3], ">=", 1, 1)
         elif t[2]=='<=':
             # exp MENO
-            t[0] = OperadoresCondicionales(t[1], t[3], "<=")
+            t[0] = OperaRelacional(t[1], t[3], "<=", 1, 1)
         elif t[2].lower()=='is':
             # exp IS exp
             pass
@@ -1661,7 +1828,7 @@ def p_expSimples_entero(t):
     '''
         expSimple   :   ENTERO
     '''
-    t[0] = ENTERO(t[1],1,1)
+    #t[0] = ENTERO(t[1],1,1)
     set('<TR> \n <TD> expSimples  → ENTERO: </TD> \n <TD> expSimple  = entorno(t[1]) </TD> \n </TR> \n')
 
 
@@ -1669,7 +1836,7 @@ def p_expSimples_decimal(t):
     '''
         expSimple   :   TKDECIMAL
     '''
-    t[0] = DECIMAL(t[1],1,1)
+    #t[0] = DECIMAL(t[1],1,1)
     set('<TR> \n <TD> expSimples  → DECIMAL: </TD> \n <TD> expSimple  = decimal(t[1]) </TD> \n </TR> \n')
 
 
@@ -1692,13 +1859,13 @@ def p_expSimples_true(t):
     '''
         expSimple   :   TRUE
     '''
-    t[0] = BOOLEANO(True,1,1)
+    #t[0] = BOOLEANO(True,1,1)
 
 def p_expSimples_false(t):
     '''
         expSimple  :   FALSE
     '''
-    t[0] = BOOLEANO(False,1,1)
+    #t[0] = BOOLEANO(False,1,1)
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- TABLE CREATE --------------------------------------

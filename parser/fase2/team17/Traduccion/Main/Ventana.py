@@ -2,10 +2,12 @@ import traceback
 from tkinter import *
 from tkinter import filedialog
 from Parser.Ascendente.gramatica import parse as AnaParse
-# from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
-# from Parser.Reportes.gramatica1 import parse as ReportParse
-from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
-from Interprete.Arbol import Arbol
+
+#from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
+#from Parser.Reportes.gramatica1 import parse as ReportParse
+from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
+from InterpreteF2.Arbol import Arbol
+
 from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
 from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
 from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
@@ -130,17 +132,22 @@ def Seleccionar():
         cadena = my_text.get(SEL_FIRST, SEL_LAST)
 
         result: Arbol = AnaParse(cadena)
-        # entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
-        # entornoCero.NuevoAmbito()
 
-        # for item in result.instrucciones:
-        #    item.execute(entornoCero, result)
+        entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
+        entornoCero.NuevoAmbito()
+        print(result)
+        for item in result.instrucciones:
+            item.traducir(entornoCero, result)
 
-        # consola = ""
-        # for item in result.console:
+        print("C3D generado:")
+        print(result.getC3D())
+
+        consola = result.getC3D()
+        #for item in result.console:
+
         #    consola = consola + item
 
-        my_text1.insert(END, 'success')
+        my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
     except:
         my_text1.insert(END, 'Ocurrio un error al compilar')
