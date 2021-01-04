@@ -232,6 +232,8 @@ reserved = {
     'plpgsql' : 'PLPGSQL',
     'diagnostics' : 'DIAGNOSTICS',
     'inout' : 'INOUT',
+    'cascade' : 'CASCADE',
+    'restrict' : 'RESTRICT',
 }
 
 tokens = [
@@ -434,6 +436,7 @@ def p_statement(t):
                     | stm_create_function PUNTOCOMA      
                     | stm_execute PUNTOCOMA     
                     | stm_get PUNTOCOMA 
+                    | stm_drop_function PUNTOCOMA
                     '''
 
     #                    |    stm_select PUNTOCOMA
@@ -1122,12 +1125,6 @@ def p_param_function_1(t):
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####
 
-def p_param_function_2(t):
-    '''param_function   : ID ID'''
-    graph_ref = graph_node(str("param_function "), [t[1],t[2]],  [] )
-    addCad("**\<PARAM_FUNCTION>** ::=  tIdentifier tIdentifier")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    #####   
 
 def p_param_mode(t):
     '''param_mode   : IN
@@ -1284,30 +1281,64 @@ def p_stm_language(t):
     t[0] = upNodo("token", 0, 0, graph_ref)
     ##### 
 
-# def p_stm_call_function(t):
-#     '''stm_call_function    : SELECT ID PARA list_param_function_opt  PARC FROM ID''' #where_clause
-#     childsProduction  = addNotNoneChild(t,[4])
-#     graph_ref = graph_node(str("stm_call_function"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]],  childsProduction )
-#     addCad("**\<STM_CALL_FUNCTION>** ::= tSelect tIdentifier  ")
-#     t[0] = upNodo("token", 0, 0, graph_ref)
-#     #####
+def p_stm_drop_function_0(t):
+    '''stm_drop_function    : DROP FUNCTION if_exists_opt ID PARA list_param_function_opt PARC mode_drop_function_opt
+                            | DROP FUNCTION if_exists_opt name_list '''
+    if len(t) == 9:
+        childsProduction  = addNotNoneChild(t,[3, 6, 8])
+        graph_ref = graph_node(str("stm_drop_function"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]],  childsProduction )
+        addCad("**\<STM_DROP_FUNCTION** ::= tDrop tFunction [\<IF_EXISTS_OPT>] tIdentifier '(' \<NAME_LIST> ')'")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+    elif len(t) == 5:
+        lista = None
+        childsProduction  = addNotNoneChild(t,[3])
+        if t[4] != None:
+             lista = t[4][0]
+             childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("stm_drop_function"), [t[1], t[2], t[3], lista] ,childsProduction )
+        addCad("**\<STM_DROP_FUNCTION** ::= tDrop tFunction [\<IF_EXISTS_OPT>] \<NAME_LIST> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+        
+def p_name_list(t):
+    '''name_list    : name_list COMA ID
+                    | ID'''
+    if len(t) == 4:
+        lista = None
+        childsProduction = []
+        if t[1] != None:
+            lista = t[1][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("name_list"), [lista, t[2], t[3]], childsProduction)
+        addCad("**\<COLUMN_LIST>** ::= \<NAME_LIST> ',' tIdentifier ")
+        token_id = t.slice[3]
+        t[1][0].graph_ref = graph_ref
+        t[1].append(Identifier(token_id.value, token_id.lineno, token_id.lexpos, graph_ref))
+        t[0] = t[1]
+    else:
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<NAME_LIST>** ::=  tIdentifier ")
+        token_id = t.slice[1]
+        t[0] = [Identifier(token_id.value, token_id.lineno, token_id.lexpos, graph_ref)]
 
-# def p_list_param_function_opt(t):
-#     '''list_param_function_opt  : column_list 
-#                                 | empty'''
-#     token = t.slice[1]
-#     if token.type == "column_list":
-#         lista = None
-#         childsProduction = []
-#         if t[1] != None:
-#             lista = t[1][0]
-#             childsProduction.append(lista.graph_ref)
-#         graph_ref = graph_node(str("list_param_function"), [lista] ,childsProduction )
-#         addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<COLUMN_LIST>] ")
-#         t[0] = upNodo("token", 0, 0, graph_ref)
-#         #####
-#     else:
-#         t[0]=None
+
+def p_mode_drop_function_opt(t):
+    '''mode_drop_function_opt   : CASCADE
+                                | RESTRICT
+                                | empty'''
+    token = t.slice[1]
+    if token.type == "CASCADE":
+        graph_ref = graph_node(str(t[1]) )
+        addCad("**\<MODE_DROP_FUNCTION>** ::= tCascade ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####
+    elif token.type == "RESTRICT":
+        graph_ref = graph_node(str(t[1]) )
+        addCad("**\<MODE_DROP_FUNCTION>** ::= tRestrict ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####
+    else:
+        t[0]=None
 
 ##################################################
 
@@ -2315,9 +2346,9 @@ def p_type(t):
                 | BOOLEAN
                 | ID
                 | VARCHAR
-                | NUMERIC PARA ENTERO PARC
+                | NUMERIC 
                 | REAL
-                | NUMERIC'''
+                | DECIMAL'''
     token = t.slice[1]
 
     if token.type == "DOUBLE":
@@ -2334,6 +2365,23 @@ def p_type(t):
         graph_ref = graph_node(str(t[1]))
         addCad("**\<TYPE>** ::= " + str(token.value).upper())
         t[0] = TypeDef(str(token.value).upper(), None, None, token.lineno, token.lexpos, graph_ref)
+
+    elif len(t) > 4:
+        if token.type == "DECIMAL":
+            graph_ref = graph_node(str(str(t[1]) + "(" + str(t[3])+ "," + str(t[5])+ ")" ))
+            addCad("**\<TYPE>** ::= tDecimal '(' tEntero ',' tEntero ')'")
+            t[0] = TypeDef(token.type, t[3], t[5], token.lineno, token.lexpos, graph_ref)
+        elif token.type == "NUMERIC":
+            graph_ref = graph_node(str(str(t[1]) + "(" + str(t[3])+ "," + str(t[5])+ ")" ))
+            t[0] = TypeDef(token.type, t[3], t[5], token.lineno, token.lexpos, graph_ref)
+        elif token.type == "REAL":
+            graph_ref = graph_node(str(str(t[1]) + "(" + str(t[3])+ "," + str(t[5])+ ")" ))
+            addCad("**\<TYPE>** ::= tReal '(' tEntero ',' tEntero ')'")
+            t[0] = TypeDef(token.type, t[3], t[5], token.lineno, token.lexpos, graph_ref)
+        elif token.type == "DOUBLE":
+            graph_ref = graph_node(str(str(t[1]) + "(" + str(t[3])+ "," + str(t[5])+ ")" ))
+            addCad("**\<TYPE>** ::= tDouble '(' tEntero ',' tEntero ')'")
+            t[0] = TypeDef(token.type, t[3], t[5], token.lineno, token.lexpos, graph_ref)
 
     else:
         graph_ref = graph_node(str(t[1]))
