@@ -71,7 +71,7 @@ class createdb(instruccion):
                 cont+=1
                 contambito += 1
                 tabla.agregar(NuevoSimbolo)
-                resultadotxt += "Se creo la base de datos " + self.iden + "\n"
+                #resultadotxt += "Se creo la base de datos " + self.iden + "\n"
                 return "Se creo la base de datos " + self.iden + "\n"
             elif resultado == 2 and not self.replacedb:
                 e = errores.CError(0,0,"Ya existe la base de datos " + self.iden,'Semantico') 

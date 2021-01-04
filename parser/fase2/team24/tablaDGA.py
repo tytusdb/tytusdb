@@ -44,7 +44,7 @@ class Simbolo() :
     #valor =  valor de la variable
     #collate  = coleccion a la que pertenece la variable
     #notnull =  Puede ser null esa variable
-    def __init__(self, id, nombre, tipo, ambito, coltab, tipocol, llavecol, refcol, defcol, nullcol, constcol,numcol,registro,valor, collate,notnull,constant):
+    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False):
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -61,6 +61,7 @@ class Simbolo() :
         self.valor = valor
         self.collate = collate
         self.constant = constant
+        self.notnull = notnull
 
 
 class Tabla() :
