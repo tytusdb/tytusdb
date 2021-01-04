@@ -148,6 +148,8 @@ reservadas = {
     "RETURNS": "R_RETURNS",
     "LANGUAGE": "R_LANGUAGE",
     "PLPGSQL": "R_PLPGSQL",
+    "SQLSTATE": "R_SQLSTATE",
+    "OTHERS": "R_OTHERS",
 }
 
 reservadas.update(r_types)

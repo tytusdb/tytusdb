@@ -22,24 +22,7 @@ class Expression:
     def compile(self):
         pass
 
-
-class ArithmeticBinaryOperation(Expression):
-    '''
-        Una operacion binaria recibe, sus dos operandos y el operador
-    '''
-
-    def __init__(self, value1, value2, operador, op, line, column):
-        self.value1 = value1
-        self.value2 = value2
-        self.operador = operador
-        self.line = line
-        self.column = column
-        self.alias = str(self.value1.alias) + str(op) + str(self.value2.alias)
-
-    def __repr__(self):
-        return str(vars(self))
-
-    def getOperador(self, operador):
+def getOperador(operador):
         value = 0
         if operador == SymbolsAritmeticos.PLUS:
             value = "+"
@@ -63,19 +46,42 @@ class ArithmeticBinaryOperation(Expression):
             value = "|"
         elif operador == SymbolsAritmeticos.BITWISE_XOR:
             value = "^"
+        elif operador == SymbolsRelop.LESS_THAN:
+            value = "<"
+        elif operador == SymbolsRelop.GREATE_THAN:
+            value = ">"
+        elif operador == SymbolsRelop.GREATE_EQUAL:
+            value = ">="
+        elif operador == SymbolsRelop.LESS_EQUAL:
+            value = "<="
+        elif operador == SymbolsRelop.EQUALS:
+            value = "=="
+        elif operador == SymbolsRelop.NOT_EQUAL or operador == SymbolsRelop.NOT_EQUAL_LR:
+            value = "!="
         return value
 
-    def compile(self):
-        value1 = self.value1.compile()
-        value2 = self.value2.compile()
-        try:
-            if value1.data_type != DATA_TYPE.NUMBER and value2.data_type != DATA_TYPE.NUMBER:
-                desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
-                ErrorController().add(34, 'Execution', desc, self.line, self.column)
+class ArithmeticBinaryOperation(Expression):
+    '''
+        Una operacion binaria recibe, sus dos operandos y el operador
+    '''
 
+    def __init__(self, value1, value2, operador, op, line, column):
+        self.value1 = value1
+        self.value2 = value2
+        self.operador = operador
+        self.line = line
+        self.column = column
+        self.alias = str(self.value1.alias) + str(op) + str(self.value2.alias)
+
+    def __repr__(self):
+        return str(vars(self))
+
+    def compile(self, environment):
+        value1 = self.value1.compile(environment)
+        value2 = self.value2.compile(environment)
+        try:
             temporal = ThreeAddressCode().newTemp()
-            ThreeAddressCode().addCode(
-                f"{temporal} = {value1.value} {self.getOperador(self.operador)} {value2.value}")
+            ThreeAddressCode().addCode(f"{temporal} = {value1.value} {getOperador(self.operador)} {value2.value}")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -85,7 +91,7 @@ class ArithmeticBinaryOperation(Expression):
             desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def process(self, expression):
+    def process(self, expression):            
         value1 = self.value1.process(expression)
         value2 = self.value2.process(expression)
         operador = self.operador
@@ -144,6 +150,21 @@ class Relop(Expression):
     def __repr__(self):
         return str(vars(self))
 
+    def compile(self, environment):
+            value1 = self.value1.compile(environment)
+            value2 = self.value2.compile(environment)
+            try:
+                temporal = ThreeAddressCode().newTemp()
+                ThreeAddressCode().addCode(f"{temporal} = {value1.value} {getOperador(self.operator)} {value2.value}")
+
+                return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
+            except TypeError:
+                desc = "Error de tipo"
+                ErrorController().add(34, 'Execution', desc, self.line, self.column)
+            except:
+                desc = "FATAL ERROR, Relop, no acepta ids"
+                ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
     def process(self, expression):
         value1 = self.value1.process(expression)
         value2 = self.value2.process(expression)
@@ -171,11 +192,17 @@ class Relop(Expression):
                 data = ""
                 if isinstance(value1, list) and isinstance(value2, list):
                     if self.op == "=":
-                        data = f'{value1[1]} {self.op}= {value2[1]}'
-                        return data
+                        lista_aux = []
+                        lista_aux.append(value1[0])
+                        lista_aux.append(value2[0])
+                        data = f'{value1[1]}_y {self.op}= {value2[1]}_x'
+                        return [lista_aux, data, value1[1]]
                     else:
-                        data = f'{value1[1]} {self.op} {value2[1]}'
-                        return data
+                        lista_aux = []
+                        lista_aux.append(value1[0])
+                        lista_aux.append(value2[0])
+                        data = f'{value1[1]}_y {self.op} {value2[1]}_x'
+                        return [lista_aux, data, value1[1]]
                 elif isinstance(value1, list):
                     if isinstance(value2.value, int):
                         if self.op == "=":
@@ -223,6 +250,9 @@ class Identifiers(Expression):
 
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self, expression):
+        return self.alias
 
     def process(self, expression):
         try:
@@ -403,8 +433,8 @@ class UnaryOrSquareExpressions(Expression):
             desc = "FATAL ERROR --- UnaryOrSquareExpressions"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    def compile(self):
-        expression1 = self.value.compile()
+    def compile(self, expression):
+        expression1 = self.value.compile(expression)
         type_unary_or_other = self.sign
         temporal = ThreeAddressCode().newTemp()
 
@@ -467,15 +497,36 @@ class LogicalOperators(Expression):
                 return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
             else:
                 data = ""
-                if operator.lower() == 'and':
-                    data = f'({value1}) and ({value2})'
-                    return data
-                elif operator.lower() == 'or':
-                    data = f'({value1})  or ({value2})'
-                    return data
+                if isinstance(value1, list) and isinstance(value2, list):
+                    if operator.lower() == 'and':
+                        lista_temp = []
+                        lista_temp.append(value1[2])
+                        lista_temp.append(value2[2])
+                        lista_temp = self.convert_unic_list2(lista_temp)
+                        name_list = self.convert_unic_list(value1[0], value2[0])
+                        data = f'({value1[1]}) and ({value2[1]})'
+                        return [name_list, data, lista_temp]
+                    elif operator.lower() == 'or':
+                        lista_temp = []
+                        lista_temp.append(value1[2])
+                        lista_temp.append(value2[2])
+                        lista_temp = self.convert_unic_list2(lista_temp)
+                        name_list = self.convert_unic_list(value1[0], value2[0])
+                        data = f'({value1[1]})  or ({value2[1]})'
+                        return [name_list, data, lista_temp]
+                    else:
+                        print("Operador no valido: " + operator)
+                        return
                 else:
-                    print("Operador no valido: " + operator)
-                    return
+                    if operator.lower() == 'and':
+                        data = f'({value1}) and ({value2})'
+                        return data
+                    elif operator.lower() == 'or':
+                        data = f'({value1})  or ({value2})'
+                        return data
+                    else:
+                        print("Operador no valido: " + operator)
+                        return
         except TypeError:
             desc = "FATAL ERROR --- LogicalOperators"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -483,6 +534,23 @@ class LogicalOperators(Expression):
             desc = "FATAL ERROR --- LogicalOperators"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def convert_unic_list(self, value1, value2):
+        lista = []
+        for data in value1:
+            lista.append(data)
+        for data in value2:
+            lista.append(data)
+        return lista
+
+    def convert_unic_list2(self, list_temp):
+        lista = []
+        for data in list_temp:
+            if isinstance(data, list):
+                for data1 in data:
+                    lista.append(data1)
+            else:
+                lista.append(data)
+        return lista
 
 class PrimitiveData(Expression):
     """
@@ -506,5 +574,5 @@ class PrimitiveData(Expression):
     def process(self, expression):
         return self
 
-    def compile(self):
+    def compile(self, expression):
         return self

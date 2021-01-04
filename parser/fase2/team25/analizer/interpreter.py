@@ -4,8 +4,9 @@ from os.path import dirname as dir
 path.append(dir(path[0]))
 
 from analizer.statement.instructions.select.select import Select
-from analizer.abstract.instruction import envVariables
-from analizer import grammar
+from analizer.abstract import instruction
+from analizer import grammar  # GRAMATICA DE LA FASE 2
+from analizer.gramaticaFase2 import getCodigo, parserTo3D
 from analizer.reports import BnfGrammar
 
 
@@ -73,8 +74,7 @@ def astReport():
 
 
 def symbolReport():
-    global envVariables
-    environments = envVariables
+    environments = instruction.envVariables
     report = []
     for env in environments:
         vars = env.variables
@@ -85,15 +85,15 @@ def symbolReport():
             r = [
                 key,
                 symbol.value,
-                symbol.type if not symbol.type else "Tabla",
+                symbol.type if symbol.type else "Tabla",
                 symbol.row,
                 symbol.column,
             ]
             filas.append(r)
-        for (key, symbol) in types.items():
-            r = [key, key, str(symbol) if not symbol else "Columna", "-", "-"]
+        for (key, type_) in types.items():
+            r = [key, key, str(type_.name) if type_ else "Columna", "-", "-"]
             filas.append(r)
         enc.append(filas)
         report.append(enc)
-    envVariables = []
+    instruction.envVariables = list()
     return report

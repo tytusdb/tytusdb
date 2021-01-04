@@ -22,7 +22,7 @@ class CreateType(Instruccion):
                 resultado = Expresion.Resolver(data,ts,consola,exceptions)
                 datavalidada.append(resultado)
 
-            nuevo_tipo = TS.Simbolo(TS.TIPO_DATO.CLASEENUMERADA,createType.id,"Enum",datavalidada,None)
+            nuevo_tipo = TS.Simbolo(TS.TIPO_DATO.CLASEENUMERADA, createType.id, "Enum", datavalidada, None)
             ts.agregar_sim(nuevo_tipo)
             consola.append(f"Se añadio una clase enum llamada  {createType.id}")
 

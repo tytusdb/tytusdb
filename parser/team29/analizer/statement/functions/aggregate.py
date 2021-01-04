@@ -110,5 +110,8 @@ class AggregateFunction(Expression):
         new.addNode(f)
         new.addNode(p)
 
-        p.addNode(self.colData.dot())
+        if self.colData != "*":
+            p.addNode(self.colData.dot())
+        else:
+            p.addNode(Nodo.Nodo("*"))
         return new

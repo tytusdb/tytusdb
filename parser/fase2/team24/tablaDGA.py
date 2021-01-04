@@ -44,7 +44,7 @@ class Simbolo() :
     #valor =  valor de la variable
     #collate  = coleccion a la que pertenece la variable
     #notnull =  Puede ser null esa variable
-    def __init__(self, id, nombre, tipo, ambito, coltab=0, tipocol="", llavecol=0, refcol="", defcol="", nullcol=False, constcol="",numcol=0,registro=[],valor, collate="",notnull = False,constant = False) :
+    def __init__(self, id, nombre, tipo, ambito, coltab, tipocol, llavecol, refcol, defcol, nullcol, constcol,numcol,registro,valor, collate,notnull,constant):
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -60,6 +60,7 @@ class Simbolo() :
         self.registro = registro
         self.valor = valor
         self.collate = collate
+        self.constant = constant
 
 
 class Tabla() :
@@ -194,4 +195,11 @@ class Tabla() :
             if simbolo.id == ambito and simbolo.tipo == TIPO.FUNCTION : 
                 return True
 
+        return False
+    
+    def existe_id(nomre):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == nomre:
+                return True
+        
         return False

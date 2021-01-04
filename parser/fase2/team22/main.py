@@ -218,10 +218,11 @@ class interfaz():
 
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            resultado = i.ejecutar(tablaGlobal,arbol)
-            codigo = i.generar3D(tablaGlobal,arbol)
-            for line in codigo:
-                file3D.write("\n    " + str(line))
+            if i != None:
+                resultado = i.ejecutar(tablaGlobal,arbol)
+                codigo = i.generar3D(tablaGlobal,arbol)
+                for line in codigo:
+                    file3D.write("\n    " + str(line))
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
