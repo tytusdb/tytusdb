@@ -2203,11 +2203,11 @@ def p_stm_alter2(t):
                     |    ALTER TABLE ID ADD FOREIGN KEY PARA ID PARC REFERENCES ID 
 '''
     token_alter = t.slice[1]
-    if len(t) == 9 and t[4] == 'RENAME':
+    if len(t) == 9 and t[4].upper() == 'RENAME':
         graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tRename tColumn tIdentifier tTo tIdentifier     ")
         t[0] = AlterTableRenameColumn(t[3], t[6], t[8], token_alter.lineno, token_alter.lexpos, graph_ref)
-    elif len(t) == 9 and t[4] == 'ALTER':
+    elif len(t) == 9 and t[4].upper() == 'ALTER':
         graph_ref = graph_node(str("stm_alter"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], [])
         addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tIdentifier tSet tNull     ")
         t[0] = AlterTableNotNull(t[3], t[6], True, token_alter.lineno, token_alter.lexpos, graph_ref)

@@ -28,7 +28,7 @@ class AlterDatabaseRename(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ALTER DATABASE {self.name} RENAME TO {self.new_name};'
 
 
 class AlterDatabaseOwner(ASTNode):
@@ -48,7 +48,7 @@ class AlterDatabaseOwner(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ALTER DATABASE {self.name} OWNER TO {self.owner.val};'
 
 
 class AlterTableAddColumn(ASTNode):
@@ -93,7 +93,8 @@ class AlterTableAddColumn(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        result_field_type = self.field_type.val
+        return f'ALTER TABLE {self.table_name} ADD COLUMN {self.field_name} {result_field_type};'
 
 
 # TODO Pending to add checks
@@ -159,7 +160,7 @@ class AlterTableDropColumn(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ALTER TABLE {self.table_name} DROP COLUMN {self.field_name};'
 
 
 # TODO add constraint
@@ -233,7 +234,8 @@ class AlterTableNotNull(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} ' \
+               f'SET {"NOT NULL" if self.allows_null is False else "NULL"};'
 
 
 # TODO drop constraint
@@ -276,7 +278,7 @@ class AlterTableRenameColumn(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ALTER TABLE {self.table_name} RENAME COLUMN {self.old_name} TO {self.new_name};'
 
 
 class AlterTableChangeColumnType(ASTNode):
@@ -304,4 +306,5 @@ class AlterTableChangeColumnType(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} ' \
+               f'TYPE {self.field_type.generate(table,tree)};'
