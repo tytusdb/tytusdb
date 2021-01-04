@@ -1,7 +1,9 @@
 #Importacion de metodos de ejecucion
 #Se utilizan archivos separados para minimizar los conflictos
+from .AST.sentence import *
 from .executeSentence import executeSentence
 from .executeSentence2 import executeSentence2
+from .executeInstruction import executeInstruction
 from .generateASTReport import graphAST
 from .generateSymbolTableReport import printSymbolTable
 from .execute_result import *
@@ -43,18 +45,22 @@ class Execute():
             
             for node in self.nodes:
                 #pprint(vars(node))
-                old_stdout = sys.stdout
-                new_stdout = StringIO()
-                sys.stdout = new_stdout
-                print(node)
-                val1 = new_stdout.getvalue()[:-1]
-                sys.stdout = old_stdout
-                archivo = open("C3D.py", 'a')
-                archivo.write("\n\t")
-                archivo.write(val1) 
-                archivo.close()
+                if isinstance(node,Sentence):
+                    old_stdout = sys.stdout
+                    new_stdout = StringIO()
+                    sys.stdout = new_stdout
+                    print(node)
+                    val1 = new_stdout.getvalue()[:-1]
+                    sys.stdout = old_stdout
+                    archivo = open("C3D.py", 'a')
+                    archivo.write("\n\t")
+                    archivo.write(val1) 
+                    archivo.close()
+                else:
+                    executeInstruction(self,node)
                 
-                executeSentence2(self,node)
+                #executeSentence2(self,node)
+
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)
         '''self.code += "c3d()"
