@@ -12,11 +12,13 @@ import os
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
 import reportes.RealizarGramatica
+import reportes.tablasimbolos as rts
 
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
+from Instrucciones.PL.Func import Func
 
 from storageManager.jsonMode import *
 
@@ -214,7 +216,11 @@ class interfaz():
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
         '''
-        
+        # Buscar funciones
+        for i in arbol.instrucciones:
+            if isinstance(i, Func):
+                i.llenarTS(tablaGlobal,arbol)
+
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
             resultado = i.analizar(tablaGlobal,arbol)
@@ -229,26 +235,54 @@ class interfaz():
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
         else:
-            for i in arbol.instrucciones:
-                i.traducir(tablaGlobal,arbol)
             c3d = 'from goto import with_goto\n'
+            c3d += 'from sintactico import *\n'
+            c3d += 'from Instrucciones.TablaSimbolos.Tabla import Tabla\n'
+            c3d += 'from Instrucciones.TablaSimbolos.Arbol import Arbol\n'
             c3d += 'import sys\n'
             c3d += 'global P\n'
             c3d += 'global Pila\n'
             c3d += 'P = 0\n'
             c3d += 'Pila = [None] * 1000\n'
+
+            c3d += 'tablaGlobal = Tabla(None)\n'
+            c3d += 'global sql\n'
+            c3d += 'global inst\n'
+            c3d += 'global arbol\n'
+
             c3d += self.funcionintermedia()
             c3d += '@with_goto  # Decorador necesario.\n'
+            
+
+            # Agregamos las funciones al reporte
+            for i in tablaGlobal.variables:
+                tablaGlobal.agregarReporteSimbolo(i)
+            
+            # Se traducen las funciones
+            for i in arbol.instrucciones:
+                if isinstance(i, Func):
+                    i.traducir(tablaGlobal,arbol)
+            c3d += arbol.cadena
+
             c3d += 'def main():\n'
             c3d += '\tglobal P\n'
             c3d += '\tglobal Pila\n'
+        
+            # Se traducen el resto de las demás sentencias
+            arbol.cadena = ""
+            for i in arbol.instrucciones:
+                if not isinstance(i, Func):
+                    i.traducir(tablaGlobal,arbol)
+
             c3d += arbol.cadena
             c3d += 'if __name__ == \"__main__\":\n'
             c3d += '\tmain()'
-            archivo = open("prueba.py", "w")
+            archivo = open("prueba.py", "w",encoding='utf-8')
             archivo.write(c3d)
             archivo.close() 
             self.txtsalida[self.tab.index("current")].insert(INSERT,c3d)
+            # Nuevo reporte tabla de símbolos 2
+            #rts.crear_tabla(tablaGlobal.reporte)
         
         
     def funcionintermedia(self):
@@ -259,6 +293,15 @@ class interfaz():
         c3d += '\tt1 = t0+1\n'
         c3d += '\tt2 = Pila[t1]\n'
         c3d += '\tprint(t2)\n'
+
+        c3d += '\tsql = Pila[t1]\n'
+        c3d += '\tinst = ejecutar_analisis(sql)\n'
+        c3d += '\tarbol = Arbol(inst)\n'
+        c3d += '\tfor instruccion in arbol.instrucciones:\n'
+        c3d += '\t\tinstruccion.ejecutar(tablaGlobal,arbol)\n'
+        c3d += '\tfor msj in arbol.consola:\n'
+        c3d += '\t\tprint(f\"{msj}\")\n'
+
         return c3d
 
 

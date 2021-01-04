@@ -15,9 +15,12 @@ class If(Instruction):
         lbl_true = ThreeAddressCode().newLabel()
         lbl_false = ThreeAddressCode().newLabel()
 
-        print(self.condition)
-        print(type(self.condition))
-        condition = self.condition.compile(environment)
+        condition = None
+        if type(self.condition) is not list:
+            condition = self.condition.compile(environment)
+        else:
+            condition = self.condition[0].compile(environment)
+            
         ThreeAddressCode().addCode(f"print(f\"{condition.value} = { {condition.value} }\")")
         ThreeAddressCode().addCode(f"if({condition.value}): goto .{lbl_true}")
         ThreeAddressCode().addCode(f"goto .{lbl_false}")

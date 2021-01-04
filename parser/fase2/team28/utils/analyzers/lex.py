@@ -58,6 +58,7 @@ k_reserved = {
     'ENUM': 'ENUM',
     'EXISTS': 'EXISTS',
     'EXCEPT': 'EXCEPT',
+    'EXECUTE': 'EXECUTE',
     'EXP': 'EXP',
     'ELSE': 'ELSE',
     'ELSEIF' : 'ELSEIF',

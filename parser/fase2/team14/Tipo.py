@@ -7,6 +7,19 @@ class Tipo():
         self.tipo = tipo
         self.size=size
         self.decimales=decimales
+    
+    def devString(self):
+        cad:str = str(self.tipo)
+        if self.size > 0:
+            cad += '(' + str(self.size)
+        
+        if self.decimales > 0:
+            cad += ',' + str(self.decimales) + ')'
+        
+        if self.size > 0 or self.decimales > 0:
+            cad += ')'
+
+        return cad
 
     def tipoInt(self):
         'devueleve el tipo indicado de tipo int'

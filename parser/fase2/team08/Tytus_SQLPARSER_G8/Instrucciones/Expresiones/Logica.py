@@ -80,6 +80,8 @@ class Logica(Instruccion):
             resultadoDer = self.opDer.analizar(tabla, arbol)
             if isinstance(resultadoDer, Excepcion):
                 return resultadoDer
+            self.opIzq.tipo = resultadoIzq
+            self.opDer.tipo = resultadoDer
             # Comprobamos el tipo de operador
             if self.operador == 'OR':
                 if self.opIzq.tipo.tipo == Tipo_Dato.BOOLEAN and self.opDer.tipo.tipo == Tipo_Dato.BOOLEAN:
@@ -108,6 +110,7 @@ class Logica(Instruccion):
             resultadoIzq = self.opIzq.analizar(tabla, arbol)
             if isinstance(resultadoIzq, Excepcion):
                 return resultadoIzq
+            self.opIzq.tipo = resultadoIzq
             if self.operador == 'NOT':
                 if self.opIzq.tipo.tipo == Tipo_Dato.BOOLEAN:
                     return self.tipo
@@ -127,6 +130,13 @@ class Logica(Instruccion):
         retorno = Nodo3D()
         resultadoIzq = self.opIzq.traducir(tabla,arbol)
         if self.operador == 'AND':
+            if isinstance(resultadoIzq, str):
+                cadena = f"{resultadoIzq} AND "
+                if isinstance(self.opDer, str):
+                    cadena += self.opDer + " "
+                else:
+                    cadena += self.opDer.traducir(tabla,arbol)
+                return cadena
             if resultadoIzq.temporalAnterior == "0":
                 etiqueta1 = tabla.getEtiqueta()
                 arbol.addc3d(f"goto .{etiqueta1}")
@@ -268,5 +278,30 @@ class Logica(Instruccion):
                 retorno.etiquetaTrue = resultadoIzq.etiquetaFalse
                 retorno.etiquetaFalse = resultadoIzq.etiquetaTrue
             return retorno
+
+        
+    def concatenar(self, tabla: Tabla, arbol: Arbol):
+        super().traducir(tabla,arbol)
+        retorno = Nodo3D()
+        resultadoIzq = self.opIzq.concatenar(tabla,arbol)
+        if self.operador == 'AND':
+            if isinstance(resultadoIzq, str):
+                cadena = f"{resultadoIzq} AND "
+                if isinstance(self.opDer, str):
+                    cadena += self.opDer + " "
+                else:
+                    cadena += self.opDer.concatenar(tabla,arbol)
+                return cadena
+
+        elif self.operador == 'OR':
+            if isinstance(resultadoIzq, str):
+                cadena = f"{resultadoIzq} OR "
+                if isinstance(self.opDer, str):
+                    cadena += self.opDer + " "
+                else:
+                    cadena += self.opDer.concatenar(tabla,arbol)
+                return cadena
+        elif self.operador == 'NOT':
+            pass
 
         

@@ -830,11 +830,11 @@ def p_DROP(t):
 
         else:
             listaBNF.append("DROP ::= drop databases " + str(t[3]))
-            t[0] = DropDb(str(t[3]))
+            t[0] = DropDb(str(t[3]),'')
 
-    elif len(t) == 5:
+    elif len(t) == 6:
         listaBNF.append("DROP ::= drop databases if exist " + str(t[5]))
-        t[0] = DropDb(str(t[5]))
+        t[0] = DropDb(str(t[5]),'if exists')
 
 
 def p_ALTER(t):
@@ -844,9 +844,12 @@ def p_ALTER(t):
     if len(t) == 7:
         listaBNF.append("ALTER ::= alter databases " + str(t[3]) + " " + str(t[4]) + " to " + str(t[6]))
         if (str(t[4]).lower() == 'rename'):
-            t[0] = AlterDb(str(t[3]), t[6])
+            cad='alter database '+str(t[3])+' rename to '+str(t[6])
+            t[0] = AlterDb(str(t[3]), t[6],cad)
         else:
             print("renombrar owner")
+            cad='alter database '+str(t[3])+' owner to '+str(t[6])
+           
     elif len(t) == 5:
         listaBNF.append("ALTER ::= alter table " + str(t[3]) + " LOP")
         t[0] = AlterTable(str(t[3]), t[4])
@@ -974,32 +977,33 @@ def p_CREATEDB(t):
     '''
     if len(t) == 7:
         listaBNF.append("CREATEDB ::= create RD if not exist " + str(t[6]))
-        t[0] = CreateDb(str(t[6]), str(t[2]).lower(), 'if not exists')
+        t[0] = CreateDb(str(t[6]), str(t[2]).lower(), 'if not exists','')
     elif len(t) == 8:
         listaBNF.append("CREATEDB ::= create RD if not exist " + str(t[6]) + " OPCCDB")
-        t[0] = CreateDb(str(t[6]), str(t[2]).lower(), 'if not exists')
+        t[0] = CreateDb(str(t[6]), str(t[2]).lower(), 'if not exists',t[7])
     elif len(t) == 4:
         listaBNF.append("CREATEDB ::= create RD " + str(t[3]))
-        t[0] = CreateDb(str(t[3]), str(t[2]).lower(), '')
+        t[0] = CreateDb(str(t[3]), str(t[2]).lower(), '','')
     elif len(t) == 5:
         listaBNF.append("CREATEDB ::= create RD " + str(t[3]) + " OPCCDB")
-        t[0] = CreateDb(str(t[3]), str(t[2]).lower(), '')
+        t[0] = CreateDb(str(t[3]), str(t[2]).lower(), '',t[4])
 
 
 def p_OPCCDB(t):
     '''OPCCDB : PROPIETARIO'''
     listaBNF.append("OPCCDB ::= PROPIETARIO")
-
+    t[0]= t[1]
 
 def p_OPCCDB1(t):
     '''OPCCDB : MODO'''
     listaBNF.append("OPCCDB :: = MODO")
+    t[0]= t[1]
 
 
 def p_OPCCDB2(t):
     '''OPCCDB : PROPIETARIO MODO'''
     listaBNF.append("OPCCDB ::= PROPIETARIO MODO")
-
+    t[0]= t[1] +' '+ t[2]
 
 def p_RD(t):
     '''RD : or replace databases
@@ -1014,16 +1018,36 @@ def p_RD(t):
 
 
 def p_PROPIETARIO(t):
-    '''PROPIETARIO : owner igual id
-                    | owner igual cadena
-                    | owner igual cadenaString'''
+    '''PROPIETARIO : owner igual id '''
     listaBNF.append("PROPIETARIO ::= owner igual " + str(t[3]))
+    t[0]='owner = '+str(t[3])
+
+def p_PROPIETARIO_1(t):
+    '''PROPIETARIO : owner igual cadena
+    '''
+    listaBNF.append("PROPIETARIO ::= owner igual " + str(t[3]))
+    t[0]='owner = \''+str(t[3])+ '\''
+
+def p_PROPIETARIO_2(t):
+    '''PROPIETARIO :  owner igual cadenaString'''
+    listaBNF.append("PROPIETARIO ::= owner igual " + str(t[3]))
+    t[0]='owner = \"'+str(t[3])+ '\"'
 
 
-def p_PROPIETARIO1(t):
-    '''PROPIETARIO : owner id
-                    | owner cadena
-                    | owner cadenaString'''
+def p_PROPIETARIO_3(t):
+    '''PROPIETARIO : owner id'''
+    t[0]='owner '+ str(t[2])
+    listaBNF.append("PROPIETARIO ::= owner " + str(t[2]))
+
+def p_PROPIETARIO_4(t):
+    '''PROPIETARIO : owner cadena
+    '''
+    t[0]='owner \''+ str(t[2])+'\''
+    listaBNF.append("PROPIETARIO ::= owner " + str(t[2]))
+
+def p_PROPIETARIO_5(t):
+    '''PROPIETARIO : owner cadenaString'''
+    t[0]='owner \"'+ str(t[2])+'\"'
     listaBNF.append("PROPIETARIO ::= owner " + str(t[2]))
 
 
@@ -1032,7 +1056,9 @@ def p_MODO(t):
 	    | mode int'''
     if len(t) == 3:
         listaBNF.append("MODO ::= mode " + str(t[2]))
+        t[0]='mode = '+str(t[3])
     else:
+        t[0]='mode = '+str(t[3])
         listaBNF.append("MODO ::= mode igual " + str(t[3]))
 
 

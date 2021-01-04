@@ -12,11 +12,6 @@ class Codigo3d:
 
 
 
-    def return_clon_instancia(self):
-        instaciaAux = Codigo3d()
-        instaciaAux.count_temporal = self.count_temporal
-        instaciaAux.listaCode3d = self.listaCode3d
-        return instaciaAux
 
     def restart(self) -> None:
         """
@@ -109,13 +104,13 @@ class Codigo3d:
         cadena+=("from goto import with_goto" + "\n")
         cadena+=("from interpreter import execution"+"\n")
         cadena+=('from c3d.stack import  Stack\n')
-        cadena+=('\nstack = Stack()')
+        cadena+=('\nstack = {}')
         cadena+=("\n\n\n@with_goto\n")
         cadena+=("def principal():\n")
         for inst in self.listaCode3d:
             cadena+=(inst)
-        cadena+=('\n\n\ndef funcionIntermedia():\n')
-        cadena+=('\texecution(stack.pop())\n')
+        cadena+=('\n\n\ndef funcionIntermedia(tn):\n')
+        cadena+=("\texecution(stack['tn'])\n")
         cadena+=("principal()")
         return cadena
 
@@ -126,4 +121,4 @@ class Codigo3d:
 instancia_codigo3d = Codigo3d()
 
 #instacia auxiliar
-instanciaAux = Codigo3d()
+# instanciaAux = Codigo3d()
