@@ -25,10 +25,10 @@ class declaration(pl):
             valor = str(self.exp.traducir().resultado)
 
 
-        if  collate == None:
+        if  self.collate == None:
             col = 'None'
         else:
-            col = collate
+            col = self.collate
 
         if self.tipo == 'SMALLINT':
 
@@ -246,12 +246,11 @@ class createfunc(pl):
         funcion = ''
         funcion += 'def '+self.id.val+'():\n' 
         #variables a usar, guardando en ts y declarando
-        for declara in block.declare:
+        for decla in block.declare:
 
             c3d += decla.c3d()+'\n' 
             funcion += '\t'+decla.traducir()+'\n' 
-
-        for inst in instrucciones:
+        for inst in block.instrucciones:
             funcion += '\t'+inst.traducir()+'\n'
             c3d += inst.c3d()
         
@@ -287,7 +286,7 @@ class param(pl):
         return c3d
 
 class block(pl):
-    def __init__(self,declare,instrucciones,) -> None:
+    def __init__(self,declare,instrucciones) -> None:
         self.instrucciones = instrucciones
         self.declare = declare
 
@@ -323,6 +322,14 @@ class rtrn(instruccion):
 class expresion():
     'Clase abstracta'
 
+tempcont = 0
+
+def getTemp():
+    global tempcont
+    tempcont += 1
+    return 't'+str(tempcont-1)
+
+
 class exp_boolp(expresion):
     'Esta expresion devuelve un'
     'boolean'
@@ -330,24 +337,60 @@ class exp_boolp(expresion):
     def __init__(self, val):
         self.val = val
 
+    def traducir(self):
+        tmp = getTemp()
+        codigo = tmp + ' = {self.val}'
+        valor = tmp
+        return codigo,valor
+
 class exp_textp(expresion):
     'Devuelve el texto'
 
     def __init__(self, val):
         self.val = val
 
+    def traducir(self):
+        tmp = getTemp()
+        codigo = tmp + ' = {self.val}'
+        valor = tmp
+        return codigo,valor
+
 class exp_nump(expresion):
     'Devuelve un número'
 
     def __init__(self, val):
         self.val = val
+        
+    def traducir(self):
+        tmp = getTemp()
+        codigo = tmp + ' = {self.val}'
+        valor = tmp
+        return codigo,valor
 
-class exp_sumap(expresion):
+class expresionC:
+    'clase abstracta para las operaciones'
+
+class exp_sumap(expresionC):
     'Suma las dos expresiones'
 
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
+
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1.codigo
+        c3d2 = tr2.codigo
+        tmp1 = tr1.valor
+        tmp2 = tr2.valor
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = '{tmp} = {tmp1} + {tmp2}'
+        c3df += '\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        return codigo,valor
 
 class exp_restap(expresion):
     'Suma las dos expresiones'

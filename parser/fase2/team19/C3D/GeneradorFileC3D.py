@@ -1,5 +1,7 @@
 from tkinter import messagebox
 
+funciones_extra = ""
+
 class GeneradorFileC3D:
     def __init__(self):
         self.path_archivo_c3d = '../interfaz/c3d.py'
@@ -10,6 +12,7 @@ class GeneradorFileC3D:
             "Creo el archivo en tu computadora si aun no lo tienes"
 
     def escribir_archivo(self, c3d):
+        global funciones_extra
         imports = '''
 #Imports
 from goto import with_goto
@@ -87,6 +90,7 @@ if __name__ == "__main__":
                 file_c3d.write(imports)
                 file_c3d.write(variables_globales)
                 file_c3d.write(funcion_intermedia)
+                file_c3d.write(funciones_extra)
                 file_c3d.write(inicio_main)
                 file_c3d.write(c3d)
                 file_c3d.write(fin_main)
