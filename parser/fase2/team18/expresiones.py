@@ -405,3 +405,10 @@ class Sentencia_When_Else(Expresion):
     def __init__(self,condicion,sentencias):
         self.condicion=condicion
         self.sentencias=sentencias
+
+class Lower(Expresion):
+    '''
+        Esta clase representa a una funcion lower
+    '''
+    def __init__(self,expresion):
+        self.expresion=expresion

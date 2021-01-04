@@ -27,7 +27,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'greatest':'GREATEST' , 'least':'LEAST','md5':'MD5','extract':'EXTRACT','now':'NOW' ,'date_part':'DATE_PART' ,
                'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME', 'use':'USE', 'count':'COUNT', 'sum':'SUM', 'avg':'AVG', 'max':'MAX', 'min':'MIN', 'index':'INDEX',
                'hash':'HASH', 'lower':'lower', 'function':'FUNCTION', 'returns':'RETURNS', 'language':'LANGUAGE', 'plpgsql':'PLPGSQL', 'declare':'DECLARE',
-               'begin':'BEGIN', 'return':'RETURN', 'raise':'RAISE', 'elsif':'ELSIF','procedure':'PROCEDURE','sql':'SQL','call':'CALL'
+               'begin':'BEGIN', 'return':'RETURN', 'raise':'RAISE', 'elsif':'ELSIF','procedure':'PROCEDURE','sql':'SQL','execute':'EXECUTE'
              } 
  
 
@@ -199,8 +199,8 @@ def p_sentencia_dml(t):
 
 #Call procedure
 def p_llamada_proc(t):
-     '''llamada : CALL ID PAR_A lista_exp PAR_C
-                | CALL ID PAR_A PAR_C'''     
+     '''llamada : EXECUTE ID PAR_A lista_exp PAR_C
+                | EXECUTE ID PAR_A PAR_C'''     
 
 #NUEVO YO---------------------------------------------
 
@@ -1089,6 +1089,7 @@ def p_funciones_select_restantes(t):
 
 def p_funtion_math_lower(t):
      '''funcion_math : lower PAR_A exp PAR_C'''
+     t[0] = Lower(t[3])
 
 def p_llamado_funcion(t):
      '''funcion_math : ARROBA ID PAR_A parametros_fun PAR_C'''
@@ -1368,14 +1369,18 @@ def p_listado_parametros(t):
      else:
           t[0] = [t[1]]
 
+def p_declare_opcional_parametro(t):
+     '''declare_op : DECLARE
+                   | empty'''
+
 def p_parametro(t):
-     '''parametro : ID tipo valortipo asig_valor
-                  | ID ASIGNACION exp
+     '''parametro : declare_op ID tipo valortipo asig_valor
+                  | declare_op ID ASIGNACION exp
                   | empty'''
      if len(t) == 5:
-          t[0] = Parametro(t[1],t[2],t[3],t[4])
+          t[0] = Parametro(t[2],t[3],t[4],t[5])
      elif len(t) == 4:
-          t[0] = Parametro(t[1],None,None,t[3])
+          t[0] = Parametro(t[2],None,None,t[4])
      else:
           t[0] = False
      
@@ -1387,15 +1392,21 @@ def p_asig_valor_parametros(t):
      else:
           t[0] = False
 
+def p_begin_op(t):
+     '''begin_op : BEGIN
+                 | empty'''
+
+def p_end_op(t):
+     '''end_op : END PTCOMA
+               | empty'''
 
 def p_cuerpo_funcion(t):
-     '''cuerpo_funcion : declare_variables funcion_begin
-                       | tipo_funcionalidad  '''
-     if len(t) == 3:
-          #t[0] = t[1]
-          t[0] = Cuerpo_Funcion(t[1],t[2])
-     else:
-          t[0] = t[1]
+     '''cuerpo_funcion : declare_variables funcion_begin'''
+     t[0] = Cuerpo_Funcion(t[1],t[2])
+
+def p_cuerpo_tipo_func(t):
+     '''cuerpo_funcion : begin_op tipo_funcionalidad end_op'''
+     t[0] = t[2]
 
 
 def p_declaracion_variables(t):
@@ -1431,7 +1442,11 @@ def p_lista_proc(t):
 
 
 def p_func_proc(t):
-     '''func_proc : insert_proc'''
+     '''func_proc : insertar PTCOMA
+                  | actualizar PTCOMA
+                  | eliminar PTCOMA
+                  | seleccionH PTCOMA'''
+     t[0] = t[1]
 
 def p_declaracion_funcion(t):
      '''declaraciones : declaraciones PTCOMA parametro
@@ -1456,10 +1471,6 @@ def p_funcionalidad_funcion(t):
                       | sentencia_case
                       | operacion_expresion'''
      t[0] = t[1]
-
-def p_insertar_proc(t):
-     '''insert_proc : INSERT INTO ID par_op VALUES PAR_A lista_exp PAR_C PTCOMA'''
-
 
 def p_op_funcionalidad_funcion(t):
      '''seleccion_funcion : SELECT cantidad_select parametros_select asignation cuerpo_select PTCOMA'''

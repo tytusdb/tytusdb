@@ -3748,7 +3748,9 @@ def resolver_operacion(operacion,ts):
     elif isinstance(operacion, Operacion_Great_Least):
         if operacion.tipo == 'greatest': return f.Greatest(operacion.expresion,ts)
         else: return f.Least(operacion.expresion,ts)
-    
+    elif isinstance(operacion, Lower):
+        op = resolver_operacion(operacion.expresion,ts)
+        return op.lower()
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
@@ -3773,6 +3775,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, Indice) : Indexs(instr,ts)
             elif isinstance(instr, Funcion): Funciones(instr,ts)
             elif isinstance(instr, Drop_Function): Eliminar_Funcion(instr,ts)
+            elif isinstance(instr, Procedimiento): print('Procedimiento')
             else: 
                 if instr is not None:
                     for val in instr:
