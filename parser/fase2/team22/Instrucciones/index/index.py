@@ -8,53 +8,90 @@ from Instrucciones.Identificador import Identificador
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select import SelectLista 
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
+from Instrucciones.Tablas.indice import Indice
 import numpy as np
 import pandas as pd
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
-
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 class index(Instruccion):
-                  
-    def __init__(self, ID, tabla , l_expresiones, where, params_crt_indx, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.QUERY),linea,columna,params_crt_indx)
-        self.ID = ID
-        self.tabla = tabla
-        self.l_expresiones = l_expresiones
+    def __init__(self, idIndex, idTabla , lcol, where, tipoIndex ,strGram, linea, columna):
+        Instruccion.__init__(self,Tipo(Tipo_Dato.QUERY),linea,columna,strGram)
+        self.idIndex = idIndex
+        self.idTabla = idTabla
+        self.lcol = lcol
         self.where = where
+        self.tipoIndex = tipoIndex
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        val = self.tabla.devolverTabla(tabla, arbol)
-        
+        val = self.idTabla.devolverTabla(tabla, arbol)
+
         if(val == 0):
             error = Excepcion("42P01", "Semantico", "La tabla " + str(self.identificador.devolverId(tabla, arbol)) + " no existe", self.linea, self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
-            print('Error tabla no existe')
+            print('ERROR: tabla no existe')
             return error
 
         tablaIndex = extractTable(arbol.getBaseDatos(), val)
         arbol.setTablaActual(tablaIndex)
         columnas = arbol.devolverColumnasTabla(val)
-        
         data = np.array((tablaIndex))
         res = []
-        # vamos a mostrar todos
         for x in range(0, len(columnas)):
             col = columnas[x].obtenerNombre()
             res.append(col)
 
         arbol.setColumnasActual(res)
-
-        ## solo me quedaria buscar entre las columnas si existe la columnas 
-        print(res)  
-
+        listaMods = []
         if self.where:
-            print("El where no viene vacio")
+            listaMods = self.where.ejecutar(tabla, arbol)
 
-    
-    def analizar(self, tabla, arbol):
-        pass
-        
-    def traducir(self, tabla, arbol):
-        pass
-        
+        for x in range(0, len(self.lcol)):
+            variable = self.lcol[x]
+            objetoTabla = arbol.devolviendoTablaDeBase(val)
+            if 'Identificador' in str(variable):
+                idcol = variable.id
+                if self.validar_columna(variable.id, res):
+                    if objetoTabla:
+                        for indices in objetoTabla.lista_de_indices:
+                            if indices.obtenerNombre == variable.id :
+                                error = Excepcion('42P01',"Semántico","el indice «"+variable.id+"» ya fue creado.",self.linea,self.columna)
+                                arbol.excepciones.append(error)
+                                arbol.consola.append(error.toString())
+                                return error
+                        
+                    ind = Indice(self.idIndex, "Indice")
+                    ind.lRestricciones.append("ID_Columna = "+ variable.id)
+                    if self.tipoIndex:
+                        ind.lRestricciones.append(self.tipoIndex)
+                    
+                    objetoTabla.lista_de_indices.append(ind)
+                    arbol.consola.append("Indice agregado con la columna: " + variable.id)    
+                else:
+                    print("La columna indicada no pertenece a la tabla: " + self.idTabla)
+
+
+    def validar_columna(self, nombre, listacolumnas):
+        for i in range(0, len(listacolumnas)):
+            if listacolumnas[i] == nombre:
+                return True
+            # else:
+            #     return False
+        return False
+
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
+        code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
+        #CREATE INDEX test2_mm_idx ON tabla(id);
+
+        # code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.aumentarP())
+
+        return code

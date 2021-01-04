@@ -34,24 +34,17 @@ def exec():
     t4 = "USE test;"
     stack[p] = t4
     p = p + 1
-    t5 = "CREATE TABLE tbcalifica (\n"
-    t6 = "iditem integer"
-    t7 = t6 + " not null"
-    t8 = t7 + " primary key"
-    t9 = t8 + ",\n"
-    t10 = t5 + t9
-    t11 = "item varchar"
-    t12 = t11 + "(150)"
-    t13 = t12 + " not null"
-    t14 = t13 + ",\n"
-    t15 = t10 + t14
-    t16 = "puntos decimal"
-    t17 = t16 + "(8,2)"
-    t18 = t17 + " not null"
-    t19 = t15 + t18
-    t20 = t19 + ");"
-    stack[p] = t20
-    p = p + 1= t41
+    t5 = "CREATE TABLE tabla (\n"
+    t6 = "id integer"
+    t7 = t6 + ",\n"
+    t8 = t5 + t7
+    t9 = "column2 integer"
+    t10 = t8 + t9
+    t11 = t10 + ");"
+    stack[p] = t11
+    p = p + 1
+    t12 = "CREATE INDEX test2_mm_idx ON tabla(id);"
+    stack[p] = t12
     p = p + 1
 
 exec()
