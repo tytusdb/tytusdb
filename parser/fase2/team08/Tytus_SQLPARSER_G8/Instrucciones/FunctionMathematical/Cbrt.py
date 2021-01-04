@@ -1,6 +1,7 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Primitivo import Primitivo
 import math
 import numpy as np
 
@@ -25,9 +26,24 @@ class Cbrt(Instruccion):
             arbol.consola.append(error.toString())
             return error
         return np.cbrt(resultado)
+    
+    def analizar(self, tabla, arbol):
+        pass
 
-'''
-arr1 = [1, 27000, 64, -1000] 
-instruccion = Cbrt(arr1,None, 1,2)
-instruccion.ejecutar(None,None)
-'''
+    def traducir(self, tabla, arbol):
+        
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"CBRT({self.valor.traducir(tabla,arbol).temporalAnterior})"
+
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        if isinstance(self.valor, Primitivo):
+            return f"CBRT({self.valor.traducir(tabla,arbol).temporalAnterior})"
+
+        return f"CBRT({self.valor.concatenar(tabla,arbol)})"

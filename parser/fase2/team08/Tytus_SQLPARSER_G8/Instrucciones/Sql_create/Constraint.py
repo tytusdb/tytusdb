@@ -9,3 +9,9 @@ class Constraint(Instruccion):
     
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+    
+    def analizar(self, tabla, arbol):
+        pass
+    
+    def traducir(self, tabla, arbol):
+        pass

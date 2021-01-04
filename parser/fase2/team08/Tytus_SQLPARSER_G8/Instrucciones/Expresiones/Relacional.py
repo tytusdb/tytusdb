@@ -1,8 +1,11 @@
+from typing import List
+from Instrucciones.Sql_select.SelectLista import SelectLista, Alias
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select.SelectLista import Alias
 from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
+from Instrucciones.Identificador import Identificador
 import time
 import numpy as np
 
@@ -730,6 +733,8 @@ class Relacional(Instruccion):
         resultadoDer = self.opDer.analizar(tabla, arbol)
         if isinstance(resultadoDer, Excepcion):
             return resultadoDer
+        self.opIzq.tipo = resultadoIzq
+        self.opDer.tipo = resultadoDer
         # Comprobamos el tipo de operador
         if self.operador == '>':
             if (self.opIzq.tipo.tipo == Tipo_Dato.SMALLINT or self.opIzq.tipo.tipo == Tipo_Dato.INTEGER or self.opIzq.tipo.tipo == Tipo_Dato.BIGINT or self.opIzq.tipo.tipo == Tipo_Dato.DECIMAL or self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC or self.opIzq.tipo.tipo == Tipo_Dato.REAL or self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or self.opIzq.tipo.tipo == Tipo_Dato.MONEY) and (self.opDer.tipo.tipo == Tipo_Dato.SMALLINT or self.opDer.tipo.tipo == Tipo_Dato.INTEGER or self.opDer.tipo.tipo == Tipo_Dato.BIGINT or self.opDer.tipo.tipo == Tipo_Dato.DECIMAL or self.opDer.tipo.tipo == Tipo_Dato.NUMERIC or self.opDer.tipo.tipo == Tipo_Dato.REAL or self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or self.opDer.tipo.tipo == Tipo_Dato.MONEY):
@@ -776,6 +781,8 @@ class Relacional(Instruccion):
                 return self.tipo
             elif (self.opIzq.tipo.tipo == Tipo_Dato.DATE or self.opIzq.tipo.tipo == Tipo_Dato.TIME or self.opIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or self.opIzq.tipo.tipo == Tipo_Dato.CHAR) and (self.opDer.tipo.tipo == Tipo_Dato.DATE or self.opDer.tipo.tipo == Tipo_Dato.TIME or self.opDer.tipo.tipo == Tipo_Dato.TIMESTAMP or self.opDer.tipo.tipo == Tipo_Dato.CHAR):
                 return self.tipo
+            elif (self.opIzq.tipo.tipo == Tipo_Dato.CHAR or self.opIzq.tipo.tipo == Tipo_Dato.VARCHAR or self.opIzq.tipo.tipo == Tipo_Dato.VARYING or self.opIzq.tipo.tipo == Tipo_Dato.CHARACTER or self.opIzq.tipo.tipo == Tipo_Dato.TEXT) and (self.opDer.tipo.tipo == Tipo_Dato.CHAR or self.opDer.tipo.tipo == Tipo_Dato.VARCHAR or self.opDer.tipo.tipo == Tipo_Dato.VARYING or self.opDer.tipo.tipo == Tipo_Dato.CHARACTER or self.opDer.tipo.tipo == Tipo_Dato.TEXT):
+                return self.tipo
             else:
                 error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" = "+self.opDer.tipo.toString(),self.linea,self.columna)
                 arbol.excepciones.append(error)
@@ -785,6 +792,8 @@ class Relacional(Instruccion):
             if (self.opIzq.tipo.tipo == Tipo_Dato.SMALLINT or self.opIzq.tipo.tipo == Tipo_Dato.INTEGER or self.opIzq.tipo.tipo == Tipo_Dato.BIGINT or self.opIzq.tipo.tipo == Tipo_Dato.DECIMAL or self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC or self.opIzq.tipo.tipo == Tipo_Dato.REAL or self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or self.opIzq.tipo.tipo == Tipo_Dato.MONEY) and (self.opDer.tipo.tipo == Tipo_Dato.SMALLINT or self.opDer.tipo.tipo == Tipo_Dato.INTEGER or self.opDer.tipo.tipo == Tipo_Dato.BIGINT or self.opDer.tipo.tipo == Tipo_Dato.DECIMAL or self.opDer.tipo.tipo == Tipo_Dato.NUMERIC or self.opDer.tipo.tipo == Tipo_Dato.REAL or self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or self.opDer.tipo.tipo == Tipo_Dato.MONEY):
                 return self.tipo
             elif (self.opIzq.tipo.tipo == Tipo_Dato.DATE or self.opIzq.tipo.tipo == Tipo_Dato.TIME or self.opIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or self.opIzq.tipo.tipo == Tipo_Dato.CHAR) and (self.opDer.tipo.tipo == Tipo_Dato.DATE or self.opDer.tipo.tipo == Tipo_Dato.TIME or self.opDer.tipo.tipo == Tipo_Dato.TIMESTAMP or self.opDer.tipo.tipo == Tipo_Dato.CHAR):
+                return self.tipo
+            elif (self.opIzq.tipo.tipo == Tipo_Dato.CHAR or self.opIzq.tipo.tipo == Tipo_Dato.VARCHAR or self.opIzq.tipo.tipo == Tipo_Dato.VARYING or self.opIzq.tipo.tipo == Tipo_Dato.CHARACTER or self.opIzq.tipo.tipo == Tipo_Dato.TEXT) and (self.opDer.tipo.tipo == Tipo_Dato.CHAR or self.opDer.tipo.tipo == Tipo_Dato.VARCHAR or self.opDer.tipo.tipo == Tipo_Dato.VARYING or self.opDer.tipo.tipo == Tipo_Dato.CHARACTER or self.opDer.tipo.tipo == Tipo_Dato.TEXT):
                 return self.tipo
             else:
                 error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" <> "+self.opDer.tipo.toString(),self.linea,self.columna)
@@ -825,7 +834,46 @@ class Relacional(Instruccion):
 
         retorno.etiquetaTrue = tabla.getEtiqueta()
         retorno.etiquetaFalse = tabla.getEtiqueta()
+        if self.operador == "=":
+            self.operador = "=="
+        elif self.operador == "<>":
+            self.operador = "!="
         arbol.addc3d(f"if({resultadoIzq.temporalAnterior} {self.operador} {resultadoDer.temporalAnterior}):\n\t\tgoto .{retorno.etiquetaTrue}")
         arbol.addc3d(f"goto .{retorno.etiquetaFalse}")
         return retorno
-    
+
+    def concatenar(self, tabla, arbol):
+        resultadoDer=""
+        resultadoIzq=""
+        if isinstance(self.opIzq, Identificador):
+            resultadoIzq = self.opIzq.concatenar(tabla, arbol)
+        else:
+            resultadoIzq = self.opIzq.traducir(tabla, arbol)
+        if isinstance(self.opDer,SelectLista):
+            resultadoDer = self.opDer.traducir2(tabla,arbol)
+        else:
+            if isinstance(self.opDer, Identificador):
+                resultadoDer = self.opDer.concatenar(tabla, arbol)
+            else:
+                resultadoDer = self.opDer.traducir(tabla, arbol)
+        print("RESULTADO", resultadoIzq," *** ", resultadoDer)
+        print("RESULTADO2", type(resultadoIzq), " *** ", type(resultadoDer))
+        if(isinstance(self.opIzq,Identificador) or isinstance(resultadoIzq, str)):
+            cadena = resultadoIzq + " "
+            cadena += self.operador + " "
+            if (isinstance(resultadoDer, Nodo3D)):
+                cadena += resultadoDer.temporalAnterior
+            else:
+                cadena+= resultadoDer
+                
+            return cadena
+        elif (isinstance(self.opDer,Identificador) or isinstance(resultadoDer, str)):   
+            cadena = resultadoIzq + " "
+            cadena += self.operador + " "
+            if (isinstance(resultadoDer, Nodo3D)):
+                cadena += resultadoDer.temporalAnterior
+            else:
+                cadena+= resultadoDer
+                
+            return cadena
+

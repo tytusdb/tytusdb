@@ -128,16 +128,18 @@ reservadas = {
     "THEN": "R_THEN",
     "ELSE": "R_ELSE",
     "INDEX": "R_INDEX",
-    "HASH": "R_HASH"
+    "HASH": "R_HASH",
     "END": "R_END",
     "FUNCTION" : "R_FUNCTION",
     "DECLARE" : "R_DECLARE",
     "BEGIN" : "R_BEGIN",
     "RETURNS" : "R_RETURNS",
+    "RETURN" : "R_RETURN",
     "LANGUAGE" : "R_LANGUAGE",
     "ALIAS" : "R_ALIAS",
     "FOR" : "R_FOR",
-    "CONSTANT" : "R_CONSTANT"
+    "CONSTANT" : "R_CONSTANT",
+    "ELSIF": "R_ELSIF"
 }
 
 reservadas.update(r_types)
@@ -178,7 +180,7 @@ tokens = [
     "S_COMA",
     "S_PUNTOCOMA",
     "S_PUNTO",
-    "S_DOSPUNTOS"
+    "S_DOSPUNTOS",
     "S_IGUAL",
     "S_DOLAR",
     # Tokens
@@ -219,7 +221,7 @@ t_S_PARIZQ = r"\("
 t_S_PARDER = r"\)"
 t_S_COMA = r","
 t_S_PUNTOCOMA = r";"
-t_S_DOSPUNTOS = r":"
+t_S_DOSPUNTOS = r"\:"
 t_S_PUNTO = r"\."
 t_S_IGUAL = r"="
 t_S_DOLAR = r"\$"

@@ -6,13 +6,13 @@ path.append(dir(path[0]))
 import analizer.grammarFP as grammar2
 
 s = """ 
-CREATE DATABASE DBFase2;
 
-USE DBFase2;
 
 CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+declare 
+	texto integer := 2;
 BEGIN
-	
+	texto := 9;
 	RETURN texto between 2 and 19;
 	RETURN texto not between 2 and 19;
 	RETURN texto between SYMMETRIC 2 and 19;
@@ -22,10 +22,7 @@ $$ LANGUAGE plpgsql;
 
 """
 result = grammar2.parse(s)
-print(result)
-"""
+#print(result)
 for r in result:
-	if r :
-		for t in r:
-			t = t.execute(0)
-			print(t.temp,t.value)"""
+	x = r.execute(None).value 
+	print(x)

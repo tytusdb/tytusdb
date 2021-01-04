@@ -1,5 +1,5 @@
 from models.instructions.shared import ObjectReference
-from models.instructions.Expression.expression import Expression
+from models.instructions.Expression.expression import Expression, PrimitiveData
 from models.Other.ambito import Ambito, Variable
 from controllers.three_address_code import ThreeAddressCode
 
@@ -16,7 +16,7 @@ class DeclaracionID(Expression):
         return str(vars(self))
 
     def compile(self, environment):
-        val = self.value[0].compile(environment)
+        val = self.value.compile(environment)
         pos = ThreeAddressCode().stackCounter
         environment.addVar(self.id, self.data_type, val, pos, self.line, self.column)
         temp = ThreeAddressCode().newTemp()
@@ -45,18 +45,21 @@ class AsignacionID(Expression):
             return
 
         if isinstance(self.value, ObjectReference): #Buscar variable
-            # val = self.value.compile(environment)
-            # val = environment.getVar(val)
-            # if val is None: 
-            #     print("VARIABLE NO DECLARADA")
-            #     return
+            val = self.value.compile(environment)
+            if isinstance(val, PrimitiveData):
+                ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val.alias}")
+                return
+                
+            val = environment.getVar(val)
+            if val is None: 
+                print("VARIABLE NO DECLARADA")
+                return
 
-            # position = val.position
-            # temporal = ThreeAddressCode().newTemp()
-            # ThreeAddressCode().addCode(f"{temporal} = Stack[{position}]")
+            position = val.position
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal} = Stack[{position}]")
             ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {temporal}")
         else:
-            print(self.value)
             ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val.value}")
 
 

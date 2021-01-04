@@ -12,6 +12,19 @@ from Expresiones import *
 from Instrucciones import *
 from Retorno import Retorno
 from NodoAST import NodoAST
+from analizadorFase2.Instrucciones.Else import Else_inst
+from analizadorFase2.Operaciones.TiposOperacionesLR import TiposOperacionesLR
+from analizadorFase2.Operaciones.Operaciones_LogicasRelacionales import OperacionesLogicasRelacionales
+from analizadorFase2.Instrucciones.If import If_inst
+from analizadorFase2.Instrucciones.Asignacion import Asignacion
+from analizadorFase2.Instrucciones.Declaracion import Declaracion
+from analizadorFase2.Instrucciones.Parametro import Parametro
+from analizadorFase2.Instrucciones.Funcion import Funcion
+from analizadorFase2.Operaciones.Operaciones_Aritmeticcas import Operaciones_Aritmeticas
+from analizadorFase2.Operaciones.TiposOperacionesA import TiposOperaciones
+from analizadorFase2.Operaciones.OperacionesUnarias import OperacionesUnarias
+from analizadorFase2.Abstractas.Primitivo import Primitivo
+from analizadorFase2.Abstractas.Expresion import Tipos
 import re
 
 # VARIABLES GLOBALES
@@ -207,7 +220,10 @@ palabras_reservadas = {
     'begin'         : 'BEGIN',
     'declare'       : 'DECLARE',
     'plpgsql'       : 'PLPGSQL',
-    'language'      : 'LANGUAGE'
+    'language'      : 'LANGUAGE',
+    'procedure'     : 'PROCEDURE',
+    'inout'         : 'INOUT',
+    'execute'       : 'EXECUTE'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -243,7 +259,6 @@ tokens = [
              'BNot',
              'DesplazaI',
              'DesplazaD',
-             'ARROBA',
              'DPUNTOS',
              'FINF'
          ] + list(palabras_reservadas.values())
@@ -275,7 +290,6 @@ t_BXor = r'#'
 t_BNot = r'~'
 t_DesplazaI = r'<<'
 t_DesplazaD = r'>>'
-t_ARROBA          = r'@'
 t_DPUNTOS         = r':'
 t_FINF            = r'\$\$'
 
@@ -468,6 +482,8 @@ def p_instruccion2(t):
                         |   I_ALTERTB
                         |   I_CINDEX
                         |   FUNCION_N
+                        |   PROCEDURE_N
+                        |   PEXECUTE
     """
     t[0] = t[1]
 
@@ -2323,6 +2339,31 @@ def p_ISelect9(t):
         codigo_3D.append(C3D)
         t[0] = ret
 
+def p_ISelect10(t):
+    'I_SELECT   :   SELECT ID PABRE PCIERRA '
+    global reporte_gramatical, contador, codigo_3D
+    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"ID\" \"()\" ")
+    C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) +'()' +';"'
+    ret = Retorno(SelectFun(t[2],None),NodoAST("SELECT"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+
+    contador = contador + 1
+    codigo_3D.append(C3D)
+    t[0] = ret
+
+def p_ISelect11(t):
+    'I_SELECT   :   SELECT ID PABRE L_ID PCIERRA '
+    global reporte_gramatical, contador, codigo_3D
+    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"ID\" \"()\" ")
+    C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) +'('+ str(t[4].getInstruccion()) + ')' +';"'
+    ret = Retorno(SelectFun(t[2],t[4].getInstruccion()),NodoAST("SELECT"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(t[4].getNodo())
+
+    contador = contador + 1
+    codigo_3D.append(C3D)
+    t[0] = ret
+
 
 def p_LComplementoS(t):
     'LCOMPLEMENTOS  :   LCOMPLEMENTOS COMPLEMENTO  '
@@ -2431,6 +2472,10 @@ def p_ComplementoSelectExceptPcoma(t):
     # INSTRUCCION COMPLEMENTOSELECTEXCEPTPCOMA
     global reporte_gramatical
     reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \";\"")
+    t[0] = None
+
+def p_ComplementoSelectEmpty(t):
+    'COMPLEMENTOSELECT  : '
     t[0] = None
 
 
@@ -4726,27 +4771,67 @@ def p_PTimestamIdP(t):
 #----------------------------------------------------
 def p_Funcion(t):
     'FUNCION_N  :   CREATE FUNCTION ID PABRE PARAMS PCIERRA RETORNO DECLAREF STAMENT '
+    ret = Retorno(Funcion(t[3], t[5].getInstruccion(), t[8].getInstruccion(), t[9].getInstruccion()), NodoAST("FUNCION"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[8].getNodo())
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
 
 def p_Funcion2(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PARAMS PCIERRA RETORNO DECLAREF STAMENT '
+    ret = Retorno(Funcion(t[5], t[7].getInstruccion(), t[10].getInstruccion(), t[11].getInstruccion()), NodoAST("FUNCION"))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    ret.getNodo().setHijo(t[10].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    t[0] = ret
 
 def p_Funcion3(t):
     'FUNCION_N  :   CREATE FUNCTION ID PABRE PCIERRA RETORNO DECLAREF STAMENT '
+    ret = Retorno(Funcion(t[3], None, t[7].getInstruccion(), t[8].getInstruccion()), NodoAST("FUNCION"))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    ret.getNodo().setHijo(t[8].getNodo())
+    t[0] = ret
 
 def p_Funcion4(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PCIERRA RETORNO DECLAREF STAMENT '
+    ret = Retorno(Funcion(t[5], None, t[9].getInstruccion(), t[10].getInstruccion()), NodoAST("FUNCION"))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[9].getNodo())
+    ret.getNodo().setHijo(t[10].getNodo())
+    t[0] = ret
 
 def p_Funcion5(t):
     'FUNCION_N  :   CREATE FUNCTION ID PABRE PARAMS PCIERRA RETORNO STAMENT '
+    ret = Retorno(Funcion(t[3], t[5].getInstruccion(), None, t[8].getInstruccion()), NodoAST("FUNCION"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[8].getNodo())
+    t[0] = ret
 
 def p_Funcion6(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PARAMS PCIERRA RETORNO STAMENT '
+    ret = Retorno(Funcion(t[5], t[7].getInstruccion(), None, t[10].getInstruccion()), NodoAST("FUNCION"))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    ret.getNodo().setHijo(t[10].getNodo())
+    t[0] = ret
 
 def p_Funcion7(t):
     'FUNCION_N  :   CREATE FUNCTION ID PABRE PCIERRA RETORNO STAMENT '
+    ret = Retorno(Funcion(t[3], None, None, t[7].getInstruccion()), NodoAST("FUNCION"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
 
 def p_Funcion8(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PCIERRA RETORNO STAMENT '
+    ret = Retorno(Funcion(t[5], None, None, t[9].getInstruccion()), NodoAST("FUNCION"))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
 
 def p_Retorno(t):
     'RETORNO  :   RETURNS I_TIPO AS FINF '
@@ -4756,86 +4841,165 @@ def p_Retorno1(t):
 
 def p_Params(t):
     'PARAMS  :   PARAMS COMA PARAM '
+    t[1].getInstruccion().append(t[2].getInstruccion())
+    ret = Retorno(t[1].getInstruccion(), t[3].getNodo())
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_Params1(t):
     'PARAMS  :   PARAM '
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, t[1].getNodo())
+    t[0] = ret
 
 
 def p_Param(t):
     'PARAM  :   ID I_TIPO '
-
-def p_Param1(t):
-    'PARAM  :   ARROBA ID I_TIPO '
+    ret = Retorno(Parametro(t[1], t[2]), NodoAST('PARAMETRO'))
+    t[0] = ret
 
 def p_Declare(t):
     'DECLAREF  :   DECLARE DECLARACIONES '
+    t[0] = t[2]
 
 def p_Declaraciones(t):
     'DECLARACIONES  :   DECLARACIONES DECLARACION '
+    t[1].getInstruccion().append(t[2].getInstruccion())
+    ret = Retorno(t[1].getInstruccion(), t[2].getNodo())
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_Declaraciones1(t):
     'DECLARACIONES  :   DECLARACION '
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, t[1].getNodo())
+    t[0] = ret
 
 
 def p_Declaracion(t):
     'DECLARACION  :   ID I_TIPO PCOMA'
-
-def p_Declaracion1(t):
-    'DECLARACION  :   ARROBA ID I_TIPO PCOMA '
+    ret = Retorno(Declaracion(t[1]), NodoAST("DECLARACION"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_Statement(t):
     'STAMENT  :   BEGIN LINSTRUCCIONESFN END PCOMA FINF LANGUAGE PLPGSQL PCOMA'
+    t[0] = t[2]
 
 def p_LInstruccionesFN(t):
     'LINSTRUCCIONESFN  :   LINSTRUCCIONESFN INSTRUCCIONFN '
+    t[1].getInstruccion().append(t[2].getInstruccion())
+    ret = Retorno(t[1].getInstruccion(), NodoAST("INST"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_LInstruccionesFN1(t):
     'LINSTRUCCIONESFN  :   INSTRUCCIONFN'
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST("INST"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_InstruccionFN(t):
     'INSTRUCCIONFN  :   ASIGNACION'
+    t[0] = t[1]
 
 def p_InstruccionFN1(t):
     'INSTRUCCIONFN  :   PIF'
+    t[0] = t[1]
 
 def p_InstruccionFN2(t):
     'INSTRUCCIONFN  :   PRETURN'
 
 def p_InstruccionFN3(t):
     'INSTRUCCIONFN  :   INSTRUCCION'
+    t[0] = t[1]
 
 def p_Asignacion(t):
     'ASIGNACION  :   ID DPUNTOS IGUAL VALORF PCOMA'
+    ret = Retorno(Asignacion(t[1], t[4].getInstruccion()), NodoAST(":="))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_Asignacion1(t):
     'ASIGNACION  :   ID IGUAL VALORF PCOMA'
+    ret = Retorno(Asignacion(t[1], t[3].getInstruccion()), NodoAST("="))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_If(t):
     'PIF  :   IF VALORF THEN CUERPOIF END IF PCOMA'
+    ret = Retorno(If_inst(t[2].getInstruccion(), t[4].getInstruccion(), None), NodoAST("IF"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_If2(t):
     'PIF  :   IF VALORF CUERPOIF END IF PCOMA'
+    ret = Retorno(If_inst(t[2].getInstruccion(), t[3].getInstruccion(), None), NodoAST("IF"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_If3(t):
     'PIF  :   IF VALORF THEN CUERPOIF PELSE'
+    ret = Retorno(If_inst(t[2].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion()), NodoAST("IF"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_If4(t):
     'PIF  :   IF VALORF CUERPOIF PELSE'
+    ret = Retorno(If_inst(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion()), NodoAST("IF"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_Else(t):
     'PELSE  :   ELSIF VALORF THEN CUERPOIF PELSE'
+    val = If_inst(t[2].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion())
+    ret = Retorno(val, NodoAST("ELSIF"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_Else2(t):
     'PELSE  :   ELSIF VALORF CUERPOIF PELSE'
+    val = If_inst(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion())
+    ret = Retorno(val, NodoAST("ELSIF"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_Else3(t):
     'PELSE  :   ELSIF VALORF THEN CUERPOIF END IF PCOMA'
+    val = If_inst(t[2].getInstruccion(), t[4].getInstruccion(), None)
+    ret = Retorno(val, NodoAST("ELSIF"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_Else4(t):
     'PELSE  :   ELSIF VALORF CUERPOIF END IF PCOMA'
-    
+    val = If_inst(t[2].getInstruccion(), t[3].getInstruccion(), None)
+    ret = Retorno(val, NodoAST("ELSIF"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
 def p_Else5(t):
     'PELSE  :   ELSE CUERPOIF END IF PCOMA'
+    val = Else_inst(t[2].getInstruccion())
+    ret = Retorno(val, NodoAST("ELSE"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_Return(t):
     'PRETURN  :   RETURN PCOMA'
@@ -4845,71 +5009,127 @@ def p_Return2(t):
 
 def p_CuerpoIf(t):
     'CUERPOIF  :   LINSTRUCCIONESFN'
+    t[0] = t[1]
 
 def p_VALORFIgual(t):
     'VALORF  :   VALORF IGUAL VALORF '
-  
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.IGUAL, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("="))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFDif(t):
     'VALORF  :   VALORF DIF VALORF '
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.DIFERENTE, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("\\<\\>"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 
 def p_VALORFDif1(t):
     'VALORF  :   VALORF DIF1 VALORF '
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.DIFERENTE, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("!="))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 
 def p_VALORFMenor(t):
     'VALORF  :   VALORF MENOR VALORF '
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.MENOR, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("\\<"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
  
 def p_VALORFMenorI(t):
     'VALORF  :   VALORF MENORIGUAL VALORF '
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.MENORIGUAL, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("\\<="))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
    
 
 def p_VALORFMayor(t):
     'VALORF  :   VALORF MAYOR VALORF '
-    
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.MAYOR, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("\\>")) 
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFMayorI(t):
     'VALORF  :   VALORF MAYORIGUAL VALORF '
-    
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.MAYORIGUAL, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("\\>="))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFAnd(t):
     'VALORF  :   VALORF AND VALORF '
-    
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.AND, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("AND"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFOr(t):
     'VALORF  :   VALORF OR VALORF '
-   
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.OR, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("OR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFNot(t):
     'VALORF  :   NOT VALORF '
-    
+    ret = Retorno(OperacionesLogicasRelacionales(TiposOperacionesLR.NOT, t[2].getInstruccion(), None), NodoAST("NOT"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_VALORFParentesis(t):
     'VALORF  :   PABRE VALORF PCIERRA '
+    t[0] = t[2]
 
 def p_VALORFMas(t):
     'VALORF  :   VALORF MAS VALORF '
+    ret = Retorno(Operaciones_Aritmeticas(TiposOperaciones.Suma, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("+"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
     
 
 def p_VALORFMenos(t):
     'VALORF  :   VALORF MENOS VALORF '
+    ret = Retorno(Operaciones_Aritmeticas(TiposOperaciones.Resta, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("-"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
    
 
 def p_VALORFPor(t):
     'VALORF  :   VALORF POR VALORF '
-    
+    ret = Retorno(Operaciones_Aritmeticas(TiposOperaciones.Mult, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("*"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFDiv(t):
     'VALORF  :   VALORF DIVIDIDO VALORF '
-   
+    ret = Retorno(Operaciones_Aritmeticas(TiposOperaciones.Div, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("/"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFMod(t):
     'VALORF  :   VALORF MODULO VALORF '
-   
+    ret = Retorno(Operaciones_Aritmeticas(TiposOperaciones.Modulo, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("%"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFExp(t):
     'VALORF  :   VALORF EXP VALORF '
+    ret = Retorno(Operaciones_Aritmeticas(TiposOperaciones.Exp, t[1].getInstruccion(), t[2].getInstruccion()), NodoAST("^"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
    
 
 def p_VALORFIs(t):
@@ -4924,31 +5144,49 @@ def p_VALORFInn(t):
     
 
 def p_VALORFM(t):
-    'VALORF  :   MENOS VALORF'
+    'VALORF  :   MENOS VALORF %prec UMENOS'
+    ret = Retorno(OperacionesUnarias(TiposOperaciones.RestaUnaria, t[2].getInstruccion()), NodoAST("-"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_VALORFP(t):
-    'VALORF  :   MAS VALORF'
+    'VALORF  :   MAS VALORF %prec UMAS'
+    ret = Retorno(OperacionesUnarias(TiposOperaciones.SumaUnaria, t[2].getInstruccion()), NodoAST("+"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_VALORFExtract(t):
     'VALORF  :   EXTRACT PABRE DATETIME FROM PTIMESTAMP PCIERRA '
 
 def p_VALORFNum(t):
     'VALORF  :   NUMERO '
+    ret = Retorno(Primitivo(Tipos.Numero, t[1]), NodoAST(str(t[1])))
+    t[0] = ret
 
 def p_VALORFDec(t):
     'VALORF  :   DECIMALN'
+    ret = Retorno(Primitivo(Tipos.Decimal, t[1]), NodoAST(str(t[1])))
+    t[0] = ret
 
 def p_VALORFCad(t):
     'VALORF  :   CADENA'
+    ret = Retorno(Primitivo(Tipos.Cadena, "\"" + t[1] + "\""), NodoAST(str(t[1])))
+    t[0] = ret
 
 def p_VALORFTrue(t):
     'VALORF  :   TRUE '
+    ret = Retorno(Primitivo(Tipos.Booleano, True), NodoAST(t[1]))
+    t[0] = ret
 
 def p_VALORFFalse(t):
     'VALORF  :   FALSE '
+    ret = Retorno(Primitivo(Tipos.Booleano, False), NodoAST(t[1]))
+    t[0] = ret
 
 def p_VALORFId(t):
     'VALORF  :   ID '
+    ret = Retorno(Primitivo(Tipos.Id, t[1]), NodoAST(t[1]))
+    t[0] = ret
 
 def p_VALORFDatePart(t):
     'VALORF  :   DATE_PART PABRE VALOR COMA INTERVAL VALOR PCIERRA '
@@ -5091,6 +5329,22 @@ def p_VALORFAcosh(t):
 def p_VALORFAtanh(t):
     'VALORF  :   ATANH PABRE LNUMF PCIERRA  '
 
+def p_VALORFAsigna(t):
+    'VALORF  :   ID PABRE PCIERRA '
+
+def p_VALORFAsigna2(t):
+    'VALORF  :   ID PABRE PARAMETROS PCIERRA '
+
+def p_VALORFInstruccion(t):
+    'VALORF  :  PABRE INSTRUCCION PCIERRA '
+
+
+def p_Parametros(t):
+    'PARAMETROS  :   PARAMETROS COMA ID '
+
+def p_Parametros1(t):
+    'PARAMETROS  :   ID '
+
 
 def p_LVALOR(t):
     'LVALOR  :   VALORF  '
@@ -5124,7 +5378,47 @@ def p_LBOTHFTrailing(t):
 def p_LBOTHFBoth(t):
     'LBOTHF  :   BOTH   '
 
+# -------------------------------------------------- PROCEDIMIENTO
 
+def p_PROCEDURE(t):
+    'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+
+def p_PROCEDURE2(t):
+    'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
+
+def p_PROCEDURE3(t):
+    'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+
+def p_PROCEDURE4(t):
+    'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
+
+
+def p_StatementP(t):
+    'STAMENTP  :   BEGIN LINSTRUCCIONESFN END PCOMA FINF PCOMA'
+
+def p_LParamP(t):
+    'LPARAMP  :   LPARAMP COMA PARAMP   '
+
+def p_LParamP2(t):
+    'LPARAMP  :   PARAMP   '
+
+
+def p_ParamP(t):
+    'PARAMP  :   INOUT ID I_TIPO  '
+
+def p_ParamP2(t):
+    'PARAMP  :   ID I_TIPO'
+
+
+def p_Execute(t):
+    'PEXECUTE  :   EXECUTE ID PABRE PCIERRA PCOMA'
+
+def p_Execute2(t):
+    'PEXECUTE  :   EXECUTE ID PABRE PARAMETROS PCIERRA PCOMA'
+
+
+
+#---------------------------------------------------FIN PROCEDIMIENTO
 
 # -----------------------------------------------
 

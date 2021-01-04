@@ -1,3 +1,4 @@
+from Instrucciones.Expresiones.Primitivo import Primitivo
 import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
@@ -24,3 +25,13 @@ class Abs(Instruccion):
         else:
             self.tipo = Tipo(Tipo_Dato.NUMERIC)
             return abs(resultado)
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        if isinstance(self.valor, Primitivo):
+            return f"ABS({self.valor.traducir(tabla,arbol).temporalAnterior})"
+
+        return f"ABS({self.valor.concatenar(tabla,arbol)})"

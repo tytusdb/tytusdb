@@ -95,5 +95,59 @@ class AlterTableAddConstraintFK(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+    
+    def analizar(self, tabla, arbol):
+        pass
+    
+    def traducir(self, tabla, arbol):
+        #ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER PUNTO_COMA
+        cadena = "\"alter table "
+        if(self.tabla):
+            cadena += self.tabla
+        cadena += " add constraint "
+        if(self.id_constraint):
+            cadena += self.id_constraint
+        cadena += " foreign key("
+        if(self.lista_id1):
+            for x in range(0,len(self.lista_id1)):
+                if(x > 0):
+                    cadena += ", "
+                cadena += self.lista_id1[x].traducir(tabla,arbol)
+        cadena += " ) "
+        cadena += "references "
+        if(self.tabla2):
+            cadena += self.tabla2
+        cadena += " ("
+        if(self.lista_id2):
+            for y in range(0,len(self.lista_id2)):
+                if(y > 0):
+                    cadena += ", "
+                cadena += self.lista_id2[y].traducir(tabla,arbol)
+        cadena += " )"            
+        cadena += ";\""
 
+        arbol.addComen("Asignar cadena")
+        temporal1 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal1} = { cadena }")
+
+        arbol.addComen("Entrar al ambito")
+        temporal2 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal2} = P+2")
+        temporal3 = tabla.getTemporal()
+        arbol.addComen("parametro 1")
+        arbol.addc3d(f"{temporal3} = { temporal2}+1")
+        arbol.addComen("Asignacion de parametros")
+        arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
+
+        arbol.addComen("Llamada de funcion")
+        arbol.addc3d(f"P = P+2")
+        arbol.addc3d(f"funcionintermedia()")
         
+        arbol.addComen("obtener resultado")
+        temporalX = tabla.getTemporal()
+        arbol.addc3d(f"{temporalX} = P+2")
+        temporalR = tabla.getTemporal()
+        arbol.addc3d(f"{temporalR} = Pila[{ temporalX }]")
+
+        arbol.addComen("Salida de funcion")
+        arbol.addc3d(f"P = P-2")

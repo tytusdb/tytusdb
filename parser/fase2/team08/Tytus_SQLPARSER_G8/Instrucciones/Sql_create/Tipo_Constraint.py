@@ -66,4 +66,10 @@ class Tipo_Constraint():
         elif self.tipo == Tipo_Dato_Constraint.CHECK:
             cadena += "check"
 
+        if(self.expresion != None):
+            cadena += "(" 
+            for x in range(0,len(self.expresion)):
+                cadena += self.expresion[x] 
+            cadena += ")"
+        
         return cadena        

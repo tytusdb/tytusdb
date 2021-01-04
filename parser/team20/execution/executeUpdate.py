@@ -19,13 +19,24 @@ def executeUpdate(self, update_):
     columns = [] # PK 
     tabledata = extractTable(db,table)
     fieldnames = TCgetTableColumns(db,table)
+    if(type(fieldnames) is str):
+        print_error("SEMANTIC ERROR","Table does not exist")
+        return
     for value in update_.values:
         res = executeExpression(self,value[1])
-        if(not isinstance(res,Error)):
-            temp = {value[0]:res.value}
-            register = register | temp
+        if(not isinstance(res,Error)):   
+            try:
+                position = fieldnames.index(value[0])
+                temp = {position:res.value}
+                register = register | temp
+            except:
+                print_error("SEMANTIC ERROR","The column does not exist")    
     try:
         where = executeExpression(self,update_.expression)
+        if(isinstance(where,Error)): 
+            self.errors.append(where)
+            print_error("SEMANTIC ERROR",str(where))
+            return
         pos = fieldnames.index(where.id) #GET PK position
         res = 0
         count = 0
@@ -64,6 +75,9 @@ def executeUpdate(self, update_):
             print_error("SEMANTIC ERROR","Table does not exist")
         elif res==4:
             print_error("SEMANTIC ERROR","Primary key does not exist in table")
+        else:
+            print_error("UNKNOWN ERROR", "Operation error")
     except Exception as e:
-        print(e)
+        print_error("UNKNOWN ERROR", "instruction not executed")
+        #print(e)
     
