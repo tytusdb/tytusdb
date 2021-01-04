@@ -63,11 +63,7 @@ class declaration(pl):
             ts.agregar(NuevoSimbolo)
         
         print(NuevoSimbolo)
-        
-     
-
-     
-
+ 
 
 class expre(pl):
     def __init__(self,tipo, exp):
@@ -83,11 +79,15 @@ class createfunc(pl):
     
     def ejecutar(self):
         c3d = ''
-        c3d += '\tid_db = id_db(NombreDB)'
-        c3d += '\tNuevoSimbolo = TS.Simbolo(cont,'+self.id+',TIPO.FUNCTION,id_db)'
-        c3d += '\tcont+=1'
+        c3d += '\tid_db = id_db(NombreDB)\n'
+        c3d += '\tNuevoSimbolo = TS.Simbolo(cont,'+self.id+',TIPO.FUNCTION,id_db)\n'
+        c3d += '\tcont+=1\n'
         
         funcion = ''
+        funcion += 'def '+self.id+'():\n' 
+        for declara in block.declare:
+            funcion += '\t\n' 
+
         funciones.append(funcion)
 
 

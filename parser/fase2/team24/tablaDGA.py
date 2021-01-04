@@ -203,3 +203,10 @@ class Tabla() :
                 return True
         
         return False
+
+    def id_db(name):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name and simbolo.tipo == TIPO.DATABASE:
+                return simbolo.id
+        
+        return -1
