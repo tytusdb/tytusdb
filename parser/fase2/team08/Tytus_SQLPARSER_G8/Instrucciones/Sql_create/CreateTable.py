@@ -46,7 +46,7 @@ class CreateTable(Instruccion):
                                 error = Excepcion("42P10","Semantico",f"La columna <<{id}>> no existe, Error en el Constraint",self.linea,self.columna)
                                 arbol.excepciones.append(error)
                                 arbol.consola.append(error.toString())
-                                return
+                                return error
                     
                                 
                         
@@ -76,7 +76,7 @@ class CreateTable(Instruccion):
                     error = Excepcion(f"42P01","Semantico","No existe la relación <<{self.herencia}>>.",self.linea,self.columna)
                     arbol.excepciones.append(error)
                     arbol.consola.append(error.toString())
-                    return
+                    return error
             # VERIFICACIÓN LLAVES PRIMARIAS
             listaPrimarias = []
             for camp in self.campos:
@@ -117,7 +117,7 @@ class CreateTable(Instruccion):
                                     pass
                                 else:
                                     #arbol.consola.append(checkBueno.toString())
-                                    return
+                                    return checkBueno
                             elif s.tipo == Tipo_Dato_Constraint.PRIMARY_KEY:
                                 if s.id == None:
                                     s.id = self.tabla+"_pkey"
@@ -185,27 +185,25 @@ class CreateTable(Instruccion):
     
 
     def analizar(self, tabla, arbol):
-        pass
-        
-    def traducir(self, tabla, arbol):
-        pass
-
-    def analizar(self, tabla, arbol):
         print("analizar")
 
     def traducir(self, tabla, arbol):
         print("holi")
-        cadena = "\"Create table " + self.tabla + "("
+        cadena = "\"Create table " + self.tabla + " ( "
 
         for x in range(0, len(self.campos)):
             if( x > 0):
                 cadena += ", "
             cadena += self.campos[x].traducir(tabla,arbol)
-        '''
-        for y in range(0, len(self.herencia)):
-            print(self.herencia[y].traducir(tabla,arbol))
-        '''
-        cadena += ");\""
+        
+        cadena += " ) "
+
+        if(self.herencia != None):
+            cadena += "inherits ( "
+            cadena += self.herencia 
+            cadena += " );\""
+        else:
+            cadena += ";\""
 
         arbol.addComen("Asignar cadena")
         temporal1 = tabla.getTemporal()

@@ -26,6 +26,8 @@ class Ambito:
             newVar = Variable(pos, _type, value, line, col)
             self.variables[id] = newVar
             return newVar
+        else:
+            print("VARIABLE DECLARADA ------ ERROR")
         return None
 
     def getVar(self, id):
@@ -35,7 +37,7 @@ class Ambito:
             if ambito_actual.variables.get(id) is not None:
                 return ambito_actual.variables.get(id)
             ambito_actual = ambito_actual.padre
-            
+        print("VARIABLE NO DECLARADA ------ ERROR") 
         return None
         
 

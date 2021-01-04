@@ -10,4 +10,5 @@ data
 **/*.sql
 Databases.json
 Types.json
+Index.json
 ReporteGramatica.bnf
