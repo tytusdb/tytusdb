@@ -205,6 +205,7 @@ reservedwords = (
     'CASE',
     'WHEN',
     'PROCEDURE',
+    'EXCUTE',
 )
 
 symbols = (
@@ -1533,12 +1534,16 @@ def p_pl_assignment(t):
 #STATEMENTS BLOCK
 def p_pl_statementsBlock(t):
     '''statementsBlock : BEGIN statementList  END SEMICOLON'''
+    t[0]  = t[2]
 
 def p_pl_statementlist_list(t):
     '''statementList : statementList statement'''
+    t[1].append(t[2])
+    t[0]  = t[1]
 
 def p_pl_statementlist_single(t):
     '''statementList : statement'''
+    t[0]  = [t[1]]
 
 #STATEMENTS
 def p_pl_statement(t):
@@ -1547,78 +1552,108 @@ def p_pl_statement(t):
                  | controlStructure SEMICOLON
                  | ddl SEMICOLON
                  | dml SEMICOLON'''
+    t[0]  = t[1]
 
 #CONTROL ESTRUCTURES
 def p_pl_controlstructure(t):
     '''controlStructure : return
                         | call
+                        | excute
                         | conditionals'''
+    t[0]  = t[1]
 
 #RETURN
 def p_pl_controlstructure_return_1(t):
     '''return : RETURN NEXT expression'''
+    t[0] = StatementReturn(t[3],True,None,None)
 
 def p_pl_controlstructure_return_2(t):
     '''return : RETURN expression COLLATE STRING'''
+    t[0] = StatementReturn(t[2],False,t[4],None)
 
 def p_pl_controlstructure_return_3(t):
     '''return : RETURN expression'''
+    t[0] = StatementReturn(t[2],False,None,None)
 
 def p_pl_controlstructure_return_4(t):
     '''return : RETURN QUERY select'''
+    t[0] = StatementReturn(None,False,None,t[3])
 
 #CALL
 def p_pl_controlstructure_call(t):
     '''call : CALL ID BRACKET_OPEN paramList BRACKET_CLOSE'''
+    t[0] = Call(t[2],t[4])
+
+#Excute
+def p_pl_controlstructure_excute(t):
+    '''excute : EXCUTE ID BRACKET_OPEN paramList BRACKET_CLOSE'''
+    t[0] = Excute(t[2],t[4])
 
 #CONDITIONALS
 def p_pl_controlstructure_conditionals(t):
     '''conditionals : if
                     | case'''
+    t[0]  = t[1]
 
 #CONDITIONAL IF
 def p_pl_conditional_ifthen(t):
     '''if : IF expression THEN statementList END IF'''
+    t[0] = If(t[2],t[4],None,None)
 
 def p_pl_conditional_ifthenelse(t):
     '''if : IF expression THEN statementList ELSE statementList END IF'''
+    t[0] = If(t[2],t[4],None,t[6])
 
 def p_pl_conditional_ifthenelsif_else(t):
     '''if : IF expression THEN statementList elsifList ELSE statementList END IF'''
+    t[0] = If(t[2],t[4],t[6],t[7])
 
 def p_pl_conditional_ifthenelsif(t):
     '''if : IF expression THEN statementList elsifList END IF'''
+    t[0] = If(t[2],t[4],t[6],None)
 
 def p_pl_elsiflist_list(t):
     '''elsifList : elsifList elsif'''
+    t[1].append(t[2])
+    t[0]  = t[1]
 
 def p_pl_elsiflist_single(t):
     '''elsifList : elsif'''
+    t[0]  = [t[1]]
 
 def p_pl_elsif(t):
     '''elsif : ELSIF expression THEN statementList'''
+    t[0] = ElsIf(t[2],t[4])
 
 #CONDITIONAL CASE
 def p_pl_conditional_simplecase_else(t):
     '''case : CASE expression whenList ELSE statementList END CASE'''
+    t[0] = Case(t[2],t[3],t[5])
 
 def p_pl_conditional_simplecase(t):
     '''case : CASE expression whenList END CASE'''
+    t[0] = Case(t[2],t[4],None)
 
 def p_pl_conditional_searchedcase_else(t):
     '''case : CASE whenList ELSE statementList END CASE'''
+    t[0] = Case(None,t[2],t[4])
 
 def p_pl_conditional_searchedcase(t):
     '''case : CASE whenList END CASE'''
+    t[0] = Case(None,t[2],None)
 
 def p_pl_whenlist_list(t):
     '''whenList : whenList when'''
+    t[1].append(t[2])
+    t[0]  = t[1]
 
 def p_pl_whenlist_single(t):
     '''whenList : when'''
+    t[0]  = [t[1]]
 
 def p_pl_when(t):
     '''when : WHEN expressionList THEN statementList'''
+    t[0] = When(t[2],t[4])
 
 #ERROR
 def p_error(t):

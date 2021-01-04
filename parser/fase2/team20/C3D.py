@@ -25,4 +25,6 @@ def SALES_TAX(SUBTOTAL: float) ->float:
 	t17=t15 > t16
 	t18=t14 or t17
 	TOTAL:float=t18
+
+def SUM_N_PRODUCT(X, Y, OUT, OUT):
 	print(1)
