@@ -19,3 +19,35 @@ class IFNOTFOUND(Instruccion):
 
     def __repr__(self):
         return str(self.__dict__)
+
+
+class IFELSEELSIF(Instruccion):
+
+    def __init__(self, argIf, argCondicion1, argInstruccion1, argelsif, argelse, arginstruccion3 ):
+        self.argIf = argIf
+        self.argCondicion1 = argCondicion1
+        self.argInstruccion1 = argInstruccion1
+        self.argelsif = argelsif
+        self.argelse = argelse
+        self.arginstruccion3 = arginstruccion3
+
+    def execute(self):
+        return self.notv
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+
+
+class ELSIF(Instruccion):
+
+    def __init__(self, argelsif, argCondicion, argInstruccion):
+        self.argelsif = argelsif
+        self.argCondicion = argCondicion
+        self.argInstruccion = argInstruccion
+
+    def execute(self):
+        return self.notv
+
+    def __repr__(self):
+        return str(self.__dict__)
