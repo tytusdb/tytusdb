@@ -531,6 +531,8 @@ def CrearArchivo():
     for i in listaoptimizaciones:
         print(i[0],i[1])
     print("-------------------------------------------------\n")
+    #Genera reporte Optimizacion
+    Reporte_Optimizaciones()
     #crear memoria
     with open('memoria.json','w') as file:
         json.dump(listaMemoria,file,indent=4)
@@ -865,3 +867,146 @@ def EAltTbAlterAddConstFor():
 
 
 #2FIN MIO *****************
+
+#Reporte Optimizaciones
+Line=""
+
+
+def Reporte_Optimizaciones():
+    global listaoptimizaciones
+    global Line
+    #listaoptimizaciones.append([regla,msg])
+    
+    Line=""
+
+    ag("<html>")
+    ag("<head>")
+    ag("<title>")
+    ag("Reporte Optimizaciones")
+    ag("</title>")
+    ag("<link rel=\"stylesheet\" href=\"styles.css\">")
+    ag("</head>")
+    ag("<body>")
+    ag("<div id=\"divs\">")
+    ag("<table id=\"tab\" >")
+
+
+    ag("<tr>")
+    ag("<td id=\"td1\">")
+    ag("<h3>")
+    ag("Listado de Optimizaciones de Codigo")
+    ag("</h3>")
+    ag("</td>")
+    ag("</tr>")
+
+    for val in listaoptimizaciones:
+        cuerpoR(val)
+    
+    ag("</table>")
+    ag("</div>")
+    ag("</body>")
+    ag("</html>")
+
+    gen_Arch()
+
+
+
+
+
+def cuerpoR(a):
+    ag2("<tr>")
+    ag2("<td id=\"td2\">")
+
+    ag2("<table id=\"tabF\" >")
+    ag3("<tr>")
+    ag3("<td id=\"td3\">")
+        #Titulo1
+    ag3("<h4>Regla:</h4>")
+    ag3("</td>")
+    #ag3("</tr>")
+    #ag3("<tr>")
+    ag3("<td id=\"td4\">")
+    #ag3("<textarea id=\"tex\"readonly>")
+        #cuerpo1
+    ag0(a[0])
+    #ag3("</textarea>")
+    ag3("</td>")
+    ag3("</tr>")
+
+
+    ag3("<tr>")
+    ag3("<td id=\"td3\">")
+        #Titulo2
+    ag3("<h4>Codigo Sin Optimizar:</h4>")
+    ag3("</td>")
+    #ag3("</tr>")
+    #ag3("<tr>")
+    ag3("<td id=\"td4\">")
+    #ag3("<textarea id=\"tex\"readonly>")
+        #cuerpo1
+    ag0(a[1])
+    #ag3("</textarea>")
+    ag3("</td>")
+    ag3("</tr>")
+
+
+    ag3("<tr>")
+    ag3("<td id=\"td3\">")
+        #Titulo3
+    ag3("<h4>Codigo Optimizado:</h4>")
+    ag3("</td>")
+    #ag3("</tr>")
+    #ag3("<tr>")
+    ag3("<td id=\"td4\">")
+    #ag3("<textarea id=\"tex\"readonly>")
+        #cuerpo1
+    #ag0(a[2])
+    #ag3("</textarea>")
+    ag3("</td>")
+    ag3("</tr>")
+
+
+    ag2("</table>")
+    
+
+    ag2("</td>")
+    ag2("</tr>")
+
+
+def ag0(nueva):
+    global Line
+    arregla=str(nueva)+"\n"
+    Line=Line+arregla
+    return arregla
+
+def ag(nueva):
+    global Line
+    arregla="\t"+str(nueva)+"\n"
+    Line=Line+arregla
+    return arregla
+
+def ag2(nueva):
+    global Line
+    arregla="\t\t"+str(nueva)+"\n"
+    Line=Line+arregla
+    return arregla
+
+def ag3(nueva):
+    global Line
+    arregla="\t\t\t"+str(nueva)+"\n"
+    Line=Line+arregla
+    return arregla
+
+
+def gen_Arch():
+    global Line
+
+    nombre="Reporte_Optimizacion.html"
+    f=open(nombre,"w")
+    f.write("\n")
+    f.write(Line)
+    f.write("\n")
+    f.close()
+
+
+#Fin reporte Optimizaciones
