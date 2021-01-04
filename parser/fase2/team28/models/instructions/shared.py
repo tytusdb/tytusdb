@@ -6,6 +6,7 @@ from models.instructions.Expression.expression import *
 from pandas.core.frame import DataFrame
 from models.instructions.DML.special_functions import *
 from models.nodo import Node
+from controllers.three_address_code import ThreeAddressCode
 import pandas as pd 
 class Instruction:
     '''Clase abstracta'''
@@ -304,6 +305,30 @@ class Between(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def compile(self, environment):
+        name_column = self.name_column.compile(environment)
+        name_column = name_column.value
+        value1 = self.value1.compile(environment).value
+        value2 = self.value2.compile(environment).value
+        data = ""
+        try:
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal} = {str(value1)} <= {name_column}")
+            temporal1 = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal1} = {name_column} <= {str(value2)}")
+            temporal2 = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal2} = {temporal} and {temporal1}")
+            
+            if self.opt_not:
+                temporal3 = ThreeAddressCode().newTemp()
+                ThreeAddressCode().addCode(f"{temporal3} = ~({temporal2})")
+                return PrimitiveData(DATA_TYPE.STRING, temporal3, 0, 0)
+            
+            return PrimitiveData(DATA_TYPE.STRING, temporal2, 0, 0)
+        except:
+            desc = "FATAL ERROR, murio en Between, F"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
     def process(self, instrucction):
         name_column = self.name_column.process(instrucction)
         name_column = name_column[1]
@@ -471,6 +496,9 @@ class ObjectReference(Instruction):
 
     def compile(self, environment):
         val = self.reference_column.compile(environment)
+        if isinstance(val, PrimitiveData):
+            return val
+        
         val = environment.getVar(val)
 
         if val is None: 

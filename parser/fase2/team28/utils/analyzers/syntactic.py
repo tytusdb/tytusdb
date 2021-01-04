@@ -25,7 +25,7 @@ from utils.analyzers.lex import *
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
 from models.procedural.clases import BodyDeclaration
-from models.procedural.if_statement import If
+from models.procedural.if_statement import If,anidarIFs
 
 
 # Precedencia, entre mayor sea el nivel mayor sera su inportancia para su uso
@@ -977,8 +977,11 @@ def p_plpsql_primary_expression(p):
                 SymbolsUnaryOrOthers.UPLUS, p[2], p.lineno(1), find_column(p.slice[1]), p[1])
     else:
         if p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
-            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1],
-                                 p.lineno(1), find_column(p.slice[1]))
+            v = True
+            if p.slice[1].type == "FALSE":
+                v = False
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, v, p.lineno(1), find_column(p.slice[1]))
+            
         else:
             p[0] = p[1]
 
@@ -991,9 +994,15 @@ def p_if_statement(p):
     ''' 
     
     if len(p) == 11: #Primera produccion
-        p[0] = If(p[2], p[4], p[5], p[7])
+        if_anidados = anidarIFs(0, p[5], p[7])
+        p[0] = If(p[2], p[4], None, if_anidados)
+        print("IF ANIDADOS")
+        print(p[0])
     elif len(p) == 9: #Segunda produccion
-        p[0] = If(p[2], p[4], p[5], None)
+        if_anidados = anidarIFs(0, p[5], None)
+        p[0] = If(p[2], p[4], None, if_anidados)
+        print("IF ANIDADOS")
+        print(p[0])
     elif len(p) == 10: #Tercera produccion
         p[0] = If(p[2], p[4], None, p[6])
     else: #Cuarta produccion
@@ -1121,8 +1130,10 @@ def p_sql_expression2(p):
                 p[1], p[3], SymbolsAritmeticos.MODULAR, '%', p.lineno(2), find_column(p.slice[2]))
     elif len(p) == 2:
         if p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
-            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1],
-                                 p.lineno(1), find_column(p.slice[1]))
+            v = True
+            if p.slice[1].type == "FALSE":
+                v = False
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, v, p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = p[1]
     elif len(p) == 5:
@@ -1763,8 +1774,10 @@ def p_sql_simple_expression(p):
                 SymbolsUnaryOrOthers.BITWISE_NOT, p[2], p.lineno(1), find_column(p.slice[1]), p[1])
     else:
         if p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
-            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1],
-                                 p.lineno(1), find_column(p.slice[1]))
+            v = True
+            if p.slice[1].type == "FALSE":
+                v = False
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, v, p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = p[1]
 
@@ -1890,36 +1903,23 @@ def p_greatest_or_least(p):
 
 
 def p_case_clause(p):
-    '''CASECLAUSE : CASE CASECLAUSELIST END ID
-                  | CASE CASECLAUSELIST ELSE SQLSIMPLEEXPRESSION END ID'''
-    if(len(p) == 5):
+    '''CASECLAUSE : CASE CASECLAUSELIST END CASE SEMICOLON
+                  | CASE CASECLAUSELIST ELSE STATEMENTS END CASE SEMICOLON'''
+    if(len(p) == 6):
         p[0] = Case(p[2], None, p.lineno(1), find_column(p.slice[1]))
     else:
         p[0] = Case(p[2], p[4], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_case_clause_list(p):
-    '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
-                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
-                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
-                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION'''
+    '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLEXPRESSION THEN STATEMENTS
+                      | WHEN SQLEXPRESSION THEN STATEMENTS'''
 
-    # El ELSE solo puede venir una vez ---> las producciones de abajo permitian que viniera varias veces
-    # WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
-    # WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-    if (len(p) == 8):
-        p[1].append(CaseOption(Relop(p[3], p[5], p[4], p[5], p.lineno(
-            4), find_column(p.slice[4])), p[7], p.lineno(2), find_column(p.slice[2])))
+    if (len(p) == 6):
+        p[1].append( CaseOption(p[3], p[5], 0, 0) )
         p[0] = p[1]
-    elif (len(p) == 7):
-        p[0] = [CaseOption(Relop(p[3], p[5], p[4], p[5], p.lineno(3), find_column(
-            p.slice[3])), p[7], p.lineno(1), find_column(p.slice[1]))]
-    elif (len(p) == 6):
-        p[1].append(CaseOption(p[3], p[5], p.lineno(2),
-                               find_column(p.slice[2])))
-        p[0] = p[1]
-    else:  # len = 5
-        p[0] = [CaseOption(p[3], p[5], p.lineno(1), find_column(p.slice[1]))]
+    else:
+        p[0] = [ CaseOption(p[2], p[4], 0, 0) ]
 
 
 def p_trigonometric_functions(p):

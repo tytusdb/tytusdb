@@ -43,4 +43,5 @@ class Funcion(Instruction):
         
         ThreeAddressCode().addCode(f"label .{lbl_exit}") #Agregando etiqueta
         ThreeAddressCode().addCode(f"print(\"GraciasDios, SALI\")")
+        ThreeAddressCode().addCode(f"print(Stack[0])")
 
