@@ -311,6 +311,7 @@ tokens = [
 
 # DEFINICIÓN DE TOKENS
 t_punto = r'\.'
+t_asig = r':='
 t_dosPts = r':'
 t_corcheI = r'\['
 t_corcheD = r'\]'
@@ -344,7 +345,6 @@ t_virgulilla = r'~'
 t_mayormayor = r'>>'
 t_menormenor = r'<<'
 t_dobledolar = r'\$\$'
-t_asig = r':='
 
 
 
@@ -554,13 +554,13 @@ def p_CrearFunciones(t):
                        
     '''
     if len(t) == 15:
-        t[0]= SCreateFunction(t[2], t[4], t[10], t[7], t[1].rep, t[1].tipo)
+        t[0]= SCreateFunction(t[2], t[4], t[10], t[7], t[1]["rep"], t[1]["tipo"])
     elif len(t) == 14:
-        t[0]= SCreateFunction(t[2], False, t[9], t[6], t[1].rep, t[1].tipo)
+        t[0]= SCreateFunction(t[2], False, t[9], t[6], t[1]["rep"], t[1]["tipo"])
     elif len(t) == 13:
-        t[0]= SCreateFunction(t[2], t[4], t[10], t[7], t[1].rep, t[1].tipo)
+        t[0]= SCreateFunction(t[2], t[4], t[10], t[7], t[1]["rep"], t[1]["tipo"])
     elif len(t) == 12:
-        t[0]= SCreateFunction(t[2], False, t[9], t[6], t[1].rep, t[1].tipo)
+        t[0]= SCreateFunction(t[2], False, t[9], t[6], t[1]["rep"], t[1]["tipo"])
 
      
 def p_TIPOFUNCION(t):
@@ -604,6 +604,14 @@ def p_BODYDECLARE(t):
         t[0]= [t[1]]
 
 
+def p_DECLARATIONP1(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO ASIGNAR E ptComa
+                    | NAME_CONSTANT ASIGNAR E ptComa
+    '''
+    if len(t)==5:
+        t[0] = SDeclaracion(t[1]["id"],t[1]["constt"], None, False, t[2], t[3])
+    else: 
+        t[0] = SDeclaracion(t[1]["id"],t[1]["constt"], t[2], False, t[3], t[4])
 
 
 def p_DECLARATION(t):
@@ -611,25 +619,36 @@ def p_DECLARATION(t):
                     |  NAME_CONSTANT TIPO not null ASIGNAR E ptComa 
                     |  NAME_CONSTANT talias tfor E ptComa 
                     |  NAME_CONSTANT TIPO not null ptComa 
-                    '''
+       
+            '''
     if len(t) == 4:
-        t[0] = SDeclaracion(t[1].id, t[1].constt, t[2], False, False, False)
+        t[0] = SDeclaracion(t[1]["id"],t[1]["constt"], t[2], False, False, False)
     elif len(t) == 8:
-        t[0] = SDeclaracion(t[1].id, t[1].constt, t[2], True, t[5], t[6])
+        t[0] = SDeclaracion(t[1]["id"],t[1]["constt"], t[2], True, t[5], t[6])
     elif len(t) == 6:
         if t[3].lower() == "for":
-            t[0] = SDeclaracion(t[1].id,t[1].constt, t[2], False, False, t[4])
+            t[0] = SDeclaracion(t[1]["id"],t[1]["constt"],t[2], False, False,t[4])
         if t[3].lower() == "not":
-            t[0] = SDeclaracion(t[1].id,t[1].constt, t[2], True, False, False)
+            t[0] = SDeclaracion(t[1]["id"],t[1]["constt"], t[2], True, False, False)
+
+def p_DECLARATIONSTIPO(t):
+    ''' DECLARATION :  NAME_CONSTANT ptComa
+                    |  NAME_CONSTANT not null ASIGNAR E ptComa 
+                    |  NAME_CONSTANT not null ptComa
+    '''
+    if len(t) == 3:
+        t[0] = SDeclaracion(t[1]["id"],t[1]["constt"], None, False, False, False)
+    elif len(t) == 7:
+        t[0] = SDeclaracion(t[1]["id"],t[1]["constt"], None, True, t[4], t[5])
+    elif len(t) == 5:
+        t[0] = SDeclaracion(t[1]["id"],t[1]["constt"], None, True, False, False)
+
+
 
 def p_DECLARATIONP0(t):
     ''' DECLARATION :  NAME_CONSTANT ACCESO modulo ttype ptComa
                     |  NAME_CONSTANT id modulo rowtype ptComa'''
-    t[0] = SDeclaracionType(t[1].id, t[1].constt, t[2], t[4])
-
-def p_DECLARATIONP1(t):
-    ''' DECLARATION :  NAME_CONSTANT TIPO ASIGNAR E ptComa'''
-    t[0] = SDeclaracion(t[1].id,t[1].constt, t[2], False, t[3], t[4])
+    t[0] = SDeclaracionType(t[1]["id"],t[1]["constt"], t[2], t[4])
 
 
 def p_ACCESO(t):
@@ -642,7 +661,7 @@ def p_ACCESO(t):
         t[0] = [t[1]]
  
 def p_DECLARATION1(t):
-    ''' ASIGNAR :  asig
+    ''' ASIGNAR : asig
                  | igual
                  | tDefault              
     '''
@@ -682,8 +701,6 @@ def p_BLOCK(t):
     ''' BLOCK :   sentencias 
                 | ASIGNACION
                 | RETORNO
-                | CONTINUE
-                | EXIT
                 | SENTENCIAS_CONTROL
                 | DECLARACION_RAICENOTE
                 | STATEMENT
@@ -792,10 +809,14 @@ def p_IF(t):
               | if  E then  L_BLOCK  ELSEIF  ELSE
     '''
     if len(t) == 6:
+        print("gramatica t[2]")
+        print(t[2])
         t[0]=SIf(t[2],t[4],False,t[5])
     elif len(t) == 7:
         t[0]=SIf(t[2],t[4],t[5],t[6])
     elif len(t) == 8:
+        print("gramatica t[2]")
+        print(t[2])
         t[0]=SIf(t[2],t[4],False,False)
 
 def p_ELSE(t):
@@ -822,32 +843,41 @@ def p_SINOSI(t):
 def p_SEARCH_CASE(t):
     '''  SEARCH_CASE : case E L_CASE end case ptComa
                      | case E L_CASE SINO end case ptComa 
-                     | case L_CASE SINO end case ptComa
                      | case L_CASE end case ptComa
     '''
-    
+    if len(t)==7:
+        t[0]=SSearchCase(t[2],t[3],False)
+    elif len(t)==8:
+        t[0]=SSearchCase(t[2],t[3],t[4])
+    elif len(t)==6:
+        t[0]=SSearchCase(False,t[2],False)
+def p_SEARCH_CASE0(t):
+    '''  SEARCH_CASE : case L_CASE SINO end case ptComa'''
+    t[0]=SSearchCase(False,t[2],t[3])
 
 def p_CUERPOCASE(t):
     '''   L_CASE :  L_CASE CASE   
                  | CASE
     '''
+    if len(t)==3:
+        t[1].append(t[2])
+        t[0]=t[1]
+    else:
+        t[0]=[t[1]]
 
 def p_CASE(t):
     '''   CASE :  when LISTA_EXP then L_BLOCK
                 | when Condiciones then L_BLOCK  
     '''
-
+    t[0]=SCasepl(t[2],t[4])
 def p_SINO(t):
     '''   SINO : else L_BLOCK   
     '''
-
+    t[0]=t[2]
 
 def p_Raice_Note(t):
     ' DECLARACION_RAICENOTE : raise notice LISTA_EXP ptComa'
-
-
-
-
+    t[0]=SRaise(t[3])
 
 #------------------------INDEX
 
@@ -894,7 +924,6 @@ def p_first_last(t):
 
 
 ''' @@@@@@@ AGREGUE USEDB'''
-
 
 def p_USEDB(t):
     ''' USEDB : tuse id ptComa'''
@@ -1308,7 +1337,7 @@ def p_EXPR_TIPO(t):
             | CHAR_TYPES
             | DATE_TYPES
             | BOOL_TYPES
-            | E
+            | id
             | OTROSTIPOS '''
             
     t[0] = t[1]
