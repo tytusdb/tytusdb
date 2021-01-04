@@ -39,6 +39,7 @@ from InterpreteF2.OperacionesPrimitivas.OperaRelacional import OperaRelacional
 from InterpreteF2.IF.SI import SI
 from InterpreteF2.IF.SIELSE import SIELSE
 from InterpreteF2.Soporte_aVar.var_asignacion import var_asignacion
+from InterpreteF2.Soporte_aVar.var_declaracion import var_declaracion
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -132,6 +133,7 @@ reservadas = {
     'character' : 'CHARACTER',
     'char' : 'CHAR',
     'clear' : 'CLEAR',
+    'string' : 'STRING',
 
     # TIPOS EN FECHAS
     'timestamp' : 'TIMESTAMP',
@@ -485,16 +487,16 @@ def p_definitions(t):
 
 def p_definition(t):
     '''
-        definition   : instruction PTCOMA
+        definition   : instruction
     '''
     t[0] = t[1]
 
 def p_instruction(t):
     '''
-        instruction     : DataManipulationLenguage
-                        |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
-                        |  plpgsql
-                        |  stmts
+        instruction     : DataManipulationLenguage PTCOMA
+                        |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp PTCOMA
+                        |  plpgsql PTCOMA
+                        |  stmt
     '''
     t[0] = t[1]
     set('<TR> \n <TD> instruction → DataManipulationLenguage : </TD> \n <TD>  instruction = NodoAst(t[0]) </TD> \n </TR> \n')
@@ -765,23 +767,35 @@ def p_Raise_complex(t):
 
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
-def p_declare(t):
+def p_declarevar(t):
+    '''
+         statements : ID types NOTNULL predicate
+                    | ID types  predicate
+                    | ID types
+    '''
+    if len(t) == 5:
+        # ID types NOTNULL PREDICATEDECLARATION
+        t[0] = var_declaracion(t[1], t[2], t[4])
+    if len(t) == 4:
+        # ID types  PREDICATEDECLARATION
+        t[0] = var_declaracion(t[1], t[2], t[3])
+    else:
+        # ID types
+        t[0] = var_declaracion(t[1], t[2], None)
 
-    '''
-         declare :  ID INTEGER NOTNULL PREDICATEDECLARATION PTCOMA
-                    | ID VARCHAR NOTNULL PREDICATEDECLARATION PTCOMA
-                    | ID INTEGER  PREDICATEDECLARATION PTCOMA
-                    | ID VARCHAR  PREDICATEDECLARATION PTCOMA
-                    | ID NUMERIC  PREDICATEDECLARATION PTCOMA
-                    | ID NUMERIC NOTNULL PREDICATEDECLARATION PTCOMA
-    '''
 
 def p_plpgsql_predicatedeclaration(t):
     '''
-        PREDICATEDECLARATION : DOSPTS IGUAL exp
+        predicate : DOSPTS IGUAL exp
                              | IGUAL exp
                              | DEFAULT
     '''
+    if len(t) == 4:
+        t[0] = t[3]
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = None
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
 
@@ -2067,9 +2081,12 @@ def p_types(t):
               | CHARACTER VARYING PARIZQ exp PARDER
               | VARCHAR PARIZQ exp PARDER
               | CHAR PARIZQ exp PARDER
+              | STRING
     '''
     if t[1].lower() == 'integer':
         t[0] = '0'
+    elif t[1].lower() == 'string':
+        t[0] = '2'
     elif t[1].lower() == 'smallint':
         t[0] = '4'
     elif t[1].lower() == 'bigint':
