@@ -3527,6 +3527,18 @@ def Procedimientos(instr,ts):
    
     #agregar procedimiento
 
+ListaResExpID=[]
+def Resuelve_Exp_ID(lista,  operacion,ts):
+    global ListaResExpID
+    ListaResExpID=copy.deepcopy(lista)
+    #Estructura para Remplazar un ID por un Valor
+    #lista es:
+    # identificador  , Valor a remplazar por ID
+    #[[ID0,VALOR],[ID1,VALOR],[ID2,VALOR],[IDN,VALORN]]
+    #operacion es:
+    #el objeto exp que se usa aqui en resolver_operacion
+    resolver_operacion(operacion,ts)
+    
 
 
 
@@ -3611,7 +3623,15 @@ def resolver_operacion(operacion,ts):
     elif isinstance(operacion, Operando_Cadena):
         return operacion.valor
     elif isinstance(operacion, Operando_ID):
-        return operacion.id 
+        global ListaResExpID
+        lis= ListaResExpID
+        retorna=operacion.id
+        for Ltemp in lis:
+            if Ltemp[0]==operacion.id:
+                retorna=Ltemp[1]
+                break
+
+        return retorna 
     elif isinstance(operacion, Operacion_Math_Unaria):
         op = resolver_operacion(operacion.op,ts)
         print("Entre a math unaria")
