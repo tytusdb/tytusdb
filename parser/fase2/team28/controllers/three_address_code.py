@@ -83,7 +83,7 @@ class ThreeAddressCode(object):
 
         self.__content += '\n\n@with_goto'
         self.__content += '\ndef main():'
-        self.__content += '\n\tstack = ThreeAddressCode()\n'
+        self.__content += '\n\tStack = [None]*10000\n'
         self.__content += self.__code
 
         self.__content += '\n\nmain()'

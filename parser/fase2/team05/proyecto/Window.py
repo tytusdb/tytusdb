@@ -28,6 +28,7 @@ from reporteTS import *
 import webbrowser
 from Graficar import Graficar
 from archivoC3D import *
+from analizadorFase2.Generador.Generador import Generador
 
 # MAIN CLASS
 class Main(tk.Tk):
@@ -538,6 +539,9 @@ class Main(tk.Tk):
 
             # Start parser
             ins = g.parse(tytus)
+            temp = g.contador
+            gen = Generador(temp, 0, ins.getInstruccion())
+            gen.ejecutar()
             C3D = g.codigo_3D
             crearArchivo(C3D)
            ##g.analizar(tytus)
