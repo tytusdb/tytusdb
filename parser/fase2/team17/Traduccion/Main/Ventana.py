@@ -21,19 +21,38 @@ from Parser.Reportes.TourTree import TourTree
 
 from graphviz import Source
 
-arboAux_errores: Arbol = None
 
+#================================================================
+#======================Declaracion de variables globales========
+#================================================================
+arboAux_errores: Arbol
 dotString = ''
 cadena = ''
 root = Tk()
 root.title('Editor ML WEB')
 root.geometry("1200x660")
+
+COD3D ="""
+from Fase1.Sql import Sql
+from goto import with_goto
+
+heap = None
+
+def inter():
+    global  heap
+    sql:Sql = Sql()
+    sql.run(heap)
+
+"""
+
 # =====================Para leer una archivo de pureba
 f = open("./../Parser/Ascendente/entrada.txt", "r")
 input = f.read()
 
+#================================================================
+#======================Declaracion de variables globales========
+#================================================================
 
-# =====================Para leer una archivo de prueba FIn
 
 # #############################################################################################
 # ############################ Init Funciones #################################################
@@ -83,9 +102,8 @@ def open_file():
 
 
 def save_as_file():
-    text_file = filedialog.asksaveasfilename(defaultextension=".*", title="Save File",
-                                             filetypes=[("Text Files", "*.sql")])
 
+    text_file = filedialog.asksaveasfilename(defaultextension=".*", title="Save File", filetypes=[("Text Files", "*.sql")])
     # Save the file
     text_file = open(text_file, 'w')
     text_file.write(my_text.get(1.0, END))
@@ -187,7 +205,9 @@ def Reporte():
 #   print('No se genero el reporte:w')
 
 
+
 def Err_Lexico():
+
     global arboAux_errores
 
     texto = '''
@@ -363,6 +383,21 @@ def Tabla_Simbolos():
         print("No fue posible escribir el html: " + str(e))
 
 
+def generar():
+    global COD3D
+
+   #todo: NERY Aqui concatena el codigo 3d generado
+    COD3D += ''
+
+    #llamando a la funcion principal
+    COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
+
+    f = open("./../../Ejecucion/Codigo3DGenerado.py", "w")
+    f.write(COD3D)
+    f.close()
+
+
+
 # ############################################################################################
 # ############################ Fin Funciones #################################################
 # ############################################################################################
@@ -388,6 +423,10 @@ Report_button.grid(row=0, column=40, padx=2)
 # Boton Reporte
 Report_Select = Button(toolbar_frame, text="Report Select", command=ReporteSelect)
 Report_Select.grid(row=0, column=60, padx=2)
+
+# Boton Reporte
+generate_3d = Button(toolbar_frame, text="Genera 3d", command=generar)
+generate_3d.grid(row=0, column=80, padx=2)
 
 # Create Main Frame
 my_frame = Frame(root)
@@ -438,3 +477,4 @@ edit_menu.add_command(label='Sintactico', command=Err_Sintactico)
 edit_menu.add_command(label='Semantico', command=Err_Semantico)
 edit_menu.add_command(label='Tabla Simbolos', command=Tabla_Simbolos)
 file_menu.add_separator()
+
