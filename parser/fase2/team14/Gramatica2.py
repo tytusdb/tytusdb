@@ -681,6 +681,19 @@ def p_ELSEF(t):
   
 
 
+def p_CASE(t):
+    'CASE : case LEXP  LISTAWHEN ELSEF  end case'
+    
+def p_CASE1(t):
+    'CASE : case LEXP  LISTAWHEN   end case'
+
+def p_CASE2(t):
+    ''' CASE : case  LISTAWHEN ELSE end
+    '''
+def p_CASE3(t):
+    ''' CASE :  case LISTAWHEN end
+    '''
+    
 def p_LISTACONTENIDO(t):
     'LISTACONTENIDO : LISTACONTENIDO CONTENIDO'
     t[1].append(t[2])
@@ -727,6 +740,11 @@ def p_CONTENIDO7(t):
     'CONTENIDO : RETURN ptcoma  '
     t[0] = t[1]
 
+def p_CONTENIDO8(t):
+    'CONTENIDO : CASE ptcoma '
+    t[0] = t[1]
+
+
 def p_RAISE(t):
     'RAISE :  raise LEVEL FORMAT'
     t[0]=Raise(t[2],t[3])
@@ -764,19 +782,17 @@ def p_FORMAT(t):
 
 
 # AQUI TERMINA LO DE LA FASE 2
-def p_CASE(t):
-    ''' CASE : case  LISTAWHEN ELSE end
-               | case LISTAWHEN end
-    '''
-
-
 def p_LISTAWHEN(t):
     ''' LISTAWHEN : LISTAWHEN WHEN
-                    | WHEN
+    '''
+def p_LISTAWHEN1(t):
+    ''' LISTAWHEN :  WHEN
     '''
 
-
 def p_WHEN(t):
+    ''' WHEN : when LEXP then LISTACONTENIDO'''
+
+def p_WHEN1(t):
     ''' WHEN : when LEXP then LEXP'''
 
 
@@ -1739,10 +1755,8 @@ def p_EXPT6(t):
 def p_EXPT7(t):
     'EXP : id'
     listaBNF.append("EXP ::= " + str(t[1]).lower())
-    tipo = Tipo('identificador', t[1], len(t[1]), -1)
-    tipo.getTipo()
-    t[0] = Terminal(tipo, t[1])
-
+    tipo = Tipo('indefinido', t[1], len(t[1]), -1)
+    t[0]=Identificador(tipo,t[1])
 
 def p_EXPT8(t):
     'EXP : multiplicacion %prec lsel'
