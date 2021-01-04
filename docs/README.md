@@ -177,9 +177,50 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 
 - creación y eliminación de índices únicos
 
+```
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+```
+Agrega un índice único, creando una estructura adicional con el modo indicado para la base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar. 
+Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
+Parámetro indexName: es el nombre único del índice manejado como metadato de la tabla para ubicarlo fácilmente.
+Parámetro columns: es el conjunto de índices de columnas que forman parte de la llave foránea, mínimo debe ser una columna.  
+Parámetro tableRef: es el nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s).  
+Parámetro columnsRef: es el conjunto de índices de columnas que forman parte de la llave primaria, mínimo debe ser una columna.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table o tableRef no existente, 4 cantidad no exacta entre columns y columnsRef, 5 no se cumple la integridad de unicidad (es decir, algún valor de las llaves está duplicado).  
+La restricción de unicidad en los insert se debe verificar.  
+
+```
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+```
+Destruye el índice tanto como metadato de la tabla como la estructura adicional creada.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar. 
+Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
+Parámetro indexName: es el nombre del índice manejado como metadato de la tabla para ubicarlo fácilmente.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 nombre de índice no existente.  
 
 - creación y eliminación de índices
 
+```
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+```
+Agrega un índice, creando una estructura adicional con el modo indicado para la base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar. 
+Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
+Parámetro indexName: es el nombre único del índice manejado como metadato de la tabla para ubicarlo fácilmente.
+Parámetro columns: es el conjunto de índices de columnas que forman parte de la llave foránea, mínimo debe ser una columna.  
+Parámetro tableRef: es el nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s).  
+Parámetro columnsRef: es el conjunto de índices de columnas que forman parte de la llave primaria, mínimo debe ser una columna.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table o tableRef no existente, 4 cantidad no exacta entre columns y columnsRef.  
+
+```
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+```
+Destruye el índice tanto como metadato de la tabla como la estructura adicional creada.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar. 
+Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
+Parámetro indexName: es el nombre del índice manejado como metadato de la tabla para ubicarlo fácilmente.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 nombre de índice no existente.  
 
 
 ### 4. Administración de la codificación
