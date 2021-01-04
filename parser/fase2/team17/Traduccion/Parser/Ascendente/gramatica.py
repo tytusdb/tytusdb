@@ -572,7 +572,7 @@ def p_declare(t):
     '''
          declare : DECLARE
     '''
->>>>>>> c2cb26116e1c26c09e04e866e01ab3967377e3b0
+
 
 
 # ================= FUNCTION =================
