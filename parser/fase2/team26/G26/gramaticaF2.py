@@ -218,7 +218,7 @@ reservadas = {
     'else': 'ELSE',
     'then': 'THEN',
     'case': 'CASE',
-    'when': 'WHEN', 
+    'when': 'WHEN',
     'function': 'FUNCTION',
     'language': 'LANGUAGE',
     'out': 'OUT',
@@ -398,7 +398,7 @@ def p_instruccion(t) :
                         | INSERT insert
                         | UPDATE update
                         | ALTER alter'''
-    
+
     text = '    ' + tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
     text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
     text += '    ' + 'mediador()\n'
@@ -420,9 +420,11 @@ def p_instruccion_ccreateind(t):
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
-    text = '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
+    text = t[1]['c3d']
+    text += '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
     text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
     text += '    ' + 'mediador()\n'
+
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_instruccionQuerys(t):
@@ -506,7 +508,7 @@ def p_firstorlast(t):
     txt = ' '+t[1]+' '
     t[0] = {'text' : txt, 'c3d': ''}
 
-#----------------------------------------------------------------SELECT---------------------------------
+#----------------------------------------------------------------UNION---------------------------------
 def p_querys(t):
     '''querys : select UNION allopcional select
               | select INTERSECT  allopcional select
@@ -530,11 +532,12 @@ def p_all_opcional_null(t):
     text = ""
     t[0] =  {'text': text, 'c3d' : '' }
 
-#aqui
+#---------------------------------------SELECT
 def p_select(t):
     'select : SELECT parametrosselect fromopcional'
     text = "SELECT " + t[2]['text'] + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    c3d = t[2]['c3d'] + t[3]['c3d']
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_select_err(t):
     'select : problem'
@@ -588,7 +591,7 @@ def p_having_null(t):
 
 def p_listanumeros_r(t):
     'listanumeros : listanumeros COMA ENTERO'
-    text = t[1]['text'] + ", " + t[3] 
+    text = t[1]['text'] + ", " + t[3]
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_listanumeros(t):
@@ -603,7 +606,7 @@ def p_group_by_opcional_null(t):
 
 def p_parametros_from(t):
     'parametrosfrom : parametrosfrom COMA parametrosfromr asopcional'
-    text = t[1]['text'] + ", " + t[3]['text'] + ' ' + t[4]['text'] 
+    text = t[1]['text'] + ", " + t[3]['text'] + ' ' + t[4]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_parametros_from_r(t):
@@ -624,27 +627,29 @@ def p_parametros_fromr(t):
 
 def p_parametros_select(t):
     'parametrosselect : DISTINCT listadeseleccion'
-    text = " DISTINCT " + t[2]['text'] 
-    t[0] =  {'text': text, 'c3d' : '' }
+    text = " DISTINCT " + t[2]['text']
+    c3d = t[2]['c3d']
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_parametros_select_r(t):
     'parametrosselect : listadeseleccion'
-    text = t[1]['text'] 
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] = t[1]
 
 def p_lista_de_seleccion(t):
     'listadeseleccion : listadeseleccion COMA listadeseleccionados  asopcional'
     text = t[1]['text'] + ", " + t[3]['text'] + t[4]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    c3d = t[1]['c3d'] + t[3]['c3d']
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_lista_de_seleccion_r(t):
     'listadeseleccion : listadeseleccionados asopcional'
     text = t[1]['text'] + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    c3d = t[1]['c3d']
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_lista_de_seleccionados(t):
     '''listadeseleccionados : PARENIZQ select PARENDER
-                            | ASTERISCO 
+                            | ASTERISCO
                             | GREATEST PARENIZQ listadeargumentos  PARENDER
                             | LEAST PARENIZQ listadeargumentos  PARENDER
                             | CASE cases  END ID '''
@@ -668,8 +673,76 @@ def p_lista_de_seleccionados_noterminal(t):
                             | funcionesdefechas
                             | funcionesbinarias
                             | operadoresselect'''
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] = t[1]
+
+#--------------------------AGREGAR
+def p_lista_de_seleccionados_cadena(t):
+    'listadeseleccionados : argument'
+    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'] }
+
+def p_lista_de_seleccionados_func(t):
+    'listadeseleccionados : funcionesLlamada'
+    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'] }
+
+def p_lista_de_seleccionados_funcion_params(t):
+    'funcionesLlamada : ID PARENIZQ params PARENDER'
+    cant = len(t[3]['c3d']) - 1
+    arr = []
+    c3d = ''
+    print(t[3])
+    for val in t[3]['extra']:
+        if val != '':
+            c3d += val
+    while True:
+        if cant == -1:
+            break
+        arr.append(t[3]['tflag'][cant])
+        cant = cant - 1
+
+    for val in arr:
+        c3d += '    heap.append(' + val + ')\n'
+
+    c3d += '    ' + t[1] + '()\n'
+
+    temporal = tempos.newTemp()
+
+    c3d += '    ' + temporal + ' = heap.pop()\n'
+
+    text = '\\\'\' + str(' + temporal + ') + \'\\\''
+    t[0] =  {'text': text, 'c3d' : c3d}
+
+def p_lista_de_seleccionados_funcion(t):
+    'funcionesLlamada : ID PARENIZQ PARENDER'
+    c3d = '    ' + t[1] + '()\n'
+    val = tempos.newTemp()
+    c3d += '    ' + val + ' = heap.pop()\n'
+    text = '\\\'\' + str(' + val + ') + \'\\\''
+    t[0] =  {'text': text, 'c3d' : c3d }
+
+def p_params_FR(t):
+    'params : params COMA param'
+    text = t[1]['text'] + ', ' + t[3]['text']
+
+    print(t[3])
+    t[1]['c3d'].append(t[3]['text'])
+    t[1]['extra'].append(t[3]['c3d'])
+    t[1]['tflag'].append(t[3]['tflag'])
+
+    t[0] =  {'text': text, 'c3d' : t[1]['c3d'], 'extra': t[1]['extra'], 'tflag':t[1]['tflag']}
+
+def p_params_F(t):
+    'params : param'
+    if t[1]['c3d'] == '':
+        t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [''], 'tflag': [t[1]['tflag']]}
+    else:
+        t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [t[1]['c3d']], 'tflag': [t[1]['tflag']]}
+
+
+def p_param_F(t):
+    '''param : condiciones
+             | argument'''
+    t[0] =  t[1]
+#---------------------------------
 
 def p_lista_de_argumentos(t):
     'listadeargumentos : listadeargumentos COMA argument'
@@ -680,7 +753,7 @@ def p_lista_de_argumentos_r(t):
     'listadeargumentos : argument '
     text = t[1]['text']
     t[0] =  {'text': text, 'c3d' : '' }
-    
+
 def p_casos(t):
     'cases    : cases case elsecase'
     text = t[1]['text'] + t[2]['text'] + t[3]['text']
@@ -688,12 +761,12 @@ def p_casos(t):
 
 def p_casos_r(t):
     'cases : case elsecase'
-    text = t[1]['text'] + t[2]['text'] 
+    text = t[1]['text'] + t[2]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_case(t):
     'case : WHEN condiciones  THEN  argument'
-    text = " WHEN " + t[2]['text'] + " THEN " +t[4]['text'] 
+    text = " WHEN " + t[2]['text'] + " THEN " +t[4]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_else_case(t):
@@ -720,7 +793,7 @@ def p_operadores_s_pleca(t):
     ' operadoresselect : PLECA PLECA argumentodeoperadores'
     text = " || " + t[3]['text']
     t[0] =  {'text': text, 'c3d' : '' }
-    
+
 def p_operadores_select_nt(t):
     '''operadoresselect : argumentodeoperadores AMPERSON argumentodeoperadores
                         | argumentodeoperadores PLECA argumentodeoperadores
@@ -739,7 +812,7 @@ def p_operadores_select_nt(t):
     elif t[2] == '>' :
         text = t[1]['text'] + " >> " + t[3]['reporte']
     t[0] =  {'text': text, 'c3d' : '' }
-    
+
 def p_argumento_de_operadores(t):
     '''argumentodeoperadores    : argumentodeoperadores MAS argumentodeoperadores
                                 | argumentodeoperadores GUION argumentodeoperadores
@@ -1061,7 +1134,7 @@ def p_lista_de_seleccionados_id_punto_id(t):
 
 def p_lista_de_seleccionados_id_punto_asterisco(t):
     'listadeseleccionados : ID PUNTO ASTERISCO'
-    text = t[1] + ".*" 
+    text = t[1] + ".*"
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_asopcional(t):
@@ -1071,7 +1144,7 @@ def p_asopcional(t):
 
 def p_asopcional_argument(t):
     'asopcional  : ID'
-    text = t[1] 
+    text = t[1]
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_asopcionalS(t):
@@ -1107,7 +1180,7 @@ def p_condiciones_recursivo(t):
 
     c3 = t[1]['c3d']
     c3 += t[3]['c3d']
-    c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
+    c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
 
@@ -1125,7 +1198,7 @@ def p_condicion(t):
     text = " NOT " + t[2]['text']
 
     c3 = t[2]['c3d']
-    c3 += tempos.newTemp() + ' = ' + t[1].lower() + ' ' + t[2]['tflag']  + '\n'
+    c3 += '    ' + tempos.newTemp() + ' = ' + t[1].lower() + ' ' + t[2]['tflag']  + '\n'
 
     t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
 
@@ -1133,7 +1206,7 @@ def p_condicionPs(t):
     '''condicion    : condicions'''
     t[0] = t[1]
 
-def p_condicions(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
+def p_condicions(t):
     '''condicions : argument MENORQUE argument
                   | argument MAYORQUE argument
                   | argument IGUAL argument
@@ -1157,86 +1230,86 @@ def p_condicions(t):#--------------------------------------------------CUIDAAAAA
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
-        c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     elif t[2] == '>'  :
         text = str(t[1]['text'])  + ">" +str( t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
-        c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     elif t[2] == '='  :
         text = str(t[1]['text'])  + "=" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
-        c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' == ' + t[3]['tflag'] + '\n'
-        
+        c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' == ' + t[3]['tflag'] + '\n'
+
     elif t[2] == '<=' :
         text = str(t[1]['text'])  + "<=" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
-        c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     elif t[2] == '>=' :
         text = str(t[1]['text'])  + ">=" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 = t[3]['c3d']
-        c3 = tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
+        c3 = '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     elif t[2] == '<>' or t[2] == '!=' :
         text = str(t[1]['text'])  + "<>" + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
-        c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' != ' + t[3]['tflag'] + '\n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' != ' + t[3]['tflag'] + '\n'
 
     elif t[2].lower() == 'between' :
         text = str(t[1]['text'])  + " BETWEEN " + str(t[3]['text'])
 
         tp = tempos.newTemp()
-        c3 = tp + ' = ' + t[1]['tflag'] + ' >= ' + t[3]['c3d'] + '\n'
+        c3 = '    ' + tp + ' = ' + t[1]['tflag'] + ' >= ' + t[3]['c3d'] + '\n'
         ts = tempos.newTemp()
-        c3 += ts + ' = ' + t[1]['tflag'] + ' <= ' + t[3]['tflag'] + '\n'
-        c3 += tempos.newTemp() + ' = ' + tp + ' and ' + ts + '\n'
+        c3 += '    ' + ts + ' = ' + t[1]['tflag'] + ' <= ' + t[3]['tflag'] + '\n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' and ' + ts + '\n'
 
     elif t[2].lower() == 'not' :
         if t[3].lower() == 'between':
             text = str(t[1]['text'])  + " NOT BETWEEN" + str(t[4]['text'])
-            
+
             tp = tempos.newTemp()
-            c3 = tp + ' = ' + t[1]['tflag'] + ' >= ' + t[4]['c3d'] + '\n'
+            c3 = '    ' + tp + ' = ' + t[1]['tflag'] + ' >= ' + t[4]['c3d'] + '\n'
             ts = tempos.newTemp()
-            c3 += ts + ' = ' + t[1]['tflag'] + ' <= ' + t[4]['tflag'] + '\n'
-            c3 += tempos.newTemp() + ' = ' + tp + ' and ' + ts + '\n'
+            c3 += '    ' + ts + ' = ' + t[1]['tflag'] + ' <= ' + t[4]['tflag'] + '\n'
+            c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' and ' + ts + '\n'
 
         else :
             text = str(t[1]['text'])  + " NOT IN(" + str(t[5]['text']) + ")"
             t[0] =  {'text': text, 'c3d' : '' }
     elif t[2].lower() == 'isnull' :
-        text = str(t[1]['text'])  + " ISNULL " 
-        
+        text = str(t[1]['text'])  + " ISNULL "
+
         tp = tempos.newTemp()
-        c3 = tempos.newTemp() + ' = ' + t[1]['tflag'] + ' == \'null\' \n'
+        c3 = '    ' + tp + ' = ' + t[1]['tflag'] + ' == \'null\' \n'
         ts = tempos.newTemp()
-        c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' == \'\' \n'
-        c3 += tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
+        c3 += '    ' + ts + ' = ' + t[1]['tflag'] + ' == \'\' \n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
 
     elif t[2].lower() == 'notnull' :
         text = str(t[1]['text'])  + " NOTNULL "
-        
+
         tp = tempos.newTemp()
-        c3 = tempos.newTemp() + ' = ' + t[1]['tflag'] + ' != \'null\' \n'
+        c3 = '    ' + tp + ' = ' + t[1]['tflag'] + ' != \'null\' \n'
         ts = tempos.newTemp()
-        c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' != \'\' \n'
-        c3 += tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
+        c3 += '    ' + ts + ' = ' + t[1]['tflag'] + ' != \'\' \n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
 
     elif t[2].lower() == 'is' :
         text = str(t[1]['text'])  + " IS " + str(t[3]['text'])
-        
+
         c3 = t[3]['c3d']
 
     elif t[2].lower() == 'any' :
@@ -1259,7 +1332,7 @@ def p_betweenopcion(t):
     '''betweenopcion    : argument AND argument'''
     text = t[1]['text']  + " AND " + t[3]['text']
     t[0] = {'text' : text, 'c3d' : t[1]['tflag'], 'tflag' : t[3]['tflag']}
-    
+
 
 def p_betweenopcionP(t):
     '''betweenopcion    : symm argument AND argument'''
@@ -1281,14 +1354,14 @@ def p_isopcion(t):
     text = ''
     if t[1].lower() == 'distinct' :
         text = " DISTINCT FROM " + t[3]['text']
-        c3 = tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' != ' + t[3]['tflag'] + '\n'
+        c3 = '    ' + tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' != ' + t[3]['tflag'] + '\n'
     elif t[1].lower() == 'null' :
         text = " NULL "
         tp = tempos.newTemp()
-        c3 = tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' == \'null\' \n'
+        c3 = '    ' + tp + ' = ' + t[-2]['tflag'] + ' == \'null\' \n'
         ts = tempos.newTemp()
-        c3 += tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' == \'\' \n'
-        c3 += tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
+        c3 += '    ' + ts + ' = ' + t[-2]['tflag'] + ' == \'\' \n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
     elif t[1].lower() == 'true' :
         text = " TRUE "
         c3 = tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' == True' + '\n'
@@ -1298,10 +1371,10 @@ def p_isopcion(t):
     elif t[1].lower() == 'unknown' :
         text = " UNKNOWN "
         tp = tempos.newTemp()
-        c3 = tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' == \'null\' \n'
+        c3 = '    ' + tp + ' = ' + t[-2]['tflag'] + ' == \'null\' \n'
         ts = tempos.newTemp()
-        c3 += tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' == \'\' \n'
-        c3 += tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
+        c3 += '    ' + ts + ' = ' + t[-2]['tflag'] + ' == \'\' \n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
     elif t[1].lower() == 'not' :
         text = " NOT " + t[2]['text']
         c3 = t[2]['c3d']
@@ -1319,26 +1392,26 @@ def p_isnotoptions(t):
     if t[1].lower() == 'null' :
         text = " NULL "
         tp = tempos.newTemp()
-        c3 = tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' != \'null\' \n'
+        c3 = '    ' + tp + ' = ' + t[-3]['tflag'] + ' != \'null\' \n'
         ts = tempos.newTemp()
-        c3 += tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' != \'\' \n'
-        c3 += tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
+        c3 += '    ' + ts + ' = ' + t[-3]['tflag'] + ' != \'\' \n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
     elif t[1].lower() == 'true' :
         text = " TRUE "
-        c3 = tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == False' + '\n'
+        c3 = '    ' + tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == False' + '\n'
     elif t[1].lower() == 'false' :
         text = " FALSE "
-        c3 = tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == True' + '\n'
+        c3 = '    ' + tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == True' + '\n'
     elif t[1].lower() == 'unknown' :
         text = " UNKNOWN "
         tp = tempos.newTemp()
-        c3 = tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' != \'null\' \n'
+        c3 = '    ' + tp + ' = ' + t[-3]['tflag'] + ' != \'null\' \n'
         ts = tempos.newTemp()
-        c3 += tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' != \'\' \n'
-        c3 += tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
+        c3 += '    ' + ts + ' = ' + t[-3]['tflag'] + ' != \'\' \n'
+        c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
     elif t[1].lower() == 'distinct' :
         text = " DISTINCT FROM " + t[3]['text']
-        c3 = tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == ' + t[3]['tflag'] + '\n'
+        c3 = '    ' + tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == ' + t[3]['tflag'] + '\n'
 
     t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
 
@@ -1353,7 +1426,7 @@ def p_argument_binary(t):
 
     c3 = t[1]['c3d']
     c3 += t[3]['c3d']
-    c3 += tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
+    c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
 
@@ -1365,8 +1438,8 @@ def p_argument_unary(t): #aquiiiiiiiiiiii
     '''argument : MAS argument %prec UMAS
                 | GUION argument %prec UMENOS'''
     text = t[1] + ' ' + t[2]['text']
-    c3 = t[2]['c3d']         
-    c3 += tempos.newTemp() + ' = ' + t[1] + ' ' + t[2]['tflag'] + '\n'
+    c3 = t[2]['c3d']
+    c3 += '    ' + tempos.newTemp() + ' = ' + t[1] + ' ' + t[2]['tflag'] + '\n'
     t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
 
 def p_argument_agrupacion(t):
@@ -1598,7 +1671,7 @@ def p_tableconstraintunique(t):
         txt = ' CONSTRAINT ' + t[2] + ' UNIQUE ' + t[4]['text']
     else :
         txt = ' UNIQUE ' + t[2]['text']
-    
+
     t[0] = {'text' : txt, 'c3d': ''}
 
 def p_tableconstraintuniqueP(t):
@@ -1613,7 +1686,7 @@ def p_tableconstraintcheck(t):
         txt = ' CONSTRAINT ' + t[2] + ' CHECK (' + t[5]['text'] + ')'
     else :
         txt = ' CHECK (' + t[3]['text'] + ')'
-    
+
     t[0] = {'text' : txt, 'c3d': ''}
 
 def p_tableconstraintcheckE(t):
@@ -1727,7 +1800,7 @@ def p_fieldsE(t):
     'fields :'
     t[0] = {'text' : '', 'c3d': ''}
 
-#----------------------------------------------USE-------------------------------------------------------- 
+#----------------------------------------------USE--------------------------------------------------------
 
 def p_use(t):
     '''use  : DATABASE ID PTCOMA
@@ -1744,7 +1817,7 @@ def p_useE(t):
     text = ""
     t[0] =  {'text': text, 'c3d' : '' }
 
-#----------------------------------------------SHOW-------------------------------------------------------- 
+#----------------------------------------------SHOW--------------------------------------------------------
 def p_show(t):
     '''show   :    DATABASES likeopcional'''
     text = ""
@@ -1767,7 +1840,7 @@ def p_likeopcional(t):
         text = "; "
     t[0] =  {'text': text, 'c3d' : '' }
 
-#----------------------------------------------DROP-------------------------------------------------------- 
+#----------------------------------------------DROP--------------------------------------------------------
 
 
 def p_drop(t):
@@ -1795,7 +1868,7 @@ def p_dropdb(t):
         text = t[1]
     t[0] =  {'text': text, 'c3d' : '' }
 
-#----------------------------------------------ALTER-------------------------------------------------------- 
+#----------------------------------------------ALTER--------------------------------------------------------
 
 def p_alterp(t):
     '''alter    :   DATABASE ID alterdbs PTCOMA
@@ -1834,7 +1907,7 @@ def p_alterdb(t):
         text = "OWNER TO " + t[1]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
-    
+
 def p_tipodeowner(t):
     '''tipodeowner  :   ID
                     |   CURRENT_USER
@@ -2096,81 +2169,81 @@ def p_body_strc(t):
     '''bodystrc : cuerpodeclare BEGIN statements END  PTCOMA
               | BEGIN statements END  PTCOMA'''
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }  
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_cuerpodeclare(t):
     'cuerpodeclare : DECLARE declarations'
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_decla(t):
     'declarations : declarations declaration '
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declar(t):
     'declarations : declaration '
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declartion_cf(t):
     '''declaration : ID declarationendd '''
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declarcafjahe(t):
     '''declarationendd : ID declarationtypeid PTCOMA
                     |  tipo declarationc
                     |  ALIAS FOR DOLAR ENTERO PTCOMA '''
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 
 def p_declarationc(t):
     'declarationc : collate declarationccollate'
     text =  ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declarationc_a(t):
     '''declarationc :   defaultop PTCOMA
                     |    PTCOMA'''
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declarationccollate(t):
     '''declarationccollate :    defaultop PTCOMA
                 |   PTCOMA'''
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
-    
+    t[0] =  {'text': text, 'c3d' : '' }
+
 def p_type_id_cf(t):
     '''declarationtypeid : PORCENTAJE TYPE
                 |  PUNTO ID PORCENTAJE ROWTYPE'''
     text =""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 
 def p_collate(t):
     'collate ::= COLLATE CADENA'
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_default_cf(t):
     '''defaultop : DEFAULT  value
                 | IGUAL value
                 | IGUALESP value'''
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_statements_cf(t):
     'statements : statements statement'
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_statements_cf_a(t):
     'statements : statement'
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_stament_cf(t):
     '''statement : RETURN argument PTCOMA
@@ -2208,7 +2281,7 @@ def p_finasigment(t):
     t[0] = {'text': text, 'c3d': ''}
 
 def p_igualdadcf(t):
-    '''igualdad : IGUALESP 
+    '''igualdad : IGUALESP
                 | IGUAL'''
     text = ""
     t[0] = {'text': text, 'c3d': ''}
@@ -2274,10 +2347,10 @@ def p_casecf(t):
     t[0] = {'text': text, 'c3d': ''}
 
 def p_elsecase(t):
-    '''elsecase : ELSE statements END CASE 
+    '''elsecase : ELSE statements END CASE
                 | END CASE'''
     text = ""
-    t[0] = {'text': text, 'c3d': ''}   
+    t[0] = {'text': text, 'c3d': ''}
 
 def p_expresionlist(t):
     '''expresionlist : expresionlist COMA argument
@@ -2286,7 +2359,7 @@ def p_expresionlist(t):
     t[0] = {'text': text, 'c3d': ''}
 
 def p_casewhens(t):
-    '''casewhens :  WHEN condicion THEN statements casewhens 
+    '''casewhens :  WHEN condicion THEN statements casewhens
                 | END CASE'''
     text = ""
     t[0] = {'text': text, 'c3d': ''}
@@ -2297,7 +2370,7 @@ def p_casewhens(t):
 #---------------------------------------------------------------------------------------------------- fffffff
 
 def p_error(t):
-    description = "Error sintactico con: " + t.value
+    description = "Error sintactico con: " + str(t.value)
     mistake = error("Sintactico", description, str(t.lineno))
     errores.append(mistake)
     return None
