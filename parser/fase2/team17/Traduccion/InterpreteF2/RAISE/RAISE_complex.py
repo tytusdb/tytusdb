@@ -30,9 +30,11 @@ class RAISE_complex(NodoArbol):
         expresion: str = str(expresion_.data)
         expresion_spliteada = expresion.split("%")
         if len(expresion_spliteada) == 2:
-            var = str(self.ID) # <-- aqui va codigo de acceso a la TS para getVar
+            #var = str(self.ID) # <-- aqui va codigo de acceso a la TS para getVar
+            val:Valor = entorno.obtener_varibale(self.ID)
+            print("jjjjjjj -> " + str(val.data))
             tmp = arbol.getTemp()
-            arbol.addC3D(tmp + " = " + '\'' + str(expresion_spliteada[0]) + var + str(expresion_spliteada[1]) + "\'")
+            arbol.addC3D(tmp + " = " + '\'' + str(expresion_spliteada[0]) + str(val.data) + str(expresion_spliteada[1]) + "\'")
             return tmp
         else:
             # ERROR -> no hay simbolo de acceso para incrustar var
