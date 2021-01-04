@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from math_functions import ceil
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.math_functions import ceil
 
 class Ceil(Function):
     def __init__(self, input, row, column):
@@ -18,7 +13,7 @@ class Ceil(Function):
             respuesta = []
             for val in self.input:
                 value = val.execute(environment)
-                if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
+                if value['typ'] != Type.INT or value['typ'] != Type.DECIMAL:
                     return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
                 result = ceil(value['value'])
                 respuesta.append({'value':result, 'typ': Type.INT})
@@ -26,6 +21,6 @@ class Ceil(Function):
         #input valor puntual
         else:
             value = self.input.execute(environment)
-            if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
+            if value['typ'] != Type.INT or value['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-            return [{'value':ceil(value['value']), 'typ': Type.INT}]
+            return {'value':ceil(value['value']), 'typ': Type.INT}

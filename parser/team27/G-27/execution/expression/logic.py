@@ -1,10 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from expression import *
-from typ import *
-from literal import *
+from execution.abstract.expression import *
+from execution.symbol.typ import *
+from execution.expression.literal import *
 
 class Logic(Expression):
     
@@ -38,13 +34,13 @@ class Logic(Expression):
                 return {'Error':"No se puede operar logicamente " + str(op1['value']) + " y " + str(op2['value']), 'Linea':self.row, 'Columna': self.column }
         if op2 != None:
             switcher ={
-                'or':  {'value': op1['value'] or op2['value'], 'typ': Type.BOOLEAN},
-                'and': {'value': op1['value'] and op2['value'], 'typ': Type.BOOLEAN},
+                'OR':  {'value': op1['value'] or op2['value'], 'typ': Type.BOOLEAN},
+                'AND': {'value': op1['value'] and op2['value'], 'typ': Type.BOOLEAN},
                 
             }
             return switcher.get(self.logicOperator,"Error: operador no encontrado.")
         else:
             switcher ={
-                'not': {'value': not op1['value'] , 'typ': Type.BOOLEAN},             
+                'NOT': {'value': not op1['value'] , 'typ': Type.BOOLEAN},             
             }
             return switcher.get(self.logicOperator,"Error: operador no encontrado.")

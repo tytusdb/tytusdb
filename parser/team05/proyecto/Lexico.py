@@ -960,6 +960,13 @@ def p_tipo88(t):
     ret.getNodo().setHijo(NodoAST(t[1]))
     t[0] = ret
 
+def p_tipoId(t):
+    'I_TIPO           : ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "ID" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 # TERMINA TIPO DE DATOS
 
@@ -1007,6 +1014,16 @@ def p_Replace(t):
     ret.getNodo().setHijo(t[9].getNodo())
     t[0] = ret
 
+def p_ReplaceV(t):
+    'I_REPLACE     : CREATE OR REPLACE DATABASE IF NOT EXISTS ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "IF" "NOT" "EXISTS" "ID" ";"')
+    ret = Retorno(CreateDatabase(t[8],None,True,True),NodoAST("CREATE DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[8]))
+    t[0] = ret
+
+
+
 def p_Replace_1(t):
     'I_REPLACE     : CREATE OR REPLACE DATABASE ID COMPLEMENTO_CREATE_DATABASE PCOMA'
     global reporte_gramatical
@@ -1014,6 +1031,14 @@ def p_Replace_1(t):
     ret = Retorno(CreateDatabase(t[5],t[6].getInstruccion(),False,True),NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     ret.getNodo().setHijo(t[6].getNodo())
+    t[0] = ret
+
+def p_Replace_1V(t):
+    'I_REPLACE     : CREATE OR REPLACE DATABASE ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "ID"";"')
+    ret = Retorno(CreateDatabase(t[5],None,False,True),NodoAST("CREATE DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[5]))
     t[0] = ret
     
 
@@ -1026,6 +1051,14 @@ def p_Replace1(t):
     ret.getNodo().setHijo(t[7].getNodo())
     t[0] = ret
 
+def p_Replace1V(t):
+    'I_REPLACE     : CREATE DATABASE IF NOT EXISTS ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "DATABASE" "IF" "NOT" "EXISTS" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    ret = Retorno(CreateDatabase(t[6],None,True,False),NodoAST("CREATE DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    t[0] = ret
+
 def p_Replace2(t):
     'I_REPLACE     : CREATE DATABASE ID COMPLEMENTO_CREATE_DATABASE PCOMA'
     global reporte_gramatical
@@ -1035,6 +1068,14 @@ def p_Replace2(t):
     ret.getNodo().setHijo(t[4].getNodo())
     t[0] = ret
 
+def p_Replace2V(t):
+    'I_REPLACE     : CREATE DATABASE ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "DATABASE" "ID" ";"')
+    ret = Retorno(CreateDatabase(t[3],None,False,False),NodoAST("CREATE DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+ 
 
 def p_Owmod(t):
     'COMPLEMENTO_CREATE_DATABASE        : OWNER IGUAL CADENA MODE IGUAL NUMERO'
@@ -1280,7 +1321,7 @@ def p_TiposAlter4(t):
 def p_TiposAlter5(t):
     'TIPOS_ALTER    : CONSTRAINT ID FOREIGN KEY PABRE L_ID PCIERRA REFERENCES ID PABRE L_ID PCIERRA'
     global reporte_gramatical
-    reporte_gramatical.append('<TIPOS_ALTER> ::= "CONSTRAINT" "ID" "FOREIGN" "KEY" "(" <L_ID> ")" "REFERENCES" "ID" "(" <L_ID ")"') 
+    reporte_gramatical.append('<TIPOS_ALTER> ::= "CONSTRAINT" "ID" "FOREIGN" "KEY" "(" <L_ID> ")" "REFERENCES" "ID" "(" <L_ID> ")"') 
     ret = Retorno(AlterFK(t[2],t[6].getInstruccion(),t[9],t[11].getInstruccion()),NodoAST("FOREIGN KEY"))
     ret.getNodo().setHijo(NodoAST(t[2]))
     ret.getNodo().setHijo(t[6].getNodo())
@@ -3795,7 +3836,7 @@ def p_error(t):
         return
     while True:
         entry = parser.token()
-        if not entry or entry.type == 'RBRACE':
+        if not entry or entry.type == 'PCOMA':
             break
     parser.restart()
 
@@ -3809,3 +3850,12 @@ def parse(p_input):
     counter_lexical_error = 1
     counter_syntactic_error = 1
     return parser.parse(p_input)
+
+def analizar(input):
+    global reporte_gramatical
+    instrucciones_bnf = []  
+    file = open ("proyecto/gramatica.md","w")
+    for instruccion_bnf in reversed(reporte_gramatical) :
+        file.write(instruccion_bnf)
+        file.write("\n")
+    file.close()

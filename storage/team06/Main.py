@@ -1,7 +1,11 @@
 from ArbolAVL import *
 from tkinter import *
 from tkinter import filedialog
+import interfaz as variable
 
+def runinterfaz():
+    G=variable.MenuPrincipal()
+    
 raiz=Tk()
 menubar = Menu(raiz)
 
@@ -96,6 +100,7 @@ def Guardarcomo():
 #"FINALIZADO"
 def CreateDB():
     if caja2.get("1.0",END) != "\n":
+        caja1.delete("1.0", END)
         nombre = caja2.get("1.0",END)
         nombre = nombre[0:len(nombre)-1]
         respuesta = str(t.createDatabase(nombre))
@@ -106,6 +111,7 @@ def CreateDB():
 #"FINALIZADO"
 def CreateTable():
     if caja2.get("1.0",END) != "\n":
+        caja1.delete("1.0", END)
         nombre = caja2.get("1.0", END)
         nombre = nombre[0:len(nombre) - 1]
         separacion = nombre.split(",")
@@ -120,6 +126,7 @@ def CreateTable():
 #"FINALIZADO"
 def AlterDataBase():
     if caja2.get("1.0",END) != "\n":
+        caja1.delete("1.0", END)
         nombre = caja2.get("1.0", END)
         nombre = nombre[0:len(nombre) - 1]
         separacion =nombre.split(",")
@@ -132,27 +139,42 @@ def AlterDataBase():
 
 #FINALIZADO
 def ShowDataBase():
+    caja1.delete("1.0", END)
     resultado = t.showDatabases()
-    t.graficar()
-    caja1.insert(END,resultado)
-    try:
-        print("mostrar data")
-        #prueba para mostrar el arbol
-        VBase= Toplevel()
-        VBase.geometry('600x600')
-        VBase.config(bg="black")
-        VBase.title('Arbol')
-        #se agrega la imagen
-        imagenL=PhotoImage(file="tab.png")
-        grafico=Label(VBase,image=imagenL)
-        grafico.place(x=0,y=0)
-        VBase.wait_window()
-    except:
-        print("No se encontró la imagen")
+    if t.raiz != None:
+        t.graficar()
+        caja1.insert(END,resultado)
+        try:
+            #prueba para mostrar el arbol
+            VBase= Toplevel()
+            canvas1=Canvas(VBase, width=600,height=600,background="black")
+            canvas1.grid(column=0,row=0)
+
+            scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+            scroll_x.grid(row=1, column=0, sticky="ew")
+
+            scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+            scroll_y.grid(row=0, column=1, sticky="ns")
+
+            canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+            Grafico=PhotoImage(file="tab.png")
+            canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+            canvas1.configure(scrollregion=canvas1.bbox("all"))
+
+
+            VBase.wait_window()
+        except:
+            print("No se encontró la imagen")
+    else:
+        caja1.insert(END,"NO SE ENCUENTRAN BASES DE DATOS CREADAS")
 
 #"FINALIZADO"
 def DropDatabase():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         nombre = caja2.get("1.0", END)
         nombre = nombre[0:len(nombre) - 1]
         respuesta = str(t.dropDatabase(nombre))
@@ -162,6 +184,7 @@ def DropDatabase():
 
 #FINALIZADO
 def showTables():
+    caja1.delete("1.0", END)
     if caja2.get("1.0", END) != "\n":
         db = caja2.get("1.0", END)
         db = db[0:len(db) - 1]
@@ -171,16 +194,23 @@ def showTables():
         caja2.delete("1.0", END)
         caja1.insert(END, respuesta)
         try:
-            print("mostrar data")
-            #prueba para mostrar el arbol
             VBase= Toplevel()
-            VBase.geometry('600x600')
-            VBase.config(bg="black")
-            VBase.title('Arbol')
-            #se agrega la imagen
-            imagenL=PhotoImage(file="tab.png")
-            grafico=Label(VBase,image=imagenL)
-            grafico.place(x=0,y=0)
+            canvas1=Canvas(VBase, width=600,height=600,background="black")
+            canvas1.grid(column=0,row=0)
+
+            scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+            scroll_x.grid(row=1, column=0, sticky="ew")
+
+            scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+            scroll_y.grid(row=0, column=1, sticky="ns")
+
+            canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+            Grafico=PhotoImage(file="tab.png")
+            canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+            canvas1.configure(scrollregion=canvas1.bbox("all"))
             VBase.wait_window()
         except:
             print("No se encontró la imagen")
@@ -189,29 +219,36 @@ def showTables():
 #"FINALIZADO"
 def extractTable():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         nombre = caja2.get("1.0", END)
         nombre = nombre[0:len(nombre) - 1]
         separacion = nombre.split(",")
         db = separacion[0]
         table = separacion[1]
         arbolito = t.buscartabla(db,table)
-        arbolito.lista.preorden()
         try:
             arbolito.lista.graficar()
             respuesta = str(t.extractTable(db, table))
             caja2.delete("1.0", END)
             caja1.insert(END, respuesta)
             try:
-                print("mostrar data")
-                #prueba para mostrar el arbol
                 VBase= Toplevel()
-                VBase.geometry('600x600')
-                VBase.config(bg="black")
-                VBase.title('Arbol')
-                #se agrega la imagen
-                imagenL=PhotoImage(file="tab.png")
-                grafico=Label(VBase,image=imagenL)
-                grafico.place(x=0,y=0)
+                canvas1=Canvas(VBase, width=600,height=600,background="black")
+                canvas1.grid(column=0,row=0)
+
+                scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+                scroll_x.grid(row=1, column=0, sticky="ew")
+
+                scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+                scroll_y.grid(row=0, column=1, sticky="ns")
+
+                canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+                Grafico=PhotoImage(file="tab.png")
+                canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+                canvas1.configure(scrollregion=canvas1.bbox("all"))
                 VBase.wait_window()
             except:
                 print("No se encontró la imagen")
@@ -222,6 +259,7 @@ def extractTable():
 #"FINALIZADO"
 def extractRangeTable():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         nombre = caja2.get("1.0", END)
         nombre = nombre[0:len(nombre) - 1]
         separacion = nombre.split(",")
@@ -238,6 +276,7 @@ def extractRangeTable():
 #FINALIZADO
 def alterAddPK():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
         ingresado = ingresado[0:len(ingresado) - 1]
         division1 = ingresado.split("[")
@@ -256,6 +295,7 @@ def alterAddPK():
 #FINALIZADO
 def alterDropPK():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         nombre = caja2.get("1.0", END)
         nombre = nombre[0:len(nombre) - 1]
         separacion = nombre.split(",")
@@ -277,6 +317,7 @@ def alterAddIndex():
 #"FINALIZADO"
 def alterTable():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
         ingresado = ingresado[0:len(ingresado) - 1]
         separacion = ingresado.split(",")
@@ -291,6 +332,7 @@ def alterTable():
 #"FINALIZADO"
 def alterAddColumn():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
         ingresado = ingresado[0:len(ingresado) - 1]
         separacion = ingresado.split(",")
@@ -305,6 +347,7 @@ def alterAddColumn():
 #"FINALIZADO"
 def alterDropColumn():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
         ingresado = ingresado[0:len(ingresado) - 1]
         separacion = ingresado.split(",")
@@ -319,6 +362,7 @@ def alterDropColumn():
 #"FINALIZADO"
 def dropTable():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
         ingresado = ingresado[0:len(ingresado) - 1]
         separacion = ingresado.split(",")
@@ -332,8 +376,9 @@ def dropTable():
 #"FINALIZADO"
 def insert():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
-        ingresado = ingresado[0:len(ingresado) - 1]
+        ingresado = ingresado[0:len(ingresado) - 2]
         division1 = ingresado.split("[")
         primeraP = division1[0]
         campos = division1[1]
@@ -355,16 +400,15 @@ def loadCSV():
     path = division[0]
     db = division[1]
     table = division[2]
-    listaNom = t.loadCSV(path,db,table)
-    contenido = ""
-    #for i in listaNom:
-    #    contenido += contenido+"\n"
+    t.loadCSV(path,db,table)
+    caja2.delete("1.0",END)
 
 #"FINALIZADO"
 def extractRow():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
-        ingresado = ingresado[0:len(ingresado) - 1]
+        ingresado = ingresado[0:len(ingresado) - 2]
         division1 = ingresado.split("[")
         primeraP = division1[0]
         campos = division1[1]
@@ -381,6 +425,7 @@ def extractRow():
 #"FINALIZADO"
 def update():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
         ingresado = ingresado[0:len(ingresado) - 1]
         val = ingresado.split("{")
@@ -400,15 +445,269 @@ def update():
         caja1.insert(END, respuesta)
         commit(t, "ult")
 
+#FINALIZADO
 def EjecutarBD():
-    print("ejecutando Base de datos")
+    if caja1.get("1.0", END) != "\n":
+        cmd = caja1.get("1.0", END)
+        cmd = cmd[0:len(cmd) - 1]
+        try:
+            opciones = cmd.split('(')
+            datos = opciones[1]
+            datos = datos[0:len(datos)-1]
+            atributos = datos.split(',')
+            if opciones[0] == "createDatabase":
+                respuesta = str(t.createDatabase(atributos[0]))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "showDatabases":
+                caja1.delete("1.0", END)
+                resultado = t.showDatabases()
+                t.graficar()
+                caja1.insert(END, resultado)
+                try:
+                    #prueba para mostrar el arbol
+                    VBase= Toplevel()
+                    canvas1=Canvas(VBase, width=600,height=600,background="black")
+                    canvas1.grid(column=0,row=0)
 
-def VBD():
-    print("ver base de datos")
+                    scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+                    scroll_x.grid(row=1, column=0, sticky="ew")
+
+                    scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+                    scroll_y.grid(row=0, column=1, sticky="ns")
+
+                    canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+                    Grafico=PhotoImage(file="tab.png")
+                    canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+                    canvas1.configure(scrollregion=canvas1.bbox("all"))
+                    VBase.wait_window()
+                except:
+                    print("No se encontró la imagen")
+            elif opciones[0] == "alterDatabase":
+                dbAntigua = atributos[0]
+                dbNueva = atributos[1]
+                respuesta = str(t.alterDatabase(dbAntigua, dbNueva))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "dropDatabase":
+                respuesta = str(t.dropDatabase(atributos[0]))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "createTable":
+                db = atributos[0]
+                dbNueva = atributos[1]
+                numColumnas = atributos[2]
+                respuesta = str(t.createTable(db, dbNueva, numColumnas))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "showTables":
+                arbolito = t.buscar(atributos[0])
+                arbolito.lista.graficar()
+                respuesta = str(t.showTables(atributos[0]))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                try:
+                    VBase= Toplevel()
+                    canvas1=Canvas(VBase, width=600,height=600,background="black")
+                    canvas1.grid(column=0,row=0)
+
+                    scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+                    scroll_x.grid(row=1, column=0, sticky="ew")
+
+                    scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+                    scroll_y.grid(row=0, column=1, sticky="ns")
+
+                    canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+                    Grafico=PhotoImage(file="tab.png")
+                    canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+                    canvas1.configure(scrollregion=canvas1.bbox("all"))
+                    VBase.wait_window()
+                except:
+                    print("No se encontró la imagen")
+                commit(t, "ult")
+            elif opciones[0] == "extractTable":
+                db = atributos[0]
+                table = atributos[1]
+                arbolito = t.buscartabla(db, table)
+                try:
+                    arbolito.lista.graficar()
+                    respuesta = str(t.extractTable(db, table))
+                    caja2.delete("1.0", END)
+                    caja1.insert(END, respuesta)
+                    try:
+                        VBase= Toplevel()
+                        canvas1=Canvas(VBase, width=600,height=600,background="black")
+                        canvas1.grid(column=0,row=0)
+
+                        scroll_x = Scrollbar(VBase, orient="horizontal", command=canvas1.xview)
+                        scroll_x.grid(row=1, column=0, sticky="ew")
+
+                        scroll_y = Scrollbar(VBase, orient="vertical", command=canvas1.yview)
+                        scroll_y.grid(row=0, column=1, sticky="ns")
+
+                        canvas1.configure(yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set)
+
+
+                        Grafico=PhotoImage(file="tab.png")
+                        canvas1.create_image(30, 50, image=Grafico, anchor="nw")
+
+                        canvas1.configure(scrollregion=canvas1.bbox("all"))
+                        VBase.wait_window()
+                    except:
+                        print("No se encontró la imagen")
+                except:
+                    print("No se encontraron datos en la tabla seleccionada")
+                commit(t, "ult")
+            elif opciones[0] == "extractRangeTable":
+                db = atributos[0]
+                table = atributos[1]
+                columnNumber = atributos[2]
+                lower = atributos[3]
+                upper = atributos[4]
+                respuesta = str(t.extractRangeTable(db, table, columnNumber, lower, upper))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "alterAddPK":
+                division1 = datos.split("[")
+                primeraP = division1[0]
+                llaves = division1[1]
+                llaves = llaves[0:len(llaves) - 1]
+                donde = primeraP.split(",")
+                columns = llaves.split(",")
+                db = donde[0]
+                table = donde[1]
+                respuesta = str(t.alterAddPK(db, table, columns))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "alterDropPK":
+                db = atributos[0]
+                table = atributos[1]
+                respuesta = str(t.alterDropPK(db, table))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "alterTable":
+                db = atributos[0]
+                tableOld = atributos[1]
+                tableNew = atributos[2]
+                respuesta = str(t.alterTable(db, tableOld, tableNew))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "alterAddColumn":
+                db = atributos[0]
+                table = atributos[1]
+                default = atributos[2]
+                respuesta = str(t.alterAddColumn(db, table, default))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "alterDropColumn":
+                db = atributos[0]
+                table = atributos[1]
+                columnNumber = atributos[2]
+                respuesta = str(t.alterDropColumn(db, table, columnNumber))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "dropTable":
+                db = atributos[0]
+                table = atributos[1]
+                respuesta = str(t.dropTable(db, table))
+                caja1.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "insert":
+                division1 = datos.split("[")
+                primeraP = division1[0]
+                campos = division1[1]
+                campos = campos[0:len(campos)]
+                donde = primeraP.split(",")
+                register = campos.split(",")
+                db = donde[0]
+                table = donde[1]
+                respuesta = str(t.insert(db, table, register))
+                caja2.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "loadCSV":
+                path = atributos[0]
+                db = atributos[1]
+                table = atributos[2]
+                t.loadCSV(path, db, table)
+            elif opciones[0] == "extractRow":
+                division1 = datos.split("[")
+                primeraP = division1[0]
+                campos = division1[1]
+                campos = campos[0:len(campos)]
+                donde = primeraP.split(",")
+                columns = campos.split(",")
+                db = donde[0]
+                table = donde[1]
+                respuesta = str(t.extractRow(db, table, columns))
+                caja2.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "update":
+                val = datos.split("{")
+                val1 = val[1].split("}")
+                val2 = val[0].split(",")
+                db = val2[0]
+                table = val2[1]
+                dict = val1[0].split(",")
+                register = {}
+                for i in dict:
+                    f = i.split(":")
+                    register[f[0]] = f[1]
+                cadena = val1[1][2:len(val1[1]) - 1]
+                columns = cadena.split(",")
+                respuesta = t.update(db, table, register, columns)
+                caja2.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "delete":
+                division1 = datos.split("[")
+                primeraP = division1[0]
+                llaves = division1[1]
+                llaves = llaves[0:len(llaves) - 1]
+                donde = primeraP.split(",")
+                columns = llaves.split(",")
+                db = donde[0]
+                table = donde[1]
+                respuesta = str(t.deletet(db, table, columns))
+                caja2.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            elif opciones[0] == "truncate":
+                db = atributos[0]
+                dbNueva = atributos[1]
+                respuesta = str(t.truncate(db, dbNueva))
+                caja2.delete("1.0", END)
+                caja1.insert(END, respuesta)
+                commit(t, "ult")
+            else:
+                caja1.delete("1.0", END)
+                caja1.insert(END, "VERIFIQUE LOS DATOS INGRESADOS")
+        except:
+            caja1.delete("1.0",END)
+            caja1.insert(END,"INGRESE UN COMANDO VALIDO")
 
 #"FINALIZADO"
 def Truncate():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         nombre = caja2.get("1.0", END)
         nombre = nombre[0:len(nombre) - 1]
         separacion = nombre.split(",")
@@ -422,6 +721,7 @@ def Truncate():
 #"FINALIZADO"
 def Delete():
     if caja2.get("1.0", END) != "\n":
+        caja1.delete("1.0", END)
         ingresado = caja2.get("1.0", END)
         ingresado = ingresado[0:len(ingresado) - 1]
         division1 = ingresado.split("[")

@@ -1,9 +1,12 @@
 /Interpreter/__pycache__/
-/Interpreter/Instructions/__pycache__/
-/Interpreter/Expressions/__pycache__/
-/Interpreter/Expressions/Binaries/__pycache__/
-/Interpreter/Expressions/Binaries/Arithmetics/__pycache__/
-/Interpreter/Expressions/Binaries/Relationals/__pycache__/
+/Interpreter/Instruction/__pycache__/
+/Interpreter/Expression/__pycache__/
 /Interpreter/parser.out
 /Interpreter/parsetab.py
+/Statics/__pycache__
+/Interface/__pycache__
+/__pycache__
 /ply
+/storageManager
+/data
+.vscode/

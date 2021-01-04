@@ -1,13 +1,10 @@
 import TypeCheck.Atributo as Atributo
 class ListaAtributos:
     def __init__(self):
-        self.columnNumber = 0
         self.primero=None
         self.ultimo=None
 
     def agregarAtributo(self,nuevo:Atributo):
-        self.columnNumber = self.columnNumber + 1
-        nuevo.numero = self.columnNumber
         if self.primero is None:
             self.primero=nuevo
             self.ultimo=nuevo
@@ -42,25 +39,20 @@ class ListaAtributos:
             actual = actual.siguiente
         return None
 
-    def eliminiarNAtributo(self,number:int):
+    def getNumeroColumna(self,nombreColumna:str):
+        numero = 1
         actual = self.primero
-        atras = None
-        while(actual!=None):
-            if actual.numero == number:
-                if actual == self.primero:
-                    self.primero = self.primero.siguiente
-                    self.primero.anterior = None
-                else:
-                    atras.siguiente = actual.siguiente
-                    actual.siguiente.anterior = actual.anterior
-                break
-            atras = actual
+        while actual is not None:
+            if actual.nombre == nombreColumna:
+                return numero
+            numero += 1
             actual = actual.siguiente
+        return 0
 
     def eliminarAtributo(self,nombreAtributo:str):
             actual = self.primero
             while(actual!=None):
-                if actual.nombreBase == nombreAtributo:
+                if actual.nombre == nombreAtributo:
                     if self.primero == self.ultimo:
                         self.primero = self.ultimo = None
                     elif actual == self.primero:

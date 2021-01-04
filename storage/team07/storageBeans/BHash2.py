@@ -1,7 +1,18 @@
+def toASCII2(cadena):
+    cadena = str(cadena)
+    resultado = 0
+    for i in cadena:
+        i = str(i)
+        resultado += ord(i)
+    return resultado
+
+
 class Tabla(object):
-    def __init__(self, name):
+    def __init__(self, name, noColumnas):
+        from storage.team07.storageBeans.AVLtree import arbolAVL
         self.name = name
-        # self.AVLtree = ArbolAVL()  # datos de tabla
+        self.numero = toASCII2(name)
+        self.AVLtree = arbolAVL(noColumnas)  # datos de tabla
 
 
 class BHash:
@@ -25,17 +36,17 @@ class BHash:
         for i in range(int(self.m)):
             self.h.append(None)
         for i in range(int(self.m)):
-            self.h[i] = Tabla(-1)
+            self.h[i] = Tabla(-1, -1)
             i += 1
         # print(len(self.h))
 
-    def insertTable(self, k):
+    def insertTable(self, k, noColumnas):
         cadena = k
         k = self.toASCII(k)
         i = int(self.division(k))
         while (self.h[int(i)].name != -1):
             i = self.linear(i)
-        self.h[int(i)] = Tabla(cadena)
+        self.h[int(i)] = Tabla(cadena, noColumnas)
         self.n += 1
         self.rehashing()
 
@@ -43,7 +54,7 @@ class BHash:
         if ((self.n * 100 / self.m) >= self.max):
             # copia del arreglo existente
             temp = self.h  # temp posee la copia del arreglo
-            self.print()
+            # self.print()
             # rehashing
             mprev = self.m  # copia del  tamaño del vector que quedara atras
             self.m = self.n * 100 / self.min  # nuevo tamaño del vector
@@ -53,7 +64,8 @@ class BHash:
                     self.insert(temp[i].name)
                 i += 1
         else:
-            self.print()
+            pass
+            # self.print()
 
     def searchTable(self, table):
         k = self.toASCII(table)
@@ -79,9 +91,9 @@ class BHash:
             i = self.linear(i)
             if (paso == i):
                 break
-        self.h[int(i)] = Tabla(-1)  # asumiendo que antes se buscara si existe o no la tabla
+        self.h[int(i)] = Tabla(-1, -1)  # asumiendo que antes se buscara si existe o no la tabla
         self.n -= 1
-        self.print()
+        # self.print()
         # self.rehashingInverso()
 
     def print(self):
@@ -102,7 +114,7 @@ class BHash:
         return resultado
 
     def updateNameTable(self, newName, OldName):
-        if (t.search(OldName)):  # si la tabla existe
+        if (self.searchTable(OldName)):  # si la tabla existe
             k = self.toASCII(OldName)
             i = int(self.division(k))
             paso = i
@@ -111,7 +123,7 @@ class BHash:
                 if (paso == i):
                     break
             self.h[int(i)].name = newName  # asumiendo que antes se buscara si existe o no la tabla
-            self.print()
+            # self.print()
             return True
         else:  # significa que la tabla no existe
             return False
@@ -123,8 +135,14 @@ class BHash:
                 lista.append(self.h[i].name)
         return lista
 
-    def getTable(self,OldName):
-        if (t.search(OldName)):  # si la tabla existe
+    def getDataTables2(self):
+        lista = []
+        for i in range(len(self.h)):
+            lista.append(self.h[i])  # retorno  el objeto tabla
+        return lista
+
+    def getTable(self, OldName):
+        if (self.searchTable(OldName)):  # si la tabla existe
             k = self.toASCII(OldName)
             i = int(self.division(k))
             paso = i
@@ -132,6 +150,6 @@ class BHash:
                 i = self.linear(i)
                 if (paso == i):
                     break
-            return self.h[int(i)] # asumiendo que antes se buscara si existe o no la tabla
+            return self.h[int(i)]  # asumiendo que antes se buscara si existe o no la tabla
         else:  # significa que la tabla no existe
             return False

@@ -1,0 +1,93 @@
+<INICIO> := create <SENTENCIA_CREATE>
+           | show <SENTENCIAS_SHOW>
+           | alter <SENCIAS_ALTER>
+	   | drop <SENTECIAS_DROP>
+	   | delete <SENTENCIA_DELETE>
+	   | update <SENTENCIA_UPDATE>
+	   | insert <SENTENCIAS_INSERT>
+	   | select <Queries> // aqui entraria la parte que hiso mi compañero
+           | 
+
+<SENTENCIA_CREATE> := or <OR_DATABESE>
+		     | database <SENTENCIAS_DATABASE>
+		     | table <SENTENCIA_CREATE_TABLE>
+
+<OR_DATABESE> := replace database <SENTENCIAS_DATABASE>
+
+<SENTENCIAS_DATABASE> := if not exists (identificador) <OWNER_OR_MODE>
+			| (identificador) <OWNER_OR_MODE>
+
+<OWNER_OR_MODE> := ; <INICIO>
+		   | owner = (identificador) <OWNER_OR_MODE>
+		   | mode = (numero) <OWNER_OR_MODE>
+
+<SENTENCIAS_SHOW> := database like reguex; <INICIO>
+		   | database; <INICIO>
+
+<SENTENCIAS_ALTER> := database (identificador) <RENAME_OR_OWNER>
+		     | table <ALTER_TABLE>
+
+<ALTER_TABLE> :=  (identificador) add column type; <INICIO>
+		 |(identificador) add check( (identificador) <CONDICIONALES> ; <INICIO>
+		 |(identificador) add constraint (identificador) unique (identificador) ; <INICIO>
+		 |(identificador) add foregn key (identificador) references (identificador); <INICIO>
+		 |(identificador) alter column (identificador) SET NOT NULL; <INICIO>
+		 |(identificador) drop constraint (identicador); <INICIO>
+		 |(identificador) rename column (identificador) to (identificador); <INICIO>
+		 |(identificador) drop column (identificador); <INICIO>
+		 
+		   
+<RENAME_OR_OWNER> := rename to 	(identificador) ; <INICIO>
+		    |owner to <SENTCIAS_OWNER> 
+
+<SENTENCIAS_DROP> := database if exists (identificador); <INICIO>
+		    |database (identificador) ; <INICIO>
+		    |table (identificador) ; <INICIO>
+		        	
+     
+<SENTENCIA_CREATE_TABLE> := identificador ( <TABLA_COLUMNA_INICIAL>
+			 
+<TABLA_COLUMNA_INICIAL> := idenficador type <TABLA_IDENTIFICADOR>
+		    | constraint identificador chek <CONDICIONALES>
+		    | unique( <SENTENCIA_UNIQUE_OR_KEY>
+		    | primary key <SENTENCIA_UNIQUE_OR_KEY>
+		    | foreign key <SENTENCIA_UNIQUE_OR_KEY>	
+
+
+<TABLA_IDENTIFICADOR> := default (valor) <TABLA_IDENTIFICADOR>
+			| NOT NULL <TABLA_IDENTIFICADOR>
+			| NOT      <TABLA_IDENTIFICADOR>
+			| constraint (identificador) unique <TABLA_IDENTIFICADOR>
+			| constraint (identificador) check <CONDICIONALES> //producion de mi compañero que examina las condiciones
+			| primary key <TABLA_IDENTIFICADOR>
+			| references <TABLA_IDENTIFICADOR>
+		        | , <TABLA_COLUMNAS>
+ 			| primary key <SENTENCIA_UNIQUE_OR_KEY>
+		    	| foreign key <SENTENCIA_UNIQUE_OR_KEY>
+			| ); <INICIO>
+
+<TABLA_COLUMNAS> := idenficador type <TABLA_IDENTIFICADOR>
+		    constraint identificador chek <CONDICIONALES>  //producion de mi compañero que examina las condiciones
+		    unique( <SENTENCIA_UNIQUE> 
+		    ); <INICIO>
+
+<SENTENCIA_UNIQUE_OR_KEY> := identificador, <SENTENCIA_UNIQUE_OR_KEY>
+		      identificador) <TABLA_IDENTIFICADOR_AUX>
+		      
+<TABLA_IDENTIFICADOR_AUX := , <TABLA_COLUMNAS>
+			    ); <INICIO> 
+				     	
+ 		       
+<SENTENCIAS_INSERT> := into (identificador) values ( <VALORES>
+
+<VALORES> := numero <VALORES_AUX>
+	    |texto <VALORES_AUX>
+ 	     
+<VALORES_AUX> ,numero <VALORES_AUX>
+	      ,texto <VALORES_AUX>
+	      ); <INICIO>
+	      
+<SENTENCIAS_UPDATE> := (identificador) set (identificador) = (primitivo) where <SUB QUERY> //producion de mi compañero que va despues de un where
+ 
+<SENTENCIAS_DELETE> := from identificador where <SUB QUERY>  //produccion de mi compañero que va despues de un where
+		    	

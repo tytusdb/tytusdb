@@ -20,7 +20,7 @@ class AVLTree:
         if not root:
             self.AVLroot = TreeNode(key)
             return TreeNode(key)
-        elif key < root.val:
+        elif key.upper() < root.val.upper():
             root.left = self.add(root.left, key)
         else:
             root.right = self.add(root.right, key)
@@ -56,7 +56,7 @@ class AVLTree:
         if not root:
             return root
 
-        elif key < root.val:
+        elif key.upper() < root.val.upper():
             root.left = self.delete(root.left, key)
 
         elif key > root.val:
@@ -183,9 +183,9 @@ class AVLTree:
     # Check if the key exists and returns the node
     def search(self, root, key):
         if root:
-            if root.val == key:
+            if root.val.upper() == key.upper():
                 return root
-            elif key < root.val:
+            elif key.upper() < root.val.upper():
                 return self.search(root.left, key)
             else:
                 return self.search(root.right, key)
@@ -211,7 +211,7 @@ class AVLTree:
         f.write('}')
         f.close()
         if database == "Databases":
-            os.system('dot -Tpng bases.dot -o ./Data/DataBases.png')
+            os.system('dot -Tpng bases.dot -o ./Data/BPlusMode/DataBases.png')
         else:
-            os.system(f'dot -Tpng {database}.dot -o ./Data/{database}/{database}.png')
+            os.system(f'dot -Tpng {database}.dot -o ./Data/BPlusMode/{database}/{database}.png')
         # os.system('C:/Users/Marcos/Desktop/Data/DataBases.png')

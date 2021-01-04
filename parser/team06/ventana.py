@@ -3,6 +3,11 @@ import sys
 import platform
 from nodeAst import nodeAst
 import ascendente as analizador
+import traductor as generador
+import reportes as h
+#jossie
+from storageManager import jsonMode as j
+import pandas as pd
 
 #To display pdfs
 import webbrowser
@@ -20,9 +25,9 @@ class Interfaz(tk.Frame):
     def __init__(self, *args, **kwargs):
         self.root = root
         tk.Frame.__init__(self, *args, **kwargs)
-
+       
+        
         self.filename = None
-
         self.terminal = tk.Text(root, width=75, height=1, background="black",foreground="#00AA00")
         self.terminal.pack(side="right", fill="both", expand=True)
 
@@ -62,6 +67,8 @@ class Interfaz(tk.Frame):
         file_dropdown.add_command(label="Salir", command=self.end)
 
         run_dropdown.add_command(label="Ejecutar Ascendente", command=self.ejecutar_ascendente)
+        run_dropdown.add_command(label="Traducir 3D", command=self.traducir_3D)
+        run_dropdown.add_command(label="Ejecutar 3D", command=self.ejecutar_3D)
         #run_dropdown.add_command(label="Ejecutar Descendente")
 
         report_dropdown.add_command(label="Reporte de Errores", command=self.generarReporteErrores )
@@ -185,11 +192,34 @@ class Interfaz(tk.Frame):
         try:
             x=x.replace("and","AND")
             x=x.replace("or","OR")
-            salida=analizador.ejecucionAscendente(x)
+            salida=self.terminal.get(1.0,tk.END)
+            salida+=analizador.ejecucionAscendente(x)
             self.terminal.insert(tk.END,salida) 
         except:
-            salida="TYTTUS>Se genero un error de análisis"
-            self.terminal.insert(tk.END,salida)        
+            salida=self.terminal.get(1.0,tk.END)
+            salida+="TYTTUS>Se genero un error de análisis"
+            self.terminal.insert(tk.END,salida)       
+
+    def traducir_3D(self):
+        x= self.text.get(1.0, tk.END)
+        self.terminal.delete(1.0, tk.END)
+        print(x)
+
+        x=x.replace("and","AND")
+        x=x.replace("or","OR")
+        salida=self.terminal.get(1.0,tk.END)
+        salida+=generador.ejecucionATraduccion(x)
+        self.terminal.insert(tk.END,salida) 
+
+    def ejecutar_3D(self):
+        x= self.text.get(1.0, tk.END)
+        self.terminal.delete(1.0, tk.END)
+        print(x)
+
+        salida=self.terminal.get(1.0,tk.END)
+        exec(x)
+        salida+=h.textosalida
+        self.terminal.insert(tk.END,salida) 
 #-------------------------------------------------------Help Menu Methods---------------------------------------------------------------------
     def about(self):
         box_tilte ="Autor"
@@ -219,6 +249,8 @@ class Interfaz(tk.Frame):
             box_tilte ="Path Error"
             box_msg = "El archivo que trata de acceder no existe"
             messagebox.showerror(box_tilte,box_msg)
+    
+    
 #-------------------------------------------------------Main---------------------------------------------------------------------       
 if __name__ == "__main__":
     root = tk.Tk()

@@ -1,2 +1,13 @@
 insert into tabla (nombre, carnet) values ("juan", 2015);
 
+
+use world;
+
+insert into countries values('COL','Colombia','Sur America',0256);
+
+insert into countries(region,acronimo)values('America Sur','AR');
+insert into countries(acronimo,name)values('AR','Argentina');
+
+insert into countries values('COL','Colombia','Sur America',0256);
+
+

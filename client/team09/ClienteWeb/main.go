@@ -12,11 +12,17 @@ func main() {
 	http.Handle("/codemirror/", http.StripPrefix("/codemirror/", http.FileServer(http.Dir("codemirror/"))))
 
 	//pagina principal
-	http.HandleFunc("/", inicio)
+	http.HandleFunc("/", login)
+	http.HandleFunc("/inicio", inicio)
 
 	fmt.Println("simon aqui andamios en el 8000")
 
 	http.ListenAndServe(":8000", nil)
+}
+
+func login(escritor http.ResponseWriter, lector *http.Request) {
+	t := template.Must(template.ParseFiles("login.html"))
+	t.Execute(escritor, "")
 }
 
 func inicio(escritor http.ResponseWriter, lector *http.Request) {

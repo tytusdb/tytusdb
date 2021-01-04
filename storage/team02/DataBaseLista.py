@@ -92,6 +92,7 @@ class ListaDOBLE:
                         if aux.nombreBase == dato:
                             if aux == self.primero:
                                 self.primero = self.primero.siguiente
+                                self.primero.anterior = None
                             elif aux == self.ultimo:
                                 tmp.siguiente = None
                                 self.ultimo = tmp
@@ -156,3 +157,4 @@ class ListaDOBLE:
         f.write("}")
         f.close()
         os.system("dot -Tjpg listaDoble.dot -o listaDoble.png")
+        os.system("listaDoble.png")

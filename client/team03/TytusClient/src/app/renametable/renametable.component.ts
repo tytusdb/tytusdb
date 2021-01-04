@@ -11,5 +11,9 @@ export class RenametableComponent implements OnInit {
 
   ngOnInit() {
   }
+  renametable(event:Event)
+  {
+    alert("Modificando table.....");
+  }
 
 }

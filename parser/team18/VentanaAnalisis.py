@@ -49,6 +49,7 @@ cuadroTxtSalida.tag_configure("error",  foreground="red")
 cuadroTxtSalida.tag_configure("exito",  foreground="green")
 cuadroTxtSalida.tag_configure("normal", foreground="black")
 cuadroTxtSalida.tag_configure("alert", foreground="orange")
+cuadroTxtSalida.tag_configure("table", foreground="blue")
 
 def agregarSalida(listaMensajes):
     txt=''
@@ -65,8 +66,9 @@ def agregarSalida(listaMensajes):
                 cuadroTxtSalida.insert('end',txt,"error")
             elif(msg.tipo=='table'):
                 txt=msg.mensaje
+                cuadroTxtSalida.insert('end','\n',"table")
                 cuadroTxtSalida.insert('end',txt,"table")
-                cuadroTxtSalida.insert('end','\n\n',"table")
+                cuadroTxtSalida.insert('end','\n',"table")
             else:
                 txt='\n> '+msg.mensaje
                 cuadroTxtSalida.insert('end',txt,"normal")

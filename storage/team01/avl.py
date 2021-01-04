@@ -3,7 +3,8 @@
 from graphviz import Digraph, nohtml
 import os
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
-
+import pathlib
+ruta=str(pathlib.Path().absolute())+"/team01/"
 #Clase Nodo de Arbol AVL
 class NodoAVL:
     #Constructor de Nodo de Arbol Binario de Busqueda
@@ -418,9 +419,7 @@ class AVL:
                     pass 
     #Crea un gráfico del árbol
     def armararbol(self, arbol, titulo, nombreArchivo,tipo=""):
-        #print(arbol)
-        
-        f = Digraph('arbol', filename="Imagenes/graficaArboles/"+nombreArchivo,
+        f = Digraph('arbol', filename=ruta+"Imagenes/graficaArboles/"+nombreArchivo,
                 format="png", node_attr={'shape': 'record', 'height': '.1'})
         self.crearnodos(arbol, f, 0,tipo=tipo)
         f.attr(label=r'\n\n'+titulo)

@@ -3,5 +3,5 @@ class Foreign:
         self.nombreConstraint = nombreConstraint
         self.columnas = columnas
         self.nombreTabla = nombreTablaReferencia
-        self.columnasOtraTabla = columnasOtraTabla
+        self.columnasrefer = columnasOtraTabla
 
