@@ -387,7 +387,7 @@ class Sentencia_ELSIF_ELSE(Expresion):
     '''
     def __init__(self,tipo,condicion,sentencias):
         self.tipo = tipo
-        self.codicion = condicion
+        self.condicion = condicion
         self.sentencias = sentencias
 
 class Sentencia_Case(Expresion):

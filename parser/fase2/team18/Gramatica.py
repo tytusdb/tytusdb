@@ -1377,9 +1377,9 @@ def p_parametro(t):
      '''parametro : declare_op ID tipo valortipo asig_valor
                   | declare_op ID ASIGNACION exp
                   | empty'''
-     if len(t) == 5:
+     if len(t) == 6:
           t[0] = Parametro(t[2],t[3],t[4],t[5])
-     elif len(t) == 4:
+     elif len(t) == 5:
           t[0] = Parametro(t[2],None,None,t[4])
      else:
           t[0] = False

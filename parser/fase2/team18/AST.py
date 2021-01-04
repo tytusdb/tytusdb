@@ -3383,20 +3383,19 @@ def Indexs(instr,ts):
 def Funciones(instr,ts):
     #   Pendiente
     #   -validar el cuerpo
+    #       -declaraciones
+    #       -sentencias
+    #       -retornos
     #   -parametros
     #       -valor
-    #       -tama;o
-    print("\n\n---------------------------------------------")
-    print("cuerpo",instr.cuerpo)
-    print("---------------------------------------------\n\n")
     #variables
     reemplazarF=instr.reemplazar
     nombreF=instr.nombre.lower()
     tipoF=instr.tipo.lower()
     parametrosF=[]
-    contenidoF=instr.cuerpo
     funOK=True
-    
+
+
     #mensaje inicial
     msg="creando funcion: "+nombreF
     agregarMensjae("normal",msg,"")
@@ -3439,13 +3438,20 @@ def Funciones(instr,ts):
             #agregar a la lista de parametros
             if(parEx==False):
                 parametrosF.append(parAux)
-                print(parAux.nombre,parAux.tipo,parAux.tamano,parAux.valor)
 
     #verificar tipo
     if(validarTipoF(tipoF)==False):
         msg="El tipo "+tipoF+" no es posible asignarlo a una funcion"
         agregarMensjae("error",msg,"")
         funOK=False
+
+
+    #validar contenido
+    contenidoF=validarCuerpoF(instr.cuerpo,ts)
+    if(contenidoF==False):
+        funOK=False
+        msg="el contenido de la funcion posee conflictos"
+        agregarMensjae("error",msg,"")
 
     #agregar la funcion
     if(funOK):
@@ -3472,6 +3478,86 @@ def Funciones(instr,ts):
                 msg="la funcion "+nombreF+" ya se encuentra declarada"
                 agregarMensjae("error",msg,"")
         
+def validarCuerpoF(cuerpo,ts):
+    bodyF=contenido_run()
+    decla=None;
+    instruc=None;
+    funOK=True
+
+    if isinstance(cuerpo,list):
+        instruc=cuerpo
+    else:    
+        decla=cuerpo.declaraciones
+        instruc=cuerpo.funcionalidad
+
+    #verificar las declaraciones
+    parametrosF=[]
+    if(decla!=None):
+        for x in decla:
+            #crear el objeto parametro
+            parEx=False
+            parAux=Parametro_run()
+            parAux.nombre=x.nombre.lower()
+            
+            #revisar parametros repetidos
+            for parF in parametrosF:
+                if (parF.nombre==parAux.nombre):
+                    parEx=True
+                    msg="El parametro "+x.nombre+" ya existe declarado"
+                    agregarMensjae("error",msg,"")
+                    funOK=False
+                    break;
+            #agregar tipo
+            if(isinstance(x.tipo,Operando_ID)):
+                msg="no es posible asiganar el parametro "+parAux.nombre +" de tipo ID"
+                agregarMensjae("error",msg,"")
+                funOK=False
+            else:  
+                parAux.tipo=x.tipo.lower()
+                #validar el tipo
+                if(validarTipoF(parAux.tipo)==False):
+                    msg="El tipo "+parAux.tipo+" no es posible asignarlo al parametro "+parAux.nombre
+                    agregarMensjae("error",msg,"")
+                    funOK=False
+            #agregar size
+            if(x.tamano!=False):
+                parAux.tamano=resolver_operacion(x.tamano[0],ts)
+            #agregar valor
+            if(x.valor!=False):
+                val=resolver_operacion(x.valor,ts)
+                result=validarTipo(parAux.tipo,val)
+                if(result==None):
+                    funOK=False
+                    msg="no es posible asignar "+str(val)+" en "+parAux.nombre
+                    agregarMensjae("error",msg,"")
+                parAux.valor=val
+            #agregar a la lista de parametros
+            if(parEx==False):
+                parametrosF.append(parAux)
+    bodyF.declaraciones=parametrosF
+
+    #verificar el cuerpo
+    if(instruc!=None):
+        for i in instruc:
+            if isinstance(i,Sentencia_IF):
+                ''
+            elif isinstance(i,Sentencia_Case):
+                ''
+            elif isinstance(i,Operacion_Expresion):
+                ''
+            elif isinstance(i,Select_Asigacion):
+                ''
+                
+    bodyF.contenido=instruc
+
+    #retorno
+    if(funOK):
+        return bodyF
+    else:
+        return False
+
+
+
 
 def Eliminar_Funcion(instr,ts):
     agregarMensjae('normal','Drop Function','')

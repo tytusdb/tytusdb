@@ -1,4 +1,6 @@
 from storageManager import jsonMode as EDD
+from expresiones import *
+from instrucciones import *
 import json
 import copy
 
@@ -236,25 +238,95 @@ def PCreateFuncion(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
     txt="\t#Crear Funcion\n"
     txt+="\tt"+str(numT())+"='"+nombreF+"'\n"
     txt+="\tt"+str(numT())+"="+str(parametrosF)+"\n"
-    txt+="\treplaceF="+str(reemplazada)+"\n"
+    txt+="\tt"+str(numT())+"="+str(reemplazada)+" #Reemplazar funcion\n"
     varT="t"+str(numT())
     txt+="\t"+varT+"=CD3.ECreateFuncion()\n"
-     #------------------optimizacion---------------
+    #------------------optimizacion---------------
     regla="3 - se nego condicion para poder eliminar etiqueta"
     msg="if("+varT+"):\n"
     msg+="\tgoto .bodyFun"+str(contT)+"\n"
     msg+="else:\n"
     msg+="\tgoto .endFun"+str(contT)
+    msg2=""
     #---------------------------------------------
     txt2="\tif("+varT+"==False):\n"
-    txt2+="\t\tgoto .endFun"+str(contT)+"\n"
-    txt2+="\tlabel.bodyFun"+str(contT)+"\n"
-    txt2+="\t'"+str(contenidoF)+"'\n"
-    txt2+="\tlabel.endFun"+str(contT)+"\n"
+    fin=contT
+    txt2+="\t\tgoto .endFun"+str(fin)+"\n"
+    varT="t"+str(numT())
+    txt2+="\t"+varT+"=CD3.ExcuteFun()\n"
+    txt2+="\tif("+varT+"==False):\n"
+    txt2+="\t\tgoto .endFun"+str(fin)+"\n"
+    #declaraciones
+    txt2+="\tlabel.decFun"+str(contT)+" #Declaraciones funcion\n"
+    for i in contenidoF.declaraciones:
+        txt2+="\tt"+str(numT())+"='"+i.nombre+"'\n"
+        print("CD3------>",i)
+    #contenido
+    txt2+="\tlabel.bodyFun"+str(contT)+" #Contenido funcion\n"
+    txt2+=PInstrFun(contenidoF.contenido)+"\n"
+    txt2+="\tlabel.endFun"+str(fin)+"\n"
     agregarOptimizacion(regla,msg,txt2)
     txt+=txt2
     dataC=[nombreF,tipoF,str(contenidoF),parametrosF,reemplazada]
     agregarInstr(dataC,txt)
+    agregarInstr(False,'')
+
+def PInstrFun(inst):
+    var=''
+    for i in inst:
+        if isinstance(i,Sentencia_IF):
+            var+="\t#sentencia IF\n"
+            var+=txtIF(i)
+        elif isinstance(i,Sentencia_Case):
+            var+="\t#sentencia case\n"
+            var+=txtCase(i)
+        elif isinstance(i,Operacion_Expresion):
+            var+="\t#sentencia EXPRESION, Return,Raise y asignacion\n"
+            var+=txtExpresion(i)
+        elif isinstance(i,Select_Asigacion):
+            var+="\t#sentencia select asignacion\n"
+            var+=txtSelectAsig(i)
+
+    return var
+
+def txtIF(inst):
+    var=''
+    varT="t"+str(numT())
+    var+="\t"+varT+"='"+str(inst.condicion)+"'\n"
+    var+="\tif("+varT+"):\n"
+    var+="\t\tgoto .if"+str(contT)+"\n"
+    var+="\telse:\n"
+    fin=contT
+    var+="\t\tgoto .endif"+str(fin)+"\n"
+    var+="\tlabel.if"+str(contT)+"\n"
+    #contenido if
+    var+=PInstrFun(inst.sentencias) #"\tt"+str(numT())+"="+str(inst.sentencias)+"\n"
+    var+="\tlabel.endif"+str(fin)+"\n"
+    #contenido else
+    if(inst.elsif_else[0]!=False):
+        for elifX in inst.elsif_else:
+            print ("------------------",elifX)
+            if(elifX.condicion==None):
+                var+=PInstrFun(elifX.sentencias)
+            #elif
+            else:
+                elifAux=Sentencia_IF(elifX.condicion,elifX.sentencias,False)
+                var=txtIF(elifAux)
+
+    return var
+
+def txtCase(inst):
+    return ""
+
+def txtExpresion(inst):
+    return ""
+
+def txtSelectAsig(inst):
+    return ""
+
+
+
+
 
 #EMPIEZA MIO *****************
 
@@ -549,10 +621,12 @@ def CrearArchivo():
     
     f.write("main()")
     f.close()
+    '''
     print("\n-------------------Optimizacion----------------")
     for i in listaoptimizaciones:
         print(i[0],i[1])
     print("-------------------------------------------------\n")
+    '''
     #Genera reporte Optimizacion
     Reporte_Optimizaciones()
     #crear memoria
@@ -738,6 +812,15 @@ def ECreateFuncion():
             print("\tparametros:",creaF[3])
 
         listaMemoria.pop(0)
+
+def ExcuteFun():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    result=False
+    if(len(listaMemoria)>0):
+        result=listaMemoria[0]
+        listaMemoria.pop(0)
+    return result
 
 def ECantidadRegistros():
     cargarMemoria()
