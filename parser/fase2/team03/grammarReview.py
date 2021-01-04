@@ -234,6 +234,7 @@ reserved = {
     'inout' : 'INOUT',
     'cascade' : 'CASCADE',
     'restrict' : 'RESTRICT',
+    'index' : 'INDEX',
 }
 
 tokens = [
@@ -437,6 +438,7 @@ def p_statement(t):
                     | stm_execute PUNTOCOMA     
                     | stm_get PUNTOCOMA 
                     | stm_drop_function PUNTOCOMA
+                    | stm_index PUNTOCOMA
                     '''
 
     #                    |    stm_select PUNTOCOMA
@@ -1170,13 +1172,13 @@ def p_declarations(t):
     if token.type == "declarations":
         childsProduction  = addNotNoneChild(t,[1,2])
         graph_ref = graph_node(str("declarations"), [t[1],t[2]],  childsProduction )
-        addCad("**\<DECLARATIONS>** ::= [\<DECLARATIONS>] DECLARATION ")
+        addCad("**\<DECLARATIONS>** ::= [\<DECLARATIONS>] <DECLARATION> ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####
     else:
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("declarations"), [t[1]],  childsProduction )
-        addCad("**\<DECLARATIONS>** ::= [\<DECLARATIONS>] DECLARATION ")
+        addCad("**\<DECLARATIONS>** ::= <DECLARATION> ")
         t[0] = upNodo(True, 0, 0, graph_ref)
     
 def p_declaration(t):
@@ -1335,6 +1337,52 @@ def p_mode_drop_function_opt(t):
     elif token.type == "RESTRICT":
         graph_ref = graph_node(str(t[1]) )
         addCad("**\<MODE_DROP_FUNCTION>** ::= tRestrict ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####
+    else:
+        t[0]=None
+
+##########   >>>>>>>>>>>>>>>>  INDEX  <<<<<<<<<<<<<<<<<<<<<<
+def p_stm_index(t):
+    '''stm_index    : CREATE unique_opt INDEX ID ON ID PARA params_index PARC '''
+    childsProduction  = addNotNoneChild(t,[2,8])
+    graph_ref = graph_node(str("stm_index"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]],  childsProduction )
+    addCad("**\<STM_INDEX>** ::= tCreate [\<UNIQUE_OPT>] tIndex")
+    t[0] = upNodo(True, 0, 0, graph_ref)
+    #####
+
+def p_params_index(t):
+    '''params_index : params_index COMA param_index
+                    | param_index'''
+    token = t.slice[1]
+    if token.type == "params_index":
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("params_index"), [t[1],t[2], t[3]],  childsProduction )
+        addCad("**\<PARAMS_INDEX>** ::= [\<PARAMS_INDEX>] <PARAM_INDEX> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+    else:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("params_index"), [t[1]],  childsProduction )
+        addCad("**\<PARAMS_INDEX>** ::= <PARAM_INDEX> ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+
+
+def p_param_index(t):
+    '''param_index  : ID'''
+    graph_ref = graph_node(str(t[1]) )
+    addCad("**\<PARAM_INDEX>** ::= tId ")
+    t[0] = upNodo(True, 0, 0, graph_ref)
+    #####
+
+
+def p_unique_opt(t):
+    '''unique_opt   : UNIQUE
+                    | empty'''
+    token = t.slice[1]
+    if token.type == "UNIQUE":
+        graph_ref = graph_node(str(t[1]) )
+        addCad("**\<UNIQUE_OPT>** ::= tUnique ")
         t[0] = upNodo(True, 0, 0, graph_ref)
         #####
     else:
@@ -3056,14 +3104,14 @@ def p_exp_unary(t):
 
 #TODO @ESTEBAN llamada a funcion 
 def p_exp_call_function(t):
-    '''expression : ID PARA list_param_function_opt  PARC'''
+    '''expression : ID PARA list_param_function_opt2  PARC'''
     childsProduction  = addNotNoneChild(t,[3])
     graph_ref = graph_node(str("stm_call_function"), [t[1],t[2],t[3],t[4]],  childsProduction )
     addCad("**\<EXPRESSION>** ::= tIdentifier '(' [\<LIST_PARAM_FUNCTION_OPT>] ')' ")
     t[0] = upNodo("token", 0, 0, graph_ref)
 
-def p_list_param_function_opt(t):
-    '''list_param_function_opt  : column_list 
+def p_list_param_function_opt2(t):
+    '''list_param_function_opt2  : column_list 
                                 | empty'''
     token = t.slice[1]
     if token.type == "column_list":
