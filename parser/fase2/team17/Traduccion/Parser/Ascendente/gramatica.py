@@ -201,6 +201,7 @@ reservadas = {
     'contains' : 'CONTAINS',
     'remove': 'REMOVE',
     'function': 'FUNCTION',
+    'procedure': 'PROCEDURE',
 
     # FUNCIONES DE AGREGACION
     'count' : 'COUNT',
@@ -303,7 +304,6 @@ reservadas = {
     'except' : 'EXCEPT',
     'language': 'LANGUAGE',
     'returns': 'RETURNS',
-    'prueba' : 'PRUEBA'
 
 }
 
@@ -503,16 +503,39 @@ def p_instruction(t):
 
 def p_plpgsql(t):
     '''
-        plpgsql : function label declare BEGIN stmts plpgsql_ending
-                | function declare BEGIN stmts plpgsql_ending
-                | function BEGIN stmts plpgsql_ending
-                | label declare BEGIN stmts plpgsql_ending
+        plpgsql : functions_or_procedures label declare BEGIN stmts plpgsql_ending
+                | functions_or_procedures declare BEGIN stmts plpgsql_ending
+                | functions_or_procedures BEGIN stmts plpgsql_ending
                 | label BEGIN stmts plpgsql_ending
                 | declare BEGIN stmts plpgsql_ending
                 | BEGIN stmts plpgsql_ending
     '''
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
+
+
+def p_functions_or_procedures(t):
+    '''
+        functions_or_procedures : functions_or_procedures function_or_procedure
+                                | function_or_procedure
+    '''
+
+
+def p_function_or_procedure(t):
+    '''
+        function_or_procedure : function
+                              | procedure
+    '''
+
+
+def p_procedure(t):
+    '''
+        procedure : CREATE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR
+                  | CREATE OR REPLACE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR
+                  | CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
+                  | CREATE OR REPLACE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
+    '''
+
 
 # ================= EXCEPTION =================
 
@@ -618,7 +641,7 @@ def p_statements_conditionals(t):
     '''
         statements : conditionals
                    | return
-                   | calling_procedure
+                   | execute_procedure
                    | PRAISE
                    | callfunction
                    | exit
@@ -635,10 +658,10 @@ def p_exit(t):
     t[0] = t[1]
 
 
-def p_calling_procedure(t):
+def p_execute_procedure(t):
     '''
-        calling_procedure : CALL ID PARIZQ exp_list PARDER
-                          | CALL ID PARIZQ PARDER
+        execute_procedure : EXECUTE ID PARIZQ exp_list PARDER
+                          | EXECUTE ID PARIZQ PARDER
     '''
 
 
@@ -697,9 +720,7 @@ def p_case(t):
 
 def p_when_or_else(t):
     '''
-        when_or_else : other_when_list else
-                     | other_when_list
-                     | else
+        when_or_else : other_when_list
     '''
 
 
