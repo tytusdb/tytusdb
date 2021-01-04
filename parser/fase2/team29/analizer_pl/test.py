@@ -7,15 +7,16 @@ import analizer_pl.grammar as grammar2
 
 s = """ 
 
+insert into tb values(1,2);
 
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+CREATE FUNCTION myFuncion(texto text, puta integer) RETURNS text AS $$
 declare 
-	texto integer := 2;
+	texto2 integer := 2;
 BEGIN
-	texto := 9;
-	RETURN texto between 2 and 19;
-	RETURN texto not between 2 and 19;
-	RETURN texto between SYMMETRIC 2 and 19;
+	insert into tb values(1,2);
+
+	texto := 'jaja';
+	puta := 23;
 	RETURN (5+2>8*1 and  1+3*3 != 4) is not TRUE;
 END;
 $$ LANGUAGE plpgsql;

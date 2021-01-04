@@ -19,6 +19,7 @@ class Block(Expression):
         newEnv = Environment()
         decl = ""
         bl = ""
+        self.function.execute(newEnv)
         for d in self.declaration:
             decl += d.execute(newEnv).value
         for b in self.blocks:
