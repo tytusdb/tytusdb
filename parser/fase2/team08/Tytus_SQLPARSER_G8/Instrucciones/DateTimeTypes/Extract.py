@@ -32,6 +32,18 @@ class Extract(Instruccion):
             year = date.year
             return year
 
+    def analizar(self, ts, arbol):
+        pass
+    def traducir(self, ts, arbol):
+        #self.tiempo = tiempo
+        #self.caracter = caracter
+        cadena = f"EXTRACT ( {self.tiempo} "
+
+        cadena += "FROM TIMESTAMP "
+        cadena += f"'{self.caracter}'"
+        cadena += " )"
+        return cadena
+        
 '''
 instruccion = Declare("hola mundo",None, 1,2)
 

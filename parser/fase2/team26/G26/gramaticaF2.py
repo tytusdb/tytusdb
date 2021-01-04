@@ -5,6 +5,7 @@ errores = list()
 reservadas = {
     'smallint' : 'SMALLINT',
     'integer' : 'INTEGER',
+    'int' : 'INT',
     'bigint' : 'BIGINT',
     'decimal' : 'DECIMAL',
     'numeric' : 'NUMERIC',
@@ -15,6 +16,7 @@ reservadas = {
     'character' : 'CHARACTER',
     'varying' : 'VARYING',
     'varchar' : 'VARCHAR',
+    'current': 'CURRENT',
     'char' : 'CHAR',
     'text' : 'TEXT',
     'use' : 'USE',
@@ -40,6 +42,7 @@ reservadas = {
     'not' : 'NOT',
     'and' : 'AND',
     'or' : 'OR',
+    'constant': 'CONSTANT',
     'unknown' : 'UNKNOWN',
     'null' : 'NULL',
     'sum' : 'SUM',
@@ -165,6 +168,7 @@ reservadas = {
     'get_byte' : 'GETBYTE',
     'factorial' : 'FACTORIAL',
     'md5' : 'MD5',
+    'returns': 'RETURNS',
     'set_byte' : 'SETBYTE',
     'sha256' : 'SHA',
     'substr' : 'SUBSTR',
@@ -196,7 +200,37 @@ reservadas = {
     'hash': 'HASH',
     'lower': 'LOWER',
     'desc': 'DESC',
-    'asc' : 'ASC'
+    'asc' : 'ASC',
+    'rowtype': 'ROWTYPE',
+    'type': 'TYPE',
+    'record': 'RECORD',
+    'anyelement': 'ANYELEMENT',
+    'anycompatible': 'ANYCOMPATIBLE',
+    'next' : 'NEXT',
+    'query' : 'QUERY',
+    'execute': 'EXECUTE',
+    'format': 'FORMAT',
+    'get': 'GET',
+    'diagnostics' : 'DIAGNOSTICS',
+    'row_count': 'ROWCOUNT',
+    'pg_context': 'PGCONTEXT',
+    'elseif': 'ELSEIF',
+    'else': 'ELSE',
+    'then': 'THEN',
+    'case': 'CASE',
+    'when': 'WHEN', 
+    'function': 'FUNCTION',
+    'language': 'LANGUAGE',
+    'out': 'OUT',
+    'begin': 'BEGIN',
+    'collate' : 'COLLATE',
+    'strict' : 'STRICT',
+    'call' : 'CALL',
+    'perfom' : 'PERFOM',
+    'declare': 'DECLARE',
+    'return': 'RETURN',
+    'alias': 'ALIAS',
+    'for': 'FOR'
 }
 
 tokens = [
@@ -222,7 +256,6 @@ tokens = [
     'ID',
     'FEED',
     'NEWLINE',
-    'RETURN',
     'TAB',
     'FECHA',
     'PORCENTAJE',
@@ -231,7 +264,10 @@ tokens = [
     'PLECA',
     'AMPERSON',
     'NUMERAL',
-    'VIRGULILLA'
+    'VIRGULILLA',
+    'DOLARS',
+    'IGUALESP',
+    'DOLAR'
 ] + list(reservadas.values())
 
 #tokens
@@ -260,8 +296,12 @@ t_COMA          = r'\,'
 t_FEED          = r'\\f'
 t_NEWLINE       = r'\\n'
 t_TAB           = r'\\r'
-t_PORCENTAJE    = r'%'
+t_PORCENTAJE    = r'\%'
 t_POTENCIA      = r'\^'
+t_DOLARS        = r'\$\$'
+t_IGUALESP      = r':='
+t_DOLAR         = r'\$'
+
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -2021,6 +2061,236 @@ def p_instrucciones_update_condsopsE(t):
     'condicionesops    : '
     text = ""
     t[0] =  {'text': text, 'c3d' : '' }
+
+#----------------------------------------NUEVO---------------------------------------------------------
+def p_createfunction(t):
+    'createfunction :  FUNCTION ID PARENIZQ argumentos PARENDER RETURNS tipo AS body LANGUAGE ID PTCOMA'
+    t[0] =  {'text':'' , 'c3d' : '' }
+
+
+def p_argumentos_cf(t):
+    '''argumentos : argumentos COMA argumento
+                | argumento '''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_argumento_cf(t):
+    '''argumento : ID tipo
+                | OUT ID tipo '''
+    text = ''
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_argumento_cf_a(t):
+    'argumento : tipo'
+    text = ''
+    t[0] =  {'text': text, 'c3d' : '' }
+
+
+
+def p_body_cf(t):
+    "body : DOLARS bodystrc DOLARS"
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_body_strc(t):
+    '''bodystrc : cuerpodeclare BEGIN statements END  PTCOMA
+              | BEGIN statements END  PTCOMA'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }  
+
+def p_cuerpodeclare(t):
+    'cuerpodeclare : DECLARE declarations'
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_decla(t):
+    'declarations : declarations declaration '
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_declar(t):
+    'declarations : declaration '
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_declartion_cf(t):
+    '''declaration : ID declarationendd '''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_declarcafjahe(t):
+    '''declarationendd : ID declarationtypeid PTCOMA
+                    |  tipo declarationc
+                    |  ALIAS FOR DOLAR ENTERO PTCOMA '''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+
+def p_declarationc(t):
+    'declarationc : collate declarationccollate'
+    text =  ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_declarationc_a(t):
+    '''declarationc :   defaultop PTCOMA
+                    |    PTCOMA'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_declarationccollate(t):
+    '''declarationccollate :    defaultop PTCOMA
+                |   PTCOMA'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+    
+def p_type_id_cf(t):
+    '''declarationtypeid : PORCENTAJE TYPE
+                |  PUNTO ID PORCENTAJE ROWTYPE'''
+    text =""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+
+def p_collate(t):
+    'collate ::= COLLATE CADENA'
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_default_cf(t):
+    '''defaultop : DEFAULT  value
+                | IGUAL value
+                | IGUALESP value'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_statements_cf(t):
+    'statements : statements statement'
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_statements_cf_a(t):
+    'statements : statement'
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' } 
+
+def p_stament_cf(t):
+    '''statement : RETURN argument PTCOMA
+                | CASE case PTCOMA'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_stament_a(t):
+    '''statement : asigment PTCOMA
+                | execute PTCOMA
+                | call PTCOMA
+                | IF if PTCOMA'''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_stament_casf(t):
+    '''statement : '''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_statement_b(t):
+    'statement : instruccion' #arreglarlo para que no tome los selec
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_asigment(t):
+    '''asigment : ID igualdad fasign'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_finasigment(t):
+    '''fasign : argument
+                | instruccion'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_igualdadcf(t):
+    '''igualdad : IGUALESP 
+                | IGUAL'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+
+def p_executecf(t):
+    '''execute : EXECUTE CADENA intooptional USING usingoptional
+              | EXECUTE CADENA USING usingoptional
+              | EXECUTE CADENA intooptional
+              | EXECUTE CADENA
+              | EXECUTE format intooptional USING usingoptional
+              | EXECUTE format USING usingoptional
+              | EXECUTE format intooptional
+              | EXECUTE format '''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_intooptional(t):
+    '''intooptional : INTO STRICT ID
+                  | INTO ID'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_usingoptional(t):
+    '''usingoptional : usingoptional COMA argument
+                  | argument'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_formtat(t):
+    'format : FORMAT PARENIZQ CADENA COMA listaformat PARENDER'
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_listaformat(t):
+    '''listaformat : listaformat COMA ID
+                | ID'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_callcf(t):
+    '''call : CALL ID PARENIZQ PARENDER'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_if_(t):
+    '''if :  condiciones THEN statements ifend'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_if_end(t):
+    '''ifend : ELSEIF condiciones THEN statements ifend
+            | END IF
+            | ELSE statements END IF  '''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+
+def p_casecf(t):
+    '''case : ID WHEN expresionlist THEN statements elsecase
+          | casewhens'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_elsecase(t):
+    '''elsecase : ELSE statements END CASE 
+                | END CASE'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}   
+
+def p_expresionlist(t):
+    '''expresionlist : expresionlist COMA argument
+                | argument'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_casewhens(t):
+    '''casewhens :  WHEN condicion THEN statements casewhens 
+                | END CASE'''
+    text = ""
+    t[0] = {'text': text, 'c3d': ''}
+
 
 
 

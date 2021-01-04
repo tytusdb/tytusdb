@@ -117,7 +117,7 @@ class Update(Instruccion):
                             consola.append(f"Se actualizó la tabla {tablaB} exitosamente\n")
                         else:
                             #consola.append(f"La tabla {tablaB} no puede actualizarse")
-                            exceptions.append(f"Error semantico-42P01- 42P01 -{updateinst.fila}-{updateinst.columna}")
+                            exceptions.append(f"Error semantico-42601- 42601  	syntax_error-{updateinst.fila}-{updateinst.columna}")
 
                     print(bdactual.valor)
                     print(extractTable(bdactual.valor, tablaB))
@@ -125,10 +125,10 @@ class Update(Instruccion):
 
                 elif not si:
                     consola.append(f"La tabla {tablaB} no puede actualizarse, tipos incorrectos\n")
-                    exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, tipos incorrectos -{updateinst.fila}-{updateinst.columna}")
+                    exceptions.append(f"Error semantico-42P18- 42P18			indeterminate_datatype, tipos incorrectos -{updateinst.fila}-{updateinst.columna}")
                 else:
                     consola.append(f"La tabla {tablaB} no puede actualizarse, campos incorrectos\n")
-                    exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, campos incorrectos -{updateinst.fila}-{updateinst.columna}")
+                    exceptions.append(f"Error semantico-42703- 42703		undefined_column, campos incorrectos -{updateinst.fila}-{updateinst.columna}")
 
         else:
                 consola.append("22005	error_in_assignment, No se ha seleccionado una BD\n")
@@ -145,13 +145,13 @@ def ListaCampos(asignaciones, consola, exceptions, updateinst) -> list:
                     else:
                         print('error campos repetidos')
                         consola.append(f"La tabla {updateinst.id} no puede actualizarse, campos repetidos\n")
-                        exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, campos repetidos -{updateinst.fila}-{updateinst.columna}")
+                        exceptions.append(f"Error semantico-42701- 42701		duplicate_column, campos repetidos -{updateinst.fila}-{updateinst.columna}")
                         campos = []
                         return campos
                 else:
                     print('error nombre campos')
                     consola.append(f"La tabla {updateinst.id} no puede actualizarse, campos incorrectos\n")
-                    exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, campos incorrectos -{updateinst.fila}-{updateinst.columna}")
+                    exceptions.append(f"Error semantico-42703- 42703	undefined_column, campos incorrectos -{updateinst.fila}-{updateinst.columna}")
                     campos = []
                     return campos
     return campos
@@ -317,7 +317,7 @@ def WhereUp(where, tabla, campos, ts, consola, exceptions, updateinst) -> list:
             else:
                 print('el campo no existe')
                 consola.append(f"La tabla {updateinst.id} no puede actualizarse, el campo no existe\n")
-                exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, el campo no existe -{updateinst.fila}-{updateinst.columna}")
+                exceptions.append(f"Error semantico-42703- 42703	undefined_column, el campo no existe -{updateinst.fila}-{updateinst.columna}")
 
                 return []
         ##------------
@@ -348,14 +348,14 @@ def WhereUp(where, tabla, campos, ts, consola, exceptions, updateinst) -> list:
         else:
             print('error el campo no existe')
             consola.append(f"La tabla {updateinst.id} no puede actualizarse, el campo no existe\n")
-            exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, el campo no existe -{updateinst.fila}-{updateinst.columna}")
+            exceptions.append(f"Error semantico-42703- 42703	undefined_column, el campo no existe -{updateinst.fila}-{updateinst.columna}")
 
             return []
     else:
         print('error')
         consola.append(f"La tabla {updateinst.id} no puede actualizarse, where no contemplado semanticamente\n")
         exceptions.append(
-            f"Error semantico-42P01- 42P01	undefined_table, where no contemplado semanticamente -{updateinst.fila}-{updateinst.columna}")
+            f"Error semantico-42883- 42883	undefined_function, where no contemplado semanticamente -{updateinst.fila}-{updateinst.columna}")
 
         return []
 

@@ -21,23 +21,7 @@ class Select_inst(Instruccion):
     def ejecutar(y,Select,ts,consola,exceptions):
 
 
-        insert('prueba1', 'tabla1', [1, 'Fredy', 'Ramirez'])
-        insert('prueba1', 'tabla1', [2, 'Mauro', 'Martinez'])
-        insert('prueba1', 'tabla1', [3, 'Javier', 'Lima'])
-        insert('prueba1', 'tabla1', [4, 'Yisus', 'Yisusx2'])
-        insert('prueba1', 'tabla1', [5, 'Jacks', 'Wade'])
 
-        insert('prueba1', 'tabla2', [1, 'Mario', 'Guatemala', 'Contabilidad'])
-        insert('prueba1', 'tabla2', [2, 'Jorge', 'Dubai', 'Programador'])
-        insert('prueba1', 'tabla2', [3, 'Pepe', 'Brasil', 'Contabilidad'])
-        insert('prueba1', 'tabla2', [4, 'Fredy', 'Noruega', 'Jefe'])
-        insert('prueba1', 'tabla2', [5, 'Juan', 'Italia', 'Desarollador'])
-
-        insert('prueba1', 'tabla3', [1, 'Sic', 'USA', '4av. km 19.3'])
-        insert('prueba1', 'tabla3', [2, 'Pepe', 'Irak', 'en amatitlan ese'])
-        insert('prueba1', 'tabla3', [3, 'Etesech', 'China', 'perdido'])
-        insert('prueba1', 'tabla3', [4, 'ufuefue', 'Japon', 'Selva'])
-        insert('prueba1', 'tabla3', [5, 'osas', 'Venezuela', 'Jungla'])
         print("entro en selectinst2")
         #x = PrettyTable()
 
