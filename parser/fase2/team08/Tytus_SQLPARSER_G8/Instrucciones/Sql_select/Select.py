@@ -1,3 +1,4 @@
+import Instrucciones
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
 from Instrucciones.Sql_select.OrderBy import OrderBy
@@ -6,7 +7,7 @@ from Instrucciones.Sql_select.Having import Having
 from Instrucciones.Sql_select.Limit import Limit
 from Instrucciones.Identificador import Identificador
 from Instrucciones.Excepcion import Excepcion
-from Instrucciones.Sql_select import SelectLista 
+from Instrucciones.Sql_select import SelectLista
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 import numpy as np
 import pandas as pd
@@ -313,6 +314,11 @@ class Select(Instruccion):
             if(self.lcol == "*"):
                 if isinstance(self.lcol2[x],Identificador):
                     valores = arbol.devolverColumnasTabla(self.lcol2[x].id)
+                    if valores ==0:
+                        error = Excepcion("42P10","Semantico",f"No se encontro la tabla",self.linea,self.columna)
+                        arbol.excepciones.append(error)
+                        arbol.consola.append(error.toString())
+                        return error
                     for m in range(0,len(valores)):
                         tal = valores[m].nombre
                         arr.append(tal)
@@ -390,17 +396,49 @@ class Select(Instruccion):
         pass
         
     def traducir(self, tabla, arbol):
-        pass
-'''
-columnas y filas
-matrix = np.array(([[1,"k","t"],[2,"L","a"],[3,"N","y"]]))
-nueva_Fila = lista[2]
-nueva_Columna2 = matrix[:, [0, 2]]    
-Numero de Filas
-a.shape[0]
-Numero de columnas
-a.shape[1]
-limite
-a = sorted(a, key=lambda a_entry: a_entry[2])
+        #print("SELECT")
+        #self.dist = dist
+        #self.lcol = lcol
+        #self.lcol2 = lcol2
+        #self.linners = linners
+        #self.where = where
+        #self.lrows = lrows
+        cadena=""
+        #cadena = "\""+"SELECT "
+        if (self.dist != None):
+            cadena += self.dist + " "
+        if (self.lcol != None):
+            if isinstance(self.lcol,str):
+                cadena += self.lcol + " "
+            if isinstance(self.lcol, list):
+                for col in self.lcol:
+                    if isinstance(col, Identificador):
+                        cadena += col.concatenar(tabla,arbol)
+                    else:
+                        cadena += col.traducir(tabla,arbol) 
+                        
+                    if self.lcol.index(col) == len(self.lcol)-1:
+                        cadena += " "
+                    else:
+                        cadena += ", "
 
-'''    
+        cadena += "FROM "
+
+        if (self.lcol2 != None):
+            if isinstance(self.lcol2,str):
+                cadena += self.lcol2 + " "
+            if isinstance(self.lcol2, list):
+                for col in self.lcol2:
+                    if isinstance(col, Identificador):
+                        cadena += col.concatenar(tabla,arbol)
+                    else:
+                        cadena += col.traducir(tabla,arbol) 
+                    if self.lcol2.index(col) == len(self.lcol2)-1:
+                        cadena += " "
+                    else:
+                        cadena += ", "
+        
+        if (self.where !=None):
+            cadena+=self.where.traducir(tabla,arbol)
+
+        return cadena

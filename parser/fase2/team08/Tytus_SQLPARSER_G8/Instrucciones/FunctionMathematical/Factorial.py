@@ -22,3 +22,14 @@ class Factorial(Instruccion):
             arbol.consola.append(error.toString())
             return error
         return math.factorial(resultado)
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"FACTORIAL({self.valor.traducir(tabla,arbol).temporalAnterior})"

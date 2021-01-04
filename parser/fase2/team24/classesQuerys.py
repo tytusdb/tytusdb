@@ -2,7 +2,7 @@
 import hashlib
 from datetime import date
 from os.path import split
-from main import ts
+from InstruccionesDGA import tabla as ts
 import storage as s
 from enum import Enum
 import InstruccionesDGA as dga

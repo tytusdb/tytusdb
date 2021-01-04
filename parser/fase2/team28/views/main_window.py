@@ -223,8 +223,8 @@ class MainWindow(object):
         if len(ErrorController().getList()) > 0:
             messagebox.showerror('ERRORES', 'Se encontraron errores')
         else:
-            result2 = parse2(texto) #AST GRAFICO
-            report_ast = result2
+            # result2 = parse2(texto) #AST GRAFICO
+            # report_ast = result2
             ambito = Ambito(None)
             for inst in result:
                 inst.compile(ambito)

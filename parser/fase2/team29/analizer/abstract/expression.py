@@ -22,6 +22,9 @@ def newTemp():
     temp +=1
     return str(temp)
 
+def incTemp(value):
+    global temp
+    temp +=value
 
 class Expression:
     """

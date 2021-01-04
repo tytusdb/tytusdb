@@ -1,7 +1,7 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
-
+from Instrucciones.Expresiones.Primitivo import Primitivo
 class Div(Instruccion):
     def __init__(self, opIzq, opDer, strGram, linea, columna):
         Instruccion.__init__(self,Tipo(Tipo_Dato.NUMERIC),linea,columna,strGram)
@@ -30,3 +30,18 @@ class Div(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
+
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        concatena ="DIV("
+        if isinstance(self.opIzq, Primitivo):
+            concatena += f"{self.opIzq.traducir(tabla,arbol).temporalAnterior}"
+        concatena += ","
+        if isinstance(self.opDer, Primitivo):
+            concatena += f"{self.opDer.traducir(tabla,arbol).temporalAnterior}"
+
+        concatena +=")"
+        return concatena
+
