@@ -204,7 +204,9 @@ reservadas = {
     'print_strict_params': 'PRINT_STRICT_PARAMS',
     'return': 'RETURN',
     'execute': 'EXECUTE',    
-    'using': 'USING',        
+    'using': 'USING',      
+    'index':'INDEX',
+    'hash':'HASH'
 }
 
 tokens = [
@@ -466,6 +468,21 @@ def p_instruccion_pl_execute(t) :
 
 
 
+def p_instruccion_createindex(t) :
+    '''instruccion      : createindex'''
+    reporte = "<instruccion> ::= <createindex>\n" +t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+
+def p_instruccion_create_unique_index(t) :
+    '''instruccion      : create_unique_index'''
+    reporte = "<instruccion> ::= <create_unique_index>\n" +t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+
+
+def p_instruccion_drop_index(t) :
+    '''instruccion      : drop_index'''
+    reporte = "<instruccion> ::= <drop_index>\n" +t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 
 
@@ -2763,7 +2780,76 @@ def p_boleano(t):
 #**********************************************************************
 #***********************   INSTRUCCIONES INDEX 11 *********************
 #**********************************************************************
+def p_createindex(t):
+    '''createindex : CREATE INDEX ID ON ID PARENIZQ listacols PARENDER PTCOMA
+                   | CREATE INDEX ID ON ID USING HASH PARENIZQ listacols PARENDER PTCOMA
+    '''    
+    if (len(t) == 10):
+        grafo.newnode('CREATEINDEX')
+        grafo.newchildrenE(t[3])
+        grafo.newchildrenE(t[5])
+        grafo.newchildrenF(grafo.index, t[7]['graph'])
+        #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
+        reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " PARENIZQ <listacols> PARENDER PTCOMA\n"
+        t[0] = {'ast': { "id": t[3], "id": t[5], "list": t[7] }, 'graph' : grafo.index, 'reporte': reporte}
+    elif (len(t) == 12):
+        grafo.newnode('CREATEINDEX_USING_HASH')
+        grafo.newchildrenE(t[3])
+        grafo.newchildrenE(t[5])
+        grafo.newchildrenF(grafo.index, t[9]['graph'])
+        #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
+        reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " USING HASH PARENIZQ <listacols> PARENDER PTCOMA\n"
+        t[0] = {'ast': { "id": t[3], "id": t[5], "list": t[9] }, 'graph' : grafo.index, 'reporte': reporte}           
+        
+        
 
+    # grafo.newchildrenF(grafo.index, t[5]['graph'])
+    # reporte = "<createindex> ::= " + t[1].upper() + " ON " + t[3].upper() + " PARENIZQ <listacols> PARENDER PTCOMA\n"
+    # t[0] = {'ast': { "id": t[1], "id": t[3], "list": t[5]['ast'] }, 'graph' : grafo.index, 'reporte': reporte}
+
+
+def p_create_Uindex(t):
+    'create_unique_index : CREATE UNIQUE INDEX ID ON ID PARENIZQ listacols PARENDER PTCOMA'
+    grafo.newnode('CREATE_UNIQUE_INDEX')
+    grafo.newchildrenE(t[4])
+    grafo.newchildrenE(t[6])
+    grafo.newchildrenF(grafo.index, t[8]['graph'])
+    #grafo.newchildrenE(t[8])#F(grafo.index, t[5])
+    reporte = "<create_unique_index> ::= CREATE UNIQUE INDEX " + t[4].upper() + " ON " + t[6].upper() + " PARENIZQ <listacols> PARENDER PTCOMA\n"
+    t[0] = {'ast': { "id": t[4], "id": t[6], "list": t[8] }, 'graph' : grafo.index, 'reporte': reporte} #1,3,5
+
+    # grafo.newchildrenF(grafo.index, t[5]['graph'])
+    # reporte = "<createindex> ::= " + t[1].upper() + " ON " + t[3].upper() + " PARENIZQ <listacols> PARENDER PTCOMA\n"
+    # t[0] = {'ast': { "id": t[1], "id": t[3], "list": t[5]['ast'] }, 'graph' : grafo.index, 'reporte': reporte}
+    
+        
+def p_listacols_rec(t):
+    'listacols : listacols COMA ID'
+    grafo.newnode('LISTACOLS')
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    t[1]['ast'].append(primi.Primitive(None, t[3]))
+    reporte = "<listacols> ::= <listacols> COMA ID\n" + t[1]['reporte']
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+
+def p_listacols(t):
+    'listacols : ID'
+    grafo.newnode('LISTACOLS')
+    grafo.newchildrenE(t[1])
+    reporte = "<listacols> ::= ID\n"
+    t[0] = {'ast': [primi.Primitive(None, t[1])], 'graph' : grafo.index, 'reporte': reporte }
+
+
+def p_dropindex(t):
+    'drop_index : DROP INDEX ID PTCOMA'
+    grafo.newnode('drop_index')
+    grafo.newchildrenE(t[3])
+ #   grafo.newchildrenF(grafo.index, t[1]['graph'])
+    t[1]['ast'].append(primi.Primitive(None, t[3]))
+    reporte = "<drop_index> ::= DROP INDEX " + t[3].upper() + " PTCOMA\n"
+    #t[0] = {'ast': { "id": t[3] }, 'graph' : grafo.index, 'reporte': reporte} #1,3,5    
+    t[0] = {'ast' : drop.Drop(ident.Identificador(None, t[3]), True), 'graph' : grafo.index, 'reporte':  reporte}
+   
 
 
 
