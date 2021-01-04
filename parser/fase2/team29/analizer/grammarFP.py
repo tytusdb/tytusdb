@@ -45,6 +45,7 @@ from abstract.expression import incTemp
 import modules.expressions as expression
 from modules import code
 
+isBlock = False
 
 # region PL/SQL
 
@@ -82,13 +83,13 @@ def p_block(t):
     """
     block : function_stmt R_AS S_DOLAR S_DOLAR declaration_stmt R_BEGIN block_stmts exception_stmts R_END label S_PUNTOCOMA S_DOLAR S_DOLAR language_function S_PUNTOCOMA
     """
-    t[0]=t[7]
+    t[0] = code.Block(t[1], t[5], t[7], t[8], t[10], 0, 0)
     repGrammar.append(t.slice)
 
 
 # region function
 
-
+# TODO: isBlock = True
 def p_function_stmt(t):
     """
     function_stmt : R_CREATE orReplace R_FUNCTION ID function_opt
@@ -145,18 +146,34 @@ def p_language_function(t):
 def p_declaration_stmt(t):
     """
     declaration_stmt : R_DECLARE global_variable_declaration
-        |
     """
+    t[0] = t[2]
+    repGrammar.append(t.slice)
+
+
+def p_declaration_stmt_n(t):
+    """
+    declaration_stmt :
+    """
+    t[0] = []
     repGrammar.append(t.slice)
 
 
 def p_global_variable_declaration(t):
     """
     global_variable_declaration : global_variable_declaration declaration
-                                | declaration
     """
+    t[1].append(t[2])
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
+
+def p_global_variable_declaration_1(t):
+    """
+    global_variable_declaration : declaration
+    """
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
 
 def p_global_vd(t):
     """
@@ -170,8 +187,11 @@ def p_global_vd_assignment(t):
     """
     declaration : ID constant types_d assignment S_PUNTOCOMA
     """
-    if t[4] != None:
-        t[0] = code.Assignment(t[1],t[4],t.slice[1].lineno, t.slice[1].lexpos)
+    ass = None
+    if t[4]:
+        ass = code.Assignment(t[1], t[4], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.Declaration(
+        t[1], t[3], ass, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -187,6 +207,8 @@ def p_assignment(t):
     """
     assignment : assignment_operator_D expresion
     """
+    global isBlock
+    isBlock = True
     t[0] = t[2]
     repGrammar.append(t.slice)
 
@@ -223,10 +245,11 @@ def p_types_d(t):
     """
     types_d :  ID
     """
+    t[0] = TYPE.TYPE
     repGrammar.append(t.slice)
 
 
-def p_types_d_simple(t):
+def p_types_d_simple_num(t):
     """
     types_d : T_SMALLINT
     | T_INTEGER
@@ -234,30 +257,47 @@ def p_types_d_simple(t):
     | T_REAL
     | T_DOUBLE T_PRECISION
     | T_MONEY
-    | T_TEXT
-    | T_BOOLEAN
-    | R_TIMESTAMP
-    | T_DATE
-    | T_TIME
     """
+    t[0] = TYPE.NUMBER
     repGrammar.append(t.slice)
 
 
-def p_types_d_params(t):
+def p_types_d_simple_str(t):
+    """
+    types_d :  T_TEXT
+    """
+    t[0] = TYPE.STRING
+    repGrammar.append(t.slice)
+
+def p_types_d_params_num(t):
     """
     types_d : T_DECIMAL optParams
     | T_NUMERIC optParams
-    | T_VARCHAR optParams
+    """
+    t[0] = TYPE.NUMBER
+    global isBlock
+    isBlock = True
+    repGrammar.append(t.slice)
+
+
+def p_types_d_params_str(t):
+    """
+    types_d : T_VARCHAR optParams
     | T_CHARACTER optParams
     | T_CHAR optParams
     """
+    t[0] = TYPE.STRING
+    global isBlock
+    isBlock = True
     repGrammar.append(t.slice)
-
 
 def p_typesvar(t):
     """
     types_d : T_CHARACTER T_VARYING optParams
     """
+    t[0] = TYPE.STRING
+    global isBlock
+    isBlock = True
     repGrammar.append(t.slice)
 
 
@@ -316,7 +356,9 @@ def p_local_variable_declaration(t):
     """
     local_variable_declaration : ID assignment_operator expresion S_PUNTOCOMA
     """
-    t[0] = code.Assignment(t[1],t[3],t.slice[1].lineno, t.slice[1].lexpos)
+    global isBlock
+    isBlock = True
+    t[0] = code.Assignment(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -364,6 +406,8 @@ def p_stmt_without_substmt_rtn(t):
 
 def p_if_stmt(t):
     """if_stmt : R_IF expBool R_THEN block_stmts elseif_stmts_opt else_stmt_opt R_END R_IF S_PUNTOCOMA"""
+    global isBlock
+    isBlock = True
     repGrammar.append(t.slice)
     t[0] = t[2]
     #expBool contiene el C3D de la expresion
@@ -386,6 +430,8 @@ def p_elseif_stmts(t):
 
 def p_elseif_stmt(t):
     """elseif_stmt :  R_ELSEIF expBool R_THEN block_stmts"""
+    global isBlock
+    isBlock = True
     #expBool contiene el C3D de la expresion
     repGrammar.append(t.slice)
 
@@ -435,8 +481,11 @@ def p_else_case_stmt_n(t):
 
 def p_case_stmt_bool(t):
     """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
+    global isBlock
+    isBlock = True
     t[0] = t[3]
         #expBool contiene el C3D de la expresion
+    # TODO: agregar el else case
     repGrammar.append(t.slice)
 
 
@@ -460,6 +509,8 @@ def p_else_case_stmt_bool(t):
     """
     else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts
     """
+    global isBlock
+    isBlock = True
     #expBool contiene el C3D de la expresion
     t[1].append(t[3])
     t[0]=t[1]
@@ -470,6 +521,8 @@ def p_else_case_stmt_bool_u(t):
     """
     else_case_stmt_bool : R_WHEN expBool R_THEN block_stmts 
     """
+    global isBlock
+    isBlock = True
     #expBool contiene el C3D de la expresion
     t[0] = [t[2]]
     repGrammar.append(t.slice)
@@ -499,7 +552,7 @@ def p_exp1(t):
 
 # region return
 
-
+# TODO: isblock False
 def p_return_stmt(t):
     """
     return_stmt : R_QUERY selectStmt S_PUNTOCOMA
@@ -513,6 +566,8 @@ def p_return_stmt_exp(t):
     """
     return_stmt : expresion S_PUNTOCOMA
     """
+    global isBlock
+    isBlock = True
     t[0]= t[1]
     repGrammar.append(t.slice)
 
@@ -520,6 +575,8 @@ def p_return_stmt_exp_next(t):
     """
     return_stmt : R_NEXT expresion S_PUNTOCOMA
     """
+    global isBlock
+    isBlock = True
     t[0]= t[2]
     repGrammar.append(t.slice)
 
@@ -577,6 +634,8 @@ def p_exp_string_id(t):
     | ID
     | funcCall
     """
+    global isBlock
+    isBlock = True
     repGrammar.append(t.slice)
 
 
@@ -599,6 +658,7 @@ def p_query_single_row(t):
 
 
 # insert
+# TODO: isBlock
 def p_insertStmt_single_row(t):
     """insertStmt_SR : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER R_RETURNING returnParams  R_INTO strict ID """
     repGrammar.append(t.slice)
@@ -718,6 +778,7 @@ def p_returnparams_params(t):
     """returnParams : returnlist"""
 
 
+# TODO: isBlock optAlias
 # En caso de errores cambiar returnlistParams -> expresion
 def p_returnlist_list(t):
     """returnlist : returnlist S_COMA returnlistParams optAlias"""
@@ -730,6 +791,8 @@ def p_returnlist_u(t):
 
 def p_returnlistParams_1(t):
     """returnlistParams : expresion"""
+    global isBlock
+    isBlock = True
 
 
 def p_returnlistParams_2(t):
@@ -816,6 +879,8 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
+    global isBlock
+    isBlock = False
     repGrammar.append(t.slice)
 
 
@@ -1848,31 +1913,43 @@ def p_ifExists(t):
 
 def p_selectStmt_1(t):
     """selectStmt : R_SELECT R_DISTINCT selectParams fromCl whereCl groupByCl limitCl orderByCl"""
+    global isBlock
+    isBlock = False
     repGrammar.append(t.slice)
 
 
 def p_selectStmt_2(t):
     """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl orderByCl"""
+    global isBlock
+    isBlock = False
     repGrammar.append(t.slice)
 
 
 def p_selectStmt_union(t):
     """selectStmt : selectStmt R_UNION allOpt selectStmt"""
+    global isBlock
+    isBlock = False
     repGrammar.append(t.slice)
 
 
 def p_selectStmt_intersect(t):
     """selectStmt : selectStmt R_INTERSECT allOpt selectStmt"""
+    global isBlock
+    isBlock = False
     repGrammar.append(t.slice)
 
 
 def p_selectStmt_except(t):
     """selectStmt : selectStmt R_EXCEPT allOpt selectStmt"""
+    global isBlock
+    isBlock = False
     repGrammar.append(t.slice)
 
 
 def p_selectStmt_agrupacion(t):
     """selectStmt : S_PARIZQ selectStmt S_PARDER"""
+    global isBlock
+    isBlock = False
     repGrammar.append(t.slice)
 
 
@@ -1885,6 +1962,8 @@ def p_fromClause(t):
 
 def p_selectstmt_only_params(t):
     """selectStmt : R_SELECT selectParams"""
+    global isBlock
+    isBlock = False
     t[0] = t[2]
     repGrammar.append(t.slice)
 

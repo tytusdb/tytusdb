@@ -11,8 +11,9 @@ class Assignment(Expression):
 
     def execute(self, environment):
         exp = self.value.execute(environment)
-        self.value = exp.value+ self.id +" = "+ str(exp.temp)
-        print(self.value)
-        return code.C3D(self.value,self.id,self.row,self.column)
+        # TODO: Error
+        if environment.getVar(self.id) != None:
+            self.value = exp.value + self.id + " = " + str(exp.temp) + "\n"
+            return code.C3D(self.value, self.id, self.row, self.column)
 
   

@@ -22,20 +22,20 @@ class Ternary(Expression):
         operator = self.operator
 
         if operator == "BETWEEN":
-            exp1 = Binary(self.newTemp(),exp1,exp2,">",self.row,self.column)
-            exp2 = Binary(self.newTemp(),exp2,exp3,"<",self.row,self.column)
-            return Binary(self.newTemp(),exp1,exp2,"AND",self.row,self.column).execute(environment)
+            exp1_ = Binary(self.newTemp(),exp1,exp2,">",self.row,self.column)
+            exp2_ = Binary(self.newTemp(),exp1,exp3,"<",self.row,self.column)
+            return Binary(self.newTemp(),exp1_,exp2_,"AND",self.row,self.column).execute(environment)
         elif operator == "NOTBETWEEN":
-            exp1 = Binary(self.newTemp(),exp1,exp2,">",self.row,self.column)
-            exp2 = Binary(self.newTemp(),exp2,exp3,"<",self.row,self.column)
-            exp3 = Binary(self.newTemp(),exp1,exp2,"AND",self.row,self.column)
+            exp1_ = Binary(self.newTemp(),exp1,exp2,">",self.row,self.column)
+            exp2_ = Binary(self.newTemp(),exp1,exp3,"<",self.row,self.column)
+            exp3 = Binary(self.newTemp(),exp1_,exp2_,"AND",self.row,self.column)
             return Unary(self.newTemp(),exp3,"NOT",self.row,self.column).execute(environment)
         else : #operator == "BETWEENSYMMETRIC"
             exp4 = Binary(self.newTemp(),exp1,exp2,">",self.row,self.column)
-            exp5 = Binary(self.newTemp(),exp2,exp3,"<",self.row,self.column)
+            exp5 = Binary(self.newTemp(),exp1,exp3,"<",self.row,self.column)
             exp6 = Binary(self.newTemp(),exp4,exp5,"AND",self.row,self.column)
             exp4 = Binary(self.newTemp(),exp1,exp2,"<",self.row,self.column)
-            exp5 = Binary(self.newTemp(),exp2,exp3,">",self.row,self.column)
+            exp5 = Binary(self.newTemp(),exp1,exp3,">",self.row,self.column)
             exp7 = Binary(self.newTemp(),exp4,exp5,"AND",self.row,self.column)
             return Binary(self.newTemp(),exp6,exp7,"OR",self.row,self.column).execute(environment)
 
