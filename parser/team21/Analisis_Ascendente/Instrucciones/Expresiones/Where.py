@@ -167,13 +167,12 @@ class Where(Instruccion):
                     return [True, filas, DataSelect]
                 elif num == 0:
                     Exceptions.append(
-                        'Error semantico - 42703 -no existe la columna , error en ' + ' - ' + where.fila + ' - ' + where.columna + '')
+                        f'Error semantico - 42703 -no existe la columna , error en {where.fila} - {where.columna}')
 
                     return [False, 'No existe campo ' + nombreCampo]
                 else:
                     Exceptions.append(
-                        'Error semantico - 42702 -la referencia a la columna es ambigua, error en ' + ' - ' + where.fila + ' - ' + where.columna + '')
-
+                        f'Error semantico - 42702 -la referencia a la columna es ambigua, error en  {where.fila} - {where.columna}')
                     return [False, 'Existe ambigüedad en el campo ' + nombreCampo]
             elif where.caso == 6: ## comparison
                 print('comparison')
