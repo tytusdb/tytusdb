@@ -39,7 +39,8 @@ class Function(ASTNode):
         tree = [this_tac]+tac_body+[endGoto]        
         #add this functi on to ST
         currDB = table.get_current_db()
-        sym = FunctionSymbol(currDB.id, self.name, labelname)
+        #TODO: set params
+        sym = FunctionSymbol(currDB.id, self.name, labelname, 0)
         table.add(sym)        
         #write File.py
         Save_TAC_obj(f'{currDB.name}_func_{self.name}', tree)
@@ -72,6 +73,37 @@ class FunctionBody(ASTNode):
         #self.func_return.generate(self, table, tree)
 
 class Parameter(ASTNode):
+    def __init__(self, param_name, param_mode, param_type, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.param_name = param_name #str
+        self.param_mode = param_mode #ParamMode
+        self.param_type = param_type #Typedef   
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)        
+        return f'Exeute from param node not mplemented.'
+    
+    def generate(self, table, tree): 
+        pass
+
+class ParamMode(ASTNode):
+    def __init__(self, val, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.val = val  # token name: IN, OUT INOUT        
+        self.graph_ref = graph_ref
+    
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return self.val.upper()   
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return self.val.upper()
+
+
+
+class Parameters(ASTNode):
     def __init__(self, name, parameters, returntype, body , line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name
