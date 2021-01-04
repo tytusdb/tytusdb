@@ -2627,39 +2627,32 @@ def procesar_instrucciones(instrucciones, ts):
     global consola
     global exceptions
 
-    if (instrucciones == None):
+    if instrucciones == None:
         MessageBox.showinfo("Errores Sintacticos", "Revisa el reporte de errores sintacticos")
         return
 
     for instr in instrucciones:
         if isinstance(instr, CreateReplace):
             CreateReplace.ejecutar(instr, ts, consola, exceptions)
-            print("ejecute create")
         elif isinstance(instr, Select):
-            print('*****' + str(instr.caso))
-            if (instr.caso == 1):
-
+            if instr.caso == 1:
                 selectTime.ejecutar(instr, ts, consola,exceptions,True)
-            elif (instr.caso == 2):
+            elif instr.caso == 2:
                 variable = SelectDist.Select_Dist()
                 SelectDist.Select_Dist.ejecutar(variable, instr, ts, consola, exceptions)
-                #print("Estas en el caso 2")
-            elif (instr.caso == 3):
+            elif instr.caso == 3:
                 variable = selectInst.Select_inst()
                 selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
-            elif (instr.caso == 4):
+            elif instr.caso == 4:
                 Selectp3.ejecutar(instr, ts, consola, exceptions,True)
-            elif (instr.caso == 5):
+            elif instr.caso == 5:
                 Selectp4.ejecutar(instr, ts, consola, exceptions,True)
-            elif (instr.caso == 6):
+            elif instr.caso == 6:
                 consola.append('caso 6')
-
         elif isinstance(instr, CreateTable):
             CreateTable.ejecutar(instr, ts, consola, exceptions)
-            print("ejecute create table")
         elif isinstance(instr, Use):
             Use.ejecutar(instr, ts, consola, exceptions)
-            print("ejecute use")
         elif isinstance(instr, InsertInto):
             InsertInto.ejecutar(instr,ts,consola,exceptions)
             print("Ejecute un insert")
@@ -2685,6 +2678,13 @@ def procesar_instrucciones(instrucciones, ts):
         else:
             print('Error: instrucción no válida')
 
+def generar_Codigo3D(instrucciones, ts, codigo_3d_generado):
+    if instrucciones is not None:
+        for instruccion in instrucciones:
+            codigo_3d_generado += instruccion.getC3D()
+    return codigo_3d_generado
+
+
 
 def ejecutarAnalisis(entrada):
     global L_errores_lexicos
@@ -2701,19 +2701,11 @@ def ejecutarAnalisis(entrada):
     exceptions = []
     L_errores_lexicos = []
     L_errores_sintacticos = []
-    # f = open("./entrada2.txt", "r")
-    # input = f.read()
-    # print(input)
-
     # realiza analisis lexico y semantico
     instrucciones = parser.parse(entrada)  #
     reporte = AST.AST(instrucciones)
     reporte.ReportarAST()
-    # inicia analisis semantico
-    #inicial = {}
-    #ts_global = TablaDeSimbolos(inicial)
-    print("analizando........")
-    print(instrucciones)
+
     procesar_instrucciones(instrucciones, ts_global)
     '''print("-----------------------------------")
     print("Simbolos: \n",ts_global)
@@ -2725,8 +2717,8 @@ def ejecutarAnalisis(entrada):
             for data in entorno.simbolos:
                 print(" -> ",data)'''
 
-    print("Lista Lexico\n", L_errores_lexicos)
-    print("Lista Sintactico\n", L_errores_sintacticos)
+    #print("Lista Lexico\n", L_errores_lexicos)
+    #rint("Lista Sintactico\n", L_errores_sintacticos)
     # Reporte de analisis lexico y sintactico
     reportes = RealizarReportes()
     reportes.generar_reporte_lexicos(L_errores_lexicos)
@@ -2739,4 +2731,51 @@ def ejecutarAnalisis(entrada):
     graphstack(varGramatical, varSemantico)
     return consola
 
-# ejecutarAnalisis("prueba")
+
+def crear_Codido3D(entrada):
+    global L_errores_lexicos
+    global L_errores_sintacticos
+    global consola
+    global code3d
+    global exceptions
+    global lexer
+    global ts_global
+    # limpiar
+    lexer.input("")
+    lexer.lineno = 0
+    #dropAll()
+    consola = []
+    exceptions = []
+    L_errores_lexicos = []
+    L_errores_sintacticos = []
+    # realiza analisis lexico y semantico
+    instrucciones = parser.parse(entrada)  #
+    reporte = AST.AST(instrucciones)
+    reporte.ReportarAST()
+
+    code3d = generar_Codigo3D(instrucciones, ts_global, '')
+    '''print("-----------------------------------")
+    print("Simbolos: \n",ts_global)
+    for simbolo in ts_global.simbolos:
+        print(ts_global.simbolos.get(simbolo).id)
+        entorno = ts_global.simbolos.get(simbolo).Entorno
+        print(entorno)
+        if entorno != None:
+            for data in entorno.simbolos:
+                print(" -> ",data)'''
+
+    #print("Lista Lexico\n", L_errores_lexicos)
+    #rint("Lista Sintactico\n", L_errores_sintacticos)
+    # Reporte de analisis lexico y sintactico
+    reportes = RealizarReportes()
+    reportes.generar_reporte_lexicos(L_errores_lexicos)
+    reportes.generar_reporte_sintactico(L_errores_sintacticos)
+    reportes.generar_reporte_tablaSimbolos(ts_global.simbolos)
+    reportes.generar_reporte_semanticos(exceptions)
+
+    print("Fin de analisis")
+    print("Realizando reporte gramatical")
+    graphstack(varGramatical, varSemantico)
+    return code3d
+
+
