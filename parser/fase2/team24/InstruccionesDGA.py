@@ -14,13 +14,9 @@ NombreDB = ""
 contregistro = 0
 
 def Textoresultado():
-    global tabla
-    global resultadotxt
-    print(resultadotxt)
     for simbolo in tabla.simbolos:
-        print("ID: " + str(tabla.simbolos[simbolo].id) + " Nombre: " + tabla.simbolos[simbolo].nombre + " Ambito: " + str(tabla.simbolos[simbolo].ambito))
+        print("ID: " + str(tabla.simbolos[simbolo].id) + " Nombre: " + tabla.simbolos[simbolo].nombre + " Ambito: " + str(tabla.simbolos[simbolo].ambito) + " Tipo indice: " + str(tabla.simbolos[simbolo].tipoind) + " Orden Indice: " + str(tabla.simbolos[simbolo].ordenind) + " Columna ind: " + str(tabla.simbolos[simbolo].columnaind) + " Tabla indice: " + str(tabla.simbolos[simbolo].tablaind))
     print("\n")
-    resultadotxt = ""
 
 class instruccion:
     """INSTRUCCION"""
@@ -1469,7 +1465,6 @@ class fun_now2(funciongen):
         d1 = today.strftime("%Y-%m-%d %H:%M:%S")
         return d1
 
-
 def VerificarTipo(TipoColumna,ValorColumna):
     """try:
         if float(ValorColumna):
@@ -1742,3 +1737,84 @@ class delete(instruccion):
         except:
             """ERROR"""
         return resultadotxt
+
+#--------------------------------------------CLASES PARA LOS INDICES--------------------------------------------------
+class IndexCreate(instruccion):
+    'Clase principal para la creacion de indices'
+
+    def __init__(self,uniqueind, id1, id2, createind2):
+        self.uniqueind = uniqueind
+        self.id1 = id1
+        self.id2 = id2
+        self.createind2 = createind2
+
+    def ejecutar(self):
+        global resultadotxt
+        global cont
+        global tabla
+        global NombreDB
+        global contambito
+        try:
+            NuevoIndice = TS.Simbolo(cont,self.id1,TS.TIPO.INDICE,contambito)
+            cont+=1
+            contambito+=1
+            NuevoIndice.uniqueind = self.uniqueind
+            NuevoIndice.tablaind = self.id2
+            if self.uniqueind != "":
+                NuevoIndice.tipoind = "UNIQUE INDEX"
+            else:
+                NuevoIndice.tipoind = "INDEX"
+            if isinstance(self.createind2, createind3):
+                "createind2 es createind3"
+                if isinstance(self.createind2.contind, contind1):
+                    NuevoIndice.ordenind = self.createind2.contind.orden
+                    NuevoIndice.columnaind = self.createind2.contind.columna
+                else:
+                    NuevoIndice.ordenind = "Sin orden"
+                if isinstance(self.createind2.contind, contind1111):
+                    columnasdeind = ""
+                    for columna in self.createind2.contind.listacolumnas:
+                        columnasdeind += columna + " "
+                    NuevoIndice.columnaind = columnasdeind
+                elif self.createind2.contind != "" and not isinstance(self.createind2.contind, contind1):
+                    for columna in self.createind2.contind:
+                        NuevoIndice.columnaind = columna
+                elif NuevoIndice.columnaind == "":
+                    NuevoIndice.columnaind = str(self.createind2.contind)
+            tabla.agregar(NuevoIndice)
+            return "Se agrego " + self.id1 + " a la tabla de simbolos"
+        except:
+            return "Error al crear indice"
+
+class createind3(instruccion):
+    def __init__(self,contind, indwhere):
+        self.contind = contind
+        self.indhwere = indwhere
+
+class contind1(instruccion):
+    def __init__(self,columna, orden):
+        self.columna = columna
+        self.orden = orden
+
+class contind1111(instruccion):
+    def __init__(self,listacolumnas):
+        self.listacolumnas = listacolumnas
+
+class indwhere(instruccion):
+    def __init__(self,indnot, indwherecond):
+        self.indnot = indnot
+        self.indwherecond = indwherecond
+
+class notval(instruccion):
+    def __init__(self, id1, signo, id2, valortipo):
+        self.id1 = id1
+        self.signo = signo
+        self.id2 = id2
+        self.valortipo = valortipo
+
+class indwherecond(instruccion):
+    def __init__(self, id, signo, valortipo):
+        self.id = id
+        self.signo = signo
+        self.valortipo = valortipo
+#----------------------------------------------------------------------------------------------------------------------
