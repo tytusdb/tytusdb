@@ -10,6 +10,13 @@ class Substr(Instruccion):
         '''
         print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
         '''
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        pass
+    
 '''
 instruccion = Substr("hola mundo",None, 1,2)
 
