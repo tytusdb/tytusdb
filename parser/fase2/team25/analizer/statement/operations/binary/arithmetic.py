@@ -2,7 +2,7 @@ from analizer.abstract.expression import Expression, TYPE
 from analizer.abstract import expression
 from analizer.reports import Nodo
 from analizer.statement.expressions import primitive
-
+from analizer.c3d.codigo3d import instancia_codigo3d
 
 class Arithmetic(Expression):
     """
@@ -78,3 +78,12 @@ class Arithmetic(Expression):
         new.addNode(n1)
         new.addNode(n2)
         return new
+
+    def generate3d(self ,environment , instanciaAux):
+        exp1 = self.exp1.generate3d(environment ,instanciaAux) # t1 = 3 + 4 
+        exp2 = self.exp2.generate3d(environment ,instanciaAux) # 5
+        operator = self.operator
+
+        tn = instanciaAux.getNewTemporal()#va llevar su control de getTempola tambien
+        instanciaAux.addToCode(f'\t{tn} = {exp1} {operator} {exp2}')
+        return tn

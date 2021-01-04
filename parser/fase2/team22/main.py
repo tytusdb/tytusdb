@@ -1,4 +1,4 @@
-import storageManager
+#import storageManager
 from tkinter import *
 from os import path
 from tkinter import filedialog
@@ -17,10 +17,12 @@ from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
-
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 from storageManager.jsonMode import *
 
 import sintactico
+
+# import AST as AST
 
 global arbol
 arbol = None
@@ -92,18 +94,32 @@ class interfaz():
         btnejecutar = Button(self.window,image = img3 , bg="#6a8d92",height=35, width=40,command=self.btnejecutar_click)
         btnejecutar.place(x=115,y=5)
 
+        img4 = PhotoImage(file='img/icons/C3Diconoc.png')
+        btnGenerarC3D = Button(self.window, image = img4, bg="#6a8d92",height=35, width=40, command=self.btnGenerarC3D_click)
+        btnGenerarC3D.place(x=165, y=5)
+
+        img5 = PhotoImage(file='img/icons/C3Dopticonoc.png')
+        btnOptimizarC3D = Button(self.window, image = img5, bg="#6a8d92",height=35, width=40, command=self.btnOptimizarC3D_click)
+        btnOptimizarC3D.place(x=215, y=5)
+
         ##############################################PESTAÑAS####################################
         self.tab = ttk.Notebook(self.window)
         self.tab.pack(fill='both',padx=20, pady=[50,20])
         self.tab_frame =[]
         self.txtentrada =[]
         self.txtsalida =[]
+        self.salidaC3d = []
+        self.salidaC3dOpt = []
         self.crear_tab("","Nuevo.sql")
         
         lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=15,bg='#80b192')
         lblentrada.place(x=20,y=80)
         lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#80b192')
         lblsalida.place(x=20,y=350)
+        lblsalida= Label(self.window,text="Codigo 3 Direcciones:",height=1, width=20,bg='#80b192')
+        lblsalida.place(x=670,y=350)
+        lblsalida= Label(self.window,text="Código 3 Direccciones Optimizado:",height=1, width=27,bg='#80b192')
+        lblsalida.place(x=690,y=480)
 
         #redimensionar los elementos
         #self.window.bind('<Configure>',self.resizeEvent)
@@ -205,9 +221,22 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         
+        #3D
+        file3D = open("Codigo3D.py", "w")
+        file3DOptimizado = open("Codigo3DOptimizado.py", "w")
+
+        content = c3d.getEncabezado()
+        
+        file3D.write(content)
+        file3DOptimizado.write(content)
+
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            resultado = i.ejecutar(tablaGlobal,arbol)
+            if i != None:
+                resultado = i.ejecutar(tablaGlobal,arbol)
+                codigo = i.generar3D(tablaGlobal,arbol)
+                for line in codigo:
+                    file3D.write("\n    " + str(line))
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
@@ -216,10 +245,28 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-        
-        
 
+        #3D
+        file3D.write(c3d.getPie())
+        file3DOptimizado.write(c3d.getPie())
         
+        file3D.close()
+        file3DOptimizado.close()
+        
+        
+    def btnGenerarC3D_click(self):
+        archivo = open("Codigo3D.py", "r")
+        entrada = archivo.read()
+        archivo.close()
+        self.salidaC3d[self.tab.index("current")].delete(1.0,END)
+        self.salidaC3d[-1].insert(INSERT, entrada+"")
+
+    def btnOptimizarC3D_click(self):
+        archivo = open("C3DOptimo.py", "r")
+        entrada = archivo.read()
+        archivo.close()
+        self.salidaC3dOpt[self.tab.index("current")].delete(1.0,END)
+        self.salidaC3dOpt[-1].insert(INSERT, entrada+"")
 
 
     def btnejecutar_click(self):
@@ -236,8 +283,12 @@ class interfaz():
         self.txtentrada[-1].insert(INSERT,entrada+"")
         #self.txtentrada[-1].bind("<MouseWheel>", self.OnMouseWheel)
 
-        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15,background="#070707",foreground="#FEFDFD"))
+        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=80,height=15,background="#070707",foreground="#FEFDFD"))
         self.txtsalida[-1].place(x=0,y=298)
+        self.salidaC3d.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=80,height=6))
+        self.salidaC3d[-1].place(x=660,y=298)
+        self.salidaC3dOpt.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=80,height=6))
+        self.salidaC3dOpt[-1].place(x=660,y=430)
         #nombre del archivo
         #print(self.tab.tab(self.tab.select(),"text"))
         self.tab.select(int(len(self.tab_frame)-1))

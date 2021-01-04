@@ -20,3 +20,6 @@ class Primitive(Expression):
     def dot(self):
         node = Nodo.Nodo(str(self.value))
         return node
+    
+    def generate3d(self,environment, instanciaAux):
+        return str(self.value) # TANTO PARA FASE 1 O FASE 2 SE RETORNA LO MISMO

@@ -58,6 +58,9 @@ class SelectLista(Instruccion):
                 n.data = valores
                 return n
 
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+
 
 class Alias():
     def __init__(self, id, expresion):

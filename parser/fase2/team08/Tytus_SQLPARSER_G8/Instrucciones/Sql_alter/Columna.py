@@ -8,4 +8,16 @@ class Columna(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+
+    def analizar(self, tabla, arbol):
+        pass
+        #super().ejecutar(tabla,arbol)
+
+    def traducir(self, tabla, arbol):
+        cadena = ""
+        if self.tipo == 'DROP':
+            cadena += " drop column "
+        cadena += self.id
+        return cadena
+        #super().ejecutar(tabla,arbol)
         

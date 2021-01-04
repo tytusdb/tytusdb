@@ -22,6 +22,8 @@ class TIPO(Enum) :
     INTERVAL = 19
     BOOLEAN = 20
     TUPLA = 21
+    FUNCTION = 22
+    INDICE = 23
 
 class Simbolo() :
     #id = identificador numerico unico por simbolo
@@ -36,7 +38,20 @@ class Simbolo() :
     #nullcol = columna null(FALSE) o not null(TRUE)
     #constcol = constraint de columna
     #numcol = Numero de la columna dentro de la tabla
-    def __init__(self, id, nombre, tipo, ambito, coltab=0, tipocol="", llavecol=0, refcol="", defcol="", nullcol=False, constcol="",numcol=0,registro=[]) :
+    #registro
+    ######################
+    ##plpgsql####
+    ######
+    #valor =  valor de la variable
+    #collate  = coleccion a la que pertenece la variable
+    #notnull =  Puede ser null esa variable
+    #------------------PARA INDICES--------------------------------
+    #uniqueind = Sirve para indicar si el indice es unico
+    #tablaind = Nombre de tabla a la cual se aplica el indice
+    #tipoind = tipo de indice
+    #ordenind = orden del indice
+    #columnaind = columna del indice
+    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = ""):
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -50,6 +65,16 @@ class Simbolo() :
         self.constcol = constcol
         self.numcol = numcol
         self.registro = registro
+        self.valor = valor
+        self.collate = collate
+        self.constant = constant
+        self.notnull = notnull
+        self.uniqueind = uniqueind
+        self.tablaind = tablaind
+        self.tipoind = tipoind
+        self.ordenind = ordenind
+        self.columnaind = columnaind
+
 
 class Tabla() :
     
@@ -151,3 +176,50 @@ class Tabla() :
             if simbolo.tipo == TIPO.COLUMN and simbolo.ambito == idtable:
                 columns.append(simbolo.nombre)
         return columns 
+
+    def buscarIDTB(nombre): 
+        #Buscamos el ambito de la DB
+        iddb = -1
+        for simbolo in self.simbolos.values():  
+            
+            if simbolo.nombre == nombre and simbolo.tipo == TIPO.DATABASE : 
+                iddb = simbolo.id
+                return iddb
+
+    def buscarIDF(contador):
+
+        idf = -1
+        for i in range(contador,-1,-1):
+            self.simbolos.values()[i].tipo == TIPO.FUNCTION 
+            return self.simbolos.values()[i].id
+
+        return idf
+
+    def modificar_valor(id, nuevo_valor):
+        for simbolo in self.simbolos.values(): 
+            if simbolo.nombre == id and ambito_funcion(simbolo.ambito) : 
+                self.valor = nuevo_valor
+        
+
+    def ambito_funcion(ambito):
+        
+        for simbolo in self.simbolos.values():  
+            
+            if simbolo.id == ambito and simbolo.tipo == TIPO.FUNCTION : 
+                return True
+
+        return False
+    
+    def existe_id(nomre):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == nomre:
+                return True
+        
+        return False
+
+    def id_db(name):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name and simbolo.tipo == TIPO.DATABASE:
+                return simbolo.id
+        
+        return -1

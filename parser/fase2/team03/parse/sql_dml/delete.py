@@ -44,4 +44,4 @@ class Delete(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'DELETE FROM {self.table_name} {self.where.generate(table, tree) if self.where is not None else ""};'
