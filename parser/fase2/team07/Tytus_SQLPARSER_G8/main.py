@@ -20,6 +20,9 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 
 from storageManager.jsonMode import *
 
+from Codigo_3D import FuncionesPara3D
+from Codigo_3D import Codigo3D
+
 import sintactico
 
 global arbol
@@ -136,9 +139,25 @@ class interfaz():
 
     ##############################################EVENTOS DE LOS BOTONES DEL MENU####################################
     def traducirc3d_click(self):
+        FuncionesPara3D.FuncionesPara3D.GenerarArchivo("")
         pass
 
     def ejecutarc3d_click(self):
+        dropAll()
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("CREATE DATABASE IF NOT EXISTS test\
+                                                            OWNER = 'root'\
+                                                            MODE = 1;")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("USE test;")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("CREATE TABLE persona (\
+                                                            idpersona integer NOT NULL primary key,\
+                                                            nombre varchar(15));")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(1,\"Carlos\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(2,\"Maria\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(3,\"David\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("SELECT * FROM persona;")
+
+
+        #Codigo3D.Codigo3D.ejecutar()
         pass
 
     def abrir_click(self):

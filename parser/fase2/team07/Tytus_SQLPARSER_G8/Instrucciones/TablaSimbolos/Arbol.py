@@ -231,4 +231,5 @@ class Arbol():
         temporal = "t" + str(self.numeroTemporal)
         return temporal
 
-    
+    def setInstrucciones(self, instrucciones):
+        self.instrucciones = instrucciones

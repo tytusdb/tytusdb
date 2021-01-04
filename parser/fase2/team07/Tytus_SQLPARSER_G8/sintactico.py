@@ -64,17 +64,11 @@ def p_init(t):
 
 def p_instrucciones_lista1(t):
     'instrucciones    :  instrucciones instruccion '
-    print("INSTRUCCION:\n")
-    print(t[2].strSent)
-    print("\n\n")
     t[1].append(t[2])
     t[0] = t[1]
     
 def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
-    print("INSTRUCCION:\n\n")
-    print(t[1].strSent)
-    print("\n\n")
     t[0] = [t[1]]
     
 # CREATE DATABASE
