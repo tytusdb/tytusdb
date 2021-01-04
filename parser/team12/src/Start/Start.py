@@ -14,6 +14,8 @@ from Libraries import UnionAll
 from Libraries import Union
 from Libraries import Intersect
 from Libraries import Except
+from Libraries import UpdateTable
+from Libraries import AlterTable
 
 
 
@@ -84,7 +86,11 @@ class Start(Nodo):
                 print("Expresion valor: "+str(hijo.valorExpresion))
             elif hijo.nombreNodo == 'SENTENCIA_INSERT':
                 nuevoInsert = InsertTable()
-                nuevoInsert.execute(hijo,enviroment)
+                res = nuevoInsert.execute(hijo,enviroment)
+                if res.code != "00000":
+                    self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
+                else:
+                    self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
             elif hijo.nombreNodo == "SENTENCIA_SHOW":
                 self.listaSemanticos.append(hijo.execute(None))
             elif hijo.nombreNodo == "SENTENCIA_DROP":
@@ -112,6 +118,17 @@ class Start(Nodo):
                 resp = nuevoExcept.execute(hijo)
                 if resp.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+            elif hijo.nombreNodo == 'SENTENCIA_UPDATE':
+                nuevoUpdate = UpdateTable()
+                nuevoUpdate.execute(hijo,enviroment)
+            elif hijo.nombreNodo == 'SENTENCIA_ALTER_TABLE':
+                nuevoAlterT = AlterTable()
+                res = "00000" #nuevoAlterT.execute(hijo,enviroment)
+                if res.code != "00000":
+                    self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
+                else:
+                    self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
+                
                 
     def compile(self,enviroment = None):
         pilaInstrucciones = []
@@ -136,4 +153,3 @@ class Start(Nodo):
             archivo.write(line)
             archivo.write("\n")
         archivo.close()
-

@@ -1943,35 +1943,41 @@ def p_list_param_insert1(t):
 
 # SENTENCIA DE UPDATE //FALTA WHERE
 def p_update(t):
-    '''sent_update : UPDATE IDENTIFICADOR SET l_col_update ''' 
+    '''sent_update : UPDATE IDENTIFICADOR SET l_col_update sentencia_where''' 
     reportebnf.append(bnf["p_update"])    
     nuevo = Update('SENTENCIA_UPDATE')
-    nuevo.hijos.append(Update('UPDATE',t.lineno(1),t.lexpos(1)+1))
-    nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[2]))
+    #nuevo.hijos.append(Update('UPDATE',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(IdentificadorDML("TABLE",t.lineno(1),t.lexpos(1)+1,t[2]))
     nuevo.hijos.append(Update('SET',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(t[4])
+    nuevo.hijos.append(t[5])
     t[0] = nuevo
 
 def p_list_col_update(t):
     '''l_col_update : l_col_update COMA col_update'''
     reportebnf.append(bnf["p_list_col_update"])    
     nuevo = Update('LISTA_UPDATE')
-    nuevo.hijos.append(t[1])
+    for hijo in t[1].hijos:
+        nuevo.hijos.append(hijo)
     nuevo.hijos.append(t[3])
     t[0] = nuevo
 
 def p_list_col_update1(t):
     '''l_col_update : col_update'''
     reportebnf.append(bnf["p_list_col_update1"])    
-    t[0] = t[1]
+    nuevo = Update('LISTA_UPDATE')
+    nuevo.hijos.append(t[1])
+    t[0] = nuevo
     
 def p_column_update(t):
     '''col_update : IDENTIFICADOR IGUAL Exp'''
     reportebnf.append(bnf["p_column_update"])    
     nuevo = UpdateCol('COL_UPDATE',-1,-1,None)
-    nuevo.hijos.append(IdentificadorDML("Col",t.lineno(1),t.lexpos(1)+1,t[1]))
+    nuevo.hijos.append(IdentificadorDML("COL",t.lineno(1),t.lexpos(1)+1,t[1]))
     #nuevo.hijos.append(UpdateCol('=',t.lineno(1),t.lexpos(1)+1,None))
-    nuevo.hijos.append(t[3])
+    for hijo in t[3].hijos:
+        nuevo.hijos.append(hijo)
+    #nuevo.hijos.append(t[3])
     t[0] = nuevo
     
 # FIN SENTENCIA UPDATE
@@ -2002,7 +2008,7 @@ def p_delete_2(t):
 def p_alter(t):
     '''sent_alter : ALTER DATABASE IDENTIFICADOR accion_alter_db'''
     reportebnf.append(bnf["p_alter"])    
-    nuevo = Alter('SENTENCIA_ALTER')
+    nuevo = Alter('SENTENCIA_ALTER_DB')
     nuevo.hijos.append(Alter('ALTER',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(IdentificadorDML("DATABASE",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(t[4])
@@ -2012,8 +2018,8 @@ def p_alter2(t):
     '''sent_alter : ALTER TABLE IDENTIFICADOR accion_alter_table
     '''
     reportebnf.append(bnf["p_alter2"])
-    nuevo = Alter('SENTENCIA_ALTER')
-    nuevo.hijos.append(Alter('ALTER',t.lineno(1),t.lexpos(1)+1))
+    nuevo = Alter('SENTENCIA_ALTER_TABLE')
+    #nuevo.hijos.append(Alter('ALTER',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(IdentificadorDML("TABLE",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(t[4])
     t[0] = nuevo
@@ -2054,7 +2060,8 @@ def p_alter_add_col(t):
     reportebnf.append(bnf["p_alter_add_col"])                  
     nuevo = Alter('ADD')
     nuevo.hijos.append(IdentificadorDML("COLUMN",t.lineno(1),t.lexpos(1)+1,t[3]))
-    nuevo.hijos.append(t[4])
+    for hijo in t[4].hijos:
+        nuevo.hijos.append(hijo)
     t[0] = nuevo
     
 def p_alter_add_col1(t):

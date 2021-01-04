@@ -169,13 +169,11 @@ class InsertTable():
                 int(variable)
             elif tipo == 2:
                 print('caracter')
-            elif tipo == 3:
-                strptime(variable)
             elif tipo == 4:
                 if not(variable.upper() == 'TRUE' or variable.upper() == 'FALSE'):
                     return 0
             else:
-                print('No tiene tipo')
+                print('No tiene validacion')
             return 1 
         except:
             print('La variable ', variable, ' no coincide con el tipo ',tipo)
