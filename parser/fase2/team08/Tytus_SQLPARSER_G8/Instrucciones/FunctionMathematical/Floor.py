@@ -22,3 +22,14 @@ class Floor(Instruccion):
         else:
             self.tipo = Tipo(Tipo_Dato.NUMERIC)
             return math.floor(resultado)
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"FLOOR({self.valor.traducir(tabla,arbol).temporalAnterior})"

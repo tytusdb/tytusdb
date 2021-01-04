@@ -7,6 +7,7 @@ from analizer.statement.instructions.select.select import Select
 from analizer.abstract import instruction
 from analizer import grammar  # GRAMATICA DE LA FASE 2
 from analizer.gramaticaFase2 import getCodigo, parserTo3D
+from analizer import gramaticaFase2
 from analizer.reports import BnfGrammar
 
 
@@ -97,3 +98,18 @@ def symbolReport():
         report.append(enc)
     instruction.envVariables = list()
     return report
+
+def generar_codigo_3d(entrada):
+    parserTo3D(entrada)
+    lErrors = gramaticaFase2.returnLexicalErrors()
+    sErrors = gramaticaFase2.returnSyntacticErrors()
+    symbols = symbolReport()
+    obj = {
+        "err_lexicos": lErrors,
+        "err_sintacticos": sErrors,
+        #"semantic": semanticErrors,
+        "symbols": symbols,
+    }
+    astReport()
+    BnfGrammar.grammarReport2()
+    return obj

@@ -1,3 +1,4 @@
+from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
@@ -319,6 +320,9 @@ class Aritmetica(Instruccion):
             resultadoDer = self.opDer.analizar(tabla, arbol)
             if isinstance(resultadoDer, Excepcion):
                 return resultadoDer
+            print(resultadoIzq)
+            self.opIzq.tipo = resultadoIzq
+            self.opDer.tipo = resultadoDer
             # Comprobamos el tipo de operador
             if self.operador == '+':
                 if self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
@@ -582,6 +586,7 @@ class Aritmetica(Instruccion):
             resultadoIzq = self.opIzq.ejecutar(tabla, arbol)
             if isinstance(resultadoIzq, Excepcion):
                 return resultadoIzq
+            self.opIzq.tipo = resultadoIzq
             if self.operador == '-':
                 if self.opIzq.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.INTEGER)
@@ -647,3 +652,37 @@ class Aritmetica(Instruccion):
                 arbol.addc3d(f"{temporal2} = {temporal1} * {resultadoIzq.temporalAnterior}")
                 retorno.temporalAnterior = temporal2
                 return retorno
+
+    def concatenar(self, tabla, arbol):
+        resultadoIzq="Error_Aritmetico"
+        resultadoDer="Error_Aritmetico"
+        print("ARITMETICO",self.opDer)
+        if(self.opDer== None) and self.operador == "-":
+            resultadoIzq = self.opIzq.traducir(tabla, arbol)
+            if isinstance(resultadoIzq, Nodo3D):
+                return f"-{self.opIzq.traducir(tabla, arbol).temporalAnterior}"
+            else:
+                return f"-{self.opIzq.traducir(tabla, arbol)}"
+        #if(isinstance(self.opIzq, Primitivo) and isinstance(self.opDer, Primitivo)):
+        #    resultadoIzq =self.opIzq.traducir(tabla, arbol).temporalAnterior
+        #    resultadoDer =self.opDer.traducir(tabla, arbol).temporalAnterior
+        #    return f"{resultadoIzq} {self.operador} {resultadoDer}"
+        if(isinstance(self.opIzq, Aritmetica)):
+            resultadoIzq =self.opIzq.concatenar(tabla, arbol)
+        elif (isinstance(self.opIzq, Nodo3D)):
+            resultadoIzq = self.opIzq.traducir(tabla, arbol).temporalAnterior
+        elif (isinstance(self.opIzq, Primitivo)):
+            resultadoIzq = self.opIzq.traducir(tabla, arbol).temporalAnterior
+        else:
+            resultadoIzq = self.opIzq.traducir(tabla,arbol)
+
+        if(isinstance(self.opDer, Aritmetica)):
+            resultadoDer =self.opDer.concatenar(tabla, arbol)
+        elif (isinstance(self.opDer, Nodo3D)):
+            resultadoDer =self.opDer.traducir(tabla, arbol).temporalAnterior
+        elif (isinstance(self.opDer, Primitivo)):
+            resultadoDer =self.opDer.traducir(tabla, arbol).temporalAnterior
+        else:
+            resultadoDer = self.opDer.traducir(tabla,arbol)
+        
+        return f"{resultadoIzq} {self.operador} {resultadoDer}"

@@ -20,17 +20,19 @@ ts = TabladeSimbolos.Tabla()
 def analiz(input):
     raiz = g.parse(input)
     results = []
-    executeGraphTree(raiz)
+    #executeGraphTree(raiz)
     for val in raiz:
         res = val.ejecutar()
         if isinstance(res,CError):
             results.append("Error "+ res.tipo+". Descripcion: " +res.descripcion)
         else:
             results.append( res)
-    graphTable(ts)
-    report_errors()
-    report_BNF()
-
+    #graphTable(ts)
+    #report_errors()
+    #report_BNF()
+    for simbolo in ts.simbolos:
+        print(" Tipo: " + str(ts.simbolos[simbolo].tipoind) +" Nombre: " + ts.simbolos[simbolo].nombre + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind))
+        print("\n")
     return results
 
 
