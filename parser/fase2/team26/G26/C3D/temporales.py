@@ -9,5 +9,8 @@ class Code3D():
         self.index += 1
         return 't'+str(self.index)
 
+    def getcurrent(self) -> str:
+        return 't'+str(self.index)
+
     def restartTemp(self):
         self.index = -1
