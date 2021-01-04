@@ -7,7 +7,8 @@ from .executeDrop import executeDropDatabase,executeDropTable
 from .executeUse import executeUse, executeUseAlter
 from .executeExpression import executeExpression
 from .executeInsert import executeInsertAll, executeInsert
-from .executeAlter import executeAlterDatabaseRename,executeAlterTableDropPK,executeAlterType
+from .executeDelete import executeDelete
+from .executeAlter import executeAlterDatabaseRename,executeAlterTableDropPK,executeAlterType, executeAlterTableAddColumn, executeAlterTableDropColumn
 from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable,TCalterDatabase
 from .AST.error import * 
 import sys
@@ -83,6 +84,8 @@ def executeSentence(self, sentence):
         executeInsertAll(self, sentence)
     elif isinstance(sentence, Insert):
         executeInsert(self, sentence)
+    elif isinstance(sentence, Delete):
+        executeDelete(self, sentence)
     elif isinstance(sentence,Select):
         executeSelect(self,sentence) 
     elif isinstance(sentence,DropTable):
@@ -115,7 +118,7 @@ def executeSentence(self, sentence):
         else:
             print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence,Update):
-        executeUpdate(self,sentence)
+       executeUpdate(self,sentence)
     elif isinstance(sentence,AlterTableDropConstraint):
         if(len(sentence.constraint)>2):
             if(sentence.constraint[len(sentence.constraint)-2:len(sentence.constraint)]=='PK'):
@@ -144,6 +147,7 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR","Type can not change")
         else:
             print_error("SEMANTIC ERROR",'error in the operation')
-
-
-    
+    elif isinstance(sentence, AlterTableAddColumn):
+        executeAlterTableAddColumn(self, sentence)
+    elif isinstance(sentence, AlterTableDropColumn):
+        executeAlterTableDropColumn(self, sentence)

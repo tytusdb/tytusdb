@@ -190,7 +190,8 @@ reservadas = {
     'trunc' :'TRUNC',
     'some' : 'SOME',
     'in': 'IN',
-    'all': 'ALL'
+    'all': 'ALL',
+    'order': 'ORDER'
 }
 
 tokens = [
@@ -455,20 +456,36 @@ def p_select_err(t):
     t[0] = { 'reporte': reporte, 'ast': None, 'graph': grafo.index}
 
 def p_from_opcional(t):
-    'fromopcional     :  FROM parametrosfrom whereopcional '
+    'fromopcional     :  FROM parametrosfrom whereopcional orderby'
     grafo.newnode('FROM')
     grafo.newchildrenF(grafo.index,t[2]['graph'])
     grafo.newchildrenF(grafo.index,t[3]['graph'])
     reporte = "<fromopcional> ::= FROM <parametrosfrom> <whereopcional>\n" + t[2]['reporte'] + t[3]['reporte']
-    t[0] = {'ast' : select.FromOpcional(t[2]['ast'], t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : select.FromOpcional(t[2]['ast'], t[3]['ast'], None, t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_from_opcional_1(t):
+    'fromopcional     :  FROM parametrosfrom whereopcional'
+    grafo.newnode('FROM')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<fromopcional> ::= FROM <parametrosfrom> <whereopcional>\n" + t[2]['reporte'] + t[3]['reporte']
+    t[0] = {'ast' : select.FromOpcional(t[2]['ast'], t[3]['ast'], None, None), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_from_opcional_2(t):
-    'fromopcional     :  FROM parametrosfrom groupbyopcional '
+    'fromopcional     :  FROM parametrosfrom groupbyopcional orderby'
     grafo.newnode('FROM')
     grafo.newchildrenF(grafo.index,t[2]['graph'])
     grafo.newchildrenF(grafo.index,t[3]['graph'])
     reporte = "<fromopcional> ::= FROM <parametrosfrom> <groupbyopcional>\n" + t[2]['reporte'] + t[3]['reporte']
-    t[0] = {'ast' : select.FromOpcional(t[2]['ast'], None, t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : select.FromOpcional(t[2]['ast'], None, t[3]['ast'], t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_from_opcional_3(t):
+    'fromopcional     :  FROM parametrosfrom groupbyopcional'
+    grafo.newnode('FROM')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<fromopcional> ::= FROM <parametrosfrom> <groupbyopcional>\n" + t[2]['reporte'] + t[3]['reporte']
+    t[0] = {'ast' : select.FromOpcional(t[2]['ast'], None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_from_opcional_null(t):
     'fromopcional : '
@@ -489,7 +506,6 @@ def p_where_opcional_null(t):
     grafo.newnode('WHERE')
     reporte = "<whereopcional> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
-
 
 def p_group_by_opcional(t):
     'groupbyopcional  : GROUP BY listaids havings'
@@ -520,6 +536,12 @@ def p_having_null(t):
     reporte = "<havings> ::= EPSILON\n"
     t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
+def p_orderby(t):
+    'orderby : ORDER BY listaidcts'
+    grafo.newnode('ORDERBY')
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<orderby> ::= ORDER BY <listaids>\n" + t[3]['reporte']
+    t[0]= {'ast' : t[3]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listanumeros_r(t):
     'listanumeros : listanumeros COMA ENTERO'
@@ -843,6 +865,15 @@ def p_funciones_matematicas_simples(t):
     elif t[1].lower() == "min":
         reporte += "MIN PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
     t[0] = { 'ast' : select.FuncionMatematicaSimple(t[1].lower(),t[3]['ast']) , 'graph' :  grafo.index, 'reporte': reporte}
+
+def p_funciones_matematicas_simplesa(t):
+    'funcionesmatematicassimples  : COUNT PARENIZQ ASTERISCO  PARENDER '
+    grafo.newnode('F_MATH_SIM')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenE(t[3])
+    reporte = "<funcionesmatematicassimples> ::= "
+    reporte += "COUNT PARENIZQ ASTERISCO PARENDER\n"
+    t[0] = { 'ast' : select.FuncionMatematicaSimple(t[1].lower(),ident.Identificador(None, t[3])) , 'graph' :  grafo.index, 'reporte': reporte}
 
 def p_funciones_binarias(t):
     '''funcionesbinarias    : LENGTH PARENIZQ  argument   PARENDER
@@ -1469,22 +1500,6 @@ def p_tablekeyP2(t):
     reporte = "<tablekey> ::= <tabledefault>\n" + t[1]['reporte']
     t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
-def p_columnreferences_r(t):
-    'columnreferences : columnreferences COMA ID'
-    grafo.newnode('COLREFS')
-    grafo.newchildrenE(t[3])
-    grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[1]['ast'].append(ident.Identificador(None, t[3]))
-    reporte = "<columnreferences> ::= <columnreferences> COMA"+ t[3] + "\n" + t[1]['reporte']
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
-
-def p_columnreferences_r2(t):
-    'columnreferences : ID'
-    grafo.newnode('COLREFS')
-    grafo.newchildrenE(t[1])
-    reporte = "<columnreferences> ::= " + t[1] + "\n"
-    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte}
-
 def p_tabledefault(t):
     '''tabledefault : DEFAULT value tablenull'''
     grafo.newnode('TABLEDEFAULT')
@@ -1623,7 +1638,7 @@ def p_listaidcts(t):
     grafo.newnode('LISTAIDTS')
     grafo.newchildrenE(t[1])
     grafo.newchildrenE(t[3])
-    reporte = "<listaidcts> ::= "+ t[1].upper + " PUNTO " + t[3].upper()
+    reporte = "<listaidcts> ::= " + t[1].upper() + " PUNTO " + t[3].upper() + "\n"
     t[0] = {'ast': [ident.Identificador(t[1], t[3])], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaidctse(t):
@@ -1849,7 +1864,7 @@ def p_drop(t):
     reporte = "<drop> ::= "
     if t[1].lower() == 'database' :
         reporte +=  "DATABASE <dropdb> PTCOMA\n" + t[2]['reporte']
-        t[0] = {'ast' : t[2], 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == "table":
         grafo.newnode('DROP')
         grafo.newchildrenE('TABLE')
@@ -2281,18 +2296,19 @@ def p_comparacionlogica(t):
     t[0] = {'ast' : t[1].lower(), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicion(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
-    '''condicion    : NOT condicion
-                    | condicions'''
+    '''condicion    : NOT condicion'''
     grafo.newnode('CONDICION')
-    if isinstance(t[1]['ast'], condicion.Condicionales) :
-        grafo.newchildrenF(grafo.index, t[1]['graph'])
-        reporte = "<condicion> ::= <condicions>\n" + t[1]['reporte']
-        t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
-    else :
-        grafo.newchildrenE('NOT')
-        grafo.newchildrenF(grafo.index, t[2]['graph'])
-        reporte = "<condicion> ::= NOT <condicion>\n" + t[2]['reporte']
-        t[0] = {'ast' : condicion.IsNotOptions(True, t[2]['ast'], False), 'graph' : grafo.index, 'reporte': reporte}
+    grafo.newchildrenE('NOT')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<condicion> ::= NOT <condicion>\n" + t[2]['reporte']
+    t[0] = {'ast' : condicion.IsNotOptions(True, t[2]['ast'], False), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_condicionPs(t):
+    '''condicion    : condicions'''
+    grafo.newnode('CONDICION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<condicion> ::= <condicions>\n" + t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicions(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''condicions : argument MENORQUE argument
@@ -2398,13 +2414,13 @@ def p_betweenopcion(t):
     if isinstance(t[1]['ast'], primi.Primitive) or isinstance(t[1]['ast'], arit.Arithmetic) or isinstance(t[1]['ast'], ident.Identificador) :
         grafo.newchildrenF(grafo.index, t[1]['graph'])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
-        reporte = "<betweenopcion> ::= <symm> <argument> AND <argument>\n" + t[1]['reporte'] + t[2]['reporte'] + t[4]['reporte']
+        reporte = "<betweenopcion> ::= <argument> AND <argument>\n" + t[1]['reporte'] + t[3]['reporte']
         t[0] = {'ast' : condicion.Between(False, t[1]['ast'], t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     else :
         grafo.newchildrenE('SYMMETRIC')
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        reporte = "<betweenopcion> ::= <argument> AND <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+        reporte = "<betweenopcion> ::= <symm> <argument> AND <argument>\n" + t[1]['reporte'] + t[2]['reporte'] + t[4]['reporte']
         t[0] = {'ast' : condicion.Between(True, t[2]['ast'], t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_symmetric(t):

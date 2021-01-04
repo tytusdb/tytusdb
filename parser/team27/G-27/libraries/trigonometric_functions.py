@@ -1,6 +1,6 @@
 """Librería para realizar operaciones trigonométricas sobre datos numéricos."""
 import math
-import libraries.math_functions
+from libraries.math_functions import *
 
 def acos(input):
     """Coseno inverso
@@ -26,7 +26,7 @@ def acosd(input):
     Returns:
         Number
     """
-    return math_functions.degrees(acos(input))
+    return degrees(acos(input))
 
 def asin(input):
     """Seno inverso
@@ -52,7 +52,7 @@ def asind(input):
     Returns:
         Number
     """
-    return math_functions.degrees(asin(input))
+    return degrees(asin(input))
 
 def atan(input):
     """Tangente inversa
@@ -78,7 +78,7 @@ def atand(input):
     Returns:
         Number
     """
-    return math_functions.degrees(atan(input))
+    return degrees(atan(input))
 
 def atan2(divisor,dividend):
     """Tangente inversa
@@ -106,7 +106,7 @@ def atan2d(divisor,dividend):
     Returns:
         Number
     """
-    return math_functions.degrees(atan2(divisor,dividend))
+    return degrees(atan2(divisor,dividend))
 
 def cos(input):
     """Coseno
@@ -132,7 +132,7 @@ def cosd(input):
     Returns:
         Number
     """
-    return math_functions.degrees(cos(input))
+    return degrees(cos(input))
 
 def cot(input):
     """Cotangente
@@ -158,7 +158,7 @@ def cotd(input):
     Returns:
         Number
     """
-    return math_functions.degrees(cot(input))
+    return degrees(cot(input))
 
 def sin(input):
     """Seno
@@ -184,7 +184,7 @@ def sind(input):
     Returns:
         Number
     """
-    return math_functions.degrees(sin(input))
+    return degrees(sin(input))
 
 def tan(input):
     """Tangente
@@ -210,7 +210,7 @@ def tand(input):
     Returns:
         Number
     """
-    return math_functions.degrees(tan(input))
+    return degrees(tan(input))
 
 def sinh(input):
     """Seno hiperbólico

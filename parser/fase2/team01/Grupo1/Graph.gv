@@ -1,0 +1,33 @@
+graph {
+	node [shape=circle]
+	edge [color=blue4]
+	splines=false
+	1 [label=ARGUMENT]
+	"1_format" [label=format]
+	1 -- "1_format"
+	2 [label=INSTRUCCIONES]
+	2 -- 1
+	3 [label=ARGUMENT]
+	"3_format" [label=format]
+	3 -- "3_format"
+	4 [label=INSTRUCCIONES]
+	4 -- 3
+	5 [label=ARGUMENT]
+	"5_ SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 " [label=" SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 "]
+	5 -- "5_ SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 "
+	6 [label=pl_execute]
+	"6_EXECUTE" [label=EXECUTE]
+	6 -- "6_EXECUTE"
+	6 -- 5
+	7 [label=INSTRUCCIONES]
+	7 -- 6
+	8 [label=ARGUMENT]
+	"8_ SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 " [label=" SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 "]
+	8 -- "8_ SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 "
+	9 [label=pl_execute]
+	"9_EXECUTE" [label=EXECUTE]
+	9 -- "9_EXECUTE"
+	9 -- 8
+	10 [label=INSTRUCCIONES]
+	10 -- 9
+}
