@@ -2210,8 +2210,11 @@ def p_instrucciones_if(t):
     
 def p_instruccion_if(t):
     '''
-    instruccion_if : contenido_funcion
-                   | instrucciones
+    instruccion_if : cont_funcion
+                   | UPDATE ID SET lcol instructionWhere PUNTO_COMA
+                   | INSERT INTO ID PARIZQ lcol PARDER VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
+                   | INSERT INTO ID VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
+                   | lquery PUNTO_COMA
                    | expre PUNTO_COMA
                    | RETURN PUNTO_COMA
                    | RETURN expre PUNTO_COMA
