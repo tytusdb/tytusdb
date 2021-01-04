@@ -493,14 +493,12 @@ def p_plpgsql(t):
                 | label BEGIN stmts END
                 | declare BEGIN stmts END
                 | BEGIN stmts END
+
     '''
 
 # TODO: Hay que agregarle que la funcion pueda traer return
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
-def p_declare(t):
-    '''
-         declare : DECLARE
-    '''
+
 
 
 def p_function(t):
@@ -621,6 +619,23 @@ def p_other_when(t):
 
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
+def p_declare(t):
+
+    '''
+         declare :  ID INTEGER NOTNULL PREDICATEDECLARATION PTCOMA
+                    | ID VARCHAR NOTNULL PREDICATEDECLARATION PTCOMA
+                    | ID INTEGER  PREDICATEDECLARATION PTCOMA
+                    | ID VARCHAR  PREDICATEDECLARATION PTCOMA
+                    | ID NUMERIC  PREDICATEDECLARATION PTCOMA
+                    | ID NUMERIC NOTNULL PREDICATEDECLARATION PTCOMA
+    '''
+
+def p_plpgsql_predicatedeclaration(t):
+    '''
+        PREDICATEDECLARATION : DOSPTS IGUAL exp
+                             | IGUAL exp
+                             | DEFAULT
+    '''
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
 

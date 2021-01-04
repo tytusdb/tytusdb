@@ -2,8 +2,8 @@ import traceback
 from tkinter import *
 from tkinter import filedialog
 from Parser.Ascendente.gramatica import parse as AnaParse
-#from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
-#from Parser.Reportes.gramatica1 import parse as ReportParse
+# from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
+# from Parser.Reportes.gramatica1 import parse as ReportParse
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
@@ -130,14 +130,14 @@ def Seleccionar():
         cadena = my_text.get(SEL_FIRST, SEL_LAST)
 
         result: Arbol = AnaParse(cadena)
-        #entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
-        #entornoCero.NuevoAmbito()
+        # entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
+        # entornoCero.NuevoAmbito()
 
-        #for item in result.instrucciones:
+        # for item in result.instrucciones:
         #    item.execute(entornoCero, result)
 
-        #consola = ""
-        #for item in result.console:
+        # consola = ""
+        # for item in result.console:
         #    consola = consola + item
 
         my_text1.insert(END, 'success')
@@ -148,39 +148,39 @@ def Seleccionar():
 
 def ReporteSelect():
     global dotString
-    #cadena = my_text.get(SEL_FIRST, SEL_LAST)
-    #result: Nodo = ReportParse(cadena)
-    #tour:TourTree = TourTree()
-    #dotString = tour.getDot(result)
-    #graph = Source(dotString)
+    # cadena = my_text.get(SEL_FIRST, SEL_LAST)
+    # result: Nodo = ReportParse(cadena)
+    # tour:TourTree = TourTree()
+    # dotString = tour.getDot(result)
+    # graph = Source(dotString)
     ##graph.render(view=True, format='svg')
 
-    #try:
+    # try:
     #    graph.render(format='svg')
     #    print('Reporte Generado Con exito')
-    #except:
+    # except:
     #    print('No se genero el reporte:w')
 
 
 def Reporte():
-     global dotString
-     #cadena = my_text.get("1.0", END)
-     #result: Nodo = ReportParse(cadena)
-     #tour:TourTree = TourTree()
-     #dotString = tour.getDot(result)
-     #graph = Source(dotString)
-    ##graph.render(view=True, format='svg')
+    global dotString
+    # cadena = my_text.get("1.0", END)
+    # result: Nodo = ReportParse(cadena)
+    # tour:TourTree = TourTree()
+    # dotString = tour.getDot(result)
+    # graph = Source(dotString)
 
-     #try:
-     #   graph.render(format='svg')
-     #   print('Reporte Generado Con exito')
-     #except:
-     #   print('No se genero el reporte:w')
 
+##graph.render(view=True, format='svg')
+
+# try:
+#   graph.render(format='svg')
+#   print('Reporte Generado Con exito')
+# except:
+#   print('No se genero el reporte:w')
 
 
 def Err_Lexico():
-
     global arboAux_errores
 
     texto = '''
@@ -266,11 +266,7 @@ def Err_Sintactico():
         print("No fue posible escribir el html: " + str(e))
 
 
-
-
-
 def Err_Semantico():
-
     global arboAux_errores
 
     texto = '''
@@ -291,7 +287,7 @@ def Err_Semantico():
             <table> <thead> <tr>
             <th>#</th>
             <th>Descripcion</th>
-      
+
             <th>Origen</th>
             </tr> </thead>
             '''
@@ -409,7 +405,7 @@ text_scroll1 = Scrollbar(my_frame1)
 text_scroll1.pack(side=RIGHT, fill=Y)
 
 my_text1 = Text(my_frame1, width=60, height=40, font=("Consolas", 15), selectbackground="yellow",
-                selectforeground="black", undo=True, yscrollcommand=text_scroll1.set,foreground="white",
+                selectforeground="black", undo=True, yscrollcommand=text_scroll1.set, foreground="white",
                 background="black")
 my_text1.pack(side=LEFT)
 text_scroll1.config(command=my_text1.yview)
