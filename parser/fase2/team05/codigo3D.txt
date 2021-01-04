@@ -1,0 +1,8 @@
+lista = [] 
+def funcionIntermedia(): 
+	global lista
+	prueba = lista.pop()
+def main(): 
+	global lista 
+if __name__ == "__main__": 
+	 main()

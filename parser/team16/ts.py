@@ -161,7 +161,8 @@ class TablaDeSimbolos():
 
 # ---------------------------- Validaciones ----------------------------
     def agregarValidacion(self, miValidacion):
-        self.Validaciones[miValidacion.id] = miValidacion
+        rand = randint(1,50000)
+        self.Validaciones[str(miValidacion.id) + str(rand)] = miValidacion
 
     def EliminarValidacion(self, miValidacion):
         if not miValidacion in self.Validaciones:

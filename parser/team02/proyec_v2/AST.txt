@@ -1,0 +1,98 @@
+
+        digraph G{
+        edge [dir=forward]
+        node [shape=plaintext]
+
+        0 [label="Raiz"]
+        
+         1
+                [label="tipo:Insercion Tabla: tbusuario "]  2         
+           [label="Primitivo"]3   [label="Tipo:TIPO.VALOR "]  4
+         [label="Valor:1 "]  2-> 3 [label=""]  2-> 4 [label=""]  1 -> 2 [label=""]  5         
+           [label="Primitivo"]6   [label="Tipo:TIPO.VALOR "]  7
+         [label="Valor:Luis Fernando "]  5-> 6 [label=""]  5-> 7 [label=""]  1 -> 5 [label=""]  8         
+           [label="Primitivo"]9   [label="Tipo:TIPO.VALOR "]  10
+         [label="Valor:Salazar Rodriguez "]  8-> 9 [label=""]  8-> 10 [label=""]  1 -> 8 [label=""]  11         
+           [label="Primitivo"]12   [label="Tipo:TIPO.VALOR "]  13
+         [label="Valor:lsalazar "]  11-> 12 [label=""]  11-> 13 [label=""]  1 -> 11 [label=""]  14         
+           [label="Primitivo"]15   [label="Tipo:TIPO.MD5 "]  16
+         [label="Valor:bd074597c8b8e8ec60a46584ff6a15b0 "]  14-> 15 [label=""]  14-> 16 [label=""]  1 -> 14 [label=""]  17         
+           [label="Primitivo"]18   [label="Tipo:TIPO.VALOR "]  19
+         [label="Valor:a week ago "]  17-> 18 [label=""]  17-> 19 [label=""]  1 -> 17 [label=""]  20
+                [label="tipo:Insercion Tabla: tbusuario "]  21         
+           [label="Primitivo"]22   [label="Tipo:TIPO.VALOR "]  23
+         [label="Valor:1 "]  21-> 22 [label=""]  21-> 23 [label=""]  20 -> 21 [label=""]  24         
+           [label="Primitivo"]25   [label="Tipo:TIPO.VALOR "]  26
+         [label="Valor:Rosita "]  24-> 25 [label=""]  24-> 26 [label=""]  20 -> 24 [label=""]  27         
+           [label="Primitivo"]28   [label="Tipo:TIPO.VALOR "]  29
+         [label="Valor:Perez "]  27-> 28 [label=""]  27-> 29 [label=""]  20 -> 27 [label=""]  30         
+           [label="Primitivo"]31   [label="Tipo:TIPO.VALOR "]  32
+         [label="Valor:lsalazar "]  30-> 31 [label=""]  30-> 32 [label=""]  20 -> 30 [label=""]  33         
+           [label="Primitivo"]34   [label="Tipo:TIPO.MD5 "]  35
+         [label="Valor:bd074597c8b8e8ec60a46584ff6a15b0 "]  33-> 34 [label=""]  33-> 35 [label=""]  20 -> 33 [label=""]  36         
+           [label="Primitivo"]37   [label="Tipo:TIPO.VALOR "]  38
+         [label="Valor:month "]  36-> 37 [label=""]  36-> 38 [label=""]  20 -> 36 [label=""]  39
+                [label="tipo:Insercion Tabla: tbusuario "]  40         
+           [label="Primitivo"]41   [label="Tipo:TIPO.VALOR "]  42
+         [label="Valor:1 "]  40-> 41 [label=""]  40-> 42 [label=""]  39 -> 40 [label=""]  43         
+           [label="Primitivo"]44   [label="Tipo:TIPO.VALOR "]  45
+         [label="Valor:Marvin rodas "]  43-> 44 [label=""]  43-> 45 [label=""]  39 -> 43 [label=""]  46         
+           [label="Primitivo"]47   [label="Tipo:TIPO.VALOR "]  48
+         [label="Valor:Salazar Rodriguez "]  46-> 47 [label=""]  46-> 48 [label=""]  39 -> 46 [label=""]  49         
+           [label="Primitivo"]50   [label="Tipo:TIPO.VALOR "]  51
+         [label="Valor:lsalazar "]  49-> 50 [label=""]  49-> 51 [label=""]  39 -> 49 [label=""]  52         
+           [label="Primitivo"]53   [label="Tipo:TIPO.MD5 "]  54
+         [label="Valor:bd074597c8b8e8ec60a46584ff6a15b0 "]  52-> 53 [label=""]  52-> 54 [label=""]  39 -> 52 [label=""]  55         
+           [label="Primitivo"]56   [label="Tipo:TIPO.VALOR "]  57
+         [label="Valor:yesterday morning "]  55-> 56 [label=""]  55-> 57 [label=""]  39 -> 55 [label=""]  58
+                [label="tipo:Insercion Tabla: tbusuario "]  59         
+           [label="Primitivo"]60   [label="Tipo:TIPO.VALOR "]  61
+         [label="Valor:1 "]  59-> 60 [label=""]  59-> 61 [label=""]  58 -> 59 [label=""]  62         
+           [label="Primitivo"]63   [label="Tipo:TIPO.VALOR "]  64
+         [label="Valor:Luis Fernando "]  62-> 63 [label=""]  62-> 64 [label=""]  58 -> 62 [label=""]  65         
+           [label="Primitivo"]66   [label="Tipo:TIPO.VALOR "]  67
+         [label="Valor:Estrada "]  65-> 66 [label=""]  65-> 67 [label=""]  58 -> 65 [label=""]  68         
+           [label="Primitivo"]69   [label="Tipo:TIPO.VALOR "]  70
+         [label="Valor:house "]  68-> 69 [label=""]  68-> 70 [label=""]  58 -> 68 [label=""]  71         
+           [label="Primitivo"]72   [label="Tipo:TIPO.VALOR "]  73
+         [label="Valor:paswword "]  71-> 72 [label=""]  71-> 73 [label=""]  58 -> 71 [label=""]  74         
+           [label="Primitivo"]75   [label="Tipo:TIPO.VALOR "]  76
+         [label="Valor:ayer "]  74-> 75 [label=""]  74-> 76 [label=""]  58 -> 74 [label=""]  77
+                [label="tipo:Insercion Tabla: tbusuario "]  78         
+           [label="Primitivo"]79   [label="Tipo:TIPO.VALOR "]  80
+         [label="Valor:1 "]  78-> 79 [label=""]  78-> 80 [label=""]  77 -> 78 [label=""]  81         
+           [label="Primitivo"]82   [label="Tipo:TIPO.VALOR "]  83
+         [label="Valor:Marvin rodas "]  81-> 82 [label=""]  81-> 83 [label=""]  77 -> 81 [label=""]  84         
+           [label="Primitivo"]85   [label="Tipo:TIPO.VALOR "]  86
+         [label="Valor:Arriola "]  84-> 85 [label=""]  84-> 86 [label=""]  77 -> 84 [label=""]  87         
+           [label="Primitivo"]88   [label="Tipo:TIPO.VALOR "]  89
+         [label="Valor:montufar "]  87-> 88 [label=""]  87-> 89 [label=""]  77 -> 87 [label=""]  90         
+           [label="Primitivo"]91   [label="Tipo:TIPO.MD5 "]  92
+         [label="Valor:bd074597c8b8e8ec60a46584ff6a15b0 "]  90-> 91 [label=""]  90-> 92 [label=""]  77 -> 90 [label=""]  93         
+           [label="Primitivo"]94   [label="Tipo:TIPO.VALOR "]  95
+         [label="Valor:hoy "]  93-> 94 [label=""]  93-> 95 [label=""]  77 -> 93 [label=""]  96
+                [label="tipo:Insercion Tabla: tbusuario "]  97         
+           [label="Primitivo"]98   [label="Tipo:TIPO.VALOR "]  99
+         [label="Valor:Luis Fernando "]  97-> 98 [label=""]  97-> 99 [label=""]  96 -> 97 [label=""]  100
+                [label="tipo:Insercion Tabla: Houseof "]  101         
+           [label="Primitivo"]102   [label="Tipo: "]  103
+         [label="Valor:31 "]  101-> 102 [label=""]  101-> 103 [label=""]  100 -> 101 [label=""]  104         
+           [label="Primitivo"]105   [label="Tipo: "]  106
+         [label="Valor:32 "]  104-> 105 [label=""]  104-> 106 [label=""]  100 -> 104 [label=""]  107         
+           [label="Primitivo"]108   [label="Tipo:TIPO.VALOR "]  109
+         [label="Valor:9 "]  107-> 108 [label=""]  107-> 109 [label=""]  100 -> 107 [label=""]  110         
+           [label="Primitivo"]111   [label="Tipo: "]  112
+         [label="Valor:Hello world "]  110-> 111 [label=""]  110-> 112 [label=""]  100 -> 110 [label=""]  113         
+           [label="Primitivo"]114   [label="Tipo:TIPO.VALOR "]  115
+         [label="Valor:a week ago "]  113-> 114 [label=""]  113-> 115 [label=""]  100 -> 113 [label=""]  116
+                [label="tipo:Insercion Tabla: Houseof "]  117         
+           [label="Primitivo"]118   [label="Tipo: "]  119
+         [label="Valor:25 "]  117-> 118 [label=""]  117-> 119 [label=""]  116 -> 117 [label=""]  120         
+           [label="Primitivo"]121   [label="Tipo: "]  122
+         [label="Valor:8.0 "]  120-> 121 [label=""]  120-> 122 [label=""]  116 -> 120 [label=""]  123         
+           [label="Primitivo"]124   [label="Tipo:TIPO.VALOR "]  125
+         [label="Valor:9 "]  123-> 124 [label=""]  123-> 125 [label=""]  116 -> 123 [label=""]  126         
+           [label="Primitivo"]127   [label="Tipo: "]  128
+         [label="Valor:Hello mundo "]  126-> 127 [label=""]  126-> 128 [label=""]  116 -> 126 [label=""]  129         
+           [label="Primitivo"]130   [label="Tipo:TIPO.VALOR "]  131
+         [label="Valor:a day ago "]  129-> 130 [label=""]  129-> 131 [label=""]  116 -> 129 [label=""] 

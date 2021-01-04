@@ -33,8 +33,9 @@ class ExpresionNegativo(ExpresionNumerica) :
         Esta clase representa la Expresión Aritmética Negativa.
         Esta clase recibe la expresion
     '''
-    def __init__(self, exp) :
+    def __init__(self, exp, line) :
         self.exp = exp
+        self.line = line
 
 
 class ExpresionNumero(ExpresionNumerica) :
@@ -42,16 +43,18 @@ class ExpresionNumero(ExpresionNumerica) :
         Esta clase representa una expresión numérica entera o decimal.
     '''
 
-    def __init__(self, val = 0) :
+    def __init__(self, line, val = 0) :
         self.val = val
+        self.line = line
 
 class ExpresionIdentificador(ExpresionNumerica) :
     '''
         Esta clase representa un identificador.
     '''
 
-    def __init__(self, id = "") :
+    def __init__(self, line, id = "") :
         self.id = id
+        self.line = line
 
 class ExpresionCadena :
     '''
@@ -74,8 +77,9 @@ class ExpresionDobleComilla(ExpresionCadena) :
         Recibe como parámetro el valor del token procesado por el analizador léxico
     '''
 
-    def __init__(self, val) :
+    def __init__(self, val, line) :
         self.val = val
+        self.line = line
 
 class ExpresionCadenaNumerico(ExpresionCadena) :
     '''

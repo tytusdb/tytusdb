@@ -1,9 +1,9 @@
-Rfrom Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import  Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import Time
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import  Expresion
 
 class IdAsId(Instruccion):
     '''ID ID

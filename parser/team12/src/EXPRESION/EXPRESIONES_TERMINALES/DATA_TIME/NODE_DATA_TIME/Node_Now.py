@@ -1,4 +1,5 @@
 import sys, os
+import datetime
 
 nodo_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','..')) + '\\EXPRESION\\')
 sys.path.append(nodo_dir)
@@ -17,4 +18,7 @@ class Now_Expresion(Expresion):
         self.tipo = Data_Type.non
     
     def execute(self, eviroment):
-        print("")
+
+        self.tipo = Type_Expresion(Data_Type.data_time)
+        self.valorExpresion = datetime.datetime.now()
+        return self.valorExpresion

@@ -10,6 +10,10 @@ from Libraries import Use
 from Libraries import Type
 from Libraries import Select
 from Libraries import InsertTable
+from Libraries import UnionAll
+from Libraries import Union
+from Libraries import Intersect
+from Libraries import Except
 
 
 
@@ -33,11 +37,13 @@ class Start(Nodo):
         self.hijos.append(nuevo)
 
     def tabular_data(self, encabezados : list, data : list) -> str: 
+        print(encabezados)
         index = 0
         for i in encabezados:
             if i == "?column?":
                 encabezados[index] = "?column?"+str(index)
-                index += 1
+            index += 1
+
         x = PrettyTable()
         x.field_names = encabezados
         for item in data:
@@ -62,14 +68,16 @@ class Start(Nodo):
                 nuevaTabla = Table()
                 res = nuevaTabla.execute(hijo, enviroment)
                 if res.code != "00000":
-                    print(res.responseObj.descripcion)
+                    self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
+                else:
+                    self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
             elif hijo.nombreNodo == 'CREATE_TYPE_ENUM':
                 nuevoEnum = Type()
                 nuevoEnum.execute(hijo)
             elif hijo.nombreNodo == 'SENTENCIA_SELECT' or hijo.nombreNodo == 'SENTENCIA_SELECT_DISTINCT':
                 respuesta = hijo.execute(enviroment)
-                print(respuesta.data)
-                self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(respuesta.encabezados, respuesta.data)})
+                if respuesta.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(respuesta.encabezados, respuesta.data)})
             elif hijo.nombreNodo == 'E':
                 hijo.execute(enviroment)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
@@ -83,4 +91,25 @@ class Start(Nodo):
                 self.listaSemanticos.append(hijo.execute(None))
             elif hijo.nombreNodo == "SENTENCIA_DELETE":
                 hijo.execute(enviroment)
+            elif hijo.nombreNodo == 'SENTENCIA_UNION_ALL':
+                nuevoUnionAll = UnionAll()
+                resp = nuevoUnionAll.execute(hijo)
+                if resp.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+            elif hijo.nombreNodo == 'SENTENCIA_UNION':
+                nuevoUnion = Union()
+                resp = nuevoUnion.execute(hijo)
+                if resp.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+            elif hijo.nombreNodo == 'SENTENCIA_INTERSECT':
+                nuevoIntersect = Intersect()
+                resp = nuevoIntersect.execute(hijo)
+                if resp.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+            elif hijo.nombreNodo == 'SENTENCIA_EXCEPT':
+                nuevoExcept = Except()
+                
+                resp = nuevoExcept.execute(hijo)
+                if resp.data != None:
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
                 

@@ -15,6 +15,10 @@ global reporteGramatical2
 reporteGramatical1=" "
 reporteGramatical2 = " "
 
+global conteoTemporales
+conteoTemporales=0
+global conteoEtiquetas
+conteoEtiquetas=0
 
 def invertir_cadena_manual(cadena):
     cadena_invertida = ""
@@ -92,6 +96,9 @@ def reporteSimbolos(ruta,cadena):
     print(cadena)
     print(ruta)
     ar3="""<h1 style="text-align:center;">REPORTE TABLA DE SIMBOLOS<h1>
+    <h3>True=1<h1>
+    <h3>False=1<h1>
+    <h3>None=Campo no utlizado<h1>
     <table border="1" style="margin-left: auto; margin-right: auto">
     <tr>
     <td>IDENTIFICADOR</td>
@@ -112,6 +119,8 @@ def reporteSimbolos(ruta,cadena):
     <td>ID_CHECK</td>
     <td>VALOR</td>
     <td>DEFAULT</td>
+    <td>idConstraintFK</td>
+    <td>idConstraintPK</td>
     </tr>"""+cadena+"""</table> """
     print("forma bien la cadena")
     with open(ruta, "w") as f:

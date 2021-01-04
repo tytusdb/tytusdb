@@ -10,27 +10,28 @@ from subprocess import check_call
 
 direccion = "from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones"
 
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createTable import CreateTable,Acompaniamiento,Campo
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createDatabase import CreateReplace,ComplementoCR
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select import Select, Limit, Having,GroupBy
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.union import Union
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Use_Data_Base.useDB import Use
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import  Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Insert.insert import InsertInto
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import IdAsId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
-from  Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import  Binario
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Drop.drop import Drop
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Alter.alterDatabase import AlterDatabase
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable import AlterTable
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable import Alter
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Update.Update import Update
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Delete.delete import Delete
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where import  Where
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Create.createTable import CreateTable,Acompaniamiento,Campo
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Create.createDatabase import CreateReplace,ComplementoCR
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.select import Select, Limit, Having,GroupBy
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Select.union import Union
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Use_Data_Base.useDB import Use
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import  Time
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Insert.insert import InsertInto
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import IdAsId
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import  Binario
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Drop.drop import Drop
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Alter.alterDatabase import AlterDatabase
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable import AlterTable
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Alter.alterTable import Alter
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Update.Update import Update
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Delete.delete import Delete
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where import  Where
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Type.type import CreateType
 
 class AST:
     def __init__(self, sentencias):
@@ -684,6 +685,9 @@ class AST:
                 self.Primitivo(inst.E1, np)
             elif isinstance(inst.E1, IdId):
                 self.CrearNodo(inst.E1.id1 + '.' + inst.E1.id2, np)
+            elif isinstance(inst.E1,list):
+                self.listaID(inst.E1,np)
+
             #elif isinstance(inst.E1, Expresion):
             else:
                 self.E(inst.E1, np)

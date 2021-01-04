@@ -30,6 +30,20 @@ Contienen la informacion correspondiente a un determinado registro dentro de una
 <div id='apli'/>
 
 ## Aplicación
+
+### Requerimientos de la Aplicación
+* Tener instalado [pip](https://pypi.org/project/pip/).
+
+* Ejecutar el siguiente comando en la consola: `pip install PIL`
+
+* Ejecutar el siguiente comando en la consola: `pip install pillow`
+
+* Para iniciar copiar, en un archivo .py fuera de la carpeta del paquete, el siguiente código:
+```
+from team17 import Interfaz as i
+i.runInterface()
+```
+
 ### Interfaz Gráfica (GUI)
 El programa **_`Tytus 2020`_** cuenta con una vista gráfica la cual facilita la interacción entre el sistema y el usuario final para un mejor manejo de datos. Por medio de dicha interfaz, al usuario se le permite visualizar de forma _gráfica_ la estructura con la cual los datos estan siendo almacenados en la memoria del computador. El usuario puede navegar por la aplicación seleccionando a través de botones la acción que desea realizar, si ocurre un error en el ingreso de datos el programa le notificará al usuario el tipo de error que se está cometiendo. 
 
