@@ -8,6 +8,11 @@ sys.path.append(storage_dir)
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\typeChecker')
 sys.path.append(storage)
 
+label_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))+"\\C3D\\")
+sys.path.append(label_dir)
+
+from Label import *
+from Temporal import *
 from Nodo import Nodo
 from typeChecker.typeChecker import *
 from jsonMode import dropDatabase,dropTable
@@ -16,6 +21,25 @@ tc = TypeChecker()
 class Drop(Nodo):
     def __init__(self, nombreNodo,fila = -1 ,columna = -1 ,valor = None):
         Nodo.__init__(self,nombreNodo, fila, columna, valor)
+
+    def compile(self):
+        pass
+
+    def getText(self):
+        if(self.hijos[1].hijos[0].nombreNodo != "TABLE"):
+        ######### DATABASES
+            use_if_exists = len(self.hijos[1].hijos) == 3
+            dbname = ""
+            if use_if_exists:
+                dbname =  " IF EXISTS " + self.hijos[1].hijos[2].valor
+            else:
+                dbname = self.hijos[1].hijos[1].valor 
+
+            return f'DROP DATABASE {dbname} ;\n'            
+        else:
+        ######### TABLES
+            identificador = self.hijos[1].hijos[1].valor
+            return f'DROP TABLE {identificador}; \n'
 
     def execute(self,enviroment = None):
         #Se debe llamar al metodo showDatabases() -> list:
