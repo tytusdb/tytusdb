@@ -1,7 +1,7 @@
-from analizer.C3D.operations import operation
-from analizer.C3D.operations import assignment
-from analizer.C3D.operations import declaration
-from analizer.C3D.operations import block
+from analizer_pl.C3D.operations import operation
+from analizer_pl.C3D.operations import assignment
+from analizer_pl.C3D.operations import declaration
+from analizer_pl.C3D.operations import block
 
 
 def TernaryOperation(temp, exp1, exp2, exp3, operator, row, column):

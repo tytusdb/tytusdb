@@ -52,7 +52,6 @@ import analizer.modules.instructions as instruction2
 
 
 
-
 def p_init(t):
     """init : stmtList"""
     t[0] = t[1]
@@ -113,7 +112,7 @@ def p_fase1_stmt(t):
     # SOLO CUENTA LOS PUNTO Y COMA
 
     repGrammar.append(t.slice)
-    C3D_INSTRUCCIONES_FASE1(t)
+    #C3D_INSTRUCCIONES_FASE1(t)
     global count_ins
     count_ins += 1
 
@@ -124,10 +123,25 @@ def p_createopts_index(t):
     create_index : R_CREATE R_INDEX ID R_ON ID S_PARIZQ ID orderOpts orderNull S_PARDER whereCl
         | R_CREATE R_INDEX ID R_ON ID R_USING R_HASH S_PARIZQ ID S_PARDER
         | R_CREATE R_INDEX ID R_ON ID S_PARIZQ ID S_COMA ID S_PARDER
-        | R_CREATE R_INDEX ID R_ON ID S_PARIZQ funcCall S_PARDER
+        | R_CREATE R_INDEX ID R_ON ID S_PARIZQ ID S_PARIZQ ID S_PARDER S_PARDER
         | R_CREATE R_UNIQUE R_INDEX ID R_ON ID S_PARIZQ idList S_PARDER
     """
     repGrammar.append(t.slice)
+    if t[2] == 'UNIQUE':
+        t[0] = instruction2.Index(t[4], t[6], t[8], t[2], t.slice[1].lineno, t.slice[1].lexpos)
+    else:
+        if len(t) == 11:
+            if t[8].upper() == 'HASH':
+                t[0] = instruction2.Index(t[3], t[5], t[9], None, t.slice[1].lineno, t.slice[1].lexpos)
+            else:
+                t[0] = instruction2.Index(t[3], t[5], [t[7],t[9]], None, t.slice[1].lineno, t.slice[1].lexpos)
+        else:
+            if t[8] == '(':
+                t[0] = instruction2.Index(t[3], t[5], t[9], None, t.slice[1].lineno, t.slice[1].lexpos)
+            else:
+                t[0] = instruction2.Index(t[3], t[5], t[7], None, t.slice[1].lineno, t.slice[1].lexpos)
+    #print(str(t[0]))
+        
 
 def p_fase2_stmt(t): # ACA GUARDARIA EL CODIGO 3 DIRECCIONES DE LA FASE 2
     '''
@@ -1988,8 +2002,6 @@ def parserTo3D(input)-> None:
     parser.parse(input)
 
 
-
-
 #------------------------------------ METODOS PROPIOS DE LA FASE 2
 
 def getCodigo():
@@ -2048,7 +2060,15 @@ def C3D_INSTRUCCIONES_FASE1_SIMBOLICO(t):
 
 
 
+parser.parse("""
+CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
 
+CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
+                             item varchar(100) not null,
+                             punteo integer not null);
+
+CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
+""")
 
 
 

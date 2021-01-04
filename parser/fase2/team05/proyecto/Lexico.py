@@ -220,7 +220,10 @@ palabras_reservadas = {
     'begin'         : 'BEGIN',
     'declare'       : 'DECLARE',
     'plpgsql'       : 'PLPGSQL',
-    'language'      : 'LANGUAGE'
+    'language'      : 'LANGUAGE',
+    'procedure'     : 'PROCEDURE',
+    'inout'         : 'INOUT',
+    'execute'       : 'EXECUTE'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -256,7 +259,6 @@ tokens = [
              'BNot',
              'DesplazaI',
              'DesplazaD',
-             'ARROBA',
              'DPUNTOS',
              'FINF'
          ] + list(palabras_reservadas.values())
@@ -288,7 +290,6 @@ t_BXor = r'#'
 t_BNot = r'~'
 t_DesplazaI = r'<<'
 t_DesplazaD = r'>>'
-t_ARROBA          = r'@'
 t_DPUNTOS         = r':'
 t_FINF            = r'\$\$'
 
@@ -481,6 +482,8 @@ def p_instruccion2(t):
                         |   I_ALTERTB
                         |   I_CINDEX
                         |   FUNCION_N
+                        |   PROCEDURE_N
+                        |   PEXECUTE
     """
     t[0] = t[1]
 
@@ -2336,6 +2339,31 @@ def p_ISelect9(t):
         codigo_3D.append(C3D)
         t[0] = ret
 
+def p_ISelect10(t):
+    'I_SELECT   :   SELECT ID PABRE PCIERRA '
+    global reporte_gramatical, contador, codigo_3D
+    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"ID\" \"()\" ")
+    C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) +'()' +';"'
+    ret = Retorno(SelectFun(t[2],None),NodoAST("SELECT"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+
+    contador = contador + 1
+    codigo_3D.append(C3D)
+    t[0] = ret
+
+def p_ISelect11(t):
+    'I_SELECT   :   SELECT ID PABRE L_ID PCIERRA '
+    global reporte_gramatical, contador, codigo_3D
+    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"ID\" \"()\" ")
+    C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) +'('+ str(t[4].getInstruccion()) + ')' +';"'
+    ret = Retorno(SelectFun(t[2],t[4].getInstruccion()),NodoAST("SELECT"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(t[4].getNodo())
+
+    contador = contador + 1
+    codigo_3D.append(C3D)
+    t[0] = ret
+
 
 def p_LComplementoS(t):
     'LCOMPLEMENTOS  :   LCOMPLEMENTOS COMPLEMENTO  '
@@ -2444,6 +2472,10 @@ def p_ComplementoSelectExceptPcoma(t):
     # INSTRUCCION COMPLEMENTOSELECTEXCEPTPCOMA
     global reporte_gramatical
     reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \";\"")
+    t[0] = None
+
+def p_ComplementoSelectEmpty(t):
+    'COMPLEMENTOSELECT  : '
     t[0] = None
 
 
@@ -5297,6 +5329,22 @@ def p_VALORFAcosh(t):
 def p_VALORFAtanh(t):
     'VALORF  :   ATANH PABRE LNUMF PCIERRA  '
 
+def p_VALORFAsigna(t):
+    'VALORF  :   ID PABRE PCIERRA '
+
+def p_VALORFAsigna2(t):
+    'VALORF  :   ID PABRE PARAMETROS PCIERRA '
+
+def p_VALORFInstruccion(t):
+    'VALORF  :  PABRE INSTRUCCION PCIERRA '
+
+
+def p_Parametros(t):
+    'PARAMETROS  :   PARAMETROS COMA ID '
+
+def p_Parametros1(t):
+    'PARAMETROS  :   ID '
+
 
 def p_LVALOR(t):
     'LVALOR  :   VALORF  '
@@ -5330,7 +5378,47 @@ def p_LBOTHFTrailing(t):
 def p_LBOTHFBoth(t):
     'LBOTHF  :   BOTH   '
 
+# -------------------------------------------------- PROCEDIMIENTO
 
+def p_PROCEDURE(t):
+    'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+
+def p_PROCEDURE2(t):
+    'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
+
+def p_PROCEDURE3(t):
+    'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+
+def p_PROCEDURE4(t):
+    'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
+
+
+def p_StatementP(t):
+    'STAMENTP  :   BEGIN LINSTRUCCIONESFN END PCOMA FINF PCOMA'
+
+def p_LParamP(t):
+    'LPARAMP  :   LPARAMP COMA PARAMP   '
+
+def p_LParamP2(t):
+    'LPARAMP  :   PARAMP   '
+
+
+def p_ParamP(t):
+    'PARAMP  :   INOUT ID I_TIPO  '
+
+def p_ParamP2(t):
+    'PARAMP  :   ID I_TIPO'
+
+
+def p_Execute(t):
+    'PEXECUTE  :   EXECUTE ID PABRE PCIERRA PCOMA'
+
+def p_Execute2(t):
+    'PEXECUTE  :   EXECUTE ID PABRE PARAMETROS PCIERRA PCOMA'
+
+
+
+#---------------------------------------------------FIN PROCEDIMIENTO
 
 # -----------------------------------------------
 

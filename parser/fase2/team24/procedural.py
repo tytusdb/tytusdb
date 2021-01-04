@@ -2,6 +2,8 @@ from InstruccionesDGA import tabla as ts
 import tablaDGA as TAS
 import InstruccionesDGA as dga
 
+funciones = []
+
 class pl():
     'Clase abstacta'
 
@@ -13,7 +15,157 @@ class declaration(pl):
         self.collate = collate
         self.notnull = notnull
         self.exp = exp
-    
+
+    def c3d():
+        c3d = ''
+        if  self.exp == None:
+            valor = 'None'
+        else:
+            valor = str(self.exp.traducir())
+
+
+        if  collate == None:
+            col = 'None'
+        else:
+            col = collate.val
+
+        if self.tipo == 'SMALLINT':
+
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'INTEGER':
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'BIGINT':
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'DECIMAL':
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'NUMERIC': 
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'REAL':
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'DOUBLE_PRECISION':   
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.DOUBLE_PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'DOUBLE':
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'CHARACTER':
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'CHARACTER_VARYING':
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.CHARACTER_VARYING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'TEXT': 
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        elif self.tipo == 'TIMESTAMP':
+            c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\ttabla.agregar(NuevoSimbolo)\n'
+            c3d += '\tcont+=1\n'
+        return c3d
+
+
+    def traducir():
+        c3d = ''
+       
+        if self.tipo == 'SMALLINT': 
+            
+            if  self.exp == None:
+                c3d += '\self.id.val = 0'
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+            
+        elif self.tipo == 'INTEGER':
+            if  self.exp == None:
+                c3d += '\self.id.val = 0'
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+            
+        elif self.tipo == 'BIGINT':
+            if  self.exp == None:
+                c3d += '\self.id.val = 0'
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+            
+        elif self.tipo == 'DECIMAL':
+            if  self.exp == None:
+                c3d += '\self.id.val = 0'
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+            
+        elif self.tipo == 'NUMERIC': 
+            if  self.exp == None:
+                c3d += '\self.id.val = 0'
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+            
+        elif self.tipo == 'REAL':
+            if  self.exp == None:
+                c3d += '\self.id.val = 0'
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+        elif self.tipo == 'DOUBLE':   
+            if  self.exp == None:
+                c3d += '\self.id.val = 0'
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+        elif self.tipo == 'PRECISION':
+            if  self.exp == None:
+                c3d += '\self.id.val = 0'
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+        elif self.tipo == 'CHARACTER':
+            if  self.exp == None:
+                c3d += '\self.id.val = \'\' '
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+        elif self.tipo == 'CHARACTER_VARYING':
+            if  self.exp == None:
+                c3d += '\self.id.val = \'\' '
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+        elif self.tipo == 'TEXT': 
+            if  self.exp == None:
+                c3d += '\self.id.val = \'\' '
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+        elif self.tipo == 'TIMESTAMP':
+            if  self.exp == None:
+                c3d += '\self.id.val = \'\' '
+            else:
+                c3d += '\self.id.val = '+str(exp.traducir())
+
+        return c3d
+        
+
     def ejecutar(self):
         #ambitoDB = ts.buscarIDDB(dga.NombreDB)
         ambitoFuncion =  ts.buscarIDF(dga.cont)
@@ -57,10 +209,7 @@ class declaration(pl):
             NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
         
-        
-     
-
-     
+    
 
 
 class expre(pl):
@@ -74,6 +223,27 @@ class createfunc(pl):
         self.lparams = lparams
         self.returntype = returntype
         self.block = block
+    
+    def traducir(self):
+        c3d = ''
+        c3d += '\tid_db = id_db(NombreDB)\n'
+        c3d += '\tNuevoSimbolo = TS.Simbolo(cont,'+self.id.val+',TIPO.FUNCTION,id_db)\n'
+        c3d += '\tcont+=1\n'
+        
+        funcion = ''
+        funcion += 'def '+self.id.val+'():\n' 
+        #variables a usar, guardando en ts y declarando
+        for declara in block.declare:
+
+            c3d += decla.c3d()+'\n' 
+            funcion += '\t'+decla.traducir()+'\n' 
+        for inst in instrucciones:
+            funcion += '\t'+inst.traducir()+'\n'
+
+        funciones.append(funcion)
+        return c3d
+
+
 
 
 class param(pl):
