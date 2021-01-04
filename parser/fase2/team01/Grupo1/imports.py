@@ -16,7 +16,7 @@ import Instrucciones.PL.pl_raise as pl_raise
 import Instrucciones.PL.pl_if as pl_if
 import Instrucciones.PL.pl_excepcion as pl_excepcion
 import Instrucciones.PL.pl_configFunction as pl_configFunction
-
+import Instrucciones.PL.pl_funciones as pl_funciones
 import Expresiones.Condicionales as condicion
 import Expresiones.Aritmeticas as arit
 import Expresiones.Logicas as logic
