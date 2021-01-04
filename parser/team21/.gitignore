@@ -6,8 +6,8 @@ team21/Analisis_Ascendente/parsetab.py
 parser.out
 parsetab.py
 **/__pycache__/**
-test.py
-storageManager
+
+
 ErroresLexicos.html
 ErroresSintacticos.html
 reporteGramatica.gv
