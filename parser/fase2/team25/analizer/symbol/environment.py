@@ -18,6 +18,9 @@ class Environment:
         self.variables = {}
         self.tables = []
         self.types = {}
+        # Cosas de Fase 2
+        self.functions = {}
+        self.procedures = {}
 
     def updateVar(self, id, value, type_):
         """
@@ -131,3 +134,37 @@ class Environment:
                 return symbol.value + "." + column
             env = env.previous
         return None
+
+# region FASE 2
+    def addFunc(self, id, func):
+        env = self
+        if id in env.functions:
+            return None
+        env.functions[id] = func
+        return func
+
+    def getFunc(self, id):
+        env = self
+        while env != None:
+            if id in env.functions:
+                func = env.functions[id]
+                return func
+            env = env.previous
+        return None
+
+    def addProc(self, id, proc):
+        env = self
+        if id in env.procedures:
+            return None
+        env.procedures[id] = proc
+        return proc
+
+    def getProc(self, id):
+        env = self
+        while env != None:
+            if id in env.procedures:
+                proc = env.procedures[id]
+                return proc
+            env = env.previous
+        return None
+#endregion
