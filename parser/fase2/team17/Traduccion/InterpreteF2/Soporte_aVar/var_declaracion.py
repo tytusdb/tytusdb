@@ -16,7 +16,7 @@ class var_declaracion(NodoArbol):
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         if self.exp != None:
-            val_exp:Valor = self.exp.traducir(entorno, arbol)
+            val_exp:Valor = self.exp.getValueAbstract(entorno, arbol)
             if str(self.tipo) != str(val_exp.tipo):
                 # ERROR de tipos incompatibles
                 pass
@@ -24,14 +24,19 @@ class var_declaracion(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         if self.exp != None:
-            val_exp:Valor = self.exp.traducir(entorno, arbol)
+            tmp = self.exp.traducir(entorno, arbol)
+            val_exp:Valor = self.exp.getValueAbstract(entorno, arbol)
             simbol:Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
+            simbol.setTemp(str(tmp))
             entorno.insertar_variable(simbol)
         else:
+            tmp = arbol.getTemp()
+            arbol.addC3D(tmp + " = ''")
             val_exp:Valor = Valor(TIPO.CADENA, 'NULL')
             simbol:Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
+            simbol.setTemp(str(tmp))
             entorno.insertar_variable(simbol)
-        self.analizar_semanticamente(entorno, arbol)
+        #self.analizar_semanticamente(entorno, arbol)
         return
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):

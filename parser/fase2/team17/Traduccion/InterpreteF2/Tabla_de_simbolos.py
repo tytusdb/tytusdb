@@ -28,8 +28,6 @@ class Tabla_de_simbolos(Simbolo):
 				return
 		self.Pila_de_tablas[len(self.Pila_de_tablas) - 1].append(simbol)
 		print("TS -> se inserto la var: " + simbol.id)
-		print("   -> tipo: " + simbol.tipo)
-		print("   -> data: " + str(simbol.valor.data))
 
 	def obtener_varibale(self, identificador):
 		'''entorno: [] = self.Pila_de_tablas[len(self.Pila_de_tablas) - 1]
@@ -41,6 +39,13 @@ class Tabla_de_simbolos(Simbolo):
 			simbol: Simbolo = item
 			if simbol.id == identificador:
 				return simbol.valor
+
+	def obtener_temporal_deVar(self, identificador):
+		for item in self.Pila_de_tablas[len(self.Pila_de_tablas) - 1]:
+			simbol: Simbolo = item
+			if simbol.id == identificador:
+				return simbol.getTemp()
+
 
 	def varibaleExiste(self, identificador):
 		for item in self.Pila_de_tablas[len(self.Pila_de_tablas) - 1]:

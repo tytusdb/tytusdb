@@ -6,3 +6,10 @@ class Simbolo():
         self.id = id
         self.tipo = tipo
         self.valor:Valor = valor
+        self.temporal = ""
+
+    def setTemp(self, tmp):
+        self.temporal = str(tmp)
+
+    def getTemp(self):
+        return str(self.temporal)

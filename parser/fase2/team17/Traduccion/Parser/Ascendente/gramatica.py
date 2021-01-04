@@ -653,6 +653,7 @@ def p_statements_conditionals(t):
                    | callfunction
                    | exit
                    | asignacionvar
+                   | declarer
     '''
     t[0] = t[1]
 
@@ -769,33 +770,23 @@ def p_Raise_complex(t):
 
 def p_declarevar(t):
     '''
-         statements : ID types NOTNULL predicate
-                    | ID types  predicate
-                    | ID types
+         declarer : ID INTEGER NOTNULL DOSPTS IGUAL exp
+                  | ID INTEGER NOTNULL IGUAL exp
+                  | ID INTEGER DOSPTS IGUAL exp
+                  | ID INTEGER IGUAL exp
+                  | ID INTEGER
     '''
-    if len(t) == 5:
-        # ID types NOTNULL PREDICATEDECLARATION
-        t[0] = var_declaracion(t[1], t[2], t[4])
-    if len(t) == 4:
-        # ID types  PREDICATEDECLARATION
-        t[0] = var_declaracion(t[1], t[2], t[3])
+    if len(t) == 7:
+        t[0] = var_declaracion(t[1], t[2], t[6], 1, 1)
+    elif len(t) == 6:
+        t[0] = var_declaracion(t[1], t[2], t[5], 1, 1)
+    elif len(t) == 5:
+        t[0] = var_declaracion(t[1], t[2], t[4], 1, 1)
     else:
         # ID types
         t[0] = var_declaracion(t[1], t[2], None)
 
 
-def p_plpgsql_predicatedeclaration(t):
-    '''
-        predicate : DOSPTS IGUAL exp
-                             | IGUAL exp
-                             | DEFAULT
-    '''
-    if len(t) == 4:
-        t[0] = t[3]
-    if len(t) == 3:
-        t[0] = t[2]
-    else:
-        t[0] = None
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
 
