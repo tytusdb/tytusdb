@@ -7,4 +7,5 @@ class TipoSimbolo(Enum):
     CONSTRAINT_PRIMARY = 4,
     CONSTRAINT_FOREIGN = 5,
     CONSTRAINT_CHECK = 6,
-    TYPE_ENUM = 7
+    TYPE_ENUM = 7,
+    INDEX = 8

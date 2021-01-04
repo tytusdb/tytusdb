@@ -1,0 +1,43 @@
+-- ----------------------------------------------------------
+
+create function somefunc(data integer,data2 text) returns integer as 'hola'
+DECLARE
+
+quantity integer DEFAULT 32;
+url varchar(10) := 'http://mysite.com';
+user_id CONSTANT integer := 10;
+
+BEGIN
+ hola := hola * 6;
+ select * from mitabla;
+ insert into tabla values (md5('hola mundo'));
+END ;
+
+
+-- -----------------------------------------------------------
+create function somefunc(data integer,data2 text) returns integer as 'hola'
+BEGIN
+ hola := hola * 6 =hola;
+
+END ;
+
+-- -------------------------------------------------------------
+create or replace function somefunc(data integer,data2 text) returns integer as 'hola'
+DECLARE
+
+quantity integer DEFAULT 32;
+url varchar(10) := 'http://mysite.com';
+user_id CONSTANT integer := 10;
+
+BEGIN
+ hola := hola * 6;
+ select * from mitabla;
+ insert into tabla values (md5('hola mundo'),sqrt(5*5+cos(1)));
+ select * from marcos;
+ delete from tabla where id=1;
+ update tabla set data=1;
+
+    SELECT users.userid 
+        FROM users WHERE users.username = get_userid.username;
+    RETURN userid;
+END ;

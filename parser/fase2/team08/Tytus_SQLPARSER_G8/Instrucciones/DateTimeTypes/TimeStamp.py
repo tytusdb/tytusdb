@@ -15,6 +15,12 @@ class TimeStamp(Instruccion):
         todays = datetime.today()
         today = todays.strftime("%Y-%m-%d %H:%M:%S")
         return today
+    
+    def analizar(self, ts, arbol):
+        pass
+    
+    def traducir(self, tabla, arbol):
+        return f"TIMESTAMP '{self.identificador}'"
 
 '''
 instruccion = Declare("hola mundo",None, 1,2)

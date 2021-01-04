@@ -1,3 +1,4 @@
+from enum import Enum
 
 class Error:
     def __init__(self, TIPO, LEXEMA, FIL ,COL):
@@ -6,7 +7,41 @@ class Error:
         self.COL = COL
         self.FIL =FIL
 
+class TipoOptimizacion(Enum):
+    REGLA1 = 1
+    REGLA2 = 2
+    REGLA3 = 3
+    REGLA4 = 4
+    REGLA5 = 5
+    REGLA6 = 6
+    REGLA7 = 7
+    REGLA8 = 8
+    REGLA9 = 9
+    REGLA10 = 10
+    REGLA11 = 11
+    REGLA12 = 12
+    REGLA13 = 13
+    REGLA14 = 14
+    REGLA15 = 15
+    REGLA16 = 16
+    REGLA17 = 17
+    REGLA18 = 18
 
+
+class ListaOptimizacion:
+    def __init__(self, c3d_original, c3d_optimizado, numero_regla):
+        self.c3d_original = c3d_original
+        self.c3d_optimizado = c3d_optimizado
+        self.numero_regla = numero_regla
+        self.nombre_regla = ''
+        if numero_regla == TipoOptimizacion.REGLA1:
+            self.nombre_regla = "Eliminación de instrucciones redundantes de carga y almacenamiento"
+        elif numero_regla == TipoOptimizacion.REGLA2 or numero_regla == TipoOptimizacion.REGLA3 or numero_regla == TipoOptimizacion.REGLA4 or numero_regla == TipoOptimizacion.REGLA5:
+            self.nombre_regla = "Eliminación de código inalcanzable"
+        elif numero_regla == TipoOptimizacion.REGLA6 or numero_regla == TipoOptimizacion.REGLA7:
+            self.nombre_regla = "Optimizaciones de flujo de control"
+        else:
+            self.nombre_regla = "Simplificación algebraica y por fuerza"
 
 class RealizarReportes:
 
@@ -55,22 +90,17 @@ class RealizarReportes:
 
         i = 1
         for token in lista:
-            print("LLEgo aqui")
-
-
-
             texto += "<td>" + str(i) + "</td>"
             texto += "<td>" + token.TIPO + "</td>"
             texto += "<td>" + token.LEXEMA + "</td>"
             texto += "<td>" + token.FIL+ "</td>"
             texto += "<td>" + token.COL + "</td>"
             texto += "</tr>"
-            i=i+1
+            i += 1
 
         texto += "</table>"
 
         f = open(nombre, 'w')
-        print("Cerrando escritura")
         f.write(texto)
         f.close()
 
@@ -132,7 +162,6 @@ class RealizarReportes:
         texto += "</table>"
 
         f = open(nombre, 'w')
-        print("Cerrando escritura")
         f.write(texto)
         f.close()
 
@@ -265,7 +294,6 @@ class RealizarReportes:
 
 
       f = open(nombre, 'w')
-      print("Cerrando escritura")
       f.write(texto)
       f.close()
 
@@ -310,7 +338,6 @@ class RealizarReportes:
 
         i = 1
         for token in lista:
-            print("LLEgo aqui")
 
             texto += "<td>" + str(i) + "</td>"
             texto += "<td>" + token + "</td>"
@@ -320,6 +347,60 @@ class RealizarReportes:
         texto += "</table>"
 
         f = open(nombre, 'w')
-        print("Cerrando escritura")
+        f.write(texto)
+        f.close()
+
+    def generar_reporte_optimizacion(self, lista):
+        nombre = "ReporteOptimizacion.html"
+
+        texto = '''
+<!DOCTYPE html>
+<head>
+<title>Optimizacion</title>
+<style>
+table {
+position: relative;
+    border: 1px solid #1c0d02;
+    box-shadow: 0px 0px 20px black;
+    width: 100%;
+}
+td, th {
+    border: 2px solid #dddddd;
+    text-align: center;
+    padding: 10px;
+}
+th{
+    background-color:cornflowerblue;
+}
+td{
+    background-color:bluegreen;
+}
+
+</style>
+</head>
+<body>
+    <h2>Reporte Optimizacion C3D</h2>
+    <table>
+    <tr>
+        <th>#</th>
+        <th>C3D Original</th>
+        <th>C3D Optimizado</th>
+        <th>Nombre Mirilla</th>
+        <th>Regla</th>
+    </tr>
+    
+    <tr>
+'''
+        for i, token in enumerate(lista):
+            texto += "<td>" + str(i + 1) + "</td>"
+            texto += "<td>" + token.c3d_original + "</td>"
+            texto += "<td>" + token.c3d_optimizado + "</td>"
+            texto += "<td>" + token.nombre_regla + "</td>"
+            texto += "<td>" + str(token.numero_regla) + "</td>"
+            texto += "</tr>"
+
+        texto += "</table></body></html>"
+
+        f = open(nombre, 'w')
         f.write(texto)
         f.close()

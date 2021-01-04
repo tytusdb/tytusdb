@@ -62,12 +62,15 @@ class CreateDatabase(Instruccion):
 
         if(self.owner!=None):
             cadena += "owner = "
-            cadena += self.owner + " "
+            cadena += "\'"+self.owner + "\' "
 
         if(self.mode!=None):
             if(int(self.mode)!=1):
                 cadena += "mode = " 
                 cadena += str(self.mode)
+            if(int(self.mode)==1):
+                cadena += "mode = 1"
+
         
         cadena += ";"+"\""
         
