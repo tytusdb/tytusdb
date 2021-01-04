@@ -36,3 +36,11 @@ class BaseDeDatos(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+
+    def traducir(self, tabla, arbol):
+        #return super().traducir(tabla, arbol)
+        pass
+
+    def analizar(self, tabla, arbol):
+        #return super().analizar(tabla, arbol)
+        pass

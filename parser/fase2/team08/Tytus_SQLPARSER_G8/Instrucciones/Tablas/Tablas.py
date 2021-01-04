@@ -10,8 +10,12 @@ class Tablas():
         self.nombreDeTabla = nombre
         self.lista_de_campos = []
         self.lista_de_data = []
+        self.lista_de_indices = [] 
         #self.lista_constraint = []
         self.orden = 0
+
+    def setIndice(self, indice):
+        self.lista_de_indices.append(indice)
 
     def agregarColumna(self,nombre1,tipo1,pk1, constraint):
         res = Campo(nombre1,tipo1,pk1,self.orden, constraint)

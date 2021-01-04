@@ -3,6 +3,7 @@
 from tkinter import *
 import tkinter
 from c3d import analizarLex, analizarSin
+from bnf import analizarBNFLex, analizarBNFSin
 
 # creamos una nueva ventana
 ventana = Tk()
@@ -44,10 +45,13 @@ def reporte():
     print("REPORTE AST")
     response = txt_consultas.get("1.0","end")
 
-# Metodo reporte AST
+# Metodo reporte BNF
 def reporteBNF():
     print("REPORTE BNF")
     result= txt_consultas.get("1.0","end")
+    salida_Lexico = analizarBNFLex(result)  # se envia el texto a el analizador lexico
+    analizarBNFSin(result)  # se envia el texto a el analizador sintactico
+    print(salida_Lexico)
     
 # ======================================================================
 #                               BOTONES

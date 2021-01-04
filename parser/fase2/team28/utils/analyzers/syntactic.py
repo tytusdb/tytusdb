@@ -86,6 +86,7 @@ def p_sql_instruction(p):
                       | MULTI_LINE_COMMENT
                       | SINGLE_LINE_COMMENT
                       | INDEXES_STATEMENT
+                      | CALL_FUNCTIONS_PROCEDURE SEMICOLON
                       | error SEMICOLON
     '''
     global contador_instr, arr_instr
@@ -483,6 +484,11 @@ def p_options2_indexes(p):
         else:
             p[0] = True
 
+def p_call_functions_or_procedure(p):
+    '''CALL_FUNCTIONS_PROCEDURE : OBJECTREFERENCE LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS
+                                | OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
+                                | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
+                                | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS '''
 
 def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
@@ -882,6 +888,13 @@ def p_options_statements(p):
 
 def p_statement_type(p):
     '''statementType : PLPSQL_EXPRESSION  SEMICOLON 
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL QUERYSTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS INSERTSTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL INSERTSTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS DELETESTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL DELETESTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS UPDATESTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL UPDATESTATEMENT
                     |  RAISE_EXCEPTION 
                     |  BODY_DECLARATION
                     |  ifStatement
@@ -935,7 +948,7 @@ def p_plpsql_primary_expression(p):
                                  | PLPSQL_PRIMARY_EXPRESSION DIVISION PLPSQL_PRIMARY_EXPRESSION
                                  | PLPSQL_PRIMARY_EXPRESSION EXPONENT PLPSQL_PRIMARY_EXPRESSION
                                  | PLPSQL_PRIMARY_EXPRESSION MODULAR PLPSQL_PRIMARY_EXPRESSION
-                                 | LEFT_PARENTHESIS PLPSQL_PRIMARY_EXPRESSION RIGHT_PARENTHESIS
+                                 | LEFT_PARENTHESIS PLPSQL_EXPRESSION RIGHT_PARENTHESIS
                                  | REST PLPSQL_PRIMARY_EXPRESSION %prec UREST
                                  | PLUS PLPSQL_PRIMARY_EXPRESSION %prec UPLUS
                                  | AGGREGATEFUNCTIONS
@@ -1382,6 +1395,8 @@ def p_list_item(p):
 def p_select_item(p):
     '''SELECTITEM : SQLEXPRESSION SQLALIAS
                   | SQLEXPRESSION
+                  | CALL_FUNCTIONS_PROCEDURE SQLALIAS
+                  | CALL_FUNCTIONS_PROCEDURE
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
         p[1].alias = p[2].alias
@@ -2045,7 +2060,9 @@ def p_sql_object_reference(p):
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
-                        | SQLSIMPLEEXPRESSION'''
+                        | LISTVALUESINSERT COMMA CALL_FUNCTIONS_PROCEDURE
+                        | SQLSIMPLEEXPRESSION
+                        | CALL_FUNCTIONS_PROCEDURE'''
     if(len(p) == 4):
         p[1].append(p[3])
         p[0] = p[1]
