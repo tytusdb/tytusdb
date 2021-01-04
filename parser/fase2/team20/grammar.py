@@ -1406,17 +1406,16 @@ def p_pl_param_tablereturn(t):
 #MAIN BLOCK
 def p_pl_mainblock_1(t):
     '''mainBlock : declarationBlock statementsBlock'''
-    t[1].append(t[2])
-    t[0]  = t[1]
+    t[0] = BlockFunction(t[1],t[2])
 
 def p_pl_mainblock_2(t):
     '''mainBlock : statementsBlock'''
-    t[0] = t[1]
+    t[0] = BlockFunction(None,t[1])
 
 #DECLARATION BLOCK
 def p_pl_declarationblock(t):
     '''declarationBlock : DECLARE declarationList'''
-    t[0] = [t[2]]
+    t[0] = t[2]
 
 def p_pl_declarelist_list(t):
     '''declarationList : declarationList optDeclaration'''
@@ -1510,11 +1509,11 @@ def p_pl_declaration_assignment_2(t):
 #ALIAS DECLARATION
 def p_pl_declarationalias_1(t):
     '''declarationAlias : ID ALIAS FOR ID'''
-    t[0] = AliasDeclaration(t[1],t[5])
+    t[0] = AliasDeclaration(t[1],t[4])
 
 def p_pl_declarationalias_2(t):
     '''declarationAlias : ID ALIAS FOR DOLLAR INT'''
-    t[0] = AliasDeclaration(t[1],str(t[6]))
+    t[0] = AliasDeclaration(t[1],str(t[5]))
 
 #TYPES DECLARATION
 def p_pl_declarationtype_1(t):

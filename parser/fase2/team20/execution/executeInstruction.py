@@ -24,12 +24,15 @@ def executeInstruction(self, instruction):
                 if(returntype==""):self.plcode+="):\n"
                 else: self.plcode+=") ->"+returntype+":\n"
         # Body function
-        self.plcode+="\tprint(1)"              
+        self.plcode+="\tprint(1)" 
     elif isinstance(instruction, CreateParam):
         print(instruction.name)
     elif isinstance(instruction, CreateReturn):
         print(instruction.type)
         print(instruction.paramsTable)
+    elif isinstance(instruction, BlockFunction):
+        print(instruction.declarations)
+        print(instruction.statements)
 
 def getType(sqltype):
     if(sqltype=="TEXT" 
@@ -47,3 +50,4 @@ def getType(sqltype):
     or sqltype=="REAL"):
         return "float"
     return ""
+    
