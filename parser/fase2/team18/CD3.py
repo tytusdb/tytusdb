@@ -258,6 +258,28 @@ def PCreateFuncion(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
 
 #EMPIEZA MIO *****************
 
+
+#Procedimientos
+def PDropProcedimientos(nombres):
+    reinicar_contOP()
+    drop_procedimientos=[nombres]
+    txt="\t#Drop Procedure\n"
+    txt+="\tt"+str(numT())+"="+str(nombres)+"\n"
+    txt+="\tCD3.EDropProcedure()\n"
+    agregarInstr(drop_funcion,txt)
+
+def PCreateProcedure(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
+    reinicar_contOP()
+    txt="\t#Crear Procedure\n"
+    txt+="\tt"+str(numT())+"='"+nombreF+"'\n"
+    txt+="\tt"+str(numT())+"="+str(parametrosF)+"\n"
+    txt+="\treplace="+str(reemplazada)+"\n"
+    varT="t"+str(numT())
+    txt+="\t"+varT+"=CD3.ECreateProcedure()\n"
+
+
+#Fin procedimientos
+
     TTv=""
 #^^^
 def PAlterRenameDatabase(nombreBaseOld,nombreBaseNew):
@@ -725,6 +747,28 @@ def ECantidadRegistros():
         listaMemoria.pop(0)
         return registros[0]
     return 0
+
+#Ejecucion procedimientos
+def EDropProcedure():
+    cargarMemoria()
+    if(len(listaMemoria)>0):
+        drop_Proc=listaMemoria[0]
+        for i in drop_Proc:
+            print("Procedimiento eliminada: ",i.lower())
+        listaMemoria.pop(0)
+
+def ECreateProcedure():
+    cargarMemoria()
+    if(len(listaMemoria)>0):
+        crea=listaMemoria[0]
+        print("Procedure ",crea[0])
+        print("\tparametros:",crea[3])
+        listaMemoria.pop(0)
+
+
+#FIN ejecucion
+
+
 
 #2INICIO MIO *****************
 

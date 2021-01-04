@@ -1338,6 +1338,7 @@ def p_crear_function(t):
 
 def p_crear_procedure(t):
      '''crear : CREATE reemplazar PROCEDURE ID PAR_A lparametros PAR_C lenguaje_funcion AS dollar_var cuerpo_funcion dollar_var'''
+     t[0] = Procedimiento(t[2],t[4],t[6],t[11])
 
 
 def p_funcion_dollar(t):
@@ -1412,10 +1413,18 @@ def p_begin(t):
 def p_tipo_funcionalidad(t):
      '''tipo_funcionalidad : funcionalidad
                            | lista_proc'''
+     t[0]=t[1]
+
 
 def p_lista_proc(t):
      '''lista_proc : lista_proc func_proc
                    | func_proc'''
+     if len(t)==3:
+          t[1].append(t[2])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
+
 
 def p_func_proc(t):
      '''func_proc : insert_proc'''
@@ -1711,6 +1720,9 @@ def p_liberar_funtion(t):
      '''liberar : DROP FUNCTION lnombres'''
      t[0] = Drop_Function(t[3])
 
+def p_liberar_procedure(t):
+     '''liberar : DROP PROCEDURE lnombres'''
+     t[0] = Drop_Procedure(t[3])
 
 def p_existencia(t):
      '''existencia : IF EXISTS

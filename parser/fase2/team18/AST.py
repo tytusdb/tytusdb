@@ -38,6 +38,8 @@ def reiniciarVariables():
     outputTS = []
     global listaFunciones
     listaFunciones=[]
+    global listaProcedure
+    listaProcedure=[]
     EDD.dropAll() #eliminar para ir haciendo pruebas, quitarlo al final
     baseActiva =""#eliminar para ir haciendo pruebas, quitarlo al final
     
@@ -54,6 +56,16 @@ def buscarFuncion(nombre):
                 pos=pos+1
     return None
 
+
+def addProcedure(name,tipo,cuerpo,parametros):
+    global listaProcedure
+    listaProcedure.append(Procedure_run(name,tipo,cuerpo,parametros))
+
+def findProcedure(nombre):
+    for i in listaProcedure:
+        if(listaProcedure[i].nombre == nombre): return listaProcedure[i]
+        else: return None
+  
 def validarTipoF(T):
     if(T=="smallint" or T=="integer" or T=="bigint"):
         return True
@@ -78,6 +90,13 @@ def eliminarFuncion(nombre):
             break
         else:
             pos=pos+1
+
+def eliminarProcedure(name):
+    global listaProcedure
+    for i in listaProcedure:
+        if(listaProcedure[i].nombre==name):
+            listaProcedure.pop(i)
+
 
 def insertartabla(columnas,nombre):
     global listaTablas
@@ -3449,6 +3468,53 @@ def Eliminar_Funcion(instr,ts):
             agregarMensjae('exito', 'Funcion '+nm.lower()+' eliminada','')
         else:
             agregarMensjae('error', '42883:Funcion no registrada','42883')
+
+
+
+#Procedimientos almacenados
+def Procedimientos(instr,ts):
+ 
+    #Manejo de las variables de los procedimientos
+    reemplazar =instr.reemplazar
+    name =instr.nombre.lower()
+    parametros=[]
+    bodyProcedure =instr.cuerpo
+    proc =True
+    
+    #verificar los parametros 
+    if(instr.parametros[0]!=False):
+        #recorrer la lista de parametros
+        for x in instr.parametros:
+            #crear el objeto parametro
+            flagParametros=False
+            parAux=Parametro_run()
+            parAux.nombre=x.nombre.lower()
+            
+            #revisar parametros repetidos
+            for i in parametros:
+                if (i.nombre==parAux.nombre):
+                    parEx=True
+                    msg="El parametro "+x.nombre+" ya existe declarado"
+                    agregarMensjae("error",msg,"")
+                    proc =False
+                    break
+
+            #agregar size
+            if(x.tamano!=False):
+                parAux.tamano=resolver_operacion(x.tamano[0],ts)
+            #agregar valor
+            if(x.valor!=False):
+                parAux.valor=x.valor
+            #agregar a la lista de parametros
+            if(flagParametros==False):
+                parametros.append(parAux)
+                print(parAux.nombre,parAux.tipo,parAux.tamano,parAux.valor)
+
+   
+    #agregar procedimiento
+
+
+
 
 
 def resolver_operacion(operacion,ts):
