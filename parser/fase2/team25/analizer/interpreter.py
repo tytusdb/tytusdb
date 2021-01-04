@@ -5,7 +5,8 @@ path.append(dir(path[0]))
 
 from analizer.statement.instructions.select.select import Select
 from analizer.abstract import instruction
-from analizer import grammar
+from analizer import grammar  # GRAMATICA DE LA FASE 2
+from analizer.gramaticaFase2 import getCodigo, parserTo3D
 from analizer.reports import BnfGrammar
 
 
