@@ -31,7 +31,8 @@ class DropDatabase(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        result_name = self.name.generate(table, tree)
+        return f'DROP DATABASE{" IF EXISTS" if self.if_exists else ""} {result_name};'
 
 
 class DropTable(ASTNode):
@@ -56,4 +57,5 @@ class DropTable(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        result_name = self.name.generate(table, tree)
+        return f'DROP TABLE {result_name};'
