@@ -2,6 +2,9 @@ import sys, os.path
 nodo_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\Start\\')
 sys.path.append(nodo_dir)
 
+c3d_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\C3D\\')
+sys.path.append(c3d_dir)
+
 from prettytable import PrettyTable
 from Libraries import Nodo
 from Libraries import Database
@@ -14,7 +17,9 @@ from Libraries import UnionAll
 from Libraries import Union
 from Libraries import Intersect
 from Libraries import Except
-
+from Traduccion import *
+from Label import *
+from Temporal import *
 
 
 # Importación de Clases para Execute
@@ -114,7 +119,11 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
                 
     def compile(self,enviroment = None):
+
         pilaInstrucciones = []
+        instanceLabel.labelActual = 1
+        instanceTemporal.temporalActual = 1
+
         for hijo in self.hijos:
             if hijo.nombreNodo == 'CREATE_DATABASE':
                 nuevaDB = Database()
@@ -128,6 +137,9 @@ class Start(Nodo):
                 texto = texto + nuevoUse.compile(hijo)
                 texto = texto + "\")"
                 pilaInstrucciones.append(texto)
+            elif hijo.nombreNodo == 'E':
+                cod = hijo.compile(enviroment)
+                print(cod)
         
         
 
@@ -137,3 +149,13 @@ class Start(Nodo):
             archivo.write("\n")
         archivo.close()
 
+    def getText(self):
+
+        textoEntrada = ''
+        
+        for hijo in self.hijos:
+            
+            if hijo.nombreNodo == 'SENTENCIA_SELECT':
+                textoEntrada += traduccionSelect(hijo)
+
+        return textoEntrada
