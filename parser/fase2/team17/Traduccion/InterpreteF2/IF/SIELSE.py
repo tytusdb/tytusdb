@@ -19,12 +19,15 @@ class SIELSE(NodoArbol):
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         Bv = arbol.getLabel()
         Bf = arbol.getLabel()
+        Btemporal = arbol.getLabel()
         arbol.addC3D("if " + self.exp.traducir(entorno, arbol) + " goto " + str(Bv))
         arbol.addC3D("goto " + Bf)
         arbol.addC3D(Bv + ":")
         arbol.addC3D(self.body.traducir(entorno, arbol))
+        arbol.addC3D("goto " + Btemporal)
         arbol.addC3D(Bf + ":")
         arbol.addC3D(self.contrabody.traducir(entorno, arbol))
+        arbol.addC3D(Btemporal + ":")
         pass
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):

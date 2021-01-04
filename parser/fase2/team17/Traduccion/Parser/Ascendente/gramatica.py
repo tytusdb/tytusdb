@@ -602,37 +602,32 @@ def p_statements_return(t):
 
 def p_conditionals(t):
     '''
-        conditionals : if
+        conditionals : ifheader
                      | case
     '''
     t[0] = t[1]
 # ================= IF =================
+
+def p_ifheader(t):
+    '''
+        ifheader : IF if END IF
+    '''
+    t[0] = t[2]
+
 def p_if(t):
     '''
-        if : IF exp THEN stmts END IF
-           | IF exp THEN stmts elsiflist END IF
-           | IF exp THEN stmts elsiflist else END IF
-           | IF exp THEN stmts else END IF
+        if : exp THEN stmts
+           | exp THEN stmts ELSE stmts
+           | exp THEN stmts ELSIF if
     '''
-    t[0] = SI(t[2], t[4], 1, 1)
+    if len(t) == 6:
+        if t[4].lower() == "else":
+            t[0] = SIELSE(t[1], t[3], t[5], 1, 1)
+        elif t[4].lower() == "elsif":
+            t[0] = SIELSE(t[1], t[3], t[5], 1, 1)
+    else:
+        t[0] = SI(t[1], t[3], 1, 1)
 
-def p_elsiflist(t):
-    '''
-        elsiflist : elsiflist elsif
-                  | elsif
-    '''
-
-
-def p_elsif(t):
-    '''
-        elsif : ELSIF exp THEN stmts
-    '''
-
-
-def p_else(t):
-    '''
-        else : ELSE stmts
-    '''
 
 # ================= CASE =================
 
