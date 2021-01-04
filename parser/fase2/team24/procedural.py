@@ -2,6 +2,8 @@
 import tablaDGA as TAS
 import InstruccionesDGA as dga
 
+funciones = []
+
 class pl():
     'Clase abstacta'
 
@@ -13,7 +15,10 @@ class declaration(pl):
         self.collate = collate
         self.notnull = notnull
         self.exp = exp
-    
+
+
+
+
     def ejecutar(self):
         #ambitoDB = ts.buscarIDDB(dga.NombreDB)
         ambitoFuncion =  ts.buscarIDF(dga.cont)
@@ -75,6 +80,17 @@ class createfunc(pl):
         self.lparams = lparams
         self.returntype = returntype
         self.block = block
+    
+    def ejecutar(self):
+        c3d = ''
+        c3d += '\tid_db = id_db(NombreDB)'
+        c3d += '\tNuevoSimbolo = TS.Simbolo(cont,'+self.id+',TIPO.FUNCTION,id_db)'
+        c3d += '\tcont+=1'
+        
+        funcion = ''
+        funciones.append(funcion)
+
+
 
 
 class param(pl):
