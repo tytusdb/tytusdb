@@ -21,14 +21,15 @@ def numT():
 def reinicar_contOP():
     global contOP
     if contOP != -1 or contT != -1:
-        regla = "Regla 1"
-        msg = "Se reutilizo la t"+str(contOP)+" en lugar del t"+str(contT)  
-        agregarOptimizacion(regla,msg)
+        regla = "1 - Se reutilizo temporal"
+        noOp = "t"+str(contT)
+        Op = "t"+str(contOP)  
+        agregarOptimizacion(regla,noOp,Op)
     contOP=-1
 
-def agregarOptimizacion(regla,msg):
+def agregarOptimizacion(regla,codnoOp,condOp):
     global listaoptimizaciones
-    listaoptimizaciones.append([regla,msg])
+    listaoptimizaciones.append([regla,codnoOp,condOp])
 
 def agregarInstr(datoMemoria,instruccion):
     #agregar a la lista de parametros
@@ -239,20 +240,18 @@ def PCreateFuncion(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
     varT="t"+str(numT())
     txt+="\t"+varT+"=CD3.ECreateFuncion()\n"
      #------------------optimizacion---------------
-    regla="Regla 3"
-    msg="Se optimizo el siguiente bloque de codigo:\n"
-    msg+="if("+varT+"):\n"
+    regla="3 - se nego condicion para poder eliminar etiqueta"
+    msg="if("+varT+"):\n"
     msg+="\tgoto .bodyFun"+str(contT)+"\n"
     msg+="else:\n"
     msg+="\tgoto .endFun"+str(contT)
-    agregarOptimizacion(regla,msg)
     #---------------------------------------------
     txt+="\tif("+varT+"==False):\n"
     txt+="\t\tgoto .endFun"+str(contT)+"\n"
     txt+="\tlabel.bodyFun"+str(contT)+"\n"
     txt+="\t'"+str(contenidoF)+"'\n"
     txt+="\tlabel.endFun"+str(contT)+"\n"
-
+    agregarOptimizacion(regla,msg,txt)
     dataC=[nombreF,tipoF,str(contenidoF),parametrosF,reemplazada]
     agregarInstr(dataC,txt)
 

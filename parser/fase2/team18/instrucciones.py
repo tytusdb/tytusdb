@@ -343,11 +343,13 @@ class Indice(Instruccion):
     '''
         Esta clase representa un indice
     '''
-    def __init__(self,nombre,tabla,tipo,columnas):
+    def __init__(self,nombre,tabla,tipo,unique,columnas,orden):
         self.nombre=nombre
         self.tabla=tabla
         self.tipo=tipo
+        self.unique=unique
         self.columnas=columnas
+        self.orden=orden
 
 class Funcion(Instruccion):
     '''

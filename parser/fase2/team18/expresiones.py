@@ -389,3 +389,19 @@ class Sentencia_ELSIF_ELSE(Expresion):
         self.tipo = tipo
         self.codicion = condicion
         self.sentencias = sentencias
+
+class Sentencia_Case(Expresion):
+    '''
+        Esta clase representa a una sentencia case dentro de una funcion o procedure
+    '''
+    def __init__(self,busqueda,sentencia_when):
+        self.busqueda=busqueda
+        self.sentencia_when=sentencia_when
+
+class Sentencia_When_Else(Expresion):
+    '''
+        Esta clase representa a una sentecia when o else perteneciente a un case
+    '''
+    def __init__(self,condicion,sentencias):
+        self.condicion=condicion
+        self.sentencias=sentencias

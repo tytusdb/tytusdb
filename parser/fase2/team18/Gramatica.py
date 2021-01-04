@@ -1070,11 +1070,11 @@ def p_funcion_math(t):
      
      
 def p_funciones_select_count(t):
-     '''funcion_math : COUNT PAR_A val_count PAR_C'''
+     '''value_select : COUNT PAR_A val_count PAR_C'''
      t[0] = Funcion_select(t[3],FUNCIONES_SELECT.COUNT)
 
 def p_funciones_select_restantes(t):
-     '''funcion_math : SUM PAR_A exp PAR_C
+     '''value_select : SUM PAR_A exp PAR_C
                      | AVG PAR_A exp PAR_C
                      | MAX PAR_A exp PAR_C
                      | MIN PAR_A exp PAR_C'''
@@ -1314,11 +1314,15 @@ def p_crear(t):
 
 def p_crear_index(t):
      'crear : CREATE unicidad_index INDEX ID ON ID tipo_index PAR_A lista_exp value_direction value_rang PAR_C cond_where'
-     t[0] = Indice(Operando_ID(t[4]),Operando_ID(t[6]),Operando_Booleano(t[7]),t[9])
+     t[0] = Indice(Operando_ID(t[4]),Operando_ID(t[6]),Operando_Booleano(t[7]),Operando_Booleano(t[2]),t[9],t[10])
 
 def p_unicidad_index(t):
-     '''unicidad_index : UNIQUE
-                       | empty'''
+     '''unicidad_index : UNIQUE'''
+     t[0]=True
+
+def p_unicidad_index_empty(t):
+     '''unicidad_index : empty'''
+     t[0]=False 
 
 def p_tipo_index(t):
      '''tipo_index : USING HASH
@@ -1402,7 +1406,7 @@ def p_declaracion_variables(t):
           t[0] = False
 
 def p_begin(t):
-     '''funcion_begin : BEGIN funcionalidad END PTCOMA
+     '''funcion_begin : BEGIN lfuncionalidad END PTCOMA
                       | empty'''
      if len(t) == 5:
           t[0] = t[2]
@@ -1410,7 +1414,7 @@ def p_begin(t):
           t[0]= False
 
 def p_tipo_funcionalidad(t):
-     '''tipo_funcionalidad : funcionalidad
+     '''tipo_funcionalidad : lfuncionalidad
                            | lista_proc'''
 
 def p_lista_proc(t):
@@ -1429,10 +1433,19 @@ def p_declaracion_funcion(t):
      else:
           t[0] = [t[1]]
 
+def p_lfuncionalidad(t):
+     '''lfuncionalidad : lfuncionalidad funcionalidad
+                       | funcionalidad'''
+     if len(t) == 3:
+          t[1].append(t[2])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
 def p_funcionalidad_funcion(t):
      '''funcionalidad : seleccion_funcion
-                      | operacion_expresiones
-	                 | sentencia_If'''
+	                 | sentencia_If
+                      | sentencia_case
+                      | operacion_expresion'''
      t[0] = t[1]
 
 def p_insertar_proc(t):
@@ -1440,26 +1453,17 @@ def p_insertar_proc(t):
 
 
 def p_op_funcionalidad_funcion(t):
-     '''seleccion_funcion : SELECT cantidad_select parametros_select asignation cuerpo_select PTCOMA RETURN exp PTCOMA'''
+     '''seleccion_funcion : SELECT cantidad_select parametros_select asignation cuerpo_select PTCOMA'''
      t[0] = Select_Asigacion(t[2],t[3],t[4],t[5],t[8])
 
 def p_asignacion_select(t):
      '''asignation : INTO ID'''
      t[0] = Operando_ID(t[2])
 
-def p_operaciones_expresiones(t):
-     '''operacion_expresiones : operacion_expresiones operacion_exp 
-                              | operacion_exp'''
-     if len(t) == 3:
-          t[1].append(t[2])
-          t[0] = t[1]
-     else:
-          t[0] = [t[1]]
-
 def p_operacion_exp(t):
-     '''operacion_exp : ID ASIGNACION exp PTCOMA
-                      | RAISE exp PTCOMA
-                      | RETURN exp PTCOMA'''
+     '''operacion_expresion : ID ASIGNACION exp PTCOMA
+                            | RAISE exp PTCOMA
+                            | RETURN exp PTCOMA'''
      if len(t) == 5:
           t[0] = Operacion_Expresion("asignacion",Operando_ID(t[1]),t[3])
      else:
@@ -1469,7 +1473,7 @@ def p_operacion_exp(t):
                t[0] = Operacion_Expresion('return',None,t[2])
      
 def p_sentencia_if(t):
-     '''sentencia_If : IF exp THEN funcionalidad sentencia_elif_else END IF PTCOMA'''
+     '''sentencia_If : IF exp THEN lfuncionalidad sentencia_elif_else END IF PTCOMA'''
      t[0] = Sentencia_IF(t[2],t[4],t[5])
 
 def p_sentencia_if_else(t):
@@ -1482,8 +1486,8 @@ def p_sentencia_if_else(t):
           t[0] = [t[1]]
 
 def p_sentencia_if_else_empty(t):
-     '''sentencia_condicional : ELSIF exp THEN funcionalidad
-                              | ELSE funcionalidad
+     '''sentencia_condicional : ELSIF exp THEN lfuncionalidad
+                              | ELSE lfuncionalidad
                               | empty'''
      if len(t) == 5:
           t[0] = Sentencia_ELSIF_ELSE('elsif',t[2],t[4])
@@ -1491,7 +1495,37 @@ def p_sentencia_if_else_empty(t):
           t[0] = Sentencia_ELSIF_ELSE('else',None,t[2])
      else:
           t[0] = False
-          
+
+def p_sentencia_case(t):
+     '''sentencia_case : CASE busqueda_case lsentencia_when END CASE PTCOMA'''
+     t[0] = Sentencia_Case(t[2],t[3])
+
+
+def p_busqueda_case(t):
+     '''busqueda_case : exp'''
+     t[0] = t[1]
+
+def p_busqueda_case_empty(t):
+     '''busqueda_case : empty'''
+     t[0] = False
+
+def p_lsentencias_when(t):
+     '''lsentencia_when : lsentencia_when sentencia_when
+                        | sentencia_when'''
+     if len(t) == 3:
+          t[1].append(t[2])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
+
+def p_sentencia_case_when(t):
+     '''sentencia_when : WHEN exp THEN lfuncionalidad
+                       | ELSE lfuncionalidad'''
+     if len(t) == 5:
+          t[0] = Sentencia_When_Else(t[2],t[4])
+     else:
+          t[0] = Sentencia_When_Else(None,t[2])
+
 def p_reemplazar(t):
      '''reemplazar : OR REPLACE
                    | empty'''

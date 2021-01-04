@@ -109,14 +109,17 @@ def agregarMensjae(tipo,mensaje,codigo):
     txtOut.codigo=codigo
     outputTxt.append(txtOut)
 
-def agregarTSRepor(instruccion,identificador,tipo,referencia,dimension):
+def agregarTSRepor(instruccion,identificador,tipo,unique,referencia,dimension,columnas,orden):
     global outputTS
     tsOut=MensajeTs()
     tsOut.instruccion=instruccion
     tsOut.identificador=identificador
     tsOut.tipo=tipo
+    tsOut.unique=unique
     tsOut.referencia=referencia
     tsOut.dimension=dimension
+    tsOut.columnas=columnas
+    tsOut.orden=orden
     outputTS.append(tsOut)
 
 def buscarTabla(baseAc,nombre):
@@ -1163,7 +1166,7 @@ def insertar_en_tabla(instr,ts):
             msg='valores insertados:'+str(ValInsert)
             agregarMensjae('exito',msg,'')
             #agregar mensaje Tabla simbolos
-            agregarTSRepor('INSERT','','','','')
+            agregarTSRepor('INSERT','','','','','','','')
             #lista de valores
             if(instr.columnas==False):
                 pos=0
@@ -1171,7 +1174,7 @@ def insertar_en_tabla(instr,ts):
                 for val in instr.valores:
                     tip=tablaInsert.atributos[pos].tipo
                     ident=tablaInsert.atributos[pos].nombre
-                    agregarTSRepor('',ident,tip,nombreT,'1')
+                    agregarTSRepor('',ident,tip,'',nombreT,'1','','')
                     pos+=1
             #listado de columnas y valores
             else:
@@ -1182,7 +1185,7 @@ def insertar_en_tabla(instr,ts):
                         if(colTab.nombre==colList.lower()):
                             tip=colTab.tipo
                             ident=colTab.nombre
-                            agregarTSRepor('',ident,tip,nombreT,'1')
+                            agregarTSRepor('',ident,tip,'',nombreT,'1','','')
                             break;
             
         elif (result==1):
@@ -3041,7 +3044,7 @@ def cuerpo_select(cuerpo,ts):
     CD3.PSelectTablas(ltablas,lcabeceras,lfilas,len(lfilas))
     agregarMensjae('table',result,'')
     #agregar reporteTS
-    agregarTSRepor('SELECT','','','','')
+    agregarTSRepor('SELECT','','','','','','','')
     for tab in ltablas:
         #obtener la tabla
         res=buscarTabla(baseActiva,tab)
@@ -3049,7 +3052,7 @@ def cuerpo_select(cuerpo,ts):
             for col in res.atributos:
                 tip=col.tipo
                 nom=col.nombre
-                agregarTSRepor('',nom,tip,tab,'1')
+                agregarTSRepor('',nom,tip,'',tab,'1','','')
 
 def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
     ltablas=[] # tablas seleccionadas
@@ -3121,7 +3124,7 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
         result = result.get_string(fields=lcolumnas)
         agregarMensjae('table',result,'')
         #agregar reporteTS
-        agregarTSRepor('SELECT','','','','')
+        agregarTSRepor('SELECT','','','','','','','')
         for tab in ltablas:
             #obtener la tabla
             res=buscarTabla(baseActiva,tab)
@@ -3130,7 +3133,7 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
                     if(col.nombre in lcolumnas):
                         tip=col.tipo
                         nom=col.nombre
-                        agregarTSRepor('',nom,tip,tab,'1')
+                        agregarTSRepor('',nom,tip,'',tab,'1','','')
 
 def filtroWhere(tabla,filtro,ts):
     listaEliminar=[]
@@ -3334,18 +3337,29 @@ def filtroOrderBy(tabla,filtro,ts):
     return tabla
 
 def Indexs(instr,ts):
-    nombre=resolver_operacion(instr.nombre,ts)
+    nombreIndex=resolver_operacion(instr.nombre,ts)
     nmtabla=resolver_operacion(instr.tabla,ts)
-    tipo=resolver_operacion(instr.tipo,ts)
+    tipo=''
+    unique=''
+    if resolver_operacion(instr.tipo,ts): tipo="Hash"
+    else: tipo="Normal"
+    if resolver_operacion(instr.unique,ts): unique="UNIQUE"
+    else: unique=""
+    cols=''
+    cont=0
+    for nm in instr.columnas:
+        c = resolver_operacion(nm,ts)
+        cols+=c
+        if cont < (len(instr.columnas)-1) and len(instr.columnas) > 1:
+            cols+=','
+        cont=cont+1
+    if instr.orden != False: orden=instr.orden
+    else: orden="ASC"
     agregarMensjae('normal','Index','')
-    msg='Indice '+nombre+' en tabla '+nmtabla
+    msg='Indice '+nombreIndex+' en tabla '+nmtabla
     agregarMensjae('exito',msg,'')
-    agregarTSRepor('INDEX','','','','')
-    if tipo:
-        agregarTSRepor('',nombre,'Hash',nmtabla,'1') #agregar columnas,unique,orden
-    else:
-        agregarTSRepor('',nombre,'Normal',nmtabla,'1')
-
+    agregarTSRepor('INDEX','','','','','','','')
+    agregarTSRepor('',nombreIndex,tipo,unique,nmtabla,'1',cols,orden)
 
 def Funciones(instr,ts):
     #   Pendiente
@@ -3750,9 +3764,9 @@ def generarTSReporte():
     global outputTS
     textTs=PrettyTable()
     textTs.title='REPORTE TABLA DE SIMBOLOS'
-    textTs.field_names=['instruccion','identificador','tipo','referencia','dimension']
+    textTs.field_names=['instruccion','identificador','tipo','unique','referencia','dimension','columnas','orden']
     for x in outputTS:
-        textTs.add_row([x.instruccion,x.identificador,x.tipo,x.referencia,x.dimension])
+        textTs.add_row([x.instruccion,x.identificador,x.tipo,x.unique,x.referencia,x.dimension,x.columnas,x.orden])
     return textTs
 
 def mostrarFun():

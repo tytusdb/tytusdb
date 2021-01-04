@@ -10,8 +10,11 @@ class MensajeTs:
     instruccion=''
     identificador=''
     tipo=''
+    unique=''
     referencia=''
     dimension=''
+    columnas=''
+    orden=''
 
 class Tabla_run:
     def __init__(self, basepadre, nombre, atributos=[]): 
