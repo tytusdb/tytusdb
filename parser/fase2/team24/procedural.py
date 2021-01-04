@@ -1,4 +1,4 @@
-#from main import ts
+from InstruccionesDGA import tabla as ts
 import tablaDGA as TAS
 import InstruccionesDGA as dga
 
@@ -18,46 +18,45 @@ class declaration(pl):
         #ambitoDB = ts.buscarIDDB(dga.NombreDB)
         ambitoFuncion =  ts.buscarIDF(dga.cont)
 
-        if tipo == 'SMALLINT':
+        if self.tipo == 'SMALLINT':
             
 
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'INTEGER':
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'INTEGER':
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'BIGINT':
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'BIGINT':
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'DECIMAL':
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'DECIMAL':
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'NUMERIC': 
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'NUMERIC': 
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'REAL':
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'REAL':
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'DOUBLE':   
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'DOUBLE':   
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'PRECISION':
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'PRECISION':
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'CHARACTER':
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'CHARACTER':
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'CHARACTER_VARYING':
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'CHARACTER_VARYING':
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.CHARACTER_VARING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'TEXT': 
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'TEXT': 
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        elif tipo == 'TIMESTAMP':
-            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
+        elif self.tipo == 'TIMESTAMP':
+            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
         
-        print(NuevoSimbolo)
         
      
 
@@ -114,43 +113,49 @@ class exp_boolp(expresion):
     'Esta expresion devuelve un'
     'boolean'
 
-    def _init_(self, val):
+    def __init__(self, val):
         self.val = val
 
 class exp_textp(expresion):
     'Devuelve el texto'
 
-    def _init_(self, val):
+    def __init__(self, val):
         self.val = val
 
 class exp_nump(expresion):
     'Devuelve un número'
 
-    def _init_(self, val):
+    def __init__(self, val):
         self.val = val
 
 class exp_sumap(expresion):
     'Suma las dos expresiones'
 
-    def _init_(self, exp1, exp2):
+    def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
-        
+
+class exp_restap(expresion):
+    'Suma las dos expresiones'
+
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2        
 
 class exp_multiplicacionp(expresion):
     'Multiplica las dos expresiones'
 
-    def _init_(self, exp1, exp2):
+    def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
         
 class exp_divisionp(expresion):
     'Suma las dos expresiones'
 
-    def _init_(self, exp1, exp2):
+    def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
 
 class exp_idp(expresion):
-    def _init_( val):
+    def __init__(self,val):
         self.val = val

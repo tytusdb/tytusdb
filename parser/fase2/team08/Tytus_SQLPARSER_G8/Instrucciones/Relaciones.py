@@ -152,7 +152,52 @@ class Relaciones(Instruccion):
             resul.append(nodo2)
         return resul
 
+    def analizar(self, tabla, arbol):
+        print("analizar")
 
+    def traducir(self, tabla, arbol):
+        arbol.setRelacionales(True)
+        cadena = "\""
+        cad = self.query.traducir(tabla,arbol)
+        cad = cad.replace("\"","")
+        cad = cad.replace(";","")
+        cadena += " " +cad
+        if(self.opcion):
+            cadena += self.opcion
+        if(self.query2):
+            cad2 = self.query2.traducir(tabla,arbol)
+            cad2 = cad2.replace("\"","")
+            cad2 = cad2.replace(";","")
+            cadena += " " + cad2
+        cadena += ";\""
+
+        arbol.addComen("Asignar cadena")
+        temporal1 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal1} = { cadena }")
+
+        arbol.addComen("Entrar al ambito")
+        temporal2 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal2} = P+2")
+        temporal3 = tabla.getTemporal()
+        arbol.addComen("parametro 1")
+        arbol.addc3d(f"{temporal3} = { temporal2}+1")
+        arbol.addComen("Asignacion de parametros")
+        arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
+
+        arbol.addComen("Llamada de funcion")
+        arbol.addc3d(f"P = P+2")
+        arbol.addc3d(f"funcionintermedia()")
+        
+        arbol.addComen("obtener resultado")
+        temporalX = tabla.getTemporal()
+        arbol.addc3d(f"{temporalX} = P+2")
+        temporalR = tabla.getTemporal()
+        arbol.addc3d(f"{temporalR} = Pila[{ temporalX }]")
+
+        arbol.addComen("Salida de funcion")
+        arbol.addc3d(f"P = P-2")
+
+        arbol.setRelacionales(False)
 '''
     a = np.array([[1, 4, 3], [2, 3, 6]])
     b = np.array([[2, 4, 6], [3, 6, 9]])        
