@@ -1,7 +1,3 @@
-#Package:       AVL Mode
-#License:       Released under MIT License
-#Notice:        Copyright  (c) 2020 Tytus DB Team
-
 import os
 import pickle
 import csv
@@ -106,6 +102,7 @@ class ArbolAVL:
             return self._buscar(valor, tmp.izq)
         elif valor > tmp.valor and tmp.der != None:
             return self._buscar(valor, tmp.der)
+
 
     def eliminar(self, valor):
         valor = str(valor)
@@ -267,7 +264,6 @@ class ArbolAVL:
         der = self.altura(tmp.der)
         return tmp.izq if izq >= der else tmp.der
 
-
     def agregaralista(self, db, tabla, dic):
         db = str(db)
         tabla = str(tabla)
@@ -289,6 +285,7 @@ class ArbolAVL:
         else:
             return 3
 
+
     def buscartabla(self, db,tabla):
         db = str(db)
         tabla = str(tabla)
@@ -309,8 +306,7 @@ class ArbolAVL:
         raiz = self.buscartabla(db, tabla)
         if raiz != None:
             if raiz.lista != None:
-                l = raiz.lista.buscar(valor)
-                return l
+                return raiz.lista.buscar(valor)
             else:
                 return None
         else:
@@ -326,7 +322,7 @@ class ArbolAVL:
                 cadena = ""
                 if lista != None:
                     for i in lista:
-                        cadena += str(valor[int(i)])+"_"
+                        cadena += str(valor[i])+","
                     cadena = cadena[0:len(cadena) - 1]
                 else:
                     cadena = raiz.lista.contador
@@ -336,7 +332,7 @@ class ArbolAVL:
 
                 if lista != None:
                     for i in lista:
-                        cadena += str(valor[int(i)])+"_"
+                        cadena += str(valor[i])+","
                     cadena = cadena[0:len(cadena) - 1]
                 else:
                     cadena = raiz.lista.contador
@@ -372,8 +368,8 @@ class ArbolAVL:
                     return lista
             else:
                 if tmp:
-                    if int(col) <= len(tmp.campos):
-                        if str(tmp.campos[int(col)]) >= str(min) and str(tmp.campos[int(col)]) <= str(max):
+                    if col <= len(tmp.campos):
+                        if str(tmp.campos[col]) >= str(min) and str(tmp.campos[col]) <= str(max):
                             lista.append(tmp.campos)
                             self.generarregistros(tmp.izq, lista, max, min,col)
                             self.generarregistros(tmp.der, lista, max, min,col)
@@ -391,57 +387,32 @@ class ArbolAVL:
 
     def eliminarcolumna(self, raiz, Nocol):
         if raiz != None:
-            Nocol=int(Nocol)
             raiz.campos.pop(Nocol)
             self.eliminarcolumna(raiz.izq, Nocol)
             self.eliminarcolumna(raiz.der, Nocol)
 
     def extraercolumna(self, raiz, lista, columnas):
         if raiz:
-            compro = raiz.valor.split("_")
-            if compro == columnas:
-                return raiz.campos
+            if raiz.valor == columnas:
+                return raiz
 
             else:
                 if raiz.izq != None:
-                    po = self.extraercolumna(raiz.izq, lista, columnas)
-                    if po != None:
-                        return po
-                if raiz.der != None:
-                    po = self.extraercolumna(raiz.der, lista, columnas)
-                    if po != None:
-                        return po
+                    self.extraercolumna(raiz.izq, lista, columnas)
+                elif raiz.der != None:
+                    self.extraercolumna(raiz.der, lista, columnas)
         else:
            return None
 
-    def cambiardatos(self, tmp, columnas,db,tabla,arbol):
+    def cambiardatos(self, tmp, columnas):
         cadena = ""
         if tmp != None:
-            if tmp.izq == None and tmp.der == None:
-                for i in columnas:
-                    cadena += str(tmp.campos[int(i)]) + "_"
-                cadena = cadena[0:len(cadena) - 1]
-                arbol.agregar(cadena, tmp.campos)
-            if tmp.izq != None and tmp.der !=None:
-                for i in columnas:
-                    cadena += str(tmp.campos[int(i)]) + "_"
-                cadena = cadena[0:len(cadena) - 1]
-                arbol.agregar(cadena, tmp.campos)
-                self.cambiardatos(tmp.izq, columnas, db, tabla, arbol)
-                self.cambiardatos(tmp.der, columnas, db, tabla, arbol)
-            if tmp.izq != None and tmp.der ==None:
-                for i in columnas:
-                    cadena += str(tmp.campos[int(i)]) + "_"
-                cadena = cadena[0:len(cadena) - 1]
-                arbol.agregar(cadena, tmp.campos)
-                self.cambiardatos(tmp.izq, columnas, db, tabla, arbol)
-            if tmp.izq == None and tmp.der !=None:
-                for i in columnas:
-                    cadena += str(tmp.campos[int(i)]) + "_"
-                cadena = cadena[0:len(cadena) - 1]
-                arbol.agregar(cadena, tmp.campos)
-                self.cambiardatos(tmp.der, columnas, db, tabla, arbol)
-        return arbol
+            for i in columnas:
+                cadena += str(tmp.campos[int(i)])+","
+            cadena = cadena[0:len(cadena)-1]
+            tmp.valor = cadena
+            self.cambiardatos(tmp.izq, columnas)
+            self.cambiardatos(tmp.der, columnas)
 
     def graficar(self):
         contenido = "digraph grafica{\n    rankdir=TB;\n    node [shape = record, style=filled, fillcolor=lightcyan2];\n    "
@@ -463,16 +434,19 @@ class ArbolAVL:
     def _graficar(self, tmp):
         contenido = ""
         if tmp.izq == None and tmp.der == None:
-            contenido = "nodo" + str(tmp.valor) + " [ label =\"" + str(tmp.valor) + "\"];\n    "
+            contenido = "nodo" + str(tmp.valor) + " [ label =\"" + str(tmp.valor) + "\"];\n    ";
         else:
-            contenido = "nodo" + str(tmp.valor) + " [ label =\"<AI>|" + str(tmp.valor) + "|<AD>\"];\n    "
+            contenido = "nodo" + str(tmp.valor) + " [ label =\"<AI>|" + str(tmp.valor) + "|<AD>\"];\n    ";
         if tmp.izq != None:
-            contenido += self._graficar(tmp.izq) + "nodo" + str(tmp.valor) + ":AD->nodo" + str(tmp.izq.valor) + "\n    "
+            contenido += self._graficar(tmp.izq) + "nodo" + str(tmp.valor) + ":AI->nodo" + str(
+                tmp.izq.valor) + "\n    ";
 
         if tmp.der != None:
-            contenido += self._graficar(tmp.der) + "nodo" + str(tmp.valor) + ":AI->nodo" + str(tmp.der.valor) + "\n    "
+            contenido += self._graficar(tmp.der) + "nodo" + str(tmp.valor) + ":AD->nodo" + str(tmp.der.valor) + "\n    "
 
         return contenido
+
+
 
     def contadorRep(self, columnas):
         return self._contadorRp(self.raiz, columnas)
@@ -605,16 +579,16 @@ class ArbolAVL:
                         raiz.lista = ArbolAVL()
                         lista = [None, dic, raiz.lista.contador]
                         raiz.lista.agregar(tabla, lista)
-                        return 0
-                    except:
                         return 1
+                    except:
+                        return 0
                 else:
                     try:
                         lista=[None, dic, raiz.lista.contador]
                         raiz.lista.agregar(tabla, lista)
-                        return 0
-                    except:
                         return 1
+                    except:
+                        return 0
             else:
                 return 2
         else:
@@ -643,6 +617,7 @@ class ArbolAVL:
                 return li
         else:
             return None
+
 
     def extractRangeTable(self, db, tabla, col,max, min):
         db = str(db)
@@ -681,10 +656,9 @@ class ArbolAVL:
 
                             t2 = i.lista
                             if t2.contadorRep(columnas):
-                                i.campos[0]=columnas
-                                arbol = ArbolAVL()
-                                a = i.lista.cambiardatos(i.lista.raiz,columnas,db,tabla,arbol)
-                                i.lista = a
+                                i.campos[0] = columnas
+                                i.lista.cambiardatos(i.lista.raiz, columnas)
+                                i.lista.validaEliminacion(i.lista.raiz)
                             else:
                                 return 1
                         return 0
@@ -738,6 +712,7 @@ class ArbolAVL:
         else:
             return 2
 
+
     def alterAddColumn(self, db, tabla, valor):
         db = str(db)
         tabla = str(tabla)
@@ -747,12 +722,11 @@ class ArbolAVL:
             i = self.buscartabla(db, tabla)
             if i != None:
                 try:
-                    i.campos[1]=int(i.campos[1])
                     i.campos[1]=i.campos[1]+1
                     self.agregarcolumna(i.lista.raiz, valor)
                     return 0
                 except:
-                    return 1 
+                    return 1
             else:
                 return 3
         else:
@@ -765,14 +739,13 @@ class ArbolAVL:
         if raiz !=None:
             i = self.buscartabla(db, tabla)
             if i != None:
-                if int(i.campos[1]) < int(Nocol):
+                if i.campos[1] < Nocol:
                     return 5
                 else:
                     for f in i.campos[0]:
                         if f == Nocol:
                             return 4
                 try:
-                    i.campos[1]=int(i.campos[1])-1
                     self.eliminarcolumna(i.lista.raiz, Nocol)
                     return 0
                 except:
@@ -838,14 +811,15 @@ class ArbolAVL:
             if i != None:
                 lista = i.campos[0]
                 try:
-                    ja = self.extraercolumna(i.lista.raiz, lista, columnas)
-                    return ja
+                    self.extraercolumna(i.lista.raiz, lista, columnas)
+                    return 0
                 except:
                     return 1
             else:
                 return 3
         else:
             return 2
+
 
     def update(self, db, tabla, dict, columnas):
         db = str(db)
@@ -857,7 +831,7 @@ class ArbolAVL:
                 try:
                     cadena = ""
                     for j in columnas:
-                        cadena += str(j) + "_"
+                        cadena += str(j) + ","
                     cadena = cadena[0:len(cadena) - 1]
                     l = self.buscarreistro(db, tabla, cadena)
                     bandera = False
@@ -879,6 +853,7 @@ class ArbolAVL:
         else:
             return 2
 
+
     def deletet(self, db, tabla, columnas):
         db = str(db)
         tabla = str(tabla)
@@ -892,8 +867,8 @@ class ArbolAVL:
                         i.lista.eliminar(columnas[0])
                     else:
                         cadena = ""
-                        for j in columnas:
-                            cadena += str(j) +"_"
+                        for i in columnas:
+                            cadena += str(i) +","
                         cadena = cadena[0:len(cadena)-1]
                         eliminado=self.buscarreistro(db, tabla, cadena)
                         if eliminado != None:
