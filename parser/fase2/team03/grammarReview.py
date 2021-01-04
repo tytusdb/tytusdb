@@ -1854,7 +1854,7 @@ def p_ops_from_ts(t):
 
 
 def p_column_list_param_opt(t):
-    '''column_list_param_opt  : PARA column_list PARC eifje
+    '''column_list_param_opt  : PARA column_list PARC 
                                 | empty'''
     if len(t) == 4:
         lista = None

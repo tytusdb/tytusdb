@@ -98,11 +98,11 @@ class FunctionSymbol(Symbol):
 
 
 class IndexSymbol(Symbol):
-    def __init__(self, name, tabla, lista=[], db_id):
-        Symbol.__init__(self, SymbolType.FUNCTION, func_name)
+    def __init__(self, name, tabla, db_id, lista=[]):
+        Symbol.__init__(self, SymbolType.INDEX)
         self.db_id = db_id
         self.name =name
-        self.table = table
+        self.table = tabla
         self.lista = lista
 
 
