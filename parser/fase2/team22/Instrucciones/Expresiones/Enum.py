@@ -18,3 +18,8 @@ class Enum(Instruccion):
                 return nombre
         
         return None
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        '''print('Enum!!!!', self.id, self.listaValores)'''
+        return []
