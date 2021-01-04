@@ -28,3 +28,14 @@ class Exp(Instruccion):
             self.tipo = Tipo(Tipo_Dato.NUMERIC)
             return math.exp(resultado)
         
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"EXP({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        
