@@ -1,4 +1,5 @@
-from error import error
+
+    from error import error
 
 errores = list()
 
@@ -206,7 +207,10 @@ reservadas = {
     'execute': 'EXECUTE',    
     'using': 'USING',      
     'index':'INDEX',
-    'hash':'HASH'
+    'hash':'HASH',
+    'returns' : 'RETURNS',
+    'function' : 'FUNCTION',
+    'begin' : 'BEGIN'    
 }
 
 tokens = [
@@ -240,7 +244,8 @@ tokens = [
     'PLECA',
     'AMPERSON',
     'NUMERAL',
-    'VIRGULILLA'
+    'VIRGULILLA',
+    'DOLAR'
 ] + list(reservadas.values())
 
 #tokens
@@ -415,6 +420,16 @@ def p_instruccionError(t):
     'instruccion  : problem'
     reporte ="<instruccion> ::= <problem>\n" + t[1]['reporte']
     t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
+
+
+#**********************************************************************
+#**********************************************************************
+#***********************   LLAMADO A INSTRUCCIONES INDEX, PL **********
+#**********************************************************************
+def p_instruccion_funcion(t) :
+    '''instruccion     : pl_funcion'''
+    reporte = "<instruccion> ::= <pl_funcion>\n" +t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 
 
@@ -2866,6 +2881,46 @@ def p_dropindex(t):
 
 
 
+def p_pl_funcion(t):
+    '''pl_funcion : CREATE FUNCTION ID PARENIZQ parametrosf PARENDER RETURNS AS DOLAR DOLAR pl_cuerpof'''
+    grafo.newnode('pl_funcion')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[2])
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    grafo.newchildrenF(grafo.index, t[11]['graph'])
+    reporte = "<pl_funcion> ::= " + t[1].upper() + "CREATE FUNCTION ID PAREINZQ <parametrosf>\n"+t[5]['reporte']+"PARENDER RETURNS AS DOLAR DOLAR <cuerpof>\n" +t[11]['reporte']
+    t[0] = {'ast' : pl_funciones.pl_Funcion(t[3],t[5]['ast'],t[11]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+
+
+def p_listaparametrosf(t):
+    'parametrosf : parametrosf COMA ID'
+    grafo.newnode('parametrosf')
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    t[1]['ast'].append(primi.Primitive(None, t[3]))
+    reporte = "<parametrosf> ::= <parametrosf> COMA ID\n" + t[1]['reporte']
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+
+def p_listaparametros2(t):
+    'parametrosf : ID'
+    grafo.newnode('parametrosf')
+    grafo.newchildrenE(t[1])
+    reporte = "<parametrosf> ::= ID\n"
+    t[0] = {'ast': [primi.Primitive(None, t[1])], 'graph' : grafo.index, 'reporte': reporte }
+    
+
+def p_pl_cuerpo_funcion(t):
+    '''pl_cuerpof : BEGIN ID END'''
+    grafo.newnode('pl_cuerpof')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[2])
+    grafo.newchildrenE(t[3])
+    reporte = "<pl_cuerpof> ::= BEGIN " + t[2].upper() +"END"+ "\n" 
+    t[0] = {'ast' :ident.Identificador(None, t[2]),'graph' : grafo.index, 'reporte': reporte}
+
+
+
 #**********************************************************************
 #**********************************************************************
 #***********************   INSTRUCCIONES PL 42.3 **********************
@@ -3177,6 +3232,8 @@ def p_pl_execute_into(t):
 #**********************************************************************
 #***********************   INSTRUCCIONES PL 42.6 **********************
 #**********************************************************************
+
+
 
 #**********************************************************************
 #***********************   return params *****************************
