@@ -170,6 +170,39 @@ reservedwords = (
     'YEAR',
     'MONTH',
     'DAY',
+    'INDEX',
+    'ON',
+    'USING',
+    'HASH',
+    'NULLS',
+    'FIRST',
+    'LAST',
+    'LOWER',
+    'FUNCTION',
+    'RETURNS',
+    'LANGUAGE',
+    'PLPGSQL',
+    'ANYELEMENT',
+    'ANYCOMPATIBL',
+    'BEGIN',
+    'END',
+    'DECLARE',
+    'CONSTANT',
+    'COLLATE',
+    'ALIAS',
+    'FOR',
+    'ROWTYPE',
+    'RECORD',
+    'OUT',
+    'RETURN',
+    'NEXT',
+    'QUERY',
+    'CALL',
+    'THEN',
+    'ELSIF',
+    'ELSE',
+    'CASE',
+    'WHEN',
 )
 
 symbols = (
@@ -190,6 +223,9 @@ symbols = (
     'LESSTHANEQUAL',
     'GREATERTHANEQUAL',
     'NOTEQUAL',
+    'DOLLAR',
+    'TWOPOINTS',
+    'PERCENTAGE',
 )
 
 tokens = reservedwords + symbols + (
@@ -217,6 +253,9 @@ t_GREATERTHAN      = r'>'
 t_LESSTHANEQUAL    = r'<='
 t_GREATERTHANEQUAL = r'>='
 t_NOTEQUAL         = r'<>|!='
+t_DOLLAR           = r'\$'
+t_TWOPOINTS        = r':'
+t_PERCENTAGE       = r'\%'
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9_]*'
@@ -323,7 +362,8 @@ def p_instructions_list_single(t):
 
 def p_instructions_sql(t):
     '''sentence : ddl SEMICOLON
-                | dml SEMICOLON'''
+                | dml SEMICOLON
+                | pl SEMICOLON'''
     global grammarreport
     if(isinstance(t[1],DropDatabase)
     or isinstance(t[1],AlterDatabaseOwner)
@@ -370,7 +410,8 @@ def p_instructions_dml(t):
 def p_instruction_create(t):
     '''create : createDatabase
               | createTable
-              | createType'''
+              | createType
+              | createIndex'''
     t[0] = t[1]
     global grammarreport
     if(isinstance(t[1],CreateDatabase)): grammarreport = "<create> ::= <createDatabase> { create.val = createDatabase.val }\n" + grammarreport
@@ -706,6 +747,7 @@ def p_instruction_type(t):
             | NUMERIC
             | REAL
             | DOUBLE
+            | VARCHAR
             | PRECISION
             | MONEY
             | CHARACTER
@@ -735,7 +777,8 @@ def p_instruction_type_bin(t):
             | VARYING BRACKET_OPEN INT BRACKET_CLOSE
             | VARCHAR BRACKET_OPEN INT BRACKET_CLOSE
             | CHARACTER BRACKET_OPEN INT BRACKET_CLOSE
-            | CHAR BRACKET_OPEN INT BRACKET_CLOSE'''
+            | CHAR BRACKET_OPEN INT BRACKET_CLOSE
+            | NUMERIC BRACKET_OPEN INT BRACKET_CLOSE'''
     t[0] = [t[1],t[3]]
     global grammarreport
     grammarreport = "<type> ::= "+t[1]+" '(' "+str(t[3])+" ')' { type.val=['"+t[1]+"',"+str(t[3])+"] }\n" + grammarreport
@@ -745,6 +788,36 @@ def p_instruction_create_type(t):
     t[0] = CreateType(t[3],t[7])
     global grammarreport
     grammarreport = "<createType> ::= CREATE TYPE ID AS ENUM '(' <expressionList> ')' { ID.val='"+t[3]+"'; createType.val=CreateType(ID.val,expressionList.val) }\n" + grammarreport
+
+#createIndex
+def p_instruction_create_index(t):
+    '''createIndex : CREATE INDEX ID ON ID createIndexOption''' 
+    t[0] = CreateIndex(t[3])
+
+def p_instruction_create_index_unique(t):
+    '''createIndex : CREATE UNIQUE INDEX ID ON ID createIndexOption''' 
+    t[0] = CreateIndex(t[4])
+
+def p_instruction_createindexoption(t):
+    '''createIndexOption : USING HASH BRACKET_OPEN createIndexColumn BRACKET_CLOSE
+                         | BRACKET_OPEN createIndexColumn BRACKET_CLOSE
+                         | USING HASH BRACKET_OPEN createIndexColumn BRACKET_CLOSE WHERE expression
+                         | BRACKET_OPEN createIndexColumn BRACKET_CLOSE WHERE expression'''
+
+def p_instruction_createindex_column(t):
+    '''createIndexColumn : idList
+                         | LOWER BRACKET_OPEN idList BRACKET_CLOSE
+                         | ID ascDesc
+                         | ID ascDesc NULLS firstLast
+                         | ID NULLS firstLast'''
+
+def p_instruction_createindex_ascdesc(t):
+    '''ascDesc : ASC
+                | DESC'''
+
+def p_instruction_createindex_firstlast(t):
+    '''firstLast : FIRST
+                | LAST'''
 
 #DROP
 def p_instruction_dropdb(t):
@@ -1059,7 +1132,7 @@ def p_expression_alias(t):
 def p_expression_unaryminus(t):
     '''expression : MINUS expression %prec UMINUS
                   | PLUS expression %prec UPLUS
-                  | NOT expression'''
+                  | NOT expression'''  
     t[0] = Unary(t[2],t[1])
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" <expression> { expression.val = Unary(expression.val,'"+t[1]+"') }\n" + grammarreport
@@ -1245,6 +1318,248 @@ def p_expression_all(t):
     t[0] = Value(6, t[1])
     global grammarreport
     grammarreport = "<expression> ::= TIMES { TIMES.val='"+t[1]+"'; expression.val = TIMES.val  }\n" + grammarreport
+
+
+#-------------------------------------------PROCEDURAL LANGUAGE---------------------------------------------------------
+def p_instructions_pl(t):
+    '''pl : function'''
+
+#FUNCTION
+def p_pl_function_1(t):
+    '''function : CREATE FUNCTION ID BRACKET_OPEN BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+
+def p_pl_function_2(t):
+    '''function : CREATE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+
+def p_pl_function_3(t):
+    '''function : CREATE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+
+def p_pl_function_4(t):
+    '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+
+def p_pl_function_5(t):
+    '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+
+def p_pl_function_6(t):
+    '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+
+#PARAMS
+def p_pl_paramlist_list(t):
+    '''paramList : paramList COMMA param'''
+
+def p_pl_paramlist_single(t):
+    '''paramList : param'''
+
+def p_pl_param(t):
+    '''param : ID typeParam
+            | OUT ID typeParam
+            | typeParam'''
+
+def p_pl_typeparam(t):
+    '''typeParam : ANYELEMENT
+                | ANYCOMPATIBL
+                | type'''
+
+#RETURNS
+def p_pl_returns(t):
+    '''optReturns : typeParam'''
+
+def p_pl_returns_table(t):
+    '''optReturns : TABLE BRACKET_OPEN paramListTable BRACKET_CLOSE'''
+
+def p_pl_paramlist_list_tablereturn(t):
+    '''paramListTable : paramListTable COMMA paramTable'''
+
+def p_pl_paramlist_single_tablereturn(t):
+    '''paramListTable : paramTable'''
+
+def p_pl_param_tablereturn(t):
+    '''paramTable : ID type'''
+
+#BODY FUNCTION
+#MAIN BLOCK
+def p_pl_mainblock(t):
+    '''mainBlock : declarationBlock statementsBlock
+                 | statementsBlock'''
+
+#DECLARATION BLOCK
+def p_pl_declarationblock(t):
+    '''declarationBlock : DECLARE declarationList'''
+
+def p_pl_declarelist_list(t):
+    '''declarationList : declarationList optDeclaration'''
+
+def p_pl_declarelist_single(t):
+    '''declarationList : optDeclaration'''
+
+def p_pl_declare(t):
+    '''optDeclaration : declarationVar SEMICOLON
+                      | declarationAlias SEMICOLON
+                      | declarationType SEMICOLON'''
+
+#VARIABLE DECLARATIONS
+def p_pl_declarationvar_1(t):
+    '''declarationVar : ID type'''
+
+def p_pl_declarationvar_2(t):
+    '''declarationVar : ID CONSTANT type'''
+
+def p_pl_declarationvar_3(t):#collate
+    '''declarationVar : ID type COLLATE STRING'''
+
+def p_pl_declarationvar_4(t):
+    '''declarationVar : ID CONSTANT type COLLATE STRING'''
+
+def p_pl_declarationvar_5(t):#not null
+    '''declarationVar : ID type NOT NULL'''
+
+def p_pl_declarationvar_6(t):
+    '''declarationVar : ID CONSTANT type NOT NULL'''
+
+def p_pl_declarationvar_7(t):
+    '''declarationVar : ID type COLLATE STRING NOT NULL'''
+
+def p_pl_declarationvar_8(t):
+    '''declarationVar : ID CONSTANT type COLLATE STRING NOT NULL'''
+
+def p_pl_declarationvar_9(t):#assignment
+    '''declarationVar : ID type assigDeclaration'''
+
+def p_pl_declarationvar_10(t):
+    '''declarationVar : ID CONSTANT type assigDeclaration'''
+
+def p_pl_declarationvar_11(t):
+    '''declarationVar : ID type COLLATE STRING assigDeclaration'''
+
+def p_pl_declarationvar_12(t):
+    '''declarationVar : ID CONSTANT type COLLATE STRING assigDeclaration'''
+
+def p_pl_declarationvar_13(t):
+    '''declarationVar : ID type NOT NULL assigDeclaration'''
+
+def p_pl_declarationvar_14(t):
+    '''declarationVar : ID CONSTANT type NOT NULL assigDeclaration'''
+
+def p_pl_declarationvar_15(t):
+    '''declarationVar : ID type COLLATE STRING NOT NULL assigDeclaration'''
+
+def p_pl_declarationvar_16(t):
+    '''declarationVar : ID CONSTANT type COLLATE STRING NOT NULL assigDeclaration'''
+
+def p_pl_declaration_assignment(t):
+    '''assigDeclaration : DEFAULT expression
+                        | EQUAL expression
+                        | TWOPOINTS EQUAL expression'''
+
+#ALIAS DECLARATION
+def p_pl_declarationalias(t):
+    '''declarationAlias : ID ALIAS FOR ID
+                        | ID ALIAS FOR DOLLAR INT'''
+
+#TYPES DECLARATION
+def p_pl_declarationtype_1(t):
+    '''declarationType : ID ID NSEPARATOR ID PERCENTAGE TYPE'''
+
+def p_pl_declarationtype_2(t):
+    '''declarationType : ID ID PERCENTAGE ROWTYPE'''
+
+def p_pl_declarationtype_3(t):
+    '''declarationType : ID RECORD'''
+
+#ASSIGNMENT
+def p_pl_assignment(t):
+    '''assignment : ID EQUAL expression
+                  | ID TWOPOINTS EQUAL expression'''
+
+#STATEMENTS BLOCK
+def p_pl_statementsBlock(t):
+    '''statementsBlock : BEGIN statementList  END SEMICOLON'''
+
+def p_pl_statementlist_list(t):
+    '''statementList : statementList statement'''
+
+def p_pl_statementlist_single(t):
+    '''statementList : statement'''
+
+#STATEMENTS
+def p_pl_statement(t):
+    '''statement : assignment SEMICOLON
+                 | optDeclaration SEMICOLON
+                 | controlStructure SEMICOLON
+                 | ddl SEMICOLON
+                 | dml SEMICOLON'''
+
+#CONTROL ESTRUCTURES
+def p_pl_controlstructure(t):
+    '''controlStructure : return
+                        | call
+                        | conditionals'''
+
+#RETURN
+def p_pl_controlstructure_return_1(t):
+    '''return : RETURN NEXT expression'''
+
+def p_pl_controlstructure_return_2(t):
+    '''return : RETURN expression COLLATE STRING'''
+
+def p_pl_controlstructure_return_3(t):
+    '''return : RETURN expression'''
+
+def p_pl_controlstructure_return_4(t):
+    '''return : RETURN QUERY select'''
+
+#CALL
+def p_pl_controlstructure_call(t):
+    '''call : CALL ID BRACKET_OPEN paramList BRACKET_CLOSE'''
+
+#CONDITIONALS
+def p_pl_controlstructure_conditionals(t):
+    '''conditionals : if
+                    | case'''
+
+#CONDITIONAL IF
+def p_pl_conditional_ifthen(t):
+    '''if : IF expression THEN statementList END IF'''
+
+def p_pl_conditional_ifthenelse(t):
+    '''if : IF expression THEN statementList ELSE statementList END IF'''
+
+def p_pl_conditional_ifthenelsif_else(t):
+    '''if : IF expression THEN statementList elsifList ELSE statementList END IF'''
+
+def p_pl_conditional_ifthenelsif(t):
+    '''if : IF expression THEN statementList elsifList END IF'''
+
+def p_pl_elsiflist_list(t):
+    '''elsifList : elsifList elsif'''
+
+def p_pl_elsiflist_single(t):
+    '''elsifList : elsif'''
+
+def p_pl_elsif(t):
+    '''elsif : ELSIF expression THEN statementList'''
+
+#CONDITIONAL CASE
+def p_pl_conditional_simplecase_else(t):
+    '''case : CASE expression whenList ELSE statementList END CASE'''
+
+def p_pl_conditional_simplecase(t):
+    '''case : CASE expression whenList END CASE'''
+
+def p_pl_conditional_searchedcase_else(t):
+    '''case : CASE whenList ELSE statementList END CASE'''
+
+def p_pl_conditional_searchedcase(t):
+    '''case : CASE whenList END CASE'''
+
+def p_pl_whenlist_list(t):
+    '''whenList : whenList when'''
+
+def p_pl_whenlist_single(t):
+    '''whenList : when'''
+
+def p_pl_when(t):
+    '''when : WHEN expressionList THEN statementList'''
 
 #ERROR
 def p_error(t):

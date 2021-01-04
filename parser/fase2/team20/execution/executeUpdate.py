@@ -32,6 +32,7 @@ def executeUpdate(self, update_):
             except:
                 print_error("SEMANTIC ERROR","The column does not exist")    
     try:
+        print(register)
         where = executeExpression(self,update_.expression)
         if(isinstance(where,Error)): 
             self.errors.append(where)
@@ -42,8 +43,10 @@ def executeUpdate(self, update_):
         count = 0
         for tup in tabledata:
             if(where.op == '='):
+                print(str(where.value)+","+str(tup[pos]))
                 if(tup[pos]==where.value):
-                    res=update(db,table,register,[tup[pos]]) #update
+                    res=update(db,table,register,[str(tup[pos])]) #update
+                    print(res)
                     count+=1
             elif(where.op == '!=' or where.op == '<>'):
                 if(tup[pos]!=where.value):
