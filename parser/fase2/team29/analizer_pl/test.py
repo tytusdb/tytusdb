@@ -3,7 +3,7 @@ from os.path import dirname as dir
 
 path.append(dir(path[0]))
 
-import analizer.grammarFP as grammar2
+import analizer_pl.grammar as grammar2
 
 s = """ 
 
@@ -22,7 +22,7 @@ $$ LANGUAGE plpgsql;
 
 """
 result = grammar2.parse(s)
-#print(result)
+# print(result)
 for r in result:
-	x = r.execute(None).value 
-	print(x)
+    x = r.execute(None).value
+    print(x)

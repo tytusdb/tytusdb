@@ -4,17 +4,15 @@ from analizer.typechecker.Metadata import File
 
 
 class CreateIndex(instruction.Instruction):
-
     def __init__(self, unique, idIndex, idTable, usingMethod, whereCl, optList=[]):
-        self.unique = unique 
-        self.idIndex = idIndex 
+        self.unique = unique
+        self.idIndex = idIndex
         self.idTable = idTable
         self.optList = optList
         self.whereCl = whereCl
         self.usingMethod = usingMethod
-        
 
-    def execute(self,environment):
+    def execute(self, environment):
         name = self.idIndex
         if self.existIndex(name):
             return "Error: ya existe un index con el nombre " + name
@@ -33,7 +31,7 @@ class CreateIndex(instruction.Instruction):
                 if c[2]:
                     nulls = c[2][0]
                     if c[2][1]:
-                        nulls += " " + c[2][1] 
+                        nulls += " " + c[2][1]
                 else:
                     if col["Order"] == "DESC":
                         nulls = "NULLS FIRST"
@@ -45,12 +43,11 @@ class CreateIndex(instruction.Instruction):
 
             Index[name] = indexBody
             File.exportFile(Index, "Index")
-            return "Index "+ name + " creado"
+            return "Index " + name + " creado"
         except:
             return "Error fatal"
 
-
-    def existIndex(self,name):
+    def existIndex(self, name):
         Index = File.importFile("Index")
         exists = Index.get(name)
         if exists != None:
@@ -72,23 +69,23 @@ class CreateIndex(instruction.Instruction):
 
         listNode = Nodo.Nodo("INDEX_LIST")
         new.addNode(listNode)
-        
+
         for l in self.optList:
-            
+
             if l[0] != None:
                 l1 = Nodo.Nodo(str(l[0]))
                 listNode.addNode(l1)
             if l[1] != None:
-                l2 = Nodo.Nodo(str(l[1])) 
+                l2 = Nodo.Nodo(str(l[1]))
                 listNode.addNode(l2)
             if l[2]:
                 l3 = Nodo.Nodo("NULLS")
                 listNode.addNode(l3)
                 if l[2][1] != None:
-                    l4 = Nodo.Nodo(str(l[2][1])) 
+                    l4 = Nodo.Nodo(str(l[2][1]))
                     listNode.addNode(l4)
 
         if self.whereCl != None:
             new.addNode(self.whereCl.dot())
-        
+
         return new
