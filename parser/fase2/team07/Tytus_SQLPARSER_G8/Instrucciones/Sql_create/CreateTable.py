@@ -186,7 +186,7 @@ class CreateTable(Instruccion):
 class IdentificadorColumna(Instruccion):
     def __init__(self, id, linea, columna):
         self.id = id
-        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna,strGram)
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.ID),linea,columna,strGram,"")
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)

@@ -6,8 +6,8 @@ from Instrucciones.Excepcion import *
 from Instrucciones.Identificador import *
 
 class Length(Instruccion):
-    def __init__(self, valor, tipo, strGram,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
@@ -19,7 +19,7 @@ class Length(Instruccion):
         #if isinstance(resultado, Primitivo):
         if self.valor.tipo.tipo== Tipo_Dato.CHAR or self.valor.tipo.tipo== Tipo_Dato.VARCHAR or self.valor.tipo.tipo== Tipo_Dato.VARYING or self.valor.tipo.tipo== Tipo_Dato.CHARACTER or self.valor.tipo.tipo== Tipo_Dato.TEXT:
         #if self.valor.tipo.tipo== Tipo_Dato.CHAR or self.valor.tipo.tipo== Tipo_Dato.CHARACTER:
-                self.tipo = Tipo(Tipo_Dato.INTEGER)
+                self.tipo = Tipo("",Tipo_Dato.INTEGER)
                 return len(str(resultado)) 
         #elif isinstance(resultado, Identificador):
         #    print("HAY QUE PROGRAMAR LO DE IDENTIFICADOR LENGTH")

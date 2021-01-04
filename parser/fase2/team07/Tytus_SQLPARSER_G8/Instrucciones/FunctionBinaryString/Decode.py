@@ -7,8 +7,8 @@ import base64
 import binascii
 
 class Decode(Instruccion):
-    def __init__(self, valor, tipo, codificacion, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, codificacion, strGram, linea, columna,strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram,strSent)
         self.valor = valor
         self.codificacion = codificacion
 
@@ -23,10 +23,10 @@ class Decode(Instruccion):
                 base64_bytes = base64.b64decode(message_bytes)
                 base64_message = base64_bytes.decode('ascii')
                 resultado=base64_message
-                self.tipo = Tipo(Tipo_Dato.TEXT)
+                self.tipo = Tipo("",Tipo_Dato.TEXT)
                 return resultado
             if str(self.codificacion.valor)=='hex':
-                self.tipo = Tipo(Tipo_Dato.TEXT)
+                self.tipo = Tipo("",Tipo_Dato.TEXT)
                 #bytes.fromhex('7061756c').decode('utf-8')
                 return bytearray.fromhex(str(resultado)).decode()
 

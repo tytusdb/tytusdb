@@ -9,8 +9,8 @@ from Instrucciones.Tablas.Campo import Campo
 from storageManager.jsonMode import *
 import numpy as np
 class Identificador(Instruccion):
-    def __init__(self, id, strGram, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna,strGram)
+    def __init__(self, id, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.ID),linea,columna,strGram,strSent)
         self.id = id
 
     def ejecutar(self, tabla, arbol):

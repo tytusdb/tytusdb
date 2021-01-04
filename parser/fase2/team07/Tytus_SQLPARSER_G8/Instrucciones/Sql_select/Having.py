@@ -1,8 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 
 class Having(Instruccion):
-    def __init__(self, valor, tipo, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):

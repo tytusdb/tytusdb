@@ -6,8 +6,8 @@ from Instrucciones.Tablas.Tablas import Tablas
 
 
 class SelectLista(Instruccion):
-    def __init__(self, lista, strGram, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.QUERY),linea,columna,strGram)
+    def __init__(self, lista, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.QUERY),linea,columna,strGram,strSent)
         self.lista = lista
 
     def ejecutar(self, tabla, arbol):
@@ -60,7 +60,8 @@ class SelectLista(Instruccion):
 
 
 class Alias():
-    def __init__(self, id, expresion):
+    def __init__(self, id, expresion, strSent):
         self.id = id
         self.expresion = expresion
         self.tipo = None
+        self.strSent = strSent

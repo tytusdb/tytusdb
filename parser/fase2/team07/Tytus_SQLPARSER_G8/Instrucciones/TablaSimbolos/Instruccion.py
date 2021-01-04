@@ -11,11 +11,7 @@ class Instruccion(ABC):
             arbol.lRepDin.append(self.strGram)
         pass
     
-    @abstractmethod
-    def traducir(self,tabla,arbol,cadenaTraducida):
-        pass
-    
-    def __init__(self, tipo, linea, columna, strGram):
+    def __init__(self, tipo, linea, columna, strGram, strSent):
         self.tipo = tipo
         self.linea = linea
         self.columna = columna

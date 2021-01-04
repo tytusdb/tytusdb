@@ -7,8 +7,8 @@ from Instrucciones.Excepcion import Excepcion
 
 
 class WidthBucket(Instruccion):
-    def __init__(self, valor, min, max, count, tipo, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, min, max, count, tipo, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.min = min
         self.max = max
@@ -24,16 +24,16 @@ class WidthBucket(Instruccion):
                 contador= float(self.min.valor)
                 cubo=0
                 if float(resultado)==contador:
-                        self.tipo = Tipo(Tipo_Dato.INTEGER)
+                        self.tipo = Tipo("",Tipo_Dato.INTEGER)
                         return 1
                 while contador < float(self.max.valor):
                     if float(resultado)<contador:
-                        self.tipo = Tipo(Tipo_Dato.INTEGER)
+                        self.tipo = Tipo("",Tipo_Dato.INTEGER)
                         return cubo
                         
                     contador += temp
                     cubo+=1
-                self.tipo = Tipo(Tipo_Dato.INTEGER)
+                self.tipo = Tipo("",Tipo_Dato.INTEGER)
                 return cubo +1
             else:
                 error = Excepcion('42883',"Semántico",f"No existe la función width_bucket({self.valor.tipo.toString()},{self.min.tipo.toString()},{self.max.tipo.toString()},{self.count.tipo.toString()})",self.linea,self.columna)

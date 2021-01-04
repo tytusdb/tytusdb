@@ -3,8 +3,8 @@ from Instrucciones.Excepcion import Excepcion
 import numpy as np 
 
 class Count(Instruccion):
-    def __init__(self, valor, tipo, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):

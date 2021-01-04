@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
 
 class GetByte(Instruccion):
-    def __init__(self, valor, tipo, indice, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, indice, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.indice = indice
 
@@ -17,7 +17,7 @@ class GetByte(Instruccion):
             return resultado
         if self.indice <len(resultado):
             if self.valor.tipo.tipo== Tipo_Dato.CHAR or self.valor.tipo.tipo== Tipo_Dato.VARCHAR or self.valor.tipo.tipo== Tipo_Dato.VARYING or self.valor.tipo.tipo== Tipo_Dato.CHARACTER or self.valor.tipo.tipo== Tipo_Dato.TEXT:
-                self.tipo = Tipo(Tipo_Dato.INTEGER)
+                self.tipo = Tipo("",Tipo_Dato.INTEGER)
                 return ord(str(resultado)[int(self.indice): int(self.indice)+1])
         else:
             error = Excepcion('2202E',"Semántico",f"El índice {self.indice} esta fuera de rango [0..{len(self.valor.valor)}]",self.linea,self.columna)

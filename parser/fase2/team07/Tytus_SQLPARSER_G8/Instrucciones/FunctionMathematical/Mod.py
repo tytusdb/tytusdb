@@ -4,8 +4,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 
 class Mod(Instruccion):
-    def __init__(self, opIzq, opDer, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, opIzq, opDer, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.opIzq = opIzq
         self.opDer = opDer
 
@@ -26,10 +26,10 @@ class Mod(Instruccion):
                 arbol.consola.append(error.toString())
                 return error
             if isinstance(resultadoIzq, int) and isinstance(resultadoDer, int):
-                self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
+                self.tipo = Tipo("",Tipo_Dato.DOUBLE_PRECISION)
                 return int(math.fmod(resultadoIzq,resultadoDer))
             else:
-                self.tipo = Tipo(Tipo_Dato.NUMERIC)
+                self.tipo = Tipo("",Tipo_Dato.NUMERIC)
                 return math.fmod(resultadoIzq,resultadoDer)           
         else:
             error = Excepcion('42883',"Semántico","No existe la función mod("+self.opIzq.tipo.toString()+", "+self.opDer.tipo.toString()+")",self.linea,self.columna)

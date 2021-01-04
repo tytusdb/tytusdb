@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
 import base64
 class Encode(Instruccion):
-    def __init__(self, valor, tipo, codificacion, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, codificacion, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.codificacion = codificacion
 
@@ -21,10 +21,10 @@ class Encode(Instruccion):
                 base64_bytes = base64.b64encode(message_bytes)
                 base64_message = base64_bytes.decode('ascii')
                 resultado=base64_message
-                self.tipo = Tipo(Tipo_Dato.TEXT)
+                self.tipo = Tipo("",Tipo_Dato.TEXT)
                 return resultado
             if str(self.codificacion.valor)=='hex':
-                self.tipo = Tipo(Tipo_Dato.TEXT)
+                self.tipo = Tipo("",Tipo_Dato.TEXT)
                 return str(resultado).encode("utf-8").hex()
 
         error = Excepcion('22023',"Semántico",f"No se reconoce la codificación{self.valor.tipo.toString()})",self.linea,self.columna)

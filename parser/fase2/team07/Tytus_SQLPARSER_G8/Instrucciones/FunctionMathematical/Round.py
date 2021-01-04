@@ -4,8 +4,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 
 class Round(Instruccion):
-    def __init__(self, valor, strGram, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.NUMERIC),linea,columna,strGram)
+    def __init__(self, valor, strGram, linea, columna,strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.NUMERIC),linea,columna,strGram,strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
@@ -22,8 +22,8 @@ class Round(Instruccion):
             arbol.consola.append(error.toString())
             return error
         if isinstance(resultado,int):
-            self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
+            self.tipo = Tipo("",Tipo_Dato.DOUBLE_PRECISION)
             return round(resultado)
         else:
-            self.tipo = Tipo(Tipo_Dato.NUMERIC)
+            self.tipo = Tipo("",Tipo_Dato.NUMERIC)
             return round(resultado)
