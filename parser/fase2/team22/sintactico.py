@@ -875,6 +875,9 @@ def p_operadores_agregacion(t):
         t[0] = Top.Top(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
         pass
 
+def p_operadores_agregacion2(t) :
+    '''expre    : COUNT PARIZQ POR PARDER'''
+
 def p_operadores_matematica(t):
     '''expre : ABS PARIZQ expre PARDER 
             | CBRT PARIZQ expre PARDER 
@@ -1667,7 +1670,6 @@ def p_instruccion_drop_index(t) :
 def p_lista_or(t) :
     '''expre     : expre PIPE PIPE expre'''
 
-
 #FUNCIONES
 def p_instruccion_creacion_funct(t) :
     '''instruccion  : CREATE FUNCTION ID PARIZQ list_params_funct PARDER return_funct as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
@@ -1777,6 +1779,44 @@ def p_content_begin(t) :
                         | EXCEPTION list_exception
                         | query PUNTO_COMA'''
 
+def p_content_beginIf(t) :
+    '''content_begin    : IF condicion_if THEN list_begin elsif else_if END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin else_if END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin elsif END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin END IF PUNTO_COMA
+    '''
+
+def p_content_beginCase(t) :
+    '''content_begin    : CASE lcase END CASE PUNTO_COMA
+    '''
+
+def p_elseif(t) :
+    '''elsif       : ELSIF condicion_if THEN list_begin elsif
+                   | ELSIF condicion_if THEN list_begin
+    '''
+
+def p_else(t) :
+    '''else_if         : ELSE list_begin
+    '''
+
+def p_condiciones_if(t) :
+    '''condiciones_if   : condiciones_if AND condiciones_if
+                        | condiciones_if OR condiciones_if
+                        | condiciones_if'''
+
+def p_condiciones_if2(t) :
+    '''condiciones_if   : condicion_if'''
+
+def p_condicion_if(t) :
+    '''condicion_if : expre IGUAL expre
+                    | expre DISTINTO expre
+                    | expre MAYORQ expre
+                    | expre MENORQ expre
+                    | expre MAYOR_IGUALQ expre
+                    | expre MENOR_IGUALQ expre'''
+
+def p_condicion_if2(t) :
+    '''condicion_if : expre'''
 
 def p_def_return(t) :
     '''def_return   : expre

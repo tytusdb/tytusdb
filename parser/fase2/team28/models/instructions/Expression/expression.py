@@ -56,7 +56,7 @@ def getOperador(operador):
             value = "<="
         elif operador == SymbolsRelop.EQUALS:
             value = "=="
-        elif operador == SymbolsRelop.NOT_EQUAL or operator == SymbolsRelop.NOT_EQUAL_LR:
+        elif operador == SymbolsRelop.NOT_EQUAL or operador == SymbolsRelop.NOT_EQUAL_LR:
             value = "!="
         return value
 
@@ -192,11 +192,17 @@ class Relop(Expression):
                 data = ""
                 if isinstance(value1, list) and isinstance(value2, list):
                     if self.op == "=":
-                        data = f'{value1[1]} {self.op}= {value2[1]}'
-                        return data
+                        lista_aux = []
+                        lista_aux.append(value1[0])
+                        lista_aux.append(value2[0])
+                        data = f'{value1[1]}_y {self.op}= {value2[1]}_x'
+                        return [lista_aux, data, value1[1]]
                     else:
-                        data = f'{value1[1]} {self.op} {value2[1]}'
-                        return data
+                        lista_aux = []
+                        lista_aux.append(value1[0])
+                        lista_aux.append(value2[0])
+                        data = f'{value1[1]}_y {self.op} {value2[1]}_x'
+                        return [lista_aux, data, value1[1]]
                 elif isinstance(value1, list):
                     if isinstance(value2.value, int):
                         if self.op == "=":
@@ -491,15 +497,36 @@ class LogicalOperators(Expression):
                 return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
             else:
                 data = ""
-                if operator.lower() == 'and':
-                    data = f'({value1}) and ({value2})'
-                    return data
-                elif operator.lower() == 'or':
-                    data = f'({value1})  or ({value2})'
-                    return data
+                if isinstance(value1, list) and isinstance(value2, list):
+                    if operator.lower() == 'and':
+                        lista_temp = []
+                        lista_temp.append(value1[2])
+                        lista_temp.append(value2[2])
+                        lista_temp = self.convert_unic_list2(lista_temp)
+                        name_list = self.convert_unic_list(value1[0], value2[0])
+                        data = f'({value1[1]}) and ({value2[1]})'
+                        return [name_list, data, lista_temp]
+                    elif operator.lower() == 'or':
+                        lista_temp = []
+                        lista_temp.append(value1[2])
+                        lista_temp.append(value2[2])
+                        lista_temp = self.convert_unic_list2(lista_temp)
+                        name_list = self.convert_unic_list(value1[0], value2[0])
+                        data = f'({value1[1]})  or ({value2[1]})'
+                        return [name_list, data, lista_temp]
+                    else:
+                        print("Operador no valido: " + operator)
+                        return
                 else:
-                    print("Operador no valido: " + operator)
-                    return
+                    if operator.lower() == 'and':
+                        data = f'({value1}) and ({value2})'
+                        return data
+                    elif operator.lower() == 'or':
+                        data = f'({value1})  or ({value2})'
+                        return data
+                    else:
+                        print("Operador no valido: " + operator)
+                        return
         except TypeError:
             desc = "FATAL ERROR --- LogicalOperators"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -507,6 +534,23 @@ class LogicalOperators(Expression):
             desc = "FATAL ERROR --- LogicalOperators"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def convert_unic_list(self, value1, value2):
+        lista = []
+        for data in value1:
+            lista.append(data)
+        for data in value2:
+            lista.append(data)
+        return lista
+
+    def convert_unic_list2(self, list_temp):
+        lista = []
+        for data in list_temp:
+            if isinstance(data, list):
+                for data1 in data:
+                    lista.append(data1)
+            else:
+                lista.append(data)
+        return lista
 
 class PrimitiveData(Expression):
     """

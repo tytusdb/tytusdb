@@ -4,7 +4,7 @@ import platform
 from nodeAst import nodeAst
 import ascendente as analizador
 import traductor as generador
-
+import reportes as h
 #jossie
 from storageManager import jsonMode as j
 import pandas as pd
@@ -218,7 +218,7 @@ class Interfaz(tk.Frame):
 
         salida=self.terminal.get(1.0,tk.END)
         exec(x)
-        salida+="si ejecuta 3D"
+        salida+=h.textosalida
         self.terminal.insert(tk.END,salida) 
 #-------------------------------------------------------Help Menu Methods---------------------------------------------------------------------
     def about(self):

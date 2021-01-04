@@ -35,7 +35,7 @@ precedence = (
     ('left', 'AND'),  # Level 2
     ('right', 'NOT'),  # Level 3
     ('nonassoc', 'LESS_THAN', 'LESS_EQUAL', 'GREATE_THAN',
-     'GREATE_EQUAL', 'EQUALS', 'NOT_EQUAL_LR'),  # Level 4
+     'GREATE_EQUAL', 'EQUALS', 'NOT_EQUAL_LR', 'COLONEQUALS'),  # Level 4
     ('nonassoc', 'BETWEEN', 'IN', 'LIKE', 'ILIKE', 'SIMILAR'),  # Level 5
     ('left', 'SEMICOLON', 'LEFT_PARENTHESIS',
      'RIGHT_PARENTHESIS', 'COMMA', 'COLON', 'NOT_EQUAL'),  # Level 6
@@ -809,9 +809,9 @@ def p_declarations_list(p):
         p[0] = [p[1]]
 
 def p_sql_var_declarations(p):
-    '''SQL_VAR_DECLARATIONS : ID CONSTANT typeDeclare optionsDeclaration SEMICOLON
+    '''SQL_VAR_DECLARATIONS : ID CONSTANT typeDeclare detailDeclaration SEMICOLON
                             | ID CONSTANT typeDeclare SEMICOLON
-                            | ID typeDeclare optionsDeclaration SEMICOLON
+                            | ID typeDeclare detailDeclaration SEMICOLON
                             | ID typeDeclare SEMICOLON
                             | ID ALIAS FOR DOLLAR SQLINTEGER SEMICOLON
     '''
@@ -827,20 +827,24 @@ def p_type_param(p):
     '''
     p[0] = p[1]
 
-def p_options_declaration(p):
-    '''optionsDeclaration : optionsDeclaration detailDeclaration
-                          | detailDeclaration
-    '''
-    if(len(p) == 3):
-        p[1].append(p[2])
-        p[0] = p[1]
-    else:
-        p[0] = [p[1]]
+#def p_options_declaration(p):
+#    '''optionsDeclaration : optionsDeclaration detailDeclaration
+#                          | detailDeclaration
+#    '''
+#    if(len(p) == 3):
+#        p[1].append(p[2])
+#        p[0] = p[1]
+#    else:
+#        p[0] = [p[1]]
 
 def p_detail_declaration(p):
-    '''detailDeclaration : COLLATE ID
+    '''detailDeclaration : COLLATE ID NOT NULL ASSIGNATION_SYMBOL PLPSQL_EXPRESSION
+                         | NOT NULL ASSIGNATION_SYMBOL PLPSQL_EXPRESSION
+                         | COLLATE ID NOT NULL
+                         | COLLATE ID ASSIGNATION_SYMBOL PLPSQL_EXPRESSION
+                         | COLLATE ID
                          | NOT NULL
-                         | ASSIGNATION_SYMBOL SQLSIMPLEEXPRESSION
+                         | ASSIGNATION_SYMBOL PLPSQL_EXPRESSION
     '''
     if len(p) == 3:
         p[0] = p[2]
@@ -888,7 +892,9 @@ def p_statement_type(p):
 #TODO: CONCAT
 def p_plpsql_expression(p):
     '''PLPSQL_EXPRESSION : PLPSQL_EXPRESSION CONCAT PLPSQL_EXPRESSION
-                         | PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_EXPRESSION AND PLPSQL_EXPRESSION
+                         | PLPSQL_EXPRESSION OR PLPSQL_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL SQLRELATIONALEXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION NOT_EQUAL PLPSQL_PRIMARY_EXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION GREATE_EQUAL PLPSQL_PRIMARY_EXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION GREATE_THAN PLPSQL_PRIMARY_EXPRESSION
@@ -1446,13 +1452,13 @@ def p_table_reference(p):
                       | SQLNAME'''
     if (len(p) == 2):
         p[0] = TableReference(
-            p[1], None, p.slice[1].value.line, p.slice[1].value.column)
+            p[1], None, None, p.slice[1].value.line, p.slice[1].value.column)
     elif (len(p) == 3):
         p[0] = TableReference(
-            p[1], p[2], p.slice[1].value.line, p.slice[1].value.column)
+            p[1], p[2], p[2], p.slice[1].value.line, p.slice[1].value.column)
     elif (len(p) == 4):
         p[0] = TableReference(
-            p[1], p[2], p.slice[1].value.line, p.slice[1].value.column)
+            p[1], p[3], p[2], p.slice[1].value.line, p.slice[1].value.column)
 
 
 def p_order_by_clause(p):
@@ -2021,9 +2027,12 @@ def p_sql_object_reference(p):
                        | SQLNAME DOT SQLNAME
                        | SQLNAME'''
     if (len(p) == 2):
-        p[0] = ObjectReference(p[1], None)
+        p[0] = ObjectReference(p[1], None, None)
     elif (len(p) == 4):
-        p[0] = ObjectReference(p[1], p[3])
+        if p[3] == "*":
+            p[0] = ObjectReference(p[1], p[3], None)
+        else:
+            p[0] = ObjectReference(p[3], None, p[1])
 
 
 def p_list_values_insert(p):
