@@ -1138,6 +1138,7 @@ def p_exp(t):
             | arg_least 
             | val_value
             | ID PARABRE list_vls PARCIERRE
+            | PARABRE exp PARCIERRE
             | data NOT IN PARABRE ins_select PARCIERRE '''
     if len(t) == 7:
         t[0] = GenerarC3D()
@@ -1149,8 +1150,12 @@ def p_exp(t):
         t[0] = GenerarC3D()
         t[0].code += str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].code + ' ' + str(t[4])
     elif len(t) == 4:
-        t[0] = GenerarC3D()
-        t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
+        if isinstance(t[1], GenerarC3D):
+            t[0] = GenerarC3D()
+            t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
+        else:
+            t[0] = GenerarC3D()
+            t[0].code += str(t[1]) + ' ' + t[2].code + ' ' + str(t[3])
     elif len(t) == 3:
         t[0] = GenerarC3D()
         t[0].code += str(t[1]) + ' ' + t[2].code
@@ -1689,6 +1694,47 @@ def p_execute_exp(t):
 
 def p_null(t):
     '''null : NULL PUNTO_COMA'''
+
+# ======================================================================
+#                        EXPRESIONES PLSQL
+# ======================================================================
+def p_exp_plsql(t):
+    '''exp_plsql : exp_plsql SIGNO_MAS exp_plsql
+            | exp_plsql SIGNO_MENOS exp_plsql 
+            | exp_plsql SIGNO_POR exp_plsql 
+            | exp_plsql SIGNO_DIVISION exp_plsql 
+            | exp_plsql SIGNO_MODULO exp_plsql 
+            | exp_plsql SIGNO_POTENCIA exp_plsql 
+            | exp_plsql OR exp_plsql 
+            | exp_plsql AND exp_plsql 
+            | exp_plsql MENORQUE exp_plsql 
+            | exp_plsql MAYORQUE exp_plsql 
+            | exp_plsql MAYORIGUALQUE exp_plsql 
+            | exp_plsql MENORIGUALQUE exp_plsql 
+            | exp_plsql SIGNO_IGUAL exp_plsql
+            | exp_plsql SIGNO_MENORQUE_MAYORQUE exp_plsql
+            | exp_plsql SIGNO_NOT exp_plsql 
+            | NOT exp_plsql
+            | ID PARABRE list_vls_plsql PARCIERRE
+            | PARABRE exp_plsql PARCIERRE
+            | val_value_plsql'''
+
+def p_val_value_plsql(t):
+    '''val_value_plsql : CADENA
+                |   CADENASIMPLE
+                |   NUMERO
+                |   NUM_DECIMAL
+                |   FECHA_HORA
+                |   TRUE
+                |   FALSE 
+                |   NULL
+                |   F_HORA
+                |   FECHA
+                |   HORA'''
+
+def p_list_vls_plsql(t):
+    '''list_vls_plsql : list_vls_plsql COMA exp_plsql
+                | exp_plsql '''
 
 # ======================================================================
 #                         INSTRUCCIONES SQL
