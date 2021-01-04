@@ -504,6 +504,19 @@ def p_instruction(t):
 
 def p_plpgsql(t):
     '''
+<<<<<<< HEAD
+        plpgsql : function label declare BEGIN stmts END ID
+                | function label declare BEGIN stmts END
+                | function declare BEGIN stmts END
+                | function BEGIN stmts END
+                | label declare BEGIN stmts END ID
+                | label declare BEGIN stmts END
+                | label BEGIN stmts END ID
+                | label BEGIN stmts END
+                | declare BEGIN stmts END
+                | BEGIN stmts END
+
+=======
         plpgsql : function label declare BEGIN stmts plpgsql_ending
                 | function declare BEGIN stmts plpgsql_ending
                 | function BEGIN stmts plpgsql_ending
@@ -511,9 +524,11 @@ def p_plpgsql(t):
                 | label BEGIN stmts plpgsql_ending
                 | declare BEGIN stmts plpgsql_ending
                 | BEGIN stmts plpgsql_ending
+>>>>>>> c2cb26116e1c26c09e04e866e01ab3967377e3b0
     '''
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
+
 
 # ================= EXCEPTION =================
 
@@ -558,6 +573,7 @@ def p_declare(t):
     '''
          declare : DECLARE
     '''
+
 
 
 # ================= FUNCTION =================
@@ -742,6 +758,23 @@ def p_Raise_complex(t):
 
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
+def p_declare(t):
+
+    '''
+         declare :  ID INTEGER NOTNULL PREDICATEDECLARATION PTCOMA
+                    | ID VARCHAR NOTNULL PREDICATEDECLARATION PTCOMA
+                    | ID INTEGER  PREDICATEDECLARATION PTCOMA
+                    | ID VARCHAR  PREDICATEDECLARATION PTCOMA
+                    | ID NUMERIC  PREDICATEDECLARATION PTCOMA
+                    | ID NUMERIC NOTNULL PREDICATEDECLARATION PTCOMA
+    '''
+
+def p_plpgsql_predicatedeclaration(t):
+    '''
+        PREDICATEDECLARATION : DOSPTS IGUAL exp
+                             | IGUAL exp
+                             | DEFAULT
+    '''
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
 

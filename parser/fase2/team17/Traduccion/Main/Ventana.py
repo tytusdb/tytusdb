@@ -2,10 +2,12 @@ import traceback
 from tkinter import *
 from tkinter import filedialog
 from Parser.Ascendente.gramatica import parse as AnaParse
+
 #from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
 #from Parser.Reportes.gramatica1 import parse as ReportParse
 from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
 from InterpreteF2.Arbol import Arbol
+
 from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
 from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
 from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
@@ -19,19 +21,38 @@ from Parser.Reportes.TourTree import TourTree
 
 from graphviz import Source
 
-arboAux_errores: Arbol = None
 
+#================================================================
+#======================Declaracion de variables globales========
+#================================================================
+arboAux_errores: Arbol
 dotString = ''
 cadena = ''
 root = Tk()
 root.title('Editor ML WEB')
 root.geometry("1200x660")
+
+COD3D ="""
+from Fase1.Sql import Sql
+from goto import with_goto
+
+heap = None
+
+def inter():
+    global  heap
+    sql:Sql = Sql()
+    sql.run(heap)
+
+"""
+
 # =====================Para leer una archivo de pureba
 f = open("./../Parser/Ascendente/entrada.txt", "r")
 input = f.read()
 
+#================================================================
+#======================Declaracion de variables globales========
+#================================================================
 
-# =====================Para leer una archivo de prueba FIn
 
 # #############################################################################################
 # ############################ Init Funciones #################################################
@@ -81,9 +102,8 @@ def open_file():
 
 
 def save_as_file():
-    text_file = filedialog.asksaveasfilename(defaultextension=".*", title="Save File",
-                                             filetypes=[("Text Files", "*.sql")])
 
+    text_file = filedialog.asksaveasfilename(defaultextension=".*", title="Save File", filetypes=[("Text Files", "*.sql")])
     # Save the file
     text_file = open(text_file, 'w')
     text_file.write(my_text.get(1.0, END))
@@ -130,6 +150,7 @@ def Seleccionar():
         cadena = my_text.get(SEL_FIRST, SEL_LAST)
 
         result: Arbol = AnaParse(cadena)
+
         entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
         entornoCero.NuevoAmbito()
         print(result)
@@ -141,6 +162,7 @@ def Seleccionar():
 
         consola = result.getC3D()
         #for item in result.console:
+
         #    consola = consola + item
 
         my_text1.insert(END, consola)
@@ -151,34 +173,36 @@ def Seleccionar():
 
 def ReporteSelect():
     global dotString
-    #cadena = my_text.get(SEL_FIRST, SEL_LAST)
-    #result: Nodo = ReportParse(cadena)
-    #tour:TourTree = TourTree()
-    #dotString = tour.getDot(result)
-    #graph = Source(dotString)
+    # cadena = my_text.get(SEL_FIRST, SEL_LAST)
+    # result: Nodo = ReportParse(cadena)
+    # tour:TourTree = TourTree()
+    # dotString = tour.getDot(result)
+    # graph = Source(dotString)
     ##graph.render(view=True, format='svg')
 
-    #try:
+    # try:
     #    graph.render(format='svg')
     #    print('Reporte Generado Con exito')
-    #except:
+    # except:
     #    print('No se genero el reporte:w')
 
 
 def Reporte():
-     global dotString
-     #cadena = my_text.get("1.0", END)
-     #result: Nodo = ReportParse(cadena)
-     #tour:TourTree = TourTree()
-     #dotString = tour.getDot(result)
-     #graph = Source(dotString)
-    ##graph.render(view=True, format='svg')
+    global dotString
+    # cadena = my_text.get("1.0", END)
+    # result: Nodo = ReportParse(cadena)
+    # tour:TourTree = TourTree()
+    # dotString = tour.getDot(result)
+    # graph = Source(dotString)
 
-     #try:
-     #   graph.render(format='svg')
-     #   print('Reporte Generado Con exito')
-     #except:
-     #   print('No se genero el reporte:w')
+
+##graph.render(view=True, format='svg')
+
+# try:
+#   graph.render(format='svg')
+#   print('Reporte Generado Con exito')
+# except:
+#   print('No se genero el reporte:w')
 
 
 
@@ -269,11 +293,7 @@ def Err_Sintactico():
         print("No fue posible escribir el html: " + str(e))
 
 
-
-
-
 def Err_Semantico():
-
     global arboAux_errores
 
     texto = '''
@@ -294,7 +314,7 @@ def Err_Semantico():
             <table> <thead> <tr>
             <th>#</th>
             <th>Descripcion</th>
-      
+
             <th>Origen</th>
             </tr> </thead>
             '''
@@ -363,6 +383,21 @@ def Tabla_Simbolos():
         print("No fue posible escribir el html: " + str(e))
 
 
+def generar():
+    global COD3D
+
+   #todo: NERY Aqui concatena el codigo 3d generado
+    COD3D += ''
+
+    #llamando a la funcion principal
+    COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
+
+    f = open("./../../Ejecucion/Codigo3DGenerado.py", "w")
+    f.write(COD3D)
+    f.close()
+
+
+
 # ############################################################################################
 # ############################ Fin Funciones #################################################
 # ############################################################################################
@@ -389,6 +424,10 @@ Report_button.grid(row=0, column=40, padx=2)
 Report_Select = Button(toolbar_frame, text="Report Select", command=ReporteSelect)
 Report_Select.grid(row=0, column=60, padx=2)
 
+# Boton Reporte
+generate_3d = Button(toolbar_frame, text="Genera 3d", command=generar)
+generate_3d.grid(row=0, column=80, padx=2)
+
 # Create Main Frame
 my_frame = Frame(root)
 my_frame.pack(pady=0, padx=0, side=LEFT)
@@ -412,7 +451,7 @@ text_scroll1 = Scrollbar(my_frame1)
 text_scroll1.pack(side=RIGHT, fill=Y)
 
 my_text1 = Text(my_frame1, width=60, height=40, font=("Consolas", 15), selectbackground="yellow",
-                selectforeground="black", undo=True, yscrollcommand=text_scroll1.set,foreground="white",
+                selectforeground="black", undo=True, yscrollcommand=text_scroll1.set, foreground="white",
                 background="black")
 my_text1.pack(side=LEFT)
 text_scroll1.config(command=my_text1.yview)
@@ -438,3 +477,4 @@ edit_menu.add_command(label='Sintactico', command=Err_Sintactico)
 edit_menu.add_command(label='Semantico', command=Err_Semantico)
 edit_menu.add_command(label='Tabla Simbolos', command=Tabla_Simbolos)
 file_menu.add_separator()
+
