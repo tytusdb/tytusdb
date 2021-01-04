@@ -80,6 +80,10 @@ class interfaz():
         mnreportes.add_command(label='AST', command=self.ast_click)
         mnreportes.add_command(label='Reporte Gramatical', command=self.repDin_click)
         menu.add_cascade(label='Reportes', menu=mnreportes)
+        menu3d = Menu(menu,tearoff=0)
+        menu3d.add_command(label='Traducir C3D', command=self.traducirc3d_click)
+        menu3d.add_command(label='Ejecutar C3D', command=self.ejecutarc3d_click)
+        menu.add_cascade(label='3 Direcciones', menu=menu3d)
         self.window.config(menu=menu)
 
         ##############################################BOTONES####################################
@@ -100,7 +104,7 @@ class interfaz():
         self.txtsalida =[]
         self.crear_tab("","Nuevo.sql")
         
-        lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=15,bg='#80b192')
+        lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=17,bg='#80b192')
         lblentrada.place(x=20,y=80)
         lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#80b192')
         lblsalida.place(x=20,y=350)
@@ -131,6 +135,12 @@ class interfaz():
         print(event.width,event.height)
 
     ##############################################EVENTOS DE LOS BOTONES DEL MENU####################################
+    def traducirc3d_click(self):
+        pass
+
+    def ejecutarc3d_click(self):
+        pass
+
     def abrir_click(self):
         try:
             self.file = filedialog.askopenfilename(initialdir= os.path.dirname(__file__))
