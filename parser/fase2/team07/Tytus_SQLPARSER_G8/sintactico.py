@@ -2273,6 +2273,72 @@ def p_identificadores(t):
                       | ID
     '''
 
+def p_instruccion_index(t):
+    '''
+    instruccion : CREATE unique_op INDEX ID ON hash_op PARIZQ l_indexes PARDER instructionWhere PUNTO_COMA
+    '''
+
+def p_index_unique(t):
+    '''
+    unique_op : UNIQUE
+    '''
+
+def p_index_unique_e(t):
+    '''
+    unique_op : 
+    '''
+def p_index_hash(t):
+    '''
+    hash_op : USING HASH
+    '''
+
+def p_index_hash_e(t):
+    '''
+    hash_op : 
+    '''
+
+def p_index_indexes(t):
+    '''
+    l_indexes : l_indexes COMA ID order_op null_op first_last_op
+    '''
+
+def p_index_index(t):
+    '''
+    l_indexes : ID order_op null_op first_last_op
+    '''
+
+def p_index_order(t):
+    '''
+    order_op : ASC
+            | DESC
+    '''
+
+def p_index_order_e(t):
+    '''
+    order_op : 
+    '''
+
+def p_index_null(t):
+    '''
+    null_op : NULL
+    '''
+
+def p_index_null_e(t):
+    '''
+    null_op : 
+    '''
+
+def p_index_first_last(t):
+    '''
+    first_last_op : FIRST
+                | LAST
+    '''
+
+def p_index_first_last_e(t):
+    '''
+    first_last_op : 
+    '''
+
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
 

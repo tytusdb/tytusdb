@@ -92,7 +92,8 @@ reservadas = (
     'ELSEIF',
     'RAISE',
     'NOTICE',
-    'RETURN'
+    'RETURN',
+    'INDEX', 'USING', 'HASH'
 )
 
 tokens = reservadas + (
