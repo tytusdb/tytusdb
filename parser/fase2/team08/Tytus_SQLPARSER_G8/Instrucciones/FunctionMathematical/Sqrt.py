@@ -26,3 +26,13 @@ class Sqrt(Instruccion):
         else:
             return math.sqrt(resultado)
         
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"SQRT({self.valor.traducir(tabla,arbol).temporalAnterior})"

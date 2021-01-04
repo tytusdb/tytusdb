@@ -21,5 +21,5 @@ class Primitive(Expression):
         node = Nodo.Nodo(str(self.value))
         return node
     
-    def generate3d(self,environment,fase =2):
+    def generate3d(self,environment, instanciaAux):
         return str(self.value) # TANTO PARA FASE 1 O FASE 2 SE RETORNA LO MISMO

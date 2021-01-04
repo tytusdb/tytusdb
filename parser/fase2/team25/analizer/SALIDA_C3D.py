@@ -10,14 +10,18 @@ def principal():
 	t0 = "use MYDB;"
 	stack.push(t0)
 	funcionIntermedia()
-	t1 = 9 * 16
-	t2 = 1 + t1
-	un_id_ = t2
-	t3 = "create table tab5( columna integer NOT NULL );"
-	stack.push(t3)
+	t1 = "insert into tabla1 values (1,2,3);"
+	t2 = "insert into tabla1 values (1,2,3);"
+	t3 = "insert into tabla1 values (1,2,3);"
+	t4 = "select * from tabla1;"
+	t5 = "select * from tabla1 where columna > 1500;"
+	t6 = 9 * 8
+	return t6
+	t7 = "CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);"
+	stack.push(t7)
 	funcionIntermedia()
-	t4 = "select md5('cadena') , funcionNueva(col) from tab5 where col <> 10;"
-	stack.push(t4)
+	t8 = "select md5('cadena') from tab5 where col <> 10;"
+	stack.push(t8)
 	funcionIntermedia()
 
 

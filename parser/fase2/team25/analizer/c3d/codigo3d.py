@@ -12,7 +12,8 @@ class Codigo3d:
 
 
 
-    def restart(self,entrada) -> None:
+
+    def restart(self) -> None:
         """
         limpia las variables
         """
@@ -46,8 +47,7 @@ class Codigo3d:
 
 
 
-    def adjuntarArray(self,array: list)->None:
-        self.listaCode3d = self.listaCode3d  + array
+
 
 
 
@@ -96,22 +96,29 @@ class Codigo3d:
         """
         with open("SALIDA_C3D.py", "w") as archivo:
             # librerias
-            archivo.write("from goto import with_goto" + "\n")
-            archivo.write("from interpreter import execution"+"\n")
-            archivo.write('from c3d.stack import  Stack\n')
-            archivo.write('\nstack = Stack()')
-            archivo.write("\n\n\n@with_goto\n")
-            archivo.write("def principal():\n")
-            for inst in self.listaCode3d:
-                archivo.write(inst)
-            archivo.write('\n\n\ndef funcionIntermedia():\n')
-            archivo.write('\texecution(stack.pop())\n')
-            archivo.write("principal()")
+            archivo.write(self.getCodigo())
             archivo.close()
 
+    def getCodigo(self):
+        cadena = ''
+        cadena+=("from goto import with_goto" + "\n")
+        cadena+=("from interpreter import execution"+"\n")
+        cadena+=('from c3d.stack import  Stack\n')
+        cadena+=('\nstack = {}')
+        cadena+=("\n\n\n@with_goto\n")
+        cadena+=("def principal():\n")
+        for inst in self.listaCode3d:
+            cadena+=(inst)
+        cadena+=('\n\n\ndef funcionIntermedia(tn):\n')
+        cadena+=("\texecution(stack['tn'])\n")
+        cadena+=("principal()")
+        return cadena
 
 
 
 
 # INSTANCIA PARA CONTROLAS LOS METODOS DE LA CLASE
 instancia_codigo3d = Codigo3d()
+
+#instacia auxiliar
+# instanciaAux = Codigo3d()

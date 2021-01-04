@@ -2,6 +2,7 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Primitivo import Primitivo
 
 class Asinh(Instruccion):
     def __init__(self, valor, strGram, linea, columna):
@@ -25,4 +26,13 @@ class Asinh(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
-            
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        if isinstance(self.valor, Primitivo):
+            return f"ASINH({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        print(self.valor)
+        return f"ASINH({self.valor.traducir(tabla,arbol)})"

@@ -160,8 +160,6 @@ reservadas = {
     'date_part': 'date_part',
     'isnull': 'ISNULL',
     'notnull':'NOTNULL',
-    'not': 'NOT',
-    'null':'NULL',
     'unknown': 'UNKNOWN',
     'extract': 'EXTRACT',
     'inherits': 'INHERITS',
@@ -232,8 +230,8 @@ reservadas = {
     'rowtype': 'ROWTYPE',
     'record':'RECORD',
     'strict':'STRICT',
-    'returning':'RETURNING'
-
+    'returning':'RETURNING',
+    'inout':'INOUT'
 }
 
 tokens = [
@@ -437,6 +435,13 @@ from Analisis_Ascendente.Instrucciones.Expresiones.Where import Where
 from Analisis_Ascendente.Instrucciones.Type.type import CreateType
 from Analisis_Ascendente.Instrucciones.Select import SelectDist
 from Analisis_Ascendente.Instrucciones.Type.type import CreateType
+
+#----------------------------------Imports FASE2--------------------------
+from Analisis_Ascendente.Instrucciones.PLPGSQL.Declaracion import Declaracion
+from Analisis_Ascendente.Instrucciones.PLPGSQL.Alias import Alias
+from Analisis_Ascendente.Instrucciones.PLPGSQL.plinsert import plinsert
+from Analisis_Ascendente.Instrucciones.Index.Index import Index
+
 
 precedence = (
     ('left', 'OR'),
@@ -2231,59 +2236,141 @@ def p_checkopcional(t):
 # PLDECLA ********************************************
 def p_pldecla(t):
     '''pldecla : ID CONSTANT tipo COLLATE CADENA NOT NULL plasig PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],True,t[3],t[5],True,t[8],lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID CONSTANT tipo COLLATE CADENA NOT NULL plasig PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,True,tipo,CADENA,True,plasig)')
 
 def p_pldecla1(t):
     '''pldecla : ID tipo COLLATE CADENA NOT NULL plasig PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],False,t[2],t[4],True,t[7],lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID tipo COLLATE CADENA NOT NULL plasig PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,False,tipo,CADENA,True,plasig)')
 
 def p_pldecla2(t):
     '''pldecla : ID CONSTANT tipo NOT NULL plasig PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],True,t[3],None,True,t[6],lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID CONSTANT tipo NOT NULL plasig PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,True,tipo,None,True,plasig)')
 
 def p_pldecla3(t):
     '''pldecla : ID CONSTANT tipo COLLATE CADENA  plasig PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],True,t[3],t[5],False,t[6],lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID CONSTANT tipo COLLATE CADENA  plasig PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,True,tipo,CADENA,False,plasig)')
 
 def p_pldecla4(t):
     '''pldecla : ID CONSTANT tipo COLLATE CADENA NOT NULL PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1], True, t[3], t[5],True,None, lexer.lineno, columna)
+    varGramatical.append('pldecla ::= ID CONSTANT tipo COLLATE CADENA NOT NULL PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,True,tipo,CADENA,True,None)')
 
 def p_pldecla5(t):
     '''pldecla : ID tipo NOT NULL plasig PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],False,t[2],None,True, t[5], lexer.lineno, columna)
+    varGramatical.append('pldecla ::= ID tipo NOT NULL plasig PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,False,tipo,None,True,plasig)')
 
 def p_pldecla6(t):
     '''pldecla : ID CONSTANT tipo plasig PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],True,t[3],None,False,t[4],lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID CONSTANT tipo plasig PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,True,tipo,None,False,plasig)')
 
 def p_pldecla7(t):
     '''pldecla : ID CONSTANT tipo NOT NULL PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],True,t[3],None,True,None,lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID CONSTANT tipo NOT NULL PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,True,tipo,None,True,None)')
 
 def p_pldecla8(t):
     '''pldecla : ID CONSTANT tipo COLLATE CADENA PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],True,t[3],t[5],False,None,lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID CONSTANT tipo COLLATE CADENA PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,True,tipo,CADENA,False,None)')
 
 def p_pldecla9(t):
     '''pldecla : ID tipo plasig PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],False,t[2],None,False,t[3],lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID tipo plasig PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,False,tipo,None,False,plasig)')
 
 def p_pldecla10(t):
     '''pldecla : ID tipo NOT NULL PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],False,t[2],None,True,None,lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID tipo NOT NULL PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,False,tipo,None,True,None)')
 
 def p_pldecla11(t):
     '''pldecla : ID CONSTANT tipo PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],True,t[3],None,False,None,lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID CONSTANT tipo PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,True,tipo,None,False,None)')
 
 def p_pldecla12(t):
     '''pldecla : ID tipo COLLATE CADENA PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],False,t[2],t[4],False,None,lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID tipo COLLATE CADENA PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,False,tipo,CADENA,False,None)')
 
 def p_pldecla13(t):
     '''pldecla : ID tipo PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],False,t[2],None,False,None,lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID tipo PTCOMA')
+    varSemantico.append('pldecla = Declaracion(ID,False,tipo,None,False,None)')
 
 def p_decla14(t):
     '''pldecla : ID plasig PTCOMA'''
+    global columna
+    t[0] = Declaracion(t[1],False,None,None,False,t[2],lexer.lineno,columna)
+    varGramatical.append('pldecla ::= ID plasig')
+    varSemantico.append('pldecla = Declaracion(ID,False,None,None,False,plasing)')
 
 #PLASIG ********************************
 def p_plasig(t):
     '''plasig : DEFAULT E
               | DOSPT IGUAL E
               | IGUAL E'''
+    if t[1].lower() == 'default':
+        t[0] = t[2]
+        varGramatical.append('plasig ::= DEFAULT E')
+        varSemantico.append('plasig = E')
+    elif t[1] == '=':
+        t[0] = t[2]
+        varGramatical.append('plasig ::= DOSPT IGUAL E')
+        varSemantico.append('plasig = E')
+    else:
+        t[0] = t[3]
+        varGramatical.append('plasig ::= IGUAL E')
+        varSemantico.append('plasig = E')
 
 #PLALIAS ******************************
 def p_plalias(t):
     '''plalias : ID ALIAS FOR DOLAR ENTERO PTCOMA
                | ID ALIAS FOR ID PTCOMA'''
+
+    global columna
+    if t[4] == '$':
+        t[0] = Alias(t[1],t[5],None,lexer.lineno,columna)
+        varGramatical.append('plalias ::= ID ALIAS FOR DOLAR ENTERO PTCOMA')
+        varSemantico.append('plalias = Alias(ID,ENTERO,None)')
+    else:
+        t[0] = Alias(t[1],None,t[4],lexer.lineno,columna)
+        varGramatical.append('plalias ::= ID ALIAS FOR ID PTCOMA')
+        varSemantico.append('plalias = Alias(ID,None,ID)')
 
 #L_PARAM ********************************
 def p_l_param(t):
@@ -2298,6 +2385,9 @@ def p_param1(t):
 
 def p_param2(t):
     ''' param : typeparam '''
+
+def p_param3(t):
+    ''' param : INOUT ID typeparam '''
 
 def p_typeparam(t):
     '''typeparam : tipo
@@ -2381,17 +2471,48 @@ def p_plretu(t):
 # --------------- Instrucciones Query -------------------------
 # PLSELECT**************************
 def p_plselect(t):
-    '''plsen : SELECT select_list INTO ID FROM ID WHERE where andOr PTCOMA'''
+    '''plsen : SELECT select_list INTO ID FROM subquery inner WHERE complemSelect orderby limit PTCOMA'''
 
 def p_plselect1(t):
-    '''plsen : SELECT select_list INTO STRICT ID FROM ID WHERE where andOr PTCOMA'''
+    '''plsen : SELECT select_list INTO STRICT ID FROM subquery inner WHERE complemSelect orderby limit PTCOMA'''
+
+def p_plselect2(t):
+    '''plsen : SELECT select_list INTO ID FROM subquery inner orderby limit PTCOMA'''
+
+def p_plselect3(t):
+    '''plsen : SELECT select_list INTO STRICT ID FROM subquery inner orderby limit PTCOMA'''
 
 # PLINSERT**************************
 def p_plinsert(t):
     'plsen : INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO ID PTCOMA'
+    global columna
+    t[0] = plinsert(1,t[3],t[5],t[8],t[10],t[12],lexer.lineno,columna)
+    varGramatical.append('plsen ::= INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO ID PTCOMA')
+    varSemantico.append('plsen = plinsert(1,ID,listaID,value,plreturning,ID)')
 
 def p_plinsert1(t):
     'plsen : INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO STRICT ID PTCOMA'
+    global columna
+    t[0] = plinsert(1,t[3],t[5],t[8],t[10],t[13],lexer.lineno,columna)
+    varGramatical.append('plsen ::= INSERT INTO ID PARIZQ listaID PARDR VALUES value RETURNING plreturning INTO ID PTCOMA')
+    varSemantico.append('plsen = plinsert(1,ID,listaID,value,plreturning,ID)')
+
+
+def p_plinsert2(t):
+    'plsen : INSERT INTO ID VALUES value RETURNING plreturning INTO ID PTCOMA'
+    global columna
+    t[0] = plinsert(2,t[3],None,t[5],t[7],t[9],lexer.lineno,columna)
+    varGramatical.append('plsen ::= INSERT INTO ID VALUES value RETURNING plreturning INTO ID PTCOMA')
+    varSemantico.append('plsen = plinsert(2,ID,None,value,plreturning,ID)')
+
+
+def p_plinsert3(t):
+    'plsen : INSERT INTO ID VALUES value RETURNING plreturning INTO STRICT ID PTCOMA'
+    global columna
+    t[0] = plinsert(2,t[3],None,t[5],t[7],t[10],lexer.lineno,columna)
+    varGramatical.append('plsen ::= INSERT INTO ID VALUES value RETURNING plreturning INTO STRICT ID PTCOMA')
+    varSemantico.append('plsen = plinsert(2,ID,None,value,plreturning,ID)')
+
 
 # PLUPDATE**************************
 def p_pludapte(t):
@@ -2410,14 +2531,39 @@ def p_pldelete1(t):
 def p_plreturning(t):
     '''plreturning : l_plid
                    | MULT '''
+    t[0] = t[1]
+    if t[1] == '*':
+        varGramatical.append('plreturning ::= MULT')
+        varSemantico.append('plreturning = MULT')
+    else:
+        varGramatical.append('plreturning ::= l_plid')
+        varSemantico.append('plreturning = l_plid')
 
 def p_l_plid(t):
-    '''l_plid : l_plid COMA plid
-              | plid'''
+    '''l_plid : l_plid COMA plid '''
+    t[1].append(t[3])
+    t[0] = t[1]
+    varGramatical.append('l_plid ::= l_plid COMA plid')
+    varSemantico.append('l_plid.append(plid); l_plid = l_plid')
+
+def p_l_plid1(t):
+    '''l_plid : plid '''
+    t[0] = [t[1]]
+    varGramatical.append('l_plid ::= plid')
+    varSemantico.append('l_plid = plid ')
 
 def p_plid(t):
     '''plid : ID
             | ID AS ID'''
+    global columna
+    if t[2].upper() == 'AS':
+        t[0] = IdAsId(t[1],t[3],lexer.lineno,columna)
+        varGramatical.append('plid ::= ID AS ID')
+        varSemantico.append('plid = IdAsId(ID,ID)')
+    else:
+        t[0] = Id(t[1],lexer.lineno,columna)
+        varGramatical.append('plid ::= ID')
+        varSemantico.append('plid = Id(ID)')
 
 # ------------- Estructuras de Control ---------------------
 
@@ -2425,10 +2571,19 @@ def p_Call1(t):
     'instruccion : plCall'
 
 # Call *************************
-
 def p_CAll(t):
-    'plCall : CALL ID PARIZQ opc_param PARDR PTCOMA'
+    'plCall : CALL ID PARIZQ l_plval PARDR PTCOMA'
 
+def p_l_plval(t):
+    '''l_plval : l_plval COMA plval
+               | plval '''
+
+def p_plval(t):
+    '''plval : valores
+             | TRUE
+             | FALSE
+             | ID
+             | ID COLLATE CADENA '''
 
 # IF ****************************
 def p_If(t):
@@ -2448,7 +2603,6 @@ def p_elsif(t):
     'elsif : ELSIF boolean THEN plsen'
 
 # Case *******************
-
 def p_case(t):
     'pl_Case : CASE ID opcCase elseCase END CASE PTCOMA'
 
@@ -2500,57 +2654,113 @@ def p_bloq4(t):
 def p_Indice(t):
     'instruccion : CREATE INDEX ID ON ID PARIZQ listaID PARDR whereIndice'
     global columna
+    t[0] = Index(1, str(t[3]), str(t[5]), t[7], t[9], None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ listaID PARDR whereIndice')
+    varSemantico.append('instruccion = Index(1,t[3],t[5],t[7],t[9], lexer.lineno, columna)  ')
 
 def p_IndiceHash(t):
     'instruccion : CREATE INDEX ID ON ID USING HASH PARIZQ listaID PARDR PTCOMA'
     global columna
+    t[0] = Index(2, str(t[3]), str(t[5]), t[9], None, None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID USING HASH PARIZQ listaID PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(2, str(t[3]), str(t[5]), t[9], None, lexer.lineno, columna) ')
+
 
 def p_IndiceUnique(t):
     'instruccion : CREATE UNIQUE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA'
     global columna
+    t[0] = Index(3, str(t[4]), str(t[6]), t[8], None, None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE UNIQUE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(3, str(t[4]), str(t[6]), t[8], None, lexer.lineno, columna) ')
 
 def p_IndiceOrderBY(t):
     'instruccion : CREATE INDEX ID ON ID PARIZQ ID opc_Order PARDR PTCOMA'
     global columna
+    t[0] = Index(4, str(t[3]), str(t[5]), t[7], None, t[8], lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ ID opc_Order PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(4, str(t[3]), str(t[5]), t[7], None, lexer.lineno, columna) ')
 
 def p_opc_Order(t):
     '''opc_Order : ASC
                   | DESC '''
+    if t[1].lower() == 'asc':
+        t[0] = 'asc'
+        varGramatical.append('opc_Order ::= ASC')
+        varSemantico.append('opc_Order =  ')
+    else:
+        t[0] = 'desc'
+        varGramatical.append('opc_Order ::= DESC')
+        varSemantico.append('opc_Order = ')
 
 def p_opc_Order1(t):
     ''' opc_Order : ASC NULLS FIRST
                     | DESC NULLS FIRST '''
+    if t[1].lower() == 'asc':
+        t[0] = 'asc nulls first'
+        varGramatical.append('opc_Order ::= ASC NULLS FIRST')
+        varSemantico.append('opc_Order =  ')
+    else:
+        t[0] = 'desc nulls first'
+        varGramatical.append('opc_Order ::= DESC NULLS FIRST')
+        varSemantico.append('opc_Order = ')
+
 
 def p_opc_Order2(t):
     ''' opc_Order : ASC NULLS LAST
                     | DESC NULLS LAST '''
+    if t[1].lower() == 'asc' :
+        t[0] = 'asc nulls last'
+        varGramatical.append('opc_Order ::= ASC NULLS LAST')
+        varSemantico.append('opc_Order =  ')
+    else:
+        t[0] = 'desc nulls last'
+        varGramatical.append('opc_Order ::= DESC NULLS LAST')
+        varSemantico.append('opc_Order = ')
 
 def p_opc_Order3(t):
     ''' opc_Order : NULLS LAST
                     |    NULLS FIRST '''
+    if t[2].lower() == 'last' :
+        t[0] = 'nulls last'
+        varGramatical.append('opc_Order ::= NULLS LAST')
+        varSemantico.append('opc_Order =  ')
+    else:
+        t[0] = 'nulls first'
+        varGramatical.append('opc_Order ::= NULLS FIRST')
+        varSemantico.append('opc_Order = ')
 
 def p_IndiceLower(t):
     'instruccion : CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDR PARDR PTCOMA'
-    global columna
-
-def p_IndiceWhere(t):
-    'whereIndice : WHERE asignacion PTCOMA'
+    t[0] = Index(5, str(t[3]), str(t[5]), t[9], None, None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDR PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(5, str(t[3]), str(t[5]), t[9], None, lexer.lineno, columna) ')
 
 def p_IndiceWhere2(t):
     'whereIndice : PTCOMA'
+    t[0] = None
 
 def p_IndiceWhere3(t):
     'whereIndice : WHERE NOT PARIZQ E valores AND E valores PARDR PTCOMA'
+    t[0] = t[4]
+    varGramatical.append('whereIndice ::= WHERE NOT PARIZQ E valores AND E valores PARDR PTCOMA')
+    varSemantico.append('whereIndice =  Expresion(t[4],t[7]) ')
 
 def p_IndiceWhere4(t):
     'whereIndice : WHERE PARIZQ E valores AND E valores PARDR PTCOMA'
+    t[0] = t[3]
+    varGramatical.append('whereIndice ::= WHERE PARIZQ E valores AND E valores PARDR PTCOMA')
+    varSemantico.append('whereIndice = Expresion(t[3], t[6]) ')
+
+def p_IndiceWhere(t):
+    'whereIndice : WHERE where PTCOMA'
+    t[0] = t[2]
+    varGramatical.append('whereIndice ::= WHERE where PTCOMA')
+    varSemantico.append('whereIndice = Where(t[2]) ')
 
 def p_DropIndice(t):
     'instruccion : DROP INDEX ID PTCOMA'
-    global columna
-
-### falta agregar ultimo indice [consultar sintaxis]
-
+    varGramatical.append('instruccion ::= DROP INDEX ID PTCOMA')
+    varSemantico.append('instruccion =  ')
 
 # MODO PANICO ***************************************
 def p_error(t):
@@ -2627,39 +2837,32 @@ def procesar_instrucciones(instrucciones, ts):
     global consola
     global exceptions
 
-    if (instrucciones == None):
+    if instrucciones == None:
         MessageBox.showinfo("Errores Sintacticos", "Revisa el reporte de errores sintacticos")
         return
 
     for instr in instrucciones:
         if isinstance(instr, CreateReplace):
             CreateReplace.ejecutar(instr, ts, consola, exceptions)
-            print("ejecute create")
         elif isinstance(instr, Select):
-            print('*****' + str(instr.caso))
-            if (instr.caso == 1):
-
+            if instr.caso == 1:
                 selectTime.ejecutar(instr, ts, consola,exceptions,True)
-            elif (instr.caso == 2):
+            elif instr.caso == 2:
                 variable = SelectDist.Select_Dist()
                 SelectDist.Select_Dist.ejecutar(variable, instr, ts, consola, exceptions)
-                #print("Estas en el caso 2")
-            elif (instr.caso == 3):
+            elif instr.caso == 3:
                 variable = selectInst.Select_inst()
                 selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
-            elif (instr.caso == 4):
+            elif instr.caso == 4:
                 Selectp3.ejecutar(instr, ts, consola, exceptions,True)
-            elif (instr.caso == 5):
+            elif instr.caso == 5:
                 Selectp4.ejecutar(instr, ts, consola, exceptions,True)
-            elif (instr.caso == 6):
+            elif instr.caso == 6:
                 consola.append('caso 6')
-
         elif isinstance(instr, CreateTable):
             CreateTable.ejecutar(instr, ts, consola, exceptions)
-            print("ejecute create table")
         elif isinstance(instr, Use):
             Use.ejecutar(instr, ts, consola, exceptions)
-            print("ejecute use")
         elif isinstance(instr, InsertInto):
             InsertInto.ejecutar(instr,ts,consola,exceptions)
             print("Ejecute un insert")
@@ -2681,9 +2884,38 @@ def procesar_instrucciones(instrucciones, ts):
             CreateType.ejecutar(instr,ts,consola,exceptions)
         elif isinstance(instr,Show):
             Show.ejecutar(instr,ts,consola,exceptions)
-
+        elif isinstance(instr, Index):
+            Index.ejecutar(instr, ts, consola, exceptions)
+            print("Ejecute Index")
         else:
             print('Error: instrucción no válida')
+
+def generar_Codigo3D(instrucciones, ts, code3d):
+    if instrucciones is None:
+        return
+    else:
+        for inst in instrucciones:
+            if isinstance(inst, Select):
+                if inst.caso == 1:
+                    consola.append('caso 1')
+                    #selectTime.ejecutar(inst, ts, consola, exceptions, True)
+                elif inst.caso == 2:
+                    consola.append('caso 2')
+                    #variable = SelectDist.Select_Dist()
+                    #SelectDist.Select_Dist.ejecutar(variable, inst, ts, consola, exceptions)
+                elif inst.caso == 3:
+                    consola.append('caso 3')
+                    #variable = selectInst.Select_inst()
+                    #selectInst.Select_inst.ejecutar(variable, inst, ts, consola, exceptions)
+                    code3d += selectInst.Select_inst.codigo3D()
+                elif inst.caso == 4:
+                    consola.append('caso 4')
+                    #Selectp3.ejecutar(inst, ts, consola, exceptions, True)
+                elif inst.caso == 5:
+                    consola.append('caso 5')
+                    #Selectp4.ejecutar(inst, ts, consola, exceptions, True)
+                elif inst.caso == 6:
+                    consola.append('caso 6')
 
 
 def ejecutarAnalisis(entrada):
@@ -2701,19 +2933,11 @@ def ejecutarAnalisis(entrada):
     exceptions = []
     L_errores_lexicos = []
     L_errores_sintacticos = []
-    # f = open("./entrada2.txt", "r")
-    # input = f.read()
-    # print(input)
-
     # realiza analisis lexico y semantico
-    instrucciones = parser.parse(entrada)  #
+    instrucciones = parser.parse(entrada)
     reporte = AST.AST(instrucciones)
     reporte.ReportarAST()
-    # inicia analisis semantico
-    #inicial = {}
-    #ts_global = TablaDeSimbolos(inicial)
-    print("analizando........")
-    print(instrucciones)
+
     procesar_instrucciones(instrucciones, ts_global)
     '''print("-----------------------------------")
     print("Simbolos: \n",ts_global)
@@ -2725,8 +2949,8 @@ def ejecutarAnalisis(entrada):
             for data in entorno.simbolos:
                 print(" -> ",data)'''
 
-    print("Lista Lexico\n", L_errores_lexicos)
-    print("Lista Sintactico\n", L_errores_sintacticos)
+    #print("Lista Lexico\n", L_errores_lexicos)
+    #rint("Lista Sintactico\n", L_errores_sintacticos)
     # Reporte de analisis lexico y sintactico
     reportes = RealizarReportes()
     reportes.generar_reporte_lexicos(L_errores_lexicos)
@@ -2739,4 +2963,51 @@ def ejecutarAnalisis(entrada):
     graphstack(varGramatical, varSemantico)
     return consola
 
-# ejecutarAnalisis("prueba")
+
+def crear_Codido3D(entrada):
+    global L_errores_lexicos
+    global L_errores_sintacticos
+    global consola
+    global code3d
+    global exceptions
+    global lexer
+    global ts_global
+    # limpiar
+    lexer.input("")
+    lexer.lineno = 0
+    #dropAll()
+    consola = []
+    exceptions = []
+    L_errores_lexicos = []
+    L_errores_sintacticos = []
+    # realiza analisis lexico y semantico
+    instrucciones = parser.parse(entrada)  #
+    reporte = AST.AST(instrucciones)
+    reporte.ReportarAST()
+
+    generar_Codigo3D(instrucciones, ts_global)
+    '''print("-----------------------------------")
+    print("Simbolos: \n",ts_global)
+    for simbolo in ts_global.simbolos:
+        print(ts_global.simbolos.get(simbolo).id)
+        entorno = ts_global.simbolos.get(simbolo).Entorno
+        print(entorno)
+        if entorno != None:
+            for data in entorno.simbolos:
+                print(" -> ",data)'''
+
+    #print("Lista Lexico\n", L_errores_lexicos)
+    #rint("Lista Sintactico\n", L_errores_sintacticos)
+    # Reporte de analisis lexico y sintactico
+    reportes = RealizarReportes()
+    reportes.generar_reporte_lexicos(L_errores_lexicos)
+    reportes.generar_reporte_sintactico(L_errores_sintacticos)
+    reportes.generar_reporte_tablaSimbolos(ts_global.simbolos)
+    reportes.generar_reporte_semanticos(exceptions)
+
+    print("Fin de analisis")
+    print("Realizando reporte gramatical")
+    graphstack(varGramatical, varSemantico)
+    return code3d
+
+

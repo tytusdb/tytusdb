@@ -15,3 +15,6 @@ data
 /data
 /.idea
 .idea
+/Optimizador/__pycache__
+/Optimizador/parser.out
+/Optimizador/parsertab.py
