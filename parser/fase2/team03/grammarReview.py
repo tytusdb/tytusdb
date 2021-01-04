@@ -235,6 +235,7 @@ reserved = {
     'cascade' : 'CASCADE',
     'restrict' : 'RESTRICT',
     'index' : 'INDEX',
+    'hash' : 'HASH',
 }
 
 tokens = [
@@ -640,7 +641,7 @@ def p_if_inst0(t):
 
 #TODO @SergioUnix Arreglar grafo y reporte gramatical
 def p_stm_begin(t):
-    '''stm_begin   : declare_opt BEGIN statements_begin    exception_opt  return_opt   END  if_opt '''
+    '''stm_begin   : declares_opt BEGIN statements_begin    exception_opt  return_opt   END  if_opt '''
     childsProduction  = addNotNoneChild(t,[1,3,4,5,7])
     graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7]], childsProduction)
     ##- graph_ref = None
@@ -1167,6 +1168,23 @@ def p_as_opt(t):
         t[0]=None
 
 
+def p_declares_opt(t):
+    '''declares_opt : declares_opt declare_opt
+                    | declare_opt'''
+    token = t.slice[1]
+    if token.type == "declares_opt":
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("declares_opt"), [t[1],t[2]],  childsProduction )
+        addCad("**\<DECLARES_OPT>** ::= [\<DECLARES_OPT>] <DECLARE_OPT> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####
+    else:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("declare_opt"), [t[1]],  childsProduction )
+        addCad("**\<DECLARE_OPT>** ::= <DECLARE_OPT> ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+    
+
 def p_declare_opt(t):
     '''declare_opt  : DECLARE declarations
                     | empty'''
@@ -1359,9 +1377,9 @@ def p_mode_drop_function_opt(t):
 
 ##########   >>>>>>>>>>>>>>>>  INDEX  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_index(t):
-    '''stm_index    : CREATE unique_opt INDEX ID ON ID PARA params_index PARC '''
-    childsProduction  = addNotNoneChild(t,[2,8])
-    graph_ref = graph_node(str("stm_index"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]],  childsProduction )
+    '''stm_index    : CREATE unique_opt INDEX ID ON ID using_hash_opt PARA params_index PARC where_clause_opt '''
+    childsProduction  = addNotNoneChild(t,[2,7,9, 11])
+    graph_ref = graph_node(str("stm_index"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10],t[11]],  childsProduction )
     addCad("**\<STM_INDEX>** ::= tCreate [\<UNIQUE_OPT>] tIndex")
     t[0] = upNodo(True, 0, 0, graph_ref)
     #####
@@ -1383,12 +1401,58 @@ def p_params_index(t):
         t[0] = upNodo(True, 0, 0, graph_ref)
 
 
-def p_param_index(t):
-    '''param_index  : ID'''
-    graph_ref = graph_node(str(t[1]) )
+def p_param_index_0(t):
+    '''param_index  : ID order_opt'''
+    childsProduction  = addNotNoneChild(t,[2])
+    graph_ref = graph_node(str("param_index"), [t[1], t[2]],  childsProduction)
     addCad("**\<PARAM_INDEX>** ::= tId ")
     t[0] = upNodo(True, 0, 0, graph_ref)
     #####
+
+def p_param_index_1(t):
+    '''param_index  : ID order_opt NULLS FIRST
+                    | ID order_opt NULLS LAST'''
+    token = t.slice[3]
+    if token.type == "FIRST":
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("param_index"), [t[1], t[2], str(t[3]) + " " + str(t[4])],  childsProduction)
+        addCad("**\<PARAM_INDEX>** ::= tId tNUlls tFirst ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####
+    else:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("param_index"), [t[1], t[2], str(t[3]) + " " + str(t[4])],  childsProduction)
+        addCad("**\<PARAM_INDEX>** ::= tId tNulls tLast ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####
+
+
+def p_param_index_2(t):
+    '''param_index  : expression'''
+    childsProduction  = addNotNoneChild(t,[1])
+    graph_ref = graph_node(str("param_index"), [t[1]],  childsProduction)
+    addCad("**\<PARAM_INDEX>** ::= \<EXPRESSION>")
+    t[0] = upNodo(True, 0, 0, graph_ref)
+    #####
+
+
+def p_order_opt(t):
+    '''order_opt    : DESC
+                    | ASC
+                    | empty'''
+    token = t.slice[1]
+    if token.type == "DESC":
+        graph_ref = graph_node(str(t[1]) )
+        addCad("**\<ORDER_OPT>** ::= tDesc ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####
+    elif token.type == "ASC":
+        graph_ref = graph_node(str(t[1]) )
+        addCad("**\<ORDER_OPT>** ::= tAsc ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####
+    else:
+        t[0]=None
 
 
 def p_unique_opt(t):
@@ -1403,6 +1467,17 @@ def p_unique_opt(t):
     else:
         t[0]=None
 
+def p_using_hash_opt(t):
+    '''using_hash_opt   : USING HASH
+                        | empty'''
+    token = t.slice[1]
+    if token.type == "USING":
+        graph_ref = graph_node(str(str(t[1]) + " " + str(t[2])))
+        addCad("**\<USING_HASH>** ::= tUsing tHash ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####
+    else:
+        t[0]=None
 ##################################################
 
 
@@ -3141,6 +3216,7 @@ def p_list_param_function_opt2(t):
         #####
     else:
         t[0]=None
+
 
 def p_exp_num(t):
     '''expression : numero
