@@ -1,3 +1,6 @@
+"""
+es una pila
+"""
 class Stack:
     def __init__(self):
         self.pila = list()
