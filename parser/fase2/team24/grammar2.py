@@ -260,7 +260,7 @@ t_PARA = r'\('
 t_PARC = r'\)'
 t_DOSPUNTOS=r'\:'
 t_COMA=r'\,'
-t_PUNTOCOMA=r';'
+t_PUNTOCOMA=r'\;'
 t_PUNTO=r'\.'
 t_PTCOMA = r'\;'
 t_CORCHETEA=r'\['
@@ -336,6 +336,8 @@ from classesQuerys import *
 from procedural import *
 import ply.lex as lex
 lexer = lex.lex()
+
+
 
 precedence = (
     ('left','PUNTO'),
@@ -1720,6 +1722,11 @@ def p_declare(t):
     '''declare : DECLARE ldec
                 | empty
     '''
+    if len(t) > 2 :
+        t[0] = t[2]
+    else:
+        t[0] = t[1]
+
 
 def p_declareList(t):
     'ldec : ldec declares'
@@ -1840,7 +1847,7 @@ def p_return(t):
 
 def p_newexp_id(t):
     '''newexp :  ID'''
-    #t[0] = exp_idp(t[1])
+    t[0] = exp_idp(t[1])
 
 def p_newexp_bool(t):
     '''newexp : TRUE
@@ -1892,8 +1899,9 @@ def p_error(t):
         nuevo_error = CError(linea,columna,descript,'Sintactico')
         insert_error(nuevo_error)
         parser.errok()
+        #print(t)
     else:
-        print("Syntax error at EOF")
+        print("No se pudo recuperar")
     return
 
 import ply.yacc as yacc

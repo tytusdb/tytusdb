@@ -1,6 +1,6 @@
 from sys import path
 from os.path import dirname as dir
-
+import os
 path.append(dir(path[0]))
 from tkinter import ttk
 import tkinter as tk
@@ -10,7 +10,7 @@ from ui.Pantalla_AST import *
 from ui.Pantalla_Error import *
 import tkinter.messagebox
 from analizer import interpreter
-
+from analizer.gramaticaFase2 import parserTo3D , getCodigo
 
 class Pantalla:
     def __init__(self):
@@ -49,10 +49,12 @@ class Pantalla:
 
         self.window.config(menu=navMenu)
         frame_btn = Frame(self.window)
-        btn = Button(frame_btn, text="Consultar", command=self.analize)
+        btn = Button(frame_btn, text="Ejecutar F1", command=self.analize)
         btn.pack(side=LEFT, anchor=E, padx=25, pady=20)
-        btn_1 = Button(frame_btn, text="Parsear", command=self.parse)
+        btn_1 = Button(frame_btn, text="Verificar Errores", command=self.parse)
         btn_1.pack(side=LEFT, anchor=E, padx=25, pady=20)
+        btn_codigo_3d = Button(frame_btn, text="Generar Codigo 3D", command=self.generarCodigo3d)
+        btn_codigo_3d.pack(side=LEFT, anchor=E, padx=25, pady=20)
         frame_btn.pack()
         # Creacion del notebook
         self.tabControl = ttk.Notebook(self.window, width=650, height=300)
@@ -152,6 +154,18 @@ class Pantalla:
 
         self.tabControl.pack()
 
+    def generarCodigo3d(self):
+        """
+        TODO: METODO para mostrar el codigo 3D en la interfaz
+        """
+        self.refresh()
+        entrada = ""
+        entrada = self.txt_entrada.get( "1.0", END)
+        parserTo3D(entrada)
+        cadena_codigo_3d = getCodigo()
+        self.text_Consola.insert(INSERT,cadena_codigo_3d)
+
+
     def refresh(self):
         tabls = self.tabControl.tabs()
         i = 1
@@ -197,6 +211,7 @@ class Pantalla:
         windowTableS = Pantalla_TS(self.window, self.ts)
 
     def open_AST(self):  # Abre la pantalla del AST
+        os.system('cd test-output & round-table.gv.png')
         windowTableS = Pantalla_AST(self.window)
 
     def open_Reporte(self):  # Abre la pantalla de los reportes de errores
