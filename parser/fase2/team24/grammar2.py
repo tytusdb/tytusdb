@@ -1013,31 +1013,36 @@ def p_createind21(p):
     p[0] = p[1]
 
 def p_createind3(p):
-    "createind3 :   PARA contind PARC indwhere PTCOMA" 
+    "createind3 :   PARA listacolind PARC indwhere PTCOMA" 
     p[0] = inst.createind3(p[2],p[4]) 
-     
-def p_listaind(p):
-    "contind    :  contind COMA id"
-    p[1].append(p[3])
-    p[0] = inst.contind1111(p[1])
 
-def p_listaind1(p):
-    "contind    :  id"
+def p_listacolind(p):
+    "listacolind    :   listacolind COMA columnaind"
+    p[1].append(p[3])
+    p[0] = inst.listacolind(p[1])
+
+def p_listacolind1(p):
+    "listacolind    :   columnaind"
     p[0] = [p[1]]
 
-def p_contind1(p):
-    "contind    :   id indorder NULLS indorder2"
-    p[0] = inst.contind1(p[1], p[2] + " " + p[3] + " " + p[4])
-
-def p_contind11(p):
+def p_columnaind(p):
     """
-    contind :  id PARA id PARC
-    """  
-    p[0] = p[3]    
+    columnaind          :   id ordenind
+                        |   id idcondind  
+    """
+    p[0] = inst.columnaind(p[1], p[2])
 
-def p_contind111(p):
-    "contind    :   "
-    p[0] = ""
+def p_columnaind1(p):
+    "columnaind :   id"
+    p[0] = p[1]
+
+def p_ordenind(p):
+    "ordenind   :   indorder NULL indorder2"
+    p[0] = inst.ordenind(p[2] + " " + p[3] + " " + p[4])
+
+def p_idcondind(p):
+    "idcondind :  PARA id PARC"
+    p[0] = p[2]
 
 def p_indorder(p):
     """
