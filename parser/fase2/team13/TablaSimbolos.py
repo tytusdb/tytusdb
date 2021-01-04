@@ -271,6 +271,26 @@ class Constraints:
         self.idcol = idcol
         self.tipo = tipo
 
+class SimboloVariable:
+    def __init__(self, nombre, tipo, valor, ambito):
+        self.nombre = nombre
+        self.tipo = tipo
+        self.valor = valor
+        self.ambito = ambito
+
+class SimboloFuncion:
+    def __init__(self, nombre,parametros, tipo, retorno, ambito):
+        self.nombre = nombre
+        self.tipo = tipo
+        self.retorno = retorno
+        self.ambito = ambito
+
+class SimboloProcedure:
+    def __init__(self, nombre,parametros, tipo, retorno, ambito):
+        self.nombre = nombre
+        self.tipo = tipo
+        self.retorno = retorno
+        self.ambito = ambito
 
 class Entorno:
 

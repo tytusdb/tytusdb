@@ -91,6 +91,14 @@ class SDeclaracion (Sentencia):
         self.default = default
         self.expre = expre
 
+class Etiquetas(Sentencia):
+    def __init__(self,valor,tipo,etiquetaV,etiquetaF,vopt):
+        self.valor=valor
+        self.tipo=tipo
+        self.vopt=vopt
+        self.EtiquetaV=etiquetaV
+        self.EtiquetaF=etiquetaF
+
 class SDeclaracionType (Sentencia):
     def __init__(self, id, constant,acceso, rttype):
         self.id = id
@@ -138,6 +146,17 @@ class SSearchCase (Sentencia):
         self.expre = expre
         self.lcase = lcase
         self.elsee = elsee
+
+class SCasepl(Sentencia):
+    def __init__(self,condicion,bloque):
+        self.condicion = condicion
+        self.bloque = bloque
+
+class SRaise(Sentencia):
+    def __init__(self,expresion):
+        self.expresion=expresion
+
+'''---------------------------PRIMERA FASE-------------------------------- '''
 
 class SCrearBase(Sentencia):
     def __init__(self, owner, mode, replace, exists, id):

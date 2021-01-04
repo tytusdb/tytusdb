@@ -16,7 +16,8 @@ from hashlib import sha256
 import itertools
 
 consola = ""
-texttraduccion=""
+texttraduccion="from goto import with_goto \n@with_goto \ndef main():\n"
+textoptimizado="from goto import with_goto \n@with_goto \ndef main():\n"
 useActual = ""
 listaSemanticos = []
 listaSemanticos2 = []
@@ -27,12 +28,12 @@ d1 = ""
 d2 = ""
 contadoresT = 0
 contadoresEtiqueta = 0
+identacion="    "
 
 def interpretar_sentencias(arbol, tablaSimbolos):
     # jBase.dropAll()
     global consola
-    global texttraduccion
-    texttraduccion += "from goto import with_goto"
+    global texttraduccion, textoptimizado,identacion
     for nodo in arbol:
         if isinstance(nodo, SCrearBase):
             crearBase(nodo, tablaSimbolos)
@@ -167,7 +168,6 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                     "Error en UPDATE, no se encontró la base de datos [%s] o la tabla [%s] especificada" % (
                                                     useActual, nodo.id)))
-
         elif isinstance(nodo, SDeleteBase):
             deleteBase(nodo, tablaSimbolos)
         elif isinstance(nodo, STruncateBase):
@@ -231,7 +231,10 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 AlterTableDropConstraint(nodo, tablaSimbolos)
         elif isinstance(nodo, SCrearTabla):
             crearTabla(nodo, tablaSimbolos)
-
+        elif isinstance(nodo,SCreateFunction):
+            texttraduccion+=identacion+"label ."+nodo.id+"\n"
+            textoptimizado+=identacion+"label ."+nodo.id+"\n"
+            CrearFuncion(nodo,tablaSimbolos)
         # FRANCISCO
         elif isinstance(nodo, Squeries):
             if nodo.ope == False:
@@ -408,11 +411,61 @@ def interpretar_sentencias(arbol, tablaSimbolos):
         listaSemanticos.clear()
 
 
-
+    print("SOY TU TRADUCCION------------------")
+    print(texttraduccion)
+    print("YA OPTIMIZADO------------------------- ")
+    print(textoptimizado)
     for i in listaSemanticos2:
         print(i)
     return consola
 
+
+def CrearFuncion(nodo,tablaSimbolos):
+    global texttraduccion,identacion,textoptimizado
+    if nodo.params!=False:
+        auxNodo=TS.SimboloFuncion(nodo.id,False,nodo.tipo,nodo.retorno,"global")
+        tablaSimbolosL = tablaSimbolos
+        for bloque in nodo.contenido:
+            if isinstance(bloque, list):
+                for sent in bloque:
+                    if isinstance(sent,SIf):
+                        TraducirIF(sent,tablaSimbolos)
+           
+            elif isinstance(bloque,SDeclaracion):
+                Declara(bloque,tablaSimbolosL)
+    else:
+        auxNodo=TS.SimboloFuncion(nodo.id,nodo.params,nodo.tipo,nodo.retorno,"global")
+        tablaSimbolosL = tablaSimbolos
+        for bloque in nodo.contenido:
+            if isinstance(bloque,SDeclaracion):
+                print("SOY DECLARACION")
+                Declara(bloque,tablaSimbolosL)
+
+def Declara(nodo,tablaSimbolos):
+    global texttraduccion,identacion,textoptimizado
+    if(nodo.expre!=None):
+        val=Interpreta_Expresion(nodo.expre,tablaSimbolos,None,True)
+        valor =Interpreta_Expresion(nodo.expre,tablaSimbolos,None,False)
+        texttraduccion+=identacion+nodo.id+"="+str(val.valor)+"\n"
+        if (val.vopt.lower()!=nodo.id):
+            textoptimizado+=identacion+nodo.id+"="+str(val.vopt)+"\n"  
+        nodo.tipo=valor.tipo
+        auxvar = TS.SimboloVariable(nodo.id,valor.tipo,valor.valor,"Local")
+        tablaSimbolos.put(nodo.id,auxvar)
+    else:
+        texttraduccion+=identacion+nodo.id+"= None \n"
+
+
+#def TraducirBloque(nodo,tablaSimbolos):
+
+def TraducirIF(nodo,tablaSimbolos):
+    global texttraduccion,textoptimizado
+    condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+    texttraduccion += "goto " + condicion.EtiquetaV + " \n"
+    texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
+
+    textoptimizado += "goto " + condicion.EtiquetaV + " \n"
+    textoptimizado += identacion+"goto " + condicion.EtiquetaF + " \n"
 
 def deleteBase(nodo, tablaSimbolos):
     global consola
@@ -498,9 +551,6 @@ def deleteBase(nodo, tablaSimbolos):
                     listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                         "Error al intentar eliminar la columna con PK '%s', Llave primaria no encontrada" % (
                                                             str(llaves))))
-
-
-
 
 def crearBase(nodo, tablaSimbolos):
     val = nodo.id.valor
@@ -601,7 +651,6 @@ def crearBase(nodo, tablaSimbolos):
                 consola += "La base de datos " + val + " ya existe. \n"
             else:
                 consola += "Error al crear la base de datos \n"
-
 
 def crearTabla(nodo, tablaSimbolos):
     val = nodo.id
@@ -753,7 +802,6 @@ def crearTabla(nodo, tablaSimbolos):
         consola += "La base de datos " + useActual + " no existe. \n"
     else:
         consola += "La tabla " + nodo.id + " ya existe. \n"
-
 
 def AlterDatabase(nodo, tablaSimbolos):
     global consola
@@ -1744,41 +1792,53 @@ def validarTiposFecha(dato, expresion):
 def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
     global consola
     global texttraduccion
-    global contadoresT,contadoresEtiqueta
+    global contadoresT,contadoresEtiqueta,identacion, textoptimizado
     if isinstance(expresion, SOperacion):
         # Logicas
         if (expresion.operador == Logicas.AND):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                texttraduccion += " goto " + str(opIzq.EtiquetaV) + "\n"
-                texttraduccion += " goto " + str(opIzq.EtiquetaF) + "\n"
-                texttraduccion += str(opIzq.EtiquetaV) + ":"
-                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+                texttraduccion += "goto " + str(opIzq.EtiquetaV) + "\n"
+                texttraduccion += identacion+"goto " + str(opIzq.EtiquetaF) + "\n"
+                textoptimizado += identacion+"label "+ str(opIzq.EtiquetaV) + ":"
+               
+                textoptimizado += "goto " + str(opIzq.EtiquetaV) + "\n"
+                textoptimizado += identacion+"goto " + str(opIzq.EtiquetaF) + "\n"
+                textoptimizado += identacion+"label "+str(opIzq.EtiquetaV) + ":"
+                
+                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
                 opDer.EtiquetaF = opIzq.EtiquetaF
                 contadoresEtiqueta -= 1
-                return {"EtiquetaV": opDer.EtiquetaV, "EtiquetaF": opIzq.EtiquetaF}
+                return Etiquetas(False,False,opDer.EtiquetaV,opIzq.EtiquetaF,False)
             else:
-                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
-                result = (opIzq and opDer)
+                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
+                result = (opIzq.valor and opDer.valor)
                 return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Logicas.OR):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                texttraduccion += " goto " + str(opIzq.EtiquetaV) + "\n"
-                texttraduccion += " goto " + str(opIzq.EtiquetaF) + "\n"
-                texttraduccion += str(opIzq.EtiquetaV) + ":"
-                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+                texttraduccion += identacion+"goto " + str(opIzq.EtiquetaV) + "\n"
+                texttraduccion += identacion+"goto " + str(opIzq.EtiquetaF) + "\n"
+                textoptimizado += identacion+"label "+str(opIzq.EtiquetaV) + ":"
+
+                textoptimizado += identacion+"goto " + str(opIzq.EtiquetaV) + "\n"
+                textoptimizado += identacion+"goto " + str(opIzq.EtiquetaF) + "\n"
+                textoptimizado += identacion+"label "+str(opIzq.EtiquetaV) + ":"
+
+
+                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
                 opDer.EtiquetaV = opIzq.EtiquetaV
-                return {"EtiquetaV": opDer.EtiquetaV, "EtiquetaF": opIzq.EtiquetaF}
+                textoptimizado+=texttraduccion
+                return Etiquetas(False,False,opDer.EtiquetaV,opIzq.EtiquetaF,False)
             else:
-                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
-                result = (opIzq or opDer)
+                opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
+                result = (opIzq.valor or opDer.valor)
                 return SExpresion(result, Expresion.BOOLEAN)
         
         if expresion.operador == Logicas.NOT:
             if cod3D:
                 opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
-                return {"EtiquetaV": opIzq.EtiquetaF, "EtiquetaF": opIzq.EtiquetaV}
+                return Etiquetas(False,False,opIzq.EtiquetaF,opIzq.EtiquetaV,False)
             else:
                 opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
                 result = not opIzq
@@ -1786,28 +1846,30 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
         # Relacionales
         if (expresion.operador == Relacionales.IGUAL):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                Etiqueta = "label. L" + contadoresEtiqueta
+                Etiqueta = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                texttraduccion += "if(" + str(opIzq.etiqueta) + "==" + str(opDer.etiqueta) + ")"
-                Etiqueta2 = "label. L" + contadoresEtiqueta
+                texttraduccion += identacion+"if(" + str(opIzq.valor) + "==" + str(opDer.valor) + "):"
+                Etiqueta2 = ".L" + str(contadoresEtiqueta)+"\n"
                 contadoresEtiqueta += 1
-                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+                textoptimizado+=identacion+"if(" + str(opIzq.valor) + "==" + str(opDer.valor) + "):"
+                return Etiquetas(False,False,Etiqueta,Etiqueta2,False)
             else:
                 result = (opIzq == opDer)
                 return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Relacionales.DIFERENTE):
-            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
-            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D).valor
+            opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
+            opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                Etiqueta = "label. L" + contadoresEtiqueta
+                Etiqueta = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                texttraduccion += "if(" + str(opIzq.etiqueta) + "!=" + str(opDer.etiqueta) + ")"
-                Etiqueta2 = "label. L" + contadoresEtiqueta
+                texttraduccion += "if(" + str(opIzq.valor) + "!=" + str(opDer.valor) + "): "
+                Etiqueta2 = ".L" + str(contadoresEtiqueta)+"\n"
                 contadoresEtiqueta += 1
-                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+                textoptimizado+="if(" + str(opIzq.valor) + "!=" + str(opDer.valor) + "): "
+                return Etiquetas(False,False,Etiqueta,Etiqueta2,False)
             else:
                 result = (opIzq != opDer)
                 return SExpresion(result, Expresion.BOOLEAN)
@@ -1815,12 +1877,13 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                Etiqueta = "label. L" + contadoresEtiqueta
+                Etiqueta = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                texttraduccion += "if(" + str(opIzq.etiqueta) + "<=" + str(opDer.etiqueta) + ")"
-                Etiqueta2 = "label. L" + contadoresEtiqueta
+                texttraduccion += identacion+"if(" + str(opIzq.valor) + "<=" + str(opDer.valor) + "): "
+                Etiqueta2 = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+                textoptimizado+=identacion+"if(" + str(opIzq.valor) + "<=" + str(opDer.valor) + "): "  
+                return Etiquetas(False,False,Etiqueta,Etiqueta2,False)
             else:
                 result = opIzq.valor <= opDer.valor
                 return SExpresion(result, opIzq.tipo)
@@ -1829,12 +1892,13 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                Etiqueta = "label. L" + contadoresEtiqueta
+                Etiqueta = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                texttraduccion += "if(" + str(opIzq.etiqueta) + ">=" + str(opDer.etiqueta) + ")"
-                Etiqueta2 = "label. L" + contadoresEtiqueta
+                texttraduccion += identacion+"if(" + str(opIzq.valor) + ">=" + str(opDer.valor) + "): "
+                Etiqueta2 = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+                textoptimizado+=identacion+"if(" + str(opIzq.valor) + ">=" + str(opDer.valor) + "): "
+                return Etiquetas(False,False,Etiqueta,Etiqueta2,False)
             else:
                 result = opIzq.valor >= opDer.valor
                 return SExpresion(result, opIzq.tipo)
@@ -1843,12 +1907,13 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                Etiqueta = "label. L" + contadoresEtiqueta
+                Etiqueta = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                texttraduccion += "if(" + str(opIzq.etiqueta) + "<" + str(opDer.etiqueta) + ")"
-                Etiqueta2 = "label. L" + contadoresEtiqueta
+                texttraduccion += identacion+"if(" + str(opIzq.valor) + "<" + str(opDer.valor) + "): "
+                Etiqueta2 = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+                textoptimizado+=identacion+"if(" + str(opIzq.valor) + "<" + str(opDer.valor) + "): "
+                return Etiquetas(False,False,Etiqueta,Etiqueta2,False)
             else:
                 result = opIzq.valor < opDer.valor
                 return SExpresion(result, opIzq.tipo)
@@ -1857,12 +1922,15 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                Etiqueta = "label. L" + contadoresEtiqueta
+                Etiqueta = ".L" + str(contadoresEtiqueta)
+                contadoresEtiqueta =contadoresEtiqueta + 1
+                texttraduccion += identacion+"if " + str(opIzq.valor) + ">" + str(opDer.valor) + " : "
+                print(Etiqueta)
+                print(texttraduccion)
+                Etiqueta2 = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                texttraduccion += "if(" + str(opIzq.etiqueta) + ">" + str(opDer.etiqueta) + ")"
-                Etiqueta2 = "label. L" + contadoresEtiqueta
-                contadoresEtiqueta += 1
-                return {"EtiquetaV": Etiqueta, "EtiquetaF": Etiqueta2}
+                textoptimizado+=identacion+"if(" + str(opIzq.valor) + ">" + str(opDer.valor) + "): "
+                return Etiquetas(False,False,Etiqueta,Etiqueta2,False) 
             else:
                 result = opIzq.valor > opDer.valor
                 return SExpresion(result, opIzq.tipo)
@@ -1874,10 +1942,26 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
-                    Etiqueta = "t" + contadoresT
+                    Etiqueta = "t" + str(contadoresT)
+                    vopt=""
                     contadoresT += 1
-                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "+" + str(opDer.etiqueta) 
-                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                    '''OPTIMIZACION REGLAS 12'''
+                    if (str(opDer.valor)=="0"):
+                        contadoresT-=1
+                        vopt=opIzq.valor
+                    
+                    elif(str(opIzq.valor)=="0"):
+                        contadoresT-=1
+                        vopt=opDer.valor
+                    
+                    elif(str(opIzq.valor)=="0" and str(opDer.valor)=="0"):
+                        contadoresT-=1
+                        vopt="0"
+                    else:
+                        textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor) +"\n"
+                        vopt=Etiqueta
+                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor) +"\n"
+                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt)
                 else:
                     result = opIzq.valor + opDer.valor
                     return SExpresion(result, opIzq.tipo)
@@ -1887,10 +1971,21 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
-                    Etiqueta = "t" + contadoresT
+                    Etiqueta = "t" + str(contadoresT)
                     contadoresT += 1
-                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "-" + str(opDer.etiqueta) 
-                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                    vopt=""
+                    '''OPTIMIZACION REGLAS 13'''
+                    if (str(opDer.valor)=="0"):
+                        contadoresT-=1
+                        vopt=opIzq.valor
+                    elif(str(opIzq.valor)=="0" and str(opDer.valor)=="0"):
+                        contadoresT-=1
+                        vopt="0"
+                    else:
+                        textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor) +"\n"
+                        vopt=Etiqueta
+                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor) +"\n"
+                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt)
                 else:
                     result = opIzq.valor - opDer.valor
                     return SExpresion(result, opIzq.tipo)
@@ -1900,10 +1995,30 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
-                    Etiqueta = "t" + contadoresT
+                    Etiqueta = "t" + str(contadoresT)
                     contadoresT += 1
-                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "*" + str(opDer.etiqueta) 
-                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                    vopt=""
+                    ''' OPTIMIZACION REGLAS 14,16,17'''
+                    if (str(opDer.valor)=="0" or str(opIzq.valor)=="0"):
+                        contadoresT-=1
+                        vopt="0"  
+                    elif(str(opDer.valor)=="1"):
+                        contadoresT-=1
+                        vopt=opIzq.valor
+                    elif(str(opIzq.valor)=="1"):
+                        contadoresT-=1
+                        vopt=opDer.valor
+                    elif(str(opDer.valor)=="2"):
+                        textoptimizado +=identacion+ Etiqueta + "="+str(opIzq.valor)+"+" +str(opIzq.valor)+"\n"
+                        vopt=Etiqueta
+                    elif(str(opIzq.valor)=="2"):
+                        textoptimizado +=identacion+ Etiqueta + "="+str(opDer.valor)+"+" +str(opDer.valor)+"\n"
+                        vopt=Etiqueta
+                    else:
+                        textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor) +"\n"
+                        vopt=Etiqueta
+                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor) + "\n"
+                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt)
                 else:
                     result = opIzq.valor * opDer.valor
                     return SExpresion(result, opIzq.tipo)
@@ -1913,10 +2028,21 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
-                    Etiqueta = "t" + contadoresT
+                    Etiqueta = "t" + str(contadoresT)
                     contadoresT += 1
-                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "/" + str(opDer.etiqueta) 
-                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                    vopt=""
+                    ''' OPTIMIZACION REGLA 18,15'''
+                    if(str(opDer.valor)=="1"):
+                        contadoresT-=1
+                        vopt=opIzq.valor
+                    elif (str(opIzq.valor)=="0"):
+                        contadoresT-=1
+                        vopt="0"
+                    else:
+                        textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor) +"\n"
+                        vopt=Etiqueta
+                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor)+ "\n"
+                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt)
                 else:
                     result = opIzq.valor / opDer.valor
                     return SExpresion(result, opIzq.tipo)
@@ -1926,10 +2052,11 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
-                    Etiqueta = "t" + contadoresT
+                    Etiqueta = "t" + str(contadoresT)
                     contadoresT += 1
-                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "%" + str(opDer.etiqueta) 
-                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "%" + str(opDer.valor) + "\n"
+                    textoptimizado += identacion+ Etiqueta + "=" + str(opIzq.valor) + "%" + str(opDer.valor) +"\n"
+                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,Etiqueta)
                 else:
                     result = opIzq.valor % opDer.valor
                     return SExpresion(result, opIzq.tipo)
@@ -1940,10 +2067,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
                     ############################################################# potencia xd 
-                    Etiqueta = "t" + contadoresT
+                    Etiqueta = "t" + str(contadoresT)
                     contadoresT += 1
-                    texttraduccion += Etiqueta + "=" + str(opIzq.etiqueta) + "" + str(opDer.etiqueta) 
-                    return {"Etiqueta": Etiqueta, "tipo":opIzq.tipo}
+                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "" + str(opDer.valor) 
+                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,Etiqueta)
                 else:
                     result = opIzq.valor ** opDer.valor
                     return SExpresion(result, opIzq.tipo)
@@ -2268,22 +2395,30 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                 Etiqueta = "t" + contadoresT
                 contadoresT += 1
                 texttraduccion += Etiqueta + "=" + str(expresion.valor.valor) + "*-1"
-                return {"Etiqueta": Etiqueta, "tipo":Expresion.NEGATIVO}
+                return Etiquetas(Etiqueta,Expresion.NEGATIVO,False,False)
             else:
                 return SExpresion(result, Expresion.NEGATIVO)
 
         elif expresion.tipo == Expresion.ID:
 
-            for i in range(len(tabla["nombreC"])):
+            if cod3D:
+                print("ANTES DE ENTRAR A TABLA SIMBOLOS----------------------")
+                for simbolo in tablaSimbolos.tabla.keys():
+                    if tablaSimbolos.tabla[simbolo].nombre ==expresion.valor:
+                        return Etiquetas(expresion.valor,tablaSimbolos.tabla[simbolo].tipo,False,False,expresion.valor)
+            else:
+                if (tabla!=None):
+                    for i in range(len(tabla["nombreC"])):
 
-                if tabla["nombreC"][i] == expresion.valor:
-                    tipo = retornarTipo(tabla["tipo"][i].dato)
-                    valor = tabla["valor"][i]
-                    if cod3D:
-                        return {"Etiqueta": valor, "tipo":tipo}
-                    else:
-                        return SExpresion(valor, tipo)
-
+                        if tabla["nombreC"][i] == expresion.valor:
+                            tipo = retornarTipo(tabla["tipo"][i].dato)
+                            valor = tabla["valor"][i]
+                            return SExpresion(valor, tipo)
+                
+                        
+                for simbolo in tablaSimbolos.tabla.keys():
+                    if tablaSimbolos.tabla[simbolo].nombre ==expresion.valor:
+                        return SExpresion(tablaSimbolos.tabla[simbolo].valor,tablaSimbolos.tabla[simbolo].tipo)
         elif expresion.tipo == Expresion.FECHA:
 
             valor = datetime.strptime(str(expresion.valor),'%Y-%m-%d').date()
@@ -2475,7 +2610,6 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         return SExpresion(False,Expresion.BOOLEAN)
 
 
-
     elif isinstance(expresion,SIn):
 
         qr = expresion.consulta
@@ -2493,7 +2627,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if not bandera:
                 qr.ffrom.clist.append(tb)
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,True,tablaSimbolos)
-        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla,False)
 
         for r in resultado_sub:
             if str(r[0]) == str(columna.valor):
@@ -2517,7 +2651,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if not bandera:
                 qr.ffrom.clist.append(tb)
         resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,True,tablaSimbolos)
-        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla,False)
 
         for r in resultado_sub:
 
@@ -2608,7 +2742,9 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
         return SExpresion(res,Expresion.BOOLEAN)
     if cod3D:
-        return {"Etiqueta": expresion.valor, "tipo":expresion.tipo}
+        if isinstance(expresion,SOperacion):
+            print(expresion.opDer)
+        return Etiquetas(expresion.valor,expresion.tipo,False,False,False)
     else:
         return expresion
 
@@ -3282,9 +3418,6 @@ def multcolumns(arrCols, base, tablasColumna, pT, subConsulta,groupBy):
             bandd = False
             indice = None
             auxCons = ""
-            print("TOY EN EL MULTCOLUMN")
-            print(e)
-            print(e.tipo)
             if e.tipo == 0:
                 retorno.append(columnaEspecificaSinWhere([e], base, tablasColumna, pT, False))
             elif e.tipo == 2:
