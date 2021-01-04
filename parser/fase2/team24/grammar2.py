@@ -1844,8 +1844,8 @@ def p_raisenotice(t):
     t[0] = raisenotice(t[3],t[4])
 
 def p_compvalue(t):
-    'compvalue : COMA ID'
-    t[0] = t[1]
+    'compvalue : COMA newexp'
+    t[0] = t[2]
 
 def p_compvalueEmpty(t):
     'compvalue : empty'
