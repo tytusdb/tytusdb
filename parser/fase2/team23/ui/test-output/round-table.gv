@@ -1,110 +1,48 @@
 // AST
 digraph {
-<<<<<<< HEAD
-	110 [label=INSTRUCTION_LIST]
-	111 [label=SELECT]
-	112 [label=PARAMS]
-	113 [label="*"]
-	114 [label=FROM]
-	115 [label=user]
-	116 [label=""]
-	117 [label=INST]
-	118 [label=INSERT_INTO]
-	119 [label=user]
-	120 [label=PARAMS]
-	121 [label=4]
-	122 [label=nombre4]
-	123 [label=user4]
-	124 [label=pass4]
-	125 [label=INST]
-	126 [label=INSERT_INTO]
-	127 [label=user]
-	128 [label=PARAMS]
-	129 [label=3]
-	130 [label=nombre3]
-	131 [label=user3]
-	132 [label=pass3]
-	133 [label=INST]
-	134 [label=INSERT_INTO]
-	135 [label=user]
-	136 [label=PARAMS]
-	137 [label=2]
-	138 [label=nombre2]
-	139 [label=user2]
-	140 [label=pass2]
-	141 [label=INST]
-	142 [label=INSERT_INTO]
-	143 [label=user]
-	144 [label=PARAMS]
-	145 [label=1]
-	146 [label=nombre1]
-	147 [label=user1]
-	148 [label=pass1]
-	149 [label=INST]
-	110 -> 111
-	111 -> 112
-	112 -> 113
-	111 -> 114
-	114 -> 115
-	114 -> 116
-	110 -> 117
-	117 -> 118
-	118 -> 119
-	118 -> 120
-	120 -> 121
-	120 -> 122
-	120 -> 123
-	120 -> 124
-	117 -> 125
-	125 -> 126
-	126 -> 127
-	126 -> 128
-	128 -> 129
-	128 -> 130
-	128 -> 131
-	128 -> 132
-	125 -> 133
-	133 -> 134
-	134 -> 135
-	134 -> 136
-	136 -> 137
-	136 -> 138
-	136 -> 139
-	136 -> 140
-	133 -> 141
-	141 -> 142
-	142 -> 143
-	142 -> 144
-	144 -> 145
-	144 -> 146
-	144 -> 147
-	144 -> 148
-	141 -> 149
-=======
-	13 [label=INSTRUCTION_LIST]
-	14 [label="CREATE INDEX"]
-	15 [label=mytable_cat_1]
-	16 [label=ON]
-	17 [label=mytable]
-	18 [label="("]
-	19 [label="['data']"]
-	20 [label=")"]
-	21 [label=WHERE]
-	22 [label="="]
-	23 [label=category]
-	24 [label=1]
-	25 [label=INST]
-	13 -> 14
-	14 -> 15
-	14 -> 16
-	14 -> 17
-	14 -> 18
-	14 -> 19
-	14 -> 20
-	14 -> 21
-	21 -> 22
-	22 -> 23
-	22 -> 24
-	13 -> 25
->>>>>>> main
+	23 [label=INSTRUCTION_LIST]
+	24 [label=IF]
+	25 [label="("]
+	26 [label=">"]
+	27 [label=5]
+	28 [label=9]
+	29 [label=")"]
+	30 [label=THEN]
+	31 [label=CREATE_DATABASE]
+	32 [label=hola]
+	33 [label=ELSE]
+	34 [label=IF]
+	35 [label="("]
+	36 [label="<"]
+	37 [label=5]
+	38 [label=9]
+	39 [label=")"]
+	40 [label=THEN]
+	41 [label=CREATE_DATABASE]
+	42 [label=adios]
+	43 [label="END IF"]
+	44 [label="END IF"]
+	45 [label=INST]
+	23 -> 24
+	24 -> 25
+	24 -> 26
+	26 -> 27
+	26 -> 28
+	24 -> 29
+	24 -> 30
+	24 -> 31
+	31 -> 32
+	24 -> 33
+	24 -> 34
+	34 -> 35
+	34 -> 36
+	36 -> 37
+	36 -> 38
+	34 -> 39
+	34 -> 40
+	34 -> 41
+	41 -> 42
+	34 -> 43
+	24 -> 44
+	23 -> 45
 }

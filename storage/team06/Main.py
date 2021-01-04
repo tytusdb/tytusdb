@@ -1,10 +1,10 @@
 from ArbolAVL import *
 from tkinter import *
 from tkinter import filedialog
-import interfaz as variable
+#import interfaz as variable
 
-def runinterfaz():
-    G=variable.MenuPrincipal()
+#def runinterfaz():
+#    G=variable.MenuPrincipal()
     
 raiz=Tk()
 menubar = Menu(raiz)

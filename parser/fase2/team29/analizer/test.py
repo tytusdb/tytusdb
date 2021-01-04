@@ -49,7 +49,7 @@ BEGIN
 			retorna = 0;
 		end if;
 	end if;
-RETURN retorna;
+RETURN retorna+4;
 END;
 $$ LANGUAGE plpgsql;
 

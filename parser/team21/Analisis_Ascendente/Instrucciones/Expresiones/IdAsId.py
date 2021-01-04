@@ -22,10 +22,10 @@ class IdAsId(Instruccion):
             valor = Time.resolverTime(IdAsId.id1);
             return valor;
         elif (isinstance(IdAsId.id1, Math_)):
-            valor = Math_.Resolver(IdAsId.id1,Consola)
+            valor = Math_.Resolver(IdAsId.id1,None,Consola,None)
             return str(valor)
         elif (isinstance(IdAsId.id1, Trigonometrica)):
-            valor = Trigonometrica.Resolver(IdAsId.id1,Consola)
+            valor = Trigonometrica.Resolver(IdAsId.id1,None,Consola,None)
             return valor
         elif (isinstance(IdAsId.id1, Primitivo)):
             valor = IdAsId.id1.valor;
@@ -39,5 +39,4 @@ class IdAsId(Instruccion):
             return [valor1,valor2]
         elif isinstance(IdAsId.id1,Expresion):
             return Expresion.Resolver(IdAsId.id1,Consola)
-
         return 'what -- ' + type(IdAsId.id1).__name__ + '\n'

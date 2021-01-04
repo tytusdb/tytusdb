@@ -1,7 +1,7 @@
 from Instrucciones.Asignacion import Asignacion
 from Instrucciones.Declaracion import Declaracion
 from Instrucciones.Ifclass import Ifclass
-from Instrucciones.Raise import Raise
+#from Instrucciones.Raise import Raise
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -306,6 +306,7 @@ from Instrucciones.Delete import Delete
 from graphviz import Digraph
 from Instrucciones.AlterTable import *
 from Instrucciones.Update import *
+from Instrucciones.Index import *
 
 global listaBNF
 listaBNF = []
@@ -321,7 +322,6 @@ precedence = (
     ('left', 'multiplicacion', 'division', 'modulo'),
     ('left', 'elevado'),
     ('right', 'umenos', 'umas'),
-
     ('left', 'lsel'),
 )
 
@@ -437,10 +437,14 @@ def p_instruccion13(t):
 
 def p_instruccion14(t):
     '''instruccion      : CREATEINDEX  ptcoma'''
+    listaBNF.append("INSTRUCCION ::= CREATEINDEX ptcoma")
+    t[0] = t[1]
 
 
 def p_instruccion15(t):
     '''instruccion      : CREATEINDEX  WHERE ptcoma'''
+    listaBNF.append("INSTRUCCION ::= CREATEINDEX WHERE ptcoma")
+    t[0] = t[1]
 
 
 def p_instruccion16(t):
@@ -540,22 +544,32 @@ def p_BEGINEND(t):
     '''BEGINEND : begin LISTACONTENIDO end
     '''
 
-
 def p_CREATEINDEX(t):
     '''CREATEINDEX      : create index id on id para LEXP parc '''
+    listaBNF.append("CREATEINDEX ::= create index " + str(t[3]) + " on " + str(t[5]) + " para LEXP parc")
+    t[0] = Index(str(t[3]),str(t[5]),t[7])
 
+def p_CREATEINDEX3(t):
+    '''CREATEINDEX      : create unique index id on id para LEXP parc '''
+    listaBNF.append("CREATEINDEX ::= create unique index " + str(t[4]) + " on " + str(t[6]) + " para LEXP parc")
+    i = Index(str(t[4]),str(t[6]),t[8])
+    i.unique = True
+    t[0] = i
 
 def p_CREATEINDEX1(t):
     '''CREATEINDEX      : create index id on id using hash para LEXP parc '''
+    listaBNF.append("CREATEINDEX ::= create index " + str(t[3]) + " on " + str(t[5]) + " using hash para LEXP parc")
+    i = Index(str(t[3]),str(t[5]),t[9])
+    i.hash = True
+    t[0] = i
 
 
 def p_CREATEINDEX2(t):
     '''CREATEINDEX      : create index id on id  para id ORDEN parc '''
-
-
-def p_CREATEINDEX3(t):
-    '''CREATEINDEX      : create unique index id on id para LEXP parc '''
-
+    listaBNF.append("CREATEINDEX ::= create index " + str(t[3]) + " on " + str(t[5]) + " para " + str(t[7]) + " ORDEN parc")
+    i = Index(str(t[3]),str(t[5]),[Terminal("identificador",str(t[7]))])
+    i.orden = t[8]
+    t[0] = i
 
 def p_CREATEINDEX4(t):
     '''CREATEINDEX      : create  index id on id para id  id ORDEN parc '''
@@ -563,21 +577,26 @@ def p_CREATEINDEX4(t):
 
 def p_ORDEN(t):
     '''ORDEN      : asc
-                 | desc
-                 | nulls first
-                 | nulls last
-                 | asc nulls first
+                 | desc '''
+    listaBNF.append("ORDEN ::= " + str(t[1]))
+    t[0] = str(t[1])
+
+def p_ORDEN2(t):
+    '''ORDEN      : nulls first
+                 | nulls last '''
+    listaBNF.append("ORDEN ::= " + str(t[1]) + " " + str(t[2]))
+    t[0] = str(t[1]) + " " + str(t[2])
+
+def p_ORDEN3(t):
+    '''ORDEN      : asc nulls first
                  | desc nulls last
                  | desc nulls first
                  | asc nulls last
                  | '''
 
-#def p_LDECLARE(t):
-#    ''' LDECLARE : LDECLARE  DECLARACIONES ptcoma
- #   '''
-#def p_LDECLARE1(t): 
-#    ''' LDECLARE :   DECLARACIONES ptcoma
-#    '''
+    if len(t) > 2:
+        listaBNF.append("ORDEN ::= " + str(t[1]) + " " + str(t[2]) + " " + str(t[3]))
+        t[0] = str(t[1]) + " " + str(t[2]) + " " + str(t[3])
 
 def p_Declaraciones(t):
     ''' DECLARACIONES : id TIPO not null ASIG
@@ -662,6 +681,19 @@ def p_ELSEF(t):
   
 
 
+def p_CASE(t):
+    'CASE : case LEXP  LISTAWHEN ELSEF  end case'
+    
+def p_CASE1(t):
+    'CASE : case LEXP  LISTAWHEN   end case'
+
+def p_CASE2(t):
+    ''' CASE : case  LISTAWHEN ELSE end
+    '''
+def p_CASE3(t):
+    ''' CASE :  case LISTAWHEN end
+    '''
+    
 def p_LISTACONTENIDO(t):
     'LISTACONTENIDO : LISTACONTENIDO CONTENIDO'
     t[1].append(t[2])
@@ -708,6 +740,11 @@ def p_CONTENIDO7(t):
     'CONTENIDO : RETURN ptcoma  '
     t[0] = t[1]
 
+def p_CONTENIDO8(t):
+    'CONTENIDO : CASE ptcoma '
+    t[0] = t[1]
+
+
 def p_RAISE(t):
     'RAISE :  raise LEVEL FORMAT'
     t[0]=Raise(t[2],t[3])
@@ -745,19 +782,17 @@ def p_FORMAT(t):
 
 
 # AQUI TERMINA LO DE LA FASE 2
-def p_CASE(t):
-    ''' CASE : case  LISTAWHEN ELSE end
-               | case LISTAWHEN end
-    '''
-
-
 def p_LISTAWHEN(t):
     ''' LISTAWHEN : LISTAWHEN WHEN
-                    | WHEN
+    '''
+def p_LISTAWHEN1(t):
+    ''' LISTAWHEN :  WHEN
     '''
 
-
 def p_WHEN(t):
+    ''' WHEN : when LEXP then LISTACONTENIDO'''
+
+def p_WHEN1(t):
     ''' WHEN : when LEXP then LEXP'''
 
 
@@ -1720,10 +1755,8 @@ def p_EXPT6(t):
 def p_EXPT7(t):
     'EXP : id'
     listaBNF.append("EXP ::= " + str(t[1]).lower())
-    tipo = Tipo('identificador', t[1], len(t[1]), -1)
-    tipo.getTipo()
-    t[0] = Terminal(tipo, t[1])
-
+    tipo = Tipo('indefinido', t[1], len(t[1]), -1)
+    t[0]=Identificador(tipo,t[1])
 
 def p_EXPT8(t):
     'EXP : multiplicacion %prec lsel'

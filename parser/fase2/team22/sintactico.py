@@ -848,7 +848,7 @@ def p_operadores_agregacion(t):
         pass
     elif t[1] == 'COUNT':
         strGram = "<expre> ::= COUNT PARIZQ <expre> PARDER"
-        #t[0] = Count.Count(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Count.Count(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'GREATEST':
         strGram = "<expre> ::= GREATEST PARIZQ <lcol> PARDER"
@@ -1784,6 +1784,10 @@ def p_content_beginIf(t) :
                         | IF condicion_if THEN list_begin else_if END IF PUNTO_COMA
                         | IF condicion_if THEN list_begin elsif END IF PUNTO_COMA
                         | IF condicion_if THEN list_begin END IF PUNTO_COMA
+    '''
+
+def p_content_beginCase(t) :
+    '''content_begin    : CASE lcase END CASE PUNTO_COMA
     '''
 
 def p_elseif(t) :
