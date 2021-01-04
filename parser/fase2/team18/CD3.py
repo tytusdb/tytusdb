@@ -246,12 +246,13 @@ def PCreateFuncion(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
     msg+="else:\n"
     msg+="\tgoto .endFun"+str(contT)
     #---------------------------------------------
-    txt+="\tif("+varT+"==False):\n"
-    txt+="\t\tgoto .endFun"+str(contT)+"\n"
-    txt+="\tlabel.bodyFun"+str(contT)+"\n"
-    txt+="\t'"+str(contenidoF)+"'\n"
-    txt+="\tlabel.endFun"+str(contT)+"\n"
-    agregarOptimizacion(regla,msg,txt)
+    txt2="\tif("+varT+"==False):\n"
+    txt2+="\t\tgoto .endFun"+str(contT)+"\n"
+    txt2+="\tlabel.bodyFun"+str(contT)+"\n"
+    txt2+="\t'"+str(contenidoF)+"'\n"
+    txt2+="\tlabel.endFun"+str(contT)+"\n"
+    agregarOptimizacion(regla,msg,txt2)
+    txt+=txt2
     dataC=[nombreF,tipoF,str(contenidoF),parametrosF,reemplazada]
     agregarInstr(dataC,txt)
 
@@ -265,7 +266,7 @@ def PDropProcedimientos(nombres):
     txt="\t#Drop Procedure\n"
     txt+="\tt"+str(numT())+"="+str(nombres)+"\n"
     txt+="\tCD3.EDropProcedure()\n"
-    agregarInstr(drop_funcion,txt)
+    agregarInstr(drop_procedimientos,txt)
 
 def PCreateProcedure(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
     reinicar_contOP()
@@ -1003,7 +1004,7 @@ def cuerpoR(a):
     ag3("<td id=\"td4\">")
     #ag3("<textarea id=\"tex\"readonly>")
         #cuerpo1
-    #ag0(a[2])
+    ag0(a[2])
     #ag3("</textarea>")
     ag3("</td>")
     ag3("</tr>")
