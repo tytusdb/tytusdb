@@ -387,3 +387,42 @@ class Drop_Function(Instruccion):
     '''
     def __init__(self,nombres):
         self.nombres=nombres
+
+
+
+#Metodos para los procedure
+
+class Procedimiento(Instruccion):
+    '''
+        Esta clase representa un procedimiento 
+    '''
+    def __init__(self,reemplazar,nombre,parametros,cuerpo):
+        self.reemplazar=reemplazar
+        self.nombre=nombre
+        self.parametros=parametros
+        self.cuerpo=cuerpo
+
+class Parametro_Procedure(Instruccion):
+    '''
+        Esta clase representa a un parametro o variable en un procedimiento
+    '''
+    def __init__(self,nombre,tipo,tamano,valor):
+        self.nombre=nombre
+        self.tipo=tipo
+        self.tamano=tamano
+        self.valor=valor
+
+class Cuerpo_Procedure(Instruccion):
+    '''
+        Esta clase representa el cuerpo de un procedimiento
+    '''
+    def __init__(self,declaraciones,funcionalidad):
+        self.declaraciones=declaraciones
+        self.funcionalidad=funcionalidad
+
+class Drop_Procedure(Instruccion):
+    '''
+        Esta clase representa la eliminacion de un procedimiento almacenado
+    '''
+    def __init__(self,nombres):
+        self.nombres=nombres

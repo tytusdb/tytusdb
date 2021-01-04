@@ -68,3 +68,11 @@ class Parametro_run:
         tipo=None
         tamano=None
         valor=None
+
+
+class Procedure_run:
+    def __init__(self, nombre, tipo, contenido, parametros=[]):
+        self.nombre=nombre
+        self.tipo=tipo
+        self.contenido=contenido
+        self.parametros=parametros
