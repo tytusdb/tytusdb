@@ -66,6 +66,10 @@ def p_valor_operacion_potencia(t):
     'valor  : valorOp POTENCIA valorOp'
     t[0] = Operacion(t[1], t[3], OP_ARITMETICO.POTENCIA)
 
+def p_valor_Condicion(t):
+    'valor  : condicion'
+    t[0] = t[1]
+
 def p_valor_valorOp(t):
     'valor  : valorOp'
     t[0] = t[1]
