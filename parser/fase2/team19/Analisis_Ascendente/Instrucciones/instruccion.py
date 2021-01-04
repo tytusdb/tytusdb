@@ -48,7 +48,6 @@ class Show(Instruccion):
 
     def ejecutar(shown, ts,consola,exceptions):
 
-
         consola.append("----------------SHOW DATABASE----------------")
         i = 1
         for data in ts.simbolos:
@@ -57,6 +56,15 @@ class Show(Instruccion):
                 i = i +1
         consola.append("--------------END SHOW DATABASE--------------")
 
+    def getC3D(self):
+        c3d = '''
+    # ----------SHOW DATABASES-----------
+    top_stack = top_stack + 1
+    t1 = "show databases;"
+    stack[top_stack] = t1
+    funcion_intermedia()
+'''
+        return c3d
 
 #UPDATE
 

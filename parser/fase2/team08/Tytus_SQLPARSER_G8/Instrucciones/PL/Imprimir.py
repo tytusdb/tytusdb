@@ -22,23 +22,23 @@ class Imprimir(Instruccion):
     def traducir(self, tabla, arbol):
         super().traducir(tabla,arbol)
         retorno = Nodo3D()
-        temp = self.expresion.traducir(tabla,arbol)
+        exp = self.expresion.traducir(tabla,arbol)
         arbol.addc3d("#Inicio print")
-        if(self.expresion.tipo.tipo == Tipo_Dato.SMALLINT or self.expresion.tipo.tipo == Tipo_Dato.INTEGER or self.expresion.tipo.tipo == Tipo_Dato.BIGINT or self.expresion.tipo.tipo == Tipo_Dato.DECIMAL or self.expresion.tipo.tipo == Tipo_Dato.NUMERIC or self.expresion.tipo.tipo == Tipo_Dato.REAL or self.expresion.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or self.expresion.tipo.tipo == Tipo_Dato.MONEY):
-            arbol.addc3d(f"print({temp.temporalAnterior})")
+        if self.expresion.tipo.tipo == Tipo_Dato.ID:
+            self.expresion.tipo = self.tipo
         if(self.expresion.tipo.tipo == Tipo_Dato.BOOLEAN):
             temporal1 = tabla.getTemporal()
-            if(temp.temporalAnterior == ""):
+            if(exp.temporalAnterior == ""):
                 etiqueta1 = tabla.getEtiqueta()
-                retorno.imprimirEtiquetDestino(arbol, temp.etiquetaTrue)
+                retorno.imprimirEtiquetDestino(arbol, exp.etiquetaTrue)
                 arbol.addc3d(f"{temporal1} = 1")
                 arbol.addc3d(f"goto .{etiqueta1}")
-                retorno.imprimirEtiquetDestino(arbol, temp.etiquetaFalse)
+                retorno.imprimirEtiquetDestino(arbol, exp.etiquetaFalse)
                 arbol.addc3d(f"{temporal1} = 0")
                 arbol.addc3d(f"goto .{etiqueta1}")
                 arbol.addc3d(f"label .{etiqueta1}")
             else:
-                arbol.addc3d(f"{temporal1} = {temp.temporalAnterior}")
+                arbol.addc3d(f"{temporal1} = {exp.temporalAnterior}")
             
             etiqueta1 = tabla.getEtiqueta()
             etiqueta2 = tabla.getEtiqueta()
@@ -54,7 +54,8 @@ class Imprimir(Instruccion):
             arbol.addc3d(f"label .{etiqueta2}")
             arbol.addc3d("print(False)")
             arbol.addc3d(f"label .{etiqueta3}")
-        
+        else:
+            arbol.addc3d(f"print({exp.temporalAnterior})")        
         arbol.addc3d("#Fin print")
         return retorno
 

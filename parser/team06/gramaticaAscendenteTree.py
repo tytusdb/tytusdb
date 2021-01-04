@@ -25,6 +25,7 @@ class gramaticaAscendenteTree:
 #                       INICIA ANALIZADOR LEXICO
 # -----------------------------------------------------------------------------
 #palabras reservadas del lenguaje
+
 reservadas = {
     #   PALABRAS RESERVADAS POR SQL
     'show' : 'SHOW',
@@ -47,9 +48,7 @@ reservadas = {
     'in' : 'IN',
     'concat' : 'CONCAT',
     'only':'ONLY',
-
     'as' : 'AS',
-    'upper' : 'UPPER',
     'sqrt' : 'SQRT',
     'avg' : 'AVG',
     'sum' : 'SUM',
@@ -64,7 +63,6 @@ reservadas = {
     'union' : 'UNION',
     'all' : 'ALL',
     'insert' : 'INSERT',
-    'unknown':'UNKNOWN',
     'into' : 'INTO',
     'values' : 'VALUES',
     'update' : 'UPDATE',
@@ -101,7 +99,6 @@ reservadas = {
     'column' : 'COLUMN',
     'rename' : 'RENAME',
     'to' : 'TO',
-    'view' : 'VIEW',
     'replace' : 'REPLACE',
     'type' : 'TYPE',
     'enum' : 'ENUM',
@@ -172,13 +169,12 @@ reservadas = {
     'current_user':'CURRENT_USER',
     'session_user':'SESSION_USER',
     'symmetric':'SYMMETRIC',
-    'izquierda' : 'LEFT',
-    'derecha' : 'RIGHT',
+    'left' : 'LEFT',
+    'right' : 'RIGHT',
     'full' : 'FULL',
     'join' : 'JOIN',
     'natural' : 'NATURAL',
     'case' : 'CASE',
-    'when' : 'WHEN',
     'then' : 'THEN',
     'begin' : 'BEGIN',
     'end' : 'END',
@@ -220,7 +216,7 @@ reservadas = {
     'function' : 'FUNCTION',
     'returns' : 'RETURNS',
     'returning':'RETURNING',
-
+    'call':'CALL',
     'between' : 'BETWEEN',
     'ilike' : 'ILIKE',
     'is':'IS',
@@ -244,10 +240,14 @@ reservadas = {
     'current_time' : 'CURRENT_TIME',
     # INDEX
     'index':'INDEX',
-    'hash':'HASH'
+    'hash':'HASH',
+    'perform' : 'PERFORM',
 
+    'procedure' : 'PROCEDURE',
+    'out' : 'OUT'
 # revisar funciones de tiempo y fechas
 }
+
 # listado de tokens que manejara el lenguaje (solo la forma en la que los llamare  en las producciones)
 tokens  = [
     'PUNTOYCOMA',
@@ -282,6 +282,7 @@ tokens  = [
     'COLOCHO',
     'DESPLAZAMIENTODERECHA',
     'DESPLAZAMIENTOIZQUIERDA',
+    'DOLAR',
 
 
 #tokens que si devuelven valor
@@ -324,7 +325,7 @@ t_NUMERAL                               = r'\#' #REVISAR
 t_COLOCHO                               = r'~'  #REVISAR
 t_DESPLAZAMIENTODERECHA                 = r'>>'
 t_DESPLAZAMIENTOIZQUIERDA               = r'<<'
-
+t_DOLAR                                 = r'\$'
 
 
 #definife la estructura de los decimales
@@ -475,6 +476,8 @@ def p_query(t):
                     | selectData PUNTOYCOMA
                     | tipos
                     | createIndex
+                    | combinacionSelects PUNTOYCOMA
+                    | callFunction
     '''
     nodeFather = nodeAst()
     nodeFather.token = 'QUERY'
@@ -1094,6 +1097,50 @@ def p_sortOptions_1(t):
 
     t[0] = nodeFather
 
+def p_sortOptions_1_1(t):
+    'sort    : DESC NULLS FIRST'
+    nodeFather = nodeAst()
+    nodeFather.token = 'SORT'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DESC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NULLS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'FIRST'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
+
+def p_sortOptions_1_2(t):
+    'sort    : ASC NULLS FIRST'
+    nodeFather = nodeAst()
+    nodeFather.token = 'SORT'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ASC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NULLS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'FIRST'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
+
 def p_sortOptions_2(t):
     'sort    : NULLS LAST'
     nodeFather = nodeAst()
@@ -1108,6 +1155,50 @@ def p_sortOptions_2(t):
     nodeSon2.token = 'LAST'
     nodeSon2.lexeme = t[2]
     nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+
+def p_sortOptions_2_1(t):
+    'sort    : DESC NULLS LAST'
+    nodeFather = nodeAst()
+    nodeFather.token = 'SORT'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DESC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NULLS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'LAST'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
+
+def p_sortOptions_2_2(t):
+    'sort    : ASC NULLS LAST'
+    nodeFather = nodeAst()
+    nodeFather.token = 'SORT'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ASC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NULLS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'LAST'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
 
     t[0] = nodeFather
 #-----------------------------------------------------CREATE DB--------------------------------------------------------------------
@@ -3877,7 +3968,7 @@ def p_updateBD(t):
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_asignaciones(t):
-    'asignaciones         : asignaciones COMA asigna'
+    'asignaciones         : asignaciones COMA operacion'
     nodeFather = nodeAst()
     nodeFather.token = 'ASIGNACIONES'
 
@@ -3891,28 +3982,12 @@ def p_asignaciones(t):
 
 
 def p_asignaciones_2(t):
-    'asignaciones         : asigna'
+    'asignaciones         : operacion'
     nodeFather = nodeAst()
     nodeFather.token = 'ASIGNACIONES'
 
     nodeSon1 = t[1]
     nodeFather.son.append(nodeSon1)
-
-    t[0] = nodeFather
-
-
-def p_asigna(t):
-    'asigna               : ID IGUAL operacion'
-    nodeFather = nodeAst()
-    nodeFather.token = 'ASIGNA'
-
-    nodeSon1 = nodeAst()
-    nodeSon1.token = 'ID'
-    nodeSon1.lexeme = t[1]
-    nodeFather.son.append(nodeSon1)
-
-    nodeSon3 = t[3]
-    nodeFather.son.append(nodeSon3)
 
     t[0] = nodeFather
 
@@ -4403,8 +4478,6 @@ def p_tipo(t):
     '''tipo            :  SMALLINT
                         | INTEGER
                         | BIGINT
-                        | DECIMAL
-                        | DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA
                         | NUMERIC
                         | REAL
                         | DOUBLE PRECISION
@@ -4463,47 +4536,11 @@ def p_tipo(t):
         t[0] = nodeFather
 
     # -------------------------------------------------------------------------------------------------------------- 
-    elif t[1].upper()=="DECIMAL":
-        nodeFather = nodeAst()
-        nodeFather.token = 'TIPO'
+    
+    
+    
 
-        nodeSon1 = nodeAst()
-        nodeSon1.token = 'DECIMAL'
-        nodeSon1.lexeme = t[1]
-        nodeFather.son.append(nodeSon1)
-
-        t[0] = nodeFather
-
-    elif t[1].upper()=="DECIMAL" and t[2]=="(":
-        nodeFather = nodeAst()
-        nodeFather.token = 'tipo'
-
-        nodeSon1 = nodeAst()
-        nodeSon1.token = 'DECIMAL'
-        nodeSon1.lexeme = t[1]
-        nodeFather.son.append(nodeSon1)
-
-        nodeSon2 = nodeAst()
-        nodeSon2.token = '('
-        nodeSon2.lexeme = t[2]
-        nodeFather.son.append(nodeSon2)
-
-        nodeSon3 = nodeAst()
-        nodeSon3.token = 'ENTERO'
-        nodeSon3.lexeme = t[3]
-        nodeFather.son.append(nodeSon3)
-
-        nodeSon4 = nodeAst()
-        nodeSon4.token = 'ENTERO'
-        nodeSon4.lexeme = t[5]
-        nodeFather.son.append(nodeSon3)
-
-        nodeSon5 = nodeAst()
-        nodeSon5.token = ')'
-        nodeSon5.lexeme = t[6]
-        nodeFather.son.append(nodeSon2)
-
-        t[0] = nodeFather
+    
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="NUMERIC":
@@ -4761,6 +4798,52 @@ def p_tipo(t):
         nodeFather.son.append(nodeSon1)
 
         t[0] = nodeFather
+
+
+def p_tipo_2(t):
+    'tipo               : DECIMAL'
+    nodeFather = nodeAst()
+    nodeFather.token = 'TIPO'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DECIMAL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
+
+def p_tipo_3(t):
+    'tipo               : DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA '
+    nodeFather = nodeAst()
+    nodeFather.token = 'tipo'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DECIMAL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = '('
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ENTERO'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'ENTERO'
+    nodeSon4.lexeme = t[5]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = ')'
+    nodeSon5.lexeme = t[6]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+    
 
     
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
@@ -5520,6 +5603,182 @@ def p_tipos(t):
 
     t[0] = nodeFather
 #JPI 
+
+
+# ESTO ES NUEVO POR LOS JOIN******************************************************************************
+
+#agregar eeste al arbol y 3D
+def p_search_condition_5(t):
+    'search_condition   : NOT EXISTS PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
+    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
+    print("esta condicion es del not con operacion******************")
+    print(t[4])
+    t[0]=ExpresionNotExists(t[4])
+
+#agregar eeste al arbol y 3D
+def p_search_condition_6(t):
+    'search_condition   : EXISTS PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
+    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
+    print("esta condicion es del not con operacion******************")
+    print(t[3])
+    t[0]=ExpresionExists(t[3])
+
+#agregar eeste al arbol y 3D
+def p_search_condition_7(t):
+    'search_condition   : final  IN PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
+    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
+    print("esta condicion es del not con operacion******************")
+    print(t[1])
+    print(t[4])
+    t[0]=ExpresionIn(t[1],t[4])
+
+# PARA ABAJO YA ESTA
+def p_search_condition_3(t):
+    'search_condition   : operacion'
+    h.reporteGramatical1 +="search_condition    ::=       operacion\n"
+    h.reporteGramatical2 +=" t[0]=t[1]\n"
+    print("entra a la operacion del seach_condition++++++++++++++++++++++++++++++++++++++++")
+    print(t[1])
+    t[0]=t[1]
+
+def p_combinacionSelects(t):
+    '''combinacionSelects  : selectData UNION selectData
+                            | selectData INTERSECT selectData
+                            | selectData EXCEPT selectData
+     
+    '''
+    print("*************************Entra a procesar el UNION********************")
+    if t[2].upper()=="UNION":
+        t[0]=QueryUnion(t[1],t[3])
+    elif t[2].upper()=="INTERSECT":
+        t[0]=QueryIntersect(t[1],t[3])
+    elif t[2].upper()=="EXCEPT":
+        t[0]=QueryExcept(t[1],t[3])
+
+
+def p_select_4(t):
+    '''selectData       : SELECT select_list FROM   tipoJoin
+                        | SELECT POR FROM  tipoJoin
+    '''
+    if t[2]=='*':
+       print("entro al select * tipo join ++++++++++++++++++++++++++++++")
+       print(t[2])
+       t[0]=Select6(t[2],t[4])
+    else:
+        print("entro al select lista tipo join ++++++++++++++++++++++++++++++")
+        print(t[2])
+        t[0]=Select6(t[2],t[4])
+        
+
+
+def p_tipoJoin_1(t):
+    '''tipoJoin   :   select_list  INNER JOIN select_list ON operacion
+                  |   select_list NATURAL INNER JOIN select_list 
+     '''
+    if t[2].upper()=="INNER":
+        print("entro al tipoJoin1 INNER----------------------------------------------------")
+        print(t[1])
+        print(t[2])
+        print(t[4])
+        print(t[6])
+        t[0]=ExpresionJoinA(t[1],t[2],t[4],t[6])
+    elif t[2].upper()=="NATURAL":
+        print("entro al NATURAL ----------------------------------------------------")
+        print(t[1])
+        print(t[2])
+        print(t[3])
+        print(t[5])    
+        t[0]=ExpresionJoinB(t[1],t[2],t[3],t[5])
+
+
+def p_tipoJoin_2(t):
+    '''tipoJoin   :  select_list  otroTipoJoin OUTER JOIN select_list ON operacion
+                  |  select_list  NATURAL otroTipoJoin OUTER JOIN select_list
+    '''
+    if t[2].upper()=="NATURAL":
+        print("entro al tipoJoin2 NATURAL ----------------------------------------------------")
+        print(t[1])
+        print(t[2])
+        print(t[3])
+        print(t[4])
+        print(t[6])
+        t[0]=ExpresionJoinC(t[1],t[2],t[3],t[4],t[6])
+    else:
+        print("entro al tipoJoin2 ELSE ----------------------------------------------------")
+        print(t[1])
+        print(t[2])
+        print(t[3])
+        print(t[5])
+        print(t[7])
+        t[0]=ExpresionJoinD(t[1],t[2],t[3],t[5],t[7])
+    
+
+
+def p_otroTipoJoin(t):
+    ''' otroTipoJoin    :   LEFT
+                        |   RIGHT
+                        |   FULL
+    '''
+    print("entra al otro tipo de join para su condicion")
+    t[0]=t[1]
+    
+
+
+
+def p_callFunction(t):
+    'callFunction    : CALL ID PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CALL_FUNCTION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CALL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+
+def p_callFunction_1(t):
+    'callFunction    : CALL ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CALL_FUNCTION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CALL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
+
+def p_callFunction_2(t):
+    'callFunction    : CALL ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CALL_FUNCTION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CALL'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+
 
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1

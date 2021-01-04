@@ -1,12 +1,13 @@
 from sys import path
 from os.path import dirname as dir
-
+from prettytable import PrettyTable
 path.append(dir(path[0]))
 
 from analizer.statement.instructions.select.select import Select
-from analizer.abstract.instruction import envVariables
+from analizer.abstract import instruction
 from analizer import grammar
 from analizer.reports import BnfGrammar
+import pandas as pd
 
 
 def execution(input):
@@ -30,6 +31,7 @@ def execution(input):
                 else:
                     querys.append(None)
                     messages.append("Error: Select.")
+                # print(r[0].iloc[0].iloc[0])
                 print(r)
             else:
                 r = v.execute(None)
@@ -73,8 +75,7 @@ def astReport():
 
 
 def symbolReport():
-    global envVariables
-    environments = envVariables
+    environments = instruction.envVariables
     report = []
     for env in environments:
         vars = env.variables
@@ -85,15 +86,33 @@ def symbolReport():
             r = [
                 key,
                 symbol.value,
-                symbol.type if not symbol.type else "Tabla",
+                symbol.type if symbol.type else "Tabla",
                 symbol.row,
                 symbol.column,
             ]
             filas.append(r)
-        for (key, symbol) in types.items():
-            r = [key, key, str(symbol) if not symbol else "Columna", "-", "-"]
+        for (key, type_) in types.items():
+            r = [key, key, str(type_.name) if type_ else "Columna", "-", "-"]
             filas.append(r)
         enc.append(filas)
         report.append(enc)
-    envVariables = []
+    instruction.envVariables = list()
     return report
+
+def printTable_PT(tables):
+    if tables != None:
+            i = 0
+            for table in tables:
+                i += 1
+                if table != None:
+                    table_pt = PrettyTable()
+                    fill_table(table[0], table[1], table_pt)
+                    print(table_pt)
+                else:
+                    print("Error: Consulta sin resultado")
+
+def fill_table(columns,rows,table):
+    table.field_names = columns
+    table.add_rows(rows)
+
+                    

@@ -7,19 +7,22 @@ import analizer.grammarFP as grammar2
 
 s = """ 
 
-CREATE FUNCTION sales_tax(real) RETURNS real AS $$
-DECLARE
-    subtotal ALIAS FOR $1;
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+declare 
+	texto integer := 2;
 BEGIN
-    RETURN subtotal * 0.06;
+	texto := 9;
+	RETURN texto between 2 and 19;
+	RETURN texto not between 2 and 19;
+	RETURN texto between SYMMETRIC 2 and 19;
+	RETURN (5+2>8*1 and  1+3*3 != 4) is not TRUE;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION concat_selected_fields(in_t sometablename) RETURNS text AS $$
-BEGIN
-    RETURN in_t.f1 || in_t.f3 || in_t.f5 || in_t.f7;
-END;
-$$ LANGUAGE plpgsql;
 """
 result = grammar2.parse(s)
-print(result)
+#print(result)
+for r in result:
+	x = r.execute(None).value 
+	print(x)
