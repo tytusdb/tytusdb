@@ -33,6 +33,7 @@ def executeInstruction(self, instruction):
     elif isinstance(instruction, BlockFunction):
         print(instruction.declarations)
         print(instruction.statements)
+    
 
 def getType(sqltype):
     if(sqltype=="TEXT" 
