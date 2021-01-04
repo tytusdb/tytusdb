@@ -25,6 +25,8 @@ from utils.analyzers.lex import *
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
 from models.procedural.clases import BodyDeclaration
+from models.procedural.if_statement import If
+
 
 # Precedencia, entre mayor sea el nivel mayor sera su inportancia para su uso
 
@@ -33,7 +35,7 @@ precedence = (
     ('left', 'AND'),  # Level 2
     ('right', 'NOT'),  # Level 3
     ('nonassoc', 'LESS_THAN', 'LESS_EQUAL', 'GREATE_THAN',
-     'GREATE_EQUAL', 'EQUALS', 'NOT_EQUAL_LR'),  # Level 4
+     'GREATE_EQUAL', 'EQUALS', 'NOT_EQUAL_LR', 'COLONEQUALS'),  # Level 4
     ('nonassoc', 'BETWEEN', 'IN', 'LIKE', 'ILIKE', 'SIMILAR'),  # Level 5
     ('left', 'SEMICOLON', 'LEFT_PARENTHESIS',
      'RIGHT_PARENTHESIS', 'COMMA', 'COLON', 'NOT_EQUAL'),  # Level 6
@@ -807,9 +809,9 @@ def p_declarations_list(p):
         p[0] = [p[1]]
 
 def p_sql_var_declarations(p):
-    '''SQL_VAR_DECLARATIONS : ID CONSTANT typeDeclare optionsDeclaration SEMICOLON
+    '''SQL_VAR_DECLARATIONS : ID CONSTANT typeDeclare detailDeclaration SEMICOLON
                             | ID CONSTANT typeDeclare SEMICOLON
-                            | ID typeDeclare optionsDeclaration SEMICOLON
+                            | ID typeDeclare detailDeclaration SEMICOLON
                             | ID typeDeclare SEMICOLON
                             | ID ALIAS FOR DOLLAR SQLINTEGER SEMICOLON
     '''
@@ -825,20 +827,24 @@ def p_type_param(p):
     '''
     p[0] = p[1]
 
-def p_options_declaration(p):
-    '''optionsDeclaration : optionsDeclaration detailDeclaration
-                          | detailDeclaration
-    '''
-    if(len(p) == 3):
-        p[1].append(p[2])
-        p[0] = p[1]
-    else:
-        p[0] = [p[1]]
+#def p_options_declaration(p):
+#    '''optionsDeclaration : optionsDeclaration detailDeclaration
+#                          | detailDeclaration
+#    '''
+#    if(len(p) == 3):
+#        p[1].append(p[2])
+#        p[0] = p[1]
+#    else:
+#        p[0] = [p[1]]
 
 def p_detail_declaration(p):
-    '''detailDeclaration : COLLATE ID
+    '''detailDeclaration : COLLATE ID NOT NULL ASSIGNATION_SYMBOL PLPSQL_EXPRESSION
+                         | NOT NULL ASSIGNATION_SYMBOL PLPSQL_EXPRESSION
+                         | COLLATE ID NOT NULL
+                         | COLLATE ID ASSIGNATION_SYMBOL PLPSQL_EXPRESSION
+                         | COLLATE ID
                          | NOT NULL
-                         | ASSIGNATION_SYMBOL SQLSIMPLEEXPRESSION
+                         | ASSIGNATION_SYMBOL PLPSQL_EXPRESSION
     '''
     if len(p) == 3:
         p[0] = p[2]
@@ -886,7 +892,9 @@ def p_statement_type(p):
 #TODO: CONCAT
 def p_plpsql_expression(p):
     '''PLPSQL_EXPRESSION : PLPSQL_EXPRESSION CONCAT PLPSQL_EXPRESSION
-                         | PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL PLPSQL_PRIMARY_EXPRESSION
+                         | PLPSQL_EXPRESSION AND PLPSQL_EXPRESSION
+                         | PLPSQL_EXPRESSION OR PLPSQL_EXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL SQLRELATIONALEXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION NOT_EQUAL PLPSQL_PRIMARY_EXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION GREATE_EQUAL PLPSQL_PRIMARY_EXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION GREATE_THAN PLPSQL_PRIMARY_EXPRESSION
@@ -897,27 +905,24 @@ def p_plpsql_expression(p):
     '''
     if len(p) == 4:
         if p.slice[2].type == "ASSIGNATION_SYMBOL":
-            print(p.slice)
-            print("ASIGNACION  ----------------------------------------------------------------------------------------")
-            print(p[1])
             if isinstance(p[1], ObjectReference): 
                 p[0] = AsignacionID(p[1].reference_column.value, p[3], 0, 0)
         else:
-            if p[2][1] == '!=':
+            if p[2] == '!=':
                 p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3], p[2]
-                        [1], p[2][0].lineno, find_column(p[2][0]))
-            elif p[2][1] == '>=':
+                        [1], p[2].lineno, find_column(p[2]))
+            elif p[2] == '>=':
                 p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3],
-                            p[2][1], p[2][0].lineno, find_column(p[2][0]))
-            elif p[2][1] == '>':
+                            p[2], p[2].lineno, find_column(p[2]))
+            elif p[2] == '>':
                 p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3], p[2]
-                            [1], p[2][0].lineno, find_column(p[2][0]))
-            elif p[2][1] == '<=':
+                            [1], p[2].lineno, find_column(p[2]))
+            elif p[2] == '<=':
                 p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3], p[2]
-                            [1], p[2][0].lineno, find_column(p[2][0]))
-            elif p[2][1] == '<':
+                            [1], p[2].lineno, find_column(p[2]))
+            elif p[2] == '<':
                 p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3], p[2]
-                            [1], p[2][0].lineno, find_column(p[2][0]))
+                            [1], p[2].lineno, find_column(p[2]))
     else:
         p[0] = p[1]
         
@@ -930,6 +935,7 @@ def p_plpsql_primary_expression(p):
                                  | PLPSQL_PRIMARY_EXPRESSION DIVISION PLPSQL_PRIMARY_EXPRESSION
                                  | PLPSQL_PRIMARY_EXPRESSION EXPONENT PLPSQL_PRIMARY_EXPRESSION
                                  | PLPSQL_PRIMARY_EXPRESSION MODULAR PLPSQL_PRIMARY_EXPRESSION
+                                 | LEFT_PARENTHESIS PLPSQL_PRIMARY_EXPRESSION RIGHT_PARENTHESIS
                                  | REST PLPSQL_PRIMARY_EXPRESSION %prec UREST
                                  | PLUS PLPSQL_PRIMARY_EXPRESSION %prec UPLUS
                                  | AGGREGATEFUNCTIONS
@@ -946,7 +952,41 @@ def p_plpsql_primary_expression(p):
                                  | SQLINTEGER
                                  | DOLLAR SQLINTEGER
     '''
-    p[0] = p[1]
+    if (len(p) == 4):
+        if (p[1] == "("):
+            p[0] = p[2]
+        else:
+            if p[2] == '+':
+                p[0] = ArithmeticBinaryOperation(
+                    p[1], p[3], SymbolsAritmeticos.PLUS, '+', p.lineno(2), find_column(p.slice[2]))
+            elif p[2] == '-':
+                p[0] = ArithmeticBinaryOperation(
+                    p[1], p[3], SymbolsAritmeticos.MINUS, '-', p.lineno(2), find_column(p.slice[2]))
+            elif p[2] == '*':
+                p[0] = ArithmeticBinaryOperation(
+                    p[1], p[3], SymbolsAritmeticos.TIMES, '*', p.lineno(2), find_column(p.slice[2]))
+            elif p[2] == '/':
+                p[0] = ArithmeticBinaryOperation(
+                    p[1], p[3], SymbolsAritmeticos.DIVISON, '/', p.lineno(2), find_column(p.slice[2]))
+            elif p[2] == '^':
+                p[0] = ArithmeticBinaryOperation(
+                    p[1], p[3], SymbolsAritmeticos.EXPONENT, '^', p.lineno(2), find_column(p.slice[2]))
+            elif p[2] == '%':
+                p[0] = ArithmeticBinaryOperation(
+                    p[1], p[3], SymbolsAritmeticos.MODULAR, '%', p.lineno(2), find_column(p.slice[2]))
+    elif (len(p) == 3):
+        if p[1] == '-':
+            p[0] = UnaryOrSquareExpressions(
+                SymbolsUnaryOrOthers.UMINUS, p[2], p.lineno(1), find_column(p.slice[1]), p[1])
+        elif p[1] == '+':
+            p[0] = UnaryOrSquareExpressions(
+                SymbolsUnaryOrOthers.UPLUS, p[2], p.lineno(1), find_column(p.slice[1]), p[1])
+    else:
+        if p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1],
+                                 p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = p[1]
 
 
 def p_if_statement(p):
@@ -954,16 +994,32 @@ def p_if_statement(p):
                    | IF SQLEXPRESSION THEN STATEMENTS elseIfBlocks END IF SEMICOLON
                    | IF SQLEXPRESSION THEN STATEMENTS ELSE STATEMENTS END IF SEMICOLON
                    | IF SQLEXPRESSION THEN STATEMENTS END IF SEMICOLON
-    '''
+    ''' 
+    
+    if len(p) == 11: #Primera produccion
+        p[0] = If(p[2], p[4], p[5], p[7])
+    elif len(p) == 9: #Segunda produccion
+        p[0] = If(p[2], p[4], p[5], None)
+    elif len(p) == 10: #Tercera produccion
+        p[0] = If(p[2], p[4], None, p[6])
+    else: #Cuarta produccion
+        p[0] = If(p[2], p[4], None, None)
+        
 
 def p_elseIfBlocks(p):
     '''elseIfBlocks : elseIfBlocks elseIfBlock
                     | elseIfBlock
     '''
+    if(len(p) == 3):
+        p[1].append(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 
 def p_elseIfBlock(p):
     '''elseIfBlock : elseIfWord SQLEXPRESSION THEN STATEMENTS
     '''
+    p[0] = If(p[2], p[4], None, None)
 
 def p_else_word(p):
     '''elseIfWord : ELSEIF
@@ -1385,13 +1441,13 @@ def p_table_reference(p):
                       | SQLNAME'''
     if (len(p) == 2):
         p[0] = TableReference(
-            p[1], None, p.slice[1].value.line, p.slice[1].value.column)
+            p[1], None, None, p.slice[1].value.line, p.slice[1].value.column)
     elif (len(p) == 3):
         p[0] = TableReference(
-            p[1], p[2], p.slice[1].value.line, p.slice[1].value.column)
+            p[1], p[2], p[2], p.slice[1].value.line, p.slice[1].value.column)
     elif (len(p) == 4):
         p[0] = TableReference(
-            p[1], p[2], p.slice[1].value.line, p.slice[1].value.column)
+            p[1], p[3], p[2], p.slice[1].value.line, p.slice[1].value.column)
 
 
 def p_order_by_clause(p):
@@ -1971,9 +2027,12 @@ def p_sql_object_reference(p):
                        | SQLNAME DOT SQLNAME
                        | SQLNAME'''
     if (len(p) == 2):
-        p[0] = ObjectReference(p[1], None)
+        p[0] = ObjectReference(p[1], None, None)
     elif (len(p) == 4):
-        p[0] = ObjectReference(p[1], p[3])
+        if p[3] == "*":
+            p[0] = ObjectReference(p[1], p[3], None)
+        else:
+            p[0] = ObjectReference(p[3], None, p[1])
 
 
 def p_list_values_insert(p):

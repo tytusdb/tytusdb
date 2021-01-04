@@ -69,7 +69,7 @@ reservadas = (
     # SORTING ROWS
     'ORDER', 'BY', 'FIRST', 'LAST', 'ASC', 'DESC', 'NULLS', 
     #EXPRESSIONS
-    'CASE','WHEN','THEN','ELSE', 'LEAST', 'GREATEST',
+    'CASE','WHEN','THEN','ELSE', 'LEAST', 'GREATEST', 'ELSIF',
     #LIMIT AND OFFSET
     'LIMIT', 'OFFSET',
     #COMBINING QUERIES

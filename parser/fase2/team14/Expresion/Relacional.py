@@ -6,7 +6,7 @@ from Expresion.Logica import Logica
 from Expresion.FuncionesNativas import  FuncionesNativas
 from Entorno import Entorno
 from Tipo import Tipo
-from Expresion.Terminal import Terminal
+from Expresion.Id import Identificador
 from tkinter import *
 from Expresion.variablesestaticas import *
 from reportes import *
@@ -18,9 +18,9 @@ class Relacional(Binaria):
 
 
     def getval(self,entorno):
-        if isinstance(self.exp1,Terminal) and isinstance(self.exp2,Terminal):
-            if (self.exp1.tipo.tipo == 'identificador' or self.exp2.tipo.tipo == 'identificador'):
-                return self
+        if isinstance(self.exp1,Identificador) and isinstance(self.exp2,Identificador):
+            return self
+
 
         valizq=self.exp1.getval(entorno)
         valder=self.exp2.getval(entorno)
@@ -44,6 +44,7 @@ class Relacional(Binaria):
                 self.valor=self.like(valizq,valder)
             elif self.operador=='ilike':
                  self.valor=self.ilike(valizq,valder)
+
             self.tipo = 'boolean'
             return self
         except :
@@ -65,3 +66,18 @@ class Relacional(Binaria):
         valder=valder.lower()
         return self.like(valizq,valder)
 
+    def traducir(self,entorno):
+        if self.operador=='<>':
+            self.operador='!='
+        if self.operador=='=':
+            self.operador='=='
+        self.temp = entorno.newtemp()
+        nt=self.temp
+        exp1=self.exp1.traducir(entorno)
+        exp2=self.exp2.traducir(entorno)
+        cad = exp1.codigo3d
+        cad += exp2.codigo3d
+        cad += nt + '=' + str(exp1.temp) + ' ' + self.operador + ' ' + str(exp2.temp) + '\n'
+        self.codigo3d=cad
+
+        return self

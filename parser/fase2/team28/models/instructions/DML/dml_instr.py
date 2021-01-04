@@ -71,7 +71,7 @@ class Insert(Instruction):
                 database_id = SymbolTable().useDatabase
                 table_tp = TypeChecker().searchTable(database_id, self.table.alias)
                 headers = TypeChecker().searchColumnHeadings(table_tp)
-                checker = CreateTB(None, None, None)
+                checker = CreateTB(None, None, None, None)
                 # validando nombres de columnas ingresados
                 for key in dic:
                     if not key in headers:
@@ -119,7 +119,7 @@ class Insert(Instruction):
                 ErrorController().add(28, 'Execution', desc, self.line, self.column)
         return None
 
-    def validateValues(self, array_values: []):
+    def validateValues(self, array_values: list):
         database_id = SymbolTable().useDatabase
         table_tp = TypeChecker().searchTable(database_id, self.table.alias)
         headers = TypeChecker().searchColumnHeadings(table_tp)
@@ -193,7 +193,7 @@ class Update(Instruction):
 
         # validando tipo de valores para las columnas
         print(d_col_names)
-        checker = CreateTB(None, None, None)
+        checker = CreateTB(None, None, None, None)
         for key in list(d_col_names.keys()):
             column = TypeChecker().searchColumn(table_tp, key).__dict__
             is_correct = checker.validateType(
