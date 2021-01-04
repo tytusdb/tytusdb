@@ -800,6 +800,12 @@ def p_lista_de_seleccionados_noterminal(t):
                          |<operadoresselect>\n''' + t[1]['reporte'] #mm
     t[0] = {'ast': t[1]['ast'],'graph' : grafo.index, 'reporte': reporte}
 
+def p_lista_de_seleccionados_cadena(t):
+    'listadeseleccionados : argument'
+    grafo.newnode('L_SELECTS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<listadeseleccionados> := <argument>' + t[1]['reporte'] #mm
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_argumentos(t):
     'listadeargumentos : listadeargumentos COMA argument'
@@ -1384,7 +1390,6 @@ def p_create_instruccion(t) :
               | OR REPLACE DATABASE createdatabase
               | DATABASE createdatabase'''
     grafo.newnode('CREATE')
-    print(t[1])
     if t[1].lower() == 'type' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
