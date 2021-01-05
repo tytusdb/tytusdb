@@ -595,7 +595,7 @@ def p_instruccion_insert2(t):
     strSent = strSent + ");"
 
     t[0] = insertTable.insertTable(t[3], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-
+    
 # SELECT col, col FROM id;
 # SELECT * from id;
 def p_instruccion_query(t):
@@ -2200,6 +2200,12 @@ def p_cont_funcion(t):
     if t[1] == "IF" and  len(t) == 8:
         print("Llega")
         t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and len(t) == 10:
+        print("Llega")
+        t[0] = condicional_if.Ifelse(t[2],t[4],t[6],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and len(t) == 11:
+        print("Llega")
+        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
 
 def p_instrucciones_if(t):
     ''' 
@@ -2225,13 +2231,19 @@ def p_condiciones_if(t):
 condicionesif : condicionesif condicionif
 			  | condicionif
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_condicion_if(t):
     '''
 condicionif : ELSIF expre THEN instrucciones_if 
-			| ELSEIF expre THEN instrucciones_if 
+			| ELSEIF expre THEN instrucciones_if  
     '''
-
+    t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    
 def p_condiciones_cuando(t):
     '''
 condiciones_cuando : condiciones_cuando condicion_cuando
