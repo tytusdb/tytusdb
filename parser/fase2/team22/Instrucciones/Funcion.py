@@ -8,7 +8,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 from Instrucciones.TablaSimbolos.Tabla import Tabla
-from Instrucciones.Excepcion import Excepcion
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class Funcion(Instruccion):
     def __init__(self, id, replace, parametros, declaraciones, instrucciones, tipo, strGram, linea, columna):
@@ -21,6 +22,39 @@ class Funcion(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+        tablaLocal = Tabla(None)
+        print("==>>>", self.parametros)
+        for i in self.parametros:
+            i.ejecutar(tablaLocal, arbol)
+
+        for i in self.declaraciones:
+            i.analizar(tablaLocal, arbol)
+
+        tablaLocal.anterior = tabla
+        
+        esFuncion = False
+        if self.tipo.tipo != Tipo_Dato.VOID:
+            esFuncion = True
+        
+        hayReturn = False
+        for i in self.instrucciones:
+            resultado = i.analizar(tablaLocal, arbol)
+            if isinstance(i, Retorno):
+                if isinstance(resultado, Excepcion):
+                    return resultado
+                hayReturn = True
+
+        if esFuncion and not hayReturn:
+            error = Excepcion("42723", "Semantico", f"La función {self.id} requiere un valor de retorno", self.linea, self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+        
+        if not esFuncion and hayReturn:
+            error = Excepcion("42723", "Semantico", f"El método {self.id} no requiere un valor de retorno", self.linea, self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error  
         pass
 
     def llenarTS(self, tabla, arbol):
@@ -142,3 +176,16 @@ class Funcion(Instruccion):
 
     #     return
         
+    def generar3D(self, tabla, arbol):  
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
+        code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
+        #CREATE INDEX test2_mm_idx ON tabla(id);
+
+        # code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.aumentarP())
+
+        return code

@@ -7,26 +7,58 @@ Nodo2[label="CREATE DATABASE"]
 Nodo1 -> Nodo2;
 Nodo3[label="IF NOT EXISTS"]
 Nodo2 -> Nodo3;
-Nodo4[label="test"]
+Nodo4[label="DBFase2"]
 Nodo2 -> Nodo4;
 Nodo5[label="MODE: 1"]
 Nodo2 -> Nodo5;
-Nodo10[label="USE DATABASE [test]"]
+Nodo10[label="USE DATABASE [DBFase2]"]
 Nodo1 -> Nodo10;
 Nodo11[label="Instruccion: CREATE TABLE"]
 Nodo1 -> Nodo11;
-Nodo12[label="Id: tabla"]
+Nodo12[label="Id: tbCalificacion"]
 Nodo11 -> Nodo12;
 Nodo13[label="Campo"]
 Nodo11 -> Nodo13;
-Nodo14[label="Id: id"]
+Nodo14[label="Id: idcalifica"]
 Nodo13 -> Nodo14;
 Nodo15[label="Tipo: Tipo_Dato.INTEGER"]
 Nodo13 -> Nodo15;
-Nodo16[label="Campo"]
-Nodo11 -> Nodo16;
-Nodo17[label="Id: column2"]
-Nodo16 -> Nodo17;
-Nodo18[label="Tipo: Tipo_Dato.INTEGER"]
-Nodo16 -> Nodo18;
+Nodo16[label="Tipo_Dato_Constraint.NOT_NULL"]
+Nodo13 -> Nodo16;
+Nodo17[label="Tipo_Dato_Constraint.PRIMARY_KEY"]
+Nodo13 -> Nodo17;
+Nodo18[label="Campo"]
+Nodo11 -> Nodo18;
+Nodo19[label="Id: item"]
+Nodo18 -> Nodo19;
+Nodo20[label="Tipo: Tipo_Dato.VARCHAR"]
+Nodo18 -> Nodo20;
+Nodo21[label="Tipo_Dato_Constraint.NOT_NULL"]
+Nodo18 -> Nodo21;
+Nodo22[label="Campo"]
+Nodo11 -> Nodo22;
+Nodo23[label="Id: punteo"]
+Nodo22 -> Nodo23;
+Nodo24[label="Tipo: Tipo_Dato.INTEGER"]
+Nodo22 -> Nodo24;
+Nodo25[label="Tipo_Dato_Constraint.NOT_NULL"]
+Nodo22 -> Nodo25;
+Nodo26[label="Instruccion: INSERT INTO"]
+Nodo1 -> Nodo26;
+Nodo27[label="Table: tbCalificacion"]
+Nodo26 -> Nodo27;
+Nodo28[label="Value"]
+Nodo26 -> Nodo28;
+Nodo56[label="1"]
+Nodo28 -> Nodo56;
+Nodo112[label="Create Table and Insert"]
+Nodo28 -> Nodo112;
+Nodo224[label="Instruccion: Select"]
+Nodo1 -> Nodo224;
+Nodo448[label="ALL (*)"]
+Nodo224 -> Nodo448;
+Nodo896[label="FROM"]
+Nodo224 -> Nodo896;
+Nodo1792[label="tbCalificacion"]
+Nodo224 -> Nodo1792;
 }

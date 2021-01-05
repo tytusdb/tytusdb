@@ -285,35 +285,35 @@ def p_funciones(t):
     '''
     t[0] = Funcion.Funcion(t[4], t[2], [], [], t[8], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-# def p_funciones1(t):
-#     '''
-#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER BEGIN instrucciones END PUNTO_COMA
-#     '''
-#     t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[9], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+def p_funciones1(t):
+    '''
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER BEGIN instrucciones END PUNTO_COMA
+    '''
+    t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[9], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-# def p_funciones2(t):
-#     '''
-#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
-#     '''
-#     t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[13], t[9], "", t.lexer.lineno, t.lexer.lexpos)
+def p_funciones2(t):
+    '''
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
+    '''
+    t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[13], t[9], "", t.lexer.lineno, t.lexer.lexpos)
 
-# def p_funciones3(t):
-#     '''
-#      instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-#     '''
-#     t[0] = Funcion.Funcion(t[4], t[2], [], t[8], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+def p_funciones3(t):
+    '''
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+    '''
+    t[0] = Funcion.Funcion(t[4], t[2], [], t[8], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-# def p_funciones4(t):
-#     '''
-#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-#     '''
-#     t[0] = Funcion.Funcion(t[4], t[2], t[6], t[9], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+def p_funciones4(t):
+    '''
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+    '''
+    t[0] = Funcion.Funcion(t[4], t[2], t[6], t[9], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-# def p_funciones5(t):
-#     '''
-#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-#     '''
-#     t[0] = Funcion.Funcion(t[4], t[2], t[6], t[13], t[15], t[9], "", t.lexer.lineno, t.lexer.lexpos)
+def p_funciones5(t):
+    '''
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+    '''
+    t[0] = Funcion.Funcion(t[4], t[2], t[6], t[13], t[15], t[9], "", t.lexer.lineno, t.lexer.lexpos)
 
 # PARAMETROS PARA LAS FUNCIONES
 def p_remplazar(t):
@@ -1518,7 +1518,6 @@ def p_expresion62(t):
     t[0] = SelectLista.Alias(t[1],t[3])
     #t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-
 def p_expresion7(t):
     '''expresion : ARROBA ID
     '''
@@ -1740,8 +1739,8 @@ def p_instruccion_creacion(t) :
         agregaGram(strGram)
         strGram = obtenerGram()
         t[0] = index.index( id1, id2, t[7], t[10], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
-        global lsStrGram
-        lsStrGram = []
+        # global lsStrGram
+        # lsStrGram = []
     else:
         strGram = "<instruccion> ::= CREATE INDEX ID ON ID USING HASH PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
         strGram2 = ""
@@ -1751,8 +1750,8 @@ def p_instruccion_creacion(t) :
         agregaGram(strGram)
         strGram = obtenerGram()
         t[0] = index.index(id1, id2 , t[9], t[12], t[11], strGram, t.lexer.lineno, t.lexer.lexpos)
-        global lsStrGram
-        lsStrGram = []
+        # global lsStrGram
+        # lsStrGram = []
 
     # t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
@@ -1767,8 +1766,8 @@ def p_instruccion_creacion_unique(t) :
         agregaGram(strGram)
         strGram = obtenerGram()
         t[0] = index.index(id1, id2, t[8], t[10], "UNIQUE", strGram, t.lexer.lineno, t.lexer.lexpos)
-        global lsStrGram
-        lsStrGram = []
+        # global lsStrGram
+        # lsStrGram = []
     else:
         strGram = "<instruccion> ::= CREATE UNIQUE INDEX ID ON ID USING HASH PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
         strGram2 = ""
@@ -1777,8 +1776,8 @@ def p_instruccion_creacion_unique(t) :
         agregaGram(strGram)
         strGram = obtenerGram()
         t[0] = index.index(id1, id2, t[10], t[12], "UNIQUE", strGram, t.lexer.lineno, t.lexer.lexpos)
-        global lsStrGram
-        lsStrGram = []
+        # global lsStrGram
+        # lsStrGram = []
 
 def p_can_where(t):
     '''can_where    : instructionWhere PUNTO_COMA
@@ -1900,21 +1899,26 @@ def p_instruccion_creacion_funct(t) :
                     | CREATE FUNCTION ID PARIZQ list_params_funct PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
                     | CREATE FUNCTION ID PARIZQ PARDER return_funct as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
                     | CREATE FUNCTION ID PARIZQ PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA'''
-
+    
     strGram = ""
     if len(t) == 15 and t[6] == ")":
         strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <list_params_funct> PARDER <return_funct> <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
+        t[0] = Funcion.Funcion(t[3], None, t[5], [], t[10], t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
     elif len(t) == 14 and t[6] == ")":
         strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <list_params_funct> PARDER <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
+        t[0] = Funcion.Funcion(t[3], None, t[5], [], t[9], t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
     elif len(t) == 14 and t[5] == ")":
         strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ PARDER <return_funct> <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
+        t[0] = Funcion.Funcion(t[3], None, [], [], t[9], Tipo(Tipo_Dato.VOID), strGram, t.lexer.lineno, t.lexer.lexpos)
     elif len(t) == 13 and t[5] == ")":
         strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ PARDER <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
-    agregaGram(strGram)
-    strGram = obtenerGram()
-    t[0] = indexFunction.indexFunction(strGram)
-    global lsStrGram
-    lsStrGram = []
+        t[0] = Funcion.Funcion(t[3], None, [], [], t[8], Tipo(Tipo_Dato.VOID), strGram, t.lexer.lineno, t.lexer.lexpos)
+
+    # # agregaGram(strGram)
+    # # strGram = obtenerGram()
+    # # t[0] = indexFunction.indexFunction(strGram)
+    # # global lsStrGram
+    # # lsStrGram = []
 
 def p_return_funct(t) :
     '''return_funct     : RETURNS tipo
@@ -1924,10 +1928,13 @@ def p_return_funct(t) :
     strGram = ""
     if t[2] != "ID" and len(t) == 3:
         strGram = "<return_funct> ::= RETURNS <tipo>\n"
+        t[0] = t[2]
     elif t[2] == "ID":
         strGram = "<return_funct> ::= RETURNS ID\n"
+        t[0] = t[2]
     else:
         strGram = "<return_funct> ::= RETURNS TABLE PARIZQ <list_params_funct> PARDER\n"
+        t[0] = t[2]
     agregaGram(strGram)
 
 def p_list_params_funct(t) :
@@ -1936,13 +1943,34 @@ def p_list_params_funct(t) :
                             | list_params_funct COMA ID ID
                             | list_params_funct COMA OUT ID ID'''
     strGram = ""
+    print("====================================")
+    if len(t) == 5:
+        t[1] = t[1].append(t[3])
+        print("11")
+    else:
+        print("22")
+        t[1] = t[1].append(t[4])
+    t[0] = t[1] 
+
     if t[3] == "ID" and t[4] != "ID":
+        t[1] = t[1].append(t[3])
+        t[0] = t[1]
+        print("aqui 1")
         strGram = "<list_params_funct> ::= <list_params_funct> COMA ID <tipo>\n"
     elif len(t) > 5 and t[3] == "OUT" and t[5] != "ID":
+        t[1] = t[1].append(t[4])
+        t[0] = t[1]
+        print("aqui 2")
         strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID <tipo>\n"
     elif t[3] == "ID" and t[4] == "ID":
+        t[1] = t[1].append(t[3])
+        t[0] = t[1]
+        print("aqui no 1")
         strGram = "<list_params_funct> ::= <list_params_funct> COMA ID ID\n"
     elif len(t) > 5 and t[3] == "OUT" and t[5] == "ID":
+        t[1] = t[1].append(t[4])
+        t[0] = t[1]
+        print("aqui no 2")
         strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID ID\n"
     agregaGram(strGram)
 
@@ -1952,14 +1980,19 @@ def p_list_params_funct2(t) :
                             | ID ID
                             | OUT ID ID'''
 
+    print("-------------------------------")
     strGram = "<return_funct> ::= RETURNS TABLE PARIZQ <list_params_funct> PARDER\n"
     if t[1] == "ID" and t[2] != "ID":
+        t[0] = [t[1], t[2]]
         strGram += "<list_params_funct> ::= ID <tipo>\n"
     elif len(t) > 3 and t[1] == "OUT" and t[3] != "ID":
+        t[0] = [t[2], t[3]]
         strGram += "<list_params_funct> ::= OUT ID <tipo>\n"
     elif t[1] == "ID" and t[2] == "ID":
+        t[0] = [t[1], t[2]]
         strGram += "<list_params_funct> ::= ID ID\n"
     elif len(t) > 3 and t[1] == "OUT" and t[3] == "ID":
+        t[0] = [t[2], t[3]]
         strGram += "<list_params_funct> ::= OUT ID ID\n"
     agregaGram(strGram)
 

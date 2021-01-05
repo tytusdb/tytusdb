@@ -9,13 +9,14 @@ class Retorno(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        super().analizar(tabla,arbol)
-        if self.expresion != None:
-            resultado = self.expresion.analizar(tabla, arbol)
-            if isinstance(resultado, Excepcion):
-                return resultado
-            return resultado
-        pass
+        print("==>", self.expresion)
+        # super().analizar(tabla,arbol)
+        # if self.expresion != None:
+        #     resultado = self.expresion.analizar(tabla, arbol)
+        #     if isinstance(resultado, Excepcion):
+        #         return resultado
+        #     return resultado
+        # pass
 
     # def analizar(self, tabla, arbol):
     #     super().analizar(tabla,arbol)
