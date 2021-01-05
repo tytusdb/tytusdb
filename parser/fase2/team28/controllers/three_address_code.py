@@ -65,6 +65,9 @@ class ThreeAddressCode(object):
         # self.__stack.append(function)
         self.__stackCounter += 1
 
+    def incStackCounter(self):
+        self.__stackCounter += 1
+
     def execute(self, tmp):
         # parse(tmp)
         self.__stack.pop(0).process(tmp)
@@ -93,10 +96,11 @@ class ThreeAddressCode(object):
         """
         self.__content = 'from goto import with_goto'
         self.__content += '\nfrom controllers.three_address_code import ThreeAddressCode'
+        self.__content += '\nStack = [None]*10000\n'
 
         self.__content += '\n\n@with_goto'
         self.__content += '\ndef main():'
-        self.__content += '\n\tStack = [None]*10000\n'
+        self.__content += '\n\tglobal Stack'
         self.__content += self.__code
 
         for functions in self.__functions:
@@ -139,7 +143,8 @@ class ThreeAddressCode(object):
             listParameters += str(item.id)
 
         self.__function = '\n\n@with_goto'
-        self.__function += f"\ndef {name}({listParameters}):"
+        self.__function += f"\ndef {name}():"
+        self.__content += '\n\tglobal Stack'
         self.__function += self.__instructionList
 
         self.__functions.append(self.__function)

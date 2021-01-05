@@ -24,7 +24,7 @@ from utils.analyzers.lex import *
 
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
-from models.procedural.clases import BodyDeclaration, Call
+from models.procedural.clases import BodyDeclaration
 from models.procedural.if_statement import If,anidarIFs
 
 
@@ -485,23 +485,23 @@ def p_options2_indexes(p):
             p[0] = True
 
 def p_call_functions_or_procedure(p):
-    '''CALL_FUNCTIONS_PROCEDURE : OBJECTREFERENCE LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS
-                                | OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
-                                | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
-                                | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS '''
+    '''CALL_FUNCTIONS_PROCEDURE : ID LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS
+                                | ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
+                                | EXECUTE ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
+                                | EXECUTE ID LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS '''
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if p.slice[1].type == 'EXECUTE':
         if len(p) == 5: #Tercera produccion
             # Call(p[2], None)
-            p[0] = Funcion(p[2], [], [], None, False, noLine, noColumn)
+            p[0] = Funcion(p[2], [], [], None, False, True, noLine, noColumn)
         else:           #Cuarta produccion
-            Call(p[2], p[4])
-    else:
-        if len(p) == 5: #Primera produccion
-            Call(p[1], p[3])
-        else:           #Segunda produccion
-            Call(p[1], None)
+            p[0] = Funcion(p[2], p[4], [], None, False, True, noLine, noColumn)
+    # else:
+    #     if len(p) == 5: #Primera produccion
+    #         Call(p[1], p[3])
+    #     else:           #Segunda produccion
+    #         Call(p[1], None)
 
 
 def p_option_col(p):  # TODO verificar
@@ -735,7 +735,7 @@ def p_sql_functions(p):
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if len(p) == 14: 
-        p[0] = Funcion(p[3], p[5], p[10], p[8], True, noLine, noColumn)
+        p[0] = Funcion(p[3], p[5], p[10], p[8], True, False, noLine, noColumn)
     else:
         print("NO ENTRO EN ESA PRODUCCION XD  --- CREATE FUNCTION")
 
