@@ -38,6 +38,11 @@ class AlterDatabase(Instruccion):
                 arbol.renombrarBd(self.nombreAntiguo,self.nombreNuevo)
                 arbol.consola.append(f"La base de datos se cambio: {self.nombreNuevo} correctamente.")
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 '''
 instruccion = AlterDatabase("hola mundo",None, 1,2)
 

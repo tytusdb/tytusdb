@@ -34,6 +34,12 @@ class ShowDatabases(Instruccion):
         print(lista)
         arbol.getMensajeTabla(columna,lista)
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+    
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 '''
 instruccion = ShowDatabases("hola mundo",None, 1,2)
 

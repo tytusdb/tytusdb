@@ -29,15 +29,13 @@ class FuncionesPara3D():
         f = open(nombre_archivo, "a+")
 
         #Se escriben codigo quemado como los imports
-        cont = "class Codigo3D():\n\n"
+        cont = "from Codigo_3D.FuncionesPara3D import FuncionesPara3D\n\n"
+        cont += "class Codigo3D():\n\n"
 
-        cont += "\tdef ejecutar():\n"
-        cont += "\t\tprint('Modificado')"
-        cont += "\n"
-
-
+        cont += "\tdef ejecutar():\n\n"
         #Se esribe el codigo traducido
-        cont += "\n" + codigo
+        cont += codigo
+        
         f.write(cont)
         f.close()
         

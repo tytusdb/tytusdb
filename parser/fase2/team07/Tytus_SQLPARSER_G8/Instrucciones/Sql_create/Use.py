@@ -29,6 +29,12 @@ class Use(Instruccion):
         arbol.excepciones.append(error)
         arbol.consola.append(error.toString())
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 '''
 instruccion = Use("hola mundo",None, 1,2)
 

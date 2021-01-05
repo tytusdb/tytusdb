@@ -139,11 +139,29 @@ class interfaz():
 
     ##############################################EVENTOS DE LOS BOTONES DEL MENU####################################
     def traducirc3d_click(self):
-        FuncionesPara3D.FuncionesPara3D.GenerarArchivo("")
+        global arbol
+        arbol = None
+        dropAll()
+        os.system ("cls")
+        #Elimina el Contenido de txtsalida
+        self.txtsalida[self.tab.index("current")].delete(1.0,END)
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+
+        tablaGlobal = Tabla(None)
+        inst = sintactico.ejecutar_analisis(input)
+        arbol = Arbol(inst)
+        resultado = ""
+        for i in arbol.instrucciones:
+            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
+            resultado += i.traducir(tablaGlobal,arbol,"")
+
+        FuncionesPara3D.FuncionesPara3D.GenerarArchivo(resultado)
+        print("Archivo Traducido")
         pass
 
     def ejecutarc3d_click(self):
         dropAll()
+        '''
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("CREATE DATABASE IF NOT EXISTS test\
                                                             OWNER = 'root'\
                                                             MODE = 1;")
@@ -154,7 +172,7 @@ class interfaz():
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(1,\"Carlos\");")
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(2,\"Maria\");")
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(3,\"David\");")
-        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("SELECT * FROM persona;")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("SELECT * FROM persona;")'''
 
 
         #Codigo3D.Codigo3D.ejecutar()
