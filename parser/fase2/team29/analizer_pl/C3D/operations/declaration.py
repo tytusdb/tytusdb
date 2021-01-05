@@ -1,7 +1,7 @@
-from analizer.abstract.expression import Expression
-from analizer.abstract.expression import TYPE
-from analizer.statement.expressions import code
-from analizer.abstract.environment import Environment
+from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.expression import TYPE
+from analizer_pl.statement.expressions import code
+from analizer_pl.abstract.environment import Environment
 
 
 class Declaration(Expression):
@@ -13,7 +13,7 @@ class Declaration(Expression):
 
     def execute(self, environment: Environment):
         environment.addVar(self.id, self.id, self.type, self.row, self.column)
-        val = ''
+        val = ""
         tmp = self.id
         if self.ass:
             a = self.ass.execute(environment)
