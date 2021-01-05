@@ -1019,6 +1019,13 @@ class SqlComandos:
 
 
 
+
+
+
+
+
+
+
     def cadena_create_database(self, createDataBase: CreateDataBase):
         codigo3d = "CREATE "
 
@@ -1497,4 +1504,3 @@ class SqlComandos:
         cadena += ";"
 
         return cadena
-

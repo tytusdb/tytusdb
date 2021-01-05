@@ -83,8 +83,6 @@ class Codigo3d:
                 cadenaFuncion += self.t_Procedimientos_(i)
             elif isinstance(i, CrearIndice):
                 cadena += self.t_CrearIndice(i)
-            elif isinstance(i, Insert_Datos):
-                cadena += self.t_Insert(i)
             else:
                 aux = SQL(i)
                 aux.generarCadenaSQL()
@@ -491,6 +489,8 @@ class Codigo3d:
 
         return cadenaRetorno
 
+
+
 #--------------------------------  TRADUCCION CUERPO DE LA FUNCION
     def RecorrerCuerpoCodigo(self,Instrucciones,Ambito):
         #Objetos para diferenciar
@@ -657,21 +657,6 @@ class Codigo3d:
 
         return cadena
 
-    def t_Insert(self, insert: Insert_Datos):
-        print(insert)
-        cadena = ""
-        cadaux = ""
-        for valor in insert.valores:
-            v, c = self.procesar_expresion(valor, None)
-            cadena += c + "\n"
-            cadaux = "\theap.append(" + str(v) + ")" + "\n" + cadaux
-
-        cadaux = cadaux + "\theap.append(" + str(len(insert.valores)) + ")" + "\n"
-        cadaux = cadaux + "\theap.append('" + str(insert.id_table[0].val) + "')" + "\n"
-        cadena += cadaux
-        cadena += "\tF3D.insert()"
-
-        return cadena
 
 
 # --------------------------------  TRADUCCION CUERPO DE LA FUNCION
@@ -727,10 +712,6 @@ class Codigo3d:
             return self.procesar_select_expresion(expresiones, ts)
         elif isinstance(expresiones, AccesoSubConsultas):
             return self.procesar_expresion(expresiones.Query, ts)
-        elif isinstance(expresiones, EjecucionFuncion):
-            v, c =  self.procesar_ejecucion_funcion(expresiones, ts)
-            cadenaExpresion += c
-            return v, cadenaExpresion
         elif isinstance(expresiones, Absoluto):
             try:
                 return self.procesar_expresion(expresiones.variable, ts)
@@ -744,7 +725,6 @@ class Codigo3d:
         else:
             print(expresiones)
             print('Error:Expresion no reconocida')
-
 
 
     def procesar_aritmetica(self, expresion, ts):
@@ -904,6 +884,7 @@ class Codigo3d:
                 return r,""
         return r,""
 
+
     def procesar_funcion(self, expresion:ExpresionFuncion, ts):
         aux = ""
         cadena = ""
@@ -929,28 +910,6 @@ class Codigo3d:
         print(expresion)
         exp = expresion.listaCampos[0].Columna
         return self.procesar_expresion(exp, ts)
-
-    def procesar_ejecucion_funcion(self, expresion: EjecucionFuncion, ts):
-        global t_global, cadena, cadenaFuncion, ambitoFuncion, cadenaExpresion, listaAsignaciones, listaOpt
-        cadenaAsi = ""
-
-        local = ambitoFuncion
-        ambitoFuncion = expresion.Id
-
-        etiR = "-"
-        for fun in t_global.tablaSimbolos:
-            f: tipoSimbolo = t_global.obtenerSimbolo(fun)
-            if f.ambito == expresion.Id and f.rol == "local" and f.nombre == "return":
-                etiR = f.temporal
-
-        ambitoFuncion = local
-
-        v = t_global.varTemporal()
-        temp = v
-        cadenaAsi += self.t_llamadaFuncion(expresion)
-
-        cadenaAsi += "\n\t" + str(temp) + " = " + str(etiR) + "\n"
-        return temp, cadenaAsi
 
     def generar(self):
         global cadena
@@ -983,12 +942,6 @@ def reporte_optimizacion():
                 listaOpt.append(o)
                 break;
 
-
-    ope  = "goto .R" + "-"+ "Label .R"
-    opet = "Label .R" + "- Regla: 2"
-    regla2 = Optimizacion(ope, opet)
-
-    listaOpt.append(regla2)
 
     for o in listaOpt:
         cadena += '\n <TR><TD>'+o.original+'</TD><TD>'+o.optimizado+'</TD></TR>'

@@ -195,21 +195,3 @@ def funcionNativa():
     
     if idfuncion == FUNCION_NATIVA.SUBSTRING.value or idfuncion == FUNCION_NATIVA.SUBSTR.value:
         return Inter.procesar_expresion(ExpresionFuncion(exp1, exp2, exp3, None, FUNCION_NATIVA.SUBSTRING), None)
-
-def insert():
-    id_tabla = [ExpresionValor(heap[-1])]
-    nval = heap[-2]
-    inval = 1
-    valores = []
-
-    while inval <= nval:
-        valores.append(ExpresionValor(heap[-2 - inval]))
-        inval += 1
-
-    insertDatos = Insert_Datos(id_tabla, valores)
-    insertDatos.Ejecutar()
-
-
-
-
-
