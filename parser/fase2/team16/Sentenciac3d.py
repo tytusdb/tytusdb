@@ -491,3 +491,257 @@ class Codigo3d:
 
         return cadenaRetorno
 
+#--------------------------------  TRADUCCION CUERPO DE LA FUNCION
+    def RecorrerCuerpoCodigo(self,Instrucciones,Ambito):
+        #Objetos para diferenciar
+        if(isinstance(Instrucciones,list)):
+            print("Viene una lista de codigo..")
+            #Recorremos la lista
+            #Miramos las instancias que trae
+            for elemento in Instrucciones:
+                if(isinstance(elemento,CaseSimple)):
+                    #Nos bamos a la Generacion del codigo del case
+                    print("Encontre el Case Simple")
+                    self.t_TraduccionCaseSimple(elemento,Ambito)
+                elif(isinstance(elemento,CaseBuscado)):
+                    print("Encontre el Case Buscado")
+        else:
+            print("Viene epsilon en la produccion")
+
+
+#--------------------------------   TRADUCCION CASE SIMPLE
+    def t_TraduccionCaseSimple(self,Objeto:CaseSimple, Ambito):
+        #Objetos globales para la traduccion
+        global t_global
+        cadena = "\t#----- CASE SIMPLE --------- \n"
+#-------#Viene Expresion_Busqueda  => ExpresionValor(ID)
+        #Creamor un temporal con el valor que va a tener
+        Variable:ExpresionValor = Objeto.busqueda
+# -------#viene CElse(CodigoEpsilon) =>
+        #Objetemos el else
+        vari1: CElse = Objeto.caseelse
+        #busqueda, listawhen, caseelse
+#-------#viene Lista_When =>Lista => CSWhen(Cs_Expresion, CodigoCuerpoEpsilon) => Cs_Expresion=> Lista => Lista de expresines
+        cadena += self.RecorrerListaWhensCS(Objeto.listawhen,Ambito,Variable,vari1)
+        return cadena
+
+    # Recorremos la lista de Whens Case Simple
+    def RecorrerListaWhensCS(self, lista,Ambito,Variable,Else):
+        cadena = ""
+        contador = len(lista)
+        ifaux = None
+        while contador > 0:
+            element = lista[contador - 1]
+            ele: CSWhen = element
+            print(ele)
+            if contador == len(lista):
+                explogica = self.Recorrido_InstruccionesCS(ele.expresiones, Ambito, Variable)
+                elseaux = None
+                if Else is not None:
+                    elseaux = Else.sentencias
+                ifaux = If_inst(explogica, element.sentencias, elseaux)
+            else:
+                explogica = self.Recorrido_InstruccionesCS(ele.expresiones, Ambito, Variable)
+                ifaux = If_inst(explogica, element.sentencias, [ifaux])
+            contador = contador - 1
+        if ifaux is not None:
+            cadena += self.t_If(ifaux)
+
+        return cadena
+
+    #Recorremos la lista de instrucciones
+    def Recorrido_InstruccionesCS(self, listaIns, Ambito, Variable):
+
+        contador=0
+        exp1 = None
+        exp2 = None
+        explogica = None
+        for ele in listaIns:
+
+            #Recorremos los tipos de instruccines
+            if isinstance(ele,ExpresionAritmetica) or isinstance(ele, ExpresionValor):
+                print("Viene un alista de instrucciones aritmeticas.. ")
+                if contador == 0:
+                    exp1 = ExpresionRelacional(Variable, ele, OPERACION_RELACIONAL.IGUALQUE)
+                else:
+                    exp2 = ExpresionRelacional(Variable, ele, OPERACION_RELACIONAL.IGUALQUE)
+                    explogica = ExpresionLogica(exp1, exp2, OPERACION_LOGICA.OR)
+                    exp1 = explogica
+
+            contador+=1
+
+        return exp1
+
+
+
+#--------------------------------   TRADUCCION CASE BUSCADO
+    def t_TraduccionCaseBuscado(self,Objeto:CaseBuscado, Ambito):
+        #Objetos globales para la traduccion
+        global t_global
+        cadena = "#--------- CASE BUSCADO --------------- \n"
+# -------#viene CElse(CodigoEpsilon) =>
+        #Obtenemos el else si este existe
+        #Objetemos el else
+        vari1:CElse = Objeto.caseelse
+#-------#viene Lista_When =>Lista => CBWhen(expresion->una sola, sentencias->CodigoCuerpoEpsilon)
+        cadena += self.RecorrerListaWhensCB(Objeto.listawhen,Ambito,vari1)
+
+        return cadena
+
+    #Recorremos la lista de whens CB
+    def RecorrerListaWhensCB(self, lista, Ambito, Else):
+        cadena = ""
+        contador = len(lista)
+        ifaux = None
+        while contador > 0:
+            element = lista[contador - 1]
+            ele: CBWhen = element
+            print(ele)
+            if contador == len(lista):
+                elseaux = None
+                if Else is not None:
+                    elseaux = Else.sentencias
+                ifaux = If_inst(ele.expresion, element.sentencias, elseaux)
+            else:
+                ifaux = If_inst(ele.expresion, element.sentencias, [ifaux])
+            contador = contador - 1
+        if ifaux is not None:
+            cadena += self.t_If(ifaux)
+        return cadena
+
+
+
+    def t_CrearIndice(self, objeto):
+        global t_global
+        cadena = ""
+        crearindice: CrearIndice = objeto
+        # Generando Sentencia SQL
+
+        sentencia = "CREATE "
+
+        if crearindice.unique:
+            sentencia += "UNIQUE "
+
+        sentencia += "INDEX " + str(crearindice.id_indice)
+
+        sentencia += " ON " + str(crearindice.id_tabla) + " ("
+
+        for c in crearindice.columnas:
+            col: ColumnaIndice = c
+            sentencia += str(col.id_columna)
+            if col.orden is not None:
+                sentencia += " " + str(col.orden)
+            if col.nulls is not None:
+                sentencia += " " + str(col.nulls)
+            sentencia += ", "
+
+        sentencia = sentencia[0: len(sentencia) - 2 ]
+        sentencia += ");"
+
+        # Generando codigo de tres direcciones
+        v = t_global.varTemporal()
+        cadena += "\n\t"+str(v) + " = \"" + sentencia + "\"\n"
+        cadena += "\theap.append(" + str(v) + ")\n"
+        cadena += "\tF3D.ejecutarSQL()\n"
+
+        return cadena
+
+
+    def t_sentenciaSQL(self, sentencia: SQL):
+        global t_global
+        cadena = ""
+        v = t_global.varTemporal()
+        cadena += "\t"+str(v) + " = \"\"\"" + sentencia.CadenaSQL + "\"\"\"\n"
+        cadena += "\theap.append(" + str(v) + ")\n"
+        cadena += "\tF3D.ejecutarSQL()\n"
+
+        return cadena
+
+    def t_Insert(self, insert: Insert_Datos):
+        print(insert)
+        cadena = ""
+        cadaux = ""
+        for valor in insert.valores:
+            v, c = self.procesar_expresion(valor, None)
+            cadena += c + "\n"
+            cadaux = "\theap.append(" + str(v) + ")" + "\n" + cadaux
+
+        cadaux = cadaux + "\theap.append(" + str(len(insert.valores)) + ")" + "\n"
+        cadaux = cadaux + "\theap.append('" + str(insert.id_table[0].val) + "')" + "\n"
+        cadena += cadaux
+        cadena += "\tF3D.insert()"
+
+        return cadena
+
+
+# --------------------------------  TRADUCCION CUERPO DE LA FUNCION
+    # EXPRESIONES
+    def procesar_expresion(self, expresiones, ts):
+        global cadenaExpresion
+        if isinstance(expresiones, ExpresionAritmetica):
+            v,c = self.procesar_aritmetica(expresiones, ts)
+            cadenaExpresion += c
+            return v,cadenaExpresion
+        elif isinstance(expresiones, ExpresionRelacional):
+            v,c = self.procesar_relacional(expresiones, ts)
+            cadenaExpresion += c
+            return v, cadenaExpresion
+        elif isinstance(expresiones, ExpresionLogica):
+            v,c = self.procesar_logica(expresiones, ts)
+            cadenaExpresion += c
+            return v, cadenaExpresion
+        elif isinstance(expresiones, UnitariaNegAritmetica):
+            v, c = self.procesar_expresion(expresiones.exp, ts)
+            cadenaExpresion += c
+            if isinstance(v, int) or isinstance(v, float):
+                v = v * -1
+            else:
+                if v.isnumeric() or v.isdecimal:
+                    v = "- " + str(v)
+                else:
+                    cadenaExpresion += str(v) + " = " + str(v) + " * -1"
+
+            return v, cadenaExpresion
+        elif isinstance(expresiones, ExpresionValor):
+            # c = str(expresiones.val)
+            if isinstance(expresiones.val, int) or isinstance(expresiones.val, float):
+                return expresiones.val, ""
+            # if c.isdigit():
+            #     return expresiones.val, ""
+            else:
+                q = "\""+str(expresiones.val)+"\""
+                return q, ""
+        elif isinstance(expresiones, Variable):
+            return self.procesar_variable(expresiones, ts)
+        elif isinstance(expresiones, UnitariaAritmetica):
+            return procesar_unitaria_aritmetica(expresiones, ts)
+        elif isinstance(expresiones, ExpresionFuncion):
+            v, c =  self.procesar_funcion(expresiones, ts)
+            cadenaExpresion += c
+            return v, cadenaExpresion
+        elif isinstance(expresiones, ExpresionTiempo):
+            return '"' + expresiones.nombre + '"', ""
+        elif isinstance(expresiones, ExpresionConstante):
+            return procesar_constante(expresiones, ts)
+        elif isinstance(expresiones, SelectExpresion):
+            return self.procesar_select_expresion(expresiones, ts)
+        elif isinstance(expresiones, AccesoSubConsultas):
+            return self.procesar_expresion(expresiones.Query, ts)
+        elif isinstance(expresiones, EjecucionFuncion):
+            v, c =  self.procesar_ejecucion_funcion(expresiones, ts)
+            cadenaExpresion += c
+            return v, cadenaExpresion
+        elif isinstance(expresiones, Absoluto):
+            try:
+                return self.procesar_expresion(expresiones.variable, ts)
+                # return abs(procesar_expresion(expresiones.variable,ts))
+            except:
+                print('Error no se puede aplicar abs() por el tipo de dato')
+                # consola.insert('end','>>Error: No se puede aplicar abs() al tipo de dato\n>>')
+                # newErr=ErrorRep('Semantico','No se puede aplicar abs() al tipo de dato ',indice)
+                # LisErr.agregar(newErr)
+                return None
+        else:
+            print(expresiones)
+            print('Error:Expresion no reconocida')
+
