@@ -10,6 +10,20 @@ class DECIMAL(NodoArbol):
         super().__init__(line, column)
         self.data = data
 
+    def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        return 1
+
+    def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        temp = arbol.getTemp()
+        arbol.addC3D(temp + " = "  + str(self.data) )
+        return temp
+
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         value:Valor = Valor(TIPO.DECIMAL, self.data)
+        return value
+    def getString(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        return str(self.data)
+
+    def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        value:Valor = Valor(1, self.data)
         return value
