@@ -238,6 +238,7 @@ reserved = {
     'restrict' : 'RESTRICT',
     'index' : 'INDEX',
     'hash' : 'HASH',
+    'procedure' : 'PROCEDURE'
 }
 
 tokens = [
@@ -442,6 +443,7 @@ def p_statement(t):
                     | stm_get PUNTOCOMA 
                     | stm_drop_function PUNTOCOMA
                     | stm_index PUNTOCOMA
+                    | stm_create_procedure PUNTOCOMA
                     '''
 
     #                    |    stm_select PUNTOCOMA
@@ -1102,7 +1104,7 @@ def p_if_opt(t):
     else:
         t[0]=None
 
-
+##########   >>>>>>>>>>>>>>>>  CREATE FUNCTION  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_create_function(t):
     '''stm_create_function : CREATE FUNCTION ID PARA list_param_function_opt PARC RETURNS type as_opt stm_begin'''
     childsProduction  = addNotNoneChild(t,[8,9,10])
@@ -1154,7 +1156,8 @@ def p_params_function(t):
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("params_function"), [t[1]],  childsProduction )
         addCad("**\<PARAMS_FUNCTION>** ::= \<PARAM_FUNCTION> ")
-        t[0] = [t1]
+        t[1].graph_ref = graph_ref
+        t[0] = [t[1]]
 
 
 def p_param_function(t):
@@ -1420,6 +1423,23 @@ def p_mode_drop_function_opt(t):
         #####
     else:
         t[0]=None
+
+##########   >>>>>>>>>>>>>>>>  CREATE PROCEDURE  <<<<<<<<<<<<<<<<<<<<<<
+def p_stm_create_procedure(t):
+    '''stm_create_procedure : CREATE PROCEDURE ID PARA list_param_function_opt PARC LANGUAGE PLPGSQL AS DOLLAR DOLLAR stm_begin DOLLAR DOLLAR'''
+    childsProduction  = addNotNoneChild(t,[5, 12])
+    lista = None    
+    if t[5] != None:
+        lista = t[5][0]
+        childsProduction.append(lista.graph_ref)
+    ######    
+    graph_ref = graph_node(str("stm_create_procedure"), [t[1],t[2],t[3],t[4], lista,t[6],t[7],t[8],t[9],t[10],t[11],t[12],t[13],t[14]],  childsProduction )
+    addCad("**\<STM_CREATE_PROCEDURE>** ::= P E N D I E N T E")
+    t[0] = upNodo(True, 0, 0, graph_ref)
+
+
+
+
 
 ##########   >>>>>>>>>>>>>>>>  INDEX  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_index(t):
