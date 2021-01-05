@@ -97,6 +97,19 @@ def getTemp():
       id =  'T' + str(tempCount)
       tempCount += 1
       return id
+
+
+"""
+______________________________________________________________
+Genera una etiqueta nuevo en forma de string.
+"""
+def getLabel():
+      global labelCount
+      id =  'L' + str(labelCount)
+      labelCount += 1
+      return id
+
+
 """
 ______________________________________________________________
 Traduce una expresión en forma de diccionario con las llaves:
