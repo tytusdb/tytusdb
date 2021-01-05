@@ -64,13 +64,23 @@ class FunctionBody(ASTNode):
         return f'Execution of AST FunctionBody not implemented'
     
     def generate(self, table, tree):
-        if self.var_declara: 
-            self.var_declara.generate(table, tree)
-        for s in self.func_statements:
-            s.generate(table, tree)
+        tac_declaraciones = []
+        tac_sentancias = []
+        if isinstance(self.var_declara, list): 
+            for d in self.var_declara:
+                d.generate(table, tac_declaraciones)
+
+        if isinstance(self.func_statements, list):
+            for s in self.func_statements:
+                s.generate(table, tac_sentancias)
+
         #TODO: Implement this.
         #self.func_exception.generate(self, table, tree)
         #self.func_return.generate(self, table, tree)
+        #union all TAC arrarys
+        ##tree = tree + tac_declaraciones + tac_sentancias this not work by ref ue extend() instead
+        tree.extend(tac_declaraciones)
+        tree.extend(tac_sentancias)
 
 class Parameter(ASTNode):
     def __init__(self, param_name, param_mode, param_type, line, column, graph_ref):
@@ -85,6 +95,7 @@ class Parameter(ASTNode):
         return f'Exeute from param node not mplemented.'
     
     def generate(self, table, tree): 
+        #write declaration with param names and add pop() to assign value
         pass
 
 class ParamMode(ASTNode):

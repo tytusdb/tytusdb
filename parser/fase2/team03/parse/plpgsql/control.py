@@ -17,7 +17,7 @@ class IfNode(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         self.generate(table, [])
-        return f'If node not executable.'
+        return f'If node not executable, generating three address code...'
     
     def generate(self, table, tree):
         # 1 instance a list for TACS
@@ -35,7 +35,7 @@ class IfNode(ASTNode):
         label_end_block = generate_label() #L3
         
         lastTAC = self.condition.generate(table, tac_if_cond)# a < b and x + y == 0
-        IFFF = Quadruple(None, lastTAC.res, None, label_true, OpTAC.CONDITIONAL)# if a<b goto ...
+        IFFF = Quadruple(None, lastTAC.res if isinstance(lastTAC,Quadruple) else lastTAC, None, label_true, OpTAC.CONDITIONAL)# if a<b goto ...
         gotoL2 = Quadruple(None, label_false, None, None, OpTAC.GOTO) #goto L2
         gotoL3 = Quadruple(None, label_end_block, None, None, OpTAC.GOTO)#goto L3
         L1 = Quadruple(None, label_true, None, None, OpTAC.LABEL)
@@ -67,9 +67,7 @@ class IfNode(ASTNode):
             tree += tac_else_block
         #TODO print all en block labels
         tree.append(L3)
-        #printL(tree)
-        print('*******************************')
-        print(strTAC_pySyntax(tree,0))
+        
         return L3
 
 class ElseNode(ASTNode):
