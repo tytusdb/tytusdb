@@ -19,17 +19,37 @@ class FuncionesNativas(Expresion):
         Expresion.__init__(self)
         self.identificador = identificador
         self.expresiones = expresiones
+        self.stringsql = self.identificador+'('
+        i=0
+        
+        for i in range(0,len(self.expresiones),1):
+            if(i==0):
+                self.stringsql += self.expresiones[i].stringsql
+            else:
+                self.stringsql += ', ' + self.expresiones[i].stringsql
+            i=i+1
+        self.stringsql += ')'
+       
         # print("en funci==========",self.identificador,self.expresiones[0])
 
     def getval(self, entorno):
         # print("++++++++++++++++++")
         sizeparametro = len(self.expresiones)
         funcion = self.identificador.lower()
-
+        i=0
+        for param in self.expresiones:
+            if(i==0):
+                self.stringsql += str(param.getval(entorno).valor)
+            else:
+                self.stringsql += ', ' + str(param.getval(entorno).valor)
+            i=i+1
+        self.stringsql += ')'
+      
         for param in self.expresiones:
             if isinstance(param, Terminal):
                 if param.tipo.tipo == 'identificador':
                     return self
+            
 
         # print("aqqqqqqqqqqqqq")
         try:
@@ -73,8 +93,9 @@ class FuncionesNativas(Expresion):
                 return self.FunctionWithTwoParameter(funcion, sizeparametro, valexpresion,val1expresion)
 
             # print(valexpresion,'valooooor')
-            return self.FunctionWithOneParameter(funcion, sizeparametro, valexpresion)
-
+            r=self.FunctionWithOneParameter(funcion, sizeparametro, valexpresion)
+            r.stringsql=self.stringsql
+            return r
         elif (
                 funcion == "get_byte" or funcion == "set_byte" or funcion == "encode" or funcion == "decode" or funcion == "date_part"):
             val1expresion = self.expresiones[0].getval(entorno).valor
