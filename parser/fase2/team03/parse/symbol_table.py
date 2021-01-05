@@ -90,12 +90,13 @@ class TypeSymbol(Symbol):
 
 
 class FunctionSymbol(Symbol):
-    def __init__(self, db_id, func_name, tac_label):
+    def __init__(self, db_id, func_name, tac_label, number_params):
         Symbol.__init__(self, SymbolType.FUNCTION, func_name)
         self.db_id = db_id
         self.func_name = func_name
         self.tac_label = tac_label
-        
+        self.number_params = number_params
+
 
 class IndexSymbol(Symbol):
     def __init__(self, name, tabla, db_id, lista):

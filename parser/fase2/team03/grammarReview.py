@@ -18,6 +18,7 @@ from parse.plpgsql.function import *
 from parse.plpgsql.declaration import *
 from parse.plpgsql.index import *
 
+from parse.plpgsql.control import *
 # ===========================================================================================
 # ==================================== LEXICAL ANALYSIS ==================================
 # ===========================================================================================
@@ -522,16 +523,15 @@ def p_stm_perform(t):
 
 def p_stm_if(t):
     '''stm_if   : IF condition THEN   if_inst   elseif_opt  else_opt  END IF '''
-    childsProduction  = addNotNoneChild(t,[2,4,5,6])
-    graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7],t[8]], childsProduction)
-    addCad("**\<STM_IF>** ::=  tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf  ';'  ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    #print(t)
+    #childsProduction  = addNotNoneChild(t,[2,4,5,6])
+    #graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], t[4],t[5],t[6],t[7],t[8]], childsProduction)
+    #addCad("**\<STM_IF>** ::=  tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf  ';'  ")
+    graph_ref = None
+    t[0] = IfNode(t[2], t[4], t[5], t[6], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
 
 def p_condition(t):
     '''condition   : NOT FOUND
-                    | predicateExpression 
-                    | group_list
+                    | predicateExpression                     
                        '''
 
 
@@ -544,7 +544,7 @@ def p_condition(t):
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("condition"), [t[1]], childsProduction)
         addCad("**\<CONDITION>** ::=  [\<EXP_PREDICATE> | \<GROUP_LIST>]   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = t[1]
         #print(t)
 
 
@@ -554,10 +554,11 @@ def p_elseif_opt(t):
 
 
     if len(t) == 5:
-        childsProduction  = addNotNoneChild(t,[2,4])
-        graph_ref = graph_node(str("elseif_opt"), [t[1], t[2], t[3], t[4]],childsProduction )
-        addCad("**\<ELSEIF_OPT>** ::=   tElseIf  \<CONDITION> tThen  \<IF_INST>    ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        #childsProduction  = addNotNoneChild(t,[2,4])
+        #graph_ref = graph_node(str("elseif_opt"), [t[1], t[2], t[3], t[4]],childsProduction )
+        #addCad("**\<ELSEIF_OPT>** ::=   tElseIf  \<CONDITION> tThen  \<IF_INST>    ")
+        graph_ref = None
+        t[0] = IfNode(t[2], t[4], None, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         #print(t)
 
 def p_elseif_opt0(t):
@@ -572,11 +573,15 @@ def p_else_opt(t):
     '''else_opt   : ELSE  if_inst   '''
 
 
-    if len(t) == 3:
-        childsProduction  = addNotNoneChild(t,[2])
-        graph_ref = graph_node(str("else_opt"), [t[1], t[2]],childsProduction )
+    if len(t) == 3:       
+        lista = None
+        childsProduction = []
+        if t[2] != None:
+            lista = t[2][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("else_opt"), [t[1], lista], childsProduction )
         addCad("**\<ELSEIF_OPT>** ::=   tElseIf  \<CONDITION>   tThen   \<IF_INST>    ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = ElseNode(t[2], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         #print(t)
 
 def p_else_opt0(t):
@@ -610,11 +615,21 @@ def p_if_inst(t):
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
     elif token.type == "asig_basica":
-        childsProduction  = addNotNoneChild(t,[1,2])
-        graph_ref = graph_node(str("if_inst"), [t[1], t[2]],childsProduction )
+        #childsProduction  = addNotNoneChild(t,[1,2])
+        #graph_ref = graph_node(str("if_inst"), [t[1], t[2]],childsProduction )        
+        lista = None
+        childsProduction = []
+        if t[1] != None:
+            lista = t[1][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("if_inst"), [lista, t[2], t[3]], childsProduction)
         addCad("**\<IF_INST>** ::= if_inst  \<ASIG_BASICA> ';'  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #print(t)
+        ############
+        if t[1] is None:
+            t[0] = [t[2]]            
+        else:
+            t[1].append(t[2])
+            t[0] = t[1]  
 
 
 
@@ -1046,34 +1061,32 @@ def p_if_opt(t):
 
 def p_stm_create_function(t):
     '''stm_create_function : CREATE FUNCTION ID PARA list_param_function_opt PARC RETURNS type as_opt stm_begin'''
-    childsProduction  = addNotNoneChild(t,[5,8,9,10])
-    graph_ref = graph_node(str("stm_create_function"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10]],  childsProduction )
+    childsProduction  = addNotNoneChild(t,[8,9,10])
+    #to graph list_param
+    lista = None    
+    if t[5] != None:
+        lista = t[5][0]
+        childsProduction.append(lista.graph_ref)
+    ######    
+    graph_ref = graph_node(str("stm_create_function"), [t[1],t[2],t[3],t[4], lista,t[6],t[7],t[8],t[9],t[10]],  childsProduction )
     addCad("**\<STM_CREATE FUNCTION>** ::= P E N D I E N T E")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    ##### 
-    ###-t[0] = Function(t[3], t[5], t[8], t[10], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+    t[0] = Function(t[3], t[5], t[8], t[10], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 
 def p_list_param_function_opt(t):
     '''list_param_function_opt  : params_function 
                                 | empty'''
-    token = t.slice[1]
-    ###-   -------------------- ESTO ES LO DE ESTEBAN
-    ###-if token.type == "column_list":
-    ###-    lista = None
-    ###-    childsProduction = []
-    ###-    if t[1] != None:
-    ###-        lista = t[1][0]
-    ###-        childsProduction.append(lista.graph_ref)
-    ###-    graph_ref = graph_node(str("list_param_function"), [lista] ,childsProduction )
-    ###-    addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<COLUMN_LIST>] ")
-    ###-    t[0] = t[1]
-
+    token = t.slice[1]   
     if token.type == "params_function":
-        childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("list_params_function"), [t[1]],  childsProduction )
+        lista = None
+        childsProduction = []
+        if t[1] != None:
+            lista = t[1][0]
+            childsProduction.append(lista.graph_ref)        
+        graph_ref = graph_node(str("list_params_function"), [lista],  childsProduction )
         addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<PARAMS_FUNCTION>] ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[1][0].graph_ref = graph_ref
+        t[0] = t[1]
     else:
         t[0]=None
 
@@ -1083,16 +1096,21 @@ def p_params_function(t):
                         | param_function'''
     token = t.slice[1]
     if token.type == "params_function":
-        childsProduction  = addNotNoneChild(t,[1,3])
-        graph_ref = graph_node(str("params_function"), [t[1],t[2],t[3]],  childsProduction )
-        addCad("**\<PARAMS_FUNCTION>** ::= \<PARAMS_FUNCTION> ','  \<PARAM_FUNCTION> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####
+        lista = None
+        childsProduction = [t,[3]]
+        if t[1] != None:
+            lista = t[1][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("list_param_function"), [lista, t[2], t[3]] ,childsProduction )
+        addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<COLUMN_LIST>] ")
+        t[1][0].graph_ref = graph_ref
+        t[1].append(t[3])
+        t[0] = t[1]        
     else:
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("params_function"), [t[1]],  childsProduction )
         addCad("**\<PARAMS_FUNCTION>** ::= \<PARAM_FUNCTION> ")
-        t[0] = upNodo(True, 0, 0, graph_ref)
+        t[0] = [t1]
 
 
 def p_param_function(t):
@@ -1102,14 +1120,13 @@ def p_param_function(t):
     if token.type == "ID":
         graph_ref = graph_node(str(t[1]))
         addCad("**\<PARAM_FUNCTION>** ::=  tIdentifier ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####   
+        t[0] = Parameter(t[1], None, None, token.lineno, token.lexpos, graph_ref)
+        
     else:
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("param_function"), [t[1]],  childsProduction )
         addCad("**\<PARAM_FUNCTION>** ::=  tIdentifier ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####
+        t[0] = Parameter(None, None, t[1], token.lineno, token.lexpos, graph_ref)        
 
 
 def p_param_function_1(t):
@@ -1120,14 +1137,13 @@ def p_param_function_1(t):
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("param_function "), [t[1],t[2]],  childsProduction )
         addCad("**\<PARAM_FUNCTION>** ::=  tIdentifier \<TYPE>")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####
+        t[0] = Parameter(t[1], None, t[2], token.lineno, token.lexpos, graph_ref)
+
     else:
         childsProduction  = addNotNoneChild(t,[1,3])
         graph_ref = graph_node(str("param_function "), [t[1], t[2], t[3]],  childsProduction )
         addCad("**\<PARAM_FUNCTION>** ::=  [\<PARAM_MODE_OPT>]tIdentifier \<TYPE>")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####
+        t[0] = Parameter(t[2], t[1], t[3], token.lineno, token.lexpos, graph_ref)
 
 
 def p_param_mode(t):
@@ -1137,7 +1153,7 @@ def p_param_mode(t):
     token = t.slice[1]
     graph_ref = graph_node(str(t[1]))
     addCad("**\<PARAM_MODE>** ::= "+ str(token.type))
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    t[0] = ParamMode(t[1], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 
 
