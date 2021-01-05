@@ -131,13 +131,13 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
 
                                                             print("Campo ya existe se creara un nuevo nombre")
                                                             nombreGen += str(t.columna) + str(contadorCol)
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             listaGeneralSubQuery.append(t)
                                                             lista.append(str(t.valor))
 
                                                         else:
                                                             listaConsultados.append(t.columna)
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             listaGeneralSubQuery.append(t)
                                                             lista.append(str(t.valor))
                                                             nombreGen += str(ii.Columna)
@@ -156,14 +156,14 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                 if (str(t.columna) == str(ii.Columna)):
-                                                    print(str(t.valor))
+                                                    #print(str(t.valor))
 
                                                     lista.append(str(t.valor))
                                             listaGeneral[ii.Columna] = lista
 
 
                                     elif (str(ii.Columna) == "*"):
-                                        print("Vienen todo los datos de la tabla")
+                                        #print("Vienen todo los datos de la tabla")
 
                                         # Vallidamos que la no venga sin datos
                                         if (ii.NombreT != ""):
@@ -179,7 +179,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             listaGeneralSubQuery.append(t)
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[pp.id] = Lista2
@@ -194,7 +194,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 for gg in i:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (pp.id == t.columna):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         listaGeneralSubQuery.append(t)
                                                         Lista2.append(str(t.valor))
                                                 listaGeneral[pp.id] = Lista2
@@ -229,7 +229,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         listaGeneralSubQuery.append(t)
                                                         lista.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = lista
@@ -242,7 +242,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                 if (str(t.columna) == str(ii.Columna)):
-                                                    print(str(t.valor))
+                                                    #print(str(t.valor))
                                                     listaGeneralSubQuery.append(t)
                                                     lista.append(str(t.valor))
                                             listaGeneral[str(nuevoNave)] = lista
@@ -269,7 +269,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             listaGeneralSubQuery.append(t)
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = Lista2
@@ -284,7 +284,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 for gg in i:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (pp.id == t.columna):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         listaGeneralSubQuery.append(t)
                                                         Lista2.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = Lista2
@@ -377,7 +377,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 for gg in ts_global.Datos:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         listaGeneralSubQuery.append(t)
                                                         lista.append(str(t.valor))
 
@@ -392,13 +392,13 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                             for gg in ts_global.Datos:
                                                 t: DatoInsert = ts_global.obtenerDato(gg)
                                                 if (str(t.columna) == str(ii.Columna)):
-                                                    print(str(t.valor))
+                                                    #print(str(t.valor))
                                                     listaGeneralSubQuery.append(t)
                                                     lista.append(str(t.valor))
                                             listaGeneral[ii.Columna] = lista
 
                                     elif (str(ii.Columna) == "*"):
-                                        print("Vienen todo los datos de la tabla")
+                                        #print("Vienen todo los datos de la tabla")
                                         # Vallidamos que la no venga sin datos
                                         if (ii.NombreT != ""):
 
@@ -412,7 +412,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             listaGeneralSubQuery.append(t)
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[pp.id] = Lista2
@@ -426,7 +426,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 for gg in i:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (pp.id == t.columna):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         listaGeneralSubQuery.append(t)
                                                         Lista2.append(str(t.valor))
                                                 listaGeneral[pp.id] = Lista2
@@ -458,7 +458,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 for gg in ts_global.Datos:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         listaGeneralSubQuery.append(t)
                                                         lista.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = lista
@@ -470,7 +470,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                             for gg in ts_global.Datos:
                                                 t: DatoInsert = ts_global.obtenerDato(gg)
                                                 if (str(t.columna) == str(ii.Columna)):
-                                                    print(str(t.valor))
+                                                    #print(str(t.valor))
                                                     listaGeneralSubQuery.append(t)
                                                     lista.append(str(t.valor))
                                             listaGeneral[str(nuevoNave)] = lista
@@ -494,7 +494,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             listaGeneralSubQuery.append(t)
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = Lista2
@@ -508,7 +508,7 @@ def GenerarTablaQuery(Lista_Campos, Nombres_Tablas):
                                                 for gg in i:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (pp.id == t.columna):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         listaGeneralSubQuery.append(t)
                                                         Lista2.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = Lista2
@@ -915,7 +915,6 @@ def FiltrarCuerpo(listaGeneral,Cuerpo):
                 colN = 0
                 for nombre in listaColumnas:
                     print(nombre)
-                    print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                     print(date)
                     if (nombre == date):
                         colN += 1
@@ -1486,7 +1485,6 @@ def ProcesoSub(Cuerpo,ts):
 
 
 
-
 #Proceso Limit
 def Limites(listaGeneral,tiposCuerpo):
 
@@ -1559,7 +1557,7 @@ from graphviz import Graph
 from graphviz import escape
 
 def tabla_simbolos():
-    print("------------SIMBOLOS---------------")
+    #print("------------SIMBOLOS---------------")
     ts=ts_global
     SymbolT =  Graph('g', filename='bsimbolos.gv', format='png',node_attr={'shape': 'plaintext', 'height': '.1'})
 
@@ -1578,7 +1576,7 @@ def tabla_simbolos():
     for fn in ts.Validaciones:
         fun = ts.Validaciones.get(fn)
         if isinstance(fun, constraintTabla):
-            print("ESTE SI LO IMPRIMEEEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+            #print("ESTE SI LO IMPRIMEEEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
             cadena5 += '<TR><TD>' + str(fun.idRef) + '</TD>' + '<TD>' + str(fun.listas_id) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD></TR>'
         else:
             cadena5 += '<TR><TD>' + str(fun.tabla) + '</TD>' + '<TD>' + str(fun.campo) + '</TD>' + '<TD>' + str(fun.validacion) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD></TR>'
@@ -1615,6 +1613,14 @@ def tabla_simbolos():
         fun=ts.obtenerBasesDatos(fn)
         cadena3 +='<TR><TD>'+str(fun.idBase)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
 
+
+    cadena6 = ""
+    cadena7 = ""
+    for id_indice in ts.Indices:
+        indice = ts.obtenerIndice(id_indice)
+        cadena6 += '<TR><TD>'+str(indice.id_indice)+'</TD>'+'<TD>'+ str(indice.id_tabla) + '</TD>'+'<TD>'+str(indice.unique) + '</TD>'+'<TD>'+ str(indice.hash) + '</TD>'+'<TD>'+'</TD></TR>'
+        for columna in indice.columnas:
+            cadena7 += '<TR><TD>'+str(columna.id_columna)+'</TD>'+'<TD>'+ str(columna.orden) + '</TD>' +'<TD>'+ str(columna.nulls) + '</TD>' +'<TD>'+str(indice.id_tabla) + '</TD>'+'<TD>'+ str(indice.id_indice) + '</TD>'+'</TR>'
 
 
     SymbolT.node('table','''<<TABLE border="1" cellpadding="0" cellspacing="0"   >
@@ -1703,6 +1709,45 @@ def tabla_simbolos():
                                 <TD bgcolor="#BEF781"></TD>
                             </TR>'''
                             +cadena3+
+                            '''
+                            <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>INDICES</B> </TD>
+                            </TR>
+                            <TR>
+                                <TD bgcolor="#BEF781">ID INDICE</TD>
+                                <TD bgcolor="#BEF781">ID TABLA</TD>
+                                <TD bgcolor="#BEF781">UNIQUE</TD>
+                                <TD bgcolor="#BEF781">HASH</TD>
+                                <TD bgcolor="#BEF781"></TD>
+                            </TR>'''
+                            + cadena6 +
+                            '''
+                            <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>COLUMNAS INDICE</B> </TD>
+                            </TR>
+                            <TR>
+                                <TD bgcolor="#BEF781">ID COLUMNA</TD>
+                                <TD bgcolor="#BEF781">ORDEN</TD>
+                                <TD bgcolor="#BEF781">NULLS</TD>
+                                <TD bgcolor="#BEF781">ID INDICE</TD>
+                                <TD bgcolor="#BEF781">ID TABLA</TD>
+                            </TR>'''
+                            + cadena7 +
+
                         '''</TABLE>>''')
 
 
@@ -1859,13 +1904,13 @@ class Select(Instruccion) :
 
                                                                 print("Campo ya existe se creara un nuevo nombre")
                                                                 nombreGen += str(t.columna) + str(contadorCol)
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 listaGeneralSubQuery.append(t)
                                                                 lista.append(str(t.valor))
 
                                                             else:
                                                                 listaConsultados.append(t.columna)
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 listaGeneralSubQuery.append(t)
                                                                 lista.append(str(t.valor))
                                                                 nombreGen+=str(ii.Columna)
@@ -1883,13 +1928,13 @@ class Select(Instruccion) :
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
 
                                                         lista.append(str(t.valor))
                                                 listaGeneral[ii.Columna] = lista
 
                                         elif(str(ii.Columna) == "*"):
-                                            print("Vienen todo los datos de la tabla")
+                                            #print("Vienen todo los datos de la tabla")
 
                                             #Vallidamos que la no venga sin datos
                                             if(ii.NombreT!=""):
@@ -1904,7 +1949,7 @@ class Select(Instruccion) :
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 Lista2.append(str(t.valor))
                                                         listaGeneral[pp.id] = Lista2
 
@@ -1918,7 +1963,7 @@ class Select(Instruccion) :
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[pp.id] = Lista2
 
@@ -1964,7 +2009,7 @@ class Select(Instruccion) :
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             lista.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = lista
@@ -1977,7 +2022,7 @@ class Select(Instruccion) :
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         lista.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = lista
 
@@ -2003,7 +2048,7 @@ class Select(Instruccion) :
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 Lista2.append(str(t.valor))
                                                         listaGeneral[str(nuevoNave)] = Lista2
 
@@ -2017,7 +2062,7 @@ class Select(Instruccion) :
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = Lista2
                                         else:
@@ -2122,7 +2167,7 @@ class Select(Instruccion) :
                                                    for gg in ts_global.Datos:
                                                        t: DatoInsert = ts_global.obtenerDato(gg)
                                                        if (str(t.columna) == str(ii.Columna)):
-                                                           print(str(t.valor))
+                                                           #print(str(t.valor))
                                                            lista.append(str(t.valor))
 
                                                    listaGeneral[ii.Columna] = lista
@@ -2136,12 +2181,12 @@ class Select(Instruccion) :
                                                for gg in ts_global.Datos:
                                                    t: DatoInsert = ts_global.obtenerDato(gg)
                                                    if (str(t.columna) == str(ii.Columna)):
-                                                       print(str(t.valor))
+                                                       #print(str(t.valor))
                                                        lista.append(str(t.valor))
                                                listaGeneral[ii.Columna] = lista
 
                                        elif (str(ii.Columna) == "*"):
-                                           print("Vienen todo los datos de la tabla")
+                                           #print("Vienen todo los datos de la tabla")
                                            # Vallidamos que la no venga sin datos
                                            if (ii.NombreT != ""):
 
@@ -2155,7 +2200,7 @@ class Select(Instruccion) :
                                                        for gg in i:
                                                            t: DatoInsert = ts_global.obtenerDato(gg)
                                                            if (pp.id == t.columna):
-                                                               print(str(t.valor))
+                                                               #print(str(t.valor))
                                                                Lista2.append(str(t.valor))
                                                        listaGeneral[pp.id] = Lista2
                                            # viene sin referencia a tabla
@@ -2168,7 +2213,7 @@ class Select(Instruccion) :
                                                    for gg in i:
                                                        t: DatoInsert = ts_global.obtenerDato(gg)
                                                        if (pp.id == t.columna):
-                                                           print(str(t.valor))
+                                                           #print(str(t.valor))
                                                            Lista2.append(str(t.valor))
                                                    listaGeneral[pp.id] = Lista2
                                        else:
@@ -2198,7 +2243,7 @@ class Select(Instruccion) :
                                                    for gg in ts_global.Datos:
                                                        t: DatoInsert = ts_global.obtenerDato(gg)
                                                        if (str(t.columna) == str(ii.Columna)):
-                                                           print(str(t.valor))
+                                                           #print(str(t.valor))
                                                            lista.append(str(t.valor))
                                                    listaGeneral[str(nuevoNave)] = lista
                                                else:
@@ -2209,7 +2254,7 @@ class Select(Instruccion) :
                                                for gg in ts_global.Datos:
                                                    t: DatoInsert = ts_global.obtenerDato(gg)
                                                    if (str(t.columna) == str(ii.Columna)):
-                                                       print(str(t.valor))
+                                                       #print(str(t.valor))
                                                        lista.append(str(t.valor))
                                                listaGeneral[str(nuevoNave)] = lista
 
@@ -2232,7 +2277,7 @@ class Select(Instruccion) :
                                                        for gg in i:
                                                            t: DatoInsert = ts_global.obtenerDato(gg)
                                                            if (pp.id == t.columna):
-                                                               print(str(t.valor))
+                                                               #print(str(t.valor))
                                                                Lista2.append(str(t.valor))
                                                        listaGeneral[str(nuevoNave)] = Lista2
                                            # viene sin referencia a tabla
@@ -2245,7 +2290,7 @@ class Select(Instruccion) :
                                                    for gg in i:
                                                        t: DatoInsert = ts_global.obtenerDato(gg)
                                                        if (pp.id == t.columna):
-                                                           print(str(t.valor))
+                                                           #print(str(t.valor))
                                                            Lista2.append(str(t.valor))
                                                    listaGeneral[str(nuevoNave)] = Lista2
                                        else:
@@ -2661,7 +2706,7 @@ class Select(Instruccion) :
 
 
         print(listaGeneral)
-        print("<<<<<<<<<<<<<<<<<<<<<<<<  estaaaa")
+        #print("<<<<<<<<<<<<<<<<<<<<<<<<  estaaaa")
         liste = AlinearDatos(listaGeneral)
         mostrarConsulta(liste)
 
@@ -2736,13 +2781,13 @@ class Select2(Instruccion) :
 
                                                                 print("Campo ya existe se creara un nuevo nombre")
                                                                 nombreGen += str(t.columna) + str(contadorCol)
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 listaGeneralSubQuery.append(t)
                                                                 lista.append(str(t.valor))
 
                                                             else:
                                                                 listaConsultados.append(t.columna)
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 listaGeneralSubQuery.append(t)
                                                                 lista.append(str(t.valor))
                                                                 nombreGen+=str(ii.Columna)
@@ -2761,14 +2806,14 @@ class Select2(Instruccion) :
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
 
                                                         lista.append(str(t.valor))
                                                 listaGeneral[ii.Columna] = lista
 
 
                                         elif (str(ii.Columna) == "*"):
-                                            print("Vienen todo los datos de la tabla")
+                                            #print("Vienen todo los datos de la tabla")
 
                                             # Vallidamos que la no venga sin datos
                                             if (ii.NombreT != ""):
@@ -2783,7 +2828,7 @@ class Select2(Instruccion) :
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 Lista2.append(str(t.valor))
                                                         listaGeneral[pp.id] = Lista2
 
@@ -2797,7 +2842,7 @@ class Select2(Instruccion) :
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[pp.id] = Lista2
 
@@ -2832,7 +2877,7 @@ class Select2(Instruccion) :
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             lista.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = lista
@@ -2845,7 +2890,7 @@ class Select2(Instruccion) :
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         lista.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = lista
 
@@ -2871,7 +2916,7 @@ class Select2(Instruccion) :
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 Lista2.append(str(t.valor))
                                                         listaGeneral[str(nuevoNave)] = Lista2
 
@@ -2885,7 +2930,7 @@ class Select2(Instruccion) :
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = Lista2
                                         else:
@@ -2977,7 +3022,7 @@ class Select2(Instruccion) :
                                                     for gg in ts_global.Datos:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             lista.append(str(t.valor))
 
                                                     listaGeneral[ii.Columna] = lista
@@ -2991,12 +3036,12 @@ class Select2(Instruccion) :
                                                 for gg in ts_global.Datos:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         lista.append(str(t.valor))
                                                 listaGeneral[ii.Columna] = lista
 
                                         elif (str(ii.Columna) == "*"):
-                                            print("Vienen todo los datos de la tabla")
+                                            #print("Vienen todo los datos de la tabla")
                                             # Vallidamos que la no venga sin datos
                                             if (ii.NombreT != ""):
 
@@ -3010,7 +3055,7 @@ class Select2(Instruccion) :
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 Lista2.append(str(t.valor))
                                                         listaGeneral[pp.id] = Lista2
                                             # viene sin referencia a tabla
@@ -3023,7 +3068,7 @@ class Select2(Instruccion) :
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[pp.id] = Lista2
                                         else:
@@ -3054,7 +3099,7 @@ class Select2(Instruccion) :
                                                     for gg in ts_global.Datos:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             lista.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = lista
                                                 else:
@@ -3065,7 +3110,7 @@ class Select2(Instruccion) :
                                                 for gg in ts_global.Datos:
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         lista.append(str(t.valor))
                                                 listaGeneral[str(nuevoNave)] = lista
 
@@ -3088,7 +3133,7 @@ class Select2(Instruccion) :
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 Lista2.append(str(t.valor))
                                                         listaGeneral[str(nuevoNave)] = Lista2
                                             # viene sin referencia a tabla
@@ -3101,7 +3146,7 @@ class Select2(Instruccion) :
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             Lista2.append(str(t.valor))
                                                     listaGeneral[str(nuevoNave)] = Lista2
                                         else:
@@ -3345,7 +3390,7 @@ class Select2(Instruccion) :
                         colN = 0
                         for nombre in listaColumnas:
                             print(nombre)
-                            print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                            #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                             print(date)
                             if (nombre == date):
                                 colN += 1
@@ -3375,7 +3420,7 @@ class Select2(Instruccion) :
                         colN = 0
                         for nombre in listaColumnas:
                             print(nombre)
-                            print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                            #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                             print(date)
                             if (nombre == date):
                                 colN += 1
@@ -3408,7 +3453,7 @@ class Select2(Instruccion) :
                         colN = 0
                         for nombre in listaColumnas:
                             print(nombre)
-                            print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                            #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                             print(date)
                             if (nombre == date):
                                 colN += 1
@@ -3537,7 +3582,7 @@ class Select2(Instruccion) :
                     colN = 0
                     for nombre in listaColumnas:
                         print(nombre)
-                        print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                        #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                         print(date)
                         if(nombre == date):
                            colN+=1
@@ -3570,7 +3615,7 @@ class Select2(Instruccion) :
                     colN = 0
                     for nombre in listaColumnas:
                         print(nombre)
-                        print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                        #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                         print(date)
                         if(nombre == date):
                            colN+=1
@@ -3603,7 +3648,7 @@ class Select2(Instruccion) :
                     colN = 0
                     for nombre in listaColumnas:
                         print(nombre)
-                        print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                        #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                         print(date)
                         if(nombre == date):
                            colN+=1
@@ -3983,8 +4028,8 @@ class Select2(Instruccion) :
                         LisErr.agregar(er)
 
         listaling = AlinearDatos(listaGeneral)
-        print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
-        print(listaling)
+        #print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
+        #print(listaling)
 
         mostrarConsulta(listaling)
 
@@ -4039,7 +4084,7 @@ class Select3(Instruccion):
 
                                                         if (str(t.columna) == str(ii.Columna)):
                                                             # =============================================================  data oscar
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             # comparamos si ya existe en la lista
                                                             miniB = False
@@ -4070,7 +4115,7 @@ class Select3(Instruccion):
 
                                                     if (str(t.columna) == str(
                                                             ii.Columna)):  # COMPARAR CADA ATRIBUTO Y SI ES LA MISMA COLUMNA ALMACENAR
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         # =============================================================  data oscar
                                                         # comparamos si ya existe en la lista
                                                         miniB = False
@@ -4090,7 +4135,7 @@ class Select3(Instruccion):
                                                 # =============================================================  data oscar
                                                 listaGeneral[ii.Columna] = lista
                                         elif (str(ii.Columna) == "*"):
-                                            print("Vienen todo los datos de la tabla")
+                                            #print("Vienen todo los datos de la tabla")
 
                                             # Vallidamos que la no venga sin datos
                                             if (ii.NombreT != ""):
@@ -4105,7 +4150,7 @@ class Select3(Instruccion):
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                ##print(str(t.valor))
 
                                                                 # =============================================================  data oscar
                                                                 # comparamos si ya existe en la lista
@@ -4136,7 +4181,7 @@ class Select3(Instruccion):
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             # =============================================================  data oscar
                                                             # comparamos si ya existe en la lista
@@ -4188,7 +4233,7 @@ class Select3(Instruccion):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             # =============================================================  data oscar
                                                             # comparamos si ya existe en la lista
@@ -4216,7 +4261,7 @@ class Select3(Instruccion):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         # =============================================================  data oscar
                                                         # comparamos si ya existe en la lista
                                                         miniB = False
@@ -4257,7 +4302,7 @@ class Select3(Instruccion):
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 # =============================================================  data oscar
                                                                 # comparamos si ya existe en la lista
                                                                 miniB = False
@@ -4287,7 +4332,7 @@ class Select3(Instruccion):
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             # =============================================================  data oscar
                                                             # comparamos si ya existe en la lista
                                                             miniB = False
@@ -4372,7 +4417,7 @@ class Select3(Instruccion):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             lista.append(str(t.valor))
 
@@ -4393,7 +4438,7 @@ class Select3(Instruccion):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
 
                                                         lista.append(str(t.valor))
 
@@ -4401,7 +4446,7 @@ class Select3(Instruccion):
 
                                         elif (str(ii.Columna) == "*"):
 
-                                            print("Vienen todo los datos de la tabla")
+                                            #print("Vienen todo los datos de la tabla")
 
                                             # Vallidamos que la no venga sin datos
 
@@ -4426,7 +4471,7 @@ class Select3(Instruccion):
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
 
                                                                 Lista2.append(str(t.valor))
 
@@ -4451,7 +4496,7 @@ class Select3(Instruccion):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             Lista2.append(str(t.valor))
 
@@ -4504,7 +4549,7 @@ class Select3(Instruccion):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             lista.append(str(t.valor))
 
@@ -4525,7 +4570,7 @@ class Select3(Instruccion):
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
 
                                                         lista.append(str(t.valor))
 
@@ -4566,7 +4611,7 @@ class Select3(Instruccion):
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
 
                                                                 Lista2.append(str(t.valor))
 
@@ -4592,7 +4637,7 @@ class Select3(Instruccion):
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             Lista2.append(str(t.valor))
 
@@ -4951,8 +4996,8 @@ class Select3(Instruccion):
                         LisErr.agregar(er)
 
         listaling = AlinearDatos(listaGeneral)
-        print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
-        print(listaling)
+        #print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
+        #print(listaling)
 
         mostrarConsulta(listaling)
     # ================================================= AQUI VIENE UNION ==============================================
@@ -5065,7 +5110,7 @@ class Select4(Instruccion) :
 
                                                         if (str(t.columna) == str(ii.Columna)):
                                                             # =============================================================  data oscar
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             # comparamos si ya existe en la lista
                                                             miniB = False
@@ -5096,7 +5141,7 @@ class Select4(Instruccion) :
 
                                                     if (str(t.columna) == str(
                                                             ii.Columna)):  # COMPARAR CADA ATRIBUTO Y SI ES LA MISMA COLUMNA ALMACENAR
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         # =============================================================  data oscar
                                                         # comparamos si ya existe en la lista
                                                         miniB = False
@@ -5116,7 +5161,7 @@ class Select4(Instruccion) :
                                                 # =============================================================  data oscar
                                                 listaGeneral[ii.Columna] = lista
                                         elif (str(ii.Columna) == "*"):
-                                            print("Vienen todo los datos de la tabla")
+                                            #print("Vienen todo los datos de la tabla")
 
                                             # Vallidamos que la no venga sin datos
                                             if (ii.NombreT != ""):
@@ -5131,7 +5176,7 @@ class Select4(Instruccion) :
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
 
                                                                 # =============================================================  data oscar
                                                                 # comparamos si ya existe en la lista
@@ -5162,7 +5207,7 @@ class Select4(Instruccion) :
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             # =============================================================  data oscar
                                                             # comparamos si ya existe en la lista
@@ -5214,7 +5259,7 @@ class Select4(Instruccion) :
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             # =============================================================  data oscar
                                                             # comparamos si ya existe en la lista
@@ -5242,7 +5287,7 @@ class Select4(Instruccion) :
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
                                                         # =============================================================  data oscar
                                                         # comparamos si ya existe en la lista
                                                         miniB = False
@@ -5283,7 +5328,7 @@ class Select4(Instruccion) :
                                                         for gg in i:
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                #print(str(t.valor))
                                                                 # =============================================================  data oscar
                                                                 # comparamos si ya existe en la lista
                                                                 miniB = False
@@ -5313,7 +5358,7 @@ class Select4(Instruccion) :
                                                     for gg in i:
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
                                                             # =============================================================  data oscar
                                                             # comparamos si ya existe en la lista
                                                             miniB = False
@@ -5398,7 +5443,7 @@ class Select4(Instruccion) :
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             lista.append(str(t.valor))
 
@@ -5419,7 +5464,7 @@ class Select4(Instruccion) :
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        #print(str(t.valor))
 
                                                         lista.append(str(t.valor))
 
@@ -5427,7 +5472,7 @@ class Select4(Instruccion) :
 
                                         elif (str(ii.Columna) == "*"):
 
-                                            print("Vienen todo los datos de la tabla")
+                                            #print("Vienen todo los datos de la tabla")
 
                                             # Vallidamos que la no venga sin datos
 
@@ -5452,7 +5497,7 @@ class Select4(Instruccion) :
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                ##print(str(t.valor))
 
                                                                 Lista2.append(str(t.valor))
 
@@ -5477,7 +5522,7 @@ class Select4(Instruccion) :
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            ##print(str(t.valor))
 
                                                             Lista2.append(str(t.valor))
 
@@ -5530,7 +5575,7 @@ class Select4(Instruccion) :
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (str(t.columna) == str(ii.Columna)):
-                                                            print(str(t.valor))
+                                                            ###print(str(t.valor))
 
                                                             lista.append(str(t.valor))
 
@@ -5551,7 +5596,7 @@ class Select4(Instruccion) :
                                                     t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                     if (str(t.columna) == str(ii.Columna)):
-                                                        print(str(t.valor))
+                                                        ##print(str(t.valor))
 
                                                         lista.append(str(t.valor))
 
@@ -5592,7 +5637,7 @@ class Select4(Instruccion) :
                                                             t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                             if (pp.id == t.columna):
-                                                                print(str(t.valor))
+                                                                ##print(str(t.valor))
 
                                                                 Lista2.append(str(t.valor))
 
@@ -5618,7 +5663,7 @@ class Select4(Instruccion) :
                                                         t: DatoInsert = ts_global.obtenerDato(gg)
 
                                                         if (pp.id == t.columna):
-                                                            print(str(t.valor))
+                                                            #print(str(t.valor))
 
                                                             Lista2.append(str(t.valor))
 
@@ -5811,7 +5856,7 @@ class Select4(Instruccion) :
                         colN = 0
                         for nombre in listaColumnas:
                             print(nombre)
-                            print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                            #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                             print(date)
                             if (nombre == date):
                                 colN += 1
@@ -5841,7 +5886,7 @@ class Select4(Instruccion) :
                         colN = 0
                         for nombre in listaColumnas:
                             print(nombre)
-                            print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                            #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                             print(date)
                             if (nombre == date):
                                 colN += 1
@@ -5874,7 +5919,7 @@ class Select4(Instruccion) :
                         colN = 0
                         for nombre in listaColumnas:
                             print(nombre)
-                            print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                            #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                             print(date)
                             if (nombre == date):
                                 colN += 1
@@ -5999,11 +6044,11 @@ class Select4(Instruccion) :
                     #tenemos el contador de columnas
 
 
-                    print("ESTOY  En ASC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+                    #print("ESTOY  En ASC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
                     colN = 0
                     for nombre in listaColumnas:
                         print(nombre)
-                        print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                        #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                         print(date)
                         if(nombre == date):
                            colN+=1
@@ -6036,7 +6081,7 @@ class Select4(Instruccion) :
                     colN = 0
                     for nombre in listaColumnas:
                         print(nombre)
-                        print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                        #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                         print(date)
                         if(nombre == date):
                            colN+=1
@@ -6069,7 +6114,7 @@ class Select4(Instruccion) :
                     colN = 0
                     for nombre in listaColumnas:
                         print(nombre)
-                        print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
+                        #print("<<<<<<<<<<<<<<<<<<<<<   Este essssss")
                         print(date)
                         if(nombre == date):
                            colN+=1
@@ -6338,18 +6383,18 @@ class Select4(Instruccion) :
                             LisErr.agregar(er)
 
                     elif (str(uni.Comportamiento).upper() == "INTERSECT"):
-                        print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
-                        print("Viene un Intersect")
+                        #print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
+                        #print("Viene un Intersect")
                         ank = uni.Consulta
                         if (isinstance(ank, Select)):
-                            print("viene un tipo de select normal unido")
+                            #print("viene un tipo de select normal unido")
                             ank.Ejecutar()
-                            print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ***")
+                            #print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ***")
 
-                            print("Tenemos el diccionario ya unido ")
-                            print(listaGeneral)
+                            #print("Tenemos el diccionario ya unido ")
+                            #print(listaGeneral)
                             listaling = AlinearDatos(listaGeneral)
-                            print("**********************************************************************************")
+                            #print("**********************************************************************************")
                             print(listaling)
                             print("**********************************************************************************")
                             #mostrarConsulta(listaling)
@@ -6399,7 +6444,7 @@ class Select4(Instruccion) :
                             LisErr.agregar(er)
 
                     elif (str(uni.Comportamiento).upper() == "EXCEPT"):
-                        print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAEXCEPT  ")
+                        #print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAEXCEPT  ")
                         print("Viene un Except")
                         ank = uni.Consulta
                         if (isinstance(ank, Select)):
@@ -6455,7 +6500,7 @@ class Select4(Instruccion) :
                         LisErr.agregar(er)
 
         listaling = AlinearDatos(listaGeneral)
-        print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
+        #print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
         print(listaling)
 
         mostrarConsulta(listaling)
@@ -6637,8 +6682,6 @@ class AccesoGroupBy(Instruccion): #Tabla Lista
         self.Lista_Alias  = Lista_Alias
         self.Estado       = Estado
 
-
-
 #---------------------------------------------------------------------------------------------------
 
 # Campos Limit
@@ -6774,9 +6817,9 @@ class Insert_Datos(Instruccion):
         self.valores = valores
 
     def Ejecutar(self):
-        print("ENTRA AL INSERT -----------------------------------------------------------------------")
+        #print("ENTRA AL INSERT -----------------------------------------------------------------------")
         FilaG = randint(1,500)
-        print("Ejecucion")
+        #print("Ejecucion")
         global ts_global, baseActual
         global LisErr
         r = ts_global.obtenerBasesDatos(baseActual)
@@ -6793,7 +6836,7 @@ class Insert_Datos(Instruccion):
                 #print(">>>>>>>"+str(rT.id))
 
                 temporal:CampoTabla = rT.cuerpo
-                print("ENTRA AL INSERT 2-----------------------------------------------------------------------")
+                #print("ENTRA AL INSERT 2-----------------------------------------------------------------------")
                 # borre un for incesesario de impresion
 
                 cC = 0
@@ -6808,7 +6851,7 @@ class Insert_Datos(Instruccion):
                     cV += 1
 
                 if cC == cV:
-                    print(" >> Parametros exactos. +++++++++++++++++++++++++++++++++++++++++++")
+                    #print(" >> Parametros exactos. +++++++++++++++++++++++++++++++++++++++++++")
                     index = 0
                     banderaInsert = False
 
@@ -6819,26 +6862,26 @@ class Insert_Datos(Instruccion):
                             if isinstance(temporal[index].tipo, valorTipo):
 
                                 resultado = Inter.procesar_expresion(cc, None)
-                                print(" Mi proceso: "+str(resultado))
+                                #print(" Mi proceso: "+str(resultado))
 
                                 if isinstance(resultado, string_types) and (str(temporal[index].tipo.valor).upper() == 'VARCHAR' or str(temporal[index].tipo.valor).upper() == 'CHARACTER' or str(temporal[index].tipo.valor).upper() == 'CHAR'):
-                                    print(" >>> Parametros correctos, insertar, Validar la exprecion.")
+                                    #print(" >>> Parametros correctos, insertar, Validar la exprecion.")
                                     banderaInsert = True
                                 else:
                                     imprir("INSERT BD: Parametros incorrectos. ")
                                     banderaInsert = False
                             else:
                                 resultado = Inter.procesar_expresion(cc, None)
-                                print(" Mi proceso: "+str(resultado))
+                                #print(" Mi proceso: "+str(resultado))
                                 #print(" Valor: >>>" + str(cc.val))
                                 if isinstance(resultado, string_types) and  str(temporal[index].tipo).upper() == 'TEXT' or str(temporal[index].tipo).upper() == 'DATE':
-                                    print(" >>> Parametros correctos, insertar")
+                                    #print(" >>> Parametros correctos, insertar")
                                     banderaInsert = True
                                 elif str(temporal[index].tipo).upper() == 'BOOLEAN'and (str(cc.val).upper() == 'TRUE' or str(cc.val).upper() == 'FALSE'):
                                     imprir("INSERT BD: Parametros correctos, insertar")
                                     banderaInsert = True
                                 elif int(resultado) > 0 and (str(temporal[index].tipo).upper() == 'SMALLINT' or str(temporal[index].tipo).upper() == 'INTEGER' or str(temporal[index].tipo).upper() == 'INT' or str(temporal[index].tipo).upper() == 'BIGINT' or str(temporal[index].tipo).upper() == 'DECIMAL' or str(temporal[index].tipo).upper() == 'REAL' or str(temporal[index].tipo).upper() == 'FLOAT' or str(temporal[index].tipo).upper() == 'MONEY'):
-                                    print(" >>> Parametros correctos, insertar")
+                                    #print(" >>> Parametros correctos, insertar")
                                     banderaInsert = True
                                 else:
                                     imprir("INSERT BD: Parametros incorrectos. ")
@@ -6859,7 +6902,7 @@ class Insert_Datos(Instruccion):
                             ix += 1
 
                         sr = Master.insert(baseActual, str(self.id_table[0].val), listaTemp)
-                        print(baseActual + str(self.id_table[0].val) + str(len(listaTemp)))
+                        #print(baseActual + str(self.id_table[0].val) + str(len(listaTemp)))
                         if sr is 0:
                             imprir("INSERT BD:  Insert realizado con exito.")
                         else:
@@ -6914,10 +6957,10 @@ class CreateTable(Instruccion):
                         if isinstance(vali, CampoValidacion):
                             val: CampoValidacion = vali
                             if vali.id is None:
-                                print("nada")
+                                #print( "nada")
                                 pass
                             else:
-                                print(str(val.id) + str(val.valor))
+                                #print(str(val.id) + str(val.valor))
                                 temporal2 = constraintTabla(str(val.id), "auto", None, x.id, None, self.id)
                                 ts_global.agregarValidacion(temporal2)
 
@@ -6928,27 +6971,27 @@ class CreateTable(Instruccion):
                             else:
                                 print(val.valor+val.id+val.listas_id+val.idRef)
                 else:
-                    print(">>> ES OTRO TIPO DE CAMPO")
+                    #print(">>> ES OTRO TIPO DE CAMPO")
                     vv: constraintTabla = v
                     Vcion = ObjetoValidacion(self.id, vv.id, vv.valor, vv.id)
                     ts_global.agregarValidacion(Vcion)
 
             if rM == 0:
                 ts_global.agregarTabla(self)
-                print(" > Se creo la tabla en la base de datos.")
+                #print(" > Se creo la tabla en la base de datos.")
 
             elif rM == 1:
-                print("> 1")
+                #print("> 1")
                 er =  ErrorRep('Semantico', 'No se encontro el archivo data.',0)
                 LisErr.agregar(er)
 
             elif rM == 2:
-                print("> 2")
+                #print("> 2")
                 er =  ErrorRep('Semantico', 'No existe la base de datos actual.',0)
                 LisErr.agregar(er)
 
             elif rM == 3:
-                print( "> 3")
+                #print( "> 3")
                 er =  ErrorRep('Semantico', 'La tabla ya existe en la base de datos.',0)
                 LisErr.agregar(er)
         else:
@@ -7048,7 +7091,7 @@ class CreateDataBase(Instruccion):
 
     def Ejecutar(self):
         global ts_global, baseActual
-        global LisErr,Ejecucion
+        global LisErr, Ejecucion
 
         if self.replace == "":
             r = ts_global.obtenerBasesDatos(self.idBase)
@@ -7057,13 +7100,13 @@ class CreateDataBase(Instruccion):
                 imprir("CREATE DB:  Base de datos creada con exito!")
                 if rM == 0:
                     ts_global.agregarBasesDatos(self)
-                    print(" > Base de datos creada con exito!")
+                    #print(" > Base de datos creada con exito!")
                 elif rM == 1 or rM == 2:
-                    print("> Base de datos ya existe.")
+                    #print("> Base de datos ya existe.")
                     er = ErrorRep('Semantico', 'La Base de datos ya existe', 0)
                     LisErr.agregar(er)
             else:
-                print("Si encontre la BD. ")
+                #print("Si encontre la BD. ")
                 imprir("CREATE DB:  La Base de Datos No se Creo ya que existe!")
                 er = ErrorRep('Semantico', 'La Base de datos ya existe', 0)
                 LisErr.agregar(er)
@@ -7077,14 +7120,14 @@ class CreateDataBase(Instruccion):
                 baseN.append(self.idBase)
                 if rM == 0:
                     ts_global.agregarBasesDatos(self)
-                    print(" > Base de datos creada con exito!")
+                    #print(" > Base de datos creada con exito!")
                 elif rM == 1 or rM == 2:
                     print("> Base de datos ya existe Se va a Reemplazar ")
             else:
                 imprir("CREATE DB:  Se encontro la BD Bamos a Reemplazar!")
                 Lista.clear();
                 Lista.append(Ejecucion)
-                print("Si encontre la BD. Bamos a Reemplazar la Misma! ")
+                #print("Si encontre la BD. Bamos a Reemplazar la Misma! ")
 
 class ShowDatabases(Instruccion):
     def __init__(self, cadenaLike):
@@ -7098,7 +7141,7 @@ class ShowDatabases(Instruccion):
         r  = Master.showDatabases()
         if r  is not None:  #si lo encuentra
             for element in r:
-                print(str(element))
+                #print(str(element))
                 imprir("SHOW DB:>"+ str(element))
         else:
             imprir("SHOW DB: No se encontro la BD")
@@ -7136,7 +7179,7 @@ class AlterDataBase(Instruccion):
             error += "  Se encontro el Valor a Setear"
 
         if (c1 and c2):
-            print("Excelente se puede editar")
+            #print("Excelente se puede editar")
             #Editamos nuestro diccionario
             ts_global.actualizarCreateDataBase(str(self.idDB),str(self.opcion))
             imprir("ALTER DB: Edicion base de Datos Exitosa!")
@@ -7242,10 +7285,10 @@ class CreacionEnum(Instruccion):
             er = ErrorRep('Semantico', 'Se necesitan cadenas para crearlos..', 0)
             LisErr.agregar(er)
 
-        print("AQUI ESTAN")
+        #print("AQUI ESTAN")
         for ca in ts_global.Tipos:
             a = ts_global.Tipos.get(ca)
-            print(str(a.tipo))
+            #print(str(a.tipo))
 
 # Crear funciones de ejecucion ----------------------------------
 #Prueba clase errores
@@ -7410,16 +7453,16 @@ class Alter_Table_AddColumn(Instruccion):
                         bandera = False
                         for elemento2 in ts_global.Tablas:
                             x: CreateTable = ts_global.obtenerTabla(elemento2)
-                            print(str(x.id) + " ÑÑÑ " +str(self.id_table))
+                            #print(str(x.id) + " ÑÑÑ " +str(self.id_table))
                             if (x.id == self.id_table):
                                 for ele in x.cuerpo:
                                     y: CampoTabla = ele
                                     print(str(y.id) + str(elemento.val))
                                     if y.id != elemento.val:
-                                        print("BANDERA ES TRUE")
+                                        #print("BANDERA ES TRUE")
                                         bandera = True
-                            else:
-                                print(y.id + "<<<<<<<<<<<<<<<<<<<<<<")
+                                    else:
+                                        print(y.id + "<")
 
 
                         if bandera == True:
@@ -7602,7 +7645,6 @@ class Alter_Table_Drop_Column(Instruccion):
         else:
             imprir("ALTER TABLE:   La Base de datos no existe")
             #colocar error semantico
-
 
 class Alter_Table_Rename_Column(Instruccion):
     def __init__(self, id_table, old_column, new_column):
@@ -7850,13 +7892,13 @@ class Alter_table_Alter_Column_Set(Instruccion):
             imprir("ALTER TABLE:   La Base de datos no existe")
             # colocar error semantico
 
-
 class Alter_table_Add_Foreign_Key(Instruccion):
-    def __init__(self, id_table, id_column, id_column_references, idforeign):
+    def __init__(self, id_table, id_column, id_column_references, idforeign, id_table_references = None):
         self.id_table = id_table
         self.id_column = id_column
         self.idforeign = idforeign
         self.id_column_references = id_column_references
+        self.id_table_references = id_table_references
 
 
     def Ejecutar(self):
@@ -8024,9 +8066,41 @@ class useClase(Instruccion):
     def Ejecutar(self):
         imprir("USE: Se usara la base de datos " + str(self.id))
 
-
 class DatoTipo(Instruccion):
     def __init__(self, bd, tipo, valor):
         self.bd = bd
         self.tipo = tipo
         self.valor = valor
+
+
+class ColumnaIndice():
+
+    def __init__(self, id_columna, orden, nulls):
+        self.id_columna = id_columna
+        self.orden = orden
+        self.nulls = nulls
+
+
+class CrearIndice(Instruccion):
+
+    def __init__(self, id_indice, id_tabla, columnas, unique, hash, expresion_logica):
+        self.id_indice = id_indice
+        self.id_tabla = id_tabla
+        self.columnas = columnas
+        self.unique = unique
+        self.hash = hash
+        self.expresion_logica = expresion_logica
+
+    def Ejecutar(self):
+        global ts_global, baseActual
+        global ListErr, Ejecucion
+
+        r = ts_global.obtenerIndice(self.id_indice)
+
+        if r is None:
+            ts_global.agregarIndice(self)
+            imprir("CREATE INDEX:  Indice " + str(self.id_indice) + " creado con exito!")
+        else:
+            imprir("CREATE INDEX:  El Indice No se Creo ya que existe!")
+            er = ErrorRep('Semantico', 'El indice ya existe', 0)
+            LisErr.agregar(er)

@@ -44,8 +44,23 @@ def limpiarValores():
 def inicializarEjecucionAscendente(contenido):
     global LisErr, instrucciones, ts_global
     ts_global = TS.TablaDeSimbolos()
+
     instrucciones = g.parse(contenido, LisErr)
+    g.Ejecucion()
    # reporte_errores()
+
+
+def inicializarEjecucionAscendenteSel(contenido):
+    global LisErr, instrucciones, ts_global
+    ts_global = TS.TablaDeSimbolos()
+
+    instrucciones = g.parse(contenido, LisErr)
+
+
+
+# reporte_errores()
+
+
 
 
 def inicializarTS():
@@ -566,7 +581,6 @@ def procesar_unitaria_aritmetica(expresion, ts):
             agregarErrorDatosOperacion(val, "", "~", "entero", 0, 0)
             return None
 
-
 def procesar_funcion(expresion, ts):
 
     if expresion.exp1 is None:
@@ -1066,6 +1080,7 @@ def procesar_funcion(expresion, ts):
             else:
                 agregarErrorFuncion(val1, None, None, None, "TANH", "numerico", 0, 0)
                 return None
+
         elif expresion.id_funcion == FUNCION_NATIVA.ASINH:
             # if isinstance(val1, string_types):
             #     if val1.isdecimal():
@@ -1629,6 +1644,8 @@ class interprete2:
                 i.Ejecutar()
             elif isinstance(i, useClase):
                 i.Ejecutar()
+            elif isinstance(i, CrearIndice):
+                i.Ejecutar()
             else:
                 print("NO ejecuta")
 
@@ -1744,6 +1761,7 @@ def procesar_expresion_select(expresiones, ts):
 
     elif isinstance(expresiones, AccesoSubConsultas):
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ENtre sub where")
+
         return ProcesoSub(expresiones,ts_global)
 
 
