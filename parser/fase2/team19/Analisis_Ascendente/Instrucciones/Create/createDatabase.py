@@ -4,7 +4,8 @@ from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 from Analisis_Ascendente.storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as ts
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-import C3D.GeneradorEtiquetas as GeneradorEtiquetas
+import C3D.GeneradorTemporales as GeneradorTemporales
+import Analisis_Ascendente.reportes.Reportes as Reportes
 
 
 #CREATE [OR REPLACE] DATABASE
@@ -52,14 +53,15 @@ class CreateReplace(Instruccion):
             consola.append(f"Se creo la base de datos {createDataBase.id} exitosamente\n")
         print(ts.simbolos)
 
-    def getC3D(self):
-        etiqueta = GeneradorEtiquetas.nueva_etiqueta()
+    def getC3D(self, lista_optimizaciones_C3D):
+
+        etiqueta = GeneradorTemporales.nuevo_temporal()
         instruccion_quemada = 'create '
         if self.caso == 2:
             instruccion_quemada += 'or replace '
         instruccion_quemada += 'database '
         if self.exists:
-            instruccion_quemada += 'if not exist '
+            instruccion_quemada += 'if not exists '
         instruccion_quemada += '%s ' % self.id
         if self.complemento is not None:
             instruccion_quemada += self.complemento.getC3D()
@@ -73,7 +75,16 @@ class CreateReplace(Instruccion):
  
 ''' % (etiqueta, instruccion_quemada, etiqueta)
 
-        GeneradorEtiquetas.resetar_numero_etiqueta()
+        GeneradorTemporales.resetar_numero_temporal()
+
+        optimizacion1 = Reportes.ListaOptimizacion("algo", "prueba1", Reportes.TipoOptimizacion.REGLA1)
+        lista_optimizaciones_C3D.append(optimizacion1)
+
+        optimizacion2 = Reportes.ListaOptimizacion("otro", "prueba2", Reportes.TipoOptimizacion.REGLA6)
+        lista_optimizaciones_C3D.append(optimizacion1)
+
+        optimizacion3 = Reportes.ListaOptimizacion("uno mas", "prueba3", Reportes.TipoOptimizacion.REGLA18)
+        lista_optimizaciones_C3D.append(optimizacion1)
 
         return c3d
 
