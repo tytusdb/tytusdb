@@ -63,9 +63,33 @@ class Quadruple(object):
     def isConditional(self):
         return self.instType == OpTAC.CONDITIONAL
 
-    def allWaysFalse(self):#TODO: check all data types and operators
-        if int(self.arg1) and int(self.arg2) and self.arg1 != self.arg2:
-            return True    
+    def allWaysFalse(self):#TODO: check > < >= <= = for strings excuding if args are temporals Tn
+        try:
+            if self.op == OpLogic.OR:
+                return (str(self.arg1).lower() == 'false') and ( str(self.arg2).lower() == 'false')
+            elif self.op == OpLogic.AND:
+                return (str(self.arg1).lower() == 'false') or ( str(self.arg2).lower() == 'false')
+            elif self.op == OpLogic.NOT:
+                return str(self.arg1).lower() == 'True'
+            elif self.op == OpRelational.EQUALS:
+                return int(self.arg1) != int(self.arg2)
+            elif self.op == OpRelational.GREATER:
+                return int(self.arg1) <= int(self.arg2)
+            elif self.op == OpRelational.GREATER_EQUALS:
+                return int(self.arg1) < int(self.arg2)
+            elif self.op == OpRelational.LESS:
+                return int(self.arg1) >= int(self.arg2)
+            elif self.op == OpRelational.LESS_EQUALS:
+                return int(self.arg1) > int(self.arg2)
+            elif self.op == OpRelational.NOT_EQUALS:
+                return int(self.arg1) == int(self.arg2)
+            elif self.op is None:
+                return str(self.arg1).lower() == 'false'
+                        
+        except expression as identifier:
+            return False
+        
+        return False
 
     #this function aply for rules 8, 9, 10, 11, 
     #return true if the rule must be removed or false if no removed, (you ust remove it in other function)
@@ -96,6 +120,15 @@ class Quadruple(object):
             return f'if {self.arg1} {oper} {ar2}: goto {self.res}'
         
     def strpy(self):
+        if str(self.arg1).lower() == 'false'
+            self.arg1 = 'False'
+        if str(self.arg1).lower() == 'true'
+            self.arg1 = 'True'
+        if str(self.arg2).lower() == 'false'
+            self.arg1 = 'False'
+        if str(self.arg2).lower() == 'true'
+            self.arg1 = 'True'
+
         if self.instType == OpTAC.ASSIGNMENT:
             oper = self.op.strSymbol() if self.op else ''
             arg2_ = self.arg2 if self.arg2 else ''
@@ -108,6 +141,12 @@ class Quadruple(object):
             oper = self.op.strSymbol() if self.op else ''
             ar2 = self.arg2 if self.arg2 else ''
             return f'if {self.arg1} {oper} {ar2}:\n{getFileTab()}goto.{self.res}'
+        elif self.instType == OpTAC.POP:
+            pass
+        elif self.instType == OpTAC.PUSH:
+            pass
+        elif self.instType == OpTAC.CALL:
+            pass
 
 #This Funtion will unquewe each TAC (Quadruplees) from param list, aply each rule for each TAC and push that TAC to reslut
 # Ohh and save a log for wich rule was applied
@@ -175,7 +214,7 @@ def strTAC_pySyntax(quadL: list, ntabs):
     return r    
 
 def getHeader():
-    return f'from from goto import with_goto\nfrom wrapper import *\n\n@with_goto\n'
+    return f'from from goto import with_goto\nfrom wrapper import *\n\n@with_goto\ndef all_code():\n'
 
 def getFooter():
     return f'all_code()\nreport_stored_st()\n'
@@ -199,7 +238,7 @@ def Save_TAC_obj(objname: str, quadL: list):
     removed_items = optimiR[1]
 
     f = open(f'{getPlpgFolder()}{objname}.py', "w")
-    content = getHeader() + strTAC_pySyntax(result) + getFooter()
+    content = getHeader() + strTAC_pySyntax(result, 1) + getFooter()
     f.write(content)
     f.close()
 
