@@ -2286,12 +2286,14 @@ def p_statements_cf_a(t):
 def p_stament_cf(t):
     '''statement : RETURN argument PTCOMA
                 | CASE case PTCOMA
-                | IF if PTCOMA'''
+                | if '''
     if t[1].lower() == 'return':
         text = t[2]['c3d']
         text += '    ' + 'heap.append(' + t[2]['tflag'] + ')\n return \n'
     else :
+        c3d = t[1]['c3d']
         text = ""
+        #aqui deberiamos de retornar el c3d pero pos no lo pongo aun xd
     t[0] =  {'text': text, 'c3d' : '' }
 	
 def p_stament_a(t):
@@ -2350,16 +2352,49 @@ def p_executecf(t):
     t[0] = {'text': text, 'c3d': ''}
 
 def p_if_(t):
-    '''if :  condiciones THEN statements ifend'''
+    '''if : IF condiciones THEN statements ifend PTCOMA '''
     text = ""
-    t[0] = {'text': text, 'c3d': ''}
+    temp1 = tempos.newTemp() 
+    temp2 = tempos.newTemp() 
+    c3d = t[2]['c3d']
+    c3d +=  "    "+"if (" + t[2]['tflag'] + "):   goto ."+ temp1 +"  \n"
+    c3d += "    "+"goto ."+temp2+"\n"
+    c3d += "    "+"label ." +temp1 +"\n"
+    c3d += t[4]['c3d']+"\n"
+    c3d += "    "+"label ." +temp2 +"\n"
+    c3d += "    "+"goto ." +t[5]['tflagif']+"\n"
+    c3d += t[5]['c3d']+"\n"
+    c3d += "    "+"label ."+t[5]['tflagif']
+    print(c3d)
+    t[0] = {'text': text, 'c3d': c3d}
 
 def p_if_end(t):
     '''ifend : ELSEIF condiciones THEN statements ifend
             | END IF
             | ELSE statements END IF  '''
     text = ""
-    t[0] = {'text': text, 'c3d': ''}
+    c3d = ""
+    tflagif = "" 
+    if t[1].lower() == 'end':
+        tflagif = tempos.newTempif()
+        c3d = ""
+    elif t[1].lower() == 'else':
+        c3d = t[2]['c3d']
+        tflagif = tempos.newTempif()
+    elif t[1].lower() == 'elseif':
+        temp1 = tempos.newTemp() 
+        temp2 = tempos.newTemp() 
+        tflagif = t[5]['tflagif']
+        c3d = t[2]['c3d']
+        c3d +=  "    "+"if (" + t[2]['tflag'] + "):   goto ."+ temp1 +"  \n"
+        c3d += "    "+"goto ."+temp2+"\n"
+        c3d += "    "+"label ." +temp1 +"\n"
+        c3d += t[4]['c3d']+"\n"
+        c3d += "    "+"label ." +temp2 +"\n"
+        c3d += "    "+"goto ." +t[5]['tflagif']+"\n"
+        c3d += t[5]['c3d']+"\n"
+    t[0] = {'text': text, 'c3d': c3d,'tflagif' : tflagif}
+
 
 
 def p_casecf(t):
