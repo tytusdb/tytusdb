@@ -28,9 +28,6 @@ from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
 from Instrucciones.index import index
 
-#Index y funciones
-from Instrucciones.IndexFunction import indexFunction
-
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
 from Instrucciones.Sql_create.Tipo_Constraint import *
@@ -1624,7 +1621,8 @@ def p_tipo_datos2(t):
 #INDEX
 def p_instruccion_creacion(t) :
     '''instruccion  : CREATE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
-                    | CREATE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''    
+                    | CREATE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
+    
     if len(t) == 11:
         strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
         strGram2 = ""
@@ -1661,35 +1659,30 @@ def p_instruccion_creacion_unique(t) :
 def p_can_where(t):
     '''can_where    : instructionWhere PUNTO_COMA
                     | PUNTO_COMA'''
-    strGram = ""
-    if len(t) > 2:
-        strGram = "<can_where> := <instructionWhere> PUNTO_COMA"
+    if len(t) == 3:
+        t[0] = t[1]
     else:
-        strGram = "<can_where> := PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
+        t[0] = None
 
 def p_l_expresiones_atri(t) :
     '''l_expresiones    : l_expresiones COMA expre lista_options'''
-    strGram = "<l_expresiones> := <l_expresiones> COMA <expre> <lista_options>"
-    t[0] = indexFunction.indexFunction(strGram)
+    t[1] = t[1].append(t[3], t[4])
+    t[0] = t[1]
 
 def p_l_expresiones_atri_ind(t) :
     '''l_expresiones    : expre lista_options'''
-    strGram = "<l_expresiones> := <expre> <lista_options>"
-    t[0] = indexFunction.indexFunction(strGram)
-
+    t[1] = t[1].append(t[2])
+    t[0] = t[1]
 
 def p_operadores_is_not_true(t):
     '''expre    : expre IS NOT TRUE
     '''
-    strGram = "<expre> := <expre> IS NOT TRUE"
-    t[0] = indexFunction.indexFunction(strGram)
+    t[0] = t[1] + ' IS NOT'
 
 def p_lista_options(t) :
     'lista_options  : lista_options options'
-    strGram = "<lista_options> := <lista_options> <options>"
-    t[0] = indexFunction.indexFunction(strGram)
-
+    t[1] = t[1].append(t[2])
+    t[0] = t[1]
 
 def p_lista_options_2(t) :
     'lista_options  : options'
@@ -1705,48 +1698,20 @@ def p_options(t) :
                     | BPCH_PTN_OPS
                     | COLLATE expre
                     | expre'''
-
-    strGram = "<lista_options> := <options>\n"
-    if t[1] == "ASC":
-        strGram += "<options> ::= ASC"
-    elif t[1] == "DESC":
-        strGram += "<options> ::= DESC"
-    elif len(t) > 2 and t[2] == "FIRST":
-        strGram += "<options> ::= NULLS FIRST"
-    elif len(t) > 2 and t[2] == "LAST":
-        strGram += "<options> ::= NULLS LAST"
-    elif t[1] == "TXT_PTN_OPS":
-        strGram += "<options> ::= TXT_PTN_OPS"
-    elif t[1] == "VRCH_PTN_OPS":
-        strGram += "<options> ::= VRCH_PTN_OPS"
-    elif t[1] == "BPCH_PTN_OPS":
-        strGram += "<options> ::= BPCH_PTN_OPS"
-    elif t[1] == "COLLATE":
-        strGram += "<options> ::= COLLATE <expre>"
+    if len(t) == 2:
+        t[0] = t[1]
     else:
-        strGram += "<options> ::= <expre>"
-    t[0] = indexFunction.indexFunction(strGram)
-
+        t[0] = t[1] + t[2]
 
 def p_params_crt_indx(t) :
     '''params_crt_indx  : INCLUDE PARIZQ expre PARDER
                         | '''
-    strGram = ""
-    if len(t) > 1 and t[1] == "INCLUDE":
-        strGram = "<params_crt_indx> ::= INCLUDE PARIZQ <expre> PARDER"
-    else:
-        strGram = "<params_crt_indx> ::= epsilon"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_instruccion_drop_index(t) :
     '''instruccion  : DROP INDEX ID PUNTO_COMA'''
-    strGram = "<instruccion> ::= DROP INDEX ID PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_lista_or(t) :
     '''expre     : expre PIPE PIPE expre'''
-    strGram = "<expre> ::= <expre> PIPE PIPE <expre>"
-    t[0] = indexFunction.indexFunction(strGram)
 
 #FUNCIONES
 def p_instruccion_creacion_funct(t) :
@@ -1755,67 +1720,31 @@ def p_instruccion_creacion_funct(t) :
                     | CREATE FUNCTION ID PARIZQ PARDER return_funct as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
                     | CREATE FUNCTION ID PARIZQ PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA'''
 
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <list_params_funct> PARDER <return_funct> <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
-    strGram += "                 | CREATE FUNCTION ID PARIZQ <list_params_funct> PARDER <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
-    strGram += "                 | CREATE FUNCTION ID PARIZQ PARDER <return_funct> <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
-    strGram += "                 | CREATE FUNCTION ID PARIZQ PARDER <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_return_funct(t) :
     '''return_funct     : RETURNS tipo
                         | RETURNS ID
                         | RETURNS TABLE PARIZQ list_params_funct PARDER'''
-    strGram = ""
-    if t[2] != "ID" and len(t) == 2:
-        strGram = "<return_funct> ::= RETURNS tipo"
-    elif t[2] == "ID":
-        strGram = "<return_funct> ::= RETURNS ID"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_list_params_funct(t) :
     '''list_params_funct    : list_params_funct COMA ID tipo
                             | list_params_funct COMA OUT ID tipo
                             | list_params_funct COMA ID ID
                             | list_params_funct COMA OUT ID ID'''
-    strGram = "<return_funct> ::= RETURNS TABLE PARIZQ <list_params_funct> PARDER\n"
-    if t[3] == "ID" and t[4] != "ID":
-        strGram += "<list_params_funct> ::= <list_params_funct> COMA ID tipo"
-    elif len(t) > 5 and t[3] == "OUT" and t[5] != "ID":
-        strGram += "<list_params_funct> ::= <list_params_funct> COMA OUT ID <tipo>"
-    elif t[3] == "ID" and t[4] == "ID":
-        strGram += "<list_params_funct> ::= <list_params_funct> COMA ID ID"
-    elif len(t) > 5 and t[3] == "OUT" and t[5] == "ID":
-        strGram += "<list_params_funct> ::= <list_params_funct> COMA OUT ID ID"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_list_params_funct2(t) :
     '''list_params_funct    : ID tipo
                             | OUT ID tipo
                             | ID ID
                             | OUT ID ID'''
-    strGram = "<return_funct> ::= RETURNS TABLE PARIZQ <list_params_funct> PARDER\n"
-    if t[1] == "ID" and t[2] != "ID":
-        strGram += "<list_params_funct> ::= ID tipo"
-    elif len(t) > 3 and t[1] == "OUT" and t[3] != "ID":
-        strGram += "<list_params_funct> ::= OUT ID <tipo>"
-    elif t[1] == "ID" and t[2] == "ID":
-        strGram += "<list_params_funct> ::= ID ID"
-    elif len(t) > 3 and t[1] == "OUT" and t[3] == "ID":
-        strGram += "<list_params_funct> ::= OUT ID ID"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_as_def(t) :
     '''as_def   : AS expre
                 | AS 
                 | '''
-    strGram = ""
-    if len(t) > 2 and t[1] == "AS":
-        strGram = "<as_def> ::= AS <expre>"
-    elif len(t) > 1 and t[1] == "AS":
-        strGram = "<as_def> ::= AS"
-    else:
-        strGram = "<as_def> ::= epsilon"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_def_funct(t) :
     '''def_funct    : dec_def beg_def END PUNTO_COMA'''
@@ -1828,71 +1757,73 @@ def p_dec_def(t) :
 
 def p_list_declare(t) :
     '''list_declare : list_declare declare'''
-    strGram = "<def_funct> ::= <dec_def> <beg_def> END PUNTO_COMA\n"
-    strGram += "<dec_def> ::= DECLARE <list_declare> | epsilon\n"
-    strGram += "<list_declare> ::= <list_declare> <declare>"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_list_declare2(t) :
     '''list_declare : declare'''
-    strGram = "<def_funct> ::= <dec_def> <beg_def> END PUNTO_COMA\n"
-    strGram += "<dec_def> ::= DECLARE <list_declare> | epsilon\n"
-    strGram += "<list_declare> ::= <declare>"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_declare(t) :
     '''declare  : ID constant def_tipos_declare list_params_declare symbol_declare expre PUNTO_COMA
                 | ID constant def_tipos_declare symbol_declare expre PUNTO_COMA'''
-    strGram = ""
-    if len(t) > 7:
-        strGram = "<declare> ::= ID <constant> <def_tipos_declare> <list_params_declare> <symbol_declare> <expre> PUNTO_COMA"
-    else:
-        strGram = "<declare> ::= ID <constant> <def_tipos_declare> <symbol_declare> <expre> PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_declare2(t) :
     '''declare  : ID constant def_tipos_declare list_params_declare PUNTO_COMA
                 | ID constant def_tipos_declare PUNTO_COMA'''
-    strGram = ""
-    if len(t) > 5:
-        strGram = "<declare> ::= ID <constant> <def_tipos_declare> <list_params_declare> PUNTO_COMA"
-    else:
-        strGram = "<declare> ::= ID <constant> <def_tipos_declare> PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_declare3(t) :
     '''declare  : ID ALIAS FOR expre PUNTO_COMA'''
-    strGram = "<declare> ::= ID ALIAS FOR <expre> PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_def_tipos_declare(t) :
     '''def_tipos_declare    : tipo
                             | expre MODULO ID'''
-    strGram = ""
-    if len(t) > 2:
-        strGram = "<def_tipos_declare> ::= <expre> MODULO ID"
-    else:
-        strGram = "<def_tipos_declare> ::= <tipo>"
-    t[0] = indexFunction.indexFunction(strGram)
 
+
+def p_content_beginIf(t) :
+    '''content_begin    : IF condicion_if THEN list_begin elsif else_if END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin else_if END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin elsif END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin END IF PUNTO_COMA
+    '''
+
+def p_elseif(t) :
+    '''elsif       : ELSIF condicion_if THEN list_begin elsif
+                   | ELSIF condicion_if THEN list_begin
+    '''
+
+def p_else(t) :
+    '''else_if         : ELSE list_begin
+    '''
+
+def p_condiciones_if(t) :
+    '''condiciones_if   : condiciones_if AND condiciones_if
+                        | condiciones_if OR condiciones_if
+                        | condiciones_if'''
+
+def p_condiciones_if2(t) :
+    '''condiciones_if   : condicion_if'''
+
+def p_condicion_if(t) :
+    '''condicion_if : expre IGUAL expre
+                    | expre DISTINTO expre
+                    | expre MAYORQ expre
+                    | expre MENORQ expre
+                    | expre MAYOR_IGUALQ expre
+                    | expre MENOR_IGUALQ expre'''
+
+def p_condicion_if2(t) :
+    '''condicion_if : expre'''
+    
 def p_constant(t) :
     '''constant : CONSTANT
                 | '''
-    strGram = "<constant> ::= CONSTANT | epsilon"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_symbol_declare(t) :
     '''symbol_declare   : DEFAULT
                         | DOS_PUNTOS IGUAL
                         | IGUAL'''
-    strGram = ""
-    if t[1] == "DEFAULT":
-        strGram = "<symbol_declare> ::= DEFAULT"
-    elif t[1] == "DOS_PUNTOS":
-        strGram = "<symbol_declare> ::= DOS_PUNTOS"
-    else:
-        strGram = "<symbol_declare> ::= IGUAL"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_list_params_declare(t) :
     '''list_params_declare  : list_params_declare params_declare'''
@@ -1904,12 +1835,7 @@ def p_list_params_declare2(t) :
 def p_params_declare(t) :
     '''params_declare   : COLLATE expre
                         | NOT NULL'''
-    strGram = "<list_params_declare> ::= <list_params_declare> <params_declare> | <params_declare>\n"
-    if t[1] == "COLLATE":
-        strGram += "<params_declare> ::= COLLATE <expre>"
-    else:
-        strGram += "<params_declare> ::= NOT NULL"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_beg_def(t) :
     '''beg_def  : BEGIN list_begin'''
@@ -1930,110 +1856,17 @@ def p_content_begin(t) :
                         | RETURN def_return PUNTO_COMA
                         | EXCEPTION list_exception
                         | query PUNTO_COMA'''
-    strGram = "<beg_def> ::= BEGIN <list_begin>\n"
-    strGram += "<list_begin> ::= <list_begin> <content_begin> | <content_begin>\n"
-    strGram += "<content_begin> ::= RAISE NOTICE <l_expresiones> PUNTO_COMA | RAISE EXCEPTION <l_expresiones> PUNTO_COMA "
-    strGram += "| <asign> PUNTO_COMA | <def_funct> | RETURN <def_return> PUNTO_COMA | EXCEPTION <list_exception> "
-    strGram += "| <query> PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
 
-def p_content_beginIf(t) :
-    '''content_begin    : IF condicion_if THEN list_begin elsif else_if END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin else_if END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin elsif END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin END IF PUNTO_COMA
-    '''
-    strGram = "<beg_def> ::= BEGIN <list_begin>\n"
-    strGram += "<list_begin> ::= <list_begin> <content_begin> | <content_begin>\n"
-    strGram += "<content_begin> ::= IF <condicion_if> THEN <list_begin> <elsif> <else_if> END IF PUNTO_COMA "
-    strGram += "| IF <condicion_if> THEN <list_begin> <else_if> END IF PUNTO_COMA "
-    strGram += "| IF <condicion_if> THEN <list_begin> <elsif> END IF PUNTO_COMA"
-    strGram += "| IF <condicion_if> THEN <list_begin> END IF PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
-
-def p_content_beginCase(t) :
-    '''content_begin    : CASE lcase END CASE PUNTO_COMA
-    '''
-
-def p_elseif(t) :
-    '''elsif       : ELSIF condicion_if THEN list_begin elsif
-                   | ELSIF condicion_if THEN list_begin
-    '''
-    strGram = ""
-    if len(t) > 5:
-        strGram = "<elsif> ::= ELSIF <condicion_if> THEN <list_begin> <elsif>"
-    else:
-        strGram = "<elsif> ::= ELSIF <condicion_if> THEN <list_begin>"
-    t[0] = indexFunction.indexFunction(strGram)
-
-def p_else(t) :
-    '''else_if         : ELSE list_begin
-    '''
-    strGram = "<else_if> ::= ELSE <list_begin>"
-    t[0] = indexFunction.indexFunction(strGram)
-
-def p_condiciones_if(t) :
-    '''condiciones_if   : condiciones_if AND condiciones_if
-                        | condiciones_if OR condiciones_if
-                        | condiciones_if'''
-    strGram = ""
-    if len(t) > 2 and t[2] == "AND":
-        strGram = "<condiciones_if> ::= <condiciones_if> AND <condiciones_if>"
-    elif len(t) > 2 and t[2] == "OR":
-        strGram = "<condiciones_if> ::= <condiciones_if> OR <condiciones_if>"
-    else:
-        strGram = "<condiciones_if> ::= <condiciones_if>"
-    t[0] = indexFunction.indexFunction(strGram)
-
-def p_condiciones_if2(t) :
-    '''condiciones_if   : condicion_if'''
-    strGram = "<condiciones_if> ::= <condiciones_if>"
-    t[0] = indexFunction.indexFunction(strGram)
-
-def p_condicion_if(t) :
-    '''condicion_if : expre IGUAL expre
-                    | expre DISTINTO expre
-                    | expre MAYORQ expre
-                    | expre MENORQ expre
-                    | expre MAYOR_IGUALQ expre
-                    | expre MENOR_IGUALQ expre'''
-    strGram = ""
-    if t[2] == "IGUAL":
-        strGram = "<condiciones_if> ::= <expre> IGUAL <expre>"
-    elif t[2] == "DISTINTO":
-        strGram = "<condiciones_if> ::= <expre> DISTINTO <expre>"
-    elif t[2] == "MAYORQ":
-        strGram = "<condiciones_if> ::= <expre> MAYORQ <expre>"
-    elif t[2] == "MENORQ":
-        strGram = "<condiciones_if> ::= <expre> MENORQ <expre>"
-    elif t[2] == "MAYOR_IGUALQ":
-        strGram = "<condiciones_if> ::= <expre> MAYOR_IGUALQ <expre>"
-    elif t[2] == "MENOR_IGUALQ":
-        strGram = "<condiciones_if> ::= <expre> MENOR_IGUALQ <expre>"
-    t[0] = indexFunction.indexFunction(strGram)
-
-def p_condicion_if2(t) :
-    '''condicion_if : expre'''
-    strGram = "<condiciones_if> ::= <expre>"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_def_return(t) :
     '''def_return   : expre
                     | expre COLLATE expre
                     | QUERY query'''
-    strGram = ""
-    if len(t) == 2:
-        strGram = "<def_return> ::= <expre>"
-    elif len(t) == 3:
-        strGram = "<def_return> ::= QUERY <query>"
-    elif len(t) == 4:
-        strGram = "<def_return> ::= <expre> COLLATE <expre>"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_asign(t) :
     '''asign    : expre DOS_PUNTOS IGUAL expre'''
-    strGram = "<asign> ::= <expre> DOS_PUNTOS IGUAL <expre>"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_list_exception(t) :
     '''list_exception   : list_exception except
@@ -2043,54 +1876,32 @@ def p_list_exception(t) :
 def p_exception(t) :
     '''except   : WHEN expre THEN content_except
                 | WHEN expre THEN'''
-    strGram = "<list_exception> ::= <list_exception> <except> | <except>\n"
-    strGram += "<except> ::= WHEN <expre> THEN <content_except> | WHEN <expre> THEN"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_content_except(t) :
     '''content_except   : RAISE EXCEPTION l_expresiones PUNTO_COMA
                         | NULL PUNTO_COMA'''
-    strGram = ""
-    if t[1] == "RAISE":
-        strGram = "<content_except> ::= RAISE EXCEPTION <l_expresiones> PUNTO_COMA"
-    elif t[1] == "NULL":
-        strGram = "<content_except> ::= NULL PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_inst_perf(t) :
     '''instruccion  : PERFORM function_call PUNTO_COMA'''
-    strGram = "<instruccion> ::= PERFORM <function_call> PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_inst_if(t) :
     '''instruccion  : IF NOT FOUND THEN list_begin END IF PUNTO_COMA'''
-    strGram = "<instruccion> ::= IF NOT FOUND THEN <list_begin> END IF PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
+
 
 def p_inst_exec(t) :
     '''instruccion  : EXECUTE function_call can_where
                     | EXECUTE query PUNTO_COMA'''
-    strGram = "<instruccion> ::= EXECUTE <function_call> <can_where> | EXECUTE <query> PUNTO_COMA"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_function_call(t) :
     '''function_call    : ID PARIZQ l_expresiones PARDER'''
-    strGram = "<function_call> ::= ID PARIZQ <l_expresiones> PARDER"
-    t[0] = indexFunction.indexFunction(strGram)
 
 def p_inst_get(t) :
     '''instruccion  : GET CURRENT DIAGNOSTICS expre symbol_declare expre PUNTO_COMA
                     | GET DIAGNOSTICS expre symbol_declare expre PUNTO_COMA
                     | GET PUNTO_COMA'''
-    strGram = ""
-    if t[2] == "PUNTO_COMA":
-        strGram = "<instruccion> ::= GET PUNTO_COMA"
-    elif t[2] == "DIAGNOSTICS":
-        strGram = "<instruccion> ::= GET DIAGNOSTICS <expre> <symbol_declare> <expre> PUNTO_COMA"
-    elif t[2] == "CURRENT":
-        strGram = "<instruccion> ::= GET CURRENT DIAGNOSTICS <expre> <symbol_declare> <expre> PUNTO_COMA"
 
-    t[0] = indexFunction.indexFunction(strGram)
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
