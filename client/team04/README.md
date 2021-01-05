@@ -217,6 +217,11 @@ Al darle clic en abrir, se podrá ver el archivo .sql desplegado en una pestaña
 
 > Al dar clic en la opción GET se puede ver que se registró el usuario exitosamente.
 
+## Manual de Usuario (Server)
+
+> Debido a que el servidor trabaja de forma interna no se necesita más que una línea de comando, la función de este comando es conectar al servidor en su respectivo puerto para que pueda recibir las peticiones desde la aplicación. El puerto que se decidió utilizar fue el 8000. A continuación se muestra una imagen de como se debe ingresar dicho comando.
+
+![Interfaz inicial](resources/server.png?raw=true "Conexión del servidor") 
 
 ## Iniciar la interfaz
 

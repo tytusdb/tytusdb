@@ -1,10 +1,7 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
-from environment import *
-from checker import *
-from Database_Types import *
-from column import * 
+from execution.symbol.environment import *
+from TypeChecker.checker import *
+from TypeChecker.Database_Types import *
+from execution.symbol.column import * 
 
 class Avg(object):
     def __init__(self, id):
@@ -29,5 +26,9 @@ class Avg(object):
 
             #AGREGANDO A LA METADATA
             columna = Column( 'AVG('+self.id.id+')', DBType.numeric, 0, -1)
-            metadata.columns.append(columna)
+            if not any(columna.name == x.name for x in metadata.columns):
+                metadata.columns.append(columna)
             return {'tabla': metadata, 'data': tabla}
+    
+    def getColumn(self):
+        return Column( 'AVG('+self.id.id+')', DBType.numeric, 0, -1)

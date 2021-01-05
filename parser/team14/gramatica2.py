@@ -251,6 +251,7 @@ from Instrucciones.Drop import *
 from Instrucciones.Delete import Delete
 from graphviz import Digraph
 from Instrucciones.AlterTable import *
+from Instrucciones.Update import *
 
 global listaBNF
 listaBNF = []
@@ -381,13 +382,12 @@ def p_LISTAWHEN(t):
 
 
 def p_WHEN(t):
-    ''' WHEN : when LEXP then LEXP
-    '''
+    ''' WHEN : when LEXP then LEXP'''
 
 
 def p_ELSE(t):
-    '''ELSE : else LEXP
-    '''
+    '''ELSE : else LEXP'''
+    listaBNF.append("ELSE ::= else LEXP")
 
 
 def p_INSERT(t):
@@ -427,16 +427,25 @@ def p_DROP(t):
 def p_ALTER(t):
     '''ALTER : alter databases id rename to id
                | alter databases id owner to id
-               | alter table id OP'''
+               | alter table id LOP'''
     if len(t) == 7:
         listaBNF.append("ALTER ::= alter databases " + str(t[3]) + " " + str(t[4]) + " to " + str(t[6]))
-        if (t[4] == 'rename'):
+        if (str(t[4]).lower() == 'rename'):
             t[0] = AlterDb(str(t[3]), t[6])
         else:
             print("renombrar owner")
     elif len(t) == 5:
-        listaBNF.append("ALTER ::= alter table " + str(t[3]) + " OP")
+        listaBNF.append("ALTER ::= alter table " + str(t[3]) + " LOP")
         t[0] = AlterTable(str(t[3]),t[4])
+
+def p_LOP(t):
+    'LOP : LOP coma OP'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_LOP1(t):
+    'LOP : OP'
+    t[0] = [t[1]]
 
 def p_ADD(t):
     '''OP : add column id TIPO'''
@@ -463,7 +472,6 @@ def p_ADD21(t):
     listaBNF.append("OP ::= add unique para LEXP parc")
     t[0] = AddUnique(None,t[4])
 
-
 def p_ADD3(t):
     '''OP : add foreign key para LEXP parc references id para LEXP parc'''
     listaBNF.append("OP ::= add foreign key para LEXP parc references " + str(t[8]) + " para LEXP parc")
@@ -486,36 +494,28 @@ def p_op4(t):
 
 def p_ALTERDROP(t):
     '''OP : drop constraint id'''
-    listaBNF.append("OP ::= ")
+    listaBNF.append("OP ::= drop constraint " + str(t[3]))
     t[0] = DropConstraint(str(t[3]))
 
 def p_ALTERDROP1(t):
     '''OP : drop column LEXP'''
+    listaBNF.append("OP ::= drop column LEXP")
+    t[0] = DropColumns(t[3])
 
 def p_ALTERDROP2(t):
     '''OP : drop check id'''
+    listaBNF.append("OP ::= drop check " + str(t[3]).lower())
+    t[0] = DropCheck(str(t[3]))
 
 def p_op7(t):
     '''OP : rename column id to id '''
-
-def p_op5(t):
-    '''OP : listaalc'''
-    listaBNF.append("OP ::= LISTAALC")
-    t[0] = t[1]
-
-def p_listaalc(t):
-    '''listaalc : listaalc coma alc'''
-    listaBNF.append("LISTAALC ::= LISTAALC coma ALC")
-    t[1].append(t[3])
-    t[0] = t[1]
-
-def p_listaalc1(t):
-    '''listaalc : alc'''
-    listaBNF.append("LISTAALC ::= ALC")
-    t[0] = [t[1]]
+    listaBNF.append("OP ::= rename column " + str(t[3]).lower() + " to " + str(t[5]).lower())
+    t[0] = RenameColumn(str(t[3]),str(t[5]))
 
 def p_alc(t):
-    '''alc : alter column id type TIPO'''
+    '''OP : alter column id type TIPO'''
+    listaBNF.append("ALC ::= alter column " + str(t[3]) + " type TIPO")
+    t[0] = AlterType(str(t[3]),t[5])
 
 def p_SHOWDB(t):
     ''' SHOWDB : show dbs'''
@@ -549,8 +549,7 @@ def p_CREATEDB(t):
         t[0] = CreateDb(str(t[3]),str(t[2]).lower(),'')
     elif len(t) == 5:
         listaBNF.append("CREATEDB ::= create RD " + str(t[3]) + " OPCCDB")
-        t[0] = CreateDb(str(t[4]),str(t[2]).lower(),'')
-
+        t[0] = CreateDb(str(t[3]),str(t[2]).lower(),'')
 
 
 def p_OPCCDB(t):
@@ -804,11 +803,13 @@ def p_LIMIT(t):
                | offset int limit all
                | '''
     if len(t) == 3:
+        listaBNF.append("LIMIT ::= " + str(t[1]) + " " + str(t[2]))
         if str(t[1]).lower() == 'limit':
             t[0] = Limit(t[2], -1)
         elif str(t[1]).lower() == 'offset':
             t[0] = Limit(-1, t[2])
     elif len(t) == 5:
+        listaBNF.append("LIMIT ::= " + str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
         if str(t[1]).lower() == 'limit':
             t[0] = Limit(t[2], t[4])
         elif str(t[1]).lower() == 'offset':
@@ -833,10 +834,11 @@ def p_COMBINING(t):
                 | except EXP
 	            | '''
     if len(t) == 3:
+        listaBNF.append("COMBINING ::= " + str(t[1]) + " EXP")
         t[0] = Combi(t[1], t[2], '')
     elif len(t) == 4:
+        listaBNF.append("COMBINING ::= " + str(t[1]) + " " + str(t[2]) + " EXP")
         t[0] = Combi(t[1], t[3], t[2])
-
 
 def p_GROUP(t):
     ''' GROUP :  group by LEXP
@@ -852,7 +854,6 @@ def p_HAVING(t):
         listaBNF.append("HAVING ::= having EXP")
         t[0] = t[2]
 
-
 def p_ORDER(t):
     ''' ORDER : order by LEXP ORD
     | order by LEXP
@@ -864,20 +865,29 @@ def p_ORD(t):
 
 
 def p_UPDATE(t):
-    ' UPDATE : update id set LCAMPOS where LEXP'
+    ' UPDATE : update id set LCAMPOS WHERE'
+    listaBNF.append("UPDATE ::= update " + str(t[2]) + " set LCAMPOS WHERE")
+    t[0] = Update(str(t[2]),t[4],t[5])
 
 
-def p_LCAMPOS(t):
-    '''LCAMPOS :  LCAMPOS coma id igual EXP
-		| id igual EXP'''
+def p_LCAMPOS1(t):
+    '''LCAMPOS :  LCAMPOS coma id igual EXP'''
+    listaBNF.append("LCAMPOS ::= LCAMPOS coma " + str(t[3]) + " igual EXP")
+    t[1].append(Campo(str(t[3]),t[5]))
+    t[0] = t[1]
+
+def p_LCAMPOS2(t):
+    '''LCAMPOS : id igual EXP'''
+    listaBNF.append("LCAMPOS ::= " + str(t[1]) + " igual EXP")
+    t[0] = [Campo(str(t[1]),t[3])]
 
 
 def p_DELETE(t):
     '''
-    DELETE : delete   r_from EXP WHERE
+    DELETE : delete   r_from id WHERE
     '''
-    listaBNF.append("DELETE ::= delete from EXP WHERE")
-    t[0] = Delete(t[3],t[4])
+    listaBNF.append("DELETE ::= delete from id WHERE")
+    t[0] = Delete(str(t[3]),t[4])
 
 
 def p_EXIST(t):
@@ -1019,6 +1029,9 @@ def p_TIPO(t):
     listaBNF.append("TIPO ::= " + str(t[1]).lower())
     if str(t[1]).lower() == 'timestamp':
         tipo = Tipo('timestamp without time zone',None,-1,-1)
+        t[0] = tipo
+    elif str(t[1]).lower() == 'time':
+        tipo = Tipo('time without time zone',None,-1,-1)
         t[0] = tipo
     else : t[0] = Tipo(t[1], None, -1, -1)
 

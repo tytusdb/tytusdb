@@ -363,8 +363,6 @@ def p_entrada(p):
 
 def p_use(p):
     'use : USE ID PTCOMA'
-    global base_actual
-    base_actual = ins.UseDB(p[2]).ejecutar()
 
 def p_select(p):
     'select : s_select PTCOMA'
@@ -1319,13 +1317,13 @@ def p_colum_list(p):
 
 def p_const_keys(p):
     '''const_keys   : const_keys COMA CONSTRAINT ID PRIMARY KEY PARIZQ lista_id PARDER
-                    | const_keys COMA CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+                    | const_keys COMA CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER
                     | const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
-                    | const_keys COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+                    | const_keys COMA FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER
                     | CONSTRAINT ID PRIMARY KEY PARIZQ lista_id PARDER
-                    | CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+                    | CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER
                     | PRIMARY KEY PARIZQ lista_id PARDER
-                    | FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
+                    | FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER'''
 
     try:
 

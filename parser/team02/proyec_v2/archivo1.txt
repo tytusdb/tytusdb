@@ -1,0 +1,28 @@
+CREATE TABLE Houseof (
+    idusuario integer NOT NULL primary key,
+	cantidad integer,
+	suma integer,	
+	saludo varchar(897),
+	fechacreacion varchar(50)
+);
+
+CREATE TABLE tbusuario (
+    idusuario integer NOT NULL primary key,
+	nombre varchar(50),
+	apellido varchar(50),
+	usuario varchar(15)  UNIQUE NOT NULL,
+	password varchar(15) NOT NULL,
+	fechacreacion varchar(50)
+);
+insert into tbusuario values(1,'Luis Fernando','Salazar Rodriguez','lsalazar',MD5('paswword'),'a week ago'); 
+insert into tbusuario values(1,'Rosita','Perez','lsalazar',MD5('paswword'),'month'); 
+insert into tbusuario values(1,'Marvin rodas','Salazar Rodriguez','lsalazar',MD5('paswword'),'yesterday morning'); 
+insert into tbusuario values(1,'Luis Fernando','Estrada','house','paswword','ayer'); 
+insert into tbusuario values(1,'Marvin rodas','Arriola','montufar',MD5('paswword'),'hoy');
+
+
+insert into Houseof values(1+30,8*4,9,'Hello '+'world','a week ago'); 
+insert into Houseof values(30-5,32/4,9,'Hello '+'mundo','a day ago'); 
+
+select *from Houseof ;
+select *from tbusuario ;

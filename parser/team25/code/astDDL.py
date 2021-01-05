@@ -68,8 +68,8 @@ class CreateType(Instruccion):
 
         nodo = "\n" + identificador + "[ label = \"CREATE " + self.nombre + " TYPE as ENUM\" ];"
         for item in self.lista:
-            nodo = "\n" + identificador + "-> " + str(hash(item))
-            nodo = 'n' +  str(hash(item)) + "[ label = \" " + item + " \" ];"
+            nodo += "\n" + identificador + "-> " + str(hash(item))
+            nodo += '\n' +  str(hash(item)) + "[ label = \" " + item + " \" ];"
 
         return nodo
 
@@ -110,7 +110,7 @@ class CreateDatabase(Instruccion):
             nodo += "\n" + str(hash(self.duenio)) + "[ label = \"OWNER: " + self.duenio + "\" ];"
 
         if self.modo > 0:
-            nodo += "\n" + str(hash(self.modo)) + "[ label = \"MODE: " + self.modo + "\" ];"
+            nodo += "\n" + str(hash(self.modo)) + "[ label = \"MODE: " + str(self.modo) + "\" ];"
             nodo += "\n" + identificador + " -> " + str(hash(self.modo)) + ";"
 
         return nodo
@@ -301,7 +301,18 @@ class CreateField(Instruccion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label = \"NEW FIELD " + self.nombre + " " + self.tipo + "\" ];"
+        aux = self.tipo
+        if isinstance(self.tipo, tuple):
+            aux = self.tipo[0].value
+            if isinstance(self.tipo[1], tuple):
+                aux += "(" + str(self.tipo[1][0]) + "," + str(self.tipo[1][1]) + ")"
+            else:
+                aux += "(" + str(self.tipo[1]) + ")"
+        elif isinstance(self.tipo, str):
+            pass
+        else:
+            aux = self.tipo.value
+        nodo = "\n" + identificador + "[ label = \"NEW FIELD " + self.nombre + " " + aux + "\" ];"
         nodo += "\n//ATRIBUTOS DE CREAR UN CAMPO " + identificador + "\n"
 
         if self.atributos:
@@ -377,30 +388,32 @@ class CreateField(Instruccion):
                         atributos['References'] = fk
                         atributos['FK'] = True
                 elif isinstance(atr, DefaultField):
-                    dflt = atr.ejecutar(ts)
-
-                    #Chequeamos el default
-                    if atributos['Type'] == 'SMALLINT'\
-                    or atributos['Type'] == 'BIGINT' \
-                    or atributos['Type'] == 'INTEGER' and not isinstance(dflt, int):
+                    try:
+                        dflt = atr.ejecutar(ts).val
+                        #Chequeamos el default
+                        if (tipo == 'SMALLINT'\
+                        or tipo == 'BIGINT' \
+                        or tipo == 'INTEGER') and not isinstance(dflt, int):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        elif (tipo == 'DECIMAL' \
+                        or tipo == 'NUMERIC' \
+                        or tipo == 'REAL' \
+                        or tipo == 'DOUBLE_PRECISION' \
+                        or tipo == 'MONEY') and not (isinstance(dflt, float) or isinstance(dflt, int)):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        elif (tipo == 'CHAR' \
+                        or tipo == 'VARCHAR' \
+                        or tipo == 'TEXT' \
+                        or tipo == 'ENUM') and not isinstance(dflt, str):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        elif tipo == 'BOOLEAN' and not isinstance(dflt, bool):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        elif tipo == 'DATE' and not isinstance(dflt, str):
+                            return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
+                        #Guardamos el default
+                        atributos['Default'] = dflt
+                    except:
                         return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
-                    elif atributos['Type'] == 'DECIMAL' \
-                    or atributos['Type'] == 'NUMERIC' \
-                    or atributos['Type'] == 'REAL' \
-                    or atributos['Type'] == 'DOUBLE_PRECISION' \
-                    or atributos['Type'] == 'MONEY' and not (isinstance(dflt, float) or isinstance(dflt, int)):
-                        return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
-                    elif atributos['Type'] == 'CHAR' \
-                    or atributos['Type'] == 'VARCHAR' \
-                    or atributos['Type'] == 'TEXT' \
-                    or atributos['Type'] == 'ENUM' and not isinstance(dflt, str):
-                        return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
-                    elif atributos['Type'] == 'BOOLEAN' and not isinstance(dflt, bool):
-                        return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
-                    elif atributos['Type'] == 'DATE' and not isinstance(dflt, str):
-                        return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.datatype_mismatch),0)
-
-                    
                 elif isinstance(atr,CheckField):
                     cheq = atr.ejecutar(ts)
                     checks = (cheq[1],cheq[0],self.nombre)
@@ -686,7 +699,7 @@ class AlterTable(Instruccion):
             if self.accion.tipo == ALTER_TABLE_DROP.COLUMN:
                 sint = self.accion.ejecutar(ts)
                 #Comprobamos la existencia del campo
-                if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla,self.accion.campo):
+                if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla,self.accion.nombre):
                     return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_column), 0)
                 dropField = TRef.alterDropColumn(DB_ACTUAL.getName(), self.tabla, sint)
                 if dropField == 1:
@@ -878,7 +891,7 @@ class AlterTableAdd(Instruccion):
             nodo += "\n" + identificador + " -> " + str(hash(self.accion[0])) +"\n"
             nodo += "\n" + str(hash(self.accion[0])) + "[ label = \"" + self.accion[0] + "." + self.accion[1] + "\" ]"
             nodo += "\n" + identificador + " -> " + str(hash(self.accion[2])) +"\n"
-            nodo += "\n" + str(hash(self.accion[2])) + "[ label = \"CONSTRAINT" + self.accion[2] + "\" ]"
+            nodo += "\n" + str(hash(self.accion[2])) + "[ label = \"CONSTRAINT: " + self.accion[2] + "\" ]"
         elif self.tipo == ALTER_TABLE_ADD.MULTI_FOREIGN_KEY:
             nodo += "[ label = \"ADD FOREIGN KEY\" ];"
             for local in self.nombre:
@@ -907,7 +920,7 @@ class AlterTableAdd(Instruccion):
                 pass
             else:
                 aux = self.accion.value
-                nodo += "[ label = \"ADD COLUMN " + self.nombre + " " + aux + "\" ];"
+            nodo += "[ label = \"ADD COLUMN " + self.nombre + " " + aux + "\" ];"
         return nodo
 
     def ejecutar(self, ts):

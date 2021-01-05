@@ -3,6 +3,11 @@ import sys
 import platform
 from nodeAst import nodeAst
 import ascendente as analizador
+import traductor as generador
+import reportes as h
+#jossie
+from storageManager import jsonMode as j
+import pandas as pd
 
 #To display pdfs
 import webbrowser
@@ -15,14 +20,16 @@ from tkinter import messagebox
 from CustomText import CustomText
 #For managing the Line Numbers in the text area
 from TextLine import TextLineNumbers
+import optimizacionCodigo3D as optimizador
+
 
 class Interfaz(tk.Frame):
     def __init__(self, *args, **kwargs):
         self.root = root
         tk.Frame.__init__(self, *args, **kwargs)
-
+       
+        
         self.filename = None
-
         self.terminal = tk.Text(root, width=75, height=1, background="black",foreground="#00AA00")
         self.terminal.pack(side="right", fill="both", expand=True)
 
@@ -62,12 +69,16 @@ class Interfaz(tk.Frame):
         file_dropdown.add_command(label="Salir", command=self.end)
 
         run_dropdown.add_command(label="Ejecutar Ascendente", command=self.ejecutar_ascendente)
+        run_dropdown.add_command(label="Traducir 3D", command=self.traducir_3D)
+        run_dropdown.add_command(label="Ejecutar 3D", command=self.ejecutar_3D)
+        run_dropdown.add_command(label="Optimizar 3D", command=self.optimizar_3D)
         #run_dropdown.add_command(label="Ejecutar Descendente")
 
         report_dropdown.add_command(label="Reporte de Errores", command=self.generarReporteErrores )
         report_dropdown.add_command(label="Reporte AST", command=self.astReport)
         report_dropdown.add_command(label="Reporte de Gramatical", command=self.generarReporteGramatical)
         report_dropdown.add_command(label="Tabla de Simbolos", command=self.generarReporteSimbolos )
+        report_dropdown.add_command(label="Reporte de Optimizacion", command=self.optimizadoReport)
         
         help_dropdown.add_command(label="Acerca de", command=self.about)
         help_dropdown.add_command(label="Manual de Usuario", command=self.m_user)
@@ -124,6 +135,14 @@ class Interfaz(tk.Frame):
 
     def astReport(self):
         analizador.generarASTReport()
+    
+    def optimizadoReport(self):
+        state_script_dir = os.getcwd()
+        report_dir = state_script_dir + "\\Reportes\\OptimizacionDeCodigo.html"
+        optimizador.generar_reporte()
+        print("Si se genero el reporte de errores :D!")
+        edge_path = 'C://Program Files (x86)//Microsoft//Edge//Application/msedge.exe %s'
+        webbrowser.get(edge_path).open(report_dir)
         
 #-------------------------------------------------------Line Number Method---------------------------------------------------------------------
     def _on_change(self, event):
@@ -185,11 +204,49 @@ class Interfaz(tk.Frame):
         try:
             x=x.replace("and","AND")
             x=x.replace("or","OR")
-            salida=analizador.ejecucionAscendente(x)
+            salida=self.terminal.get(1.0,tk.END)
+            salida+=analizador.ejecucionAscendente(x)
             self.terminal.insert(tk.END,salida) 
         except:
-            salida="TYTTUS>Se genero un error de análisis"
-            self.terminal.insert(tk.END,salida)        
+            salida=self.terminal.get(1.0,tk.END)
+            salida+="TYTTUS>Se genero un error de análisis"
+            self.terminal.insert(tk.END,salida)       
+
+    def traducir_3D(self):
+        x= self.text.get(1.0, tk.END)
+        self.terminal.delete(1.0, tk.END)
+        print(x)
+        try:
+            x=x.replace("and","AND")
+            x=x.replace("or","OR")
+            salida=self.terminal.get(1.0,tk.END)
+            salida+=generador.ejecucionATraduccion(x)
+            self.terminal.insert(tk.END,salida)
+        except:
+            salida=self.terminal.get(1.0,tk.END)
+            salida+="TYTTUS>Se genero un error al traducir"
+            self.terminal.insert(tk.END,salida)
+         
+
+    def ejecutar_3D(self):
+        x= self.text.get(1.0, tk.END)
+        self.terminal.delete(1.0, tk.END)
+        print(x)
+
+        salida=self.terminal.get(1.0,tk.END)
+        exec(x)
+        salida+=h.textosalida
+        self.terminal.insert(tk.END,salida) 
+
+
+    def optimizar_3D(self):
+        x= self.text.get(1.0, tk.END)
+        self.terminal.delete(1.0, tk.END)
+        print(x)
+        salida=self.terminal.get(1.0,tk.END)
+        optimizador.optimizacion_de_codigo(x) 
+        salida+=h.textosalida
+        self.terminal.insert(tk.END,salida) 
 #-------------------------------------------------------Help Menu Methods---------------------------------------------------------------------
     def about(self):
         box_tilte ="Autor"
@@ -219,6 +276,8 @@ class Interfaz(tk.Frame):
             box_tilte ="Path Error"
             box_msg = "El archivo que trata de acceder no existe"
             messagebox.showerror(box_tilte,box_msg)
+    
+    
 #-------------------------------------------------------Main---------------------------------------------------------------------       
 if __name__ == "__main__":
     root = tk.Tk()

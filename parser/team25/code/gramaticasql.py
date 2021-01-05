@@ -1,6 +1,7 @@
 import ply.yacc as yacc
-
-from astDML import UpdateTable,InsertTable
+from reporteErrores.errorReport import ErrorReport
+from reporteErrores.instance import listaErrores 
+from astDML import UpdateTable,InsertTable,DeleteTabla
 from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, BETWEEN,ExpresionPositiva, ExpresionBetween, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano , ExpresionAgrupacion
@@ -10,7 +11,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
-from astSelect import SelectFrom
+from astSelect import SelectSimple, SelectFrom, ITEM_ALIAS , SelectFilter , SelectFromWhere, WHERE,COMBINE_QUERYS, combineQuery
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -81,10 +82,10 @@ def p_instruccion7(p):
     p[0] = p[1]
     bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
 
-def p_instruccion8(p):
-    'instruccion : select PTCOMA '
-    p[0] = p[1]
-    bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
+# def p_instruccion8(p):
+#     'instruccion : select PTCOMA '
+#     p[0] = p[1]
+#     bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
     
 def p_use(p):
     'use : USE ID'
@@ -261,7 +262,7 @@ def p_alter_varchar_lista(p):
 def p_alter_varchar(p):
     '''alter_varchar : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA '''
     bnf.addProduccion('\<alter_varchar> ::= "ALTER" "COLUMN" "ID" "TYPE" "VARCHAR" "(" NUMERO ")"')
-    p[0] = AlterField(p[3],p[6])
+    p[0] = AlterField(p[3],p[7])
 
 # <TABLA> ::=  'id' 
 #          |   'id' 'as' 'id'
@@ -275,10 +276,10 @@ def p_tablas(p):
         p[0] = p[1]
         bnf.addProduccion('\<tabla> ::= "ID"')
     elif len(p) == 3:
-        print("TABLA CON ID")
+        p[0] = ITEM_ALIAS(p[1], p[2])
         bnf.addProduccion('\<tabla> ::= "ID" \<alias>')
     else:
-        print("TABLA CON AS ID")
+        p[0] = ITEM_ALIAS(p[1], p[3])
         bnf.addProduccion('\<tabla> ::= "ID" "AS" \<alias>')
 def p_tablas2(p):
     '''tabla : subquery
@@ -298,10 +299,13 @@ def p_filtro(p):
               | where '''
     if len(p) == 4:
         bnf.addProduccion('\<filtro> ::= \<where> \<group_by> \<having>')
+        p[0] = SelectFilter(p[1],p[2],p[3])
     elif len(p) == 3:
         bnf.addProduccion('\<filtro> ::= \<where> \<group_by>')
+        p[0] = SelectFilter(p[1],p[2])
     else:
         bnf.addProduccion('\<filtro> ::= \<where>')
+        p[0] = SelectFilter(p[1])
 
         
 
@@ -309,37 +313,45 @@ def p_filtro(p):
 
 def p_combine_querys1(p):
     'combine_querys : combine_querys UNION ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.UNION, p[3],p.slice[1].lineno)
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "UNION" "ALL" \<select>')
 
 def p_combine_querys2(p):
     'combine_querys : combine_querys UNION select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.UNION, p[3],p.slice[1].lineno)
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "UNION"  \<select>')
 
 def p_combine_querys3(p):
     'combine_querys : combine_querys INTERSECT ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.INTERSECT, p[3],p.slice[1].lineno)
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "INTERSECT" "ALL"  \<select>')
 
 def p_combine_querys4(p):
     'combine_querys : combine_querys INTERSECT select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.INTERSECT, p[3],p.slice[1].lineno)
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "INTERSECT"  \<select>')
 
 def p_combine_querys5(p):
     'combine_querys : combine_querys EXCEPT ALL select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.EXCEPT, p[3],p.slice[1].lineno)
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "EXCEPT" "ALL" \<select>')
 
 def p_combine_querys6(p):
     'combine_querys : combine_querys EXCEPT select'
+    p[0] = combineQuery(p[1], COMBINE_QUERYS.EXCEPT, p[3],p.slice[1].lineno)
     bnf.addProduccion('\<combine_querys> ::= \<combine_querys> "EXCEPT"  \<select>')
 
 def p_combine_querys7(p):
     'combine_querys : select'
+    p[0] = p[1]
     bnf.addProduccion('\<combine_querys> ::= \<select> ')
 #_____________________________________________________________ SELECT
 
 
-def p_select2(p):
+def p_select2(p):#_________________________________- select simple con un where
     'select : SELECT select_list FROM lista_tablas filtro'
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list> "FROM"  \<lista_tablas> \<filtro>')
+    p[0] = SelectFromWhere(p[4], p[2] ,p[5],p.slice[1].lineno)
 
 
 
@@ -385,7 +397,7 @@ def p_select20(p):
 
 def p_select24(p):
     'select : SELECT select_list FROM lista_tablas'
-    p[0] = SelectFrom(p[4], p[2])
+    p[0] = SelectFrom(p[4], p[2],p.slice[1].lineno)
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list> "FROM"  \<lista_tablas>')
 
 
@@ -395,6 +407,7 @@ def p_select28(p):
 
 def p_select30(p):
     'select : SELECT select_list'
+    p[0] = SelectSimple(p[2],p.slice[1].lineno)
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list>')
 
 def p_select31(p):
@@ -839,10 +852,10 @@ def p_select_list(p):
         p[0] = [p[1]]
         bnf.addProduccion('\<select_list> ::= \<select_item>')
     elif len(p) == 3:
-        p[0] = [p[1]] # considerar que este ya tendria un alias
+        p[0] = [ITEM_ALIAS(p[1], p[2])] # considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_item>  "ID"')
     elif len(p) == 4:
-        p[0] = [p[1]] # considerar que este ya tendria un alias
+        p[0] = [ITEM_ALIAS(p[1], p[3])] # considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_item> "AS" \<alias>')
 
 def p_select_list2(p):
@@ -856,11 +869,11 @@ def p_select_list2(p):
         p[0] = p[1]
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> ')
     elif len(p) == 5:
-        p[1].append(p[3])
+        p[1].append(ITEM_ALIAS(p[3], p[4]))
         p[0] = p[1] # falta considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> "ID"')
     elif len(p) == 6:
-        p[1].append(p[3])
+        p[1].append(ITEM_ALIAS(p[3], p[5]))
         p[0] = p[1] # falta considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> "AS" \<alias>')
 
@@ -1278,6 +1291,11 @@ def p_tipo_20(p):
     'tipo : DECIMAL PABRE NUMERO COMA NUMERO PCIERRA'
     bnf.addProduccion(f'\<tipo> ::="DECIMAL" "(" "NUMERO" "," "NUMERO" ")"')
     p[0] = (TYPE_COLUMN.DECIMAL, (p[3],p[5]))
+
+def p_tipo_21(p):
+    'tipo : NUMERIC PABRE NUMERO COMA NUMERO PCIERRA'
+    bnf.addProduccion(f'\<tipo> ::="NUMERIC" "(" "NUMERO" "," "NUMERO" ")"')
+    p[0] = (TYPE_COLUMN.DECIMAL, (p[3],p[5]))
 # __________________________________________ <INTERVAL>
 # <INTERVAL> ::= 'interval' <FIELDS> ('numero')
 #             |  'interval' <FIELDS>
@@ -1433,12 +1451,12 @@ def p_update(p):
 
 def p_sentenciaInsert(p):
     ''' insert : INSERT INTO ID VALUES PABRE lista_exp PCIERRA'''
-    p[0] = InsertTable(p[3],p[6])
+    p[0] = InsertTable(p[3],p[6],None,p.slice[1].lineno)
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" "VALUES"  "( "\<lista_exp> ")"')
     
 def p_sentenciaInsert2(p):
     ''' insert : INSERT INTO ID parametros VALUES PABRE lista_exp PCIERRA'''
-    p[0] = InsertTable(p[3],p[7],p[4])
+    p[0] = InsertTable(p[3],p[7],p[4],p.slice[1].lineno)
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" \<parametros> "VALUES"  "( "\<lista_exp> ")"') 
 # ___________________________________________PARAMETROS
 
@@ -1470,8 +1488,10 @@ def p_sentenciaDelete(p):
     ''' sentenciaDelete : DELETE FROM ID WHERE expresion
                         | DELETE FROM ID '''
     if len(p) == 6:
+        p[0] = DeleteTabla(p[3],p[5],p.slice[1].lineno)
         bnf.addProduccion('\<delete> ::= "DELETE" "FROM" "ID" "WHERE" <expresion>')
     else:
+        p[0] = DeleteTabla(p[3],None,p.slice[1].lineno)
         bnf.addProduccion('\<delete> ::= "DELETE" "FROM" "ID"')
 
 
@@ -1481,18 +1501,18 @@ def p_lista_asignaciones(p):
     '''lista_asignaciones : lista_asignaciones COMA asignacion
                           | asignacion'''
     if (len(p) == 4):
-        p[1].append(p[3])
+        p[1].update(p[3])
         p[0] = p[1]
         bnf.addProduccion('\<lista_asignaciones> ::=  \<lista_asignaciones> "," \<asignacion>')
     else:
-        p[0] = [p[1]]
+        p[0] = p[1]
         bnf.addProduccion('\<lista_asignaciones> ::= \<asignacion>')
 
 
 def p_asignacion(p):
     ''' asignacion : ID IGUAL expresion'''
     bnf.addProduccion('\<asignacion> ::= "ID" "=" \<expresion>')
-    p[0] = p[1]
+    p[0] = {p[1]:p[3]}
 
 
 # ______________________________________________EXPRESION_______________________________
@@ -1667,7 +1687,7 @@ def p_expresion_id(p):
     
 def p_expresion_tabla_campo(p):
     'expresion : ID PUNTO ID'
-    p[0] = ExpresionID(p[3], p.slice[1].lineno , tabla = p[1])
+    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno)
     bnf.addProduccion('\<exp_aux> ::= "ID" "." "ID"')
         
 
@@ -1829,12 +1849,12 @@ def p_exp_aux_decimal(p):
 #          | 'id' '.' 'id'
 def p_exp_aux_tabla(p):
     'exp_aux :  ID PUNTO ID'
-    p[0] = ExpresionID(p[3], p.slice[1].lineno , tabla = p[1])
+    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno ,tabla = p[1]+"."+p[3])
     bnf.addProduccion('\<exp_aux> ::= "ID" "." "ID"')
 #          | 'id'
 def p_exp_aux_id(p):
     'exp_aux :  ID'
-    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno , tabla = p[1])
+    p[0] = ExpresionID(p[1], p.slice[1].lineno , tabla = p[1])
     bnf.addProduccion('\<exp_aux> ::= "ID"')
 #          | <FUNCIONES>
 def p_exp_aux_funciones(p):
@@ -1851,6 +1871,7 @@ def p_subquery(p):
 def p_where(p):
         'where : WHERE expresion'
         bnf.addProduccion('\<where> ::= "WHERE" \<expresion>')
+        p[0] = WHERE(expresion=p[2])
 
 #<GROUP_BY> ::= <LISTA_IDS>
 def p_groupby(p):
@@ -1964,6 +1985,7 @@ def p_select_item9(p):
         
 def p_select_item10(p):
         'select_item : ID PUNTO ASTERISCO'
+        p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno ,tabla = p[1]+"."+p[3])
         bnf.addProduccion('\<select_item> ::= "ID" "." "*"')
 
 #    <COUNT> ::= 'count' '(' '*' ')'  
@@ -2002,8 +2024,8 @@ def p_case(p):
         bnf.addProduccion('\<case> ::= "CASE" \<subcase> \<else_case> "END"')
 #             | 'case' <SUBCASE> 'end'   
 def p_case1(p):
-        'case : CASE subcase END'
-        bnf.addProduccion('\<case> ::= "CASE" \<subcase>  "END"')   
+        'case : CASE subcase END ID'
+        bnf.addProduccion('\<case> ::= "CASE" \<subcase>  "END" "ID"')   
 #    <SUBCASE> ::= <WHEN_CASE>
 def p_subcase(p):
         'subcase : when_case'
@@ -2020,7 +2042,10 @@ def p_subcase1(p):
 def p_else_case(p):
         'else_case : ELSE expresion'
         bnf.addProduccion('\<else_case> ::= "ELSE" \<expresion>')
-
+#<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
+def p_when_case(p):
+    'when_case : WHEN expresion THEN expresion'
+    bnf.addProduccion('\<when_case> ::=  "WHEN" \<expresion> "THEN" \<expresion>') 
 #<GREATEST> ::= 'greatest' '(' <LISTA_EXP>')'
 def p_greatiest(p):
         'greatest : GREATEST PABRE lista_exp PCIERRA'
@@ -2045,10 +2070,6 @@ def p_lista_exp_2(p):
     p[0] = p[1]
     bnf.addProduccion('\<lista_exp> ::=  \<lista_exp> "," \<expresion>')  
 
-#<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
-def p_when_case(p):
-    'when_case : WHEN expresion THEN expresion'
-    bnf.addProduccion('\<when_case> ::=  "WHEN" \<expresion> "THEN" \<expresion>') 
         
 def p_alias(p):
     '''alias : CADENA ''' # VALIDACION SEMANTICA QUE ESTA CADENA VENGA ENTRR COMILLAS DOBLES
@@ -2064,9 +2085,13 @@ def p_alias2(p):
 def p_error(p):
     print(p)
     try:
+        error = ErrorReport('sintactico', f'No se esperaba el token de tipo: {p.type}  valor: {p.value}', p.lineno)
+        listaErrores.addError(error)
         print("Error sintáctico en '%s'" % p.value)
     except:
         print("no se recupero del error porque no encontro punto y coma")
+        error = ErrorReport('sintactico','no se recupero del error porque no encontro punto y coma',0)
+        listaErrores.addError(error)
 
 
 
@@ -2079,7 +2104,102 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada('''
-use test; 
-select * from tbrol;
+use test;
+
+create table tbpuesto 
+( idpuesto smallint not null,
+  puesto character(25),
+  salariobase money,
+ primary key (idpuesto)
+);
+
+insert into tbpuesto values (1,'Recepcionista','4,000');
+
+alter table tbpuesto
+add column tinecomision boolean;
+
+insert into tbpuesto values (2,'Asistente Contable','4,500',false);
+insert into tbpuesto values(3,'Contador General','9000',false);
+insert into tbpuesto values(4,'Asistente de RRHH','4000',false);
+insert into tbpuesto values(5,'Recepcionista Gerencia','5000',false);
+insert into tbpuesto values(6,'Vendedor 1','2500',true);
+insert into tbpuesto values(7,'Vendedor 2','2750',true);
+insert into tbpuesto values(8,'Vendedor 3','3000',true);
+insert into tbpuesto values(9,'Jefe de Ventas','4000',true);
+insert into tbpuesto values(10,'Jefe de Ventas Regional','2500',true);
+
+CREATE TYPE area AS ENUM ('CONTABILIDAD','ADMINISTRACION','VENTAS','TECNOLOGIA','FABRICA');
+
+
+CREATE TABLE tbempleadopuesto
+(
+	idempleado integer not null,
+	idpuesto   integer not null,
+	departamento area
+);
+
+ alter table tbempleadopuesto
+ add constraint FK_empleado
+ foreign key (idempleado)
+ references tbempleado(idempleado);
+  
+ alter table tbempleadopuesto
+ add constraint FK_empleado
+ foreign key (idempleado)
+ references tbempleado(idempleado);
+  
+  
+insert into tbempleadopuesto values(1,1,'ADMINISTRACION');
+insert into tbempleadopuesto values(2,1,'CONTABILIDAD');
+insert into tbempleadopuesto values(3,3,'CONTABILIDAD');
+insert into tbempleadopuesto values(4,6,'VENTAS');
+insert into tbempleadopuesto values(5,6,'VENTAS');
+
+
+UPDATE tbempleadopuesto SET idpuesto = 2 where idempleado = 2;
+
+create table tbventa 
+(  idventa integer not null primary key,
+   idempleado integer,
+   fechaventa date constraint validaventa check (fechaventa > '1900-01-01'),
+   montoventa money constraint ventavalida check (montoventa > '0'),
+   ventaregistrada boolean,
+   descripcion text
+);
+
+
+insert into tbventa values(1,4,'2020-10-12',450,false,'Venta de bomba de agua para toyota');
+insert into tbventa values(2,4,'2020-10-13',250,false,'Tasa distribuidor Mazda 626');
+insert into tbventa values(3,4,'2020-10-13',650,false,'Radiador para Mazda 626');
+insert into tbventa values(4,4,'2020-10-13',125,false,'Filtro de aire volkswagen');
+insert into tbventa values(5,4,'2020-10-13',175,false,'Juego de Candelas volkswagen');
+insert into tbventa values(6,4,'2020-10-13',220,false,'Aceite 20w50');
+insert into tbventa values(7,5,'2020-10-13',1250,false,'Cremallera Mazda 3');
+insert into tbventa values(8,5,'2020-10-14',980,false,'Cremallera timon hidraulico mazda');
+insert into tbventa values(9,5,'2020-10-14',1200,false,'Lodera Universal para pickup');
+insert into tbventa values(10,5,'2020-10-14',475,false,'Sobre Lodera de Fibra de Carbon');
+insert into tbventa values(11,5,'2020-10-14',780,false,'Bomba Auxiliar de agua para volkswagen');
+insert into tbventa values(12,4,'2020-10-14',3500,false,'Bomba de agua para volkswagen');
+insert into tbventa values(13,5,'2020-10-14',200,false,'Compresor de aire acondicionado');
+insert into tbventa values(14,5,'2020-10-15',2000,false,'Bomba Auxiliar de agua para volkswagen');
+
+ 
+
 ''')
 arbolParser.ejecutar()
+
+# create table tb1(
+#   numerica integer,
+#   cadena varchar(40)
+# );
+
+
+# create table tb2(
+#   numerica integer,
+#   cadena varchar(40)
+# );
+
+# insert into tb1 values (70,'adios');
+# insert into tb1 values (99,'hola');
+# insert into tb2 values (200,'oracle');
+# insert into tb2 values (44,'nuevo');

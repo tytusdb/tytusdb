@@ -7,15 +7,19 @@ from parse.errors import Error, ErrorType
 class CreateEnum(ASTNode):
     def __init__(self, name, value_list, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.name = name  # type name
+        self.name = name.upper()  # type name
         self.value_list = value_list  # list of possible values
         self.graph_ref = graph_ref
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        result_values = self.value_list.execute(table, tree)
+        result_values = []
+        for val in self.value_list:          
+            result_values.append(val.execute(table, tree))
         symbol = TypeSymbol(self.name, result_values)
-        return table.add(symbol)
+        table.add(symbol)
+        print(f'[AST] ENUM {self.name} created.')
+        return f'[AST] ENUM {self.name} created.'
 
 
 class CreateDatabase(ASTNode):
@@ -54,7 +58,7 @@ class CreateDatabase(ASTNode):
         else:            
             #return table.add(DatabaseSymbol(result_name, result_owner, result_mode)) #chaged by loadDatabases
             table.LoadDataBases()
-            return True
+            return ['Database \'' + result_name + '\' was created successfully!']
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
     def __init__(self, name, inherits_from, fields, check_exp, line, column, graph_ref):

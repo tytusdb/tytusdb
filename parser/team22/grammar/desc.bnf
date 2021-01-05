@@ -1,0 +1,523 @@
+<init>	::= <instrucciones>
+
+<instrucciones>	::= <instruccion> <instrucciones'>
+
+<instrucciones'>	::= <instruccion> <instrucciones'>
+					|
+
+<instruccion>	::= CREATE <creaccion> PTCOMA
+				| SHOW <show_db> PTCOMA
+				| ALTER DATABASE <alter_database> PTCOMA
+				| USE <cambio_bd> PTCOMA
+				| SELECT <selects> PTCOMA
+				| DELETE <deletes> PTCOMA
+				| ALTER TABLE <alter_table> PTCOMA
+				| UPDATE <update_table> PTCOMA
+				| INSERT <insercion> PTCOMA
+				| DROP <dropear> PTCOMA
+#=================================================
+#ELEMENTOS BÁSICOS
+<lista_id>	::= ID <lista_id'>
+
+<lista_id'> ::= COMA ID <lista_id'>
+			|
+
+<tipos>	::= SMALLINT
+		| INTEGER
+		| BIGINT
+		| R_DECIMAL
+		| NUMERIC
+		| REAL
+		| DOBULE PRECISION
+		| MONEY
+		| TEXT
+		| TIMESTAMP
+		| DATE
+		| TIME
+		| BOOLEAN
+		| INTERVAL
+		| CHARACTER VARING PARIZQ ENTERO PARDER
+		| VARCHAR PARIZQ ENTERO PARDER
+		| CHARACTER PARIZQ ENTERO PARDER
+		| CHAR PARIZQ ENTERO PARDER
+		| TIMESTAMP <def_dt_types>
+		| TIME <def_dt_types>
+		| INTERVAL <def_interval>
+
+<def_dt_types>	::= PARIZQ ENTERO PARDER <with_time_zone>
+				| WITHOUT TIME ZONE
+				| WITH TIME ZONE
+
+<with_time_zone>	::= WITHOUT TIME ZONE
+					| WITH TIME ZONE
+					|
+
+<def_interval>	::= <def_fld_to> <def_interval_param>
+				| PARIZQ ENTERO PARDER
+
+<def_interval_param>	::= PARIZQ ENTERO PARDER
+						|
+
+<def_fld_to>	::= <def_fields> <to_def_fields>
+
+<to_def_fields>	::= TO <def_fields>
+				|
+
+<def_fields>	::= YEAR
+				| MONTH
+				| DAY
+				| HOUR
+				| MINUTE
+				| SECOND
+
+<relacional>	::= <aritmetica> <continuacion_relacional_aritmetica> <relacional'>
+				| NOT <relacional> <relacional'>
+				| EXISTS <state_subquery <relacional'>
+				| IN <state_subquery> <relacional'>
+				| NOT IN <state_subquery> <relacional'>
+				| ANY <state_subquery> <relacional'>
+				| ALL <state_subquery> <relacional'>
+				| SOME <state_subquery> <relacional'>
+				| <state_between> <relacional'>
+				| <state_predicate_nulls> <relacional'>
+				| <state_is_distinct> <relacional'>
+				| <state_pattern_match> <relacional'>
+
+<relacional'>	::= AND <relacional'>
+				| OR <relacional'>
+				|
+
+<continuacion_relacional_aritmetica>	::= MENOR <aritmetica>
+										| MAYOR <aritmetica>
+										| IGUAL IGUAL <aritmetica>
+										| MENORIGUAL <aritmetica>
+										| MAYORIGUAL <aritmetica>
+										| DIFERENTE <aritmetica>
+										| NO_IGUAL <aritmetica>
+										| IGUAL <aritmetica>
+										|
+
+<aritmetica>	::= <valor> <aritmetica'>
+				| PARIZQ <aritmetica> PARDER <aritmetica'>
+				| <funciones_math_esenciales> <aritmetica'>
+				| <lista_funciones> <aritmetica'>
+				| <fun_binario_select> <aritmetica'>
+				| <fun_trigonometrica> <aritmetica'>
+
+<aritmetica'>	::= MAS <aritmetica> <aritmetica'>
+				| MENOS <aritmetica> <aritmetica'>
+				| POR <aritmetica> <aritmetica'>
+				| DIVISON <aritmetica> <aritmetica'>
+				| MODULO <aritmetica> <aritmetica'>
+				| EXP <aritmetica> <aritmetica'>
+				|
+
+<valor>	::= ID <punto_id>
+		| ENTERO
+		| DECIMAL
+		| <date_functions>
+		| CADENA
+		| <lista_funciones_where>
+		| <fun_binario_where>
+		| <state_subquery>
+
+<state_between>	::= <valor> <continuacion_state_between>
+
+<continuacion_state_between> ::= BETWEEN <valor> AND <valor>
+							 | NOT <between_in>
+
+<between_in>	::= BETWEEN <valor> AND <valor>
+				| IN <state_subquery>
+
+<state_predicate_nulls>	::= <valor> <nules>
+
+<nules>	::= ISNULL
+		| NOTNULL
+		| IS <unul>
+
+<state_is_distinct>	::= <valor> IS <state_is_distinct_notis>
+
+<state_is_distinct_notis>	::= DISTINCT FROM <valor> <state_aliases_table>
+							| NOT DISTINCT FROM <valor> <state_aliases_table>
+
+<state_aliases_table> ::= AS ID
+						| ID
+						|
+
+<state_pattern_match>	::= <aritmetica> LIKE <cadenas>
+
+<cadenas>	::= CADENA
+			| CADENA_DOBLE
+
+<funciones_math_esenciales>	::= COUNT PARIZQ <lista_funciones_math_esenciales> PARDER <o_parametro>
+							| SUM PARIZQ <lista_funciones_math_esenciales> PARDER <o_parametro>
+							| AVG PARIZQ <lista_funciones_math_esenciales> PARDER <o_parametro>
+
+<o_paramtero>	::= <parametro>
+				|
+
+<lista_funciones_math_esenciales>	::= <aritmetica>
+									| <lista_id>
+									| POR
+
+<parametro>	::= ID <punto_id>
+			| <lista_funciones>
+			| <funciones_math_esenciales>
+			| <fun_binario_select>
+			| <date_functions>
+			| <state_subquery>
+			| CADENA
+			| DECIMAL
+			| ENTERO
+
+<lista_funciones>	::= ABS PARIZQ <funcion_math_parametro>	PARDER
+					| CBRT PARIZQ <funcion_math_parametro> PARDER
+					| CEIL PARIZQ <funcion_math_parametro> PARDER
+					| CEILING PARIZQ <funcion_math_parametro> PARDER
+					| DEGREES PARIZQ <funcion_math_parametro> PARDER
+					| DIV PARIZQ <funcion_math_parametro> PARDER
+					| EXP PARIZQ <funcion_math_parametro> PARDER
+					| FACTORIAL PARIZQ <funcion_math_parametro> PARDER
+					| FLOOR PARIZQ <funcion_math_parametro> PARDER
+					| GCD PARIZQ <funcion_math_parametro> PARDER
+					| LN PARIZQ <funcion_math_parametro> PARDER
+					| LOG PARIZQ <funcion_math_parametro> PARDER
+					| MOD PARIZQ <funcion_math_parametro> PARDER
+					| PI PARIZQ PARDER
+					| POWER PARIZQ <funcion_math_parametro> COMA ENTERO PARDER
+					| RADIANS PARIZQ <funcion_math_parametro> PARDER
+					| ROUND PARIZQ <funcion_math_parametro> PARDER
+					| SIGN PARIZQ <funcion_math_parametro> PARDER
+					| SQRT PARIZQ <funcion_math_parametro> PARDER
+					| WIDTH_BUCKET PARIZQ <funcion_math_parametro> COMA <funcion_math_parametro> COMA <funcion_math_parametro> COMA <funcion_math_parametro> PARDER
+					| TRUNC PARIZQ <funcion_math_parametro> PARDER
+					| RANDOM PARIZQ PARDER
+
+<lista_funciones_where>	::= ABS PARIZQ <funcion_math_parametro> PARDER
+						| CBRT PARIZQ <funcion_math_parametro> PARDER
+						| CEIL PARIZQ <funcion_math_parametro> PARDER
+						| CEILING PARIZQ <funcion_math_parametro PARDER
+
+<funcion_math_parametro>	::= ENTERO
+							| ID
+							| DECIMAL
+							| <funcion_math_parametro_negativo>
+
+<funcion_math_parametro_negativo>	::= MENOS <dec_o_ent>
+
+<dec_o_ent>	::= DECIMAL
+			| ENTERO
+
+<fun_binario_select>	::= LENGTH PARIZQ <valor> PARDER
+						| SUBSTRING PARIZQ <valor> COMA ENTERO COMA ENTERO PARDER
+						| TRIM PARIZQ CADENA FROM <valor> PARDER
+						| SHA256 PARIZQ <valor> PARDER
+						| SUBSTR PARIZQ <valor> COMA ENTERO COMA ENTERO PARDER
+						| GET_BYTE PARIZQ <valor> <bytea> DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO PARDER
+						| GET_BYTE PARIZQ <valor> COMA ENTERO PARDER
+						| SET_BYTE PARIZQ <valor> DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO COMA ENTERO PARDER
+						| SET_BYTE PARIZQ <valor> COMA ENTERO COMA ENTERO PARDER
+						| CONVERT PARIZQ <valor> AS <tipos> PARDER
+						| ENCODE PARIZQ <valor> DOS_PUNTOS DOS_PUNTOS BYTEA COMA CADENA PARDER
+						| ENCODE PARIZQ <valor> COMA CADENA PARDER
+						| DECODE PARIZQ <valor> COMA CADENA PARDER
+
+<bytea>	::= DOS_PUNTOS DOS_PUNTOS BYTEA
+		|
+
+<fun_trigonometrica>	::= ACOS PARIZQ <aritmetica> PARDER
+						| ASIN PARIZQ <aritmetica> PARDER
+						| ATAN PARIZQ <aritmetica> PARDER
+						| ATAN2 PARIZQ <aritmetica> COMA <aritmetica> PARDER
+						| COS PARIZQ <aritmetica> PARDER
+						| COT PARIZQ <aritmetica> PARDER
+						| SIN PARIZQ <aritmetica> PARDER
+						| TAN PARIZQ <aritmetica> PARDER
+						| ACOSD PARIZQ <aritmetica> PARDER
+						| ASIND PARIZQ <aritmetica> PARDER
+						| ATAND PARIZQ <aritmetica> PARDER
+						| ATAN2D PARIZQ <aritmetica> COMA <aritmetica> PARDER
+						| COSD PARIZQ <aritmetica> PARDER
+						| COTD PARIZQ <aritmetica> PARDER
+						| SIND PARIZQ <aritmetica> PARDER
+						| TAND PARIZQ <aritmetica> PARDER
+						| SINH PARIZQ <aritmetica> PARDER
+						| COSH PARIZQ <aritmetica> PARDER
+						| TANH PARIZQ <aritmetica> PARDER
+						| ASINH PARIZQ <aritmetica> PARDER
+						| ACOSH PARIZQ <aritmetica> PARDER
+						| ATANH PARIZQ <aritmetica> PARDER
+
+<date_functions>	::= EXTRACT PARIZQ <lista_date_functions>
+					| <date_part> PARIZQ <lista_date_functions>
+					| NOW PARIZQ <lista_date_functions>
+					| <lista_date_functions>
+
+<lista_date_functions>	::= <def_fields> FROM TIMESTAMP CADENA PARDER PTCMA
+						| CADENA COMA INTERVAL CADENA PARDER
+						| TIMESTAMP CADENA
+						| CURRENT_TIME
+						| CURRENT_DATE
+						| PARDER
+
+<state_subquery>	::= PARIZQ SELECT selects PARDER
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE CREACIÓN
+
+<creacion>	::= DATABASE <crear_bd>
+			| OR REPLACE DATABASE <crear_bd>
+			| TABLE <crear_tb>
+			| TYPE <crear_type>
+
+<crear_db>	::= ID <lista_parametros_bd>
+			| IF NOT EXISTS <lista_parametros_bd>
+
+<lista_parametros_bd>	::= <parametros_bd> <lista_parametros_bd'>
+						|
+
+<lista_parametros_bd'>	::= <parametros_bd> <lista_parametros_bd'>
+						|
+
+<parametros_bd>	::= OWNER <igual> ID
+				| MODE <igual> ENTERO
+
+<igual>	::= IGUAL
+		|
+
+<crear_tb>	::= ID PARZIQ <crear_tb_columnas> PARDER <tb_herencia>
+
+<tb_herencia>	::= INHERITS PARIZQ ID PARDER
+				|
+
+<crear_tb_columnas>	::= <crear_tb_columna> <crear_tb_columnas'>
+
+<crear_tb_columnas'>	::= COMA <crear_tb_columna> <crear_tb_columnas'>
+						|
+
+<crear_tb_columna>	::= ID <tipos> <parametros_columna>
+					| PRIMARY KEY PARIZQ <lista_id> PARDER
+					| FOREIGN KEY PARIZQ <lista_id> PARDER
+					| <chequeo>
+					| UNIQUE PARIZQ <lista_id> PARDER
+
+<chequeo>	::= CONSTRAINT ID CHECK PARIZQ <relacional> PARDER
+			| CHECK PARIZQ <relacional> PARDER
+
+<parametros_columna>	::= <parametro_columna> <parametros_columna>
+						|
+
+<parametro_columna>	::= <unul>
+					| <unic>
+					| <chequeo>
+					| PRIMARY KEY
+					| DEFAULT <valor>
+					| REFERENCES ID
+
+<unul>	::= NULL
+		| NOT NULL
+
+<unic>	::= CONSTRAINT ID UNIQUE
+		| UNIQUE
+
+<crear_type>	::= ID AS ENUM PARIZQ <lista_objetos> PARDER
+
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE SHOW DATABASE
+
+<show_db>	::= DATABASES <like_cadena>
+
+<like_cadena>	::= LIKE CADENA
+				|
+
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE ALTER DATABASE
+
+<alter_database>	::= ID <rename_owner>
+
+<rename_owner>	::= RENAME ID
+				| OWNER TO <def_alter_db>
+
+<def_alter_db>	::= ID
+				| CURRENT_USER
+				| SESION_USER
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE USE DATABASE
+
+<cambio_db>	::= ID
+
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE SELECT
+<selects>	::= POR FROM <select_o_state>
+			| <lista_parametros> <from_o_coma>
+			| GREATEST PARIZQ <lista_parametros> PARDER
+			| LEAST PARIZQ <lista_parametros> PARDER
+			| <fun_trigonometrica> <state_aliases_field> <from_ep>
+			| DISTINCT <por_lista_parametros>
+
+<select_o_state>	::= <select_all>
+					| <state_subquery> <inicio_condicional>
+
+<from_o_coma>	::= FROM <lista_parametros> <inicio_condicional>
+				| COMA CASE <case_state> FROM <lista_parametros> <inicio_condicional>
+				|
+
+<from_ep>	::= FROM ID <state_aliases_table>
+			|
+
+<por_lista_parametros>	::= POR FROM <select_all>
+						| <lista_parametros> <from_ep_distinct>
+
+<from_ep_distinct>	::= FROM <lista_parametros> <inicio_condicional>
+					| COMA CASE <case_state> FROM <lista_parametros> <inicio_condicional>
+					|
+
+<select_all>	::= ID <state_aliases_table> <inicio_condicional>
+
+<inicio_condicional>	::= WHERE <relacional> <inicio_group_by>
+						| <inicio_group_by>
+
+<inicio_group_by>	::= GROUP BY <lista_parametros> <inicio_having>
+					| <incio_order_by>
+
+<inicio_having>	::= HAVING <relacional> <inicio_order_by>
+				| <inicio_order_by>
+
+<inicio_order_by>	::= ORDER BY <sorting_rows> <state_limit>
+					| <state_limit>
+
+<sorting_rows>	::= <sort> <sorting_rows'>
+
+<sorting_rows'>	::= COMA <sort> <sorting_rows'>
+				|
+
+<sort>	::= ID <asc_desc>
+
+<asc_desc>	::= ASC
+			| DESC
+			|
+
+<state_limit>	::= LIMIT <all_entero>
+				| <state_offset>
+
+<all_entero>	::= ENTERO <state_offset>
+				| ALL <state_offset>
+
+<state_offset>	::= OFFSET ENTERO <state_offset_opciones>
+				| <state_offset_opciones>
+				| <state_subquery>
+
+<state_offset_opciones>	::= <state_union>
+						| <state_intersect>
+						| <state_except>
+
+<state_union>	::= UNION <state_opciones>
+				|
+
+<state_intersect>	::= INTERSECT <state_opciones>
+					|
+
+<state_except>	::= EXCEPT <state_opciones>
+				|
+
+<state_opciones>::= SELECT <selects>
+				| ALL SELECT <selects>
+
+<lista_parametros>	::= <parametro> <state_aliases_field> <lista_parametros'>
+
+<lista_parametros'>	::= COMA <parametro> <state_aliases_field> <lista_parametros'>
+					|
+
+<state_aliases_field>	::= AS <cadena_o_id>
+						|
+
+<cadena_o_id>	::= ID
+				| CADENA_DOBLE
+				| CADENA
+
+<case_state>	::= <auxcase_state> END <case_state'>
+
+<case_state'>	::= <auxcase_state> END <case_state'>
+				|
+
+<auxcase_state>	::= WHEN <relacional> THEN CADENA
+				| ELSE COMILLA_SIMPLE ID COMILLA_SIMPLE
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE DELETE
+
+<deletes> ::= ID <condicion_delete>
+
+<condicion_delete>	::= WHERE <relacional>
+					|
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE ALTER TABLE
+
+<alter_table>	::= ID <def_alter>
+
+<def_alter>	::= ADD <def_alter_tb_add>
+			| DROP <def_alter_tb_drop>
+			| ALTER COLUMN ID SET NOT NULL
+			| RENAME COLUMN ID TO ID
+
+<def_alter_tb_add>	::= CHECK PARIZQ <relacional> PARDER
+					| CONSTRAINT ID UNIQUE PARIZQ ID PARDER
+					| FOREIGN KEY PARIZQ <lista_parametros>
+					| COLUMN ID <tipos>
+
+<def_alter_tb_drop>	::= COLUMN ID
+					| CONSTRAINT ID PARDER REFERENCES PARIZQ <lista_parametros> PARDER 
+
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE UPDATE
+
+<update_table>	::= ID SET <def_update> <update_table_condicion>
+
+<update_table_condicion>	::= WHERE <relacional>
+							|
+
+<def_update>	::= ID IGUAL <valor> <def_update'>
+
+<def_update'>	::= COMA ID IGUAL <valor> <def_update'>
+				|
+
+#=================================================
+#INSTRUCCIONES DE INSERT
+
+<insercion>	::= INTO ID <insercion_params>
+
+<insercion_params>	::= PARIZQ <lista_id> PARDER VALUES PARIZQ <lista_insercion> PARDER
+					| VALUES PARIZQ <lista_insercion> PARDER
+
+<lista_insercion>	::= <valor> <lista_insercion'>
+					| PARIZQ SELECT <selects> PARDER <lista_insercion'>
+
+<lista_insercion'>	::= COMA <valor> <lista_insercion'>
+					| COMA PARIZQ SELECT <selects> PARDER <lista_insercion'>
+
+#=================================================
+
+#=================================================
+#INSTRUCCIONES DE DROP
+
+<dropear>	::= DATABASE <if_exist> ID
+			| TABLE ID
+
+<if_exist>	::= IF EXISTS
+			|
+
+#=================================================

@@ -12,4 +12,9 @@ export class DeletetableComponent implements OnInit {
   ngOnInit() {
   }
 
+  deletetable(event:Event)
+  {
+    alert("Eliminado tabla.....");
+  }
+
 }
