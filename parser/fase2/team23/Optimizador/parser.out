@@ -1,0 +1,1417 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    CONCAT
+    IGUALQUE
+    LLAVDER
+    LLAVIZQ
+    NIGUALQUE
+    PTCOMA
+
+Grammar
+
+Rule 0     S' -> init
+Rule 1     init -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> import
+Rule 5     import -> import_instr
+Rule 6     import -> definicion_instr
+Rule 7     import -> asignacion_instr
+Rule 8     import -> fromS
+Rule 9     import -> arrobas
+Rule 10    import -> llamada
+Rule 11    import -> ifI
+Rule 12    import -> gotoI
+Rule 13    import -> labels
+Rule 14    fromS -> FROM GOTO IMPORT WITH_GOTO
+Rule 15    arrobas -> ARROBA WITH_GOTO
+Rule 16    llamada -> ID PARIZQ PARDER
+Rule 17    llamada -> ID PUNTO ID PARIZQ PARDER
+Rule 18    ifI -> IF expression DOSPT
+Rule 19    gotoI -> GOTO PUNTO ID
+Rule 20    labels -> LABEL PUNTO ID
+Rule 21    import_instr -> IMPORT ID
+Rule 22    definicion_instr -> DEF ID PARIZQ PARDER DOSPT
+Rule 23    asignacion_instr -> ID IGUAL expression
+Rule 24    asignacion_instr -> ID PUNTO ID IGUAL expression
+Rule 25    expression -> expression MAS expression
+Rule 26    expression -> expression MENOS expression
+Rule 27    expression -> expression POR expression
+Rule 28    expression -> expression DIVIDIDO expression
+Rule 29    expression -> expression MENQUE expression
+Rule 30    expression -> expression MAYQUE expression
+Rule 31    expression -> MENOS expression
+Rule 32    expression -> PARIZQ expression PARDER
+Rule 33    expression -> ENTERO
+Rule 34    expression -> DECIMAL
+Rule 35    expression -> CADENA
+Rule 36    expression -> ID
+
+Terminals, with rules where they appear
+
+ARROBA               : 15
+CADENA               : 35
+CONCAT               : 
+DECIMAL              : 34
+DEF                  : 22
+DIVIDIDO             : 28
+DOSPT                : 18 22
+ENTERO               : 33
+FROM                 : 14
+GOTO                 : 14 19
+ID                   : 16 17 17 19 20 21 22 23 24 24 36
+IF                   : 18
+IGUAL                : 23 24
+IGUALQUE             : 
+IMPORT               : 14 21
+LABEL                : 20
+LLAVDER              : 
+LLAVIZQ              : 
+MAS                  : 25
+MAYQUE               : 30
+MENOS                : 26 31
+MENQUE               : 29
+NIGUALQUE            : 
+PARDER               : 16 17 22 32
+PARIZQ               : 16 17 22 32
+POR                  : 27
+PTCOMA               : 
+PUNTO                : 17 19 20 24
+WITH_GOTO            : 14 15
+error                : 
+
+Nonterminals, with rules where they appear
+
+arrobas              : 9
+asignacion_instr     : 7
+definicion_instr     : 6
+expression           : 18 23 24 25 25 26 26 27 27 28 28 29 29 30 30 31 32
+fromS                : 8
+gotoI                : 12
+ifI                  : 11
+import               : 4
+import_instr         : 5
+init                 : 0
+instruccion          : 2 3
+instrucciones        : 1 2
+labels               : 13
+llamada              : 10
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . init
+    (1) init -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . import
+    (5) import -> . import_instr
+    (6) import -> . definicion_instr
+    (7) import -> . asignacion_instr
+    (8) import -> . fromS
+    (9) import -> . arrobas
+    (10) import -> . llamada
+    (11) import -> . ifI
+    (12) import -> . gotoI
+    (13) import -> . labels
+    (21) import_instr -> . IMPORT ID
+    (22) definicion_instr -> . DEF ID PARIZQ PARDER DOSPT
+    (23) asignacion_instr -> . ID IGUAL expression
+    (24) asignacion_instr -> . ID PUNTO ID IGUAL expression
+    (14) fromS -> . FROM GOTO IMPORT WITH_GOTO
+    (15) arrobas -> . ARROBA WITH_GOTO
+    (16) llamada -> . ID PARIZQ PARDER
+    (17) llamada -> . ID PUNTO ID PARIZQ PARDER
+    (18) ifI -> . IF expression DOSPT
+    (19) gotoI -> . GOTO PUNTO ID
+    (20) labels -> . LABEL PUNTO ID
+
+    IMPORT          shift and go to state 14
+    DEF             shift and go to state 16
+    ID              shift and go to state 15
+    FROM            shift and go to state 17
+    ARROBA          shift and go to state 19
+    IF              shift and go to state 20
+    GOTO            shift and go to state 18
+    LABEL           shift and go to state 21
+
+    init                           shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    import                         shift and go to state 4
+    import_instr                   shift and go to state 5
+    definicion_instr               shift and go to state 6
+    asignacion_instr               shift and go to state 7
+    fromS                          shift and go to state 8
+    arrobas                        shift and go to state 9
+    llamada                        shift and go to state 10
+    ifI                            shift and go to state 11
+    gotoI                          shift and go to state 12
+    labels                         shift and go to state 13
+
+state 1
+
+    (0) S' -> init .
+
+
+
+state 2
+
+    (1) init -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . import
+    (5) import -> . import_instr
+    (6) import -> . definicion_instr
+    (7) import -> . asignacion_instr
+    (8) import -> . fromS
+    (9) import -> . arrobas
+    (10) import -> . llamada
+    (11) import -> . ifI
+    (12) import -> . gotoI
+    (13) import -> . labels
+    (21) import_instr -> . IMPORT ID
+    (22) definicion_instr -> . DEF ID PARIZQ PARDER DOSPT
+    (23) asignacion_instr -> . ID IGUAL expression
+    (24) asignacion_instr -> . ID PUNTO ID IGUAL expression
+    (14) fromS -> . FROM GOTO IMPORT WITH_GOTO
+    (15) arrobas -> . ARROBA WITH_GOTO
+    (16) llamada -> . ID PARIZQ PARDER
+    (17) llamada -> . ID PUNTO ID PARIZQ PARDER
+    (18) ifI -> . IF expression DOSPT
+    (19) gotoI -> . GOTO PUNTO ID
+    (20) labels -> . LABEL PUNTO ID
+
+    $end            reduce using rule 1 (init -> instrucciones .)
+    IMPORT          shift and go to state 14
+    DEF             shift and go to state 16
+    ID              shift and go to state 15
+    FROM            shift and go to state 17
+    ARROBA          shift and go to state 19
+    IF              shift and go to state 20
+    GOTO            shift and go to state 18
+    LABEL           shift and go to state 21
+
+    instruccion                    shift and go to state 22
+    import                         shift and go to state 4
+    import_instr                   shift and go to state 5
+    definicion_instr               shift and go to state 6
+    asignacion_instr               shift and go to state 7
+    fromS                          shift and go to state 8
+    arrobas                        shift and go to state 9
+    llamada                        shift and go to state 10
+    ifI                            shift and go to state 11
+    gotoI                          shift and go to state 12
+    labels                         shift and go to state 13
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    IMPORT          reduce using rule 3 (instrucciones -> instruccion .)
+    DEF             reduce using rule 3 (instrucciones -> instruccion .)
+    ID              reduce using rule 3 (instrucciones -> instruccion .)
+    FROM            reduce using rule 3 (instrucciones -> instruccion .)
+    ARROBA          reduce using rule 3 (instrucciones -> instruccion .)
+    IF              reduce using rule 3 (instrucciones -> instruccion .)
+    GOTO            reduce using rule 3 (instrucciones -> instruccion .)
+    LABEL           reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> import .
+
+    IMPORT          reduce using rule 4 (instruccion -> import .)
+    DEF             reduce using rule 4 (instruccion -> import .)
+    ID              reduce using rule 4 (instruccion -> import .)
+    FROM            reduce using rule 4 (instruccion -> import .)
+    ARROBA          reduce using rule 4 (instruccion -> import .)
+    IF              reduce using rule 4 (instruccion -> import .)
+    GOTO            reduce using rule 4 (instruccion -> import .)
+    LABEL           reduce using rule 4 (instruccion -> import .)
+    $end            reduce using rule 4 (instruccion -> import .)
+
+
+state 5
+
+    (5) import -> import_instr .
+
+    IMPORT          reduce using rule 5 (import -> import_instr .)
+    DEF             reduce using rule 5 (import -> import_instr .)
+    ID              reduce using rule 5 (import -> import_instr .)
+    FROM            reduce using rule 5 (import -> import_instr .)
+    ARROBA          reduce using rule 5 (import -> import_instr .)
+    IF              reduce using rule 5 (import -> import_instr .)
+    GOTO            reduce using rule 5 (import -> import_instr .)
+    LABEL           reduce using rule 5 (import -> import_instr .)
+    $end            reduce using rule 5 (import -> import_instr .)
+
+
+state 6
+
+    (6) import -> definicion_instr .
+
+    IMPORT          reduce using rule 6 (import -> definicion_instr .)
+    DEF             reduce using rule 6 (import -> definicion_instr .)
+    ID              reduce using rule 6 (import -> definicion_instr .)
+    FROM            reduce using rule 6 (import -> definicion_instr .)
+    ARROBA          reduce using rule 6 (import -> definicion_instr .)
+    IF              reduce using rule 6 (import -> definicion_instr .)
+    GOTO            reduce using rule 6 (import -> definicion_instr .)
+    LABEL           reduce using rule 6 (import -> definicion_instr .)
+    $end            reduce using rule 6 (import -> definicion_instr .)
+
+
+state 7
+
+    (7) import -> asignacion_instr .
+
+    IMPORT          reduce using rule 7 (import -> asignacion_instr .)
+    DEF             reduce using rule 7 (import -> asignacion_instr .)
+    ID              reduce using rule 7 (import -> asignacion_instr .)
+    FROM            reduce using rule 7 (import -> asignacion_instr .)
+    ARROBA          reduce using rule 7 (import -> asignacion_instr .)
+    IF              reduce using rule 7 (import -> asignacion_instr .)
+    GOTO            reduce using rule 7 (import -> asignacion_instr .)
+    LABEL           reduce using rule 7 (import -> asignacion_instr .)
+    $end            reduce using rule 7 (import -> asignacion_instr .)
+
+
+state 8
+
+    (8) import -> fromS .
+
+    IMPORT          reduce using rule 8 (import -> fromS .)
+    DEF             reduce using rule 8 (import -> fromS .)
+    ID              reduce using rule 8 (import -> fromS .)
+    FROM            reduce using rule 8 (import -> fromS .)
+    ARROBA          reduce using rule 8 (import -> fromS .)
+    IF              reduce using rule 8 (import -> fromS .)
+    GOTO            reduce using rule 8 (import -> fromS .)
+    LABEL           reduce using rule 8 (import -> fromS .)
+    $end            reduce using rule 8 (import -> fromS .)
+
+
+state 9
+
+    (9) import -> arrobas .
+
+    IMPORT          reduce using rule 9 (import -> arrobas .)
+    DEF             reduce using rule 9 (import -> arrobas .)
+    ID              reduce using rule 9 (import -> arrobas .)
+    FROM            reduce using rule 9 (import -> arrobas .)
+    ARROBA          reduce using rule 9 (import -> arrobas .)
+    IF              reduce using rule 9 (import -> arrobas .)
+    GOTO            reduce using rule 9 (import -> arrobas .)
+    LABEL           reduce using rule 9 (import -> arrobas .)
+    $end            reduce using rule 9 (import -> arrobas .)
+
+
+state 10
+
+    (10) import -> llamada .
+
+    IMPORT          reduce using rule 10 (import -> llamada .)
+    DEF             reduce using rule 10 (import -> llamada .)
+    ID              reduce using rule 10 (import -> llamada .)
+    FROM            reduce using rule 10 (import -> llamada .)
+    ARROBA          reduce using rule 10 (import -> llamada .)
+    IF              reduce using rule 10 (import -> llamada .)
+    GOTO            reduce using rule 10 (import -> llamada .)
+    LABEL           reduce using rule 10 (import -> llamada .)
+    $end            reduce using rule 10 (import -> llamada .)
+
+
+state 11
+
+    (11) import -> ifI .
+
+    IMPORT          reduce using rule 11 (import -> ifI .)
+    DEF             reduce using rule 11 (import -> ifI .)
+    ID              reduce using rule 11 (import -> ifI .)
+    FROM            reduce using rule 11 (import -> ifI .)
+    ARROBA          reduce using rule 11 (import -> ifI .)
+    IF              reduce using rule 11 (import -> ifI .)
+    GOTO            reduce using rule 11 (import -> ifI .)
+    LABEL           reduce using rule 11 (import -> ifI .)
+    $end            reduce using rule 11 (import -> ifI .)
+
+
+state 12
+
+    (12) import -> gotoI .
+
+    IMPORT          reduce using rule 12 (import -> gotoI .)
+    DEF             reduce using rule 12 (import -> gotoI .)
+    ID              reduce using rule 12 (import -> gotoI .)
+    FROM            reduce using rule 12 (import -> gotoI .)
+    ARROBA          reduce using rule 12 (import -> gotoI .)
+    IF              reduce using rule 12 (import -> gotoI .)
+    GOTO            reduce using rule 12 (import -> gotoI .)
+    LABEL           reduce using rule 12 (import -> gotoI .)
+    $end            reduce using rule 12 (import -> gotoI .)
+
+
+state 13
+
+    (13) import -> labels .
+
+    IMPORT          reduce using rule 13 (import -> labels .)
+    DEF             reduce using rule 13 (import -> labels .)
+    ID              reduce using rule 13 (import -> labels .)
+    FROM            reduce using rule 13 (import -> labels .)
+    ARROBA          reduce using rule 13 (import -> labels .)
+    IF              reduce using rule 13 (import -> labels .)
+    GOTO            reduce using rule 13 (import -> labels .)
+    LABEL           reduce using rule 13 (import -> labels .)
+    $end            reduce using rule 13 (import -> labels .)
+
+
+state 14
+
+    (21) import_instr -> IMPORT . ID
+
+    ID              shift and go to state 23
+
+
+state 15
+
+    (23) asignacion_instr -> ID . IGUAL expression
+    (24) asignacion_instr -> ID . PUNTO ID IGUAL expression
+    (16) llamada -> ID . PARIZQ PARDER
+    (17) llamada -> ID . PUNTO ID PARIZQ PARDER
+
+    IGUAL           shift and go to state 24
+    PUNTO           shift and go to state 25
+    PARIZQ          shift and go to state 26
+
+
+state 16
+
+    (22) definicion_instr -> DEF . ID PARIZQ PARDER DOSPT
+
+    ID              shift and go to state 27
+
+
+state 17
+
+    (14) fromS -> FROM . GOTO IMPORT WITH_GOTO
+
+    GOTO            shift and go to state 28
+
+
+state 18
+
+    (19) gotoI -> GOTO . PUNTO ID
+
+    PUNTO           shift and go to state 29
+
+
+state 19
+
+    (15) arrobas -> ARROBA . WITH_GOTO
+
+    WITH_GOTO       shift and go to state 30
+
+
+state 20
+
+    (18) ifI -> IF . expression DOSPT
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 31
+
+state 21
+
+    (20) labels -> LABEL . PUNTO ID
+
+    PUNTO           shift and go to state 38
+
+
+state 22
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    IMPORT          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    DEF             reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    ID              reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    FROM            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    ARROBA          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    IF              reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    GOTO            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    LABEL           reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 23
+
+    (21) import_instr -> IMPORT ID .
+
+    IMPORT          reduce using rule 21 (import_instr -> IMPORT ID .)
+    DEF             reduce using rule 21 (import_instr -> IMPORT ID .)
+    ID              reduce using rule 21 (import_instr -> IMPORT ID .)
+    FROM            reduce using rule 21 (import_instr -> IMPORT ID .)
+    ARROBA          reduce using rule 21 (import_instr -> IMPORT ID .)
+    IF              reduce using rule 21 (import_instr -> IMPORT ID .)
+    GOTO            reduce using rule 21 (import_instr -> IMPORT ID .)
+    LABEL           reduce using rule 21 (import_instr -> IMPORT ID .)
+    $end            reduce using rule 21 (import_instr -> IMPORT ID .)
+
+
+state 24
+
+    (23) asignacion_instr -> ID IGUAL . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 39
+
+state 25
+
+    (24) asignacion_instr -> ID PUNTO . ID IGUAL expression
+    (17) llamada -> ID PUNTO . ID PARIZQ PARDER
+
+    ID              shift and go to state 40
+
+
+state 26
+
+    (16) llamada -> ID PARIZQ . PARDER
+
+    PARDER          shift and go to state 41
+
+
+state 27
+
+    (22) definicion_instr -> DEF ID . PARIZQ PARDER DOSPT
+
+    PARIZQ          shift and go to state 42
+
+
+state 28
+
+    (14) fromS -> FROM GOTO . IMPORT WITH_GOTO
+
+    IMPORT          shift and go to state 43
+
+
+state 29
+
+    (19) gotoI -> GOTO PUNTO . ID
+
+    ID              shift and go to state 44
+
+
+state 30
+
+    (15) arrobas -> ARROBA WITH_GOTO .
+
+    IMPORT          reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+    DEF             reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+    ID              reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+    FROM            reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+    ARROBA          reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+    IF              reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+    GOTO            reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+    LABEL           reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+    $end            reduce using rule 15 (arrobas -> ARROBA WITH_GOTO .)
+
+
+state 31
+
+    (18) ifI -> IF expression . DOSPT
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    DOSPT           shift and go to state 45
+    MAS             shift and go to state 46
+    MENOS           shift and go to state 47
+    POR             shift and go to state 48
+    DIVIDIDO        shift and go to state 49
+    MENQUE          shift and go to state 50
+    MAYQUE          shift and go to state 51
+
+
+state 32
+
+    (31) expression -> MENOS . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 52
+
+state 33
+
+    (32) expression -> PARIZQ . expression PARDER
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 53
+
+state 34
+
+    (33) expression -> ENTERO .
+
+    DOSPT           reduce using rule 33 (expression -> ENTERO .)
+    MAS             reduce using rule 33 (expression -> ENTERO .)
+    MENOS           reduce using rule 33 (expression -> ENTERO .)
+    POR             reduce using rule 33 (expression -> ENTERO .)
+    DIVIDIDO        reduce using rule 33 (expression -> ENTERO .)
+    MENQUE          reduce using rule 33 (expression -> ENTERO .)
+    MAYQUE          reduce using rule 33 (expression -> ENTERO .)
+    IMPORT          reduce using rule 33 (expression -> ENTERO .)
+    DEF             reduce using rule 33 (expression -> ENTERO .)
+    ID              reduce using rule 33 (expression -> ENTERO .)
+    FROM            reduce using rule 33 (expression -> ENTERO .)
+    ARROBA          reduce using rule 33 (expression -> ENTERO .)
+    IF              reduce using rule 33 (expression -> ENTERO .)
+    GOTO            reduce using rule 33 (expression -> ENTERO .)
+    LABEL           reduce using rule 33 (expression -> ENTERO .)
+    $end            reduce using rule 33 (expression -> ENTERO .)
+    PARDER          reduce using rule 33 (expression -> ENTERO .)
+
+
+state 35
+
+    (34) expression -> DECIMAL .
+
+    DOSPT           reduce using rule 34 (expression -> DECIMAL .)
+    MAS             reduce using rule 34 (expression -> DECIMAL .)
+    MENOS           reduce using rule 34 (expression -> DECIMAL .)
+    POR             reduce using rule 34 (expression -> DECIMAL .)
+    DIVIDIDO        reduce using rule 34 (expression -> DECIMAL .)
+    MENQUE          reduce using rule 34 (expression -> DECIMAL .)
+    MAYQUE          reduce using rule 34 (expression -> DECIMAL .)
+    IMPORT          reduce using rule 34 (expression -> DECIMAL .)
+    DEF             reduce using rule 34 (expression -> DECIMAL .)
+    ID              reduce using rule 34 (expression -> DECIMAL .)
+    FROM            reduce using rule 34 (expression -> DECIMAL .)
+    ARROBA          reduce using rule 34 (expression -> DECIMAL .)
+    IF              reduce using rule 34 (expression -> DECIMAL .)
+    GOTO            reduce using rule 34 (expression -> DECIMAL .)
+    LABEL           reduce using rule 34 (expression -> DECIMAL .)
+    $end            reduce using rule 34 (expression -> DECIMAL .)
+    PARDER          reduce using rule 34 (expression -> DECIMAL .)
+
+
+state 36
+
+    (35) expression -> CADENA .
+
+    DOSPT           reduce using rule 35 (expression -> CADENA .)
+    MAS             reduce using rule 35 (expression -> CADENA .)
+    MENOS           reduce using rule 35 (expression -> CADENA .)
+    POR             reduce using rule 35 (expression -> CADENA .)
+    DIVIDIDO        reduce using rule 35 (expression -> CADENA .)
+    MENQUE          reduce using rule 35 (expression -> CADENA .)
+    MAYQUE          reduce using rule 35 (expression -> CADENA .)
+    IMPORT          reduce using rule 35 (expression -> CADENA .)
+    DEF             reduce using rule 35 (expression -> CADENA .)
+    ID              reduce using rule 35 (expression -> CADENA .)
+    FROM            reduce using rule 35 (expression -> CADENA .)
+    ARROBA          reduce using rule 35 (expression -> CADENA .)
+    IF              reduce using rule 35 (expression -> CADENA .)
+    GOTO            reduce using rule 35 (expression -> CADENA .)
+    LABEL           reduce using rule 35 (expression -> CADENA .)
+    $end            reduce using rule 35 (expression -> CADENA .)
+    PARDER          reduce using rule 35 (expression -> CADENA .)
+
+
+state 37
+
+    (36) expression -> ID .
+
+    DOSPT           reduce using rule 36 (expression -> ID .)
+    MAS             reduce using rule 36 (expression -> ID .)
+    MENOS           reduce using rule 36 (expression -> ID .)
+    POR             reduce using rule 36 (expression -> ID .)
+    DIVIDIDO        reduce using rule 36 (expression -> ID .)
+    MENQUE          reduce using rule 36 (expression -> ID .)
+    MAYQUE          reduce using rule 36 (expression -> ID .)
+    IMPORT          reduce using rule 36 (expression -> ID .)
+    DEF             reduce using rule 36 (expression -> ID .)
+    ID              reduce using rule 36 (expression -> ID .)
+    FROM            reduce using rule 36 (expression -> ID .)
+    ARROBA          reduce using rule 36 (expression -> ID .)
+    IF              reduce using rule 36 (expression -> ID .)
+    GOTO            reduce using rule 36 (expression -> ID .)
+    LABEL           reduce using rule 36 (expression -> ID .)
+    $end            reduce using rule 36 (expression -> ID .)
+    PARDER          reduce using rule 36 (expression -> ID .)
+
+
+state 38
+
+    (20) labels -> LABEL PUNTO . ID
+
+    ID              shift and go to state 54
+
+
+state 39
+
+    (23) asignacion_instr -> ID IGUAL expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    IMPORT          reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    DEF             reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    ID              reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    FROM            reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    ARROBA          reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    IF              reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    GOTO            reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    LABEL           reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    $end            reduce using rule 23 (asignacion_instr -> ID IGUAL expression .)
+    MAS             shift and go to state 46
+    MENOS           shift and go to state 47
+    POR             shift and go to state 48
+    DIVIDIDO        shift and go to state 49
+    MENQUE          shift and go to state 50
+    MAYQUE          shift and go to state 51
+
+
+state 40
+
+    (24) asignacion_instr -> ID PUNTO ID . IGUAL expression
+    (17) llamada -> ID PUNTO ID . PARIZQ PARDER
+
+    IGUAL           shift and go to state 55
+    PARIZQ          shift and go to state 56
+
+
+state 41
+
+    (16) llamada -> ID PARIZQ PARDER .
+
+    IMPORT          reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+    DEF             reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+    ID              reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+    FROM            reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+    ARROBA          reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+    IF              reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+    GOTO            reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+    LABEL           reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+    $end            reduce using rule 16 (llamada -> ID PARIZQ PARDER .)
+
+
+state 42
+
+    (22) definicion_instr -> DEF ID PARIZQ . PARDER DOSPT
+
+    PARDER          shift and go to state 57
+
+
+state 43
+
+    (14) fromS -> FROM GOTO IMPORT . WITH_GOTO
+
+    WITH_GOTO       shift and go to state 58
+
+
+state 44
+
+    (19) gotoI -> GOTO PUNTO ID .
+
+    IMPORT          reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+    DEF             reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+    ID              reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+    FROM            reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+    ARROBA          reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+    IF              reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+    GOTO            reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+    LABEL           reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+    $end            reduce using rule 19 (gotoI -> GOTO PUNTO ID .)
+
+
+state 45
+
+    (18) ifI -> IF expression DOSPT .
+
+    IMPORT          reduce using rule 18 (ifI -> IF expression DOSPT .)
+    DEF             reduce using rule 18 (ifI -> IF expression DOSPT .)
+    ID              reduce using rule 18 (ifI -> IF expression DOSPT .)
+    FROM            reduce using rule 18 (ifI -> IF expression DOSPT .)
+    ARROBA          reduce using rule 18 (ifI -> IF expression DOSPT .)
+    IF              reduce using rule 18 (ifI -> IF expression DOSPT .)
+    GOTO            reduce using rule 18 (ifI -> IF expression DOSPT .)
+    LABEL           reduce using rule 18 (ifI -> IF expression DOSPT .)
+    $end            reduce using rule 18 (ifI -> IF expression DOSPT .)
+
+
+state 46
+
+    (25) expression -> expression MAS . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 59
+
+state 47
+
+    (26) expression -> expression MENOS . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 60
+
+state 48
+
+    (27) expression -> expression POR . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 61
+
+state 49
+
+    (28) expression -> expression DIVIDIDO . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 62
+
+state 50
+
+    (29) expression -> expression MENQUE . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 63
+
+state 51
+
+    (30) expression -> expression MAYQUE . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 64
+
+state 52
+
+    (31) expression -> MENOS expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    DOSPT           reduce using rule 31 (expression -> MENOS expression .)
+    MAS             reduce using rule 31 (expression -> MENOS expression .)
+    MENOS           reduce using rule 31 (expression -> MENOS expression .)
+    POR             reduce using rule 31 (expression -> MENOS expression .)
+    DIVIDIDO        reduce using rule 31 (expression -> MENOS expression .)
+    MENQUE          reduce using rule 31 (expression -> MENOS expression .)
+    MAYQUE          reduce using rule 31 (expression -> MENOS expression .)
+    IMPORT          reduce using rule 31 (expression -> MENOS expression .)
+    DEF             reduce using rule 31 (expression -> MENOS expression .)
+    ID              reduce using rule 31 (expression -> MENOS expression .)
+    FROM            reduce using rule 31 (expression -> MENOS expression .)
+    ARROBA          reduce using rule 31 (expression -> MENOS expression .)
+    IF              reduce using rule 31 (expression -> MENOS expression .)
+    GOTO            reduce using rule 31 (expression -> MENOS expression .)
+    LABEL           reduce using rule 31 (expression -> MENOS expression .)
+    $end            reduce using rule 31 (expression -> MENOS expression .)
+    PARDER          reduce using rule 31 (expression -> MENOS expression .)
+
+  ! MAS             [ shift and go to state 46 ]
+  ! MENOS           [ shift and go to state 47 ]
+  ! POR             [ shift and go to state 48 ]
+  ! DIVIDIDO        [ shift and go to state 49 ]
+  ! MENQUE          [ shift and go to state 50 ]
+  ! MAYQUE          [ shift and go to state 51 ]
+
+
+state 53
+
+    (32) expression -> PARIZQ expression . PARDER
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    PARDER          shift and go to state 65
+    MAS             shift and go to state 46
+    MENOS           shift and go to state 47
+    POR             shift and go to state 48
+    DIVIDIDO        shift and go to state 49
+    MENQUE          shift and go to state 50
+    MAYQUE          shift and go to state 51
+
+
+state 54
+
+    (20) labels -> LABEL PUNTO ID .
+
+    IMPORT          reduce using rule 20 (labels -> LABEL PUNTO ID .)
+    DEF             reduce using rule 20 (labels -> LABEL PUNTO ID .)
+    ID              reduce using rule 20 (labels -> LABEL PUNTO ID .)
+    FROM            reduce using rule 20 (labels -> LABEL PUNTO ID .)
+    ARROBA          reduce using rule 20 (labels -> LABEL PUNTO ID .)
+    IF              reduce using rule 20 (labels -> LABEL PUNTO ID .)
+    GOTO            reduce using rule 20 (labels -> LABEL PUNTO ID .)
+    LABEL           reduce using rule 20 (labels -> LABEL PUNTO ID .)
+    $end            reduce using rule 20 (labels -> LABEL PUNTO ID .)
+
+
+state 55
+
+    (24) asignacion_instr -> ID PUNTO ID IGUAL . expression
+    (25) expression -> . expression MAS expression
+    (26) expression -> . expression MENOS expression
+    (27) expression -> . expression POR expression
+    (28) expression -> . expression DIVIDIDO expression
+    (29) expression -> . expression MENQUE expression
+    (30) expression -> . expression MAYQUE expression
+    (31) expression -> . MENOS expression
+    (32) expression -> . PARIZQ expression PARDER
+    (33) expression -> . ENTERO
+    (34) expression -> . DECIMAL
+    (35) expression -> . CADENA
+    (36) expression -> . ID
+
+    MENOS           shift and go to state 32
+    PARIZQ          shift and go to state 33
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    CADENA          shift and go to state 36
+    ID              shift and go to state 37
+
+    expression                     shift and go to state 66
+
+state 56
+
+    (17) llamada -> ID PUNTO ID PARIZQ . PARDER
+
+    PARDER          shift and go to state 67
+
+
+state 57
+
+    (22) definicion_instr -> DEF ID PARIZQ PARDER . DOSPT
+
+    DOSPT           shift and go to state 68
+
+
+state 58
+
+    (14) fromS -> FROM GOTO IMPORT WITH_GOTO .
+
+    IMPORT          reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+    DEF             reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+    ID              reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+    FROM            reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+    ARROBA          reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+    IF              reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+    GOTO            reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+    LABEL           reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+    $end            reduce using rule 14 (fromS -> FROM GOTO IMPORT WITH_GOTO .)
+
+
+state 59
+
+    (25) expression -> expression MAS expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    DOSPT           reduce using rule 25 (expression -> expression MAS expression .)
+    MAS             reduce using rule 25 (expression -> expression MAS expression .)
+    MENOS           reduce using rule 25 (expression -> expression MAS expression .)
+    MENQUE          reduce using rule 25 (expression -> expression MAS expression .)
+    MAYQUE          reduce using rule 25 (expression -> expression MAS expression .)
+    IMPORT          reduce using rule 25 (expression -> expression MAS expression .)
+    DEF             reduce using rule 25 (expression -> expression MAS expression .)
+    ID              reduce using rule 25 (expression -> expression MAS expression .)
+    FROM            reduce using rule 25 (expression -> expression MAS expression .)
+    ARROBA          reduce using rule 25 (expression -> expression MAS expression .)
+    IF              reduce using rule 25 (expression -> expression MAS expression .)
+    GOTO            reduce using rule 25 (expression -> expression MAS expression .)
+    LABEL           reduce using rule 25 (expression -> expression MAS expression .)
+    $end            reduce using rule 25 (expression -> expression MAS expression .)
+    PARDER          reduce using rule 25 (expression -> expression MAS expression .)
+    POR             shift and go to state 48
+    DIVIDIDO        shift and go to state 49
+
+  ! POR             [ reduce using rule 25 (expression -> expression MAS expression .) ]
+  ! DIVIDIDO        [ reduce using rule 25 (expression -> expression MAS expression .) ]
+  ! MAS             [ shift and go to state 46 ]
+  ! MENOS           [ shift and go to state 47 ]
+  ! MENQUE          [ shift and go to state 50 ]
+  ! MAYQUE          [ shift and go to state 51 ]
+
+
+state 60
+
+    (26) expression -> expression MENOS expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    DOSPT           reduce using rule 26 (expression -> expression MENOS expression .)
+    MAS             reduce using rule 26 (expression -> expression MENOS expression .)
+    MENOS           reduce using rule 26 (expression -> expression MENOS expression .)
+    MENQUE          reduce using rule 26 (expression -> expression MENOS expression .)
+    MAYQUE          reduce using rule 26 (expression -> expression MENOS expression .)
+    IMPORT          reduce using rule 26 (expression -> expression MENOS expression .)
+    DEF             reduce using rule 26 (expression -> expression MENOS expression .)
+    ID              reduce using rule 26 (expression -> expression MENOS expression .)
+    FROM            reduce using rule 26 (expression -> expression MENOS expression .)
+    ARROBA          reduce using rule 26 (expression -> expression MENOS expression .)
+    IF              reduce using rule 26 (expression -> expression MENOS expression .)
+    GOTO            reduce using rule 26 (expression -> expression MENOS expression .)
+    LABEL           reduce using rule 26 (expression -> expression MENOS expression .)
+    $end            reduce using rule 26 (expression -> expression MENOS expression .)
+    PARDER          reduce using rule 26 (expression -> expression MENOS expression .)
+    POR             shift and go to state 48
+    DIVIDIDO        shift and go to state 49
+
+  ! POR             [ reduce using rule 26 (expression -> expression MENOS expression .) ]
+  ! DIVIDIDO        [ reduce using rule 26 (expression -> expression MENOS expression .) ]
+  ! MAS             [ shift and go to state 46 ]
+  ! MENOS           [ shift and go to state 47 ]
+  ! MENQUE          [ shift and go to state 50 ]
+  ! MAYQUE          [ shift and go to state 51 ]
+
+
+state 61
+
+    (27) expression -> expression POR expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    DOSPT           reduce using rule 27 (expression -> expression POR expression .)
+    MAS             reduce using rule 27 (expression -> expression POR expression .)
+    MENOS           reduce using rule 27 (expression -> expression POR expression .)
+    POR             reduce using rule 27 (expression -> expression POR expression .)
+    DIVIDIDO        reduce using rule 27 (expression -> expression POR expression .)
+    MENQUE          reduce using rule 27 (expression -> expression POR expression .)
+    MAYQUE          reduce using rule 27 (expression -> expression POR expression .)
+    IMPORT          reduce using rule 27 (expression -> expression POR expression .)
+    DEF             reduce using rule 27 (expression -> expression POR expression .)
+    ID              reduce using rule 27 (expression -> expression POR expression .)
+    FROM            reduce using rule 27 (expression -> expression POR expression .)
+    ARROBA          reduce using rule 27 (expression -> expression POR expression .)
+    IF              reduce using rule 27 (expression -> expression POR expression .)
+    GOTO            reduce using rule 27 (expression -> expression POR expression .)
+    LABEL           reduce using rule 27 (expression -> expression POR expression .)
+    $end            reduce using rule 27 (expression -> expression POR expression .)
+    PARDER          reduce using rule 27 (expression -> expression POR expression .)
+
+  ! MAS             [ shift and go to state 46 ]
+  ! MENOS           [ shift and go to state 47 ]
+  ! POR             [ shift and go to state 48 ]
+  ! DIVIDIDO        [ shift and go to state 49 ]
+  ! MENQUE          [ shift and go to state 50 ]
+  ! MAYQUE          [ shift and go to state 51 ]
+
+
+state 62
+
+    (28) expression -> expression DIVIDIDO expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    DOSPT           reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    MAS             reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    MENOS           reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    POR             reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    DIVIDIDO        reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    MENQUE          reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    MAYQUE          reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    IMPORT          reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    DEF             reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    ID              reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    FROM            reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    ARROBA          reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    IF              reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    GOTO            reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    LABEL           reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    $end            reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+    PARDER          reduce using rule 28 (expression -> expression DIVIDIDO expression .)
+
+  ! MAS             [ shift and go to state 46 ]
+  ! MENOS           [ shift and go to state 47 ]
+  ! POR             [ shift and go to state 48 ]
+  ! DIVIDIDO        [ shift and go to state 49 ]
+  ! MENQUE          [ shift and go to state 50 ]
+  ! MAYQUE          [ shift and go to state 51 ]
+
+
+state 63
+
+    (29) expression -> expression MENQUE expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+  ! shift/reduce conflict for MAS resolved as shift
+  ! shift/reduce conflict for MENOS resolved as shift
+  ! shift/reduce conflict for POR resolved as shift
+  ! shift/reduce conflict for DIVIDIDO resolved as shift
+  ! shift/reduce conflict for MENQUE resolved as shift
+  ! shift/reduce conflict for MAYQUE resolved as shift
+    DOSPT           reduce using rule 29 (expression -> expression MENQUE expression .)
+    IMPORT          reduce using rule 29 (expression -> expression MENQUE expression .)
+    DEF             reduce using rule 29 (expression -> expression MENQUE expression .)
+    ID              reduce using rule 29 (expression -> expression MENQUE expression .)
+    FROM            reduce using rule 29 (expression -> expression MENQUE expression .)
+    ARROBA          reduce using rule 29 (expression -> expression MENQUE expression .)
+    IF              reduce using rule 29 (expression -> expression MENQUE expression .)
+    GOTO            reduce using rule 29 (expression -> expression MENQUE expression .)
+    LABEL           reduce using rule 29 (expression -> expression MENQUE expression .)
+    $end            reduce using rule 29 (expression -> expression MENQUE expression .)
+    PARDER          reduce using rule 29 (expression -> expression MENQUE expression .)
+    MAS             shift and go to state 46
+    MENOS           shift and go to state 47
+    POR             shift and go to state 48
+    DIVIDIDO        shift and go to state 49
+    MENQUE          shift and go to state 50
+    MAYQUE          shift and go to state 51
+
+  ! MAS             [ reduce using rule 29 (expression -> expression MENQUE expression .) ]
+  ! MENOS           [ reduce using rule 29 (expression -> expression MENQUE expression .) ]
+  ! POR             [ reduce using rule 29 (expression -> expression MENQUE expression .) ]
+  ! DIVIDIDO        [ reduce using rule 29 (expression -> expression MENQUE expression .) ]
+  ! MENQUE          [ reduce using rule 29 (expression -> expression MENQUE expression .) ]
+  ! MAYQUE          [ reduce using rule 29 (expression -> expression MENQUE expression .) ]
+
+
+state 64
+
+    (30) expression -> expression MAYQUE expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+  ! shift/reduce conflict for MAS resolved as shift
+  ! shift/reduce conflict for MENOS resolved as shift
+  ! shift/reduce conflict for POR resolved as shift
+  ! shift/reduce conflict for DIVIDIDO resolved as shift
+  ! shift/reduce conflict for MENQUE resolved as shift
+  ! shift/reduce conflict for MAYQUE resolved as shift
+    DOSPT           reduce using rule 30 (expression -> expression MAYQUE expression .)
+    IMPORT          reduce using rule 30 (expression -> expression MAYQUE expression .)
+    DEF             reduce using rule 30 (expression -> expression MAYQUE expression .)
+    ID              reduce using rule 30 (expression -> expression MAYQUE expression .)
+    FROM            reduce using rule 30 (expression -> expression MAYQUE expression .)
+    ARROBA          reduce using rule 30 (expression -> expression MAYQUE expression .)
+    IF              reduce using rule 30 (expression -> expression MAYQUE expression .)
+    GOTO            reduce using rule 30 (expression -> expression MAYQUE expression .)
+    LABEL           reduce using rule 30 (expression -> expression MAYQUE expression .)
+    $end            reduce using rule 30 (expression -> expression MAYQUE expression .)
+    PARDER          reduce using rule 30 (expression -> expression MAYQUE expression .)
+    MAS             shift and go to state 46
+    MENOS           shift and go to state 47
+    POR             shift and go to state 48
+    DIVIDIDO        shift and go to state 49
+    MENQUE          shift and go to state 50
+    MAYQUE          shift and go to state 51
+
+  ! MAS             [ reduce using rule 30 (expression -> expression MAYQUE expression .) ]
+  ! MENOS           [ reduce using rule 30 (expression -> expression MAYQUE expression .) ]
+  ! POR             [ reduce using rule 30 (expression -> expression MAYQUE expression .) ]
+  ! DIVIDIDO        [ reduce using rule 30 (expression -> expression MAYQUE expression .) ]
+  ! MENQUE          [ reduce using rule 30 (expression -> expression MAYQUE expression .) ]
+  ! MAYQUE          [ reduce using rule 30 (expression -> expression MAYQUE expression .) ]
+
+
+state 65
+
+    (32) expression -> PARIZQ expression PARDER .
+
+    DOSPT           reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    MAS             reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    MENOS           reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    POR             reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    DIVIDIDO        reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    MENQUE          reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    MAYQUE          reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    IMPORT          reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    DEF             reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    ID              reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    FROM            reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    ARROBA          reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    IF              reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    GOTO            reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    LABEL           reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    $end            reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+    PARDER          reduce using rule 32 (expression -> PARIZQ expression PARDER .)
+
+
+state 66
+
+    (24) asignacion_instr -> ID PUNTO ID IGUAL expression .
+    (25) expression -> expression . MAS expression
+    (26) expression -> expression . MENOS expression
+    (27) expression -> expression . POR expression
+    (28) expression -> expression . DIVIDIDO expression
+    (29) expression -> expression . MENQUE expression
+    (30) expression -> expression . MAYQUE expression
+
+    IMPORT          reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    DEF             reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    ID              reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    FROM            reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    ARROBA          reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    IF              reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    GOTO            reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    LABEL           reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    $end            reduce using rule 24 (asignacion_instr -> ID PUNTO ID IGUAL expression .)
+    MAS             shift and go to state 46
+    MENOS           shift and go to state 47
+    POR             shift and go to state 48
+    DIVIDIDO        shift and go to state 49
+    MENQUE          shift and go to state 50
+    MAYQUE          shift and go to state 51
+
+
+state 67
+
+    (17) llamada -> ID PUNTO ID PARIZQ PARDER .
+
+    IMPORT          reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+    DEF             reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+    ID              reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+    FROM            reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+    ARROBA          reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+    IF              reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+    GOTO            reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+    LABEL           reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+    $end            reduce using rule 17 (llamada -> ID PUNTO ID PARIZQ PARDER .)
+
+
+state 68
+
+    (22) definicion_instr -> DEF ID PARIZQ PARDER DOSPT .
+
+    IMPORT          reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+    DEF             reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+    ID              reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+    FROM            reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+    ARROBA          reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+    IF              reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+    GOTO            reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+    LABEL           reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+    $end            reduce using rule 22 (definicion_instr -> DEF ID PARIZQ PARDER DOSPT .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for MAS in state 63 resolved as shift
+WARNING: shift/reduce conflict for MENOS in state 63 resolved as shift
+WARNING: shift/reduce conflict for POR in state 63 resolved as shift
+WARNING: shift/reduce conflict for DIVIDIDO in state 63 resolved as shift
+WARNING: shift/reduce conflict for MENQUE in state 63 resolved as shift
+WARNING: shift/reduce conflict for MAYQUE in state 63 resolved as shift
+WARNING: shift/reduce conflict for MAS in state 64 resolved as shift
+WARNING: shift/reduce conflict for MENOS in state 64 resolved as shift
+WARNING: shift/reduce conflict for POR in state 64 resolved as shift
+WARNING: shift/reduce conflict for DIVIDIDO in state 64 resolved as shift
+WARNING: shift/reduce conflict for MENQUE in state 64 resolved as shift
+WARNING: shift/reduce conflict for MAYQUE in state 64 resolved as shift

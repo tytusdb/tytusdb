@@ -25,6 +25,11 @@ def exec_sql(input_string):
     save_st(symbol_table)
 
 
+def report_stored_st():
+    symbol_table = load_st()
+    symbol_table.report_symbols()
+
+
 def clear_all_execution():
     if os.path.exists('stored_st.bin'):
         os.remove('stored_st.bin')

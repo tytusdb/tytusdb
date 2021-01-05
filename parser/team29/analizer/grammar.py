@@ -133,9 +133,23 @@ def p_createopts_db(t):
 
 def p_createopts_index(t):
     """
-    createOpts : indexUnique R_INDEX ID R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
+    createOpts : indexUnique R_INDEX indexName R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
     """
     t[0] = instruction2.CreateIndex(t[1], t[3], t[5], t[6], t[10], t[8])
+
+
+def p_indexName(t):
+    """
+    indexName : ID
+    """
+    t[0] = t[1]
+
+
+def p_indexName_n(t):
+    """
+    indexName :
+    """
+    t[0] = None
 
 
 def p_indexList(t):
@@ -153,13 +167,11 @@ def p_indexList2(t):
     t[0] = [t[1]]
 
 
-
-
 def p_columnIndex(t):
     """
     columnIndex : columnOpt indexOrder indexNull
     """
-    t[0] = [t[1],t[2],t[3]]
+    t[0] = [t[1], t[2], t[3]]
 
 
 def p_index_columnOpt(t):
@@ -173,7 +185,14 @@ def p_index_functionIndex(t):
     """
     columnOpt : ID S_PARIZQ ID S_PARDER
     """
-    t[0] = t[1]+t[2]+t[3]+t[4]
+    t[0] = t[1] + t[2] + t[3] + t[4]
+
+
+def p_index_agrupacion(t):
+    """
+    columnOpt : S_PARIZQ columnOpt S_PARDER
+    """
+    t[0] = t[2]
 
 
 def p_usingMethod(t):
@@ -190,7 +209,7 @@ def p_usingMethod(t):
 
 def p_usingMethod_none(t):
     """
-    usingMethod : 
+    usingMethod :
     """
     t[0] = "BTREE"
 
@@ -207,15 +226,16 @@ def p_indexOrder(t):
     else:
         t[0] = t[1]
 
+
 def p_indexNull(t):
     """
-    indexNull : R_NULLS firstLast 
+    indexNull : R_NULLS firstLast
     |
     """
     if len(t) == 1:
         t[0] = None
     else:
-        t[0] = [True,t[2]]
+        t[0] = [True, t[2]]
 
 
 def p_indexFirstLast(t):
@@ -970,23 +990,6 @@ def p_expComp_unario_3(t):
     repGrammar.append(t.slice)
 
 
-def p_stringExp(t):
-    """
-    stringExp : STRING
-          | columnName
-    """
-    repGrammar.append(t.slice)
-
-
-def p_subqValues(t):
-    """
-    subqValues : R_ALL
-                  | R_ANY
-                  | R_SOME
-    """
-    repGrammar.append(t.slice)
-
-
 def p_boolean_1(t):
     """
     boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
@@ -1501,45 +1504,6 @@ def p_tableexp_subq(t):
     """fromBody : S_PARIZQ selectStmt S_PARDER R_AS idOrString"""
     t[0] = [t[2], t[5]]
 
-    repGrammar.append(t.slice)
-
-
-def p_joinList(t):
-    """joinList : joinList2"""
-    repGrammar.append(t.slice)
-
-
-def p_joinList_2(t):
-    """joinList2 : joinList2 joinCl
-    | joinCl"""
-    repGrammar.append(t.slice)
-
-
-def p_joinCl(t):
-    """joinCl : joinOpt R_JOIN columnName optAlias R_ON expBool
-    | joinOpt R_JOIN columnName optAlias R_USING S_PARIZQ nameList S_PARDER
-    | R_NATURAL joinOpt R_JOIN columnName optAlias
-    """
-
-    repGrammar.append(t.slice)
-
-
-def p_nameList(t):
-    """nameList : nameList S_COMA columnName
-    | columnName
-    """
-    repGrammar.append(t.slice)
-
-
-def p_joinOpt(t):
-    """joinOpt : R_INNER
-    | R_LEFT
-    | R_LEFT R_OUTER
-    | R_RIGHT
-    | R_RIGHT R_OUTER
-    | R_FULL
-    | R_FULL R_OUTER
-    """
     repGrammar.append(t.slice)
 
 

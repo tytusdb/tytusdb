@@ -15,6 +15,11 @@ class ThreeAddressCode(object):
         self.__stack = []
         self.__stackCounter = 0
 
+        self.__function = ''
+        self.__instructionList = ''
+        self.__isCode = True
+        self.__functions = []
+
     def destroy(self):
         self.__content = ''
         self.__code = ''
@@ -22,6 +27,11 @@ class ThreeAddressCode(object):
 
         self.__stack = []
         self.__stackCounter = 0
+
+        self.__function = ''
+        self.__instructionList = ''
+        self.__isCode = True
+        self.__functions = []
 
     def newTemp(self):
         tmp = f"t{self.__tempCounter}"
@@ -55,6 +65,9 @@ class ThreeAddressCode(object):
         # self.__stack.append(function)
         self.__stackCounter += 1
 
+    def incStackCounter(self):
+        self.__stackCounter += 1
+
     def execute(self, tmp):
         # parse(tmp)
         self.__stack.pop(0).process(tmp)
@@ -70,7 +83,10 @@ class ThreeAddressCode(object):
         :param data: Code or temp 
         :return: Returns nothing
         """
-        self.__code += f"\n\t{data}"
+        if self.__isCode:
+            self.__code += f"\n\t{data}"
+        else:
+            self.__instructionList += f"\n\t{data}"
 
     def getCode(self):
         """
@@ -80,11 +96,15 @@ class ThreeAddressCode(object):
         """
         self.__content = 'from goto import with_goto'
         self.__content += '\nfrom controllers.three_address_code import ThreeAddressCode'
+        self.__content += '\nStack = [None]*10000\n'
 
         self.__content += '\n\n@with_goto'
         self.__content += '\ndef main():'
-        self.__content += '\n\tStack = [None]*10000\n'
+        self.__content += '\n\tglobal Stack'
         self.__content += self.__code
+
+        for functions in self.__functions:
+            self.__content += functions
 
         self.__content += '\n\nmain()'
         return self.__content
@@ -113,3 +133,22 @@ class ThreeAddressCode(object):
         except IOError:
             print('Error: File does not appear to exist.')
     # END---------------------- Report -------------------------
+
+    def createFunction(self, name, params):
+        listParameters = ''
+
+        for i, item in enumerate(params):
+            if i:  # print a separator if this isn't the first element
+                listParameters += ', '
+            listParameters += str(item.id)
+
+        self.__function = '\n\n@with_goto'
+        self.__function += f"\ndef {name}():"
+        self.__content += '\n\tglobal Stack'
+        self.__function += self.__instructionList
+
+        self.__functions.append(self.__function)
+        self.__isCode = True
+
+    def newFunction(self):
+        self.__isCode = False

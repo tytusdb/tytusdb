@@ -77,7 +77,19 @@ class InsertInto(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        col_str = ''
+        if self.column_list is not None:
+            for col in self.column_list:
+                col_str = f'{col_str}{col.val},'
+
+        values = ''
+        if isinstance(self.insert_list, Select):
+            values = self.insert_list.generate(table, tree)
+        else:
+            for value in self.insert_list:
+                values = f'{values}{value.val},'
+            values = f' VALUES({values[:-1]})'
+        return f'INSERT INTO {self.table_name}{f" ({col_str})" if col_str != "" else ""}{values};'
 
 
 # This class probably is not going to be needed, depends on how the contents are gonna be handled
