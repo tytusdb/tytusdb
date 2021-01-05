@@ -405,6 +405,8 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         print(e)
                         x.add_row(e)
                     consola += str(x) + "\n"
+        elif isinstance(nodo, SCrearIndice):
+            crearIndice(nodo, tablaSimbolos)
         for i in listaSemanticos:
             consola += "\n" + i.descripcion + "\n"
             listaSemanticos2.append(i)

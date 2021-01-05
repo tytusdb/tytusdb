@@ -302,7 +302,7 @@ if __name__ == "__main__":
 
             cl = clus + str(c_clus)
             with ast.subgraph(name=cl) as c:
-                c.attr(label= "NOMBRE BD: '%s'\\nOWNER: '%s'\\nMODE: '%s'" % (base.nombre,base.owner,base.mode))
+                c.attr(label= "NOMBRE BD: '%s'\\nOWNER: '%s'\\nMODE: '%s'" % (base.nombre,base.owner.valor,base.mode))
                 c_clus += 1
                 
                 for j in base.tablas:
@@ -315,9 +315,20 @@ if __name__ == "__main__":
                         column = tabla.columnas[k]
                         
                         label += "| COLUMNA: " + str(column.nombre) + " | { Tipo | " + str(column.tipo) + " } | { Llave Primaria | " + str(column.primary_key) +" } | { LLave Foránea | " + str(column.foreign_key) + " } | { Unique | " + str(column.unique) + " } | { Default | " + str(column.default) + " } | { Null | " + str(column.null) + " } | { Check |  " + str(column.check) + "  } | { Index | " + str(column.index) + " } "
+                    
                     label2 = label
+                    label3 = "| INDICES: " + str(len(tabla.indices))
+
+                    for l in range(len(tabla.indices)):
+
+                        indice = tabla.indices[l]
+
+                        label3 += "| { NOMBRE | "  + str(indice.nombre) + " } | { TIPO | " + str(indice.tipo) + " } | { COLUMNA(s) | " + str(indice.columnas) +  " } | { ORDEN | " + str(indice.orden) + " } | { NULLS FIRST | " + str(indice.null_first) + " } | { NULLS LAST | " + str(indice.null_last) + " } | { LOWER | " + str(indice.lower) + " } | { WHERE | " + str(indice.condicion) + " } | { UNIQUE | " + str(indice.unique) + " } "   
+ 
+                    label4 = label3
+                    
                     t = tag + str(con)
-                    c.node(t, "{ NOMBRE TABLA: " + str(tabla.nombre) + "\\nPADRE: " + str(tabla.padre) + " " + label2 +" }")
+                    c.node(t, "{ NOMBRE TABLA: " + str(tabla.nombre) + "\\nPADRE: " + str(tabla.padre) + label2 + label4 + " }")
                     con += 1
 
         ast.render('tablaS', format='png', view=True)

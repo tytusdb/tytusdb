@@ -868,43 +868,152 @@ def p_Raice_Note(t):
 #------------------------INDEX
 
 def p_index(t):
-    ''' CREATE_INDEX :  create index id on id OPCION_INDEX ptComa 
+    ''' CREATE_INDEX :  create index id on id OPCION_INDEX ptComa
+                    |   create tUnique index id on id OPCION_INDEX ptComa 
                     |   create index id on id OPCION_INDEX EXPR_WHERE ptComa
-                    |   create tUnique index id on id OPCION_INDEX ptComa
                     |	create tUnique index id on id OPCION_INDEX EXPR_WHERE ptComa
     '''
+
+    if len(t) == 8:
+
+        if str(t[2]).lower() == "index":
+            if t[6]['parametro'] == "lista_id":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,False,False,False)
+            elif t[6]['parametro'] == "hash":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'Hash',t[6]['lista'],'Ascendente',False,True,False,False,False)
+            elif t[6]['parametro'] == "asc":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,False,False,False)
+            elif t[6]['parametro'] == "first":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',True,False,False,False,False)
+            elif t[6]['parametro'] == "last":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,False,False,False)
+            elif t[6]['parametro'] == "desc":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Descendente',False,True,False,False,False)
+            elif t[6]['parametro'] == "asc_first":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',True,False,False,False,False)
+            elif t[6]['parametro'] == "desc_first":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Descendente',True,False,False,False,False)
+            elif t[6]['parametro'] == "asc_last":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,False,False,False)
+            elif t[6]['parametro'] == "desc_last":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Descendente',False,True,False,False,False)
+            elif t[6]['parametro'] == "lower":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,True,False,False)
+    
+    elif len(t) == 9:
+
+        if str(t[2]).lower() == "index":
+            if t[6]['parametro'] == "lista_id":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,False,t[7],False)
+            elif t[6]['parametro'] == "hash":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'Hash',t[6]['lista'],'Ascendente',False,True,False,t[7],False)
+            elif t[6]['parametro'] == "asc":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,False,t[7],False)
+            elif t[6]['parametro'] == "first":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',True,False,False,t[7],False)
+            elif t[6]['parametro'] == "last":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,False,t[7],False)
+            elif t[6]['parametro'] == "desc":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Descendente',False,True,False,t[7],False)
+            elif t[6]['parametro'] == "asc_first":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',True,False,False,t[7],False)
+            elif t[6]['parametro'] == "desc_first":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Descendente',True,False,False,t[7],False)
+            elif t[6]['parametro'] == "asc_last":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,False,t[7],False)
+            elif t[6]['parametro'] == "desc_last":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Descendente',False,True,False,t[7],False)
+            elif t[6]['parametro'] == "lower":
+                t[0] = SCrearIndice(str(t[3]),str(t[5]),'B-tree',t[6]['lista'],'Ascendente',False,True,True,t[7],False)
+
+        elif str(t[2]).lower() == "unique":
+            if t[7]['parametro'] == "lista_id":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,False,False,True)
+            elif t[7]['parametro'] == "hash":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'Hash',t[7]['lista'],'Ascendente',False,True,False,False,True)
+            elif t[7]['parametro'] == "asc":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,False,False,True)
+            elif t[7]['parametro'] == "first":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',True,False,False,False,True)
+            elif t[7]['parametro'] == "last":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,False,False,True)
+            elif t[7]['parametro'] == "desc":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Descendente',False,True,False,False,True)
+            elif t[7]['parametro'] == "asc_first":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',True,False,False,False,True)
+            elif t[7]['parametro'] == "desc_first":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Descendente',True,False,False,False,True)
+            elif t[7]['parametro'] == "asc_last":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,False,False,True)
+            elif t[7]['parametro'] == "desc_last":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Descendente',False,True,False,False,True)
+            elif t[7]['parametro'] == "lower":
+                t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,True,False,True)
+    elif len(t) == 10:
+        if t[7]['parametro'] == "lista_id":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,False,t[8],True)
+        elif t[7]['parametro'] == "hash":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'Hash',t[7]['lista'],'Ascendente',False,True,False,t[8],True)
+        elif t[7]['parametro'] == "asc":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,False,t[8],True)
+        elif t[7]['parametro'] == "first":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',True,False,False,t[8],True)
+        elif t[7]['parametro'] == "last":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,False,t[8],True)
+        elif t[7]['parametro'] == "desc":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Descendente',False,True,False,t[8],True)
+        elif t[7]['parametro'] == "asc_first":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',True,False,False,t[8],True)
+        elif t[7]['parametro'] == "desc_first":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Descendente',True,False,False,t[8],True)
+        elif t[7]['parametro'] == "asc_last":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,False,t[8],True)
+        elif t[7]['parametro'] == "desc_last":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Descendente',False,True,False,t[8],True)
+        elif t[7]['parametro'] == "lower":
+            t[0] = SCrearIndice(str(t[4]),str(t[6]),'B-tree',t[7]['lista'],'Ascendente',False,True,True,t[8],True)
+
 
 def p_createIndex1(t):
     ''' OPCION_INDEX :  using hash parAbre id parCierra 
                      |  parAbre OPT_INDEX_PAR parCierra
-                     |  parAbre OPT_INDEX_PAR parCierra include  parAbre OPT_INDEX_PAR parCierra
                       '''
+
+    if len(t) == 4:
+        t[0] = t[2]
+    elif len(t) == 6:   
+        t[0] = {"parametro" : "hash","lista": [t[4]]}
+
 
 def p_createIndex2(t):
     ' OPT_INDEX_PAR : L_IDs'
+    t[0] = {"parametro":"lista_id","lista": t[1]}
 
 def p_createIndex2_1(t):
-    ' OPT_INDEX_PAR : id nulls FIRST_LAST'
+    ''' OPT_INDEX_PAR   : id nulls FIRST_LAST
+                        | id DESC_ASC nulls FIRST_LAST '''
 
-def p_createIndex2_2(t):
-    ' OPT_INDEX_PAR : id state '
+    if len(t) == 4:
+        t[0] = {"parametro":str(t[3]),"lista": [t[1]]}
+    elif len(t) == 5:
+        t[0] = {"parametro":str(t[2]) + "_" + str(t[4]),"lista": [t[1]]}
 
 def p_createIndex2_3(t):
     ' OPT_INDEX_PAR : lower parAbre id parCierra '
-
-def p_createIndex_5(t):
-    ' OPT_INDEX_PAR : id parAbre id parCierra '
-
-def p_createIndex_6(t):
-    ' OPT_INDEX_PAR : E '
-
-def p_createIndex_7(t):
-    ' OPT_INDEX_PAR : L_PARAMETROS '
+    t[0] = {"parametro":"lower","lista": [t[3]]}
 
 
 def p_first_last(t):
     ''' FIRST_LAST : first
                    | last '''
+    t[0] = str(t[1]).lower()
+
+
+def p_desc_asc(t):
+    ''' DESC_ASC    : desc
+                    | asc '''
+
+    t[0] = str(t[1] ).lower()
 
 
 

@@ -600,7 +600,7 @@ class SWhere(Sentencia):
         self.clist = clist
 
     def __str__(self):
-        return "{ SWhere | clist: '%s' }" % str(self.clist)
+        return "True"
 
 
 class SGroupBy(Sentencia):
@@ -862,3 +862,23 @@ class SDatePart(Sentencia):
         self.param = param
         self.ts = ts
         self.param2 = param2
+
+
+class SCrearIndice(Sentencia):
+
+    def __init__(self, nombre, tabla, tipo, columnnas,orden,null_first,null_last,lower,condicion,unique ):
+        self.nombre = nombre
+        self.tabla = tabla
+        self.columnas = columnnas
+        self.tipo = tipo
+        self.orden = orden
+        self.null_first=null_first
+        self.null_last=null_last
+        self.lower = lower
+        self.condicion = condicion
+        self.unique = unique
+
+    def __str__(self):
+        return "{ SCrearIndice | nombre: '%s', tabla: '%s', tipo: '%s', columnas: '%s', orden: '%s', null_first: '%s', null_last: '%s', lower: '%s', condicion: '%s', unique: '%s' }" % ( 
+            str(self.nombre), str(self.tabla), str(self.tipo), str(self.columnas), str(self.orden), str(self.null_first), str(self.null_last), str(self.lower), str(self.condicion), str(self.unique) 
+            )

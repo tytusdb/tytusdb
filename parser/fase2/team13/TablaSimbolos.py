@@ -1,3 +1,5 @@
+import Error as Error
+
 class Simbolo:
     '''Clase Símbolo Para un Leguaje de Programación Convencional '''
 
@@ -55,12 +57,36 @@ class SimboloTabla:
         self.nombre = nombre
         self.columnas = {}
         self.padre = padre
+        self.indices = []
 
 
     def __str__(self):
-        return "{ 'SimboloTabla' | 'nombre': %s, 'padre': %s, 'columnas': %s }" % (
-            str(self.nombre), str(self.padre), str(self.columnas)
+        return "{ 'SimboloTabla' | 'nombre': %s, 'padre': %s, 'columnas': %s, indices: '%s' }" % (
+            str(self.nombre), str(self.padre), str(self.columnas), str(self.indices)
         )
+
+
+    def crearIndice(self, nombre,tipo,columnnas,orden,null_first,null_last,lower,condicion,unique):
+
+        listaErrores = []
+
+
+        if len(listaErrores) > 0:
+
+            return listaErrores
+
+        else:
+
+            self.indices.append(SimboloIndice(nombre, tipo, columnnas,orden,null_first,null_last,lower,condicion,unique))
+              
+            return True
+
+
+
+            
+
+
+
 
 
     def comprobarNulas(self, listaColumnas):
@@ -252,6 +278,28 @@ class SimboloColumna:
     def __str__(self):
         return "{ 'SimboloColumna' | 'nombre': %s, 'tipo': %s, 'primary_key': %s,'foreign_key': %s, 'unique': %s, 'default': %s,'null': %s, 'check': %s, 'index': %s }" % (
             str(self.nombre), str(self.tipo), str(self.primary_key), str(self.foreign_key), str(self.unique), str(self.default), str(self.null), str(self.check), str(self.index))
+
+
+class SimboloIndice:
+    
+    def __init__(self, nombre, tipo, columnas,orden,null_first,null_last,lower,condicion,unique):
+        self.nombre = nombre
+        self.tipo = tipo
+        self.columnas = columnas
+        self.orden = orden
+        self.null_first = null_first
+        self.null_last = null_last
+        self.lower = lower
+        self.condicion = condicion
+        self.unique = unique
+
+
+
+
+    def __str__(self):
+        return "{ SimboloIndice | nombre: '%s', tipo: '%s', columnas: '%s', orden: '%s', null_first: '%s', null_last: '%s', lower: '%s', condicion: '%s', unique: '%s' }" % ( 
+            str(self.nombre), str(self.tipo), str(self.columnas), str(self.orden), str(self.null_first), str(self.null_last), str(self.lower), str(self.condicion), str(self.unique) 
+            )
 
 
 class llaveForanea:
