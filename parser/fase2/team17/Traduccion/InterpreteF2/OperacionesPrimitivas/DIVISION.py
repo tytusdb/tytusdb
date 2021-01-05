@@ -1,33 +1,69 @@
-from webbrowser import Elinks
-
 from Interprete.NodoAST import NodoArbol
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from Interprete.Valor.Valor import Valor
 from Interprete.Primitivos.TIPO import TIPO
 from Interprete.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
-from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
 
-class SUMA(NodoArbol):
+class DIVISION(NodoArbol):
 
     def __init__(self, izq: NodoArbol, der: NodoArbol, line, coliumn):
         super().__init__(line, coliumn)
         self.izq = izq
         self.der = der
 
-    def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        izquierdo: Valor = self.izq.execute(entorno, arbol)
-        derecho: Valor = self.der.execute(entorno, arbol)
-
-        if derecho==0:
-            Error:ErroresSemanticos = ErroresSemanticos("Error semantico no se puede dividir entre 0", self.linea, self.columna, "DIVISION")
-            arbol.ErroresSemanticos.append(Error)
+    def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+        tipoRes = COMPROBADOR_deTipos(self.izq.analizar_semanticamente(entorno, arbol),
+                                      self.der.analizar_semanticamente(entorno, arbol), "/")
+        if tipoRes != -1:
+            print(tipoRes.getTipoResultante())
+            return tipoRes.getTipoResultante()
         else:
-            tipoRes = COMPROBADOR_deTipos(izquierdo.tipo, derecho.tipo, "/")
-            if tipoRes == 0:
-                newValor:Valor = Valor(tipoRes, izquierdo.data / derecho.data)
-                return newValor;
+            # ERROR SEMANTICO de tipo
+            pass
 
-            
+    def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+        izquierdo = self.izq.traducir(entorno, arbol)  # <-- tiene un temporal
+        derecho = self.der.traducir(entorno, arbol)  # <-- tiene un temporal
+
+        if izquierdo == 0:
+
+            '''ERROR SEMANTICO NO SE PUEDE DIVIDIR ENTRE 0'''
+
+        else:
+            if self.analizar_semanticamente(entorno, arbol) == 0:
+                tmp = arbol.getTemp()
+                arbol.addC3D(tmp + " = int(" + izquierdo + ") / int(" + derecho + ")")
+                return tmp
+            elif self.analizar_semanticamente(entorno, arbol) == 1:
+                tmp = arbol.getTemp()
+                arbol.addC3D(tmp + " = float(" + izquierdo + ") / float(" + derecho + ")")
+                return tmp
+            elif self.analizar_semanticamente(entorno, arbol) == 2:
+                tmp = arbol.getTemp()
+                #ERROR SEMANTICO DE TIPOS NO SE PUEDEN OPERAR TIPOS CADENA
+                return tmp
+
+    def getString(self, entorno: Tabla_de_simbolos, arbol: Arbol) -> str:
+        cadena: str = self.izq.getString(entorno, arbol) + str(" / ") + self.der.getString(entorno, arbol)
+        return cadena
+
+    def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+        pass
+
+    def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+        izquierdo: Valor = self.izq.getValueAbstract(entorno, arbol)  # <-- tiene un temporal
+        derecho: Valor = self.der.getValueAbstract(entorno, arbol)  # <-- tiene un temporal
+        if self.analizar_semanticamente(entorno, arbol) == 0:
+            newVal: Valor = Valor(TIPO.ENTERO, int(str(izquierdo.data)) / int(str(derecho.data)))
+            return newVal
+        elif self.analizar_semanticamente(entorno, arbol) == 1:
+            newVal: Valor = Valor(TIPO.DECIMAL, float(str(izquierdo.data)) / float(str(derecho.data)))
+            return newVal
+        elif self.analizar_semanticamente(entorno, arbol) == 2:
+            #newVal: Valor = Valor(TIPO.CADENA, str(str(izquierdo.data)) / str(derecho.data))
+            # ERROR SEMANTICO DE TIPOS NO SE PUEDEN OPERAR TIPOS CADENA
+            return None
+
         
         

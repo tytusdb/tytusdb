@@ -11,7 +11,7 @@ class REAL(NodoArbol):
         self.data = data
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        return 7
+        return 1
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         temp = arbol.getTemp()
@@ -26,5 +26,5 @@ class REAL(NodoArbol):
         return str(self.data)
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        value:Valor = Valor(7, self.data)
+        value:Valor = Valor(1, self.data)
         return value

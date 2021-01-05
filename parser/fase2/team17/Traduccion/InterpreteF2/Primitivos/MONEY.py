@@ -11,7 +11,7 @@ class MONEY(NodoArbol):
         self.data = data
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        return 8
+        return 1
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         temp = arbol.getTemp()
@@ -25,5 +25,5 @@ class MONEY(NodoArbol):
         return str(self.data)
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        value:Valor = Valor(8, self.data)
+        value:Valor = Valor(1, self.data)
         return value

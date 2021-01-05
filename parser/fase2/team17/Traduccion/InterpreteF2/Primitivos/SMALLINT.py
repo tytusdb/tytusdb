@@ -11,7 +11,7 @@ class SMALLINT(NodoArbol):
         self.data = data
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        return 4
+        return 0
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         temp = arbol.getTemp()
@@ -26,5 +26,5 @@ class SMALLINT(NodoArbol):
         return str(self.data)
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        value:Valor = Valor(4, self.data)
+        value:Valor = Valor(0, self.data)
         return value

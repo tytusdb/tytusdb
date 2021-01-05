@@ -11,7 +11,7 @@ class VARCHAR(NodoArbol):
         self.data = data
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        return 18
+        return 2
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         temp = arbol.getTemp()
@@ -25,5 +25,5 @@ class VARCHAR(NodoArbol):
         return str(self.data)
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        value:Valor = Valor(18, self.data)
+        value:Valor = Valor(2, self.data)
         return value
