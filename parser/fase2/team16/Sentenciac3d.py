@@ -83,6 +83,18 @@ class Codigo3d:
                 cadenaFuncion += self.t_Procedimientos_(i)
             elif isinstance(i, CrearIndice):
                 cadena += self.t_CrearIndice(i)
+            elif isinstance(i, SelectExpresion):
+                if isinstance(i.listaCampos[0].Columna, ss.EjecucionFuncion):
+                    cadena += self.t_llamadaFuncion(i.listaCampos[0].Columna)
+                else:
+                    aux = SQL(i)
+                    aux.generarCadenaSQL()
+                    if aux.CadenaSQL is not None:
+                        print("PRODUCE SENTENCIA SQL-----------------------------------===")
+                        # print(str(aux.CadenaSQL))
+                        cadena += "\n" + self.t_sentenciaSQL(aux)
+                    else:
+                        print("NO TRADUCE....")
             else:
                 aux = SQL(i)
                 aux.generarCadenaSQL()
