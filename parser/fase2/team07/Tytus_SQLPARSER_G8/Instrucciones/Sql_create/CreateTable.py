@@ -183,6 +183,12 @@ class CreateTable(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
+
 class IdentificadorColumna(Instruccion):
     def __init__(self, id, linea, columna):
         self.id = id

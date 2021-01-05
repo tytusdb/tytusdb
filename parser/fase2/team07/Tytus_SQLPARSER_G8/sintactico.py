@@ -64,17 +64,11 @@ def p_init(t):
 
 def p_instrucciones_lista1(t):
     'instrucciones    :  instrucciones instruccion '
-    print("INSTRUCCION:\n")
-    print(t[2].strSent)
-    print("\n\n")
     t[1].append(t[2])
     t[0] = t[1]
     
 def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
-    print("INSTRUCCION:\n\n")
-    print(t[1].strSent)
-    print("\n\n")
     t[0] = [t[1]]
     
 # CREATE DATABASE
@@ -2210,8 +2204,11 @@ def p_instrucciones_if(t):
     
 def p_instruccion_if(t):
     '''
-    instruccion_if : contenido_funcion
-                   | instrucciones
+    instruccion_if : cont_funcion
+                   | UPDATE ID SET lcol instructionWhere PUNTO_COMA
+                   | INSERT INTO ID PARIZQ lcol PARDER VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
+                   | INSERT INTO ID VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
+                   | lquery PUNTO_COMA
                    | expre PUNTO_COMA
                    | RETURN PUNTO_COMA
                    | RETURN expre PUNTO_COMA
@@ -2271,6 +2268,72 @@ def p_identificadores(t):
     '''
     l_identificadores : l_identificadores OR ID
                       | ID
+    '''
+
+def p_instruccion_index(t):
+    '''
+    instruccion : CREATE unique_op INDEX ID ON hash_op PARIZQ l_indexes PARDER instructionWhere PUNTO_COMA
+    '''
+
+def p_index_unique(t):
+    '''
+    unique_op : UNIQUE
+    '''
+
+def p_index_unique_e(t):
+    '''
+    unique_op : 
+    '''
+def p_index_hash(t):
+    '''
+    hash_op : USING HASH
+    '''
+
+def p_index_hash_e(t):
+    '''
+    hash_op : 
+    '''
+
+def p_index_indexes(t):
+    '''
+    l_indexes : l_indexes COMA ID order_op null_op first_last_op
+    '''
+
+def p_index_index(t):
+    '''
+    l_indexes : ID order_op null_op first_last_op
+    '''
+
+def p_index_order(t):
+    '''
+    order_op : ASC
+            | DESC
+    '''
+
+def p_index_order_e(t):
+    '''
+    order_op : 
+    '''
+
+def p_index_null(t):
+    '''
+    null_op : NULL
+    '''
+
+def p_index_null_e(t):
+    '''
+    null_op : 
+    '''
+
+def p_index_first_last(t):
+    '''
+    first_last_op : FIRST
+                | LAST
+    '''
+
+def p_index_first_last_e(t):
+    '''
+    first_last_op : 
     '''
 
 #FIN DE LA GRAMATICA

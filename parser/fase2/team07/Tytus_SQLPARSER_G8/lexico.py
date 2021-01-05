@@ -92,7 +92,8 @@ reservadas = (
     'ELSEIF',
     'RAISE',
     'NOTICE',
-    'RETURN'
+    'RETURN',
+    'INDEX', 'USING', 'HASH'
 )
 
 tokens = reservadas + (
@@ -175,6 +176,7 @@ def t_CADENA(t):
 def t_CARACTER(t):
     r'\'.*?\''
     t.value = t.value[1:-1]  # remuevo las comillas simples
+    t.value = "\\\"" + t.value + "\\\""
     #print('esto es un caracter: ', t.value)
     return t
 

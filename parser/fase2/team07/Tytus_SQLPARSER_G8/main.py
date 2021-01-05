@@ -20,6 +20,9 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 
 from storageManager.jsonMode import *
 
+from Codigo_3D import FuncionesPara3D
+#from Codigo_3D import Codigo3D
+
 import sintactico
 
 global arbol
@@ -80,6 +83,10 @@ class interfaz():
         mnreportes.add_command(label='AST', command=self.ast_click)
         mnreportes.add_command(label='Reporte Gramatical', command=self.repDin_click)
         menu.add_cascade(label='Reportes', menu=mnreportes)
+        menu3d = Menu(menu,tearoff=0)
+        menu3d.add_command(label='Traducir C3D', command=self.traducirc3d_click)
+        menu3d.add_command(label='Ejecutar C3D', command=self.ejecutarc3d_click)
+        menu.add_cascade(label='3 Direcciones', menu=menu3d)
         self.window.config(menu=menu)
 
         ##############################################BOTONES####################################
@@ -100,7 +107,7 @@ class interfaz():
         self.txtsalida =[]
         self.crear_tab("","Nuevo.sql")
         
-        lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=15,bg='#80b192')
+        lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=17,bg='#80b192')
         lblentrada.place(x=20,y=80)
         lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#80b192')
         lblsalida.place(x=20,y=350)
@@ -131,6 +138,46 @@ class interfaz():
         print(event.width,event.height)
 
     ##############################################EVENTOS DE LOS BOTONES DEL MENU####################################
+    def traducirc3d_click(self):
+        global arbol
+        arbol = None
+        dropAll()
+        os.system ("cls")
+        #Elimina el Contenido de txtsalida
+        self.txtsalida[self.tab.index("current")].delete(1.0,END)
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+
+        tablaGlobal = Tabla(None)
+        inst = sintactico.ejecutar_analisis(input)
+        arbol = Arbol(inst)
+        resultado = ""
+        for i in arbol.instrucciones:
+            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
+            resultado += i.traducir(tablaGlobal,arbol,"")
+
+        FuncionesPara3D.FuncionesPara3D.GenerarArchivo(resultado)
+        print("Archivo Traducido")
+        pass
+
+    def ejecutarc3d_click(self):
+        dropAll()
+        '''
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("CREATE DATABASE IF NOT EXISTS test\
+                                                            OWNER = 'root'\
+                                                            MODE = 1;")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("USE test;")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("CREATE TABLE persona (\
+                                                            idpersona integer NOT NULL primary key,\
+                                                            nombre varchar(15));")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(1,\"Carlos\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(2,\"Maria\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(3,\"David\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("SELECT * FROM persona;")'''
+
+
+        #Codigo3D.Codigo3D.ejecutar()
+        pass
+
     def abrir_click(self):
         try:
             self.file = filedialog.askopenfilename(initialdir= os.path.dirname(__file__))
