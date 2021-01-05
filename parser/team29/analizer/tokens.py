@@ -128,8 +128,13 @@ reservadas = {
     "THEN": "R_THEN",
     "ELSE": "R_ELSE",
     "END": "R_END",
-    "INDEX":"R_INDEX",
-    "HASH":"R_HASH"
+    "INDEX": "R_INDEX",
+    "HASH": "R_HASH",
+    "BTREE": "R_BTREE",
+    "GIST": "R_GIST",
+    "SPGIST": "R_SPGIST",
+    "GIN": "R_GIN",
+    "BRIN": "R_BRIN",
 }
 
 reservadas.update(r_types)

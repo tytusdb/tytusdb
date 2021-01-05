@@ -71,6 +71,23 @@ def reporte_tabla(tabla):
                 cadena += "</tr>\n"
                 contador += 1
                 #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
+            
+            for indice in t.lista_de_indices:
+                cadena += "<tr>\n"
+                cadena += "<td><center>" + str(contador) + "</center></td>\n"
+                cadena += "<td><center>" + db.nombreTabla + "</center></td>\n"
+                cadena += "<td><center>" + t.nombreDeTabla + "</center></td>\n"
+                cadena += "<td><center>" + indice.nombre + "</center></td>\n"
+                cadena += "<td><center>" + indice.tipo + "</center></td>\n"
+                cadena += "<td><center> - </center></td>\n"
+                if len(indice.lRestricciones) > 0:
+                    cadena += "<td><center>" + ",".join(indice.lRestricciones) + "</center></td>\n"
+                else:
+                    cadena += "<td><center> - </center></td>\n"
+                cadena += "</tr>\n"
+                contador += 1
+                #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
+            
 
     '''
     while tabla != None:

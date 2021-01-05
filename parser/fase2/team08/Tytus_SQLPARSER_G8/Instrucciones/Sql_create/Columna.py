@@ -9,15 +9,15 @@ class Columna(Instruccion):
     
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-
+    
     def analizar(self, tabla, arbol):
         pass
-
+    
     def traducir(self, tabla, arbol):
         cadena = self.nombre
         if(self.tipo.tipo != None):
             cadena += " "+self.tipo.traducir(tabla, arbol)
-
+        
         if(self.constraint != None):
             for x in range(0, len(self.constraint)):
                 cadena += self.constraint[x].traducir(tabla,arbol)

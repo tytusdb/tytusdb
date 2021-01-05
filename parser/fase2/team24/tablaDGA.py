@@ -23,6 +23,7 @@ class TIPO(Enum) :
     BOOLEAN = 20
     TUPLA = 21
     FUNCTION = 22
+    INDICE = 23
 
 class Simbolo() :
     #id = identificador numerico unico por simbolo
@@ -44,7 +45,13 @@ class Simbolo() :
     #valor =  valor de la variable
     #collate  = coleccion a la que pertenece la variable
     #notnull =  Puede ser null esa variable
-    def __init__(self, id, nombre, tipo, ambito, coltab=0, tipocol="", llavecol=0, refcol="", defcol="", nullcol=False, constcol="",numcol=0,registro=[],valor, collate="",notnull = False,constant = False) :
+    #------------------PARA INDICES--------------------------------
+    #uniqueind = Sirve para indicar si el indice es unico
+    #tablaind = Nombre de tabla a la cual se aplica el indice
+    #tipoind = tipo de indice
+    #ordenind = orden del indice
+    #columnaind = columna del indice
+    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = ""):
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -60,6 +67,13 @@ class Simbolo() :
         self.registro = registro
         self.valor = valor
         self.collate = collate
+        self.constant = constant
+        self.notnull = notnull
+        self.uniqueind = uniqueind
+        self.tablaind = tablaind
+        self.tipoind = tipoind
+        self.ordenind = ordenind
+        self.columnaind = columnaind
 
 
 class Tabla() :
@@ -195,3 +209,17 @@ class Tabla() :
                 return True
 
         return False
+    
+    def existe_id(nomre):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == nomre:
+                return True
+        
+        return False
+
+    def id_db(name):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name and simbolo.tipo == TIPO.DATABASE:
+                return simbolo.id
+        
+        return -1

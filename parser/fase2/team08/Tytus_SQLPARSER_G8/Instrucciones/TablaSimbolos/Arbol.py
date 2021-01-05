@@ -19,6 +19,8 @@ class Arbol():
         self.columnaCheck = None
         self.order = None
         self.cadena = ""
+        self.relacionales = False
+        self.contador = 0
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)
@@ -95,11 +97,12 @@ class Arbol():
             else:
                 return tabla
 
+
     def devolverColumnasTabla(self,nombreTabla):
         print(nombreTabla)
         tabla = self.devolviendoTablaDeBase(nombreTabla)
-        if(tabla == 0):    
-            print("No se encontro la tabla")
+        if(tabla == 0) or (tabla == None):    
+            #print("No se encontro la tabla")
             return 0
         else:
             return tabla.devolverTodasLasColumnas()
@@ -225,4 +228,9 @@ class Arbol():
 
     def addComen(self, cadena):
         self.cadena = self.cadena + f"\t#{cadena}\n"
-    
+
+    def setRelacionales(self, valor):
+        self.relacionales = valor
+
+    def getRelacionales(self):
+        return self.relacionales

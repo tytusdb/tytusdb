@@ -1,5 +1,5 @@
 from .storageManager.jsonMode import showDatabases
-from console import print_table 
+from console import print_success, print_table 
 from prettytable import PrettyTable
 def executeShowDatabases(self):
     x = PrettyTable()
@@ -12,4 +12,6 @@ def executeShowDatabases(self):
     x.align = "r"
     x.border = True
     x.padding_width = 7
+    print_success("QUERY","Query carried out successfully")
+    print_table("QUERY TABLE",x.get_string())
     print(x) #show databases;

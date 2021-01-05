@@ -29,6 +29,13 @@ class GetByte(Instruccion):
         arbol.consola.append("HINT: Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos.")
         arbol.consola.append(error.toString())
         return error
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        pass
+    
 '''
 instruccion = GetByte("hola mundo",None, 1,2)
 

@@ -2,6 +2,7 @@
 #Se utilizan archivos separados para minimizar los conflictos
 from .executeSentence import executeSentence
 from .generateASTReport import graphAST
+from .generateSymbolTableReport import printSymbolTable
 from .execute_result import *
 class Execute():
     nodes = []
@@ -30,7 +31,9 @@ class Execute():
            for node in self.nodes:
                executeSentence(self,node)
         dotAST = graphAST(self)
-        result = execute_result(dotAST, self.errors, self.messages, self.querys)
+        printSymbolTable_ = printSymbolTable(self)
+
+        result = execute_result(dotAST, printSymbolTable_, self.errors, self.messages, self.querys)
         return result
 
 
