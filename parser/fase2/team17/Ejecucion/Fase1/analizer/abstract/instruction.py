@@ -1,6 +1,5 @@
 from abc import abstractmethod
 import sys
-
 sys.path.append("../../..")
 from Fase1.storage.storageManager import jsonMode
 from Fase1.analizer.typechecker.Metadata import Struct

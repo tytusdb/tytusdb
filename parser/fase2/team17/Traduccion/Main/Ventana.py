@@ -1,6 +1,10 @@
 import traceback
 from tkinter import *
 from tkinter import filedialog
+
+sys.path.append('.')
+sys.path.append('../')
+
 from Parser.Ascendente.gramatica import parse as AnaParse
 #from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
 #from Parser.Reportes.gramatica1 import parse as ReportParse
@@ -27,8 +31,9 @@ root = Tk()
 root.title('Editor ML WEB')
 root.geometry("1200x660")
 # =====================Para leer una archivo de pureba
-f = open("./../Parser/Ascendente/entrada.txt", "r")
-input = f.read()
+#f = open("./../Parser/Ascendente/entrada.txt", "r")
+#input = f.read()
+input = ''
 
 
 # =====================Para leer una archivo de prueba FIn
@@ -138,11 +143,11 @@ def Seleccionar():
         print("C3D generado:")
         print(result.getC3D())
 
-        #consola = result.getC3D()
+        consola = result.getC3D()
         #for item in result.console:
         #    consola = consola + item
 
-        #my_text1.insert(END, consola)
+        my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
     except:
         my_text1.insert(END, 'Ocurrio un error al compilar')

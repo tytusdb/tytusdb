@@ -738,7 +738,7 @@ def p_ifheader(t):
 
 def p_if(t):
     '''
-        if : exp THEN stmts
+        if : exp THEN  stmts
            | exp THEN stmts ELSE stmts
            | exp THEN stmts ELSIF if
     '''
