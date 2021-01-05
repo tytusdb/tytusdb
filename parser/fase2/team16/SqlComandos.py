@@ -420,3 +420,170 @@ class SqlComandos:
             else:
                 print("Es una Coma")
         return Cadenita
+
+
+#tipos de alias
+    def GrafoAlias_Campos_ListaCamposSinLista(self, Alias):
+        Cadenita = ""
+        # as Alias
+        if ((Alias != "")):
+            Cadenita += "  As  " + str(Alias) + "  "
+        else:
+            print("Verificar Errores Sintacticos")
+
+        return  Cadenita
+
+
+    def GrafoAlias_Table_ListaTablasSinLista(self, Alias):
+        Cadenita = ""
+        # as Alias
+        if ((Alias != "")):
+            Cadenita += "  As  " + str(Alias) + "  "
+        else:
+            print("Verificar Errores Sintacticos")
+
+        return Cadenita
+
+    def GrafoAlias_Tablas_GroupSinLista(self, Alias):
+        Cadenita = ""
+        # as Alias
+        if ((Alias != "")):
+            Cadenita += " As " + str(Alias)  + "  "
+        else:
+            print("Verificar Errores Sintacticos")
+
+        return Cadenita
+
+    def GrafoAlias_SubQuerysSinLista(self, Alias):
+        Cadenita = ""
+        # as Alias
+        if ((Alias != "")):
+            Cadenita += " As " + str(Alias) + "  "
+        else:
+            print("Verificar Errores Sintacticos")
+
+        return Cadenita
+
+
+
+#todo Referente los nombres de las tablas
+    def RecorrerListadeNombres(self, Nombres ):
+        Cadenita = ""
+        Contador = 0
+        for i in Nombres:
+            if isinstance(i, AccesoTabla):
+
+                if Contador+1==len(Nombres):
+                    # print("Es un Campo Accedido Por la Tabla" + i.NombreT)
+                    Cadenita += self.GrafoAccesoTabla(i.NombreT, i.Lista_Alias)
+                else:
+                    Cadenita += self.GrafoAccesoTabla(i.NombreT, i.Lista_Alias)+","
+
+            elif isinstance(i, AccesoTablaSinLista):
+                if Contador+1==len(Nombres):
+                    # print("Es un Campo Accedido Por la Tabla" + i.NombreT)
+                    Cadenita += self.GrafoAccesoTablaSinLista(i.NombreT)
+                else:
+                    # print("Es un Campo Accedido Por la Tabla" + i.NombreT)
+                    Cadenita += self.GrafoAccesoTablaSinLista(i.NombreT)+","
+
+            elif isinstance(i, AccesoSubConsultas):
+                if Contador+1==len(Nombres):
+                    print("Es un Acceso a  una subconsulta")
+                    Cadenita += self.GrafoAccesoSubConsultas(i.AnteQuery, i.Query, i.Lista_Alias)
+                else:
+                    print("Es un Acceso a  una subconsulta")
+                    Cadenita += self.GrafoAccesoSubConsultas(i.AnteQuery, i.Query, i.Lista_Alias)+","
+            else:
+                print("No Ningun Tipo")
+
+        return  Cadenita
+
+    def GrafoAccesoTabla(self, NombreT, Lista_Alias):
+        Cadenita = ""
+        if ((NombreT != "") and (Lista_Alias != False)):
+            Cadenita += NombreT
+            # Verificar el Tipo que viene
+            Cadenita += self.RecorrerTiposAlias(Lista_Alias)
+
+        else:
+            print("Error sintactico")
+
+        return  Cadenita
+
+    def GrafoAccesoTablaSinLista(self, NombreT):
+        Cadenita = ""
+        # Nombre
+        if ((NombreT != "")):
+            Cadenita += NombreT
+        else:
+            print("Error sintactico")
+
+        return Cadenita
+
+
+
+# todo Referente a las uniones
+    def RecorrerListaUniones(self, Uniones):
+        Cadenita = ""
+        for i in Uniones:
+            if isinstance(i, CamposUnions):
+                print("Es un Campo Accedido Por una Subconsulta ")
+                Cadenita += self.GrafoAccesoUniones(i.Reservada, i.Comportamiento, i.Consulta)
+            else:
+                print("No hay Ningun Tipo")
+
+        return  Cadenita
+
+    def GrafoAccesoUniones(self, Reservada, Comportamiento, Consulta):
+        Cadenita = ""
+        # Comportamiento Reservada Consulta
+        if ((Comportamiento != "") and (Reservada != "") and (Consulta != False)):
+
+            Cadenita += "\n " + Reservada +"  " +  Comportamiento +" \n"
+            Cadenita += self.RecorrerTipoSelect(Consulta)
+
+
+        # Comportamiento Consulta
+        elif ((Comportamiento != "") and (Reservada == "") and (Consulta != False)):
+
+            Cadenita += "\n " + Comportamiento + " \n"
+            Cadenita += self.RecorrerTipoSelect(Consulta)
+
+        # puntocoma
+        elif ((Comportamiento == "") and (Reservada != "") and (Consulta == False)):
+
+            Cadenita += "; \n"
+
+        else:
+            print("Verificar Errores Sinstacticos")
+
+        return  Cadenita
+
+
+
+
+#tipos de select
+    def RecorrerTipoSelect(self, i):
+        Cadenita = ""
+        if isinstance(i, Select):
+            print("Es Una Instruccion Select ")
+            Cadenita += self.GrafoSelect(i.Lista_Campos, i.Nombres_Tablas, i.unionn)
+
+        elif isinstance(i, Select2):
+            print("Es Una Instruccion Select 2")
+            Cadenita += self.GrafoSelect2(i.Lista_Campos, i.Nombres_Tablas, i.Cuerpo, i.unionn)
+
+        elif isinstance(i, Select3):
+            print("Es Una Instruccion Select 3 ")
+            Cadenita += self.GrafoSelect3(i.distinct, i.Lista_Campos, i.Nombres_Tablas, i.unionn)
+
+        elif isinstance(i, Select4):
+            print("Es Una Instruccion Select 4")
+            Cadenita += self.GrafoSelect4(i.distinct, i.Lista_Campos, i.Nombres_Tablas, i.Cuerpo, i.unionn)
+        else:
+            print("No hay tipo aun")
+
+        return Cadenita
+
+
