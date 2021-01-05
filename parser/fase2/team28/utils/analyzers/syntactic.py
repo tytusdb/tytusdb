@@ -24,7 +24,7 @@ from utils.analyzers.lex import *
 
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
-from models.procedural.clases import BodyDeclaration
+from models.procedural.clases import BodyDeclaration, Call
 from models.procedural.if_statement import If,anidarIFs
 
 
@@ -489,6 +489,18 @@ def p_call_functions_or_procedure(p):
                                 | OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
                                 | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
                                 | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS '''
+
+    if p.slice[1].type == 'EXECUTE':
+        if len(p) == 5: #Tercera produccion
+            Call(p[2], None)
+        else:           #Cuarta produccion
+            Call(p[2], p[4])
+    else:
+        if len(p) == 5: #Primera produccion
+            Call(p[1], p[3])
+        else:           #Segunda produccion
+            Call(p[1], None)
+
 
 def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
