@@ -120,13 +120,13 @@ class Quadruple(object):
             return f'if {self.arg1} {oper} {ar2}: goto {self.res}'
         
     def strpy(self):
-        if str(self.arg1).lower() == 'false'
+        if str(self.arg1).lower() == 'false':
             self.arg1 = 'False'
-        if str(self.arg1).lower() == 'true'
+        if str(self.arg1).lower() == 'true':
             self.arg1 = 'True'
-        if str(self.arg2).lower() == 'false'
+        if str(self.arg2).lower() == 'false':
             self.arg1 = 'False'
-        if str(self.arg2).lower() == 'true'
+        if str(self.arg2).lower() == 'true':
             self.arg1 = 'True'
 
         if self.instType == OpTAC.ASSIGNMENT:
@@ -142,7 +142,7 @@ class Quadruple(object):
             ar2 = self.arg2 if self.arg2 else ''
             return f'if {self.arg1} {oper} {ar2}:\n{getFileTab()}goto.{self.res}'
         elif self.instType == OpTAC.POP:
-            pass
+            return f'{self.res} = pop()'
         elif self.instType == OpTAC.PUSH:
             pass
         elif self.instType == OpTAC.CALL:
@@ -229,7 +229,8 @@ def getPlpgFolder():
         os.makedirs('data/plpgObj')
     
     return 'data/plpgObj/'
-
+def getParamNameFormat():
+    return '___sys_param_'
 #Takes a list of Quadrupes (TAC) aply optimization rules
 #Write files .py for DB objects
 def Save_TAC_obj(objname: str, quadL: list):
