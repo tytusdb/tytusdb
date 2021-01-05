@@ -150,6 +150,7 @@ reservadas = {
     "PLPGSQL": "R_PLPGSQL",
     "SQLSTATE": "R_SQLSTATE",
     "OTHERS": "R_OTHERS",
+    "PROCEDURE": "R_PROCEDURE"
 }
 
 reservadas.update(r_types)
@@ -280,7 +281,7 @@ def t_CHARACTER(t):
 # Funcion para evaluar si el token reconocido es un STRING
 def t_STRING(t):
     r"(\'.*?\'|\".*?\")"
-    t.value = t.value[1:-1]  # remuevo las comillas
+    #t.value = t.value[1:-1]  # remuevo las comillas
     return t
 
 

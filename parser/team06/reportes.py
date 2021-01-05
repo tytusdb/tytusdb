@@ -10,6 +10,8 @@ global textosalida
 textosalida=""
 global bd_enuso
 bd_enuso=""
+global index
+index=""
 global reporteGramatical1
 global reporteGramatical2
 reporteGramatical1=" "
@@ -119,8 +121,12 @@ def reporteSimbolos(ruta,cadena):
     <td>ID_CHECK</td>
     <td>VALOR</td>
     <td>DEFAULT</td>
-    <td>idConstraintFK</td>
-    <td>idConstraintPK</td>
+    <td>ID_CONSTRAINT_FK</td>
+    <td>ID_CONSTRAINT_PK</td>
+    <td>TIPO_INDEX</td>
+    <td>SORT_INDEX</td>
+    <td>AMBITO</td>
+    <td>ROL</td>
     </tr>"""+cadena+"""</table> """
     print("forma bien la cadena")
     with open(ruta, "w") as f:

@@ -1034,7 +1034,7 @@ def p_op7(t):
 
 def p_alc(t):
     '''OP : alter column id type TIPO'''
-    listaBNF.append("ALC ::= alter column " + str(t[3]) + " type TIPO")
+    listaBNF.append("OP ::= alter column " + str(t[3]) + " type TIPO")
     t[0] = AlterType(str(t[3]), t[5])
 
 
@@ -1239,9 +1239,7 @@ def p_OPCOLUMN2(t):
 def p_OPCOLUMN22(t):
     '''OPCOLUMN : check para CONDCHECK parc'''
     listaBNF.append("OPCOLUMN ::= check para CONDCHECK parc")
-    atrCheck = Atributo(AtributosColumna.CHECK)
-    atrCheck.exp = t[3]
-    t[0] = atrCheck
+    t[0] = Atributo(AtributosColumna.CHECK, None, t[3])
 
 
 def p_OPCOLUMN3(t):
