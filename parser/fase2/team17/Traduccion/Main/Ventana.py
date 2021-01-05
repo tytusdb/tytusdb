@@ -144,6 +144,10 @@ def Seleccionar():
         print(result.getC3D())
 
         consola = result.getC3D()
+
+        for i in result.ReporteTS:
+            print(i)
+
         #for item in result.console:
         #    consola = consola + item
 
