@@ -99,22 +99,19 @@ class FunctionSymbol(Symbol):
 
 
 class IndexSymbol(Symbol):
-    def __init__(self, name, tabla, db_id, lista):
+    def __init__(self, name, table, db_id, lista):
         Symbol.__init__(self, SymbolType.INDEX, name)
         self.db_id = db_id
-        self.name =name
-        self.table = tabla
+        self.name = name
+        self.table_name = table
         self.lista = lista
-        
 
-    def str_parametros():
-        cadena=""
-        for hi in self.lista:
-            print(hi)
-            cadena = cadena + hi.IndexSTR()+", "
-        return cadena
-
-
+    def str_list(self):
+        str_l = ''
+        for item in self.lista:
+            print(item)
+            str_l = f'{str_l}{item};'
+        return str_l
 
 
 class SymbolTable:
@@ -222,15 +219,15 @@ class SymbolTable:
                 break
 
     def report_symbols(self):
-        result2 = ["NOMBRE", "TIPO", "PERTENECE A"]
+        result2 = ["NOMBRE", "TIPO", "PERTENECE A", "COLUMNAS AFECTADAS[Indices]"]
         result = []
         for symbol in self.symbols:
             belongs_to = 'Root'
             if symbol.type == SymbolType.TABLE:
                 belongs_to = f'BD: {next((sym for sym in self.symbols if sym.id == symbol.db_id), None).name}'
-            elif symbol.type == SymbolType.FIELD:
+            elif symbol.type == SymbolType.FIELD or symbol.type == SymbolType.INDEX:
                 belongs_to = f'Tabla: {symbol.table_name}'
-            result.append([symbol.name, symbol.type, belongs_to])
+            result.append([symbol.name, symbol.type, belongs_to, symbol.str_list() if symbol.type == SymbolType.INDEX else ''])
         print(tabulate(result, result2, tablefmt="psql"))
         return tabulate(result, result2, tablefmt="psql")
 
