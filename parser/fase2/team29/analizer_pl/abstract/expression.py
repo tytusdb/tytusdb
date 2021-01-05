@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from enum import Enum
 
+
 class TYPE(Enum):
     NUMBER = 1
     STRING = 2
@@ -19,12 +20,14 @@ temp = -1
 
 def newTemp():
     global temp
-    temp +=1
+    temp += 1
     return str(temp)
+
 
 def incTemp(value):
     global temp
-    temp +=value
+    temp += value
+
 
 class Expression:
     """

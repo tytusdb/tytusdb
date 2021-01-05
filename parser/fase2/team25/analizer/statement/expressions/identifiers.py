@@ -55,4 +55,4 @@ class Identifiers(Expression):
         return nod
 
     def generate3d(self,environment, instanciaAux , fase =2):
-        return str(self.value) # TANTO PARA FASE 1 O FASE 2 SE RETORNA LO MISMO
+        return str(self.name) # TANTO PARA FASE 1 O FASE 2 SE RETORNA LO MISMO

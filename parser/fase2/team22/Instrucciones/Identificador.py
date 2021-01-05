@@ -87,3 +87,4 @@ class Identificador(Instruccion):
 
     def generar3D(self, tabla, arbol):
         super().generar3D(tabla,arbol)
+        return self.id

@@ -72,7 +72,7 @@ def declare(identificador, tipo, valor):
             if isinstance(valor, str):
                   return id + '=' + valor + '\n'
             return id + '=' + str(valor) + '\n'
-      default = tipos[tipo]
+      default = tipos.get(tipo,'None')
       if isinstance(default, str):
             return id + '=' + default + '\n'
       return id + '=' + str(default) + '\n'
@@ -97,6 +97,19 @@ def getTemp():
       id =  'T' + str(tempCount)
       tempCount += 1
       return id
+
+
+"""
+______________________________________________________________
+Genera una etiqueta nuevo en forma de string.
+"""
+def getLabel():
+      global labelCount
+      id =  'L' + str(labelCount)
+      labelCount += 1
+      return id
+
+
 """
 ______________________________________________________________
 Traduce una expresión en forma de diccionario con las llaves:
