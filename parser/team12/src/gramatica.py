@@ -242,6 +242,7 @@ keywords = {
 'RENAME' : 'RENAME',
 'REPLACE' : 'REPLACE',
 'RETURNING' : 'RETURNING',
+'RETURNS':'RETURNS',
 'RIGHT' : 'RIGHT',
 'ROUND' : 'ROUND',
 'SCALE' : 'SCALE',
@@ -1660,6 +1661,34 @@ def p_sentencia_else_if(t):
 
 
 #--------------------------------------PROCEDURE--------------------------------------------
+def p_sentencia_function(t):
+    '''sentencia_procedure : CREATE sentencia_orreplace FUNCTION IDENTIFICADOR argumentos_procedure argumentos_retorno definicion_procedure'''
+    t[0] = Start("SENTENCIA_FUNCTION")
+    if t[2] != None:
+        t[0].addChild(t[2])
+    t[0].createTerminal(t.slice[4])
+    if t[5] != None:
+        t[0].addChild(t[5])
+    if t[6] != None:
+        t[0].addChild(t[6])
+    t[0].addChild(t[7])
+
+def p_argumentos_retorno(t):
+    '''argumentos_retorno : RETURNS tipo_declaracion asignacion_alias
+                            |'''
+    if len(t)>1:
+        t[0] = Start("SENTENCIA RETORNO")
+        t[0].addChild(t[2])
+        if t[3] != None:
+            t[0].addChild(t[3])
+
+
+def p_asingacion_alias(t):
+    '''asignacion_alias : AS Exp
+                        |'''
+    if len(t)>1:
+        t[0] = t[2] 
+
 def p_sentencia_procedure(t):
     '''sentencia_procedure : CREATE sentencia_orreplace PROCEDURE IDENTIFICADOR argumentos_procedure definicion_procedure'''
     t[0] = Start("SENTENCIA_PROCEDURE")
@@ -1670,9 +1699,64 @@ def p_sentencia_procedure(t):
         t[0].addChild(t[5])
     t[0].addChild(t[6])
 
-def p_argumentos_procedure(t):
+def p_argumentos_procedure_1(t):
     '''argumentos_procedure : PARENTESISIZQ PARENTESISDER'''
     
+def p_argumentos_procedure_2(t):
+    '''argumentos_procedure : PARENTESISIZQ lista_argfuncion PARENTESISDER'''
+    t[0]=t[2]
+
+def p_lista_argfuncion_1(t):
+    '''lista_argfuncion : lista_argfuncion COMA arg_funcion'''
+    t[0] = Start("LISTA_ARG_FUNCION")
+    for child in t[1].hijos:
+        t[0].addChild(child)
+    t[0].addChild(t[3])
+
+def p_lista_argfuncion_2(t):
+    '''lista_argfuncion : arg_funcion'''
+    t[0] = Start("ARG_FUNCION")
+    t[0].addChild(t[1])
+
+def p_arg_funcion(t):
+    '''arg_funcion : arg_mode arg_name tipo_declaracion arg_expresion'''
+    t[0] = Start("ARGUMENTO_FUNCION")
+    if t[1] != None:
+        t[0].addChild(t[1])
+    if t[2] != None:
+        t[0].addChild(t[2])
+    t[0].addChild(t[3])
+    if t[4] != None:
+        t[0].addChild(t[4])
+
+def p_arg_expresion(t):
+    '''arg_expresion : DEFAULT Exp
+                    | IGUAL Exp
+                    |'''
+    if len(t) == 3:
+        t[0] = Start("ARGUMENTO_EXPRESION")
+        t[0].addChild(t[2])
+
+def p_sent_argmode(t):
+    '''arg_mode : IN
+                | OUT
+                | INOUT
+                | VARIADIC
+                | '''
+    if len(t) == 2:
+        t[0] = Start("MODO_ARGUMENTO")
+        t[0].createTerminal(t.slice[1])
+
+def p_sent_argname(t):
+    '''arg_name : IDENTIFICADOR
+                    | '''
+    if len(t) == 2:
+        t[0] = Start("NOMBRE_ARGUMENTO")
+        t[0].createTerminal(t.slice[1])
+    
+
+
+
 def p_definicion_procedure_1(t):
     '''definicion_procedure : declaraciones_procedure cuerpo_procedure END'''
     t[0] = Start("DEFINICION_PROCEDURE")

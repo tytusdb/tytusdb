@@ -44,6 +44,11 @@ class Index():
         self.listaAttribb = []
         self.sentenciaWhere = None
 
+class Atribb():
+    def __init__(self):
+        self.column = None
+        self.order = None
+        self.nulls = None
 
 file_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))+ '\\estructura.json')
 
@@ -117,11 +122,18 @@ class TypeChecker():
                 for ind in indices:
                     listanombres.append(ind["name"])
                 if index.name not in listanombres:
+                    listaAttribs = []
+                    for indice in index.listaAttribb:
+                        listaAttribs.append({
+                            "column" : str(indice.column),
+                            "order" : str(indice.order),
+                            "nulls" : str(indice.nulls)
+                        })
                     indices.append({
                         "name" : index.name,
                         "table" : index.table,
                         "method" : index.method,
-                        "listaAttribb" : index.listaAttribb,
+                        "listaAttribb" : listaAttribs,
                         "sentenciaWhere" : index.sentenciaWhere
                         })
                     dataFinal = json.dumps(data)
@@ -149,7 +161,16 @@ class TypeChecker():
             index_tmp.name = indx["name"]
             index_tmp.table = indx["table"]
             index_tmp.method = indx["method"]
-            index_tmp.listaAttribb = indx["listaAttribb"]
+            l = []
+
+            for item in indx["listaAttribb"]:
+                attr_tmp = Atribb()
+                attr_tmp.column = item["column"]
+                attr_tmp.order = item["order"]
+                attr_tmp.nulls = item["nulls"]
+                l.append(attr_tmp)
+
+            index_tmp.listaAttribb = l
             index_tmp.sentenciaWhere = indx["sentenciaWhere"]
             retorno.append(index_tmp)
         return retorno

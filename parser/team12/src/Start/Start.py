@@ -158,6 +158,9 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'E':
                 cod = hijo.compile(enviroment)
                 print(cod)
+            elif hijo.nombreNodo == 'SENTENCIA_PROCEDURE':
+                nuevoProcedure = Procedure()
+                nuevoProcedure.compile(hijo)
         
         
 

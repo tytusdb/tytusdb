@@ -25,6 +25,9 @@ sys.path.append(update_path)
 alter_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\DML\\ALTER')
 sys.path.append(alter_path)
 
+procedure_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\PLSQL\\')
+sys.path.append(procedure_path)
+
 
 
 from Nodo import Nodo
@@ -40,3 +43,4 @@ from Intersect import Intersect
 from Except import Except
 from UpdateTable import UpdateTable
 from AlterTable import AlterTable
+from Procedure import Procedure

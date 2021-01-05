@@ -11,6 +11,12 @@ sys.path.append(storage)
 where_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\Where')
 sys.path.append(where_path)
 
+label_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))+"\\C3D\\")
+sys.path.append(label_dir)
+
+from Label import *
+from Temporal import *
+
 from Where import Where
 from typeChecker.typeChecker import *
 import json
@@ -20,6 +26,35 @@ from jsonMode import truncate, showTables, delete,extractTable
 class Delete(Nodo):
     def __init__(self, nombreNodo,fila = -1 ,columna = -1 ,valor = None):
         Nodo.__init__(self,nombreNodo, fila, columna, valor)
+
+
+    def obtenerColumnasDictionary(self,dbUse, tabla):
+            # Se obtiene el diccionario de columnas para la tabla del Storage,
+            # Solo se utiliza para selects de tablas, hay casos en los que se pueden
+            # Recibir tablas como parámetros, en las subconsultas, por ejemplo.
+            tc = TypeChecker()
+            listTemp = tc.return_columnsJSON(dbUse, tabla.upper())
+            listaCols = []
+            if listTemp != None:
+                for col in listTemp:
+                    listaCols.append([col['name'], col['type']])
+                return [listaCols]
+            return [[]]
+
+
+    def compile(self):
+        pass
+
+    def getText(self):
+        table_ =  self.hijos[2].valor.upper()
+        if len(self.hijos) < 4:
+            
+            return f"DELETE FROM {table_};"
+        else:
+            exp =  self.hijos[3].hijos[0].getText()
+            where_body = f" WHERE {exp};"
+            return f"DELETE FROM {table_} {where_body}"
+
 
     def execute(self,enviroment = None):
         useDB = None
@@ -58,34 +93,22 @@ class Delete(Nodo):
                     "Message" : "Error"
                 }   
         else:
+            tablename = self.hijos[2].valor.upper()
             #Usa hidden pk ["indice"]
             #DELETE WITH WHERE
-            raw_matrix = extractTable(useDB,self.hijos[2].valor.upper())
             parent_node = self.hijos[3]
-            lista_tabla = [[self.hijos[2].valor.upper(),self.hijos[2].valor.upper()]]
-            lista_columns = []
-            tc = TypeChecker()
-
-            dictionar = tc.return_columnsJSON(useDB,self.hijos[2].valor.upper())
-            for elemento in dictionar:
-                lista_columns.append([elemento['name'],elemento['type']])
-            lista_columns = [lista_columns]
-
-            print("PARENT")
-            print(type(parent_node))
-            
-            print("MATRIZ3D")
-            print(raw_matrix)
-
-            print("LISTATABLA")
-            print(lista_tabla)
-
-            print("LISTA COLUMNAS")
-            print(lista_columns)
+            raw_matrix = [extractTable(useDB,self.hijos[2].valor.upper())]
+            columnas = self.obtenerColumnasDictionary(useDB,tablename)
+            tablas = [[self.hijos[2].valor.upper(),self.hijos[2].valor.upper()]]
 
 
             nuevoWhere = Where()
-            listaResult = nuevoWhere.execute(parent_node,raw_matrix,lista_tabla,lista_columns)
+            listaResult = nuevoWhere.execute(parent_node, raw_matrix, tablas, columnas,None)
+            print(listaResult)
+            for elemento in listaResult:
+                if elemento[0] is True:
+                    print(delete(useDB,tablename,[str(elemento[1])]),"UFF")
+        
 
             return {
                     "Code" : "00000",
