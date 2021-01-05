@@ -1,0 +1,48 @@
+// AST
+digraph {
+	23 [label=INSTRUCTION_LIST]
+	24 [label=IF]
+	25 [label="("]
+	26 [label=">"]
+	27 [label=5]
+	28 [label=9]
+	29 [label=")"]
+	30 [label=THEN]
+	31 [label=CREATE_DATABASE]
+	32 [label=hola]
+	33 [label=ELSE]
+	34 [label=IF]
+	35 [label="("]
+	36 [label="<"]
+	37 [label=5]
+	38 [label=9]
+	39 [label=")"]
+	40 [label=THEN]
+	41 [label=CREATE_DATABASE]
+	42 [label=adios]
+	43 [label="END IF"]
+	44 [label="END IF"]
+	45 [label=INST]
+	23 -> 24
+	24 -> 25
+	24 -> 26
+	26 -> 27
+	26 -> 28
+	24 -> 29
+	24 -> 30
+	24 -> 31
+	31 -> 32
+	24 -> 33
+	24 -> 34
+	34 -> 35
+	34 -> 36
+	36 -> 37
+	36 -> 38
+	34 -> 39
+	34 -> 40
+	34 -> 41
+	41 -> 42
+	34 -> 43
+	24 -> 44
+	23 -> 45
+}

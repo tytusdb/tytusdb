@@ -251,6 +251,7 @@ from Instrucciones.Drop import *
 from Instrucciones.Delete import Delete
 from graphviz import Digraph
 from Instrucciones.AlterTable import *
+from Instrucciones.Update import *
 
 global listaBNF
 listaBNF = []
@@ -864,20 +865,29 @@ def p_ORD(t):
 
 
 def p_UPDATE(t):
-    ' UPDATE : update id set LCAMPOS where LEXP'
+    ' UPDATE : update id set LCAMPOS WHERE'
+    listaBNF.append("UPDATE ::= update " + str(t[2]) + " set LCAMPOS WHERE")
+    t[0] = Update(str(t[2]),t[4],t[5])
 
 
-def p_LCAMPOS(t):
-    '''LCAMPOS :  LCAMPOS coma id igual EXP
-		| id igual EXP'''
+def p_LCAMPOS1(t):
+    '''LCAMPOS :  LCAMPOS coma id igual EXP'''
+    listaBNF.append("LCAMPOS ::= LCAMPOS coma " + str(t[3]) + " igual EXP")
+    t[1].append(Campo(str(t[3]),t[5]))
+    t[0] = t[1]
+
+def p_LCAMPOS2(t):
+    '''LCAMPOS : id igual EXP'''
+    listaBNF.append("LCAMPOS ::= " + str(t[1]) + " igual EXP")
+    t[0] = [Campo(str(t[1]),t[3])]
 
 
 def p_DELETE(t):
     '''
-    DELETE : delete   r_from EXP WHERE
+    DELETE : delete   r_from id WHERE
     '''
-    listaBNF.append("DELETE ::= delete from EXP WHERE")
-    t[0] = Delete(t[3],t[4])
+    listaBNF.append("DELETE ::= delete from id WHERE")
+    t[0] = Delete(str(t[3]),t[4])
 
 
 def p_EXIST(t):

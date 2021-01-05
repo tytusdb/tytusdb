@@ -352,8 +352,8 @@ def p_Sentencias_DML(p):
     '''Sentencias_DML : t_select Lista_EXP Select_SQL Condiciones GRP ORD pyc
                     | t_select asterisco Select_SQL Condiciones GRP ORD pyc
                     | t_insert t_into id Insert_SQL pyc
-                    | t_update id t_set Lista_EXP Condiciones pyc
-                    | t_delete t_from id Condiciones pyc
+                    | t_update id t_set Lista_EXP Condiciones1 pyc
+                    | t_delete t_from id Condiciones1 pyc
                     | t_use id pyc'''
     vaciar_lista()
     if p[1] == 'select':
@@ -421,6 +421,17 @@ def p_Condiciones(p):
     else:
         p[0] = []
         concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
+
+def p_Condiciones1(p):
+    '''Condiciones1 : t_where EXP
+            | empty'''
+    if len(p) == 3:
+        p[0] = p[2]
+        concatenar_gramatica('\n <TR><TD> CONDICIONES ::= where EXP  </TD>  <TD> condiciones.val = exp.val </TD></TR>')
+    else:
+        p[0] = p[1]
+        concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
+
 
 # ---------------------------- Group, having and order by --------------
 def p_GRP(p):
@@ -582,7 +593,7 @@ def p_SesionDB(p): #Agregado
         concatenar_gramatica('\n <TR><TD> SESSIONDB ::= id </TD> <TD> { sessiondb.val = id } </TD></TR>')
     p[0]=p[1]
 
-def p_AlterTB(p):
+def p_AlterTB(p): #Agregado
     ''' AlterTB : t_add Add_Opc
                 | t_drop Drop_Opc
                 | t_alter t_column Alter_Column
@@ -591,11 +602,13 @@ def p_AlterTB(p):
         p[0] = p[2]
         concatenar_gramatica('\n <TR><TD> ALTERTB ::= add ADD_OPC </TD>  <TD> { altertb.inst = add(add_Opc.val) } </TD></TR>')
     elif p[1] == 'drop':
-        p[0] = p[1]
+        p[0] = p[2]
         concatenar_gramatica('\n <TR><TD> ALTERTB ::= drop DROP_OPC </TD> <TD> { altertb.inst =  drop(drop_opc.val) } </TD></TR>')
     elif p[1] == 'alter': 
+        p[0] = p[3]
         concatenar_gramatica('\n <TR><TD> ALTERTB ::= alter column ALTER_COLUMN </TD> <TD> { altertb.inst = alter(alter_column.val) } </TD></TR>')
     elif p[1] == 'rename':
+        p[0] = DDL.AlterTBRename(p.slice[1].lineno, find_column(input, p.slice[1]), p[3], p[5])
         concatenar_gramatica('\n <TR><TD> ALTERTB ::= rename column id to id </TD> <TD> { altertb.inst = rename(id1,id2) } </TD></TR>')
 
 def p_Add_Opc(p): #Agregado
@@ -603,10 +616,7 @@ def p_Add_Opc(p): #Agregado
                | Constraint_AlterTB t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2
                | Constraint_AlterTB t_unique par1 id par2
                | Constraint_AlterTB t_check EXP '''
-    if p[1].lower() == 'column':
-        p[0] = DDL.AlterTBAdd(p.slice[1].lineno, find_column(input, p.slice[1]), 1, {'id': p[2], 'tipo': p[3]})
-        concatenar_gramatica('\n <TR><TD> ADD_OPC ::= column id TIPO </TD> <TD> { add_opc.inst = column(id, tipo.type) } </TD></TR>')
-    elif p[2].lower() == 'foreign':
+    if p[2].lower() == 'foreign':
         p[0] = DDL.AlterTBAdd(p.slice[2].lineno, find_column(input, p.slice[2]), 2, {'id_constraint': p[1], 'Lista_ID': p[5], 'id_ref': p[8], 'Lista_ID_ref': p[10]})
         concatenar_gramatica('\n <TR><TD> ADD_OPC ::= CONSTRAINT_ALTERTB foreign key ( id ) references id par1 Lista_ID par2 </TD> <TD> { add_opc.isnt = foreign(id1,id2)} </TD></TR>')
     elif p[2].lower() == 'unique':
@@ -615,6 +625,9 @@ def p_Add_Opc(p): #Agregado
     elif p[2].lower() == 'check': 
         p[0] = DDL.AlterTBAdd(p.slice[2].lineno, find_column(input, p.slice[2]), 4, {'id_constraint': p[1], 'EXP': p[3]})
         concatenar_gramatica('\n <TR><TD> ADD_OPC ::= CONSTRAINT_ALTERTB check EXP </TD> <TD> {add_opc.inst = check( exp.val )} </TD></TR>')
+    else: #p[1].lower() == 'column':
+        p[0] = DDL.AlterTBAdd(p.slice[1].lineno, find_column(input, p.slice[1]), 1, {'id': p[2], 'tipo': p[3]})
+        concatenar_gramatica('\n <TR><TD> ADD_OPC ::= column id TIPO </TD> <TD> { add_opc.inst = column(id, tipo.type) } </TD></TR>')
 
 def p_Constraint_AlterTB(p): #Agregado
     '''Constraint_AlterTB : t_constraint id
@@ -636,28 +649,41 @@ def p_Drop_Opc(p): #Agregado
         p[0] = DDL.AlterTBDrop(p.slice[1].lineno, find_column(input, p.slice[1]), 2, p[2])
         concatenar_gramatica('\n <TR><TD> DROP_OPC ::= foreign key ( id ) references id </TD> <TD> { drop_opc.val = constraint,id}  </TD></TR>')
 
-def p_Alter_Column(p):
+def p_Alter_Column(p): #Agregado
     ''' Alter_Column :   id t_set t_not t_null
                      |   Alter_Columns'''
     if len(p) == 5:
+        p[0] = DDL.AlterTBAlter(p.slice[1].lineno, find_column(input, p.slice[1]), p[1].lower(), None)
         concatenar_gramatica('\n <TR><TD> ALTER_COLUMN ::= id set not null </TD> <TD> { alter_column.val = id} </TD></TR>')
-    else: 
+    else:
+        p[0] = DDL.AlterTBAlter(p.slice[1].lineno, find_column(input, p.slice[1]), None, p[1])
         concatenar_gramatica('\n <TR><TD> ALTER_COLUMN ::= ALTER_COLUMNS </TD> <TD> { alter_column.val = alter_columns.val } </TD></TR>')
 
-def p_Alter_Columns(p):
+def p_Alter_Columns(p): #Agregado
     ''' Alter_Columns : Alter_Columns coma Alter_Column1
                     | Alter_Column1'''
     if len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
         concatenar_gramatica('\n <TR><TD> ALTER_COLUMNS ::= ALTER_COLUMNS , ALTER_COLUMN1 </TD> <TD> { alter_columns.lista.add(alter_column1.val) } </TD></TR>')
-    else: 
+    else:
+        p[0] = [p[1]] 
         concatenar_gramatica('\n <TR><TD> ALTER_COLUMNS ::= ALTER_COLUMN1 </TD> <TD> { alter_columns.lista = [alter_column.val]} </TD></TR>')
 
-def p_Alter_Colum1(p):
+def p_Alter_Colum1(p): #Agregado
     '''Alter_Column1 :  id t_type t_varchar par1 entero par2
                     | t_alter t_column id t_type t_varchar par1 entero par2'''
-    if p[1] == 'alter':
+    if p[1].lower() != 'alter':
+        p[0] = {
+            'nombre_columna': p[1].lower(),
+            'entero': p[5]
+        }
         concatenar_gramatica('\n <TR><TD> ALTER_COLUMN1 ::= alter column id type varchar ( entero ) </TD> <TD> { alter_Column.inst = alter_column(id,varchar,entero) }</TD></TR>')
-    else: 
+    else:
+        p[0] = {
+            'nombre_columna': p[3].lower(),
+            'entero': p[7]
+        } 
         concatenar_gramatica('\n <TR><TD> ALTER_COLUMN1 ::= id type varchar ( entero ) </TD> <TD> { alter_Column.inst = alter_Column(id,varchar,entero)} </TD></TR>')
 
 def p_Create(p):#Agregado
@@ -760,7 +786,7 @@ def p_Columnas(p): #Agregado
     if len(p) == 4:
         p[1].append(p[3])
         p[0] = p[1]
-        concatenar_gramatica('\n <TR><TD> COLUMNAS ::= COLUMNAS , COLUMNA </TD> columnas.val = concatenar(columna.aux , columna.val) <TD> </TD></TR>')
+        concatenar_gramatica('\n <TR><TD> COLUMNAS ::= COLUMNAS , COLUMNA </TD>  <TD> {columnas.val = concatenar(columna.aux , columna.val)}</TD></TR>')
     else:
         p[0] = [p[1]]
         concatenar_gramatica('\n <TR><TD> COLUMNAS ::= COLUMNA </TD> <TD> columnas.aux = columna.val </TD></TR>')
@@ -1100,6 +1126,7 @@ def p_funciones_Trigonometricas(p):
             | t_sind par1 EXP par2
             | t_tan par1 EXP par2
             | t_tand par1 EXP par2 '''
+    p[0] = Expression(p[1], p[3],  p.slice[1].lineno, find_column(input, p.slice[1]), 'trigo')
     concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + '( EXP ) </TD> <TD> { exp.val = ' + str(p[1]) + ' ( exp1.val )}  </TD></TR>')
 
 def p_funciones_Trigonometricas1(p):

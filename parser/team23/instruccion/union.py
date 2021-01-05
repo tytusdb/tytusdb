@@ -30,8 +30,8 @@ class union(instruccion):
         derechaA=self.derecha.ejecutar(True)
         salidaTabla = PrettyTable()
         salidaTabla.field_names = izquierdaA.tipo
-        salidaTabla.add_rows(izquierdaA.valor)
-        salidaTabla.add_rows(derechaA.valor)
+        salidaTabla.add_rows(izquierdaA.query)
+        salidaTabla.add_rows(derechaA.query)
 
         add_text('\n')
         add_text(salidaTabla)

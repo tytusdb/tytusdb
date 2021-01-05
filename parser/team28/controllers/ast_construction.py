@@ -1498,6 +1498,22 @@ def p_sql_expression2_SQLINTEGER(p):
     p[0] = nodo
 
 
+def p_sql_expression2_TRUE(p):
+    '''SQLEXPRESSION2 : TRUE'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLEXPRESSION2> ::= TRUE\n"
+    p[0] = nodo
+
+
+def p_sql_expression2_FALSE(p):
+    '''SQLEXPRESSION2 : FALSE'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLEXPRESSION2> ::= FALSE\n"
+    p[0] = nodo
+
+
 def p_options_list2_WHERECLAUSE(p):
     '''OPTIONSLIST2 : WHERECLAUSE OPTIONS4
                     | WHERECLAUSE'''
@@ -2485,26 +2501,15 @@ def p_exits_or_relational_clause_SQLRELATIONALEXPRESSION(p):
 
 
 def p_exists_clause(p):
-    '''EXISTSCLAUSE : EXISTS ID LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
-                    | EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
+    '''EXISTSCLAUSE : EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     nodo = Node('Exists Clause')
-    if len(p) == 5:
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.production = f"<EXISTSCLAUSE> ::= EXISTS LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{p[3].production}"
-        p[0] = nodo
-    else:
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(p[4])
-        nodo.add_childrens(Node(p[5]))
-        nodo.production = f"<EXISTSCLAUSE> ::= EXISTS ID LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
-        nodo.production += f"{p[4].production}"
-        p[0] = nodo
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<EXISTSCLAUSE> ::= EXISTS LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
 
 
 def p_sql_relational_expression(p):
@@ -4003,6 +4008,17 @@ def p_sql_object_reference(p):
         nodo.production = f"<OBJECTREFERENCE> ::= <SQLNAME> DOT ASTERISK\n"
         nodo.production += f"{p[1].production}"
         p[0] = nodo
+
+
+def p_sql_object_reference_SQLNAME(p):
+    '''OBJECTREFERENCE : SQLNAME DOT SQLNAME'''
+    nodo = Node('Object Reference')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<OBJECTREFERENCE> ::= <SQLNAME> DOT <SQLNAME>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
 
 
 def p_list_values_insert(p):
