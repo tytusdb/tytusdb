@@ -173,7 +173,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
         elif isinstance(nodo, STruncateBase):
             truncatebase(nodo, tablaSimbolos)
         elif isinstance(nodo, SInsertBase):
-            InsertTable(nodo, tablaSimbolos)
+            InsertTable(nodo, tablaSimbolos,True)
         elif isinstance(nodo, SShowTable):
             tablas = jBase.showTables(useActual)
             for tabla in tablas:
@@ -414,6 +414,8 @@ def interpretar_sentencias(arbol, tablaSimbolos):
 
 
     print("SOY TU TRADUCCION------------------")
+    texttraduccion+="\ndef FunctionInsert():\n"
+    texttraduccion+= identacion+ "print("+"\""+"Aqui va la logica"+"\""+"):\n"
     print(texttraduccion)
     print("YA OPTIMIZADO------------------------- ")
     print(textoptimizado)
@@ -654,7 +656,7 @@ def TraducirBloque(nodo,tablaSimbolos):
             elif isinstance(nodo, STruncateBase):
                 truncatebase(nodo, tablaSimbolos)
             elif isinstance(nodo, SInsertBase):
-                InsertTable(nodo, tablaSimbolos)
+                InsertTable(nodo, tablaSimbolos,False)
             elif isinstance(nodo, SShowTable):
                 tablas = jBase.showTables(useActual)
                 for tabla in tablas:
@@ -1615,11 +1617,51 @@ def AlterColumnCTipo(nodo, tablaSimbolos):
                 "Error Semantico", "la columna no existe " + col.idcolumna))
 
 
-def InsertTable(nodo, tablaSimbolos):
-    global consola
-    flag = False
-    base = tablaSimbolos.get(useActual)
-    if base != None:
+
+def InsertTable(nodo, tablaSimbolos,cod3D):
+    global consola 
+    global texttraduccion 
+    global contadoresEtiqueta 
+    global contadoresT
+    temp1=""
+    temp2=""
+    temp3=""
+    Etiqueta=""
+    if (cod3D):
+
+       #print("********************* Codigo 3D  Edi *************************")
+       #print(nodo.id)
+       temp1= "t" +str(contadoresT) 
+       texttraduccion +=identacion + temp1+" = " +str(nodo.id) + " \n"
+       contadoresT =contadoresT + 1
+       temp2 = "t"+str(contadoresT)
+       contadoresT =contadoresT + 1
+       texttraduccion += identacion + temp2 +" = " +"1" + " \n"
+       texttraduccion += identacion + "if ( "+temp2+" == "+"1 ):" + " \n"    
+       Etiqueta += ".L"+ str(contadoresEtiqueta)
+       contadoresEtiqueta +=1 
+       texttraduccion += identacion+ identacion +"goto " + Etiqueta + " \n"
+       texttraduccion += identacion+ identacion + "label " + Etiqueta + " \n"
+       contadoresEtiqueta +=1
+       cadena=""
+       for i in range(len(nodo.listValores)):
+                if  ( i != (len(nodo.listValores)-1)):                
+                    val = Interpreta_Expresion(nodo.listValores[i], tablaSimbolos,None,False)
+                    cadena+= "\'"+ str(val.valor)+"\'"+","
+                else :  
+                    cadena+= "\'"+ str(val.valor)+"\'"
+       temp3 = "t"+str(contadoresT)             
+       contadoresT =contadoresT + 1
+       texttraduccion += identacion+identacion+temp3 +" = [" + cadena + "] \n"
+       texttraduccion +=identacion+identacion+"FunctionInsertar() \n"
+       
+       #print(texttraduccion)
+       #print("**********************************************")                          
+    
+    else:
+      flag = False
+      base = tablaSimbolos.get(useActual)
+      if base != None:
         tabla = base.getTabla(nodo.id)
         if tabla != None:
             if nodo.listaColumnas != None:
@@ -1757,7 +1799,7 @@ def InsertTable(nodo, tablaSimbolos):
                                             l += 1
 
                                         nuevo_insert = SInsertBase(tabla.padre,lista_de_columnas,lista_de_valores)
-                                        InsertTable(nuevo_insert, tablaSimbolos)
+                                        InsertTable(nuevo_insert, tablaSimbolos,True)
 
                                     else:
 
@@ -1833,7 +1875,7 @@ def InsertTable(nodo, tablaSimbolos):
                                     listaSemanticos.append(Error.ErrorS(
                                             "Error Semantico",
                                             "Error en ENUM TYPE: la colección " + col.tipo.valor + " no ha sido definida. "))
-                            elif hasattr(col.tipo,"tipo"):
+                            else:
 
                                 if col.tipo.tipo == TipoDato.NUMERICO:
                                     result = validarTiposNumericos(
@@ -1857,14 +1899,6 @@ def InsertTable(nodo, tablaSimbolos):
                                 elif col.tipo.tipo == TipoDato.BOOLEAN:
                                     if val.tipo == Expresion.BOOLEAN:
                                         result = True
-
-                            else:
-
-                                if val.valor in types[col.tipo]:
-                                    result = True
-                                else:
-                                    result = False
-
                             if not result:
                                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                                     "Error de tipos: tipo " + str(col.tipo.tipo) + " columna " + str(col.nombre) + " valor a insertar " + str(
@@ -1965,10 +1999,10 @@ def InsertTable(nodo, tablaSimbolos):
         else:
             listaSemanticos.append(
                 Error.ErrorS("Error Semantico", "la tabla " + nodo.id + " no ha sido encontrada"))
-    else:
+      else:
         listaSemanticos.append(
             Error.ErrorS("Error Semantico", "la base de datos " + useActual + " no ha sido encontrada"))
-
+   
 
 def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk,la_tupla):
     result = False

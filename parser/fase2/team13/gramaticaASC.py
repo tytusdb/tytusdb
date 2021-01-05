@@ -638,6 +638,35 @@ def p_DECLARATIONP0(t):
     t[0] = SDeclaracionType(t[1]["id"],t[1]["constt"], t[2], t[4])
 
 
+
+#  *******QQQQQQQQQ SE AGREGO MAS PRODUCCIONES EDI TOMAS 
+def p_ASIGNACION1(t):
+    '''   ASIGNACION : id asig  parAbre QUERY parCierra   ptComa
+                     | id igual parAbre QUERY parCierra   ptComa
+                     | id asig   QUERY  ptComa
+                     | id igual  QUERY  ptComa
+                             
+    '''
+
+
+
+def p_DECLARATIONQUERY(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO ASIGNAR QUERY ptComa
+                    |  NAME_CONSTANT ASIGNAR QUERY ptComa
+                    |  NAME_CONSTANT TIPO not null ASIGNAR QUERY ptComa 
+                    |  NAME_CONSTANT talias tfor QUERY ptComa 
+                    |  NAME_CONSTANT not null ASIGNAR QUERY ptComa 
+                    |  NAME_CONSTANT TIPO ASIGNAR parAbre QUERY parCierra ptComa
+                    |  NAME_CONSTANT ASIGNAR parAbre QUERY parCierra ptComa
+                    |  NAME_CONSTANT TIPO not null ASIGNAR parAbre QUERY parCierra ptComa 
+                    |  NAME_CONSTANT talias tfor parAbre QUERY parCierra ptComa 
+                    |  NAME_CONSTANT not null ASIGNAR parAbre QUERY parCierra ptComa 
+    '''
+#*********************************************************************************************************************
+
+
+
+
 def p_ACCESO(t):
     ''' ACCESO : ACCESO punto id
                |  id  '''
