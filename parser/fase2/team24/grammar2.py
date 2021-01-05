@@ -230,7 +230,6 @@ tokens = [
             'CHAR',
             'ID',
             'PUNTOCOMA',
-            'PTCOMA',
             'CORCHETEA',
             'CORCHETEC',
             'DOLAR'
@@ -260,9 +259,8 @@ t_PARA = r'\('
 t_PARC = r'\)'
 t_DOSPUNTOS=r'\:'
 t_COMA=r'\,'
-t_PUNTOCOMA=r'\;'
+t_PUNTOCOMA = r'\;'
 t_PUNTO=r'\.'
-t_PTCOMA = r'\;'
 t_CORCHETEA=r'\['
 t_CORCHETEC=r'\]'
 t_DOLAR = r'\$'
@@ -634,7 +632,7 @@ def p_varying1(p):
 #MANIPULACION DE BASES DE DATOS
 #CREATEDB----------------------
 def p_createdb(p):
-    "createdb   :   CREATE replacedb DATABASE ifnotexists id owner mode PTCOMA"
+    "createdb   :   CREATE replacedb DATABASE ifnotexists id owner mode PUNTOCOMA"
     p[0] = inst.createdb(p[2],p[4],p[5],p[6],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -680,13 +678,13 @@ def p_mode1(p):
 
 #SHOW DATABASES------------------
 def p_showdb(p):
-    "showdb :   SHOW DATABASES PTCOMA"
+    "showdb :   SHOW DATABASES PUNTOCOMA"
     p[0] = inst.showdb(p[1])
     insertProduction(p.slice, len(p.slice))
    
 #ALTER DATABASE------------------
 def p_alterdb(p):
-    "alterdb    :   ALTER DATABASE alterdb2 PTCOMA"
+    "alterdb    :   ALTER DATABASE alterdb2 PUNTOCOMA"
     p[0] = inst.alterdb(p[3])
     insertProduction(p.slice, len(p.slice))
 
@@ -712,7 +710,7 @@ def p_alterdb31(p):
 
 #DROP DATABASE--------------------
 def p_dropdb(p):
-    "dropdb :   DROP DATABASE ifexists id PTCOMA"
+    "dropdb :   DROP DATABASE ifexists id PUNTOCOMA"
     insertProduction(p.slice, len(p.slice))
 
 def p_ifexists(p):
@@ -727,14 +725,14 @@ def p_ifexists1(p):
 
 #USE DATABASE----------------------
 def p_usedb(p):
-    "usedb  :   USE id PTCOMA"
+    "usedb  :   USE id PUNTOCOMA"
     p[0] = inst.usedb(p[2])
     insertProduction(p.slice, len(p.slice))
 
 #MANIPULACION DE TABLAS
 # CREATE TABLE-------------------
 def p_createtb(p):
-    "createtb   :   CREATE TABLE id PARA coltb PARC inherits PTCOMA"
+    "createtb   :   CREATE TABLE id PARA coltb PARC inherits PUNTOCOMA"
     p[0] = inst.createtb(p[3],p[5],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -865,13 +863,13 @@ def p_const1(p):
 
 #DROP TABLE----------
 def p_droptb(p):
-    "droptb :   DROP TABLE id PTCOMA"
+    "droptb :   DROP TABLE id PUNTOCOMA"
     p[0] = inst.droptb(p[3])
     insertProduction(p.slice, len(p.slice))
 
 #ALTER TABLE---------
 def p_altertb(p):
-    "altertb    :   ALTER TABLE id altertb2 PTCOMA"
+    "altertb    :   ALTER TABLE id altertb2 PUNTOCOMA"
     p[0] = inst.altertb(p[3],p[4])
     insertProduction(p.slice, len(p.slice))
 
@@ -962,7 +960,7 @@ def p_alteracion11111(p):
 #MANIPULACION DE DATOS
 #INSERT---------------
 def p_insert(p):
-    "insert :   INSERT INTO id colkey VALUES PARA valores PARC PTCOMA"
+    "insert :   INSERT INTO id colkey VALUES PARA valores PARC PUNTOCOMA"
     p[0] = inst.insert(p[3],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -981,13 +979,13 @@ def p_valores1(p):
 
 #UPDATE----------------
 def p_update(p):
-    "update :   UPDATE id SET cond WHERE wherecond PTCOMA"
+    "update :   UPDATE id SET cond WHERE wherecond PUNTOCOMA"
     p[0] = inst.update(p[2],p[4],p[6])
     insertProduction(p.slice, len(p.slice))
 
 #DELETE----------------
 def p_delete(p):
-    "delete :   DELETE FROM id WHERE wherecond PTCOMA"
+    "delete :   DELETE FROM id WHERE wherecond PUNTOCOMA"
     p[0] = inst.delete(p[3],p[5])
     insertProduction(p.slice, len(p.slice))
 
@@ -1013,31 +1011,36 @@ def p_createind21(p):
     p[0] = p[1]
 
 def p_createind3(p):
-    "createind3 :   PARA contind PARC indwhere PTCOMA" 
+    "createind3 :   PARA listacolind PARC indwhere PUNTOCOMA" 
     p[0] = inst.createind3(p[2],p[4]) 
-     
-def p_listaind(p):
-    "contind    :  contind COMA id"
-    p[1].append(p[3])
-    p[0] = inst.contind1111(p[1])
 
-def p_listaind1(p):
-    "contind    :  id"
+def p_listacolind(p):
+    "listacolind    :   listacolind COMA columnaind"
+    p[1].append(p[3])
+    p[0] = inst.listacolind(p[1])
+
+def p_listacolind1(p):
+    "listacolind    :   columnaind"
     p[0] = [p[1]]
 
-def p_contind1(p):
-    "contind    :   id indorder NULLS indorder2"
-    p[0] = inst.contind1(p[1], p[2] + " " + p[3] + " " + p[4])
-
-def p_contind11(p):
+def p_columnaind(p):
     """
-    contind :  id PARA id PARC
-    """  
-    p[0] = p[3]    
+    columnaind          :   id ordenind
+                        |   id idcondind  
+    """
+    p[0] = inst.columnaind(p[1], p[2])
 
-def p_contind111(p):
-    "contind    :   "
-    p[0] = ""
+def p_columnaind1(p):
+    "columnaind :   id"
+    p[0] = p[1]
+
+def p_ordenind(p):
+    "ordenind   :   indorder NULL indorder2"
+    p[0] = inst.ordenind(p[2] + " " + p[3] + " " + p[4])
+
+def p_idcondind(p):
+    "idcondind :  PARA id PARC"
+    p[0] = p[2]
 
 def p_indorder(p):
     """
@@ -1118,7 +1121,7 @@ def p_empty(p):
      insertProduction(p.slice, len(p.slice))
 
 def p_query(t):
-    'query : queryp com PTCOMA'
+    'query : queryp com PUNTOCOMA'
     #por el momento 
     t[0] = t[1]
     insertProduction(t.slice, len(t.slice))
@@ -1839,8 +1842,8 @@ def p_raisenotice(t):
     t[0] = raisenotice(t[3],t[4])
 
 def p_compvalue(t):
-    'compvalue : COMA ID'
-    t[0] = t[1]
+    'compvalue : COMA newexp'
+    t[0] = t[2]
 
 def p_compvalueEmpty(t):
     'compvalue : empty'
@@ -1915,7 +1918,7 @@ def p_error(t):
         nuevo_error = CError(linea,columna,descript,'Sintactico')
         insert_error(nuevo_error)
         parser.errok()
-        #print(t)
+        print(t)
     else:
         print("No se pudo recuperar")
     return

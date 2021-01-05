@@ -42,21 +42,6 @@ def analisis():
 
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
-
-    try:
-        f = open("./Utils/tabla.txt", "r")
-        text = f.read()
-        f.close()
-        text = text.replace('\'','"')
-        text = text.replace('False','"False"')
-        text = text.replace('None','""')
-        text = text.replace('True','"True"')
-
-        print(text)
-        datos.reInsertarValores(json.loads(text))
-        print(str(datos))
-    except:
-        print('error')
     
     #g2.tempos.restartTemp() #reinicia el contador de temporales.
     prueba = g2.parse(texto)
@@ -74,6 +59,7 @@ storage.dropAll()
 heap = []
 
 datos = l.Lista({}, '') 
+l.readData(datos)
 '''
     exepy += '''
 #funcion intermedia    
@@ -83,6 +69,8 @@ def mediador():
     instrucciones = g.parse(heap.pop())
     for instr in instrucciones['ast'] :
         print(instr.execute(datos))
+
+    l.writeData(datos)
 '''
 
     exepy += '''
@@ -93,7 +81,7 @@ def mediador():
 
     exepy += '''
 #main
-#@with_goto
+@with_goto
 def main():
     global heap
 '''
@@ -101,6 +89,7 @@ def main():
     exepy += str(prueba['text'])
 
     exepy += '''
+
 #Ejecucion del main
 if __name__ == "__main__":
     main()    
@@ -110,17 +99,11 @@ if __name__ == "__main__":
     f.write(exepy)
     f.close()
 
-    instrucciones = g.parse(texto)
-    erroresSemanticos = []
-
-    try:
-        hacerReporteGramatica(instrucciones['reporte'])
-    except:
-        print("")
 
     '''try:
         f = open("./Utils/tabla.txt", "r")
         text = f.read()
+        f.close()
         text = text.replace('\'','"')
         text = text.replace('False','"False"')
         text = text.replace('None','""')
@@ -130,7 +113,17 @@ if __name__ == "__main__":
         datos.reInsertarValores(json.loads(text))
         print(str(datos))
     except:
-        print('error')'''
+        print('error')
+
+    instrucciones = g.parse(texto)
+    erroresSemanticos = []
+
+    try:
+        hacerReporteGramatica(instrucciones['reporte'])
+    except:
+        print("")
+
+
     for instr in instrucciones['ast'] :
 
             if instr != None:
@@ -155,7 +148,7 @@ if __name__ == "__main__":
     erroresSemanticos.clear()
 
     reporteTabla()
-    del instrucciones
+    del instrucciones'''
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
 
 def Rerrores(errores, semanticos):

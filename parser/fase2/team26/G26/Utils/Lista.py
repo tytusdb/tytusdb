@@ -6,6 +6,27 @@ from Primitivo import *
 from Identificador import *
 from Condicionales import *
 
+def readData(datos):
+    try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        f.close()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
+
+        #print(text)
+        datos.reInsertarValores(json.loads(text))
+        #print(str(datos))
+    except:
+        print('')
+
+def writeData(datos):
+    f = open("./Utils/tabla.txt", "w")
+    f.write(str(datos))
+    f.close()
+
 class Lista:
     def __init__(self, tablaSimbolos, databaseSeleccionada):
         self.tablaSimbolos = tablaSimbolos

@@ -1,6 +1,6 @@
-from analizer.abstract.expression import Expression
-from analizer.abstract.expression import TYPE
-from analizer.statement.expressions import code
+from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.expression import TYPE
+from analizer_pl.statement.expressions import code
 
 
 class Assignment(Expression):
@@ -15,5 +15,3 @@ class Assignment(Expression):
         if environment.getVar(self.id) != None:
             self.value = exp.value + self.id + " = " + str(exp.temp) + "\n"
             return code.C3D(self.value, self.id, self.row, self.column)
-
-  
