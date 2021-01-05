@@ -1840,22 +1840,16 @@ def p_instruccion(t):
                     | instif
                     | instSimplecase
                     | instScase
+                    
     
      '''
     t[0] = t[1]
+
 
 def p_instSimplecase(t):
     '''instSimplecase : CASE newexp WHEN lnexp THEN body lwhenv pelse END CASE PUNTOCOMA'''
     
 
-def p_lnexp(t):
-    ''' lnexp : lnexp newexp'''
-    t[1].append(t[2])
-    t[0] = t[1]
-
-def p_lnexpu(t):
-    ''' lnexp :  newexp'''
-    t[0] = [t[1]]
 
 #searched case
 def p_instScase(t):
@@ -1876,6 +1870,8 @@ def p_cuando(t):
     ''' cuando : WHEN newexp THEN body'''
     t[0] = elsif(t[2],t[4])
 
+
+
 def p_lwhenv(t):
     ''' lwhenv : lwhenv cuandos'''
     t[1].append(t[2])
@@ -1885,20 +1881,65 @@ def p_lwhenvarios(t):
     ''' lwhenv : cuandos'''
     t[0] = [t[1]]
 
+
 def p_cuandos(t):
     ''' cuandos : WHEN lnexp THEN body'''
     
 
 def p_instif(t):
-    '''instif : IF PARA newexp PARC THEN body lelsif pelse END IF PUNTOCOMA'''
-    t[0] = iff(t[3],t[6],t[7],t[8])
+    '''instif : IF  newexpb  THEN body lelsif pelse END IF PUNTOCOMA'''
+    t[0] = iff(t[2],t[4],t[5],t[6])
+
+
+
+
+def p_lelsif(t):
+    ''' lelsif : lelsif elsif'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lelsifR(t):
+    ''' lelsif :  elsif'''
+    t[0] = [t[1]]
+
+def p_lelsifRN(t):
+    ''' lelsif :  '''
+    t[0] = []
+
+def p_elsif(t):
+    '''elsif : ELSIF  newexpb THEN body'''
+    t[0] = elsif(t[2],t[4])
+
+
+def p_lnexp(t):
+    ''' lnexp : lnexp newexp'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lnexpu(t):
+    ''' lnexp :  newexp'''
+    t[0] = [t[1]]
+
+def p_pelse(t):
+    '''pelse :  ELSE body'''
+    t[0] = els(t[2])
+
+def p_pelseN(t):
+    '''pelse :  '''
+    t[0] = None
 
 def p_bodyu(t):
-    ''' bodyu : asigacion
+    ''' bodyu : asignacion
+             | raisenotice
              | declares
              | rtrn
-             | instif'''
+             | instif
+             | instSimplecase
+             | instScase
+             | 
+             '''
     t[0] = t[1]
+
 
 def p_body(t):
     ''' body : body bodyu'''
@@ -1908,31 +1949,6 @@ def p_body(t):
 def p_bodya(t):
     ''' body : bodyu'''
     t[0] = [t[1]]
-
-def p_lelsif(t):
-    ''' lelsif: lelsif elsif'''
-    t[1].append(t[2])
-    t[0] = t[1]
-
-def p_lelsifR(t):
-    ''' lelsif:  elsif'''
-    t[0] = [t[1]]
-
-def p_lelsifRN(t):
-    ''' lelsif:  None'''
-    t[0] = []
-
-def p_elsif(t):
-    '''elsif : ELSIF  newexp THEN body'''
-    t[0] = elsif(t[2],t[4])
-
-def p_pelse(t):
-    '''pelse :  ELSE body'''
-    t[0] = els(t[2])
-
-def p_pelseN(t):
-    '''pelse :  '''
-    t[0] = None
 
 def p_raisenotice(t):
     #Imprimir
@@ -1973,6 +1989,12 @@ def p_newexp_bool(t):
     '''
     t[0] = exp_textp(t[1])
 
+def p_newexp_boolb(t):
+    '''newexpb : TRUE
+            | FALSE
+    '''
+    t[0] = exp_textp(t[1])
+
 def p_newexp_num(t):
     '''newexp : INT
             | DEC 
@@ -1980,7 +2002,8 @@ def p_newexp_num(t):
     t[0] = exp_nump(t[1])
             
 def p_newexp_text(t):
-    '''newexp :  VARCHAR '''
+    '''newexp :  VARCHAR
+            | TEXTO '''
     t[0] = exp_textp(t[1])
 
 def p_newexpFun(t):
@@ -1989,6 +2012,7 @@ def p_newexpFun(t):
             | mathn
             | funcn
     '''
+    t[0] = t[1]
 
 def p_mathn(t):
     '''
@@ -2022,6 +2046,33 @@ def p_mathn(t):
 		| SETSEED PARA  newexp PARC    
 
     '''
+    if t[1].lower() == 'abs' : t[0] =  math_abs(t[3],None)
+    elif t[1].lower() == 'cbrt' : t[0] =  math_cbrt(t[3],None)
+    elif t[1].lower() == 'ceil' : t[0] =  math_ceil(t[3],None)
+    elif t[1].lower() == 'ceiling' : t[0] =  math_ceil(t[3],None)
+    elif t[1].lower() == 'div' : t[0] =  math_div(t[3],t[5],None)
+    elif t[1].lower() == 'exp' : t[0] =  math_exp(t[3],None)
+    elif t[1].lower() == 'factorial' : t[0] =  math_factorial(t[3],None)
+    elif t[1].lower() == 'floor' : t[0] =  math_floor(t[3],None)
+    elif t[1].lower() == 'gcd' : t[0] =  math_gcd(t[3],t[5],None)
+    elif t[1].lower() == 'lcm' : t[0] =  math_lcm(t[3],t[5],None)
+    elif t[1].lower() == 'ln' : t[0] =  math_ln(t[3],None)
+    elif t[1].lower() == 'log' : t[0] =  math_log(t[3],t[5],None)
+    elif t[1].lower() == 'log10' : t[0] =  math_log10(t[3],None)
+    elif t[1].lower() == 'min_scale' : t[0] =  math_min_scale(t[3],None)
+    elif t[1].lower() == 'mod' : t[0] =  math_mod(t[3],t[5],None)
+    elif t[1].lower() == 'pi' : t[0] =  math_pi(None)
+    elif t[1].lower() == 'power' : t[0] =  math_power(t[3],t[5],None)
+    elif t[1].lower() == 'radians' : t[0] =  math_radians(t[3],None)
+    elif t[1].lower() == 'round' : t[0] =  math_round(t[3],None)
+    elif t[1].lower() == 'scale' : t[0] =  math_scale(t[3],None)
+    elif t[1].lower() == 'sign' : t[0] =  math_sign(t[3],None)
+    elif t[1].lower() == 'sqrt' : t[0] =  math_sqrt(t[3],None)
+    elif t[1].lower() == 'trim_scale' : t[0] =  math_trim_scale(t[3],None)
+    elif t[1].lower() == 'trunc' : t[0] =  math_trunc(t[3],None)
+    elif t[1].lower() == 'width_bucket' : t[0] =  math_widthBucket(t[3],t[5],t[7],t[9],None)
+    elif t[1].lower() == 'random' : t[0] =  math_random(None)
+    elif t[1].lower() == 'setseed' : t[0] =  math_setseed(t[3],None)
 
 def p_trign(t):
     '''
@@ -2084,6 +2135,23 @@ def p_newexp_una(t):
         t[0] = t[2]
     elif t[1] == '+': 
         t[0] = t[2]
+
+def p_new(t):
+    ''' newexpb : newexp IGUAL newexp
+                | newexp MAYOR_IGUAL newexp
+                | newexp MENOR_IGUAL newexp
+                | newexp MAYOR newexp
+                | newexp MENOR newexp
+                | newexp DIFERENTE newexp
+
+
+    '''
+    if t[2] == '='  : t[0] = exp_igualp(t[1],t[3])
+    elif t[2] == '>': t[0] = exp_mayorp(t[1], t[3])
+    elif t[2] == '<': t[0] = exp_menorp(t[1], t[3])
+    elif t[2] == '<>': t[0] = exp_diferentep(t[1], t[3])
+    elif t[2] == '>=': t[0] = exp_mayor_igualp(t[1], t[3])
+    elif t[2] == '<=': t[0] = exp_menor_igualp(t[1], t[3])
 
 def p_newexp_bi(t):
     '''newexp : newexp MAS newexp
