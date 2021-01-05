@@ -90,6 +90,8 @@ class Generador:
                 self.compilarReturn(instruccion1)
             elif isinstance(instruccion1, Llamada):
                 self.compilarLlamada(instruccion1)
+            elif isinstance(instruccion1, Primitivo):
+                self.compilarPrimitivo
         self.numerotab -= 1
     
     def compilarLlamada(self, instruccion):
@@ -120,6 +122,12 @@ class Generador:
                 self.compilarAsignacion(instruccion1)
             elif isinstance(instruccion1, If_inst):
                 self.compilarIf(instruccion1)
+            elif isinstance(instruccion1, Return_inst):
+                self.compilarReturn(instruccion1)
+            elif isinstance(instruccion1, Llamada):
+                self.compilarLlamada(instruccion1)
+            elif isinstance(instruccion1, Primitivo):
+                self.compilarPrimitivo
 
     def compilarIf(self, instruccion):
         if isinstance(instruccion, If_inst):
@@ -444,6 +452,15 @@ class Generador:
                 ret.trueLabel = instruccion.trueLabel
                 ret.falseLabel = instruccion.falseLabel
                 return ret
+            elif instruccion.tipo == Tipos.Id:
+                temporal = self.generarTemporal()
+                self.generarAsignacion(temporal, instruccion.valor)
+                return RetornoOp(temporal, instruccion.tipo)
+            elif instruccion.tipo == Tipos.ISQL:
+                temporal = self.generarTemporal()
+                self.generarAsignacion(temporal, instruccion.valor)
+                self.generarAsignacion("lista", "[" + temporal + "]")
+                self.generarLlamada("funcionintermedia")
             else:
                 ret = RetornoOp(instruccion.valor, instruccion.tipo)
                 return ret

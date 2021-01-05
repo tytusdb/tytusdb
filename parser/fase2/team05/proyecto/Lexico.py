@@ -4911,7 +4911,8 @@ def p_InstruccionFN2(t):
 
 def p_InstruccionFN3(t):
     'INSTRUCCIONFN  :   INSTRUCCION'
-    t[0] = t[1]
+    ret = Retorno(Primitivo(t[1].getInstruccion().instruccion3d, Tipos.ISQL), t[1].getNodo())
+    t[0] = ret
 
 def p_Asignacion(t):
     'ASIGNACION  :   ID DPUNTOS IGUAL VALORF PCOMA'
@@ -5349,8 +5350,9 @@ def p_VALORFAsigna2(t):
     t[0] = ret
 
 def p_VALORFInstruccion(t):
-    'VALORF  :  PABRE INSTRUCCION PCIERRA '
-
+    'VALORF  :  INSTRUCCION '
+    ret = Retorno(Primitivo(t[1].getInstruccion().instruccion3d, Tipos.ISQL), t[1].getNodo())
+    t[0] = ret
 
 def p_Parametros(t):
     'PARAMETROSL  :   PARAMETROSL COMA PARAML'
@@ -5402,40 +5404,84 @@ def p_LBOTHFBoth(t):
 
 def p_PROCEDURE(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+    val = Funcion(t[3], t[5].getInstruccion(), None, t[11].getInstruccion())
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE2(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
+    val = Funcion(t[3], t[5].getInstruccion(), t[11].getInstruccion(), t[12].getInstruccion())
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    ret.getNodo().setHijo(t[12].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE3(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+    val = Funcion(t[3], None, None, t[10].getInstruccion())
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[10].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE4(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
-
+    val = Funcion(t[3], None, t[10].getInstruccion(), t[11].getInstruccion())
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[10].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    t[0] = ret
 
 def p_StatementP(t):
     'STAMENTP  :   BEGIN LINSTRUCCIONESFN END PCOMA FINF PCOMA'
+    t[0] = t[2]
 
 def p_LParamP(t):
     'LPARAMP  :   LPARAMP COMA PARAMP   '
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_LParamP2(t):
     'LPARAMP  :   PARAMP   '
-
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_ParamP(t):
     'PARAMP  :   INOUT ID I_TIPO  '
+    ret = Retorno(Parametro(t[2], t[3]), NodoAST('PARAMETRO'))
+    t[0] = ret
 
 def p_ParamP2(t):
     'PARAMP  :   ID I_TIPO'
-
+    ret = Retorno(Parametro(t[1], t[2]), NodoAST('PARAMETRO'))
+    t[0] = ret
 
 def p_Execute(t):
     'PEXECUTE  :   EXECUTE ID PABRE PCIERRA PCOMA'
+    val = Llamada(t[2], None)
+    ret = Retorno(val, NodoAST("EXECUTE"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
 def p_Execute2(t):
     'PEXECUTE  :   EXECUTE ID PABRE PARAMETROSL PCIERRA PCOMA'
-
+    val = Llamada(t[2], t[4].getInstruccion())
+    ret = Retorno(val, NodoAST("EXECUTE"))
+    ret.getNodo().setHijo(NodoAST(T[2]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 
 #---------------------------------------------------FIN PROCEDIMIENTO
