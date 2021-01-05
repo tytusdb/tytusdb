@@ -546,12 +546,16 @@ def p_stm_perform(t):
 
 def p_stm_if(t):
     '''stm_if   : IF condition THEN   if_inst   elsif_opt  else_opt  END IF '''
-    childsProduction  = addNotNoneChild(t,[2,5,6])
+    childsProduction  = addNotNoneChild(t,[2,6])
     lista = None
     if t[4] != None:
         lista = t[4][0]
         childsProduction.append(lista.graph_ref)
-    graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], lista,t[5],t[6],t[7],t[8]], childsProduction)
+    lista2 = None
+    if t[5] != None:
+        lista2 = t[5][0]
+        childsProduction.append(lista2.graph_ref)
+    graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], lista,lista2,t[6],t[7],t[8]], childsProduction)
     addCad("**\<STM_IF>** ::=  tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf  ';'  ")
     t[0] = IfNode(t[2], t[4], t[5], t[6], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
 
@@ -574,18 +578,22 @@ def p_condition(t):
 
 
 def p_elsif_opt(t):
-    '''elsif_opt   : ELSIF  condition THEN  if_inst   '''
+    '''elsif_opt   : elsif_opt ELSIF  condition THEN  if_inst   '''
 
 
-    if len(t) == 5:
-        childsProduction  = addNotNoneChild(t,[2])
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[3])
         lista = None
-        if t[4] != None:
-            lista = t[4][0]
+        if t[1] != None:
+            lista = t[1][0]
             childsProduction.append(lista.graph_ref)
-        graph_ref = graph_node(str("elsif_opt"), [t[1], t[2], t[3], lista],childsProduction )
+        lista2 = None
+        if t[5] != None:
+            lista2 = t[5][0]
+            childsProduction.append(lista2.graph_ref)
+        graph_ref = graph_node(str("elsif_opt"), [lista, t[2], t[3], t[4], lista2],childsProduction )
         addCad("**\<ELSIF_OPT>** ::=   tElsIf  \<CONDITION> tThen  \<IF_INST>    ")
-        t[0] = IfNode(t[2], t[4], None, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        t[0] = [IfNode(t[3], t[5], None, None, t.slice[2].lineno, t.slice[2].lexpos, graph_ref)]
         
 
 def p_elsif_opt0(t):
