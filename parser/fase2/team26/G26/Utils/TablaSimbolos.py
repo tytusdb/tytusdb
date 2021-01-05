@@ -54,3 +54,32 @@ class ConstraintData(TablaSimbolos):
 
         def __repr__(self):
             return str(self.__dict__)
+
+class DataFile(TablaSimbolos):
+    
+    def __init__(self):
+        ''
+    
+    def __repr__(self):
+            return str(self.__dict__)
+
+    def readData(self, datos):
+        try:
+            f = open("./Utils/tabla.txt", "r")
+            text = f.read()
+            f.close()
+            text = text.replace('\'','"')
+            text = text.replace('False','"False"')
+            text = text.replace('None','""')
+            text = text.replace('True','"True"')
+
+            #print(text)
+            datos.reInsertarValores(json.loads(text))
+            #print(str(datos))
+        except:
+            print('')
+    
+    def writeData(self, datos):
+        f = open("./Utils/tabla.txt", "w")
+        f.write(str(datos))
+        f.close()

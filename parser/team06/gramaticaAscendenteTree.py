@@ -216,7 +216,8 @@ reservadas = {
     'function' : 'FUNCTION',
     'returns' : 'RETURNS',
     'returning':'RETURNING',
-    'call':'CALL',
+    'exec':'EXEC',
+    'execute':'EXECUTE',
     'between' : 'BETWEEN',
     'ilike' : 'ILIKE',
     'is':'IS',
@@ -244,7 +245,9 @@ reservadas = {
     'perform' : 'PERFORM',
 
     'procedure' : 'PROCEDURE',
-    'out' : 'OUT'
+    'out' : 'OUT',
+    'language' : 'LANGUAGE',
+    'plpgsql' : 'PLPGSQL'
 # revisar funciones de tiempo y fechas
 }
 
@@ -477,7 +480,7 @@ def p_query(t):
                     | tipos
                     | createIndex
                     | combinacionSelects PUNTOYCOMA
-                    | callFunction
+                    | execFunction
     '''
     nodeFather = nodeAst()
     nodeFather.token = 'QUERY'
@@ -719,7 +722,7 @@ def p_createIndex_2_1(t):
 
     nodeSon4 = nodeAst()
     nodeSon4.token = 'ON'
-    nodeSon5.lexeme = t[4]
+    nodeSon4.lexeme = t[4]
     nodeFather.son.append(nodeSon4)
 
     nodeSon5 = nodeAst()
@@ -2711,9 +2714,10 @@ def p_funcion_basica(t):
                         | DECODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
                         | AVG PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
-                        | ID PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA
+                        | EXTRACT PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA
-                        | ID PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | CURRENT_DATE PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | CURRENT_TIME PARENTESISIZQUIERDA operacion PARENTESISDERECHA
     '''
     if t[1].upper()=="ABS":
         nodeFather = nodeAst()
@@ -5610,36 +5614,68 @@ def p_tipos(t):
 #agregar eeste al arbol y 3D
 def p_search_condition_5(t):
     'search_condition   : NOT EXISTS PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
-    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
-    print("esta condicion es del not con operacion******************")
-    print(t[4])
-    t[0]=ExpresionNotExists(t[4])
+    nodeFather = nodeAst()
+    nodeFather.token = 'SEARCH_CONDITION'
 
-#agregar eeste al arbol y 3D
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'NOT'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'EXISTS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
+
 def p_search_condition_6(t):
     'search_condition   : EXISTS PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
-    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
-    print("esta condicion es del not con operacion******************")
-    print(t[3])
-    t[0]=ExpresionExists(t[3])
+    nodeFather = nodeAst()
+    nodeFather.token = 'SEARCH_CONDITION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'EXISTS'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon3 = t[3]
+    nodeFather.son.append(nodeSon3)
+    
+    t[0] = nodeFather
 
 #agregar eeste al arbol y 3D
 def p_search_condition_7(t):
     'search_condition   : final  IN PARENTESISIZQUIERDA selectData PARENTESISDERECHA'
-    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
-    print("esta condicion es del not con operacion******************")
-    print(t[1])
-    print(t[4])
-    t[0]=ExpresionIn(t[1],t[4])
+    nodeFather = nodeAst()
+    nodeFather.token = 'SEARCH_CONDITION'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'IN'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
 
 # PARA ABAJO YA ESTA
 def p_search_condition_3(t):
     'search_condition   : operacion'
-    h.reporteGramatical1 +="search_condition    ::=       operacion\n"
-    h.reporteGramatical2 +=" t[0]=t[1]\n"
-    print("entra a la operacion del seach_condition++++++++++++++++++++++++++++++++++++++++")
-    print(t[1])
-    t[0]=t[1]
+    nodeFather = nodeAst()
+    nodeFather.token = 'SEARCH_CONDITION'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 def p_combinacionSelects(t):
     '''combinacionSelects  : selectData UNION selectData
@@ -5649,11 +5685,53 @@ def p_combinacionSelects(t):
     '''
     print("*************************Entra a procesar el UNION********************")
     if t[2].upper()=="UNION":
-        t[0]=QueryUnion(t[1],t[3])
+        nodeFather = nodeAst()
+        nodeFather.token = 'COMBINATION_SELECTS'
+
+        nodeSon1 = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'UNION'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
     elif t[2].upper()=="INTERSECT":
-        t[0]=QueryIntersect(t[1],t[3])
+        nodeFather = nodeAst()
+        nodeFather.token = 'COMBINATION_SELECTS'
+
+        nodeSon1 = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'INTERSECT'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
     elif t[2].upper()=="EXCEPT":
-        t[0]=QueryExcept(t[1],t[3])
+        nodeFather = nodeAst()
+        nodeFather.token = 'COMBINATION_SELECTS'
+
+        nodeSon1 = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'UNION'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
 
 
 def p_select_4(t):
@@ -5661,34 +5739,109 @@ def p_select_4(t):
                         | SELECT POR FROM  tipoJoin
     '''
     if t[2]=='*':
-       print("entro al select * tipo join ++++++++++++++++++++++++++++++")
-       print(t[2])
-       t[0]=Select6(t[2],t[4])
+        nodeFather = nodeAst()
+        nodeFather.token = 'SELECT'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'SELECT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'POR'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'FROM'
+        nodeSon3.lexeme = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon4 = t[4]
+        nodeFather.son.append(nodeSon4)
+    
+        t[0] = nodeFather
     else:
-        print("entro al select lista tipo join ++++++++++++++++++++++++++++++")
-        print(t[2])
-        t[0]=Select6(t[2],t[4])
+        nodeFather = nodeAst()
+        nodeFather.token = 'SELECT'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'SELECT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'FROM'
+        nodeSon3.lexeme = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon4 = t[4]
+        nodeFather.son.append(nodeSon4)
+    
+        t[0] = nodeFather
         
-
-
 def p_tipoJoin_1(t):
     '''tipoJoin   :   select_list  INNER JOIN select_list ON operacion
                   |   select_list NATURAL INNER JOIN select_list 
      '''
     if t[2].upper()=="INNER":
-        print("entro al tipoJoin1 INNER----------------------------------------------------")
-        print(t[1])
-        print(t[2])
-        print(t[4])
-        print(t[6])
-        t[0]=ExpresionJoinA(t[1],t[2],t[4],t[6])
+        nodeFather = nodeAst()
+        nodeFather.token = 'TIPO_JOIN'
+
+        nodeSon1 = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'INNER'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'JOIN'
+        nodeSon3.lexeme = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon4 = t[4]
+        nodeFather.son.append(nodeSon4)
+
+        nodeSon5 = nodeAst()
+        nodeSon5.token = 'ON'
+        nodeSon5.lexeme = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        nodeSon6 = t[6]
+        nodeFather.son.append(nodeSon6)
+    
+        t[0] = nodeFather
     elif t[2].upper()=="NATURAL":
-        print("entro al NATURAL ----------------------------------------------------")
-        print(t[1])
-        print(t[2])
-        print(t[3])
-        print(t[5])    
-        t[0]=ExpresionJoinB(t[1],t[2],t[3],t[5])
+        nodeFather = nodeAst()
+        nodeFather.token = 'TIPO_JOIN'
+
+        nodeSon1 = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'NATURAL'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'INNER'
+        nodeSon3.lexeme = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon4 = nodeAst()
+        nodeSon4.token = 'JOIN'
+        nodeSon4.lexeme = t[4]
+        nodeFather.son.append(nodeSon4)
+
+        nodeSon5 = t[5]
+        nodeFather.son.append(nodeSon5)
+    
+        t[0] = nodeFather
 
 
 def p_tipoJoin_2(t):
@@ -5696,21 +5849,66 @@ def p_tipoJoin_2(t):
                   |  select_list  NATURAL otroTipoJoin OUTER JOIN select_list
     '''
     if t[2].upper()=="NATURAL":
-        print("entro al tipoJoin2 NATURAL ----------------------------------------------------")
-        print(t[1])
-        print(t[2])
-        print(t[3])
-        print(t[4])
-        print(t[6])
-        t[0]=ExpresionJoinC(t[1],t[2],t[3],t[4],t[6])
+        nodeFather = nodeAst()
+        nodeFather.token = 'TIPO_JOIN'
+
+        nodeSon1 = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'NATURAL'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon4 = nodeAst()
+        nodeSon4.token = 'OUTER'
+        nodeSon4.lexeme = t[4]
+        nodeFather.son.append(nodeSon4)
+
+        nodeSon5 = nodeAst()
+        nodeSon5.token = 'JOIN'
+        nodeSon5.lexeme = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        nodeSon6 = t[6]
+        nodeFather.son.append(nodeSon6)
+    
+        t[0] = nodeFather
     else:
-        print("entro al tipoJoin2 ELSE ----------------------------------------------------")
-        print(t[1])
-        print(t[2])
-        print(t[3])
-        print(t[5])
-        print(t[7])
-        t[0]=ExpresionJoinD(t[1],t[2],t[3],t[5],t[7])
+        nodeFather = nodeAst()
+        nodeFather.token = 'TIPO_JOIN'
+
+        nodeSon1 = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'OUTER'
+        nodeSon3.lexeme = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon4 = nodeAst()
+        nodeSon4.token = 'JOIN'
+        nodeSon4.lexeme = t[4]
+        nodeFather.son.append(nodeSon4)
+
+        nodeSon5 = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        nodeSon6 = nodeAst()
+        nodeSon6.token = 'ON'
+        nodeSon6.lexeme = t[6]
+        nodeFather.son.append(nodeSon6)
+
+        nodeSon7 = t[7]
+        nodeFather.son.append(nodeSon7)
+    
+        t[0] = nodeFather
     
 
 
@@ -5719,20 +5917,43 @@ def p_otroTipoJoin(t):
                         |   RIGHT
                         |   FULL
     '''
-    print("entra al otro tipo de join para su condicion")
-    t[0]=t[1]
+    if t[1].upper() == "LEFT":
+        nodeFather = nodeAst()
+        nodeFather.token = 'OTRO_TIPO_JOIN'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'LEFT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+    elif t[1].upper() == "RIGHT":
+        nodeFather = nodeAst()
+        nodeFather.token = 'OTRO_TIPO_JOIN'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'RIGHT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+    elif t[1].upper() == "FULL":
+        nodeFather = nodeAst()
+        nodeFather.token = 'OTRO_TIPO_JOIN'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'FULL'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
     
-
-
-
-def p_callFunction(t):
-    'callFunction    : CALL ID PUNTOYCOMA'
+def p_execFunction(t):
+    'execFunction    : execOption ID PUNTOYCOMA'
     nodeFather = nodeAst()
-    nodeFather.token = 'CALL_FUNCTION'
+    nodeFather.token = 'EXEC_FUNCTION'
 
-    nodeSon1 = nodeAst()
-    nodeSon1.token = 'CALL'
-    nodeSon1.lexeme = t[1]
+    nodeSon1 = t[1]
     nodeFather.son.append(nodeSon1)
 
     nodeSon2 = nodeAst()
@@ -5742,14 +5963,12 @@ def p_callFunction(t):
 
     t[0] = nodeFather
 
-def p_callFunction_1(t):
-    'callFunction    : CALL ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+def p_execFunction_1(t):
+    'execFunction    : execOption ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
     nodeFather = nodeAst()
-    nodeFather.token = 'CALL_FUNCTION'
+    nodeFather.token = 'EXEC_FUNCTION'
 
-    nodeSon1 = nodeAst()
-    nodeSon1.token = 'CALL'
-    nodeSon1.lexeme = t[1]
+    nodeSon1 = t[1]
     nodeFather.son.append(nodeSon1)
 
     nodeSon2 = nodeAst()
@@ -5762,20 +5981,42 @@ def p_callFunction_1(t):
 
     t[0] = nodeFather
 
-def p_callFunction_2(t):
-    'callFunction    : CALL ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA'
+def p_execFunction_2(t):
+    'execFunction    : execOption ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA'
     nodeFather = nodeAst()
-    nodeFather.token = 'CALL_FUNCTION'
+    nodeFather.token = 'EXEC_FUNCTION'
 
-    nodeSon1 = nodeAst()
-    nodeSon1.token = 'CALL'
-    nodeSon1.lexeme = t[1]
+    nodeSon1 = t[1]
     nodeFather.son.append(nodeSon1)
 
     nodeSon2 = nodeAst()
     nodeSon2.token = 'ID'
     nodeSon2.lexeme = t[2]
     nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+
+def p_execOption_1(t):
+    'execOption : EXEC'
+    nodeFather = nodeAst()
+    nodeFather.token = 'EXEC_OPTION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'EXEC'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
+
+def p_execOption_2(t):
+    'execOption : EXECUTE'
+    nodeFather = nodeAst()
+    nodeFather.token = 'EXEC_OPTION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'EXECUTE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
 
     t[0] = nodeFather
 

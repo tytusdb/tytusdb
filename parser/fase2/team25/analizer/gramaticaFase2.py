@@ -1,6 +1,6 @@
 from sys import path
 from os.path import dirname as dir
-
+import re
 path.append(dir(path[0]))
 import ply.yacc as yacc
 from analizer.tokens import *
@@ -49,10 +49,10 @@ from analizer.abstract.expression import returnExpErrors
 import analizer.modules.expressions as expression
 import analizer.abstract.instruction as instruction
 import analizer.modules.instructions as instruction2
-from analizer.statement.pl.sentenciaIf import  IfSimple
+from analizer.statement.pl.sentenciaIf import IfSimple, If_Elseif
 from analizer.statement.pl.sentenciaReturn import  Return_
 from analizer.statement.pl.codeblock import CodeBlock
-
+from analizer.statement.pl.instruccionesF1 import F1
 
 def p_init(t):
     """init : stmtList"""
@@ -242,7 +242,51 @@ def p_plInstructions(t):
     plInstructions : plInstructions plInstruction
     | plInstruction
     """
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
     repGrammar.append(t.slice)
+
+#                                                                       * INSTRUCCIONES INTERNAS AL IF
+def p_plInstructionsIf(t):
+    """
+    plInstructionIf : plInstructionIf instruc
+    | instruc
+    """
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+    repGrammar.append(t.slice)
+#               * cree esta produccion extra solo para que se comportara diferente en su accion semantica a la de plInstruccion
+def p_plInstructionIf(t):
+    """
+    instruc : assignment S_PUNTOCOMA
+    | executeStmt S_PUNTOCOMA
+    | ifStmt S_PUNTOCOMA
+    | caseStmt S_PUNTOCOMA
+    | codeBlock S_PUNTOCOMA
+    | returnStmt S_PUNTOCOMA
+    """
+    t[0] = t[1]
+    global count_ins
+    count_ins += 1
+    repGrammar.append(t.slice)
+#                                                                       * INSTRUCCIONES INTERNAS AL IF
+def p_plInstructionIf2(t):# los separe solo para generar su codigo 3d diferente
+    """
+    instruc : insertStmt S_PUNTOCOMA
+    | updateStmt S_PUNTOCOMA
+    | deleteStmt S_PUNTOCOMA
+    | selectStmt S_PUNTOCOMA
+    """
+    global count_ins
+
+    t[0] = F1([1],C3D_INSTRUCCIONES_FASE1_CADENA(t), t.slice[2].lineno , t.slice[2].lexpos )
+    count_ins += 1
 
 #*_________________________________________________________________________________ACA VA SER EL PUNTO DE TRADUCCION
 def p_plInstruction(t):
@@ -288,23 +332,25 @@ def p_executeStmt(t):
 
 def p_ifStmt(t):
     """
-    ifStmt : R_IF expBool R_THEN plInstructions elsifList R_ELSE plInstructions R_END R_IF
-    | R_IF expBool R_THEN plInstructions elsifList R_END R_IF
+    ifStmt : R_IF expresion R_THEN plInstructionIf elsifList R_ELSE plInstructionIf R_END R_IF
+    | R_IF expresion R_THEN plInstructionIf elsifList R_END R_IF
     """
+    if len(t) == 10:
+        t[0] = If_Elseif(if_exp=t[2] , if_inst=t[4], lista_elifs = t[5],  row=t.slice[1].lineno , column=t.slice[1].lexpos , else_inst=t[7])
+    else:
+        t[0] = If_Elseif(if_exp=t[2] , if_inst=t[4],lista_elifs = t[5] , row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
-def p_ifStmt2(t):
+def p_ifStmt2(t): # ! NO SE PUEDE HACER UN AND CON UN PRIMITIVO
     """
-    ifStmt : R_IF expBool R_THEN plInstructions R_ELSE plInstructions R_END R_IF
-    | R_IF expBool R_THEN plInstructions R_END R_IF
+    ifStmt : R_IF expresion R_THEN plInstructionIf R_ELSE plInstructionIf R_END R_IF
+    | R_IF expresion R_THEN plInstructionIf R_END R_IF
     """
     if len(t) == 9:
-        t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[1].lineno , column=t.slice[1].lexpos , else_exp= t[5] , else_inst=t[6])
+        t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[1].lineno , column=t.slice[1].lexpos , else_inst=t[6])
     else:
         t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
-
-
 
 def p_elsifList(t):
     """
@@ -320,14 +366,20 @@ def p_elsifList(t):
 
 def p_elsifStmt(t):
     """
-    elsifStmt : R_ELSIF expBool R_THEN plInstructions
+    elsifStmt : reservada_elseif expresion R_THEN plInstructionIf
     """
-    t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[1].lineno , column=t.slice[1].lexpos)
+    t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[3].lineno , column=t.slice[3].lexpos)
     repGrammar.append(t.slice)
+def p_reservada_elseif(t):
+    '''
+    reservada_elseif : R_ELSEIF
+                    | R_ELSIF
+    '''
+    t[0] = t[1]
 
 def p_caseStmt(t):
     """
-    caseStmt : R_CASE expresion caseListStmt R_ELSE plInstructions R_END R_CASE
+    caseStmt : R_CASE expresion caseListStmt R_ELSE plInstructionIf R_END R_CASE
             | R_CASE expresion caseListStmt R_END R_CASE
     """
     repGrammar.append(t.slice)
@@ -345,7 +397,7 @@ def p_caseListStmt(t):
     repGrammar.append(t.slice)
 
 def p_caseWhenStmt(t):
-    """caseWhenStmt : R_WHEN expBool R_THEN plInstructions"""
+    """caseWhenStmt : R_WHEN expresion R_THEN plInstructionIf"""
     repGrammar.append(t.slice)
 
 def p_returnStmt(t):
@@ -2023,6 +2075,7 @@ def getRepGrammar():
 def parserTo3D(input)-> None:
     global syntax_errors, PostgreSQL, repGrammar,entrada,count_ins
     entrada = input
+    entrada = re.sub('\-\-(.*)\n|/\*(.|\n)*?\*/' ,"",entrada)
     count_ins = 0
     repGrammar = []
     syntax_errors = list()
@@ -2087,7 +2140,17 @@ def C3D_INSTRUCCIONES_FASE1_SIMBOLICO(t):
         instancia_codigo3d.addToCode(instruccionC3D)
         # instancia_codigo3d.addToCode(f'\tstack.push({tn})')
         # instancia_codigo3d.addToCode(f"\tfuncionIntermedia()")
-
+def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
+    """
+    retorna la cadena de la fase 1 correspondiente
+    """
+    global count_ins
+    arreglo_split = entrada.split(sep=";", maxsplit=count_ins + 1)
+    instruccionAnlizada = str(arreglo_split[count_ins]).strip() + ";"
+    instruccionAnlizada = instancia_codigo3d.asegurarIntruccion(instruccionAnlizada)
+    if len(instruccionAnlizada) != 0:
+        return instruccionAnlizada
+    return None
 
 
 
@@ -2103,17 +2166,25 @@ def C3D_INSTRUCCIONES_FASE1_SIMBOLICO(t):
 # PARA PROBAR LA GENERACION DE CODIGO 3D
 
 parserTo3D("""
-use MYDB ;
-
-
 CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
 BEGIN
-RETURN 9*8;
+
+
+
+
+IF 9 > 0 THEN
+    RETURN 7;
+ELSEIF 10 < 9 THEN
+    return 40;
+ELSE
+    RETURN 2;
+
+
+
+
+END IF;
 END;
 $$ LANGUAGE plpgsql;
-
-
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
 """)
 print("\n---------------- SALIDA: -----------------")
 instancia_codigo3d.showCode()
