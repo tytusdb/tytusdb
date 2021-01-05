@@ -376,11 +376,11 @@ class insertTable(Instruccion):
 
     def extraer(self,tabla,arbol):
         
-        cadena = " "
+        cadena = "\" "
 
         try: 
-             cadena = "\"insert into "
-             cadena += self.valor + "( "
+             cadena = "insert into "
+             cadena += self.valor + " values( "
              j=0
              p=0
              for ele in self.lexpre: 
@@ -395,12 +395,13 @@ class insertTable(Instruccion):
                  if( j > -1 and j<p-1):
                     cadena += ", "
                  j=j+1
-             cadena += ") ;\""
+             cadena += ") ;"
              
         except Exception as e:
                     print(e)
         
- 
+        cadena+= "\" "
+
         return cadena  
     def traducir(self, tabla, arbol):
         cadena = ""
