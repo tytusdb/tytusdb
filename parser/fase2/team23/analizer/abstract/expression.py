@@ -83,7 +83,6 @@ class Identifiers(Expression):
     """
     Esta clase representa los nombre de columnas
     """
-
     type = None
     # TODO: implementar la funcion para obtener el type de la columna
     def __init__(self, table, name, row, column):
@@ -97,6 +96,12 @@ class Identifiers(Expression):
         self.type = None
 
     def execute(self, environment):
+        #sacar variable
+        var_ = environment.getVar(self.name)
+
+        if var_ != None:
+            return var_.value
+
         if not self.table:
             table = environment.ambiguityBetweenColumns(self.name)
             if table[0]:  # Si existe ambiguedad
@@ -124,8 +129,12 @@ class Identifiers(Expression):
                         self.value = environment.getColumn(self.table, self.name)
         else:
             self.value = environment.getColumn(self.table, self.name)
+
+        # extraer variable xd
+        
         r = environment.getType(self.table, self.name)
         self.type = r
+
         return self
 
     def dot(self):
@@ -267,36 +276,119 @@ class BinaryArithmeticOperation(Expression):
             exp1 = self.exp1.execute(environment)
             exp2 = self.exp2.execute(environment)
             operator = self.operator
-            if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
-                list_errors.append(
-                    "Error: 42883: la operacion no existe entre: "
-                    + str(exp1.type)
-                    + " "
-                    + str(operator)
-                    + " "
-                    + str(exp2.type)
-                    + "\n En la linea: "
-                    + str(self.row)
-                )
-
-                return ErrorBinaryOperation(
-                    exp1.value, exp2.value, self.row, self.column
-                )
+            
             if operator == "+":
+                if (exp1.type != TYPE.NUMBER and exp2.type != TYPE.STRING) or (exp2.type != TYPE.NUMBER and exp2.type != TYPE.STRING):
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
                 value = exp1.value + exp2.value
+
             elif operator == "-":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 value = exp1.value - exp2.value
             elif operator == "*":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 value = exp1.value * exp2.value
             elif operator == "/":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 if exp2.value == 0:
                     list_errors.append("Error: 22012: No se puede dividir  por cero")
                     value = 0
                 else:
+                    
                     value = exp1.value / exp2.value
             elif operator == "^":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 value = exp1.value ** exp2.value
             elif operator == "%":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 if exp2.value == 0:
                     list_errors.append("Error: 22012: No se puede modular por cero")
                     value = 0
@@ -1637,7 +1729,10 @@ class FunctionCall(Expression):
                 value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             else:
                 # TODO: Agregar un error de funcion desconocida
-                value = valores[0]
+                value = 'Prueba'
+                Lista_Ejecutar = environment.variables[self.function].bloque_func[1] 
+                for v in Lista_Ejecutar:
+                    value = v.execute(environment)
             if isinstance(value, list):
                 if len(value) <= 1:
                     value = value[0]
