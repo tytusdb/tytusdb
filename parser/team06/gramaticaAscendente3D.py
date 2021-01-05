@@ -1,6 +1,7 @@
 import re
 from queries import *
 from expresiones import *
+import TablaDeSimbolos as TS
 # -----------------------------------------------------------------------------
 # Grupo 6
 #
@@ -238,8 +239,9 @@ reservadas = {
     'index':'INDEX',
 
     'procedure' : 'PROCEDURE',
-    'out' : 'OUT'
-
+    'out' : 'OUT',
+    'language' : 'LANGUAGE',
+    'plpgsql' : 'PLPGSQL'
 
 # revisar funciones de tiempo y fechas
 }
@@ -1279,7 +1281,8 @@ def p_operacion(t):
                           | operacion MAYOR operacion
                           | operacion MENOR operacion
                           | operacion DIFERENTE operacion
-                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA                          
+                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                          | PARENTESISIZQUIERDA listaid PARENTESISDERECHA                         
                           '''
 # --------------------------------------------------------------------------------------------------------------                          
     a=str(t[1])+" "+str(t[2])+" "+str(t[3])
@@ -1625,47 +1628,56 @@ def p_final_cadena(t):
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
     'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"INSERT INTO "+str(t[3])+" VALUES ( "+str(t[6])+" );\"\n"
+    parametro = ""
+    for param in t[6]:
+        parametro+=param+","
+    param = parametro[:-1]
+    
+    a="t"+str(h.conteoTemporales)+"= \"INSERT INTO "+str(t[3])+" VALUES ( "+str(param)+" );\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_insertBD_2(t):
     'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
     a="t"+str(h.conteoTemporales)+"= \"INSERT INTO "+str(t[3])+"("+str(t[5])+") VALUES ( "+str(t[9])+" );\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_listaParam(t):
-    '''listaParam         : listaParam COMA operacion
+    '''listaParam         : listaParam COMA listaP
     '''
-    t[0] = t[1] +", "+ t[3]
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_listaParam_2(t):
-    '''listaParam           : operacion
+    '''listaParam           : listaP
     '''
+    t[0] = [t[1]]
+
+def p_listaP_1(t):
+    'listaP                 : operacion'
+    print("---------------",t[1])
     t[0] = t[1]
+
+def p_listaP_2(t):
+    'listaP             : ID operacion'
+    t[0] = t[1] +" "+ t[2]
+    print(t[0])
+
+def p_listaP_3(t):
+    'listaP             : ID PARENTESISIZQUIERDA PARENTESISDERECHA'
+    t[0] = t[1]+"()"
+    print(t[0])
 
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):
     'updateinBD           : UPDATE ID SET asignaciones WHERE operacion PUNTOYCOMA'
-    temp1 = t[4].split(' ')
-    temp2 = t[6].split(' ')
-    
-    a="t"+str(h.conteoTemporales)+"= \"UPDATE "+str(t[2])+" SET \" + "+temp1[0]+"\n"
-    h.conteoTemporales+=1
-
-    cad = t[4][:-1]
-    a += cad + " + t"+str(h.conteoTemporales) + "\n"
-
-    a +="t"+str(h.conteoTemporales)+"= \" WHERE \" + "+temp2[0]+"\n"
-    h.conteoTemporales+=1
-
-    cad2 = t[6][:-1]
-    a += cad2 + " + t"+str(h.conteoTemporales) + "\n"
-
-    a +="t"+str(h.conteoTemporales)+"= \";\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"UPDATE "+str(t[2])+" SET "+str(t[4])+" WHERE "+str(t[6])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
 
     t[0]= a
@@ -1675,15 +1687,7 @@ def p_updateBD(t):
 def p_asignaciones(t):
     '''asignaciones       : asignaciones COMA operacion
     '''
-    cad = t[1][:-1]
-    a = cad + " + t" + str(h.conteoTemporales) + "\n"
-
-    temp1 = t[3].split(' ')
-
-    a +="t"+str(h.conteoTemporales)+"= \",\"" + " + " + temp1[0] + "\n" 
-    h.conteoTemporales+=1
-
-    a += t[3]
+    a = t[1] + "," + t[3]
 
     t[0] = a
 
@@ -1721,7 +1725,6 @@ def p_createTable(t):
     h.conteoTemporales+=1
     
     t[0]= a
-
 
 # -------------------------------------------------------------------------------------------------------------- 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
@@ -1876,7 +1879,7 @@ def p_tipo(t):
     '''
     # -------------------------------------------------------------------------------------------------------------- 
     if t[1].upper()=="SMALLINT":
-        t[0] = " SAMALLINT"
+        t[0] = " SMALLINT"
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="INTEGER":
@@ -1904,19 +1907,19 @@ def p_tipo(t):
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="CHARACTER" and t[2].upper()=="VARYING":
-        t[0] = " CHARACTER VARYING ( " + str(t[4]) + " )"
+        t[0] = " CHARACTER VARYING(" + str(t[4]) + ")"
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="VARCHAR":
-        t[0] = " VARCHAR ( " + str(t[3]) + " )"
+        t[0] = " VARCHAR(" + str(t[3]) + ")"
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="CHARACTER":
-        t[0] = " CHARACTER ( " + str(t[3]) + " )"
+        t[0] = " CHARACTER(" + str(t[3]) + ")"
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="CHAR":
-        t[0] = " CHAR ( " + str(t[3]) + " )"
+        t[0] = " CHAR(" + str(t[3]) + ")"
 
     # -------------------------------------------------------------------------------------------------------------- 
     elif t[1].upper()=="TEXT":
@@ -2271,25 +2274,106 @@ def p_otroTipoJoin(t):
 def p_Function_1(t):
     'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
     vartip = t[5].split(',')
-    a = "goto " + t[3] + ":\n"
-    a += t[3] + ":\n"
+    a = "def "+t[3]+" ( "
+    simbolo = TS.Simbolo(None,t[3],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
+    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+    conttemp = 0
     for i in vartip:
         x = i.split(' ')
-        print(i)
-        a += "   if "+ x[0] + " == 1 goto L1:\n" 
-    print(t[8])
+        a+=str(x[0])
+        conttemp+=1
+        simbolo = TS.Simbolo(None,x[0],x[1],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[3],'Variable local')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
+        if conttemp < len(vartip):
+            a+=", "
+        conttemp+=1
+    a +=" ):\n"
+
+    simbolo = TS.Simbolo(None,t[8],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[3],'Variable local')
+    TS.TablaDeSimbolos().agregarVariable(simbolo)
+
     t[0] = a
 
 def p_Function_2(t):
     'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    
+    
+    vartip = t[7].split(',')
+    a = "def "+t[5]+" ( "
+    simbolo = TS.Simbolo(None,t[5],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
+    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+    conttemp = 0
+    for i in vartip:
+        x = i.split(' ')
+        a+=str(x[0])
+        conttemp+=1
+        simbolo = TS.Simbolo(None,x[0],x[1],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[5],'Variable local')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
+        if conttemp < len(vartip):
+            a+=", "
+        conttemp+=1
+    a +=" ):\n"
+
+    simbolo = TS.Simbolo(None,t[10],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[5],'Variable local')
+    TS.TablaDeSimbolos().agregarVariable(simbolo)
+
+    t[0] = a
 
 
 def p_Procedure_1(t):
-    'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
+    a = "def "+t[3]+"():\n"
+    simbolo = TS.Simbolo(None,t[3],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
+    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+
+    t[0] = a
 
 def p_Procedure_2(t):
-    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
+    vartip = t[5].split(',')
+    a = "def "+t[3]+" ( "
+    simbolo = TS.Simbolo(None,t[3],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
+    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+    conttemp = 0
+    for i in vartip:
+        x = i.split(' ')
+        a+=str(x[0])
+        conttemp+=1
+        simbolo = TS.Simbolo(None,x[0],x[1],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[3],'Variable local')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
+        if conttemp < len(vartip):
+            a+=", "
+        conttemp+=1
+    a +=" ):\n"
+    t[0] = a
 
+def p_Procedure_4(t):
+    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
+    a = "def "+t[3]+"():\n"
+    simbolo = TS.Simbolo(None,t[3],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
+    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+
+    t[0] = a
+
+def p_Procedure_3(t):
+    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
+
+    vartip = t[7].split(',')
+    a = "def "+t[5]+" ( "
+    simbolo = TS.Simbolo(None,t[5],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
+    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+    conttemp = 0
+    for i in vartip:
+        x = i.split(' ')
+        a+=str(x[0])
+        conttemp+=1
+        simbolo = TS.Simbolo(None,x[0],x[1],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[5],'Variable local')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
+        if conttemp < len(vartip):
+            a+=", "
+        conttemp+=1
+    a +=" ):\n"
+    t[0] = a
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                               DECLARATIONS
@@ -2315,13 +2399,13 @@ def p_paramproc_1(t):
     'paramproc                  : ID tipo'
     t[0] = t[1] + t[2]
 
-def p_paramproc_2(t):
-    'paramproc                  : OUT ID tipo'
-    t[0] = "OUT" + t[2] + t[3]
+#def p_paramproc_2(t):
+#    'paramproc                  : OUT ID tipo'
+#    t[0] = "OUT" + t[2] + t[3]
 
-def p_paramproc_3(t):
-    'paramproc                  : tipo'
-    t[0] = t[1]
+#def p_paramproc_3(t):
+#    'paramproc                  : tipo'
+#    t[0] = t[1]
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                           STATEMENTS - VARIABLES

@@ -234,7 +234,9 @@ reservadas = {
     'perform' : 'PERFORM',
 
     'procedure' : 'PROCEDURE',
-    'out' : 'OUT'
+    'out' : 'OUT',
+    'language' : 'LANGUAGE',
+    'plpgsql' : 'PLPGSQL'
 # revisar funciones de tiempo y fechas
 }
 

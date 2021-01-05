@@ -160,6 +160,22 @@ class TablaDeSimbolos() :
         return self.simbolos[nombre]
 
     #-----------------------------------------------------------------------------------------------------------------------
+    #Funciones
+    def agregarSimbolo(self,simbolo):
+        clave = str(simbolo.nombre)+str(simbolo.BD)
+        self.simbolos[clave] = simbolo
+
+    def agregarVariable(self, simbolo):
+        clave = str(simbolo.nombre)+str(simbolo.BD)+str(simbolo.ambito)
+        self.simbolos[clave] = simbolo
+
+    def verificarFuncion(self,nombre,BD):
+        clave = str(nombre)+str(BD)
+        if not clave in self.simbolos:
+            return 0
+        return 1
+
+    #-----------------------------------------------------------------------------------------------------------------------
     def agregarnuevTablaBD(self,simbolo):
         clave = str(simbolo.nombre)+str(simbolo.BD)
         self.simbolos[clave] = simbolo
@@ -316,6 +332,13 @@ class TablaDeSimbolos() :
             return 0
         return len(self.simbolos[clave].valor)
 
+    def numerodeDatosenprimeraColumna(self,tabla,BD):
+        for simb in self.simbolos:
+            if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == BD and self.simbolos[simb].id == 0:
+                if self.simbolos[simb].valor == None:
+                    return 0
+                return len(self.simbolos[simb].valor)
+        return 0
 
     def actualizandoDefaultColumna(self,nombre,BD,tabla):
         clave = str(nombre)+str(BD)+str(tabla)
