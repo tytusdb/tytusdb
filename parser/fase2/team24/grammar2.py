@@ -1017,7 +1017,7 @@ def p_createind3(p):
 def p_listacolind(p):
     "listacolind    :   listacolind COMA columnaind"
     p[1].append(p[3])
-    p[0] = inst.listacolind(p[1])
+    p[0] = p[1]
 
 def p_listacolind1(p):
     "listacolind    :   columnaind"
@@ -1035,8 +1035,8 @@ def p_columnaind1(p):
     p[0] = p[1]
 
 def p_ordenind(p):
-    "ordenind   :   indorder NULL indorder2"
-    p[0] = inst.ordenind(p[2] + " " + p[3] + " " + p[4])
+    "ordenind   :   indorder NULLS indorder2"
+    p[0] = inst.ordenind(p[1] + " " + p[2] + " " + p[3])
 
 def p_idcondind(p):
     "idcondind :  PARA id PARC"

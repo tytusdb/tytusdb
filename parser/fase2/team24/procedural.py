@@ -103,78 +103,78 @@ class declaration(pl):
                 c3d += str(self.id)+' = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'INTEGER':
             if  self.exp == None:
                 c3d += '\self.id.val = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'BIGINT':
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'DECIMAL':
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'NUMERIC': 
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'REAL':
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'DOUBLE':   
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'PRECISION':
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'CHARACTER':
             if  self.exp == None:
                 c3d += self.id+' = \'\' '
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'CHARACTER_VARYING':
             if  self.exp == None:
                 c3d += self.id+' = \'\' '
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'TEXT': 
             if  self.exp == None:
                 c3d += self.id+' = \'\' '
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'TIMESTAMP':
             if  self.exp == None:
                 c3d += self.id+' = \'\' '
             else:
                 c3d += self.exp.codigo #codigo que va detras
-                c3d += str(self.id)+' = '+str(self.exp.traducir().valor) #variable final o valor en especifico
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
 
         return c3d
         
@@ -313,11 +313,32 @@ class asignacion(instruccion):
     
     def ejecutar(self):
         ts.modificar_valor(self.id,self.exp)
-    
+
+    def c3d():
+        c3d = ''
+        c3d += '\ttabla.modificar_valor('+ str(self.id) + ', ' + str(self.exp.traducir()[1]) +')\n'
+        return c3d   
+
+    def traducir():
+        c3d = ''
+        c3d += self.exp.traducir()[0]
+        c3d += self.id + ' += ' + str(self.exp.traducir()[1]) + '\n'
+        return c3d
 
 class rtrn(instruccion):
     def __init__(self,exp) -> None:
         self.exp = exp
+
+    def c3d():
+        c3d = ''
+        c3d = '\n'
+        return c3d
+
+    def traducir():
+        c3d = ''
+        c3d += self.exp.traducir()[0]
+        c3d += 'pila[10] =' + self.exp.traducir()[1]
+        return c3d
 
 class expresion():
     'Clase abstracta'
