@@ -4,7 +4,6 @@ from tkinter import filedialog
 
 sys.path.append('.')
 sys.path.append('../')
-
 from Parser.Ascendente.gramatica import parse as AnaParse
 #from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
 #from Parser.Reportes.gramatica1 import parse as ReportParse
@@ -14,29 +13,40 @@ from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
 from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
 from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
 from Interprete.Manejo_errores.ReporteTS import ReporteTS
-
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-
 from Parser.Reportes.Nodo1 import Nodo
 from Parser.Reportes.TourTree import TourTree
-
 from graphviz import Source
 
-arboAux_errores: Arbol = None
+#================================================================
+#======================Declaracion de variables globales========
+#================================================================
+arboAux_errores: Arbol
 
 dotString = ''
 cadena = ''
 root = Tk()
-root.title('Editor ML WEB')
+root.title('SQL Tools')
 root.geometry("1200x660")
 # =====================Para leer una archivo de pureba
 #f = open("./../Parser/Ascendente/entrada.txt", "r")
 #input = f.read()
 input = ''
 
+COD3D ="""
+from Fase1.Sql import Sql
+from goto import with_goto
+heap = None
+def inter():
+    global  heap
+    sql:Sql = Sql()
+    sql.run(heap)
+"""
 
-# =====================Para leer una archivo de prueba FIn
+#================================================================
+#======================Declaracion de variables globales========
+#================================================================
 
 # #############################################################################################
 # ############################ Init Funciones #################################################
@@ -279,10 +289,6 @@ def Err_Sintactico():
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
-
-
-
-
 def Err_Semantico():
 
     global arboAux_errores
@@ -325,7 +331,6 @@ def Err_Semantico():
             semanticos.write(texto)
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
-
 
 def Tabla_Simbolos():
     print('Estamos en SImbolos')
@@ -374,6 +379,20 @@ def Tabla_Simbolos():
         print("No fue posible escribir el html: " + str(e))
 
 
+def generar():
+    global COD3D
+
+   #todo: NERY Aqui concatena el codigo 3d generado
+    COD3D += ''
+
+    #llamando a la funcion principal
+    COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
+
+    f = open("./../../Ejecucion/Codigo3DGenerado.py", "w")
+    f.write(COD3D)
+    f.close()
+
+
 # ############################################################################################
 # ############################ Fin Funciones #################################################
 # ############################################################################################
@@ -414,6 +433,10 @@ my_text = Text(my_frame, width=60, height=30, font=("Helvetica", 13), selectback
 my_text.insert(END, input)
 my_text.pack(side=LEFT)
 text_scroll.config(command=my_text.yview)
+
+# Boton Reporte
+generate_3d = Button(toolbar_frame, text="Genera 3d", command=generar)
+generate_3d.grid(row=0, column=80, padx=2)
 
 # ############################ Salida Consola #################################################
 my_frame1 = Frame(root)
