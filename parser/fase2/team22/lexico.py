@@ -81,7 +81,9 @@ reservadas = (
     'RETURNS', 'OUT', 'QUERY', 'PERFORM', 'FOUND', 'EXCEPTION', 'EXECUTE',
     'GET', 'CURRENT', 'DIAGNOSTICS', 'FOR',
     # INDEX
-    'INDEX', 'USING', 'HASH', 'INCLUDE', 'COLLATE'
+    'INDEX', 'USING', 'HASH', 'INCLUDE', 'COLLATE',
+    # PROCEDIMIENTOS
+    'PROCEDURE', 'COMMIT', 'ROLLBACK'
 )
 
 tokens = reservadas + (
