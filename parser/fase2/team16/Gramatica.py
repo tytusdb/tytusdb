@@ -2805,13 +2805,13 @@ def p_when_auxiliar_e(t):
 
 
 def p_Funciones_General(t):
-    'FUNCIONESS  :  FUNTIONE  FUNCTION  ID  PARIZQ PARAMETROSG PARDER RETURNS TIPO_CAMPO ALIASRET CODEEPSILON DECLAEP CODE  PUNTOCOMA'
+    'FUNCIONESS  :  FUNTIONE  FUNCTION  ID  PARIZQ PARAMETROSG PARDER RETURNS TIPO_CAMPO ALIASRET CODEEPSILON DECLAEP CODE  '
     t[0]=Funciones_(t[1],t[3],t[8],t[9] , t[5], t[10], t[11], t[12])
     print("<<<<<<<<<<<<<<<<<<<<<<<<<<<  Estoy llegando")
 
 
 def p_Store_ProcedureGeneral(t):
-    'FUNCIONESS  :  FUNTIONE  PROCEDURE  ID  PARIZQ PARAMETROSG PARDER  ARGU_N_N  ALIASRET CODEEPSILON DECLAEP CODE  PUNTOCOMA'
+    'FUNCIONESS  :  FUNTIONE  PROCEDURE  ID  PARIZQ PARAMETROSG PARDER  ARGU_N_N  ALIASRET CODEEPSILON DECLAEP CODE '
     t[0]=Procedimientos_(t[1],t[3],t[7],t[8], t[5], t[9], t[10], t[11])
 
     print("<<<<<<<<<<<<<<<<<<<<<<<<<<<  Estoy llegando al procedure")
@@ -2945,7 +2945,7 @@ def p_Alias_RetornoEpsilon(t):
 #-----------------------------------------------------------  SECCION DE CODIGO
 
 def p_Code_Estructures(t):
-    'CODE  : BEGIN CODEEPSILON END DOL ARGU_N_N'
+    'CODE  : BEGIN CODEEPSILON END PUNTOCOMA DOL ARGU_N_N'
     t[0] = Code_Funciones(t[4], t[2])
 
 
@@ -2963,16 +2963,16 @@ def p_Code_DolarEpsilon(t):
 
 #-------------------------------------  Tipos de Argumento
 def p_ArgumentosFunciones(t):
-    'ARGU_N_N  :  LANGUAGE SQL'
+    'ARGU_N_N  :  LANGUAGE SQL  PUNTOCOMA'
     t[0] = str(t[1]) +" "+ str(t[2])
 
 
 def p_ArgumentoProcedure(t):
-    'ARGU_N_N  :  LANGUAGE PLPGSQL'
+    'ARGU_N_N  :  LANGUAGE PLPGSQL PUNTOCOMA'
     t[0] = str(t[1]) + " " + str(t[2])
 
 def p_ArgumentosFuncionesArg(t):
-    'ARGU_N_N  :  ID'
+    'ARGU_N_N  :  ID PUNTOCOMA'
     t[0] = str(t[1])
 
 def p_ArgumentosFuncionesArgEpsilon(t):
@@ -3029,7 +3029,6 @@ def p_CodigoFunciones(t):
                         | continuar
                         | EJECUTARFUNCION PUNTOCOMA
                         | RETORNOS '''
-
     t[0] = t[1]
 
 

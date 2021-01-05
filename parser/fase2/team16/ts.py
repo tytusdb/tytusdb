@@ -31,12 +31,14 @@ class Funcion():
 
 class TablaDeSimbolos():
     
-    def __init__(self, Datos = {}, Tablas={}, BasesDatos={}, Tipos={}, Validaciones={}):
+    def __init__(self, Datos = {}, Tablas={}, BasesDatos={}, Tipos={}, Validaciones={}, ColumnasIndices = {}, Indices = {}):
         self.Datos = Datos.copy()
         self.Tablas = Tablas.copy()
         self.Tipos = Tipos.copy()
         self.BasesDatos = BasesDatos.copy()
         self.Validaciones = Validaciones.copy()
+        self.ColumnasIndices = ColumnasIndices
+        self.Indices = Indices
 
     def getDatos(self):
         return self.Datos
@@ -170,3 +172,16 @@ class TablaDeSimbolos():
         else :
             del self.Validaciones[miValidacion]
             print(" Se elimino")
+
+
+# ----------------------------- Indices -------------------------------------------
+    def obtenerIndice(self, id_indice):
+        if not id_indice in self.Indices:
+            return None
+        else:
+            return self.Indices[id_indice]
+
+    def agregarIndice(self, indice):
+        self.Indices[indice.id_indice] = indice
+
+

@@ -1,3 +1,5 @@
-def metodo_prueba(cadena):
-    print("Si estoy funcionando")
-    return cadena
+from expresiones import UNIDAD_TIEMPO
+
+#========================= CODIGO 3D =================================
+
+print(UNIDAD_TIEMPO.HOUR)
