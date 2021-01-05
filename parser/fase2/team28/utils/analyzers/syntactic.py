@@ -489,10 +489,12 @@ def p_call_functions_or_procedure(p):
                                 | OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
                                 | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
                                 | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS '''
-
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
     if p.slice[1].type == 'EXECUTE':
         if len(p) == 5: #Tercera produccion
-            Call(p[2], None)
+            # Call(p[2], None)
+            p[0] = Funcion(p[2], [], [], None, False, noLine, noColumn)
         else:           #Cuarta produccion
             Call(p[2], p[4])
     else:
@@ -733,7 +735,7 @@ def p_sql_functions(p):
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if len(p) == 14: 
-        p[0] = Funcion(p[3], p[5], p[10], p[8], noLine, noColumn)
+        p[0] = Funcion(p[3], p[5], p[10], p[8], True, noLine, noColumn)
     else:
         print("NO ENTRO EN ESA PRODUCCION XD  --- CREATE FUNCTION")
 

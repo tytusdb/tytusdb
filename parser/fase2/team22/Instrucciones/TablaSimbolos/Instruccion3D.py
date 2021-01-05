@@ -13,7 +13,8 @@ def getEncabezado():
     content += "tablaGlobal = Tabla(None)\n"
     content += "arbol = Arbol()\n\n"
 
-    content += "def ejecutar3D():\n"
+    content += "def call_funcion_intermedia():\n"
+    content += "    dropAll()\n"
     content += "    input = \"\"\n"
     content += "    for i in stack:\n"
     content += "        input += stack[i] + \"\\n\"\n"
@@ -34,7 +35,7 @@ def getEncabezado():
 
 def getPie():
     content = "\n\nexec()\n"
-    content += "ejecutar3D()"
+    content += "call_funcion_intermedia()"
     return content
 
 def getTemporal():

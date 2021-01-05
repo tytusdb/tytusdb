@@ -15,6 +15,7 @@ class Identificador(Expresion) :
         self.tipo=tipo
         self.nombre=nombre
         self.valor = nombre
+        self.stringsql = nombre
 
     def getval(self,entorno:Entorno):
         sim=entorno.buscarSimbolo(self.nombre)

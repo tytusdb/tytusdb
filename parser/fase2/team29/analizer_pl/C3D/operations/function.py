@@ -10,8 +10,13 @@ class FunctionDeclaration(Expression):
 		self.returns = returns
 
 	def execute(self, environment):
+		cd = "def "+self.id+"():\n"
+		for p in self.params:
+			cd += "\t"+p.execute(environment).temp+" = stack.pop()\n"
+
 		if self.params:
 			for p in self.params:
 				p.execute(environment)
+				
 		#TODO: Codigo 3d
-		return code.C3D(self.id+"\n", self.id, self.row, self.column)
+		return code.C3D(cd, self.id, self.row, self.column)

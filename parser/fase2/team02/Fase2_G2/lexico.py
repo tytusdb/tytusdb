@@ -21,7 +21,7 @@ reservadas = (
 
     'TABLE', 'INT', 'VARCHAR', 'DATE', 'CHAR', 'DOUBLE', 'DECIMAL', 'NULL', 'PRIMARY', 'KEY', 'REFERENCES', 'FOREIGN',
     'FLOAT',
-    'BETWEEN',
+    'BETWEEN','PLPGSQL',
     'LIKE',
     'IN',
     'TYPE', 'INHERITS',
@@ -115,6 +115,7 @@ tokens = reservadas + (
     'FDECIMAL',
     'COMA',
     'ID',
+    'DOLAR',    
     'CADENA',
     'CARACTER',
     'COMENTARIO_MULTILINEA',
@@ -139,6 +140,8 @@ t_POR = r'\*'
 t_DIVIDIDO = r'/'
 t_EXPONENCIACION = r'\^'
 t_MODULO = r'%'
+t_DOLAR = r'\$'
+
 # OPERADORES RELACIONALES
 t_DISTINTO = r'\<\>'
 t_IGUAL = r'\='
