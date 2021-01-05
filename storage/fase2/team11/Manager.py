@@ -318,4 +318,107 @@ def createTable(database, name_table, number_columns):
             return isam.createTable(database, name_table, number_columns)
         elif mode.lower().strip() == "json":
             return json.createTable(database, name_table, number_columns)
+        
+        
+ def showTables(database):
+    ModeDB, indexDB = exist_Alter(database)
+
+    if ModeDB:
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.showTables(database)
+        elif mode.lower().strip() == "b":
+            return b.showTables(database)
+        elif mode.lower().strip() == "bplus":
+            return bplus.showTables(database)
+        elif mode.lower().strip() == "dict":
+            return diccionario.showTables(database)
+        elif mode.lower().strip() == "hash":
+            return hash.showTables(database)
+        elif mode.lower().strip() == "isam":
+            return isam.showTables(database)
+        elif mode.lower().strip() == "json":
+            return json.showTables(database)
+
+
+def extractTable(database, name_table):
+    ModeDB, indexDB = exist_Alter(database)
+
+    if ModeDB:
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.extractTable(database, name_table)
+        elif mode.lower().strip() == "b":
+            return b.extractTable(database, name_table)
+        elif mode.lower().strip() == "bplus":
+            return bplus.extractTable(database, name_table)
+        elif mode.lower().strip() == "dict":
+            return diccionario.extractTable(database, name_table)
+        elif mode.lower().strip() == "hash":
+            return hash.extractTable(database, name_table)
+        elif mode.lower().strip() == "isam":
+            return isam.extractTable(database, name_table)
+        elif mode.lower().strip() == "json":
+            return json.extractTable(database, name_table)
+
+
+def extractRangeTable(database, name_table, number_column, lower, upper):
+    ModeDB, indexDB = exist_Alter(database)
+
+    if ModeDB:
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.extractRangeTable(database, name_table, number_column, lower, upper)
+        elif mode.lower().strip() == "b":
+            return b.extractRangeTable(database, name_table, number_column, lower, upper)
+        elif mode.lower().strip() == "bplus":
+            return bplus.extractRangeTable(database, name_table, number_column, lower, upper)
+        elif mode.lower().strip() == "dict":
+            return diccionario.extractRangeTable(database, name_table, number_column, lower, upper)
+        elif mode.lower().strip() == "hash":
+            return hash.extractRangeTable(database, name_table, number_column, lower, upper)
+        elif mode.lower().strip() == "isam":
+            return isam.extractRangeTable(database, name_table, number_column, lower, upper)
+        elif mode.lower().strip() == "json":
+            return json.extractRangeTable(database, name_table, number_column, lower, upper)
+
+def alterAddPK(database, name_table, columns):
+    ModeDB, indexDB = exist_Alter(database)
+
+    if ModeDB:
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.alterAddPK(database, name_table, columns)
+        elif mode.lower().strip() == "b":
+            return b.alterAddPK(database, name_table, columns)
+        elif mode.lower().strip() == "bplus":
+            return bplus.alterAddPK(database, name_table, columns)
+        elif mode.lower().strip() == "dict":
+            return diccionario.alterAddPK(database, name_table, columns)
+        elif mode.lower().strip() == "hash":
+            return hash.alterAddPK(database, name_table, columns)
+        elif mode.lower().strip() == "isam":
+            return isam.alterAddPK(database, name_table, columns)
+        elif mode.lower().strip() == "json":
+            return json.alterAddPK(database, name_table, columns)
+
+def alterDropPK(database, name_table):
+    ModeDB, indexDB = exist_Alter(database)
+
+    if ModeDB:
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.alterDropPK(database, name_table)
+        elif mode.lower().strip() == "b":
+            return b.alterDropPK(database, name_table)
+        elif mode.lower().strip() == "bplus":
+            return bplus.alterDropPK(database, name_table)
+        elif mode.lower().strip() == "dict":
+            return diccionario.alterDropPK(database, name_table)
+        elif mode.lower().strip() == "hash":
+            return hash.alterDropPK(database, name_table)
+        elif mode.lower().strip() == "isam":
+            return isam.alterDropPK(database, name_table)
+        elif mode.lower().strip() == "json":
+            return json.alterDropPK(database, name_table)
 
