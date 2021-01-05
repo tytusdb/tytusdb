@@ -72,7 +72,7 @@ def declare(identificador, tipo, valor):
             if isinstance(valor, str):
                   return id + '=' + valor + '\n'
             return id + '=' + str(valor) + '\n'
-      default = tipos[tipo]
+      default = tipos.get(tipo,'None')
       if isinstance(default, str):
             return id + '=' + default + '\n'
       return id + '=' + str(default) + '\n'
