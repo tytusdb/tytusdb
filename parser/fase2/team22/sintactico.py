@@ -1894,9 +1894,9 @@ def find_column(input,token):
 parser = yacc.yacc()
 
 def ejecutar_analisis(texto):
-    instrucciones = parser.parse(texto)
-    reporte = AST.AST(instrucciones)
-    reporte.ReportarAST()
+    # instrucciones = parser.parse(texto)
+    '''reporte = AST.AST(instrucciones)
+    reporte.ReportarAST()'''
 
     # try:
     #     instrucciones = parser.parse(texto)
