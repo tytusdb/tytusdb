@@ -21,7 +21,7 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 from Codigo_3D import FuncionesPara3D
-from Codigo_3D import Codigo3D
+#from Codigo_3D import Codigo3D
 
 import sintactico
 

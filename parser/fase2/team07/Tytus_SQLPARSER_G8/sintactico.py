@@ -2272,7 +2272,7 @@ def p_identificadores(t):
 
 def p_instruccion_index(t):
     '''
-    instruccion : CREATE unique_op INDEX ID ON hash_op PARIZQ l_indexes PARDER instructionWhere PUNTO_COMA
+    instruccion : CREATE unique_op INDEX ID ON ID hash_op PARIZQ l_indexes PARDER where_op PUNTO_COMA
     '''
 
 def p_index_unique(t):
@@ -2304,6 +2304,11 @@ def p_index_index(t):
     l_indexes : ID order_op null_op first_last_op
     '''
 
+def p_index_func(t):
+    '''
+    l_indexes : ID PARIZQ ID PARDER
+    '''
+
 def p_index_order(t):
     '''
     order_op : ASC
@@ -2317,7 +2322,7 @@ def p_index_order_e(t):
 
 def p_index_null(t):
     '''
-    null_op : NULL
+    null_op : NULLS
     '''
 
 def p_index_null_e(t):
@@ -2334,6 +2339,16 @@ def p_index_first_last(t):
 def p_index_first_last_e(t):
     '''
     first_last_op : 
+    '''
+
+def p_index_where(t):
+    '''
+    where_op : instructionWhere
+    '''
+
+def p_index_where_e(t):
+    '''
+    where_op : 
     '''
 
 #FIN DE LA GRAMATICA
