@@ -146,7 +146,9 @@ def Seleccionar():
         consola = result.getC3D()
 
         for i in result.ReporteTS:
-            print(i)
+            print('Nombre: ' + str(i.nombre))
+            print('Tipo: ' + str(i.tipo))
+            print('----------------------------------------------')
 
         #for item in result.console:
         #    consola = consola + item

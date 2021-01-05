@@ -45,6 +45,7 @@ from InterpreteF2.Soporte_aFun.argumento import argumento
 from InterpreteF2.Soporte_aFun.funheader import funheader
 from InterpreteF2.Soporte_aFun.funexecute import funexecute
 from InterpreteF2.Reporteria.ReporteTS import ReporteTS
+from InterpreteF2.indices.indice import indice
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -934,7 +935,7 @@ def p_create_index1(t):
     '''
         index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER
     '''
-    t[0] = ReporteTS('',t[3],'index','asc', 1, 1)
+    t[0] = indice(t[3], 1, 1)
 
 def p_create_index2(t):
     '''
