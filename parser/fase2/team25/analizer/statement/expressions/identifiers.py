@@ -53,3 +53,6 @@ class Identifiers(Expression):
     def dot(self):
         nod = Nodo.Nodo(self.name)
         return nod
+
+    def generate3d(self,environment, instanciaAux , fase =2):
+        return str(self.value) # TANTO PARA FASE 1 O FASE 2 SE RETORNA LO MISMO

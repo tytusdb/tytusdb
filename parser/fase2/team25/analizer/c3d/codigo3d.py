@@ -8,18 +8,27 @@ class Codigo3d:
 
     def __init__(self):
         self.count_temporal = 0
+        self.count_label = 0
         self.listaCode3d = []
+        self.tabulaciones = 1
 
 
 
-    def restart(self,entrada) -> None:
+
+    def restart(self) -> None:
         """
         limpia las variables
         """
         self.count_temporal = 0
         self.listaCode3d.clear()
-        # quitar los comentarios
+        self.count_label = 0
+        self.tabulaciones = 1
 
+    def getTabulaciones(self) -> str:
+        tab = ''
+        for i in range(self.tabulaciones):
+            tab += '\t'
+        return tab
 
     def addToCode(self, nuevaLinea_de_codigo) -> None:
         self.listaCode3d.append(nuevaLinea_de_codigo+"\n")
@@ -44,10 +53,14 @@ class Codigo3d:
         self.count_temporal += 1
         return temporal
 
+    def getNewLabel(self)->str:
+        """ retonra una etoqueta L1,L2,L3 ...Ln correspondiente
+        """
+        etiqueta = "L" + str(self.count_label)
+        self.count_label += 1
+        return etiqueta
 
 
-    def adjuntarArray(self,array: list)->None:
-        self.listaCode3d = self.listaCode3d  + array
 
 
 
@@ -94,24 +107,32 @@ class Codigo3d:
         """
         ESTE METODO GENERA UN ARCHIVO .PY PARA PODER EJECUTAR EL CODIGO 3 DIRECCIONES QUE SE ADJUNTO
         """
-        with open("SALIDA_C3D.py", "w") as archivo:
+        RUTA = '../analizer/'
+        with open(F"{RUTA}SALIDA_C3D.py", "w") as archivo:
             # librerias
-            archivo.write("from goto import with_goto" + "\n")
-            archivo.write("from interpreter import execution"+"\n")
-            archivo.write('from c3d.stack import  Stack\n')
-            archivo.write('\nstack = Stack()')
-            archivo.write("\n\n\n@with_goto\n")
-            archivo.write("def principal():\n")
-            for inst in self.listaCode3d:
-                archivo.write(inst)
-            archivo.write('\n\n\ndef funcionIntermedia():\n')
-            archivo.write('\texecution(stack.pop())\n')
-            archivo.write("principal()")
+            archivo.write(self.getCodigo())
             archivo.close()
 
+    def getCodigo(self):
+        cadena = ''
+        cadena+=("from goto import with_goto" + "\n")
+        cadena+=("from interpreter import execution"+"\n")
+        cadena+=("from c3d.stack import Stack"+"\n")
+        cadena+=('\nstack = Stack()\n\n')
+        cadena+=("\n\n\n@with_goto\n")
+        cadena+=("def principal():\n")
+        for inst in self.listaCode3d:
+            cadena+=(inst)
+        cadena+=('\n\n\ndef funcionIntermedia():\n')
+        cadena+=("\texecution(stack.pop())\n")
+        cadena+=("principal()")
+        return cadena
 
 
 
 
 # INSTANCIA PARA CONTROLAS LOS METODOS DE LA CLASE
 instancia_codigo3d = Codigo3d()
+
+#instacia auxiliar
+# instanciaAux = Codigo3d()

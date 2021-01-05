@@ -74,3 +74,12 @@ class String(Expression):
         new.addNode(n1)
         new.addNode(n2)
         return new
+
+    def generate3d(self ,environment , instanciaAux):
+        exp1 = self.exp1.generate3d(environment ,instanciaAux)
+        exp2 = self.exp2.generate3d(environment ,instanciaAux)
+        operator = self.operator
+
+        tn = instanciaAux.getNewTemporal()#va llevar su control de getTempola tambien
+        instanciaAux.addToCode(f'\t{tn} = {exp1} {operator} {exp2}')
+        return tn
