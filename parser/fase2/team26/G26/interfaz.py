@@ -42,6 +42,18 @@ def analisis():
 
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
+
+    try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        f.close()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
+        datos.reInsertarValores(json.loads(text))
+    except:
+        print('error')
     
     #g2.tempos.restartTemp() #reinicia el contador de temporales.
     prueba = g2.parse(texto)
@@ -59,7 +71,6 @@ storage.dropAll()
 heap = []
 
 datos = l.Lista({}, '') 
-l.readData(datos)
 '''
     exepy += '''
 #funcion intermedia    
@@ -69,8 +80,6 @@ def mediador():
     instrucciones = g.parse(heap.pop())
     for instr in instrucciones['ast'] :
         print(instr.execute(datos))
-
-    l.writeData(datos)
 '''
 
     exepy += '''
@@ -81,7 +90,7 @@ def mediador():
 
     exepy += '''
 #main
-@with_goto
+#@with_goto
 def main():
     global heap
 '''
@@ -89,7 +98,6 @@ def main():
     exepy += str(prueba['text'])
 
     exepy += '''
-
 #Ejecucion del main
 if __name__ == "__main__":
     main()    
@@ -99,11 +107,17 @@ if __name__ == "__main__":
     f.write(exepy)
     f.close()
 
+    instrucciones = g.parse(texto)
+    erroresSemanticos = []
+
+    try:
+        hacerReporteGramatica(instrucciones['reporte'])
+    except:
+        print("")
 
     '''try:
         f = open("./Utils/tabla.txt", "r")
         text = f.read()
-        f.close()
         text = text.replace('\'','"')
         text = text.replace('False','"False"')
         text = text.replace('None','""')
@@ -113,17 +127,7 @@ if __name__ == "__main__":
         datos.reInsertarValores(json.loads(text))
         print(str(datos))
     except:
-        print('error')
-
-    instrucciones = g.parse(texto)
-    erroresSemanticos = []
-
-    try:
-        hacerReporteGramatica(instrucciones['reporte'])
-    except:
-        print("")
-
-
+        print('error')'''
     for instr in instrucciones['ast'] :
 
             if instr != None:
@@ -148,7 +152,7 @@ if __name__ == "__main__":
     erroresSemanticos.clear()
 
     reporteTabla()
-    del instrucciones'''
+    del instrucciones
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
 
 def Rerrores(errores, semanticos):
@@ -326,6 +330,32 @@ def reporteTabla():
                     f.write(col.default)
                 f.write("</td></tr>\n")
                 f.write("               </table>\n")
+                for column in datos.tablaSimbolos[a]['tablas'][table]['index']:
+                    f.write("<p class='i'>Indice :")
+                    f.write(column.name)
+                    f.write("</p>\n")
+                    f.write("<li>")
+                    f.write("<ol>Nombre: ")
+                    f.write(column.name)
+                    f.write("</ol></li><li>Columnas: ")
+                    for h in column.columns:
+                        f.write("<ul>")
+                        f.write("Tabla ->")
+                        if h.table != None:
+                            f.write(h.table)
+                        else:
+                            f.write("None")
+                        f.write("Columna ->")
+                        f.write(h.column)
+                        f.write("</ul>\n")
+                    f.write("</li><li>Condiciones: ")
+                    if column.conditions != None:
+                        for h in column.conditions:
+                            f.write("<ul>")
+                            f.write(h)
+                            f.write("</ul>")
+                    else:
+                        f.write("<ul>SIN CONDICIONES</ul>\n</li>")
                 f.write("           </div>\n")
                 f.write("         </div>\n")
     f.write("   </body>\n")
