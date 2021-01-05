@@ -107,7 +107,7 @@ class declaration(pl):
             
         elif self.tipo == 'INTEGER':
             if  self.exp == None:
-                c3d += '\self.id.val = 0'
+                c3d += self.id+' = 0'
             else:
                 c3d += self.exp.codigo #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
@@ -243,20 +243,17 @@ class createfunc(pl):
         
         c3d = ''
         c3d += '\tid_db = id_db(NombreDB)\n'
-        c3d += '\tNuevoSimbolo = Simbolo(cont,'+self.id.val+',TIPO.FUNCTION,id_db)\n'
+        c3d += '\tNuevoSimbolo = Simbolo(cont,'+self.id+',TIPO.FUNCTION,id_db)\n'
         c3d += '\tcont+=1\n'
         
         funcion = ''
-        funcion += 'def '+self.id.val+'():\n' 
+        funcion += 'def '+self.id+'():\n' 
         #variables a usar, guardando en ts y declarando
         for decla in block.declare:
 
             c3d += decla.c3d()+'\n' 
             funcion += '\t'+decla.traducir()+'\n' 
-        for inst in block.instrucciones:
-            funcion += '\t'+inst.traducir()+'\n'
-            c3d += inst.c3d()
-        
+
         pcont = 0
         for param in lparams:
             #variables de parametros
@@ -271,6 +268,13 @@ class createfunc(pl):
                 funcion += '\t'+param.alias+' = pila['+str(pcont)+']\n'
 
             pcont += 1
+
+
+        for inst in block.instrucciones:
+            funcion += '\t'+inst.traducir()+'\n'
+            c3d += inst.c3d()
+        
+
 
 
         funciones.append(funcion)
@@ -311,6 +315,12 @@ class block(pl):
     def __init__(self,declare,instrucciones) -> None:
         self.instrucciones = instrucciones
         self.declare = declare
+    
+    def traducir(self):
+        return '\n'
+
+    def c3d(self):
+        return '\n'
 
 class instruccion():
     'clase abstracta'
@@ -326,6 +336,9 @@ class raisenotice(instruccion):
             c3d += 'print(\''+texto+'\')'
         else:
             c3d += 'print(\''+str(self.texto).replace('%',self.variable.traducir())+'\')'
+
+    def c3d(self):
+        return '\n'
 
 
 class asignacion(instruccion):
@@ -351,16 +364,134 @@ class rtrn(instruccion):
     def __init__(self,exp) -> None:
         self.exp = exp
 
-    def c3d():
+class searched_case(instruccion):
+    def __init__(self,condition,instrucciones,elsif,els) -> None:
+        self.codition = condition
+        self.instrucciones = instrucciones
+        self.elsif = elsif
+        self.els= els
+    
+    def traducir(self):
         c3d = ''
-        c3d = '\n'
+        c3d += self.condition.traducir()[0]
+        #variables temporales a utilizar en else if
+        
+        #tengo que ejecutar y añadir los elif
+        for eli in self.elsif :
+            c3d += str(eli.condition.traducir()[0])
+            
+            
+
+        c3d += 'if '+ self.condition.traducir()[1] +':\n'
+        for inst in self.instrucciones:
+            c3d += '\t'+inst.traducir()+'\n'
+        
+        for eli in self.elsif :
+            #tengo que ejecutar y añadir los elif
+            c3d += 'elif '+ eli.condition.traducir()[1] +' :'
+            for inst in eli.instrucciones:
+                c3d += '\t'+inst.traducir()+'\n'
+            
+
+        if els != None:
+            c3d += 'else:'
+            for inst in els.instrucciones:
+                c3d += '\t'+inst.traducir()+'\n'
+
         return c3d
 
-    def traducir():
+    def c3d(self):
         c3d = ''
-        c3d += self.exp.traducir()[0]
-        c3d += 'pila[10] =' + self.exp.traducir()[1]
+        for inst in instrucciones:
+            c3d += inst.c3d()
+
+        for eli in self.elsif:
+            c3d += eli.c3d()
+        
+        c3d += els.c3d()
+
+        
         return c3d
+
+
+class iff(instruccion):
+    def __init__(self,condition,instrucciones,elsif,els) -> None:
+        self.codition = condition
+        self.instrucciones = instrucciones
+        self.elsif = elsif
+        self.els= els
+    
+    def traducir(self):
+        c3d = ''
+        c3d += self.condition.traducir()[0]
+        #variables temporales a utilizar en else if
+        
+        #tengo que ejecutar y añadir los elif
+        for eli in self.elsif :
+            c3d += str(eli.condition.traducir()[0])
+            
+            
+
+        c3d += 'if '+ self.condition.traducir()[1] +':\n'
+        for inst in self.instrucciones:
+            c3d += '\t'+inst.traducir()+'\n'
+        
+        for eli in self.elsif :
+            #tengo que ejecutar y añadir los elif
+            c3d += 'elif '+ eli.condition.traducir()[1] +' :'
+            for inst in eli.instrucciones:
+                c3d += '\t'+inst.traducir()+'\n'
+            
+
+        if els != None:
+            c3d += 'else:'
+            for inst in els.instrucciones:
+                c3d += '\t'+inst.traducir()+'\n'
+
+        return c3d
+
+    def c3d(self):
+        c3d = ''
+        for inst in instrucciones:
+            c3d += inst.c3d()
+
+        for eli in self.elsif:
+            c3d += eli.c3d()
+        
+        c3d += els.c3d()
+
+        
+        return c3d
+
+class els(instruccion):
+    def __init__(self,instrucciones) -> None:
+        self.instrucciones = instrucciones
+
+    def traducir(self):
+        c3d = ''
+        return c3d
+
+    def c3d(self):
+        c3d = ''
+        for inst in instrucciones:
+            c3d += inst.c3d()
+        return c3d
+
+class elsif(instruccion):
+    def __init__(self,condition,instrucciones) -> None:
+        self.condition = condition
+        self.instrucciones = instrucciones
+    
+    def traducir(self):
+        c3d = ''
+        return c3d
+
+    def c3d(self):
+        c3d = ''
+        for inst in instrucciones:
+            c3d += inst.c3d()
+        return c3d
+
 
 class expresion():
     'Clase abstracta'
