@@ -26,7 +26,7 @@ from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
-from Instrucciones.PL import Func, Declaracion,Execute
+from Instrucciones.PL import Func, Declaracion,Execute,Asignacion,Return
 from Instrucciones.PL.Imprimir import Imprimir
 
 # IMPORTAMOS EL STORAGE
@@ -1393,6 +1393,10 @@ def p_expresion7(t):
 def p_expresion8(t):
     '''expresion : ID PARIZQ lcol PARDER
     '''
+def p_expresion82(t):
+    '''expresion : POR
+    '''
+    t[0] = t[1]
 
 def p_expresion9(t):
     '''expresion : TRUE
@@ -1562,6 +1566,11 @@ def p_tipo_datos_int7(t):
     '''
     t[0]=Tipo(Tipo_Dato.MONEY)
 
+def p_dolares8(t):
+    '''dolares : DOLAR DOLAR
+    '''
+    t[0]= t[1]
+
 def p_tipo_datos_int8(t):
     '''tipo : BOOLEAN
     '''
@@ -1601,51 +1610,97 @@ def p_lista_parametros_f20(t):
     t[0] = [t[1]]
 
 
+def p_lista_parametros_f209(t):
+    '''l_param : 
+    '''
+    t[0] = []
+
+
+
+
 def p_parametros_f2(t):
     '''parametros : ID tipo
     '''
     t[0] = t[1]
-def p_funciones(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID  PARIZQ  PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-
-    strGram = "<instruccion> ::= CREATE <orreplace> FUNCTION ID  PARIZQ  PARDER BEGIN <instrucciones> END PUNTO_COMA"
 
 
-    t[0] = Func.Func(t[4], t[2], [], t[8],[],strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones1(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
 def p_funciones2(t):
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace FUNCTION ID  PARIZQ  lista_pars PARDER RETURNS tipo AS dolares INSDECLARE0  BEGIN instrucciones END PUNTO_COMA dolares LANGUAGE  PLPGSQL PUNTO_COMA
     '''
-    strGram = "<instruccion> ::= CREATE <orreplace> FUNCTION ID  PARIZQ  PARDER BEGIN <instrucciones> END PUNTO_COMA"
+    strGram = "<instruccion> ::= CREATE <orreplace> FUNCTION ID  PARIZQ <lista_pars> PARDER RETURNS  <tipo> AS <dolares> <INSDECLARE> BEGIN <instrucciones> END PUNTO_COMA"
    
-    t[0] = Func.Func(t[4], t[2], [6], t[13], [],strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Func.Func(t[4], t[2], t[6], t[14], [12],strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones3(t):
+def p_lista_pars_f20(t):
+    '''lista_pars : tiposanidados
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
-
-    strGram = "<instruccion> ::= CREATE <orreplace> FUNCTION ID  PARIZQ  PARDER BEGIN <instrucciones> END PUNTO_COMA"
+    t[0] = t[1]
 
 
-    t[0] = Func.Func(t[4], t[2], [], t[10],[],strGram, t.lexer.lineno, t.lexer.lexpos)
+def p_lista_pars_f209(t):
+    '''lista_pars : 
+    '''
+    t[0] = []
 
-def p_funciones4(t):
+def p_tiposanidados_f20(t):
+    '''tiposanidados : tiposanidados COMA parametros
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
-def p_funciones5(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
+ 
+    t[1].append(t[3])
+    t[0] = t[1]
 
+def p_tiposanidados_f0(t):
+    '''tiposanidados :  parametros
+    '''
+    t[0] = [t[1]]
+
+        
+def p_ldeclare(t):
+    '''INSDECLARE0 : DECLARE INSDECLARE098
+    '''
+    t[0] = t[1]
+
+def p_ldeclare90(t):
+    '''INSDECLARE0 : 
+    '''
+    t[0] = [] 
+
+def p_ldeclare98(t):
+    '''INSDECLARE098 : INSDECLARE098 ID tipo PUNTO_COMA
+    '''
+    t[1].append(t[2])
+    t[0] = t[1] 
+
+def p_ldeclare99(t):
+    '''INSDECLARE098 :  ID tipo PUNTO_COMA
+    '''
+    t[0] = [t[1]]
+
+
+def p_ldeclare9(t):
+    '''INSDECLARE09 : INSDECLARE09  PUNTO_COMA ID tipo 
+    '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_ldeclareJ(t):
+    '''INSDECLARE09 :  ID tipo
+    '''
+    t[0] = [t[1]]
+
+
+def p_lista_parametros_declare(t):
+    '''l_insdeclare : l_insdeclare PUNTO_COMA parametros
+    '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_parametros_f20(t):
+    '''l_insdeclare : parametros
+    '''
+    t[0] = [t[1]]
 ############################# stored procedures
 
 def p_sp1(t):
@@ -1677,19 +1732,36 @@ def p_return(t):
     '''
     instruccion : RETURN expre PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= RETURN <expre> PUNTO_COMA"
+
+    t[0] = Return.Return( t[2],strGram, t.lexer.lineno, t.lexer.lexpos)
+                                                                                                              
 def p_perform(t):
     '''
     instruccion : PERFORM query PUNTO_COMA
     '''
 def p_execute(t):
     '''
-    instruccion : EXECUTE ID PARIZQ l_expresiones PARDER PUNTO_COMA
+    instruccion : SELECT ID PARIZQ PARDER PUNTO_COMA
                 | EXECUTE ID PARIZQ PARDER PUNTO_COMA
     '''
     strGram = "<instruccion> ::= EXECUTE  ID PARIZQ PARDER PUNTO_COMA"
 
 
     t[0] = Execute.Execute(t[2],[],strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_execute2(t):
+    '''
+    instruccion : EXECUTE ID PARIZQ l_expresiones PARDER PUNTO_COMA
+                | SELECT ID PARIZQ l_expresiones PARDER PUNTO_COMA
+                
+    '''
+    strGram = "<instruccion> ::= EXECUTE  ID PARIZQ PARDER PUNTO_COMA"
+
+
+    t[0] = Execute.Execute(t[2],[],strGram, t.lexer.lineno, t.lexer.lexpos)
+
+
 
 
 def p_if(t):
@@ -1832,6 +1904,12 @@ def p_ldeclaracion2(t):
     'ldec : declaracion '
     t[0] = [t[1]]
 
+def p_declaracion51(t):
+    '''
+    instruccion : declaracion
+    '''
+    t[0]= t[1]
+
 def p_declaracion(t):
     '''
     declaracion : ID constant tipo not_null DEFAULT expre PUNTO_COMA
@@ -1848,7 +1926,7 @@ def p_declaracion2(t):
     '''
     declaracion : ID constant tipo not_null IGUAL expre PUNTO_COMA
     '''
-    t[0] = Declaracion.Declaracion(t[1],t[2],t[3],t[4],False,t[6])
+    t[0] = Declaracion.Declaracion(t[1],t[2],t[3],t[4],False,t[6],"","","")
 
 def p_constant_f2(t):
     '''
@@ -1865,13 +1943,16 @@ def p_instruccion_asig_f2(t):
     '''
     instruccion : asignacion
     '''
-    
+    t[0] = t[1]
+
 def p_asignacion(t):
     '''
     asignacion : ID DOS_PUNTOS IGUAL expre PUNTO_COMA
-                | ID IGUAL expre PUNTO_COMA
+               
     '''
+    strGram = "ID DOS_PUNTOS IGUAL <expre> PUNTO_COMA"
 
+    t[0] = Asignacion.Asignacion(t[1],t[4],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 
 
