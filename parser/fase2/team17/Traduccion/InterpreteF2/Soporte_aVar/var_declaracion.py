@@ -32,7 +32,7 @@ class var_declaracion(NodoArbol):
         else:
             tmp = arbol.getTemp()
             arbol.addC3D(tmp + " = ''")
-            val_exp:Valor = Valor(TIPO.CADENA, 'NULL')
+            val_exp:Valor = Valor(2, 'NULL')
             simbol:Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
             simbol.setTemp(str(tmp))
             entorno.insertar_variable(simbol)

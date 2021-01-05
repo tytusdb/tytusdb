@@ -5,30 +5,28 @@ from InterpreteF2.Valor.Valor import Valor
 from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 
-class var_asignacion(NodoArbol):
+class var_acceso(NodoArbol):
 
-    def __init__(self, identificador, exp, line, coliumn):
+    def __init__(self, identificador, line, coliumn):
         super().__init__(line, coliumn)
-        self.exp = exp
         self.identificador = identificador
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        pass
+        val:Valor = entorno.obtener_varibale(str(self.identificador))
+        return int(val.tipo)
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        tmp = entorno.obtener_temporal_deVar(str(self.identificador))
-        val:Valor = self.exp.getValueAbstract(entorno, arbol)
-        if str(val.tipo) == '2':
-            arbol.addC3D(tmp + ' = ' + '\'' + str(val.data) + '\'')
-        else:
-            arbol.addC3D(tmp + ' = ' + str(val.data))
-        return
+        temp = 'NULL'
+        if entorno.varibaleExiste(str(self.identificador)):
+            temp = entorno.obtener_temporal_deVar(str(self.identificador))
+        return temp
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         pass
 
     def getString(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        pass
+        return str(self.identificador)
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        pass
+        val: Valor = entorno.obtener_varibale(str(self.identificador))
+        return val

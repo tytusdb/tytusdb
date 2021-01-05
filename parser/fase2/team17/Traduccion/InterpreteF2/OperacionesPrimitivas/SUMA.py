@@ -15,6 +15,7 @@ class SUMA(NodoArbol):
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         tipoRes = COMPROBADOR_deTipos(self.izq.analizar_semanticamente(entorno, arbol), self.der.analizar_semanticamente(entorno, arbol), "+")
         if tipoRes != -1:
+            print(tipoRes.getTipoResultante())
             return tipoRes.getTipoResultante()
         else:
             # ERROR SEMANTICO de tipo

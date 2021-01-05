@@ -40,6 +40,7 @@ from InterpreteF2.IF.SI import SI
 from InterpreteF2.IF.SIELSE import SIELSE
 from InterpreteF2.Soporte_aVar.var_asignacion import var_asignacion
 from InterpreteF2.Soporte_aVar.var_declaracion import var_declaracion
+from InterpreteF2.Soporte_aVar.var_acceso import var_acceso
 from InterpreteF2.Soporte_aFun.argumento import argumento
 from InterpreteF2.Soporte_aFun.funheader import funheader
 from InterpreteF2.Soporte_aFun.funexecute import funexecute
@@ -503,7 +504,6 @@ def p_definition(t):
 def p_instruction(t):
     '''
         instruction     : DataManipulationLenguage
-                        |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
                         |  plpgsql
                         |  statements
                         |  index
@@ -516,14 +516,9 @@ def p_instruction(t):
 
 def p_plpgsql(t):
     '''
-        plpgsql : functions_or_procedures label definitions BEGIN definitions plpgsql_ending
-                | functions_or_procedures definitions BEGIN definitions plpgsql_ending
-                | functions_or_procedures BEGIN stmts plpgsql_ending
-                | label BEGIN stmts plpgsql_ending
-                | declare BEGIN stmts plpgsql_ending
-                | BEGIN stmts plpgsql_ending
+        plpgsql : functions_or_procedures definitions BEGIN definitions plpgsql_ending
     '''
-    t[0] = funexecute(t[1], t[2], t[4], 1,1)
+    t[0] = funexecute(t[1], t[2], t[4], 1, 1)
     set('<TR> \n <TD> plpgsql → functions_or_procedures label declare BEGIN stmts plpgsql_ending | functions_or_procedures declare BEGIN stmts plpgsql_ending | functions_or_procedures BEGIN stmts plpgsql_ending | label BEGIN stmts plpgsql_ending | declare BEGIN stmts plpgsql_ending | BEGIN stmts plpgsql_ending : </TD> \n <TD>  plpgsql = plpgsqlTraduccion(t[0], t[1], t[2], t[3], t[4]) </TD> \n </TR> \n')
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
@@ -559,8 +554,8 @@ def p_procedure(t):
 
 def p_plpgsql_ending(t):
     '''
-        plpgsql_ending : exception end
-                       | end
+        plpgsql_ending : exception END
+                       | END
     '''
     set('<TR> \n <TD> plpgsql_ending  → exception end: </TD> \n <TD> end = t[1] </TD> \n </TR> \n')
 
@@ -610,9 +605,6 @@ def p_declare(t):
 def p_function(t):
     '''
         function : CREATE FUNCTION ID PARIZQ arguments function_ending
-                 | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
-                 | CREATE FUNCTION ID PARIZQ function_ending
-                 | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
     '''
     t[0] = funheader(t[3], t[5], 1, 1)
     set('<TR> \n <TD> function → CREATE FUNCTION ID PARIZQ arguments function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending | CREATE FUNCTION ID PARIZQ function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending : </TD> \n <TD>  function = function(t[2], t[4]) </TD> \n </TR> \n')
@@ -1978,7 +1970,8 @@ def p_expSimples_ID(t):
     '''
         expSimple : ID
     '''
-    t[0] = indexador_auxiliar(t[1], t[1], 4)
+    #t[0] = indexador_auxiliar(t[1], t[1], 4)
+    t[0] = var_acceso(t[1], 1, 1)
     set('<TR> \n <TD> expSimple  → ID : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
 
 def p_expSimples_ID_PT_ID(t):
