@@ -247,7 +247,9 @@ reservadas = {
     'procedure' : 'PROCEDURE',
     'out' : 'OUT',
     'language' : 'LANGUAGE',
-    'plpgsql' : 'PLPGSQL'
+    'plpgsql' : 'PLPGSQL',
+    'rowtype' : 'ROWTYPE',
+    'alias' : 'ALIAS'
 # revisar funciones de tiempo y fechas
 }
 
@@ -481,6 +483,7 @@ def p_query(t):
                     | createIndex
                     | combinacionSelects PUNTOYCOMA
                     | execFunction
+                    
     '''
     nodeFather = nodeAst()
     nodeFather.token = 'QUERY'
@@ -2716,8 +2719,8 @@ def p_funcion_basica(t):
                         | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | EXTRACT PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA
-                        | CURRENT_DATE PARENTESISIZQUIERDA operacion PARENTESISDERECHA
-                        | CURRENT_TIME PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | CURRENT_TIME 
+                        | CURRENT_DATE 
     '''
     if t[1].upper()=="ABS":
         nodeFather = nodeAst()
@@ -6019,6 +6022,11 @@ def p_execOption_2(t):
     nodeFather.son.append(nodeSon1)
 
     t[0] = nodeFather
+
+
+
+    
+
 
 
 def find_column(input, token):
