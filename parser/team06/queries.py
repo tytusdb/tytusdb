@@ -433,7 +433,8 @@ class CreateIndex(query):
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
         Recibe como parametro el contenido de expresiones extras de la variante de ADD
     '''
-    def __init__(self,id1, id2, listaid):
+    def __init__(self,tipo, id1, id2, listaid):
+        self.tipo = tipo
         self.id1 = id1
         self.id2 = id2
         self.listaid = listaid
@@ -443,7 +444,8 @@ class CreateIndexParams(query):
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
         Recibe como parametro el contenido de expresiones extras de la variante de ADD
     '''
-    def __init__(self,id1,id2,id3,indexParams):
+    def __init__(self,tipo,id1,id2,id3,indexParams):
+        self.tipo = tipo
         self.id1 = id1
         self.id2 = id2
         self.id3 = id3
@@ -454,7 +456,8 @@ class CreateIndexWhere(query):
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
         Recibe como parametro el contenido de expresiones extras de la variante de ADD
     '''
-    def __init__(self,id1,id2,id3,whereOptions):
+    def __init__(self,tipo,id1,id2,id3,whereOptions):
+        self.tipo = tipo
         self.id1 = id1
         self.id2 = id2
         self.id3 = id3
@@ -466,14 +469,15 @@ class CreateIndexParamsWhere(query):
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
         Recibe como parametro el contenido de expresiones extras de la variante de ADD
     '''
-    def __init__(self,id1,id2,id3,indexParams,whereOptions):
+    def __init__(self,tipo,id1,id2,id3,indexParams,whereOptions):
+        self.tipo = tipo
         self.id1 = id1
         self.id2 = id2
         self.id3 = id3
         self.indexParams = indexParams
         self.whereOptions = whereOptions
 
-class callFunction(query):
+class execFunction(query):
     '''
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
         Recibe como parametro el contenido de expresiones extras de la variante de ADD
@@ -481,7 +485,7 @@ class callFunction(query):
     def __init__(self,id1):
         self.id1 = id1
 
-class callFunctionParams(query):
+class execFunctionParams(query):
     '''
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
         Recibe como parametro el contenido de expresiones extras de la variante de ADD

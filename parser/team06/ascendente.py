@@ -81,66 +81,138 @@ def procesar_showdb(query,ts):
         return h.textosalida
 
 def procesar_createindex(query,ts):
+    print("TIPO:",query.tipo)
     print(query.id1)
     print(query.id2)
     print(query.listaid)
+    tipo = query.tipo
     idIndex = query.id1
     idTabla = query.id2
-
-    if ts.verificarIndex(idIndex,h.bd_enuso,idTabla) == 0:
-        simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,query.listaid,None,None,None)
+    ids = query.listaid
+        
+    ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    if h.index == 0:
+        simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,ids,None,None,None,tipo,None,None,None)
         ts.agregarnuevoIndex(simbolo)
         print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
         h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+    elif h.index == 2:
+        h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
+        return "No hay una BD en uso"
+    elif h.index == 3:
+        h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
+        return "La tabla donde quiere crear el indice no existe"
+    elif h.index == 4:
+        h.textosalida+="TYTUS>> No se puede crear no hay tablas ni bd existentes"+ "\n"
+        return "No se puede crear no hay tablas ni bd existentes"
     else:
-        print("TYTUS>> Ya existe un indice con el mismo nombre en" + h.bd_enuso)
-        h.textosalida+="TYTUS>> Ya existe un indice con el mismo nombre en" + str(h.bd_enuso) + "\n"
-        return "Ya existe una Tabla con id: "+str(query.idTable)
+        h.textosalida+="TYTUS>> Ya existe el indice"+ "\n"
+        return "Ya existe el indice"
+
+
 
 def procesar_createindexParams(query,ts):
+    print("TIPO:",query.tipo)
     print(query.id1)
     print(query.id2)
     print(query.id3)
     print(query.indexParams)
+    tipo = query.tipo
     idIndex = query.id1
     idTabla = query.id2
     idColumn = query.id3
     idParams = query.indexParams
-    parametro = ""
-
-    if ts.verificarIndex(idIndex,h.bd_enuso,idTabla) == 0:
+    ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    if h.index == 0:
         if isinstance(idParams,SortOptions):
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,[idColumn,idParams.sort,idParams.option],None,None,None)
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,[idParams.sort,idParams.option],None,None)
             ts.agregarnuevoIndex(simbolo)
             print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
         else:
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,[idColumn,idParams],None,None,None)
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,idParams,None,None)
             ts.agregarnuevoIndex(simbolo)
             print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+    elif h.index == 2:
+        h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
+        return "No hay una BD en uso"
+    elif h.index == 3:
+        h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
+        return "La tabla donde quiere crear el indice no existe"
     else:
-        print("TYTUS>> Ya existe un indice con el mismo nombre en " + h.bd_enuso)
-        h.textosalida+="TYTUS>> Ya existe un indice con el mismo nombre en " + str(h.bd_enuso) + "\n"
-        return "Ya existe una Tabla con id: "+str(query.idTable)
+        h.textosalida+="TYTUS>> Ya existe el indice"+ "\n"
+        return "Ya existe el indice"
+
+
 
 def procesar_createindexWhere(query,ts):
+    print(query.tipo)
     print(query.id1)
     print(query.id2)
     print(query.id3)
     print(query.whereOptions)
+    tipo = query.tipo
+    idIndex = query.id1
+    idTabla = query.id2
+    ids = query.id3    
+
+    ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    if h.index == 0:
+        simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,ids,None,None,None,tipo,None,None,None)
+        ts.agregarnuevoIndex(simbolo)
+        print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+        h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+    elif h.index == 2:
+        h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
+        return "No hay una BD en uso"
+    elif h.index == 3:
+        h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
+        return "La tabla donde quiere crear el indice no existe"
+    else:
+        h.textosalida+="TYTUS>> Ya existe el indice"+ "\n"
+        return "Ya existe el indice"
 
 def procesar_createindexParamsWhere(query,ts):
+    print(query.tipo)
     print(query.id1)
     print(query.id2)
     print(query.id3)
     print(query.indexParams)
     print(query.whereOptions)
 
-def procesar_callFunction(query,ts):
+    idIndex = query.id1
+    idTabla = query.id2
+    idColumn = query.id3
+    idParams = query.indexParams
+    tipo = query.tipo
+
+    ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    if h.index == 0:
+        if isinstance(idParams,SortOptions):
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,[idParams.sort,idParams.option],None,None)
+            ts.agregarnuevoIndex(simbolo)
+            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+        else:
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,idParams,None,None)
+            ts.agregarnuevoIndex(simbolo)
+            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+    elif h.index == 2:
+        h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
+        return "No hay una BD en uso"
+    elif h.index == 3:
+        h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
+        return "La tabla donde quiere crear el indice no existe"
+    else:
+        h.textosalida+="TYTUS>> Ya existe el indice"+ "\n"
+        return "Ya existe el indice"
+
+def procesar_execFunction(query,ts):
     print(query.id1)
 
-def procesar_callFunctionParams(query,ts):
+def procesar_execFunctionParams(query,ts):
     print(query.id1)
     print(query.listaid)
 
@@ -3374,8 +3446,8 @@ def procesar_queries(queries, ts) :
         elif isinstance(query,QueryIntersect): procesar_intersect(query,ts)
         elif isinstance(query,QueryExcept): procesar_except(query,ts)
         elif isinstance(query,Select6): procesar_select_Tipo6(query,ts)
-        elif isinstance(query, callFunction) : procesar_callFunction(query, ts)
-        elif isinstance(query, callFunctionParams) : procesar_callFunctionParams(query, ts)
+        elif isinstance(query, execFunction) : procesar_execFunction(query, ts)
+        elif isinstance(query, execFunctionParams) : procesar_execFunctionParams(query, ts)
         else : 
             print('Error: instrucción no válida')
             h.errores+=  "<tr><td>"+str(query)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La consulta no es valida.</td></tr>\n"  
@@ -3438,7 +3510,11 @@ def generarReporteSimbolos(ruta):
         val+="<td>"+str(ts_global.simbolos[simbolo].valor)+"</td>"
         val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>" 
         val+="<td>"+str(ts_global.simbolos[simbolo].idConstraintFK)+"</td>"
-        val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>"   
+        val+="<td>"+str(ts_global.simbolos[simbolo].idConstraintPK)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].tipoIndex)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].sortIndex)+"</td>" 
+        val+="<td>"+str(ts_global.simbolos[simbolo].ambito)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].rol)+"</td>"     
         val+="</tr>\n"
     #construyo el archivo html
     print("manda los datos")

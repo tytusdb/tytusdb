@@ -10,7 +10,7 @@ class TIPO_DE_DATO(Enum) :
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'
 
-    def __init__(self, id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default, idConstraintFK, idConstraintPK) :
+    def __init__(self, id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default, idConstraintFK, idConstraintPK, tipoIndex, sortIndex, ambito, rol) :
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -31,6 +31,10 @@ class Simbolo() :
         self.default = default
         self.idConstraintFK = idConstraintFK
         self.idConstraintPK = idConstraintPK
+        self.tipoIndex = tipoIndex
+        self.sortIndex = sortIndex
+        self.ambito = ambito
+        self.rol = rol
         
 
 
@@ -623,6 +627,15 @@ class TablaDeSimbolos() :
     def verificarIndex(self,nombre,BD,tabla):
         clave = str(nombre) + str(BD) + str(tabla)
         if not clave in self.simbolos :
-            h.textosalida+='Error: El indice: ' + nombre + ' no definida.'+"\n"
-            return 0
+            for simb in self.simbolos:
+                if BD == '' :
+                    print("NO HAY BD")
+                    h.index = 2
+                elif self.simbolos[simb].tabla != tabla:
+                    print("NO HAY TABLA")
+                    h.index = 3
+                else:
+                    print("SI SE PUEDE CREAR")
+                    h.index = 0
+            h.index = 4
         return 1
