@@ -647,3 +647,129 @@ class exp_idp(expresion):
         valor = tmp
         #print(codigo,valor)
         return codigo,valor
+
+class exp_mayorp(expresion):
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} > {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
+
+class exp_menorp(expresion):
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} < {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
+
+class exp_igualp(expresion):
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} == {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
+
+class exp_mayor_igualp(expresion):
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} >= {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
+
+class exp_menor_igualp(expresion):
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} <= {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
+
+class exp_diferentep(expresion):
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} != {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
