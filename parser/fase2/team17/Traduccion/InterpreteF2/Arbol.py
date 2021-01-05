@@ -47,16 +47,27 @@ class Arbol:
         return self.C3D
 
     def addIdentacion(self):
-        self.contadorIdentacion = self.contadorIdentacion + 1
+        if self.C3D_inficador == 0:
+            self.contadorIdentacion = self.contadorIdentacion + 1
+        else:
+            self.contadorIdentacion_funciones = self.contadorIdentacion_funciones + 1
 
     def popIdentacion(self):
-        self.contadorIdentacion = self.contadorIdentacion - 1
+        if self.C3D_inficador == 0:
+            self.contadorIdentacion = self.contadorIdentacion - 1
+        else:
+            self.contadorIdentacion_funciones = self.contadorIdentacion_funciones - 1
 
     def getIdentacion(self):
         indentacion = ''
-        iterador = range(self.contadorIdentacion)
-        for i in iterador:
-            indentacion = indentacion + '\t'
+        if self.C3D_inficador == 0:
+            iterador = range(self.contadorIdentacion)
+            for i in iterador:
+                indentacion = indentacion + '\t'
+        else:
+            iterador = range(self.contadorIdentacion_funciones)
+            for i in iterador:
+                indentacion = indentacion + '\t'
         return indentacion
 
     # ---------------- Soporte de acesos
@@ -69,12 +80,6 @@ class Arbol:
     def getC3D_funciones(self):
         return self.C3Dfunciones
 
-    def addIdentacion_funciones(self):
-        self.contadorIdentacion_funciones = self.contadorIdentacion_funciones + 1
-
-    def popIdentacion_funciones(self):
-        self.contadorIdentacion_funciones = self.contadorIdentacion_funciones - 1
-
     def getIdentacion_funciones(self):
         indentacion = ''
         iterador = range(self.contadorIdentacion_funciones)
@@ -84,3 +89,4 @@ class Arbol:
 
     def resetIdentacion_funciones(self):
         self.contadorIdentacion_funciones = 0
+        self.C3Dfunciones = self.C3Dfunciones + "\n"

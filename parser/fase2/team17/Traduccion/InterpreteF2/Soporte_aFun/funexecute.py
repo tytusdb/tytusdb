@@ -17,13 +17,22 @@ class funexecute(NodoArbol):
         pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        arbol.switchC3Dfunciones()
+
         argumentos_puros = self.header.getArgumentos()
         arbol.addC3D("def " + str(self.header.getID()) + "(" + str(argumentos_puros) + "):")
+
+        arbol.resetIdentacion_funciones()
+        arbol.addIdentacion()
+
         self.header.traducir(entorno, arbol)
         for item in self.stmt_declare:
             item.traducir(entorno, arbol)
         for item in self.stmt_body:
             item.traducir(entorno, arbol)
+
+        arbol.resetIdentacion_funciones()
+        arbol.switchC3Dmain()
         return
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):

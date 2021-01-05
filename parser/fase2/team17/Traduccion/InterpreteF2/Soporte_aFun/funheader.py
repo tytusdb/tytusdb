@@ -34,6 +34,11 @@ class funheader(NodoArbol):
 
     def getArgumentos(self):
         argumentos = ""
+        contador = 0
         for item in self.argumentos:
-            argumentos = argumentos + ', ' + str(item.getID())
+            if contador == 0:
+                argumentos = argumentos + str(item.getID())
+                contador = 1
+            else:
+                argumentos = argumentos + ', ' + str(item.getID())
         return argumentos
