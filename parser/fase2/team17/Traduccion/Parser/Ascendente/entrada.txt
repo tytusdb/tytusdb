@@ -9,9 +9,16 @@ begin
     update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into strict var1;
     delete from tbfuncionesmath where idfuncion = 1 RETURNING col1,col2 into var1;
 end;
-
+CREATE INDEX test3_desc_index 	ON test3 (id DESC NULLS LAST, id DESC NULLS LAST);
 
 SELECT ValidaRegistros('lol exd',456 );
+
+
+CREATE INDEX mytable_cat_1 ON mytable (data) WHERE category = 1;
+
+CREATE INDEX access_log_client_ip_ix ON access_log (client_ip)
+     WHERE NOT (client_ip > inet '192.168.100.0' ANDi2
+     client_ip < inet '192.168.100.255');
 
 
 

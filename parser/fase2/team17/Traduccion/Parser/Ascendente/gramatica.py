@@ -46,12 +46,17 @@ ArbolErrores:Arbol = Arbol(None)
 
 reservadas = {
 
+    # INDEXES
+    'index': 'INDEX',
+    'hash': 'HASH',
 
     'raise': 'RAISE',
     'notice': 'NOTICE',
     'returning': 'RETURNING',
     'strict': 'STRICT',
     'perfom': 'PERFORM',
+
+
     # Boolean Type
     'boolean': 'BOOLEAN',
     'true': 'TRUE',
@@ -497,6 +502,7 @@ def p_instruction(t):
                         |  plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp
                         |  plpgsql
                         |  statements
+                        |  index
     '''
     t[0] = t[1]
     set('<TR> \n <TD> instruction → DataManipulationLenguage | plpgsql PTCOMA DOLAR DOLAR LANGUAGE exp | plpgsql | stmts : </TD> \n <TD>  instruction = NodoAst(t[0]) </TD> \n </TR> \n')
@@ -898,8 +904,6 @@ def p_returning(t):
 
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
 
-
-
 #callfunction
 
 def p_callfunction(t):
@@ -908,6 +912,51 @@ def p_callfunction(t):
     '''
     set('<TR> \n <TD> callfunction → SELECT ID PARIZQ exp_list PARDER: </TD> \n <TD> callfunction = call_function(t[2], t[4]) </TD> \n </TR> \n')
 
+
+# ================= INDEX =================
+
+def p_create_index(t):
+    '''
+        index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER
+              | CREATE        INDEX ID ON ID             PARIZQ index_params PARDER conditions
+              | CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER conditions
+              | CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER
+              | CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER
+              | CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER conditions
+    '''
+
+
+
+def p_index_params(t):
+    '''
+        index_params    : index_params COMA index_param
+                        | index_param
+    '''
+
+
+def p_index_param(t):
+    '''
+        index_param     :  ID options
+                        |  ID
+    '''
+
+
+def p_options(t):
+    '''
+        options    : options option
+                   | option
+    '''
+
+
+def p_option(t):
+    '''
+        option    : COLLATE
+                  | ASC
+                  | DESC
+                  | NULLS
+                  | FIRST
+                  | LAST
+    '''
 
 # ------------------------------------------------------------------------------------------
 # --------------------------------Fin PL/PGSQL ---------------------------------------------
