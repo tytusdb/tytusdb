@@ -21,6 +21,8 @@ global conteoTemporales
 conteoTemporales=0
 global conteoEtiquetas
 conteoEtiquetas=0
+global ayudanteCase
+ayudanteCase=""
 
 global reportitoOptimizado
 reportitoOptimizado=""

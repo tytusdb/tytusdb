@@ -484,6 +484,7 @@ def p_query(t):
                     | combinacionSelects PUNTOYCOMA
                     | execFunction
                     
+                    
     '''
     nodeFather = nodeAst()
     nodeFather.token = 'QUERY'
@@ -1796,7 +1797,9 @@ def p_variantesAt_3(t):
 
     t[0]=nodeFather
 
-    
+#---------------------------------------------STATEMENT IF -------------------------------------------------------
+
+#---------------------------------------------TERMINAN STATEMENTS BYRON ------------------------------------------    
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaContAlter(t):
     '''
