@@ -8,6 +8,7 @@ import os
 import pickle
 import re
 import shutil
+import csv
 
 
 class Handler:
@@ -46,3 +47,16 @@ class Handler:
         os.makedirs('data')
         f = open('./data/mainRoot.dat', 'wb')
         f.close()
+
+    @staticmethod
+    def writer(name, tuples):
+        with open(name + '.csv', mode='w', newline='') as f:
+            writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerows(tuples)
+
+    @staticmethod
+    def delete(filename):
+        try:
+            os.remove(filename)
+        except:
+            print("No se encontró el archivo")

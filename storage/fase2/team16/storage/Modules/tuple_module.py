@@ -21,7 +21,7 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     action = actionCreator(tmp.mode, 'insert', ['database', 'table', 'register'])
                     return eval(action)
@@ -37,7 +37,7 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     action = actionCreator(tmp.mode, 'loadCSV', ['file', 'database', 'table'])
                     return eval(action)
@@ -52,7 +52,7 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     action = actionCreator(tmp.mode, 'extractRow', ['database', 'table', 'columns'])
                     return eval(action)
@@ -67,7 +67,7 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     action = actionCreator(tmp.mode, 'update', ['database', 'table', 'register', 'columns'])
                     return eval(action)
@@ -83,7 +83,7 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     action = actionCreator(tmp.mode, 'delete', ['database', 'table', 'columns'])
                     return eval(action)
@@ -99,7 +99,7 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     action = actionCreator(tmp.mode, 'truncate', ['database', 'table'])
                     return eval(action)

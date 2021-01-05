@@ -8,6 +8,9 @@ from .Modules.database_module import DatabaseModule
 from .Modules.table_module import TableModule
 from .Modules.tuple_module import TupleModule
 
+from .Modules.Complements import security as SEC
+from .Modules.Complements import checksum as CHECK
+
 DB = DatabaseModule()
 TBL = TableModule()
 TPL = TupleModule()
@@ -28,6 +31,26 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
 
 def dropDatabase(database: str) -> int:
     return DB.dropDatabase(database)
+
+
+def alterDatabaseMode(database: str, mode: str) -> int:
+    return DB.alterDatabaseMode(database, mode)
+
+
+def alterTableMode(database: str, table: str, mode: str) -> int:
+    return DB.alterTableMode(database, table, mode)
+
+
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    return DB.alterDatabaseEncoding(database, encoding)
+
+
+def alterDatabaseCompress(database: str, level: int) -> int:
+    return DB.alterDatabaseCompress(database, level)
+
+
+def alterDatabaseDecompress(database: str) -> int:
+    return DB.alterDatabaseDecompress(database)
 
 
 #  endregion
@@ -57,14 +80,6 @@ def alterDropPK(database: str, table: str) -> int:
     return TBL.alterDropPK(database, table)
 
 
-def alterAddFK(database: str, table: str, references: dict) -> int:
-    return TBL.alterAddFK(database, table, references)
-
-
-def alterAddIndex(database: str, table: str, references: dict) -> int:
-    return TBL.alterAddIndex(database, table, references)
-
-
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
     return TBL.alterTable(database, tableOld, tableNew)
 
@@ -79,6 +94,46 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 
 def dropTable(database: str, table: str) -> int:
     return TBL.dropTable(database, table)
+
+
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
+    return TBL.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef)
+
+
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    return TBL.alterTableDropFK(database, table, indexName)
+
+
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
+    return TBL.alterTableAddUnique(database, table, indexName, columns)
+
+
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+    return TBL.alterTableDropUnique(database, table, indexName)
+
+
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+    return TBL.alterTableAddIndex(database, table, indexName, columns)
+
+
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    return TBL.alterTableDropIndex(database, table, indexName)
+
+
+def alterTableCompress(database: str, table: str, level: int) -> int:
+    return TBL.alterTableCompress(database, table, level)
+
+
+def alterTableDecompress(database: str, table: str) -> int:
+    return TBL.alterTableDecompress(database, table)
+
+
+def safeModeOn(database: str, table: str) -> int:
+    return TBL.safeModeOn(database, table)
+
+
+def safeModeOff(database: str, table: str) -> int:
+    return TBL.safeModeOff(database, table)
 
 
 # endregion
@@ -110,6 +165,27 @@ def truncate(database: str, table: str) -> int:
 
 # endregion
 
+# region Checksum
+def checksumDatabase(database: str, mode: str) -> str:
+    return CHECK.checksumDatabase(database, mode)
+
+
+def checksumTable(database: str, table: str, mode: str) -> str:
+    return CHECK.checksumTable(database, table, mode)
+
+
+# endregion
+
+# region Security
+def encrypt(backup: str, password: str) -> str:
+    return SEC.encrypt(backup, password)
+
+
+def decrypt(cipherBackup: str, password: str) -> str:
+    return SEC.decrypt(cipherBackup, password)
+
+
+# endregion
 
 def dropAll():
     return DB.dropAll()

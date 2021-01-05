@@ -4,8 +4,17 @@
 # Developers: SG#16
 
 
-from .handler import Handler
 from ..path import *
+from .handler import Handler
+from .Complements.security import Blockchain
+
+
+class Table:
+    def __init__(self, name: str, mode: str, numberColumns: int):
+        self.name = name
+        self.mode = mode
+        self.numberColumns = numberColumns
+        self.pk = []
 
 
 class TableModule:
@@ -21,13 +30,13 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if not table.lower() in listtmp:
                     result = 1
                     action = actionCreator(tmp.mode, 'createTable', ['database', 'table', 'numberColumns'])
                     result = eval(action)
                     if result == 0:
-                        self.dbs[index].tablesName.append(table)
+                        self.dbs[index].tables.append(Table(table, tmp.mode, numberColumns))
                         self.handler.rootupdate(self.dbs)
                     return result
                 return 3
@@ -42,7 +51,8 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             for i in self.dbs:
                 if database.upper() == i.name.upper():
-                    return i.tablesName
+                    tables = [x.name for x in i.tables]
+                    return tables
             return None
         except:
             return None
@@ -54,7 +64,7 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     action = actionCreator(tmp.mode, 'extractTable', ['database', 'table'])
                     return eval(action)
@@ -69,7 +79,7 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     action = actionCreator(tmp.mode, 'extractRangeTable',
                                            ['database', 'table', 'columnNumber', 'lower', 'upper'])
@@ -86,11 +96,16 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     result = 1
                     action = actionCreator(tmp.mode, 'alterAddPK', ['database', 'table', 'columns'])
-                    return eval(action)
+                    result = eval(action)
+                    if result == 0:
+                        element = next(x for x in tmp.tables if x.name.lower() == table.lower())
+                        self.dbs[index].tables[self.dbs[index].tables.index(element)].pk = columns
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
@@ -103,24 +118,20 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
                     result = 1
                     action = actionCreator(tmp.mode, 'alterDropPK', ['database', 'table'])
-                    return eval(action)
+                    result = eval(action)
+                    if result == 0:
+                        element = next(x for x in tmp.tables if x.name.lower() == table.lower())
+                        self.dbs[index].tables[self.dbs[index].tables.index(element)].pk = []
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
             return 1
-
-    # region Phase 2
-    def alterAddFK(self, database: str, table: str, references: dict) -> int:  # para fase 2
-        pass
-
-    def alterAddIndex(self, database: str, table: str, references: dict) -> int:  # para fase 2
-        pass
-
-    # endregion
 
     def alterTable(self, database: str, tableOld: str, tableNew: str) -> int:
         try:
@@ -130,7 +141,7 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if tableOld.lower() in listtmp:
                     if not tableNew.lower() in listtmp:
                         result = 1
@@ -142,7 +153,7 @@ class TableModule:
                                 if x == tableOld.lower():
                                     i = listtmp.index(x)
                                     break
-                            self.dbs[index].tablesName[i] = tableNew
+                            self.dbs[index].tables[i].name = tableNew
                             self.handler.rootupdate(self.dbs)
                         return result
                     return 4
@@ -158,11 +169,15 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
-                    result = 1
                     action = actionCreator(tmp.mode, 'alterAddColumn', ['database', 'table', 'default'])
-                    return eval(action)
+                    result = eval(action)
+                    if result == 0:
+                        element = next(x for x in tmp.tables if x.name.lower() == table.lower())
+                        self.dbs[index].tables[self.dbs[index].tables.index(element)].numberColumns += 1
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
@@ -175,11 +190,15 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
-                    result = 1
                     action = actionCreator(tmp.mode, 'alterDropColumn', ['database', 'table', 'columnNumber'])
-                    return eval(action)
+                    result = eval(action)
+                    if result == 0:
+                        element = next(x for x in tmp.tables if x.name.lower() == table.lower())
+                        self.dbs[index].tables[self.dbs[index].tables.index(element)].numberColumns -= 1
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
@@ -192,14 +211,15 @@ class TableModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.lower() for x in tmp.tablesName]
+                listtmp = [x.name.lower() for x in tmp.tables]
                 if table.lower() in listtmp:
 
                     result = 1
                     action = actionCreator(tmp.mode, 'dropTable', ['database', 'table'])
                     result = eval(action)
                     if result == 0:
-                        self.dbs[index].tablesName.remove(table)
+                        aux = next(x for x in tmp.tables if x.name.lower() == table.lower())
+                        self.dbs[index].tables.remove(aux)
                         self.handler.rootupdate(self.dbs)
                     return result
 
@@ -207,6 +227,37 @@ class TableModule:
             return 2
         except:
             return 1
+
+    def alterTableAddFK(self, database: str, table: str, indexName: str, columns: list, tableRef: str,
+                        columnsRef: list) -> int:
+        pass
+
+    def alterTableDropFK(self, database: str, table: str, indexName: str) -> int:
+        pass
+
+    def alterTableAddUnique(self, database: str, table: str, indexName: str, columns: list) -> int:
+        pass
+
+    def alterTableDropUnique(self, database: str, table: str, indexName: str) -> int:
+        pass
+
+    def alterTableAddIndex(self, database: str, table: str, indexName: str, columns: list) -> int:
+        pass
+
+    def alterTableDropIndex(self, database: str, table: str, indexName: str) -> int:
+        pass
+
+    def alterTableCompress(self, database: str, table: str, level: int) -> int:
+        pass
+
+    def alterTableDecompress(self, database: str, table: str) -> int:
+        pass
+
+    def safeModeOn(self, database: str, table: str) -> int:
+        pass
+
+    def safeModeOff(self, database: str, table: str) -> int:
+        pass
 
     def _exist(self, database: str):
         tmp = None
