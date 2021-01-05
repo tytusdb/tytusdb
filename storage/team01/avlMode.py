@@ -48,7 +48,7 @@ def alterDatabase(databaseOld: str, databaseNew) -> int:
 #Elimina por completo la base de datos indicada en database. (DELETE)
 def dropDatabase(database: str) -> int:
     try:
-        if not databaseOld.isidentifier() or not databaseNew.isidentifier():
+        if not database.isidentifier():
             raise Exception()
         res = mBBDD.quitar(database)
         if res == 0:
@@ -67,6 +67,17 @@ def showDatabases() -> list:
             return list(mBBDD.raiz)
     except:
         return []
+
+# borrar todas las bases de datos
+def dropAll() -> int:
+    bases = showDatabases()    
+    if len(bases) != 0:
+        for data in bases:            
+            dropDatabase(str(data))
+        return 0
+    else:
+        return 1
+
 
 #Crea una tabla en una base de datos especificada
 def createTable(database: str, table: str, numberColumns: int) -> int:

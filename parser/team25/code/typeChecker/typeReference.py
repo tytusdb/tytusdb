@@ -533,3 +533,9 @@ def getNull(db:str,table:str,column:str):
 
 def getCheck(db:str,table:str,column:str):
     return getColumns(db,table)[column]["Check"]
+
+def getPrecision(db:str,table:str,column:str):
+    return getLenght(db,table,column)["Precision"]
+
+def getScale(db:str,table:str,column:str):
+    return getLenght(db,table,column)["Scale"]

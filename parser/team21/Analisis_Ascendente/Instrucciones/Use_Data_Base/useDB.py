@@ -1,6 +1,6 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
 
 #from Instrucciones.instruccion import Instruccion
 #import Tabla_simbolos.TablaSimbolos as TS

@@ -1,11 +1,20 @@
+# Package: HashMode
+# Licence: Released under MIT License
+# Notice:  Copyright (c) 2020 TytusDB Team
+
+
 from DataBase import Database
 from Hash import TablaHash
+from graphviz import Digraph
 import os
 import pickle
+from os import remove
+from os import path
 databases = []
 
 def dropAll():
     databases.clear()
+    return 0
 
 """
 @return
@@ -94,6 +103,13 @@ def buscarDB(name):
                 return databases.index(db)
         return None
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla existente
+"""
 def createTable(database, table, nCols):
     try:
         flagDB = buscarDB(database)
@@ -107,6 +123,10 @@ def createTable(database, table, nCols):
         # print("Error en operacion")
         return 1
 
+"""
+@return
+    Lista con nombres de tablas, si no una lista vacía
+"""
 def showTables(database):
     tables = []
     for db in databases:
@@ -119,6 +139,10 @@ def showTables(database):
         return None        
     return tables
 
+"""
+@return
+    Lista con los registros de la tabla, sino None
+"""
 def extractTable(database, table):
     try:
         flagDB = buscarDB(database)
@@ -132,6 +156,10 @@ def extractTable(database, table):
         # print("Error en la operacion")
         return None
 
+"""
+@return
+    Lista con los registros entre el intervalo, sino None
+"""
 def extractRangeTable(database, table, columnNumber, lower, upper):
     try:
         flagDB = buscarDB(database)
@@ -145,6 +173,15 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
         # print("Error en la operacion")
         return None
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla existente
+    4 llave primaria existente
+    5 columnas fuera de rango
+"""
 def alterAddPK(database, table, columns):
     try:
         flagDB = buscarDB(database)
@@ -161,6 +198,14 @@ def alterAddPK(database, table, columns):
         # print("Error en operacion")
         return 1
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla existente
+    4 pk no existente
+"""
 def alterDropPK(database, table):
     try:
         indiceDB = buscarDB(database)
@@ -173,6 +218,14 @@ def alterDropPK(database, table):
     except:
         return 1
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla antigüa no existente
+    4 tabla nueva existente
+"""
 def alterTable(database, old, new):
     try:
         flagDB = buscarDB(database)
@@ -213,6 +266,15 @@ def alterAddColumn(database, table, default):
     except:
         return 1
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla antigüa no existente
+    4 llave no puede eliminarse o no se puede quedar sin columnas
+    5 columna fuera de límites
+"""
 def alterDropColumn(database, table, columnNumber):
     try:
         indiceDB = buscarDB(database)
@@ -225,6 +287,13 @@ def alterDropColumn(database, table, columnNumber):
     except:
         return 1
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla antigüa no existente
+"""
 def dropTable(database, table):
     try:
         indiceDB = buscarDB(database)
@@ -243,6 +312,15 @@ def dropTable(database, table):
         # print("Error en la operación")
         return 1
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla antigüa no existente
+    4 llave duplicada
+    5 columna fuera de límites
+"""
 def insert(database, table, register):
     try:    
         flagDB = buscarDB(database)
@@ -271,39 +349,44 @@ loadCSV()
     5 Columnas fuera de límites                     -
 """
 #18/12/2020
-def loadCSV(fileCSV, db, table,):
-    #try:
-    import csv
-        #verifica que la base de datos exista
-    indiceDB = buscarDB(db)
-    if indiceDB != None:
-        #verifica que la tabla exista en la base de datos
-        indiceTabla = databases[indiceDB].buscarTable(table)
-        if  indiceTabla != None:
-                #-------------------leee el csv
-            with open(fileCSV, 'r') as fileCsv:
-                lector = csv.reader(fileCsv, delimiter = ',')
-                tabla = databases[indiceDB].getTable(indiceTabla)
-                for f in lector:
-                    if len(f) <= databases[indiceDB].getTable(indiceTabla).getNumeroColumnas():
-                        value = tabla.insert(f)
-                        print(value, end="")
-                            # print(len(f))
-                            # print("operación exitosa")
-                    else:
-                            # print("Columnas fuera de límites")
-                        return 5
-                # print("Operación Exitosa")
-            return 0
-            # print("Tabla no existe")
-        return 3
-        # print("Database no existente")  
-    return 2
-    """except Exception as e:
-        print(e)
+def loadCSV(fileCSV, db, table):
+    try:
+        import csv
+            #verifica que la base de datos exista
+        indiceDB = buscarDB(db)
+        if indiceDB != None:
+            #verifica que la tabla exista en la base de datos
+            indiceTabla = databases[indiceDB].buscarTable(table)
+            if  indiceTabla != None:
+                    #-------------------leee el csv
+                with open(fileCSV, 'r') as fileCsv:
+                    lector = csv.reader(fileCsv, delimiter = ',')
+                    tabla = databases[indiceDB].getTable(indiceTabla)
+                    listaResultado = []
+                    for f in lector:
+                        if len(f) <= databases[indiceDB].getTable(indiceTabla).getNumeroColumnas():
+                            listaResultado.append(tabla.insertCSV(f))
+                                # print(len(f))
+                                # print("operación exitosa")
+                        else:
+                                # print("Columnas fuera de límites")
+                            raise
+                    
+                    return listaResultado
+                    # print("Operación Exitosa")
+                raise
+                # print("Tabla no existe")
+            raise
+            # print("Database no existente")  
+        raise
+    except :
         # print("Error en la operación")
-        return 1"""
+        return []
 
+"""
+@return
+    Lista con lo valores de la tupla, sino lista vacía
+"""
 def extractRow(database, table, columns):
     try:
         indiceDB = buscarDB(database)
@@ -316,6 +399,14 @@ def extractRow(database, table, columns):
     except:
         return 1
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla antigüa no existente
+    4 llave primaria no existe
+"""
 def update(database, table,register, columns):
     try:
         if isinstance(register,dict) and isinstance(columns, list):
@@ -348,6 +439,14 @@ def update(database, table,register, columns):
         # print("Error en operacion")
         return 1
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla antigüa no existente
+    4 llave primaria no existe
+"""
 def delete(database, table, columns):
     try:
         indiceDB = buscarDB(database)
@@ -360,6 +459,14 @@ def delete(database, table, columns):
     except:
         return 1
 
+"""
+@return
+    0 operación exitosa
+    1 error en la operación 
+    2 base de datos existente
+    3 tabla antigüa no existente
+    4 llave primaria no existe
+"""
 def truncate(database, table):
     try:
         indiceDB = buscarDB(database)
@@ -372,8 +479,10 @@ def truncate(database, table):
     except:
         return 1
 
-#generar inmagen con graphviz
-#18/12/2020
+"""
+@description
+    generación de grafo de bases de datos (lista enlazada)
+"""
 def generateGrafoDatabases():
     nombre = "grafoDatabases.dot"
     archivo = open(nombre, "w")
@@ -399,18 +508,37 @@ def generateGrafoDatabases():
     
     os.system("dot -Tpng " + nombre + " -o " + nombre + ".png")
 
+"""
+@description
+    crea un archibo DB para la persistencia de bases de datos
+"""
 def persistence():
-    archivo = open("DB", "wb")
-    pickle.dump(databases, archivo)
-    archivo.close()
+    try:
+        
+        archivo = open("DB", "wb")
+        pickle.dump(databases, archivo)
+        archivo.close()
 
+    except:
+        pass
+"""
+@description
+    carga todas las bases de datos guardadas en el archivo 
+"""
 def chargePersistence():
-    archivo = open("DB", "rb")
-    data = pickle.load(archivo)
-    databases = data[:]
-    archivo.close()
-    print("bases de datos cargadas")
-
+    try:
+        archivo = open("DB", "rb")
+        data = pickle.load(archivo)
+        for i in data:
+            databases.append(i)
+        archivo.close()
+        print("bases de datos cargadas")
+    except:
+        pass
+"""
+@description
+    generación de grafo de bases de datos (lista enlazada)
+"""
 def graphTable(db, table):
     try:
         indice = buscarDB(db)
@@ -419,16 +547,18 @@ def graphTable(db, table):
             if indiceTabla != None:
                 tabla = databases[indice].getTable(indiceTabla)
                 tabla.genGraph(table)
-                
-
     except:
         print("error")
 
+"""
+@description
+    generación de grafo de bases de datos (lista enlazada)
+"""
 def graphDB():
     BasesdeDatos = [] ##Esto agrega las bases de datos de tytus
     for l in databases:
         BasesdeDatos.append(l.name)
-    g = Digraph('G', filename='db.gv')
+    g = Digraph('G', filename='db.svg')
     g.graph_attr['rankdir'] = 'LR'
     g.attr('node', shape='box') ##Aqui creo mis nodos
     cont=0
@@ -443,6 +573,10 @@ def graphDB():
     g.attr(fontsize='20')
     g.view()
 
+"""
+@description
+    generación de grafo de bases de datos (lista enlazada)
+"""
 def graphTBL(db):
     Tablas=[] 
     try:
@@ -450,8 +584,8 @@ def graphTBL(db):
             Tablas.append(i)
     except:
         pass    
- 
-    g = Digraph('G', filename='db.gv')
+
+    g = Digraph('G', filename='db.svg')
     g.graph_attr['rankdir'] = 'LR'
     g.attr('node', shape='box') ##Aqui creo mis nodos
     cont=0

@@ -25,8 +25,9 @@ class Select(query) :
         Recibe como parámetro la variable como tal
     '''
 
-    def __init__(self, tipo, operacion) :
+    def __init__(self, tipo,bandera, operacion) :
         self.tipo = tipo
+        self.bandera=bandera
         self.operacion = operacion
 
 class Select2(query) :
@@ -37,7 +38,7 @@ class Select2(query) :
 
     def __init__(self, tipo, operacion1, operacion2) :
         self.tipo = tipo
-        self.operacion1 = operacion2
+        self.operacion1 = operacion1
         self.operacion2 = operacion2
 
 class CreateDatabases(query) :
@@ -323,6 +324,18 @@ class contAlter(query):
         self.tipo = tipo
         self.tipoAsignar = tipoAsignar
 
+class contCase(query):
+    '''
+        Esta clase representa el objeto contCase que conteiene
+        la información que viene dentro del case para su evaluación
+        correspondiente
+    '''
+    def __init__(self, when,then,contcase, elsee):
+        self.when = when
+        self.then = then
+        self.contcase = contcase
+        self.elsee = elsee
+
 class QueryWhere(query):
     '''
         Esta clase represente la variante de un alter anidado
@@ -367,3 +380,128 @@ class Select5(query) :
         self.operacion2 = operacion2
         self.operacion3 = operacion3
         self.operacion4 = operacion4
+
+class Tipo(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+
+    def __init__(self, operacion1,operacion2) :
+        self.operacion1 = operacion1
+        self.operacion2 = operacion2
+
+#--------------------------------------------------------------------------------------------------
+#                        selects con union, intersect y except
+
+class QueryUnion(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, select1,select2) :
+        self.select1 = select1
+        self.select2 = select2
+
+class QueryIntersect(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, select1,select2) :
+        self.select1 = select1
+        self.select2 = select2
+
+class QueryExcept(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, select1,select2) :
+        self.select1 = select1
+        self.select2 = select2
+
+
+class Select6(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, columnas,join) :
+        self.columnas = columnas
+        self.join = join
+class CreateIndex(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,tipo, id1, id2, listaid):
+        self.tipo = tipo
+        self.id1 = id1
+        self.id2 = id2
+        self.listaid = listaid
+
+class CreateIndexParams(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,tipo,id1,id2,id3,indexParams):
+        self.tipo = tipo
+        self.id1 = id1
+        self.id2 = id2
+        self.id3 = id3
+        self.indexParams = indexParams
+
+class CreateIndexWhere(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,tipo,id1,id2,id3,whereOptions):
+        self.tipo = tipo
+        self.id1 = id1
+        self.id2 = id2
+        self.id3 = id3
+        self.whereOptions = whereOptions
+
+
+class CreateIndexParamsWhere(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,tipo,id1,id2,id3,indexParams,whereOptions):
+        self.tipo = tipo
+        self.id1 = id1
+        self.id2 = id2
+        self.id3 = id3
+        self.indexParams = indexParams
+        self.whereOptions = whereOptions
+
+class execFunction(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1):
+        self.id1 = id1
+
+class execFunctionParams(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1,listaid):
+        self.id1 = id1
+        self.listaid = listaid

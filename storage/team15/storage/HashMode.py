@@ -504,7 +504,7 @@ def loadCSV(file: str, database: str, table: str) -> list:
     
     try:
 
-        archivo = open(file, "r")
+        archivo = open(file, "r", encoding="utf-8-sig")
 
         temp = _storage.Buscar(database)
 
@@ -524,9 +524,8 @@ def loadCSV(file: str, database: str, table: str) -> list:
                     for i in range(len(registro)):
 
                         if registro[i].isnumeric():
-                            registro[i]=int(registro[i])
-
-                    print("\n")
+                            nuevo=int(registro[i])
+                            registro[i]=nuevo
 
                     valores.append(tabla.insertar(registro))
 

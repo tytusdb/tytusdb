@@ -1,13 +1,15 @@
 from sys import path
 from os.path import dirname as dir
-from shutil import rmtree
+from prettytable import PrettyTable
 
 path.append(dir(path[0]))
 
-from analizer.abstract import instruction as inst
+from analizer.statement.instructions.select.select import Select
+from analizer.abstract import instruction
 from analizer import grammar
 from analizer.reports import BnfGrammar
-from analizer.abstract.instruction import envVariables as environments
+import pandas as pd
+from analizer.typechecker.Metadata import File
 
 
 def execution(input):
@@ -18,23 +20,28 @@ def execution(input):
     messages = []
     result = grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
-    if len(lexerErrors) + len(syntaxErrors) == 0:
+    syntaxErrors = grammar.returnSyntacticErrors()
+    if len(lexerErrors) + len(syntaxErrors) == 0 and result:
         for v in result:
-            if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
+            if isinstance(v, Select):
                 r = v.execute(None)
                 if r:
                     list_ = r[0].values.tolist()
                     labels = r[0].columns.tolist()
-                    print(list_)
                     querys.append([labels, list_])
+                    messages.append("Select ejecutado con exito.")
                 else:
                     querys.append(None)
+                    messages.append("Error: Select.")
+                # print(r[0].iloc[0].iloc[0])
+                # print(r)
             else:
                 r = v.execute(None)
+                print(r)
                 messages.append(r)
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
+    symbols = symbolReport()
     obj = {
         "messages": messages,
         "querys": querys,
@@ -42,7 +49,11 @@ def execution(input):
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
+        "symbols": symbols,
     }
+    printTable_PT(querys)
+    astReport()
+    BnfGrammar.grammarReport()
     return obj
 
 
@@ -52,53 +63,74 @@ def parser(input):
     """
     grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
-    syntaxErrors = grammar.returnSintacticErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
     obj = {
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
     }
-    print(obj)
+    astReport()
+    BnfGrammar.grammarReport()
     return obj
 
 
-def symbolReport():
-    global environments
-    report = []
+def astReport():
+    grammar.InitTree()
 
+
+def symbolReport():
+    environments = instruction.envVariables
+    report = []
     for env in environments:
-        vars =  env.variables
+        vars = env.variables
         types = env.types
-        enc = [['Alias','Nombre','Tipo','Fila','Columna']]
+        enc = [["Alias", "Nombre", "Tipo", "Fila", "Columna"]]
         filas = []
         for (key, symbol) in vars.items():
             r = [
-                key, symbol.value, symbol.type if not symbol.type
-                else 'Tabla',  symbol.row, symbol.column
-                ]
+                key,
+                symbol.value,
+                symbol.type if symbol.type else "Tabla",
+                symbol.row,
+                symbol.column,
+            ]
             filas.append(r)
-        
-        for (key, symbol) in types.items():
-            r = [
-                key, key, str(symbol) if not symbol else 'Columna',  
-                '-', '-'
-                ]
+        for (key, type_) in types.items():
+            r = [key, key, str(type_.name) if type_ else "Columna", "-", "-"]
             filas.append(r)
-        
         enc.append(filas)
         report.append(enc)
+    instruction.envVariables = list()
     return report
 
 
-s = """ 
-USE test*;
-select *
-from tbrol WHERE idrol > 0;
-"""
-r = """ 
-USE test[];
-select *
-from tbrol WHERE idrol > 0;
-"""
-# parser(s)
-# execution(r)
-# BnfGrammar.grammarReport()
+def indexReport():
+    index = File.importFile("Index")
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
+    filas = []
+    for (name, Index) in index.items():
+        columns = ""
+        for column in Index["Columns"]:
+            columns += ", " + column["Name"]
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
+    enc.append(filas)
+    return [enc]
+
+
+def printTable_PT(tables):
+    if tables != None:
+        i = 0
+        for table in tables:
+            i += 1
+            if table != None:
+                table_pt = PrettyTable()
+                fill_table(table[0], table[1], table_pt)
+                print(table_pt)
+            else:
+                print("Error: Consulta sin resultado")
+
+
+def fill_table(columns, rows, table):
+    table.field_names = columns
+    table.add_rows(rows)

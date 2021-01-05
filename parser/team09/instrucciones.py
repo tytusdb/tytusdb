@@ -20,8 +20,37 @@ class Select():
         #Llamar metodo que realizara el select
         print('ejecutando select')
 
+class AlterDB():
+    def __init__(self, oldid, newid):
+        self.oldid = oldid
+        self.newid = newid
+
+    def execute(self, ts):
+        db = ts.get_simbol(self.oldid)
+        mensaje = '\n****ALTER DATABASE****\n'
+        if isinstance(db, E.Errores):
+            mensaje = mensaje + '\tBase de datos no encontrada'
+            return mensaje
+        else:
+            actual = ts.get_dbActual()
+            if actual.id == self.oldid:
+                actual.id = self.newid
+                #recorer ts para cambiar el nomnre
+                for sim in ts.lis_simbolos:
+                    if sim.base == self.oldid:
+                        #cabiamos el id a la tabla
+                        sim.base = self.newid
+                        #recorremos sus columnas para cambiar el nombre de la base
+                        for col in sim.valor:
+                            col.base = self.newid
+
+            db.id = self.newid
+
+            mensaje = mensaje + '\tLa base de datos \'' + self.oldid + '\' cambio a \'' + self.newid + '\''
+            return mensaje
+
 class AlterTable():
-    def __init__(self, id, cols, base):
+    def __init__(self, id, cols, base): # id = nombre de la tabla, cols = las instrucciones que debe realizar, base = el nombre de la base de datos
         self.id = id
         self.cols = cols
         self.base = base
@@ -29,9 +58,9 @@ class AlterTable():
     def execute(self, ts):
         self.base = ts.get_dbActual().id
         mensaje = '\n****ALTER TABLE****\n'
+        #Agregar una columna nueva a la tabla
         if str(self.cols[0]).upper() == 'ADDCOL':
-            print('El tipo de la columnas es -> ' + str(self.cols[1].tipo))
-            print('El id de la columnas es -> ' + str(self.cols[1].id))
+            mensaje = mensaje + '---->ADD COLUMN\n'
             self.cols[1].base = self.base
             agregar = ts.agregar_columna(self.id, self.base, self.cols[1])
             if isinstance(agregar, E.Errores):
@@ -41,6 +70,82 @@ class AlterTable():
             else:
                 mensaje = mensaje + '\tColuma agregada con exito'
                 return mensaje
+        #Cambiar el tipo de dato de una columna
+        elif str(self.cols[0]).upper() == 'TYPE':
+            mensaje = mensaje + '---->ALTER TYPE\n'
+            columna = ts.get_column(self.base, self.id, self.cols[1])
+            #Verifica si la columna retorna un error
+            if isinstance(columna, E.Errores):
+                mensaje = mensaje + '\t' + columna.error + '\n'
+                return mensaje
+            else:
+                if columna.tipo == self.cols[2]:
+                    columna.longitud = self.cols[3]
+                    mensaje = mensaje + '\tColumna \'' + self.cols[1] + '\' modificada con éxito'
+                    return mensaje
+                else:
+                    mensaje = mensaje + '\tEl tipo no coincide'
+                    return mensaje
+        #Set constraint
+        elif str(self.cols[0]).upper() == 'SET':
+            mensaje = mensaje + '---->SET\n'
+            columna = ts.get_column(self.base, self.id, self.cols[1])
+            #Verifica si la columna retorna un error
+            if isinstance(columna, E.Errores):
+                mensaje = mensaje + '\t' + columna + '\n'
+                return mensaje
+            else:
+                columna.valor.append(self.cols[2])
+                mensaje = mensaje + '\tSe ha realizado el SET correctamente'
+                return mensaje
+        #Eliminar columna
+        elif str(self.cols[0]).upper() == 'DCOL':
+            mensaje = mensaje + '---->DROP COLUMN\n'
+            col = ts.drop_colum(self.base, self.id, self.cols[1])
+            if col == True:
+                mensaje = mensaje + '\tColumna eliminada correctamente'
+                return mensaje
+            else:
+                mensaje = mensaje + '\tNo se pudo eliminar la columna'
+                return mensaje
+        #Eliminar constraint
+        elif str(self.cols[0]).upper() == 'DCONS':
+            mensaje = mensaje + '---->DROP CONSTRAINT\n'
+            c = ts.drop_const(self.base, self.id, self.cols[1])
+            if c == True:
+                mensaje = mensaje + '\tConstraint eliminado correctamente'
+                return mensaje
+            else:
+                mensaje = mensaje + '\tNo se pudo eliminar el constraint'
+                return mensaje
+        #Agrega un constraint
+        elif str(self.cols[0]).upper() == 'CONST':
+            const = self.cols[1]
+            mensaje = mensaje + '---->ADD CONSTRAINT\n'
+            if const[0].columna == None:
+                mensaje = mensaje + '\tNo es posible agregar el constraint'
+                return mensaje
+            else:
+                ag = ts.get_column(self.base, self.id, const[0].columna)
+                if not isinstance(ag, E.Errores):
+                    if const[0].tipo == TS.t_constraint.FOREIGN:
+                        ag.fk = True
+                        ag.referencia = const[0].valor
+                        if const[0].id != None:
+                            ag.valor.append(const[0])
+                    elif const[0].tipo == TS.t_constraint.PRIMARY:
+                        ag.pk = True
+                        if const[0].id != None:
+                            ag.valor.append(const[0])
+                    else:
+                        print('---->Entró a otros')
+                        ag.valor.append(const[0])
+                    mensaje = mensaje + '\tSe agregó el constraint correctamente'
+                    return mensaje
+                else:
+                    mensaje = mensaje + '\tNo se pudo agregar el constraint'
+                    return mensaje
+
 
 class CreateDB():
     def __init__(self, replace, ifnot, id, owner, mode):    # boolean, boolean, string, string, integer
@@ -148,6 +253,22 @@ class DropDB():
                 mensaje = mensaje + '\tBase de datos eliminada con éxito\n'
                 return mensaje
 
+class DropTable():
+    def __init__(self, id, base):
+        self.id = id
+        self.base = base
+
+    def execute(self, ts):
+        mensaje = '\n****DROP TABLE****\n'
+        self.base = ts.get_dbActual().id
+        drop = ts.drop_table(self.base, self.id)
+        if drop == True:
+            mensaje = mensaje + '\tTabla \'' + self.id + '\' eliminada con exito'
+            return mensaje
+        else:
+            mensaje = mensaje + '\tNo se pudo eliminar la tabla'
+            return mensaje
+
 class CreateTable():
     def __init__(self, id, base, cols, inh,cont_key):
         self.id = id
@@ -191,6 +312,30 @@ class CreateTable():
                         columna.longitud =0
                 
                 ts.agregar_columna(self.id,self.base,columna)
+
+            '''
+            if self.cont_key != '':
+                for c in self.cont_key:
+                    ag = ts.get_column(self.base, self.id, c.columna)
+                    if not isinstance(ag, E.Errores):
+                        if const[0].tipo == TS.t_constraint.FOREIGN:
+                            ag.fk = True
+                            ag.referencia = const[0].valor
+                            if const[0].id != None:
+                                ag.valor.append(const[0])
+                        elif const[0].tipo == TS.t_constraint.PRIMARY:
+                            ag.pk = True
+                            if const[0].id != None:
+                                ag.valor.append(const[0])
+                        else:
+                            #print('---->Entró a otros')
+                            ag.valor.append(const[0])
+                        #mensaje = mensaje + '\tSe agregó el constraint correctamente'
+                        #return mensaje
+                    else:
+                        mensaje = mensaje + '\tNo se pudo agregar el constraint'
+                        #return mensaje
+            '''
             mensaje = mensaje + '\tTabla creada correctamente\n'
             j.createTable(self.base, self.id, len(self.cols))
             return mensaje
@@ -228,7 +373,90 @@ class InsertT():
         if c_campos == 0:                                   # si el contador de campos está en 0, hay errores al reconocerlos
             return                                          # entonces, se sale de la ejecución
         elif c_campos == -1:                                # si el contador de campos está en -1, se inserta en todos los campos
-            print('no trae campos, verifica cantidad de campos e inserta en todos')
+            l = -1                                          # variable para tener la posición de la lista de columnas
+            valo = None                                     # variable para manejar el valor
+            k = 0                                           # variable para tener la posición de la lista de valores
+            c_columnas = len(tabla.valor)                   # variable para saber la cantidad de columnas totales
+            if c_columnas == c_valores:                     # si coincide con la cantidad de valores que viene, se insertan
+                tipo_c = False                              #comprobar tipos
+                for col in tabla.valor:
+                    k = k + 1
+                    valo = self.valores[k]
+                    tipo_c = self.verifyType(col.tipo, valo)
+                    if not tipo_c:                              # se verifica el valor del campo, si no coincide es error
+                        new_error = E.Errores('Semántico.', 'No se puede insertar \'' + valor + '\' en la columna \'' + columna.id + '\'.')
+                        #ls_error.append(nuevo_Error)           # se agrega el error a la lista
+                        return                                  # sale de la ejecución
+                    errores = False
+                    if columna.tipo == TS.tipo_simbolo.VARCHR:  # se quitan las comillas de las cadenas
+                        self.valores[i] = ((self.valores[i]).split('\''))[1]
+                    for constraint in columna.valor:            # se recorre la lista de constraints si tuviera
+                        if constraint.tipo == TS.t_constraint.PRIMARY:
+                            tipo_c = self.isNull(columna.tipo, self.valores[i])
+                            if tipo_c:                          # si es nuleable, es error
+                                new_error = E.Errores('Semántico.', 'No puede venir null un campo con el constraint \'NOT NULL\'.')
+                                #ls_error.append(nuevo_Error)   # se agrega el error a la lista
+                                errores = True
+                            tipo_c = self.isUnique(columna.tipo, self.valores[i], ts_global.get_pos_column(tabla, columna))
+                            if not tipo_c:                      # si no es único, es error
+                                new_error = E.Errores('Semántico.', 'No pueden venir valores repetidos en un campo con el constraint \'UNIQUE\'.')
+                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                errores = True
+                        elif constraint.tipo == TS.t_constraint.NOT_NULL:
+                            tipo_c = self.isNull(columna.tipo, self.valores[i])
+                            if tipo_c:                          # si es nuleable, es error
+                                new_error = E.Errores('Semántico.', 'No puede venir null un campo con el constraint \'NOT NULL\'.')
+                                #ls_error.append(nuevo_Error)   # se agrega el error a la lista
+                                errores = True
+                        elif constraint.tipo == TS.t_constraint.UNIQUE:
+                            tipo_c = self.isUnique(columna.tipo, self.valores[i], ts_global.get_pos_column(tabla, columna))
+                            if not tipo_c:                      # si no es único, es error
+                                new_error = E.Errores('Semántico.', 'No pueden venir valores repetidos en un campo con el constraint \'UNIQUE\'.')
+                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                errores = True
+                        elif constraint.tipo == TS.t_constraint.DEFOULT:
+                            print('')
+                        elif constraint.tipo == TS.t_constraint.CHECK:
+                            valor = self.valores[i]
+                            if constraint.condicion == '<':
+                                if valor >= constraint.valor:
+                                    new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                    #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                    errores = True
+                            elif constraint.condicion == '>':
+                                if valor <= constraint.valor:
+                                    new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                    #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                    errores = True
+                            elif constraint.condicion == '>=':
+                                if valor < constraint.valor:
+                                    new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                    #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                    errores = True
+                            elif constraint.condicion == '<=':
+                                if valor > constraint.valor:
+                                    new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                    #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                    errores = True
+                            elif constraint.condicion == '=' or constraint.condicion == '==':
+                                if valor != constraint.valor:
+                                    new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                    #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                    errores = True
+                            elif constraint.condicion == '<>' or constraint.condicion == '<>':
+                                if valor == constraint.valor:
+                                    new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                    #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                    errores = True
+                            else:
+                                print(constraint.condicion)
+                        elif constraint.tipo == TS.t_constraint.FOREIGN:
+                            print('')
+                if errores:                                 # si hay cualquier tipo de error,
+                    return                                  # se retorna, si no, se inserta
+                j.insert(self.base, self.tabla, self.valores)
+            else:                                           # si no coincide, es error
+                new_error = E.Errores('Semántico.', 'No coincide la cantidad de campos a insertar.')
         elif c_campos != c_valores:                         # si la cantidad de campos es diferente a la cantidad de valores, es error
             new_error = E.Errores('Semántico.', 'La cantidad de campos a ingresar no coincide con la cantidad de valores.')
             #ls_error.append(nuevo_Error)                    # se agrega el error a la lista
@@ -239,91 +467,130 @@ class InsertT():
             columna = None                                  # variable para obtener la columna de la tabla de símbolos
             tipo_c = False                                  # variable para verificar los tipos de datos
             errores = False                                 # variable para verificar si hay errores
-            anterior = 0                                    # variable para llevar el índice anterior
+            i = 0                                           # índice para separar los campos/valores
             inserciones = []                                # arreglo para llevar las insercinoes
-            for i in range(c_campos):                       # se recorre la lista de campos y se buscan en la tabla de símbolos
-                if anterior != i:                           # si la lista de inserciones ya está llena
-                    for valor in inserciones:               # se recorre la lista de valores por campo
-                        tipo_c = self.verifyType(columna.tipo, valor)
-                        if not tipo_c:                      # se verifica el valor del campo, si no coincide es error
-                            new_error = E.Errores('Semántico.', 'No se puede insertar \'' + valor + '\' en la columna \'' + columna.id + '\'.')
-                            #ls_error.append(nuevo_Error)   # se agrega el error a la lista
-                            return                          # sale de la ejecución
-                    for constraint in columna.valor:        # se recorre la lista de constraints si tuviera
-                        if constraint.tipo == TS.t_constraint.NOT_NULL:
-                            tipo_c = self.isNull(columna.tipo, inserciones)
-                            if tipo_c:                      # si es nuleable, es error
-                                new_error = E.Errores('Semántico.', 'No puede venir null un campo con el constraint \'NOT NULL\'.')
-                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                errores = True
-                        elif constraint.tipo == TS.t_constraint.UNIQUE:
-                            tipo_c = self.isUnique(columna.tipo, inserciones)
-                            if not tipo_c:                  # si no es único, es error
-                                new_error = E.Errores('Semántico.', 'No pueden venir valores repetidos en un campo con el constraint \'UNIQUE\'.')
-                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                errores = True
-                        elif constraint.tipo == TS.t_constraint.PRIMARY:
-                            tipo_c = self.isNull(columna.tipo, inserciones)
-                            if tipo_c:                      # si es nulleable, es error
-                                new_error = E.Errores('Semántico.', 'La llave primaria no puede ser nula.')
-                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                errores = True
-                                break
-                            tipo_c = self.isUnique(columna.tipo, inserciones)
-                            if not tipo_c:                  # si no es único, es error
-                                new_error = E.Errores('Semántico.', 'La llave primaria debe ser única.')
-                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                errores = True
-                                break
-                        elif constraint.tipo == TS.t_constraint.DEFOULT:
-                            print('')
-                        elif constraint.tipo == TS.t_constraint.CHECK:
-                            for valor in inserciones:
-                                if constraint.condicion == '<':
-                                    if valor >= constraint.valor:
-                                        new_error = E.Errores('Semántico.', 'Violación del constraint check.')
-                                        #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                        errores = True
-                                elif constraint.condicion == '>':
-                                    if valor <= constraint.valor:
-                                        new_error = E.Errores('Semántico.', 'Violación del constraint check.')
-                                        #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                        errores = True
-                                elif constraint.condicion == '>=':
-                                    if valor < constraint.valor:
-                                        new_error = E.Errores('Semántico.', 'Violación del constraint check.')
-                                        #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                        errores = True
-                                elif constraint.condicion == '<=':
-                                    if valor > constraint.valor:
-                                        new_error = E.Errores('Semántico.', 'Violación del constraint check.')
-                                        #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                        errores = True
-                                elif constraint.condicion == '=' or constraint.condicion == '==':
-                                    if valor != constraint.valor:
-                                        new_error = E.Errores('Semántico.', 'Violación del constraint check.')
-                                        #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                        errores = True
-                                elif constraint.condicion == '<>' or constraint.condicion == '<>':
-                                    if valor == constraint.valor:
-                                        new_error = E.Errores('Semántico.', 'Violación del constraint check.')
-                                        #ls_error.append(nuevo_Error)# se agrega el error a la lista
-                                        errores = True
-                        elif constraint.tipo == TS.t_constraint.FOREIGN:
-                            print('')
-                    if errores:
-                        return
-                    #print(inserciones)
-                    # se insertan los datos
-                    inserciones = []
-                anterior = i                                # se actualiza el anterior
+            while i < c_campos:                             # se recorre la lista de campos y se buscan en la tabla de símbolos
                 campo = self.campos[i]                      # se obtiene un campo en el que se va a insertar
                 valor = self.valores[i]                     # se obtiene su valor a insertar
                 inserciones.append(valor)                   # se agrega el valor a insertar
                 columna = ts_global.get_column(self.base, self.tabla, campo)
-                print(i, campo, valor, columna, inserciones)
+                if isinstance(columna, E.Errores):          # si no se encuentra la columna, es error
+                    nuevo_error = E.Errores('Semántico.', 'No se ha encontrado el campo en la tabla indicada.')
+                    #ls_error.append(nuevo_error)            # se agrega el error a la lista
+                i = i + 1                                   # se aumenta el índice
+            i = 0                                           # se reinicia la variable para hacer comprobaciones
+            while i < c_campos:                             # se recorre la lista de inserciones
+                columna = ts_global.get_column(self.base, self.tabla, self.campos[i])
+                tipo_c = self.verifyType(columna.tipo, inserciones[i])
+                if not tipo_c:                              # se verifica el valor del campo, si no coincide es error
+                    new_error = E.Errores('Semántico.', 'No se puede insertar \'' + valor + '\' en la columna \'' + columna.id + '\'.')
+                    #ls_error.append(nuevo_Error)           # se agrega el error a la lista
+                    return                                  # sale de la ejecución
+                if columna.tipo == TS.tipo_simbolo.VARCHR:  # se quitan las comillas de las cadenas
+                    inserciones[i] = ((inserciones[i]).split('\''))[1]
+                for constraint in columna.valor:            # se recorre la lista de constraints si tuviera
+                    if constraint.tipo == TS.t_constraint.PRIMARY:
+                        tipo_c = self.isNull(columna.tipo, inserciones[i])
+                        if tipo_c:                          # si es nuleable, es error
+                            new_error = E.Errores('Semántico.', 'No puede venir null un campo con el constraint \'NOT NULL\'.')
+                            #ls_error.append(nuevo_Error)   # se agrega el error a la lista
+                            errores = True
+                        tipo_c = self.isUnique(columna.tipo, inserciones[i], ts_global.get_pos_column(tabla, columna))
+                        if not tipo_c:                      # si no es único, es error
+                            new_error = E.Errores('Semántico.', 'No pueden venir valores repetidos en un campo con el constraint \'UNIQUE\'.')
+                            #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                            errores = True
+                    elif constraint.tipo == TS.t_constraint.NOT_NULL:
+                        tipo_c = self.isNull(columna.tipo, inserciones[i])
+                        if tipo_c:                          # si es nuleable, es error
+                            new_error = E.Errores('Semántico.', 'No puede venir null un campo con el constraint \'NOT NULL\'.')
+                            #ls_error.append(nuevo_Error)   # se agrega el error a la lista
+                            errores = True
+                    elif constraint.tipo == TS.t_constraint.UNIQUE:
+                        tipo_c = self.isUnique(columna.tipo, inserciones[i], ts_global.get_pos_column(tabla, columna))
+                        if not tipo_c:                      # si no es único, es error
+                            new_error = E.Errores('Semántico.', 'No pueden venir valores repetidos en un campo con el constraint \'UNIQUE\'.')
+                            #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                            errores = True
+                    elif constraint.tipo == TS.t_constraint.DEFOULT:
+                        print('')
+                    elif constraint.tipo == TS.t_constraint.CHECK:
+                        valor = inserciones[i]
+                        print(valor)
+                        if constraint.condicion == '<':
+                            if valor >= constraint.valor:
+                                new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                errores = True
+                        elif constraint.condicion == '>':
+                            if valor <= constraint.valor:
+                                new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                errores = True
+                        elif constraint.condicion == '>=':
+                            if valor < constraint.valor:
+                                new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                errores = True
+                        elif constraint.condicion == '<=':
+                            if valor > constraint.valor:
+                                new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                errores = True
+                        elif constraint.condicion == '=' or constraint.condicion == '==':
+                            if valor != constraint.valor:
+                                new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                errores = True
+                        elif constraint.condicion == '<>' or constraint.condicion == '<>':
+                            if valor == constraint.valor:
+                                new_error = E.Errores('Semántico.', 'Violación del constraint check.')
+                                #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                errores = True
+                        else:
+                            print(constraint.condicion)
+                    elif constraint.tipo == TS.t_constraint.FOREIGN:
+                        print('')
+                if errores:                                 # si hay errores en los valores o en los constraints,
+                    return                                  # se sale de la ejecución
+                i = i + 1                                   # se aumenta el índice
+            val = []                                        # variable para tener todos los valores a insertar
+            for x in tabla.valor:                           # se establece un tamaño definido para el arreglo igual
+                val.append(None)                            # al tamaño de la cantidad de columnas
+            l = -1                                          # variable para tener la posición de la lista de columnas
+            k = 0                                           # variable para tener la posición de la lista de valores
+            c_columnas = len(tabla.valor)                   # variable para saber la cantidad de columnas totales
+            if c_columnas == c_valores:                     # si coincide con la cantidad de valores que viene, se insertan
+                j.insert(self.base, self.tabla, inserciones)
+            else:                                           # si no coincide, se recorre la lista de columnas de la tabla para
+                for columna in tabla.valor:                 # verificar constraints, si la columna tiene constraints, se verifica
+                    l = l + 1                               # que la columna venga en los campos. Si sí viene (cuando el try se
+                    if len(columna.valor) > 0:              # ejecuta con éxito), se verifica que las posiciones coincidan para
+                        try:                                # si la columna no se encuentra en la lista de campos, se recorre la
+                            k = self.campos.index(columna.id)
+                            val[l] = inserciones[k]
+                        except:                             # lista de constraints, verificando que no venga PRIMARY KEY o NOT NULL
+                            for con in columna.valor:
+                                if con.id == TS.t_constraint.NOT_NULL:
+                                    new_error = E.Errores('Semántico.', 'Se está violando el constraint \'NOT NULL\' de la columna \'' + columna.id + '\'.')
+                                    #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                    errores = True
+                                elif con.id == TS.t_constraint.PRIMARY:
+                                    new_error = E.Errores('Semántico.', 'La llave primaria no puede ser nula.')
+                                    #ls_error.append(nuevo_Error)# se agrega el error a la lista
+                                    errores = True
+                            val[l] = None
+                    else:
+                        try:
+                            k = self.campos.index(columna.id)
+                            val[l] = inserciones[k]
+                        except:
+                            val[l] = None
+                if errores:                                 # si existiera uno de esos constraints, es error y no se puede insertar
+                    return                                  # por lo que se sale de la ejecución
+                j.insert(self.base, self.tabla, val)        # si no hay error, se insertan los valores    
 
-    def verifyType(self, tipo_dato, valor):
+    def verifyType(self, tipo_dato, valor):                 # verifica que los valores coincidan superficialmente con su tipo de dato
         if tipo_dato == TS.tipo_simbolo.BOOLEAN:
             try:
                 valor = int(valor)
@@ -353,49 +620,61 @@ class InsertT():
             except:
                 return False
         elif tipo_dato == TS.tipo_simbolo.TEXT or tipo_dato == TS.tipo_simbolo.CHARACTER_V or tipo_dato == TS.tipo_simbolo.VARCHR or tipo_dato == TS.tipo_simbolo.CHARACTER or tipo_dato == TS.tipo_simbolo.CHAR or tipo_dato == TS.tipo_simbolo.INTERVAL or tipo_dato == TS.tipo_simbolo.TIMESTAMP or tipo_dato == TS.tipo_simbolo.DATA or tipo_dato == TS.tipo_simbolo.TIME:
-            if '\'' in valor or '"' in valor:
-                return True
-            else:
+            try:
+                valo = valor.split("'")
+                if len(valo) >= 2:
+                    return True
+                else:
+                    return False
+            except:
                 return False
         else:
             return False
 
-    def isNull(self, tipo_dato, valores):
-        for valor in valores:                               # se recorre la lista de valores
-            if tipo_dato == TS.tipo_simbolo.TIME:
-                cad = (valor.split('\'').split('"'))[1]
-                cad = cad.split(':')
-                if len(cad) != 3:
-                    return True
-            elif tipo_dato == TS.tipo_simbolo.TIMESTAMP or tipo_dato == TS.tipo_simbolo.DATA:
-                cad = (valor.split('\'').split('"'))[1]
-                cad = cad.split('/').split('-')
-                if len(cad) != 3:
-                    return True
-            elif tipo_dato == TS.tipo_simbolo.TEXT or tipo_dato == TS.tipo_simbolo.CHARACTER_V or tipo_dato == TS.tipo_simbolo.VARCHR or tipo_dato == TS.tipo_simbolo.CHARACTER or tipo_dato == TS.tipo_simbolo.CHAR or tipo_dato == TS.tipo_simbolo.INTERVAL:
-                cad = valor.split('\'').split('"')
-                if len(cad) != 3:
-                    return True
-            elif tipo_dato == TS.tipo_simbolo.SMALLINT or tipo_dato == TS.tipo_simbolo.INTEGER or tipo_dato == TS.tipo_simbolo.BIGINT or tipo_dato == TS.tipo_simbolo.BOOLEAN or tipo_dato == TS.tipo_simbolo.DECIMAL or tipo_dato == TS.tipo_simbolo.NUMERIC or tipo_dato == TS.tipo_simbolo.REAL or tipo_dato == TS.tipo_simbolo.D_PRECISION or tipo_dato == TS.tipo_simbolo.MONEY:
-                return False
-            else:                                           # si no es ningún tipo es error
-                return True
-        return False                                        # si recorre todos los valores, no hay valores nulos
+    def isNull(self, tipo_dato, valor):                     # Método para verificar si el valor no es nulo
+        if tipo_dato == TS.tipo_simbolo.TIME:               # En caso el tipo de dato sea time
+            cad = (valor.split('\'').split('"'))[1]         # se le quitan las comillas a la cadena
+            cad = cad.split(':')                            # se splitea por : y se separan hora, min, seg
+            if len(cad) < 3:                                # si el arreglo tiene una longitud menor a 3
+                return True                                 # el valor es nulo
+        elif tipo_dato == TS.tipo_simbolo.TIMESTAMP or tipo_dato == TS.tipo_simbolo.DATE:
+            cad = (valor.split('\'').split('"'))[1]         # si es timestamp o date, se le quitan las comillas,
+            cad = cad.split('/').split('-')                 # se splitea por / y - y se separan año, mes, día
+            if len(cad) < 3:                                # si el arreglo tiene una longitud menor a 3
+                return True                                 # el valor es nulo
+        elif tipo_dato == TS.tipo_simbolo.CHARACTER_V or tipo_dato == TS.tipo_simbolo.VARCHR or tipo_dato == TS.tipo_simbolo.CHARACTER or tipo_dato == TS.tipo_simbolo.CHAR or tipo_dato == TS.tipo_simbolo.TEXT or tipo_dato == TS.tipo_simbolo.INTERVAL:
+            cad = valor.split('\'').split('"')              # si son tipos de dato cadena o interval, se quitan las comillas,
+            if len(cad) < 3:                                # si el arreglo tiene una longitud menor a 3
+                return True                                 # el dato es nulo
+        elif tipo_dato == TS.tipo_simbolo.SMALLINT or tipo_dato == TS.tipo_simbolo.INTEGER or tipo_dato == TS.tipo_simbolo.BIGINT or tipo_dato == TS.tipo_simbolo.DECIMAL or tipo_dato == TS.tipo_simbolo.NUMERIC or tipo_dato == TS.tipo_simbolo.REAL or tipo_dato == TS.tipo_simbolo.D_PRECISION or tipo_dato == TS.tipo_simbolo.MONEY or tipo_dato == TS.tipo_simbolo.BOOLEAN:
+            return False                                    # son tipos de datos que ya se han verificado
+        else:                                               # si no es ningún tipo de estos, es error
+            new_error = E.Errores('Semántico.', 'Error al intentar reconocer el tipo de dato \'' + tipo_dato + '\'')
+            return new_error                                # se retorna el error
+        return False                                        # los tipos que no son nulos llegan hasta acá
 
-    def isUnique(self, tipo_dato, valores):
-        val_verify = []                                     # variable para almacenar los valores verificados
-        pos = -1                                            # posición del valor buscado
-        for valor in valores:                               # se recorre la lista de valores
-            if len(val_verify) == 0:                        # si está vacía la lista de verificados,
-                val_verify.append(valor)                    # se inserta el valor
-            else:                                           # en caso contrario
-                try:                                        # se intenta buscar el valor en la lista
-                    pos = val_verify.index(valor)           # si se encuentra,
-                    return False                            # significa que no son valores únicos
-                except:                                     # si no se encuentra,
-                    val_verify.append(valor)                # se agrega a la lista de verificados
-                    pos = -1                                # se reinicia la posición
-        return True                                         # si recorre toda la lista, sí son datos únicos
+    def isUnique(self, tipo_dato, valor, pos):              # Verifica que el valor no rompa la cláusula UNIQUE
+        data = j.extractTable(self.base, self.tabla)        # se extrae la tabla del jsonMode
+        val_totales = []                                    # arreglo para almacenar todos los valores a verificar
+        if len(data) == 0:                                  # si la tabla está vacía, es el primer dato a insertar,
+            return True                                     # se entiende que es único el dato, sin importar cuál sea
+        else:                                               # si no está vacía, se recorre registro por registro
+            for registro in data:                           # y se insertan uno a uno los valores correspondientes
+                val_totales.append(registro[pos])           # a la columna en el arreglo de valores totales
+        val_totales.append(valor)                           # se agrega el valor a insertar
+        val_verificados = []                                # arreglo para almacenar los valores verificados
+        ind = 0                                             # variable para almacenar la posición del valor buscado
+        for val_actual in val_totales:                      # se recorre la lista de valores totales
+            if len(val_verificados) == 0:                   # si la lista de verificados está vacía,
+                val_verificados.append(val_actual)          # se inserta el valor actual
+            else:                                           # si no se cumple esto,
+                try:                                        # se intenta buscar el valor en la lista de valores totales
+                    ind = val_verificados.index(val_actual) # si sí se encuentra, se obtiene la posición del valor,
+                    return False                            # esto significa que el valor actual ya existe
+                except:                                     # en caso contrario, si no se encuentra,
+                    val_verificados.append(val_actual)      # se agrega a la lista de verificados
+                    ind = 0                                 # se reinicia la posición del valor actual
+        return True                                         # si recorre toda la lista, no se viola la cláusula UNIQUE
 
 class Delete():
     def __init__(self, id, cond):

@@ -1,9 +1,9 @@
-Rfrom Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import  Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Time import Time
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import  Expresion
 
 class IdAsId(Instruccion):
     '''ID ID
@@ -22,10 +22,10 @@ class IdAsId(Instruccion):
             valor = Time.resolverTime(IdAsId.id1);
             return valor;
         elif (isinstance(IdAsId.id1, Math_)):
-            valor = Math_.Resolver(IdAsId.id1,Consola)
+            valor = Math_.Resolver(IdAsId.id1,None,Consola,None)
             return str(valor)
         elif (isinstance(IdAsId.id1, Trigonometrica)):
-            valor = Trigonometrica.Resolver(IdAsId.id1,Consola)
+            valor = Trigonometrica.Resolver(IdAsId.id1,None,Consola,None)
             return valor
         elif (isinstance(IdAsId.id1, Primitivo)):
             valor = IdAsId.id1.valor;
@@ -39,5 +39,4 @@ class IdAsId(Instruccion):
             return [valor1,valor2]
         elif isinstance(IdAsId.id1,Expresion):
             return Expresion.Resolver(IdAsId.id1,Consola)
-
         return 'what -- ' + type(IdAsId.id1).__name__ + '\n'

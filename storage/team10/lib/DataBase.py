@@ -50,10 +50,10 @@ class Database:
     def createTable(self, size, table, nCols):
         try:
             if self.buscarTable(table) != None:
-                print("Tabla existente")
-                return 2
+                # print("Tabla existente")
+                return 3
             else:
-                hashTable = TablaHash(6, table, nCols)
+                hashTable = TablaHash(size, table, nCols)
                 self.tables.append(hashTable)
                 return 0
         except: 
@@ -66,33 +66,6 @@ class Database:
             tables.append(table.getName())
         return tables
 
-    def alterAddPK(self, name, columns):
-        try:
-            if self.buscarTable(name) != None:
-                index = self.buscarTable(name)
-                table = self.tables[index]
-                table.alterAddPK(columns)
-            else:
-                print("Tabla Inexistente")
-                return 2
-        except: 
-            print("Error en la operación")
-            return 1
-
-    def insert(self, name, register):
-        try:
-            if self.buscarTable(name) != None:
-                index = self.buscarTable(name)
-                table = self.tables[index]
-                table.insert(table, register)
-            else:
-                print("Tabla Inexistente")
-                return 2
-        except: 
-            print("Error en la operación")
-            return 1
-
-    ##16/12/2020 CRISTIAN
     def extractTable2(self,table):
         try:
             if self.buscarTable(table) != None:
@@ -101,11 +74,11 @@ class Database:
                 table = self.tables[index]               
                 return table.printlistTbl()
             else:
-                print("Tabla NO existente")
-                return 0
+                # print("Tabla NO existente")
+                return None
         except: 
-            print("Error en la operación")
-            return 1        
+            # print("Error en la operación")
+            return None
 
     def extractRangeTable2(self,table,columnNumber,lower,upper):
         try:
@@ -115,8 +88,68 @@ class Database:
                 table = self.tables[index]               
                 return table.imp1(columnNumber,lower,upper) ##Cambiar esto
             else:
-                print("Tabla NO existente")
-                return 0
+                # print("Tabla NO existente")
+                return None
+        except: 
+            # print("Error en la operación")
+            return None
+
+    def alterAddPK(self, name, columns):
+        try:
+            if self.buscarTable(name) != None:
+                index = self.buscarTable(name)
+                table = self.tables[index]
+                return table.alterAddPK(columns)
+            else:
+                # print("Tabla Inexistente")
+                return 3
+        except: 
+            # print("Error en la operación")
+            return 1
+
+    def alterTable(self, old, new):
+        try:
+            if self.buscarTable(old) != None:
+                index = self.buscarTable(old)
+                table = self.tables[index]
+                tableNew = None
+
+                if self.buscarTable(new) is not None:
+                    tableNew = self.tables[self.buscarTable(new)]
+
+                if tableNew and tableNew.getName() == new:
+                    return 4
+                else:
+                    table.setName(new)
+                    return 0
+            else:
+                return 3
         except: 
             print("Error en la operación")
-            return 1  
+            return 1
+
+    def insert(self, name, register):
+        try:
+            if self.buscarTable(name) != None:
+                index = self.buscarTable(name)
+                table = self.tables[index]
+                return table.insert(table, register)
+            else:
+                # print("Tabla Inexistente")
+                return 3
+        except: 
+            # print("Error en la operación")
+            return 1
+
+    def update(self, name, columns):
+        try:
+            if self.buscarTable(name) != None:
+                index = self.buscarTable(name)
+                table = self.tables[index]
+                # return table.editar()
+            else:
+                # print("Tabla Inexistente")
+                return 3
+        except: 
+            # print("Error en la operación")
+            return 1

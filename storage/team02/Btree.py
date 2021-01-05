@@ -188,3 +188,101 @@ class BTree :
         f.write("}")
         f.close()
         os.system("dot -Tjpg Arbol.dot -o Arbol.jpg")
+
+    #Funcion general para realizar busquedas para extratcRow, update y delete
+    def searchRegistro(self,ValorDeLlave,currentNode) :
+        # ValorBuscado = str(ValorDeLlave)
+        if currentNode is not None:
+            maxKeys = len(currentNode.keys)
+            i = 0
+
+            while i <  maxKeys and currentNode.keys[i].register[0] < ValorDeLlave:
+                i += 1
+            if i < maxKeys and currentNode.keys[i].register[0] == ValorDeLlave:
+                return currentNode.keys[i]
+            if len(currentNode.children) == 0:
+                return None
+            else: 
+                return self.searchRegistro(ValorDeLlave,currentNode.children[i])
+
+    #Inserción de registros
+    def insert(self, register):
+        
+            if len(register) <= self.maxColumna:
+                miRegister = Registro(register)
+                self.changeTypePK(miRegister)
+                self.insertNode(miRegister)
+                return 0
+            else:
+                return 5
+
+    
+    
+    def extractRow(self, columns):
+        #if buscarNodo(database):
+            #if buscarTablas(table):
+
+                #try:
+
+                    registroEncontrado = self.searchRegistro(columns[0], self.root)
+
+
+                    if registroEncontrado != None:
+                        return registroEncontrado.register
+                    else:
+                        return []
+                #except:
+                    #return []
+
+
+    #Carga de archivo
+    def loadCSV(self, filepath):
+        try:
+            res = []
+            import csv
+            with open(filepath, 'r') as file:
+                reader = csv.reader(file, delimiter = ',')
+                for row in reader:
+                    res.append(self.insert(row))
+            return res
+        except:
+            return []
+
+    #Busqueda y actiualizacion de datos almacenados en el arbol
+    def update(self, register, columns):
+
+                try:
+                    registroEncontrado = self.searchRegistro(columns[0], self.root)
+
+
+                    if registroEncontrado != None:
+
+                        for clave in register:
+                            registroEncontrado.register[clave] = register[clave]
+                
+                    return 0
+                
+                except:
+                    return 1
+
+
+    #Busqueda y eliminacion de registros almacenados en arbol
+    def delete(self, database, table, columns):
+        
+        try:
+            registroEncontrado = self.searchRegistro(columns[0], self.root)
+
+            if registroEncontrado != None:
+                del registroEncontrado
+                return 0
+        except:
+            return 1
+
+
+    #Eliminacion de registros de una tabla
+    def truncate (self, database, table):
+        try:
+            self.root = None
+            return 0
+        except:
+            return 1

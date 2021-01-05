@@ -1,4 +1,5 @@
 import sys, os.path
+import datetime
 
 nodo_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\ENTORNO\\')
 sys.path.append(nodo_dir)
@@ -23,8 +24,8 @@ def diferente(exp1, exp2, expRes, enviroment):
     elif exp1.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
 
         expRes.tipo.data_type = Data_Type.boolean
-        expRes.valorExpresion = val1 != val2    
-
+        expRes.valorExpresion = val1 != val2 
+        
     else:
 
         expRes.tipo.data_type = Data_Type.error
