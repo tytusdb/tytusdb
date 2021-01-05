@@ -108,6 +108,134 @@ def p_sql_sql_functions(p):
     nodo.production += f"{p[1].production}"
     p[0] = nodo
 
+#TODO ESTO LO AGREGUE YO EN EL DROPS
+def p_sql_sql_drop_functions(p):
+    '''sqlinstruction : SQL_DROP_FUNCTION
+    '''
+    nodo = Node('SQL Instruction')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<sqlinstruction> ::= <SQL_DROP_FUNCTIONS>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+def p_sql_sql_drop_procedures(p):
+    '''sqlinstruction : SQL_DROP_PROCEDURE
+    '''
+    nodo = Node('SQL Instruction')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<sqlinstruction> ::= <SQL_DROP_PROCEDURE>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_functions_drop_inst_a(p):
+    '''SQL_DROP_FUNCTION : DROP FUNCTION IF EXISTS DETAIL_FUNC_DROP SEMICOLON
+    '''
+    nodo = Node('SQL_DROP_FUNCTION')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(Node(p[3]))
+    nodo.add_childrens(Node(p[4]))
+    nodo.add_childrens(p[5])
+    nodo.add_childrens(Node(p[6]))
+    nodo.production = f'<SQL_DROP_FUNCTION> := DROP FUNCTION IF EXISTS <DETAIL_FUNC_DROP> SEMICOLON\n'
+    nodo.production += f'{p[5].production}'
+    p[0] = nodo
+
+
+def p_sql_functions_drop_inst_b(p):
+    '''SQL_DROP_FUNCTION : DROP FUNCTION DETAIL_FUNC_DROP SEMICOLON
+    '''
+    nodo = Node('SQL_DROP_FUNCTION')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f'<SQL_DROP_FUNCTION> := DROP FUNCTION <DETAIL_FUNC_DROP> SEMICOLON\n'
+    nodo.production += f'{p[3].production}'
+    p[0] = nodo
+
+
+def p_sql_procedures_drop_inst_a(p):
+    '''SQL_DROP_PROCEDURE : DROP PROCEDURE IF EXISTS DETAIL_FUNC_DROP SEMICOLON
+    '''
+    nodo = Node('SQL_DROP_PROCEDURE')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_Childrens(Node(p[3]))
+    nodo.add_childrens(Node(p[4]))
+    nodo.add_childrens(p[5])
+    nodo.add_childrens(Node(p[6]))
+    nodo.production = f'<SQL_DROP_PROCEDURE> := DROP PROCEDURE UF EXISTS <DETAIL_FUNC_DROP> SEMICOLON\n'
+    nodo.production += f'{p[5].production}'
+    p[0] = nodo
+
+def p_sql_procedures_drop_inst_b(p):
+    '''SQL_DROP_PROCEDURE : DROP PROCEDURE DETAIL_FUNC_DROP SEMICOLON
+    '''
+    nodo = Node('SQL_DROP_PROCEDURE')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f'<SQL_DROP_PROCEDURE> := DROP PROCEDURE <DETAIL_FUNC_DROP> SEMICOLON\n'
+    nodo.production += f'{p[3].production}'
+    p[0] = nodo
+
+
+def p_sql_detail_func_drop(p):
+    '''DETAIL_FUNC_DROP : DETAIL_FUNC_DROP COMMA FUNCTIONS_TO_DROP
+                         | FUNCTIONS_TO_DROP
+    '''
+    nodo = Node('DETAIL_FUNC_DROP')
+    if len(p) == 4:
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.production = f'<DETAIL_FUNC_DROP> := <DETAIL_FUNC_DROP> COMMA <FUNCTIONS_TO_DROP>\n'
+        nodo.production += f'{p[1].production}'
+        nodo.production += f'{p[3].production}'
+        p[0] = nodo
+
+    else:
+        nodo.add_childrens(p[1])
+        nodo.production = f'<DETAIL_FUNC_DROP> := <FUNCTIONS_TO_DROP>\n'
+    
+def p_sql_functions_to_drop(p):
+    '''FUNCTIONS_TO_DROP : ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS
+                         | ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS
+                         | ID
+    '''
+    nodo = Node('FUNCTIONS_TO_DROP')
+    if len(p) == 5:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.production = f'<FUNCTIONS_TO_DROP> := ID LEFT_PARENTHESIS <LIST_ARGUMENT> RIGHT_PARENTHESIS\n'
+        nodo.production += f'{p[3].production}'
+        p[0] = nodo
+
+    elif len(p) == 4:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.production = f'<FUNCTIONS_TO_DROP> := ID LEFT_PARENTHESIS RIGHT_PARENTHESIS\n'
+        p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f'<FUNCTIONS_TO_DROP> := ID\n'
+        p[0] = nodo
+
+
+
+
+#TODO ACA TERMINE
+
+
+
+
+
 #---->
 def p_sql_sql_procedures(p):
     '''sqlinstruction : SQL_PROCEDURES
@@ -2498,7 +2626,17 @@ def p_statement_type_dml_sql(p):
     nodo.production = f'<statementType> := <DML>\n'
     nodo.production += f'{p[1].production}'
     p[0] = nodo
-    
+
+def p_statement_type_call_procedures(p):
+    '''statementType : CALL_FUNCTIONS_PROCEDURE SEMICOLON 
+    '''
+    nodo = Node('statementType')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f'<statementType> := <CALL_FUNCTIONS_PROCEDURE> SEMICOLON\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
 def p_statement_type_body_declaration(p):
     '''statementType :  BODY_DECLARATION
     '''
@@ -2575,6 +2713,20 @@ def p_plpsql_expression_assignation(p):
     nodo.production += f'{p[2].production}'
     nodo.production += f'{p[3].production}'
     p[0] = nodo
+
+def p_plpsql_expression_assignation_to_call(p):
+    '''PLPSQL_EXPRESSION : PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL CALL_FUNCTIONS_PROCEDURE
+    '''
+    nodo = Node('PLPSQL_EXPRESSION')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(p[3])
+    nodo.production = f'<PLPSQL_EXPRESSION> := <PLPSQL_PRIMARY_EXPRESSION> <ASSIGNATION_SYMBOL> <CALL_FUNCTIONS_PROCEDURE>\n'
+    nodo.production += f'{p[1].production}'
+    nodo.production += f'{p[2].production}'
+    nodo.production += f'{p[3].production}'
+    p[0] = nodo
+
 
 def p_plpsql_expression_not_equal(p):
     '''PLPSQL_EXPRESSION :  PLPSQL_PRIMARY_EXPRESSION NOT_EQUAL PLPSQL_PRIMARY_EXPRESSION
