@@ -12,17 +12,17 @@ CREATE procedure myFuncion(texto text, puta integer) RETURNS text AS $$
 declare 
 	texto2 integer := 2;
 BEGIN
-	case when 1=2 then
-	texto2 := 25; 
-		case when texto is true then
-			puta = 'cisco';
-		else
-			puta = 'alv';
-		end case;
-	else 
-	texto := 'd'; 
-	puta := 'i'; 
-	end case;
+	if 5 > 6 then
+		texto2 = 3;
+	elsif 9 * 5 != 8 then
+		texto2 = 5;
+		if 9 + 5 > 5 then
+			texto2 = 55;
+		end if;
+		texto2 = 6;
+	else
+		texto2 = 9;
+	end if;
 	RETURN (5+2>8*1 and  1+3*3 != 4) is not TRUE;
 END;
 $$ LANGUAGE plpgsql;
