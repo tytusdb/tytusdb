@@ -63,7 +63,7 @@ class index(Instruccion):
                                 return error
                         
                     ind = Indice(self.idIndex, "Indice")
-                    ind.lRestricciones.append("ID_Columna = "+ variable.id)
+                    ind.lRestricciones.append(variable.id)
                     if self.tipoIndex:
                         ind.lRestricciones.append(self.tipoIndex)
                     

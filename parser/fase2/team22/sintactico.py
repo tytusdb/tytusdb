@@ -26,7 +26,9 @@ from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
+# from Instrucciones.Imprimir import Imprimir
 from Instrucciones.index import index
+from Instrucciones import Funcion, Declaracion,  Retorno
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -262,39 +264,128 @@ def p_columunas_delete(t):
 #FUNCIONES
 def p_funciones(t):
     '''
-     instruccion : CREATE FUNCTION ID BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER BEGIN instrucciones END PUNTO_COMA
     '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, None, None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Funcion.Funcion(t[4], t[2], [], [], t[8], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones2(t):
-    '''
-     instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], None, t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones1(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[9], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones3(t):
-    '''
-     instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER AS <expresion> BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], t[8], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones2(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[13], t[9], "", t.lexer.lineno, t.lexer.lexpos)
 
+# def p_funciones3(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], [], t[8], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+
+# def p_funciones4(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], t[9], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+
+# def p_funciones5(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], t[13], t[15], t[9], "", t.lexer.lineno, t.lexer.lexpos)
+
+# PARAMETROS PARA LAS FUNCIONES
+def p_remplazar(t):
+    '''orreplace : OR REPLACE
+                 | '''
+    if len(t) == 3:
+        t[0] = t[1]
+
+def p_parametros_func(t):
+    '''parametro_func : parametro_func COMA parametro_fun
+    '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_parametros_func_2(t):
+    '''parametro_func : parametro_fun
+    '''
+    t[0] = [t[1]]
+
+def p_parametro_func(t):
+    '''parametro_fun : ID tipo
+    '''
+    t[0] = Declaracion.Declaracion(t[1], False, t[2], False, None, None, "", t.lexer.lineno, t.lexer.lexpos)
+
+# ----
+
+def p_ldeclaracion1(t):
+    '''
+    ldec : ldec declaracion
+    '''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_ldeclaracion2(t):
+    '''
+    ldec : declaracion
+    '''
+    t[0] = [t[1]]
 
 def p_declaracion(t):
     '''
-     instruccion : DECLARE expresion AS expresion PUNTO_COMA
+    declaracion : ID constant tipo not_null DEFAULT expre PUNTO_COMA
     '''
-    strGram = "<instruccion> ::= DECLARE <expresion> AS <expresion> PUNTO_COMA"
-    t[0] = Declare.Declare(t[2], None, t[4], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Declaracion.Declaracion(t[1],t[2],t[3],t[4],True,t[6], "strGram", t.lexer.lineno, t.lexer.lexpos)
 
 def p_declaracion1(t):
     '''
-     instruccion : DECLARE expresion tipo PUNTO_COMA
+    declaracion : ID constant tipo not_null DOS_PUNTOS IGUAL expre PUNTO_COMA
     '''
-    strGram = "<instruccion> ::= DECLARE <expresion> tipo PUNTO_COMA"
-    t[0] = Declare.Declare(t[2], t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Declaracion.Declaracion(t[1],t[2],t[3],t[4],False,t[7], "strGram", t.lexer.lineno, t.lexer.lexpos)
+
+def p_declaracion2(t):
+    '''
+    declaracion : ID constant tipo not_null IGUAL expre PUNTO_COMA
+    '''
+    t[0] = Declaracion.Declaracion(t[1],t[2],t[3],t[4],False,t[6], "strGram", t.lexer.lineno, t.lexer.lexpos)
+
+def p_declaracion3(t):
+    '''
+    declaracion : ID constant tipo not_null PUNTO_COMA
+    '''
+    t[0] = Declaracion.Declaracion(t[1],t[2],t[3],t[4],False,None, "strGram", t.lexer.lineno, t.lexer.lexpos)
+    
+def p_not_null_f2(t):
+    '''
+    not_null : NOT NULL
+		|
+    '''
+    try:
+        t[0] = t[1]
+    except:
+        #error
+        pass
+
+# ==============================================================
+
+# def p_declaracion111(t):
+#     '''
+#      instruccion : DECLARE expresion AS expresion PUNTO_COMA
+#     '''
+#     strGram = "<instruccion> ::= DECLARE <expresion> AS <expresion> PUNTO_COMA"
+#     t[0] = Declare.Declare(t[2], None, t[4], strGram ,t.lexer.lineno, t.lexer.lexpos)
+
+# def p_declaracion222(t):
+#     '''
+#      instruccion : DECLARE expresion tipo PUNTO_COMA
+#     '''
+#     strGram = "<instruccion> ::= DECLARE <expresion> tipo PUNTO_COMA"
+#     t[0] = Declare.Declare(t[2], t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
     
 def p_set(t):
     '''
@@ -1677,7 +1768,7 @@ def p_l_expresiones_atri_ind(t) :
 def p_operadores_is_not_true(t):
     '''expre    : expre IS NOT TRUE
     '''
-    t[0] = t[1] + ' IS NOT'
+    t[0] = [t[1] + ' IS NOT']
 
 def p_lista_options(t) :
     'lista_options  : lista_options options'
@@ -1686,7 +1777,7 @@ def p_lista_options(t) :
 
 def p_lista_options_2(t) :
     'lista_options  : options'
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_options(t) :
     '''options      : ASC
@@ -1813,10 +1904,14 @@ def p_condicion_if(t) :
 
 def p_condicion_if2(t) :
     '''condicion_if : expre'''
-    
 def p_constant(t) :
     '''constant : CONSTANT
                 | '''
+    try:
+        t[0] = t[1]
+    except:
+        #error
+        pass
 
 
 def p_symbol_declare(t) :
@@ -1888,6 +1983,7 @@ def p_inst_perf(t) :
 
 def p_inst_if(t) :
     '''instruccion  : IF NOT FOUND THEN list_begin END IF PUNTO_COMA'''
+
 
 
 def p_inst_exec(t) :
