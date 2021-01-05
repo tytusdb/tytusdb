@@ -1,0 +1,21 @@
+from goto import with_goto 
+import C3D 
+
+@with_goto  # Decorador necesario
+def myfuncion():
+    # SEGMENTO BEGIN
+    C3D.pila = 0
+    C3D.ejecutar() #Crear Base de datos
+    goto .L2
+    
+    label .L2
+    # RETURN
+    t1 = 5 * 5
+    # SEGMENTO END
+
+def main():
+    myfuncion()
+    C3D.pila = 1
+    C3D.ejecutar() #Creando select con parametros
+
+main()

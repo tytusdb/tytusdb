@@ -54,10 +54,10 @@ class create_db(instruccion):
             if(crear == 0): # Exitoso
                 new_db = symbol_db(self.id_db)  # Nuevo nodo de Base de datos
                 ts.add_db(new_db)   # Agregar Base de datos a la tabla de simbolos
-                add_text("Base de datos creada con exito con nombre - " + self.id_db + " -\n")
+                add_text("M-00000	successful completion: Database created successfully with name - " + self.id_db + " -\n")
             elif(crear == 1): # Error en operacion
-                errores.append(nodo_error(self.line, self.column, 'Error en create database', 'Semántico'))
-                add_text("ERROR - Base de datos no pudo ser creada.\n")
+                errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Database could not be created', 'Semántico'))
+                add_text("E-22005 error in assignment: Database could not be created.\n")
             elif(crear == 2): # Base ya existe
                 if self.if_exists == False:
                     if self.replace_ == True:   # Remplazar
@@ -67,20 +67,20 @@ class create_db(instruccion):
                         if(replace_db == 0):
                             new_db = symbol_db(self.id_db)  # Nuevo nodo de Base de datos
                             ts.update_db(self.id_db, new_db)   # Agregar Base de datos a la tabla de simbolos
-                            add_text("Base de datos reemplazada con exito con nombre - " + self.id_db + " -\n")
+                            add_text("M-00000	successful completion: Database successfully replaced with name - " + self.id_db + " -\n")
                         elif(replace_db == 2):
-                            add_text("Base de datos ya existe - " + self.id_db + " - \n")            
+                            add_text("E-42P04 duplicate database: Database already exists - " + self.id_db + " - \n")
                         else:
-                            errores.append(nodo_error(self.line, self.column, 'Error en create database', 'Semántico'))
-                            add_text("ERROR - Base de datos no pudo ser reemplazada.\n")
+                            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Database could not be replaced.', 'Semántico'))
+                            add_text("E-22005 error in assignment: Database could not be replaced.\n")
                     else:
-                        add_text("Base de datos ya existe - " + self.id_db + " - \n")        
+                        add_text("E-42P04 duplicate database: Database already exists - " + self.id_db + " - \n")
                 else:
-                    add_text("Base de datos ya existe - " + self.id_db + " - \n")
+                    add_text("E-42P04 duplicate database: Database already exists  - " + self.id_db + " - \n")
             else:
-                errores.append(nodo_error(self.line, self.column, 'Error en create database', 'Semántico'))
-                add_text("Base de datos no pudo ser creada.\n")
+                errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Database could not be created', 'Semántico'))
+                add_text("E-22005 error in assignment: Database could not be created.\n")
 
         except:
-            errores.append(nodo_error(self.line, self.column, 'Error en create database', 'Semántico'))
-            add_text("ERROR - Base de datos no pudo ser creada.\n")
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: Database could not be created', 'Semántico'))
+            add_text("E-22005 error in assignment: Database could not be created.\n")

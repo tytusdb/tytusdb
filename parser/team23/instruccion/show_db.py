@@ -13,7 +13,7 @@ class show_db(instruccion):
         self.nodo.hijos.append(nodo_AST('SHOW DATABASES', num_nodo+1))
 
         # Gramatica        
-        self.grammar_ = "<TR><TD>INSTRUCCION ::= SHOW DATABASES</TD><TD>INSTRUCCION = new show_db();</TD></TR>"
+        self.grammar_ = "<TR><TD>INSTRUCCION ::= SHOW DATABASES;</TD><TD>INSTRUCCION = new show_db();</TD></TR>"
 
     def ejecutar(self):
         try:
@@ -22,7 +22,7 @@ class show_db(instruccion):
 
             conteo = 0
             if len(bases_datos) > 0:
-                print_db = "\nLista de bases de datos:\n"
+                print_db = "\nM-00000 successful completion:\n Database list:\n"
 
                 for base in bases_datos:
                     print_db += " " + str(conteo) + " | " + base + "\n"
@@ -31,6 +31,6 @@ class show_db(instruccion):
                 
                 add_text(print_db)
             else:
-                add_text("No existen bases de datos.\n")
+                add_text("E-22005 error in assignment: No database exists.\n")
         except:
-            errores.append(nodo_error(self.line, self.column, 'Error en show databases', 'Semántico'))
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: No database exists', 'Semántico'))

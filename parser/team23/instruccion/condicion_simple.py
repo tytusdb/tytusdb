@@ -1,46 +1,43 @@
 from abstract.instruccion import *
 from tools.tabla_tipos import *
+from error.errores import *
+from tools.console_text import *
 
 class condicion_simple(instruccion):
-    def __init__(self, comando, ID, key, line, column, num_nodo):
-
+    def __init__(self, comando, expresion, line, column, num_nodo):
         super().__init__(line,column)
         self.comando = comando
-        self.ID = ID
-        self.key = key
-
+        self.expresion = expresion
 
         #Nodos
-
         if comando.lower() == 'default':
-            print("entro 5")
             self.nodo = nodo_AST('DEFAULT', num_nodo)
             self.nodo.hijos.append(nodo_AST('DEFAULT', num_nodo + 1))
-            self.nodo.hijos.append(nodo_AST(ID, num_nodo + 2))
+            self.nodo.hijos.append(expresion.nodo)
 
-        elif comando.lower() == 'null':
-
-            self.nodo = nodo_AST('NULL', num_nodo)
-            self.nodo.hijos.append(nodo_AST('NULL', num_nodo + 1))
+            self.grammar_ = '<TR><TD> CONDICION ::= DEFAULT expresion </TD><TD> CONDICION = new condicion_simple(DEFAULT, expresion); </TD></TR>\n'
+            self.grammar_ += expresion.grammar_
 
         elif comando.lower() == 'not':
-
             self.nodo = nodo_AST('NOT NULL', num_nodo)
             self.nodo.hijos.append(nodo_AST('NOT NULL', num_nodo + 1))
 
-        elif comando.lower() == 'reference':
+            self.grammar_ = '<TR><TD> CONDICION ::= NOT NULL </TD><TD> CONDICION = new condicion_simple(NOT, None); </TD></TR>\n'
 
-            self.nodo = nodo_AST('REFERENCE', num_nodo)
-            self.nodo.hijos.append(nodo_AST('REFERENCE', num_nodo + 1))
-            self.nodo.hijos.append(nodo_AST(ID, num_nodo + 2))
+    def ejecutar(self, dato, pos_col):
+        try:
+            if self.comando.lower() == 'default':
+                if isinstance(dato, str):
+                    if dato.lower() == 'null':
+                        valor = self.expresion.ejecutar([])
+                        return valor.valor
+            elif self.comando.lower() == 'not':
+                if isinstance(dato, str):
+                    if dato.lower() == 'null':
+                        return nodo_error(self.line, self.column, 'E-23502 not null violation: cannot insert NULL', 'Semántico')
 
-        elif comando.lower() == 'constraint':
+            return None
+        except:
+            return nodo_error(self.line, self.column, 'E-22005 error in assignment: Could not validate restriction ' + self.comando, 'Semántico')
 
-            self.nodo = nodo_AST('CONSTRAINT', num_nodo)
-            self.nodo.hijos.append(nodo_AST('CONSTRAINT', num_nodo + 1))
-            self.nodo.hijos.append(nodo_AST(ID, num_nodo + 2))
-            #self.nodo.hijos.append(key.nodo)
-
-
-    def ejecutar(self):
-        pass
+        

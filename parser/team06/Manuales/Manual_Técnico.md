@@ -42,6 +42,37 @@ Hayrton Omar Ixpata Coloch 2013-13875<br></b>
 
 * Si necesita un flujo mas visual se puede ver el manual de usuario en el menú "Manuales" donde se puede visualizar "Manual de Usuario y Manual Técnico".
 
+## Clases principales
+### ventana.py
+Clase donde se encuentra todo lo relacionado con la interfaz gráfica, las librerias principales utilizadas son "os,webbrowser y tkinter" y las clases referenciadas son "ascendente.py", "CustomText.py" y "TextLine.py".
+### TextLine.py
+Aquí se encuentran los métodos para obtener el numero de línea actual y agregarlo a la interfaz de usuario.
+### CustomText.py
+Esta clase y sus métodos son utilizados para el enumerado de línea del área de texto,agrega los eventos necesarios, para que el numero aparezca cada vez que el texto cambia.
+### expresiones.py
+Clase donde se crean clases abstractas para expresiones aritmeticas, relacionales, lógicas y binaria que nos ayudaran para crear clases que se convertiran en objetos para ir subiendo valores de producciones para luego utilizar esa instancia para usarlo en el análisis semántico.
+### queries.py
+Clase donde se crean clases abstractas para queries que nos ayudaran para crear clases que se convertiran en objetos para ir subiendo valores de producciones para luego utilizar esa instancia para usarlo en el análisis semántico.
+### gramaticaAscendente.py
+Esta clase se utiliza para el analisis ascendente. En esta clase se encuentra todos los
+métodos del analizador léxico (ply.lex) y todos los métodos del analizador sintáctico
+(ply.yaccc) con sus respectivos métodos de error, se crean los primeros valores de
+la tabla de simbolos, se genera el reporte gramatical, y si existieran
+errores se genera su respectiva lista de errores (léxicos y sintácticos).
+### ascendente.py
+Clase donde se realiza toda la ejecución (análisis semántico) de la sintaxis de la cadena de entrada, y la generación de los reportes (gramatical, tabla de simbolos, errores y AST).
+
+### reportes.py
+Clase donde se crea el formato de los reportes HTML (Errores, Tabla de Simbolos y Gramatical).
+### TablaDeSimbolos.py
+Clase donde se encuentran los métodos de la estructura de la tabla de símbolos, como obtener, actualizar, mostrar y agregar.
+### nodeAst.py
+Clase que forma el nodo de el árbol AST.
+### astMethod.py
+Clase que tiene los métodos para generar el archivo .dot y .png con la herramienta "Graphviz".
+### gramaticaAscendenteTree.py
+Clase donde se van creando los nodos de tipo nodeAst en cada una de las producciones de la gramática y así subir todos esos datos para subir el AST.
+
 ### Analizador Lexico
 #### Palabras reservadas
 ```python

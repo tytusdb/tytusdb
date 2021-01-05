@@ -1,10 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from expression import *
-from typ import *
-from literal import *
+from execution.abstract.expression import *
+from execution.symbol.typ import *
+from execution.expression.literal import *
 
 tipos = [
             [Type.INT,Type.DECIMAL],
@@ -17,7 +13,14 @@ tipos = [
 #        ______________        
 
 class Arithmetic(Expression):
-    
+
+    """
+    left: Expression izquierda(puede ser objeto que herede de expression, todos ubicados en la carpeta expression )
+    right: Expression derecha(puede ser objeto que herede de expression, todos ubicados en la carpeta expression )    
+    operator: Es un string con el operador:+,-,*,^,/,etc
+    row: int con la fila en donde es creado
+    column: int con la fila en donde es creado 
+    """    
     def __init__(self, left, right, operator, row, column):
         Expression.__init__(self, row, column)
         self.left  = left
@@ -34,7 +37,7 @@ class Arithmetic(Expression):
         2. DIVISION ENTRE CERO NO DEFINIDA
         
         '''
-        if self.operator == '/':
+        if self.operator == '/' and op2['value'] == 0:
             #Reportar error de división entre cero
             return {'Error':"La división entre cero no tiene definición matemática", 'Linea':self.row, 'Columna': self.column }
         if op1['typ'] != Type.INT and op1['typ'] != Type.DECIMAL:

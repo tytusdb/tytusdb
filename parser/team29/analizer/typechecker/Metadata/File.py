@@ -1,18 +1,18 @@
 import json
 
 
-def exportFile(struct,name):
-    with open("./"+name+".json", "w") as file:
+def exportFile(struct, name):
+    with open("./" + name + ".json", "w") as file:
         json.dump(struct, file)
-        #print("Save")
+        # print("Save")
 
 
 def importFile(name):
     try:
-        with open("./"+name+".json", "r") as file:
+        with open("./" + name + ".json", "r") as file:
             databases = json.load(file)
             return databases
     except:
-        if name == "Types":
-            return {}
-        return []
+        if name == "Databases":
+            return []
+        return {}

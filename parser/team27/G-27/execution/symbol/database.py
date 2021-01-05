@@ -18,6 +18,10 @@ class Database(object):
         for value in self.tables:
             if value.name == name:
                 return value
+        return None
 
     def addTable(self, table):
         self.tables.append(table) 
+    
+    def setName(self,name):
+        self.name = name

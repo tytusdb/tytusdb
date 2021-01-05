@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from math_functions import power
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.math_functions import power
 
 class Power(Function):
     def __init__(self, base, exponent, row, column):
@@ -35,4 +30,4 @@ class Power(Function):
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
             if value2['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-            return [{'value':power(value['value'],value2['value']), 'typ': Type.INT}]
+            return {'value':power(value['value'],value2['value']), 'typ': Type.INT}

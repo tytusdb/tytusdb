@@ -2,7 +2,9 @@ import gramatica as g
 import Utils.TablaSimbolos as table
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
-from fila import fila
+import Utils.Error as error
+import Instrucciones.DML.select as select
+#from fila import fila
 
 #datos = l.Lista([], '')
 storage.dropAll()
@@ -25,9 +27,19 @@ f = open(ruta, "r")
 input = f.read()
 
 instrucciones = g.parse(input)
-print(instrucciones)
-for instr in instrucciones :
-    print(instr.execute(datos))
+#print(instrucciones['reporte'])
+#print("***************************************************")
+
+for instr in instrucciones['ast'] :
+    if instr == None:
+        continue
+    result = instr.execute(datos)
+    if isinstance(result, error.Error):
+        print(result)
+    elif isinstance(instr, select.Select):
+        print(instr.ImprimirTabla(result))
+    else:
+        print(result)
 
 print('\n\nTABLA DE SIMBOLOS')
 print (datos)

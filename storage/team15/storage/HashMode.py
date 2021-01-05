@@ -110,11 +110,16 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
             2: non-existent target database
             3: new database name occupied
     """
+    
+    try:
 
-    if re.search(_db_name_pattern, databaseOld) and re.search(_db_name_pattern, databaseNew):
-        return _storage.alterDatabase(databaseOld, databaseNew)
+        if re.search(_db_name_pattern, databaseOld) and re.search(_db_name_pattern, databaseNew):
+            return _storage.alterDatabase(databaseOld, databaseNew)
 
-    else:
+        else:
+            return 1
+            
+    except:
         return 1
 
 
@@ -130,7 +135,12 @@ def dropDatabase(database: str) -> int:
             2: non-existent database
     """
 
-    return _storage.dropDatabase(database)
+    try:
+
+        return _storage.dropDatabase(database)
+    
+    except:
+        return 1
 
 
 # ==//== funciones con respecto a BaseDatos ==//==
@@ -151,13 +161,18 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
             3: table name ocuppied
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.createTable(table, numberColumns)
+        temp = _storage.Buscar(database)
 
-    else:
-        return 2
+        if temp:
+            return temp.createTable(table, numberColumns)
+
+        else:
+            return 2
+
+    except:
+        return 1
 
 
 def showTables(database: str) -> list:
@@ -192,12 +207,17 @@ def extractTable(database: str, table: str) -> list:
             None: non-existent database, non-existent table, an error ocurred
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.extractTable(table)
+        temp = _storage.Buscar(database)
 
-    else:
+        if temp:
+            return temp.extractTable(table)
+
+        else:
+            return None
+            
+    except:
         return None
 
 
@@ -216,12 +236,17 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
             None: non-existent database, non-existent table, an error ocurred
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.extractRangeTable(table, columnNumber, lower, upper)
+        temp = _storage.Buscar(database)
 
-    else:
+        if temp:
+            return temp.extractRangeTable(table, columnNumber, lower, upper)
+
+        else:
+            return None
+            
+    except:
         return None
 
 
@@ -242,13 +267,18 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
             5: PK out of bounds
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.alterAddPK(table, columns)
+        temp = _storage.Buscar(database)
 
-    else:
-        return 2
+        if temp:
+            return temp.alterAddPK(table, columns)
+
+        else:
+            return 2
+
+    except:
+        return 1
 
 
 def alterDropPK(database: str, table: str) -> int:
@@ -266,13 +296,18 @@ def alterDropPK(database: str, table: str) -> int:
             4: non-existent PK
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.alterDropPK(table)
-        
-    else:
-        return 2
+        temp = _storage.Buscar(database)
+
+        if temp:
+            return temp.alterDropPK(table)
+            
+        else:
+            return 2
+            
+    except:
+        return 1
 
 
 def alterAddFK(database: str, table: str, references: dict) -> int:
@@ -307,13 +342,18 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
             4: new table name occupied
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.alterTable(tableOld, tableNew)
+        temp = _storage.Buscar(database)
 
-    else:
-        return 2
+        if temp:
+            return temp.alterTable(tableOld, tableNew)
+
+        else:
+            return 2
+            
+    except:
+        return 1
 
 
 def alterAddColumn(database:str, table:str, default: any) -> int:
@@ -331,13 +371,18 @@ def alterAddColumn(database:str, table:str, default: any) -> int:
             3: non-existent table
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.alterAddColumn(table, default)
+        temp = _storage.Buscar(database)
 
-    else:
-        return 2
+        if temp:
+            return temp.alterAddColumn(table, default)
+
+        else:
+            return 2
+            
+    except:
+        return 1
 
 
 def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
@@ -357,13 +402,18 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             5: column index out of bounds
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.alterDropColumn(table, columnNumber)
+        temp = _storage.Buscar(database)
 
-    else:
-        return 2
+        if temp:
+            return temp.alterDropColumn(table, columnNumber)
+
+        else:
+            return 2
+            
+    except:
+        return 1
 
 
 def dropTable(database: str, table: str) -> int:
@@ -380,13 +430,18 @@ def dropTable(database: str, table: str) -> int:
             3: non-existent table
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
-        return temp.dropTable(table)
+        temp = _storage.Buscar(database)
 
-    else:
-        return 2
+        if temp:
+            return temp.dropTable(table)
+
+        else:
+            return 2
+            
+    except:
+        return 1
 
 
 # ==//== funciones con respecto a Tabla ==//==
@@ -409,23 +464,28 @@ def insert(database: str, table: str, register: list) -> int:
             5: register out of bounds
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
+        temp = _storage.Buscar(database)
 
-        b = temp.Buscar(table)        
-        
-        if b[0]:
-            tabla = temp.Cargar(table)
-            var = tabla.insertar(register)            
-            temp.Guardar()
-            return var
+        if temp:
+
+            b = temp.Buscar(table)        
+            
+            if b[0]:
+                tabla = temp.Cargar(table)
+                var = tabla.insertar(register)            
+                temp.Guardar()
+                return var
+
+            else:
+                return 3
 
         else:
-            return 3
-
-    else:
-        return 2
+            return 2
+            
+    except:
+        return 1
 
 
 def loadCSV(file: str, database: str, table: str) -> list:
@@ -441,42 +501,45 @@ def loadCSV(file: str, database: str, table: str) -> list:
             list: return values of each insert
             empty list: non-existent database, non-existent table, an error occured, csv file is empty
     """
-
+    
     try:
-        archivo = open(file, "r")
 
-    except:
-        return []
+        archivo = open(file, "r", encoding="utf-8-sig")
 
-    temp = _storage.Buscar(database)
+        temp = _storage.Buscar(database)
 
-    if temp:
-        
-        try:
-
+        if temp:
+            
             b = temp.Buscar(table)        
             nombre = temp.list_table[b[1]]
             
             if b[0]:
                 
-                tabla = serealizar.rollback(nombre, _main_path+"\\"+database)
-                registros = csv.reader(archivo, delimiter = ",")
-                valores=[]                
+                tabla = temp.Cargar(nombre)
+                registros = list(csv.reader(archivo, delimiter = ","))
 
-                for registro in registros:                       
+                valores=[]     
+                for registro in registros:     
+
+                    for i in range(len(registro)):
+
+                        if registro[i].isnumeric():
+                            nuevo=int(registro[i])
+                            registro[i]=nuevo
+
                     valores.append(tabla.insertar(registro))
 
                 else:
-                    serealizar.commit(tabla, table, _main_path+"\\"+database)
+                    temp.Guardar()
                     return valores
 
             else:
                 return []
 
-        except:
+        else:
             return []
-
-    else:
+            
+    except:
         return []
         
 
@@ -493,22 +556,27 @@ def extractRow(database: str, table: str, columns: list) -> list:
             empty list: non-existent database, non-existent table, an error ocurred
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
+        temp = _storage.Buscar(database)
 
-        b = temp.Buscar(table)       
-        
-        if b[0]:
-            tabla = temp.Cargar(table)
-            var = tabla.ExtraerTupla(columns)            
-            temp.Guardar()
-            return var
+        if temp:
+
+            b = temp.Buscar(table)       
+            
+            if b[0]:
+                tabla = temp.Cargar(table)
+                var = tabla.ExtraerTupla(columns)            
+                temp.Guardar()
+                return var
+
+            else:
+                return []
 
         else:
             return []
-
-    else:
+            
+    except:
         return []
 
 
@@ -529,23 +597,28 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
             4: non-existent PK
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
+        temp = _storage.Buscar(database)
 
-        b = temp.Buscar(table)
+        if temp:
 
-        if b[0]:
-            tabla = temp.Cargar(table)
-            var = tabla.update(columns, register)            
-            temp.Guardar()
-            return var
+            b = temp.Buscar(table)
+
+            if b[0]:
+                tabla = temp.Cargar(table)
+                var = tabla.update(columns, register)            
+                temp.Guardar()
+                return var
+
+            else:
+                return 3
 
         else:
-            return 3
-
-    else:
-        return 2
+            return 2
+            
+    except:
+        return 1
 
 
 def delete(database: str, table: str, columns: list) -> int:
@@ -564,23 +637,28 @@ def delete(database: str, table: str, columns: list) -> int:
             4: non-existent PK
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
+        temp = _storage.Buscar(database)
 
-        b = temp.Buscar(table)        
+        if temp:
 
-        if b[0]:
-            tabla = temp.Cargar(table)
-            var = tabla.deleteTable(columns)            
-            temp.Guardar()
-            return var
+            b = temp.Buscar(table)        
+
+            if b[0]:
+                tabla = temp.Cargar(table)
+                var = tabla.deleteTable(columns)            
+                temp.Guardar()
+                return var
+
+            else:
+                return 3
 
         else:
-            return 3
-
-    else:
-        return 2
+            return 2
+            
+    except:
+        return 1
 
 
 def truncate(database: str, table: str) -> int:
@@ -597,20 +675,25 @@ def truncate(database: str, table: str) -> int:
             3: non-existent table
     """
 
-    temp = _storage.Buscar(database)
+    try:
 
-    if temp:
+        temp = _storage.Buscar(database)
 
-        b = temp.Buscar(table)
+        if temp:
 
-        if b[0]:
-            tabla = temp.Cargar(table)
-            var = tabla.truncate()            
-            temp.Guardar()
-            return var
+            b = temp.Buscar(table)
+
+            if b[0]:
+                tabla = temp.Cargar(table)
+                var = tabla.truncate()            
+                temp.Guardar()
+                return var
+
+            else:
+                return 3
 
         else:
-            return 3
-
-    else:
-        return 2
+            return 2
+            
+    except:
+        return 1

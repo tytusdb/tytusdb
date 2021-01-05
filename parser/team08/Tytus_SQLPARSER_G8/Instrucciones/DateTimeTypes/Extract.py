@@ -3,14 +3,13 @@ from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 import datetime
 
 class Extract(Instruccion):
-    def __init__(self, tiempo, caracter, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, tiempo, caracter, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.tiempo = tiempo
         self.caracter = caracter
 
     def ejecutar(self, ts, arbol):
         super().ejecutar(ts,arbol)
-        print("estamos en extract " + self.tiempo)
         date_time_obj = datetime.datetime.strptime(self.caracter, '%Y-%m-%d %H:%M:%S')
         date = date_time_obj.date()
         time = date_time_obj.time()
@@ -32,7 +31,6 @@ class Extract(Instruccion):
         elif(self.tiempo == "YEAR"):
             year = date.year
             return year
-
 
 '''
 instruccion = Declare("hola mundo",None, 1,2)

@@ -1,19 +1,21 @@
 from sys import path
 from os.path import dirname as dir
+from shutil import rmtree
 
 path.append(dir(path[0]))
 
 from analizer import grammar
 
+dropAll = 0
+if dropAll:
+    print("Eliminando registros")
+    rmtree("data")
+
+
 s = """ 
-    USE db1;
-    
-    SELECT 3+3;
-    SELECT users.id+300 as shute FROM users WHERE users.id < 6;
+CREATE INDEX orderindex ON orders (x,t);
 """
-
-
 result = grammar.parse(s)
 print(result)
-
-
+#print(result[0].execute(None))
+# print(grammar.returnPostgreSQLErrors())

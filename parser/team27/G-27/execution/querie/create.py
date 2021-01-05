@@ -1,10 +1,15 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/storage')
-from querie import * 
+from execution.abstract.querie import * 
 from storageManager import jsonMode as admin
 
 class Create(Querie):
+    '''
+     replace: es un parametro booleano valores true or false
+     mode: un numero entero de 0 a 3 (entero)
+     name: nombre que le queremos dar a la base de datos(cadena)
+     row: numero de fila(entero)
+     column:numero de columna
+
+    '''
     def __init__(self,replace, mode, name, column,row):
         Querie.__init__(self,column, row)
         self.replace = replace

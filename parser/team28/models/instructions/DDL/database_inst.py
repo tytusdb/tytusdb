@@ -4,7 +4,10 @@ from models.instructions.shared import Instruction
 from models.database import Database
 from controllers.type_checker import TypeChecker
 from controllers.data_controller import DataController
-from controllers.symbol_table import *
+from controllers.symbol_table import SymbolTable
+from controllers.error_controller import ErrorController
+from views.data_window import DataWindow
+
 
 class CreateDB(Instruction):
 
@@ -32,6 +35,11 @@ class CreateDB(Instruction):
 
         # TODO Verificar permisos y modo
         database = Database(self._properties['id'])
+
+        for permits in self._properties['listpermits']:
+            if 'MODE' in permits:
+                database.mode = permits['MODE']
+
         typeChecker.createDatabase(database, self._noLine,
                                    self._noColumn)
 
@@ -89,7 +97,11 @@ class ShowDatabase(Instruction):
                 pattern = rf"{self._patherMatch.value.lower()}$"
                 databases = list(filter(lambda x: re.match(pattern, x.lower()),
                                         databases))
-        print(databases)  # TODO implementar en la vista a la vista
+
+        columnsData = []
+        for db in databases:
+            columnsData.append([db])
+        DataWindow().consoleTable(['Databases'], columnsData)
 
     def __repr__(self):
         return str(vars(self))
@@ -102,13 +114,19 @@ class AlterDatabase(Instruction):
         si recibe un 2 es porque es el duenio
     '''
 
-    def __init__(self, alterType, oldValue, newValue):
+    def __init__(self, alterType, oldValue, newValue, noLine, noColumn):
         self._alterType = alterType
         self._oldValue = oldValue
         self._newValue = newValue
+        self._noLine = noLine
+        self._noColumn = noColumn
 
     def process(self, instrucction):
-        pass
+        if self._alterType == 1:
+            TypeChecker().updateDatabase(self._oldValue, self._newValue,
+                                         self._noLine, self._noColumn)
+        elif self._alterType == 2:
+            pass
 
     def __repr__(self):
         return str(vars(self))
@@ -119,19 +137,23 @@ class UseDatabase(Instruction):
         Use database recibe el nombre de la base de datos que sera utilizada
     '''
 
-    def __init__(self, dbActual):
+    def __init__(self, dbActual, noLine, noColumn):
         self._dbActual = dbActual
+        self._noLine = noLine
+        self._noColumn = noColumn
 
-    def process(self,instrucction):
+    def process(self, instrucction):
         typeChecker = TypeChecker()
         database = typeChecker.searchDatabase(self._dbActual)
 
-        if database:
-                SymbolTable()._useDatabase = database
-                print(' ')
-                print('----------> Base de datos seleccionada correctamente')
-                print(' ')
-                return
+        if not database:
+            desc = f": Database {self._dbActual} does not exist"
+            ErrorController().add(35, 'Execution', desc,
+                                  self._noLine, self._noColumn)
+            return
+
+        SymbolTable().useDatabase = database
+        DataWindow().consoleText('Query returned successfully: USE DATABASE')
 
     def __repr__(self):
         return str(vars(self))

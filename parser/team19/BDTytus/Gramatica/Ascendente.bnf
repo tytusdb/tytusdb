@@ -47,11 +47,14 @@ INSERT_SQL ::= par1 LISTA_ID par2 t_values par1 EXP par2
 DELETE_Cond ::= t_where EXP
                 | empty
 
-SENTENCIAS_DDL ::= t_show t_databases pyc
+SENTENCIAS_DDL ::= t_show t_databases SHOW_DB_LIKE_CHAR pyc
                     | ENUM_TYPE
                     | t_drop DROP pyc
                     | t_alter ALTER pyc 
                     | t_create CREATE pyc
+
+SHOW_DB_LIKE_CHAR ::= t_like char 
+                     | empty
 
 ENUM_TYPE ::= t_create t_type id t_as t_enum par1 LISTA_ENUM par2 pyc
 
@@ -77,9 +80,12 @@ ALTERTB ::= t_add ADD_OPC
                 | t_rename t_column id t_to id 
 
 ADD_OPC ::= t_column id TIPO
-               | t_foreign t_key par1 id par2 t_references id
-               | t_constraint id t_unique par1 id par2
-               | t_check EXP 
+               | CONSTRAINT_ALTERTB t_foreign t_key par1 id par2 t_references id par1 Lista_ID par2
+               | CONSTRAINT_ALTERTB t_unique par1 id par2
+               | CONSTRAINT_ALTERTB t_check EXP 
+
+CONSTRAINT_ALTERTB ::=      t_constraint id
+                            | EMPTY'''
 
 DROP_OPC ::=  t_column id
                  |  t_constraint id 
@@ -128,22 +134,22 @@ COLUMNAS ::= COLUMNAS coma COLUMNA
 COLUMNA ::= id TIPO COND_CREATETB 
                 | CONSTRAINT
 
-COND_CREATETB ::= t_default id COND_CREATETB 
-                        | t_not t_null COND_CREATETB 
-                        | t_null COND_CREATETB 
-                        | t_constraint id OPC_CONSTRAINT COND_CREATETB 
-                        | t_primary t_key COND_CREATETB 
-                        | t_references id COND_CREATETB 
+COND_CREATETB ::= CONSTRAINT_CREATETB t_default id COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_not t_null COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_null COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_unique COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_check par1 EXP par2 COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_primary t_key COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_references id COND_CREATETB 
                         | empty
 
-OPC_CONSTRAINT ::= t_unique
-                       | t_check par1 EXP par2 
+CONSTRAINT_CREATETB ::= t_constraint id
+                     | EMPTY
 
-CONSTRAINT ::= t_unique par1 LISTA_ID par2
-                    | t_constraint id t_check par1 EXP par2
-                    | t_check par1 EXP par2
-                    | t_primary t_key par1 LISTA_ID par2
-                    | t_foreign t_key par1 LISTA_ID par2 t_references id par1 LISTA_ID par2
+CONSTRAINT ::= CONSTRAINT_CREATETB t_unique par1 LISTA_ID par2
+                    | CONSTRAINT_CREATETB t_check par1 EXP par2
+                    | CONSTRAINT_CREATETB t_primary t_key par1 LISTA_ID par2
+                    | CONSTRAINT_CREATETB t_foreign t_key par1 LISTA_ID par2 t_references id par1 LISTA_ID par2
                     | empty 
 
 TIPO ::= t_smallint

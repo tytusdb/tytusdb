@@ -25,11 +25,13 @@ class BaseDatos:
     def Buscar(self, table):
         existe = False
         i = -1
-        if table in self.list_table:
-            existe = True
-            i=self.list_table.index(table)
-        else:
-            existe = False
+        for tabla in self.list_table:
+            if tabla.casefold() == table.casefold():
+                existe = True
+                i=self.list_table.index(tabla)
+                break
+            else:
+                existe = False
             
         salida = [existe, i]
         return salida
@@ -41,13 +43,15 @@ class BaseDatos:
 
     def Cargar(self, table):
         try:
-            if self.tabla_actual.nombre==table:
+
+            if self.tabla_actual.nombre.casefold()==table.casefold():
                 return self.tabla_actual
             elif table in self.list_table:
                 self.tabla_actual = serealizar.rollback(table, self.main_path)
                 return self.tabla_actual
             else:
                 return False
+
         except:
             
             if table in self.list_table:
@@ -58,7 +62,10 @@ class BaseDatos:
 
     # == CREAR TABLAS
     def createTable(self, tableName, numberColumns):
-        if not tableName in self.list_table:
+        salida = self.Buscar(tableName)
+        if salida[0]:
+            return 3
+        else:
             try:
                 if re.search(table_name_pattern, tableName):
                     self.list_table.append(tableName)
@@ -69,8 +76,6 @@ class BaseDatos:
                     return 1
             except:
                 return 1
-        else:
-            return 3
 
     # == MOSTRAR TABLAS
     def showTables(self):
@@ -78,21 +83,23 @@ class BaseDatos:
 
     # === EXTRAER INFORMACIÓN
     def extractTable(self, table):
-        if table in self.list_table:
+        salida = self.Buscar(table)
+        if salida[0]:
             try:
-                temp = serealizar.rollback(table, self.main_path)    
-                return temp.extractTable()
+                tabla = self.Cargar(table)    
+                return tabla.extractTable()
             except:
-                return 1
+                return None
         else:
             return None
     
     # === EXTRA Y DEVUELVE LISTA DE ELEMENTOS DE UN RANGO ESPECIFICO 
     def extractRangeTable(self, table, columnNumber, lower, upper):
-        if table in self.list_table:
+        salida = self.Buscar(table)
+        if salida[0]:
             try:
-                temp = serealizar.rollback(table, self.main_path)    
-                return temp.extractRangeTable(columnNumber, lower, upper)
+                tabla = self.Cargar(table)    
+                return tabla.extractRangeTable(columnNumber, lower, upper)
             except:
                 return 1
         else:
@@ -100,7 +107,8 @@ class BaseDatos:
   
     # == LLAVES PRIMARIAS Y FORÁNEAS    
     def alterAddPK(self, table, columns):
-        if table in self.list_table:
+        salida = self.Buscar(table)
+        if salida[0]:
             try:
                 if len(columns) == 0:
                     return 1
@@ -115,7 +123,8 @@ class BaseDatos:
             return 3
 
     def alterDropPK(self, table):
-        if table in self.list_table:
+        salida = self.Buscar(table)
+        if salida[0]:
             try:
                 temp = self.Cargar(table)                    
                 var = temp.alterDropPK()
@@ -132,7 +141,8 @@ class BaseDatos:
         if salida[0]:
             try:
                 temp = serealizar.rollback(tableOld, self.main_path)
-                if not tableNew in self.list_table:                    
+                comprobar = self.Buscar(tableNew)
+                if comprobar[0] == False:                    
                     if re.search(table_name_pattern, tableOld) and re.search(table_name_pattern, tableNew):
                         os.remove(self.main_path+"\\"+tableOld+".bin")
                         self.list_table[salida[1]]= tableNew
@@ -208,5 +218,4 @@ class BaseDatos:
         file.write('tabla[shape=record label="'+info+'}"];')
         file.write(' }' + os.linesep)
         file.close()
-        os.system('dot -Tpng tablas.dot -o tablas.png')
         os.system('dot -Tpng tablas.dot -o tablas.png')

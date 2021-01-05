@@ -1,7 +1,8 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from database import *
-from symbol_ import *
+from execution.symbol.database import Database
+from execution.symbol.symbol_ import Symbol
+from prettytable import PrettyTable
+from execution.symbol.typ import *
+from datetime import datetime
 
 class Environment:
     def __init__(self, father):
@@ -9,6 +10,7 @@ class Environment:
         self.db = None
         self.bases = []
         self.simbolos = []
+        self.tablaSimbolos = []
 
     def getActualDataBase(self):
         #Buscamos la base de datos 
@@ -60,9 +62,27 @@ class Environment:
                 del env.bases[i]
                 break
 
-    
-    def guardarVariable(self,name,tipo,value):
-        self.simbolos.append(Symbol(name,tipo,value))
+    def clearTablaSimbolos(self):
+        self.tablaSimbolos = []
+        
+    def guardarVariable(self,name,tipo,value,father):
+        valuee = value
+        if tipo == Type.DATE:
+           valuee = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        elif tipo == Type.TIME:
+            valuee = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        self.simbolos.append(Symbol(name,tipo,valuee, father))
+        env = self
+        while env.father != None:
+            env = env.father 
+        env.tablaSimbolos.append(Symbol(name,tipo,value, father))
+
+    def guardarVariableins(self,name,tipo,value,father):            
+        self.simbolos.append(Symbol(name,tipo,value, father))
+        env = self
+        while env.father != None:
+            env = env.father 
+        env.tablaSimbolos.append(Symbol(name,tipo,str(value), father))
 
     def deleteVariable(self, name):
         env = self
@@ -73,18 +93,32 @@ class Environment:
                     break
             env = env.father    
 
-    def vaciarVariables(self, name):
+    def vaciarVariables(self):
         env = self
         env.simbolos = []
 
     
-    def buscarVariable(self, name):
+    def buscarVariable(self, name, father):
+        env = self
+        while env.father != None:
+            for i in range(0,len(env.simbolos)):
+                if env.simbolos[i].name == name and env.simbolos[i].father == father:
+                    return {'value': env.simbolos[i].value , 'tipo':env.simbolos[i].tipo,'name':env.simbolos[i].name}
+            env = env.father
         env = self
         while env.father != None:
             for i in range(0,len(env.simbolos)):
                 if env.simbolos[i].name == name:
                     return {'value': env.simbolos[i].value , 'tipo':env.simbolos[i].tipo,'name':env.simbolos[i].name}
             env = env.father
-        return None     
-
-Symbol('nombre','d','d')
+    
+    def tsString(self):
+        arreglo = []
+        for simbolo in self.tablaSimbolos:
+            arreglo.append([simbolo.name, simbolo.tipo.name, simbolo.value, simbolo.father] )
+        encabezado = [ 'ID','TIPO','VALOR','AMBITO']
+        x = PrettyTable()
+        x.field_names = encabezado
+        x.add_rows(arreglo)
+        return x.get_string()
+        

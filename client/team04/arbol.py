@@ -7,14 +7,14 @@ from tkinter import messagebox as MessageBox
 class Arbol(Frame):
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
-
         # Estilos del Treeview, solamente para vista
         style = ttk.Style()
         style.theme_use("clam")
         style.configure("Treeview",
-            background = "silver",
-            foreground = "black",
-            fieldbackground = "silver"
+            background = "gray21",
+            foreground = "white",
+            fieldbackground = "silver",
+            activebackground="gray59"
             )
         
         # Crear las imagenes que iran en el treeview, 

@@ -1,8 +1,15 @@
 import ply.yacc as yacc
-from ast.Label import Label
 from ast.Declarevar import Declarevar
 from Reportes.Datos import Datos
 import Reportes.Errores as Reporte
+from Valor.Asignacion import Asignacion
+from ast.Label import Label
+from Valor.Operar import Operar
+from Valor.Operar import TIPO
+from Valor.Valor import Valor
+from ast.Insercion import Insercion
+from ast.Select import Select
+
 
 
 reservadas = {
@@ -19,6 +26,7 @@ reservadas = {
     'add'       : 'ADD',
     'table'	    : 'TABLE',
 	'database'	: 'DATABASE',
+	'unique'	: 'UNIQUE',    
     'databases'	: 'DATABASES',
     'inherits'	: 'INHERITS',
     'drop'      : 'DROP',
@@ -58,6 +66,7 @@ reservadas = {
     'or'     	: 'OR2',
     'replace'   : 'REPLACE',
     'exists'    : 'EXISTS',
+    'exist'     : 'EXIST2',
     'if'        : 'IF',
     'owner'     : 'OWNER',
     'mode'      : 'MODE',
@@ -77,7 +86,8 @@ reservadas = {
     'current_date'	: 'CURRENT_DATE',
     'current_time'	: 'CURRENT_TIME',
     'references'	: 'REFERENCES',
-
+    'md5'	: 'MD5',
+    'now'	: 'NOW',
     'year'  	: 'YEAR',
     'month'     : 'MONTH',
     'day'   	: 'DAY',
@@ -149,6 +159,7 @@ tokens  = [
 # Tokens
 t_PUNTOCOMA   = r';'
 t_DOSPUNTOS	  = r':'
+t_COMA      = r','
 t_PARENIN     = r'\('
 t_PARENOUT    = r'\)'
 t_CORCHIN     = r'\['
@@ -172,9 +183,19 @@ t_AND       = r'&&'
 t_AMPER       = r'&'
 t_NOT       = r'!'
 t_EXP       = r'\^'
-t_COMA      = r','
+
 t_APOST     = r'\''
 
+
+
+def t_ENTERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Entero demasiado largo %d", t.value)
+        t.value = 0
+    return t
 
 
 def t_DECIMAL(t):
@@ -200,15 +221,6 @@ def t_HORA(t):
      r'[0-9][:0-9]*'
      t.type = reservadas.get(t.value.lower(),'HORA')    # CHECK FOR RESERVED WORDS
      return t
-
-def t_ENTERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Entero demasiado largo %d", t.value)
-        t.value = 0
-    return t
 
 
 
@@ -283,20 +295,31 @@ def p_instrucciones_lista(t) :
     t[0] = t[1]
 
 def p_instrucciones_instruccion(t) :
-    'instrucciones    : instruccion '
+    '''instrucciones      : instruccion                       
+                        '''
     t[0] = [t[1]]
 
 
 def p_instruccion(t) :
-    '''instruccion      : creartable PUNTOCOMA
-                        | creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA
+    '''instruccion      : creartable PUNTOCOMA 
+                       | createbase PUNTOCOMA
+                       | expresion2
+                       | ddm PUNTOCOMA
+                       | selecttable PUNTOCOMA
+                       | error                         
+                        '''
+    t[0] = t[1]
+
+def p_instruccion2(t) :
+    '''instruccion4      : creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA
                         | createbase PUNTOCOMA
-                        | selecttable PUNTOCOMA
+                        | createbase2 PUNTOCOMA
                         | DROP TABLE ID PUNTOCOMA
                         | altertable
                         | ddm PUNTOCOMA
                         | error '''
     t[0] = t[1]
+
 
 def p_createbase(t) :
     '''createbase      :    CREATE DATABASE ID
@@ -305,6 +328,13 @@ def p_createbase(t) :
                             '''
     t[0] = Declarevar(t[3],"",t.slice[1].lineno,find_column(t.slice[1]),t[2])
 
+
+def p_createbase2(t) :
+    '''createbase2      :    CREATE DATABASE IF NOT2 EXIST2 ID
+    |  CREATE error DATABASE IF NOT2 EXIST2 ID
+    |  CREATE  DATABASE error IF NOT2 EXIST2 ID
+    |  CREATE  DATABASE  IF error NOT2 EXIST2 ID                              '''
+    t[0] = Declarevar(t[6],"",t.slice[1].lineno,find_column(t.slice[1]),t[2])
 
 
 def p_altertable(t) :
@@ -319,72 +349,151 @@ def p_altertable(t) :
 
 
 def p_ddm(t) :
-    '''ddm     :  INSERT INTO ID VALUES PARENIN valores PARENOUT
+    '''ddm     :  insertstatement
                         | UPDATE ID SET ID IGUAL valor wherecondicion
                         | UPDATE ID SET ID IGUAL valor
                         | DELETE FROM ID wherecondicion
 '''
     t[0] = t[1]
 
+def p_insertstatement(t) :
+        'insertstatement   : INSERT INTO ID VALUES PARENIN valores PARENOUT'
+        t[0] = Insercion(t[3],t[6],t.slice[1].lineno,find_column(t.slice[1]),t[1])
+
+
+def p_valores(t) :
+    'valores    : valores COMA valor '
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_valores2(t) :
+    '''valores      : valor                       
+                        '''
+    t[0] = [t[1]]
 
 
 def p_whrecondicion(t) :
         '''wherecondicion   : WHERE  condition
                       |      WHERE  condition AND2 condition
+                      
                       '''
         t[0] = t[1]
 
+def p_whrecondicion2(t) :
+    'wherecondicion   :  '
+    t[0] = []
 
 def p_creartable(t) :
-    'creartable     : CREATE TABLE ID PARENIN params PARENOUT '
-    t[0] = t[1]
+    'creartable     : CREATE TABLE ID PARENIN params PARENOUT '   
+    t[0] = Label(t[3],t[5],t.slice[1].lineno,find_column(t.slice[1]),t[2])
+def p_creartable9(t) :
+    'creartable     : CREATE TABLE ID PARENIN PARENOUT '   
+    t[0] = Asignhacion(t[3],"",t.slice[1].lineno,find_column(t.slice[1]),t[2])
+
 
 def p_selecttable(t) :
-    '''selecttable     : SELECT selectclausules FROM  selectbody
-                      | SELECT selectclausules FROM selectbody wherecondicion
+    '''selecttable     : SELECT selectclausules FROM  selectbody wherecondicion
                       | SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores
                       | SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones
                      '''
-    t[0] = t[1]
+    t[0] = Select(t[2],t[4],t.slice[1].lineno,find_column(t.slice[1]),t[5])
+
 
 def p_selectbody(t) :
-    '''selectbody     : ID
-                      | PARENIN selecttable  PARENOUT
-                      | ID ID
+    '''selectbody     : ID                      
+                     '''
+    clase = Select("","","","","")  
+    clase.type =  "ID"            
+    clase.value =  t[1]     
+    t[0] = clase
+ 
+def p_selectbody2(t) :
+    '''selectbody     :  PARENIN selecttable  PARENOUT
+                        | ID ID
                      '''
     t[0] = t[1]
+ 
+
+def p_selectclausules2(t) :
+    'selectclausules     : POR'
+    clase = Select("","","","","")             
+    clase.type = '*'     
+    t[0] = clase
+   
 
 def p_selectclausules(t) :
-    '''selectclausules     : POR
-                      | valores
-                      | DISTINCT  valores
+    '''selectclausules     : valores                     
+                     '''        
+    clase = Select("","","","","")             
+    clase.type = 'valores' 
+    clase.value =   t[1]
+    t[0] = clase
+   
+
+def p_selectclausules4(t) :
+    '''selectclausules     :  DISTINCT  valores
                       | SUBSTRING PARENIN valor COMA valor COMA  valor PARENOUT
 
                      '''
+        
     t[0] = t[1]
 
 
 def p_funciones(t) :
     '''funciones     : SUM PARENIN ID PARENOUT  signos valor
                     '''
+
+def p_params_lista(t) :
+    '''params    :  params COMA valores_inside 
+                 | params error valores_inside  '''
+    t[1].append(t[3])
     t[0] = t[1]
 
 def p_params(t) :
-    '''params     : params COMA expresion
-                | expresion '''
+    'params     : valores_inside '
+    t[0] =  [t[1]]
+
+
+def p_valores_inside(t) :
+    '''valores_inside     : expresion
+                | expresion2 '''
     t[0] = t[1]
 
-def p_valores(t) :
-    '''valores     : valores COMA valor
-                | valor '''
-    t[0] = t[1]
+
 
 def p_expresion(t):
-    '''expresion     : ID TIPODATO
-                |      PRIMARY KEY PARENIN ID PARENOUT
-                |      FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT'''
-    t[0] = t[1]
+    'expresion     : ID TIPODATO compl'    
+    t[0] = Declarevar(t[1],"",t.slice[1].lineno,find_column(t.slice[1]),t[2])
+def p_expresion2(t):
+    'expresion2     : ID TIPODATO DEFAULT expresion_num compl'    
+    t[0] = Asignacion(t[1],t[4],t.slice[1].lineno,find_column(t.slice[1]),t[2])
+def p_compl(t):
+     '''compl : NOT2 NULL
+             | UNIQUE NOT2 NULL
+             | UNIQUE 
+             | NOT2 NULL PRIMARY KEY 
+             | PRIMARY KEY 
+               
+             '''               
+     t[0] = t[1]
 
+def p_compl2(t) :
+    'compl   :  '
+    t[0] = []
+  
+def p_expresion_num(t):
+        '''expresion_num : valor
+                     | operacion_binar
+                    '''
+        t[0] = t[1]        
+
+
+def p_expresionp(t):
+    'expresion     : PRIMARY KEY PARENIN ID PARENOUT'
+    t[0] = t[1]
+def p_expresionf(t):
+    'expresion     : FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT'
+    t[0] = t[1]
 
 def p_condition(t) :
     '''condition :      valor signos valor
@@ -409,22 +518,56 @@ def p_signos(t) :
                              '''
     t[0] = t[1]
 
+def p_operacion_binar(t):
+    '''operacion_binar   :      valor MAS valor
+                            |   valor MENOS valor
+                            |   valor POR valor
+                            |   valor DIV valor
+                            |   valor PORC valor'''
 
-def p_valor(t):
+    clase = Operar()
+    if(t.slice[2].type == 'MAS'):
+        clase.Node(t[1],t[3],TIPO.SUM,t.slice[2].lineno,1)       
+    elif(t.slice[2].type == 'MENOS'):
+        clase.Node(t[1],t[3],TIPO.REST,t.slice[2].lineno,1)       
+    elif(t.slice[2].type == 'POR'):
+        clase.Node(t[1],t[3],TIPO.MULT,t.slice[2].lineno,1)
+        
+    elif(t.slice[2].type == 'DIV'):
+        clase.Node(t[1],t[3],TIPO.DIV,t.slice[2].lineno,1)
+       
+    elif(t.slice[2].type == 'PORC'):
+        clase.Node(t[1],t[3],TIPO.PORC,t.slice[2].lineno,1)
+       
+    t[0] = clase
+
+def p_valorz(t):
     '''valor :     ENTERO
                  | DECIMAL
                  | APOST FECHA APOST
                  | CADENA
                  | CADENA2
+                 | MD5 PARENIN CADENA  PARENOUT
+                 | NOW PARENIN PARENOUT
                  | ID
-                 | ID PUNTO ID
+                 | ID PUNTO ID                 
                  | PARENIN selecttable  PARENOUT
             '''
-    t[0] = t[1]
+    l= Operar() 
 
+    if(t.slice[1].type == 'CADENA' or t.slice[1].type == 'CADENA2'):
+        l.Value_normal(Valor(str(t[1]),t.slice[1].lineno,find_column(t.slice[1])))
+    elif(t.slice[1].type == 'DECIMAL'):
+        l.Value_normal(Valor(float(t[1]),t.slice[1].lineno,find_column(t.slice[1])))
+    elif(t.slice[1].type == 'ENTERO'):
+        l.Value_normal(Valor(int(t[1]),t.slice[1].lineno,find_column(t.slice[1])))
+    t[0] = l
+  
+    
 def p_TIPODATO(t):
     ''' TIPODATO : TEXT
                   | SMALLINT
+                  | VARCHAR PARENIN ENTERO  PARENOUT                  
                   | INTEGER
                   | INT
                   | BIGINT
@@ -439,7 +582,7 @@ def p_TIPODATO(t):
                   | FLOAT
                   | DATE
                   | MONEY
-                  | VARCHAR PARENIN ENTERO PARENOUT'''
+                  '''
     t[0] = t[1]
 
 def p_error(t):

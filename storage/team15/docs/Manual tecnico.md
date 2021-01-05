@@ -6,6 +6,7 @@
 - [Objetivos](#objetivos)
 - [Alcances del proyecto](#alcances-del-proyecto)
 - [Requerimentos funcionales](#requerimentos-funcionales)
+- [Atributos del sistema](#atributos-del-sistema)
 - [Estructura de bases de datos](#estructura-de-bases-de-datos)
 - [Estructura de tablas](#estructura-de-tablas)
 - [Reportador gráfico](#reportador-grafico)
@@ -13,12 +14,21 @@
 - [Diagrama de Gantt](#diagrama-de-gantt)
 
 ## Introducción
-
-cuerpo
+Este proyecto ofrece una estructura para un gestor de bases de datos, se encuentran dos tipos de estructuras, listas propias de Python para manejar las bases de datos y tablas, y tablas hash para los registros de las tablas (Tuplas). El código presentado contiene una librería propia para que sea fácil de utilizar desde fuera. Cada estructura utilizada fue seleccionada bajo criterios de eficiencia. 
 
 ## Objetivos
 
-cuerpo
+### General
+
+Proporcionar una estructura de datos completa y eficiente para obtener el mejor manejo y resguardo de datos que se desee. Así como cumplir con los estándares necesarios de un manejador de base de datos.
+
+### Específicos
+
+- Ser capaz de alojar N bases de datos con M tablas y X registros sin importar la longitud de cada uno.
+- Evitar perdida de datos, tanto en registros como tablas o bases de datos enteras.
+- Contemplar cualquier tipo de error ya sea en escritura de nombres o ingreso de datos para evitar errores innecesarios.
+- Informar errores por medio de valores de retorno de cada función a la cual se acceda.
+
 
 ## Alcances del proyecto
 
@@ -38,8 +48,25 @@ Como estructura interna de un DBMS, además de la eficiencia y eficacia de las c
 
 ## Requerimentos funcionales
 
-cuerpo
+- Los nombres de base de datos deben respetar las reglas de nombrado.
+- Los nombres de tablas deben respetar las reglas de nombrado.
+- Se deben enviar los argumentos que se solicitan para evitar errores.
+- Para crear una base de datos debe enviar un nombre, el cual no debe existir ya almacenado.
+- Para crear una tabla debe enviar el nombre de la base de datos, nombre de la tabla y número de columnas, dicho nombre no debe existir ya almacenado.
+- La interfaz gráfica es un componente que aprovecha la librería, para su uso se deberá llamar de forma independiente a HashMode.
+- Cualquier acción que quiera realizar se hará por medio de *Hash Mode*, donde tendrá una mejor orientación para enviar los datos.
+- Debe tener [graphviz](https://graphviz.org/download/) para poder observar la estructura de cada almacenamiento de forma grafica por medio de la interfaz gráfica.
 
+## Atributos del sistema
+
+- Las estructuras proveerán un alojamiento seguro y eficiente.
+- Brindará una librería propia para que sea más fácil de implementar.
+- Las funciones existentes retornaran valores numéricos para informar el estado de la operación.
+- Las funciones existentes retornaran Listas para informar el estado de la operación.
+- Las estructuras serán capaces de evitar la duplicidad de datos.
+- Brindará una interfaz gráfica para visualizar el funcionamiento interno de las estructuras.
+- Serealizará los objetos creados para evitar perdidas de datos.
+- La librería implementa métodos de serealización que ayuda a la eficiencia y fluidez del sistema. 
 
 ## Paradigma utilizado
 
@@ -74,12 +101,41 @@ La librería hace uso de una instancia de la clase ListaBaseDatos, que no requie
 
 Para crear una base de datos, se añade una instancia de la clase BaseDatos mediante el método *append()* de las listas, para eliminar una base de datos se hace uso del método *remove()* de las listas, y para modificar el nombre de una base de datos, se busca en la lista y se cambia su atributo *nombre*.
 
+### Información sobre funciones de la clase ListaBaseDatos.py
+![Funciones Clase ListaBaseDatos](img/FuncionesClaseListaBaseDatos.png "Funciones Clase ListaBaseDatos")
 
 ## Estructura de tablas
 
+### Estructura utilizada
 
+Para el almacenamiento de las tablas se optó por usar una lista de Python que almacena estructuras de Tablas.
 
+#### ¿Por qué una lista de Python?
 
+Debido a su naturaleza dinámica y eficaz, sin contar los métodos inherentes de la lista de Python. La estructura manejada no ordena las tablas, se almacenan como colas (FIFO).
+
+![Lista de tablas](img/ListaTablas.png "Lista de tablas")
+
+Existe una relación directa entre cada objeto Tabla que almacena la lista y el contenido de la carpeta *data/hash/database*, a cada tabla *table* en la lista de tablas le corresponde una carpeta *data/hash/database/**table**. 
+
+> **Nota:** Las tablas se serealizan para evitar perdida de datos como los registros *tuplas*, sin embargo por motivos de eficiencia se han mejorado metodos de serealización para tener una respuesta en menor tiempo.
+
+### Clases y sus atributos
+
+La lista de tablas se trata de un atributo de la clase BaseDatos, donde cada elemento es creado y gestionado en dicha clase, comparte información con la clase Tabla, esto se puede observar de mejor manera en el [diagrama de clases](#diagrama-de-clases).
+
+#### Nodo
+
+Los nodos de la lista (Tabla) se explican de manera amplia en la sección [Estructura de registros](#estructura-de-registros).
+
+#### Lista de tablas
+
+La librería hace uso de una instancia de la clase BaseDatos, debe siempre enviar el nombre de la tabla y el directorio padre (de la base de datos a la cual pertenece) para no cometer errores en la manipulación de las mismas. Los métodos de esta clase hacen uso de los métodos de las listas de Python, con las respectivas validaciones.
+
+Para crear una tabla, se  validar que exista la base de datos especificada y que no exista la tabla que desean crear, si pasa las validaciones se añade una instancia de la clase Tabla mediante el método *append()* de las listas, para eliminar una tabla se hace uso del método *pop()* de las listas, y para modificar el nombre de una tabla se busca en la lista por medio del *index()* de las listas, se cambia su atributo *Name*.
+
+### Información sobre funciones de la clase BaseDatos.py
+![Funciones Clase BaseDatos](img/FuncionesClaseBaseDatos.png "Funciones Clase BaseDatos")
 
 ## Estructura de registros
  
@@ -137,7 +193,28 @@ Con estos parámetros se construye el objeto, el cual toma el nombre indicado y 
 
 ## Reportador grafico
 
-cuerpo
+En la creacion del reporte grafico se inclino en la creacion de una interfaz interactiva con el usuario para gestionar todo el funcionamiento del programa. Para ello se declino a la utilizacion de la libreia Tkinter la cual proporciono un conjunto de herramientas para la administracion de ventanas.
+```sh
+import Tkinter
+```
+Tkinter es un conjunto de funciones que envuelven las implementaciones widgets Tk como clases de Python y tiene ventajas como su velocidad que generalmente se suministra de forma nativa con Python. 
+
+#### Widgets
+Utilizando los widgets Tk y Toplevel donde se proporciona un lienzo (ventanas) y con un conjunto adicional de widgets se utilizaron para darle un excelente diseño en diferentes areas de las ventanas, algunos de estos fueron.
+```sh
+Frame: Espacio donde se almacenan un definido conjunto de widgets.
+Button: Creacion de botones.
+Label: Espacios de textos definidos.
+PhotoImage: Proyeccion de imagenes buscadas en un directorio actual.
+Entry: Entradas de texto por parte del usuario
+```
+#### Clases y atributos 
+###### Window Databases
+Ventana que administra todas las gestiones de las bases de datos, utilizando todos los recursos disponibles que ofrece la libreria se logro un diseño sencillo y funcional.
+###### Window Tables
+Ventana que permite gestionar todas las funcionalidades sobre las tablas que puede almacenar una base de datos, su funcionalidad proviene de la clase window databases quien acomoda las gestiones de las tablas dependiendo de la base seleccionada previamente.
+###### Window Tuples
+Ventana al igual que las otras permite el gestionamiento de los registros almacenados en una tabla, con uso de metodos propios en el sistema se logra adaptar la clase dependiendo de la base de datos y tabla previamente seleccionadas, ademas dando una visualizacion de la estructura utilizada.
 
 ## Diagrama de clases
 
@@ -145,4 +222,4 @@ cuerpo
 
 ## Diagrama de Gantt
 
-cuerpo
+![diagrama-gantt](img/diagrama-gantt.jpg "Diagrama de Gantt")

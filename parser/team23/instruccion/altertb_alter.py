@@ -15,5 +15,9 @@ class altertb_alter(instruccion):
         self.nodo.hijos.append(nodo_AST(ID, num_nodo + 3))
         self.nodo.hijos.append(opcion.nodo)
 
-    def ejecutar(self):
-        pass
+        #Gramatica
+        self.grammar_ = '<TR><TD> ALTER_OP ::= ALTER COLUMN OPCION_ALTER </TD><TD> ALTER_OP = new altertb_alter(); </TD></TR>\n'
+        self.grammar_ += opcion.grammar_
+
+    def ejecutar(self, tb_id):
+        self.opcion.ejecutar(tb_id, self.ID)

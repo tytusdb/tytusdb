@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from math_functions import gcd
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.math_functions import gcd
 
 class Gcd(Function):
     def __init__(self, input1, input2, row, column):
@@ -17,7 +12,7 @@ class Gcd(Function):
         #Input es una lista        
         if isinstance(self.input1,list):
             respuesta = []
-            for i in range(len(self.divisor)):
+            for i in range(len(self.input1)):
                 value = self.input1[i].execute(environment)
                 value2 = self.input2[i].execute(environment)
                 if value['typ'] != Type.INT:
@@ -35,4 +30,4 @@ class Gcd(Function):
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
             if value2['typ'] != Type.INT:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-            return [{'value':gcd(value['value'],value2['value']), 'typ': Type.INT}]
+            return {'value':gcd(value['value'],value2['value']), 'typ': Type.INT}
