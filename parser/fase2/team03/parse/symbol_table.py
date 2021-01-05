@@ -4,6 +4,8 @@ from jsonMode import showDatabases as showDB
 from tabulate import tabulate
 
 index = 0
+label_idx = 0
+tmp_idx = 0
 
 
 def generate_id():  # Probably it would be better to use a random generator but this is more legible if debug needed
@@ -12,11 +14,26 @@ def generate_id():  # Probably it would be better to use a random generator but 
     return index
 
 
+def generate_label():  # UUID would be preferred but number used because is more legible
+    global label_idx
+    label_idx += 1
+    return f'l{label_idx}'
+
+
+def generate_tmp():  # UUID would be preferred but number used because is more legible
+    global tmp_idx
+    tmp_idx += 1
+    return f't{tmp_idx}'
+
+
 class SymbolType(Enum):
     DATABASE = 1
     TABLE = 2
     FIELD = 3
     TYPE = 4
+    FUNCTION = 5
+    STOREPROCEDURE = 6
+    INDEX = 7
 
 
 class Symbol:
@@ -51,7 +68,8 @@ class TableSymbol(Symbol):
 
 
 class FieldSymbol(Symbol):
-    def __init__(self, db_name, table_name, field_index, field_name, field_type, length, allows_null, is_pk, fk_table, fk_field):
+    def __init__(self, db_name, table_name, field_index, field_name, field_type, length, allows_null, is_pk, fk_table,
+                 fk_field):
         Symbol.__init__(self, SymbolType.FIELD, field_name)
         self.db_name = db_name
         self.table_name = table_name
@@ -69,6 +87,26 @@ class TypeSymbol(Symbol):
     def __init__(self, enum_name, value_list):
         Symbol.__init__(self, SymbolType.TYPE, enum_name)
         self.value_list = value_list
+
+
+class FunctionSymbol(Symbol):
+    def __init__(self, db_id, func_name, tac_label, number_params):
+        Symbol.__init__(self, SymbolType.FUNCTION, func_name)
+        self.db_id = db_id
+        self.func_name = func_name
+        self.tac_label = tac_label
+        self.number_params = number_params
+
+
+class IndexSymbol(Symbol):
+    def __init__(self, name, tabla, db_id, lista=[]):
+        Symbol.__init__(self, SymbolType.INDEX)
+        self.db_id = db_id
+        self.name =name
+        self.table = tabla
+        self.lista = lista
+
+
 
 
 class SymbolTable:
@@ -129,14 +167,14 @@ class SymbolTable:
         return result
 
     def set_current_db(self, db_name):
-        db_to_select = self.get(db_name, SymbolType.DATABASE)        
+        db_to_select = self.get(db_name, SymbolType.DATABASE)
         allDB = self.get_all_db(None)  # get the other databases and unselect them
         if len(allDB) > 0:
             for db in allDB:
                 db.selected = False
         db_to_select.selected = True
         # self.update(db_to_select) comment this line for test
-        
+
         return True
 
     def get_all_db(self, table_name):
@@ -152,12 +190,14 @@ class SymbolTable:
 
     def LoadMETADATA(self):
         self.LoadDataBases()
-    
+
     def LoadDataBases(self):
         db_memory = self.get_all_db(None)
         db_disk = showDB()
         for dbd in db_disk:
-            db_memory = list(filter(lambda sym: sym.type == SymbolType.DATABASE and str(sym.name).lower() == str(dbd).lower(), self.symbols))
+            db_memory = list(
+                filter(lambda sym: sym.type == SymbolType.DATABASE and str(sym.name).lower() == str(dbd).lower(),
+                       self.symbols))
             if len(db_memory) == 0:
                 self.add(DatabaseSymbol(dbd, None, 6))  # TODO change the mode for phase II
 
@@ -190,7 +230,6 @@ class SymbolTable:
     def from_json(cls, data):
         symbols = list(map(Symbol.from_json, data["symbols"]))
         return cls(symbols)
-
 
 # BLOCK TO TEST SYMBOL TABLE
 # db = DatabaseSymbol('test_db', None, 6)

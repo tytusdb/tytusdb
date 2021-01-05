@@ -3,6 +3,7 @@ from Analisis_Ascendente.Instrucciones.expresion import Primitivo
 from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 from Analisis_Ascendente.storageManager.jsonMode import *
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import C3D.GeneradorTemporales as GeneradorTemporales
 #TYPE
 class CreateType(Instruccion):
     def __init__(self, id, lista,fila,columna):
@@ -29,3 +30,26 @@ class CreateType(Instruccion):
         else:
 
             consola.append(f"Ya existe esta clase enumerada")
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        etiqueta = GeneradorTemporales.nuevo_temporal()
+        listado = None
+        for data in self.lista:
+            id = Expresion.Resolver(data, None, None, None)
+            if listado is None:
+                listado = "'%s'" % id
+            else:
+                listado += ", '%s'" % id
+        instruccion_quemada = 'CREATE TYPE %s AS ENUM (%s);' % (self.id, listado)
+        c3d = '''
+    # ---------CREATE TYPE---------------
+    top_stack = top_stack + 1
+    %s = "%s"
+    stack[top_stack] = %s
+    funcion_intermedia()
+
+        ''' % (etiqueta, instruccion_quemada, etiqueta)
+
+        GeneradorTemporales.resetar_numero_temporal()
+
+        return c3d
