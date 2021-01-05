@@ -105,13 +105,15 @@ def symbolReport():
 
 def indexReport():
     index = File.importFile("Index")
-    enc = [["Nombre", "Tabla", "Unico", "Metodo","Columnas"]]
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
     filas = []
     for (name, Index) in index.items():
         columns = ""
         for column in Index["Columns"]:
             columns += ", " + column["Name"]
-        filas.append([name,Index["Table"],Index["Unique"],Index["Method"],columns[1:]])
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
     enc.append(filas)
     return [enc]
 
