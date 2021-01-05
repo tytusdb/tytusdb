@@ -22,4 +22,4 @@ class Primitive(Expression):
         return node
     
     def generate3d(self,environment, instanciaAux):
-        return str(self.value) # TANTO PARA FASE 1 O FASE 2 SE RETORNA LO MISMO
+        return str(self.value) if not isinstance(self.value, str) else "'" + self.value + "'" # TANTO PARA FASE 1 O FASE 2 SE RETORNA LO MISMO
