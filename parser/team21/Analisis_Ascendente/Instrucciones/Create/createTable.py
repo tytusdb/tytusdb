@@ -63,10 +63,11 @@ tipos_de_dato = {
 
 #CREATE TABLE
 class CreateTable(Instruccion):
-    def __init__(self, id, campos, idInherits,fila,columna):
+    def __init__(self, id, campos, idInherits,concatena,fila,columna):
         self.id = id
         self.campos = campos
         self.idInherits = idInherits
+        self.concatena = concatena
         self.fila = fila
         self.columna = columna
 
@@ -208,6 +209,22 @@ class CreateTable(Instruccion):
 
             consola.append("22005	error_in_assignment, No se ha seleccionado una BD\n")
             exceptions.append("Error semantico-22005	error_in_assignment-No se ha seleccionado DB-fila-columna")
+
+    def traducir(CreateTable,consola,tv):
+
+        #iniciar traduccion
+        info = "" #info contiene toda el string a mandar como parametros
+        print("concatena \n")
+        print(CreateTable.concatena)
+        obtenerTemporal = tv.Temp()
+
+        for data in CreateTable.concatena:
+            info += data
+
+        consola.append(f"\n\t{obtenerTemporal} = f\" {info} ;\"")
+
+        consola.append(f"\n\tarbol = obtener_arbol({obtenerTemporal})")
+        consola.append(f"\n\tstack.append(arbol)\n\n")
 
 
 class Acompaniamiento(Instruccion):

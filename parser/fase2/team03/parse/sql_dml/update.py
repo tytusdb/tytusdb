@@ -51,7 +51,12 @@ class Update(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        updates_str = ''
+        for update in self.update_list:
+            updates_str = f'{updates_str}{update.generate(table, tree)},'
+
+        return f'UPDATE {self.table_name} SET {updates_str[:-1]} ' \
+               f'{self.where.generate(table, tree) if self.where is not None else ""};'
 
 
 class UpdateItem(ASTNode):
@@ -67,4 +72,4 @@ class UpdateItem(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'{self.column_name} = {self.exp.generate(table, tree)}'

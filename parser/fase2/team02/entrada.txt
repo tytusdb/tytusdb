@@ -1,0 +1,11 @@
+create function somefunc() 
+
+BEGIN
+ 
+ select * from mitabla;
+ insert into tabla values ('hola mundo');
+ 
+END ;
+
+
+execute somefunc();

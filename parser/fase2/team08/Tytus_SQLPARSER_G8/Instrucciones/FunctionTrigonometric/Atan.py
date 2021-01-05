@@ -1,7 +1,9 @@
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Primitivo import Primitivo
 
 class Atan(Instruccion):
     def __init__(self, valor, strGram, linea, columna):
@@ -25,4 +27,14 @@ class Atan(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
-            
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        if isinstance(self.valor, Primitivo):
+            return f"ATAN({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"ATAN({self.valor.concatenar(tabla,arbol)})"
+        return f"ATAN({self.valor.traducir(tabla,arbol)})"

@@ -1,3 +1,4 @@
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
@@ -37,6 +38,22 @@ class Mod(Instruccion):
             arbol.consola.append(error.toString())
             return error
         
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        cadena ="MOD("
+        if(isinstance(self.opIzq, Aritmetica)):
+            cadena += f"{self.opIzq.concatenar(tabla,arbol)}"
+        else:
+            cadena += f"{self.opIzq.traducir(tabla,arbol).temporalAnterior}"
+        cadena+= ","
+        if(isinstance(self.opDer, Aritmetica)):
+            cadena += f"{self.opDer.concatenar(tabla,arbol)}"
+        else:
+            cadena += f"{self.opDer.traducir(tabla,arbol).temporalAnterior}"
+        cadena += ")"
+        return cadena
 
 '''
 instruccion = Mod(12.5, 5.5, None, 1,2)

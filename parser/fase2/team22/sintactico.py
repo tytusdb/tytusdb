@@ -26,6 +26,7 @@ from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
+from Instrucciones.index import index
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -848,7 +849,7 @@ def p_operadores_agregacion(t):
         pass
     elif t[1] == 'COUNT':
         strGram = "<expre> ::= COUNT PARIZQ <expre> PARDER"
-        #t[0] = Count.Count(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Count.Count(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'GREATEST':
         strGram = "<expre> ::= GREATEST PARIZQ <lcol> PARDER"
@@ -874,9 +875,6 @@ def p_operadores_agregacion(t):
         strGram = "<expre> ::= TOP PARIZQ <lcol> PARDER"
         t[0] = Top.Top(t[3], Tipo(Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos)
         pass
-
-def p_operadores_agregacion2(t) :
-    '''expre    : COUNT PARIZQ POR PARDER'''
 
 def p_operadores_matematica(t):
     '''expre : ABS PARIZQ expre PARDER 
@@ -1624,30 +1622,71 @@ def p_tipo_datos2(t):
 def p_instruccion_creacion(t) :
     '''instruccion  : CREATE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
                     | CREATE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
+    
+    if len(t) == 11:
+        strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
+        strGram2 = ""
+        strGram3 = ""
+        id1 = Identificador(t[3], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        id2 = Identificador(t[5], strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = index.index( id1, id2, t[7], t[10], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+    else:
+        strGram = "<instruccion> ::= CREATE INDEX ID ON ID USING HASH PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
+        strGram2 = ""
+        strGram3 = ""
+        id1 = Identificador(t[3], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        id2 = Identificador(t[5], strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = index.index(id1, id2 , t[9], t[12], t[11], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+    # t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_creacion_unique(t) :
     '''instruccion  : CREATE UNIQUE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
                     | CREATE UNIQUE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
+    if len(t) == 12:
+        strGram = "<instruccion> ::= CREATE UNIQUE INDEX ID ON ID PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
+        strGram2 = ""
+        id1 = Identificador(t[4], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        id2 = Identificador(t[6], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = index.index(id1, id2, t[8], t[10], "UNIQUE", strGram, t.lexer.lineno, t.lexer.lexpos)
+    else:
+        strGram = "<instruccion> ::= CREATE UNIQUE INDEX ID ON ID USING HASH PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
+        strGram2 = ""
+        id1 = Identificador(t[4], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        id2 = Identificador(t[6], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = index.index(id1, id2, t[10], t[12], "UNIQUE", strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_can_where(t):
     '''can_where    : instructionWhere PUNTO_COMA
                     | PUNTO_COMA'''
+    if len(t) == 3:
+        t[0] = t[1]
+    else:
+        t[0] = None
 
 def p_l_expresiones_atri(t) :
     '''l_expresiones    : l_expresiones COMA expre lista_options'''
+    t[1] = t[1].append(t[3], t[4])
+    t[0] = t[1]
 
 def p_l_expresiones_atri_ind(t) :
     '''l_expresiones    : expre lista_options'''
+    t[1] = t[1].append(t[2])
+    t[0] = t[1]
 
 def p_operadores_is_not_true(t):
     '''expre    : expre IS NOT TRUE
     '''
+    t[0] = t[1] + ' IS NOT'
 
 def p_lista_options(t) :
     'lista_options  : lista_options options'
+    t[1] = t[1].append(t[2])
+    t[0] = t[1]
 
 def p_lista_options_2(t) :
     'lista_options  : options'
+    t[0] = t[1]
 
 def p_options(t) :
     '''options      : ASC
@@ -1659,6 +1698,10 @@ def p_options(t) :
                     | BPCH_PTN_OPS
                     | COLLATE expre
                     | expre'''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = t[1] + t[2]
 
 def p_params_crt_indx(t) :
     '''params_crt_indx  : INCLUDE PARIZQ expre PARDER
@@ -1736,6 +1779,41 @@ def p_def_tipos_declare(t) :
                             | expre MODULO ID'''
 
 
+def p_content_beginIf(t) :
+    '''content_begin    : IF condicion_if THEN list_begin elsif else_if END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin else_if END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin elsif END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin END IF PUNTO_COMA
+    '''
+
+def p_elseif(t) :
+    '''elsif       : ELSIF condicion_if THEN list_begin elsif
+                   | ELSIF condicion_if THEN list_begin
+    '''
+
+def p_else(t) :
+    '''else_if         : ELSE list_begin
+    '''
+
+def p_condiciones_if(t) :
+    '''condiciones_if   : condiciones_if AND condiciones_if
+                        | condiciones_if OR condiciones_if
+                        | condiciones_if'''
+
+def p_condiciones_if2(t) :
+    '''condiciones_if   : condicion_if'''
+
+def p_condicion_if(t) :
+    '''condicion_if : expre IGUAL expre
+                    | expre DISTINTO expre
+                    | expre MAYORQ expre
+                    | expre MENORQ expre
+                    | expre MAYOR_IGUALQ expre
+                    | expre MENOR_IGUALQ expre'''
+
+def p_condicion_if2(t) :
+    '''condicion_if : expre'''
+    
 def p_constant(t) :
     '''constant : CONSTANT
                 | '''
@@ -1779,40 +1857,6 @@ def p_content_begin(t) :
                         | EXCEPTION list_exception
                         | query PUNTO_COMA'''
 
-def p_content_beginIf(t) :
-    '''content_begin    : IF condicion_if THEN list_begin elsif else_if END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin else_if END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin elsif END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin END IF PUNTO_COMA
-    '''
-
-def p_elseif(t) :
-    '''elsif       : ELSIF condicion_if THEN list_begin elsif
-                   | ELSIF condicion_if THEN list_begin
-    '''
-
-def p_else(t) :
-    '''else_if         : ELSE list_begin
-    '''
-
-def p_condiciones_if(t) :
-    '''condiciones_if   : condiciones_if AND condiciones_if
-                        | condiciones_if OR condiciones_if
-                        | condiciones_if'''
-
-def p_condiciones_if2(t) :
-    '''condiciones_if   : condicion_if'''
-
-def p_condicion_if(t) :
-    '''condicion_if : expre IGUAL expre
-                    | expre DISTINTO expre
-                    | expre MAYORQ expre
-                    | expre MENORQ expre
-                    | expre MAYOR_IGUALQ expre
-                    | expre MENOR_IGUALQ expre'''
-
-def p_condicion_if2(t) :
-    '''condicion_if : expre'''
 
 def p_def_return(t) :
     '''def_return   : expre
@@ -1895,15 +1939,15 @@ parser = yacc.yacc()
 
 def ejecutar_analisis(texto):
     instrucciones = parser.parse(texto)
-    reporte = AST.AST(instrucciones)
-    reporte.ReportarAST()
+    # reporte = AST.AST(instrucciones)
+    # reporte.ReportarAST()
 
-    # try:
-    #     instrucciones = parser.parse(texto)
-    #     reporte = AST.AST(instrucciones)
-    #     reporte.ReportarAST()
-    # except:
-    #     print("SE TUVIERON PROBLEMAS AL CREAR EL AST.")
+    try:
+        instrucciones = parser.parse(texto)
+        reporte = AST.AST(instrucciones)
+        reporte.ReportarAST()
+    except:
+        print("SE TUVIERON PROBLEMAS AL CREAR EL AST.")
 
     #LIMPIAR VARIABLES
     columna=0

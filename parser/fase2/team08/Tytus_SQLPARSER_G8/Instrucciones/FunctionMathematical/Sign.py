@@ -20,4 +20,14 @@ class Sign(Instruccion):
         if isinstance(resultado,int):
             self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
         return int(geek.sign(resultado))
+    
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
         
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"SIGN({self.valor.traducir(tabla,arbol).temporalAnterior})"

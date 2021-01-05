@@ -27,3 +27,13 @@ class Log(Instruccion):
         else:
             self.tipo = Tipo(Tipo_Dato.NUMERIC)
             return math.log(resultado)
+
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"LOG({self.valor.traducir(tabla,arbol).temporalAnterior})"

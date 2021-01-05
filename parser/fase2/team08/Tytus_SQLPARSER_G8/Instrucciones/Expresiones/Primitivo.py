@@ -25,6 +25,12 @@ class Primitivo(Instruccion):
             else:
                 retorno.temporalAnterior = "0"
             return retorno
+        if self.tipo.tipo == Tipo_Dato.CHAR:
+            retorno.temporalAnterior = f"'{self.valor}'"
+            return retorno
+        elif self.tipo.tipo == Tipo_Dato.TEXT:
+            retorno.temporalAnterior = f"\'{self.valor}\'"
+            return retorno
         retorno.temporalAnterior = str(self.valor)
         return retorno
 
