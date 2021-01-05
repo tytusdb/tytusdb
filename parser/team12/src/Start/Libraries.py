@@ -19,6 +19,9 @@ sys.path.append(insert_path)
 group_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\DML\\Groups')
 sys.path.append(group_path)
 
+procedure_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\PLSQL\\')
+sys.path.append(procedure_path)
+
 
 
 from Nodo import Nodo
@@ -32,3 +35,4 @@ from UnionAll import UnionAll
 from Union import Union
 from Intersect import Intersect
 from Except import Except
+from Procedure import Procedure

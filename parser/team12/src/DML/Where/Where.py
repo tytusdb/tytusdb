@@ -123,9 +123,10 @@ class Where():
 
         # Pasos para el WHERE:
         # 1. Realizar el producto Cartesiano de matriz3DData
+        
         if matrizMult == None:
             array = []
-            for i in range(0,matriz3DData[0].noFilas):
+            for i in range(0,len(matriz3DData)):
                 array.append([True,i])
             matrizMult = array
         
@@ -133,8 +134,10 @@ class Where():
         if parent != None:
             for hijo in parent.hijos:
                 if hijo.nombreNodo == "E":
-                    return self.ejeExpCols(hijo, matrizMult, listaTablas, listaColumnas, matriz3DData)
+                    self.ejeExpCols(hijo, matrizMult, listaTablas, listaColumnas, matriz3DData)
+                    return matrizMult
         else:
-            return self.ejeExpNone(None, matrizMult, listaTablas, listaColumnas, matriz3DData)
+            self.ejeExpNone(None, matrizMult, listaTablas, listaColumnas, matriz3DData)
+            return matrizMult
         #Tenemos la estructura llena, sin valores.
 

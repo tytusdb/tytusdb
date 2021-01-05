@@ -1,3 +1,16 @@
+import json
+import sys, os.path
+import os
+
+storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\typeChecker')
+sys.path.append(storage)
+
+from typeChecker.typeChecker import *
+
+tc = TypeChecker()
+
+
+
 class Atribb():
     def __init__(self):
         self.column = None
@@ -31,6 +44,7 @@ class Index():
 
 
     def execute(self, parent):
+
         # Se recibe una sentencia CREATE INDEX
         self.name = parent.hijos[0].valor
         self.table = parent.hijos[1].valor
@@ -47,6 +61,13 @@ class Index():
             self.sentenciaWhere = self.construirExpresionJSON(parent.hijos[3])
         
         #Se agrega a typeChecker
+        with open('src/Config/Config.json') as file:
+            config = json.load(file)
+        
+        if config['databaseIndex'] == None:
+            err_resp = Error(3,"No se ha seleccionado ninguna base de datos.",-1)
+            resp = Response("42P12",err_resp)
+        create_index(config.upper(),self)
         
 
 
