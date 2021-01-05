@@ -22,7 +22,7 @@ class declaration(pl):
         if  self.exp == None:
             valor = 'None'
         else:
-            valor = str(self.exp.exp.traducir())
+            valor = str(self.exp.traducir()[1])
 
 
         if  self.collate == None:
@@ -109,71 +109,71 @@ class declaration(pl):
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'BIGINT':
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'DECIMAL':
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'NUMERIC': 
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'REAL':
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'DOUBLE':   
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'PRECISION':
             if  self.exp == None:
                 c3d += self.id+' = 0'
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'CHARACTER':
             if  self.exp == None:
                 c3d += self.id+' = \'\' '
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'CHARACTER_VARYING':
             if  self.exp == None:
                 c3d += self.id+' = \'\' '
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'TEXT': 
             if  self.exp == None:
                 c3d += self.id+' = \'\' '
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'TIMESTAMP':
             if  self.exp == None:
                 c3d += self.id+' = \'\' '
             else:
-                c3d += self.exp.codigo #codigo que va detras
+                c3d += self.exp.traducir[0] #codigo que va detras
                 c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
 
         return c3d
@@ -221,16 +221,14 @@ class declaration(pl):
         elif self.tipo == 'TIMESTAMP':
             NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,self.exp, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-        
-    
-
 
 class expre(pl):
     def __init__(self,tipo, exp):
         self.tipo = tipo 
         self.exp = exp
-
     
+    def traducir(self):
+        return self.exp.traducir()
 
 class createfunc(pl):
     def __init__(self,id,lparams,returntype,block) -> None:
@@ -249,17 +247,17 @@ class createfunc(pl):
         funcion = ''
         funcion += 'def '+self.id+'():\n' 
         #variables a usar, guardando en ts y declarando
-        for decla in block.declare:
+        for decla in self.block.declare:
 
             c3d += decla.c3d()+'\n' 
             funcion += '\t'+decla.traducir()+'\n' 
 
         pcont = 0
-        for param in lparams:
+        for param in self.lparams:
             #variables de parametros
             if param.alias == None:
                 #Mira como jalas de las declaraciones
-                for declara in block.declare:
+                for declara in self.block.declare:
                     if pcont == declara.tipo:
                         funcion += '\t'+declara.id+' = pila['+str(pcont)+']\n'         
 
@@ -269,15 +267,18 @@ class createfunc(pl):
 
             pcont += 1
 
-
-        for inst in block.instrucciones:
-            funcion += '\t'+inst.traducir()+'\n'
+        
+        
+        for inst in self.block.instrucciones:
+            
+            funcion += '\t'+str(inst.traducir())+'\n'
             c3d += inst.c3d()
         
 
 
 
         funciones.append(funcion)
+
         return c3d
     
     def ejecutar(self):
@@ -300,7 +301,8 @@ class createfunc(pl):
         return c3d
 
 
-
+    def ejecutar(self):
+        return self.traducir()
 
 class param(pl):
     def __init__(self,alias,tipo) -> None:
@@ -333,9 +335,10 @@ class raisenotice(instruccion):
     def traducir(self):
         c3d = ''
         if self.variable == None:
-            c3d += 'print(\''+texto+'\')'
+            c3d += 'print(\''+self.texto+'\')'
         else:
-            c3d += 'print(\''+str(self.texto).replace('%',self.variable.traducir())+'\')'
+            c3d += str(self.variable.exp.traducir()[0])
+            c3d += 'print(f\''+str(self.texto).replace('%','{'+self.variable.exp.traducir()[1]+'}')+'\')'
 
     def c3d(self):
         return '\n'
@@ -349,20 +352,34 @@ class asignacion(instruccion):
     def ejecutar(self):
         ts.modificar_valor(self.id,self.exp)
 
-    def c3d():
+    def c3d(self):
         c3d = ''
+        #c3d += str(self.exp.traducir()[0])
         c3d += '\ttabla.modificar_valor('+ str(self.id) + ', ' + str(self.exp.traducir()[1]) +')\n'
         return c3d   
 
-    def traducir():
+    def traducir(self):
+        var = self.exp.traducir()
         c3d = ''
-        c3d += self.exp.traducir()[0]
-        c3d += self.id + ' += ' + str(self.exp.traducir()[1]) + '\n'
+        c3d += var[0].replace('\n','\n\t')
+        c3d += self.id + ' = ' + str(var[1]) + '\n'
         return c3d
 
 class rtrn(instruccion):
     def __init__(self,exp) -> None:
         self.exp = exp
+
+    def traducir(self):
+        c3d = ''
+        var = self.exp.traducir()
+        c3d += var[0].replace('\n','\n\t')
+        c3d += '\n'
+        c3d += '\tpila[10] = ' + var[1] + '\n'
+        return c3d
+
+    def c3d(self):
+        return '\n'
+
 
 class searched_case(instruccion):
     def __init__(self,condition,instrucciones,elsif,els) -> None:
@@ -373,16 +390,16 @@ class searched_case(instruccion):
     
     def traducir(self):
         c3d = ''
-        c3d += self.condition.traducir()[0]
+        c3d += self.condition.exp.traducir()[0]
         #variables temporales a utilizar en else if
         
         #tengo que ejecutar y añadir los elif
         for eli in self.elsif :
-            c3d += str(eli.condition.traducir()[0])
+            c3d += str(eli.condition.exp.traducir()[0])
             
             
 
-        c3d += 'if '+ self.condition.traducir()[1] +':\n'
+        c3d += 'if '+ self.condition.exp.traducir()[1] +':\n'
         for inst in self.instrucciones:
             c3d += '\t'+inst.traducir()+'\n'
         
@@ -423,22 +440,22 @@ class iff(instruccion):
     
     def traducir(self):
         c3d = ''
-        c3d += self.condition.traducir()[0]
+        c3d += self.condition.exp.traducir()[0]
         #variables temporales a utilizar en else if
         
         #tengo que ejecutar y añadir los elif
         for eli in self.elsif :
-            c3d += str(eli.condition.traducir()[0])
+            c3d += str(eli.condition.exp.traducir()[0])
             
             
 
-        c3d += 'if '+ self.condition.traducir()[1] +':\n'
+        c3d += 'if '+ self.condition.exp.traducir()[1] +':\n'
         for inst in self.instrucciones:
             c3d += '\t'+inst.traducir()+'\n'
         
         for eli in self.elsif :
             #tengo que ejecutar y añadir los elif
-            c3d += 'elif '+ eli.condition.traducir()[1] +' :'
+            c3d += 'elif '+ eli.condition.exp.traducir()[1] +' :'
             for inst in eli.instrucciones:
                 c3d += '\t'+inst.traducir()+'\n'
             
@@ -631,7 +648,7 @@ class exp_divisionp(expresion):
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} / {tmp2}'
-        c3df += f'\n{tmpf}'
+        c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
         #print(codigo,valor)

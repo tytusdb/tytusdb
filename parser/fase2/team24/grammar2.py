@@ -1840,22 +1840,16 @@ def p_instruccion(t):
                     | instif
                     | instSimplecase
                     | instScase
+                    
     
      '''
     t[0] = t[1]
+
 
 def p_instSimplecase(t):
     '''instSimplecase : CASE newexp WHEN lnexp THEN body lwhenv pelse END CASE PUNTOCOMA'''
     
 
-def p_lnexp(t):
-    ''' lnexp : lnexp newexp'''
-    t[1].append(t[2])
-    t[0] = t[1]
-
-def p_lnexpu(t):
-    ''' lnexp :  newexp'''
-    t[0] = [t[1]]
 
 #searched case
 def p_instScase(t):
@@ -1876,6 +1870,8 @@ def p_cuando(t):
     ''' cuando : WHEN newexp THEN body'''
     t[0] = elsif(t[2],t[4])
 
+
+
 def p_lwhenv(t):
     ''' lwhenv : lwhenv cuandos'''
     t[1].append(t[2])
@@ -1885,6 +1881,7 @@ def p_lwhenvarios(t):
     ''' lwhenv : cuandos'''
     t[0] = [t[1]]
 
+
 def p_cuandos(t):
     ''' cuandos : WHEN lnexp THEN body'''
     
@@ -1893,11 +1890,53 @@ def p_instif(t):
     '''instif : IF PARA newexp PARC THEN body lelsif pelse END IF PUNTOCOMA'''
     t[0] = iff(t[3],t[6],t[7],t[8])
 
+
+
+
+def p_lelsif(t):
+    ''' lelsif : lelsif elsif'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lelsifR(t):
+    ''' lelsif :  elsif'''
+    t[0] = [t[1]]
+
+def p_lelsifRN(t):
+    ''' lelsif :  '''
+    t[0] = []
+
+def p_elsif(t):
+    '''elsif : ELSIF  newexp THEN body'''
+    t[0] = elsif(t[2],t[4])
+
+
+def p_lnexp(t):
+    ''' lnexp : lnexp newexp'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lnexpu(t):
+    ''' lnexp :  newexp'''
+    t[0] = [t[1]]
+
+def p_pelse(t):
+    '''pelse :  ELSE body'''
+    t[0] = els(t[2])
+
+def p_pelseN(t):
+    '''pelse :  '''
+    t[0] = None
+
 def p_bodyu(t):
-    ''' bodyu : asigacion
+    ''' bodyu : asignacion
+             | raisenotice
              | declares
              | rtrn
-             | instif'''
+             | instif
+             | instSimplecase
+             | instScase
+             '''
     t[0] = t[1]
 
 def p_body(t):
@@ -1908,31 +1947,6 @@ def p_body(t):
 def p_bodya(t):
     ''' body : bodyu'''
     t[0] = [t[1]]
-
-def p_lelsif(t):
-    ''' lelsif: lelsif elsif'''
-    t[1].append(t[2])
-    t[0] = t[1]
-
-def p_lelsifR(t):
-    ''' lelsif:  elsif'''
-    t[0] = [t[1]]
-
-def p_lelsifRN(t):
-    ''' lelsif:  None'''
-    t[0] = []
-
-def p_elsif(t):
-    '''elsif : ELSIF  newexp THEN body'''
-    t[0] = elsif(t[2],t[4])
-
-def p_pelse(t):
-    '''pelse :  ELSE body'''
-    t[0] = els(t[2])
-
-def p_pelseN(t):
-    '''pelse :  '''
-    t[0] = None
 
 def p_raisenotice(t):
     #Imprimir
@@ -2084,6 +2098,23 @@ def p_newexp_una(t):
         t[0] = t[2]
     elif t[1] == '+': 
         t[0] = t[2]
+
+def p_new(t):
+    ''' newexp : newexp IGUAL newexp
+                | newexp MAYOR_IGUAL newexp
+                | newexp MENOR_IGUAL newexp
+                | newexp MAYOR newexp
+                | newexp MENOR newexp
+                | newexp DIFERENTE newexp
+
+
+    '''
+    if t[2] == '='  : t[0] = exp_igualp(t[1],t[3])
+    elif t[2] == '>': t[0] = exp_mayorp(t[1], t[3])
+    elif t[2] == '<': t[0] = exp_menorp(t[1], t[3])
+    elif t[2] == '<>': t[0] = exp_diferentep(t[1], t[3])
+    elif t[2] == '>=': t[0] = exp_mayor_igualp(t[1], t[3])
+    elif t[2] == '<=': t[0] = exp_menor_igualp(t[1], t[3])
 
 def p_newexp_bi(t):
     '''newexp : newexp MAS newexp
