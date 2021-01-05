@@ -162,7 +162,15 @@ class AlterTable(Instruccion):
                             tablaAlterada.valor.pop(g)
 
                     ent.editarSimbolo(self.tabla + "_" + dbActual,tablaAlterada)
-                        
+
+    def traducir(self,ent:Entorno):
+        self.codigo3d = 'ci.ejecutarsql(\'alter table ' + self.tabla + ' ' + self.opciones[0].stringsql
+        for i in range(1,len(self.opciones),1):
+            self.codigo3d += ', ' + self.opciones[i].stringsql
+
+        self.codigo3d += ';\')\n'
+        return self
+                          
 class TipoAlter(Enum):
     ADDCOLUMNA = 1,
     ADDCHECK = 2,
@@ -175,70 +183,93 @@ class TipoAlter(Enum):
     DROPCHECK = 9,
     DROPCOLUMN = 10
 
-class AddColumn():
+class AddColumn(AlterTable):
     def __init__(self,id:str,tipo):
         self.id = id
         self.tipo = tipo
         self.tipoAlter = TipoAlter.ADDCOLUMNA
+        self.stringsql = 'add column ' + id + ' ' + tipo.devString()
 
-class AddCheck():
+class AddCheck(AlterTable):
     def __init__(self,id,condicion:CondicionCheck):
         self.constraint = id
         self.condicion = condicion
         self.tipoAlter = TipoAlter.ADDCHECK
+        self.stringsql = 'add '
+        if id != None:
+            self.stringsql += ' constraint ' + id
+        self.stringsql += ' check (' + condicion.stringsql + ')'
 
-class AddUnique():
+class AddUnique(AlterTable):
     def __init__(self,id,columnas):
         self.constraint = id
         self.columnas = columnas
         self.tipoAlter = TipoAlter.ADDUNIQUE
+        self.stringsql = 'add'
+        if id != None:
+            self.stringsql += ' constraint ' + id
+        self.stringsql += ' unique (' + str(columnas[0].valor)
+        for i in range(1,len(columnas),1):
+            self.stringsql += ',' + str(columnas[i].valor)
+        self.stringsql += ')'
 
-class AddForeign():
+class AddForeign(AlterTable):
     def __init__(self,id,colAddForeign,referenceTable,colReferences):
         self.constraint = id
         self.colAddForeign = colAddForeign
         self.referenceTable = referenceTable
         self.colReferences = colReferences
         self.tipoAlter = TipoAlter.ADDFOREIGN
+        self.stringsql = 'add'
+        if id != None:
+            self.stringsql += ' constraint ' + id
+        self.stringsql += ' foreign key (' + str(colAddForeign[0].valor)
+        for i in range(1,len(colAddForeign),1):
+            self.stringsql += ',' + str(colAddForeign[i].valor)
+        self.stringsql += ') references ' + referenceTable + '(' + str(colReferences[0].valor)
+        for i in range(1,len(colReferences),1):
+            self.stringsql += ',' + str(colReferences[i].valor)
+        self.stringsql += ')'
 
-class AddNull():
+class AddNull(AlterTable):
     def __init__(self,columna,nulo:bool):
         self.columna = columna
         self.nulo = nulo
         self.tipoAlter = TipoAlter.ADDNULL
+        self.stringsql = 'alter column ' + columna + ' set '
+        if nulo: self.stringsql += 'null'
+        else: self.stringsql += 'not null'
 
-class DropConstraint():
+class DropConstraint(AlterTable):
     def __init__(self,constraint):
         self.constraint = constraint
         self.tipoAlter = TipoAlter.DROPCONSTRAINT
+        self.stringsql = 'drop constraint ' + constraint
 
-class AlterType():
+class AlterType(AlterTable):
     def __init__(self,columna,tipo):
         self.columna = columna
         self.nuevoTipo = tipo
         self.tipoAlter = TipoAlter.ALTERTYPE
+        self.stringsql = 'alter column ' + columna + ' type ' + tipo.devString()
 
-class RenameColumn():
+class RenameColumn(AlterTable):
     def __init__(self,oldColumn,newColumn):
         self.oldColumn = oldColumn
         self.newColumn = newColumn
         self.tipoAlter = TipoAlter.RENAMECOLUMN
+        self.stringsql = 'rename column ' + oldColumn + ' to ' + newColumn
 
-class DropCheck():
+class DropCheck(AlterTable):
     def __init__(self,identificador):
         self.iden = identificador
         self.tipoAlter = TipoAlter.DROPCHECK
+        self.stringsql = 'drop check ' + identificador
 
-class DropColumns():
+class DropColumns(AlterTable):
     def __init__(self,columnas):
         self.columnas = columnas
         self.tipoAlter = TipoAlter.DROPCOLUMN
-
-class Indice():
-    def init(self,unique,nombre,tabla,tipo,columnas):
-        self.unique=unique
-        self.nombre=nombre
-        self.tabla=tabla
-        self.tipo=tipo
-        self.columnas=columnas
-
+        self.stringsql = 'drop column ' + str(columnas[0].valor)
+        for x in range(1,len(columnas),1):
+            self.stringsql += ',' + str(columnas[x].valor)
