@@ -930,16 +930,42 @@ def p_callfunction(t):
 
 # ================= INDEX =================
 
-def p_create_index(t):
+def p_create_index1(t):
     '''
         index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER
-              | CREATE        INDEX ID ON ID             PARIZQ index_params PARDER conditions
-              | CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER conditions
-              | CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER
-              | CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER
-              | CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER conditions
     '''
-    t[0] = ReporteTS(t[3], 1, 1)
+    t[0] = ReporteTS('',t[3],'index','asc', 1, 1)
+
+def p_create_index2(t):
+    '''
+        index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER conditions
+    '''
+    t[0] = ReporteTS('',t[3],'index','asc', 1, 1)
+
+def p_create_index3(t):
+    '''
+        index : CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER conditions
+    '''
+    t[0] = ReporteTS('',t[4],'index','asc', 1, 1)
+
+def p_create_index4(t):
+    '''
+        index : CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER
+    '''
+    t[0] = ReporteTS('',t[4],'index','asc', 1, 1)
+
+def p_create_index5(t):
+    '''
+        index : CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER
+    '''
+    t[0] = ReporteTS('',t[3],'index','asc', 1, 1)
+
+
+def p_create_index(t):
+    '''
+        index : CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER conditions
+    '''
+    t[0] = ReporteTS('',t[3],'index','asc', 1, 1)
 
 
 def p_index_params(t):
