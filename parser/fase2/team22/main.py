@@ -22,7 +22,10 @@ from storageManager.jsonMode import *
 
 import sintactico
 
-# import AST as AST
+# REPORTE PARA AST 
+import webbrowser
+import img2pdf 
+from PIL import Image 
 
 global arbol
 arbol = None
@@ -189,7 +192,10 @@ class interfaz():
         arbol = None         
 
     def ast_click(self):
-        print("ast")   
+        try:
+            webbrowser.open_new_tab('AST.svg')
+        except:
+            print('Error al abrir el reporte AST.')
     
     def repDin_click(self):
         global arbol
@@ -222,8 +228,8 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         
         #3D
-        file3D = open("Codigo3D.py", "w")
-        file3DOptimizado = open("Codigo3DOptimizado.py", "w")
+        file3D = open("Codigo3D.py", "w", encoding='utf8')
+        file3DOptimizado = open("Codigo3DOptimizado.py", "w", encoding='utf8')
 
         content = c3d.getEncabezado()
         

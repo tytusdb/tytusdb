@@ -1,3 +1,4 @@
+from cryptography.fernet import Fernet
 from storage.AVLMode import avlMode as avl
 from storage.BTree import BMode as b
 from storage.BPlusMode import BPlusMode as bplus
@@ -141,3 +142,27 @@ def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
 
 def alterTableDropFK(database, table, indexName):
     pass
+
+"""
+    @description
+        Encripta información.
+    @param
+        backup: información que se desea encriptar.
+        password: llave con la que se encriptará la información.
+    @return
+        Información encriptada.
+"""
+def encrypt(backup, password):
+    return Fernet(password).encrypt(backup.encode()).decode()
+
+"""
+    @description
+        Descencripta información.
+    @param
+        cipherBackup: información que se desea descencriptar.
+        password: clave con la que se desencriptará la información.
+    @return
+        Información descencriptada.
+"""
+def decrypt(cipherBackup, password):
+    return Fernet(password).decrypt(cipherBackup.encode()).decode()

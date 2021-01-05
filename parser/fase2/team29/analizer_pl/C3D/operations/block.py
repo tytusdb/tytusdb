@@ -16,11 +16,12 @@ class Block(Expression):
         self.label = label
 
     def execute(self, environment):
-        newEnv = Environment()
+        newEnv = Environment(environment)
         decl = ""
         bl = ""
+        defFunc = self.function.execute(newEnv).value
         for d in self.declaration:
             decl += d.execute(newEnv).value
         for b in self.blocks:
             bl += b.execute(newEnv).value
-        return code.C3D(decl + bl, "block", self.row, self.column)
+        return code.C3D(defFunc + decl + bl + "\n", "block", self.row, self.column)

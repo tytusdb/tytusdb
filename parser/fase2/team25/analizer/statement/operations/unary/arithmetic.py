@@ -52,8 +52,8 @@ class Arithmetic(Expression):
         return new
 
     def generate3d(self, environment, instanciaAux):
-        exp1 = self.exp1.generate3d(environment, instanciaAux)
+        exp1 = self.exp.generate3d(environment, instanciaAux)
         operator = self.operator
         tn = instanciaAux.getNewTemporal()  # va llevar su control de getTempola tambien
-        instanciaAux.addToCode(f'\t{tn} =  {operator}{exp1}')
+        instanciaAux.addToCode(f'{instanciaAux.getTabulaciones()}{tn} =  {operator}{exp1}')
         return tn

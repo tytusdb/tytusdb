@@ -30,10 +30,31 @@ class Execute(Instruccion):
             self.tipo = resultado
         return resultado
         
+    def extraer(self,tabla,arbol):
+        
+        cadena = ""
+
+        try: 
+             
+             cadena +=  self.id
+             cadena += "()"
+
+           
+             
+        except Exception as e:
+                    print(e)
+
+        return cadena
+    
     def traducir(self, tabla, arbol):
         
-        cadena = self.id
-        cadena += "()"
+        cadena = ""
+        
+        try: 
+       
+              cadena += self.extraer(tabla,arbol) 
+        except Exception as e:
+              print(e)
 
 
        # arbol.addComen("Entrar al ambito")
@@ -48,14 +69,16 @@ class Execute(Instruccion):
         arbol.addComen("Llamada de funcion")
         arbol.addc3d(f"P = P+2")
         arbol.addc3d(cadena)
-        
+        arbol.addc3d(f"P = P-2")
+        arbol.addComen("Salida de funcion")
+
         arbol.addComen("obtener resultado")
         temporalX = tabla.getTemporal()
+
         arbol.addc3d(f"{temporalX} = P+2")
         temporalR = tabla.getTemporal()
         arbol.addc3d(f"{temporalR} = Pila[{ temporalX }]")
+        arbol.addc3d(f"print({temporalR}) ")
 
-        arbol.addComen("Salida de funcion")
-        arbol.addc3d(f"P = P-2")
 
   

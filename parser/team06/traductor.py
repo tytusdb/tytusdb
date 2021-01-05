@@ -14,7 +14,9 @@ def ejecucionATraduccion(input):
     print("--------------------------------Archivo Ejecucion---------------------------------------")
     prueba =g.parse(input)
     print(prueba)
-    h.textosalida+="--------------------FIN DE TRADUCCION--------------------\n"
+    h.textosalida+="--------------------INICIO DE LA TRADUCCION--------------------\n"
+    h.textosalida+=prueba
+    h.textosalida+="--------------------FIN DE LA TRADUCCION--------------------\n"
     escribir3D(prueba)
     return h.textosalida
 

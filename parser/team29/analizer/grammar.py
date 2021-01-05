@@ -133,9 +133,23 @@ def p_createopts_db(t):
 
 def p_createopts_index(t):
     """
-    createOpts : indexUnique R_INDEX ID R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
+    createOpts : indexUnique R_INDEX indexName R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
     """
     t[0] = instruction2.CreateIndex(t[1], t[3], t[5], t[6], t[10], t[8])
+
+
+def p_indexName(t):
+    """
+    indexName : ID
+    """
+    t[0] = t[1]
+
+
+def p_indexName_n(t):
+    """
+    indexName :
+    """
+    t[0] = None
 
 
 def p_indexList(t):
@@ -172,6 +186,13 @@ def p_index_functionIndex(t):
     columnOpt : ID S_PARIZQ ID S_PARDER
     """
     t[0] = t[1] + t[2] + t[3] + t[4]
+
+
+def p_index_agrupacion(t):
+    """
+    columnOpt : S_PARIZQ columnOpt S_PARDER
+    """
+    t[0] = t[2]
 
 
 def p_usingMethod(t):
