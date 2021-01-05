@@ -40,7 +40,7 @@ class Optimizador:
         return False
 
     def Regla_8_9(self, asignacion):
-        "(+)Regla 8 y (-)Regla 9"
+        "(+)Regla 8 y (-)Regla 9 - Eliminacion de codigo"
         global CodigoOptimizado
         indice = asignacion.indice
         op1 = asignacion.operador2
