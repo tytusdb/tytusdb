@@ -257,3 +257,65 @@ def alterTableMode(database: str, table: str, databaseRef: str, mode: str):
                 json.dropTable(database,table)
     else:
         None
+        
+        
+def alterDatabase(old_db, new_db):
+    modeDB, indexDB = exist_Alter(old_db)
+    modeDB_new, indexDB_newDB = exist_Alter(new_db)
+    if modeDB and modeDB_new is None:
+        mode = modeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.alterDatabase(old_db, new_db)
+        elif mode.lower().strip() == "b":
+            return b.alterDatabase(old_db, new_db)
+        elif mode.lower().strip() == "bPlus":
+            return bPlus.alterDatabase(old_db, new_db)
+        elif mode.lower().strip() == "dict":
+            return diccionario.alterDatabase(old_db, new_db)
+        elif mode.lower().strip() == "hash":
+            return hash.alterDatabase(old_db, new_db)
+        elif mode.lower().strip() == "isam":
+            return isam.alterDatabase(old_db, new_db)
+        elif mode.lower().strip() == "json":
+            return json.alterDatabase(old_db, new_db)
+
+
+def dropDatabase(name_db):
+    ModeDB, indexDB = exist_Alter(name_db)
+    if ModeDB:
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.dropDatabase(name_db)
+        elif mode.lower().strip() == "b":
+            return b.dropDatabase(name_db)
+        elif mode.lower().strip() == "bPlus":
+            return bPlus.dropDatabase(name_db)
+        elif mode.lower().strip() == "dict":
+            return diccionario.dropDatabase(name_db)
+        elif mode.lower().strip() == "hash":
+            return hash.dropDatabase(name_db)
+        elif mode.lower().strip() == "isam":
+            return isam.dropDatabase(name_db)
+        elif mode.lower().strip() == "json":
+            return json.dropDatabase(name_db)
+
+
+def createTable(database, name_table, number_columns):
+    ModeDB, indexDB = exist_Alter(database)
+    if ModeDB:
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.createTable(database, name_table, number_columns)
+        elif mode.lower().strip() == "b":
+            return b.createTable(database, name_table, number_columns)
+        elif mode.lower().strip() == "bPlus":
+            return bPlus.createTable(database, name_table, number_columns)
+        elif mode.lower().strip() == "dict":
+            return diccionario.createTable(database, name_table, number_columns)
+        elif mode.lower().strip() == "hash":
+            return hash.createTable(database, name_table, number_columns)
+        elif mode.lower().strip() == "isam":
+            return isam.createTable(database, name_table, number_columns)
+        elif mode.lower().strip() == "json":
+            return json.createTable(database, name_table, number_columns)
+
