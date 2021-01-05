@@ -422,6 +422,56 @@ def interpretar_sentencias(arbol, tablaSimbolos):
     return consola
 
 
+def crearIndice(nodo, tablaSimbolos):
+    global consola
+    global useActual
+
+    base = tablaSimbolos.get(useActual)
+    miBandera = False
+
+    if base is not None:
+        tabla = base.getTabla(nodo.tabla)
+        if tabla is not None:
+
+            for col in nodo.columnas:
+
+                row = tabla.getColumna(col)
+
+                if row is None:
+                    miBandera = True
+                    consola += "=>ERROR: La columna '%s' no existe en la tabla '%s', imposible crear el índice.\n" % ( str(col), str(nodo.tabla))
+                    listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "=>ERROR: La tabla '%s' no ha sido hallada, imposible crear el índice." % str(nodo.tabla)))
+
+            if miBandera:
+                return
+            else:
+
+                resultado =  tabla.crearIndice(nodo.nombre,nodo.tipo,nodo.columnas,nodo.orden,nodo.null_first,nodo.null_last,nodo.lower,nodo.condicion,nodo.unique)
+
+                if resultado is True:
+
+                    consola+= "Se creó con éxito el índice: '%s', con las columnas: '%s', en la tabla '%s'\n" % (str(nodo.nombre), str(nodo.columnas), str(tabla.nombre))
+
+                else:
+
+                    consola+= "=>ERROR: No fue posible crear el índice: '%s', con las columnas: '%s', en la tabla '%s'\n" % (str(nodo.nombre), str(nodo.columnas), str(tabla.nombre))
+                    listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico","=>ERROR: No fue posible crear el índice: '%s', con las columnas: '%s', en la tabla '%s'" % (str(nodo.nombre), str(nodo.columnas), str(tabla.nombre))))
+
+
+
+        else:
+            consola += "=>ERROR: La tabla '%s' no ha sido hallada, imposible crear el índice.\n" % str(nodo.tabla)
+            listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "=>ERROR: La tabla '%s' no ha sido hallada, imposible crear el índice." % str(nodo.tabla)))
+
+    else:
+        consola += "=>ERROR: La base de datos no ha sido encontrada, imposible crear el índice.\n"
+        listaSemanticos.append(Error.ErrorS(
+                        "Error Semantico", "=>ERROR: La base de datos no ha sido encontrada, imposible crear el índice."))
+
+
 def CrearFuncion(nodo,tablaSimbolos):
     global texttraduccion,identacion,textoptimizado
     if nodo.params!=False:
@@ -1783,7 +1833,7 @@ def InsertTable(nodo, tablaSimbolos):
                                     listaSemanticos.append(Error.ErrorS(
                                             "Error Semantico",
                                             "Error en ENUM TYPE: la colección " + col.tipo.valor + " no ha sido definida. "))
-                            else:
+                            elif hasattr(col.tipo,"tipo"):
 
                                 if col.tipo.tipo == TipoDato.NUMERICO:
                                     result = validarTiposNumericos(
@@ -1807,6 +1857,14 @@ def InsertTable(nodo, tablaSimbolos):
                                 elif col.tipo.tipo == TipoDato.BOOLEAN:
                                     if val.tipo == Expresion.BOOLEAN:
                                         result = True
+
+                            else:
+
+                                if val.valor in types[col.tipo]:
+                                    result = True
+                                else:
+                                    result = False
+
                             if not result:
                                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                                     "Error de tipos: tipo " + str(col.tipo.tipo) + " columna " + str(col.nombre) + " valor a insertar " + str(
@@ -3838,17 +3896,23 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 
                 for q_cols in Qselect.cols:
 
-                    if q_cols.cols.valor == columnas[ind]:
-                        indices.append(ind)
+                    if isinstance(q_cols.cols,SFuncAgregacion):
+                        print("Sí soy una funcion de agregación")
+                        print(q_cols.cols)
+                    
+                    else:
 
-                        if q_cols.id == False:
+                        if q_cols.cols.valor == columnas[ind]:
+                            indices.append(ind)
 
-                            encabezados.append(columnas[ind])
+                            if q_cols.id == False:
 
-                        else:
+                                encabezados.append(columnas[ind])
 
-                            encabezados.append(q_cols.id.valor)
-                        break
+                            else:
+
+                                encabezados.append(q_cols.id.valor)
+                            break
 
             i_t = 0
             for in2 in indices:

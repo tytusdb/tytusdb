@@ -474,6 +474,11 @@ class SFuncAgregacion(Sentencia):
         self.funcion = funcion
         self.param = param
 
+    def __str__(self) -> str:
+        return "{ SFuncAgregacion | funcion: '%s', param: '%s' }" % (
+            str(self.funcion), str(self.param)
+        ) 
+
 
 # 1 parametro
 class SFuncMath(Sentencia):
