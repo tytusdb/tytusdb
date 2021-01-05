@@ -28,3 +28,9 @@ class CreateType(Instruccion):
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
         arbol.consola.append("Consulta devuelta correctamente.")
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
+

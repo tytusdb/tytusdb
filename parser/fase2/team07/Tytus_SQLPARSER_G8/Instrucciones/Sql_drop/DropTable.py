@@ -39,6 +39,12 @@ class DropTable(Instruccion):
         #arbol.consola.append(error.toString())        
        # createTable(bd, "Mitabla")
        # showTables(bd)
+    
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 '''
 instruccion = DropTable("hola mundo",None, 1,2)
 

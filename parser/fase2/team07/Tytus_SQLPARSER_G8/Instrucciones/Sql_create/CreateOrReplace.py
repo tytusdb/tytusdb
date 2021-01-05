@@ -47,6 +47,12 @@ class CreateOrReplace(Instruccion):
                 arbol.excepciones.append(error)
                 arbol.consola.append(error.toString())
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
+
         '''for bd in lb:
             if bd== self.base:
                 #SI SE ENCUENTRA LA BD SE TERMINA EL RECORRIDO

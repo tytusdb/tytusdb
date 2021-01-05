@@ -238,6 +238,12 @@ class UpdateTable(Instruccion):
         def update(database: str, table: str, register: dict, columns: list) -> int:
             '''
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
+
 
 '''
 instruccion = UpdateTable("hola mundo",None, 1,2)

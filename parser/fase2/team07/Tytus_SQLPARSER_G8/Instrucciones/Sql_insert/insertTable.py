@@ -366,3 +366,37 @@ class insertTable(Instruccion):
         elif (tipoColumna.tipo == Tipo_Dato.BOOLEAN) and (tipoValor.tipo == Tipo_Dato.BOOLEAN):
             return True
         return False
+
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = ""
+        if self.lcol is None:
+            codigo = "\t\t" + temporal + " = " + "\"INSERT INTO " + self.valor + " VALUES(\"\n"
+            
+            for col in self.lexpre[:-1]:
+                temporal2 = arbol.generaTemporal()
+
+                
+                if col.tipo == None:
+                    codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col.strSent + ",\"" + "\n"
+                #Es un dato primitivo
+                else:
+                    if col.tipo.toString() == "text" or col.tipo.toString() == "varchar":
+                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"\\\"" + col.strSent + "\\\",\"" + "\n"
+                    elif col.tipo.toString() == "char":
+                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"'" + col.strSent + "',\"" + "\n"
+                    else:
+                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col.strSent + ",\"" + "\n"
+                
+                
+                
+                temporal = temporal2
+
+            temporal2 = arbol.generaTemporal()
+            codigo += "\t\t" + temporal2 + " = " + temporal + " + ');'\n" 
+            codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal2 + ")\n\n"
+        else:
+            ccodigo = "\t\t" + temporal + " = " + "\"INSERT INTO " + self.valor + "(\"\n"
+
+        return codigo

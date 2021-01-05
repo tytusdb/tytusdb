@@ -16,6 +16,12 @@ class Declare(Instruccion):
         ts.setVariable(exp)
         print("imprimir_declaracion")
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
+
 '''
 instruccion = Declare("hola mundo",None, 1,2)
 
