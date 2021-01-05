@@ -9,6 +9,31 @@ def crear_tabla(tabla):
     file.close()
     webbrowser.open_new_tab(filename)
 
+def isExist(dato):
+        dato = "<td><center> - </center></td>\n"
+        try:
+            if hasattr(dato,"alias"):
+                if dato.alias != "" or dato.alias != None:
+                    dato = "<td><center>" + str(dato.alias) + "</center></td>\n"
+            elif hasattr(dato,"nombre"):
+                if dato.nombre != "" or dato.nombre != None:
+                    dato = "<td><center>" + str(dato.nombre) + "</center></td>\n"
+            elif hasattr(dato,"tipo"):
+                if dato.tipo != "" or dato.tipo != None:
+                    dato = "<td><center>" + str(dato.tipo) + "</center></td>\n"
+            elif hasattr(dato,"columnas"):
+                if dato.columnas != "" or dato.columnas != None:
+                    dato = "<td><center>" + str(dato.columnas) + "</center></td>\n"
+            elif hasattr(dato,"consideraciones"):
+                if dato.consideraciones != "" or dato.consideraciones != None:
+                    dato = "<td><center>" + str(dato.consideraciones) +"</center></td>\n"
+            elif hasattr(dato,"fila"):
+                if dato.fila != "" or dato.fila != None:
+                    dato = "<td><center>" + str(dato.fila) + "</center></td>\n"
+        except Exception:
+            pass
+        return dato
+
 def reporte_tabla(tabla):
     cadena = ''
     cadena += "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/><title>Reporte</title><style> \n"
@@ -44,6 +69,13 @@ def reporte_tabla(tabla):
     cadena += "<th><center>Type</center></th>\n"
     cadena += "<th><center>Size</center></th>\n"
     cadena += "<th><center>Restriction</center></th>\n"
+    #Para la tabla de simbolos de la fase 2
+    cadena += "<th><center>Alias</center></th>\n"
+    cadena += "<th><center>Nombre</center></th>\n"
+    cadena += "<th><center>Tipo</center></th>\n"
+    cadena += "<th><center>Columnas Forma</center></th>\n"
+    cadena += "<th><center>Consideraciones</center></th>\n"
+    cadena += "<th><center>Fila</center></th>\n"
     cadena += "</tr>\n"
 
     # Recorrido
@@ -68,6 +100,12 @@ def reporte_tabla(tabla):
                     cadena += "<td><center>" + ",".join(listaC) + "</center></td>\n"
                 else:
                     cadena += "<td><center> - </center></td>\n"
+                cadena += isExist(c)
+                cadena += isExist(c)
+                cadena += isExist(c)
+                cadena += isExist(c)
+                cadena += isExist(c)
+                cadena += isExist(c)
                 cadena += "</tr>\n"
                 contador += 1
                 #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
