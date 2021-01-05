@@ -61,11 +61,15 @@ class Binary(Expression):
         self.operator = operator
 
     def execute(self, environment):
+        tab = ""
+        if environment:
+            tab = "\t"
         exp1 = self.exp1.execute(environment)
         exp2 = self.exp2.execute(environment)
         exp = (
             exp1.value
             + exp2.value
+            + tab
             + self.temp
             + " = "
             + str(exp1.temp)
@@ -91,15 +95,18 @@ class Unary(Expression):
         self.operator = operator
 
     def execute(self, environment):
+        tab = ""
+        if environment:
+            tab = "\t"
         exp = self.exp.execute(environment)
         if self.operator == "+":
-            exp = exp.value + self.temp + " = " + str(exp.temp) + "\n"
+            exp = exp.value + tab + self.temp + " = " + str(exp.temp) + "\n"
         elif self.operator == "-":
-            exp = exp.value + self.temp + " = -1 * " + str(exp.temp) + "\n"
+            exp = exp.value + tab + self.temp + " = -1 * " + str(exp.temp) + "\n"
         elif self.operator == "NOTNULL":
-            exp = exp.value + self.temp + " = " + str(exp.temp) + " != NULL" + "\n"
+            exp = exp.value + tab + self.temp + " = " + str(exp.temp) + " != NULL" + "\n"
         elif self.operator == "NOT":
-            exp = exp.value + self.temp + " = not " + str(exp.temp) + "\n"
+            exp = exp.value + tab + self.temp + " = not " + str(exp.temp) + "\n"
         else:
             if "NOT" in self.operator:
                 exp2 = self.operator[5:]
@@ -110,6 +117,7 @@ class Unary(Expression):
                 self.operator = " == "
             exp = (
                 exp.value
+                + tab
                 + self.temp
                 + " = "
                 + str(exp.temp)
