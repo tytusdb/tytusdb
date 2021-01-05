@@ -21,7 +21,7 @@ class Environment:
         self.conta_temp = 0
         self.conta_exec = 0
         self.conta_etiqueta = 0
-        self.codigo = "from goto import with_goto \nimport C3D \n\n@with_goto  # Decorador necesario\ndef main():\n"
+        self.codigo = "from goto import with_goto \nimport C3D \n\n@with_goto  # Decorador necesario\n"
         self.count_tabs = []
 
     def updateVar(self, id, value, type_):

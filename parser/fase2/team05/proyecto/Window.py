@@ -30,6 +30,7 @@ from Graficar import Graficar
 from archivoC3D import *
 from analizadorFase2.Generador.Generador import Generador
 
+
 # MAIN CLASS
 class Main(tk.Tk):
     # Main definition
@@ -92,6 +93,7 @@ class Main(tk.Tk):
         # Submenu [Analysis]
         self.sm_analyze = Menu(self.menu_bar, tearoff=False)
         self.sm_analyze.add_command(label="Ejecutar", command=lambda: self.tytus_ejecutar())
+        self.sm_analyze.add_command(label="Optimizado", command=lambda: self.tytus_optimizado())
         self.sm_analyze.add_command(label="Cerrar pestaña", command=lambda: self.close_output_tab())
         self.sm_analyze.add_command(label="Cerrar pestañas", command=lambda: self.delete_outputs())
         self.menu_bar.add_cascade(label="Queries", menu=self.sm_analyze)
@@ -514,6 +516,9 @@ class Main(tk.Tk):
     def do_nothing(self, event=None):
         if not (event.keysym == "Home" or event.keysym == "Shift_L"):
             print(event.keysym)
+
+    def tytus_optimizado(self):
+        pass
 
     # Ejecución de Parser
     def tytus_ejecutar(self):

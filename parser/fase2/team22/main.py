@@ -228,8 +228,8 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         
         #3D
-        file3D = open("Codigo3D.py", "w")
-        file3DOptimizado = open("Codigo3DOptimizado.py", "w")
+        file3D = open("Codigo3D.py", "w", encoding='utf8')
+        file3DOptimizado = open("Codigo3DOptimizado.py", "w", encoding='utf8')
 
         content = c3d.getEncabezado()
         
