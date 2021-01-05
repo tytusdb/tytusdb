@@ -103,3 +103,108 @@ Por lo tanto es necesario llamar a nuestro parse con una cadena de entrada la cu
 <p align="center">
   <img src="img/tecnico/analizar.PNG" width="800" alt="Analizar">
 </p>
+
+
+## Codigo de 3 Direcciones
+
+En ciencias de la computación, el código de tres direcciones es un lenguaje intermedio usado por compiladores optimizadores para ayudar en las transformaciones de mejora de código. Cada instrucción TAC tiene a lo sumo tres operandos y es típicamente una combinación de asignación y operador binario. Por ejemplo, t1 := t2 + t3. El nombre proviene del uso de tres operandos en estas declaraciones aunque instrucciones con menos operandos pueden existir.
+
+Dando como un ejemplo nuestro código 3 direcciones al igual la generacion del codigo 3 direcciones de una función o expresión
+
+x = (-b + sqrt(b^2 - 4*a*c)) / (2*a)
+
+<p align="center">
+  <img src="img/tecnico/ejemplo3d.PNG" width="200" alt="Analizar">
+</p>
+
+<p align="center">
+  <img src="img/tecnico/ejemplo3d2.PNG" width="800" alt="Analizar">
+</p>
+
+
+
+### Optimizacion
+
+La aplicación cuenta con una optimizacion de codigo 3 direcciones, la cual se bazo en la optimización de mirilla
+
+Optimización de mirilla:
+El método de mirilla consiste en utilizar una ventana que se mueve a través del código de 3 direcciones, la cual se le conoce como mirilla, en donde se toman las instrucciones dentro de la mirilla y se sustituyen en una secuencia equivalente que sea de menor longitud y lo más rápido posible que el bloque original. El proceso de mirilla permite que por cada optimización realizada con este método se puedan obtener mejores beneficios. El método de mirilla consiste en utilizar una ventana que se mueve a través del código de 3 direcciones, la cual se le conoce como mirilla, en donde se toman las instrucciones dentro de la mirilla y se sustituyen en una secuencia equivalente que sea de menor longitud y lo más rápido posible que el bloque original. El proceso de mirilla permite que por cada optimización realizada con este método se puedan obtener mejores beneficios. 
+
+Los tipos de transformación para realizar la optimización por mirilla serán los siguientes: 
+- Eliminación de instrucciones redundantes de carga y almacenamiento. 
+- Eliminación de código inalcanzable.  
+- Optimizaciones de Flujo de control. 
+- Simplificación algebraica y reducción por fuerza.
+
+A continuación se detallaran a grandes rasgos cada una de las reglas empleadas.
+
+
+| Reglas. | Descripcion  |
+| :------------- | :----------: | 
+| REGLA 1 | Si existe una asignación de valor de la forma a = b y posteriormente existe una asignación de forma b = a, se eliminará la segunda asignación siempre que a no haya cambiado su valor. Se deberá tener la seguridad de que no exista el cambio de valor y no existan etiquetas entre las 2 asignaciones   | 
+| REGLA 2  | Si existe un salto condicional de la forma Lx y exista una etiqueta Lx:, todo código contenido entre el goto Lx y la etiqueta Lx, podrá ser eliminado siempre y cuando no exista una etiqueta en dicho código. | 
+| REGLA 3  | Si existe un alto condicional de la forma if goto Lv; goto Lf; inmediatamente después de sus etiquetas Lv: Lf: se podrá reducir el número de saltos negando la condición, cambiando el salto condicional hacia la etiqueta falsa Lf: y eliminando el salto condicional innecesario a goto Lf y quitando la etiqueta Lv. |
+| REGLA 4  | Si se utilizan valores constantes dentro de las condiciones de la forma if goto Lv; goto Lf; y el resultado de la condición es una constante verdadera, se podrá transformar en un salto incondicional y eliminarse el salto hacia la etiqueta falsa Lf |
+| REGLA 5  | Si se utilizan valores constantes dentro de las condiciones de la forma if goto Lv; goto Lf; y el resultado de la condición es una constante falsa, se podrá transformar en un salto incondicional y eliminarse el salto hacia la etiqueta verdadera Lv. |
+| REGLA 6  | Si existe un salto incondicional de la forma goto Lx donde existe la etiqueta Lx: y la primera instrucción, luego de la etiqueta, es otro salto, de la forma goto Ly; se podrá realizar la modificación al primer salto para que sea dirigido hacia la etiqueta Ly: , para omitir el salto condicional hacia Lx. |
+| REGLA 7  | Si existe un salto incondicional de la forma if goto Lx; y existe la etiqueta Lx: y la primera instrucciones luego de la etiqueta es otro salto, de la forma goto Ly; se podrá realizar la modificación al primer salto para que sea dirigido hacia la etiqueta Ly: , para omitir el salto condicional hacia Lx. |
+| REGLA 8  | Eliminación de etiquetas innecesarias tal como:  x = x + 0;  |
+| REGLA 9  | Eliminación de etiquetas innecesarias tal com:  x = x - 0;   |
+| REGLA 10 | Eliminación de etiquetas innecesarias tal com:  x = x * 1;   |
+| REGLA 11 | Eliminación de etiquetas innecesarias tal com:  x = x / 1;   |
+| REGLA 12 | Reducción de etiquetas tales como: x = y + 0; x = y;         |
+| REGLA 13 | Reducción de etiquetas tales como: x = y - 0; x = y;         |
+| REGLA 14 | Reducción de etiquetas tales como: x = y * 1; x = y;         |
+| REGLA 15 | Reducción de etiquetas tales como: x = y / 1; x = y;         |
+| REGLA 16 | Reducción de etiquetas tales como: x = y * 2; x = y + y;     |
+| REGLA 17 | Reducción de etiquetas tales como: x = y * 0; x = 0;         |
+| REGLA 18 | Reducción de etiquetas tales como: x = 0 / y; x = 0;         |
+
+
+A Continuación unas capturas de la parte de codificación de optimización en las cuales como podremos ver se genera un objeto de tipo optimización para la generación de un reporte el cual adjuntamos una imagen del mismo en el manual de usuario.
+
+<p align="center">
+  <img src="img/tecnico/optimizacion1.PNG" width="800" alt="Analizar">
+</p>
+<p align="center">
+  <img src="img/tecnico/optimizacion2.PNG" width="800" alt="Analizar">
+</p>
+
+### Tabla de Simbolo Codigo 3D
+
+La aplicación cuenta con una tabla de símbolos dedicada a la traducción de 3 direcciones la cual nos almacena información importante para poder traducir y llevar el control de todas las etiquetas y saltos que se manejan al momento de la traducción.
+
+<p align="center">
+  <img src="img/tecnico/simbolos3d.PNG" width="800" alt="Analizar">
+</p>
+
+### Traduccion 3D
+
+La aplicación cuenta con la traducción de código PLSQL a código 3 direcciones, la cual se genera en un archivo .PY el cual contiene todas las instrucciones traducidas y listas para ejecutarse.
+
+<p align="center">
+  <img src="img/tecnico/traduccion3d.PNG" width="800" alt="Analizar">
+</p>
+
+### Ejecucion 3D
+
+La aplicación cuenta con la opción de ejecución de la traducción obtenida, la cual se detallo con anterioridad.
+
+### Sentencias Y Lenguaje PL/SQL
+
+Este lenguaje está basado en ADA, por lo que incluye todas las características de los lenguajes de tercera generación. Esto nos permite manejar las variables, tener una estructura modular (procedimientos y funciones) y controlar las excepciones. Además incorpora un completo soporte para la programación orientada a objetos (POO).
+Los programas creados con PL/SQL los podemos almacenar en nuestra base de datos como cualquier otro objeto quedando disponibles para los usuarios. El uso del lenguaje PL/SQL es imprescindible para construir disparadores de bases de datos (triggers).
+PL/SQL esta incluido en el servidor y en algunas herramientas de cliente. Soporta todos los comandos de consulta y manipulación de datos, aportando al lenguaje SQL las estructuras de control y otros elementos propios de los lenguajes de programación de 3º generación. La unidad de trabajo en PL/SQL es el bloque, constituido por un conjunto de declaraciones, instrucciones y mecanismos de gestión de errores y excepciones.
+
+En necesario destacar que nuestra aplicación será capaz de traducir este lenguaje a 3 direcciones algunas funciones generadas son:
+1. Sentencia If
+2. Sentencia Case
+3. Procedimientos, métodos y funciones
+4. Declaraciones
+5. Asignaciones
+6. Expresiones
+7. Condicionales 
+
+
+
+

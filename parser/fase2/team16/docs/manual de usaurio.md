@@ -77,3 +77,42 @@ Los errores léxicos, sintácticos y semánticos se detectan cuando el analizado
 <p align="center">
   <img src="img/usuario/gramatical.PNG" width="700" alt="Tokens">
 </p>
+
+## Ejecucion de Codigo Intermedio
+La aplicación cuenta con una opción de ejecución de código intermedio el cual ejecutara lo que es instrucciones SQL conjunto a PLSQL el cual se añadió para la segunda fase, este se ejecutara por medio de la misma consola con el archivo el cual nos genera nuestra apliacion.
+
+<p align="center">
+  <img src="img/usuario/boton intermedio.PNG" width="700" alt="Tokens">
+</p>
+
+## Reporte de Optimizacion
+
+El siguiente reporte nos ayudará a interpretar y visualizar cada una de las reglas que se emplearon al momento de generar el código 3 direcciones aplicando cada una de ellas con exactitud.
+Como se observa contamos con el reporte de manera de tabla el cual nos muestra el codigo original y el código ya optimizado.
+
+<p align="center">
+  <img src="img/usuario/reporte optimizacion.PNG" width="700" alt="Tokens">
+</p>
+
+## Codigo de 3 Direcciones Generado
+
+El código se generará en un archivo .py el cual podremos ejecutar desde nuestra interfaz lla cual es amigable y fácil de usar para el usuario.
+
+<p align="center">
+  <img src="img/usuario/codigo3d.PNG" width="700" alt="Tokens">
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
