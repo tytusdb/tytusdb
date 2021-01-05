@@ -791,8 +791,168 @@ def p_options_col_list(p):
         nodo.production += f"{p[1].production}"
         p[0] = nodo
 
-def p_indexes_statement(p):
-    '''INDEXES_STATEMENT : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
+def p_indexes_statement_create(p):
+    '''INDEXES_STATEMENT : CREATE_INDEXES'''
+    nodo = Node('INDEXES_STATEMENT')
+    nodo.add_childrens(p[1])
+    nodo.production = f'<INDEXES_STATEMENT> := <CREATE_INDEXES>\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
+def p_indexes_statement_drop(p):
+    '''INDEXES_STATEMENT : DROP_INDEXES SEMICOLON'''
+    nodo = Node('INDEXES_STATEMENT')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f'<INDEXES_STATEMENT> := <DROP_INDEXES> SEMICOLON\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
+def p_indexes_statement_alter(p):
+    '''INDEXES_STATEMENT : ALTER_INDEXES SEMICOLON'''
+    nodo = Node('INDEXES_STATEMENT')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f'<INDEXES_STATEMENT> := <ALTER_INDEXES> SEMICOLON\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
+def p_indexes_alter(p):
+    '''ALTER_INDEXES : ALTER INDEX IF EXISTS ID RENAME TO ID
+                     | ALTER INDEX ID RENAME TO ID'''
+    nodo = Node('ALTER_INDEXES')
+    if len(p) == 9:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.add_childrens(Node(p[7]))
+        nodo.add_childrens(Node(p[8]))
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID RENAME TO ID\n'
+        p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID RENAME TO ID\n'
+        p[0] = nodo
+
+def p_indexes_drop(p):
+    '''DROP_INDEXES : DROP INDEX CONCURRENTLY IF EXISTS columnlist CASCADE
+                    | DROP INDEX CONCURRENTLY IF EXISTS columnlist RESTRICT
+                    | DROP INDEX IF EXISTS columnlist RESTRICT
+                    | DROP INDEX IF EXISTS columnlist CASCADE
+                    | DROP INDEX columnlist CASCADE
+                    | DROP INDEX columnlist RESTRICT 
+                    | DROP INDEX CONCURRENTLY IF EXISTS columnlist
+                    | DROP INDEX CONCURRENTLY columnlist
+                    | DROP INDEX IF EXISTS columnlist
+                    | DROP INDEX columnlist '''
+    nodo = Node("DROP_INDEXES")
+    if len(p) == 8:
+        if p.slice[7].type == "CASCADE":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(p[6])
+            nodo.add_childrens(Node(p[7]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX CONCURRENTLY IF EXISTS <columnlist> CASCADE\n'
+            nodo.production += f'{p[6].production}'
+            p[0] = nodo
+        else:
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(p[6])
+            nodo.add_childrens(Node(p[7]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX CONCURRENTLY IF EXISTS <columnlist> RESTRICT\n'
+            nodo.production += f'{p[6].production}'
+            p[0] = nodo
+    elif len(p) == 7:
+        if p.slice[6].type == "CASCADE":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(p[5])
+            nodo.add_childrens(Node(p[6]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX IF EXISTS <columnlist> CASCADE\n'
+            nodo.production += f'{p[5].production}'
+            p[0] = nodo
+        elif p.slice[3].type == "CONCURRENTLY":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(p[6])
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX CONCURRENTLY IF EXISTS <columnlist>\n'
+            nodo.production += f'{p[6].production}'
+            p[0] = nodo
+        else:
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(p[5])
+            nodo.add_childrens(Node(p[6]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX IF EXISTS <columnlist> RESTRICT\n'
+            nodo.production += f'{p[5].production}'
+            p[0] = nodo
+    elif len(p) == 6:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.production = f'<DROP_INDEXES> := DROP INDEX IF EXISTS <columnlist>\n'
+        nodo.production += f'{p[5].production}'
+        p[0] = nodo
+    elif len(p) == 5:
+        if p.slice[4].type == "CASCADE":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(p[3])
+            nodo.add_childrens(Node(p[4]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX <columnlist> CASCADE\n'
+            nodo.production += f'{p[3].production}'
+            p[0] = nodo
+        elif p.slice[3].type == "CONCURRENTLY":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(p[4])
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX CONCURRENTLY <columnlist>\n'
+            nodo.production += f'{p[4].production}'
+            p[0] = nodo
+        else:
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(p[3])
+            nodo.add_childrens(Node(p[4]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX <columnlist> RESTRICT\n'
+            nodo.production += f'{p[3].production}'
+            p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.production = f'<DROP_INDEXES> := DROP INDEX <columnlist>\n'
+        nodo.production += f'{p[3].production}'
+        p[0] = nodo
+ 
+
+def p_indexes_create(p):
+    '''CREATE_INDEXES    : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
@@ -2330,7 +2490,15 @@ def p_statement_type_raise_exception(p):
     nodo.production = f'<statementType> := <RAISE_EXCEPTION>\n'
     nodo.production += f'{p[1].production}'
     p[0] = nodo
-
+def p_statement_type_dml_sql(p):
+    '''statementType : DML 
+    '''
+    nodo = Node('statementType')
+    nodo.add_childrens(p[1])
+    nodo.production = f'<statementType> := <DML>\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+    
 def p_statement_type_body_declaration(p):
     '''statementType :  BODY_DECLARATION
     '''
