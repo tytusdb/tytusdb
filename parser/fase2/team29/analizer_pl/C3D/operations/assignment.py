@@ -14,4 +14,6 @@ class Assignment(Expression):
         # TODO: Error
         if environment.getVar(self.id) != None:
             self.value = exp.value + self.id + " = " + str(exp.temp) + "\n"
+            if environment:
+                self.value = "\t"+self.value
             return code.C3D(self.value, self.id, self.row, self.column)

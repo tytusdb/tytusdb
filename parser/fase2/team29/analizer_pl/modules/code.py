@@ -4,6 +4,7 @@ from analizer_pl.C3D.operations import declaration
 from analizer_pl.C3D.operations import block
 from analizer_pl.C3D.operations import function
 from analizer_pl.C3D.operations import case
+from analizer_pl.C3D.operations import return_
 
 def TernaryOperation(temp, exp1, exp2, exp3, operator, row, column):
     return operation.Ternary(temp, exp1, exp2, exp3, operator, row, column)
@@ -33,3 +34,6 @@ def FunctionDeclaration(id, params, returns, row, column):
 
 def Case(expBool, blockStmt, elseCase, elseStmt, row, column):
     return case.Case(expBool, blockStmt, elseCase, elseStmt, row, column)
+
+def Return(exp, row, column):
+    return return_.Return(exp, row, column)
