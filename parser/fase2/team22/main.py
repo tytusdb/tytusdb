@@ -1,4 +1,4 @@
-import storageManager
+#import storageManager
 from tkinter import *
 from os import path
 from tkinter import filedialog
@@ -22,7 +22,10 @@ from storageManager.jsonMode import *
 
 import sintactico
 
-# import AST as AST
+# REPORTE PARA AST 
+import webbrowser
+import img2pdf 
+from PIL import Image 
 
 global arbol
 arbol = None
@@ -94,18 +97,32 @@ class interfaz():
         btnejecutar = Button(self.window,image = img3 , bg="#6a8d92",height=35, width=40,command=self.btnejecutar_click)
         btnejecutar.place(x=115,y=5)
 
+        img4 = PhotoImage(file='img/icons/C3Diconoc.png')
+        btnGenerarC3D = Button(self.window, image = img4, bg="#6a8d92",height=35, width=40, command=self.btnGenerarC3D_click)
+        btnGenerarC3D.place(x=165, y=5)
+
+        img5 = PhotoImage(file='img/icons/C3Dopticonoc.png')
+        btnOptimizarC3D = Button(self.window, image = img5, bg="#6a8d92",height=35, width=40, command=self.btnOptimizarC3D_click)
+        btnOptimizarC3D.place(x=215, y=5)
+
         ##############################################PESTAÑAS####################################
         self.tab = ttk.Notebook(self.window)
         self.tab.pack(fill='both',padx=20, pady=[50,20])
         self.tab_frame =[]
         self.txtentrada =[]
         self.txtsalida =[]
+        self.salidaC3d = []
+        self.salidaC3dOpt = []
         self.crear_tab("","Nuevo.sql")
         
         lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=15,bg='#80b192')
         lblentrada.place(x=20,y=80)
         lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#80b192')
         lblsalida.place(x=20,y=350)
+        lblsalida= Label(self.window,text="Codigo 3 Direcciones:",height=1, width=20,bg='#80b192')
+        lblsalida.place(x=670,y=350)
+        lblsalida= Label(self.window,text="Código 3 Direccciones Optimizado:",height=1, width=27,bg='#80b192')
+        lblsalida.place(x=690,y=480)
 
         #redimensionar los elementos
         #self.window.bind('<Configure>',self.resizeEvent)
@@ -175,7 +192,10 @@ class interfaz():
         arbol = None         
 
     def ast_click(self):
-        print("ast")   
+        try:
+            webbrowser.open_new_tab('AST.svg')
+        except:
+            print('Error al abrir el reporte AST.')
     
     def repDin_click(self):
         global arbol
@@ -240,8 +260,19 @@ class interfaz():
         file3DOptimizado.close()
         
         
+    def btnGenerarC3D_click(self):
+        archivo = open("Codigo3D.py", "r")
+        entrada = archivo.read()
+        archivo.close()
+        self.salidaC3d[self.tab.index("current")].delete(1.0,END)
+        self.salidaC3d[-1].insert(INSERT, entrada+"")
 
-        
+    def btnOptimizarC3D_click(self):
+        archivo = open("C3DOptimo.py", "r")
+        entrada = archivo.read()
+        archivo.close()
+        self.salidaC3dOpt[self.tab.index("current")].delete(1.0,END)
+        self.salidaC3dOpt[-1].insert(INSERT, entrada+"")
 
 
     def btnejecutar_click(self):
@@ -258,8 +289,12 @@ class interfaz():
         self.txtentrada[-1].insert(INSERT,entrada+"")
         #self.txtentrada[-1].bind("<MouseWheel>", self.OnMouseWheel)
 
-        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15,background="#070707",foreground="#FEFDFD"))
+        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=80,height=15,background="#070707",foreground="#FEFDFD"))
         self.txtsalida[-1].place(x=0,y=298)
+        self.salidaC3d.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=80,height=6))
+        self.salidaC3d[-1].place(x=660,y=298)
+        self.salidaC3dOpt.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=80,height=6))
+        self.salidaC3dOpt[-1].place(x=660,y=430)
         #nombre del archivo
         #print(self.tab.tab(self.tab.select(),"text"))
         self.tab.select(int(len(self.tab_frame)-1))

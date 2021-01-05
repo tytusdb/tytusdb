@@ -10,6 +10,16 @@ class Lcm(Instruccion):
         super().ejecutar(tabla,arbol)
         arbol.consola.append('Función en proceso...')
 
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        retorno = self.valor.traducir(tabla,arbol)
+        #print(retorno.temporalAnterior)
+        #print(type(self.valor))
+        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        return f"LCM({self.valor.traducir(tabla,arbol).temporalAnterior})"
 '''
 #esta funcion solo se  encuentra en la version 3.9 y nosotros no la tenemos :'(
 instruccion = Lcm("hola mundo",None, 1,2)

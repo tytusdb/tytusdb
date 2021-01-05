@@ -1,11 +1,12 @@
 from sys import path
 from os.path import dirname as dir
-
+import re
 path.append(dir(path[0]))
 import ply.yacc as yacc
 from analizer.tokens import *
 from analizer.reports import Nodo
-from analizer.c3d.codigo3d import instancia_codigo3d
+from analizer.c3d.codigo3d import Codigo3d, instancia_codigo3d
+
 # Construccion del analizador léxico
 import ply.lex as lex
 
@@ -14,7 +15,8 @@ lexer = lex.lex()
 listInst = [] # esta es para el arbol , ya estaba en el proyecto
 repGrammar = []
 count_ins = 0
-listaAux = [] # sirve para contener el cd3 de la fase 2 de forma temporal
+entrada = ''
+
 precedence = (
     ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
     ("right", "R_NOT"),
@@ -47,10 +49,10 @@ from analizer.abstract.expression import returnExpErrors
 import analizer.modules.expressions as expression
 import analizer.abstract.instruction as instruction
 import analizer.modules.instructions as instruction2
-
-
-
-
+from analizer.statement.pl.sentenciaIf import IfSimple, If_Elseif
+from analizer.statement.pl.sentenciaReturn import  Return_
+from analizer.statement.pl.codeblock import CodeBlock
+from analizer.statement.pl.instruccionesF1 import F1
 
 def p_init(t):
     """init : stmtList"""
@@ -81,7 +83,7 @@ def p_stmt_u(t):
 def p_stmt(t):#INSTRUCCIONES
     """
     stmt : fase1_stmt
-        |  fase2_stmt
+        | fase2_stmt
     """
     #listInst.append(t[1].dot())
     try:
@@ -93,8 +95,7 @@ def p_stmt(t):#INSTRUCCIONES
 
 def p_fase1_stmt(t):
     """
-    fase1_stmt : createStmt  S_PUNTOCOMA
-        | showStmt S_PUNTOCOMA
+    fase1_stmt : showStmt S_PUNTOCOMA
         | alterStmt S_PUNTOCOMA
         | dropStmt S_PUNTOCOMA
         | insertStmt S_PUNTOCOMA
@@ -103,9 +104,9 @@ def p_fase1_stmt(t):
         | truncateStmt S_PUNTOCOMA
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
+        | create_index S_PUNTOCOMA
     """
-    print("FASE 1")
-    listInst.append(t[1].dot())
+    #listInst.append(t[1].dot()) # * ES NECESARIO DESCOMENTAR PARA LA GENERACION DEL ARBOL, PERO TODAS LAS CLASES DEBEN DE TENER SU METODO DOT
     try:
         t[0] = t[1]
     except:
@@ -119,54 +120,73 @@ def p_fase1_stmt(t):
 
 
 
-def p_fase2_stmt(t): # ACA GUARDARIA EL CODIGO 3 DIRECCIONES DE LA FASE 2
-    '''
-    fase2_stmt : R_BEGIN ID  S_IGUAL expresion S_PUNTOCOMA R_END
-    '''
-    print("FASE 2")
-    # ESTA PRODUCCION SOLO ES UN EJEMPLO , HAY QUE BORRARLA :v
-    instancia_codigo3d.addToCode(f'\t{t[2]} = {t[4].generate3d(0 , 2)}')
-    #instancia_codigo3d.addToCode(f'\t{t[2]} = {t[4].generate3d(0 , 1)}') # el segundo parametro con 1 me trae la expresion pasada a 3d   , con 2 me trae la expresion como un string  este usaria para concatenar cosas en el select expresion como solo es una cadena
+def p_createopts_index(t):
+    """
+    create_index : R_CREATE R_INDEX ID R_ON ID S_PARIZQ ID orderOpts orderNull S_PARDER whereCl
+        | R_CREATE R_INDEX ID R_ON ID R_USING R_HASH S_PARIZQ ID S_PARDER
+        | R_CREATE R_INDEX ID R_ON ID S_PARIZQ ID S_COMA ID S_PARDER
+        | R_CREATE R_INDEX ID R_ON ID S_PARIZQ funcCall S_PARDER
+        | R_CREATE R_UNIQUE R_INDEX ID R_ON ID S_PARIZQ idList S_PARDER
+    """
+    repGrammar.append(t.slice)
+    if t[2] == 'UNIQUE':
+            t[0] = instruction2.Index(t[4], t[6], t[8], t[2], t.slice[1].lineno, t.slice[1].lexpos)
+    else:
+        if len(t) == 11:
+            if t[8].upper() == 'HASH':
+                t[0] = instruction2.Index(t[3], t[5], t[9], None, t.slice[1].lineno, t.slice[1].lexpos)
+            else:
+                t[0] = instruction2.Index(t[3], t[5], [t[7],t[9]], None, t.slice[1].lineno, t.slice[1].lexpos)
+        else:
+            if t[8] == '(':
+                t[0] = instruction2.Index(t[3], t[5], t[9], None, t.slice[1].lineno, t.slice[1].lexpos)
+            else:
+                t[0] = instruction2.Index(t[3], t[5], t[7], None, t.slice[1].lineno, t.slice[1].lexpos)
 
+def p_fase2_stmt(t):
+    '''
+    fase2_stmt : createStmt  S_PUNTOCOMA
+    '''
     global count_ins
-    count_ins += 1#solo lo incremento donde hay punto y coma
+    count_ins += 1
 
 
 # region FASE 2
 # Indices
-def p_createopts_index(t):
-    """
-    createOpts : R_INDEX ID R_ON ID S_PARIZQ ID orderOpts orderNull S_PARDER whereCl
-        | R_INDEX ID R_ON ID R_USING R_HASH S_PARIZQ ID S_PARDER
-        | R_INDEX ID R_ON ID S_PARIZQ ID S_COMA ID S_PARDER
-        | R_INDEX ID R_ON ID S_PARIZQ funcCall S_PARDER
-        | R_UNIQUE R_INDEX ID R_ON ID S_PARIZQ idList S_PARDER
-    """
-    repGrammar.append(t.slice)
+
+
 
 # Procedimientos
 def p_createopts_procedure(t):
     """
     createOpts : R_PROCEDURE ID S_PARIZQ S_PARDER R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
+    global count_ins # por el token S_PUNTOCOMA necesitaba agregar esto :v
+    count_ins += 1
     repGrammar.append(t.slice)
 
 def p_createopts_procedure_params(t):
     """
     createOpts : R_PROCEDURE ID S_PARIZQ typeParamsList S_PARDER R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
+    global count_ins
+    count_ins += 1
     repGrammar.append(t.slice)
 
 def p_createopts_function(t):
     """
     createOpts : R_FUNCTION ID S_PARIZQ S_PARDER R_RETURNS types R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
+    global count_ins
+    count_ins += 1
     repGrammar.append(t.slice)
 
 def p_createopts_function_params(t):
     """
     createOpts : R_FUNCTION ID S_PARIZQ typeParamsList S_PARDER R_RETURNS types R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
+    global count_ins
+    count_ins += 1
     repGrammar.append(t.slice)
 
 def p_typeParamsList(t):
@@ -188,6 +208,10 @@ def p_codeBlock(t):
     codeBlock : R_DECLARE declarationList R_BEGIN plInstructions R_END
     | R_BEGIN plInstructions R_END
     """
+    if len(t) == 6:
+        t[0] = CodeBlock(lista_instrucciones=t[4] , lista_declaraciones=t[2] , row=t.slice[1].lineno , column=t.slice[1].lexpos)
+    else:
+        t[0] = CodeBlock(lista_instrucciones=t[2] , row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 def p_declarationList(t):
@@ -195,6 +219,11 @@ def p_declarationList(t):
     declarationList : declarationList declaration
         | declaration
     """
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 def p_declaration(t):
@@ -203,6 +232,9 @@ def p_declaration(t):
         | ID types S_ASIGNACION expresion S_PUNTOCOMA
         | ID types S_IGUAL expresion S_PUNTOCOMA
     """
+
+    global count_ins
+    count_ins += 1
     repGrammar.append(t.slice)
 
 def p_plInstructions(t):
@@ -210,22 +242,80 @@ def p_plInstructions(t):
     plInstructions : plInstructions plInstruction
     | plInstruction
     """
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
     repGrammar.append(t.slice)
 
-def p_plInstruction(t):
+#                                                                       * INSTRUCCIONES INTERNAS AL IF
+def p_plInstructionsIf(t):
     """
-    plInstruction : assignment S_PUNTOCOMA
-    | insertStmt S_PUNTOCOMA
+    plInstructionIf : plInstructionIf instruc
+    | instruc
+    """
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+    repGrammar.append(t.slice)
+#               * cree esta produccion extra solo para que se comportara diferente en su accion semantica a la de plInstruccion
+def p_plInstructionIf(t):
+    """
+    instruc : assignment S_PUNTOCOMA
+    | executeStmt S_PUNTOCOMA
+    | ifStmt S_PUNTOCOMA
+    | caseStmt S_PUNTOCOMA
+    | codeBlock S_PUNTOCOMA
+    | returnStmt S_PUNTOCOMA
+    """
+    t[0] = t[1]
+    global count_ins
+    count_ins += 1
+    repGrammar.append(t.slice)
+#                                                                       * INSTRUCCIONES INTERNAS AL IF
+def p_plInstructionIf2(t):# los separe solo para generar su codigo 3d diferente
+    """
+    instruc : insertStmt S_PUNTOCOMA
     | updateStmt S_PUNTOCOMA
     | deleteStmt S_PUNTOCOMA
     | selectStmt S_PUNTOCOMA
+    """
+    global count_ins
+
+    t[0] = F1([1],C3D_INSTRUCCIONES_FASE1_CADENA(t), t.slice[2].lineno , t.slice[2].lexpos )
+    count_ins += 1
+
+#*_________________________________________________________________________________ACA VA SER EL PUNTO DE TRADUCCION
+def p_plInstruction(t):
+    """
+    plInstruction : assignment S_PUNTOCOMA
     | executeStmt S_PUNTOCOMA
-    | ifStmt S_PUNTOCOMA 
+    | ifStmt S_PUNTOCOMA
     | caseStmt S_PUNTOCOMA
-    | codeBlock S_PUNTOCOMA 
+    | codeBlock S_PUNTOCOMA
     | returnStmt S_PUNTOCOMA
     """
+    t[1].generate3d(None,instancia_codigo3d)
+
+    global count_ins
+    count_ins += 1
     repGrammar.append(t.slice)
+
+def p_plInstruction2(t):# los separe solo para generar su codigo 3d diferente
+    """
+    plInstruction : insertStmt S_PUNTOCOMA
+    | updateStmt S_PUNTOCOMA
+    | deleteStmt S_PUNTOCOMA
+    | selectStmt S_PUNTOCOMA
+    """
+    global count_ins
+    C3D_INSTRUCCIONES_FASE1_SIMBOLICO(t)    #TODO -comentario: no lo ejecuto de una vez y tal vez la tabulacion cambien seria de ver eso
+    count_ins += 1
+    repGrammar.append(t.slice)
+
 
 def p_assignment(t):
     """
@@ -236,35 +326,60 @@ def p_assignment(t):
 
 def p_executeStmt(t):
     """
-    executeStmt : R_EXECUTE STRING 
+    executeStmt : R_EXECUTE STRING
     """
     repGrammar.append(t.slice)
 
 def p_ifStmt(t):
     """
-    ifStmt : R_IF expBool R_THEN plInstructions elsifList R_ELSE plInstructions R_END R_IF
-    | R_IF expBool R_THEN plInstructions elsifList R_END R_IF
-    | R_IF expBool R_THEN plInstructions R_ELSE plInstructions R_END R_IF
-    | R_IF expBool R_THEN plInstructions R_END R_IF
+    ifStmt : R_IF expresion R_THEN plInstructionIf elsifList R_ELSE plInstructionIf R_END R_IF
+    | R_IF expresion R_THEN plInstructionIf elsifList R_END R_IF
     """
+    if len(t) == 10:
+        t[0] = If_Elseif(if_exp=t[2] , if_inst=t[4], lista_elifs = t[5],  row=t.slice[1].lineno , column=t.slice[1].lexpos , else_inst=t[7])
+    else:
+        t[0] = If_Elseif(if_exp=t[2] , if_inst=t[4],lista_elifs = t[5] , row=t.slice[1].lineno , column=t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+def p_ifStmt2(t): # ! NO SE PUEDE HACER UN AND CON UN PRIMITIVO
+    """
+    ifStmt : R_IF expresion R_THEN plInstructionIf R_ELSE plInstructionIf R_END R_IF
+    | R_IF expresion R_THEN plInstructionIf R_END R_IF
+    """
+    if len(t) == 9:
+        t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[1].lineno , column=t.slice[1].lexpos , else_inst=t[6])
+    else:
+        t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 def p_elsifList(t):
     """
-    elsifList : elsifList elsifStmt 
+    elsifList : elsifList elsifStmt
     | elsifStmt
     """
     repGrammar.append(t.slice)
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_elsifStmt(t):
     """
-    elsifStmt : R_ELSIF expBool R_THEN plInstructions
+    elsifStmt : reservada_elseif expresion R_THEN plInstructionIf
     """
+    t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[3].lineno , column=t.slice[3].lexpos)
     repGrammar.append(t.slice)
+def p_reservada_elseif(t):
+    '''
+    reservada_elseif : R_ELSEIF
+                    | R_ELSIF
+    '''
+    t[0] = t[1]
 
 def p_caseStmt(t):
     """
-    caseStmt : R_CASE expresion caseListStmt R_ELSE plInstructions R_END R_CASE
+    caseStmt : R_CASE expresion caseListStmt R_ELSE plInstructionIf R_END R_CASE
             | R_CASE expresion caseListStmt R_END R_CASE
     """
     repGrammar.append(t.slice)
@@ -274,16 +389,22 @@ def p_caseListStmt(t):
     caseListStmt : caseListStmt caseWhenStmt
             | caseWhenStmt
     """
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 def p_caseWhenStmt(t):
-    """caseWhenStmt : R_WHEN expBool R_THEN plInstructions"""
+    """caseWhenStmt : R_WHEN expresion R_THEN plInstructionIf"""
     repGrammar.append(t.slice)
 
 def p_returnStmt(t):
     """
     returnStmt : R_RETURN expresion
     """
+    t[0] = Return_(exp = t[2] ,  row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 #endregion
 
@@ -335,6 +456,7 @@ def p_createopts_table(t):
         t[2], t[3], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[5]
     )
     repGrammar.append(t.slice)
+    C3D_INSTRUCCIONES_FASE1(t)
 
 
 def p_createopts_db(t):
@@ -345,6 +467,7 @@ def p_createopts_db(t):
         t[1], t[3], t[4], t[5], t[6], t.slice[2].lineno, t.slice[2].lexpos
     )
     repGrammar.append(t.slice)
+    C3D_INSTRUCCIONES_FASE1(t)
 
 
 def p_replace_true(t):
@@ -371,6 +494,7 @@ def p_createopts_type(t):
         t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos, t[7]
     )
     repGrammar.append(t.slice)
+    C3D_INSTRUCCIONES_FASE1(t)
 
 
 def p_ifnotexists_true(t):
@@ -1949,25 +2073,29 @@ def getRepGrammar():
 
 
 def parserTo3D(input)-> None:
-    try:
-        global syntax_errors, PostgreSQL, repGrammar
-        repGrammar = []
-        syntax_errors = list()
-        PostgreSQL = list()
-        expression.list_errors = list()
-        instruction.syntaxPostgreSQL = list()
-        instruction.semanticErrors = list()
-        lexer.lineno = 1
-        instancia_codigo3d.restart(input)
-        parser.parse(input)
-        #return result
-    except Exception as e:
-        print(e)
-        return None
+    global syntax_errors, PostgreSQL, repGrammar,entrada,count_ins
+    entrada = input
+    entrada = re.sub('\-\-(.*)\n|/\*(.|\n)*?\*/' ,"",entrada)
+    count_ins = 0
+    repGrammar = []
+    syntax_errors = list()
+    PostgreSQL = list()
+    expression.list_errors = list()
+    instruction.syntaxPostgreSQL = list()
+    instruction.semanticErrors = list()
+    lexer.lineno = 1
+    instancia_codigo3d.restart()
+    parser.parse(input)
+
 
 
 
 #------------------------------------ METODOS PROPIOS DE LA FASE 2
+
+def getCodigo():
+    instancia_codigo3d.generarArchivoEjecucion()
+    return instancia_codigo3d.getCodigo()
+
 def C3D_INSTRUCCIONES_FASE1(t):
     """
     este metodo es para guardar las cadenas correspondientes a la fase 1
@@ -1979,7 +2107,7 @@ def C3D_INSTRUCCIONES_FASE1(t):
 
 
     global count_ins
-    arreglo_split = t.lexer.lexdata.split(sep=";", maxsplit=count_ins + 1)
+    arreglo_split = entrada.split(sep=";", maxsplit=count_ins + 1)
     # POSEE UN MAX SPLIT poque no es necesario dividir las instrucciones que aun no se han analizado
     instruccionAnlizada = str(arreglo_split[count_ins]).strip() + ";"
 
@@ -1989,33 +2117,74 @@ def C3D_INSTRUCCIONES_FASE1(t):
         tn = instancia_codigo3d.getNewTemporal()
         instruccionC3D = f'\t{tn} = "{instruccionAnlizada}"'
         instancia_codigo3d.addToCode(instruccionC3D)
-        instancia_codigo3d.addToCode(f'\tstack.push({tn})')
+        instancia_codigo3d.addToCode(f"\tstack.push({tn})")
         instancia_codigo3d.addToCode(f"\tfuncionIntermedia()")
 
 
+def C3D_INSTRUCCIONES_FASE1_SIMBOLICO(t):
+    """
+    lo mismo que el metodo  C3D_INSTRUCCIONES_FASE1 pero no manda a ejecutar de una vez
+    """
 
 
+    global count_ins
+    arreglo_split = entrada.split(sep=";", maxsplit=count_ins + 1)
+    # POSEE UN MAX SPLIT poque no es necesario dividir las instrucciones que aun no se han analizado
+    instruccionAnlizada = str(arreglo_split[count_ins]).strip() + ";"
+
+    # antes verificar que inicie con una de las palabras reservadas
+    instruccionAnlizada = instancia_codigo3d.asegurarIntruccion(instruccionAnlizada)
+    if len(instruccionAnlizada) != 0:
+        tn = instancia_codigo3d.getNewTemporal()
+        instruccionC3D = f'\t{tn} = "{instruccionAnlizada}"'
+        instancia_codigo3d.addToCode(instruccionC3D)
+        # instancia_codigo3d.addToCode(f'\tstack.push({tn})')
+        # instancia_codigo3d.addToCode(f"\tfuncionIntermedia()")
+def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
+    """
+    retorna la cadena de la fase 1 correspondiente
+    """
+    global count_ins
+    arreglo_split = entrada.split(sep=";", maxsplit=count_ins + 1)
+    instruccionAnlizada = str(arreglo_split[count_ins]).strip() + ";"
+    instruccionAnlizada = instancia_codigo3d.asegurarIntruccion(instruccionAnlizada)
+    if len(instruccionAnlizada) != 0:
+        return instruccionAnlizada
+    return None
+
+
+
+
+
+
+
+
+
+
+
+
+# PARA PROBAR LA GENERACION DE CODIGO 3D
 
 parserTo3D("""
-
-
-
-use MYDB ;
-
--- esta instruccion begin no existe solo la use para probar :v
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
 BEGIN
-    UN_ID_ = 1+9*16;
-END
 
-create table tab5(
-columna integer NOT NULL
-);
 
-select md5('cadena') from tab5 where col <> 10 ;
 
+
+IF 9 > 0 THEN
+    RETURN 7;
+ELSEIF 10 < 9 THEN
+    return 40;
+ELSE
+    RETURN 2;
+
+
+
+
+END IF;
+END;
+$$ LANGUAGE plpgsql;
 """)
-# print("\n-------------- EN FORMA DE VECTOR ----------------")
-# print(instancia_codigo3d.listaCode3d)
-print("\n---------------- COMO SE VERIA A LA HORA DE MANDARLO AL ARCHIVO CADENA -----------------")
+print("\n---------------- SALIDA: -----------------")
 instancia_codigo3d.showCode()
-instancia_codigo3d.generarArchivoEjecucion()

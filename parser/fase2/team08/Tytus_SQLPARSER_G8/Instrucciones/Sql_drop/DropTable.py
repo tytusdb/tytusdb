@@ -39,6 +39,43 @@ class DropTable(Instruccion):
         #arbol.consola.append(error.toString())        
        # createTable(bd, "Mitabla")
        # showTables(bd)
+  
+    def analizar(self, tabla, arbol):
+        print("analizar")
+
+    def traducir(self, tabla, arbol):
+        cadena = "\"drop table "
+        
+        if( self.valor != None):
+            cadena += self.valor
+        
+        cadena += ";\""
+        arbol.addComen("Asignar cadena")
+        temporal1 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal1} = { cadena }")
+
+        arbol.addComen("Entrar al ambito")
+        temporal2 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal2} = P+2")
+        temporal3 = tabla.getTemporal()
+        arbol.addComen("parametro 1")
+        arbol.addc3d(f"{temporal3} = { temporal2}+1")
+        arbol.addComen("Asignacion de parametros")
+        arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
+
+        arbol.addComen("Llamada de funcion")
+        arbol.addc3d(f"P = P+2")
+        arbol.addc3d(f"funcionintermedia()")
+        
+        arbol.addComen("obtener resultado")
+        temporalX = tabla.getTemporal()
+        arbol.addc3d(f"{temporalX} = P+2")
+        temporalR = tabla.getTemporal()
+        arbol.addc3d(f"{temporalR} = Pila[{ temporalX }]")
+
+        arbol.addComen("Salida de funcion")
+        arbol.addc3d(f"P = P-2")
+
 '''
 instruccion = DropTable("hola mundo",None, 1,2)
 

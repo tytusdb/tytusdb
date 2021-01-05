@@ -28,6 +28,8 @@ from reporteTS import *
 import webbrowser
 from Graficar import Graficar
 from archivoC3D import *
+from analizadorFase2.Generador.Generador import Generador
+
 
 # MAIN CLASS
 class Main(tk.Tk):
@@ -91,6 +93,7 @@ class Main(tk.Tk):
         # Submenu [Analysis]
         self.sm_analyze = Menu(self.menu_bar, tearoff=False)
         self.sm_analyze.add_command(label="Ejecutar", command=lambda: self.tytus_ejecutar())
+        self.sm_analyze.add_command(label="Optimizado", command=lambda: self.tytus_optimizado())
         self.sm_analyze.add_command(label="Cerrar pestaña", command=lambda: self.close_output_tab())
         self.sm_analyze.add_command(label="Cerrar pestañas", command=lambda: self.delete_outputs())
         self.menu_bar.add_cascade(label="Queries", menu=self.sm_analyze)
@@ -514,6 +517,9 @@ class Main(tk.Tk):
         if not (event.keysym == "Home" or event.keysym == "Shift_L"):
             print(event.keysym)
 
+    def tytus_optimizado(self):
+        pass
+
     # Ejecución de Parser
     def tytus_ejecutar(self):
         # Getting widget
@@ -538,6 +544,9 @@ class Main(tk.Tk):
 
             # Start parser
             ins = g.parse(tytus)
+            temp = g.contador
+            gen = Generador(temp, 0, ins.getInstruccion())
+            gen.ejecutar()
             C3D = g.codigo_3D
             crearArchivo(C3D)
            ##g.analizar(tytus)

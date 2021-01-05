@@ -38,9 +38,13 @@ class Funcion(Instruction):
         for var in self.params:
             pos = ThreeAddressCode().stackCounter
             newAmbito.addVar(var.id, var.data_type, None, pos, var.line, var.column)
+            temp = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temp} = None") #TODO: MANEJAR PARAMETROS
+            ThreeAddressCode().addStack(temp)
+        pos = ThreeAddressCode().stackCounter
         lbl_exit = ThreeAddressCode().newLabel()
         self.body.compile(newAmbito)
         
         ThreeAddressCode().addCode(f"label .{lbl_exit}") #Agregando etiqueta
-        ThreeAddressCode().addCode(f"print(\"GraciasDios, SALI\")")
+        ThreeAddressCode().addCode(f"print(Stack[{pos}])") #Imprime primera variable declarada, NO parametro
 

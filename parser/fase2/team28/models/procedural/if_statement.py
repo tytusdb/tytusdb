@@ -11,36 +11,51 @@ class If(Instruction):
         return str(vars(self))
 
     def compile(self, environment):
+
         lbl_true = ThreeAddressCode().newLabel()
         lbl_false = ThreeAddressCode().newLabel()
-        lbl_exit = ThreeAddressCode().newLabel()
 
-        condition = self.condition.compile(environment)
+        condition = None
+        if type(self.condition) is not list:
+            condition = self.condition.compile(environment)
+        else:
+            condition = self.condition[0].compile(environment)
+        
         ThreeAddressCode().addCode(f"if({condition.value}): goto .{lbl_true}")
         ThreeAddressCode().addCode(f"goto .{lbl_false}")
 
-        ThreeAddressCode().addCode(f"label .{lbl_true}")
-        ThreeAddressCode().addCode(f"print(\"ETIQUETA VERDADERA\")")
+        ThreeAddressCode().addCode(f"label .{lbl_true}    # {condition.value} ---- True")
         for instr in self.instructions:
             instr.compile(environment)
-
-        ThreeAddressCode().addCode(f"goto .{lbl_exit}")
-        ThreeAddressCode().addCode(f"label .{lbl_false}")
-        ThreeAddressCode().addCode(f"print(\"ETIQUETA FALSA\")")    
-
-        if self.else_if is not None:
-            for else_if in self.else_if:
-                else_if.compile(environment)
-            ThreeAddressCode().addCode(f"goto .{lbl_exit}")
-
+  
         if self._else is not None:
-            for instr in self._else:
-                instr.compile(environment)
+            
+            lbl_exit = ThreeAddressCode().newLabel()
+            ThreeAddressCode().addCode(f"goto .{lbl_exit}") 
+            ThreeAddressCode().addCode(f"label .{lbl_false}    # {condition.value} ---- False")
 
-        ThreeAddressCode().addCode(f"label .{lbl_exit}")
-        ThreeAddressCode().addCode(f"print(\"ETIQUETA SALIDA\")")
+            if isinstance(self._else, If):
+                self._else.compile(environment)
+            else:
+                for instr in self._else:
+                    instr.compile(environment)
+
+            ThreeAddressCode().addCode(f"label .{lbl_exit}    # {condition.value} ---- Salida")
+
+        else:
+            
+            ThreeAddressCode().addCode(f"label .{lbl_false}    # {condition.value} ---- False")
        
 
 
     def process(self):
         pass
+
+
+def anidarIFs(counter, arr_ifs, _else):
+    newIF = None
+    if arr_ifs is not None and counter < len(arr_ifs)-1:
+        newIF = If(arr_ifs[counter].condition, arr_ifs[counter].instructions, None, anidarIFs(counter+1, arr_ifs, _else))
+    else:
+        newIF = If(arr_ifs[counter].condition, arr_ifs[counter].instructions, None, _else)
+    return newIF

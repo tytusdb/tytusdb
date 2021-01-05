@@ -14,6 +14,13 @@ class Terminal(Expresion) :
        Expresion.__init__(self)
        self.tipo=tipo
        self.valor=valor
+       if (self.tipo.tipo =='varchar' or self.tipo.tipo =='char' or self.tipo.tipo =='character varyng' or self.tipo.tipo =='text' or self.tipo.tipo =='character'):
+            self.stringsql="\'"+str(self.valor)+"\'"
+       elif(self.tipo.tipo=='timestamp without time zone'):
+           self.stringsql=str(self.valor)+"()"
+   
+       else:
+           self.stringsql=str(self.valor)
 
 
     def getval(self,entorno):

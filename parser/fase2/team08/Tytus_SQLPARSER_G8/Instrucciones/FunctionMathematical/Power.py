@@ -36,3 +36,10 @@ class Power(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
+
+    def analizar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol):
+        
+        return f"POWER({self.opIzq.traducir(tabla,arbol).temporalAnterior},{self.opDer.traducir(tabla,arbol).temporalAnterior})"

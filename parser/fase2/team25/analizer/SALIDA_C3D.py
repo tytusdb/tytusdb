@@ -7,21 +7,25 @@ stack = Stack()
 
 @with_goto
 def principal():
-	t0 = "use MYDB;"
+	t0 = "use mydb;"
 	stack.push(t0)
 	funcionIntermedia()
-	t1 = 9 * 16
-	t2 = 1 + t1
-	un_id_ = t2
-	t3 = "create table tab5( columna integer NOT NULL );"
-	stack.push(t3)
-	funcionIntermedia()
-	t4 = "select md5('cadena') , funcionNueva(col) from tab5 where col <> 10;"
-	stack.push(t4)
+	t1 = "select * from unatabla;"
+	t2 = 9 > 1
+	if t2: goto .L0
+	goto .L1
+	label .L0 #eTrue
+	t3 = 7979 + 9
+	return t3
+	t4 = 1 + 2
+	return t4
+	return 7
+	t5 = "select * from tanb;"
+	stack.push(t5)
 	funcionIntermedia()
 
 
 
 def funcionIntermedia():
-	execution(stack.pop())
+	execution("select 9*9;")
 principal()
