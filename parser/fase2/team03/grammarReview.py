@@ -1159,7 +1159,7 @@ def p_param_function(t):
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("param_function"), [t[1]],  childsProduction )
         addCad("**\<PARAM_FUNCTION>** ::=  tIdentifier ")
-        t[0] = Parameter(None, None, t[1], token.lineno, token.lexpos, graph_ref)        
+        t[0] = Parameter(None, None, t[1], token.value.line, token.value.column, graph_ref)        
 
 
 def p_param_function_1(t):

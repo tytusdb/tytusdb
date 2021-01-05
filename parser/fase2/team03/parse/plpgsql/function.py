@@ -28,19 +28,27 @@ class Function(ASTNode):
         # 5 cretate or append file.py for the frunction         
         tac_parameters = []
         tac_body = []
-        #TODO: implemet ->
-        #self.parameters.generate(table, tac_parameters)
+        
+        paramCounter = 0
+        #gen tac for func parameters
+        if isinstance(self.parameters, list):            
+            for p in self.parameters:
+                p.setParamIndex(paramCounter + 1)
+                p.generate(table, tac_parameters)
+                paramCounter +=1
+        
         self.body.generate(table, tac_body)
         
         #now add this new TAC to the list
         labelname = generate_label()
         this_tac = Quadruple(None, labelname, None, None, OpTAC.LABEL)
         endGoto = Quadruple(None, 'exit', None, None, OpTAC.GOTO)
-        tree = [this_tac]+tac_body+[endGoto]        
+        tree = [this_tac] + tac_parameters + tac_body+[endGoto]
+        tree.append(Quadruple(None,'exit',None,None,OpTAC.LABEL))
         #add this functi on to ST
         currDB = table.get_current_db()
         #TODO: set params
-        sym = FunctionSymbol(currDB.id, self.name, labelname, 0)
+        sym = FunctionSymbol(currDB.id, self.name, labelname, paramCounter)
         table.add(sym)        
         #write File.py
         Save_TAC_obj(f'{currDB.name}_func_{self.name}', tree)
@@ -89,6 +97,7 @@ class Parameter(ASTNode):
         self.param_mode = param_mode #ParamMode
         self.param_type = param_type #Typedef   
         self.graph_ref = graph_ref
+        self.param_index = 0 #set out of the contructior when you have all li of parameters starts with 1
 
     def execute(self, table, tree):
         super().execute(table, tree)        
@@ -96,7 +105,17 @@ class Parameter(ASTNode):
     
     def generate(self, table, tree): 
         #write declaration with param names and add pop() to assign value
-        pass
+        if self.param_index == 0:
+            raise Exception('For generate TAC object first set a parmeter array index for the function -Paramater Class-')
+        result = Quadruple(None, None, None, self.param_name, OpTAC.POP)
+        if self.param_name is None or self.param_name == '':
+            result.res = f'{getParamNameFormat()}{self.param_index}'
+        if isinstance(tree, list):
+            tree.append(result)            
+        return result
+
+    def setParamIndex(self, index_: int):
+        self.param_index = index_
 
 class ParamMode(ASTNode):
     def __init__(self, val, line, column, graph_ref):
