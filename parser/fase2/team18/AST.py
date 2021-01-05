@@ -3664,7 +3664,7 @@ def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
                 if condicion_case != None and condicion_case !=False:
                     #Resulve sentecias when Else
                     for senT in i.sentencia_when:
-                        
+                
                         if senT.condicion!=None and condicion_case !=False:
                             #Resuelve WHEN
                             condicion_when=Resuelve_Exp_ID(lvalor_id,senT.condicion,'')
@@ -3694,8 +3694,11 @@ def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
                 #Case sin exp
                 #Resulve sentecias when Else
                 for senT in i.sentencia_when:
-                        
-                    if senT.condicion!=None and condicion_case !=False:
+                    if senT.condicion!=None and senT.condicion !=False:
+                        lvalor_id=[]
+                        for val in lvaloriables:
+                            if val.valor != None:
+                                lvalor_id.append([val.nombre,val.valor])
                         #Resuelve WHEN
                         condicion_when=Resuelve_Exp_ID(lvalor_id,senT.condicion,'')
                         #valua resultado de exp_when
