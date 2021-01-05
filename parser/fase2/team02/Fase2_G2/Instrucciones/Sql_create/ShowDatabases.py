@@ -34,39 +34,6 @@ class ShowDatabases(Instruccion):
         print(lista)
         arbol.getMensajeTabla(columna,lista)
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-
-
-    def analizar(self, tabla, arbol):
-        print("..")
-
-    def traducir(self, tabla, arbol):
-
-        cadena = "\"" + "show databases; \""
-        arbol.addComen("Asignar Cadena")
-        temporal1 = tabla.getTemporal()
-        arbol.addc3d(f"{ temporal1 }={ cadena }")
-
-        arbol.addComen("Entrar al ambito")
-        temporal2 = tabla.getTemporal()
-        arbol.addc3d(f"{temporal2} = P+2")
-        temporal3 = tabla.getTemporal()
-        arbol.addComen("parametro 1")
-        arbol.addc3d(f"{temporal3} = { temporal2}+1")
-        arbol.addComen("Asignacion de parametros")
-        arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
-
-        arbol.addComen("Llamada de funcion")
-        arbol.addc3d(f"P = P+2")
-        arbol.addc3d(f"funcionintermedia()")
-        
-        arbol.addComen("obtener resultado")
-        temporalX = tabla.getTemporal()
-        arbol.addc3d(f"{temporalX} = P+2")
-        temporalR = tabla.getTemporal()
-        arbol.addc3d(f"{temporalR} = Pila[{ temporalX }]")
-
-        arbol.addComen("Salida de funcion")
-        arbol.addc3d(f"P = P-2")
 '''
 instruccion = ShowDatabases("hola mundo",None, 1,2)
 

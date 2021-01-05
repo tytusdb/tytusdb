@@ -83,3 +83,10 @@ class Logical(Expression):
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         return new
+
+    def generate3d(self, environment, instanciaAux):
+        exp1 = self.exp.generate3d(environment, instanciaAux)
+        operator = self.operator.lower()
+        tn = instanciaAux.getNewTemporal() 
+        instanciaAux.addToCode(f'\t{tn} =  {operator} {exp1}')
+        return tn

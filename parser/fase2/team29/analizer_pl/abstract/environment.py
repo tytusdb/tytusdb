@@ -6,9 +6,10 @@ class Environment:
     Esta clase representa los simbolos de las variables declaradas.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, globalEnv) -> None:
         self.variables = {}
         self.types = {}
+        self.globalEnv = globalEnv
 
     def updateVar(self, id, value, type_):
         """
@@ -44,7 +45,7 @@ class Environment:
 
     def getVar(self, id):
         """
-        docstring
+        Esta funcion retorna el simbolo asociado al id que recibe.
         """
         if id in self.variables:
             return self.variables[id]

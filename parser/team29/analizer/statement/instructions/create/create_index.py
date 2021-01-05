@@ -11,6 +11,11 @@ class CreateIndex(instruction.Instruction):
         self.optList = optList
         self.whereCl = whereCl
         self.usingMethod = usingMethod
+        if not idIndex:
+            idIndex = "index_" + idTable
+            for l in optList:
+                idIndex += "_" + l[0]
+            self.idIndex = idIndex
 
     def execute(self, environment):
         name = self.idIndex
