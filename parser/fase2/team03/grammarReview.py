@@ -229,7 +229,7 @@ reserved = {
     'execute' : 'EXECUTE',
     'get' : 'GET',
     'notice' : 'NOTICE',
-    'elseif' : 'ELSEIF',
+    'elsif' : 'ELSIF',
     'exception' :  'EXCEPTION',
     'plpgsql' : 'PLPGSQL',
     'diagnostics' : 'DIAGNOSTICS',
@@ -545,14 +545,14 @@ def p_stm_perform(t):
 
 
 def p_stm_if(t):
-    '''stm_if   : IF condition THEN   if_inst   elseif_opt  else_opt  END IF '''
+    '''stm_if   : IF condition THEN   if_inst   elsif_opt  else_opt  END IF '''
     childsProduction  = addNotNoneChild(t,[2,5,6])
     lista = None
     if t[4] != None:
         lista = t[4][0]
         childsProduction.append(lista.graph_ref)
     graph_ref = graph_node(str("stm_if"), [t[1], t[2], t[3], lista,t[5],t[6],t[7],t[8]], childsProduction)
-    addCad("**\<STM_IF>** ::=  tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf  ';'  ")
+    addCad("**\<STM_IF>** ::=  tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf  ';'  ")
     t[0] = IfNode(t[2], t[4], t[5], t[6], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
 
 def p_condition(t):
@@ -573,8 +573,8 @@ def p_condition(t):
 
 
 
-def p_elseif_opt(t):
-    '''elseif_opt   : ELSEIF  condition THEN  if_inst   '''
+def p_elsif_opt(t):
+    '''elsif_opt   : ELSIF  condition THEN  if_inst   '''
 
 
     if len(t) == 5:
@@ -583,13 +583,13 @@ def p_elseif_opt(t):
         if t[4] != None:
             lista = t[4][0]
             childsProduction.append(lista.graph_ref)
-        graph_ref = graph_node(str("elseif_opt"), [t[1], t[2], t[3], lista],childsProduction )
-        addCad("**\<ELSEIF_OPT>** ::=   tElseIf  \<CONDITION> tThen  \<IF_INST>    ")
+        graph_ref = graph_node(str("elsif_opt"), [t[1], t[2], t[3], lista],childsProduction )
+        addCad("**\<ELSIF_OPT>** ::=   tElsIf  \<CONDITION> tThen  \<IF_INST>    ")
         t[0] = IfNode(t[2], t[4], None, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         
 
-def p_elseif_opt0(t):
-    '''elseif_opt   : empty   '''
+def p_elsif_opt0(t):
+    '''elsif_opt   : empty   '''
     t[0] = None
         #print(t)
 
@@ -607,7 +607,7 @@ def p_else_opt(t):
             lista = t[2][0]
             childsProduction.append(lista.graph_ref)
         graph_ref = graph_node(str("else_opt"), [t[1], lista], childsProduction )
-        addCad("**\<ELSEIF_OPT>** ::=   tElseIf  \<CONDITION>   tThen   \<IF_INST>    ")
+        addCad("**\<ELSIF_OPT>** ::=   tElsIf  \<CONDITION>   tThen   \<IF_INST>    ")
         t[0] = ElseNode(t[2], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         
 
@@ -632,7 +632,6 @@ def p_if_inst(t):
     if token.type == "statements_sql":
         childsProduction  = addNotNoneChild(t,[2])
         lista = None
-        childsProduction = []
         if t[1] != None:
             lista = t[1][0]
             childsProduction.append(lista.graph_ref)
@@ -643,7 +642,6 @@ def p_if_inst(t):
     elif token.type == "raise_op":
         childsProduction  = addNotNoneChild(t,[2])
         lista = None
-        childsProduction = []
         if t[1] != None:
             lista = t[1][0]
             childsProduction.append(lista.graph_ref)
@@ -655,7 +653,7 @@ def p_if_inst(t):
         #childsProduction  = addNotNoneChild(t,[1,2])
         #graph_ref = graph_node(str("if_inst"), [t[1], t[2]],childsProduction )        
         lista = None
-        childsProduction = []
+        childsProduction  = addNotNoneChild(t,[2])
         if t[1] != None:
             lista = t[1][0]
             childsProduction.append(lista.graph_ref)
@@ -693,7 +691,7 @@ def p_stm_begin(t):
         lista2 = t[3][0]
         childsProduction.append(lista2.graph_ref)
     graph_ref = graph_node(str("stm_begin"), [lista, t[2], lista2, t[4], t[5], t[6], t[7]],childsProduction )
-    addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSEIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf   ")
+    addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf   ")
     t[0] = FunctionBody(t[1], t[3], t[4], t[5], t.slice[2].lineno, t.slice[2].lexpos, graph_ref)
     ###-t[0] = upNodo("token", 0, 0, graph_ref)
        
@@ -701,9 +699,9 @@ def p_stm_begin(t):
 
 def p_statements_begin(t):
     '''statements_begin   : statements_begin statements_sql PUNTOCOMA
-                          | statements_begin   stm_if  PUNTOCOMA     #TODO @SANDY
+                          | statements_begin   stm_if  PUNTOCOMA     
                           | statements_begin   asig_basica  PUNTOCOMA
-                          | statements_begin  stm_case PUNTOCOMA    '''    #TODO @SANDY
+                          | statements_begin  stm_case PUNTOCOMA    '''   
     token = t.slice[2]
     if token.type == "statements_sql":
         childsProduction  = addNotNoneChild(t,[2])

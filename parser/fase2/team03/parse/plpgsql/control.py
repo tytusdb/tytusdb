@@ -74,6 +74,7 @@ class ElseNode(ASTNode):
     def __init__(self, else_block , line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.else_block = else_block
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
