@@ -241,7 +241,10 @@ reservadas = {
     'procedure' : 'PROCEDURE',
     'out' : 'OUT',
     'language' : 'LANGUAGE',
-    'plpgsql' : 'PLPGSQL'
+    'plpgsql' : 'PLPGSQL',
+    'rowtype' : 'ROWTYPE',
+    'alias' : 'ALIAS'
+
 
 # revisar funciones de tiempo y fechas
 }
@@ -487,6 +490,7 @@ def p_query(t):
                     | createFunction
                     | createProcedure
                     | statements
+                    | declaraciones
     '''
     t[0]=t[1]
  
@@ -941,7 +945,7 @@ def p_funcionJJBH_basica(t):
                         | MD5 PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | SET_BYTE PARENTESISIZQUIERDA operacionJJBH COMA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
                         | SHA256 PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA                       
-                        | SUBSTR PARENTESISIZQUIERDA operacionJJBH  COMA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
+                        | SUBSTR PARENTESISIZQUIERDA operacionJJBH  COMA operacion COMA operacion PARENTESISDERECHA
                         | CONVERT PARENTESISIZQUIERDA operacionJJBH  COMA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
                         | ENCODE PARENTESISIZQUIERDA operacionJJBH  COMA operacionJJBH  PARENTESISDERECHA
                         | DECODE PARENTESISIZQUIERDA operacionJJBH  COMA operacionJJBH  PARENTESISDERECHA
@@ -949,13 +953,29 @@ def p_funcionJJBH_basica(t):
                         | SUM PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | EXTRACT PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacionJJBH PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA operacionJJBH COMA INTERVAL operacionJJBH PARENTESISDERECHA
-                        | CURRENT_DATE PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
-                        | CURRENT_TIME PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
+                        | CURRENT_TIME
+                        | CURRENT_DATE 
     '''
     if t[1].upper()=="ABS":
-        a="t"+str(h.conteoTemporales)+" = abs("+str(t[3])+")"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")[0]
+        print(b)
+        if bool(re.search(r'[0-9]', b)):
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = abs("+str(b)+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = abs("+str(b)+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+
+        #a="t"+str(h.conteoTemporales)+" = abs("+str(t[3])+")"
+        #h.conteoTemporales+=1
+        #t[0]=a
     elif t[1].upper()=="CBRT":
         a="t"+str(h.conteoTemporales)+" = "+str(t[3])+"**(1/3)\n"
         h.conteoTemporales+=1
@@ -1113,9 +1133,17 @@ def p_funcionJJBH_basica(t):
         h.conteoTemporales+=2
         t[0]=a
     elif t[1].upper()=="SINH":
-        a="t"+str(h.conteoTemporales)+" = mt.sinh("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        j=t[3].splitlines()
+        b=j[-1].split(" ")[0]
+        if bool(re.search(r'[0-9]', b)):
+            c="t"+str(h.conteoTemporales)+" = mt.sinh("+str(b)+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.sinh("+str(b)+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="COSH":
         a="t"+str(h.conteoTemporales)+" = mt.cosh("+str(t[3])+")\n"
         h.conteoTemporales+=1
@@ -1183,7 +1211,7 @@ def p_funcionJJBH_basica(t):
         h.conteoTemporales+=2
         t[0]=a
     elif t[1].upper()=="SUBSTR":
-        a="t"+str(h.conteoTemporales)+" = "+str(t[3])+"\n"
+        a="t"+str(h.conteoTemporales)+" = \""+str(t[3])+"\"\n"
         a+="t"+str(h.conteoTemporales+1)+" = "+str(t[5])+"\n"
         a+="t"+str(h.conteoTemporales+2)+" = "+str(t[7])+"\n"
         a+="t"+str(h.conteoTemporales+3)+" = t"+str(h.conteoTemporales)+"[t"+str(h.conteoTemporales+1)+":t"+str(h.conteoTemporales+2)+"]\n"
@@ -1217,6 +1245,7 @@ def p_funcionJJBH_basica(t):
 
 
 def p_funcionBasicaJJBH_basica_1(t):
+    'funcionBasicaJJBH   : SUBSTRING PARENTESISIZQUIERDA operacionJJBH FROM operacionJJBH FOR operacionJJBH PARENTESISDERECHA'
     a="t"+str(h.conteoTemporales)+" = "+str(t[3])+"\n"
     a+="t"+str(h.conteoTemporales+1)+" = "+str(t[5])+"\n"
     a+="t"+str(h.conteoTemporales+2)+" = "+str(t[7])+"\n"
@@ -1224,12 +1253,14 @@ def p_funcionBasicaJJBH_basica_1(t):
     h.conteoTemporales+=4
     t[0]=a
 def p_funcionBasicaJJBH_basica_2(t):
+    'funcionBasicaJJBH   : SUBSTRING PARENTESISIZQUIERDA operacionJJBH FROM operacionJJBH PARENTESISDERECHA'
     a="t"+str(h.conteoTemporales)+" = "+str(t[3])+"\n"
     a+="t"+str(h.conteoTemporales+1)+" = "+str(t[5])+"\n"
     a+="t"+str(h.conteoTemporales+2)+" = t"+str(h.conteoTemporales)+"[t"+str(h.conteoTemporales+1)+":]\n"
     h.conteoTemporales+=3
     t[0]=a
 def p_funcionBasicaJJBH_basica_3(t):
+    'funcionBasicaJJBH   : SUBSTRING PARENTESISIZQUIERDA operacionJJBH FOR operacionJJBH PARENTESISDERECHA'
     a="t"+str(h.conteoTemporales)+" = "+str(t[3])+"\n"
     a+="t"+str(h.conteoTemporales+1)+" = "+str(t[5])+"\n"
     a+="t"+str(h.conteoTemporales+2)+" = [:t"+str(h.conteoTemporales)+"[t"+str(h.conteoTemporales+1)+"]\n"
@@ -1376,7 +1407,8 @@ def p_funcion_basica(t):
                         | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA
-                        | ID PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | CURRENT_TIME
+                        | CURRENT_DATE 
     '''
     if t[1].upper()=="ABS":
         a=" abs("+str(t[3])+")"
@@ -1558,10 +1590,10 @@ def p_funcion_basica(t):
     elif t[1].upper()=="DATE_PART":
         print("aun no")
     elif t[1].upper()=="CURRENT_DATE":
-        a=" current_date(1)"
+        a=" current_date"
         t[0]=a
     elif t[1].upper()=="CURRENT_TIME":
-        a=" current_time(1)"
+        a=" current_time"
         t[0]=a
     else:
         print("no entra a ninguna en funcionBasica")
@@ -2378,6 +2410,34 @@ def p_Procedure_3(t):
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                               DECLARATIONS
 
+def p_declaraciones_1(t):
+    'declaraciones      :   ID tipo PUNTOYCOMA'
+    t[0]=str(t[1])+" "+str(t[2])
+
+def p_declaraciones_2(t):
+    'declaraciones      :   ID ALIAS FOR ID PUNTOYCOMA'
+    t[0]=str(t[1])+" = "+str(t[4])
+
+
+def p_declaraciones_3(t):
+    'declaraciones      :   ID tipo DOSPUNTOS IGUAL operacionJJBH PUNTOYCOMA'
+    t[0]=str(t[1])+" = "+str(t[5])
+
+def p_declaraciones_4(t):
+    'declaraciones      :   ID IGUAL operacionJJBH PUNTOYCOMA'
+    a=t[3].splitlines()
+    b=a[-1].split(" ")[0]+"\n"
+    c=t[3]
+    c+=str(t[1])+" = "+b+"\n"
+    t[0]=c
+
+def p_declaraciones_5(t):
+    'declaraciones      :   ID tipo  IGUAL operacionJJBH PUNTOYCOMA'
+    t[0]=str(t[1])+" = "+str(t[4])
+
+def p_declaraciones_6(t):
+    'declaraciones      :   ID DOSPUNTOS IGUAL operacionJJBH PUNTOYCOMA'
+    t[0]=str(t[1])+" = "+str(t[4])
 
 
 
@@ -2428,6 +2488,12 @@ def p_statementValores(t):
         b=a.splitlines()[-1].split("=")[0]
         a+=str(t[1])+" = "+b
         t[0]=a
+
+def p_statementValores_2(t):
+    '''statementValores     :   ID IGUAL PARENTESISIZQUIERDA selectData PARENTESISDERECHA  PUNTOYCOMA
+                            |   ID DOSPUNTOS IGUAL PARENTESISIZQUIERDA selectData PARENTESISDERECHA  PUNTOYCOMA
+    '''
+    print("llega al statement2")
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                           STATEMENTS - IF
