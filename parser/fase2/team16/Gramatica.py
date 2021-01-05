@@ -94,6 +94,8 @@ reservadas = {
     'to': 'TO',
     'drop': 'DROP',
     'add': 'ADD',
+    'print': 'PRINT',
+    'execute': 'EXECUTE',
 
     # Date/Time Types
     'timestamp': 'TIMESTAMP',
@@ -123,6 +125,7 @@ reservadas = {
     'greatest': 'GREATEST',
     'least': 'LEAST',
     'else': 'ELSE',
+    'elsif': 'ELSIF',
     'end': 'END',
 
     # palabras reservadas DDL dabatabases
@@ -200,7 +203,36 @@ reservadas = {
     'power': 'POWER',
     #AGREGADAS
     'notexist':'NOTEXIST',
-    'notin':'NOTIN'
+    'notin':'NOTIN',
+    'exit': 'EXIT',
+    'continue': 'CONTINUE',
+
+    #Funciones
+    'returns' :'RETURNS',
+    'function' :'FUNCTION',
+    'language':'LANGUAGE',
+    'sql'     :'SQL',
+    'declare' :'DECLARE',
+    'begin'   :'BEGIN',
+    #end esta arriva
+    'for'     : 'FOR',
+    'loop'    : 'LOOP',
+    'reverse' :'REVERSE',
+
+    #PARA EL WHULE
+    'while'   : 'WHILE',
+    'execute'  :'EXECUTE',
+    'array'    :'ARRAY',
+    'slice'    :'SLICE',
+    'foreach'  :'FOREACH',
+    'constant' : 'CONSTANT',
+    'plpgsql'  :'PLPGSQL',
+    'procedure':'PROCEDURE',
+    'return'   :'RETURN',
+
+    'index' : 'INDEX',
+    'hash' : 'HASH',
+
 }
 
 tokens = [
@@ -214,6 +246,7 @@ tokens = [
              'PARIZQ',
              'PARDER',
              'PUNTOCOMA',
+             'DOLAR',
              # NOT
              # AND
              # OR
@@ -248,6 +281,10 @@ tokens = [
              'COMENTARIONORMAL',
              'POTENCIA',
 
+             'IGUAL2',
+
+
+
          ] + list(reservadas.values())
 
 # TOKENS DE LOS SIMBOLOS UTILIZADOS EN EL LENGUAJE
@@ -278,6 +315,8 @@ t_VIRGULILLA = r'~'
 t_LEFTSHIFT = r'<<'
 t_RIGHTSHIFT = r'>>'
 t_POTENCIA = r'\^'
+t_IGUAL2= r':='
+t_DOLAR = r'\$'
 
 
 # Importacion de Objetos Del Analisis
@@ -393,14 +432,22 @@ ListaProduccionesG[:] = []  # ListaProduccionesG
 aux = []  # Aux
 Input2 = ''  # Input2
 listaglobalAST = []
+
+arbolito2=None
+
 # ASOCIACION DE OPERADORES CON PRESEDENCIA
 
 
 # llamado de instruccion
 from Ast2 import *
 from Instruccion import *
+from Instruccion_pl import *
 from expresiones import *
 from interprete import *
+from Sentenciac3d import *
+from sentencias import *
+
+codigo3d = ''
 cadena=''
 
 precedence = (
@@ -420,10 +467,12 @@ precedence = (
 
 
 # Definición de la gramática
+codigo3d = ''
+
 
 def p_init(t):
     'INICIO     : INSTRUCCIONES'
-    global listaglobalAST
+    global listaglobalAST,arbolito2
     t[0] = t[1]
     listaglobalAST = t[0]
     #PRIMERA PASADA
@@ -431,20 +480,29 @@ def p_init(t):
     #arbolito.crearReporte()
     #SEGUNDA PASADA
     arbolito2 = interprete2(t[0])
-    arbolito2.ejecucion()
+
+
+
+    #arbol = Codigo3d()
+    #arbol.Traducir(t[0])
+    #arbol.imprimir()
 
 
 def p_instrucciones_lista(t):
     'INSTRUCCIONES     : INSTRUCCIONES INSTRUCCION'
+    global codigo3d
     t[1].append(t[2])
     t[0] = t[1]
+
     rep_gramatica('<TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>')
 
 
 
 def p_instrucciones_instruccion(t) :
     'INSTRUCCIONES    : INSTRUCCION'
+    global codigo3d
     t[0] = [t[1]]
+
     rep_gramatica('\n <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>')
 
 
@@ -453,9 +511,19 @@ def p_instruccion(t):
                     | DDL_COMANDOS
                     | DML_COMANDOS
                     | COMENTARIOMULTI
-                    | COMENTARIONORMAL '''
+                    | COMENTARIONORMAL
+                    | FUNCIONESS
+                    | crear_indice
+                    | EJECUTARFUNCION PUNTOCOMA'''
+
     if t[1] != 'COMENTARIONORMAL' and t[1] != 'COMENTARIOMULTI':
         t[0] = t[1]
+
+
+def p_print(t) :
+    'CODE_    : PRINT PARIZQ ID PARDER PUNTOCOMA'
+    t[0] = Print_I(t[3])
+
 
 
 
@@ -465,12 +533,14 @@ def p_instruccion_Use_database(t):
     global baseActual
     baseActual = str(t[2])
     t[0] = useClase(t[2])
+
     rep_gramatica('\n <TR><TD> DQL_COMANDOS → USE ID PUNTOCOMA </TD><TD> DQL_COMANDOS=t[2] </TD></TR>')
 
 # ===================  DEFINICIONES DE LOS TIPOS DE SELECT
 
 def p_instruccion_dql_comandos(t):
     'DQL_COMANDOS       : SELECT LISTA_CAMPOS FROM NOMBRES_TABLAS CUERPOS UNIONS'
+    global cadena
     t[0]= Select2(t[6],t[5],t[2],t[4])
     rep_gramatica('\n <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>')
 
@@ -485,9 +555,6 @@ def p_instruccion_dql_comandosS2(t):
     'DQL_COMANDOS       : SELECT DISTINCTNT LISTA_CAMPOS FROM NOMBRES_TABLAS  UNIONS'
     t[0] = Select3(t[2],t[6],t[3],t[5])
     rep_gramatica('\n <TR><TD> DQL_COMANDOS → SELECT DISTINCTNT LISTA_CAMPOS FROM  NOMBRES_TABLAS  UNIONS   </TD><TD> t[0] = Select4(t[2], t[7],t[6], t[3], t[5]) </TD></TR>')
-
-
-
 
 def p_instruccion_dql_comandos3(t):
     'DQL_COMANDOS       : SELECT LISTA_CAMPOS FROM NOMBRES_TABLAS  UNIONS'
@@ -510,7 +577,6 @@ def p_ListaCampos_Lista(t):
     rep_gramatica('\n <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>')
 
 
-
 def p_Lista_NombreSss(t):
     'LISTAA          : ID PUNTO ID LISTALIASS'
 
@@ -522,8 +588,6 @@ def p_Lista_NombreSssAsterisco(t):
     'LISTAA          : ID PUNTO ASTERISCO LISTALIASS'
 
     t[0] = Campo_Accedido(t[1],t[3],t[4])
-
-
 
 
 def p_Lista_Nombre(t):
@@ -570,7 +634,7 @@ def p_Campos_ids(t):
     rep_gramatica('\n <TR><TD> LISTAA → '+str(t[1])+'    </TD><TD>  t[0] = t[1] </TD></TR>')
 
 def p_Campos_expresion(t):
-    'CAMPOS          : expresion'    
+    'CAMPOS          : expresion'
     t[0] = t[1]
     rep_gramatica('\n <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>')
 
@@ -585,21 +649,16 @@ def p_Campos_Asteriscos(t):
     t[0] = t[1]
     rep_gramatica('\n <TR><TD> CAMPOS →   ASTERISCO  </TD><TD>  t[0] = t[1] </TD></TR>')
 
-
-
-
 def p_NombreT_idj(t):
     'NOMBRE_T        : ID'
     t[0] = t[1]
     rep_gramatica('\n <TR><TD> NOMBRE_T → '+str(t[1])+'    </TD><TD>  t[0] = t[1] </TD></TR>')
 
 
-
 def p_Alias_id(t):
     'ALIAS          :  ID'
     t[0] = str(t[1])
     rep_gramatica('\n <TR><TD> ALIAS → '+str(t[1])+'    </TD><TD>  t[0] = t[1] </TD></TR>')
-
 
 def p_S_AsAlias(t):
     """LISTALIASS  : AS ID
@@ -616,9 +675,6 @@ def p_S_AsAlias(t):
 #def p_S_Aliass(t):
    # 'S          :  ALIAS'
    # t[0] = Alias_Campos_ListaCamposSinLista(t[1])
-
-
-
 
 
 # ------------------------------------------------------------------------------------------------------------------
@@ -667,12 +723,10 @@ def p_Tabla_Querysss(t):
     rep_gramatica('\n <TR><TD> TABLA →   QUERY    </TD><TD>   t[0] =  t[1] </TD></TR>')
 
 
-
 def p_Tabla_Comaa(t):
     'TABLA   : COMA'
     t[0]  =  str(t[1])
     rep_gramatica('\n <TR><TD> TABLA →   COMA    </TD><TD>   t[0]  =  str(t[1])  </TD></TR>')
-
 
 
 
@@ -682,15 +736,10 @@ def p_Ss_AsAlias(t):
     rep_gramatica('\n <TR><TD> S1 →   AS ALIAS    </TD><TD>   t[0] = Alias_Table_ListaTablasSinLista(t[2]) </TD></TR>')
 
 
-
 def p_S_AliasSolo(t):
     'S1          :  ALIAS'
     t[0] = Alias_Table_ListaTablasSinLista(t[1])
     rep_gramatica('\n <TR><TD> S1 →   ALIAS    </TD><TD>   t[0] = Alias_Table_ListaTablasSinLista(t[1]) </TD></TR>')
-
-
-
-
 
 
 
@@ -705,8 +754,6 @@ def p_CuerpoS_CuerpoS(t):
 #def p_Cuerpo_Where(t):
 #    'CUERPO   : WHERE expresion'
 #    t[0] = Cuerpo_Condiciones(t[2])
-
-
 
 
 def p_Cuerpos_Cuerpo(t):
@@ -878,7 +925,7 @@ def p_TablaRef_IdAS(t):
     # t[0] = str(t[1]) + str(t[2]) + str(t[3])
     rep_gramatica('\n <TR><TD> TABLA_REF → '+str(t[1])+ '      </TD><TD> t[0] = str(t[1]) </TD></TR>')
 
-    
+
 
 
 def p_TablaRef_IdSinAs(t):
@@ -1136,6 +1183,9 @@ def p_SubConsultas_comandosS2(t):
     t[0] = SubSelect3(t[2],t[3],t[5])
     rep_gramatica('\n <TR><TD> QUE_SUBS →  SELECT DISTINCT LISTA_CAMPOS FROM NOMBRES_TABLAS   </TD><TD> t[0] = SubSelect3(t[2],t[3],t[5]) </TD></TR>')
 
+def p_subconsultas_select_expresion(t):
+    'QUE_SUBS       : SELECT LISTA_CAMPOS'
+    t[0] = SelectExpresion(t[2])
 
 
 
@@ -1271,7 +1321,7 @@ def p_whenList_Uni(t):
     'WHEN_LIST  :  WHEN_UNI'
     t[0] = [t[1]]
     rep_gramatica('\n <TR><TD> WHEN_LIST →  WHEN_UNI </TD><TD> t[0] = [t[1]]  </TD></TR>')
-    
+
 
 
 
@@ -1323,7 +1373,7 @@ def p_Cuerpo_WhenElse(t):
 def p_instruccion_dml_comandos_CREATE_TABLE(t):
     'DML_COMANDOS       : CREATE TABLE ID PARIZQ  CUERPO_CREATE_TABLE PARDER PUNTOCOMA'
     t[0] = CreateTable(t[3], t[5], None)
-    print("Estoy en create")
+    #print("Estoy en create")
     rep_gramatica('\n <TR><TD> DML_COMANDOS →   CREATE TABLE ID PARIZQ  CUERPO_CREATE_TABLE PARDER PUNTOCOMA </TD><TD> t[0] = CreateTable(t[3], t[5], None)  </TD></TR>')
 
 
@@ -1555,7 +1605,7 @@ def p_Create_TABLE_TIPO_CAMPO2_2(t):
                                 | DEFAULT ENTERO
                                 | DEFAULT ID'''
     t[0] = CampoValidacion(t[1], t[2])
-    print("VALIDACION DEFAULT CASI")
+    #print("VALIDACION DEFAULT CASI")
     rep_gramatica('\n <TR><TD> VALIDACION_CAMPO_CREATE →   '+str(t[1]) + str(t[2]) + '   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>')
 
 
@@ -1569,7 +1619,7 @@ def p_Create_TABLE_TIPO_CAMPO4_2(t):
 def p_Create_TABLE_TIPO_CAMPO3_2(t):
     'VALIDACION_CAMPO_CREATE_VACIO  :  '
     t[0] = CampoValidacion(None, None)
-    print("VALIDACION VACIA")
+    #print("VALIDACION VACIA")
 
 
 # ***************************************************************************************************************
@@ -1646,7 +1696,7 @@ def p_instruccion_dml_comandos_INSERT_COLUMNA2(t):
 
 def p_instruccion_dml_comandos_INSERT_VALORES(t):
     'VALORES       : VALORES VALOR'
-    print("SI ENTRO VALORES")
+    #print("SI ENTRO VALORES")
     t[1].append(t[2])
     t[0] = t[1]
     rep_gramatica('\n <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>')
@@ -1709,7 +1759,7 @@ def p_instruccion_dml_comandos_UPDATE_CAMPO4(t):
 
 def p_instruccion_dml_comandos_UPDATE2_(t):
     'DML_COMANDOS       : UPDATE   LISTA_DE_IDS SET CAMPOSN PUNTOCOMA'
-    
+
 
 
 def p_instruccion_dml_comandos_UPDATE_CAMPO(t):
@@ -1738,7 +1788,7 @@ def p_instruccion_dml_comandos_DELETE2(t):
 # DROP TABLES
 def p_instruccion_dml_comandos_DROP_TABLE(t):
     'DML_COMANDOS       : DROP TABLE LISTA_DE_IDS PUNTOCOMA'
-    t[0] = DropTable(t[3])    
+    t[0] = DropTable(t[3])
     rep_gramatica('\n <TR><TD> DML_COMANDOS →     DROP TABLE LISTA_DE_IDS PUNTOCOMA  </TD><TD> t[0] = DropTable(t[3]) </TD></TR>')
 
 
@@ -1819,7 +1869,7 @@ def p_instruccion_dml_comandos_ALTER_TABLE5(t):
 def p_instruccion_dml_comandos_ALTER_TABLE6(t):
     'DML_COMANDOS       : ALTER TABLE ID  ADD CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER PUNTOCOMA'
     print('\n' + str(t[0]) + '\n')
-    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13]), t[6])
+    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13]), t[6], ExpresionValor(t[15]))
     rep_gramatica('\n <TR><TD> DML_COMANDOS →    ALTER TABLE ID  ADD CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER PUNTOCOMA  </TD><TD> t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13])) </TD></TR>')
 
 
@@ -1827,7 +1877,7 @@ def p_instruccion_dml_comandos_ALTER_TABLE6(t):
 def p_instruccion_dml_comandos_ALTER_TABLEF6(t):
     'DML_COMANDOS       : ALTER TABLE ID  ADD  FOREIGN KEY PARIZQ ID PARDER REFERENCES ID   PUNTOCOMA'
     print('\n' + str(t[0]) + '\n')
-    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11]), None)
+    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11]), None, None)
     rep_gramatica('\n <TR><TD> DML_COMANDOS →    ALTER TABLE ID  ADD  FOREIGN KEY PARIZQ ID PARDER REFERENCES ID   PUNTOCOMA  </TD><TD>t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11])) </TD></TR>')
 
 
@@ -1898,6 +1948,7 @@ def p_comando_ddl(t):
 def p_create_database(t):
     'CREATE_DATABASE : CREATE REPLACE_OP DATABASE IF_NOT_EXISTIS ID OWNER_DATABASE MODE_DATABASE PUNTOCOMA'
     t[0] = CreateDataBase(t[2], t[4], t[5], t[6], t[7])
+
     rep_gramatica('\n <TR><TD> CREATE_DATABASE → CREATE REPLACE_OP DATABASE IF_NOT_EXISTIS ID OWNER_DATABASE MODE_DATABASE PUNTOCOMA  </TD><TD> t[0] = CreateDataBase(t[2], t[4], t[5], t[6], t[7])  </TD></TR>')
 
 
@@ -2341,7 +2392,12 @@ def p_unitaria_negativo(t):
 def p_valor_id(t):
     '''expresion_aritmetica : ID'''
     t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL)
-    rep_gramatica('\n <TR><TD> expresion_logica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>')
+    rep_gramatica('\n <TR><TD> expresion_aritmetica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>')
+
+def p_valor_idParentesis(t):
+    '''expresion_aritmetica : ID PARIZQ EXPRESI PARDER'''
+    t[0] = EjecucionFuncion(t[1], t[3])
+    rep_gramatica('\n <TR><TD> expresion_aritmetica → EJECUTARFUNCION    </TD><TD>  t[0] = t[1] </TD></TR>')
 
 
 def p_valor_id_2(t):
@@ -2601,8 +2657,615 @@ def p_expresion_binario_n(t):
     'expresion_aritmetica : VIRGULILLA expresion_aritmetica'
     t[0] = UnitariaAritmetica(t[2], OPERACION_BIT_A_BIT.COMPLEMENTO)
 
+
+# ============================================== IF THEN ELSE END IF =============================================== #
+def p_instruccion_if(t):
+    'instruccion_if : IF expresion THEN CODEEPSILON END IF PUNTOCOMA'
+    t[0] = If_inst(t[2], t[4], None)
+
+def p_instruccion_ifelse(t):
+    'instruccion_if : IF expresion THEN CODEEPSILON ELSE CODEEPSILON END IF PUNTOCOMA'
+    t[0] = If_inst(t[2], t[4], t[6])
+
+def p_instruccion_elsif1(t):
+    'instruccion_if : IF expresion THEN CODEEPSILON listas_elsif END IF PUNTOCOMA'
+    t[0] = Elsif_inst(t[2], t[4], t[5], None)
+
+def p_instruccion_elsif2(t):
+    'instruccion_if : IF expresion THEN CODEEPSILON listas_elsif ELSE CODEEPSILON END IF PUNTOCOMA'
+    t[0] = Elsif_inst(t[2], t[4], t[5], t[6])
+
+def p_listas_elsif(t):
+    'listas_elsif : listas_elsif elsif'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lista_elsif(t):
+    'listas_elsif : elsif'
+    t[0] = [t[1]]
+
+def p_elsif(t):
+    'elsif : ELSIF expresion THEN CODEEPSILON'
+    t[0] = elsif_obj(t[2], t[4])
+
+
 # def p_expresion_subquery(t):
 #     expresion_aritmetica : QUE_SUBS
+
+
+# =================== PL CASE ==============================================
+
+def p_casesimple(t):
+    'case_simple : CASE expresion_busqueda lista_when case_else END CASE PUNTOCOMA'
+    t[0] = CaseSimple(t[2], t[3], t[4])
+
+def p_cs_expresion_busqueda(t):
+    'expresion_busqueda : ID'
+    t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL)
+
+def p_cs_lista_when(t):
+    'lista_when : lista_when cs_when'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_cs_lista_when2(t):
+    'lista_when : cs_when'
+    t[0] = [t[1]]
+
+
+
+def p_cs_when(t):
+    'cs_when : WHEN cs_expresiones THEN CODEEPSILON'
+    t[0] = CSWhen(t[2], t[4])
+
+
+def p_cs_else(t):
+    'case_else : ELSE CODEEPSILON'
+    t[0] = CElse(t[2])
+
+
+def p_cs_else_e(t):
+    'case_else : '
+    t[0] = None
+
+def p_cs_expresiones(t):
+    'cs_expresiones : cs_expresiones  COMA expresion_aritmetica'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_cs_expresione2(t):
+    'cs_expresiones : expresion_aritmetica'
+    t[0] = [t[1]]
+
+
+
+
+def p_case_buscado(t):
+    'case_buscado : CASE cb_lista_when case_else END CASE PUNTOCOMA'
+    t[0] = CaseBuscado(t[2], t[3])
+
+def p_cb_lista_when(t):
+    'cb_lista_when : cb_lista_when cb_when'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_cb_lista_when2(t):
+    'cb_lista_when : cb_when'
+    t[0] = [t[1]]
+
+def p_cb_when(t):
+    'cb_when : WHEN expresion THEN CODEEPSILON'
+    t[0] = CBWhen(t[2], t[4])
+
+
+#================LOOP SIMPLE============================
+
+def p_loop_simple(t):
+    'loop_simple : label LOOP CODEEPSILON END LOOP label_final PUNTOCOMA'
+    t[0] = LoopSimple(t[1], t[3], t[6])
+
+def p_label(t):
+    'label : MENOR MENOR ID MAYOR MAYOR'
+    t[0] = t[3]
+
+
+def p_label2(t):
+    'label : '
+    t[0]: None
+
+
+def p_label_final(t):
+    'label_final : ID'
+    t[0] = t[1]
+
+def p_label_final_e(t):
+    'label_final : '
+    t[0] = None
+
+def p_exit(t):
+    'salir : EXIT label_final when_auxiliar PUNTOCOMA'
+    t[0] = Exit(t[2], t[3])
+
+
+def p_continue(t):
+    'continuar : CONTINUE label_final when_auxiliar PUNTOCOMA'
+    t[0] = Continue(t[2], t[3])
+
+def p_when_auxiliar(t):
+    'when_auxiliar : WHEN expresion'
+    t[0] = WhenAuxilar(t[2])
+
+
+def p_when_auxiliar_e(t):
+    'when_auxiliar : '
+    t[0] = None
+# ================================================        MANEJO DE FUNCIONES   =====================================================
+# ===================================================================================================================================
+
+
+
+def p_Funciones_General(t):
+    'FUNCIONESS  :  FUNTIONE  FUNCTION  ID  PARIZQ PARAMETROSG PARDER RETURNS TIPO_CAMPO ALIASRET CODEEPSILON DECLAEP CODE  PUNTOCOMA'
+    t[0]=Funciones_(t[1],t[3],t[8],t[9] , t[5], t[10], t[11], t[12])
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<  Estoy llegando")
+
+
+def p_Store_ProcedureGeneral(t):
+    'FUNCIONESS  :  FUNTIONE  PROCEDURE  ID  PARIZQ PARAMETROSG PARDER  ARGU_N_N  ALIASRET CODEEPSILON DECLAEP CODE  PUNTOCOMA'
+    t[0]=Procedimientos_(t[1],t[3],t[7],t[8], t[5], t[9], t[10], t[11])
+
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<  Estoy llegando al procedure")
+
+
+
+#----------------------------------------------------- Tipos de Create y Reservadas
+def p_Funcionee(t):
+    'FUNTIONE  :  CREATE '
+    t[0] = str(t[1])
+
+
+
+def p_FuncioneeR(t):
+    'FUNTIONE  :  CREATE OR REPLACE'
+    t[0] = str(t[1])+" "+ str(t[2])+" "+ str(t[3])
+
+
+
+def p_ReservadaFunc(t):
+    'FUNCI  :  FUNCTION'
+    t[0] = str(t[1])
+
+
+def p_ReservadaEpsilon(t):
+    'FUNCI  :  '
+    t[0] = ""
+
+
+
+
+
+
+# -----------------------------------------------------  LISTA DE PARAMETROS
+
+def p_Parametros_General(t):
+    'PARAMETROSG  :  PARAMETROS '
+    t[0] = t[1]
+
+def p_Parametros_GeneralEpsilon(t):
+    'PARAMETROSG  :   '
+    t[0] = ""
+#+++++++ Lista de comandos
+def p_Parametros_P(t):
+    'PARAMETROS  :  PARAMETROS COMA PARAMETRO'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_Parametros_List(t):
+    'PARAMETROS  :  PARAMETRO '
+    t[0] = [t[1]]
+
+def p_ParametrosT(t):
+    'PARAMETRO  :    ARGU_N TIPO_CAMPO  ARGU_N'
+    t[0] = Parametros_(t[2],t[1],t[3])
+
+
+
+
+def p_Parametros_Argumentos(t):
+    'ARGU_N  :  ID'
+    t[0] = str(t[1])
+
+def p_Parametros_ArgumentosEpsilon(t):
+    'ARGU_N  :  '
+    t[0] = ""
+
+
+# ----------------------------------------------------------  VARIABLES DECLARADAS
+#-------------  Lista Epsilon
+def p_Declaracion_ListaMore(t):
+    'DECLAEP  : DECLARE  VARIABLES_N'
+    t[0] = t[2]
+
+
+def p_Declaracion_Epsion(t):
+    'DECLAEP  :   '
+    t[0] = ""
+
+
+def p_DeclaList_(t):
+    'VARIABLES_N  : VARIABLES_N VARIABLES_S'
+    t[1].append(t[2])
+    t[0]=t[1]
+
+
+def p_DeclaList_lis(t):
+    'VARIABLES_N  :  VARIABLES_S'
+    t[0]=[t[1]]
+
+
+
+def p_Declaracion_VariablesDeclaracion(t):
+    'VARIABLES_S  : declaracion_variable'
+    t[0] = t[1]
+
+def p_Declaracion_VariablesAsignacion(t):
+    'VARIABLES_S  : asignacion_variable'
+    t[0] = t[1]
+
+
+
+#----------------------------------------------------------  SECCION DE RETORNO
+def p_Retorno_Cuerpo(t):
+    ' RETORNOS  :   RETURN expresion PUNTOCOMA'
+    t[0] = RetornoFuncion(t[2])
+
+#------------- Alias del retorno
+def p_Alias_Retorno(t):
+    'ALIASRET  :  AS ALI '
+    t[0] = str(t[2])
+    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<  ESTOY JALANDO EL ALIAS >>>>>>>>>>>>>>>>>>>>>>"+str(t[2]))
+
+
+def p_Alias_RetornoID(t):
+    'ALI  :  ID '
+    t[0] = str(t[1])
+
+def p_Alias_Retorno_DOLAR(t):
+    'ALI  :  DOLAR DOLAR '
+    t[0] = str(t[1])+str(t[2])
+
+
+
+def p_Alias_RetornoEpsilon(t):
+    'ALIASRET  :  '
+    t[0] = ""
+
+
+
+#-----------------------------------------------------------  SECCION DE CODIGO
+
+def p_Code_Estructures(t):
+    'CODE  : BEGIN CODEEPSILON END DOL ARGU_N_N'
+    t[0] = Code_Funciones(t[4], t[2])
+
+
+
+def p_Code_Dolarcito(t):
+    'DOL  :  DOLAR DOLAR '
+    t[0] = str(t[1]) + str(t[2])
+
+
+def p_Code_DolarEpsilon(t):
+    'DOL  :  '
+    t[0] = ""
+
+
+
+#-------------------------------------  Tipos de Argumento
+def p_ArgumentosFunciones(t):
+    'ARGU_N_N  :  LANGUAGE SQL'
+    t[0] = str(t[1]) +" "+ str(t[2])
+
+
+def p_ArgumentoProcedure(t):
+    'ARGU_N_N  :  LANGUAGE PLPGSQL'
+    t[0] = str(t[1]) + " " + str(t[2])
+
+def p_ArgumentosFuncionesArg(t):
+    'ARGU_N_N  :  ID'
+    t[0] = str(t[1])
+
+def p_ArgumentosFuncionesArgEpsilon(t):
+    'ARGU_N_N  :  '
+    t[0] = ""
+
+
+
+#-------------------------------------  epsilon
+
+
+def p_Code_Epsilon_(t):
+    'CODEEPSILON  :  CODE_S '
+    t[0] = t[1]
+
+
+def p_Code_CodeEpsilon(t):
+    'CODEEPSILON  :   '
+    t[0] = ""
+
+
+
+#---------------------------------- Lista de comandos
+def p_ListaCodigo_(t):
+    'CODE_S  :  CODE_S  CODE_'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+
+def p_ListaCodigo_List(t):
+    'CODE_S  :   CODE_'
+    t[0] = [t[1]]
+
+
+
+
+
+#----------------------------------------------------------  PRODUCCION A CODIGO FOR
+def p_Codigo_For(t):
+    'CODE_  :   FOR ID IN TIPEE EXPRESI  BY_EXPRE  LOOP  CODEEPSILON  END LOOP ARGU_N PUNTOCOMA'
+    t[0]  = ForInstruccion(t[2],t[4],t[6],t[11],t[5],t[8])
+
+
+
+
+def p_CodigoFunciones(t):
+    '''CODE_  :           case_simple
+                        | case_buscado
+                        | loop_simple
+                        | instruccion_if
+                        | declaracion_variable
+                        | asignacion_variable
+                        | salir
+                        | continuar
+                        | EJECUTARFUNCION PUNTOCOMA
+                        | RETORNOS '''
+
+    t[0] = t[1]
+
+
+def p_Codigo_FuncionesLl(t):
+    'EJECUTARFUNCION  : EXECUTE ID PARIZQ EXPRESI PARDER '
+    t[0] = EjecucionFuncion(t[2],t[4])
+
+def p_Codigo_FuncionesLl2(t):
+    'EJECUTARFUNCION  : SELECT ID PARIZQ EXPRESI PARDER '
+    t[0] = EjecucionFuncion(t[2],t[4])
+
+#------------ Lista Expresiones
+def p_ExpressEs(t):
+    'EXPRESI  :  LISTAEXPRES'
+    t[0] = t[1]
+
+
+
+def p_ExpressEpsilon(t):
+    'EXPRESI  :  '
+    t[0]=""
+
+
+def p_ListExpre(t):
+    'LISTAEXPRES  :  LISTAEXPRES COMA LISTEXPR'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_ListExll(t):
+    'LISTAEXPRES  :  LISTEXPR'
+    t[0] = [t[1]]
+
+
+
+def p_Lista_ExpresionesFor(t):
+    'LISTEXPR  :  expresion'
+    t[0] = t[1]
+
+
+
+
+
+
+#------------  Tipo de Recorrido
+def p_TipeOrS(t):
+    'TIPEE  :  REVERSE'
+    t[0] = str(t[1])
+
+
+def p_TipeOrExecute(t):
+    'TIPEE  :  EXECUTE'
+    t[0] = str(t[1])
+
+
+
+
+#AQUI VIENEN QUERYS
+def p_TipeOrEpsilon(t):
+    'TIPEE  :  '
+    t[0] = ""
+
+
+#-----------  by expresion
+
+def p_ExpresionBy_Loop(t):
+    'BY_EXPRE  :  BY expresion'
+    t[0] = Name_Expresion(t[1],t[2])
+
+
+def p_ExpresionUsing_Loop(t):
+    'BY_EXPRE  :  USING expresion'
+    #t[0] = str(t[1]) + str(t[2])
+    t[0] = Name_Expresion(t[1], t[2])
+
+
+def p_ExpresionBy_LoopEpsilon(t):
+    'BY_EXPRE  : '
+    t[0] = ""
+
+
+#----------------------------------------------------------  PRODUCCION A CODIGO FOREACH
+def p_Codigo_Foreach(t):
+    'CODE_  :   FOREACH ID SLICEC IN ARRAY expresion  LOOP  CODEEPSILON  END LOOP ARGU_N PUNTOCOMA'
+    t[0] = ForeachInstruccion(t[2],t[3],t[6],t[11],t[8] )
+
+# ===================== Declaracion de Variable =====================
+
+
+def p_declaracion_variable(t):
+    '''declaracion_variable : ID declaracion_constante TIPO_CAMPO declaracion_not_null declaracion_asignacion PUNTOCOMA '''
+
+    if t[5] is not None:
+        t[0] = Declaracion(t[1], t[2], t[3], t[4], t[5][0], t[5][1])
+    else:
+        t[0] = Declaracion(t[1], t[2], t[3], t[4], None, None)
+
+
+def p_declaracion_constante(t):
+    'declaracion_constante : CONSTANT'
+    t[0] = True
+
+def p_declaracion_constatne_e(t):
+    'declaracion_constante : '
+    t[0] = False
+
+def p_declaracion_not_null(t):
+    'declaracion_not_null : NOT NULL'
+    t[0] = True
+
+def p_slices_Foreach(t):
+    'SLICEC  :  SLICE  expresion'
+    #t[0] = str(t[1]) + str(t[2])
+    t[0] = Name_Expresion(t[1], t[2])
+
+def p_slices_ForeachEpsilon(t):
+    'SLICEC  :  '
+    t[0] = ""
+
+
+def p_declaracion_not_null_e(t):
+    'declaracion_not_null : '
+    t[0] = False
+
+def p_declaracion_asignacion(t):
+    'declaracion_asignacion : declaracion_simbolo expresion'
+    t[0] = [t[1], t[2]]
+
+#================= PRODUCCIONES PARA EL WHILE
+def p_Codigo_While(t):
+    'CODE_  :   WHILE expresion LOOP CODEEPSILON END LOOP ARGU_N PUNTOCOMA '
+    t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5]) + str(t[6]) + str(t[7]) + str(t[8]) 
+    
+
+def p_declaracion_asignacion_e(t):
+    'declaracion_asignacion : '
+
+    t[0] = None
+
+def p_instruccion_CODE(t):
+    '''CODE_  :       DQL_COMANDOS
+                    | DDL_COMANDOS
+                    | DML_COMANDOS
+                    | COMENTARIOMULTI
+                    | COMENTARIONORMAL '''
+    if t[1] != 'COMENTARIONORMAL' and t[1] != 'COMENTARIOMULTI':
+        t[0] = t[1]
+
+
+
+def p_declaracion_simbolo(t):
+    '''declaracion_simbolo : IGUAL
+                           | IGUAL2
+                           | DEFAULT'''
+
+    t[0] = t[1]
+
+def p_asignacion(t):
+    'asignacion_variable : ID signacion_simbolo expresion PUNTOCOMA'
+
+    t[0] = Asignacion(t[1], t[3])
+
+def p_asignacion_simbolo(t):
+    '''signacion_simbolo : IGUAL
+                         | IGUAL2'''
+
+
+
+# ====================== INDICES =============================
+
+def p_indice(t):
+    'crear_indice : CREATE unique_in INDEX ID ON ID hash_in PARIZQ columnas_indice PARDER where_in PUNTOCOMA'
+    t[0] = CrearIndice(t[4], t[6], t[9], t[2], t[7], t[11])
+
+def p_unique_in(t):
+    'unique_in : UNIQUE'
+    t[0] = True
+
+def p_unique_in_e(t):
+    'unique_in : '
+    t[0] = False
+
+def p_hash_in(t):
+    'hash_in : USING HASH'
+    t[0] = True
+
+def p_hash_in_e(t):
+    'hash_in : '
+    t[0] = False
+
+def p_columnas_indice(t):
+    'columnas_indice : columnas_indice COMA columna_indice'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_columnas_indice2(t):
+    'columnas_indice : columna_indice'
+    t[0] = [t[1]]
+
+def p_columna_indice(t):
+    'columna_indice : ID orden_col nulable_col'
+    t[0] = ColumnaIndice(t[1], t[2], t[3])
+
+def p_orden_col(t):
+    '''orden_col : ASC
+                 | DESC'''
+    t[0]= t[1]
+
+def p_orden_col2(t):
+    'orden_col : '
+    t[0] = None
+
+def p_nulable_col(t):
+    '''nulable_col : NULLS FIRST
+                   | NULLS LAST'''
+    t[0] = t[2]
+
+
+def p_nulable_col2(t):
+    'nulable_col : '
+    t[0] = None
+
+def p_where_in(t):
+    'where_in : WHERE expresion_logica'
+    t[0] = t[1]
+def p_where_in_e(t):
+    'where_in : '
+    t[0] = None
+
+
+
+
+
+
+
+
 
 # ===================== MANEJO DE ERRORES SINTACTICOS ================================
 # ====================================================================================
@@ -2621,8 +3284,6 @@ def p_error(t):
         if not tok or tok.type == 'PUNTOCOMA':
             break
 
-
-
 def rep_gramatica(cad):
     global cadena
     cadena+=cad
@@ -2635,9 +3296,9 @@ parser = yacc.yacc()
 
 def reporte_gramatical():
     global cadena
-    print("------------REPORTE GRAMATICAL---------------")    
+    print("------------REPORTE GRAMATICAL---------------")
     SymbolT2 =  Graph('g', filename='reportegramatical.gv', format='png',node_attr={'shape': 'plaintext', 'height': '.1'})
-    
+
     SymbolT2.node('table','<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR>'+cadena+'</TABLE>>')
 
 
@@ -2651,6 +3312,23 @@ def reporte_AST_GLOB():
     arbolito = Ast2(listaglobalAST)
     arbolito.crearReporte()
 
+def traducir_AST_GLOB():
+    global listaglobalAST
+    arbol = Codigo3d()
+    arbol.Traducir(listaglobalAST)
+    arbol.imprimir()
+
+
+def Ejecucion():
+    global arbolito2
+
+    if arbolito2 is not None:
+        arbolito2.ejecucion()
+
+
+
+
+
 def parse(Entrada,Errores):
     # Variables Utilizadas
     global LErroresSintacticos, LErroresLexicos, lexer, parser
@@ -2658,9 +3336,6 @@ def parse(Entrada,Errores):
     global lisErr
     # Errores
     lisErr=Errores
-
-
-
 
   #  f = open("./entrada.txt", "r")
   #  input = f.read()

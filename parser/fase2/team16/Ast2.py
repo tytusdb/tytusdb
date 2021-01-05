@@ -3,7 +3,7 @@ from graphviz import Digraph
 from graphviz import escape
 from expresiones import *
 import interprete as Inter
-
+from sentencias import *
 
 class Ast2:
 
@@ -26,7 +26,9 @@ class Ast2:
         dot.render('AST', format='png', view=True)
         print('Hecho')
 
+
     def recorrerInstrucciones(self, sente, padre):
+        global dot
         for i in sente:
             # VIENE UN DROP TABLE
             if isinstance(i, DropTable):
@@ -128,14 +130,26 @@ class Ast2:
                 self.grafoAlter_AddConstraint(i.id_table, i.id_constraint, i.id_column, padre)
             elif isinstance(i, SelectExpresion):
                 self.grafoSelectExpresion(i.listaCampos, padre)
+            elif isinstance(i, Funciones_):           
+                self.grafoFuncion(i.Reservada, i.Nombre, i.Retorno,i.Alias, i.Parametros , i.Instrucciones, i.Declaraciones , i.Codigo, padre)
+            elif isinstance(i, CrearIndice):
+                self.GrafoCrearIndice(i, padre)
+            elif isinstance(i,Procedimientos_):
+                self.GrafoProcedure(i.Reservada, i.Nombre, i.Comand,i.Alias, i.Parametros, i.Instrucciones, i.Declaraciones,i.Codigo, padre)
+
+            elif isinstance(i,EjecucionFuncion):
+                dot.edge(padre, str(self.i + 1))
+                self.GrafoEjecucion(i.Id, i.Parametros)
             else:
                 print("No es droptable")
+
 
     def RecorrerTipoSelect(self, sente, padre):
         i = sente
         if isinstance(i, Select):
             print("Es Una Instruccion Select ")
             self.GrafoSelect(i.Lista_Campos, i.Nombres_Tablas, i.unionn, padre)
+
         elif isinstance(i, Select2):
             print("Es Una Instruccion Select 2")
             self.GrafoSelect2(i.Lista_Campos, i.Nombres_Tablas, i.Cuerpo, i.unionn, padre)
@@ -212,6 +226,7 @@ class Ast2:
             dot.edge(padre, 'Node' + str(self.i))
             dot.edge('Node' + str(self.i), str(nuevoPadre + 1))
             self.graficar_expresion(Columna)
+
 
         elif ((NombreT != "") and (Columna != "")):
             self.inc()
@@ -437,6 +452,8 @@ class Ast2:
     # Objeto Que accede "AccesoSubConsultas"  AnteQuery=[], Query=[], Lista_Alias=[]
     # Nombres Lista Accedidos  Con Las Subconsultas
 
+
+
     def GrafoAccesoSubConsultas(self, AnteQuery, Query, Lista_Alias, padre):
         print(AnteQuery, Query, Lista_Alias)
         # AnteQuery ( query )
@@ -528,7 +545,7 @@ class Ast2:
     def GrafoAccesoUniones(self, Reservada, Comportamiento, Consulta, padre):
 
         # Comportamiento Reservada Consulta
-        if ((Comportamiento != "") and (Reservada != "") and (Consulta == False)):
+        if ((Comportamiento != "") and (Reservada != "") and (Consulta != False)):
             self.inc()
             nuevoPadre = self.i
             dot.node('Node' + str(self.i), "Acceso_UNION")
@@ -620,9 +637,10 @@ class Ast2:
         # Recorrer la de Expresiones
         self.Recorrer_CondicioneSLista(ListaExpresiones, 'Node' + str(self.i))
 
+
+
     # Recorriendo tipos de when : Objeto al que Accesa "TiposWhen"  : Campos: Reservada,Reservada2,Reservada3,ListaExpresiones1=[],ListaExpresiones2=[],ListaExpresiones3=[])
-    def GrafoTiposWhen(self, Reservada, ListaExpresiones1, Reservada2, ListaExpresiones2, Reservada3, ListaExpresiones3,
-                       padre):
+    def GrafoTiposWhen(self, Reservada, ListaExpresiones1, Reservada2, ListaExpresiones2, Reservada3, ListaExpresiones3,padre):
 
         self.inc()
         nuevoPadre = self.i
@@ -857,6 +875,9 @@ class Ast2:
 
         self.Recorrer_Condiciones(Lista, 'Node' + str(nuevoPadre))
 
+
+
+
     # Recorremos Expresion y mandamos el nodo aumentando el padre
     def Recorrer_Condiciones(self, Lista, padre):
 
@@ -1021,8 +1042,13 @@ class Ast2:
         else:
             print("No Ningun Tipo")
 
+
+
+
+
     # Recorrido de la lista de de Los Posibles Cuerpos
     # ----------------------------------------------------------------------------------------------------------
+
     def RecorrerListaCuerpos(self, Groups, padre):
         for i in Groups:
             if isinstance(i, Cuerpo_TipoWhere):
@@ -1049,6 +1075,9 @@ class Ast2:
                 self.GrafoCuerpo_Condiciones(i.Cuerpo, padre)
             else:
                 print("No Ningun Tipo")
+
+
+
 
     def RecorrerListaWhens(self, Lista, padre):
         for i in Lista:
@@ -1094,6 +1123,8 @@ class Ast2:
         dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
         # Recorrer lista de uniones
         self.RecorrerListaUniones(Uniones, 'Node' + str(self.i))
+
+
 
     def GrafoSelect2(self, ListaCampos, NombresTablas, cuerpo, Uniones, padre):
         global dot
@@ -1340,6 +1371,8 @@ class Ast2:
         dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
         self.RecorrerListaCuerpos(cuerpo, 'Node' + str(self.i))
 
+
+
     def GrafoGroupBy(self, Lista_Campos, Condiciones, padre):
         global dot
         # Group by ListaCampos Having Condiciones
@@ -1447,6 +1480,9 @@ class Ast2:
         dot.node('Node' + str(self.i), Expresion_Numerica)
         dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
 
+
+
+
     # ----------------------------------------------------------------------------------------------------------
     # ----------------------------------------------------------------------------------------------------------
     # FIN DE INSTRUCCIONES NECESARIAS PARA LOS SELECT
@@ -1472,6 +1508,8 @@ class Ast2:
             self.inc()
             dot.node('Node' + str(self.i), i.val)
             dot.edge('Node' + str(nuevoPadre2), 'Node' + str(self.i))
+
+
 
     # ----------------------------------------------------------------------------------------------------------
     # -----------------------GRAFICAR INSERTAR-------------------------------------------------------------------
@@ -1536,6 +1574,9 @@ class Ast2:
             self.graficarExpresionFuncion(expresiones, "FUNCION NATIVA")
         elif isinstance(expresiones, UnitariaAritmetica):
             self.graficarUnitariaAritmetica(expresiones, "UnitariaAritmetica")
+        elif isinstance(expresiones,EjecucionFuncion):
+            self.GrafoEjecucion(expresiones.Id,expresiones.Parametros)
+
         # NUEVAS UNITARIAS
 
         # ----------------------------------------
@@ -2000,6 +2041,10 @@ class Ast2:
         dot.node('Node' + str(self.i), 'Id: ' + id)
         dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
 
+
+
+
+#------------------  Crear Data Base
     def grafoCreateDataBase(self, replace, exists, idBase, idOwner, Modo, padre):
         global dot, i
 
@@ -2045,6 +2090,7 @@ class Ast2:
             self.inc()
             dot.node('Node' + str(self.i), 'LIKE: ' + str(cadenaLike))
             dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
 
     def grafoAlterDataBase(self, idBD, opcion, padre):
         global dot, i
@@ -2265,6 +2311,8 @@ class Ast2:
         self.graficar_expresion(i)
         self.inc()
         dot.edge('Node' + str(padrenuevo4), str(padrenuevo4 + 1))
+
+
 
     # ----------------------------------------------------------------------------------------------------------
     # -----------------------GRAFICAR ALTER TABLE ADD COLUM-------------------------------------------------------------------
@@ -2533,6 +2581,7 @@ class Ast2:
 
     def graficarExpresionFuncion(self, expresion, tipo_exp=""):
         global dot, tag, i
+
         self.inc()
         padreID = self.i
         padre = padreID
@@ -2619,12 +2668,782 @@ class Ast2:
         # dot.edge('Node' + str(nuevoPadre), str(self.i + 1))
         self.RecorrerListadeCampos(listaCampos, 'Node' + str(self.i))
 
+
+    def grafoCaseSimple(self, casesimple, padre):
+        global dot, i
+
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "CASE SIMPLE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        dot.edge('Node' + str(nuevoPadre), str(self.i + 1))
+        self.graficar_expresion(casesimple.busqueda)
+
+
+        for when in casesimple.listawhen:
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'WHEN')
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            padreWhen = self.i
+            for exp in when.expresiones:
+                dot.edge('Node' + str(padreWhen), str(self.i + 1))
+                self.graficar_expresion(exp)
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'THEN')
+            dot.edge('Node' + str(padreWhen), 'Node' + str(self.i))
+
+            if when.sentencias is not None:
+                self.GrafoRecorridoCodigo(when.sentencias, 'Node' + str(self.i))
+
+        if casesimple.caseelse is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), 'ELSE')
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            if casesimple.caseelse.sentencias is not None:
+                self.GrafoRecorridoCodigo(casesimple.caseelse.sentencias, 'Node' + str(self.i))
+
+
+    def grafoCaseBuscado(self, casebuscado, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "CASE BUSCADO")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        for when in casebuscado.listawhen:
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'WHEN')
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            padreWhen = self.i
+            dot.edge('Node' + str(padreWhen), str(self.i + 1))
+            self.graficar_expresion(when.expresion)
+
+            self.inc()
+            dot.node('Node' + str(self.i), 'THEN')
+            dot.edge('Node' + str(padreWhen), 'Node' + str(self.i))
+
+            if when.sentencias is not None:
+                self.GrafoRecorridoCodigo(when.sentencias, 'Node' + str(self.i))
+
+        if casebuscado.caseelse.sentencias is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), 'ELSE')
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            if casebuscado.caseelse.sentencias is not None:
+                self.GrafoRecorridoCodigo(casebuscado.caseelse.sentencias, 'Node' + str(self.i))
+
+
+    def grafoLoopSimple(self, loopsimple, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "LOOP SIMPLE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        if loopsimple.label is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), "LABEL")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), loopsimple.label)
+            dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), "SENTENCIAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        if loopsimple.sentencias is not None:
+            self.GrafoRecorridoCodigo(loopsimple.sentencias, 'Node' + str(self.i))
+
+        if loopsimple.labelfinal is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), "LABEL")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), loopsimple.labelfinal)
+            dot.edge('Node' + str(nuevoPadre - 1), 'Node' + str(self.i))
+
+    def grafoSalir(self, salir, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "EXIT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        if salir.label is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), "LABEL")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), salir.label)
+            dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+        if salir.when is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), "WHEN")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            padreWhen = self.i
+            dot.edge('Node' + str(padreWhen), str(self.i + 1))
+            self.graficar_expresion(salir.when.expresion)
+
+
+    def grafoContinuar(self, continuar, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "CONTINUE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        if continuar.label is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), "LABEL")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), continuar.label)
+            dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+        if continuar.when is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), "WHEN")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            padreWhen = self.i
+            dot.edge('Node' + str(padreWhen), str(self.i + 1))
+            self.graficar_expresion(continuar.when.expresion)
+
+    def grafoDeclaracion(self, declaracion, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DECLARACION")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), "ID")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), declaracion.id)
+        dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+        if declaracion.constante:
+            self.inc()
+            dot.node('Node' + str(self.i), "CONSTANT")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), "TIPO")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), declaracion.tipo)
+        dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+        if declaracion.notnull:
+            self.inc()
+            dot.node('Node' + str(self.i), "NOT NULL")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        if declaracion.simbolodeclaracion is not None and declaracion.expresion is not None:
+            self.inc()
+            dot.node('Node' + str(self.i), declaracion.simbolodeclaracion)
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            dot.edge('Node' + str(nuevoPadre), str(self.i + 1))
+            self.graficar_expresion(declaracion.expresion)
+
+    def grafoAsignacion(self, asignacion, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "ASIGNACION")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), "ID")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), asignacion.id)
+        dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+
+        dot.edge('Node' + str(nuevoPadre), str(self.i + 1))
+        self.graficar_expresion(asignacion.expresion)
+
+
+
+
 # crearBASEDATOS(objeto)
 
-# retun = llamarfunicion(Objeto.nombre)
-# if return = 0
-#  agreagarts()
-# elif return = 1
-# "ERRPR"
-# elif retunr = 2
-# "ERRPR"
+
+
+#==============================================================  GRAFICAS DE LOS PROCEDIMIENTOS, FUNCIONES  OPERADORES
+
+    #Funciones_   (Reservada, Nombre,Retorno, Parametros=[], Instrucciones=[], Declaraciones=[], Codigo=[])
+
+    def grafoFuncion(self,Reservada, Nombre,Retorno,Alias, Parametros, Instrucciones, Declaraciones, Codigo, padre):
+        global dot
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "FUNCION_PRODUCCION")
+        dot.edge(padre, 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), Reservada)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), "FUNTION")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), Nombre)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        #--------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), ""+"PARAMETROS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        # Recorrer Lista de Parametros
+        self.GrafoRecorridoParametros(Parametros,'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), "RETURNS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "EXPRESION_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.Recorrer_Condiciones( Retorno, 'Node' + str(self.i))
+
+
+        # Recorrer Expresion
+        # recorrer
+
+
+        if (Alias !=""):
+            self.inc()
+            dot.node('Node' + str(self.i), "AS" + " "+str(Alias))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "COMANDO_SQL")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        # Recorrer Comandos Sql
+        if(isinstance(Instrucciones ,list)):
+            if(Instrucciones != False):
+                self.recorrerInstrucciones(Instrucciones, 'Node' + str(self.i))
+            else:
+                print("No hay ")
+        else:
+            print("No hay ")
+
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "DECLARACIONES")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        # Recorrer Lista Declaraciones
+        self.GrafoRecorridoDeclaraciones(Declaraciones, 'Node' + str(self.i))
+        # recorrer
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "CODIGO_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.GrafoCuerpoCodigo(Codigo, 'Node' + str(self.i))
+        # Recorrer Codigo
+        # recorrer
+
+
+
+    #Procedimientos_ (self,Reservada, Nombre,Comand,Alias, Parametros=[], Instrucciones=[], Declaraciones=[], Codigo=[])
+
+    def GrafoProcedure(self,Reservada, Nombre,Comand,Alias, Parametros, Instrucciones, Declaraciones, Codigo, padre):
+        global dot
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "PROCEDURE_PRODUCCION")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), Reservada)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), "PROCEDURE")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), Nombre)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "PARAMETROS" )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        # Recorrer Lista de Parametros
+        self.GrafoRecorridoParametros(Parametros, 'Node' + str(self.i))
+
+
+        if (Alias !=""):
+            self.inc()
+            dot.node('Node' + str(self.i), "AS" + " "+str(Alias))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "COMANDO_SQL")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        # Recorrer Comandos Sql
+        if(isinstance(Instrucciones ,list)):
+            if(Instrucciones != False):
+                self.recorrerInstrucciones(Instrucciones[0], 'Node' + str(self.i))
+            else:
+                print("No hay ")
+        else:
+            print("No hay ")
+
+
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "DECLARACIONES")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        # Recorrer Lista Declaraciones
+        if (Declaraciones is not None):
+            self.GrafoRecorridoDeclaraciones(Declaraciones, 'Node' + str(self.i))
+        else:
+            print("No hay ")
+        # recorrer
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "CODIGO_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.GrafoCuerpoCodigo(Codigo, 'Node' + str(self.i))
+        # Recorrer Codigo
+        # recorrer
+
+
+
+#---------------  Recorremos los parametros
+
+    def GrafoRecorridoParametros(self, Parametros,padre):
+        global dot
+        if (isinstance(Parametros,list)):
+
+            self.inc()
+            nuevoPadre = self.i
+            dot.node('Node' + str(self.i), "PARAMETROS")
+            dot.edge(padre, 'Node' + str(self.i))
+
+            for ele in Parametros:
+                if(isinstance(ele,Parametros_)):
+                    self.inc()
+                    dot.node('Node' + str(self.i), ele.Tipo + " " +  ele.Nombre + " "+ ele.Valor)
+                    dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+                else:
+                    # --------------------------------------------------------
+                    self.inc()
+                    dot.node('Node' + str(self.i), "_EXPRESION_")
+                    dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+                    self.Recorrer_Condiciones(ele, 'Node' + str(self.i))
+
+
+        else:
+            print("Viene un Epsilon no se hace nada... ")
+            self.inc()
+            dot.node('Node' + str(self.i), "()")
+            dot.edge(padre, 'Node' + str(self.i))
+
+
+# --------------  Recorremos las Declaraciones
+    def GrafoRecorridoDeclaraciones(self, Declaraciones,padre):
+        global dot
+
+
+        if (isinstance(Declaraciones,list)):
+            self.inc()
+            nuevoPadre = self.i
+            dot.node('Node' + str(self.i), "DECLARACIONES")
+            dot.edge(padre, 'Node' + str(self.i))
+            self.GrafoRecorridoCodigo(Declaraciones,'Node' + str(self.i))
+
+        else:
+            print("Viene un Epsilon no se hace nada... ")
+
+
+#---------------  Grafo Cuerpo Codigo
+    def GrafoCuerpoCodigo(self,CuerpoC, padre):
+        global dot
+        if(isinstance(CuerpoC,Code_Funciones)):
+            self.inc()
+            nuevoPadre = self.i
+            dot.node('Node' + str(self.i), "CUERPO_CODE")
+            dot.edge(padre, 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), "BEGIN")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            # --------------------------------------------------------
+            self.inc()
+            dot.node('Node' + str(self.i), "_CODIGO_")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+            self.GrafoRecorridoCodigo(CuerpoC.Codigo, 'Node' + str(self.i))
+            # Recorrer Codigo
+            # recorrer
+
+
+            self.inc()
+            dot.node('Node' + str(self.i), "END")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), CuerpoC.Argumento +";")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        else:
+            print("Otro tipo de Objeto")
+
+
+
+
+# --------------  Recorremos el codigo
+    def GrafoRecorridoCodigo(self, Codigo,padre):
+        global dot
+        if (isinstance(Codigo,list)):
+            for ele in Codigo:
+                self.inc()
+                nuevoPadre = self.i
+                dot.node('Node' + str(self.i), "CODIGO_GENERADO")
+                dot.edge(padre, 'Node' + str(self.i))
+
+                if isinstance(ele,ForInstruccion):
+                    #Mandamos a Graficar la instruccion  for
+                    self.grafoFor(ele.Nombre,ele.Tipo, ele.By_Expre,ele.Argumento,ele.Lista_Expresiones,ele.Lista_Codigo,'Node' + str(self.i))
+
+                elif isinstance(ele,ForeachInstruccion):
+                     # Mandamos a Graficar la instruccion  foreach
+                    self.grafoForEach(ele.Nombre, ele.Slice, ele.Expre, ele.Argumento, ele.Lista_Codigo, 'Node' + str(self.i))
+
+                elif isinstance(ele, RetornoFuncion):
+                     # Mandamos a Graficar el Retorno
+                    self.GrafoRetorno(ele.Expresion,'Node' + str(self.i))
+
+                elif isinstance(ele, CaseSimple):
+                    self.grafoCaseSimple(ele, 'Node' + str(self.i))
+                elif isinstance(ele, CaseBuscado):
+                    self.grafoCaseBuscado(ele, 'Node' + str(self.i))
+                elif isinstance(ele, LoopSimple):
+                    self.grafoLoopSimple(ele, 'Node' + str(self.i))
+                elif isinstance(ele, Exit):
+                    self.grafoSalir(ele, 'Node' + str(self.i))
+                elif isinstance(ele, Continue):
+                    self.grafoContinuar(ele, 'Node' + str(self.i))
+                elif isinstance(ele, Declaracion):
+                    self.grafoDeclaracion(ele, 'Node' + str(self.i))
+                elif isinstance(ele, Asignacion):
+                    self.grafoAsignacion(ele, 'Node' + str(self.i))
+                elif isinstance(ele, EjecucionFuncion):
+                    dot.edge('Node' +str(nuevoPadre),str(self.i+1))
+                    self.GrafoEjecucion(ele.Id, ele.Parametros)
+                elif isinstance(ele, list):
+                    self.recorrerInstrucciones(ele, 'Node' + str(self.i))
+                else:
+                    print(" no hay objeto adecuado ")
+
+        else:
+            print("Viene un Epsilon no se hace nada... ")
+
+
+    #   ForInstruccion (self, Nombre, Tipo, By_Expre,Argumento,Lista_Expresiones=[],Lista_Codigo=[]):
+    def grafoFor(self, Nombre, Tipo, By_Expre,Argumento,Lista_Expresiones,Lista_Codigo, padre):
+        global dot
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i),"FOR_INSTRUCCION")
+        dot.edge(padre, 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), "FOR")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), Nombre+ "   IN")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), Tipo)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "_EXPRESIONES_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.Recorrer_CondicioneSLista( Lista_Expresiones, 'Node' + str(self.i))
+        # Recorrer Expresiones
+        # recorrer
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "_BY_EXP_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorridoByExpre(By_Expre, 'Node' + str(self.i))
+
+        # Recorrer by expre
+        # recorrer
+
+        self.inc()
+        dot.node('Node' + str(self.i), "LOOP")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "_CODIGO_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.GrafoRecorridoCodigo( Lista_Codigo, 'Node' + str(self.i))
+        # Recorrer el cuerpo con mas codigo
+        # recorrer
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), "END  LOOP")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), Argumento + ";")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+#-------------------   Expresion tipo By
+
+    def RecorridoByExpre(self,Expre, padre):
+        global dot
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i),"EXPRESION_TIPOB")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        if(isinstance(Expre,Name_Expresion)):
+
+            self.inc()
+            dot.node('Node' + str(self.i), Expre.Reservada)
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+            # --------------------------------------------------------
+            self.inc()
+            dot.node('Node' + str(self.i), "EXPRESION_")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+            self.Recorrer_Condiciones(Expre.Expresion , 'Node' + str(self.i))
+
+
+        else:
+            print("Es Otro Tipo de Expresion")
+
+
+
+
+    #  ForeachInstruccion (self, Nombre, Slice, Expre,Argumento,Lista_Codigo=[]):
+    def grafoForEach(self,Nombre, Slice, Expre,Argumento,Lista_Codigo, padre):
+        global dot
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i),"FOREACH_INSTRUCCION")
+        dot.edge(padre, 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), "FOREACH")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), Nombre)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), Slice + "IN ARRAY")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+
+       # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "_EXPRESION_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.Recorrer_Condiciones(Expre, 'Node' + str(self.i))
+
+        # Recorrer Expresiones
+
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), "LOOP")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+       # --------------------------------------------------------
+        self.inc()
+        dot.node('Node' + str(self.i), "_CODIGO_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.GrafoRecorridoCodigo(Lista_Codigo, 'Node' + str(self.i))
+        # Recorrer Expresiones
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), Slice + "END  LOOP")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), Argumento)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+    #  Grafica de ejecucion de las funciones
+    #  ForeachInstruccion (self, Nombre, Slice, Expre,Argumento,Lista_Codigo=[]):
+    def GrafoEjecucion(self,Id, Lista_P):
+        global dot,i
+        self.inc()
+        nuevoPadre = self.i
+        dot.node(str(self.i),"EJECUCION_FUNCION")
+        #dot.edge(padre, 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), Id)
+        dot.edge(str(nuevoPadre), 'Node' + str(self.i))
+
+
+        #--------------------------------------------------------
+
+        # Recorrer Lista de Parametros
+        self.GrafoRecorridoParametros(Lista_P,str(nuevoPadre))
+
+
+
+    def GrafoCrearIndice(self, crearindice, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "CREAR INDICE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        if crearindice.unique:
+            self.inc()
+            dot.node('Node' + str(self.i), 'UNIQUE')
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'ID INDICE')
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), crearindice.id_indice)
+        dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'ID TABLA')
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), crearindice.id_tabla)
+        dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+        if crearindice.hash:
+            self.inc()
+            dot.node('Node' + str(self.i), 'USING HASH')
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'COLUMNAS')
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        padreColumas = self.i
+        for columna in crearindice.columnas:
+            self.inc()
+            dot.node('Node' + str(self.i), 'ID')
+            dot.edge('Node' + str(padreColumas), 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), columna.id_columna)
+            dot.edge('Node' + str(self.i - 1), 'Node' + str(self.i))
+
+            if columna.orden is not None:
+                self.inc()
+                dot.node('Node' + str(self.i), columna.orden)
+                dot.edge('Node' + str(padreColumas), 'Node' + str(self.i))
+
+            if columna.nulls is not None:
+                self.inc()
+                dot.node('Node' + str(self.i), 'NULLS ' + columna.nulls)
+                dot.edge('Node' + str(padreColumas), 'Node' + str(self.i))
+
+
+
+
+
+
+    def GrafoRetorno(self, Retorn, padre):
+        global dot
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "RETORNO__")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), "EXPRESION_")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        #--------- Recorremos retorno
+        self.Recorrer_Condiciones(Retorn, 'Node' + str(self.i))
