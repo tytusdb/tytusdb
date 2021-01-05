@@ -243,11 +243,15 @@ def PCreateFuncion(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
     txt+="\t"+varT+"=CD3.ECreateFuncion()\n"
     #------------------optimizacion---------------
     regla="3 - se nego condicion para poder eliminar etiqueta"
-    msg="if("+varT+"):\n"
-    msg+="\tgoto .bodyFun"+str(contT)+"\n"
-    msg+="else:\n"
-    msg+="\tgoto .endFun"+str(contT)
-    msg2=""
+    msg="if("+varT+"):<br>"
+    msg+="\tgoto .bodyFun"+str(contT)+"<br>"
+    msg+="else:<br>"
+    msg+="\tgoto .endFun"+str(contT)+"<br>"
+    msg+="\tlabel.bodyFun"+str(contT)+"<br>"
+    msg+="\tlabel.endFun"+str(contT)+"<br>"
+    msg2="if(!"+varT+"):<br>"
+    msg2+="\tgoto .endFun"+str(contT)+"<br>"
+    msg2+="\tlabel.endFun"+str(contT)+"<br>"
     #---------------------------------------------
     txt2="\tif("+varT+"==False):\n"
     fin=contT
@@ -265,7 +269,7 @@ def PCreateFuncion(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
     txt2+="\tlabel.bodyFun"+str(contT)+" #Contenido funcion\n"
     txt2+=PInstrFun(contenidoF.contenido)+"\n"
     txt2+="\tlabel.endFun"+str(fin)+"\n"
-    agregarOptimizacion(regla,msg,txt2)
+    agregarOptimizacion(regla,msg,msg2)
     txt+=txt2
     dataC=[nombreF,tipoF,str(contenidoF),parametrosF,reemplazada]
     agregarInstr(dataC,txt)
@@ -310,7 +314,7 @@ def txtIF(inst):
                 var+=PInstrFun(elifX.sentencias)
             #elif
             else:
-                elifAux=Sentencia_IF(elifX.condicion,elifX.sentencias,False)
+                elifAux=Sentencia_IF(elifX.condicion,elifX.sentencias,[False])
                 var=txtIF(elifAux)
 
     return var

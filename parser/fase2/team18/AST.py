@@ -3648,6 +3648,71 @@ def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
                         EjecucionFuncion_Contenido(valores,funcion,cond_else.sentencias,lvaloriables)
         elif isinstance(i,Sentencia_Case):
             ''
+            
+            
+            
+            if (i.busqueda)!=False and (i.busqueda)!=None:
+                #Tiene Exp case
+                lvalor_id=[]
+                for val in lvaloriables:
+                    if val.valor != None:
+                        lvalor_id.append([val.nombre,val.valor])
+                #resuelve exp_case
+                condicion_case=Resuelve_Exp_ID(lvalor_id,i.busqueda,'')
+
+                #valua resultado de exp_case
+                if condicion_case != None and condicion_case !=False:
+                    #Resulve sentecias when Else
+                    for senT in i.sentencia_when:
+                        
+                        if senT.condicion!=None and condicion_case !=False:
+                            #Resuelve WHEN
+                            condicion_when=Resuelve_Exp_ID(lvalor_id,senT.condicion,'')
+                            #valua resultado de exp_when
+                            if condicion_when != None and condicion_when !=False:
+                                if condicion_case==condicion_when:
+                                    #ejecuta sentencias
+                                    EjecucionFuncion_Contenido(valores,funcion,senT.sentencias,lvaloriables) 
+                                    break
+                            else:
+                                #Error al resolver exp_when
+                                print("Error al resolver exp en When")
+                                msg="Error al resolver exp en When"
+                                agregarMensjae('error',msg,'')
+                        else:
+                            #Resuelve ELSE
+                            EjecucionFuncion_Contenido(valores,funcion,senT.sentencias,lvaloriables) 
+                
+                else:
+                    #Error al resolver exp_case
+                    print("Error al resolver exp en Case")
+                    msg="Error al resolver exp en Case"
+                    agregarMensjae('error',msg,'')
+
+
+            else:
+                #Case sin exp
+                #Resulve sentecias when Else
+                for senT in i.sentencia_when:
+                        
+                    if senT.condicion!=None and condicion_case !=False:
+                        #Resuelve WHEN
+                        condicion_when=Resuelve_Exp_ID(lvalor_id,senT.condicion,'')
+                        #valua resultado de exp_when
+                        #Nota: si condicion_when error, sigue
+                        if condicion_when == True:
+                            #ejecuta sentencias
+                            EjecucionFuncion_Contenido(valores,funcion,senT.sentencias,lvaloriables) 
+                            break
+                    else:
+                        #Resuelve ELSE
+                        EjecucionFuncion_Contenido(valores,funcion,senT.sentencias,lvaloriables) 
+                
+
+
+            
+
+
         elif isinstance(i,Operacion_Expresion):
             if i.tipo == "asignacion":
                 lvalor_id=[]
@@ -3665,7 +3730,7 @@ def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
                             msg="Tipo no valido para variable "+dec.nombre+" en la funcion"
                             agregarMensjae('error',msg,'')
                         else:
-                            dec.valor=valorvar
+                            dec.valor=result2
                             encontrada=True
                             break
                 if encontrada==False:
@@ -3678,9 +3743,15 @@ def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
                         lvalor_id.append([val.nombre,val.valor])
                 result = Resuelve_Exp_ID(lvalor_id,i.expresion,'')
             else:
-                msg="RAISE:"+str(resolver_operacion(i.expresion,''))
+                lvalor_id=[]
+                for val in lvaloriables:
+                    if val.valor != None:
+                        lvalor_id.append([val.nombre,val.valor])
+                #msg="RAISE:"+str(resolver_operacion(i.expresion,''))
+                msg="RAISE:"+str(Resuelve_Exp_ID(lvalor_id,i.expresion,''))
                 agregarMensjae('alert',msg,'')
-                result=0
+                result = Resuelve_Exp_ID(lvalor_id,i.expresion,'')
+
         elif isinstance(i,Select_Asigacion):
             ''
     return result

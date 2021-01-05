@@ -228,7 +228,7 @@ def analizar():
     #print(input)
     #print(".........Analizando....")
     #Gramatica.AnalizarInput(input)
-    AST.Analisar(input)
+    AST.Analisar(input.lower())
     #AST.generarAST()
 
 #Metodo para generar el reporte del arbol ast
