@@ -489,33 +489,22 @@ def p_statement_error(t):
 
 
 def p_asig_basica(t):
-    '''asig_basica  : ID DOSPUNTOS IGUAL  expression
-                    | ID IGUAL  expression
+    '''asig_basica  : ID sig_asignacion  valor_asignacion
                     | ID       '''
-    if len(t) == 5:
-        childsProduction  = addNotNoneChild(t,[4])
-        graph_ref = graph_node(str("asig_basica"),    [t[1], str(t[2]) +" "+ str(t[3]),t[4]]       , childsProduction)
-        addCad("**\<ASIG_BASICA>** ::=  ':''='   \<EXP>  ';'       ")
-        #t[0] = Declaration(t[1], False, None, True, t[4], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-        t[0] = upNodo("token", 0, 0, graph_ref)
-    elif len(t) == 4:
-        childsProduction  = addNotNoneChild(t,[3])
+    
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[2,3])
         graph_ref = graph_node(str("asig_basica"),    [t[1], t[2],t[3]]       , childsProduction)
-        addCad("**\<ASIG_BASICA>** ::=  '='   \<EXP>  ';'       ")
+        addCad("**\<ASIG_BASICA>** ::=  \<SIG_ASIGNACION> \<EXP>  ';'       ")
+        token = t.slice[2]
         #t[0] = Declaration(t[1], False, None, True, t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         t[0] = upNodo("token", 0, 0, graph_ref)
+    else:
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<ASIG_BASICA>**  ::= tIdentifier ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
 
-# def p_asig_basica(t):
-#     '''asig_basica  : ID sig_asignacion 
-#                     | ID'''
-#     if len(t) == 3:
-#         childsProduction  = addNotNoneChild(t,[2])
-#         graph_ref = graph_node(str("asig_basica"),    [t[1], t[2]]       , childsProduction)
-#         addCad("**\<ASIG_BASICA>** ::=  tId \<SIG_ASIGNACION>   \<VALOR_ASIGNACION>  ';'       ")
-#         t[0] = upNodo("token", 0, 0, graph_ref)
-#         #t[0] = Declaration(t[1], False, None, True, t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-#     else: 
-#         t[0] = t[1]
 
 def p_sig_asignacion(t):
     '''sig_asignacion   : DOSPUNTOS IGUAL
@@ -525,18 +514,26 @@ def p_sig_asignacion(t):
         addCad("**\<SIG_ASIGNACION>** ::= tDospuntos tIgual ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####        
-    if len(t) == 2:
+    elif len(t) == 2:
         graph_ref = graph_node(str(t[1]))
-        addCad("**\<ASIGNACION>** ::= tIgual ")
+        addCad("**\<SIG_ASIGNACION>** ::= tIgual ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####    
 
 def p_valor_asignacion(t):
-    '''valor_asignacion : expression'''
-    graph_ref = graph_node(str(t[1]))
-    addCad("**\<VALOR_ASIGNACION>** ::= \<EXPRESSION> ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    #####  
+    '''valor_asignacion : expression
+                        | PARA statements_sql PARC'''
+    if len(t) == 2:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("expression"),    [t[1]]       , childsProduction)
+        addCad("**\<VALOR_ASIGNACION>** ::= \<EXPRESSION> ")
+        t[0] = upNodo(True, 0, 0, graph_ref)
+        #####  
+    elif len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("valor_asignacion"), [t[1], t[2], t[3]],childsProduction )
+        addCad("**\<VALOR_ASIGNACION>** ::= '('  \<STATEMENTS_SQL> ')'   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
 
 
 def p_stm_perform(t):
@@ -701,19 +698,24 @@ def p_statements_begin(t):
     if token.type == "statements_sql":
         childsProduction  = addNotNoneChild(t,[1,2])
         graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
-        addCad("**\<statements_begin>** ::= statements_begin  \<STATEMENTS_SQL>  ';'     ")
+        addCad("**\<STATEMENTS_BEGIN>** ::= \<STATEMENTS_BEGIN>  \<STATEMENTS_SQL>  ';'     ")
         t[0] = [upNodo("token", 0, 0, graph_ref)]
         #print(t)
     elif token.type == "stm_if":
         childsProduction  = addNotNoneChild(t,[1,2])
         graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
-        addCad("**\<statements_begin>** ::= statements_begin  \<STM_IF>   ")
+        addCad("**\<STATEMENTS_BEGIN>** ::= \<STATEMENTS_BEGIN>  \<STM_IF>   ")
         t[0] = [upNodo("token", 0, 0, graph_ref)]
         #print(t)
+    #TODO @SergioUnix revisar esta produccion al graficar mas de una asignacion
     elif token.type == "asig_basica":
-        childsProduction  = addNotNoneChild(t,[1,2])
-        graph_ref = graph_node(str("statements_begin"), [t[1], t[2]],childsProduction )
-        addCad("**\<statements_begin>** ::= statements_begin  \<ASIG_BASICA>   ")
+        childsProduction  = addNotNoneChild(t,[2])
+        lista = None
+        if t[1] != None:
+            lista = t[1][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("stm_if"), [lista, t[2], t[3]], childsProduction)
+        addCad("**\<STATEMENTS_BEGIN>** ::= \<STATEMENTS_BEGIN>  \<ASIG_BASICA>   ")
         if t[1] is None:
             t[2].graph_ref = graph_ref
             t[0] = [t[2]]            
@@ -742,7 +744,7 @@ def p_exception_opt(t):
     if len(t) == 3:
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("exception_opt"), [t[1], t[2]],childsProduction )
-        addCad("**\<EXCEPTION_OPT>** ::=   tException  \<WHEN_OPT>     ")
+        addCad("**\<EXCEPTION_OPT>** ::=   tException  [\<WHEN_OPT>]     ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
 
@@ -763,13 +765,13 @@ def p_when_opt(t):
     if len(t) == 5:
         childsProduction  = addNotNoneChild(t,[1,3,4])
         graph_ref = graph_node(str("when_opt"), [t[1], t[2],t[3],t[4]],childsProduction )
-        addCad("**\<WHEN_OPT>** ::=   \<WHEN_OPT> tWhen  \<ATR_WHEN> \<then_op>     ")
+        addCad("**\<WHEN_OPT>** ::=   \<WHEN_OPT> tWhen  \<ATR_WHEN> [\<THEN_OPT>]     ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
     elif len(t) == 4:
         childsProduction  = addNotNoneChild(t,[2,3])
         graph_ref = graph_node(str("when_opt"), [t[1], t[2],t[3]],childsProduction )
-        addCad("**\<WHEN_OPT>** ::=  tWhen  \<ATR_WHEN> \<then_opT>   ")
+        addCad("**\<WHEN_OPT>** ::=  tWhen  \<ATR_WHEN> [\<THEN_OPT>]   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
     elif token.type == "WHEN" and len(t)==2:
