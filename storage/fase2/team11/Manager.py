@@ -193,3 +193,67 @@ def get_Data(database:str,table:str,mode:str):
         return hash.extractTable(database,table)
     elif mode.lower().strip() =="json":
         return json.extractTable(database,table)
+    
+def alterTableMode(database: str, table: str, databaseRef: str, mode: str):
+    if exist_Alter(database) and exist_Alter(databaseRef) and exist_Alter(databaseRef)[0].get_mode()==mode:
+        ModeDB,indice = exist_Alter(database)
+        if ModeDB:
+            oldMode = ModeDB.get_mode()
+            if oldMode.lower().strip() == "avl":           
+                tables=avl.showTables(database)     
+                for tabla in tables:
+                    if tabla == table: 
+                        listaDatos = get_Data(database,tabla,oldMode) # UNA LISTA VACIA NO EJECUTA EL FOR
+                        numberColumns=len(listaDatos[0])
+                        insertAlter(databaseRef,tabla,numberColumns,mode,listaDatos)   
+                avl.dropTable(database,table)     
+            elif oldMode.lower().strip() == "b":           
+                tables=b.showTables(database)     
+                for tabla in tables:
+                    if tabla == table:      
+                        listaDatos = get_Data(database,tabla,oldMode)
+                        numberColumns=len(listaDatos[0])
+                        insertAlter(databaseRef,tabla,numberColumns,mode,listaDatos)   
+                b.dropTable(database,table)
+            elif oldMode.lower().strip() == "bplus":           
+                tables=bplus.showTables(database)     
+                for tabla in tables:
+                    if tabla == table:     
+                        listaDatos = get_Data(database,tabla,oldMode)
+                        numberColumns=len(listaDatos[0])
+                        insertAlter(databaseRef,tabla,numberColumns,mode,listaDatos)   
+                bplus.dropTable(database,table)
+            elif oldMode.lower().strip() == "dict":           
+                tables=diccionario.showTables(database)     
+                for tabla in tables:
+                    if tabla == table:
+                        listaDatos = get_Data(database,tabla,oldMode)
+                        numberColumns=len(listaDatos[0])
+                        insertAlter(databaseRef,tabla,numberColumns,mode,listaDatos)   
+                diccionario.dropTable(database,table)
+            elif oldMode.lower().strip() == "isam":           
+                tables=isam.showTables(database)     
+                for tabla in tables:
+                    if tabla == table:    
+                        listaDatos = get_Data(database,tabla,oldMode)
+                        numberColumns=len(listaDatos[0])
+                        insertAlter(databaseRef,tabla,numberColumns,mode,listaDatos)
+                isam.dropTable(database,table)
+            elif oldMode.lower().strip() == "hash":           
+                tables=hash.showTables(database)     
+                for tabla in tables:
+                    if tabla == table:      
+                        listaDatos = get_Data(database,tabla,oldMode)
+                        numberColumns=len(listaDatos[0])
+                        insertAlter(databaseRef,tabla,numberColumns,mode,listaDatos)   
+                hash.dropTable(database,table)
+            elif oldMode.lower().strip() == "json":           
+                tables=json.showTables(database)     
+                for tabla in tables:
+                    if tabla == table:      
+                        listaDatos = get_Data(database,tabla,oldMode)
+                        numberColumns=len(listaDatos[0])
+                        insertAlter(databaseRef,tabla,numberColumns,mode,listaDatos)   
+                json.dropTable(database,table)
+    else:
+        None
