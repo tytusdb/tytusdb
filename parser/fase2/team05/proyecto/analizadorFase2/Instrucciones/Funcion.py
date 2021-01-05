@@ -6,3 +6,7 @@ class Funcion(Instruccion):
         self.declaraciones = declaraciones
         self.parametros = parametros
         self.cuerpo = cuerpo
+        if parametros is None:
+            self.numparametros = 0
+        else:
+            self.numparametros = len(parametros)

@@ -133,9 +133,26 @@ def p_createopts_db(t):
 
 def p_createopts_index(t):
     """
-    createOpts : indexUnique R_INDEX ID R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
+    createOpts : indexUnique R_INDEX indexName R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
     """
     t[0] = instruction2.CreateIndex(t[1], t[3], t[5], t[6], t[10], t[8])
+    repGrammar.append(t.slice)
+
+
+def p_indexName(t):
+    """
+    indexName : ID
+    """
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_indexName_n(t):
+    """
+    indexName :
+    """
+    t[0] = None
+    repGrammar.append(t.slice)
 
 
 def p_indexList(t):
@@ -144,6 +161,7 @@ def p_indexList(t):
     """
     t[1].append(t[3])
     t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_indexList2(t):
@@ -151,6 +169,7 @@ def p_indexList2(t):
     indexList : columnIndex
     """
     t[0] = [t[1]]
+    repGrammar.append(t.slice)
 
 
 def p_columnIndex(t):
@@ -158,6 +177,7 @@ def p_columnIndex(t):
     columnIndex : columnOpt indexOrder indexNull
     """
     t[0] = [t[1], t[2], t[3]]
+    repGrammar.append(t.slice)
 
 
 def p_index_columnOpt(t):
@@ -165,6 +185,7 @@ def p_index_columnOpt(t):
     columnOpt : ID
     """
     t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_index_functionIndex(t):
@@ -172,6 +193,15 @@ def p_index_functionIndex(t):
     columnOpt : ID S_PARIZQ ID S_PARDER
     """
     t[0] = t[1] + t[2] + t[3] + t[4]
+    repGrammar.append(t.slice)
+
+
+def p_index_agrupacion(t):
+    """
+    columnOpt : S_PARIZQ columnOpt S_PARDER
+    """
+    t[0] = t[2]
+    repGrammar.append(t.slice)
 
 
 def p_usingMethod(t):
@@ -184,6 +214,7 @@ def p_usingMethod(t):
     | R_USING R_BRIN
     """
     t[0] = t[2]
+    repGrammar.append(t.slice)
 
 
 def p_usingMethod_none(t):
@@ -191,6 +222,7 @@ def p_usingMethod_none(t):
     usingMethod :
     """
     t[0] = "BTREE"
+    repGrammar.append(t.slice)
 
 
 def p_indexOrder(t):
@@ -199,11 +231,11 @@ def p_indexOrder(t):
     | R_ASC
     |
     """
-
     if len(t) == 1:
         t[0] = "ASC"
     else:
         t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_indexNull(t):
@@ -215,6 +247,7 @@ def p_indexNull(t):
         t[0] = None
     else:
         t[0] = [True, t[2]]
+    repGrammar.append(t.slice)
 
 
 def p_indexFirstLast(t):
@@ -227,6 +260,7 @@ def p_indexFirstLast(t):
         t[0] = None
     else:
         t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_createindex_unique(t):
@@ -234,11 +268,11 @@ def p_createindex_unique(t):
     indexUnique : R_UNIQUE
     |
     """
-
     if len(t) == 1:
         t[0] = False
     else:
         t[0] = True
+    repGrammar.append(t.slice)
 
 
 def p_replace_true(t):

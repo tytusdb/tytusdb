@@ -10,6 +10,9 @@ import re
 import codecs
 import os
 import sys
+#imports instrucciones
+from Instrucciones.instruction import *
+from Instrucciones.ins_if import *
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
 # ======================================================================
@@ -272,6 +275,10 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | ins_create_pl
                    | create_index'''
+   # if isinstance(t[1],Ins_If):
+       # t[0] = GenerarC3D()
+        #3t[0].code = t[1].Traduct()
+    #else:
     if t[1].statement == 'INDEX':
         t[0] = GenerarC3D()
         t[0].code += '# parser.parse(\'' + t[1].code + '\')' + '\n'
@@ -1513,9 +1520,7 @@ def p_body(t):
     if t[1] != None:
         t1 = t[1]
     if t[3] != None:
-        t2 = t[3]
-        for v in t2:
-            t3 += v 
+        t3 = t[3]
     t[0] = t1 + t3
 
 def p_declare(t):
@@ -1552,12 +1557,15 @@ def p_internal_block(t):
 
 def p_internal_body(t):
     '''internal_body : body PUNTO_COMA
-                   | instruccion_if
+                   | instruccion_if END IF PUNTO_COMA
                    | instruccion_case
                    | return
                    | statements
     '''
-    t[0] = t[1]
+    if isinstance(t[1],Ins_If):
+        t[0] = t[1].Traduct()
+    else:
+        t[0] = t[1]
 
 def p_constante(t):
     '''constante  : CONSTANT'''
@@ -1585,20 +1593,25 @@ def p_declaracion_default_null(t):
     t[0] = None
 def p_declaracionf_funcion(t):
     '''declaracion_funcion : ID ALIAS FOR DOLAR NUMERO PUNTO_COMA'''
+    t[0] = ''
 
 def p_declaracionf_funcion_rename(t):
     '''declaracion_funcion : ID ALIAS FOR ID PUNTO_COMA'''
+    t[0] = ''
 
 def p_declaracionc_copy(t):
     '''declaracion_copy : ID ID PUNTO ID SIGNO_MODULO TYPE PUNTO_COMA'''
+    t[0] = ''
 
 def p_declaracionr_row(t):
     '''declaracion_row : ID ID SIGNO_MODULO ROWTYPE PUNTO_COMA'''
     print('COPY ROW')
+    t[0] = ''
 
 def p_declaracionre_record(t):
     '''declaracion_record : ID RECORD PUNTO_COMA'''
     print('RECORD')
+    t[0] = ''
 
 def p_asignacion(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL exp_plsql PUNTO_COMA'''
@@ -1646,28 +1659,55 @@ def p_query(t):
                 | ins_delete '''
 
 def p_instruccion_if(t):
-    '''instruccion_if : IF exp_plsql then else_if else END IF PUNTO_COMA'''
+    '''instruccion_if : IF exp_plsql then ELSE statements 
+                      | IF exp_plsql then instruccion_elif 
+                      | IF exp_plsql then'''
+    
+    if len(t) == 6:
+        print('INSTRUCCION IF else')
+        insif = Ins_If(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('INSTRUCCION IF elif')
+        insif = Ins_If(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('INSTRUCCION IFsolo')
+        insif = Ins_If(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+
+def p_elsif(t):
+    '''instruccion_elif : ELSIF exp_plsql then ELSE statements 
+                        | ELSIF exp_plsql then instruccion_elif 
+                        | ELSIF exp_plsql then '''
+    
+    if len(t) == 6:
+        print('INSTRUCCION elsIF - else')
+        insif = Ins_If(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('INSTRUCCION elsIF - elsif')
+        insif = Ins_If(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('INSTRUCCION elsIF')
+        insif = Ins_If(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
 
 def p_then(t):
-    '''then : THEN statements'''
-
-def p_else_if(t):
-    '''else_if : else_if instruccion_else '''
-
-def p_else_if_else(t):
-    '''else_if : instruccion_else '''
-
-def p_else_if_else_null(t):
-    '''else_if :  '''
-                
-def p_instruccion_else(t):
-    '''instruccion_else : ELSIF exp_plsql then'''
+    '''then : THEN statements
+            | THEN '''
+    if len(t) == 3:
+        t[0] = t[2]
+    else: 
+        t[0] = ''
 
 def p_else(t):
     '''else : ELSE sentencia  '''
 
 def p_else_null(t):
     '''else : '''
+    print('NULL')
 
 def p_sentencia(t):
     '''sentencia : statements'''
@@ -1711,10 +1751,14 @@ def p_statement(t):
                 | declaracion_copy
                 | declaracion_row
                 | declaracion_record
-                | instruccion_if
+                | instruccion_if END IF PUNTO_COMA
                 | instruccion_case
                 | return'''
-    t[0] = t[1]
+
+    if isinstance(t[1],Ins_If):
+        t[0] = t[1].Traduct()
+    else:
+        t[0] = t[1]
  
 
 def p_f_query(t):
