@@ -324,6 +324,18 @@ class contAlter(query):
         self.tipo = tipo
         self.tipoAsignar = tipoAsignar
 
+class contCase(query):
+    '''
+        Esta clase representa el objeto contCase que conteiene
+        la información que viene dentro del case para su evaluación
+        correspondiente
+    '''
+    def __init__(self, when,then,contcase, elsee):
+        self.when = when
+        self.then = then
+        self.contcase = contcase
+        self.elsee = elsee
+
 class QueryWhere(query):
     '''
         Esta clase represente la variante de un alter anidado

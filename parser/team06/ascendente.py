@@ -52,7 +52,9 @@ def procesar_intersect(query,ts):
     b=verificar_selects(query.select2,ts)
     print("el primer query es***************************\n",a)
     print("el segundo query es***************************\n",b)
-    resultado=pd.merge(a,b,how="inner")
+    #resultado=pd.merge(a,b,how="inner")
+    frames=[a,b]
+    resultado=pd.concat(frames)
     h.textosalida+="TYTUS>>Se ha ejecutado su consulta Union:\n"+str(resultado)+"\n"
 
 
@@ -63,7 +65,9 @@ def procesar_except(query,ts):
     b=verificar_selects(query.select2,ts)
     print("el primer query es***************************\n",a)
     print("el segundo query es***************************\n",b)
-    resultado=pd.merge(a,b,how="outter")
+    #resultado=pd.merge(a,b,how="outter")
+    frames=[a,b]
+    resultado=pd.concat(frames)
     h.textosalida+="TYTUS>>Se ha ejecutado su consulta Union:\n"+str(resultado)+"\n"
 # ---------------------------------------------------------------------------------------------------------------- 
 #                                             QUERIES
@@ -90,19 +94,20 @@ def procesar_createindex(query,ts):
     idTabla = query.id2
     ids = query.listaid
         
-    ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
-    if h.index == 0:
+    
+    verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    if verificacion == 0:
         simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,ids,None,None,None,tipo,None,None,None)
         ts.agregarnuevoIndex(simbolo)
         print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
         h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
-    elif h.index == 2:
+    elif verificacion == 2:
         h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
         return "No hay una BD en uso"
-    elif h.index == 3:
+    elif verificacion == 3:
         h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
         return "La tabla donde quiere crear el indice no existe"
-    elif h.index == 4:
+    elif verificacion == 4:
         h.textosalida+="TYTUS>> No se puede crear no hay tablas ni bd existentes"+ "\n"
         return "No se puede crear no hay tablas ni bd existentes"
     else:
@@ -122,8 +127,8 @@ def procesar_createindexParams(query,ts):
     idTabla = query.id2
     idColumn = query.id3
     idParams = query.indexParams
-    ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
-    if h.index == 0:
+    verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    if verificacion == 0:
         if isinstance(idParams,SortOptions):
             simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,[idParams.sort,idParams.option],None,None)
             ts.agregarnuevoIndex(simbolo)
@@ -134,10 +139,10 @@ def procesar_createindexParams(query,ts):
             ts.agregarnuevoIndex(simbolo)
             print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
-    elif h.index == 2:
+    elif verificacion == 2:
         h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
         return "No hay una BD en uso"
-    elif h.index == 3:
+    elif verificacion == 3:
         h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
         return "La tabla donde quiere crear el indice no existe"
     else:
@@ -157,16 +162,16 @@ def procesar_createindexWhere(query,ts):
     idTabla = query.id2
     ids = query.id3    
 
-    ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
-    if h.index == 0:
+    verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    if verificacion == 0:
         simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,ids,None,None,None,tipo,None,None,None)
         ts.agregarnuevoIndex(simbolo)
         print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
         h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
-    elif h.index == 2:
+    elif verificacion == 2:
         h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
         return "No hay una BD en uso"
-    elif h.index == 3:
+    elif verificacion == 3:
         h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
         return "La tabla donde quiere crear el indice no existe"
     else:
@@ -187,8 +192,8 @@ def procesar_createindexParamsWhere(query,ts):
     idParams = query.indexParams
     tipo = query.tipo
 
-    ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
-    if h.index == 0:
+    verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    if verificacion == 0:
         if isinstance(idParams,SortOptions):
             simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,[idParams.sort,idParams.option],None,None)
             ts.agregarnuevoIndex(simbolo)
@@ -199,10 +204,10 @@ def procesar_createindexParamsWhere(query,ts):
             ts.agregarnuevoIndex(simbolo)
             print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
-    elif h.index == 2:
+    elif verificacion == 2:
         h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
         return "No hay una BD en uso"
-    elif h.index == 3:
+    elif verificacion == 3:
         h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
         return "La tabla donde quiere crear el indice no existe"
     else:
@@ -253,10 +258,14 @@ def procesar_select(query,ts):
                             print("saca el valor")
                             c=ts.obtenerSelect1A(b[-1],h.bd_enuso)
                             print("resultado+++++++++++++++++++++: ")
-                            
                             print(str(c))
-                            h.textosalida+="TYTUS>>El resultado de su consulta es \n"
-                            h.textosalida+=str(c)+"\n"
+                            if c==0:
+                                h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(c)+"\n"
+                            else:
+                                h.textosalida+="TYTUS>>El resultado de su consulta es \n"
+                                h.textosalida+=str(c)+"\n"
+                            
+                            
                     elif isinstance(query.operacion[0],Asignacion):
                         print("entra al select de asignaciones")
                         a=str(procesar_asignacion(query.operacion[0], ts))
@@ -331,11 +340,11 @@ def procesar_select_Tipo2(query,ts):
                 d=ts.obtenerSelect2B(c[-1],h.bd_enuso,b)
                 print("resultado+++++++++++++++++++++: ")
                 print(d)
-                h.textosalida+="TYTUS>>El resultado de su consulta es \n"
-                h.textosalida+=str(d)+"\n"
-
-                
-       
+                if d==0:
+                    h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+                else:
+                    h.textosalida+="TYTUS>>El resultado de su consulta es \n"
+                    h.textosalida+=str(d)+"\n"    
     else:
         print("vienen mas tablas*******************************")
         a=procesar_select2_obtenerTablas(query.operacion2,ts)
@@ -349,7 +358,12 @@ def procesar_select_Tipo2(query,ts):
         d=ts.obtenerSelect4(a,h.bd_enuso,b)
         print("resultado+++++++++++++++++++++2C: ")
         print(d)
-        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(d)+"\n"
+        if d==0:
+            h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+        else:
+            h.textosalida+="TYTUS>>El resultado de su consulta es \n"
+            h.textosalida+=str(d)+"\n"
+
     
     
 
@@ -461,10 +475,8 @@ def procesar_select_Tipo3(query,ts):
         print("viene solo 1 tabla")
         print("+++++++++++TABLA+++++++++++")
         a=procesar_operacion_basica(query.operacion1[0],ts)
-        
         print("---------------------------------------------RESULTADO SELECT 3A --------------------------------------------------")
-        print("LAS TABLAS SERAN: ",a)
-        
+        print("LAS TABLAS SERAN: ",a) 
         c=a.split(" ")
         print(c[-1])
         print(h.bd_enuso)
@@ -472,10 +484,12 @@ def procesar_select_Tipo3(query,ts):
         d=ts.obtenerSelect1A(c[-1],h.bd_enuso)
         print("resultado+++++++++++++++++++++3A: ")
         print(d)
-        b=procesar_where(query.operacion2,ts,d,procesar_operacion_basica(query.operacion1[0],ts))
-        print("EL OBJETO WHERE: \n",b)
-        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(b)+"\n"
-        
+        if d==0:
+            h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+        else:
+            b=procesar_where(query.operacion2,ts,d,procesar_operacion_basica(query.operacion1[0],ts))
+            print("EL OBJETO WHERE: \n",b)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(b)+"\n"
     else:
         if isinstance(query.operacion1,Asignacion):
             print("vienen mas tablas*******************************2")
@@ -483,7 +497,6 @@ def procesar_select_Tipo3(query,ts):
             print(query.operacion2)
             print([query.operacion1])
             a=procesar_select2_obtenerTablas([query.operacion1],ts)
-            
             print("---------------------------------------------RESULTADO SELECT 3B--------------------------------------------------")
             print("LAS TABLAS SERAN: ",a)
             print("LAS COLUMNAS SERAN: todas")
@@ -504,8 +517,6 @@ def procesar_select_Tipo3(query,ts):
             h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"
             
             
-
-
 def procesar_select_Tipo4(query,ts):
     print("ya entro al select TIPO 4")
     print(query.operacion1)
@@ -520,19 +531,19 @@ def procesar_select_Tipo4(query,ts):
     d=ts.obtenerSelect4(a,h.bd_enuso,b)
     print("resultado+++++++++++++++++++++4: ")
     print(d)
-    c=procesar_where(query.operacion3,ts,d,a)
-    print("La sentencia Where sera \n",c)
-    h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(c)+"\n"
+    if d==0:
+        h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+    else:
+        c=procesar_where(query.operacion3,ts,d,a)
+        print("La sentencia Where sera \n",c)
+        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(c)+"\n"
+
     
-
-
-
 def procesar_select_Tipo5(query,ts):
     print("llega al select 5")
     if query.operacion1=='*':
         print("trae asterisco saca todas las columnas")
         a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas    
-        
         print("--------------------------------RESULTADO SELECT 5 * --------------------------------")
         print("LAS TABLAS SERAN: ",a)
         print("las columas seran: Todas")
@@ -540,13 +551,14 @@ def procesar_select_Tipo5(query,ts):
         d=ts.obtenerSelect5Todo(a,h.bd_enuso)
         print("resultado+++++++++++++++++++++4: ")
         print(d)
-        c=procesar_where(query.operacion3,ts,d,a)
-        print("La sentencia Where sera \n",c)
-        e=procesar_extras(query.operacion4,ts,c)
-        print("el resultado despues de filtros es: \n",e)
-        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(e)+"\n"
-
-
+        if d==0:
+            h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+        else:
+            c=procesar_where(query.operacion3,ts,d,a)
+            print("La sentencia Where sera \n",c)
+            e=procesar_extras(query.operacion4,ts,c)
+            print("el resultado despues de filtros es: \n",e)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(e)+"\n"
     else:
         print("trae una lista de columnas")
         a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas
@@ -559,12 +571,14 @@ def procesar_select_Tipo5(query,ts):
         d=ts.obtenerSelect4(a,h.bd_enuso,b)
         print("resultado+++++++++++++++++++++4: ")
         print(d)
-        c=procesar_where(query.operacion3,ts,d,a)
-        print("La sentencia Where sera \n",c)
-        e=procesar_extras(query.operacion4,ts,c)
-        print("el resultado despues de filtros es: \n",e)
-        h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(e)+"\n"
-
+        if d==0:
+            h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+        else:
+            c=procesar_where(query.operacion3,ts,d,a)
+            print("La sentencia Where sera \n",c)
+            e=procesar_extras(query.operacion4,ts,c)
+            print("el resultado despues de filtros es: \n",e)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(e)+"\n"
 
 def procesar_select_Tipo6(query,ts):
     print("llega al select 6")
@@ -579,6 +593,15 @@ def procesar_select_Tipo6(query,ts):
             print("TIPO:   ",b.tipo)
             print("T2:    ",b.tabla2)
             print("CONDICION:   ",b.condicion)
+            c=procesar_select2_obtenerTablas(b.tabla1,ts) #tablas
+            d=procesar_select2_obtenerTablas(b.tabla2,ts) #tablas
+            e=ts.obtenerSelect5Todo(c,h.bd_enuso)
+            f=ts.obtenerSelect5Todo(d,h.bd_enuso)
+            print(e)
+            print(f)
+            resultado=pd.concat([e,f], axis=1, ignore_index=False)
+            print("El resultado sera: \n",resultado)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(resultado)+"\n"
         elif isinstance(b,ExpresionJoinB):
             print("trae un join de tipo B")
             print("T1:   ",b.tabla1)
@@ -591,11 +614,9 @@ def procesar_select_Tipo6(query,ts):
             f=ts.obtenerSelect5Todo(d,h.bd_enuso)
             print(e)
             print(f)
-            #resultado=pd.DataFrame.merge(e,f,how="inner",on='index')
             resultado=pd.concat([e,f], axis=1, ignore_index=False)
             print("El resultado sera: \n",resultado)
             h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(resultado)+"\n"
-
         elif isinstance(b,ExpresionJoinC):
             print("trae un join de tipo C")
             print("T1:   ",b.tabla1)
@@ -603,6 +624,15 @@ def procesar_select_Tipo6(query,ts):
             print("AUXILIAR:   ",b.auxiliar)
             print("TIPO INTERNO:   ",b.tipo)
             print("T2:   ",b.tabla2)
+            c=procesar_select2_obtenerTablas(b.tabla1,ts) #tablas
+            d=procesar_select2_obtenerTablas(b.tabla2,ts) #tablas
+            e=ts.obtenerSelect5Todo(c,h.bd_enuso)
+            f=ts.obtenerSelect5Todo(d,h.bd_enuso)
+            print(e)
+            print(f)
+            resultado=pd.concat([e,f], axis=1, ignore_index=False)
+            print("El resultado sera: \n",resultado)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(resultado)+"\n"
         elif isinstance(b,ExpresionJoinD):
             print("trae un join de tipo D")
             print("T1:    ",b.tabla1)
@@ -610,6 +640,15 @@ def procesar_select_Tipo6(query,ts):
             print("TIPO:    ",b.tipo)
             print("T2:    ",b.tabla2)
             print("OPERACION:    ",b.operacion)
+            c=procesar_select2_obtenerTablas(b.tabla1,ts) #tablas
+            d=procesar_select2_obtenerTablas(b.tabla2,ts) #tablas
+            e=ts.obtenerSelect5Todo(c,h.bd_enuso)
+            f=ts.obtenerSelect5Todo(d,h.bd_enuso)
+            print(e)
+            print(f)
+            resultado=pd.concat([e,f], axis=1, ignore_index=False)
+            print("El resultado sera: \n",resultado)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(resultado)+"\n"
         print("--------------------------------RESULTADO SELECT 6 * --------------------------------")
 
     else:
@@ -623,12 +662,28 @@ def procesar_select_Tipo6(query,ts):
             print("TIPO:   ",b.tipo)
             print("T2:    ",b.tabla2)
             print("CONDICION:   ",b.condicion)
+            c=procesar_select2_obtenerTablas(b.tabla1,ts) #tablas
+            d=procesar_select2_obtenerTablas(b.tabla2,ts) #tablas
+            e=ts.obtenerSelect4(a,h.bd_enuso,a)
+            f=ts.obtenerSelect4(a,h.bd_enuso,a)
+            print(e)
+            print(f)
+            resultado=pd.concat([e,f], axis=1, ignore_index=False)
+            print("El resultado sera: \n",resultado)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(resultado)+"\n"
         elif isinstance(b,ExpresionJoinB):
             print("trae un join de tipo B")
             print("T1:   ",b.tabla1)
             print("NATURAL:    ",b.natural)
             print("TIPO INTERNO:     ",b.tipo)
             print("T2:    ",b.tabla2)
+            e=ts.obtenerSelect4(a,h.bd_enuso,a)
+            f=ts.obtenerSelect4(a,h.bd_enuso,a)
+            print(e)
+            print(f)
+            resultado=pd.concat([e,f], axis=1, ignore_index=False)
+            print("El resultado sera: \n",resultado)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(resultado)+"\n"
         elif isinstance(b,ExpresionJoinC):
             print("trae un join de tipo C")
             print("T1:   ",b.tabla1)
@@ -636,6 +691,13 @@ def procesar_select_Tipo6(query,ts):
             print("AUXILIAR:   ",b.auxiliar)
             print("TIPO INTERNO:   ",b.tipo)
             print("T2:   ",b.tabla2)
+            e=ts.obtenerSelect4(a,h.bd_enuso,a)
+            f=ts.obtenerSelect4(a,h.bd_enuso,a)
+            print(e)
+            print(f)
+            resultado=pd.concat([e,f], axis=1, ignore_index=False)
+            print("El resultado sera: \n",resultado)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(resultado)+"\n"
         elif isinstance(b,ExpresionJoinD):
             print("trae un join de tipo D")
             print("T1:    ",b.tabla1)
@@ -643,6 +705,13 @@ def procesar_select_Tipo6(query,ts):
             print("TIPO:    ",b.tipo)
             print("T2:    ",b.tabla2)
             print("OPERACION:    ",b.operacion)
+            e=ts.obtenerSelect4(a,h.bd_enuso,a)
+            f=ts.obtenerSelect4(a,h.bd_enuso,a)
+            print(e)
+            print(f)
+            resultado=pd.concat([e,f], axis=1, ignore_index=False)
+            print("El resultado sera: \n",resultado)
+            h.textosalida+="TYTUS>>Se ha ejecutado su consulta\n"+str(resultado)+"\n"
         print("---------------------------------------------RESULTADO SELECT 6--------------------------------------------------")
 
         
@@ -801,10 +870,15 @@ def operar_where(query,ts,campos):
             print("compara si ",a," AND ",b)
             #filtro=pd.where(a and b, 'True','False')
             #print("El filtro and sera\n",filtro)
-            return filtro
+            frames=[a,b]
+            resultado=pd.concat(frames)
+            return resultado
         elif query.operador == OPERACION_LOGICA.OR:
             print("compara si ",a," OR ",b)
             return "compara si ",a," OR ",b
+            frames=[a,b]
+            resultado=pd.concat(frames)
+            return resultado
     elif isinstance(query, ExpresionBetween) :
         print("trae una expresion de  between")
         print(query.valor1) 
@@ -2832,7 +2906,7 @@ def guardar_asignacion(valor, variable,ts):
             return valor
         else:
             print("se agregara la variable")
-            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None,None,None)      # inicializamos con 0 como valor por defecto
+            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
             ts.agregar(simbolo)
             print("se creo una nueva variable")
             print(variable)
@@ -2841,7 +2915,7 @@ def guardar_asignacion(valor, variable,ts):
         if isinstance(valor, str) and valor.find("error")>0:
             return valor
         else:
-            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None,None,None)
+            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None,None,None,None,None,None,None)
             ts.actualizar(simbolo)
             print("la variable ya existia, se actualizo")
             print(variable)
@@ -4034,7 +4108,7 @@ def procesar_tipo(query,ts):
         print(query.operacion2)
         a=procesar_retorno_lista_valores(query.operacion2,ts)
         print(a)
-        simbolo = TS.Simbolo(None,query.operacion1.id,None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None, a,None,None,None)      # inicializamos con 0 como valor por defecto
+        simbolo = TS.Simbolo(None,query.operacion1.id,None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None, a,None,None,None,None,None,None,None)      # inicializamos con 0 como valor por defecto
         ts.agregar(simbolo)
         h.textosalida+="TYTUS>> se creo el TYPE:  "+query.operacion1.id+"\n"
     except:
