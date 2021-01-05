@@ -24,7 +24,7 @@ from utils.analyzers.lex import *
 
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
-from models.procedural.clases import BodyDeclaration
+from models.procedural.clases import BodyDeclaration, Call
 from models.procedural.if_statement import If,anidarIFs
 
 
@@ -86,6 +86,7 @@ def p_sql_instruction(p):
                       | MULTI_LINE_COMMENT
                       | SINGLE_LINE_COMMENT
                       | INDEXES_STATEMENT
+                      | CALL_FUNCTIONS_PROCEDURE SEMICOLON
                       | error SEMICOLON
     '''
     global contador_instr, arr_instr
@@ -483,6 +484,25 @@ def p_options2_indexes(p):
         else:
             p[0] = True
 
+def p_call_functions_or_procedure(p):
+    '''CALL_FUNCTIONS_PROCEDURE : OBJECTREFERENCE LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS
+                                | OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
+                                | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
+                                | EXECUTE OBJECTREFERENCE LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS '''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
+    if p.slice[1].type == 'EXECUTE':
+        if len(p) == 5: #Tercera produccion
+            # Call(p[2], None)
+            p[0] = Funcion(p[2], [], [], None, False, noLine, noColumn)
+        else:           #Cuarta produccion
+            Call(p[2], p[4])
+    else:
+        if len(p) == 5: #Primera produccion
+            Call(p[1], p[3])
+        else:           #Segunda produccion
+            Call(p[1], None)
+
 
 def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
@@ -715,7 +735,7 @@ def p_sql_functions(p):
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if len(p) == 14: 
-        p[0] = Funcion(p[3], p[5], p[10], p[8], noLine, noColumn)
+        p[0] = Funcion(p[3], p[5], p[10], p[8], True, noLine, noColumn)
     else:
         print("NO ENTRO EN ESA PRODUCCION XD  --- CREATE FUNCTION")
 
@@ -882,6 +902,13 @@ def p_options_statements(p):
 
 def p_statement_type(p):
     '''statementType : PLPSQL_EXPRESSION  SEMICOLON 
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL QUERYSTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS INSERTSTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL INSERTSTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS DELETESTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL DELETESTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS UPDATESTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL UPDATESTATEMENT
                     |  RAISE_EXCEPTION 
                     |  BODY_DECLARATION
                     |  ifStatement
@@ -935,7 +962,7 @@ def p_plpsql_primary_expression(p):
                                  | PLPSQL_PRIMARY_EXPRESSION DIVISION PLPSQL_PRIMARY_EXPRESSION
                                  | PLPSQL_PRIMARY_EXPRESSION EXPONENT PLPSQL_PRIMARY_EXPRESSION
                                  | PLPSQL_PRIMARY_EXPRESSION MODULAR PLPSQL_PRIMARY_EXPRESSION
-                                 | LEFT_PARENTHESIS PLPSQL_PRIMARY_EXPRESSION RIGHT_PARENTHESIS
+                                 | LEFT_PARENTHESIS PLPSQL_EXPRESSION RIGHT_PARENTHESIS
                                  | REST PLPSQL_PRIMARY_EXPRESSION %prec UREST
                                  | PLUS PLPSQL_PRIMARY_EXPRESSION %prec UPLUS
                                  | AGGREGATEFUNCTIONS
@@ -1382,6 +1409,8 @@ def p_list_item(p):
 def p_select_item(p):
     '''SELECTITEM : SQLEXPRESSION SQLALIAS
                   | SQLEXPRESSION
+                  | CALL_FUNCTIONS_PROCEDURE SQLALIAS
+                  | CALL_FUNCTIONS_PROCEDURE
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
         p[1].alias = p[2].alias
@@ -2045,7 +2074,9 @@ def p_sql_object_reference(p):
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
-                        | SQLSIMPLEEXPRESSION'''
+                        | LISTVALUESINSERT COMMA CALL_FUNCTIONS_PROCEDURE
+                        | SQLSIMPLEEXPRESSION
+                        | CALL_FUNCTIONS_PROCEDURE'''
     if(len(p) == 4):
         p[1].append(p[3])
         p[0] = p[1]

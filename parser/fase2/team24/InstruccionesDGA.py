@@ -1766,39 +1766,46 @@ class IndexCreate(instruccion):
                 NuevoIndice.tipoind = "INDEX"
             if isinstance(self.createind2, createind3):
                 "createind2 es createind3"
-                if isinstance(self.createind2.contind, contind1):
-                    NuevoIndice.ordenind = self.createind2.contind.orden
-                    NuevoIndice.columnaind = self.createind2.contind.columna
-                else:
-                    NuevoIndice.ordenind = "Sin orden"
-                if isinstance(self.createind2.contind, contind1111):
-                    columnasdeind = ""
-                    for columna in self.createind2.contind.listacolumnas:
-                        columnasdeind += columna + " "
-                    NuevoIndice.columnaind = columnasdeind
-                elif self.createind2.contind != "" and not isinstance(self.createind2.contind, contind1):
-                    for columna in self.createind2.contind:
-                        NuevoIndice.columnaind = columna
-                elif NuevoIndice.columnaind == "":
-                    NuevoIndice.columnaind = str(self.createind2.contind)
+                columnasdeindice = []
+                columnastexto = ""
+                for columna in self.createind2.listacolind:
+                    if isinstance(columna, columnaind):
+                        "ES UN OBJETO"
+                        if isinstance(columna.propiedad, ordenind):
+                            if NuevoIndice.ordenind == "":
+                                NuevoIndice.ordenind = columna.propiedad.orden
+                                columnasdeindice.append(columna.id)
+                            else:
+                                NuevoIndice.ordenind = "Ninguno"
+                                columnasdeindice.append(columna.id)
+                        else:
+                            NuevoIndice.ordenind = "Ninguno"
+                            columnasdeindice.append(columna.propiedad)
+                    else:
+                        if NuevoIndice.ordenind == "":
+                            NuevoIndice.ordenind = "Ninguno"
+                        columnasdeindice.append(columna)
+                for elemento in columnasdeindice:
+                    columnastexto += elemento + " "
+                NuevoIndice.columnaind = columnastexto
             tabla.agregar(NuevoIndice)
-            return "Se agrego " + self.id1 + " a la tabla de simbolos"
+            return "Se agrego el indice " + self.id1 + " a la tabla de simbolos"
         except:
             return "Error al crear indice"
 
 class createind3(instruccion):
-    def __init__(self,contind, indwhere):
-        self.contind = contind
+    def __init__(self,listacolind, indwhere):
+        self.listacolind = listacolind
         self.indhwere = indwhere
 
-class contind1(instruccion):
-    def __init__(self,columna, orden):
-        self.columna = columna
-        self.orden = orden
+class columnaind(instruccion):
+    def __init__(self,id, propiedad):
+        self.id = id
+        self.propiedad = propiedad
 
-class contind1111(instruccion):
-    def __init__(self,listacolumnas):
-        self.listacolumnas = listacolumnas
+class ordenind(instruccion):
+    def __init__(self,orden):
+        self.orden = orden
 
 class indwhere(instruccion):
     def __init__(self,indnot, indwherecond):

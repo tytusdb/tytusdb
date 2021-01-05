@@ -183,7 +183,17 @@ class Select(Instruccion):
                 else:
                     # Si la columna es una expresión
                     esExpresion = True
-                    valores = self.lcol[x].ejecutar(tabla, arbol)
+
+                    valores = None
+       
+                    try: 
+                             valores = self.lcol[x].ejecutar(tabla, arbol)
+                    except Exception as e:
+                        print(e)
+                    if valores == None:
+                        return []
+
+
                     if isinstance(valores, Excepcion):
                         return valores
 

@@ -14,7 +14,7 @@ class CreateTable(Instruccion):
         self.listaDef = listaDef
         self.herencia = None
         self.listPK = []
-        self.codigo3d = "ci.ejecutarsql('create table " + self.id + " ( " + listaDef[0].stringsql
+        self.codigo3d = "ci.ejecutarsql(\"create table " + self.id + " ( " + listaDef[0].stringsql
 
     def ejecutar(self, ent:Entorno):
         dbActual = ent.getDataBase()
@@ -256,7 +256,7 @@ class CreateTable(Instruccion):
         if self.herencia != None:
             self.codigo3d += ' inherits (' + str(self.herencia) + ')'
         
-        self.codigo3d += ";')\n"
+        self.codigo3d += ";\")\n"
         return self
 
 class CreateType(Instruccion):
@@ -277,7 +277,12 @@ class CreateType(Instruccion):
         reporteerrores.append(Lerrores("Error Semántico","El tipo '" + self.id + "' ya existe declarado","",""))
 
     def traducir(self,ent:Entorno):
-        self.codigo3d = 'ci.ejecutarsql(\' create type ' + self.id + ' as enum (' + str(self.contenido[0].valor)
+        self.codigo3d = 'ci.ejecutarsql(" create type ' + self.id + ' as enum (' + str(self.contenido[0].stringsql)
+        for i in range(1,len(self.contenido),1):
+            self.codigo3d += ',' + str(self.contenido[i].stringsql)
+        self.codigo3d += ');")\n'
+
+        return self
 
 
 class Check(CreateTable):
@@ -370,7 +375,7 @@ class CondicionCheck(CreateTable):
         self.exp1 = exp1
         self.exp2 = exp2
         self.simbolo = simbolo
-        self.stringsql = str(exp1.valor) + " " + simbolo + " " + str(exp2.valor)
+        self.stringsql = str(exp1.stringsql) + " " + simbolo + " " + str(exp2.stringsql)
 
 class ShowTables(Instruccion):
     def __init__(self, id):
