@@ -422,7 +422,7 @@ my_frame1.pack(pady=0, padx=0, side=LEFT)
 text_scroll1 = Scrollbar(my_frame1)
 text_scroll1.pack(side=RIGHT, fill=Y)
 
-my_text1 = Text(my_frame1, width=60, height=40, font=("Consolas", 15), selectbackground="yellow",
+my_text1 = Text(my_frame1, width=80, height=40, font=("Consolas", 10), selectbackground="yellow",
                 selectforeground="black", undo=True, yscrollcommand=text_scroll1.set,foreground="white",
                 background="black")
 my_text1.pack(side=LEFT)

@@ -24,15 +24,24 @@ class SUMA(NodoArbol):
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         izquierdo = self.izq.traducir(entorno, arbol) # <-- tiene un temporal
         derecho = self.der.traducir(entorno, arbol) # <-- tiene un temporal
-        if self.analizar_semanticamente(entorno, arbol) == 0:
-            tmp = arbol.getTemp()
-            arbol.addC3D(tmp + " = int(" + izquierdo + ") + int(" + derecho + ")")
-            return tmp
-        elif self.analizar_semanticamente(entorno, arbol) == 1:
-            tmp = arbol.getTemp()
-            arbol.addC3D(tmp + " = float(" + izquierdo + ") + float(" + derecho + ")")
-            return tmp
-        elif self.analizar_semanticamente(entorno, arbol) == 2:
+        try:
+            if self.analizar_semanticamente(entorno, arbol) == 0:
+                tmp = arbol.getTemp()
+                arbol.addC3D(tmp + " = int(" + izquierdo + ") + int(" + derecho + ")")
+                return tmp
+            elif self.analizar_semanticamente(entorno, arbol) == 1:
+                tmp = arbol.getTemp()
+                arbol.addC3D(tmp + " = float(" + izquierdo + ") + float(" + derecho + ")")
+                return tmp
+            elif self.analizar_semanticamente(entorno, arbol) == 2:
+                tmp = arbol.getTemp()
+                arbol.addC3D(tmp + " = str(" + izquierdo + ") + str(" + derecho + ")")
+                return tmp
+            else:
+                tmp = arbol.getTemp()
+                arbol.addC3D(tmp + " = str(" + izquierdo + ") + str(" + derecho + ")")
+                return tmp
+        except:
             tmp = arbol.getTemp()
             arbol.addC3D(tmp + " = str(" + izquierdo + ") + str(" + derecho + ")")
             return tmp

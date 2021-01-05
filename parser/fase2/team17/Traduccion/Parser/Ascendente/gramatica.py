@@ -46,6 +46,8 @@ from InterpreteF2.Soporte_aFun.funheader import funheader
 from InterpreteF2.Soporte_aFun.funexecute import funexecute
 from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 from InterpreteF2.indices.indice import indice
+from InterpreteF2.retorno.retorno_simple import retorno_simple
+from InterpreteF2.DML.insert.insert import insert
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -713,6 +715,8 @@ def p_statements_return(t):
                | RETURN QUERY EXECUTE exp
                | RETURN QUERY EXECUTE exp USING exp_list
     '''
+    if len(t) == 3:
+        t[0] = retorno_simple(t[2], 1, 1)
     set('<TR> \n <TD> return → RETURN exp | RETURN QUERY select | RETURN QUERY select | RETURN QUERY EXECUTE exp | RETURN QUERY EXECUTE exp USING exp_list: </TD> \n <TD> return = return(t[2], t[4]) </TD> \n </TR> \n')
 
 
@@ -2341,7 +2345,7 @@ def p_insert(t):
     '''
     if len(t)==8:
         #INSERT INTO ID VALUES PARIZQ exp_list PARDER
-        t[0]= Insert(t[3],[],t[6],t.lineno,0)
+        t[0] = insert(t[3], t[6], 1, 1, 1)
     elif len(t)==11:
         #INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER
         t[0]= Insert(t[3],t[5],t[9],t.lineno,0)

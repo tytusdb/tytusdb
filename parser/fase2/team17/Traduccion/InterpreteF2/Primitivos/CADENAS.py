@@ -22,7 +22,8 @@ class CADENAS(NodoArbol):
         pass
 
     def getString(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        return str(self.data)
+        retorno = '\\' + '\'' + str(self.data) + '\\' + '\''
+        return retorno
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         value:Valor = Valor(2, self.data)
