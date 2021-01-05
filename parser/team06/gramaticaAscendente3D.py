@@ -37,7 +37,8 @@ reservadas = {
     'in' : 'IN',
     'concat' : 'CONCAT',
     'only':'ONLY',
-    'call':'CALL',
+    'exec':'EXEC',
+    'execute':'EXECUTE',
     'as' : 'AS',
     'upper' : 'UPPER',
     'sqrt' : 'SQRT',
@@ -480,7 +481,7 @@ def p_query(t):
                     | operacionJJBH
                     | statementValores
                     | createIndex
-                    | callFunction
+                    | execFunction
                     | createFunction
                     | createProcedure
                     | statements
@@ -764,14 +765,14 @@ def p_contDrop(t):
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
     '''
-    listaid     :   listaid COMA ID
+    listaid     :   listaid COMA final
     '''
     t[1].append(t[3])
     t[0]=t[1]
 
 def p_listaID_2(t):
     '''
-    listaid     :   ID
+    listaid     :   final
     '''
     t[0]=[t[1]]
     
@@ -944,7 +945,7 @@ def p_funcionJJBH_basica(t):
                         | DECODE PARENTESISIZQUIERDA operacionJJBH  COMA operacionJJBH  PARENTESISDERECHA
                         | AVG PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | SUM PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
-                        | ID PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacionJJBH PARENTESISDERECHA
+                        | EXTRACT PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacionJJBH PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA operacionJJBH COMA INTERVAL operacionJJBH PARENTESISDERECHA
                         | CURRENT_DATE PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | CURRENT_TIME PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
@@ -2409,16 +2410,16 @@ def p_statements(t):
 
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
-#                                           STATEMENTS - CALL
-def p_callFunction(t):
-    'callFunction    : CALL ID PUNTOYCOMA'
+#                                           STATEMENTS - EXEC
+def p_execFunction(t):
+    'execFunction    : execOption ID PUNTOYCOMA'
     a="t"+str(h.conteoTemporales)+"= \""+str(t[2])+ "\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
-def p_callFunction_1(t):
-    'callFunction    : CALL ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+def p_execFunction_1(t):
+    'execFunction    : execOption ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
     parametro = ""
     for param in t[4]:
         parametro+=param+","
@@ -2428,12 +2429,19 @@ def p_callFunction_1(t):
     h.conteoTemporales+=1
     t[0]= a
 
-def p_callFunction_2(t):
-    'callFunction    : CALL ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA'
+def p_execFunction_2(t):
+    'execFunction    : execOption ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA'
     a="t"+str(h.conteoTemporales)+"= \""+str(t[2])+ "()\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
+
+def p_execOption_1(t):
+    'execOption : EXEC'
+    t[0] = t[1]
+def p_execOption_2(t):
+    'execOption : EXECUTE'
+    t[0] = t[1]
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                           STATEMENTS - INDEX
