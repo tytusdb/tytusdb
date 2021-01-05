@@ -92,10 +92,11 @@ class SDeclaracion (Sentencia):
         self.expre = expre
 
 class Etiquetas(Sentencia):
-    def __init__(self,valor,tipo,etiquetaV,etiquetaF,vopt):
+    def __init__(self,valor,tipo,etiquetaV,etiquetaF,vopt,ropt):
         self.valor=valor
         self.tipo=tipo
         self.vopt=vopt
+        self.ropt=ropt
         self.EtiquetaV=etiquetaV
         self.EtiquetaF=etiquetaF
 
