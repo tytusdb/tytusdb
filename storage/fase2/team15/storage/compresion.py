@@ -24,6 +24,6 @@ def desencriptar(mensaje, llave):
 
 clave = Fernet.generate_key()
 print(clave)
-encriptado = encriptar('gato,452,perrita', clave)
+encriptado = encriptar('dato1', clave)
 print(encriptado)
 print(desencriptar(encriptado, clave))
