@@ -67,7 +67,6 @@ class interfaz():
         new_item.add_command(label='Abrir', command=self.abrir_click)
         new_item.add_command(label='Guardar', command=self.guardar_click)
         new_item.add_command(label='Guardar Como...', command=self.guardar_como_click)
-        new_item.add_command(label='Salir', command=self.window.destroy)
         #new_item.add_separator()
         #new_item.add_command(label='Edit')
         menu.add_cascade(label='Archivo', menu=new_item)
@@ -113,7 +112,7 @@ class interfaz():
 
     def ejecutar(self):
         print("Hello World!")
-        print("Estoy ejecutando el main")
+        print("Estoy ejecutando 7 el main")
         f = open("./entrada.txt", "r")
         input = f.read()
         #lista = "" : ""
@@ -121,8 +120,10 @@ class interfaz():
         #print(input)
         #parser.parse(input)
         #Inserta "Archivo Analizado" en txtsalida
-        
-        
+       # self.tab.tag_configure("highlight", foreground="red")
+
+        #self.tab.highlight_pattern(r"\|.*?\|", "red", regexp=True)
+
     ##############################################EVENTO REDIMENSIONAR LA VENTANA####################################
     def resizeEvent(self, event):
         print(event.width,event.height)
@@ -156,7 +157,6 @@ class interfaz():
         archivo.write(self.txtentrada[self.tab.index("current")].get(1.0,END))
         print(self.file+"/"+self.tab.tab(self.tab.select(),"text"))
         print("guardar_como")
-
 
     def tblerrores_click(self):
         if len(sintactico.lista_lexicos)==0:
