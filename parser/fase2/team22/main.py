@@ -22,7 +22,10 @@ from storageManager.jsonMode import *
 
 import sintactico
 
-# import AST as AST
+# REPORTE PARA AST 
+import webbrowser
+import img2pdf 
+from PIL import Image 
 
 global arbol
 arbol = None
@@ -189,7 +192,10 @@ class interfaz():
         arbol = None         
 
     def ast_click(self):
-        print("ast")   
+        try:
+            webbrowser.open_new_tab('AST.svg')
+        except:
+            print('Error al abrir el reporte AST.')
     
     def repDin_click(self):
         global arbol
