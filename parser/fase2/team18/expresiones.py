@@ -412,3 +412,11 @@ class Lower(Expresion):
     '''
     def __init__(self,expresion):
         self.expresion=expresion
+
+class Ejecucion_Funcion(Expresion):
+    '''
+        Esta clase representa un llamado de una funcion
+    '''
+    def __init__(self,nombre,parametros):
+        self.nombre=nombre
+        self.parametros=parametros

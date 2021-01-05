@@ -26,6 +26,7 @@ outputTS = [] #guarda el reporte tabla simbolos
 baseActiva = "" #Guarda la base temporalmente activa
 listaFunciones=[]
 Errores_Semanticos = []
+ListaResExpID=[]
 #--------Ejecucion Datos temporales-----------
 def reiniciarVariables():
     global outputTxt
@@ -951,7 +952,7 @@ def insertar_en_tabla(instr,ts):
                     agregarMensjae('error',msg,'42804')
                 else:
                     #validar el tipo de dato
-                    valCOL=resolver_operacion(col,ts)#valor de la columna
+                    #valCOL=resolver_operacion(col,ts)#valor de la columna
                     T=tablaInsert.atributos[pos].tipo#Tipo de la columna
                     valCOL=(validarTipo(T,valCOL))
                     if(valCOL==None):
@@ -1002,7 +1003,7 @@ def insertar_en_tabla(instr,ts):
                             agregarMensjae('error',msg,'42804')
                         else:
                             #validar el tipo de dato
-                            valCOL=resolver_operacion(instr.valores[posVal],ts)#valor de la columna
+                            #valCOL=resolver_operacion(instr.valores[posVal],ts)#valor de la columna
                             T=colTab.tipo#Tipo de la columna
                             valCOL=(validarTipo(T,valCOL))
                             if(valCOL==None):
@@ -3000,20 +3001,23 @@ def ejecutar_select(instr,ts):
 
             tablaresult.add_row([ str(result) ])
             agregarMensjae('table',tablaresult,'')
+    return result
 
 
 def select_table(instr,ts):
     #print('cantidad ',instr.cantida,' parametros ',instr.parametros,' cuerpo ',instr.cuerpo,' funcion_alias',instr.funcion_alias)
-    agregarMensjae('normal','Select','')
+    result=None
     if instr.cantida==True: # Distinct
-        cuerpo_select_parametros(True,instr.parametros,instr.cuerpo,ts)
+        result=cuerpo_select_parametros(True,instr.parametros,instr.cuerpo,ts)
     else: # No Distinct
         if instr.parametros=="*": # All
             cuerpo_select(instr.cuerpo,ts)
         else: # Algunas
-            cuerpo_select_parametros(False,instr.parametros,instr.cuerpo,ts)
+            result=cuerpo_select_parametros(False,instr.parametros,instr.cuerpo,ts)
+    return result
 
 def cuerpo_select(cuerpo,ts):
+    agregarMensjae('normal','Select','')
     ltablas=[] # tablas seleccionadas
     lalias=[] # alias de tablas seleccionadas
     lcabeceras=[] # cabeceras tablas
@@ -3029,6 +3033,7 @@ def cuerpo_select(cuerpo,ts):
             alias=splited[1]
         else:
             name=tabla.nombre
+        name=name.lower()
         if name in tablastmp: # tabla registrada
             ltablas.append(name)
             if alias != '':
@@ -3081,6 +3086,8 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
     lalias_colum=[] # alias columnas
     lregistros=[] # registros tablas
     tablastmp = EDD.showTables(baseActiva)
+    count=False
+    cantidadFilas=0
     # FROM ---------------------------------------------------------
     for tabla in cuerpo.b_from:
         name=''
@@ -3091,6 +3098,7 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
             alias=splited[1]
         else:
             name=tabla.nombre
+        name=name.lower()
         if name in tablastmp: # tabla registrada
             ltablas.append(name)
             if alias != '':
@@ -3101,10 +3109,15 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
         lregistros.append(EDD.extractTable(baseActiva,name))
     # Campos Select ------------------------------------------------
     for campo in parametros:  #nombre tipo alias fun_exp
-        nm = resolver_operacion(campo.nombre,ts)
-        ali = resolver_operacion(campo.alias,ts)
-        lcolumnas.append(nm)
-        lalias_colum.append(ali)
+        if isinstance(campo, Funcion_select):
+            if campo.operador == FUNCIONES_SELECT.COUNT:
+                count=True
+        else:
+            agregarMensjae('normal','Select','')
+            nm = resolver_operacion(campo.nombre,ts)
+            ali = resolver_operacion(campo.alias,ts)
+            lcolumnas.append(nm)
+            lalias_colum.append(ali)
     # JOINS --------------------------------------------------------
     # WHERE --------------------------------------------------------
     #print(lcolumnas)
@@ -3138,21 +3151,26 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
             row.border = False
             row.header = False
             lfilas.append(row.get_string(fields=lcolumnas))
-        CD3.PSelectTablas(ltablas,lcolumnas,lfilas,len(lfilas))
         #filtro col a mostrar    
-        result = result.get_string(fields=lcolumnas)
-        agregarMensjae('table',result,'')
-        #agregar reporteTS
-        agregarTSRepor('SELECT','','','','','','','')
-        for tab in ltablas:
-            #obtener la tabla
-            res=buscarTabla(baseActiva,tab)
-            if(res!=None):
-                for col in res.atributos:
-                    if(col.nombre in lcolumnas):
-                        tip=col.tipo
-                        nom=col.nombre
-                        agregarTSRepor('',nom,tip,'',tab,'1','','')
+        if count:
+            cantidadFilas =len(lfilas)
+            agregarMensjae('table',"Select:"+str(cantidadFilas),'')
+        else:
+            CD3.PSelectTablas(ltablas,lcolumnas,lfilas,len(lfilas))
+            result = result.get_string(fields=lcolumnas)
+            agregarMensjae('table',result,'')
+            #agregar reporteTS
+            agregarTSRepor('SELECT','','','','','','','')
+            for tab in ltablas:
+                #obtener la tabla
+                res=buscarTabla(baseActiva,tab)
+                if(res!=None):
+                    for col in res.atributos:
+                        if(col.nombre in lcolumnas):
+                            tip=col.tipo
+                            nom=col.nombre
+                            agregarTSRepor('',nom,tip,'',tab,'1','','')
+    return cantidadFilas
 
 def filtroWhere(tabla,filtro,ts):
     listaEliminar=[]
@@ -3556,8 +3574,107 @@ def validarCuerpoF(cuerpo,ts):
     else:
         return False
 
+def EjecucionFuncion(operacion,ts):
+    nombreFuncion=resolver_operacion(operacion.nombre,ts)
+    nombreFuncion=nombreFuncion.lower()
+    lvalores=[]
+    result=None
+    print(operacion.parametros)
+    if operacion.parametros[0] is not False and operacion.parametros[0] is not None:
+        for i in operacion.parametros:
+            val = resolver_operacion(i,ts)
+            lvalores.append(val)
+    print('nombre_funcion',nombreFuncion,'parametros',str(lvalores))
+    funcion=buscarFuncion(nombreFuncion)
+    ejecucion=True
+    print("valores ",len(lvalores),"param ",len(funcion.parametros))
+    if len(lvalores) == len(funcion.parametros):
+        contval=0
+        for nm in funcion.parametros:
+            result=validarTipo(nm.tipo,lvalores[contval])
+            if result == None:
+                msg="Tipo no valido para parametro "+nm.nombre+" en la funcion"
+                agregarMensjae('error',msg,'')
+                ejecucion=False
+            else:
+                lvalores[contval]=result
+            contval+=1
+        if ejecucion:
+            result=EjecucionFuncion_Contenido(lvalores,funcion,funcion.contenido.contenido,[])
+            print(result) 
+    else:
+        msg = "Cantidad de parametros invalida para funcion "+nombreFuncion
+        agregarMensjae('error',msg,'')
+    return result
 
-
+def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
+    result=None
+    lvaloriables=[]
+    if len(variables)==0:
+        cont=0
+        for val in funcion.parametros:
+            val.valor=valores[cont]
+            lvaloriables.append(val)
+            cont+=1
+        for val in funcion.contenido.declaraciones:
+            lvaloriables.append(val)
+    else:
+        lvaloriables=variables
+    for i in contenido:
+        if isinstance(i,Sentencia_IF):
+            lvalor_id=[]
+            for val in lvaloriables:
+                if val.valor != None:
+                    lvalor_id.append([val.nombre,val.valor])
+            condicion_if=Resuelve_Exp_ID(lvalor_id,i.condicion,'')
+            if condicion_if != None and condicion_if !=False:
+                EjecucionFuncion_Contenido(valores,funcion,i.sentencias,lvaloriables)
+            elif i.elsif_else[0] != False:
+                for cond_else in i.elsif_else:
+                    if cond_else.tipo == "elsif":
+                        condicion_else=Resuelve_Exp_ID(lvalor_id,cond_else.condicion,'')
+                        if condicion_else != None and condicion_else !=False:
+                            EjecucionFuncion_Contenido(valores,funcion,cond_else.sentencias,lvaloriables)
+                    else:
+                        EjecucionFuncion_Contenido(valores,funcion,cond_else.sentencias,lvaloriables)
+        elif isinstance(i,Sentencia_Case):
+            ''
+        elif isinstance(i,Operacion_Expresion):
+            if i.tipo == "asignacion":
+                lvalor_id=[]
+                for val in lvaloriables:
+                    if val.valor != None:
+                        lvalor_id.append([val.nombre,val.valor])
+                encontrada=False
+                nombrevar=resolver_operacion(i.variable,'')
+                valorvar=Resuelve_Exp_ID(lvalor_id,i.expresion,'')
+                for dec in lvaloriables:
+                    print(nombrevar)
+                    if nombrevar in dec.nombre:
+                        result2=validarTipo(dec.tipo,valorvar)
+                        if result2 == None:
+                            msg="Tipo no valido para variable "+dec.nombre+" en la funcion"
+                            agregarMensjae('error',msg,'')
+                        else:
+                            dec.valor=valorvar
+                            encontrada=True
+                            break
+                if encontrada==False:
+                    msg="variable "+nombrevar+" no declarada en funcion"
+                    agregarMensjae('error',msg,'')
+            elif i.tipo == "return":
+                lvalor_id=[]
+                for val in lvaloriables:
+                    if val.valor != None:
+                        lvalor_id.append([val.nombre,val.valor])
+                result = Resuelve_Exp_ID(lvalor_id,i.expresion,'')
+            else:
+                msg="RAISE:"+str(resolver_operacion(i.expresion,''))
+                agregarMensjae('alert',msg,'')
+                result=0
+        elif isinstance(i,Select_Asigacion):
+            ''
+    return result
 
 def Eliminar_Funcion(instr,ts):
     agregarMensjae('normal','Drop Function','')
@@ -3613,7 +3730,7 @@ def Procedimientos(instr,ts):
    
     #agregar procedimiento
 
-ListaResExpID=[]
+
 def Resuelve_Exp_ID(lista,  operacion,ts):
     global ListaResExpID
     ListaResExpID=copy.deepcopy(lista)
@@ -3623,7 +3740,9 @@ def Resuelve_Exp_ID(lista,  operacion,ts):
     #[[ID0,VALOR],[ID1,VALOR],[ID2,VALOR],[IDN,VALORN]]
     #operacion es:
     #el objeto exp que se usa aqui en resolver_operacion
-    resolver_operacion(operacion,ts)
+    result=resolver_operacion(operacion,ts)
+    ListaResExpID=[]
+    return result
     
 
 
@@ -3837,6 +3956,14 @@ def resolver_operacion(operacion,ts):
     elif isinstance(operacion, Lower):
         op = resolver_operacion(operacion.expresion,ts)
         return op.lower()
+    elif isinstance(operacion, Ejecucion_Funcion): return EjecucionFuncion(operacion,ts)
+    if(isinstance (operacion,SELECT)):
+                if operacion.funcion_alias is not None:
+                    return ejecutar_select(operacion,ts)
+                else:
+                    return select_table(operacion,ts)
+            
+        
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
@@ -3870,7 +3997,7 @@ def procesar_instrucciones(instrucciones, ts) :
                                 ejecutar_select(val,ts)
                             else:
                                 select_table(val,ts)
-                else : agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')      
+                #else : agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')      
     else: agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')
     Reporte_Errores_Sem(Errores_Semanticos)  
 

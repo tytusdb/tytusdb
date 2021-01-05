@@ -1093,10 +1093,15 @@ def p_funtion_math_lower(t):
 
 def p_llamado_funcion(t):
      '''funcion_math : ARROBA ID PAR_A parametros_fun PAR_C'''
+     t[0] = Ejecucion_Funcion(Operando_ID(t[2]),t[4])
 
 def p_funcion_math_params(t):
-     '''parametros_fun : lista_exp
-                       | empty'''
+     '''parametros_fun : lista_exp'''
+     t[0] = t[1]
+
+def p_funcion_math_params_empty(t):
+     '''parametros_fun : empty'''
+     t[0] = False
 
 def p_funcion_date(t):
      '''funcion_date : extract'''
