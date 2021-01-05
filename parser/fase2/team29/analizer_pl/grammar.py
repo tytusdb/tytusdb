@@ -317,10 +317,19 @@ def p_types_d_simple_num(t):
 def p_types_d_simple_str(t):
     """
     types_d :  T_TEXT
+        | R_TIMESTAMP
+        | T_DATE
+        | T_TIME
     """
     t[0] = TYPE.STRING
     repGrammar.append(t.slice)
 
+def p_types_d_simple_bool(t):
+    """
+    types_d : T_BOOLEAN
+    """
+    t[0] = TYPE.BOOLEAN
+    repGrammar.append(t.slice)
 
 def p_types_d_params_num(t):
     """
@@ -351,20 +360,6 @@ def p_typesvar(t):
 
     repGrammar.append(t.slice)
 
-
-def p_vartype(t):
-    """types_d :  ID O_MODULAR R_TYPE"""
-    repGrammar.append(t.slice)
-
-
-def p_columntype(t):
-    """types_d :  ID S_PUNTO ID O_MODULAR R_TYPE"""
-    repGrammar.append(t.slice)
-
-
-def p_rowtypes(t):
-    """types_d :  ID O_MODULAR R_ROWTYPE """
-    repGrammar.append(t.slice)
 
 
 # endregion
@@ -457,7 +452,7 @@ def p_stmt_without_substmt_rtn(t):
 
 def p_if_stmt(t):
     """if_stmt : R_IF expBool R_THEN block_stmts elseif_stmts_opt else_stmt_opt R_END R_IF S_PUNTOCOMA"""
-    t[0] = code.IfStatement(t.lineno,t.slice[1].lexpos,t[2],t[5],t[6],t[4])
+    t[0] = code.IfStatement(t.slice[1].lineno,t.slice[1].lexpos,t[2],t[5],t[6],t[4])
     repGrammar.append(t.slice)
     # expBool contiene el C3D de la expresion
 
@@ -494,7 +489,7 @@ def p_elseif_stmts_1(t):
 
 def p_elseif_stmt(t):
     """elseif_stmt :  R_ELSEIF expBool R_THEN block_stmts"""
-    t[0]=code.ElseIfStatement(t.lineno,t.slice[1].lexpos,t[2],t[4])
+    t[0]=code.ElseIfStatement(t.slice[1].lineno,t.slice[1].lexpos,t[2],t[4])
     # expBool contiene el C3D de la expresion
     repGrammar.append(t.slice)
 
@@ -503,7 +498,7 @@ def p_else_stmt_opt(t):
     """
     else_stmt_opt : R_ELSE block_stmts
     """
-    t[0] = code.ElseStatement(t.lineno,t.slice[1].lexpos,t[2])
+    t[0] = code.ElseStatement(t.slice[1].lineno,t.slice[1].lexpos,t[2])
     repGrammar.append(t.slice)
 
 def p_else_stmt_opt_1(t):

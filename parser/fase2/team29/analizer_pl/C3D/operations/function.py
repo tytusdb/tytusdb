@@ -10,6 +10,7 @@ class FunctionDeclaration(Expression):
 		self.returns = returns
 
 	def execute(self, environment):
+		environment.globalEnv.addFunction(self.id, self.returns, len(self.params))
 		cd = "def "+self.id+"():\n"
 		for p in self.params:
 			cd += "\t"+p.execute(environment).temp+" = stack.pop()\n"
