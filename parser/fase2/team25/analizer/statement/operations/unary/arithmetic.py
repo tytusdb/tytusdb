@@ -50,3 +50,10 @@ class Arithmetic(Expression):
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         return new
+
+    def generate3d(self, environment, instanciaAux):
+        exp1 = self.exp1.generate3d(environment, instanciaAux)
+        operator = self.operator
+        tn = instanciaAux.getNewTemporal()  # va llevar su control de getTempola tambien
+        instanciaAux.addToCode(f'\t{tn} =  {operator}{exp1}')
+        return tn

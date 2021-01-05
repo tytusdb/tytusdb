@@ -4,10 +4,15 @@ sys.path.append('../G26/C3D')
 class Code3D():
     def __init__(self):
         self.index = -1
+        self.indexif = -1
 
     def newTemp(self) -> str:
         self.index += 1
         return 't'+str(self.index)
+    
+    def newTempif(self) -> str:
+        self.indexif += 1
+        return 'if'+str(self.indexif)
 
     def getcurrent(self) -> str:
         return 't'+str(self.index)
