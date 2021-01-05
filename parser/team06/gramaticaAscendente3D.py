@@ -651,14 +651,100 @@ def p_parametroAlterUser(t):
 #-----------------------------------------------------DROP TABLE-----------------------------------------------------------------
 def p_dropTable(t) :
     'dropTable  : DROP TABLE ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"DROP TABLE "+str(t[3])+";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
 #-----------------------------------------------------ALTER TABLE-----------------------------------------------------------------
 def p_alterTable(t):
     '''
     alterTable  : ALTER TABLE ID variantesAt PUNTOYCOMA
-
     '''
- 
+    if t[4].tipo.upper() == "ADD":
+        #ES UN ADD
+        '''
+        self.tipo = tipo
+        self.tipo2 = tipo2
+        self.id1 = id1
+        self.id2 = id2
+        self.id3 = id3
+        self.id4 = id4
+        self.operacion = operacion
+        '''
+        nodoAdd = t[4].contenido
+        if nodoAdd.tipo.upper()=="COLUMN":
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ADD COLUMN "+nodoAdd.id1+";\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
+        elif nodoAdd.tipo.upper()=="CHECK":
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ADD CHECK ("+nodoAdd.operacion+");\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
+        elif nodoAdd.tipo.upper()=="FOREIGN":
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ADD FOREING KEY ("+nodoAdd.id1+") REFERENCES "+nodoAdd.id2+";\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
+        elif nodoAdd.tipo.upper()=="PRIMARY":
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ADD PRIMARY KEY ("+nodoAdd.id1+")"+";\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
+        elif nodoAdd.tipo.upper()=="CONSTRAINT":
+            if nodoAdd.tipo2.upper()=="PRIMARY":
+                a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ADD CONSTRAINT "+nodoAdd.id1+" PRIMARY KEY ("+nodoAdd.id2+");\"\n"
+                a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+                h.conteoTemporales+=1
+                t[0]= a
+            elif nodoAdd.tipo2.upper()=="FOREIGN":
+                a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ADD CONSTRAINT "+nodoAdd.id1+" FOREIGN KEY ("+nodoAdd.id2+")"+" REFERENCES "+nodoAdd.id3+" ("+nodoAdd.id4+");\"\n"
+                a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+                h.conteoTemporales+=1
+                t[0]= a
+            else:
+                a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ALTER "+nodoAdd.id1+" UNIQUE ("+nodoAdd.operacion+")"+";\"\n"
+                a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+                h.conteoTemporales+=1
+                t[0]= a
+
+
+    elif t[4].tipo.upper() == "ALTER":
+        #ES UN ALTER
+        nodoAlter = t[4].contenido
+        if nodoAlter.tipo.upper() =="SET":
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ALTER COLUMN "+nodoAlter.id+" SET NOT NULL;\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
+        else:
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" ALTER COLUMN "+nodoAlter.id+" TYPE "+nodoAlter.tipoAsignar+";\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
+
+    elif t[4].tipo.upper() == "DROP":
+        #ES UN DROP
+        nodoDrop = t[4].contenido
+        #self.tipo = tipo
+        #self.id = id
+        if nodoDrop.tipo.upper() == "COLUMN":
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" DROP COLUMN "+nodoDrop.id+";\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
+        elif nodoDrop.tipo.upper() == "CONSTRAINT":
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" DROP CONSTRAINT "+nodoDrop.id+";\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
+        elif nodoDrop.tipo.upper() == "PRIMARY":
+            a="t"+str(h.conteoTemporales)+"= \"ALTER TABLE "+str(t[3])+" DROP PRIMARY KEY "+";\"\n"
+            a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+            h.conteoTemporales+=1
+            t[0]= a
 
 #---------------------------------------------------TIPOS------------------------------------------------------------------------
 def p_variantesAt(t):
@@ -2500,7 +2586,7 @@ def p_statementValores_2(t):
 #----------------------------------------------------- IF --------------------------------------------------------------------
 def p_if_1(t):
     '''
-    if          :  IF  operacion THEN operacion END IF
+    if          :  IF  operacion THEN operacion END IF PUNTOYCOMA
     '''
     a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
     a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
@@ -2518,7 +2604,7 @@ def p_if_2(t):
     t[0]=a
 def p_if_3(t):
     '''
-    if          : IF operacion THEN operacion ELSE operacion END IF
+    if          : IF operacion THEN operacion ELSE operacion END IF PUNTOYCOMA
     '''
     a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
     a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
@@ -2526,33 +2612,74 @@ def p_if_3(t):
     a+= "L"+str(h.conteoEtiquetas+1)+":"+"\n    "+str(t[6])+"\n"
     h.conteoEtiquetas+=2
     t[0]=a
-#-----------------------------------------------------DROP BD--------------------------------------------------------------------
-def p_case(t):
-    '''
-    case        : CASE contCase ELSE operacion END CASE
-    '''
-    a = "CASE"
-
+#----------------------------------------------------- CASE --------------------------------------------------------------------
 def p_case_1(t):
     '''
-    case        : CASE contCaseInd ELSE operacion END CASE
+    case          :  CASE operacion contCase END CASE PUNTOYCOMA
     '''
-def p_contCaseInd(t):
-    '''
-    contCaseInd : WHEN operacion THEN operacion
-    '''
+    contenido = t[3]
+    cases = len(contenido)
+    print("EL TOTAL DE CASES QUE VIENE ES---> ",cases)
+    print("aveeeer--> ",contenido[0].when)
+    a=""
+    contador =0
+    for x in contenido:
+        contador=contador+1
+        #a+= "IF "+str(t[2])+"=="+x.when+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+        if x.elsee!=None and contador==cases: #VIENE UN ELSE EN ESTE CONTCASE Y ES EL ULTIMO, COMO DEBE SER
+            a+= "IF "+str(t[2])+"=="+x.when+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+            a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
+            a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+x.then+"\n"
+            a+= "L"+str(h.conteoEtiquetas+1)+":"+"\n    "+x.elsee+"\n"
+            h.conteoEtiquetas+=2
+        elif x.elsee==None:
+            a+= "IF "+str(t[2])+"=="+x.when+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+            a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+x.then+"\n"
+            h.conteoEtiquetas+=1
+        else:
+            print("ERROR EN EL CASE")
+        #if(x.when==t[2]):
+        #    print("HICE MATCH CON UN WHEN")
+        #    print(x.then)
+        #elif(x.elsee!=None):
+        #    print("ENCONTRE UN ELSE")
+        #    print(x.elsee)
+        print(x.when)
+    #case          :  CASE operacion WHEN operacion THEN operacion END IF
+    print("AQUI DEBERIA PASAR PRIMERO")
+    t[0]=a 
 def p_contCase(t):
     '''
-    contCase    : contCase contCaseInd
-         
+    contCase      :  contCase contCaseFinal
     '''
-def p_contCase_1(t):
+    t[1].append(t[2])
+    t[0]=t[1]
+def p_contCase_4(t):
     '''
-    contCase    : contCaseInd
+    contCase      : contCaseFinal
+    '''   
+    #(self, when,then,contcase, elsee):
+    t[0]=[t[1]]
+
+def p_contCaseFinal_1(t):
     '''
+    contCaseFinal      :  WHEN operacion THEN operacion ELSE operacion
+    '''
+  
+    t[0]=contCase(t[2],t[4],None,t[6])
+
+def p_contCaseFinal_2(t):
+    '''
+    contCaseFinal      :  WHEN operacion THEN operacion
+    '''
+ 
+    #(self, when,then,contcase, elsee):
+    t[0]=contCase(t[2],t[4],None,None)
+    
 def p_statements(t):
     '''
     statements  : if
+                | case
                  
     '''
     t[0]=t[1]

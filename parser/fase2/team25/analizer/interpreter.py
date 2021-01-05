@@ -111,5 +111,5 @@ def generar_codigo_3d(entrada):
         "symbols": symbols,
     }
     astReport()
-    BnfGrammar.grammarReport2()
+    #BnfGrammar.grammarReport2()
     return obj
