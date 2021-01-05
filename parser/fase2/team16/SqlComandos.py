@@ -587,3 +587,435 @@ class SqlComandos:
         return Cadenita
 
 
+
+#todo Referente al cuerpo de las tablas
+    def RecorrerListaCuerpos(self, Groups):
+        Cadenita = ""
+        for i in Groups:
+            if isinstance(i, Cuerpo_TipoWhere):
+                print("Es un Acceso a Where")
+                Cadenita += self.GrafoCuerpo_Condiciones(i.Cuerpo)
+
+            elif isinstance(i, GroupBy):
+                print("Es un Campo Accedido Por la Cuerpo ")
+                Cadenita += self.GrafoGroupBy(i.Lista_Campos, i.Condiciones)
+
+
+            elif isinstance(i, OrderBy):
+                print("Es un Campo Accedido  Order by ")
+                Cadenita += self.GrafoOrderBy(i.Lista_Campos, i.Condiciones)
+
+            elif isinstance(i, AccesoLimit):
+                print("Es un Campo Accedido Limit ")
+                Cadenita += self.GrafoLimit(i.Reservada, i.Expresion_Numerica)
+
+
+            elif isinstance(i, AccesoSubConsultas):
+                print("Es un Acceso a  una subconsulta")
+                Cadenita += self.GrafoAccesoSubConsultas(i.AnteQuery, i.Query, i.Lista_Alias)
+
+            elif isinstance(i, Cuerpo_Condiciones):
+                print("Es un acceso a where con condicion de subconsulta")
+                Cadenita += self.GrafoCuerpo_Condiciones(i.Cuerpo)
+
+            else:
+                print("No Ningun Tipo")
+
+        return  Cadenita
+
+
+    def GrafoCuerpo_Condiciones(self, Lista):
+        Cadenita = " Where "  + " " + self.cadena_expresion(Lista) + " " #self.Recorrer_Condiciones(Lista)
+        return  Cadenita
+
+
+    def GrafoGroupBy(self, Lista_Campos, Condiciones):
+        Cadenita = ""
+        # Group by ListaCampos Having Condiciones
+        if ((Lista_Campos != False) and (Condiciones != False)):
+
+            Cadenita += " GROUP BY " +  self.RecorrerListaCamposGroupBy(Lista_Campos)
+            Cadenita += " HAVING  " + " " +self.cadena_expresion(Condiciones)+" " # self.Recorrer_Condiciones(Condiciones)
+
+        # Group by ListaCampos
+        elif ((Lista_Campos != False) and (Condiciones == False)):
+            Cadenita += " GROUP BY " + self.RecorrerListaCamposGroupBy(Lista_Campos)
+
+        return  Cadenita
+
+
+
+    # grafo Order by
+    def GrafoOrderBy(self, Lista_Campos, Condiciones):
+        Cadenita = ""
+        # Group by ListaCampos Having Condiciones
+        if ((Lista_Campos != False) and (Condiciones != False)):
+            Cadenita += " ORDER BY " +  self.RecorrerListaCamposGroupBy(Lista_Campos)
+            Cadenita += " HAVING  " + " " +self.cadena_expresion(Condiciones)+" "
+
+        # Group by ListaCampos
+        elif ((Lista_Campos != False) and (Condiciones == False)):
+            Cadenita += " ORDER BY " + self.RecorrerListaCamposGroupBy(Lista_Campos)
+
+
+    # Grafo de los Limit
+    def GrafoLimit(self, Reservada, Expresion_Numerica):
+        Cadenita = Reservada + str(Expresion_Numerica)
+        return  Cadenita
+
+
+
+    def RecorrerListaCamposGroupBy(self, Lista_Campos):
+        Cadenita = ""
+        Contador = 0
+
+        for i in Lista_Campos:
+            if(Contador+1 != len(Lista_Campos)):
+                if isinstance(i, AccesoGroupBy):
+                    # print("Es un Campo Accedido Por la Cuerpo ")
+                    Cadenita +=  " "+ self.GrafoAccesoGroupBy(i.NombreT, i.Columna, i.Lista_Alias, i.Estado)+ ",  "
+
+                else:
+                    print("No hay Ningun Tipo")
+            else:
+                if isinstance(i, AccesoGroupBy):
+                    # print("Es un Campo Accedido Por la Cuerpo ")
+                    Cadenita += " "+ self.GrafoAccesoGroupBy(i.NombreT, i.Columna, i.Lista_Alias, i.Estado)+ "  "
+                else:
+                    print("No hay Ningun Tipo")
+            Contador+=1
+        return Cadenita
+
+
+    def GrafoAccesoGroupBy(self, NombreT, Columna, Lista_Alias, Estado):
+        Cadenita =""
+        # Tabla.Columna Alias
+        if ((NombreT != "") and (Columna != "") and (Lista_Alias != False) and (Estado == "")):
+
+            Cadenita += NombreT + '.' + Columna + " AS "+ self.RecorrerTiposAlias(Lista_Alias)
+
+        # Tabla.Columna
+        elif ((NombreT != "") and (Columna != "") and (Lista_Alias == False) and (Estado == "")):
+            Cadenita += NombreT + '.' + Columna
+
+        # columna Alias
+        elif ((NombreT == "") and (Columna != "") and (Lista_Alias != False) and (Estado == "")):
+
+            Cadenita += Columna + "AS "+ self.RecorrerTiposAlias(Lista_Alias)
+
+        # Columna
+        elif ((NombreT == "") and (Columna != "") and (Lista_Alias == False) and (Estado == "")):
+
+            Cadenita += Columna
+
+        # Tabla.Columna Alias Estado
+        elif ((NombreT != "") and (Columna != "") and (Lista_Alias != False) and (Estado != "")):
+            Cadenita += NombreT + '.' + Columna + " AS " + self.RecorrerTiposAlias(Lista_Alias) + str(Estado)
+
+
+        # Tabla.Columna  Estado
+        elif ((NombreT != "") and (Columna != "") and (Lista_Alias == False) and (Estado != "")):
+
+            Cadenita += NombreT + '.' + Columna +  str(Estado)
+
+        # Columna Alias Estado
+        elif ((NombreT == "") and (Columna != "") and (Lista_Alias != False) and (Estado != "")):
+
+            Cadenita += Columna + "AS " + self.RecorrerTiposAlias(Lista_Alias) + str(Estado)
+
+        # Columna  Estado
+        elif ((NombreT == "") and (Columna != "") and (Lista_Alias == False) and (Estado != "")):
+
+            Cadenita += Columna  + str(Estado)
+        else:
+            print("Verificar Errores Sintacticos")
+
+
+        return  Cadenita
+
+#Grafos Acerca de los Subquerys
+
+
+    # GRAFO DEL SUB SELECT
+    def GrafoSubSelect(self, ListaCampos, NombresTablas):
+        Cadenita = "( Select " + self.RecorrerListadeCampos(ListaCampos) +  "From  "+ self.RecorrerListadeNombres(NombresTablas) + ") "
+
+        return  Cadenita
+
+
+    # Grafo Sub Select Con Cuerpo
+    def GrafoSubSelect2(self, ListaCampos, NombresTablas, cuerpo):
+        Cadenita = "( Select " + self.RecorrerListadeCampos(ListaCampos) + "From  " + self.RecorrerListadeNombres(NombresTablas)
+        Cadenita += self.RecorrerListaCuerpos(cuerpo)+ ") "
+
+        return Cadenita
+
+
+
+    def GrafoSubSelect3(self, Distinct, ListaCampos, NombresTablas):
+        Cadenita = "( Select " + Distinct +"  "+  self.RecorrerListadeCampos(ListaCampos) + "From  " + self.RecorrerListadeNombres(NombresTablas)+ ") "
+
+        return Cadenita
+
+    # Grafo Sub Select Con Cuerpo
+    def GrafoSubSelect4(self, Distinct, ListaCampos, NombresTablas, cuerpo):
+
+        Cadenita = "( Select "  + Distinct+"  " + self.RecorrerListadeCampos(ListaCampos) + "From  " + self.RecorrerListadeNombres(NombresTablas)
+        Cadenita += self.RecorrerListaCuerpos(cuerpo)+ ") "
+
+        return Cadenita
+
+
+
+
+# ===========================================================================   GENERACION CONDIGO CREATE TABLE
+
+    def grafoCreateTable(self, id, cuerpo, inher):
+        Cadenita = "\n CREATE TABLE " + id + " (\n"
+        contador = 0
+
+        for k in cuerpo:
+            if(contador+1 != len(cuerpo)):
+                if isinstance(k, CampoTabla):
+                    Cadenita +=  " "+self.grafoCampoTabla(k)+ ", "
+
+                elif isinstance(k, constraintTabla):
+                    Cadenita +=  " "+self.grafoConstraintTabla(k)+ ", "
+            else:
+                if isinstance(k, CampoTabla):
+                    Cadenita += " "+self.grafoCampoTabla(k) + " "
+                elif isinstance(k, constraintTabla):
+                    Cadenita +=  " "+self.grafoConstraintTabla(k)+ " "
+
+            contador +=1
+
+        # Graficar INHERITS DE CREATE TABLE
+        if inher is not None:
+            # print("Si tiene un inher")
+            Cadenita += self.grafoInhertis(inher.id) + " \n "
+        else:
+            print("No tiene inherits")
+
+
+        Cadenita +=  " );"+ "\n"
+
+        return Cadenita
+
+
+    def grafoCampoTabla(self, campo):
+        Cadenita = ""
+        contador = 0
+        Cadenita +=" \n " + str(campo.id) +" "
+
+        if isinstance(campo.tipo, valorTipo):
+
+            if(str(campo.tipo.valor).upper() == "VARCHAR"):
+                Cadenita += " " + str(campo.tipo.valor)+ "("
+                Cadenita +=  " " + str(self.cadena_expresion(campo.tipo.expresion)) +") "    # self.graficar_expresion(campo.tipo.expresion)
+            else:
+                Cadenita += " " + str(campo.tipo.valor)+ " "
+                Cadenita +=  " " + str(self.cadena_expresion(campo.tipo.expresion)) +" "
+
+        else:
+            Cadenita += " " + str(campo.tipo)+" "
+
+        if isinstance(campo.validaciones, list):
+            for k in campo.validaciones:
+
+                if isinstance(k, CampoValidacion):
+                    if k.id != None and k.valor != None:
+                        Cadenita += " " + self.grafoCampoValidaciones(k) + "  "
+
+                    elif k.id != None and k.valor == None:
+                        Cadenita += " " + self.grafoCampoValidaciones(k) + "  "
+                contador+=1
+        else :
+            if isinstance(campo.validaciones, CampoValidacion):
+                if campo.validaciones.id != None and campo.validaciones.valor != None:
+                    Cadenita += " " + self.grafoCampoValidaciones(campo.validaciones) + "  "
+
+                elif campo.validaciones.id != None and campo.validaciones.valor == None:
+                    Cadenita += " " + self.grafoCampoValidaciones(campo.validaciones) + "  "
+        Cadenita += " \n"
+        return  Cadenita
+
+
+    def grafoConstraintTabla(self, contraint: constraintTabla):
+        Cadenita = ""
+        '''CONSTRAINTS OPTIONS: '''
+        if contraint.valor != None:
+            Cadenita += " " + str(contraint.valor)+" "
+        if contraint.id != None:
+            Cadenita += " " + str(contraint.id)+" "
+        if contraint.condiciones != None:
+            for i in contraint.condiciones:
+                Cadenita +=  " " +self.cadena_expresion(i)+" "  # self.graficar_expresion(i)
+        if contraint.listas_id != None:
+            Cadenita += " " +self.grafoListaIDs(contraint.listas_id)+" "
+        if contraint.idRef != None:
+            Cadenita += " " + str(contraint.idRef)+" "
+        if contraint.referencia != None:
+            Cadenita += " " + self.grafoListaIDs(contraint.referencia)+" "
+
+        return Cadenita
+
+
+    def grafoInhertis(self, id):
+        Cadenita = ""
+        Cadenita += "INHERITS" + id
+
+        return Cadenita
+
+
+
+    def grafoCampoValidaciones(self, validacion):
+        Cadenita = ""
+
+        if (validacion.valor == None):
+            Cadenita +=' ' + str(validacion.id)+ ' '
+        else:
+            Cadenita += ' ' + str(validacion.id) + ' ' + str(validacion.valor)+ ' '
+
+
+        return Cadenita
+
+
+
+    def grafoListaIDs(self, lista: ExpresionValor):
+        Cadenita = ""
+        Contador = 0
+
+        for v in lista:
+            if(Contador+1 != len(lista)):
+                Cadenita += "  "+str(v.val)+", "
+            else:
+                Cadenita += "  "+str(v.val)+"  "
+            Contador+=1
+
+
+        return Cadenita
+
+
+
+# ===========================================================================   GENERACION CONDIGO INSERT TABLE
+
+    def grafoInsert_Data(self, id, valores):
+        Cadenita = " INSERT INTO  "
+        Contador  = 0
+
+        Contador1 = 0
+
+        for i in id:
+            if(Contador+1 != len(id)):
+                Cadenita += " " + i.val + ", "
+            else:
+                Cadenita += " " + i.val + " "
+            Contador+=1
+
+        Cadenita += " values( "
+
+        # GRAFICANDO EXPRESION===========================
+
+        for i in valores:
+
+            if(Contador1+1 != len(valores)):
+                Cadenita += " " +str(self.cadena_expresion(i))+", "
+            else:
+                Cadenita += " " + str(self.cadena_expresion(i)) + " "
+
+            Contador1+=1
+
+        Cadenita += "  );"
+
+        return  Cadenita
+
+
+
+# ===========================================================================   GENERACION CONDIGO DROP TABLE
+
+    def grafoDropTable(self, id):
+
+        Cadenita = "Drop table "
+        Contador = 0
+
+        for i in id:
+            if(Contador+1!=len(id)):
+                Cadenita += " " + i.val +", "
+            else:
+                Cadenita += " " + i.val + "  "
+
+            Contador+=1
+
+
+        Cadenita+=";"
+        return Cadenita
+
+
+# ===========================================================================   GENERACION CONDIGO SHOW DATABASE
+    def grafoShowDatabases(self, cadenaLike):
+        bandera = False
+        Cadenita = "SHOW DATABASES "
+        if cadenaLike != 0:
+            Cadenita += " " +str(cadenaLike) + "; "
+            bandera = True
+
+        if(bandera != True):
+            Cadenita+= "; "
+
+        return Cadenita
+
+
+# ===========================================================================   GENERACION CONDIGO DELETE
+    def grafoDelete_Data(self, id, valores):
+        Cadenita=" DELETE  From"
+        Contador=0
+
+        for i in id:
+            if(Contador+1!=len(id)):
+                Cadenita+= " "+i.val+", "
+            else:
+                Cadenita+= " "+i.val+" "
+
+            Contador+=1
+
+        Cadenita +=  "WHERE " + self.cadena_expresion(valores) +";  "
+
+        return  Cadenita
+
+# ===========================================================================   GENERACION CONDIGO UPDATE
+
+    def grafoUpdate__Data(self, id, valores_set, valores):
+        Cadenita = " UPDATE "
+        Contador1= 0
+        Contador2= 0
+
+
+        for i in id:
+            if(Contador1+1!=len(id)):
+                Cadenita += " " + i.val + ", "
+            else:
+                Cadenita += " " + i.val + " "
+            Contador1+=1
+
+
+
+
+        # GRAFICAR============VALORES DEL SET======================
+
+        Cadenita+= " SET  "
+
+        # GRAFICANDO EXPRESION===========================
+        for i in valores_set:
+            if(Contador2+1!=len(valores_set)):
+                Cadenita +=  " " + self.cadena_expresion(i)+", "
+            else:
+                Cadenita += " "  + self.cadena_expresion(i) + " "
+            Contador2+=1
+
+        # GRAFICAR============VALORES DEL WHERE======================
+        Cadenita+= " WHERE  "+ self.cadena_expresion(valores) + "; "
+
+        return  Cadenita
+
+
+
