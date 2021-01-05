@@ -2,6 +2,7 @@ from sys import path
 from os.path import dirname as dir
 import webbrowser
 import os
+
 path.append(dir(path[0]))
 from tkinter import ttk
 import tkinter as tk
@@ -10,6 +11,8 @@ from ui.Pantalla_TS import *
 from ui.Pantalla_AST import *
 from ui.Pantalla_Error import *
 import tkinter.messagebox
+
+# Parser SQL de la fase 1
 from analizer import interpreter
 
 
@@ -21,7 +24,6 @@ class Pantalla:
         self.postgreSQL = list()
         self.ts = list()
         self.inicializarScreen()
-
 
     def inicializarScreen(self):
         # inicializacion de la pantalla
@@ -204,7 +206,7 @@ class Pantalla:
     def open_ST(self):  # Abre la pantalla de la table de simbolos
         windowTableS = Pantalla_TS(self.window, self.ts)
 
-    def open_AST(self):  # Abre la pantalla del AST 
+    def open_AST(self):  # Abre la pantalla del AST
         windowTableS = Pantalla_AST(self.window)
 
     def open_Reporte(self):  # Abre la pantalla de los reportes de errores
@@ -215,6 +217,7 @@ class Pantalla:
     def open_PDF(self):
         url = "file:///" + os.path.realpath("test-output/round-table.gv.pdf")
         webbrowser.open(url)
+
 
 def main():  # Funcion main
     queryTool = Pantalla()

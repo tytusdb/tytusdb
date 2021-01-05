@@ -28,6 +28,7 @@ class Tipo_Dato(Enum):
     # ID 
     ID = 20
     QUERY =21
+    VOID = 22
 
 class Tipo():
     'Esta clase será de utilidad para la comprobación de tipos.'
@@ -79,8 +80,20 @@ class Tipo():
             return "id"
         elif self.tipo == Tipo_Dato.QUERY:
             return "query"
+        elif self.tipo == Tipo_Dato.VOID:
+            return "void"
 
-        def traducir(self, tabla, arbol):
-            cadena = self.tipo.toString()
-            cadena += self.dimension
-            return cadena
+    def traducir(self, tabla, arbol):
+        cadena = self.toString()
+        if(self.dimension != None):
+            cadena += "("
+            #Error de  conflicto entre cadena o array 
+            if(isinstance(self.dimension, list)):
+                for x in range(0,len(self.dimension)):
+                    if(x>0):
+                        cadena += ","
+                    cadena += str(self.dimension[x])
+            else:
+                cadena += str(self.dimension)
+            cadena += ")"
+        return cadena

@@ -6,6 +6,7 @@ from tkinter import ttk, font, messagebox, Image, filedialog
 import Analisis_Ascendente.ascendente as parser
 import Analisis_Ascendente.storageManager.jsonMode as jm
 import webbrowser as wb
+import C3D.GeneradorFileC3D as c3d_generador
 # from PIL import Image,ImageTk
 # vscode://vscode.github-authentication/did-authenticate?wi0ndowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
 
@@ -13,7 +14,7 @@ import webbrowser as wb
 class Ctxt(tk.Text):  # Custom Text Widget with Highlight Pattern   - - - - -
     # Credits to the owner of this custom class - - - - - - - - - - - - -
     def __init__(self, *args, **kwargs):
-        tk.Text.__init__(self, *args, **kwargs, bg='#323331', fg="#FDFEFD")
+        tk.Text.__init__(self, *args, **kwargs, bg='white', fg="black", font=("Consolas",10))
         # tk.Text.configure('name','nuevo_0')
 
     def highlight_pattern(self, pattern, tag, start="1.0", end="end", regexp=False):
@@ -222,119 +223,49 @@ class Application(ttk.Frame):
         # width, height
         ventana.resizable(False, False)
         ventana.iconbitmap("./Images/icono.ico")
-        ventana.configure(background="RoyalBlue1")
+        ventana.configure(background="#154360")
         # cambiar icono
         menu = tk.Menu(ventana)
 
         new_item = tk.Menu(menu, tearoff=0)
+        new_item.add_command(label="Nueva Pestaña", command=self.f_nuevaPestania)
+        new_item.add_command(label="Abrir", command=self.f_abrir)
+        new_item.add_separator()
+        new_item.add_command(label="Guardar", command=self.f_guardar)
+        new_item.add_command(label="Guardar Como...", command=self.f_guardarcomo)
+        new_item.add_separator()
         new_item.add_command(label="Cerrar Todo", command=self.f_CerrarTodo)
         new_item.add_command(label="Exit", command=self.f_exit)
         menu.add_cascade(label='Archivo', menu=new_item)
 
-        new_item2 = tk.Menu(menu, tearoff=0)
-        new_item2.add_command(label="Nuevo", command=self.f_nuevaPestania)
-        new_item2.add_command(label="Abrir", command=self.f_abrir)
-        new_item2.add_command(label="Guardar", command=self.f_guardar)
-        new_item2.add_command(label="Guardar Como", command=self.f_guardarcomo)
-        menu.add_cascade(label='Project', menu=new_item2)
-
         new_item3 = tk.Menu(menu, tearoff=0)
-        new_item3.add_command(
-            label="Copiar", accelerator="Ctrl+c", command=lambda: self.tab_control.event_generate('<Control-c>'))
-        new_item3.add_command(label="Cortar", accelerator="Ctrl+x",
-                              command=lambda: self.tab_control.event_generate('<Control-x>'))
-        new_item3.add_command(label="Pegar", accelerator="Ctrl+v",
-                              command=lambda: self.tab_control.event_generate('<Control-v>'))
-        menu.add_cascade(label='Edit', menu=new_item3)
+        new_item3.add_command(label="Ejecutar", command=self.f_correr)
+        new_item3.add_separator()
+        new_item3.add_command(label="Generar Codigo 3D", command=self.f_correr2)
+        new_item3.add_command(label="Ejecutar Codigo 3D", command=self.f_correr)
+        new_item3.add_separator()
+        new_item3.add_command(label="Optimizar Codigo 3D", command=self.f_correr)
+        menu.add_cascade(label='Ejecucion', menu=new_item3)
 
         new_item4 = tk.Menu(menu, tearoff=0)
-        new_item4.add_command(label="Correr", command=self.f_correr)
-        menu.add_cascade(label='Programa', menu=new_item4)
+        new_item4.add_command(label="Errores Lexicos", command=self.f_abrirLexico)
+        new_item4.add_command(label="Errores Sintacticos", command=self.f_abrirSintactico)
+        new_item4.add_command(label="Errores Semanticos", command=self.f_abrirtablaSemanticos)
+        new_item4.add_separator()
+        new_item4.add_command(label="AST", command=self.f_abrirAST)
+        new_item4.add_command(label="Tabla de Simbolos", command=self.f_abrirtablaSimbolos)
+        new_item4.add_separator()
+        new_item4.add_command(label="Reporte optimizacion", command=self.f_abriroptimizaciones)
+        menu.add_cascade(label='Reportes', menu=new_item4)
 
         new_item5 = tk.Menu(menu, tearoff=0)
         new_item5.add_command(label="Acerca")
         menu.add_cascade(label='Ayuda', menu=new_item5)
 
-        # barra de herramientas----------------------------------------------------------------
-
-        BarraH = tk.Frame()
-        BarraH.config(bg="DodgerBlue4", relief=tk.RAISED, height="100", bd=2)
-
-        imgBoton1 = tk.PhotoImage(file=iconos[0])
-        bot1 = tk.Button(BarraH, image=imgBoton1,
-                         height=50, width=50, command=self.f_CerrarTodo)
-        bot1.pack(side=tk.LEFT, padx=3, pady=3)
-        button1_ttp = CreateToolTip(bot1, 'CERRAR TODO')
-
-        imgBoton2 = tk.PhotoImage(file=iconos[1])
-        bot2 = tk.Button(BarraH, image=imgBoton2,
-                         height=50, width=50, command=self.f_nuevaPestania)
-        bot2.pack(side=tk.LEFT, padx=3, pady=3)
-        button2_ttp = CreateToolTip(bot2, 'NUEVO')
-
-        imgBoton3 = tk.PhotoImage(file=iconos[2])
-        bot3 = tk.Button(BarraH, image=imgBoton3,
-                         height=50, width=50, command=self.f_abrir)
-        bot3.pack(side=tk.LEFT, padx=3, pady=3)
-        button3_ttp = CreateToolTip(bot3, 'ABRIR')
-
-        imgBoton5 = tk.PhotoImage(file=iconos[4])
-        bot5 = tk.Button(BarraH, image=imgBoton5,
-                         height=50, width=50, command=self.f_guardarcomo)
-        bot5.pack(side=tk.LEFT, padx=3, pady=3)
-        button5_ttp = CreateToolTip(bot5, 'GUARDAR COMO')
-
-        imgBoton6 = tk.PhotoImage(file=iconos[5])
-        bot6 = tk.Button(BarraH, image=imgBoton6,
-                         height=50, width=50, command=self.f_correr)
-        bot6.pack(side=tk.LEFT, padx=3, pady=3)
-        button6_ttp = CreateToolTip(bot6, 'RUN')
-
-        imgBoton7 = tk.PhotoImage(file=iconos[6])
-        bot7 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command=self.f_abrirSintactico)
-        bot7.pack(side=tk.LEFT, padx=3, pady=3)
-        button7_ttp = CreateToolTip(bot7, 'REPORTE SINTACTICO')
-
-        bot8 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command=self.f_abrirLexico)
-        bot8.pack(side=tk.LEFT, padx=3, pady=3)
-        button8_ttp = CreateToolTip(bot8, 'REPORTE LEXICO')
-
-        bot9 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command=self.f_abrirtablaSemanticos)
-        bot9.pack(side=tk.LEFT, padx=3, pady=3)
-        button9_ttp = CreateToolTip(bot9, 'REPORTE SEMANTICO')
-
-        imgBoton8 = tk.PhotoImage(file=iconos[7])
-        bot10 = tk.Button(BarraH, image=imgBoton8,
-                         height=50, width=50, command=self.f_abrirAST)
-        bot10.pack(side=tk.LEFT, padx=3, pady=3)
-        button10_ttp = CreateToolTip(bot10, 'REPORTE AST')
-
-        imgBoton9 = tk.PhotoImage(file=iconos[8])
-        bot11 = tk.Button(BarraH, image=imgBoton9,
-                         height=50, width=50, command=self.f_abrirBNFascendente)
-        bot11.pack(side=tk.LEFT, padx=3, pady=3)
-        button11_ttp = CreateToolTip(bot11, 'REPORTE BNF ASCENDENTE')
-
-        bot12 = tk.Button(BarraH, image=imgBoton9,
-                         height=50, width=50, command=self.f_abrirBNFdescendente)
-        bot12.pack(side=tk.LEFT, padx=3, pady=3)
-        button12_ttp = CreateToolTip(bot12, 'REPORTE BNF DESCENDENTE')
-
-        imgBoton10 = tk.PhotoImage(file=iconos[9])
-        bot13 = tk.Button(BarraH, image=imgBoton10,
-                          height=50, width=50, command=self.f_abrirtablaSimbolos)
-        bot13.pack(side=tk.LEFT, padx=3, pady=3)
-        button13_ttp = CreateToolTip(bot13, 'REPORTE TABLA DE SIMBOLOS')
-
-
-
         # PESTAniAS ----------------------------------------------------------------------------
         PanelPestania = tk.Frame()
         PanelPestania.config(
-            bg="SteelBlue1", relief=tk.RAISED, height="400", bd=2)
+            bg="#154360", relief=tk.RAISED, height="400", bd=2)
 
         self.tab_control = ttk.Notebook(PanelPestania)
         self.tab_control.config(height="300")
@@ -343,16 +274,16 @@ class Application(ttk.Frame):
 
         # CONSOLA-------------------------------------------------------------------------------
         Consola = tk.Frame()
-        Consola.config(bg="SteelBlue1", relief=tk.RAISED, height="700", bd=2)
+        Consola.config(bg="white", relief=tk.RAISED, height="700", bd=2)
 
         S = tk.Scrollbar(Consola)
         self.T = tk.Text(Consola, height=70, width=4,
-                         bg="black", fg="chartreuse2")
+                         bg="black", fg="white")
         S.pack(side=tk.RIGHT, fill=tk.Y)
         self.T.pack(side=tk.TOP, fill=tk.X)
         S.config(command=self.T.yview)
         self.T.config(yscrollcommand=S.set)
-        quote = """>>>\n"""
+        quote = """>>> Consola de Salida: \n"""
         self.T.insert(tk.END, quote)
         # menucontextual----------------------------------------------
         menuContext = tk.Menu(self.tab_control, tearoff=0)
@@ -373,7 +304,7 @@ class Application(ttk.Frame):
 
         # metodos extras-------------------------------------------------------
 
-        BarraH.pack(side=tk.TOP, fill=tk.X)
+        #BarraH.pack(side=tk.TOP, fill=tk.X)
         PanelPestania.pack(side=tk.TOP, fill=tk.X, pady=10, padx=10)
         Consola.pack(side=tk.TOP, fill=tk.X, pady=10, padx=10)
         ventana.config(menu=menu)
@@ -395,14 +326,14 @@ class Application(ttk.Frame):
                 # guardar
                 self.f_guardar()
                 self.tab_control.forget(self.tab_control.select())
-                print("debemos guardarlo")
+                #print("debemos guardarlo")
 
     def f_nuevaPestania(self):
-        tab1 = ttk.Frame(self.tab_control, name="f_"+str(self.contadorN))
+        tab1 = ttk.Frame(self.tab_control, name="f_"+str(self.contadorN), )
         self.tab_control.add(tab1, text='nuevo_'+str(self.contadorN))
         self.tab_control.pack(expand=1, fill='both')
         S1 = tk.Scrollbar(tab1)
-        numberLines = TextLineNumbers(tab1, width=40, bg='#313335')
+        numberLines = TextLineNumbers(tab1, width=30, bg='#1B2631')
         # T1 = tk.Text(tab1, bg="white")
         T1 = Ctxt(tab1)
         numberLines.attach(T1)
@@ -413,11 +344,11 @@ class Application(ttk.Frame):
         S1.config(command=T1.yview)
         T1.config(yscrollcommand=S1.set)
 
-        T1.tag_config("green", foreground="#0bde20")
-        T1.tag_config("blue", foreground="#09ebc9")
-        T1.tag_config("norm", foreground="white")
-        T1.tag_config("id", foreground="#f5ed00")
-        T1.tag_config("cadena", foreground="#f28900")
+        T1.tag_config("green", foreground="#039F1F")
+        T1.tag_config("blue", foreground="#154360")
+        T1.tag_config("norm", foreground="#922B21")
+        T1.tag_config("id", foreground="black")
+        T1.tag_config("cadena", foreground="#D4AC0D")
 
         def onScrollPress(event):
             S1.bind("<B1-Motion>", numberLines.redraw)
@@ -504,7 +435,7 @@ class Application(ttk.Frame):
                 idtab = self.tab_control.index("end")-1
                 self.tab_control.select(idtab)
 
-                print(tabs)
+               # print(tabs)
                 print(
                     self.tab_control.children["f_"+str(tabs)].winfo_children()[2])
 
@@ -541,7 +472,7 @@ class Application(ttk.Frame):
             file.close()
 
     def f_CerrarTodo(self):
-        print(self.tab_control.index("end"))
+        #print(self.tab_control.index("end"))
         while self.tab_control.index("end") > 0:
             self.tab_control.select(0)
             self.f_cerrarPestania()
@@ -574,7 +505,6 @@ class Application(ttk.Frame):
     def f_abrirBNFdescendente(self):
         try:
             wb.open_new(r'')
-
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
@@ -592,16 +522,47 @@ class Application(ttk.Frame):
 
     def f_abrirtablaSemanticos(self):
         try:
+
+            print('abriendo')
             wb.open_new(r'ErroresSemanticos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abriroptimizaciones(self):
+        try:
+
+            print('abriendo')
+            wb.open_new(r'ReporteOptimizacion.html')
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_parsear(self, texto):
        self.T.delete(1.0,tk.END)
-       salida= parser.ejecutarAnalisis(texto)
+       salida = parser.ejecutarAnalisis(texto)
 
        for output in salida:
-        self.T.insert(tk.END,"\n>>>"+ output)
+        self.T.insert(tk.END,"\n >>> "+ output)
+
+    def f_generar3D(self, texto):
+        self.T.delete(1.0, tk.END)
+        salida = parser.crear_Codido3D(texto)
+        c3d_generador.GeneradorFileC3D().escribir_archivo(salida)
+        self.T.insert(tk.END, "\n >>> " + salida)
+
+    def f_correr2(self):
+        lista = []
+        tabActual = self.tab_control.tab(tk.CURRENT)['text']
+        if tabActual[0] != '/':
+            texto = self.tab_control.children[tabActual.replace(
+                "nuevo", "f")].winfo_children()[2].get("1.0", tk.END)
+            start = 0
+            return self.f_generar3D(texto)
+        else:
+            texto = self.tab_control.children[tabActual].winfo_children()[2].get("1.0", tk.END).get(
+                "1.0", tk.END)
+            start = 0
+            return self.f_generar3D(texto)
+
 
     def f_correr(self):
         lista = []
@@ -619,7 +580,7 @@ class Application(ttk.Frame):
 
 
 def main():
-    #jm.dropAll()
+    jm.dropAll()
     ventana = tk.Tk()
 
     # INICIALIZAR VARIABLES CON RUTAS

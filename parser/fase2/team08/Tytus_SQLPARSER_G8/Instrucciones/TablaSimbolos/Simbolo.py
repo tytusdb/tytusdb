@@ -7,3 +7,9 @@ class Simbolo():
         self.valor = valor
         self.linea = linea
         self.columna = columna
+        self.rol = ""
+        self.posicion = -1
+        self.tamanio = 0
+        self.ambito = "-" 
+        self.funcion = None
+        self.constante = False
