@@ -731,9 +731,9 @@ def p_ifheader(t):
 
 def p_if(t):
     '''
-        if : exp THEN  stmts
-           | exp THEN stmts ELSE stmts
-           | exp THEN stmts ELSIF if
+        if : exp THEN definitions
+           | exp THEN definitions ELSE stmts
+           | exp THEN definitions ELSIF if
     '''
     if len(t) == 6:
         if t[4].lower() == "else":

@@ -21,7 +21,11 @@ class SI(NodoArbol):
         arbol.addC3D("if " + self.exp.traducir(entorno, arbol) + " goto " + str(Bv))
         arbol.addC3D("goto " + Bf)
         arbol.addC3D(Bv + ":")
-        arbol.addC3D(self.body.traducir(entorno, arbol))
+        arbol.addIdentacion()
+        #arbol.addC3D(self.body.traducir(entorno, arbol))
+        for item in self.body:
+            item.traducir(entorno, arbol)
+        arbol.popIdentacion()
         arbol.addC3D(Bf + ":")
         pass
 
