@@ -121,6 +121,11 @@ reservadas = {
     "END": "R_END",
     "INDEX": "R_INDEX",
     "HASH": "R_HASH",
+    "BTREE": "R_BTREE",
+    "GIST": "R_GIST",
+    "SPGIST": "R_SPGIST",
+    "GIN": "R_GIN",
+    "BRIN": "R_BRIN",
     "BEGIN": "R_BEGIN",
     "DECLARE": "R_DECLARE",
     "ALIAS": "R_ALIAS",
@@ -150,7 +155,7 @@ reservadas = {
     "PLPGSQL": "R_PLPGSQL",
     "SQLSTATE": "R_SQLSTATE",
     "OTHERS": "R_OTHERS",
-    "PROCEDURE": "R_PROCEDURE"
+    "PROCEDURE": "R_PROCEDURE",
 }
 
 reservadas.update(r_types)
@@ -281,7 +286,7 @@ def t_CHARACTER(t):
 # Funcion para evaluar si el token reconocido es un STRING
 def t_STRING(t):
     r"(\'.*?\'|\".*?\")"
-    #t.value = t.value[1:-1]  # remuevo las comillas
+    # t.value = t.value[1:-1]  # remuevo las comillas
     return t
 
 
