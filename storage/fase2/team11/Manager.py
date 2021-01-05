@@ -520,3 +520,100 @@ def insert(database, name_table, register):
             return isam.insert(database, name_table, register)
         elif mode.lower().strip() == "json":
             return json.insert(database, name_table, register)
+        
+        
+def extractRow(database, name_table, columns):
+    ModeDB,indexDB = exist_Alter(database)  
+    if ModeDB:       
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.extractRow(database, name_table, columns)
+        elif mode.lower().strip() == "b":
+            return b.extractRow(database, name_table, columns)
+        elif mode.lower().strip() == "bplus":
+            return bPlus.extractRow(database, name_table, columns)
+        elif mode.lower().strip() == "dict":
+            return diccionario.extractRow(database, name_table, columns)
+        elif mode.lower().strip() == "hash":
+            return hash.extractRow(database, name_table, columns)
+        elif mode.lower().strip() == "isam":
+            return isam.extractRow(database, name_table, columns)
+        elif mode.lower().strip() == "json":
+            return json.update(database, name_table, register, columns)
+    return db.extractRow(database, name_table, columns)
+
+def update(database, name_table, register, columns):
+    ModeDB,indexDB = exist_Alter(database)  
+    if ModeDB:       
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.update(database, name_table, register, columns)
+        elif mode.lower().strip() == "b":
+            return b.update(database, name_table, register, columns)
+        elif mode.lower().strip() == "bplus":
+            return bPlus.update(database, name_table, register, columns)
+        elif mode.lower().strip() == "dict":
+            return diccionario.update(database, name_table, register, columns)
+        elif mode.lower().strip() == "hash":
+            return hash.update(database, name_table, register, columns)
+        elif mode.lower().strip() == "isam":
+            return isam.update(database, name_table, register, columns)
+        elif mode.lower().strip() == "json":
+            return json.update(database, name_table, register, columns)
+
+def loadCSV(file, database, name_table):
+    ModeDB,indexDB = exist_Alter(database)  
+    if ModeDB:       
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.loadCSV(file, database, name_table)
+        elif mode.lower().strip() == "b":
+            return b.loadCSV(file, database, name_table)
+        elif mode.lower().strip() == "bplus":
+            return bPlus.loadCSV(file, database, name_table)
+        elif mode.lower().strip() == "dict":
+            return diccionario.loadCSV(file, database, name_table)
+        elif mode.lower().strip() == "hash":
+            return hash.loadCSV(file, database, name_table)
+        elif mode.lower().strip() == "isam":
+            return isam.loadCSV(file, database, name_table)
+        elif mode.lower().strip() == "json":
+            return json.loadCSV(file, database, name_table)
+
+def delete(database, name_table, columns):
+    ModeDB,indexDB = exist_Alter(database)  
+    if ModeDB:       
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.delete(database, name_table, columns)
+        elif mode.lower().strip() == "b":
+            return b.delete(database, name_table, columns)
+        elif mode.lower().strip() == "bplus":
+            return bPlus.delete(database, name_table, columns)
+        elif mode.lower().strip() == "dict":
+            return diccionario.delete(database, name_table, columns)
+        elif mode.lower().strip() == "hash":
+            return hash.delete(database, name_table, columns)
+        elif mode.lower().strip() == "isam":
+            return isam.delete(database, name_table, columns)
+        elif mode.lower().strip() == "json":
+            return json.delete(database, name_table, columns)
+
+def truncate(database, name_table):
+    ModeDB,indexDB = exist_Alter(database)  
+    if ModeDB:       
+        mode = ModeDB.get_mode()
+        if mode.lower().strip() == "avl":
+            return avl.truncate(database, name_table)
+        elif mode.lower().strip() == "b":
+            return b.truncate(database, name_table)
+        elif mode.lower().strip() == "bplus":
+            return bPlus.truncate(database, name_table)
+        elif mode.lower().strip() == "dict":
+            return diccionario.truncate(database, name_table)
+        elif mode.lower().strip() == "hash":
+            return hash.truncate(database, name_table)
+        elif mode.lower().strip() == "isam":
+            return isam.truncate(database, name_table)
+        elif mode.lower().strip() == "json":
+            return json.truncate(database, name_table)   
