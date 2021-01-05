@@ -1690,12 +1690,6 @@ def p_expComp_unario_2(t):
     | datatype R_IS R_FALSE
     | datatype R_IS R_UNKNOWN
     """
-    if t[3] == "TRUE":
-        t[3] = "True"
-    elif t[3] == "FALSE":
-        t[3] = "False"
-    elif t[3] == "NULL" or t[3] == "UNKNOWN":
-        t[3] = "None"
     t[0] = code.UnaryOperation(
         newTemp(), t[1], t[2] + t[3], t[1].row, t[1].column)
     repGrammar.append(t.slice)
@@ -1708,12 +1702,6 @@ def p_expComp_unario_3(t):
     | datatype R_IS R_NOT R_FALSE
     | datatype R_IS R_NOT R_UNKNOWN
     """
-    if t[4] == "TRUE":
-        t[4] = "True"
-    elif t[4] == "FALSE":
-        t[4] = "False"
-    elif t[4] == "NULL" or t[4] == "UNKNOWN":
-        t[4] = "None"
     t[0] = code.UnaryOperation(
         newTemp(), t[1], t[2] + t[3] + t[4], t[1].row, t[1].column
     )
