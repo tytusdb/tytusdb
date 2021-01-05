@@ -38,6 +38,23 @@ lista_lexicos=lista_errores_lexico
 
 import Instrucciones.AST as AST 
 
+# Variable almacenada reporte gramatical dinamico
+lsStrGram = []
+
+#Funcion para validar reporte gramatical dinamico
+def agregaGram(grama):
+    global lsStrGram
+    if grama not in lsStrGram:
+        lsStrGram.append(grama)
+
+#Funcion para obtener reporte gramatical
+def obtenerGram():
+    global lsStrGram
+    gramatical = ""
+    for srt in lsStrGram:
+        gramatical += srt
+    return gramatical
+
 # Asociación de operadores y precedencia
 precedence = (
     ('left', 'PIPE'),
@@ -1629,14 +1646,22 @@ def p_instruccion_creacion(t) :
         strGram3 = ""
         id1 = Identificador(t[3], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
         id2 = Identificador(t[5], strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+        agregaGram(strGram)
+        strGram = obtenerGram()
         t[0] = index.index( id1, id2, t[7], t[10], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+        global lsStrGram
+        lsStrGram = []
     else:
         strGram = "<instruccion> ::= CREATE INDEX ID ON ID USING HASH PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
         strGram2 = ""
         strGram3 = ""
         id1 = Identificador(t[3], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
         id2 = Identificador(t[5], strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+        agregaGram(strGram)
+        strGram = obtenerGram()
         t[0] = index.index(id1, id2 , t[9], t[12], t[11], strGram, t.lexer.lineno, t.lexer.lexpos)
+        global lsStrGram
+        lsStrGram = []
 
     # t[0] = SelectLista.SelectLista(expre, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
@@ -1648,45 +1673,67 @@ def p_instruccion_creacion_unique(t) :
         strGram2 = ""
         id1 = Identificador(t[4], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
         id2 = Identificador(t[6], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        agregaGram(strGram)
+        strGram = obtenerGram()
         t[0] = index.index(id1, id2, t[8], t[10], "UNIQUE", strGram, t.lexer.lineno, t.lexer.lexpos)
+        global lsStrGram
+        lsStrGram = []
     else:
         strGram = "<instruccion> ::= CREATE UNIQUE INDEX ID ON ID USING HASH PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
         strGram2 = ""
         id1 = Identificador(t[4], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
         id2 = Identificador(t[6], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        agregaGram(strGram)
+        strGram = obtenerGram()
         t[0] = index.index(id1, id2, t[10], t[12], "UNIQUE", strGram, t.lexer.lineno, t.lexer.lexpos)
+        global lsStrGram
+        lsStrGram = []
 
 def p_can_where(t):
     '''can_where    : instructionWhere PUNTO_COMA
                     | PUNTO_COMA'''
+    strGram = ""
     if len(t) == 3:
         t[0] = t[1]
+        strGram = "<can_where> := <instructionWhere> PUNTO_COMA\n"
     else:
         t[0] = None
+        strGram = "<can_where> := PUNTO_COMA\n"
+    agregaGram(strGram)
 
 def p_l_expresiones_atri(t) :
     '''l_expresiones    : l_expresiones COMA expre lista_options'''
     t[1] = t[1].append(t[3], t[4])
     t[0] = t[1]
+    strGram = "<l_expresiones> := <l_expresiones> COMA <expre> <lista_options>\n"
+    agregaGram(strGram)
 
 def p_l_expresiones_atri_ind(t) :
     '''l_expresiones    : expre lista_options'''
     t[1] = t[1].append(t[2])
     t[0] = t[1]
+    strGram = "<l_expresiones> := <expre> <lista_options>\n"
+    agregaGram(strGram)
 
 def p_operadores_is_not_true(t):
     '''expre    : expre IS NOT TRUE
     '''
     t[0] = t[1] + ' IS NOT'
+    strGram = "<expre> := <expre> IS NOT TRUE\n"
+    agregaGram(strGram)
 
 def p_lista_options(t) :
     'lista_options  : lista_options options'
     t[1] = t[1].append(t[2])
     t[0] = t[1]
+    strGram = "<lista_options> := <lista_options> <options>\n"
+    agregaGram(strGram)
 
 def p_lista_options_2(t) :
     'lista_options  : options'
     t[0] = t[1]
+    strGram = "<lista_options> := <options>\n"
+    agregaGram(strGram)
 
 def p_options(t) :
     '''options      : ASC
@@ -1703,15 +1750,50 @@ def p_options(t) :
     else:
         t[0] = t[1] + t[2]
 
+    strGram = ""
+    if t[1] == "ASC":
+        strGram = "<options> ::= ASC\n"
+    elif t[1] == "DESC":
+        strGram = "<options> ::= DESC\n"
+    elif len(t) > 2 and t[2] == "FIRST":
+        strGram = "<options> ::= NULLS FIRST\n"
+    elif len(t) > 2 and t[2] == "LAST":
+        strGram = "<options> ::= NULLS LAST\n"
+    elif t[1] == "TXT_PTN_OPS":
+        strGram = "<options> ::= TXT_PTN_OPS\n"
+    elif t[1] == "VRCH_PTN_OPS":
+        strGram = "<options> ::= VRCH_PTN_OPS\n"
+    elif t[1] == "BPCH_PTN_OPS":
+        strGram = "<options> ::= BPCH_PTN_OPS\n"
+    elif t[1] == "COLLATE":
+        strGram = "<options> ::= COLLATE <expre>\n"
+    else:
+        strGram = "<options> ::= <expre>\n"
+    agregaGram(strGram)
+
 def p_params_crt_indx(t) :
     '''params_crt_indx  : INCLUDE PARIZQ expre PARDER
                         | '''
+    strGram = ""
+    if len(t) > 1 and t[1] == "INCLUDE":
+        strGram = "<params_crt_indx> ::= INCLUDE PARIZQ <expre> PARDER\n"
+    else:
+        strGram = "<params_crt_indx> ::= epsilon\n"
+    agregaGram(strGram)
 
 def p_instruccion_drop_index(t) :
     '''instruccion  : DROP INDEX ID PUNTO_COMA'''
+    strGram = "<instruccion> ::= DROP INDEX ID PUNTO_COMA\n"
+    agregaGram(strGram)
+    strGram = obtenerGram()
+    t[0] = indexFunction.indexFunction(strGram)
+    global lsStrGram
+    lsStrGram = []
 
 def p_lista_or(t) :
     '''expre     : expre PIPE PIPE expre'''
+    strGram = "<expre> ::= <expre> PIPE PIPE <expre>\n"
+    agregaGram(strGram)
 
 #FUNCIONES
 def p_instruccion_creacion_funct(t) :
@@ -1720,18 +1802,50 @@ def p_instruccion_creacion_funct(t) :
                     | CREATE FUNCTION ID PARIZQ PARDER return_funct as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
                     | CREATE FUNCTION ID PARIZQ PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA'''
 
+    strGram = ""
+    if len(t) == 15 and t[6] == ")":
+        strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <list_params_funct> PARDER <return_funct> <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
+    elif len(t) == 14 and t[6] == ")":
+        strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <list_params_funct> PARDER <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
+    elif len(t) == 14 and t[5] == ")":
+        strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ PARDER <return_funct> <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
+    elif len(t) == 13 and t[5] == ")":
+        strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ PARDER <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
+    agregaGram(strGram)
+    strGram = obtenerGram()
+    t[0] = indexFunction.indexFunction(strGram)
+    global lsStrGram
+    lsStrGram = []
 
 def p_return_funct(t) :
     '''return_funct     : RETURNS tipo
                         | RETURNS ID
                         | RETURNS TABLE PARIZQ list_params_funct PARDER'''
 
+    strGram = ""
+    if t[2] != "ID" and len(t) == 3:
+        strGram = "<return_funct> ::= RETURNS <tipo>\n"
+    elif t[2] == "ID":
+        strGram = "<return_funct> ::= RETURNS ID\n"
+    else:
+        strGram = "<return_funct> ::= RETURNS TABLE PARIZQ <list_params_funct> PARDER\n"
+    agregaGram(strGram)
 
 def p_list_params_funct(t) :
     '''list_params_funct    : list_params_funct COMA ID tipo
                             | list_params_funct COMA OUT ID tipo
                             | list_params_funct COMA ID ID
                             | list_params_funct COMA OUT ID ID'''
+    strGram = ""
+    if t[3] == "ID" and t[4] != "ID":
+        strGram = "<list_params_funct> ::= <list_params_funct> COMA ID <tipo>\n"
+    elif len(t) > 5 and t[3] == "OUT" and t[5] != "ID":
+        strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID <tipo>\n"
+    elif t[3] == "ID" and t[4] == "ID":
+        strGram = "<list_params_funct> ::= <list_params_funct> COMA ID ID\n"
+    elif len(t) > 5 and t[3] == "OUT" and t[5] == "ID":
+        strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID ID\n"
+    agregaGram(strGram)
 
 def p_list_params_funct2(t) :
     '''list_params_funct    : ID tipo
@@ -1739,114 +1853,148 @@ def p_list_params_funct2(t) :
                             | ID ID
                             | OUT ID ID'''
 
+    strGram = "<return_funct> ::= RETURNS TABLE PARIZQ <list_params_funct> PARDER\n"
+    if t[1] == "ID" and t[2] != "ID":
+        strGram += "<list_params_funct> ::= ID <tipo>\n"
+    elif len(t) > 3 and t[1] == "OUT" and t[3] != "ID":
+        strGram += "<list_params_funct> ::= OUT ID <tipo>\n"
+    elif t[1] == "ID" and t[2] == "ID":
+        strGram += "<list_params_funct> ::= ID ID\n"
+    elif len(t) > 3 and t[1] == "OUT" and t[3] == "ID":
+        strGram += "<list_params_funct> ::= OUT ID ID\n"
+    agregaGram(strGram)
 
 def p_as_def(t) :
     '''as_def   : AS expre
                 | AS 
                 | '''
 
+    strGram = ""
+    if len(t) > 2 and t[1] == "AS":
+        strGram = "<as_def> ::= AS <expre>\n"
+    elif len(t) > 1 and t[1] == "AS":
+        strGram = "<as_def> ::= AS\n"
+    else:
+        strGram = "<as_def> ::= epsilon\n"
+    agregaGram(strGram)
 
 def p_def_funct(t) :
     '''def_funct    : dec_def beg_def END PUNTO_COMA'''
-
+    strGram = "<def_funct> ::= <dec_def> <beg_def> END PUNTO_COMA\n"
+    agregaGram(strGram)
 
 def p_dec_def(t) :
     '''dec_def  : DECLARE list_declare
                 | '''
-
+    strGram = ""
+    if len(t) == 3:
+        strGram += "<dec_def> ::= DECLARE <list_declare>\n"
+    else:
+        strGram += "<dec_def> ::= epsilon\n"
+    agregaGram(strGram)
 
 def p_list_declare(t) :
     '''list_declare : list_declare declare'''
+    strGram = "<list_declare> ::= <list_declare> <declare>\n"
+    agregaGram(strGram)
 
 def p_list_declare2(t) :
     '''list_declare : declare'''
-
+    strGram = "<list_declare> ::= <declare>\n"
+    agregaGram(strGram)
 
 def p_declare(t) :
     '''declare  : ID constant def_tipos_declare list_params_declare symbol_declare expre PUNTO_COMA
                 | ID constant def_tipos_declare symbol_declare expre PUNTO_COMA'''
+    strGram = ""
+    if len(t) > 7:
+        strGram = "<declare> ::= ID <constant> <def_tipos_declare> <list_params_declare> <symbol_declare> <expre> PUNTO_COMA\n"
+    else:
+        strGram = "<declare> ::= ID <constant> <def_tipos_declare> <symbol_declare> <expre> PUNTO_COMA\n"
+    agregaGram(strGram)
 
 def p_declare2(t) :
     '''declare  : ID constant def_tipos_declare list_params_declare PUNTO_COMA
                 | ID constant def_tipos_declare PUNTO_COMA'''
+    strGram = ""
+    if len(t) > 5:
+        strGram = "<declare> ::= ID <constant> <def_tipos_declare> <list_params_declare> PUNTO_COMA\n"
+    else:
+        strGram = "<declare> ::= ID <constant> <def_tipos_declare> PUNTO_COMA\n"
+    agregaGram(strGram)
 
 def p_declare3(t) :
     '''declare  : ID ALIAS FOR expre PUNTO_COMA'''
-
+    strGram = "<declare> ::= ID ALIAS FOR <expre> PUNTO_COMA\n"
+    agregaGram(strGram)
 
 def p_def_tipos_declare(t) :
     '''def_tipos_declare    : tipo
                             | expre MODULO ID'''
+    strGram = ""
+    if len(t) > 2:
+        strGram = "<def_tipos_declare> ::= <expre> MODULO ID\n"
+    else:
+        strGram = "<def_tipos_declare> ::= <tipo>\n"
+    agregaGram(strGram)
 
-
-def p_content_beginIf(t) :
-    '''content_begin    : IF condicion_if THEN list_begin elsif else_if END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin else_if END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin elsif END IF PUNTO_COMA
-                        | IF condicion_if THEN list_begin END IF PUNTO_COMA
-    '''
-
-def p_elseif(t) :
-    '''elsif       : ELSIF condicion_if THEN list_begin elsif
-                   | ELSIF condicion_if THEN list_begin
-    '''
-
-def p_else(t) :
-    '''else_if         : ELSE list_begin
-    '''
-
-def p_condiciones_if(t) :
-    '''condiciones_if   : condiciones_if AND condiciones_if
-                        | condiciones_if OR condiciones_if
-                        | condiciones_if'''
-
-def p_condiciones_if2(t) :
-    '''condiciones_if   : condicion_if'''
-
-def p_condicion_if(t) :
-    '''condicion_if : expre IGUAL expre
-                    | expre DISTINTO expre
-                    | expre MAYORQ expre
-                    | expre MENORQ expre
-                    | expre MAYOR_IGUALQ expre
-                    | expre MENOR_IGUALQ expre'''
-
-def p_condicion_if2(t) :
-    '''condicion_if : expre'''
-    
 def p_constant(t) :
     '''constant : CONSTANT
                 | '''
-
+    strGram = ""
+    if len(t) == 2 and t[1] == "CONSTANT":
+        strGram = "<constant> ::= CONSTANT\n"
+    else:
+        strGram = "<constant> ::= epsilon\n"
+    agregaGram(strGram)
 
 def p_symbol_declare(t) :
     '''symbol_declare   : DEFAULT
                         | DOS_PUNTOS IGUAL
                         | IGUAL'''
-
+    strGram = ""
+    if t[1] == "DEFAULT":
+        strGram = "<symbol_declare> ::= DEFAULT\n"
+    elif t[1] == ":":
+        strGram = "<symbol_declare> ::= DOS_PUNTOS IGUAL\n"
+    else:
+        strGram = "<symbol_declare> ::= IGUAL\n"
+    agregaGram(strGram)
 
 def p_list_params_declare(t) :
     '''list_params_declare  : list_params_declare params_declare'''
+    strGram = "<list_params_declare> ::= <list_params_declare> <params_declare>\n"
+    agregaGram(strGram)
 
 def p_list_params_declare2(t) :
     '''list_params_declare  : params_declare'''
-
+    strGram = "<list_params_declare> ::= <params_declare>\n"
+    agregaGram(strGram)
 
 def p_params_declare(t) :
     '''params_declare   : COLLATE expre
                         | NOT NULL'''
-
+    strGram = ""
+    if t[1] == "COLLATE":
+        strGram = "<params_declare> ::= COLLATE <expre>\n"
+    else:
+        strGram = "<params_declare> ::= NOT NULL\n"
+    agregaGram(strGram)
 
 def p_beg_def(t) :
     '''beg_def  : BEGIN list_begin'''
-
+    strGram = "<beg_def> ::= BEGIN <list_begin>\n"
+    agregaGram(strGram)
 
 def p_list_begin(t) :
     '''list_begin : list_begin content_begin'''
+    strGram = "<list_begin> ::= <list_begin> <content_begin>\n"
+    agregaGram(strGram)
 
 def p_list_begin2(t) :
     '''list_begin : content_begin'''
-
+    strGram = "<list_begin> ::= <content_begin>\n"
+    agregaGram(strGram)
 
 def p_content_begin(t) :
     '''content_begin    : RAISE NOTICE l_expresiones PUNTO_COMA
@@ -1856,52 +2004,375 @@ def p_content_begin(t) :
                         | RETURN def_return PUNTO_COMA
                         | EXCEPTION list_exception
                         | query PUNTO_COMA'''
+    strGram = ""
+    if len(t) == 5 and t[2] == "NOTICE":
+        strGram = "<content_begin> ::= RAISE NOTICE <l_expresiones> PUNTO_COMA\n"
+    elif len(t) == 5 and t[2] == "EXCEPTION":
+        strGram = "<content_begin> ::= RAISE EXCEPTION <l_expresiones> PUNTO_COMA\n"
+    elif len(t) == 3 and t[2] == ";":
+        strGram = "<content_begin> ::= <asign> PUNTO_COMA\n\t\t| <query> PUNTO_COMA\n"
+    elif t[1] == "RETURN":
+        strGram = "<content_begin> ::= RETURN <def_return> PUNTO_COMA\n"
+    elif t[1] == "EXCEPTION":
+        strGram = "<content_begin> ::= EXCEPTION <list_exception>\n"
+    else:
+        strGram = "<content_begin> ::= <def_funct>\n"
+    agregaGram(strGram)
 
+def p_content_beginIf(t) :
+    '''content_begin    : IF condicion_if THEN list_begin elsif else_if END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin else_if END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin elsif END IF PUNTO_COMA
+                        | IF condicion_if THEN list_begin END IF PUNTO_COMA
+    '''
+    strGram = ""
+    if len(t) == 10 and t[7] == "END":
+        strGram = "<content_begin> ::= IF <condicion_if> THEN <list_begin> <elsif> <else_if> END IF PUNTO_COMA\n"
+    elif len(t) == 9 and t[6] == "END":
+        strGram = "<content_begin> ::= IF <condicion_if> THEN <list_begin> <else_if> END IF PUNTO_COMA\n"
+        strGram += "\t\t| IF <condicion_if> THEN <list_begin> <elsif> END IF PUNTO_COMA\n"
+    elif len(t) == 8 and t[5] == "END":
+        strGram = "<content_begin> ::= IF <condicion_if> THEN <list_begin> END IF PUNTO_COMA\n"
+    agregaGram(strGram)
+
+def p_content_beginCase(t) :
+    '''content_begin    : CASE lcase_begin END CASE PUNTO_COMA
+    '''
+    strGram = "<content_begin> ::= CASE <lcase_begin> END CASE PUNTO_COMA\n"
+    agregaGram(strGram)
+
+def p_instruccion_lcase_begin(t):
+    '''lcase_begin  : lcase_begin case_begin
+                    | case_begin'''
+    strGram = ""
+    if len(t) > 2:
+        strGram = "<lcase_begin> ::= <lcase_begin> <case_begin>\n"
+    else:
+        strGram = "<lcase_begin> ::= <case_begin>\n"
+    agregaGram(strGram)
+
+def p_instruccion_case_begin(t):
+    '''
+    case_begin  : WHEN lista_expre_begin THEN list_begin
+                | ELSE list_begin
+    '''
+    strGram = ""
+    if len(t) > 3:
+        strGram = "<case_begin> ::= WHEN <lista_expre_begin> THEN <list_begin>\n"
+    else:
+        strGram = "<case_begin> ::= ELSE <list_begin>\n"
+    agregaGram(strGram)
+
+def p_instruccion_lista_expre_begin(t):
+    '''lista_expre_begin    : lista_expre_begin COMA expre
+                            | expre'''
+    strGram = ""
+    if len(t) > 2:
+        strGram = "<lista_expre_begin> ::= WHEN <lista_expre_begin> COMA <expre>\n"
+    else:
+        strGram = "<lista_expre_begin> ::= <expre>\n"
+    agregaGram(strGram)
+
+def p_elseif(t) :
+    '''elsif       : ELSIF condicion_if THEN list_begin elsif
+                   | ELSIF condicion_if THEN list_begin
+    '''
+    strGram = ""
+    if len(t) > 5:
+        strGram = "<elsif> ::= ELSIF <condicion_if> THEN <list_begin> <elsif>\n"
+    else:
+        strGram = "<elsif> ::= ELSIF <condicion_if> THEN <list_begin>\n"
+    agregaGram(strGram)
+
+def p_else(t) :
+    '''else_if         : ELSE list_begin
+    '''
+    strGram = "<else_if> ::= ELSE <list_begin>\n"
+    agregaGram(strGram)
+
+def p_condiciones_if(t) :
+    '''condiciones_if   : condiciones_if AND condiciones_if
+                        | condiciones_if OR condiciones_if
+                        | condiciones_if'''
+    strGram = ""
+    if len(t) > 2 and t[2] == "AND":
+        strGram = "<condiciones_if> ::= <condiciones_if> AND <condiciones_if>\n"
+    elif len(t) > 2 and t[2] == "OR":
+        strGram = "<condiciones_if> ::= <condiciones_if> OR <condiciones_if>\n"
+    else:
+        strGram = "<condiciones_if> ::= <condiciones_if>\n"
+    agregaGram(strGram)
+
+def p_condiciones_if2(t) :
+    '''condiciones_if   : condicion_if'''
+    strGram = "<condiciones_if> ::= <condiciones_if>\n"
+    agregaGram(strGram)
+
+def p_condicion_if(t) :
+    '''condicion_if : expre IGUAL expre
+                    | expre DISTINTO expre
+                    | expre MAYORQ expre
+                    | expre MENORQ expre
+                    | expre MAYOR_IGUALQ expre
+                    | expre MENOR_IGUALQ expre'''
+    strGram = ""
+    if t[2] == "=":
+        strGram = "<condiciones_if> ::= <expre> IGUAL <expre>\n"
+    elif t[2] == "<>":
+        strGram = "<condiciones_if> ::= <expre> DISTINTO <expre>\n"
+    elif t[2] == ">":
+        strGram = "<condiciones_if> ::= <expre> MAYORQ <expre>\n"
+    elif t[2] == "<":
+        strGram = "<condiciones_if> ::= <expre> MENORQ <expre>\n"
+    elif t[2] == ">=":
+        strGram = "<condiciones_if> ::= <expre> MAYOR_IGUALQ <expre>\n"
+    elif t[2] == "<=":
+        strGram = "<condiciones_if> ::= <expre> MENOR_IGUALQ <expre>\n"
+    agregaGram(strGram)
+
+def p_condicion_if2(t) :
+    '''condicion_if : expre'''
+    strGram = "<condiciones_if> ::= <expre>\n"
+    agregaGram(strGram)
 
 def p_def_return(t) :
     '''def_return   : expre
                     | expre COLLATE expre
                     | QUERY query'''
-
+    strGram = ""
+    if len(t) == 2:
+        strGram = "<def_return> ::= <expre>\n"
+    elif len(t) == 3:
+        strGram = "<def_return> ::= QUERY <query>\n"
+    elif len(t) == 4:
+        strGram = "<def_return> ::= <expre> COLLATE <expre>\n"
+    agregaGram(strGram)
 
 def p_asign(t) :
     '''asign    : expre DOS_PUNTOS IGUAL expre'''
-
+    strGram = "<asign> ::= <expre> DOS_PUNTOS IGUAL <expre>\n"
+    agregaGram(strGram)
 
 def p_list_exception(t) :
     '''list_exception   : list_exception except
                         | except'''
-
+    strGram = ""
+    if len(t) > 2:
+        strGram = "<list_exception> ::= <list_exception> <except>\n"
+    else:
+        strGram = "<list_exception> ::= <except>\n"
+    agregaGram(strGram)
 
 def p_exception(t) :
     '''except   : WHEN expre THEN content_except
                 | WHEN expre THEN'''
-
+    strGram = ""
+    if len(t) > 4:
+        strGram = "<except> ::= WHEN <expre> THEN <content_except>\n"
+    else:
+        strGram = "<except> ::= WHEN <expre> THEN\n"
+    agregaGram(strGram)
 
 def p_content_except(t) :
     '''content_except   : RAISE EXCEPTION l_expresiones PUNTO_COMA
                         | NULL PUNTO_COMA'''
+    strGram = ""
+    if t[1] == "RAISE":
+        strGram = "<content_except> ::= RAISE EXCEPTION <l_expresiones> PUNTO_COMA\n"
+    elif t[1] == "NULL":
+        strGram = "<content_except> ::= NULL PUNTO_COMA\n"
+    agregaGram(strGram)
 
 def p_inst_perf(t) :
     '''instruccion  : PERFORM function_call PUNTO_COMA'''
-
+    strGram = "<instruccion> ::= PERFORM <function_call> PUNTO_COMA\n"
+    agregaGram(strGram)
+    strGram = obtenerGram()
+    t[0] = indexFunction.indexFunction(strGram)
+    global lsStrGram
+    lsStrGram = []
 
 def p_inst_if(t) :
     '''instruccion  : IF NOT FOUND THEN list_begin END IF PUNTO_COMA'''
-
+    strGram = "<instruccion> ::= IF NOT FOUND THEN <list_begin> END IF PUNTO_COMA\n"
+    agregaGram(strGram)
+    strGram = obtenerGram()
+    t[0] = indexFunction.indexFunction(strGram)
+    global lsStrGram
+    lsStrGram = []
 
 def p_inst_exec(t) :
     '''instruccion  : EXECUTE function_call can_where
                     | EXECUTE query PUNTO_COMA'''
+    strGram = ""
+    if t[3] == ";":
+        strGram = "<instruccion> ::= EXECUTE <query> PUNTO_COMA\n"
+    else:
+        strGram = "<instruccion> ::= EXECUTE <function_call> <can_where>\n"
+    agregaGram(strGram)
+    strGram = obtenerGram()
+    t[0] = indexFunction.indexFunction(strGram)
+    global lsStrGram
+    lsStrGram = []
 
 def p_function_call(t) :
     '''function_call    : ID PARIZQ l_expresiones PARDER'''
+    strGram = "<function_call> ::= ID PARIZQ <l_expresiones> PARDER\n"
+    agregaGram(strGram)
 
 def p_inst_get(t) :
     '''instruccion  : GET CURRENT DIAGNOSTICS expre symbol_declare expre PUNTO_COMA
                     | GET DIAGNOSTICS expre symbol_declare expre PUNTO_COMA
                     | GET PUNTO_COMA'''
+    strGram = ""
+    if t[2] == ";":
+        strGram = "<instruccion> ::= GET PUNTO_COMA\n"
+    elif t[2] == "DIAGNOSTICS":
+        strGram = "<instruccion> ::= GET DIAGNOSTICS <expre> <symbol_declare> <expre> PUNTO_COMA\n"
+    elif t[2] == "CURRENT":
+        strGram = "<instruccion> ::= GET CURRENT DIAGNOSTICS <expre> <symbol_declare> <expre> PUNTO_COMA\n"
+    agregaGram(strGram)
+    strGram = obtenerGram()
+    t[0] = indexFunction.indexFunction(strGram)
+    global lsStrGram
+    lsStrGram = []
 
+#Procedures
+def p_instruccion_creacion_procedure(t):
+    '''instruccion  : CREATE PROCEDURE ID PARIZQ list_params_funct PARDER LANGUAGE PLPGSQL as_def PROC def_procedure PROC PUNTO_COMA
+                    | CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE PLPGSQL as_def PROC def_procedure PROC PUNTO_COMA'''
+    strGram = ""
+    if len(t) > 13:
+        strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ <list_params_funct> PARDER LANGUAGE PLPGSQL <as_def> PROC <def_procedure> PROC PUNTO_COMA\n"
+    else:
+        strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE PLPGSQL <as_def> PROC <def_procedure> PROC PUNTO_COMA\n"
+    agregaGram(strGram)
+    strGram = obtenerGram()
+    t[0] = indexFunction.indexFunction(strGram)
+    global lsStrGram
+    lsStrGram = []
+
+def p_def_procedure(t) :
+    '''def_procedure    : dec_def beg_def_procedure END PUNTO_COMA
+                        | beg_def_procedure END PUNTO_COMA'''
+    strGram = ""
+    if len(t) > 4:
+        strGram = "<def_procedure> ::= <dec_def> <beg_def_procedure> END PUNTO_COMA\n"
+    else:
+        strGram = "<def_procedure> ::= <beg_def_procedure> END PUNTO_COMA\n"
+    agregaGram(strGram)
+
+#PUNTO DE RETORNO
+def p_beg_def_procdeure(t):
+    '''beg_def_procedure    : BEGIN list_begin_procedure'''
+    strGram = "<beg_def_procedure> ::= BEGIN <list_begin_procedure>"
+    agregaGram(strGram)
+
+def p_list_beg_procedure(t):
+    '''list_begin_procedure : list_begin_procedure content_begin_procedure'''
+    strGram = "<list_begin_procedure> ::= <list_begin_procedure> <content_begin_procedure>"
+    agregaGram(strGram)
+
+def p_list_beg_procedure2(t):
+    '''list_begin_procedure : content_begin_procedure'''
+    strGram = "<list_begin_procedure> ::= <content_begin_procedure>"
+    agregaGram(strGram)
+
+def p_content_begin_procedure(t):
+    '''content_begin_procedure  : RAISE NOTICE l_expresiones PUNTO_COMA
+                                | RAISE EXCEPTION l_expresiones PUNTO_COMA
+                                | asign PUNTO_COMA
+                                | def_procedure
+                                | EXCEPTION list_exception
+                                | query PUNTO_COMA
+                                | COMMIT PUNTO_COMA
+                                | ROLLBACK PUNTO_COMA'''
+    strGram = ""
+    if len(t) == 5 and t[2] == "NOTICE":
+        strGram = "<content_begin_procedure> ::= RAISE NOTICE <l_expresiones> PUNTO_COMA\n"
+    elif len(t) == 5 and t[2] == "EXCEPTION":
+        strGram = "<content_begin_procedure> ::= RAISE EXCEPTION <l_expresiones> PUNTO_COMA\n"
+    elif len(t) == 3 and t[2] == ";":
+        strGram = "<content_begin_procedure> ::= <asign> PUNTO_COMA\n\t\t| <query> PUNTO_COMA\n"
+    elif t[1] == "COMMIT":
+        strGram = "<content_begin_procedure> ::= COMMIT PUNTO_COMA\n"
+    elif t[1] == "ROLLBACK":
+        strGram = "<content_begin_procedure> ::= ROLLBACK PUNTO_COMA\n"
+    elif t[1] == "EXCEPTION":
+        strGram = "<content_begin_procedure> ::= EXCEPTION <list_exception>\n"
+    else:
+        strGram = "<content_begin_procedure> ::= <def_procedure>\n"
+    agregaGram(strGram)
+
+def p_content_begin_procedure_if(t):
+    '''content_begin_procedure  : IF condicion_if THEN list_begin_procedure elsif_procedure else_if_procedure END IF PUNTO_COMA
+                                | IF condicion_if THEN list_begin_procedure else_if_procedure END IF PUNTO_COMA
+                                | IF condicion_if THEN list_begin_procedure elsif_procedure END IF PUNTO_COMA
+                                | IF condicion_if THEN list_begin_procedure END IF PUNTO_COMA'''
+    strGram = ""
+    if len(t) == 10 and t[7] == "END":
+        strGram += "<content_begin_procedure> ::= IF <condicion_if> THEN <list_begin_procedure> <elsif_procedure> <else_if_procedure> END IF PUNTO_COMA\n"
+    elif len(t) == 9 and t[6] == "END":
+        strGram = "<content_begin_procedure> ::= IF <condicion_if> THEN <list_begin_procedure> <else_if_procedure> END IF PUNTO_COMA\n"
+        strGram += "\t\t| IF <condicion_if> THEN <list_begin_procedure> <elsif_procedure> END IF PUNTO_COMA\n"
+    elif len(t) == 8 and t[5] == "END":
+        strGram = "<content_begin_procedure> ::= IF <condicion_if> THEN <list_begin_procedure> END IF PUNTO_COMA\n"
+    agregaGram(strGram)
+
+def p_elseif_procedure(t) :
+    '''elsif_procedure  : ELSIF condicion_if THEN list_begin_procedure elsif_procedure
+                        | ELSIF condicion_if THEN list_begin_procedure
+    '''
+    strGram = ""
+    if len(t) > 5:
+        strGram = "<elsif_procedure> ::= ELSIF <condicion_if> THEN <list_begin_procedure> <elsif_procedure>\n"
+    else:
+        strGram = "<elsif_procedure> ::= ELSIF <condicion_if> THEN <list_begin_procedure>"
+    agregaGram(strGram)
+
+def p_else_procedure(t) :
+    '''else_if_procedure         : ELSE list_begin_procedure
+    '''
+    strGram = "<else_if_procedure> ::= ELSE <list_begin_procedure>\n"
+    agregaGram(strGram)
+
+def p_content_beginCase_procedure(t) :
+    '''content_begin_procedure    : CASE lcase_begin_procedure END CASE PUNTO_COMA
+    '''
+    strGram = "<content_begin_procedure> ::= CASE <lcase_begin> END CASE PUNTO_COMA\n"
+    agregaGram(strGram)
+
+def p_instruccion_lcase_begin_procedure(t):
+    '''lcase_begin_procedure  : lcase_begin_procedure case_begin_procedure
+                              | case_begin_procedure'''
+    strGram = ""
+    if len(t) > 2:
+        strGram = "<lcase_begin_procedure> ::= <lcase_begin_procedure> <case_begin_procedure>\n"
+    else:
+        strGram = "<lcase_begin_procedure> ::= <case_begin_procedure>\n"
+    agregaGram(strGram)
+
+def p_instruccion_case_begin_procedure(t):
+    '''
+    case_begin_procedure  : WHEN lista_expre_begin_procedure THEN list_begin_procedure
+                          | ELSE list_begin_procedure
+    '''
+    strGram = ""
+    if len(t) > 3:
+        strGram = "<case_begin_procedure> ::= WHEN <lista_expre_begin_procedure> THEN <list_begin_procedure>\n"
+    else:
+        strGram = "<case_begin_procedure> ::= ELSE <list_begin_procedure>\n"
+    agregaGram(strGram)
+
+def p_instruccion_lista_expre_begin_procedure(t):
+    '''lista_expre_begin_procedure    : lista_expre_begin_procedure COMA expre
+                                      | expre'''
+    strGram = ""
+    if len(t) > 2:
+        strGram = "<lista_expre_begin_procedure> ::= WHEN <lista_expre_begin_procedure> COMA <expre>\n"
+    else:
+        strGram = "<lista_expre_begin_procedure> ::= <expre>\n"
+    agregaGram(strGram)
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
