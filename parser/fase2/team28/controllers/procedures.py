@@ -60,4 +60,13 @@ class Procedures(object):
 
         if key in self.__storedProcedure:
             sp = copy.deepcopy(self.__storedProcedure[key]['tac'])
-            sp.print(sp.environment)
+            return sp.print(sp.environment)
+
+    def getParams(self, name):
+        db = SymbolTable().useDatabase
+        key = f"{name}{db}"
+
+        if key in self.__storedProcedure:
+            return self.__storedProcedure[key]['tac'].params
+
+        return []

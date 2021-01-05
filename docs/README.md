@@ -250,7 +250,7 @@ Mediante una función se debe calcular el Checksum de la base de datos, conforme
 ```
 def checksumDatabase(database: str, mode: str) -> str:
 ```
-Asociada una codificación a una base de datos por completo.  (UPDATE)  
+Genera un diggest a partir del contenido de la base de datos incluyendo sus tablas.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 nombre de modo no existente.  
@@ -258,11 +258,11 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 ```
 def checksumTable(database: str, table:str, mode: str) -> str:
 ```
-Asociada una codificación a una base de datos por completo.  (UPDATE)  
+Genera un diggest a partir del contenido de la tabla de una base de datos.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro table: es el nombre de la tabla que se desea calcular el checksum.  
 Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 nombre de modo no existente.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 nombre de modo no existente.  
 
 
 ### 6. Compresión de datos
@@ -329,6 +329,23 @@ El storageManager debe tener un paquete de generación de diagramas de estructur
 
 - diagrama de estructura de datos: para mayor detalle ver este [enlace](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.172.3370&rep=rep1&type=pdf).
 - diagrama de dependencias: este grafo muestra las dependencias funcionales que existen en una tabla específica.
+
+El resultado será gráfico, sin embargo se deben crear dos funciones para generar dichos diagramas.
+
+```
+def graphDSD(database: str) -> str:
+```
+Genera un gráfico mediante Graphviz acerca de la base de datos especificada.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Valor de retorno: archivo en formato Graphviz para dibujar, None si hay un error.  
+
+```
+def graphDF(database: str, table: str) -> str:
+```
+Genera un gráfico mediante Graphviz acerca de las dependencias funcionales de una tabla especificada de una base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno: archivo en formato Graphviz para dibujar, None si hay un error.  
 
 
 ## Administrador de la base de datos

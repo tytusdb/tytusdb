@@ -2,7 +2,7 @@ from models.instructions.shared import Instruction
 from models.Other.ambito import Ambito
 from controllers.three_address_code import ThreeAddressCode
 from controllers.procedures import Procedures
-
+from models.instructions.Expression.expression import DATA_TYPE, PrimitiveData
 
 class Parametro(Instruction):
     def __init__(self, id, data_type, line, column):
@@ -14,7 +14,7 @@ class Parametro(Instruction):
     def compile(self):
         pass
 
-    def process(self):
+    def process(self, environment):
         pass
 
     def __repr__(self):
@@ -23,12 +23,13 @@ class Parametro(Instruction):
 
 class Funcion(Instruction):
 
-    def __init__(self, id, params, body, val_return, isNew, line, column):
+    def __init__(self, id, params, body, val_return, isNew, isCall, line, column):
         self.id = id
         self.params = params
         self.body = body
         self.val_return = val_return
         self.isNew = isNew
+        self.isCall = isCall
         self.environment = None
         self.line = line
         self.column = column
@@ -43,11 +44,12 @@ class Funcion(Instruction):
         if self.isNew:
             self.environment = environment  # TODO verificar
             if Procedures().saveProcedure(self.id, self, self.line, self.column):
-                self.print(environment)
-            self.isNew = False
+                var_array = self.print(environment)
+                self.setVariables(var_array, environment)
+            # self.isNew = False
         else:
-            name = self.id.compile(environment)
-            Procedures().getProcedure(name)
+            var_array = Procedures().getProcedure(self.id)
+            self.setVariables(var_array, environment)
 
     def print(self, environment):
         ThreeAddressCode().newFunction()
@@ -59,14 +61,16 @@ class Funcion(Instruction):
             newAmbito = Ambito(environment)
 
         pos = 0
+        var_array = []
         for var in self.params:
             pos = ThreeAddressCode().stackCounter
-            newAmbito.addVar(var.id, var.data_type, None,
-                             pos, var.line, var.column)
-            temp = ThreeAddressCode().newTemp()
-            # TODO: MANEJAR PARAMETROS
-            ThreeAddressCode().addCode(f"{temp} = None")
-            ThreeAddressCode().addStack(temp)
+            var_array.append(newAmbito.addVar(var.id, var.data_type, None,
+                             pos, var.line, var.column))
+            ThreeAddressCode().incStackCounter()          
+            # temp = ThreeAddressCode().newTemp()
+            # # TODO: MANEJAR PARAMETROS
+            # ThreeAddressCode().addCode(f"{temp} = None")
+            # ThreeAddressCode().addStack(temp)
         pos = ThreeAddressCode().stackCounter
         lbl_exit = ThreeAddressCode().newLabel()
         self.body.compile(newAmbito)
@@ -76,3 +80,15 @@ class Funcion(Instruction):
         ThreeAddressCode().addCode(f"print(Stack[{pos}])")
 
         ThreeAddressCode().createFunction(self.id, self.params)
+        return var_array
+
+    def setVariables(self, var_array, environment):
+        if self.isCall:
+            value = 0
+            print(type(self.params[0]))
+            for index, var in enumerate(var_array):
+                value = self.params[index].compile(environment)
+                if isinstance(value, PrimitiveData):
+                    if value.data_type == DATA_TYPE.STRING:
+                        value.value = f"\'{value.value}\'"
+                ThreeAddressCode().addCode(f"Stack[{var.position}] = {value.value}")
