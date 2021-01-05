@@ -271,7 +271,7 @@ class createfunc(pl):
         
         for inst in self.block.instrucciones:
             
-            funcion += '\t'+str(inst.traducir())+'\n'
+            funcion += '\t'+str(inst.traducir()).replace('\n','\n\t')+'\n'
             c3d += inst.c3d()
         
 
@@ -361,7 +361,7 @@ class asignacion(instruccion):
     def traducir(self):
         var = self.exp.traducir()
         c3d = ''
-        c3d += var[0].replace('\n','\n\t')
+        c3d += var[0]+ '\n'
         c3d += self.id + ' = ' + str(var[1]) + '\n'
         return c3d
 
@@ -372,9 +372,9 @@ class rtrn(instruccion):
     def traducir(self):
         c3d = ''
         var = self.exp.traducir()
-        c3d += var[0].replace('\n','\n\t')
+        c3d += var[0]
         c3d += '\n'
-        c3d += '\tpila[10] = ' + var[1] + '\n'
+        c3d += 'pila[10] = ' + var[1] + '\n'
         return c3d
 
     def c3d(self):
@@ -433,49 +433,56 @@ class searched_case(instruccion):
 
 class iff(instruccion):
     def __init__(self,condition,instrucciones,elsif,els) -> None:
-        self.codition = condition
+        self.condition = condition
         self.instrucciones = instrucciones
         self.elsif = elsif
         self.els= els
     
     def traducir(self):
         c3d = ''
-        c3d += self.condition.exp.traducir()[0]
+        varcon = self.condition.traducir()
+        c3d += varcon[0]+'\n'
         #variables temporales a utilizar en else if
         
         #tengo que ejecutar y añadir los elif
+        aveli = []
         for eli in self.elsif :
-            c3d += str(eli.condition.exp.traducir()[0])
+            veli = eli.condition.traducir()
+            aveli.append(veli)
+            c3d += veli[0]+'\n'
             
             
 
-        c3d += 'if '+ self.condition.exp.traducir()[1] +':\n'
+        c3d += 'if '+ varcon[1] +':\n'
         for inst in self.instrucciones:
-            c3d += '\t'+inst.traducir()+'\n'
+            c3d += '\t'+inst.traducir().replace('\n','\n\t')+'\n'
         
+        contadori = 0
         for eli in self.elsif :
             #tengo que ejecutar y añadir los elif
-            c3d += 'elif '+ eli.condition.exp.traducir()[1] +' :'
+            c3d += 'elif '+ aveli[contadori][1] +' :\n'
             for inst in eli.instrucciones:
-                c3d += '\t'+inst.traducir()+'\n'
+                c3d += '\t'+inst.traducir().replace('\n','\n\t')+'\n'
+            contadori += 1
             
 
-        if els != None:
+        if self.els != None:
             c3d += 'else:'
-            for inst in els.instrucciones:
-                c3d += '\t'+inst.traducir()+'\n'
+            for inst in self.els.instrucciones:
+                c3d += '\t'+inst.traducir().replace('\n','\n\t')+'\n'
 
         return c3d
 
     def c3d(self):
         c3d = ''
-        for inst in instrucciones:
+        for inst in self.instrucciones:
             c3d += inst.c3d()
 
         for eli in self.elsif:
             c3d += eli.c3d()
         
-        c3d += els.c3d()
+        if self.els != None:
+            c3d += self.els.c3d()
 
         
         return c3d
@@ -490,7 +497,7 @@ class els(instruccion):
 
     def c3d(self):
         c3d = ''
-        for inst in instrucciones:
+        for inst in self.instrucciones:
             c3d += inst.c3d()
         return c3d
 
@@ -505,7 +512,7 @@ class elsif(instruccion):
 
     def c3d(self):
         c3d = ''
-        for inst in instrucciones:
+        for inst in self.instrucciones:
             c3d += inst.c3d()
         return c3d
 
@@ -660,7 +667,7 @@ class exp_idp(expresion):
 
     def traducir(self):
         tmp = getTemp()
-        codigo = tmp + f' = {self.val}'
+        codigo = tmp + f' = {self.val}\n'
         valor = tmp
         #print(codigo,valor)
         return codigo,valor
@@ -680,7 +687,7 @@ class exp_mayorp(expresion):
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} > {tmp2}'
-        c3df += f'\n{tmpf}'
+        c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
         #print(codigo,valor)
@@ -701,7 +708,7 @@ class exp_menorp(expresion):
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} < {tmp2}'
-        c3df += f'\n{tmpf}'
+        c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
         #print(codigo,valor)
@@ -722,7 +729,7 @@ class exp_igualp(expresion):
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} == {tmp2}'
-        c3df += f'\n{tmpf}'
+        c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
         #print(codigo,valor)
@@ -743,7 +750,7 @@ class exp_mayor_igualp(expresion):
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} >= {tmp2}'
-        c3df += f'\n{tmpf}'
+        c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
         #print(codigo,valor)
@@ -764,7 +771,7 @@ class exp_menor_igualp(expresion):
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} <= {tmp2}'
-        c3df += f'\n{tmpf}'
+        c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
         #print(codigo,valor)
@@ -785,8 +792,13 @@ class exp_diferentep(expresion):
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} != {tmp2}'
-        c3df += f'\n{tmpf}'
+        c3df += f'\n{tmpf} \n'
         codigo = c3df 
         valor = tmp
         #print(codigo,valor)
         return codigo,valor
+
+
+class mathtrig(pl):
+    'Abstract Class'
+    
