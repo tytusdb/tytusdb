@@ -1,5 +1,5 @@
 # from generate_ast import GraficarAST
-from models.Indexes.indexes import Indexes
+from models.Indexes.indexes import AlterIndex, DropIndex, Indexes
 from models.instructions.Expression.trigonometric_functions import ExpressionsTrigonometric
 from models.instructions.Expression.extract_from_column import ExtractFromIdentifiers
 from re import L
@@ -385,15 +385,61 @@ def p_options_col_list(p):
     else:
         p[0] = [p[1]]
 
-
 def p_indexes_statement(p):
-    '''INDEXES_STATEMENT : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
+    '''INDEXES_STATEMENT : CREATE_INDEXES
+                         | DROP_INDEXES SEMICOLON
+                         | ALTER_INDEXES SEMICOLON'''
+    p[0] = p[1]
+
+def p_indexes_drop(p):
+    '''DROP_INDEXES : DROP INDEX CONCURRENTLY IF EXISTS columnlist CASCADE
+                    | DROP INDEX CONCURRENTLY IF EXISTS columnlist RESTRICT
+                    | DROP INDEX IF EXISTS columnlist RESTRICT
+                    | DROP INDEX IF EXISTS columnlist CASCADE
+                    | DROP INDEX columnlist CASCADE
+                    | DROP INDEX columnlist RESTRICT 
+                    | DROP INDEX CONCURRENTLY IF EXISTS columnlist
+                    | DROP INDEX CONCURRENTLY columnlist
+                    | DROP INDEX IF EXISTS columnlist
+                    | DROP INDEX columnlist '''
+    if len(p) == 8:
+        if p.slice[7].type == "CASCADE":
+            p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
+    elif len(p) == 7:
+        if p.slice[6].type == "CASCADE":
+            p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+        elif p.slice[3].type == "CONCURRENTLY":
+            p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+    elif len(p) == 6:
+        p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+    elif len(p) == 5:
+        if p.slice[4].type == "CASCADE":
+            p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+        elif p.slice[3].type == "CONCURRENTLY":
+            p[0] = DropIndex(p[4], p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+    else:
+        p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+    
+def p_indexes_alter(p):
+    '''ALTER_INDEXES : ALTER INDEX IF EXISTS ID RENAME TO ID
+                     | ALTER INDEX ID RENAME TO ID'''
+    if len(p) == 9:
+        p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]))
+    else:
+        p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]))
+                
+def p_indexes_create(p):
+    '''CREATE_INDEXES    : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
     '''
-    generateC3D(p)
-    
     if len(p) == 10:
         p[0] = Indexes(p[2],p[5], p[3], None,p[7], None, p.lineno(1), find_column(p.slice[1]),generateC3D(p))
     elif len(p) == 11:
@@ -913,6 +959,7 @@ def p_statement_type(p):
                     |  BODY_DECLARATION
                     |  ifStatement
                     |  CASECLAUSE
+                    |  DML
     '''
     p[0] = p[1]
 
