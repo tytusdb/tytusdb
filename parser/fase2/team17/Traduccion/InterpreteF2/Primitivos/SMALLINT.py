@@ -4,7 +4,7 @@ from Interprete.Arbol import Arbol
 from Interprete.Valor.Valor import Valor
 from Interprete.Primitivos.TIPO import TIPO
 
-class ENTERO(NodoArbol):
+class SMALLINT(NodoArbol):
 
     def __init__(self, data, line, column):
         super().__init__(line, column)
