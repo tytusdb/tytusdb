@@ -2397,31 +2397,84 @@ def p_if_end(t):
 
 
 
+lista_explist = []
 def p_casecf(t):
-    '''case : ID WHEN expresionlist THEN statements elsecase
-          | casewhens'''
+    '''case : casewhens
+            | ID WHEN expresionlist THEN statements elsecase'''
     text = ""
-    t[0] = {'text': text, 'c3d': ''}
+    code = ""
+    try:
+        if t[2].lower() == "when":
+            arreglo = []    
+            for a in t[3]['c3d']:
+                temporal = tempos.newTemp()
+                arreglo.append(temporal)
+                code += '    ' + temporal + ' = ' + t[1] + " == " + a + "\n"
+            i = -1
+            ultimo = ""
+            for c in arreglo:
+                i += 1
+                if i > 0:
+                    ultimo = tempos.newTemp()
+                    code += '    ' + ultimo + ' = ' + arreglo[i-1] + " or " + arreglo[i] + "\n"
+            code +=  '    ' + " if("+ ultimo +"): goto ." + tempos.newLabel() +"\n" 
+            code += '    ' + "goto ." + tempos.newLabel() + "\n"
+            code += '    ' + "label .L_case_" + str(tempos.getindex2() - 1) + "\n"
+            code += t[5]['c3d'] + "\n"
+            code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n"
+            code += t[6]['c3d'] + "\n"
+        else:
+            code = t[1]['c3d']
+    except:
+        code = t[1]['c3d']
+    print(code)
+    t[0] = {'text': text, 'c3d': code}
 
 def p_elsecase(t):
-    '''elsecase : ELSE statements END CASE
+    '''elsecase : ELSE statements END CASE 
                 | END CASE'''
     text = ""
-    t[0] = {'text': text, 'c3d': ''}
+    code = ""
+    if t[1].lower() == "else":
+        code  += t[2]['c3d']
+    else:
+        code = ""
+    t[0] = {'text': text, 'c3d': code}   
 
 def p_expresionlist(t):
-    '''expresionlist : expresionlist COMA argument
-                | argument'''
+    '''expresionlist : expresionlist COMA argument'''
     text = ""
-    t[0] = {'text': text, 'c3d': ''}
+    lista_explist.append(t[3]['text'])
+    a = lista_explist.copy()
+    t[0] = {'text': text, 'c3d': a}
+    lista_explist.clear()
+
+def p_expresionlidefst(t):
+    '''expresionlist : argument'''
+    text = ""
+    lista_explist.append(t[1]['text'])
+    t[0] = {'text': text, 'c3d': lista_explist}
 
 def p_casewhens(t):
-    '''casewhens :  WHEN condicion THEN statements casewhens
+    '''casewhens :  WHEN condiciones THEN statements casewhens 
+                | ELSE statements
                 | END CASE'''
     text = ""
-    t[0] = {'text': text, 'c3d': ''}
-
-
+    code = ""
+    if t[1].lower() == "end":
+        code = ""
+    elif t[1].lower() == "else":
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n" 
+        code += t[2]['c3d']
+    else:
+        code += t[2]['c3d']
+        code += "    if(" + t[2]['tflag'] + "): goto ." + tempos.newLabel() + "\n"
+        code += '    ' + "goto ." + tempos.newLabel() + "\n"
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()-1) + "\n" 
+        code += t[4]['c3d']
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n" 
+        code += t[5]['c3d']
+    t[0] = {'text': text, 'c3d': code}
 
 
 #---------------------------------------------------------------------------------------------------- fffffff
