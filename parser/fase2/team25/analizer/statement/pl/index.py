@@ -34,7 +34,7 @@ class CreateIndex(instruction.Instruction):
         indexEnv.addVar(self.index,  valor, tipo, self.row, self.column)
 
     def dot(self):
-        texto = "CREATE_INDEX"  
+        texto = "CREATE_INDEX"
 
         if self.type:
             texto = self.type + "_" + texto

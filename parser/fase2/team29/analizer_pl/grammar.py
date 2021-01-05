@@ -83,7 +83,7 @@ def p_block(t):
     """
     block : function_stmt isblock_ R_AS S_DOLAR S_DOLAR declaration_stmt R_BEGIN block_stmts exception_stmts R_END label S_PUNTOCOMA S_DOLAR S_DOLAR language_function S_PUNTOCOMA
     """
-    t[0] = code.Block(t[1], t[5], t[7], t[8], t[10], 0, 0)
+    t[0] = code.Block(t[1], t[6], t[8], t[9], t[11], 0, 0)
     repGrammar.append(t.slice)
 
 
@@ -472,6 +472,10 @@ def p_else_stmt_opt(t):
     else_stmt_opt : R_ELSE block_stmts
                 |
     """
+    if len(t)==1:
+        t[0] = None
+    else:
+        t[0] = t[2]
     repGrammar.append(t.slice)
 
 
@@ -512,8 +516,8 @@ def p_else_case_stmt_n(t):
 
 def p_case_stmt_bool(t):
     """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
-    
-    t[0] = t[3]
+    t[0] = code.Case(t[3], t[5], t[6], t[7],t.slice[1].lineno, t.slice[1].lexpos)
+    #t[0] = t[3]
     # expBool contiene el C3D de la expresion
     # TODO: agregar el else case
     repGrammar.append(t.slice)
@@ -539,10 +543,11 @@ def p_else_case_stmt_bool(t):
     """
     else_case_stmt_bool : else_case_stmt_bool  R_WHEN expBool R_THEN block_stmts
     """
-    
-    # expBool contiene el C3D de la expresion
-    t[1].append(t[3])
+    t[1].append([t[3],t[5]])
     t[0] = t[1]
+    # expBool contiene el C3D de la expresion
+    #t[1].append(t[3])
+    #t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -550,9 +555,9 @@ def p_else_case_stmt_bool_u(t):
     """
     else_case_stmt_bool : R_WHEN expBool R_THEN block_stmts
     """
-    
+    t[0] = [[t[2],t[4]]]
     # expBool contiene el C3D de la expresion
-    t[0] = [t[2]]
+    #t[0] = [t[2]]
     repGrammar.append(t.slice)
 
 

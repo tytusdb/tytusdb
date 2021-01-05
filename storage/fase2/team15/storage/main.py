@@ -68,10 +68,12 @@ def dropAll():
 
     try:
 
-        list=showDatabases()
+        for mode in [avl, b, bplus, hash, isam, dict, json]:
 
-        for db in list:
-            dropDatabase(db)
+            list = mode.showDatabases()
+
+            for db in list:
+                mode.dropDatabase(db)
 
         return 0
 
@@ -115,6 +117,74 @@ def _foreign_key(database, foreign_key):
 
     return False
     
+
+def _Comprobar(database, table, registro):
+
+    db = _database(database)
+
+    if db:
+
+        for fk in db["fks"]:
+
+            if fk["table"].casefold() == table.casefold():
+
+                for i in range(len(fk["columns"])):
+
+                    pos=fk["columns"][i]
+                    pos_r=fk["columnsRef"][i]
+
+                    registros_r = extractTable(database, fk["tableRef"])
+
+                    columna_r = []
+
+                    for registro_r in registros_r:
+
+                        columna_r.append(registro_r[pos_r])
+
+                    if registro[pos] not in columna_r:
+
+                        return False
+
+
+        return True
+
+    else:
+        return False
+
+
+def _Graficar(database, table):
+
+    try:
+        mode = _table(database, table)["modo"]
+
+        if mode == "avl":
+
+            avl._Cargar(database, table)
+
+        elif mode == "b":
+
+            b._Cargar(database, table)
+
+        elif mode == "bplus":
+
+            bplus._Cargar(database, table)
+
+        if mode == "hash":
+
+            hash._Cargar(database, table)
+
+        elif mode == "isam":
+
+            isam._Cargar(database, table)
+
+        return 0
+
+    except:
+        return 1
+
+
+#===============================//=====================================
+
 
 def createDatabase(database: str, mode: str, encoding: str) -> int:
     """Creates a database
@@ -391,7 +461,7 @@ def showTables(database: str) -> list:
 
         for tabla in bd["tablas"]:
             temp.append(tabla["nombre"])
-
+            
         return temp
 
     else:
@@ -904,32 +974,37 @@ def insert(database: str, table: str, register: list) -> int:
 
         if tb:
 
-            mode = tb["modo"]
+            if _Comprobar(database, table, register):
 
-            val = -1
+                mode = tb["modo"]
 
-            if mode == "avl":
-                val = avl.insert(database, table, register)
+                val = -1
 
-            elif mode == "b":
-                val = b.insert(database, table, register)
+                if mode == "avl":
+                    val = avl.insert(database, table, register)
 
-            elif mode == "bplus":
-                val = bplus.insert(database, table, register)
+                elif mode == "b":
+                    val = b.insert(database, table, register)
 
-            elif mode == "hash":
-                val = hash.insert(database, table, register)
+                elif mode == "bplus":
+                    val = bplus.insert(database, table, register)
 
-            elif mode == "isam":
-                val = isam.insert(database, table, register)
+                elif mode == "hash":
+                    val = hash.insert(database, table, register)
 
-            elif mode == "json":
-                val = json.insert(database, table, register)
+                elif mode == "isam":
+                    val = isam.insert(database, table, register)
 
-            elif mode == "dict":
-                val = dict.insert(database, table, register)
+                elif mode == "json":
+                    val = json.insert(database, table, register)
 
-            return val
+                elif mode == "dict":
+                    val = dict.insert(database, table, register)
+
+                return val
+
+            else:
+                return -1
 
         else:
             return 3
@@ -1223,7 +1298,7 @@ def truncate(database: str, table: str) -> int:
 
 
 #===============================//=====================================
-
+#                     ADMINISTRACION DE MODOS
 
 def alterDatabaseMode(database: str, mode: str) -> int:
     """Restructures a database inner structure
@@ -1342,6 +1417,9 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
         return 1
 
 
+#===============================//=====================================
+#                     ADMINISTRACION DE INDICES
+
 def alterTableAddFK(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
     """Adds a foreign key to a table
 
@@ -1359,7 +1437,7 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list, ta
             2: non-existent database
             3: non-existent table, non-existent refering table
             4: columns lenght are different
-            5: tables data are incompatible            
+            5: tables data incompatible            
     """
 
     bd = _database(database)
@@ -1415,7 +1493,7 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
             0: operation successful
             1: an error ocurred
             2: non-existent database
-            3: non-existent table, non-existent refering table
+            3: non-existent table
             4: non-existent foreign key
     """
 
@@ -1435,9 +1513,268 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
         return 2
 
 
-def alterAddIndex(database: str, table: str, references: dict) -> int:
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
+    """Adds an unique index to a table
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table with the unique index
+            indexName (str): name of the unique index
+            columns (str): columns of the unique index
+            tableRef (str): name of the table the unique index refers to
+            columnsRef (str): columns the unique index refers to
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table, non-existent refering table
+            4: columns lenght are different
+            5: tables data incompatible            
     """
-    DOCSTRING
+
+    bd = _database(database)
+
+    if bd:
+
+        tb = _table(database, table)
+        tb_r = _table(database, tableRef)
+
+        if tb and tb_r:
+
+            if len(columns) != len(columnsRef):
+                return 4
+
+            registros=extractTable(database, table) # Partida
+            registros_r=extractTable(database, tableRef) # Usuarios
+
+            for i in range(len(columns)):
+                
+                columna, columna_r = [], []
+
+                for registro in registros:
+                    columna.append(registro[columns[i]])
+
+                for registro in registros_r:
+                    columna_r.append(registro[columnsRef[i]])
+
+                for valor in columna:
+                    if valor not in columna_r:
+                        return 5
+
+            bd["fks"].append({"nombre":indexName, "table":table, "tableRef":tableRef, "columns":columns, "columnsRef":columnsRef})
+            _Guardar()
+
+            return 0
+
+        else:
+            return 3
+
+    else:
+        return 2
+
+
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+    """ Deletes na unique index
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table with the unique index
+            indexName (str): name of the unique index
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table
+            4: non-existent unique index
+    """
+
+    bd = _database(database)
+
+    if bd:
+
+        fk = _foreign_key(database, indexName)
+
+        if fk:
+            bd["fks"].remove(fk)
+
+        else:
+            return 4
+
+    else:
+        return 2
+
+
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
+    """Adds an index to a table
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table with the index
+            indexName (str): name of the index
+            columns (str): columns of the index
+            tableRef (str): name of the table the index refers to
+            columnsRef (str): columns the index refers to
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table, non-existent refering table
+            4: columns lenght are different
+            5: tables data incompatible            
+    """
+
+    bd = _database(database)
+
+    if bd:
+
+        tb = _table(database, table)
+        tb_r = _table(database, tableRef)
+
+        if tb and tb_r:
+
+            if len(columns) != len(columnsRef):
+                return 4
+
+            registros=extractTable(database, table) # Partida
+            registros_r=extractTable(database, tableRef) # Usuarios
+
+            for i in range(len(columns)):
+                
+                columna, columna_r = [], []
+
+                for registro in registros:
+                    columna.append(registro[columns[i]])
+
+                for registro in registros_r:
+                    columna_r.append(registro[columnsRef[i]])
+
+                for valor in columna:
+                    if valor not in columna_r:
+                        return 5
+
+            bd["fks"].append({"nombre":indexName, "table":table, "tableRef":tableRef, "columns":columns, "columnsRef":columnsRef})
+            _Guardar()
+
+            return 0
+
+        else:
+            return 3
+
+    else:
+        return 2
+
+
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    """ Deletes an index
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table with the index
+            indexName (str): name of the index
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table, non-existent refering table
+            4: non-existent index
+    """
+
+    bd = _database(database)
+
+    if bd:
+
+        fk = _foreign_key(database, indexName)
+
+        if fk:
+            bd["fks"].remove(fk)
+
+        else:
+            return 4
+
+    else:
+        return 2
+
+
+#===============================//=====================================
+#                      ADMINISTRACION DE CODIFICACION
+
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    """Changes a database encoding
+
+        Pararameters:\n
+            database (str): name of the database
+            encoding (str): new database encoding
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-valid encoding
+    """
+
+    bd = _database(database)
+
+    if bd:
+
+        if bd["encoding"] == encoding or encoding not in ["utf8", "ascii", "iso-8859-1"]:
+            return 4
+
+        bd["encoding"]=encoding
+
+        # verificar que se cumpla el nuevo encoding
+
+    else:
+        return 2
+
+
+#===============================//=====================================
+#                      ADMINISTRACION DE CHECKSUM
+
+def checksumDatabase(database: str, mode: str) -> str:
+    """Generates a database checksum
+
+        Pararameters:\n
+            database (str): name of the database
+            mode (str): checksum hash algorithm
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-valid checksum mode
+    """
+
+    bd = _database(database)
+
+    if bd:
+
+        if mode not in ["MD5", "SHA256"]:
+            return 3
+
+        # return database_checksum(database, mode)
+        
+    else:
+        return 2
+
+
+def checksumTable(database: str, table: str, mode: str) -> str:
+    """Generates a table checksum
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table
+            mode (str): checksum hash algorithm
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table
+            4: non-valid checksum mode
     """
 
     bd = _database(database)
@@ -1448,35 +1785,175 @@ def alterAddIndex(database: str, table: str, references: dict) -> int:
 
         if tb:
 
-            mode = tb["modo"]
+            if mode not in ["MD5", "SHA256"]:
+                return 3
 
-            val = -1
+        # return table_checksum(database, table, mode)
 
-            if mode == "avl":
-                val = avl.alterAddIndex(database, table, references)
+        else:
+            return 3
+        
+    else:
+        return 2
 
-            elif mode == "b":
-                val = b.alterAddIndex(database, table, references)
 
-            elif mode == "bplus":
-                val = bplus.alterAddIndex(database, table, references)
+#===============================//=====================================
+#                      ADMINISTRACION DE COMPRESION
 
-            elif mode == "hash":
-                val = hash.alterAddIndex(database, table, references)
+def alterDatabaseCompress(database: str, level: int) -> int:
+    """Compresses a database
 
-            elif mode == "isam":
-                val = isam.alterAddIndex(database, table, references)
+        Pararameters:\n
+            database (str): name of the database
+            level (int): compression level
 
-            elif mode == "json":
-                val = json.alterAddIndex(database, table, references)
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            4: non-valid level
+    """
 
-            elif mode == "dict":
-                val = dict.alterAddIndex(database, table, references)
+    bd = _database(database)
 
-            return val
+    if bd: pass
+
+        # if level not valid:
+        #     return 4
+
+        # return database_compress(database, level)
+
+    else:
+        return 2
+
+
+def alterDatabaseDecompress(database: str) -> int:
+    """Decompresses a database
+
+        Pararameters:\n
+            database (str): name of the database
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            4: non-existent compression
+    """
+
+    bd = _database(database)
+
+    if bd: pass
+
+        # if level not valid:
+        #     return 4
+
+        # return database_decompress(database)
+
+    else:
+        return 2
+
+
+def alterTableCompress(database: str, table: str, level: int) -> int:
+    """Compresses a table
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table
+            level (int): compression level
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table
+            4: non-valid level
+    """
+
+    bd = _database(database)
+
+    if bd:
+
+        tb = _table(table)
+
+        if tb: pass
+
+            # if level not valid:
+            #     return 4
+
+            # return table_compress(database, table, level)
 
         else:
             return 3
 
     else:
         return 2
+
+
+def alterTableDecompress(database: str, table: str) -> int:
+    """Decompresses a table
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            3: non-existent table
+            4: non-existent compression
+    """
+
+    bd = _database(database)
+
+    if bd:
+
+        tb = _table(database, table)
+
+        if tb: pass
+
+            # if level not valid:
+            #     return 4
+
+            # return table_decompress(database, table)
+
+        else:
+            return 3
+
+    else:
+        return 2
+
+
+#===============================//=====================================
+#                      ADMINISTRACION DE SEGURIDAD
+
+def encrypt(backup: str, password: str) -> str:
+    """Encrypts a database backup
+
+        Pararameters:\n
+            backup (str): name of the database backup
+            password (str): encrypting password
+
+        Returns:\n
+            str: cryptogram of the encryption
+            1: an error ocurred
+    """
+
+    pass
+    # return
+
+
+def decrypt(cipherBackup: str, password: str) -> str:
+    """Encrypts a database backup
+
+        Pararameters:\n
+            cipherBackup (str): name of the database backup
+            password (str): encrypting password
+
+        Returns:\n
+            str: decrypted text
+            1: an error ocurred
+    """
+
+    pass
+    # return
