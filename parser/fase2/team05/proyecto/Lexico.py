@@ -226,7 +226,9 @@ palabras_reservadas = {
     'language'      : 'LANGUAGE',
     'procedure'     : 'PROCEDURE',
     'inout'         : 'INOUT',
-    'execute'       : 'EXECUTE'
+    'execute'       : 'EXECUTE',
+    'major'         : 'MAJOR',
+    'minor'         : 'MINOR'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -1936,7 +1938,7 @@ def p_CIndex2(t):
    t[0] = ret
 
 def p_CIndex3(t):
-   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE NUMERO COMA NUMERO PCIERRA PCOMA'
+   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE MAJOR COMA MINOR PCIERRA PCOMA'
    global reporte_gramatical, contador, codigo_3D
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID"  "(" "NUMERO" "," "NUMERO"  ")" ";" ')
    C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7]) + ',' + str(t[9]) + ')' + ';"'
@@ -4298,25 +4300,16 @@ def p_CondicionSubConsulta(t):
 
 
 def p_CondicionFunciones(t):
-    'CONDICION  :   FUNCION PABRE ID PCIERRA'
+    'CONDICION  :   FUNCION PABRE I_LIDS PCIERRA'
     global reporte_gramatical
-    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" \"ID\" \")\"")
-    val = str(t[1]) + '(' + str(t[3]) + ')'
+    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" <I_LIDS> \")\"")
+    val = str(t[1]) + '(' + str(t[3].getInstruccion()) + ')'
     ret = Retorno(val, NodoAST('FUNCION'))
     ret.getNodo().setHijo(NodoAST(t[1]))
-    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[3].getInstruccion())
     t[0] = ret
 
 
-def p_CondicionFunciones1(t):
-    'CONDICION  :   FUNCION PABRE ID PUNTO ID PCIERRA'
-    global reporte_gramatical
-    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" \"ID\" \".\" \"ID\" \")\"")
-    valor = str(t[1]) + '(' + str(t[3]) + '.' + str(t[5]) + ')'
-    ret = Retorno(valor, NodoAST('FUNCION'))
-    ret.getNodo().setHijo(NodoAST(t[1]))
-    ret.getNodo().setHijo(NodoAST(t[3]))
-    t[0] = ret
 
 
 def p_CondicionNow(t):
@@ -4918,7 +4911,8 @@ def p_InstruccionFN2(t):
 
 def p_InstruccionFN3(t):
     'INSTRUCCIONFN  :   INSTRUCCION'
-    t[0] = t[1]
+    ret = Retorno(Primitivo(t[1].getInstruccion().instruccion3d, Tipos.ISQL), t[1].getNodo())
+    t[0] = ret
 
 def p_Asignacion(t):
     'ASIGNACION  :   ID DPUNTOS IGUAL VALORF PCOMA'
@@ -5356,8 +5350,9 @@ def p_VALORFAsigna2(t):
     t[0] = ret
 
 def p_VALORFInstruccion(t):
-    'VALORF  :  PABRE INSTRUCCION PCIERRA '
-
+    'VALORF  :  INSTRUCCION '
+    ret = Retorno(Primitivo(t[1].getInstruccion().instruccion3d, Tipos.ISQL), t[1].getNodo())
+    t[0] = ret
 
 def p_Parametros(t):
     'PARAMETROSL  :   PARAMETROSL COMA PARAML'
@@ -5389,20 +5384,12 @@ def p_LVALOR1(t):
 
 
 def p_LNumFunc(t):
-    'LNUMF  : LNUMF COMA NUMF'
+    'LNUMF  : LNUMF COMA VALORF'
 
 def p_LNumNumF(t):
-    'LNUMF   : NUMF'
+    'LNUMF   : VALORF'
 
 
-def p_NumFNumero(t):  
-    'NUMF    : NUMERO '
-
-def p_NumFDecimal(t):
-    'NUMF  :   DECIMALN '
-
-def p_NumFCadena(t):
-    'NUMF  :   CADENA '
 
 def p_LBOTHFLeading(t):
     'LBOTHF  :   LEADING   '
@@ -5417,40 +5404,84 @@ def p_LBOTHFBoth(t):
 
 def p_PROCEDURE(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+    val = Funcion(t[3], t[5].getInstruccion(), None, t[11].getInstruccion())
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE2(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
+    val = Funcion(t[3], t[5].getInstruccion(), t[11].getInstruccion(), t[12].getInstruccion())
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    ret.getNodo().setHijo(t[12].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE3(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+    val = Funcion(t[3], None, None, t[10].getInstruccion())
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[10].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE4(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
-
+    val = Funcion(t[3], None, t[10].getInstruccion(), t[11].getInstruccion())
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[10].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    t[0] = ret
 
 def p_StatementP(t):
     'STAMENTP  :   BEGIN LINSTRUCCIONESFN END PCOMA FINF PCOMA'
+    t[0] = t[2]
 
 def p_LParamP(t):
     'LPARAMP  :   LPARAMP COMA PARAMP   '
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_LParamP2(t):
     'LPARAMP  :   PARAMP   '
-
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_ParamP(t):
     'PARAMP  :   INOUT ID I_TIPO  '
+    ret = Retorno(Parametro(t[2], t[3]), NodoAST('PARAMETRO'))
+    t[0] = ret
 
 def p_ParamP2(t):
     'PARAMP  :   ID I_TIPO'
-
+    ret = Retorno(Parametro(t[1], t[2]), NodoAST('PARAMETRO'))
+    t[0] = ret
 
 def p_Execute(t):
     'PEXECUTE  :   EXECUTE ID PABRE PCIERRA PCOMA'
+    val = Llamada(t[2], None)
+    ret = Retorno(val, NodoAST("EXECUTE"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
 def p_Execute2(t):
     'PEXECUTE  :   EXECUTE ID PABRE PARAMETROSL PCIERRA PCOMA'
-
+    val = Llamada(t[2], t[4].getInstruccion())
+    ret = Retorno(val, NodoAST("EXECUTE"))
+    ret.getNodo().setHijo(NodoAST(T[2]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 
 #---------------------------------------------------FIN PROCEDIMIENTO
