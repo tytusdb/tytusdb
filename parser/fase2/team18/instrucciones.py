@@ -409,3 +409,18 @@ class Drop_Procedure(Instruccion):
     '''
     def __init__(self,nombres):
         self.nombres=nombres
+
+class Drop_Indice(Instruccion):
+    '''
+        Esta clase representa la eliminacion de un indice
+    '''
+    def __init__(self,nombres):
+        self.nombres=nombres
+
+class Alter_Index_Rename(Instruccion):
+    '''
+        Esta clase representa la remonbrar de un indice
+    '''
+    def __init__(self,nombreviejo,nombrenuevo):
+        self.nombreviejo=nombreviejo
+        self.nombrenuevo=nombrenuevo

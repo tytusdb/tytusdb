@@ -244,7 +244,8 @@ def p_seleccionH1(t):
 
 def p_altert(t):
      '''altert : alterdb
-               | altertb'''
+               | altertb
+               | alterindex'''
      t[0]=t[1]
 
 def p_alterdb(t):
@@ -446,6 +447,12 @@ def p_alttbadd4(t):
           t[0]=t[1]+[t[3]]
      else:
           t[0]=[t[1]]
+
+def p_alterIndex(t):
+     '''alterindex : ALTER INDEX ID RENAME TO ID'''
+     t[0] = Alter_Index_Rename(Operando_ID(t[3]),Operando_ID(t[6]))
+
+
 #fin alter codigo-----------------------------------------------------------------
 
 def p_insertar(t):
@@ -1773,6 +1780,10 @@ def p_liberar_funtion(t):
 def p_liberar_procedure(t):
      '''liberar : DROP PROCEDURE lnombres'''
      t[0] = Drop_Procedure(t[3])
+
+def p_liberar_indice(t):
+     '''liberar : DROP INDEX lnombres'''
+     t[0] = Drop_Indice(t[3])
 
 def p_existencia(t):
      '''existencia : IF EXISTS
