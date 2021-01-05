@@ -27,6 +27,9 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
 
+from Instrucciones.Sql_create import CreateIndex, Campo
+from Instrucciones.Undefined import Undefined
+
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
 from Instrucciones.Sql_create.Tipo_Constraint import *
@@ -70,6 +73,111 @@ def p_instrucciones_lista1(t):
 def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
     t[0] = [t[1]]
+
+# CREATE INDEX
+def p_instruccion_create_index(t):
+    '''instruccion : CREATE op_unique INDEX ID ON ID op_using PARIZQ ls_index_col PARDER op_where PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= CREATE <op_unique> INDEX ID ON ID <op_using> PARIZQ <ls_index_col> PARDER <op_where> PUNTO_COMA"
+    t[0] = CreateIndex.CreateIndex(t[2], t[4], t[6], t[7], t[9], t[11], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_unique1(t):
+    '''op_unique : UNIQUE
+    '''
+    strGram = "<op_unique> ::= UNIQUE"
+    t[0] = Undefined.Undefined("UNIQUE", "", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_unique2(t):
+    '''op_unique : 
+    '''
+    strGram = "<op_unique> ::= "
+    t[0] = Undefined.Undefined("UNIQUE", None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_using1(t):
+    '''op_using : USING HASH
+    '''
+    strGram = "<op_using> ::= USING HASH"
+    t[0] = Undefined.Undefined("USING", " HASH", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_using2(t):
+    '''op_using : 
+    '''
+    strGram = "<op_using> ::= "
+    t[0] = Undefined.Undefined("USING", None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_ls_index_col1(t):
+    '''ls_index_col : ls_index_col COMA val_index_col
+    '''
+    strGram = "<ls_index_col> ::= <ls_index_col> COMA <val_index_col>"
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_ls_index_col2(t):
+    '''ls_index_col : val_index_col
+    '''
+    strGram = "<ls_index_col> ::= <val_index_col>"
+    t[0] = []
+    t[0].append(t[1])
+
+def p_val_index_col1(t):
+    '''val_index_col : ID op_order op_null
+    '''
+    strGram = "<val_index_col> ::= ID <op_order> <op_null>"
+    t[0] = Campo.Campo(t[1], False, t[2], t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_val_index_col2(t):
+    '''val_index_col : LOWER PARIZQ ID op_order op_null PARDER
+    '''
+    strGram = "<val_index_col> ::= LOWER PARIZQ ID <op_order> <op_null> PARDER "
+    t[0] = Campo.Campo(t[3], True, t[4], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_order1(t):
+    '''op_order : ASC
+    '''
+    strGram = "<op_order> ::= ASC"
+    t[0] = Undefined.Undefined("", "ASC", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_order2(t):
+    '''op_order : DESC
+    '''
+    strGram = "<op_order> ::= DESC"
+    t[0] = Undefined.Undefined("", "DESC", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_order3(t):
+    '''op_order : 
+    '''
+    strGram = "<op_order> ::= "
+    t[0] = Undefined.Undefined("ORDER", None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_null1(t):
+    '''op_null : NULLS FIRST
+    '''
+    strGram = "<op_null> ::= NULLS FIRST"
+    t[0] = Undefined.Undefined("NULLS", " FIRST", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_null2(t):
+    '''op_null : NULLS LAST
+    '''
+    strGram = "<op_null> ::= NULLS LAST"
+    t[0] = Undefined.Undefined("NULLS", " LAST", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_null3(t):
+    '''op_null : 
+    '''
+    strGram = "<op_null> ::= "
+    t[0] = Undefined.Undefined("NULLS", None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_where1(t):
+    '''op_where : WHERE expre
+    '''
+    strGram = "<instructionWhere> ::=  WHERE <expre>"
+    t[0] = Where.Where(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_where1(t):
+    '''op_where : 
+    '''
+    strGram = "<op_where> ::= "
+    t[0] = Undefined.Undefined("WHERE", None, strGram, t.lexer.lineno, t.lexer.lexpos)
     
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
