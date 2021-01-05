@@ -97,6 +97,7 @@ def getTemp():
       id =  'T' + str(tempCount)
       tempCount += 1
       return id
+<<<<<<< refs/remotes/upstream/main
 
 
 """
@@ -110,6 +111,8 @@ def getLabel():
       return id
 
 
+=======
+>>>>>>> [ADDED] environment.py, funcionalidad.py
 """
 ______________________________________________________________
 Traduce una expresión en forma de diccionario con las llaves:

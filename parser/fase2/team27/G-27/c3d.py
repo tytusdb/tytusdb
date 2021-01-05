@@ -1520,7 +1520,13 @@ def p_body(t):
     if t[1] != None:
         t1 = t[1]
     if t[3] != None:
+<<<<<<< refs/remotes/upstream/main
         t3 = t[3]
+=======
+        t2 = t[3]
+        for v in t2:
+            t3 += v 
+>>>>>>> [ADDED] environment.py, funcionalidad.py
     t[0] = t1 + t3
 
 def p_declare(t):
@@ -1562,10 +1568,14 @@ def p_internal_body(t):
                    | return
                    | statements
     '''
+<<<<<<< refs/remotes/upstream/main
     if isinstance(t[1],Ins_If):
         t[0] = t[1].Traduct()
     else:
         t[0] = t[1]
+=======
+    t[0] = t[1]
+>>>>>>> [ADDED] environment.py, funcionalidad.py
 
 def p_constante(t):
     '''constante  : CONSTANT'''
@@ -1593,6 +1603,7 @@ def p_declaracion_default_null(t):
     t[0] = None
 def p_declaracionf_funcion(t):
     '''declaracion_funcion : ID ALIAS FOR DOLAR NUMERO PUNTO_COMA'''
+<<<<<<< refs/remotes/upstream/main
     t[0] = ''
 
 def p_declaracionf_funcion_rename(t):
@@ -1602,6 +1613,14 @@ def p_declaracionf_funcion_rename(t):
 def p_declaracionc_copy(t):
     '''declaracion_copy : ID ID PUNTO ID SIGNO_MODULO TYPE PUNTO_COMA'''
     t[0] = ''
+=======
+
+def p_declaracionf_funcion_rename(t):
+    '''declaracion_funcion : ID ALIAS FOR ID PUNTO_COMA'''
+
+def p_declaracionc_copy(t):
+    '''declaracion_copy : ID ID PUNTO ID SIGNO_MODULO TYPE PUNTO_COMA'''
+>>>>>>> [ADDED] environment.py, funcionalidad.py
 
 def p_declaracionr_row(t):
     '''declaracion_row : ID ID SIGNO_MODULO ROWTYPE PUNTO_COMA'''
@@ -1659,6 +1678,7 @@ def p_query(t):
                 | ins_delete '''
 
 def p_instruccion_if(t):
+<<<<<<< refs/remotes/upstream/main
     '''instruccion_if : IF exp_plsql then ELSE statements 
                       | IF exp_plsql then instruccion_elif 
                       | IF exp_plsql then'''
@@ -1701,13 +1721,30 @@ def p_then(t):
         t[0] = t[2]
     else: 
         t[0] = ''
+=======
+    '''instruccion_if : IF exp_plsql then else_if else END IF PUNTO_COMA'''
+
+def p_then(t):
+    '''then : THEN statements'''
+
+def p_else_if(t):
+    '''else_if : else_if instruccion_else '''
+
+def p_else_if_else(t):
+    '''else_if : instruccion_else '''
+
+def p_else_if_else_null(t):
+    '''else_if :  '''
+                
+def p_instruccion_else(t):
+    '''instruccion_else : ELSIF exp_plsql then'''
+>>>>>>> [ADDED] environment.py, funcionalidad.py
 
 def p_else(t):
     '''else : ELSE sentencia  '''
 
 def p_else_null(t):
     '''else : '''
-    print('NULL')
 
 def p_sentencia(t):
     '''sentencia : statements'''
@@ -1751,6 +1788,7 @@ def p_statement(t):
                 | declaracion_copy
                 | declaracion_row
                 | declaracion_record
+<<<<<<< refs/remotes/upstream/main
                 | instruccion_if END IF PUNTO_COMA
                 | instruccion_case
                 | return'''
@@ -1759,6 +1797,12 @@ def p_statement(t):
         t[0] = t[1].Traduct()
     else:
         t[0] = t[1]
+=======
+                | instruccion_if
+                | instruccion_case
+                | return'''
+    t[0] = t[1]
+>>>>>>> [ADDED] environment.py, funcionalidad.py
  
 
 def p_f_query(t):

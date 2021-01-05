@@ -1,5 +1,8 @@
 tempCount = 0 #Contador de temporales para su generación
+<<<<<<< refs/remotes/upstream/main
 labelCount = 0 #Contador de etiquetas para su generación
+=======
+>>>>>>> [ADDED] environment.py, funcionalidad.py
 entorno = 0 #Contador de entorno
 temporales ={} #Diccionario en el que se almacena [id:temporal] 
 funciones = []#Diccionario para metadata de las funciones
