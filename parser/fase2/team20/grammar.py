@@ -205,7 +205,7 @@ reservedwords = (
     'CASE',
     'WHEN',
     'PROCEDURE',
-    'EXCUTE',
+    'EXECUTE',
 )
 
 symbols = (
@@ -1444,11 +1444,11 @@ def p_pl_declarationvar_2(t):
 
 def p_pl_declarationvar_3(t):#collate
     '''declarationVar : ID type COLLATE STRING'''
-    t[0] = VariableDeclaration(t[1],False,t[2],t[5],False,None)
+    t[0] = VariableDeclaration(t[1],False,t[2],t[4],False,None)
 
 def p_pl_declarationvar_4(t):
     '''declarationVar : ID CONSTANT type COLLATE STRING'''
-    t[0] = VariableDeclaration(t[1],True,t[3],t[6],False,None)
+    t[0] = VariableDeclaration(t[1],True,t[3],t[5],False,None)
 
 def p_pl_declarationvar_5(t):#not null
     '''declarationVar : ID type NOT NULL'''
@@ -1460,11 +1460,11 @@ def p_pl_declarationvar_6(t):
 
 def p_pl_declarationvar_7(t):
     '''declarationVar : ID type COLLATE STRING NOT NULL'''
-    t[0] = VariableDeclaration(t[1],False,t[2],t[5],True,None)
+    t[0] = VariableDeclaration(t[1],False,t[2],t[4],True,None)
 
 def p_pl_declarationvar_8(t):
     '''declarationVar : ID CONSTANT type COLLATE STRING NOT NULL'''
-    t[0] = VariableDeclaration(t[1],True,t[3],t[6],True,None)
+    t[0] = VariableDeclaration(t[1],True,t[3],t[5],True,None)
 
 def p_pl_declarationvar_9(t):#assignment
     '''declarationVar : ID type assigDeclaration'''
@@ -1472,31 +1472,31 @@ def p_pl_declarationvar_9(t):#assignment
 
 def p_pl_declarationvar_10(t):
     '''declarationVar : ID CONSTANT type assigDeclaration'''
-    t[0] = VariableDeclaration(t[1],True,t[3],None,False,t[5])
+    t[0] = VariableDeclaration(t[1],True,t[3],None,False,t[4])
 
 def p_pl_declarationvar_11(t):
     '''declarationVar : ID type COLLATE STRING assigDeclaration'''
-    t[0] = VariableDeclaration(t[1],False,t[2],t[5],False,t[6])
+    t[0] = VariableDeclaration(t[1],False,t[2],t[4],False,t[5])
 
 def p_pl_declarationvar_12(t):
     '''declarationVar : ID CONSTANT type COLLATE STRING assigDeclaration'''
-    t[0] = VariableDeclaration(t[1],True,t[3],t[6],False,t[7])
+    t[0] = VariableDeclaration(t[1],True,t[3],t[5],False,t[6])
 
 def p_pl_declarationvar_13(t):
     '''declarationVar : ID type NOT NULL assigDeclaration'''
-    t[0] = VariableDeclaration(t[1],False,t[2],None,True,t[6])
+    t[0] = VariableDeclaration(t[1],False,t[2],None,True,t[5])
 
 def p_pl_declarationvar_14(t):
     '''declarationVar : ID CONSTANT type NOT NULL assigDeclaration'''
-    t[0] = VariableDeclaration(t[1],True,t[3],None,True,t[7])
+    t[0] = VariableDeclaration(t[1],True,t[3],None,True,t[6])
 
 def p_pl_declarationvar_15(t):
     '''declarationVar : ID type COLLATE STRING NOT NULL assigDeclaration'''
-    t[0] = VariableDeclaration(t[1],False,t[2],t[5],True,t[8])
+    t[0] = VariableDeclaration(t[1],False,t[2],t[4],True,t[7])
 
 def p_pl_declarationvar_16(t):
     '''declarationVar : ID CONSTANT type COLLATE STRING NOT NULL assigDeclaration'''
-    t[0] = VariableDeclaration(t[1],True,t[3],t[6],True,t[9])
+    t[0] = VariableDeclaration(t[1],True,t[3],t[5],True,t[8])
 
 def p_pl_declaration_assignment_1(t):
     '''assigDeclaration : DEFAULT expression
@@ -1549,16 +1549,16 @@ def p_pl_statementlist_single(t):
 def p_pl_statement(t):
     '''statement : assignment SEMICOLON
                  | optDeclaration SEMICOLON
-                 | controlStructure SEMICOLON
+                 | controlStructure
                  | ddl SEMICOLON
                  | dml SEMICOLON'''
     t[0]  = t[1]
 
 #CONTROL ESTRUCTURES
 def p_pl_controlstructure(t):
-    '''controlStructure : return
-                        | call
-                        | excute
+    '''controlStructure : return SEMICOLON
+                        | call SEMICOLON
+                        | excute SEMICOLON
                         | conditionals'''
     t[0]  = t[1]
 
@@ -1581,13 +1581,19 @@ def p_pl_controlstructure_return_4(t):
 
 #CALL
 def p_pl_controlstructure_call(t):
-    '''call : CALL ID BRACKET_OPEN paramList BRACKET_CLOSE'''
+    '''call : CALL ID BRACKET_OPEN expressionList BRACKET_CLOSE'''
     t[0] = Call(t[2],t[4])
+def p_pl_controlstructure_callempty(t):
+    '''call : CALL ID BRACKET_OPEN BRACKET_CLOSE'''
+    t[0] = Call(t[2],None)
 
 #Excute
 def p_pl_controlstructure_excute(t):
-    '''excute : EXCUTE ID BRACKET_OPEN paramList BRACKET_CLOSE'''
+    '''excute : EXECUTE ID BRACKET_OPEN expressionList BRACKET_CLOSE'''
     t[0] = Excute(t[2],t[4])
+def p_pl_controlstructure_excuteempty(t):
+    '''excute : EXECUTE ID BRACKET_OPEN BRACKET_CLOSE'''
+    t[0] = Excute(t[2],None)
 
 #CONDITIONALS
 def p_pl_controlstructure_conditionals(t):
@@ -1606,11 +1612,11 @@ def p_pl_conditional_ifthenelse(t):
 
 def p_pl_conditional_ifthenelsif_else(t):
     '''if : IF expression THEN statementList elsifList ELSE statementList END IF'''
-    t[0] = If(t[2],t[4],t[6],t[7])
+    t[0] = If(t[2],t[4],t[5],t[7])
 
 def p_pl_conditional_ifthenelsif(t):
     '''if : IF expression THEN statementList elsifList END IF'''
-    t[0] = If(t[2],t[4],t[6],None)
+    t[0] = If(t[2],t[4],t[5],None)
 
 def p_pl_elsiflist_list(t):
     '''elsifList : elsifList elsif'''
