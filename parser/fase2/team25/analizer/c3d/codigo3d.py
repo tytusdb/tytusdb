@@ -68,7 +68,9 @@ class Codigo3d:
         '''Limpia de comentarios y se asegura que inicie con una palabra reservada de la fase 1 como USE , INSERT , SELECT , UPDATE '''
         #
         instruccion += "\n"
+        instruccion = instruccion.lower()
         instruccion = re.sub('\-\-(.*)\n|/\*(.|\n)*?\*/' ,"",instruccion)
+        instruccion = re.sub('create\s+(function|procedure)' ,"",instruccion)# quito unos create que podrian dar problemas 
         instruccion = instruccion[0:len(instruccion)-1]
         instruccion = instruccion.replace("\n", " ")
         lexema = ""
