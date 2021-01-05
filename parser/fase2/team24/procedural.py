@@ -18,76 +18,77 @@ class declaration(pl):
 
     def c3d(self):
         c3d = ''
+
         if  self.exp == None:
             valor = 'None'
         else:
-            valor = str(self.exp.traducir())
+            valor = str(self.exp.exp.traducir())
 
 
         if  self.collate == None:
             col = 'None'
         else:
-            col = self.collate.val
+            col = self.collate
 
         if self.tipo == 'SMALLINT':
 
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'INTEGER':
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'BIGINT':
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'DECIMAL':
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'NUMERIC': 
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'REAL':
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'DOUBLE_PRECISION':   
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.DOUBLE_PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.DOUBLE_PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'DOUBLE':
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'CHARACTER':
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'CHARACTER_VARYING':
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.CHARACTER_VARYING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.CHARACTER_VARYING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'TEXT': 
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'TIMESTAMP':
             c3d += '\tambitoFuncion =  buscarIDF(cont)\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id.val)+',TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,'+str(self.id)+',TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         return c3d
@@ -99,69 +100,81 @@ class declaration(pl):
         if self.tipo == 'SMALLINT': 
             
             if  self.exp == None:
-                c3d += '\self.id.val = 0'
+                c3d += str(self.id)+' = 0'
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'INTEGER':
             if  self.exp == None:
                 c3d += '\self.id.val = 0'
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'BIGINT':
             if  self.exp == None:
-                c3d += '\self.id.val = 0'
+                c3d += self.id+' = 0'
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'DECIMAL':
             if  self.exp == None:
-                c3d += '\self.id.val = 0'
+                c3d += self.id+' = 0'
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'NUMERIC': 
             if  self.exp == None:
-                c3d += '\self.id.val = 0'
+                c3d += self.id+' = 0'
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
             
         elif self.tipo == 'REAL':
             if  self.exp == None:
-                c3d += '\self.id.val = 0'
+                c3d += self.id+' = 0'
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'DOUBLE':   
             if  self.exp == None:
-                c3d += '\self.id.val = 0'
+                c3d += self.id+' = 0'
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'PRECISION':
             if  self.exp == None:
-                c3d += '\self.id.val = 0'
+                c3d += self.id+' = 0'
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'CHARACTER':
             if  self.exp == None:
-                c3d += '\self.id.val = \'\' '
+                c3d += self.id+' = \'\' '
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'CHARACTER_VARYING':
             if  self.exp == None:
-                c3d += '\self.id.val = \'\' '
+                c3d += self.id+' = \'\' '
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'TEXT': 
             if  self.exp == None:
-                c3d += '\self.id.val = \'\' '
+                c3d += self.id+' = \'\' '
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
         elif self.tipo == 'TIMESTAMP':
             if  self.exp == None:
-                c3d += '\self.id.val = \'\' '
+                c3d += self.id+' = \'\' '
             else:
-                c3d += '\self.id.val = '+str(self.exp.traducir())
+                c3d += self.exp.codigo #codigo que va detras
+                c3d += str(self.id)+' = '+str(self.exp.traducir()[1]) #variable final o valor en especifico
 
         return c3d
         
@@ -217,6 +230,8 @@ class expre(pl):
         self.tipo = tipo 
         self.exp = exp
 
+    
+
 class createfunc(pl):
     def __init__(self,id,lparams,returntype,block) -> None:
         self.id = id
@@ -225,9 +240,10 @@ class createfunc(pl):
         self.block = block
     
     def traducir(self):
+        
         c3d = ''
         c3d += '\tid_db = id_db(NombreDB)\n'
-        c3d += '\tNuevoSimbolo = TS.Simbolo(cont,'+self.id.val+',TIPO.FUNCTION,id_db)\n'
+        c3d += '\tNuevoSimbolo = Simbolo(cont,'+self.id.val+',TIPO.FUNCTION,id_db)\n'
         c3d += '\tcont+=1\n'
         
         funcion = ''
@@ -238,6 +254,42 @@ class createfunc(pl):
             c3d += decla.c3d()+'\n' 
             funcion += '\t'+decla.traducir()+'\n' 
         for inst in block.instrucciones:
+            funcion += '\t'+inst.traducir()+'\n'
+            c3d += inst.c3d()
+        
+        pcont = 0
+        for param in lparams:
+            #variables de parametros
+            if param.alias == None:
+                #Mira como jalas de las declaraciones
+                for declara in block.declare:
+                    if pcont == declara.tipo:
+                        funcion += '\t'+declara.id+' = pila['+str(pcont)+']\n'         
+
+            else:
+                #Solo es para.alias = pilas en el numero 
+                funcion += '\t'+param.alias+' = pila['+str(pcont)+']\n'
+
+            pcont += 1
+
+
+        funciones.append(funcion)
+        return c3d
+    
+    def ejecutar(self):
+        c3d = ''
+        c3d += '\tid_db = id_db(NombreDB)\n'
+        c3d += '\tNuevoSimbolo = TS.Simbolo(cont,'+self.id+',TIPO.FUNCTION,id_db)\n'
+        c3d += '\tcont+=1\n'
+        
+        funcion = ''
+        funcion += 'def '+self.id+'():\n' 
+        #variables a usar, guardando en ts y declarando
+        for decla in self.block.declare:
+
+            c3d += decla.c3d()+'\n' 
+            funcion += '\t'+decla.traducir()+'\n' 
+        for inst in self.block.instrucciones:
             funcion += '\t'+inst.traducir()+'\n'
 
         funciones.append(funcion)
@@ -251,6 +303,10 @@ class param(pl):
         self.alias = alias
         self.tipo = tipo
 
+    def traducir(self):
+        c3d = str(self.alias)
+        return c3d
+
 class block(pl):
     def __init__(self,declare,instrucciones) -> None:
         self.instrucciones = instrucciones
@@ -263,6 +319,14 @@ class raisenotice(instruccion):
     def __init__(self,texto,variable) -> None:
         self.texto = texto
         self.variable = variable
+    
+    def traducir(self):
+        c3d = ''
+        if self.variable == None:
+            c3d += 'print(\''+texto+'\')'
+        else:
+            c3d += 'print(\''+str(self.texto).replace('%',self.variable.traducir())+'\')'
+
 
 class asignacion(instruccion):
     def __init__(self,id,exp) -> None:
@@ -272,9 +336,31 @@ class asignacion(instruccion):
     def ejecutar(self):
         ts.modificar_valor(self.id,self.exp)
 
+    def c3d():
+        c3d = ''
+        c3d += '\ttabla.modificar_valor('+ str(self.id) + ', ' + str(self.exp.traducir()[1]) +')\n'
+        return c3d   
+
+    def traducir():
+        c3d = ''
+        c3d += self.exp.traducir()[0]
+        c3d += self.id + ' += ' + str(self.exp.traducir()[1]) + '\n'
+        return c3d
+
 class rtrn(instruccion):
     def __init__(self,exp) -> None:
         self.exp = exp
+
+    def c3d():
+        c3d = ''
+        c3d = '\n'
+        return c3d
+
+    def traducir():
+        c3d = ''
+        c3d += self.exp.traducir()[0]
+        c3d += 'pila[10] =' + self.exp.traducir()[1]
+        return c3d
 
 class expresion():
     'Clase abstracta'
@@ -296,8 +382,9 @@ class exp_boolp(expresion):
 
     def traducir(self):
         tmp = getTemp()
-        codigo = tmp + ' = {self.val}'
+        codigo = tmp + f' = {self.val}'
         valor = tmp
+        #print(codigo,valor)
         return codigo,valor
 
 class exp_textp(expresion):
@@ -308,8 +395,9 @@ class exp_textp(expresion):
 
     def traducir(self):
         tmp = getTemp()
-        codigo = tmp + ' = {self.val}'
+        codigo = tmp + f' = {self.val}'
         valor = tmp
+        #print(codigo,valor)
         return codigo,valor
 
 class exp_nump(expresion):
@@ -320,8 +408,9 @@ class exp_nump(expresion):
         
     def traducir(self):
         tmp = getTemp()
-        codigo = tmp + ' = {self.val}'
+        codigo = tmp + f' = {self.val}'
         valor = tmp
+        #print(codigo,valor)
         return codigo,valor
 
 class expresionC:
@@ -337,16 +426,17 @@ class exp_sumap(expresionC):
     def traducir(self):
         tr1 = self.exp1.traducir()
         tr2 = self.exp2.traducir()
-        c3d1 = tr1.codigo
-        c3d2 = tr2.codigo
-        tmp1 = tr1.valor
-        tmp2 = tr2.valor
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
-        tmpf  = '{tmp} = {tmp1} + {tmp2}'
-        c3df += '\n{tmpf}'
+        tmpf  = f'{tmp} = {tmp1} + {tmp2}'
+        c3df += f'\n{tmpf}'
         codigo = c3df 
         valor = tmp
+        #print(codigo,valor)
         return codigo,valor
 
 class exp_restap(expresion):
@@ -354,7 +444,22 @@ class exp_restap(expresion):
 
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
-        self.exp2 = exp2        
+        self.exp2 = exp2    
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} - {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor    
 
 class exp_multiplicacionp(expresion):
     'Multiplica las dos expresiones'
@@ -362,6 +467,21 @@ class exp_multiplicacionp(expresion):
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} * {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
         
 class exp_divisionp(expresion):
     'Suma las dos expresiones'
@@ -370,6 +490,29 @@ class exp_divisionp(expresion):
         self.exp1 = exp1
         self.exp2 = exp2
 
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} / {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
+
 class exp_idp(expresion):
     def __init__(self,val):
         self.val = val
+
+    def traducir(self):
+        tmp = getTemp()
+        codigo = tmp + f' = {self.val}'
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor

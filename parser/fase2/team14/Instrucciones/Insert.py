@@ -198,6 +198,20 @@ class Insert(Instruccion):
 
             return False
 
+    def traducir(self, ent:Entorno):
+        self.codigo3d= 'ci.ejecutarsql( insert into '+ self.nombre +' values('
+
+        for i in range(0,len(self.valores),1):
+             if(i==0):
+                 self.codigo3d += self.valores[i].stringsql
+             else:
+                 self.codigo3d += ', ' + self.valores[i].stringsql
+        
+        self.codigo3d += ')'
+
+        self.codigo3d += ";)\n"
+        return self
+
 
 class InsertWhitColum(Instruccion):
     def __init__(self, nombre,namecolums=[],valores=[]):
@@ -419,3 +433,25 @@ class InsertWhitColum(Instruccion):
                         #else:
                             #print("diferete",dato,unique)
             return False
+    
+
+    def traducir(self, ent:Entorno):
+        self.codigo3d= 'ci.ejecutarsql( insert into '+ self.nombre +' ('
+        i=0
+        for i in range(0,len(self.namecolums),1):
+             if(i==0):
+                 self.codigo3d += self.namecolums[i].valor
+             else:
+                 self.codigo3d += ', ' + self.namecolums[i].valor
+        
+        self.codigo3d += ') values ('
+       
+        i=0
+        for i in range(0,len(self.valores),1):
+            if(i==0):
+                self.codigo3d += self.valores[i].stringsql
+            else:
+                self.codigo3d += ', ' + self.valores[i].stringsql
+
+        self.codigo3d += ";)\n"
+        return self

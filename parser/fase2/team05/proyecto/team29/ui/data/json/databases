@@ -1,0 +1,1 @@
+{"prueba2": {"tabla2": {"NCOL": 2}}, "test": {"tbusuario": {"NCOL": 6, "PKEY": [0]}, "tbrol": {"NCOL": 2, "PKEY": [0]}, "tbrolxusuario": {"NCOL": 2}, "tbestado": {"NCOL": 2, "PKEY": [0]}, "tbidentificaciontipo": {"NCOL": 2, "PKEY": [0]}, "tbempleadoidentificacion": {"NCOL": 3, "PKEY": [0, 1]}}, "prueba1": {"tabla1": {"NCOL": 2, "PKEY": [0]}}}

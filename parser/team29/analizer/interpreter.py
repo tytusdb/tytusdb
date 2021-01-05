@@ -9,6 +9,7 @@ from analizer.abstract import instruction
 from analizer import grammar
 from analizer.reports import BnfGrammar
 import pandas as pd
+from analizer.typechecker.Metadata import File
 
 
 def execution(input):
@@ -100,6 +101,19 @@ def symbolReport():
         report.append(enc)
     instruction.envVariables = list()
     return report
+
+
+def indexReport():
+    index = File.importFile("Index")
+    enc = [["Nombre", "Tabla", "Unico", "Metodo","Columnas"]]
+    filas = []
+    for (name, Index) in index.items():
+        columns = ""
+        for column in Index["Columns"]:
+            columns += ", " + column["Name"]
+        filas.append([name,Index["Table"],Index["Unique"],Index["Method"],columns[1:]])
+    enc.append(filas)
+    return [enc]
 
 
 def printTable_PT(tables):
