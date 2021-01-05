@@ -9,14 +9,6 @@ amb = 0
 
 class Case(Instruction):
 
-    # def __init__(self,expBool, blockStmt, elseCase, elseStmt):
-    #    self.expBool = expBool
-    #    self.blockStmt = blockStmt
-    #    self.elseCase = elseCase
-    #    self.elseStmt = elseStmt
-    #    self.codigo = ""
-    #    self.ambito = amb
-
     def __init__(self, expBool, blockStmt, elseCase, elseStmt, row, column) -> None:
         super().__init__(row, column)
         self.expBool = expBool
@@ -42,8 +34,9 @@ class Case(Instruction):
                 c3d += "\tlabel .labelCase" + \
                     str(contLabel)+str(self.ambito)+"\n"
                 contLabel += 1
-                c3d += ec[0].value
-                c3d += "\tif "+ec[0].temp+": goto .labelCase" + \
+                cdtemp = ec[0].execute(environment)
+                c3d += cdtemp.value
+                c3d += "\tif "+cdtemp.temp+": goto .labelCase" + \
                     str(contLabel)+str(self.ambito)+"\n"
                 contLabel += 1
                 c3d += "\tgoto .labelCase"+str(contLabel)+str(self.ambito)+"\n"
@@ -61,15 +54,14 @@ class Case(Instruction):
                 for e in ec2[1]:
                     blockCad2 += e.execute(environment).value
                 c3d += "\tlabel .labelCase"+str(contLabel)+str(self.ambito)+"\n"+blockCad2 + \
-                    "\n\tgoto .labelCaseEnd" + \
+                    "\tgoto .labelCaseEnd" + \
                     str(self.ambito)+" \n"  # contenido del case
 
             contLabel += 1
         els = ""
 
         if self.elseStmt:
-            for el in self.elseStmt:
-                els += el.execute(environment).value
+            els += self.elseStmt.execute(environment).value
 
         c3d += "\tlabel .labelCase" + \
             str(contLabel)+str(self.ambito)+"\n"+els  # contenido del else
