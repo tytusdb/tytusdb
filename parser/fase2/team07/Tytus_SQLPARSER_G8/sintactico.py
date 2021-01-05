@@ -27,6 +27,8 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
 
+from Instrucciones.plpgsql import condicional_if 
+
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
 from Instrucciones.Sql_create.Tipo_Constraint import *
@@ -2195,6 +2197,9 @@ def p_cont_funcion(t):
 				  | BEGIN instrucciones_if EXCEPTION WHEN l_identificadores THEN instrucciones_if END PUNTO_COMA
 				  | BEGIN instrucciones_if EXCEPTION WHEN sql_states THEN instrucciones_if END PUNTO_COMA
     '''
+    if t[1] == "IF" and  len(t) == 8:
+        print("Llega")
+        t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
 
 def p_instrucciones_if(t):
     ''' 
@@ -2205,10 +2210,7 @@ def p_instrucciones_if(t):
 def p_instruccion_if(t):
     '''
     instruccion_if : cont_funcion
-                   | UPDATE ID SET lcol instructionWhere PUNTO_COMA
-                   | INSERT INTO ID PARIZQ lcol PARDER VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
-                   | INSERT INTO ID VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
-                   | lquery PUNTO_COMA
+                   | instruccion
                    | expre PUNTO_COMA
                    | RETURN PUNTO_COMA
                    | RETURN expre PUNTO_COMA

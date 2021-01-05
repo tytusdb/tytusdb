@@ -1,0 +1,170 @@
+from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.Excepcion import Excepcion
+
+class If(Instruccion):
+    '''
+        Esta clase representa la instrucción if.
+        La instrucción if recibe como parámetro una expresión lógica y la lista
+        de instrucciones a ejecutar si la expresión lógica es verdadera.
+    '''
+    def __init__(self,expLogica,instrucciones,strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram,strSent)
+        self.expLogica = expLogica
+        self.instrucciones = instrucciones
+
+    def ejecutar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol,cadenaTraducida):
+        #Si existe algun error en la expresion logica se devuelve el error
+        expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
+        if isinstance(expresion_logica, Excepcion):
+                return expresion_logica
+
+        #Inicia traduccion
+        codigo = expresion_logica.codigo
+        etiquetaV = arbol.generaEtiqueta()
+        etiquetaSalida = arbol.generaEtiqueta()
+        codigo += "\tif " + expresion_logica.temporal + ":\n"
+        codigo += "\t\tgoto " + etiquetaV + "\n"
+        codigo += "\tgoto " + etiquetaSalida + "\n"
+        codigo += "\tlabel " + etiquetaV + "\n"
+        for i in self.instrucciones:
+            instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
+            if isinstance(instruccion_if, Excepcion):
+                return instruccion_if
+            codigo += i.codigo
+        codigo += "\tlabel " + etiquetaSalida + "\n"
+        cadenaTraducida += codigo
+        return codigo
+        #   ...
+        #   if temporal_logico:
+        #       goto L1
+        #   goto L2
+        #   label L1    
+        #   instrucciones_if
+        #   label L2
+        #   ...
+
+
+class Ifelse(Instruccion):
+    '''
+        Esta clase representa la instrucción if else.
+        La instrucción if else recibe como parámetro una expresión lógica y las listas
+        de instrucciones a ejecutar si la expresión lógica es verdadera o falsa.
+    '''
+    def __init__(self,expLogica,instrIfVerdadero,instrIfFalso,strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram,strSent)
+        self.expLogica = expLogica
+        self.instrIfVerdadero = instrIfVerdadero
+        self.instrIfFalso = instrIfFalso
+    
+    def ejecutar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol,cadenaTraducida):
+        #Si existe algun error en la expresion logica se devuelve el error
+        expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
+        if isinstance(expresion_logica, Excepcion):
+                return expresion_logica
+
+        #Inicia traduccion
+        codigo = expresion_logica.codigo
+        etiquetaV = arbol.generaEtiqueta()
+        etiquetaF = arbol.generaEtiqueta()
+        etiquetaSalida = arbol.generaEtiqueta()
+        codigo += "\tif " + expresion_logica.temporal + ":\n"
+        codigo += "\t\tgoto " + etiquetaV + "\n"
+        codigo += "\tgoto " + etiquetaF + "\n"
+        codigo += "\tlabel " + etiquetaF + "\n"
+        for inst in self.instrIfFalso:
+            instruccion_ifFalso = inst.traducir(tabla, arbol,cadenaTraducida)
+            if isinstance(instruccion_ifFalso, Excepcion):
+                return instruccion_ifFalso
+            codigo += inst.codigo
+        codigo += "\tgoto " + etiquetaSalida + "\n"
+        codigo += "\tlabel " + etiquetaV + "\n"
+        for i in self.instrIfVerdadero:
+            instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
+            if isinstance(instruccion_if, Excepcion):
+                return instruccion_if
+            codigo += i.codigo
+        codigo += "\tlabel " + etiquetaSalida + "\n"
+        cadenaTraducida += codigo
+        return codigo
+        #   ...
+        #   if temporal_logico
+        #       goto L1
+        #   goto L2
+        #   label L2
+        #   instrucciones_ifFalso
+        #   goto L3
+        #   label L1
+        #   instrucciones_if
+        #   label L3
+        #   ...
+
+class IfElseIf(Instruccion):
+    '''
+        Esta clase representa la instrucción if elseif.
+        La instrucción if elseif recibe como parámetro una expresión lógica principal y la lista
+        de instrucciones, asi como una lista de elseif que contienen respectiva expresion logica e instrucciones
+        a ejecutar.
+    '''
+    def __init__(self,expLogica,instrIfVerdadero,l_elseif,strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram,strSent)
+        self.expLogica = expLogica
+        self.instrIfVerdadero = instrIfVerdadero
+        self.l_elseif = l_elseif
+    
+    def ejecutar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol,cadenaTraducida):
+        #Si existe algun error en la expresion logica se devuelve el error
+        expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
+        if isinstance(expresion_logica, Excepcion):
+                return expresion_logica
+
+        #Inicia traduccion
+        codigo = expresion_logica.codigo
+        etiquetaV = arbol.generaEtiqueta()
+        etiquetaSalida = arbol.generaEtiqueta()
+        codigo += "\tif " + expresion_logica.temporal + ":\n"
+        codigo += "\t\tgoto " + etiquetaV + "\n"
+        codigo += "\tgoto " + etiquetaSalida + "\n"
+        codigo += "\tlabel " + etiquetaV + "\n"
+        for i in self.instrucciones:
+            instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
+            if isinstance(instruccion_if, Excepcion):
+                return instruccion_if
+            codigo += i.codigo
+        #Sentencias elseif
+        for s_if in self.l_elseif:
+            sentencia_if = s_if.traducir(tabla,arbol,cadenaTraducida)
+            if isinstance(sentencia_if, Excepcion):
+                return sentencia_if
+            codigo += sentencia_if
+        codigo += "\tlabel " + etiquetaSalida + "\n"
+        cadenaTraducida += codigo
+        return codigo
+        #   ...
+        #   if temporal_logico:
+        #       goto L1
+        #   goto L2
+        #   label L1    
+        #   instrucciones_if
+        #
+        #   ................
+        #
+        #   if temporal_logico2:
+        #       goto L3
+        #   goto L4
+        #   Label L3
+        #   instrucciones_elseif
+        #   label L4
+        #
+        #   ....................
+        #
+        #   label L2
+        #   ...
