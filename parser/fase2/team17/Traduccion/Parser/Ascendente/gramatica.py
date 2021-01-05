@@ -40,6 +40,9 @@ from InterpreteF2.IF.SI import SI
 from InterpreteF2.IF.SIELSE import SIELSE
 from InterpreteF2.Soporte_aVar.var_asignacion import var_asignacion
 from InterpreteF2.Soporte_aVar.var_declaracion import var_declaracion
+from InterpreteF2.Soporte_aFun.argumento import argumento
+from InterpreteF2.Soporte_aFun.funheader import funheader
+from InterpreteF2.Soporte_aFun.funexecute import funexecute
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -512,13 +515,14 @@ def p_instruction(t):
 
 def p_plpgsql(t):
     '''
-        plpgsql : functions_or_procedures label declare BEGIN stmts plpgsql_ending
-                | functions_or_procedures declare BEGIN stmts plpgsql_ending
+        plpgsql : functions_or_procedures label definitions BEGIN definitions plpgsql_ending
+                | functions_or_procedures definitions BEGIN definitions plpgsql_ending
                 | functions_or_procedures BEGIN stmts plpgsql_ending
                 | label BEGIN stmts plpgsql_ending
                 | declare BEGIN stmts plpgsql_ending
                 | BEGIN stmts plpgsql_ending
     '''
+    t[0] = funexecute(t[1], t[2], t[4], 1,1)
     set('<TR> \n <TD> plpgsql → functions_or_procedures label declare BEGIN stmts plpgsql_ending | functions_or_procedures declare BEGIN stmts plpgsql_ending | functions_or_procedures BEGIN stmts plpgsql_ending | label BEGIN stmts plpgsql_ending | declare BEGIN stmts plpgsql_ending | BEGIN stmts plpgsql_ending : </TD> \n <TD>  plpgsql = plpgsqlTraduccion(t[0], t[1], t[2], t[3], t[4]) </TD> \n </TR> \n')
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
@@ -529,6 +533,7 @@ def p_functions_or_procedures(t):
         functions_or_procedures : functions_or_procedures function_or_procedure
                                 | function_or_procedure
     '''
+    t[0] = t[1]
     set('<TR> \n <TD> functions_or_procedures  → functions_or_procedures function_or_procedure: </TD> \n <TD> function_or_procedure = t[1] </TD> \n </TR> \n')
 
 def p_function_or_procedure(t):
@@ -536,6 +541,7 @@ def p_function_or_procedure(t):
         function_or_procedure : function
                               | procedure
     '''
+    t[0] = t[1]
     set('<TR> \n <TD> function_or_procedure → functions_or_procedures function_or_procedure | function_or_procedure : </TD> \n <TD>  function_or_procedure = function() </TD> \n </TR> \n')
 
 def p_procedure(t):
@@ -607,8 +613,8 @@ def p_function(t):
                  | CREATE FUNCTION ID PARIZQ function_ending
                  | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
     '''
+    t[0] = funheader(t[3], t[5], 1, 1)
     set('<TR> \n <TD> function → CREATE FUNCTION ID PARIZQ arguments function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending | CREATE FUNCTION ID PARIZQ function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending : </TD> \n <TD>  function = function(t[2], t[4]) </TD> \n </TR> \n')
-
 
 def p_function_ending(t):
     '''
@@ -624,6 +630,11 @@ def p_arguments(t):
         arguments : arguments COMA argument
                   | argument
     '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
     set('<TR> \n <TD> arguments  → arguments COMA argument: </TD> \n <TD> argument = t[1] </TD> \n </TR> \n')
 
 
@@ -631,6 +642,7 @@ def p_argument(t):
     '''
       argument : ID types
     '''
+    t[0] = argumento(t[1], t[2], 1, 1)
     set('<TR> \n <TD> argument → ID types: </TD> \n <TD>  argument = argument(t[1], t[2]) </TD> \n </TR> \n')
 
 
@@ -796,13 +808,23 @@ def p_Raise_complex(t):
 
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
 
+def p_declarevarheader(t):
+    '''
+         declarer   : declarerdeep
+                    | DECLARE declarerdeep
+    '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = t[2]
+
 def p_declarevar(t):
     '''
-         declarer : ID INTEGER NOTNULL DOSPTS IGUAL exp
-                  | ID INTEGER NOTNULL IGUAL exp
-                  | ID INTEGER DOSPTS IGUAL exp
-                  | ID INTEGER IGUAL exp
-                  | ID INTEGER
+         declarerdeep : ID INTEGER NOTNULL DOSPTS IGUAL exp
+                      | ID INTEGER NOTNULL IGUAL exp
+                      | ID INTEGER DOSPTS IGUAL exp
+                      | ID INTEGER IGUAL exp
+                      | ID INTEGER
     '''
     set('<TR> \n <TD> declare → ID INTEGER NOTNULL PREDICATEDECLARATION PTCOMA | ID VARCHAR NOTNULL PREDICATEDECLARATION PTCOMA | ID INTEGER  PREDICATEDECLARATION PTCOMA | ID VARCHAR  PREDICATEDECLARATION PTCOMA | ID NUMERIC  PREDICATEDECLARATION PTCOMA | ID NUMERIC NOTNULL PREDICATEDECLARATION PTCOMA: </TD> \n <TD> declare = declare(t[1], t[2] t[3], t[4], 1, 1) </TD> \n </TR> \n')
 
