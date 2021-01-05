@@ -1,0 +1,13 @@
+<selectParams> ::= O_PRODUCTO 
+<optAlias> ::= 
+<fromBody> ::= ID <optAlias> 
+<tableExp> ::= <fromBody> 
+<fromCl> ::= R_FROM <tableExp> 
+<whereCl> ::= 
+<groupByCl> ::= 
+<limitCl> ::= 
+<orderByCl> ::= 
+<selectStmt> ::= R_SELECT <selectParams> <fromCl> <whereCl> <groupByCl> <limitCl> <orderByCl> 
+<stmt> ::= <selectStmt> S_PUNTOCOMA 
+<stmtList> ::= <stmt> 
+<init> ::= <stmtList> 
