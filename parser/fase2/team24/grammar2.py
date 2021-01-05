@@ -196,7 +196,10 @@ reservadas = {
     'on'    :   'ON',
     'using' :   'USING',
     'hash'  :   'HASH',
-    'first' : 'FIRST'
+    'first' : 'FIRST',
+    'if' : 'IF',
+    'elsif' : 'ELSIF'
+
 }
 
 tokens = [
@@ -1831,9 +1834,102 @@ def p_instruccion(t):
                     | asignacion
                     | rtrn 
                     | block
+                    | instif
+                    | instSimplecase
+                    | instScase
     
      '''
     t[0] = t[1]
+
+def p_instSimplecase(t):
+    '''instSimplecase : CASE newexp WHEN lnexp THEN body lwhenv pelse END CASE PUNTOCOMA'''
+    
+
+def p_lnexp(t):
+    ''' lnexp : lnexp newexp'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lnexpu(t):
+    ''' lnexp :  newexp'''
+    t[0] = [t[1]]
+
+#searched case
+def p_instScase(t):
+    '''instScase : CASE WHEN newexp THEN body lwhen pelse END CASE PUNTOCOMA'''
+    t[0] = searched_case(t[3],t[6],t[7],t[8])
+
+
+def p_lwhen(t):
+    ''' lwhen : lwhen cuando'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lwhena(t):
+    ''' lwhen : cuando'''
+    t[0] = [t[1]]
+
+def p_cuando(t):
+    ''' cuando : WHEN newexp THEN body'''
+    t[0] = elsif(t[2],t[4])
+
+def p_lwhenv(t):
+    ''' lwhenv : lwhenv cuandos'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lwhenvarios(t):
+    ''' lwhenv : cuandos'''
+    t[0] = [t[1]]
+
+def p_cuandos(t):
+    ''' cuandos : WHEN lnexp THEN body'''
+    
+
+def p_instif(t):
+    '''instif : IF PARA newexp PARC THEN body lelsif pelse END IF PUNTOCOMA'''
+    t[0] = iff(t[3],t[6],t[7],t[8])
+
+def p_bodyu(t):
+    ''' bodyu : asigacion
+             | declares
+             | rtrn
+             | instif'''
+    t[0] = t[1]
+
+def p_body(t):
+    ''' body : body bodyu'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_bodya(t):
+    ''' body : bodyu'''
+    t[0] = [t[1]]
+
+def p_lelsif(t):
+    ''' lelsif: lelsif elsif'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lelsifR(t):
+    ''' lelsif:  elsif'''
+    t[0] = [t[1]]
+
+def p_lelsifRN(t):
+    ''' lelsif:  None'''
+    t[0] = []
+
+def p_elsif(t):
+    '''elsif : ELSIF  newexp THEN body'''
+    t[0] = elsif(t[2],t[4])
+
+def p_pelse(t):
+    '''pelse :  ELSE body'''
+    t[0] = els(t[2])
+
+def p_pelseN(t):
+    '''pelse :  '''
+    t[0] = None
 
 def p_raisenotice(t):
     #Imprimir
