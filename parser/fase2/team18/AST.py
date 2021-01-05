@@ -27,6 +27,7 @@ baseActiva = "" #Guarda la base temporalmente activa
 listaFunciones=[]
 Errores_Semanticos = []
 ListaResExpID=[]
+listaProcedure = []
 #--------Ejecucion Datos temporales-----------
 def reiniciarVariables():
     global outputTxt
@@ -58,14 +59,22 @@ def buscarFuncion(nombre):
     return None
 
 
-def addProcedure(name,tipo,cuerpo,parametros):
+def addProcedure(name,cuerpo,parametros):
     global listaProcedure
-    listaProcedure.append(Procedure_run(name,tipo,cuerpo,parametros))
+    listaProcedure.append(Procedure_run(name,cuerpo,parametros))
 
 def findProcedure(nombre):
-    for i in listaProcedure:
-        if(listaProcedure[i].nombre == nombre): return listaProcedure[i]
-        else: return None
+    '''for i in listaProcedure:
+        if(listaProcedure[i].nombre == nombre): 
+            return listaProcedure[i]
+    return None'''
+    pos=0
+    while pos< len(listaProcedure):
+            if(listaProcedure[pos].nombre==nombre):
+                return listaProcedure[pos]
+            else:
+                pos=pos+1
+    return None
   
 def validarTipoF(T):
     if(T=="smallint" or T=="integer" or T=="bigint"):
@@ -3689,46 +3698,199 @@ def Eliminar_Funcion(instr,ts):
 
 
 #Procedimientos almacenados
-def Procedimientos(instr,ts):
- 
+def Crear_Procedimiento(instr,ts):
+
     #Manejo de las variables de los procedimientos
     reemplazar =instr.reemplazar
     name =instr.nombre.lower()
     parametros=[]
-    bodyProcedure =instr.cuerpo
-    proc =True
-    
+    flag = True
+    print("Creando Stored procedure ", str(name))
+
+    #mensaje inicial
+    msg="creando Stored Procedure: " + name
+    agregarMensjae("normal",msg,"")
+
     #verificar los parametros 
     if(instr.parametros[0]!=False):
         #recorrer la lista de parametros
         for x in instr.parametros:
             #crear el objeto parametro
-            flagParametros=False
-            parAux=Parametro_run()
-            parAux.nombre=x.nombre.lower()
+            parEx=False
+            param=Parametro_run()
+            param.nombre=x.nombre.lower()
             
             #revisar parametros repetidos
-            for i in parametros:
-                if (i.nombre==parAux.nombre):
+            for parF in parametros:
+                if (parF.nombre==param.nombre):
                     parEx=True
                     msg="El parametro "+x.nombre+" ya existe declarado"
                     agregarMensjae("error",msg,"")
-                    proc =False
+                    flag=False
                     break
 
+            #agregar tipo
+            if(isinstance(x.tipo,Operando_ID)):
+                msg="no es posible asiganar el parametro "+param.nombre +" de tipo ID"
+                agregarMensjae("error",msg,"")
+                flag=False
+            else:  
+                param.tipo=x.tipo.lower()
+                #validar el tipo
+                if(validarTipoF(param.tipo)==False):
+                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+parAux.nombre
+                    agregarMensjae("error",msg,"")
+                    flag=False
             #agregar size
             if(x.tamano!=False):
-                parAux.tamano=resolver_operacion(x.tamano[0],ts)
+                param.tamano=resolver_operacion(x.tamano[0],ts)
             #agregar valor
             if(x.valor!=False):
-                parAux.valor=x.valor
+                param.valor=x.valor
             #agregar a la lista de parametros
-            if(flagParametros==False):
-                parametros.append(parAux)
-                print(parAux.nombre,parAux.tipo,parAux.tamano,parAux.valor)
+            if(parEx==False):
+                parametros.append(param)
+    
 
-   
     #agregar procedimiento
+    print(str(instr.cuerpo))
+    cuerpo = cuerpo_Procedure(instr.cuerpo,ts)
+
+    if(not cuerpo):
+        flag = False
+        msg="Se encontraron problemas en el cuerpo del stored procedure"
+        agregarMensjae("error",msg,"")
+
+    if (flag):
+        parAuxF=[]
+        for i in parametros:
+            parAuxF.append(i.nombre)
+        #verificar que no exista
+        if(findProcedure(name)==None):
+            addProcedure(name,cuerpo,parametros)
+            CD3.PCreateProcedure(name,cuerpo,parametros,False)
+            msg="Todo OK"
+            agregarMensjae("exito",msg,"")
+        else:
+            #verificar el replace
+            if(reemplazar):
+                #eliminar la funcion
+                eliminarProcedure(name)
+                addProcedure(name,cuerpo,parametros)
+                CD3.PCreateProcedure(nombre,cuerpo,parametros,True)
+                msg="Funcion reemplazada"
+                agregarMensjae("alert",msg,"")
+            else:
+                msg="El Stored procedure "+ name +" ya se encuentra definido "
+                agregarMensjae("error",msg,"")
+    
+
+
+
+
+
+
+def cuerpo_Procedure(body,ts):
+    cuerpo = contenido_run()
+    declaraciones = None
+    instrucciones = None
+    parametros=[]
+    flag = True
+
+    if (isinstance(body,list)):
+        instrucciones = cuerpo
+    else:
+        print("No tiene una lista")
+        declaraciones = body.declaraciones
+        instrucciones = body.funcionalidad
+
+
+    #verificar las declaraciones
+    
+    if(declaraciones!=None):
+        for i in declaraciones:
+            #crear el objeto parametro
+            parEx=False
+            parametro=Parametro_run()
+            parametro.nombre=i.nombre.lower()
+            
+            #revisar parametros repetidos
+            for j in parametros:
+                if (j.nombre==parametro.nombre):
+                    parEx=True
+                    msg="El parametro "+i.nombre+" ya se encuentra declarado"
+                    agregarMensjae("error",msg,"")
+                    flag=False
+                    break
+            #agregar tipo
+            if(isinstance(i.tipo,Operando_ID)):
+                msg="no es posible asiganar el parametro "+parametro.nombre +" de tipo ID"
+                agregarMensjae("error",msg,"")
+                flag=False
+            else:  
+                parametro.tipo=o.tipo.lower()
+                #validar el tipo
+                if(validarTipoF(parametro.tipo)==False):
+                    msg="El tipo "+parametro.tipo+" no es posible asignarlo al parametro "+parametro.nombre
+                    agregarMensjae("error",msg,"")
+                    flag=False
+
+            #agregar size
+            if(i.tamano!=False):
+                parametro.tamano=resolver_operacion(i.tamano[0],ts)
+            #agregar valor
+            if(i.valor!=False):
+                val=resolver_operacion(i.valor,ts)
+                result=validarTipo(parAux.tipo,val)
+                if(result==None):
+                    flag=False
+                    msg="no es posible asignar "+str(val)+" en "+parametro.nombre
+                    agregarMensjae("error",msg,"")
+                parametro.valor=val
+
+            #agregar a la lista de parametros
+            if(not parEx):
+                parametros.append(parametro)
+
+
+    cuerpo.declaraciones=parametros
+
+    '''if(instrucciones != None):
+        for ins in instrucciones:
+            if isinstance(ins,Insertar):
+                ''
+            elif isinstance(ins,Actualizar):
+                ''
+            elif isinstance(ins,Eliminar):
+                '''
+
+    cuerpo.contenido = instrucciones  
+
+
+    if(flag):
+        return cuerpo
+    else:
+        return False
+
+
+
+#Ejecucion de los procedimientos
+
+def Execute_Procedimiento():
+    print("Metodo para ejecutar el stored procedure")
+
+#Eliminar procedimiento 
+def Eliminar_Procedimientos(instr,ts):
+    agregarMensjae('normal','Drop Procedure','')
+    CD3.PDropProcedimientos(instr.nombres)
+    for i in instr.nombres:
+        if findProcedure(i.lower()) is not None:
+            eliminarProcedure(i.lower())
+            agregarMensjae('exito', 'Procedure '+i.lower()+' eliminado','')
+        else:
+            agregarMensjae('error', '42883: No existe el procedimiento '+i.lower(),'42883')
+
+
 
 
 def Resuelve_Exp_ID(lista,  operacion,ts):
@@ -3988,7 +4150,8 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, Indice) : Indexs(instr,ts)
             elif isinstance(instr, Funcion): Funciones(instr,ts)
             elif isinstance(instr, Drop_Function): Eliminar_Funcion(instr,ts)
-            elif isinstance(instr, Procedimiento): print('Procedimiento')
+            elif isinstance(instr, Drop_Procedure): Eliminar_Procedimientos(instr,ts)
+            elif isinstance(instr, Procedimiento): Crear_Procedimiento(instr,ts)
             else: 
                 if instr is not None:
                     for val in instr:
@@ -4038,10 +4201,6 @@ def generarGASC():
     r_asc = Reporte_Gramaticas()
     r_asc.grammarASC(listaInstrucciones)
 
-def generarGDSC():
-    '''global listaInstrucciones
-    r_asc = Reporte_Gramaticas()
-    r_asc.grammarDSC(listaInstrucciones)'''
 
 #metodo para mostrar las tablas temporales
 def mostrarTablasTemp():

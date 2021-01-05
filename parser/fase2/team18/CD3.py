@@ -340,14 +340,45 @@ def PDropProcedimientos(nombres):
     txt+="\tCD3.EDropProcedure()\n"
     agregarInstr(drop_procedimientos,txt)
 
-def PCreateProcedure(nombreF,tipoF,contenidoF,parametrosF,reemplazada):
+def PCreateProcedure(nombre,contenido,parametros,reemplazada):
     reinicar_contOP()
-    txt="\t#Crear Procedure\n"
-    txt+="\tt"+str(numT())+"='"+nombreF+"'\n"
-    txt+="\tt"+str(numT())+"="+str(parametrosF)+"\n"
-    txt+="\treplace="+str(reemplazada)+"\n"
+    txt="\t#Crear Stored  Procedure\n"
+    txt+="\tt"+str(numT())+"='"+nombre+"'\n"
+    txt+="\tt"+str(numT())+"="+str(parametros)+"\n"
+    txt+="\tt"+str(numT())+"="+str(reemplazada)+" #Reemplazar funcion\n"
     varT="t"+str(numT())
     txt+="\t"+varT+"=CD3.ECreateProcedure()\n"
+
+
+    #------------------optimizacion---------------
+    regla="3 - se nego condicion para poder eliminar etiqueta"
+    msg="if("+varT+"):\n"
+    msg+="\tgoto .bodyFun"+str(contT)+"\n"
+    msg+="else:\n"
+    msg+="\tgoto .endFun"+str(contT)
+    msg2=""
+    #---------------------------------------------
+    txt2="\tif("+varT+"==False):\n"
+    fin=contT
+    txt2+="\t\tgoto .endProc"+str(fin)+"\n"
+    varT="t"+str(numT())
+    #txt2+="\t"+varT+"=CD3.ExecuteProc()\n"
+    txt2+="\tif("+varT+"==False):\n"
+    txt2+="\t\tgoto .endProc"+str(fin)+"\n"
+    #declaraciones
+    txt2+="\tlabel.decProc"+str(contT)+" #Declaraciones Procedure\n"
+    for i in contenido.declaraciones:
+        txt2+="\tt"+str(numT())+"='"+i.nombre+"'\n"
+        print("CD3------>",i)
+    #contenido
+    txt2+="\tlabel.bodyFun"+str(contT)+" #Contenido Procedure\n"
+    #txt2+=PInstrFun(contenido.contenido)+"\n"
+    txt2+="\tlabel.endProc"+str(fin)+"\n"
+    #agregarOptimizacion(regla,msg,txt2)
+    txt+=txt2
+    data=[nombre,str(contenido),parametros,reemplazada]
+    agregarInstr(data,txt)
+    agregarInstr(False,'')
 
 
 #Fin procedimientos

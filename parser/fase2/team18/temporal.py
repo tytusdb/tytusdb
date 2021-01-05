@@ -73,8 +73,7 @@ class contenido_run:
         contenido=None
 
 class Procedure_run:
-    def __init__(self, nombre, tipo, contenido, parametros=[]):
+    def __init__(self, nombre, contenido, parametros=[]):
         self.nombre=nombre
-        self.tipo=tipo
         self.contenido=contenido
         self.parametros=parametros
