@@ -8,15 +8,12 @@ class Codigo3d:
 
     def __init__(self):
         self.count_temporal = 0
+        self.count_label = 0
         self.listaCode3d = []
+        self.tabulaciones = 1
 
 
 
-    def return_clon_instancia(self):
-        instaciaAux = Codigo3d()
-        instaciaAux.count_temporal = self.count_temporal
-        instaciaAux.listaCode3d = self.listaCode3d
-        return instaciaAux
 
     def restart(self) -> None:
         """
@@ -24,8 +21,14 @@ class Codigo3d:
         """
         self.count_temporal = 0
         self.listaCode3d.clear()
-        # quitar los comentarios
+        self.count_label = 0
+        self.tabulaciones = 1
 
+    def getTabulaciones(self) -> str:
+        tab = ''
+        for i in range(self.tabulaciones):
+            tab += '\t'
+        return tab
 
     def addToCode(self, nuevaLinea_de_codigo) -> None:
         self.listaCode3d.append(nuevaLinea_de_codigo+"\n")
@@ -50,7 +53,12 @@ class Codigo3d:
         self.count_temporal += 1
         return temporal
 
-
+    def getNewLabel(self)->str:
+        """ retonra una etoqueta L1,L2,L3 ...Ln correspondiente
+        """
+        etiqueta = "L" + str(self.count_label)
+        self.count_label += 1
+        return etiqueta
 
 
 
@@ -60,7 +68,9 @@ class Codigo3d:
         '''Limpia de comentarios y se asegura que inicie con una palabra reservada de la fase 1 como USE , INSERT , SELECT , UPDATE '''
         #
         instruccion += "\n"
+        instruccion = instruccion.lower()
         instruccion = re.sub('\-\-(.*)\n|/\*(.|\n)*?\*/' ,"",instruccion)
+        instruccion = re.sub('create\s+(function|procedure)' ,"",instruccion)# quito unos create que podrian dar problemas 
         instruccion = instruccion[0:len(instruccion)-1]
         instruccion = instruccion.replace("\n", " ")
         lexema = ""
@@ -99,7 +109,8 @@ class Codigo3d:
         """
         ESTE METODO GENERA UN ARCHIVO .PY PARA PODER EJECUTAR EL CODIGO 3 DIRECCIONES QUE SE ADJUNTO
         """
-        with open("SALIDA_C3D.py", "w") as archivo:
+        RUTA = '../analizer/'
+        with open(F"{RUTA}SALIDA_C3D.py", "w") as archivo:
             # librerias
             archivo.write(self.getCodigo())
             archivo.close()
@@ -108,14 +119,14 @@ class Codigo3d:
         cadena = ''
         cadena+=("from goto import with_goto" + "\n")
         cadena+=("from interpreter import execution"+"\n")
-        cadena+=('from c3d.stack import  Stack\n')
-        cadena+=('\nstack = Stack()')
+        cadena+=("from c3d.stack import Stack"+"\n")
+        cadena+=('\nstack = Stack()\nRETURN=[None]\n')
         cadena+=("\n\n\n@with_goto\n")
         cadena+=("def principal():\n")
         for inst in self.listaCode3d:
             cadena+=(inst)
         cadena+=('\n\n\ndef funcionIntermedia():\n')
-        cadena+=('\texecution(stack.pop())\n')
+        cadena+=("\texecution(stack.pop())\n")
         cadena+=("principal()")
         return cadena
 
@@ -126,4 +137,4 @@ class Codigo3d:
 instancia_codigo3d = Codigo3d()
 
 #instacia auxiliar
-instanciaAux = Codigo3d()
+# instanciaAux = Codigo3d()

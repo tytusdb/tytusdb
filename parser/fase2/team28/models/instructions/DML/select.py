@@ -4,6 +4,7 @@ from views.data_window import DataWindow
 from models.instructions.shared import *
 from models.instructions.Expression.expression import *
 from models.instructions.DML.special_functions import *
+from models.procedural.if_statement import anidarIFs, If
 import pandas as pd 
 class Union(Instruction):
     def __init__(self,  array_instr, type_union,line, column) :
@@ -515,11 +516,12 @@ class Case(Instruction):
     '''
         CASE recibe un array con todas las opciones y un else
     '''
-    def __init__(self, arr_op, c_else,line, column): 
-        self.arr_op = arr_op
-        self.c_else = c_else
+    def __init__(self, var_id, arr_cases, _else, line, column): 
+        self.arr_cases = arr_cases
+        self._else = _else
         self.line = line
         self.column = column
+        self.var_id = var_id
         
     def __repr__(self):
         return str(vars(self))
@@ -527,13 +529,26 @@ class Case(Instruction):
     def process(self, instrucction):
         pass
 
+    def compile(self, environment):
+        if self.var_id is not None:
+
+            for case in self.arr_cases:
+                if type(case.condition) is list and len(case.condition) > 1:
+                    case.condition = genTempsOr(0, case.condition, self.var_id)
+
+                elif type(case.condition) is list:
+                    case.condition = case.condition[0]
+
+        caseToIfs = anidarIFs(0, self.arr_cases, self._else)
+        caseToIfs.compile(environment)
+
 class CaseOption(Instruction):
     '''
         CASE OPTION
     '''
-    def __init__(self, when_exp, then_exp,line, column):
-        self.when_exp = when_exp
-        self.then_exp = then_exp
+    def __init__(self, condition, instructions, line, column):
+        self.condition = condition
+        self.instructions = instructions
         self.line = line
         self.column = column
     def __repr__(self):
@@ -541,3 +556,21 @@ class CaseOption(Instruction):
 
     def process(self, instrucction):
         pass  
+    
+    def compile(self, instrucction):
+        pass
+
+def genTempsOr(counter, array_conditions, id):
+    condition = None
+    line = 0 
+    column = 0
+    if counter < len(array_conditions)-1:
+        line = array_conditions[counter].line
+        column = array_conditions[counter].column
+
+        igualacion = Relop(id, SymbolsRelop.EQUALS, array_conditions[counter], "=", line, column)
+        condition = LogicalOperators(igualacion, "or", genTempsOr(counter + 1, array_conditions, id), line, column)
+    else:
+        condition = Relop(id, SymbolsRelop.EQUALS, array_conditions[counter], "=", line, column)
+
+    return condition

@@ -480,6 +480,15 @@ class LogicalOperators(Expression):
     def __repr__(self):
         return str(vars(self))
 
+    def compile(self, environment):
+        value1 = self.value1.compile(environment)
+        value2 = self.value2.compile(environment)
+        operator = self.operator
+
+        temporal = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temporal} = {value1.value} {operator} {value2.value}")
+        return PrimitiveData(DATA_TYPE.BOOLEANO, temporal, self.line, self.column)
+
     def process(self, expression):
         value1 = self.value1.process(expression)
         value2 = self.value2.process(expression)

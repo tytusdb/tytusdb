@@ -1,15 +1,18 @@
 from sys import path
 from os.path import dirname as dir
 from shutil import rmtree
+import pickle
 
 path.append(dir(path[0]))
 
 from analizer.abstract import instruction as inst
 from analizer import grammar
 from analizer.reports import BnfGrammar
+from analizer.symbol.environment import Environment
+from prettytable import PrettyTable
 
 
-def execution(input):
+def getc3d(input):
     """
     docstring
     """
@@ -18,18 +21,80 @@ def execution(input):
     result = grammar.parse(input)
     lexerErrors = grammar.returnLexicalErrors()
     syntaxErrors = grammar.returnSyntacticErrors()
+    tabla = Environment()
     if len(lexerErrors) + len(syntaxErrors) == 0 and result:
+
+        for v in result:
+            if isinstance(v, inst.FunctionPL):
+                v.c3d(tabla)
+
+        tabla.codigo += "def main():\n"
+
         for v in result:
             if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
-                r = v.execute(None)
+                r = v.c3d(tabla)
                 if r:
                     list_ = r[0].values.tolist()
                     labels = r[0].columns.tolist()
                     querys.append([labels, list_])
                 else:
                     querys.append(None)
+
+            elif isinstance(v, inst.FunctionPL):
+                pass
+
             else:
-                r = v.execute(None)
+                r = v.c3d(tabla)
+                messages.append(r)
+    semanticErrors = grammar.returnSemanticErrors()
+    PostgresErrors = grammar.returnPostgreSQLErrors()
+    symbols = symbolReport()
+    obj = {
+        "messages": messages,
+        "querys": querys,
+        "lexical": lexerErrors,
+        "syntax": syntaxErrors,
+        "semantic": semanticErrors,
+        "postgres": PostgresErrors,
+        "symbols": symbols,
+        "codigo": tabla.codigo,
+    }
+    astReport()
+    BnfGrammar.grammarReport()
+    return obj
+
+def execution(input):
+    """
+    docstring
+    """
+    querys = []
+    messages = []
+    result = grammar.parse(input)
+    with open("obj.pickle", "wb") as f:
+        pickle.dump(result, f)
+    lexerErrors = grammar.returnLexicalErrors()
+    syntaxErrors = grammar.returnSyntacticErrors()
+    tabla = Environment()
+    if len(lexerErrors) + len(syntaxErrors) == 0 and result:
+        for v in result:
+            if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
+                r = v.execute(tabla)
+                if r:
+                    list_ = r[0].values.tolist()
+                    labels = r[0].columns.tolist()
+                    querys.append([labels, list_])
+                    salidaTabla = PrettyTable()
+                    encabezados = labels
+                    salidaTabla.field_names = encabezados
+                    cuerpo = list_
+                    salidaTabla.add_rows(cuerpo)
+                    print(salidaTabla)
+                    print("\n")
+                    print("\n")
+                else:
+                    querys.append(None)
+            else:
+                r = v.execute(tabla)
                 messages.append(r)
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
@@ -77,6 +142,7 @@ def symbolReport():
         enc = [["Alias", "Nombre", "Tipo", "Columnas Formadas", "Consideraciones", "Fila", "Columna"]]
         filas = []
         for (key, symbol) in vars.items():
+            #print(symbol.type)
             r = [
                 key,
                 symbol.value,

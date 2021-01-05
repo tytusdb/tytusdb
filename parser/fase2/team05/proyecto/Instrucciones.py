@@ -863,9 +863,13 @@ class IndexW(Instruccion):
         self.Lwhere = Lwhere
 
 class IndexMM(Instruccion):
-    def __init__(self,name,table,Lindex,major,minor):
+    def __init__(self,name,table,major,minor):
         self.name = name
         self.table = table
-        self.Lindex = Lindex
         self.major = major
         self.minor = minor
+
+class SelectFun(Instruccion):
+    def __init__(self,nombrefun,parametros):
+        self.nombrefun = nombrefun
+        self.parametros = parametros

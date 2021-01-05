@@ -128,6 +128,7 @@ reservadas = {
     "THEN": "R_THEN",
     "ELSE": "R_ELSE",
     "ELSIF": "R_ELSIF",
+    "ELSEIF":"R_ELSEIF",
     "END": "R_END",
     # NUEVAS COSAS
     # INDICES

@@ -18,6 +18,7 @@ import analizer
 from prettytable import PrettyTable
 
 ast = AST.AST()
+
 root = None
 
 envVariables = []
@@ -40,8 +41,10 @@ syntaxErrors = list()
 
 
 def makeAst(root):
-    ast.makeAst(root)
-
+    try:
+        ast.makeAst(root)
+    except:
+        pass
 
 class Instruction:
     """
@@ -58,6 +61,12 @@ class Instruction:
         Metodo que servira para ejecutar las expresiones
         """
 
+    @abstractmethod
+    def c3d(self, environment):
+        """
+        Metodo que servira para ejecutar las expresiones
+        """
+
 
 class SelectParams(Instruction):
     def __init__(self, params, row, column):
@@ -67,7 +76,7 @@ class SelectParams(Instruction):
     def execute(self, environment):
         pass
 
-
+#ya
 class Select(Instruction):
     def __init__(
         self,
@@ -230,7 +239,7 @@ class Select(Instruction):
                     return [df_.drop_duplicates(), newEnv.types]
                 return [df_, newEnv.types]
         except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion SELECT")
+            print("Error: P0001: Error en la instruccion SELECT")
 
     def dot(self):
         new = Nodo.Nodo("SELECT")
@@ -277,7 +286,13 @@ class Select(Instruction):
 
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Crear Select\n\n"
+        environment.conta_exec += 1
 
+#ya
 class FromClause(Instruction):
     """
     Clase encargada de la clausa FROM para la obtencion de datos
@@ -342,7 +357,7 @@ class FromClause(Instruction):
             try:
                 environment.types.update(types)
             except:
-                syntaxPostgreSQL.append(
+                print(
                     "Error: P0001: Error en la instruccion SELECT clausula FROM"
                 )
         return
@@ -361,7 +376,13 @@ class FromClause(Instruction):
             new.addNode(a1)
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Clausula From\n\n"
+        environment.conta_exec += 1
 
+#ya
 class TableID(Expression):
     """
     Esta clase representa un objeto abstracto para el manejo de las tablas
@@ -385,14 +406,13 @@ class TableID(Expression):
                     self.row,
                 ]
             )
-            syntaxPostgreSQL.append(
+            print(
                 "Error: 42P01: la relacion "
                 + dbtemp
                 + "."
                 + str(self.name)
                 + " no existe"
             )
-            return "FATAL ERROR TABLE ID"
         # Almacena una lista con con el nombre y tipo de cada columna
         lst = Struct.extractColumns(dbtemp, self.name)
         columns = [l.name for l in lst]
@@ -403,6 +423,12 @@ class TableID(Expression):
         for i in range(len(newColumns)):
             tempTypes[newColumns[i]] = lst[i].type
         return [df, tempTypes]
+
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #manejo de tablas\n\n"
+        environment.conta_exec += 1
 
 
 class WhereClause(Instruction):
@@ -421,7 +447,24 @@ class WhereClause(Instruction):
         new.addNode(self.series.dot())
         return new
 
+    def c3d(self, environment):
+        try:
+            newEnv = Environment(environment, dbtemp)
+            global envVariables
+            envVariables.append(newEnv)
+            labels = []
+            values = {}
+            for i in range(len(self.params)):
+                v = self.params[i].c3d(environment)
+                values[self.params[i].temp] = [v.value]
+                labels.append(self.params[i].temp)
+                newEnv.types[labels[i]] = v.type
+            newEnv.dataFrame = pd.DataFrame(values)
+            return [newEnv.dataFrame, newEnv.types]
+        except:
+            print("Error: P0001: Error en la instruccion SELECT")
 
+#ya
 class SelectOnlyParams(Select):
     def __init__(self, params, row, column):
         Instruction.__init__(self, row, column)
@@ -442,7 +485,7 @@ class SelectOnlyParams(Select):
             newEnv.dataFrame = pd.DataFrame(values)
             return [newEnv.dataFrame, newEnv.types]
         except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion SELECT")
+            print("Error: P0001: Error en la instruccion SELECT")
 
     def dot(self):
         new = Nodo.Nodo("SELECT")
@@ -456,7 +499,13 @@ class SelectOnlyParams(Select):
                 paramNode.addNode(p.dot())
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Creando select con parametros\n\n"
+        environment.conta_exec += 1
 
+#ya
 class Delete(Instruction):
     def __init__(self, fromcl, wherecl, row, column):
         Instruction.__init__(self, row, column)
@@ -468,11 +517,10 @@ class Delete(Instruction):
             # Verificamos que no pueden venir mas de 1 tabla en el clausula FROM
             if len(self.fromcl.tables) > 1:
                 syntaxErrors.append(["Error sintactico cerca de ,", self.row])
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42601: Error sintactico cerca de , en la linea "
                     + str(self.row)
                 )
-                return "Error: syntax error at or near ','"
             newEnv = Environment(environment, dbtemp)
             global envVariables
             envVariables.append(newEnv)
@@ -482,12 +530,12 @@ class Delete(Instruction):
             for i in range(len(labels)):
                 newEnv.dataFrame[labels[i]] = value[i]
             if self.wherecl == None:
-                return newEnv.dataFrame.filter(labels)
+                print(str(newEnv.dataFrame.filter(labels)))
             wh = self.wherecl.execute(newEnv)
             w2 = wh.filter(labels)
             # Si la clausula WHERE devuelve un dataframe vacio
             if w2.empty:
-                return "Operacion DELETE completada"
+                 print("Operacion DELETE completada")
             # Logica para eliminar
             table = self.fromcl.tables[0].name
             pk = Struct.extractPKIndexColumns(dbtemp, table)
@@ -508,15 +556,21 @@ class Delete(Instruction):
                     break
             if bug:
                 return ["Error: Funcion DELETE del Storage", rows]
-            return "Operacion DELETE completada"
+            print("Operacion DELETE completada")
         except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion DELETE")
+            print("Error: P0001: Error en la instruccion DELETE")
 
     def dot(self):
         new = Nodo.Nodo("DELETE")
         new.addNode(self.fromcl.dot())
         new.addNode(self.wherecl.dot())
         return new
+
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Creado el Delete\n\n"
+        environment.conta_exec += 1
 
 #ya
 class Update(Instruction):
@@ -595,11 +649,11 @@ class Update(Instruction):
     
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.pila = "+str(cont)+"\n"
-        environment.codigo += "C3D.ejecutar() #Eliminar\n\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Eliminar\n\n"
         environment.conta_exec += 1
 
-
+#ya
 class Assignment(Instruction):
     def __init__(self, id, value, row, column):
         Instruction.__init__(self, row, column)
@@ -617,6 +671,12 @@ class Assignment(Instruction):
         new.addNode(idNode)
         new.addNode(self.value.dot())
         return new
+
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Creado la asignacion\n\n"
+        environment.conta_exec += 1
 
 #ya
 class Drop(Instruction):
@@ -683,8 +743,8 @@ class Drop(Instruction):
 
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.pila = "+str(cont)+"\n"
-        environment.codigo += "C3D.ejecutar() #Eliminar\n\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Eliminar\n\n"
         environment.conta_exec += 1
 
 #ya
@@ -750,11 +810,11 @@ class AlterDataBase(Instruction):
     
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.pila = "+str(cont)+"\n"
-        environment.codigo += "C3D.ejecutar() #Alter Base de datos\n\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Alter Base de datos\n\n"
         environment.conta_exec += 1
 
-
+#ya
 class Truncate(Instruction):
     def __init__(self, name):
         self.name = name
@@ -766,25 +826,22 @@ class Truncate(Instruction):
                 semanticErrors.append(
                     ["La base de datos " + str(dbtemp) + " no existe ", self.row]
                 )
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42000: La base de datos  " + str(dbtemp) + " no existe"
                 )
-                return "La base de datos no existe"
             if valor == 3:
                 semanticErrors.append(
                     ["La tabla " + str(self.name) + " no existe ", self.row]
                 )
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42P01: La tabla " + str(self.name) + " no existe"
                 )
-                return "El nombre de la tabla no existe"
             if valor == 1:
-                syntaxPostgreSQL.append("Error: XX000: Error interno")
-                return "Hubo un problema en la ejecucion de la sentencia"
+                print("Hubo un problema en la ejecucion de la sentencia")
             if valor == 0:
-                return "Truncate de la tabla: " + self.name
+                print("Truncate de la tabla: " + self.name)
         except:
-            syntaxPostgreSQL.append("Error: P0001: Error en la instruccion TRUNCATE")
+            print("Error: P0001: Error en la instruccion TRUNCATE")
 
     def dot(self):
         new = Nodo.Nodo("TRUNCATE")
@@ -792,7 +849,13 @@ class Truncate(Instruction):
         new.addNode(n)
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #table Truncate\n\n"
+        environment.conta_exec += 1
 
+#yasis
 class InsertInto(Instruction):
     def __init__(self, tabla, columns, parametros):
         self.tabla = tabla
@@ -883,6 +946,12 @@ class InsertInto(Instruction):
         # ast.makeAst(root)
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Insertado\n\n"
+        environment.conta_exec += 1
+
 #ya
 class useDataBase(Instruction):
     def __init__(self, db, row, column):
@@ -910,10 +979,9 @@ class useDataBase(Instruction):
 
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.pila = "+str(cont)+"\n"
-        environment.codigo += "C3D.ejecutar() #Usar Base de datos\n\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Usar Base de datos\n\n"
         environment.conta_exec += 1
-
 
 #ya
 class showDataBases(Instruction):
@@ -953,10 +1021,9 @@ class showDataBases(Instruction):
     
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.pila = "+str(cont)+"\n"
-        environment.codigo += "C3D.ejecutar() #Mostrar Bases de datos\n\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Mostrar Bases de datos\n\n"
         environment.conta_exec += 1
-
 
 #ya
 class CreateDatabase(Instruction):
@@ -971,6 +1038,7 @@ class CreateDatabase(Instruction):
         self.mode = mode
         self.owner = owner
         self.replace = replace
+        self.row = 0
 
     def execute(self, environment):
         result = jsonMode.createDatabase(self.name)
@@ -1024,8 +1092,8 @@ class CreateDatabase(Instruction):
 
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.pila = "+str(cont)+"\n"
-        environment.codigo += "C3D.ejecutar() #Crear Base de datos\n\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Crear Base de datos\n\n"
         environment.conta_exec += 1
 
 #ya
@@ -1189,11 +1257,11 @@ class CreateTable(Instruction):
     
     def c3d(self, environment):
         cont = environment.conta_exec 
-        environment.codigo += "C3D.pila = "+str(cont)+"\n"
-        environment.codigo += "C3D.ejecutar() #Crear Tabla\n\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Crear Tabla\n\n"
         environment.conta_exec += 1
 
-
+#ya
 class CreateType(Instruction):
     def __init__(self, exists, name, values=[]):
         self.exists = exists
@@ -1209,7 +1277,7 @@ class CreateType(Instruction):
             report = "Type creado"
         else:
             report = result
-        return report
+        print(str(report))
 
     def dot(self):
         new = Nodo.Nodo("CREATE_TYPE")
@@ -1224,8 +1292,14 @@ class CreateType(Instruction):
             paramsNode.addNode(v.dot())
 
         return new
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Tipo Creado\n\n"
+        environment.conta_exec += 1
 
-
+#ya
 class CheckOperation(Instruction):
     """
     Clase encargada de la instruccion CHECK que almacena la condicion
@@ -1249,7 +1323,7 @@ class CheckOperation(Instruction):
         elif exp1.type == "ID" and exp2.type == "ID":
             pass
         else:
-            syntaxPostgreSQL.append("Error: XX000: Error interno CHECK Operation")
+            print("Error: XX000: Error interno CHECK Operation")
             return None
         if type_ == "MONEY":
             value1 = str(value1)
@@ -1273,9 +1347,15 @@ class CheckOperation(Instruction):
                 )
             return value
         except:
-            syntaxPostgreSQL.append("Error: XX000: Error interno CHECK")
+            print("Error: XX000: Error interno CHECK")
+    
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Operacion de check\n\n"
+        environment.conta_exec += 1
 
-
+#ya
 class AlterTable(Instruction):
     def __init__(self, table, params=[]):
         self.table = table
@@ -1288,7 +1368,7 @@ class AlterTable(Instruction):
             Struct.save()
         if alter == None:
             alter = "Tabla alterada: " + self.table
-        return alter
+        print(str(alter))
 
     def dot(self):
 
@@ -1383,7 +1463,13 @@ class AlterTable(Instruction):
                             parNode2.addNode(lit2)
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Tabla Modificada\n\n"
+        environment.conta_exec += 1
 
+#ya
 class limitClause(Instruction):
     def __init__(self, num, offset, row, column) -> None:
         super().__init__(row, column)
@@ -1410,7 +1496,13 @@ class limitClause(Instruction):
 
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Clausula de Limit\n\n"
+        environment.conta_exec += 1
 
+#Ya
 class Union(Instruction):
     """
     Clase encargada de la instruccion CHECK que almacena la condicion
@@ -1433,19 +1525,17 @@ class Union(Instruction):
         types1 = list(s1[1].values())
         types2 = list(s2[1].values())
         if len(df1.columns) != len(df2.columns):
-            syntaxPostgreSQL.append(
+            print(
                 "Error: 42611: UNION definicion en numero de columnas invalida "
             )
-            return "Error: El numero de columnas no coinciden"
         for i in range(len(types1)):
             if types1[i] != types2[i]:
                 semanticErrors.append(
                     ["Error discrepancia de tipo de datos entre columnas", self.row]
                 )
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42804: discrepancia de tipo de datos entre columnas "
                 )
-                return "Error: Los tipos de columnas no coinciden"
         df = pd.concat([df1, df2], ignore_index=True)
         return df
 
@@ -1455,7 +1545,13 @@ class Union(Instruction):
         new.addNode(self.s2.dot())
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Union de tablas\n\n"
+        environment.conta_exec += 1
 
+#Ya
 class Intersect(Instruction):
     """
     Clase encargada de la instruccion CHECK que almacena la condicion
@@ -1478,20 +1574,17 @@ class Intersect(Instruction):
         types1 = list(s1[1].values())
         types2 = list(s2[1].values())
         if len(df1.columns) != len(df2.columns):
-            syntaxPostgreSQL.append(
+            print(
                 "Error: 42611: INTERSEC definicion en numero de columnas invalida "
             )
-
-            return "Error: El numero de columnas no coinciden"
         for i in range(len(types1)):
             if types1[i] != types2[i]:
                 semanticErrors.append(
                     ["Error discrepancia de tipo de datos entre columnas", self.row]
                 )
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42804: discrepancia de tipo de datos entre columnas "
                 )
-                return "Error: Los tipos de columnas no coinciden"
         df = df1.merge(df2).drop_duplicates(ignore_index=True)
         return df
 
@@ -1501,7 +1594,13 @@ class Intersect(Instruction):
         new.addNode(self.s2.dot())
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Funcion de Intersect\n\n"
+        environment.conta_exec += 1
 
+#ya
 class Except_(Instruction):
     """
     Clase encargada de la instruccion CHECK que almacena la condicion
@@ -1524,19 +1623,17 @@ class Except_(Instruction):
         types1 = list(s1[1].values())
         types2 = list(s2[1].values())
         if len(df1.columns) != len(df2.columns):
-            syntaxPostgreSQL.append(
+            print(
                 "Error: 42611: EXCEPT definicion en numero de columnas invalida "
             )
-            return "Error: El numero de columnas no coinciden"
         for i in range(len(types1)):
             if types1[i] != types2[i]:
                 semanticErrors.append(
                     ["Error discrepancia de tipo de datos entre columnas", self.row]
                 )
-                syntaxPostgreSQL.append(
+                print(
                     "Error: 42804: discrepancia de tipo de datos entre columnas"
                 )
-                return "Error: Los tipos de columnas no coinciden"
         df = df1.merge(df2, how="outer", indicator=True).loc[
             lambda x: x["_merge"] == "left_only"
         ]
@@ -1549,6 +1646,13 @@ class Except_(Instruction):
         new.addNode(self.s2.dot())
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Funcion Except\n\n"
+        environment.conta_exec += 1
+
+#yasis
 class IndexCls(Instruction):
 
     def __init__(self, unik, id1, nombre_tabal, lista, desc, null_, wherecl, row, column):
@@ -1627,6 +1731,11 @@ class IndexCls(Instruction):
 
         return new
 
+    def c3d(self, environment):
+        cont = environment.conta_exec 
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Index\n\n"
+        environment.conta_exec += 1
 
 
 class FunctionPL(Instruction):
@@ -1642,7 +1751,40 @@ class FunctionPL(Instruction):
         self.bloqueStmt = bloqueStmt    
 
     def execute(self, environment):
-        pass
+        newEnv = environment
+        global envVariables
+        envVariables.append(newEnv)
+        # AGREGAR FUNCIÓN A LA TABLA DE SIMBOLOS
+        if self.returnStmt != None:
+            sym = Symbol(
+                str(self.nombre),    # NOMBRE DE LA FUNCION
+                "FUNCTION", # TYPE DE RETORNO
+                self.row,    # FILA
+                self.column, # COLUMNA
+                None,    
+                self.returnStmt[0],
+                self.returnStmt, # BLOQUE DE RETURN
+                self.params, # PARAMETROS
+                self.bloqueStmt # [0] = DECLARE - [1] = BEGIN - [2] = END
+            )
+        else:
+            sym = Symbol(
+                str(self.nombre),    # NOMBRE DE LA FUNCION
+                "FUNCTION", # TYPE DE RETORNO
+                self.row,    # FILA
+                self.column, # COLUMNA
+                None,    
+                None,
+                self.returnStmt, # BLOQUE DE RETURN
+                self.params, # PARAMETROS
+                self.bloqueStmt # [0] = DECLARE - [1] = BEGIN - [2] = END
+            )
+        
+        newEnv.addSymbol(str(self.nombre), sym)
+
+        if self.bloqueStmt[0] != None:
+            for var in self.bloqueStmt[0]:
+                var.execute(newEnv)
 
     def dot(self):
         new = Nodo.Nodo("FUNCTION")
@@ -1652,36 +1794,65 @@ class FunctionPL(Instruction):
         new.addNode(id_function)
 
         # NODO PARA LOS PARAMETROS DE LA FUNCIÓN
-        for p in self.params:
-            new_param = Nodo.Nodo("PARAMETRO")
-            new.addNode(new_param)
+        if self.params != None:
+            for p in self.params:
+                new_param = Nodo.Nodo("PARAMETRO")
+                new.addNode(new_param)
 
-            param_id = Nodo.Nodo(p[0])
-            param_typ1 = Nodo.Nodo(p[1][0])
+                param_id = Nodo.Nodo(p[0])
+                param_typ1 = Nodo.Nodo(p[1][0])
 
-            new_param.addNode(param_id)
-            new_param.addNode(param_typ1)
+                new_param.addNode(param_id)
+                new_param.addNode(param_typ1)
 
         #NODO PARA EL RETURN DE LA FUNCIÓN
         if self.returnStmt != None:
-            new_return = Nodo.Nodo("RETURN")
+            new_return = Nodo.Nodo("RETURNS")
+            returnNode = Nodo.Nodo(self.returnStmt[0])
+            new_return.addNode(returnNode)
+            new.addNode(new_return)
 
         #NODO PARA EL DECLARE
         if self.bloqueStmt[0] != None:
-            new.addNode(self.bloqueStmt[0].dot())
+            for declaracion in self.bloqueStmt[0]:
+                new.addNode(declaracion.dot())
 
         #NODO PARA EL BEGIN
         if self.bloqueStmt[1] != None:
-            new.addNode(self.bloqueStmt[1].dot())
+            for instr in self.bloqueStmt[1]:
+                new.addNode(instr.dot())
 
         #NODO PARA EL END
         if self.bloqueStmt[2] != None:
-            pass#new.addNode(self.bloqueStmt[2].dot())
+            end_node = Nodo.Nodo("LANGUAGE")
+            id_end = Nodo.Nodo(self.bloqueStmt[2])
+            end_node.addNode(id_end)
+            new.addNode(end_node)
 
         return new
 
-    def generar_c3d(self):
-        pass
+    def c3d(self, environment):
+
+        # ENCABEZADO DE LA FUNCIÓN
+        environment.codigo += "def " + self.nombre + "():\n"
+        environment.count_tabs.append("\t")
+
+
+        # C3D DEL STATEMENT DECLARATION
+        if self.bloqueStmt[0] != None:
+            environment.codigo += "".join(environment.count_tabs) + "# SEGMENTO DECLARE\n"
+            for decla in self.bloqueStmt[0]:
+                decla.c3d(environment)
+
+        environment.codigo += "".join(environment.count_tabs) + "# SEGMENTO BEGIN\n"
+        # C3D DEL STATEMENT BEGIN
+        for comando in self.bloqueStmt[1]:
+            comando.c3d(environment)
+
+        environment.codigo += "".join(environment.count_tabs) + "# SEGMENTO END\n"
+
+        # FIN DE LA FUNCIÓN
+        environment.count_tabs.pop()
 
 
 class DeclarationPL(Instruction):
@@ -1690,38 +1861,308 @@ class DeclarationPL(Instruction):
     una función PLSQL
     """
 
-    def __init__(self, row, column):
+    def __init__(self, id_declaracion, constant_opt, typeDeclaration, null_opt, default, aliasStmt, row, column):
         Instruction.__init__(self, row, column)
+        self.id_declaracion = id_declaracion
+        self.constant_opt = constant_opt
+        self.typeDeclaration = typeDeclaration
+        self.null_opt = null_opt
+        self.default = default
+        self.aliasStmt = aliasStmt
 
     def execute(self, environment):
-        pass
+
+        # EXTRAER EL VALOR DEL DEFAULT
+        valor_ = ""
+        if self.default != None:
+            valor_ = self.default.execute(environment)
+
+        # SI ES UN VALOR CONSTANTE MANDAR ERROR SI VALOR_ = NONE
+        
+
+        # GUARDAR VARIABLE EN LA TABLA DE SIMBOLOS       
+        sym = Symbol(
+               valor_,
+               self.typeDeclaration[0],
+               self.row,
+               self.column,
+               None,
+               None,
+               None,
+               None,
+               None,
+               self.default
+           )
+        if  self.aliasStmt != None:
+            environment.addSymbol(str(self.aliasStmt), sym)
+        else:
+            environment.addSymbol(str(self.id_declaracion), sym)
 
     def dot(self):
         new = Nodo.Nodo("DECLARATION")
+
+        if self.aliasStmt == None:
+            id_declare = Nodo.Nodo(self.id_declaracion)
+            new.addNode(id_declare)
+
+            if self.constant_opt != None:
+                constant_node = Nodo.Nodo("CONSTANT")
+                new.addNode(constant_node)
+
+            type_declare = Nodo.Nodo(self.typeDeclaration[0])
+            new.addNode(type_declare)
+
+            if self.null_opt != None:
+                null_node = Nodo.Nodo("NOT NULL")            
+                new.addNode(null_node)
+
+            if self.default != None:
+                print(self.default)
+                default_node = Nodo.Nodo("DEFAULT") 
+                default_node.addNode(self.default.dot())
+                new.addNode(default_node)
+        else:
+            id_declare = Nodo.Nodo(self.id_declaracion)
+            new.addNode(id_declare)
+
+            alias_declare = Nodo.Nodo(self.aliasStmt)
+            new.addNode(alias_declare)
+
         return new
 
-    def generar_c3d(self):
-        pass
+    def c3d(self, environment):
+        environment.codigo += "".join(environment.count_tabs) + "t[1] = 3 + 3\n"
 
 
-class BeginPL(Instruction):
-    """
-    Clase encargada de ejecutar el segmento Begin de una 
-    función PLSQL
-    """
-
-    def __init__(self, row, column):
+class returnStmt(Instruction):
+    def __init__(self, expresion, row, column):
         Instruction.__init__(self, row, column)
+        self.expresion = expresion
 
     def execute(self, environment):
-        pass
+        resultado = self.expresion.execute(environment)
+        return resultado
 
     def dot(self):
-        new = Nodo.Nodo("BEGIN")
+        new = Nodo.Nodo("RETURN")
+        new.addNode(self.expresion.dot())
         return new
 
-    def generar_c3d(self):
+    def c3d(self, environment):
+        environment.codigo += "".join(environment.count_tabs) + "# RETURN\n"
+        self.expresion.c3d(environment)
+
+
+class llamadaFunction(Instruction):
+    def __init__(self, nombre, params, row, column):
+        Instruction.__init__(self, row, column)
+        self.nombre = nombre
+        self.params = params
+
+    def execute(self, environment):
+        # EXTRAER LA FUNCIÓN DE LA TABLA DE SIMBOLOS
+        func_ = environment.getVar(self.nombre)
+
+        if func_ != None:
+            # ENCONTRAMOS LA FUNCION
+            # GUARDAR LOS PARAMETROS
+            if len(self.params) != len(func_.params_func):
+                print("ERROR CON LOS PARAMETROS")
+            else:
+                rango_param = range(len(self.params))
+
+                for n in rango_param:
+                    # EXTRAER EL VALOR DEL PARAMETRO
+                    valor_param = self.params[n].execute(environment)
+
+                    # GUARDAR VARIABLE EN LA TABLA DE SIMBOLOS     
+                    sym = Symbol(
+                        valor_param,
+                        func_.params_func[n][1][0],
+                        func_.row,
+                        func_.column,
+                        None,
+                        None,
+                        None,
+                        None,
+                        None,
+                        valor_param
+                    )
+                    
+                    environment.addSymbol(func_.params_func[n][0], sym)
+
+            # EJECUTAR FUNCION
+            valor = None
+            try:               
+                for item in func_.bloque_func[1]:
+                    if valor == None:
+                        valor = item.execute(environment)
+            except:
+                for item in func_.bloque_func:
+                    if valor == None:
+                        valor = item.execute(environment)
+            print("valor: " + str(valor.value))
+        else:
+            # MARCAR ERROR
+            print("No se encontró la función")
+
+    def dot(self):
+        new = Nodo.Nodo("LLAMADA")
+        id_call = Nodo.Nodo(self.nombre)
+        new.addNode(id_call)
+        for param in self.params:
+            new.addNode(param.dot())        
+
+    def c3d(self, environment):
         pass
+
+
+class ProcedureStmt(Instruction):
+    """
+    Clase encargada de crear procedure PLSQL
+    """
+
+    def __init__(self, nombre, params, instruccions, language, row, column):
+        Instruction.__init__(self, row, column)
+        self.nombre = nombre
+        self.params = params
+        self.instruccions = instruccions
+        self.language = language
+
+    def execute(self, environment):
+        newEnv = Environment(environment, dbtemp)
+        global envVariables
+        envVariables.append(newEnv)
+
+        # AGREGAR FUNCIÓN A LA TABLA DE SIMBOLOS
+        
+        sym = Symbol(
+            str(self.nombre),    # NOMBRE DE LA FUNCION
+            "PROCEDURE", # TYPE DE RETORNO
+            self.row,    # FILA
+            self.column, # COLUMNA
+            None,    
+            None,
+            None, # BLOQUE DE RETURN
+            self.params, # PARAMETROS
+            self.instruccions # INSTRUCCIONES
+        )
+        
+        newEnv.addSymbol(str(self.nombre), sym)
+
+    def dot(self):
+        new = Nodo.Nodo("PROCEDURE")
+
+        # ID DEL PROCEDURE
+        id_procedure = Nodo.Nodo(self.nombre)
+        new.addNode(id_procedure)
+
+        # PARAMETROS DEL PROCEDURE
+        if self.params != None:
+            for param in self.params:
+                new_param = Nodo.Nodo("PARAMETRO")
+                new.addNode(new_param)
+
+                param_id = Nodo.Nodo(param[0])
+                param_typ1 = Nodo.Nodo(param[1][0])
+
+                new_param.addNode(param_id)
+                new_param.addNode(param_typ1)            
+
+        # LANGUAGE
+        if self.language != None:
+            language_procedure = Nodo.Nodo(self.language)
+            new.addNode(language_procedure)
+
+        # INSTRUCCIONES DEL PROCEDURE        
+        for item in self.instruccions:
+            print(item)
+            new.addNode(item.dot())
+        
+        return new
+
+    def c3d(self, environment):
+        pass
+
+#ya
+class IfCls(Instruction):
+
+    def __init__(self, condision, lista_stm, elsif_, else_,row, column):
+        Instruction.__init__(self, row, column)
+        self.condision = condision
+        self.lista_stm = lista_stm
+        self.elsif_ = elsif_
+        self.else_ = else_
+
+    def execute(self, environment):
+
+        resultado = self.condision.execute(environment)
+        print(resultado.value)
+        if (resultado.value):
+            for l1 in self.lista_stm:
+               res = l1.execute(environment)
+        else:
+            if len(self.else_) != 0:
+                for l1 in self.else_:
+                    l1.execute(environment)
+
+    def dot(self):
+        new = Nodo.Nodo("IF")
+        new.addNode(Nodo.Nodo("("))
+        new.addNode(self.condision.dot())
+        new.addNode(Nodo.Nodo(")"))
+        new.addNode(Nodo.Nodo("THEN"))
+        for l1 in self.lista_stm:
+            new.addNode(l1.dot())
+
+        print(self.else_)
+        #for l1 in self.elsif_:
+        #    if l1 != None:
+        #        new.addNode(l1.dot())
+
+        if len(self.else_) != 0:
+            new.addNode(Nodo.Nodo("ELSE"))
+            for l1 in self.else_:
+                new.addNode(l1.dot())
+
+
+        new.addNode(Nodo.Nodo("END IF"))
+
+        return new
+
+    def c3d(self, environment):
+
+        #Creacion de labels
+        label1 = environment.getEtiqueta()
+        label2 = environment.getEtiqueta()
+        escape = environment.getEtiqueta()
+
+
+        condicions = self.condision.c3d(environment)
+        environment.codigo += "if " + str(condicions.value)+ " : goto ."+label1+"\n"
+        environment.codigo += "goto ." + label2 + "\n\n"
+
+        #Si es Verdadero
+        environment.codigo += "label ." + label1 + "\n"
+        environment.codigo += "C3D.eje_if = \"Verdadero\"" + "\n"
+        for l1 in self.lista_stm:
+            l1.c3d(environment)
+        environment.codigo += "goto ." + escape + "\n" + "\n"
+
+        #Else
+        environment.codigo += "label ." + label2 + "\n"
+        environment.codigo += "C3D.eje_if = \"Else\"" + "\n"
+        if len(self.else_) != 0:
+            environment.conta_exec -= 1
+            for l1 in self.else_:
+                l1.c3d(environment)
+
+
+        #Escape
+        environment.codigo += "label ." + escape + "\n"
+
+        environment.conta_exec += 1
+
 
 def returnErrors():
     list_ = list()

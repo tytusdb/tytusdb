@@ -196,7 +196,13 @@ reservadas = {
     'on'    :   'ON',
     'using' :   'USING',
     'hash'  :   'HASH',
-    'first' : 'FIRST'
+    'first' : 'FIRST',
+    'if' : 'IF',
+    'elsif' : 'ELSIF',
+
+    'procedure' :'PROCEDURE',
+    'language' : 'LANGUAGE',
+    'plpgsql' : 'PLPGSQL'
 }
 
 tokens = [
@@ -230,7 +236,6 @@ tokens = [
             'CHAR',
             'ID',
             'PUNTOCOMA',
-            'PTCOMA',
             'CORCHETEA',
             'CORCHETEC',
             'DOLAR'
@@ -260,9 +265,8 @@ t_PARA = r'\('
 t_PARC = r'\)'
 t_DOSPUNTOS=r'\:'
 t_COMA=r'\,'
-t_PUNTOCOMA=r';'
+t_PUNTOCOMA = r'\;'
 t_PUNTO=r'\.'
-t_PTCOMA = r'\;'
 t_CORCHETEA=r'\['
 t_CORCHETEC=r'\]'
 t_DOLAR = r'\$'
@@ -337,6 +341,8 @@ from procedural import *
 import ply.lex as lex
 lexer = lex.lex()
 
+
+
 precedence = (
     ('left','PUNTO'),
     ('right','UMAS','UMENOS'),
@@ -380,7 +386,9 @@ def p_inst(p):
             |   delete
             |   usedb
             |   query
-            | createfunc
+            |   createfunc
+            |   createind
+            |   createproc
             
     """
     p[0] = p[1]
@@ -631,7 +639,7 @@ def p_varying1(p):
 #MANIPULACION DE BASES DE DATOS
 #CREATEDB----------------------
 def p_createdb(p):
-    "createdb   :   CREATE replacedb DATABASE ifnotexists id owner mode PTCOMA"
+    "createdb   :   CREATE replacedb DATABASE ifnotexists id owner mode PUNTOCOMA"
     p[0] = inst.createdb(p[2],p[4],p[5],p[6],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -677,13 +685,13 @@ def p_mode1(p):
 
 #SHOW DATABASES------------------
 def p_showdb(p):
-    "showdb :   SHOW DATABASES PTCOMA"
+    "showdb :   SHOW DATABASES PUNTOCOMA"
     p[0] = inst.showdb(p[1])
     insertProduction(p.slice, len(p.slice))
    
 #ALTER DATABASE------------------
 def p_alterdb(p):
-    "alterdb    :   ALTER DATABASE alterdb2 PTCOMA"
+    "alterdb    :   ALTER DATABASE alterdb2 PUNTOCOMA"
     p[0] = inst.alterdb(p[3])
     insertProduction(p.slice, len(p.slice))
 
@@ -709,7 +717,7 @@ def p_alterdb31(p):
 
 #DROP DATABASE--------------------
 def p_dropdb(p):
-    "dropdb :   DROP DATABASE ifexists id PTCOMA"
+    "dropdb :   DROP DATABASE ifexists id PUNTOCOMA"
     insertProduction(p.slice, len(p.slice))
 
 def p_ifexists(p):
@@ -724,14 +732,14 @@ def p_ifexists1(p):
 
 #USE DATABASE----------------------
 def p_usedb(p):
-    "usedb  :   USE id PTCOMA"
+    "usedb  :   USE id PUNTOCOMA"
     p[0] = inst.usedb(p[2])
     insertProduction(p.slice, len(p.slice))
 
 #MANIPULACION DE TABLAS
 # CREATE TABLE-------------------
 def p_createtb(p):
-    "createtb   :   CREATE TABLE id PARA coltb PARC inherits PTCOMA"
+    "createtb   :   CREATE TABLE id PARA coltb PARC inherits PUNTOCOMA"
     p[0] = inst.createtb(p[3],p[5],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -862,13 +870,13 @@ def p_const1(p):
 
 #DROP TABLE----------
 def p_droptb(p):
-    "droptb :   DROP TABLE id PTCOMA"
+    "droptb :   DROP TABLE id PUNTOCOMA"
     p[0] = inst.droptb(p[3])
     insertProduction(p.slice, len(p.slice))
 
 #ALTER TABLE---------
 def p_altertb(p):
-    "altertb    :   ALTER TABLE id altertb2 PTCOMA"
+    "altertb    :   ALTER TABLE id altertb2 PUNTOCOMA"
     p[0] = inst.altertb(p[3],p[4])
     insertProduction(p.slice, len(p.slice))
 
@@ -959,7 +967,7 @@ def p_alteracion11111(p):
 #MANIPULACION DE DATOS
 #INSERT---------------
 def p_insert(p):
-    "insert :   INSERT INTO id colkey VALUES PARA valores PARC PTCOMA"
+    "insert :   INSERT INTO id colkey VALUES PARA valores PARC PUNTOCOMA"
     p[0] = inst.insert(p[3],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -978,19 +986,20 @@ def p_valores1(p):
 
 #UPDATE----------------
 def p_update(p):
-    "update :   UPDATE id SET cond WHERE wherecond PTCOMA"
+    "update :   UPDATE id SET cond WHERE wherecond PUNTOCOMA"
     p[0] = inst.update(p[2],p[4],p[6])
     insertProduction(p.slice, len(p.slice))
 
 #DELETE----------------
 def p_delete(p):
-    "delete :   DELETE FROM id WHERE wherecond PTCOMA"
+    "delete :   DELETE FROM id WHERE wherecond PUNTOCOMA"
     p[0] = inst.delete(p[3],p[5])
     insertProduction(p.slice, len(p.slice))
 
 #CREATE INDEX
 def p_createind(p):
     "createind  :   CREATE uniqueind INDEX id ON id createind2"
+    p[0] = inst.IndexCreate(p[2],p[4],p[6],p[7])
 
 def p_uniqueind(p):
     "uniqueind  :   UNIQUE"
@@ -1002,29 +1011,43 @@ def p_uniqueind1(p):
 
 def p_createind2(p):
     "createind2 :   USING HASH createind3"
+    p[0] = p[3]
 
 def p_createind21(p):
     "createind2 :   createind3"
     p[0] = p[1]
 
 def p_createind3(p):
-    "createind3 :   PARA id contind PARC indwhere PTCOMA"  
+    "createind3 :   PARA listacolind PARC indwhere PUNTOCOMA" 
+    p[0] = inst.createind3(p[2],p[4]) 
 
-def p_contind(p):
-    "contind    :   COMA id"
+def p_listacolind(p):
+    "listacolind    :   listacolind COMA columnaind"
+    p[1].append(p[3])
+    p[0] = p[1]
 
-def p_contind1(p):
-    "contind    :   indorder NULLS indorder2"
+def p_listacolind1(p):
+    "listacolind    :   columnaind"
+    p[0] = [p[1]]
 
-def p_contind11(p):
+def p_columnaind(p):
     """
-    contind :   CORCHETEA collist CORCHETEC
-            |   PARA id PARC
-    """      
+    columnaind          :   id ordenind
+                        |   id idcondind  
+    """
+    p[0] = inst.columnaind(p[1], p[2])
 
-def p_contind111(p):
-    "contind    :   "
-    p[0] = ""
+def p_columnaind1(p):
+    "columnaind :   id"
+    p[0] = p[1]
+
+def p_ordenind(p):
+    "ordenind   :   indorder NULLS indorder2"
+    p[0] = inst.ordenind(p[1] + " " + p[2] + " " + p[3])
+
+def p_idcondind(p):
+    "idcondind :  PARA id PARC"
+    p[0] = p[2]
 
 def p_indorder(p):
     """
@@ -1044,40 +1067,45 @@ def p_indorder2(p):
     """
     p[0] = p[1]
 
-def p_collist(p):
-    "collist    :   collist COMA id"
-
-def p_collist1(p):
-    "collist    :   id"
-    p[0] = p[1]
+def p_indorder21(p):
+    """
+    indorder2   :  
+    """
+    p[0] = ""
 
 def p_indwhere(p):
     "indwhere   :   WHERE indnot indwherecond"
+    p[0] = inst.indwhere(p[2],p[3])
 
 def p_indwhere1(p):
     "indwhere   :   "
-    p[0] = p[1]
+    p[0] = ""
 
 def p_indnot(p):
     "indnot :   NOT PARA notcond PARC"
-
+    p[0] = p[3]
+ 
 def p_indnot1(p):
     "indnot :   "
     p[0] = ""
 
 def p_notcond(p):
     "notcond    :   notcond AND notval"
+    p[1].append(p[3])
+    p[0] = p[1]
 
 def p_notcond1(p):
     "notcond    :   notval"
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 def p_notval(p):
     "notval :   id signo id valortipo"
+    p[0] = inst.notval(p[1],p[2],p[3],p[4])
 
 def p_indwherecond(p):
-    "indwherecond   :   id IGUAL valortipo"
-
+    "indwherecond   :   id signo valortipo"
+    p[0] = inst.indwherecond(p[1],p[2],p[3])
+    
 def p_indwherecond1(p):
     "indwherecond   :   "
     p[0] = ""
@@ -1100,7 +1128,7 @@ def p_empty(p):
      insertProduction(p.slice, len(p.slice))
 
 def p_query(t):
-    'query : queryp com PTCOMA'
+    'query : queryp com PUNTOCOMA'
     #por el momento 
     t[0] = t[1]
     insertProduction(t.slice, len(t.slice))
@@ -1687,7 +1715,7 @@ def p_offsetEmpty(t):
     insertProduction(t.slice, len(t.slice))
 
 def p_createfunc(t):
-    'createfunc : CREATE FUNCTION ID PARA lparamsp PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
+    'createfunc : CREATE FUNCTION ID PARA lparamsp PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOCOMA'
     t[0] = createfunc(t[3],t[5],t[8],t[12])
 
 def p_lparamsp(t):
@@ -1720,6 +1748,11 @@ def p_declare(t):
     '''declare : DECLARE ldec
                 | empty
     '''
+    if len(t) > 2 :
+        t[0] = t[2]
+    else:
+        t[0] = t[1]
+
 
 def p_declareList(t):
     'ldec : ldec declares'
@@ -1737,7 +1770,6 @@ def p_declaresAsAlias(t):
 def p_declaration(p):
     ''' declares : ID consta type coll  nn  ddiexp PUNTOCOMA'''
     p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
-    print('entro')
 
 def p_ddiexp(p):
     '''ddiexp : ddi newexp '''
@@ -1805,9 +1837,102 @@ def p_instruccion(t):
                     | asignacion
                     | rtrn 
                     | block
+                    | instif
+                    | instSimplecase
+                    | instScase
     
      '''
     t[0] = t[1]
+
+def p_instSimplecase(t):
+    '''instSimplecase : CASE newexp WHEN lnexp THEN body lwhenv pelse END CASE PUNTOCOMA'''
+    
+
+def p_lnexp(t):
+    ''' lnexp : lnexp newexp'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lnexpu(t):
+    ''' lnexp :  newexp'''
+    t[0] = [t[1]]
+
+#searched case
+def p_instScase(t):
+    '''instScase : CASE WHEN newexp THEN body lwhen pelse END CASE PUNTOCOMA'''
+    t[0] = searched_case(t[3],t[6],t[7],t[8])
+
+
+def p_lwhen(t):
+    ''' lwhen : lwhen cuando'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lwhena(t):
+    ''' lwhen : cuando'''
+    t[0] = [t[1]]
+
+def p_cuando(t):
+    ''' cuando : WHEN newexp THEN body'''
+    t[0] = elsif(t[2],t[4])
+
+def p_lwhenv(t):
+    ''' lwhenv : lwhenv cuandos'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lwhenvarios(t):
+    ''' lwhenv : cuandos'''
+    t[0] = [t[1]]
+
+def p_cuandos(t):
+    ''' cuandos : WHEN lnexp THEN body'''
+    
+
+def p_instif(t):
+    '''instif : IF PARA newexp PARC THEN body lelsif pelse END IF PUNTOCOMA'''
+    t[0] = iff(t[3],t[6],t[7],t[8])
+
+def p_bodyu(t):
+    ''' bodyu : asigacion
+             | declares
+             | rtrn
+             | instif'''
+    t[0] = t[1]
+
+def p_body(t):
+    ''' body : body bodyu'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_bodya(t):
+    ''' body : bodyu'''
+    t[0] = [t[1]]
+
+def p_lelsif(t):
+    ''' lelsif: lelsif elsif'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lelsifR(t):
+    ''' lelsif:  elsif'''
+    t[0] = [t[1]]
+
+def p_lelsifRN(t):
+    ''' lelsif:  None'''
+    t[0] = []
+
+def p_elsif(t):
+    '''elsif : ELSIF  newexp THEN body'''
+    t[0] = elsif(t[2],t[4])
+
+def p_pelse(t):
+    '''pelse :  ELSE body'''
+    t[0] = els(t[2])
+
+def p_pelseN(t):
+    '''pelse :  '''
+    t[0] = None
 
 def p_raisenotice(t):
     #Imprimir
@@ -1816,8 +1941,8 @@ def p_raisenotice(t):
     t[0] = raisenotice(t[3],t[4])
 
 def p_compvalue(t):
-    'compvalue : COMA ID'
-    t[0] = t[1]
+    'compvalue : COMA newexp'
+    t[0] = t[2]
 
 def p_compvalueEmpty(t):
     'compvalue : empty'
@@ -1825,7 +1950,7 @@ def p_compvalueEmpty(t):
 
 def p_asignacion(t):
     'asignacion : ID igualacion newexp PUNTOCOMA'
-    t[0] = asignacion(t[1],t[4])
+    t[0] = asignacion(t[1],t[3])
 
 def p_igualacion(t):
     '''igualacion : DOSPUNTOS IGUAL
@@ -1840,7 +1965,7 @@ def p_return(t):
 
 def p_newexp_id(t):
     '''newexp :  ID'''
-    #t[0] = exp_idp(t[1])
+    t[0] = exp_idp(t[1])
 
 def p_newexp_bool(t):
     '''newexp : TRUE
@@ -1857,6 +1982,98 @@ def p_newexp_num(t):
 def p_newexp_text(t):
     '''newexp :  VARCHAR '''
     t[0] = exp_textp(t[1])
+
+def p_newexpFun(t):
+    ''' 
+    newexp : trign
+            | mathn
+            | funcn
+    '''
+
+def p_mathn(t):
+    '''
+    mathn : ABS PARA  newexp PARC
+		| CBRT PARA  newexp PARC
+		| CEIL PARA  newexp PARC
+		| CEILING PARA  newexp PARC
+		| DEGREES PARA  newexp PARC
+		| DIV PARA  newexp COMA newexp PARC	
+		| EXP PARA  newexp PARC	
+		| FACTORIAL PARA  newexp PARC
+		| FLOOR PARA  newexp PARC
+		| GCD PARA  newexp COMA newexp PARC
+		| LCM PARA  newexp COMA newexp PARC
+		| LN PARA  newexp PARC
+		| LOG PARA  newexp COMA newexp PARC
+		| LOG10 PARA  newexp PARC
+		| MIN_SCALE PARA newexp PARC
+		| MOD PARA newexp COMA newexp PARC
+		| PI PARA PARC
+		| POWER PARA  newexp COMA newexp PARC
+		| RADIANS PARA  newexp PARC
+		| ROUND PARA  newexp PARC
+		| SCALE PARA  newexp PARC
+		| SIGN PARA  newexp PARC
+		| SQRT PARA  newexp PARC
+		| TRIM_SCALE PARA newexp PARC
+		| TRUNC PARA  newexp PARC 
+		| WIDTH_BUCKET PARA  newexp COMA newexp COMA newexp COMA newexp PARC
+		| RANDOM PARA PARC
+		| SETSEED PARA  newexp PARC    
+
+    '''
+
+def p_trign(t):
+    '''
+        trign : ACOS PARA newexp PARC
+		| ACOSD PARA newexp PARC
+		| ASIN PARA newexp PARC
+		| ASIND PARA newexp PARC
+		| ATAN PARA newexp PARC
+		| ATAND PARA newexp PARC
+		| ATAN2 PARA newexp COMA newexp PARC
+		| ATAN2D PARA newexp COMA newexp PARC
+		| COS PARA newexp PARC
+		| COSD PARA newexp PARC
+		| COT PARA newexp PARC
+		| COTD PARA newexp PARC
+		| SIN PARA newexp PARC
+		| SIND PARA newexp PARC
+		| TAN PARA newexp PARC
+		| TAND PARA newexp PARC
+		| SINH PARA newexp PARC
+		| COSH PARA newexp PARC 
+		| TANH PARA newexp PARC
+		| ASINH PARA newexp PARC
+		| ACOSH PARA newexp PARC
+		| ATANH PARA newexp PARC
+    '''
+
+def p_funcn(t):
+    '''
+        funcn : SUM PARA newexp PARC
+                | AVG PARA newexp PARC
+                | MAX PARA newexp PARC
+                | MIN PARA newexp PARC
+                | COUNT PARA newexp PARC
+                | LENGTH PARA newexp PARC
+                | SUBSTRING PARA newexp COMA INT COMA INT PARC
+                | TRIM PARA newexp PARC
+                | MD5 PARA newexp PARC
+                | SHA256 PARA newexp PARC
+                | SUBSTR PARA newexp COMA INT COMA INT PARC
+                | CONVERT PARA newexp AS type PARC
+                | GREATEST PARA nlexps PARC
+                | LEAST PARA nlexps PARC
+                | NOW PARA PARC
+
+    '''
+
+def p_nlexps(t):
+    'nlexps : nlexps newexp'
+
+def p_nlexpsS(t):
+    'nlexps : newexp'
 
 def p_newexp_una(t):
     '''newexp : MENOS newexp %prec UMENOS
@@ -1884,6 +2101,10 @@ def p_newexp_bi(t):
         elif t[2] == '/': t[0] = exp_divisionp(t[1], t[3])
 
 
+def p_createproc(t):
+    'createproc : CREATE PROCEDURE ID PARA lparamsp PARC LANGUAGE PLPGSQL AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
+
+
 def p_error(t):
     if t:
         descript = 'error sintactico en el token ' + str(t.type)
@@ -1892,8 +2113,9 @@ def p_error(t):
         nuevo_error = CError(linea,columna,descript,'Sintactico')
         insert_error(nuevo_error)
         parser.errok()
+        print(t)
     else:
-        print("Syntax error at EOF")
+        print("No se pudo recuperar")
     return
 
 import ply.yacc as yacc

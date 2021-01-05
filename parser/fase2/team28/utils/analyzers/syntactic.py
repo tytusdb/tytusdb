@@ -1,5 +1,5 @@
 # from generate_ast import GraficarAST
-from models.Indexes.indexes import Indexes
+from models.Indexes.indexes import AlterIndex, DropIndex, Indexes
 from models.instructions.Expression.trigonometric_functions import ExpressionsTrigonometric
 from models.instructions.Expression.extract_from_column import ExtractFromIdentifiers
 from re import L
@@ -25,7 +25,7 @@ from utils.analyzers.lex import *
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
 from models.procedural.clases import BodyDeclaration
-from models.procedural.if_statement import If
+from models.procedural.if_statement import If,anidarIFs
 
 
 # Precedencia, entre mayor sea el nivel mayor sera su inportancia para su uso
@@ -86,6 +86,7 @@ def p_sql_instruction(p):
                       | MULTI_LINE_COMMENT
                       | SINGLE_LINE_COMMENT
                       | INDEXES_STATEMENT
+                      | CALL_FUNCTIONS_PROCEDURE SEMICOLON
                       | error SEMICOLON
     '''
     global contador_instr, arr_instr
@@ -384,15 +385,61 @@ def p_options_col_list(p):
     else:
         p[0] = [p[1]]
 
-
 def p_indexes_statement(p):
-    '''INDEXES_STATEMENT : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
+    '''INDEXES_STATEMENT : CREATE_INDEXES
+                         | DROP_INDEXES SEMICOLON
+                         | ALTER_INDEXES SEMICOLON'''
+    p[0] = p[1]
+
+def p_indexes_drop(p):
+    '''DROP_INDEXES : DROP INDEX CONCURRENTLY IF EXISTS columnlist CASCADE
+                    | DROP INDEX CONCURRENTLY IF EXISTS columnlist RESTRICT
+                    | DROP INDEX IF EXISTS columnlist RESTRICT
+                    | DROP INDEX IF EXISTS columnlist CASCADE
+                    | DROP INDEX columnlist CASCADE
+                    | DROP INDEX columnlist RESTRICT 
+                    | DROP INDEX CONCURRENTLY IF EXISTS columnlist
+                    | DROP INDEX CONCURRENTLY columnlist
+                    | DROP INDEX IF EXISTS columnlist
+                    | DROP INDEX columnlist '''
+    if len(p) == 8:
+        if p.slice[7].type == "CASCADE":
+            p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
+    elif len(p) == 7:
+        if p.slice[6].type == "CASCADE":
+            p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+        elif p.slice[3].type == "CONCURRENTLY":
+            p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+    elif len(p) == 6:
+        p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+    elif len(p) == 5:
+        if p.slice[4].type == "CASCADE":
+            p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+        elif p.slice[3].type == "CONCURRENTLY":
+            p[0] = DropIndex(p[4], p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+    else:
+        p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+    
+def p_indexes_alter(p):
+    '''ALTER_INDEXES : ALTER INDEX IF EXISTS ID RENAME TO ID
+                     | ALTER INDEX ID RENAME TO ID'''
+    if len(p) == 9:
+        p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]))
+    else:
+        p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]))
+                
+def p_indexes_create(p):
+    '''CREATE_INDEXES    : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
     '''
-    generateC3D(p)
-    
     if len(p) == 10:
         p[0] = Indexes(p[2],p[5], p[3], None,p[7], None, p.lineno(1), find_column(p.slice[1]),generateC3D(p))
     elif len(p) == 11:
@@ -482,6 +529,25 @@ def p_options2_indexes(p):
             p[0] = False
         else:
             p[0] = True
+
+def p_call_functions_or_procedure(p):
+    '''CALL_FUNCTIONS_PROCEDURE : ID LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS
+                                | ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
+                                | EXECUTE ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS 
+                                | EXECUTE ID LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS '''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
+    if p.slice[1].type == 'EXECUTE':
+        if len(p) == 5: #Tercera produccion
+            # Call(p[2], None)
+            p[0] = Funcion(p[2], [], [], None, False, True, noLine, noColumn)
+        else:           #Cuarta produccion
+            p[0] = Funcion(p[2], p[4], [], None, False, True, noLine, noColumn)
+    # else:
+    #     if len(p) == 5: #Primera produccion
+    #         Call(p[1], p[3])
+    #     else:           #Segunda produccion
+    #         Call(p[1], None)
 
 
 def p_option_col(p):  # TODO verificar
@@ -715,7 +781,7 @@ def p_sql_functions(p):
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if len(p) == 14: 
-        p[0] = Funcion(p[3], p[5], p[10], p[8], noLine, noColumn)
+        p[0] = Funcion(p[3], p[5], p[10], p[8], True, False, noLine, noColumn)
     else:
         print("NO ENTRO EN ESA PRODUCCION XD  --- CREATE FUNCTION")
 
@@ -882,10 +948,18 @@ def p_options_statements(p):
 
 def p_statement_type(p):
     '''statementType : PLPSQL_EXPRESSION  SEMICOLON 
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL QUERYSTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS INSERTSTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL INSERTSTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS DELETESTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL DELETESTATEMENT
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS UPDATESTATEMENT RIGHT_PARENTHESIS
+                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL UPDATESTATEMENT
                     |  RAISE_EXCEPTION 
                     |  BODY_DECLARATION
                     |  ifStatement
                     |  CASECLAUSE
+                    |  DML
     '''
     p[0] = p[1]
 
@@ -935,7 +1009,7 @@ def p_plpsql_primary_expression(p):
                                  | PLPSQL_PRIMARY_EXPRESSION DIVISION PLPSQL_PRIMARY_EXPRESSION
                                  | PLPSQL_PRIMARY_EXPRESSION EXPONENT PLPSQL_PRIMARY_EXPRESSION
                                  | PLPSQL_PRIMARY_EXPRESSION MODULAR PLPSQL_PRIMARY_EXPRESSION
-                                 | LEFT_PARENTHESIS PLPSQL_PRIMARY_EXPRESSION RIGHT_PARENTHESIS
+                                 | LEFT_PARENTHESIS PLPSQL_EXPRESSION RIGHT_PARENTHESIS
                                  | REST PLPSQL_PRIMARY_EXPRESSION %prec UREST
                                  | PLUS PLPSQL_PRIMARY_EXPRESSION %prec UPLUS
                                  | AGGREGATEFUNCTIONS
@@ -983,8 +1057,11 @@ def p_plpsql_primary_expression(p):
                 SymbolsUnaryOrOthers.UPLUS, p[2], p.lineno(1), find_column(p.slice[1]), p[1])
     else:
         if p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
-            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1],
-                                 p.lineno(1), find_column(p.slice[1]))
+            v = True
+            if p.slice[1].type == "FALSE":
+                v = False
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, v, p.lineno(1), find_column(p.slice[1]))
+            
         else:
             p[0] = p[1]
 
@@ -997,9 +1074,15 @@ def p_if_statement(p):
     ''' 
     
     if len(p) == 11: #Primera produccion
-        p[0] = If(p[2], p[4], p[5], p[7])
+        if_anidados = anidarIFs(0, p[5], p[7])
+        p[0] = If(p[2], p[4], None, if_anidados)
+        print("IF ANIDADOS")
+        print(p[0])
     elif len(p) == 9: #Segunda produccion
-        p[0] = If(p[2], p[4], p[5], None)
+        if_anidados = anidarIFs(0, p[5], None)
+        p[0] = If(p[2], p[4], None, if_anidados)
+        print("IF ANIDADOS")
+        print(p[0])
     elif len(p) == 10: #Tercera produccion
         p[0] = If(p[2], p[4], None, p[6])
     else: #Cuarta produccion
@@ -1127,8 +1210,10 @@ def p_sql_expression2(p):
                 p[1], p[3], SymbolsAritmeticos.MODULAR, '%', p.lineno(2), find_column(p.slice[2]))
     elif len(p) == 2:
         if p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
-            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1],
-                                 p.lineno(1), find_column(p.slice[1]))
+            v = True
+            if p.slice[1].type == "FALSE":
+                v = False
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, v, p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = p[1]
     elif len(p) == 5:
@@ -1371,6 +1456,8 @@ def p_list_item(p):
 def p_select_item(p):
     '''SELECTITEM : SQLEXPRESSION SQLALIAS
                   | SQLEXPRESSION
+                  | CALL_FUNCTIONS_PROCEDURE SQLALIAS
+                  | CALL_FUNCTIONS_PROCEDURE
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
         p[1].alias = p[2].alias
@@ -1769,8 +1856,10 @@ def p_sql_simple_expression(p):
                 SymbolsUnaryOrOthers.BITWISE_NOT, p[2], p.lineno(1), find_column(p.slice[1]), p[1])
     else:
         if p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
-            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1],
-                                 p.lineno(1), find_column(p.slice[1]))
+            v = True
+            if p.slice[1].type == "FALSE":
+                v = False
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, v, p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = p[1]
 
@@ -1896,36 +1985,31 @@ def p_greatest_or_least(p):
 
 
 def p_case_clause(p):
-    '''CASECLAUSE : CASE CASECLAUSELIST END ID
-                  | CASE CASECLAUSELIST ELSE SQLSIMPLEEXPRESSION END ID'''
-    if(len(p) == 5):
-        p[0] = Case(p[2], None, p.lineno(1), find_column(p.slice[1]))
-    else:
-        p[0] = Case(p[2], p[4], p.lineno(1), find_column(p.slice[1]))
+    '''CASECLAUSE : CASE CASECLAUSELIST END CASE SEMICOLON
+                  | CASE CASECLAUSELIST ELSE STATEMENTS END CASE SEMICOLON
+                  | CASE OBJECTREFERENCE CASECLAUSELIST END CASE SEMICOLON
+                  | CASE OBJECTREFERENCE CASECLAUSELIST ELSE STATEMENTS END CASE SEMICOLON'''
+    if p.slice[2].type == "OBJECTREFERENCE": 
+        if(len(p) == 7):
+            p[0] = Case(p[2], p[3], None, p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = Case(p[2], p[3], p[5], p.lineno(1), find_column(p.slice[1]))
+    else:             
+        if(len(p) == 6):
+            p[0] = Case(None, p[2], None, p.lineno(1), find_column(p.slice[1]))
+        else:
+            p[0] = Case(None, p[2], p[4], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_case_clause_list(p):
-    '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
-                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
-                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
-                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION'''
+    '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLEXPRESSIONLIST THEN STATEMENTS
+                      | WHEN SQLEXPRESSIONLIST THEN STATEMENTS'''
 
-    # El ELSE solo puede venir una vez ---> las producciones de abajo permitian que viniera varias veces
-    # WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
-    # WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-    if (len(p) == 8):
-        p[1].append(CaseOption(Relop(p[3], p[5], p[4], p[5], p.lineno(
-            4), find_column(p.slice[4])), p[7], p.lineno(2), find_column(p.slice[2])))
+    if (len(p) == 6):
+        p[1].append( CaseOption(p[3], p[5], 0, 0) )
         p[0] = p[1]
-    elif (len(p) == 7):
-        p[0] = [CaseOption(Relop(p[3], p[5], p[4], p[5], p.lineno(3), find_column(
-            p.slice[3])), p[7], p.lineno(1), find_column(p.slice[1]))]
-    elif (len(p) == 6):
-        p[1].append(CaseOption(p[3], p[5], p.lineno(2),
-                               find_column(p.slice[2])))
-        p[0] = p[1]
-    else:  # len = 5
-        p[0] = [CaseOption(p[3], p[5], p.lineno(1), find_column(p.slice[1]))]
+    else:
+        p[0] = [ CaseOption(p[2], p[4], 0, 0) ]
 
 
 def p_trigonometric_functions(p):
@@ -2037,7 +2121,9 @@ def p_sql_object_reference(p):
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
-                        | SQLSIMPLEEXPRESSION'''
+                        | LISTVALUESINSERT COMMA CALL_FUNCTIONS_PROCEDURE
+                        | SQLSIMPLEEXPRESSION
+                        | CALL_FUNCTIONS_PROCEDURE'''
     if(len(p) == 4):
         p[1].append(p[3])
         p[0] = p[1]

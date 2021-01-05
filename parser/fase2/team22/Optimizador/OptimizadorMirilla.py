@@ -564,7 +564,10 @@ class OptMirilla:
             if type(comando) == C3D.Asignacion:
                 Codigo3D = Codigo3D + '' + comando.Tx.Id + ' = '
                 if type(comando.Valor) == C3D.Valor:
-                    Codigo3D = Codigo3D + '' + str(comando.Valor.Valor)
+                    if comando.Valor.Tipo == 'CADENA' or comando.Valor.Tipo == 'CARACTER':
+                        Codigo3D = Codigo3D + ' \'' + str(comando.Valor.Valor) + '\''
+                    else:
+                        Codigo3D = Codigo3D + '' + str(comando.Valor.Valor)
                 elif type(comando.Valor) == C3D.Identificador:
                     Codigo3D = Codigo3D + '' + comando.Valor.Id
                 elif type(comando.Valor) == C3D.Operacion:

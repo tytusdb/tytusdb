@@ -13,11 +13,9 @@ if dropAll:
 
 
 s = """ 
-USE test;
-(SELECT "puta") union (SELECT "hola");
+CREATE INDEX orderindex ON orders (x,t);
 """
 result = grammar.parse(s)
 print(result)
 # print(result[0].execute(None))
-# print(result[1].execute(None))
 # print(grammar.returnPostgreSQLErrors())

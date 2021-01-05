@@ -61,7 +61,19 @@ def traducir():
     contenido = Tentrada.get(1.0, 'end')
     variables.consola.delete("1.0", "end")
     variables.consola.configure(state='normal')
-    gt.parse(contenido)
+
+    Principal = Entorno()
+    jsonMode.dropAll()
+
+    instrucciones = g.parse(contenido)
+    variables.consola.insert(INSERT, "Salida de traduccion\n")
+    salida=''
+    for instr in instrucciones:
+        if instr != None:
+            salida+=instr.traducir(Principal).codigo3d
+
+    print(salida)
+
 
 def reporte_lex_sin():
     if len(reporteerrores) != 0:

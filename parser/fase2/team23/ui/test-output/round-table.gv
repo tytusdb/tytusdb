@@ -1,110 +1,138 @@
 // AST
 digraph {
-<<<<<<< HEAD
-	110 [label=INSTRUCTION_LIST]
-	111 [label=SELECT]
-	112 [label=PARAMS]
-	113 [label="*"]
-	114 [label=FROM]
-	115 [label=user]
-	116 [label=""]
-	117 [label=INST]
-	118 [label=INSERT_INTO]
-	119 [label=user]
-	120 [label=PARAMS]
-	121 [label=4]
-	122 [label=nombre4]
-	123 [label=user4]
-	124 [label=pass4]
-	125 [label=INST]
-	126 [label=INSERT_INTO]
-	127 [label=user]
-	128 [label=PARAMS]
-	129 [label=3]
-	130 [label=nombre3]
-	131 [label=user3]
-	132 [label=pass3]
-	133 [label=INST]
-	134 [label=INSERT_INTO]
-	135 [label=user]
-	136 [label=PARAMS]
-	137 [label=2]
-	138 [label=nombre2]
-	139 [label=user2]
-	140 [label=pass2]
-	141 [label=INST]
-	142 [label=INSERT_INTO]
-	143 [label=user]
-	144 [label=PARAMS]
-	145 [label=1]
-	146 [label=nombre1]
-	147 [label=user1]
-	148 [label=pass1]
-	149 [label=INST]
-	110 -> 111
-	111 -> 112
-	112 -> 113
-	111 -> 114
-	114 -> 115
-	114 -> 116
-	110 -> 117
-	117 -> 118
-	118 -> 119
-	118 -> 120
-	120 -> 121
-	120 -> 122
-	120 -> 123
-	120 -> 124
-	117 -> 125
-	125 -> 126
-	126 -> 127
-	126 -> 128
-	128 -> 129
-	128 -> 130
-	128 -> 131
-	128 -> 132
-	125 -> 133
-	133 -> 134
-	134 -> 135
-	134 -> 136
-	136 -> 137
-	136 -> 138
-	136 -> 139
-	136 -> 140
-	133 -> 141
-	141 -> 142
-	142 -> 143
-	142 -> 144
-	144 -> 145
-	144 -> 146
-	144 -> 147
-	144 -> 148
-	141 -> 149
-=======
-	13 [label=INSTRUCTION_LIST]
-	14 [label="CREATE INDEX"]
-	15 [label=mytable_cat_1]
-	16 [label=ON]
-	17 [label=mytable]
-	18 [label="("]
-	19 [label="['data']"]
-	20 [label=")"]
-	21 [label=WHERE]
-	22 [label="="]
-	23 [label=category]
-	24 [label=1]
-	25 [label=INST]
-	13 -> 14
+	0 [label=INSTRUCTION_LIST]
+	1 [label=SELECT]
+	2 [label=PARAMS]
+	3 [label="*"]
+	4 [label=FROM]
+	5 [label=tbempleadopuesto]
+	6 [label=""]
+	7 [label=INST]
+	8 [label=INSERT_INTO]
+	9 [label=tbempleadopuesto]
+	10 [label=PARAMS]
+	11 [label=5]
+	12 [label=6]
+	13 [label=VENTAS]
+	14 [label=INST]
+	15 [label=INSERT_INTO]
+	16 [label=tbempleadopuesto]
+	17 [label=PARAMS]
+	18 [label=4]
+	19 [label=6]
+	20 [label=VENTAS]
+	21 [label=INST]
+	22 [label=INSERT_INTO]
+	23 [label=tbempleadopuesto]
+	24 [label=PARAMS]
+	25 [label=3]
+	26 [label=3]
+	27 [label=CONTABILIDAD]
+	28 [label=INST]
+	29 [label=INSERT_INTO]
+	30 [label=tbempleadopuesto]
+	31 [label=PARAMS]
+	32 [label=2]
+	33 [label=1]
+	34 [label=CONTABILIDAD]
+	35 [label=INST]
+	36 [label=INSERT_INTO]
+	37 [label=tbempleadopuesto]
+	38 [label=PARAMS]
+	39 [label=1]
+	40 [label=1]
+	41 [label=ADMINISTRACION]
+	42 [label=INST]
+	43 [label=CREATE_TABLE]
+	44 [label=tbempleadopuesto]
+	45 [label=COLUMNS]
+	46 [label=idempleado]
+	47 [label=TYPE]
+	48 [label=INTEGER]
+	49 [label=OPTIONS]
+	50 [label=NOT_NULL]
+	51 [label=idpuesto]
+	52 [label=TYPE]
+	53 [label=INTEGER]
+	54 [label=OPTIONS]
+	55 [label=NOT_NULL]
+	56 [label=departamento]
+	57 [label=TYPE]
+	58 [label=VARCHAR]
+	59 [label=PARAMS]
+	60 [label=50]
+	61 [label=INST]
+	62 [label=USE_DATABASE]
+	63 [label=test]
+	64 [label=INST]
+	65 [label=CREATE_DATABASE]
+	66 [label=test]
+	67 [label=INST]
+	0 -> 1
+	1 -> 2
+	2 -> 3
+	1 -> 4
+	4 -> 5
+	4 -> 6
+	0 -> 7
+	7 -> 8
+	8 -> 9
+	8 -> 10
+	10 -> 11
+	10 -> 12
+	10 -> 13
+	7 -> 14
 	14 -> 15
-	14 -> 16
-	14 -> 17
-	14 -> 18
-	14 -> 19
-	14 -> 20
+	15 -> 16
+	15 -> 17
+	17 -> 18
+	17 -> 19
+	17 -> 20
 	14 -> 21
 	21 -> 22
 	22 -> 23
 	22 -> 24
-	13 -> 25
->>>>>>> main
+	24 -> 25
+	24 -> 26
+	24 -> 27
+	21 -> 28
+	28 -> 29
+	29 -> 30
+	29 -> 31
+	31 -> 32
+	31 -> 33
+	31 -> 34
+	28 -> 35
+	35 -> 36
+	36 -> 37
+	36 -> 38
+	38 -> 39
+	38 -> 40
+	38 -> 41
+	35 -> 42
+	42 -> 43
+	43 -> 44
+	43 -> 45
+	45 -> 46
+	45 -> 47
+	47 -> 48
+	45 -> 49
+	49 -> 50
+	45 -> 51
+	45 -> 52
+	52 -> 53
+	45 -> 54
+	54 -> 55
+	45 -> 56
+	45 -> 57
+	57 -> 58
+	57 -> 59
+	59 -> 60
+	42 -> 61
+	61 -> 62
+	62 -> 63
+	61 -> 64
+	64 -> 65
+	65 -> 66
+	64 -> 67
 }

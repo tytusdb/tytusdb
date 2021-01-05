@@ -47,6 +47,12 @@ class Expression:
         Metodo que servira para ejecutar las expresiones
         """
 
+    @abstractmethod
+    def c3d(self, environment):
+        """
+        Metodo que servira para obtener el codigo 3 direcciones de las expresiones
+        """ 
+
 
 class Primitive(Expression):
     """
@@ -68,12 +74,15 @@ class Primitive(Expression):
         nod = Nodo.Nodo(str(self.value))
         return nod
 
+    def c3d(self, environment):
+
+        return self
+
 
 class Identifiers(Expression):
     """
     Esta clase representa los nombre de columnas
     """
-
     type = None
     # TODO: implementar la funcion para obtener el type de la columna
     def __init__(self, table, name, row, column):
@@ -87,6 +96,12 @@ class Identifiers(Expression):
         self.type = None
 
     def execute(self, environment):
+        #sacar variable
+        var_ = environment.getVar(self.name)
+
+        if var_ != None:
+            return var_.value
+
         if not self.table:
             table = environment.ambiguityBetweenColumns(self.name)
             if table[0]:  # Si existe ambiguedad
@@ -114,8 +129,12 @@ class Identifiers(Expression):
                         self.value = environment.getColumn(self.table, self.name)
         else:
             self.value = environment.getColumn(self.table, self.name)
+
+        # extraer variable xd
+        
         r = environment.getType(self.table, self.name)
         self.type = r
+
         return self
 
     def dot(self):
@@ -199,6 +218,39 @@ class UnaryArithmeticOperation(Expression):
             return ErrorUnaryOperation(operator, self.row, self.column)
         return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
 
+    def c3d(self, environment):
+        exp = self.exp.c3d(environment)
+        operator = self.operator
+        temp = environment.getTemp()
+        if exp.type != TYPE.NUMBER:
+            list_errors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(operator)
+                + " "
+                + str(exp.type)
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            return ErrorUnaryOperation(exp.value, self.row, self.column)
+
+        if operator == "+":
+            value = str(temp) + " = "+ str(exp.value)
+            environment.codigo += "\t" + value + "\n"
+        elif operator == "-":
+            value = str(temp) + " = -"+ str(exp.value)
+            environment.codigo += value+"\n"
+        else:
+            list_errors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(operator)
+                + " "
+                + str(exp.type)
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            return ErrorUnaryOperation(operator, self.row, self.column)
+        return Primitive(TYPE.NUMBER, temp, self.temp, self.row, self.column)
+
     def dot(self):
         n1 = self.exp.dot()
         new = Nodo.Nodo(self.operator)
@@ -224,36 +276,119 @@ class BinaryArithmeticOperation(Expression):
             exp1 = self.exp1.execute(environment)
             exp2 = self.exp2.execute(environment)
             operator = self.operator
-            if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
-                list_errors.append(
-                    "Error: 42883: la operacion no existe entre: "
-                    + str(exp1.type)
-                    + " "
-                    + str(operator)
-                    + " "
-                    + str(exp2.type)
-                    + "\n En la linea: "
-                    + str(self.row)
-                )
-
-                return ErrorBinaryOperation(
-                    exp1.value, exp2.value, self.row, self.column
-                )
+            
             if operator == "+":
+                if (exp1.type != TYPE.NUMBER and exp2.type != TYPE.STRING) or (exp2.type != TYPE.NUMBER and exp2.type != TYPE.STRING):
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
                 value = exp1.value + exp2.value
+
             elif operator == "-":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 value = exp1.value - exp2.value
             elif operator == "*":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 value = exp1.value * exp2.value
             elif operator == "/":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 if exp2.value == 0:
                     list_errors.append("Error: 22012: No se puede dividir  por cero")
                     value = 0
                 else:
+                    
                     value = exp1.value / exp2.value
             elif operator == "^":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 value = exp1.value ** exp2.value
             elif operator == "%":
+                if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                    list_errors.append(
+                        "Error: 42883: la operacion no existe entre: "
+                        + str(exp1.type)
+                        + " "
+                        + str(operator)
+                        + " "
+                        + str(exp2.type)
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+
+                    return ErrorBinaryOperation(
+                        exp1.value, exp2.value, self.row, self.column
+                    )
+
                 if exp2.value == 0:
                     list_errors.append("Error: 22012: No se puede modular por cero")
                     value = 0
@@ -287,6 +422,75 @@ class BinaryArithmeticOperation(Expression):
         new.addNode(n1)
         new.addNode(n2)
         return new
+
+    def c3d(self, environment):
+        temp = environment.getTemp()
+        try:
+            exp1 = self.exp1.c3d(environment)
+            exp2 = self.exp2.c3d(environment)
+            operator = self.operator
+            if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                list_errors.append(
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
+
+                return ErrorBinaryOperation(
+                    exp1.value, exp2.value, self.row, self.column
+                )
+            if operator == "+":
+                value = str(temp) + " = "+ str(exp1.value) + " + " + str(exp2.value)
+                environment.codigo += value+"\n"
+                
+            elif operator == "-":
+                value = str(temp) + " = "+ str(exp1.value) + " - " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "*":
+                value = str(temp) + " = "+ str(exp1.value) + " * " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "/":
+                if exp2.value == 0:
+                    list_errors.append("Error: 22012: No se puede dividir  por cero")
+                    value = 0
+                else:
+                    value = str(temp) + " = "+ str(exp1.value) + " / " + str(exp2.value)
+                    environment.codigo += value+"\n"
+            elif operator == "^":
+                value = str(temp) + " = "+ str(exp1.value) + " ^ " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "%":
+                if exp2.value == 0:
+                    list_errors.append("Error: 22012: No se puede modular por cero")
+                    value = 0
+                else:
+                    value = str(temp) + " = "+ str(exp1.value) + " % " + str(exp2.value)
+                    environment.codigo += value+"\n"
+            else:
+                list_errors.append(
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
+                return ErrorOperatorExpression(operator, self.row, self.column)
+
+            return Primitive(TYPE.NUMBER, temp, self.temp, self.row, self.column)
+        except:
+            list_errors.append(
+                "Error: XX000: Error interno (Binary Aritmethic Operation)"
+                + "\n En la linea: "+ str(self.row)
+                )
+
 
 
 class BinaryStringOperation(Expression):
@@ -351,6 +555,50 @@ class BinaryStringOperation(Expression):
         new.addNode(n1)
         new.addNode(n2)
         return new
+
+    def c3d(self, environment):
+        exp1 = self.exp1.c3d(environment)
+        exp2 = self.exp2.c3d(environment)
+        operator = self.operator
+        temp=environment
+        if exp1.type != TYPE.STRING and exp2.type != TYPE.STRING:
+            list_errors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type)
+                + "\n En la linea: "
+                + str(self.row)
+            )
+
+            return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+        if isinstance(exp1.value, pd.core.series.Series):
+            exp1.value = exp1.value.apply(str)
+        else:
+            exp1.value = str(exp1.value)
+        if isinstance(exp2.value, pd.core.series.Series):
+            exp2.value = exp2.value.apply(str)
+        else:
+            exp2.value = str(exp2.value)
+        if operator == "||":
+            value = str(temp) + " = "+ str(exp1.value) + " + " + str(exp2.value)
+            environment.codigo +=  value+"\n"
+        else:
+            list_errors.append(
+                "Error: 42725: el operador no es unico: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type)
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            return ErrorOperatorExpression(operator, self.row, self.column)
+
+        return Primitive(TYPE.STRING, temp, self.temp, self.row, self.column)
 
 
 class BinaryRelationalOperation(Expression):
@@ -430,6 +678,78 @@ class BinaryRelationalOperation(Expression):
         new.addNode(n2)
         return new
 
+    def c3d(self, environment):
+        exp1 = self.exp1.c3d(environment)
+        exp2 = self.exp2.c3d(environment)
+
+        print("-----------------------------")
+        print("exp1: " + str(self.exp1))
+        print("exp2: " + str(exp2))
+
+        operator = self.operator
+        temp = environment.getTemp()
+        try:
+            if operator == "<":
+                value = str(temp)+ " = " + str(exp1.value) + " < " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == ">":
+                value = str(temp) + " = "+ str(exp1.value) + " > " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == ">=":
+                value = str(temp) + " = "+ str(exp1.value) + " >= " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "<=":
+                value = str(temp) + " = "+ str(exp1.value) + " <= " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "=":
+                value = str(temp) + " = "+ str(exp1.value) + " == " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "!=":
+                value = str(temp) + " = "+ str(exp1.value) + " != " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "<>":
+                value = str(temp) + " = "+ str(exp1.value) + " <> " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "ISDISTINCTFROM":
+                value = str(temp) + " = "+ str(exp1.value) + " ISDISTINCTFROM " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTDISTINCTFROM":
+                value = str(temp) + " = "+ str(exp1.value) + " ISNOTDISTINCTFROM " + str(exp2.value)
+                environment.codigo += value+"\n"
+            else:
+                print("que verga")
+                list_errors.append(
+                    "Error: 22P02: entrada invalida: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
+                return ErrorOperatorExpression(operator, self.row, self.column)
+            return Primitive(TYPE.BOOLEAN, temp, self.temp, self.row, self.column)
+        except TypeError:
+            print("error en except")
+            list_errors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type)
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+        except:
+            list_errors.append(
+                "Error: XX000: Error interno (Binary Relational Operation)"
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            pass
 
 comps = {
     "ISNULL": "IS NULL",
@@ -518,6 +838,70 @@ class UnaryRelationalOperation(Expression):
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         return new
+
+    def c3d(self, environment):
+        exp = self.exp.c3d(environment)
+        operator = self.operator
+        temp = environment.getTemp()
+        try:
+            if operator == "ISNULL":
+                value = str(temp) + " = "+ str(exp.value) + " == None "
+                environment.codigo += value+"\n"
+            elif operator == "NOTNULL":
+                value = str(temp) + " = "+ str(exp.value) + " != None "
+                environment.codigo += value+"\n"
+            elif operator == "ISTRUE":
+                value = str(temp) + " = "+ str(exp.value) + " == True "
+                environment.codigo += value+"\n"
+            elif operator == "ISFALSE":
+                value = str(temp) + " = "+ str(exp.value) + " == False "
+                environment.codigo += value+"\n"
+            elif operator == "ISUNKNOWN":
+                value = str(temp) + " = "+ str(exp.value) + " == None "
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTNULL":
+                value = str(temp) + " = "+ str(exp.value) + " != None "
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTTRUE":
+                value = str(temp) + " = "+ str(exp.value) + " != True "
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTFALSE":
+                value = str(temp) + " = "+ str(exp.value) + " != False "
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTUNKNOWN":
+                value = str(temp) + " = "+ str(exp.value) + " != None "
+                environment.codigo += value+"\n"
+            else:
+                list_errors.append(
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
+                return ErrorOperatorExpression(operator, self.row, self.column)
+
+            return Primitive(TYPE.BOOLEAN, temp, self.temp, self.row, self.column)
+        except TypeError:
+            list_errors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(exp.type)
+                + " "
+                + str(operator)
+                + " "
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            return ErrorUnaryOperation(exp.value, self.row, self.column)
+        except:
+            list_errors.append(
+                "Error: XX000: Error interno (Unary Relational Operation)"
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            pass
 
 
 class TernaryRelationalOperation(Expression):
@@ -619,6 +1003,92 @@ class TernaryRelationalOperation(Expression):
         new.addNode(n3)
         return new
 
+    def c3d(self, environment):
+        exp1 = self.exp1.c3d(environment)
+        exp2 = self.exp2.c3d(environment)
+        exp3 = self.exp3.c3d(environment)
+        operator = self.operator
+        temp = environment.getTemp()
+        
+        try:
+            if (
+                isinstance(exp1.value, pd.core.series.Series)
+                or isinstance(exp2.value, pd.core.series.Series)
+                or isinstance(exp3.value, pd.core.series.Series)
+            ):
+                if operator == "BETWEEN":
+                    value = str(temp) + " = ("+ str(exp1.value) + " > "+str(exp2.value)+ " ) & ( "+ str(exp1.value) + " < "+str(exp3.value)+ " )"
+                    environment.codigo += value+"\n"
+                elif operator == "NOTBETWEEN":
+                    value = str(temp) + " = not (("+ str(exp1.value) + " > "+str(exp2.value)+ " ) & ( "+ str(exp1.value) + " < "+str(exp3.value)+ " ))"
+                    environment.codigo += value+"\n"
+                elif operator == "BETWEENSYMMETRIC":
+                    value = str(temp) + " = ("+ str(exp1.value) + " > "+str(exp2.value)+ " ) & ( "+ str(exp1.value) + " < "+str(exp3.value)+ " )"
+                    environment.codigo += value+"\n"
+                    temp2 = environment.getTemp()
+                    value = str(temp2) + " = ("+ str(exp1.value) + " < "+str(exp2.value)+ " ) & ( "+ str(exp1.value) + " > "+str(exp3.value)+ " )"
+                    environment.codigo += value+"\n"
+                    temp3 = environment.getTemp()
+                    value = str(temp3) + " = "+ str(temp) + " | "+str(temp2) 
+                    environment.codigo += value+"\n"
+                    temp=temp3
+                else:
+                    list_errors.append(
+                        "Error: 42601: Error sintactico: "
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+                    return ErrorOperatorExpression(operator, self.row, self.column)
+            else:
+                if operator == "BETWEEN":
+                    value = str(temp) + " = "+ str(exp1.value) + " > "+str(exp2.value)+ " and  "+ str(exp1.value) + " < "+str(exp3.value)+ " "
+                    environment.codigo += value+"\n"
+                elif operator == "NOTBETWEEN":
+                    value = str(temp) + " = not ("+ str(exp1.value) + " > "+str(exp2.value)+ "  and  "+ str(exp1.value) + " < "+str(exp3.value)+ " )"
+                    environment.codigo += value+"\n"
+                elif operator == "BETWEENSYMMETRIC":
+                    value = str(temp) + " = "+ str(exp1.value) + " > "+str(exp2.value)+ " and "+ str(exp1.value) + " < "+str(exp3.value)+ " "
+                    environment.codigo += value+"\n"
+                    temp2 = environment.getTemp()
+                    value = str(temp2) + " = "+ str(exp1.value) + " < "+str(exp2.value)+ " and "+ str(exp1.value) + " > "+str(exp3.value)+ " "
+                    environment.codigo += value+"\n"
+                    temp3 = environment.getTemp()
+                    value = str(temp3) + " = "+ str(temp) + " or "+str(temp2) 
+                    environment.codigo += value+"\n"
+                    temp=temp3
+
+                else:
+                    list_errors.append(
+                        "Error: 42601: Error sintactico: "
+                        + "\n En la linea: "
+                        + str(self.row)
+                    )
+                    return ErrorOperatorExpression(operator, self.row, self.column)
+            return Primitive(TYPE.BOOLEAN, temp, self.temp, self.row, self.column)
+        except TypeError:
+            list_errors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type)
+                + " y "
+                + str(exp3.type)
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            return ErrorTernaryOperation(
+                exp1.value, exp2.value, exp3.value, self.row, self.column
+            )
+        except:
+            list_errors.append(
+                "Error: XX000: Error interno (Ternary Relational Operation)"
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            pass
+
 
 class ExistsRelationalOperation(Expression):
     def __init__(self, subquery, row, column) -> None:
@@ -658,6 +1128,7 @@ class ExistsRelationalOperation(Expression):
         new = Nodo.Nodo("EXISTS")
         new.addNode(self.subquery.dot())
         return new
+    
 
 
 class InRelationalOperation(Expression):
@@ -691,6 +1162,24 @@ class InRelationalOperation(Expression):
         new.addNode(self.colData.dot())
         new.addNode(self.subquery.dot())
         return new
+
+    def cd3(self, environment):
+        col = self.colData.execute(environment)
+        df = self.subquery.execute(environment)[0]
+        temp = environment.getTemp()
+        # TODO: Falta agregar la verificacion de types
+
+        if len(list(df.columns)) != 1:
+            list_errors.append(
+                "Error: XX000: Error interno (Exist Relational Operation)"
+                + "\n En la linea: "+ str(self.row)
+                )
+        value = col.value.isin(df.iloc[:, 0])
+        if self.optNot == "NOT":
+            value = str(temp) + " = ~"+ str(value)
+            environment.codigo += value+"\n"
+        return Primitive(TYPE.BOOLEAN, temp, self.temp, self.row, self.column)
+
 
 
 class BinaryLogicalOperation(Expression):
@@ -768,6 +1257,66 @@ class BinaryLogicalOperation(Expression):
         new.addNode(n1)
         new.addNode(n2)
         return new
+
+    def c3d(self, environment):
+        exp1 = self.exp1.c3d(environment)
+        exp2 = self.exp2.c3d(environment)
+        operator = self.operator
+        temp=environment.getTemp()
+        if exp1.type != TYPE.BOOLEAN or exp2.type != TYPE.BOOLEAN:
+            list_errors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type)
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+
+        if isinstance(exp1.value, pd.core.series.Series) or isinstance(
+            exp2.value, pd.core.series.Series
+        ):
+            if operator == "AND":
+                value = str(temp) + " = "+ str(exp1.value) + " & " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "OR":
+                value = str(temp) + " = "+ str(exp1.value) + " | " + str(exp2.value)
+                environment.codigo += value+"\n"
+            else:
+                list_errors.append(
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
+                return ErrorOperatorExpression(operator, self.row, self.column)
+        else:
+            if operator == "AND":
+                value = str(temp) + " = "+ str(exp1.value) + " and " + str(exp2.value)
+                environment.codigo += value+"\n"
+            elif operator == "OR":
+                value = str(temp) + " = "+ str(exp1.value) + " or " + str(exp2.value)
+                environment.codigo += value+"\n"
+            else:
+                list_errors.append(
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
+                return ErrorOperatorExpression(operator, self.row, self.column)
+        return Primitive(TYPE.BOOLEAN, temp, self.temp, self.row, self.column)
 
 
 class UnaryLogicalOperation(Expression):
@@ -856,6 +1405,89 @@ class UnaryLogicalOperation(Expression):
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         return new
+
+    def c3d(self, environment):
+        exp = self.exp.c3d(environment)
+        operator = self.operator
+        temp = environment.getTemp()
+        # MOMO IF OPERADORES
+        if exp.type != TYPE.BOOLEAN:
+            list_errors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(exp.type)
+                + " y el operador "
+                + str(operator)
+                + "\n En la linea: "
+                + str(self.row)
+            )
+            return ErrorUnaryOperation(exp.value, self.row, self.column)
+
+        if isinstance(exp.value, pd.core.series.Series):
+            if operator == "NOT":
+                value = str(temp)+ " = ~" + str(exp.value)
+                environment.codigo += value+"\n"
+            elif operator == "ISTRUE":
+                value = str(temp)+ " = " + str(exp.value) + " == True" 
+                environment.codigo += value+"\n"
+            elif operator == "ISFALSE":
+                value = str(temp)+ " = " + str(exp.value) + " == False" 
+                environment.codigo += value+"\n"
+            elif operator == "ISUNKNOWN":
+                value = str(temp)+ " = " + str(exp.value) + " == None" 
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTTRUE":
+                value = str(temp)+ " = " + str(exp.value) + " != True" 
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTFALSE":
+                value = str(temp)+ " = " + str(exp.value) + " != False" 
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTUNKNOWN":
+                value = str(temp)+ " = " + str(exp.value) + " != None" 
+                environment.codigo += value+"\n"
+            else:
+                list_errors.append(
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp.type)
+                    + " y el operador "
+                    + str(operator)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
+                return ErrorOperatorExpression(operator, self.row, self.column)
+        else:
+            if operator == "NOT":
+                value = str(temp)+ " = ~" + str(exp.value)
+                environment.codigo += value+"\n"
+            elif operator == "ISTRUE":
+                value = str(temp)+ " = " + str(exp.value) + " == True" 
+                environment.codigo += value+"\n"
+            elif operator == "ISFALSE":
+                value = str(temp)+ " = " + str(exp.value) + " == False" 
+                environment.codigo += value+"\n"
+            elif operator == "ISUNKNOWN":
+                value = str(temp)+ " = " + str(exp.value) + " == None" 
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTTRUE":
+                value = str(temp)+ " = " + str(exp.value) + " != True" 
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTFALSE":
+                value = str(temp)+ " = " + str(exp.value) + " != False" 
+                environment.codigo += value+"\n"
+            elif operator == "ISNOTUNKNOWN":
+                value = str(temp)+ " = " + str(exp.value) + " != None" 
+                environment.codigo += value+"\n"
+            else:
+                list_errors.append(
+                    "Error: 42883: la operacion no existe entre: "
+                    + str(exp.type)
+                    + " y el operador "
+                    + str(operator)
+                    + "\n En la linea: "
+                    + str(self.row)
+                )
+                return ErrorOperatorExpression(operator, self.row, self.column)
+        return Primitive(TYPE.BOOLEAN, temp, self.temp, self.row, self.column)
+
 
 
 class ErrorBinaryOperation(Expression):
@@ -1097,7 +1729,10 @@ class FunctionCall(Expression):
                 value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             else:
                 # TODO: Agregar un error de funcion desconocida
-                value = valores[0]
+                value = 'Prueba'
+                Lista_Ejecutar = environment.variables[self.function].bloque_func[1] 
+                for v in Lista_Ejecutar:
+                    value = v.execute(environment)
             if isinstance(value, list):
                 if len(value) <= 1:
                     value = value[0]

@@ -1,0 +1,24 @@
+CREATE FUNCTION ValidaRegistros(resultado INTEGER,cantidad integer) RETURNS int AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+	    resultado := 9;
+ resultadodd := 49;
+
+
+CREATE TABLE mr(
+   id int PRIMARY KEY,
+   precio int
+);
+select*from tabli;
+
+		RETURN resultado;
+
+END;
+	
+$$ LANGUAGE plpgsql;
+
+execute ValidaRegistros();
+
+
+

@@ -2,6 +2,7 @@
 #                          IMPORTES Y PLY
 # ======================================================================
 # IMPORTE DE LIBRERIA PLY
+from funcionalidad import *
 import ply.lex as lex
 import ply.yacc as yacc
 #IMPORTES EXTRAS
@@ -9,6 +10,9 @@ import re
 import codecs
 import os
 import sys
+#imports instrucciones
+from Instrucciones.instruction import *
+from Instrucciones.ins_if import *
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
 # ======================================================================
@@ -47,7 +51,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'LENGTH','TRIM','GET_BYTE','MD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS','SQRT','SIGN',
               'TRUNC','RADIANS','RANDOM','WIDTH_BUCKET'
               ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL','INDEX','HASH','INCLUDE','COLLATE', 'CONSTANT', 'ALIAS', 'FOR', 'RETURN', 'NEXT', 'ELSIF',
-              'ROWTYPE', 'RECORD', 'QUERY', 'STRICT', 'PERFORM', 'VAR', 'EXECUTE',
+              'ROWTYPE', 'RECORD', 'QUERY', 'STRICT', 'VAR', 'EXECUTE',
               'FUNCTION','LANGUAGE','RETURNS','ANYELEMENT','ANYCOMPATIBLE','VOID', 'OUT'
               ]
 
@@ -271,9 +275,16 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | ins_create_pl
                    | create_index'''
+   # if isinstance(t[1],Ins_If):
+       # t[0] = GenerarC3D()
+        #3t[0].code = t[1].Traduct()
+    #else:
     if t[1].statement == 'INDEX':
         t[0] = GenerarC3D()
         t[0].code += '# parser.parse(\'' + t[1].code + '\')' + '\n'
+    elif t[1].statement == 'CREATE_FUNCTION':
+        t[0] = GenerarC3D()
+        t[0].code += t[1].code
     else:
         t[0] = GenerarC3D()
         t[0].code += 'parser.parse(\'' + t[1].code + '\')' + '\n'
@@ -1138,6 +1149,7 @@ def p_exp(t):
             | arg_least 
             | val_value
             | ID PARABRE list_vls PARCIERRE
+            | PARABRE exp PARCIERRE
             | data NOT IN PARABRE ins_select PARCIERRE '''
     if len(t) == 7:
         t[0] = GenerarC3D()
@@ -1149,8 +1161,12 @@ def p_exp(t):
         t[0] = GenerarC3D()
         t[0].code += str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].code + ' ' + str(t[4])
     elif len(t) == 4:
-        t[0] = GenerarC3D()
-        t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
+        if isinstance(t[1], GenerarC3D):
+            t[0] = GenerarC3D()
+            t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
+        else:
+            t[0] = GenerarC3D()
+            t[0].code += str(t[1]) + ' ' + t[2].code + ' ' + str(t[3])
     elif len(t) == 3:
         t[0] = GenerarC3D()
         t[0].code += str(t[1]) + ' ' + t[2].code
@@ -1429,35 +1445,62 @@ def p_ins_delete(t):
 # ======================================================================
 
 def p_ins_create_pl(t):
-    '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameters PARCIERRE returns AS  block LANGUAGE ID PUNTO_COMA
-                    | CREATE op_replace PROCEDURE ID PARABRE parameters PARCIERRE AS  block LANGUAGE ID PUNTO_COMA
-    '''
+    '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameteropt PARCIERRE returns AS block LANGUAGE ID PUNTO_COMA
+                     | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE AS  block LANGUAGE ID PUNTO_COMA
+                     '''
     t[0] = GenerarC3D()
-    t[0].code += ''
+    if len(t) == 14:
+        func = funcion({'id':t[4], 'parametros':t[6]},t[10])
+        t[0].code = func
+        t[0].statement = 'CREATE_FUNCTION'
 
 def p_op_replace(t):
     '''op_replace :  OR REPLACE
                     | '''
 
+def p_parameteropt(t):
+    '''parameteropt : parameters
+                   |
+    '''
+    if len(t)== 2:
+        t[0] = t[1]
+    else:
+        t[0] = []
+
 def p_parameters(t):
     '''parameters : parameters COMA parameter
                 | parameter
-                |
     '''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    elif len(t) == 2:
+        t[0] = [t[1]]
 
 def p_parameter(t):
-    '''parameter : ID tipo_dato
+    '''parameter : idopt tipo_dato
                 | ID ANYELEMENT
                 | ID ANYCOMPATIBLE
                 | OUT ID tipo_dato
                 | ID
-                | tipo_dato
+    '''   
+    if len(t) == 4:
+        t[0] = t[2]
+    else:
+        t[0] = t[1]
+
+def p_idopt(t):
+    '''idopt : ID
+             | 
     '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = ""
 
 def p_retruns(t):
-    '''returns : RETURNS exp
+    '''returns : RETURNS exp_plsql
             | RETURNS ANYELEMENT
-            | RETURNS TABLE PARABRE parameters PARCIERRE 
             | RETURNS ANYCOMPATIBLE
             | RETURNS tipo_dato
             | RETURNS VOID
@@ -1467,33 +1510,62 @@ def p_retruns(t):
 def p_block(t):
     '''block : DOLAR_LABEL  body PUNTO_COMA DOLAR_LABEL
     '''
+    t[0] = t[2]
 
 def p_body(t):
-    '''body :  declare_statement BEGIN internal_block END 
-    '''
+    '''body :  declare_statement BEGIN internal_blockopt END '''
+    t1 = ""
+    t2 = ""
+    t3 = ""
+    if t[1] != None:
+        t1 = t[1]
+    if t[3] != None:
+        t3 = t[3]
+    t[0] = t1 + t3
 
 def p_declare(t):
-    '''declare_statement :  DECLARE
-                        | declare_statement statements 
-                        | '''
+    '''declare_statement : DECLARE statements
+                         | 
+    '''
+    if len(t) == 3:
+        t[0] = t[2][:-1]
+    else:
+        t[0] = ""
 
 def p_declaracion(t):
     '''declaracion  : ID constante tipo_dato not_null declaracion_default PUNTO_COMA'''
-    print('DECLARACION')
+    temp = None
+    v2 = ""
+    if isinstance(t[5],dict):
+        temp = t[5]['temp']
+        v2 = t[5]['c3d']
+    v1 = declare(t[1], DBType.text,temp)
+    t[0] = v2 + v1
+
+def p_internal_blockopt(t):
+    '''internal_blockopt : internal_block
+                         | 
+    '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = ""
 
 def p_internal_block(t):
-    '''internal_block : internal_block internal_body 
-                        | internal_body 
-                        | 
-                        '''
+    '''internal_block : internal_body'''
+    t[0] = t[1]
 
 def p_internal_body(t):
     '''internal_body : body PUNTO_COMA
-                   | instruccion_if
+                   | instruccion_if END IF PUNTO_COMA
                    | instruccion_case
                    | return
                    | statements
     '''
+    if isinstance(t[1],Ins_If):
+        t[0] = t[1].Traduct()
+    else:
+        t[0] = t[1]
 
 def p_constante(t):
     '''constante  : CONSTANT'''
@@ -1508,62 +1580,64 @@ def p_not_null_null(t):
     '''not_null : '''
 
 def p_declaracion_default(t):
-    '''declaracion_default  : DEFAULT exp'''
-
+    '''declaracion_default  : DEFAULT exp_plsql'''
+    t[0] = traduct(t[2])
 def p_declaracion_default_dos(t):
-    '''declaracion_default  : SIGNO_IGUAL exp '''
-    print('ENTRA =')
-
+    '''declaracion_default  : SIGNO_IGUAL exp_plsql '''
+    t[0] = traduct(t[2])
 def p_declaracion_default_signo(t):
-    '''declaracion_default  : DOSPUNTOS SIGNO_IGUAL  exp'''
-    print('ENTRA :=')
-
+    '''declaracion_default  : DOSPUNTOS SIGNO_IGUAL exp_plsql  '''
+    t[0] = traduct(t[3])
 def p_declaracion_default_null(t):
     '''declaracion_default  : '''
-
+    t[0] = None
 def p_declaracionf_funcion(t):
     '''declaracion_funcion : ID ALIAS FOR DOLAR NUMERO PUNTO_COMA'''
-    print('ALIAS')
+    t[0] = ''
 
 def p_declaracionf_funcion_rename(t):
     '''declaracion_funcion : ID ALIAS FOR ID PUNTO_COMA'''
-    print('ALIAS RENAME')
+    t[0] = ''
 
 def p_declaracionc_copy(t):
     '''declaracion_copy : ID ID PUNTO ID SIGNO_MODULO TYPE PUNTO_COMA'''
-    print('COPY TYPE')
+    t[0] = ''
 
 def p_declaracionr_row(t):
     '''declaracion_row : ID ID SIGNO_MODULO ROWTYPE PUNTO_COMA'''
     print('COPY ROW')
+    t[0] = ''
 
 def p_declaracionre_record(t):
     '''declaracion_record : ID RECORD PUNTO_COMA'''
     print('RECORD')
+    t[0] = ''
 
 def p_asignacion(t):
-    '''asignacion : ID referencia_id SIGNO_IGUAL exp PUNTO_COMA'''
-    print('ASIGNACION')
+    '''asignacion : ID referencia_id SIGNO_IGUAL exp_plsql PUNTO_COMA'''
+    valor = traduct(t[4])
+    codigo = assign(t[1], valor['temp'])
+    if codigo == None: codigo = ""
+    t[0] = '\n' + valor['c3d'] + codigo
 
 def p_asignacion_igual(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
-    print('ASIGNACION')
 
 def p_asignacion_igual_parentesis(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
-    print('ASIGNACION')
 
 def p_asignacion_dos(t):
-    '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL exp PUNTO_COMA'''
-    print('ASIGNACION')
+    '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL exp_plsql PUNTO_COMA'''
+    valor = traduct(t[5])
+    codigo = assign(t[1], valor['temp'])
+    if codigo == None: codigo = ""
+    t[0] ='\n' + valor['c3d'] + codigo
 
-def p_asignacion_dos_signo(t):
+def p_asignacion_dos_signo_(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
-    print('ASIGNACION')
 
 def p_asignacion_dos_signo(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
-    print('ASIGNACION')
 
 def p_referencia_id(t):
     '''referencia_id : PUNTO ID
@@ -1571,15 +1645,12 @@ def p_referencia_id(t):
 
 def p_return(t):
     '''return : RETURN exp PUNTO_COMA'''
-    print('RETURN EXP')
 
 def p_return_next(t):
     '''return : RETURN NEXT exp PUNTO_COMA'''
-    print('RETURN NEXT')
 
 def p_return_query(t):
     '''return : RETURN QUERY query'''
-    print('RETURN QUERY')
 
 def p_query(t):
     '''query : ins_insert
@@ -1588,23 +1659,48 @@ def p_query(t):
                 | ins_delete '''
 
 def p_instruccion_if(t):
-    '''instruccion_if : IF exp then else_if else END IF PUNTO_COMA'''
-    print('INSTRUCCION IF')
+    '''instruccion_if : IF exp_plsql then ELSE statements 
+                      | IF exp_plsql then instruccion_elif 
+                      | IF exp_plsql then'''
+    
+    if len(t) == 6:
+        print('INSTRUCCION IF else')
+        insif = Ins_If(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('INSTRUCCION IF elif')
+        insif = Ins_If(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('INSTRUCCION IFsolo')
+        insif = Ins_If(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+
+def p_elsif(t):
+    '''instruccion_elif : ELSIF exp_plsql then ELSE statements 
+                        | ELSIF exp_plsql then instruccion_elif 
+                        | ELSIF exp_plsql then '''
+    
+    if len(t) == 6:
+        print('INSTRUCCION elsIF - else')
+        insif = Ins_If(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('INSTRUCCION elsIF - elsif')
+        insif = Ins_If(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('INSTRUCCION elsIF')
+        insif = Ins_If(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
 
 def p_then(t):
-    '''then : THEN statements'''
-
-def p_else_if(t):
-    '''else_if : else_if instruccion_else '''
-
-def p_else_if_else(t):
-    '''else_if : instruccion_else '''
-
-def p_else_if_else_null(t):
-    '''else_if :  '''
-                
-def p_instruccion_else(t):
-    '''instruccion_else : ELSIF exp then'''
+    '''then : THEN statements
+            | THEN '''
+    if len(t) == 3:
+        t[0] = t[2]
+    else: 
+        t[0] = ''
 
 def p_else(t):
     '''else : ELSE sentencia  '''
@@ -1617,8 +1713,7 @@ def p_sentencia(t):
     '''sentencia : statements'''
 
 def p_instruccion_case(t):
-    '''instruccion_case : CASE exp cases else END CASE PUNTO_COMA'''
-    print('CASE')
+    '''instruccion_case : CASE exp_plsql cases else END CASE PUNTO_COMA'''
 
 def p_cases(t):
     '''cases : cases instruccion_case_only '''
@@ -1628,40 +1723,43 @@ def p_cases_ins(t):
 
 def p_cases_ins_null(t):
     '''cases : '''
-    print('NULL')
 
 def p_instruccion_case_only(t):
-    '''instruccion_case_only : WHEN exp then'''
+    '''instruccion_case_only : WHEN exp_plsql then'''
 
 def p_lista_exp(t):
-    ''' lista_exp : lista_exp COMA exp'''
+    ''' lista_exp : lista_exp COMA exp_plsql'''
 
 def p_lista_exp_only(t):
-    ''' lista_exp : exp'''
+    ''' lista_exp : exp_plsql'''
 
 def p_statements(t):
-    ''' statements : statements statement '''
-
-def p_statements_only(t):
-    ''' statements : statement'''
+    ''' statements : statements statement
+                   | statement'''
+    if len(t) == 3:
+        t[0] = t[1] + t[2]
+    else:
+        t[0] = t[1]
 
 def p_statement(t):
-      '''statement : asignacion
-                   | perform
-                   | f_query 
-                   | execute
-                   | null
-                   | declaracion
-                   | declaracion_funcion
-                   | declaracion_copy
-                   | declaracion_row
-                   | declaracion_record
-                   | instruccion_if
-                   | instruccion_case
-                   | return'''
+    '''statement : asignacion
+                | f_query 
+                | execute
+                | null
+                | declaracion
+                | declaracion_funcion
+                | declaracion_copy
+                | declaracion_row
+                | declaracion_record
+                | instruccion_if END IF PUNTO_COMA
+                | instruccion_case
+                | return'''
 
-def p_perform(t):
-      '''perform : PERFORM instruccion'''
+    if isinstance(t[1],Ins_If):
+        t[0] = t[1].Traduct()
+    else:
+        t[0] = t[1]
+ 
 
 def p_f_query(t):
     '''f_query : SELECT arg_distict colum_list into FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
@@ -1670,7 +1768,7 @@ def p_f_query(t):
                 | ins_delete f_return'''
 
 def p_f_return(t):
-    ''' f_return : RETURNING exp into '''
+    ''' f_return : RETURNING exp_plsql into '''
 
 def p_into(t):
     '''into : INTO ID '''
@@ -1685,11 +1783,70 @@ def p_execute_use(t):
     '''execute : EXECUTE CADENASIMPLE into USING exp_list'''
 
 def p_execute_exp(t):
-    '''execute : EXECUTE exp'''
+    '''execute : EXECUTE exp_plsql'''
 
 def p_null(t):
     '''null : NULL PUNTO_COMA'''
 
+# ======================================================================
+#                        EXPRESIONES PLSQL
+# ======================================================================
+def p_exp_plsql(t):
+    '''exp_plsql : exp_plsql SIGNO_MAS exp_plsql
+            | exp_plsql SIGNO_MENOS exp_plsql 
+            | exp_plsql SIGNO_POR exp_plsql 
+            | exp_plsql SIGNO_DIVISION exp_plsql 
+            | exp_plsql SIGNO_MODULO exp_plsql 
+            | exp_plsql SIGNO_POTENCIA exp_plsql 
+            | exp_plsql OR exp_plsql 
+            | exp_plsql AND exp_plsql 
+            | exp_plsql MENORQUE exp_plsql 
+            | exp_plsql MAYORQUE exp_plsql 
+            | exp_plsql MAYORIGUALQUE exp_plsql 
+            | exp_plsql MENORIGUALQUE exp_plsql 
+            | exp_plsql SIGNO_IGUAL exp_plsql
+            | exp_plsql SIGNO_MENORQUE_MAYORQUE exp_plsql
+            | exp_plsql SIGNO_NOT exp_plsql 
+            | NOT exp_plsql
+            | ID PARABRE list_vls_plsql PARCIERRE
+            | PARABRE exp_plsql PARCIERRE
+            | val_value_plsql'''
+    if len(t)== 4:
+        valor = t[1]
+        if not valor == '(':
+            t[0] = {'left': t[1], 'right': t[3], 'data': t[2]}
+        else:
+            t[0] = t[2]
+    elif len(t) == 3:
+        t[0] = {'left': t[2], 'right': None, 'data': t[1]}
+    elif len(t) == 5:
+        t[0] = call(t[1], t[3])
+    else:
+        t[0] = t[1]
+
+def p_val_value_plsql(t):
+    '''val_value_plsql : CADENA
+                |   CADENASIMPLE
+                |   NUMERO
+                |   NUM_DECIMAL
+                |   FECHA_HORA
+                |   TRUE
+                |   FALSE 
+                |   NULL
+                |   F_HORA
+                |   FECHA
+                |   HORA
+                |   ID'''
+    t[0] = {'left':None, 'right': None, 'data': t[1]}
+
+def p_list_vls_plsql(t):
+    '''list_vls_plsql : list_vls_plsql COMA exp_plsql
+                | exp_plsql '''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 # ======================================================================
 #                         INSTRUCCIONES SQL
 # ======================================================================

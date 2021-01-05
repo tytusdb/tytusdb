@@ -205,7 +205,6 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         
-        '''
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
             try:
@@ -221,29 +220,7 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-        '''
-        
-        for i in arbol.instrucciones:
-            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            try:
-                resultado = i.analizar(tablaGlobal,arbol)
-            except:
-                print("no se puede ejecutar la Instruccion")
-        
-        # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
-        mensaje = ''
-        for m in arbol.consola:
-            mensaje += m + '\n'
-        self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-        
-        # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
-        if len(arbol.excepciones) != 0:
-            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
-
-        
-
-        
-
+       
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")

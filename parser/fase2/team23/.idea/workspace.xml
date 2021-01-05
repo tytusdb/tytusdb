@@ -3,14 +3,16 @@
   <component name="ChangeListManager">
     <list default="true" id="760a120f-9dbd-4e99-b0b7-2da02e121234" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Databases.json" beforeDir="false" afterPath="$PROJECT_DIR$/Databases.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analizer/abstract/instruction.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/abstract/instruction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analizer/grammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/grammar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analizer/interpreter.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/interpreter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analizer/parser.out" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/parser.out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analizer/parsetab.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/parsetab.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analizer/reports/BnfGrammar.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/reports/BnfGrammar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analizer/symbol/symbol.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/symbol/symbol.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analizer/tokens.py" beforeDir="false" afterPath="$PROJECT_DIR$/analizer/tokens.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/final.py" beforeDir="false" afterPath="$PROJECT_DIR$/final.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test-output/round-table.gv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test-output/round-table.gv.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test-output/round-table.gv.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/Databases.json" beforeDir="false" afterPath="$PROJECT_DIR$/ui/Databases.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/data/json/databases" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/obj.pickle" beforeDir="false" afterPath="$PROJECT_DIR$/ui/obj.pickle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/test-output/round-table.gv" beforeDir="false" afterPath="$PROJECT_DIR$/ui/test-output/round-table.gv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/test-output/round-table.gv.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/ui/test-output/round-table.gv.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ui/test-output/round-table.gv.png" beforeDir="false" afterPath="$PROJECT_DIR$/ui/test-output/round-table.gv.png" afterDir="false" />
@@ -29,6 +31,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
@@ -61,6 +64,9 @@
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="760a120f-9dbd-4e99-b0b7-2da02e121234" name="Default Changelist" comment="" />
@@ -70,5 +76,28 @@
       <updated>1609179116186</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/analizer/abstract/instruction.py</url>
+          <line>1097</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

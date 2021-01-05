@@ -14,6 +14,7 @@ class CreateTable(Instruccion):
         self.listaDef = listaDef
         self.herencia = None
         self.listPK = []
+        self.codigo3d = "ci.ejecutarsql(\"create table " + self.id + " ( " + listaDef[0].stringsql
 
     def ejecutar(self, ent:Entorno):
         dbActual = ent.getDataBase()
@@ -106,12 +107,13 @@ class CreateTable(Instruccion):
                                             arrPk = consPK.valor
                                             if len(arrPk) == 1:
                                                 if tablaReferencia.valor[arrPk[0]].tipo.tipo == nuevaColumna.tipo.tipo:
+                                                    nombre:str = str("FK_" + dbActual + "_" + self.id + "_" + atrColumna.valor)
                                                     hayForanea = True
                                                     hayAtr = True
                                                     nuevoSym.tipo = TipoSimbolo.CONSTRAINT_FOREIGN 
                                                     # FK_database_tabla_tablaReferencia
-                                                    nuevoSym.nombre = str("FK_" + dbActual + "_" + self.id + "_" + atrColumna.valor)
-                                                    nuevaColumna.atributos.update({'foreign':str("FK_" + dbActual + "_" + self.id + "_" + atrColumna.valor)})
+                                                    nuevoSym.nombre = nombre
+                                                    nuevaColumna.atributos.update({'foreign':nombre})
                                                     break
                                     
                                     if not hayForanea:
@@ -150,7 +152,7 @@ class CreateTable(Instruccion):
                             variables.consola.insert(INSERT,str("La tabla \'" + self.id + "\' ya contiene llave foranea declarada\n"))
                             reporteerrores.append(Lerrores("Error Semántico","La tabla \'" + self.id + "\' ya contiene llave foranea declarada","",""))
                         else:
-                            foraneaAdd:Foranea == tt
+                            foraneaAdd:Foranea = tt
                             rr = DBMS.extractTable(dbActual,foraneaAdd.tabla)
                     elif tt.contenido.tipo == AtributosColumna.UNICO:
                         listUnicas = tt.contenido.unicos
@@ -180,8 +182,9 @@ class CreateTable(Instruccion):
                 nuevaTabla.baseDatos = dbActual
                 r = ent.nuevoSimbolo(nuevaTabla)
                 if r == "ok":
-                    for x in listaAtrCol:
-                        ent.nuevoSimbolo(x)
+                    xx:Simbolo
+                    for xx in listaAtrCol:
+                        ent.nuevoSimbolo(xx)
                     
                     alreadyPrimary = False
                     for x in range(inicioHerencia,len(listaColumnas),1):
@@ -245,6 +248,17 @@ class CreateTable(Instruccion):
                 return r
             #elif estado == 1: 
 
+    def traducir(self, ent:Entorno):
+        for i in range(1,len(self.listaDef),1):
+            self.codigo3d += ', ' + self.listaDef[i].stringsql
+        
+        self.codigo3d += ')'
+        if self.herencia != None:
+            self.codigo3d += ' inherits (' + str(self.herencia) + ')'
+        
+        self.codigo3d += ";\")\n"
+        return self
+
 class CreateType(Instruccion):
     def __init__(self,iden,lexp):
         self.id = iden
@@ -262,16 +276,30 @@ class CreateType(Instruccion):
         variables.consola.insert(INSERT,"El tipo '" + self.id + "' ya existe declarado\n")
         reporteerrores.append(Lerrores("Error Semántico","El tipo '" + self.id + "' ya existe declarado","",""))
 
+    def traducir(self,ent:Entorno):
+        self.codigo3d = 'ci.ejecutarsql(" create type ' + self.id + ' as enum (' + str(self.contenido[0].stringsql)
+        for i in range(1,len(self.contenido),1):
+            self.codigo3d += ',' + str(self.contenido[i].stringsql)
+        self.codigo3d += ');")\n'
+
+        return self
+
 
 class Check(CreateTable):
     def __init__(self, condiciones):
         self.condiciones = condiciones
         self.tipo = AtributosColumna.CHECK
+        self.stringsql = 'check (' + condiciones.stringsql + ')'
 
 class Unique(CreateTable):
     def __init__(self, unicos):
         self.unicos = unicos
         self.tipo = AtributosColumna.UNICO
+        self.stringsql = 'unique (' + str(unicos[0].valor)
+        for i in range(1,len(unicos),1):
+            self.stringsql += ',' + str(unicos[i].valor)
+        
+        self.stringsql += ')'
 
 class Foranea(CreateTable):
     def __init__(self, foraneas, tabla:str, ref_lista):
@@ -280,37 +308,74 @@ class Foranea(CreateTable):
         self.ref_lista = ref_lista
         self.tipo = AtributosColumna.REFERENCES
         self.idConstraint = ""
+        self.stringsql = 'foreign key (' + str(foraneas[0].valor)
+        for i in range(1,len(foraneas),1):
+            self.stringsql += ',' + str(foraneas[i].valor)
+        self.stringsql += ') references ' + self.tabla + ' (' + str(ref_lista[0].valor)
+        for i in range(1,len(ref_lista),1):
+            self.stringsql += ',' + str(ref_lista[i].valor)
+        self.stringsql += ')'
 
 class Primaria(CreateTable):
     def __init__(self,primarias):
         self.primarias = primarias
         self.tipo = AtributosColumna.PRIMARY
         self.idConstraint = ""
+        self.stringsql = 'primary key (' + str(primarias[0].valor)
+        for i in range(1,len(primarias),1):
+            self.stringsql += ',' + str(primarias[i].valor)
+        self.stringsql += ')'
 
 class Atributo(CreateTable):
     def __init__(self,tipo:AtributosColumna,valor = None, exp = None):
         self.tipo = tipo
         self.valor = valor
         self.exp = exp
+        if tipo == AtributosColumna.REFERENCES:
+            self.stringsql = 'references ' + valor
+        elif tipo == AtributosColumna.PRIMARY:
+            self.stringsql = 'primary key'
+        elif tipo == AtributosColumna.NULO:
+            self.stringsql = 'null'
+        elif tipo == AtributosColumna.NO_NULO:
+            self.stringsql = 'not null'
+        elif tipo == AtributosColumna.DEFAULT:
+            self.stringsql = 'default ' + str(valor.valor)
+        elif tipo == AtributosColumna.CHECK:
+            self.stringsql = ''
+            if valor != None:
+                self.stringsql += 'constraint ' + str(valor) + ' '
+            self.stringsql += 'check (' + exp.stringsql + ')'
+        elif tipo == AtributosColumna.UNICO:
+            self.stringsql = ''
+            if valor != None:
+                self.stringsql += 'constraint ' + str(valor) + ' '
+            self.stringsql += 'unique'
+
 
 class Constraint(CreateTable):
     def __init__(self,identificador:str,objeto):
         self.id = identificador
         self.contenido = objeto
         self.tipo = AtributosColumna.CONSTRAINT
+        self.stringsql = 'constraint ' + identificador + ' ' + objeto.stringsql
 
 class Columna(CreateTable):
-    def __init__(self,identificador:str,tipoDato,lista = None):
+    def __init__(self,identificador:str,tipoDato,lista = []):
         self.identificador = identificador
         self.lista = lista #este recibe una lista
         self.tipoDato = tipoDato
         self.tipo = AtributosColumna.COLUMNA_SIMPLE
+        self.stringsql = identificador + ' ' + tipoDato.devString()
+        for opc in lista:
+            self.stringsql += ' ' + opc.stringsql
 
 class CondicionCheck(CreateTable):
     def __init__(self,exp1,simbolo,exp2):
         self.exp1 = exp1
         self.exp2 = exp2
         self.simbolo = simbolo
+        self.stringsql = str(exp1.stringsql) + " " + simbolo + " " + str(exp2.stringsql)
 
 class ShowTables(Instruccion):
     def __init__(self, id):
@@ -329,3 +394,7 @@ class ShowTables(Instruccion):
             variables.x.clear()
             variables.consola.insert(INSERT,"\n")
             return "Show Tables Exitoso"
+
+    def traducir(self, ent):
+        self.codigo3d = 'ci.ejecutarsql(\'show tables (' + str(self.id) + ');\')'
+        return self
