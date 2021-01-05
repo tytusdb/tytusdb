@@ -1245,62 +1245,45 @@ def p_as_opt(t):
         t[0]=None
 
 
-def p_declares_opt(t):
-    '''declares_opt : declares_opt declare_opt
-                    | declare_opt'''
-    token = t.slice[1]
-    if token.type == "declares_opt":
-        lista = None
-        childsProduction = []
-        if t[1] != None:
-            lista = t[1][0]
-            childsProduction.append(lista.graph_ref)
-        lista2 = None
-        if t[2] != None:
-            lista2 = t[2][0]
-            childsProduction.append(lista2.graph_ref)
-        graph_ref = graph_node(str("declares_opt"), [lista, lista2],  childsProduction )
-        addCad("**\<DECLARES_OPT>** ::= [\<DECLARES_OPT>] <DECLARE_OPT> ")
+def p_declares_opt_0(t):
+    '''declares_opt : declares_opt DECLARE declarations'''
+    lista = None
+    childsProduction = []
+    if t[1] != None:
+        lista = t[1][0]
+        childsProduction.append(lista.graph_ref)
+    lista2 = None
+    if t[3] != None:
+        lista2 = t[3][0]
+        childsProduction.append(lista2.graph_ref)
+    graph_ref = graph_node(str("declares_opt"), [lista, t[2], lista2],  childsProduction )
+    addCad("**\<DECLARES_OPT>** ::= [\<DECLARES_OPT>] tDeclare <DECLARATIONS> ")
+    if t[1] != None:
         t[1][0].graph_ref = graph_ref
-        t[1].append(t[2])
-        t[0] = t[1] 
-        #####
-    else:
-        lista = None
-        childsProduction = []
-        if t[1] != None:
-            lista = t[1][0]
-            childsProduction.append(lista.graph_ref)
-        graph_ref = graph_node(str("declare_opt"), [lista],  childsProduction )
-        addCad("**\<DECLARE_OPT>** ::= <DECLARE_OPT> ")
-        t[1][0].graph_ref = graph_ref 
+        t[1].append(t[3])
         t[0] = t[1]
-    
+    else: 
+        t[3][0].graph_ref = graph_ref
+        t[0] = t[3]
+    #####
 
-def p_declare_opt(t):
-    '''declare_opt  : DECLARE declarations
-                    | empty'''
-    token = t.slice[1]
-    if token.type != "empty":
-        lista = None
-        childsProduction = []
-        if t[2] != None:
-            lista = t[2][0]
-            childsProduction.append(lista.graph_ref)
-        graph_ref = graph_node(str("declare_opt"), [t[1],lista],  childsProduction )
-        addCad("**\<DECLARE_OPT>** ::= tDeclare \<DECLARATIONS> ';' ")
-        t[2][0].graph_ref = graph_ref 
-        t[0] = t[2]
-    else:
-        t[0]=None
+    
+def p_declares_opt_1(t):
+    '''declares_opt : empty'''
+    t[0] = None
 
 def p_declarations(t):
     '''declarations : declarations declaration
                     | declaration'''
     token = t.slice[1]
     if token.type == "declarations":
-        childsProduction  = addNotNoneChild(t,[1,2])
-        graph_ref = graph_node(str("declarations"), [t[1],t[2]],  childsProduction )
+        lista = None
+        childsProduction  = addNotNoneChild(t,[2])
+        if t[1] != None:
+            lista = t[1][0]
+            childsProduction.append(lista.graph_ref)
+        
+        graph_ref = graph_node(str("declarations"), [lista,t[2]],  childsProduction )
         addCad("**\<DECLARATIONS>** ::= [\<DECLARATIONS>] <DECLARATION> ")
         t[1][0].graph_ref = graph_ref 
         t[1].append(t[2])
