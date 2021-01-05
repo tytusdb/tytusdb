@@ -1,10 +1,11 @@
-import analizer.abstract.symbol as sym
+import analizer_pl.abstract.symbol as sym
 
 
 class Environment:
     """
     Esta clase representa los simbolos de las variables declaradas.
     """
+
     def __init__(self) -> None:
         self.variables = {}
         self.types = {}
@@ -15,8 +16,7 @@ class Environment:
         """
         if id in self.variables:
             symbol = self.variables[id]
-            symbol = sym.Symbol(
-                id, value, type_, symbol.row, symbol.column)
+            symbol = sym.Symbol(id, value, type_, symbol.row, symbol.column)
             self.variables[id] = symbol
             return True
         return None
@@ -48,4 +48,3 @@ class Environment:
         """
         if id in self.variables:
             return self.variables[id]
-	

@@ -51,10 +51,7 @@ def analisis():
         text = text.replace('False','"False"')
         text = text.replace('None','""')
         text = text.replace('True','"True"')
-
-        print(text)
         datos.reInsertarValores(json.loads(text))
-        print(str(datos))
     except:
         print('error')
     
@@ -333,6 +330,32 @@ def reporteTabla():
                     f.write(col.default)
                 f.write("</td></tr>\n")
                 f.write("               </table>\n")
+                for column in datos.tablaSimbolos[a]['tablas'][table]['index']:
+                    f.write("<p class='i'>Indice :")
+                    f.write(column.name)
+                    f.write("</p>\n")
+                    f.write("<li>")
+                    f.write("<ol>Nombre: ")
+                    f.write(column.name)
+                    f.write("</ol></li><li>Columnas: ")
+                    for h in column.columns:
+                        f.write("<ul>")
+                        f.write("Tabla ->")
+                        if h.table != None:
+                            f.write(h.table)
+                        else:
+                            f.write("None")
+                        f.write("Columna ->")
+                        f.write(h.column)
+                        f.write("</ul>\n")
+                    f.write("</li><li>Condiciones: ")
+                    if column.conditions != None:
+                        for h in column.conditions:
+                            f.write("<ul>")
+                            f.write(h)
+                            f.write("</ul>")
+                    else:
+                        f.write("<ul>SIN CONDICIONES</ul>\n</li>")
                 f.write("           </div>\n")
                 f.write("         </div>\n")
     f.write("   </body>\n")

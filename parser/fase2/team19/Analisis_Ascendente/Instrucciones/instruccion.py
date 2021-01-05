@@ -56,7 +56,7 @@ class Show(Instruccion):
                 i = i +1
         consola.append("--------------END SHOW DATABASE--------------")
 
-    def getC3D(self):
+    def getC3D(self, lista_optimizaciones_C3D):
         c3d = '''
     # ----------SHOW DATABASES-----------
     top_stack = top_stack + 1
