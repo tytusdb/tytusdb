@@ -21,7 +21,7 @@ class declaration(pl):
         if  self.exp == None:
             valor = 'None'
         else:
-            valor = str(self.exp.traducir())
+            valor = str(self.exp.exp.traducir())
 
 
         if  self.collate == None:
@@ -217,6 +217,8 @@ class expre(pl):
         self.tipo = tipo 
         self.exp = exp
 
+    
+
 class createfunc(pl):
     def __init__(self,id,lparams,returntype,block) -> None:
         self.id = id
@@ -225,6 +227,7 @@ class createfunc(pl):
         self.block = block
     
     def traducir(self):
+        
         c3d = ''
         c3d += '\tid_db = id_db(NombreDB)\n'
         c3d += '\tNuevoSimbolo = TS.Simbolo(cont,'+self.id.val+',TIPO.FUNCTION,id_db)\n'
@@ -238,6 +241,25 @@ class createfunc(pl):
             c3d += decla.c3d()+'\n' 
             funcion += '\t'+decla.traducir()+'\n' 
         for inst in block.instrucciones:
+            funcion += '\t'+inst.traducir()+'\n'
+
+        funciones.append(funcion)
+        return c3d
+    
+    def ejecutar(self):
+        c3d = ''
+        c3d += '\tid_db = id_db(NombreDB)\n'
+        c3d += '\tNuevoSimbolo = TS.Simbolo(cont,'+self.id+',TIPO.FUNCTION,id_db)\n'
+        c3d += '\tcont+=1\n'
+        
+        funcion = ''
+        funcion += 'def '+self.id+'():\n' 
+        #variables a usar, guardando en ts y declarando
+        for decla in self.block.declare:
+
+            c3d += decla.c3d()+'\n' 
+            funcion += '\t'+decla.traducir()+'\n' 
+        for inst in self.block.instrucciones:
             funcion += '\t'+inst.traducir()+'\n'
 
         funciones.append(funcion)
@@ -272,6 +294,12 @@ class asignacion(instruccion):
     def ejecutar(self):
         ts.modificar_valor(self.id,self.exp)
 
+    def traducir(self):
+        tupla = self.exp.traducir()
+        codigo = tupla[0]
+        valor = tupla[1]
+        return codigo + '\n' + valor
+
 class rtrn(instruccion):
     def __init__(self,exp) -> None:
         self.exp = exp
@@ -296,8 +324,9 @@ class exp_boolp(expresion):
 
     def traducir(self):
         tmp = getTemp()
-        codigo = tmp + ' = {self.val}'
+        codigo = tmp + f' = {self.val}'
         valor = tmp
+        #print(codigo,valor)
         return codigo,valor
 
 class exp_textp(expresion):
@@ -308,8 +337,9 @@ class exp_textp(expresion):
 
     def traducir(self):
         tmp = getTemp()
-        codigo = tmp + ' = {self.val}'
+        codigo = tmp + f' = {self.val}'
         valor = tmp
+        #print(codigo,valor)
         return codigo,valor
 
 class exp_nump(expresion):
@@ -320,8 +350,9 @@ class exp_nump(expresion):
         
     def traducir(self):
         tmp = getTemp()
-        codigo = tmp + ' = {self.val}'
+        codigo = tmp + f' = {self.val}'
         valor = tmp
+        #print(codigo,valor)
         return codigo,valor
 
 class expresionC:
@@ -337,16 +368,17 @@ class exp_sumap(expresionC):
     def traducir(self):
         tr1 = self.exp1.traducir()
         tr2 = self.exp2.traducir()
-        c3d1 = tr1.codigo
-        c3d2 = tr2.codigo
-        tmp1 = tr1.valor
-        tmp2 = tr2.valor
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
-        tmpf  = '{tmp} = {tmp1} + {tmp2}'
-        c3df += '\n{tmpf}'
+        tmpf  = f'{tmp} = {tmp1} + {tmp2}'
+        c3df += f'\n{tmpf}'
         codigo = c3df 
         valor = tmp
+        #print(codigo,valor)
         return codigo,valor
 
 class exp_restap(expresion):
@@ -354,7 +386,22 @@ class exp_restap(expresion):
 
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
-        self.exp2 = exp2        
+        self.exp2 = exp2    
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} - {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor    
 
 class exp_multiplicacionp(expresion):
     'Multiplica las dos expresiones'
@@ -362,6 +409,21 @@ class exp_multiplicacionp(expresion):
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} * {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
         
 class exp_divisionp(expresion):
     'Suma las dos expresiones'
@@ -370,6 +432,29 @@ class exp_divisionp(expresion):
         self.exp1 = exp1
         self.exp2 = exp2
 
+    def traducir(self):
+        tr1 = self.exp1.traducir()
+        tr2 = self.exp2.traducir()
+        c3d1 = tr1[0]
+        c3d2 = tr2[0]
+        tmp1 = tr1[1]
+        tmp2 = tr2[1]
+        c3df = c3d1 + '\n' + c3d2 
+        tmp = getTemp()
+        tmpf  = f'{tmp} = {tmp1} / {tmp2}'
+        c3df += f'\n{tmpf}'
+        codigo = c3df 
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
+
 class exp_idp(expresion):
     def __init__(self,val):
         self.val = val
+
+    def traducir(self):
+        tmp = getTemp()
+        codigo = tmp + f' = {self.val}'
+        valor = tmp
+        #print(codigo,valor)
+        return codigo,valor
