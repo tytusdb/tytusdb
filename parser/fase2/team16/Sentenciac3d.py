@@ -745,3 +745,253 @@ class Codigo3d:
             print(expresiones)
             print('Error:Expresion no reconocida')
 
+
+
+    def procesar_aritmetica(self, expresion, ts):
+        global listaOpt
+        val, cad1 = self.procesar_expresion(expresion.exp1, ts)
+        val2, cad2 = self.procesar_expresion(expresion.exp2, ts)
+
+        sval1 = str(val2)
+        sval2 = str(val)
+
+        if expresion.operador == OPERACION_ARITMETICA.MAS:
+            v = t_global.varTemporal()
+            cadena ="\t" + v + " = "+str(val)+" + "+str(val2) + "\n"
+
+            op = ""
+            if sval1 == "0" or sval2 == "0":
+                if v == sval1 or v == sval2:
+                    op = "# Se elimina la instruccion." + "- Regla: 8"
+                else:
+                    if sval1 == "0":
+                        op = v + "= "+sval2 + "- Regla: 12"
+                    else:
+                        op = v + "= " + sval1 + "- Regla: 12"
+            o = Optimizacion(cadena, op)
+            listaOpt.append(o)
+            return v, cadena
+
+        elif expresion.operador == OPERACION_ARITMETICA.MENOS:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " - " + str(val2) + "\n"
+
+            op = ""
+            if sval1 == "0" or sval2 == "0":
+                if v == sval1 or v == sval2:
+                    op = "# Se elimina la instruccion." + "- Regla: 9"
+                else:
+                    if sval1 == "0":
+                        op = v + " = "+sval2 + "- Regla: 13"
+                    else:
+                        op = v + " = " + sval1 + "- Regla: 13"
+            o = Optimizacion(cadena, op)
+            listaOpt.append(o)
+            return v, cadena
+
+
+        elif expresion.operador == OPERACION_ARITMETICA.MULTI:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " * " + str(val2) + "\n"
+
+            op = ""
+            if sval1 == "1" or sval2 == "1":
+                if v == sval1 or v == sval2:
+                    op = "# Se elimina la instruccion." + "- Regla: 10"
+                else:
+                    if sval1 == "1":
+                        op = v + " = "+sval2 + "- Regla: 14"
+                    else:
+                        op = v + " = " + sval1
+            elif sval1 == "0" or sval2 == "0":
+                op = v + "= 0" + "- Regla: 17"
+            elif sval1 == "2" or sval2 == "2":
+                if sval1 == "2":
+                    op = v + " = " + sval2 + "+" + sval2 + "- Regla: 16"
+                else:
+                    op = v + " = " + sval1 + "+" + sval1 + "- Regla: 16"
+            o = Optimizacion(cadena, op)
+            listaOpt.append(o)
+            return v, cadena
+
+
+        elif expresion.operador == OPERACION_ARITMETICA.DIVIDIDO:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " / " + str(val2) + "\n"
+
+            op = ""
+            if sval1 == "1" or sval2 == "1":
+                if v == sval1 or v == sval2:
+                    op = "# Se elimina la instruccion." + "- Regla: 11"
+                else:
+                    if sval1 == "1":
+                        op = v + " = "+sval2 + "- Regla: 15"
+                    else:
+                        op = v + " = " + sval2
+            elif sval2 == "0":
+                op = v + "= 0" + "- Regla: 18"
+            o = Optimizacion(cadena, op)
+            listaOpt.append(o)
+
+            return v, cadena
+
+
+        elif expresion.operador == OPERACION_ARITMETICA.RESIDUO:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " / " + str(val2) + "\n"
+            return v, cadena
+
+        elif expresion.operador == OPERACION_ARITMETICA.POTENCIA:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + "= " + str(val) + " ** " + str(val2) + "\n"
+            return v, cadena
+
+
+    def procesar_relacional(self, expresion, ts):
+        # OPTIMIZACION - AHORRO DE 2 LINEAS........................................................
+        val, cad1 = self.procesar_expresion(expresion.exp1, ts)
+        val2, cad2 = self.procesar_expresion(expresion.exp2, ts)
+        #print("valores"+str(val)+str(val2))
+        if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " == " + str(val2) + "\n"
+            return v, cadena
+        elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " != " + str(val2) + "\n"
+            return v, cadena
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " >= " + str(val2) + "\n"
+            return v, cadena
+        elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " <= " + str(val2) + "\n"
+            return v, cadena
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " > " + str(val2) + "\n"
+            return v, cadena
+        elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
+            v = t_global.varTemporal()
+            cadena ="\t" +  v + " = " + str(val) + " < " + str(val2) + "\n"
+            return v, cadena
+        else:
+            return 1
+
+    def procesar_logica(self, expresion, ts):
+        val, cad1 = self.procesar_expresion(expresion.exp1, ts)
+        val2, cad2 = self.procesar_expresion(expresion.exp2, ts)
+
+        if expresion.operador == OPERACION_LOGICA.AND:
+            v = t_global.varTemporal()
+            cadena ="\t" + v + " = " + str(val) + " and " + str(val2) + "\n"
+            return v, cadena
+        elif expresion.operador == OPERACION_LOGICA.OR:
+            v = t_global.varTemporal()
+            cadena ="\t" + v + " = " + str(val) + " or " + str(val2) + "\n"
+            return v, cadena
+
+    def procesar_variable(self, tV, ts):
+        global t_global, ambitoFuncion
+        r = ""
+        for item in t_global.tablaSimbolos:
+            v: tipoSimbolo = t_global.obtenerSimbolo(item)
+            #print(str(v.nombre)+"<>"+str(tV.id)+"-"+str(v.ambito)+"<>"+ambitoFuncion)
+            if v.nombre == tV.id and v.ambito == ambitoFuncion:
+                #print(str(v.temporal))
+                r = str(v.temporal)
+                return r,""
+        return r,""
+
+    def procesar_funcion(self, expresion:ExpresionFuncion, ts):
+        aux = ""
+        cadena = ""
+        if expresion.exp1 is not None:
+            v, cad = self.procesar_expresion(expresion.exp1, ts)
+            cadena += cad + "\n"
+            aux = "\theap.append(" + str(v) + ")" + "\n" + aux
+        if expresion.exp2 is not None:
+            v, cad = self.procesar_expresion(expresion.exp2, ts)
+            cadena += cad + "\n"
+            aux = "\theap.append(" + str(v) + ")" + "\n" + aux
+        if expresion.exp3 is not None:
+            v, cad = self.procesar_expresion(expresion.exp3, ts)
+            cadena += cad + "\n"
+            aux = "\theap.append(" + str(v) + ")" + "\n" + aux
+
+        v = t_global.varTemporal()
+        cadena += aux + "\n" + "\theap.append(" + str(expresion.id_funcion.value) + ")" + "\n\t" + str(v) + " = F3D.funcionNativa()" + "\n"
+
+        return v, cadena
+
+    def procesar_select_expresion(self, expresion: SelectExpresion, ts):
+        print(expresion)
+        exp = expresion.listaCampos[0].Columna
+        return self.procesar_expresion(exp, ts)
+
+    def procesar_ejecucion_funcion(self, expresion: EjecucionFuncion, ts):
+        global t_global, cadena, cadenaFuncion, ambitoFuncion, cadenaExpresion, listaAsignaciones, listaOpt
+        cadenaAsi = ""
+
+        local = ambitoFuncion
+        ambitoFuncion = expresion.Id
+
+        etiR = "-"
+        for fun in t_global.tablaSimbolos:
+            f: tipoSimbolo = t_global.obtenerSimbolo(fun)
+            if f.ambito == expresion.Id and f.rol == "local" and f.nombre == "return":
+                etiR = f.temporal
+
+        ambitoFuncion = local
+
+        v = t_global.varTemporal()
+        temp = v
+        cadenaAsi += self.t_llamadaFuncion(expresion)
+
+        cadenaAsi += "\n\t" + str(temp) + " = " + str(etiR) + "\n"
+        return temp, cadenaAsi
+
+    def generar(self):
+        global cadena
+        f = open('./intermedio.py', 'w')
+        f.write(cadena)
+        f.close()
+
+
+# ========== REPORTE OPTIMIZACION =================== #
+def reporte_optimizacion():
+    global listaOpt, listaAsignaciones
+    cadena = ""
+    print("------------REPORTE OPTIMIZACION---------------")
+    SymbolT2 = Graph('g', filename='reporteOptimizacion.gv', format='png',
+                     node_attr={'shape': 'plaintext', 'height': '.1'})
+
+    print("ASIGNACIONES -- ")
+    for i in listaAsignaciones:
+        print(str(i.izq)+" = "+str(i.der))
+
+
+    for item in listaAsignaciones:
+        for asi in listaAsignaciones:
+            if str(item.der) == str(asi.izq) and str(item.izq) == str(asi.der):
+                print("optimiza 1")
+                op = str(item.der) + "=" + str(asi.der) + "-"
+                op += str(item.izq) + "=" + str(asi.izq)
+                opt = str(item.der) + "=" + str(asi.der) + "- Regla: 1"
+                o = Optimizacion(op, opt)
+                listaOpt.append(o)
+                break;
+
+
+    ope  = "goto .R" + "-"+ "Label .R"
+    opet = "Label .R" + "- Regla: 2"
+    regla2 = Optimizacion(ope, opet)
+
+    listaOpt.append(regla2)
+
+    for o in listaOpt:
+        cadena += '\n <TR><TD>'+o.original+'</TD><TD>'+o.optimizado+'</TD></TR>'
+
+    SymbolT2.node('table', '<<TABLE><TR><TD>CODIGO</TD><TD>OPTIMIZACION</TD></TR>' + cadena + '</TABLE>>')
+    SymbolT2.render('g', format='png', view=True)
