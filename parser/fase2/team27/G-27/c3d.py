@@ -1497,6 +1497,60 @@ def p_idopt(t):
         t[0] = t[1]
     else:
         t[0] = ""
+def p_t_dato(t):
+    '''t_dato : SMALLINT          
+                 | BIGINT
+                 | NUMERIC
+                 | DECIMAL PARABRE NUMERO COMA NUMERO PARCIERRE
+                 | INTEGER
+                 | INT
+                 | REAL
+                 | DOUBLE PRECISION
+                 | CHAR PARABRE NUMERO PARCIERRE
+                 | VARCHAR PARABRE NUMERO PARCIERRE
+                 | VARCHAR 
+                 | CHARACTER PARABRE NUMERO PARCIERRE
+                 | TEXT
+                 | TIMESTAMP arg_precision
+                 | TIME arg_precision
+                 | DATE
+                 | INTERVAL arg_tipo arg_precision
+                 | BOOLEAN
+                 | MONEY
+                 | ID '''
+    if t[1] == 'SMALLINT':
+        t[0]= DBType.smallint
+    elif t[1] == 'BIGING':
+        t[0]= DBType.bigint
+    elif t[1] == 'DOUBLE':
+        t[0] = DBType.double_precision
+    elif t[1] == 'NUMERIC':
+        t[0] = DBType.numeric
+    elif t[1] == 'CHAR':
+        t[0] = DBType.char
+    elif t[1] == 'VARCHAR':
+        t[0] = DBType.varchar
+    elif t[1] == 'CHARACTER':
+        t[0] = DBType.character
+    elif t[1] == 'TEXT':
+        t[0] = DBType.text
+    elif t[1] == 'TIMESTAMP':
+        t[0] = DBType.timestamp_wtz
+    elif t[1] == 'DOUBLE':
+        t[0] = DBType.double
+    elif t[1] == 'TIME':
+        t[0] = DBType.time_wtz
+    elif t[1] == 'DATE':
+        t[0] = DBType.date
+    elif t[1] == 'INTERVAL':
+        t[0] = DBType.interval
+    elif t[1] == 'BOOLEAN':
+        t[0] = DBType.boolean
+    elif t[1] == 'MONEY':
+        t[0] = DBType.money
+    else:
+        t[0] = 'None'
+    
 
 def p_retruns(t):
     '''returns : RETURNS exp_plsql
@@ -1533,13 +1587,13 @@ def p_declare(t):
         t[0] = ""
 
 def p_declaracion(t):
-    '''declaracion  : ID constante tipo_dato not_null declaracion_default PUNTO_COMA'''
+    '''declaracion  : ID constante t_dato not_null declaracion_default PUNTO_COMA'''
     temp = None
     v2 = ""
     if isinstance(t[5],dict):
         temp = t[5]['temp']
         v2 = t[5]['c3d']
-    v1 = declare(t[1], DBType.text,temp)
+    v1 = declare(t[1],t[3],temp)
     t[0] = v2 + v1
 
 def p_internal_blockopt(t):
@@ -1621,11 +1675,14 @@ def p_asignacion(t):
     t[0] = '\n' + valor['c3d'] + codigo
 
 def p_asignacion_igual(t):
-    '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
+    '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA
+    '''
+    t[0] = ""
 
 def p_asignacion_igual_parentesis(t):
-    '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
-
+    '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA
+    '''
+    t[0] = ""
 def p_asignacion_dos(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL exp_plsql PUNTO_COMA'''
     valor = traduct(t[5])
@@ -1635,10 +1692,10 @@ def p_asignacion_dos(t):
 
 def p_asignacion_dos_signo_(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
-
+    t[0] = ""
 def p_asignacion_dos_signo(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
-
+    t[0] = ""
 def p_referencia_id(t):
     '''referencia_id : PUNTO ID
                 | '''
@@ -1765,27 +1822,35 @@ def p_f_query(t):
                 | ins_insert f_return
                 | ins_update f_return
                 | ins_delete f_return'''
+    t[0] = ''
 
 def p_f_return(t):
     ''' f_return : RETURNING exp_plsql into '''
+    t[0] = ''
 
 def p_into(t):
     '''into : INTO ID '''
+    t[0] = ''
 
 def p_into_strict(t):
     '''into : INTO STRICT ID '''
+    t[0] = ''
 
 def p_execute(t):
     '''execute : EXECUTE CADENA into USING exp_list'''
+    t[0] = ''
 
 def p_execute_use(t):
     '''execute : EXECUTE CADENASIMPLE into USING exp_list'''
+    t[0] = ''
 
 def p_execute_exp(t):
     '''execute : EXECUTE exp_plsql'''
+    t[0] = ''
 
 def p_null(t):
     '''null : NULL PUNTO_COMA'''
+    t[0] = 'null;'
 
 # ======================================================================
 #                        EXPRESIONES PLSQL
@@ -1836,6 +1901,10 @@ def p_val_value_plsql(t):
                 |   FECHA
                 |   HORA
                 |   ID'''
+    if t[1] == 'TRUE':
+        t[1] = 'True'
+    elif t[1] == 'FALSE':
+        t[1] = 'False'
     t[0] = {'left':None, 'right': None, 'data': t[1]}
 
 def p_list_vls_plsql(t):
