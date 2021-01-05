@@ -226,7 +226,9 @@ palabras_reservadas = {
     'language'      : 'LANGUAGE',
     'procedure'     : 'PROCEDURE',
     'inout'         : 'INOUT',
-    'execute'       : 'EXECUTE'
+    'execute'       : 'EXECUTE',
+    'major'         : 'MAJOR',
+    'minor'         : 'MINOR'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -1936,7 +1938,7 @@ def p_CIndex2(t):
    t[0] = ret
 
 def p_CIndex3(t):
-   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE NUMERO COMA NUMERO PCIERRA PCOMA'
+   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE MAJOR COMA MINOR PCIERRA PCOMA'
    global reporte_gramatical, contador, codigo_3D
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID"  "(" "NUMERO" "," "NUMERO"  ")" ";" ')
    C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7]) + ',' + str(t[9]) + ')' + ';"'
@@ -4298,25 +4300,16 @@ def p_CondicionSubConsulta(t):
 
 
 def p_CondicionFunciones(t):
-    'CONDICION  :   FUNCION PABRE ID PCIERRA'
+    'CONDICION  :   FUNCION PABRE I_LIDS PCIERRA'
     global reporte_gramatical
-    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" \"ID\" \")\"")
-    val = str(t[1]) + '(' + str(t[3]) + ')'
+    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" <I_LIDS> \")\"")
+    val = str(t[1]) + '(' + str(t[3].getInstruccion()) + ')'
     ret = Retorno(val, NodoAST('FUNCION'))
     ret.getNodo().setHijo(NodoAST(t[1]))
-    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[3].getInstruccion())
     t[0] = ret
 
 
-def p_CondicionFunciones1(t):
-    'CONDICION  :   FUNCION PABRE ID PUNTO ID PCIERRA'
-    global reporte_gramatical
-    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" \"ID\" \".\" \"ID\" \")\"")
-    valor = str(t[1]) + '(' + str(t[3]) + '.' + str(t[5]) + ')'
-    ret = Retorno(valor, NodoAST('FUNCION'))
-    ret.getNodo().setHijo(NodoAST(t[1]))
-    ret.getNodo().setHijo(NodoAST(t[3]))
-    t[0] = ret
 
 
 def p_CondicionNow(t):
@@ -5389,20 +5382,12 @@ def p_LVALOR1(t):
 
 
 def p_LNumFunc(t):
-    'LNUMF  : LNUMF COMA NUMF'
+    'LNUMF  : LNUMF COMA VALORF'
 
 def p_LNumNumF(t):
-    'LNUMF   : NUMF'
+    'LNUMF   : VALORF'
 
 
-def p_NumFNumero(t):  
-    'NUMF    : NUMERO '
-
-def p_NumFDecimal(t):
-    'NUMF  :   DECIMALN '
-
-def p_NumFCadena(t):
-    'NUMF  :   CADENA '
 
 def p_LBOTHFLeading(t):
     'LBOTHF  :   LEADING   '
