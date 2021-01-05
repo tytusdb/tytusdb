@@ -43,6 +43,7 @@ from InterpreteF2.Soporte_aVar.var_declaracion import var_declaracion
 from InterpreteF2.Soporte_aFun.argumento import argumento
 from InterpreteF2.Soporte_aFun.funheader import funheader
 from InterpreteF2.Soporte_aFun.funexecute import funexecute
+from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -946,7 +947,7 @@ def p_create_index(t):
               | CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER
               | CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER conditions
     '''
-
+    t[0] = ReporteTS(t[3], 1, 1)
 
 
 def p_index_params(t):
@@ -2700,8 +2701,8 @@ def parse(input) :
     #parser = yacc.yacc()
     lexer2.lineno=1
     par = parser.parse(input)
-    dot.node('table', '<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR>' + graph + '</TABLE>>')
-    dot.render('reporteGramaticalDinamico.gv')
+    #dot.node('table', '<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR>' + graph + '</TABLE>>')
+    #dot.render('reporteGramaticalDinamico.gv')
     #dot.view()
     #print(par)
     return par
