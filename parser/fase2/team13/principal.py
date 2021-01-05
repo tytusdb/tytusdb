@@ -29,6 +29,7 @@ d2 = ""
 contadoresT = 0
 contadoresEtiqueta = 0
 identacion="    "
+ubicacion_indices = []
 
 def interpretar_sentencias(arbol, tablaSimbolos):
     # jBase.dropAll()
@@ -407,6 +408,12 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     consola += str(x) + "\n"
         elif isinstance(nodo, SCrearIndice):
             crearIndice(nodo, tablaSimbolos)
+        
+        elif isinstance(nodo, SDropIndex):
+            borrarIndice(nodo,tablaSimbolos)
+        elif isinstance(nodo, SAlterIndex):
+            alterarIndice(nodo,tablaSimbolos)
+
         for i in listaSemanticos:
             consola += "\n" + i.descripcion + "\n"
             listaSemanticos2.append(i)
@@ -422,6 +429,99 @@ def interpretar_sentencias(arbol, tablaSimbolos):
     for i in listaSemanticos2:
         print(i)
     return consola
+
+
+def alterarIndice(nodo,tablaSimbolos):
+    
+    global useActual
+    global consola
+    
+    _old = nodo.old_id
+    exist = nodo.exist
+    _new = nodo.new_id
+
+    la_tabla = None
+
+    j = 0
+    for indice in ubicacion_indices:
+
+        if _old == indice.nombre and useActual == indice.base:
+            la_tabla = tablaSimbolos.get(useActual).getTabla(indice.tabla)
+            break
+        j += 1
+
+    if la_tabla is not None:
+
+        if la_tabla.alterarIndice(_old,_new):
+            ubicacion_indices[j].nombre=_new
+            consola += "Se modificó con éxito el índice: '%s' de la tabla: '%s', el nuevo nombre es: '%s'.\n" % (
+                str(_old), str(la_tabla.nombre),str(_new)
+            )
+        else:
+            if not exist:
+                consola += "=>ERROR: Ocurrió un error al momento de modificar el índice '%s' de la tabla '%s'.\n" % (
+                    str(_old), str(la_tabla.nombre)
+                )
+                listaSemanticos.append(Error.ErrorS(
+                        "Error Semantico", "=>ERROR: Ocurrió un error al momento de modificar el índice '%s' de la tabla '%s'."  % (
+                            str(_old), str(la_tabla.nombre)
+                        )))
+    
+    else:
+        consola += "=>ERROR: Ocurrió un error al momento de modificar el índice '%s'. Es posible que no exista.\n" % (
+                    str(_old)
+                )
+        listaSemanticos.append(Error.ErrorS(
+                "Error Semantico", "=>ERROR: Ocurrió un error al momento de modificar el índice '%s'. Es posible que no exista."  % (
+                    str(_old)
+                )))
+
+def borrarIndice(nodo, tablaSimbolos):
+
+    global useActual
+    global consola
+    
+    lista = nodo.lista
+    exist = nodo.exist
+    
+
+    for id in lista:
+
+        la_tabla = None
+        j = 0
+        for indice in ubicacion_indices:
+
+            if id == indice.nombre and useActual == indice.base:
+                la_tabla = tablaSimbolos.get(useActual).getTabla(indice.tabla)
+                break
+            j += 1
+        
+        if la_tabla is not None:
+
+            if la_tabla.eliminarIndice(id):
+                ubicacion_indices.pop(j)
+                consola += "Se eliminó con éxito el índice: '%s' de la tabla: '%s'.\n" % (
+                    str(id), str(la_tabla.nombre)
+                )
+            else:
+                if not exist:
+                    consola += "=>ERROR: Ocurrió un error al momento de eliminar el índice '%s' de la tabla '%s'.\n" % (
+                        str(id), str(la_tabla.nombre)
+                    )
+                    listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "=>ERROR: Ocurrió un error al momento de eliminar el índice '%s' de la tabla '%s'."  % (
+                                str(id), str(la_tabla.nombre)
+                            )))
+        
+        else:
+            consola += "=>ERROR: Ocurrió un error al momento de eliminar el índice '%s'. Es posible que no exista.\n" % (
+                        str(id)
+                    )
+            listaSemanticos.append(Error.ErrorS(
+                    "Error Semantico", "=>ERROR: Ocurrió un error al momento de eliminar el índice '%s'. Es posible que no exista."  % (
+                        str(id)
+                    )))
+
 
 
 def crearIndice(nodo, tablaSimbolos):
@@ -454,6 +554,7 @@ def crearIndice(nodo, tablaSimbolos):
                 if resultado is True:
 
                     consola+= "Se creó con éxito el índice: '%s', con las columnas: '%s', en la tabla '%s'\n" % (str(nodo.nombre), str(nodo.columnas), str(tabla.nombre))
+                    ubicacion_indices.append(TS.UbicacionIndice(useActual,str(tabla.nombre),str(nodo.nombre)))
 
                 else:
 

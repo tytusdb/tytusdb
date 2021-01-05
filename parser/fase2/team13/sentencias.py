@@ -887,3 +887,28 @@ class SCrearIndice(Sentencia):
         return "{ SCrearIndice | nombre: '%s', tabla: '%s', tipo: '%s', columnas: '%s', orden: '%s', null_first: '%s', null_last: '%s', lower: '%s', condicion: '%s', unique: '%s' }" % ( 
             str(self.nombre), str(self.tabla), str(self.tipo), str(self.columnas), str(self.orden), str(self.null_first), str(self.null_last), str(self.lower), str(self.condicion), str(self.unique) 
             )
+
+
+class SDropIndex(Sentencia):
+
+    def __init__(self,exist,lista):
+        self.exist = exist
+        self.lista = lista
+
+    def __str__(self):
+        return "{ SDropIndex | exist: '%s', lista: '%s' }" % (
+            str(self.exist), str(self.lista)
+        )
+        
+
+class SAlterIndex(Sentencia):
+
+    def __init__(self,exist,old_id,new_id):
+        self.exist = exist
+        self.old_id = old_id
+        self.new_id = new_id
+
+    def __str__(self):
+        return "{ SAlterIndex | exist: '%s', old_id: '%s', new_id:'%s' }" % (
+            str(self.exist), str(self.old_id), str(self.new_id)
+        )

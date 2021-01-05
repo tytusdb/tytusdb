@@ -521,10 +521,31 @@ def p_sentencia(t):
                  | CREATE_FUNCION
                  | BLOCKDO 
                  | CREATE_INDEX
+                 | DROP_INDEX
+                 | ALTER_INDEX
     '''
     t[0] = t[1]
 
 
+def p_ALTER_INDEX(t):
+    ''' ALTER_INDEX : alter index id rename tTo id ptComa
+                    | alter index if exists id rename tTo id ptComa '''
+
+    if len(t) == 8:
+        t[0] = SAlterIndex(False,t[3],t[6])
+    elif len(t) == 10:
+        t[0] = SAlterIndex(True,t[5],t[8])
+
+
+def p_DROP_INDEX(t):
+
+    ''' DROP_INDEX  : drop index L_IDs ptComa
+                    | drop index if exists L_IDs ptComa '''
+    
+    if len(t) == 5:
+        t[0] = SDropIndex(False,t[3])
+    elif len(t) == 7:
+        t[0] = SDropIndex(True,t[5])
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< Edi Yovani Tomas  <<<<<<<<<<<<<<<<<<<<<<<<<<<<

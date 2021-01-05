@@ -66,6 +66,35 @@ class SimboloTabla:
         )
 
 
+    def alterarIndice(self,nombre,nuevo):
+        
+        modificado = False
+
+        for i in range(len(self.indices)):
+
+            if nombre == self.indices[i].nombre:
+                self.indices[i].nombre = nuevo
+                modificado = True
+                break
+        
+        return modificado
+
+    
+    def eliminarIndice(self,nombre):
+
+        eliminado = False
+        
+        for i in range(len(self.indices)):
+
+            if nombre == self.indices[i].nombre:
+                self.indices.pop(i)
+                eliminado = True
+                break
+        
+        return eliminado
+
+
+
     def crearIndice(self, nombre,tipo,columnnas,orden,null_first,null_last,lower,condicion,unique):
 
         listaErrores = []
@@ -301,6 +330,19 @@ class SimboloIndice:
             str(self.nombre), str(self.tipo), str(self.columnas), str(self.orden), str(self.null_first), str(self.null_last), str(self.lower), str(self.condicion), str(self.unique) 
             )
 
+
+class UbicacionIndice:
+
+    def __init__(self,base,tabla,nombre) -> None:
+        self.base = base
+        self.tabla = tabla
+        self.nombre = nombre
+
+
+    def __str__(self):
+        return "{ UbicacionIndice | base: '%s', tabla: '%s', nombre: '%s' }" %(
+            str(self.base), str(self.tabla), str(self.nombre)
+        )
 
 class llaveForanea:
     def __init__(self, idbase, idtlocal, idtfk, idclocal, idcfk):
