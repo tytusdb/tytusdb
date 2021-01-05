@@ -16,8 +16,8 @@ from hashlib import sha256
 import itertools
 
 consola = ""
-texttraduccion="from goto import with_goto \n@with_goto \ndef main():\n"
-textoptimizado="from goto import with_goto \n@with_goto \ndef main():\n"
+texttraduccion="import principal as princ \nfrom sentencias import * \nfrom goto import with_goto \n useActual ="" \n@with_goto \ndef main():\n"
+textoptimizado="import principal as princ \nfrom sentencias import * \nfrom goto import with_goto \n  useActual ="" \n@with_goto \ndef main():\n"
 useActual = ""
 listaSemanticos = []
 listaSemanticos2 = []
@@ -425,14 +425,7 @@ def CrearFuncion(nodo,tablaSimbolos):
     if nodo.params!=False:
         auxNodo=TS.SimboloFuncion(nodo.id,False,nodo.tipo,nodo.retorno,"global")
         tablaSimbolosL = tablaSimbolos
-        for bloque in nodo.contenido:
-            if isinstance(bloque, list):
-                for sent in bloque:
-                    if isinstance(sent,SIf):
-                        TraducirIF(sent,tablaSimbolos)
-           
-            elif isinstance(bloque,SDeclaracion):
-                Declara(bloque,tablaSimbolosL)
+        TraducirBloque(nodo.contenido,tablaSimbolosL)
     else:
         auxNodo=TS.SimboloFuncion(nodo.id,nodo.params,nodo.tipo,nodo.retorno,"global")
         tablaSimbolosL = tablaSimbolos
@@ -447,7 +440,7 @@ def Declara(nodo,tablaSimbolos):
         val=Interpreta_Expresion(nodo.expre,tablaSimbolos,None,True)
         valor =Interpreta_Expresion(nodo.expre,tablaSimbolos,None,False)
         texttraduccion+=identacion+nodo.id+"="+str(val.valor)+"\n"
-        if (val.vopt.lower()!=nodo.id):
+        if (val.vopt!=nodo.id):
             textoptimizado+=identacion+nodo.id+"="+str(val.vopt)+"\n"  
         nodo.tipo=valor.tipo
         auxvar = TS.SimboloVariable(nodo.id,valor.tipo,valor.valor,"Local")
@@ -456,16 +449,510 @@ def Declara(nodo,tablaSimbolos):
         texttraduccion+=identacion+nodo.id+"= None \n"
 
 
-#def TraducirBloque(nodo,tablaSimbolos):
+def TraducirBloque(nodo,tablaSimbolos):
+    for bloque in nodo:
+            if isinstance(bloque, list):
+                for sent in bloque:
+                    if isinstance(sent,SIf):
+                        TraducirIF(sent,tablaSimbolos)
+           
+            elif isinstance(bloque,SDeclaracion):
+                Declara(bloque,tablaSimbolos)
+
+            elif isinstance(bloque,SAsignacion):
+                Declara(bloque,tablaSimbolos)
+
+            elif isinstance(nodo, SCrearBase):
+                crearBase(nodo, tablaSimbolos)
+                texttraduccion 
+
+            elif isinstance(nodo, SShowBase):
+                if nodo.like == False:
+                    bases = jBase.showDatabases()
+                    for base in bases:
+                        consola += base + "\n"
+                else:
+                    bases = jBase.showDatabases()
+                    basn = []
+                    for base in bases:
+                        basn.append(base)
+                    basn2 = []
+                    r = re.compile(".*" + nodo.cadena + ".*")
+                    basn2 = list(filter(r.match, basn))
+
+                    for bas in basn2:
+                        consola += bas + "\n"
+            elif isinstance(nodo, SUse):
+                global useActual
+                useActual = nodo.id
+                consola += "La base de datos '" + nodo.id + "' es ahora la seleccionada como activa\n"
+            elif isinstance(nodo, SAlterBase):
+                AlterDatabase(nodo, tablaSimbolos)
+            elif isinstance(nodo, SDropBase):
+                if nodo.exists == False:
+                    db = jBase.dropDatabase(nodo.id.valor)
+                    if db == 2:
+                        listaSemanticos.append(
+                            Error.ErrorS("Error Semantico", "Error la base de datos " + nodo.id.valor + " no existe"))
+                    elif db == 1:
+                        listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "Error en la operacion."))
+                    else:
+                        b = tablaSimbolos.eliminar(nodo.id.valor)
+                        if b == True:
+                            consola += "La base de datos " + nodo.id.valor + " se elimino con exito. \n"
+
+                else:
+                    db = jBase.dropDatabase(nodo.id.valor)
+                    if db == 1:
+                        listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "Error en la operacion."))
+                    elif db == 0:
+                        b = tablaSimbolos.eliminar(nodo.id.valor)
+                        if b == True:
+                            consola += "La base de datos " + nodo.id.valor + " se elimino con exito. \n"
+                        else:
+                            consola += "Error no se pudo elminar la base " + \
+                                    nodo.id.valor + " de la tabla de simbolos \n"
+                    elif db == 2:
+                        consola += "La base de datos " + nodo.id.valor + " no existe \n"
+            elif isinstance(nodo, STypeEnum):
+                my_dict = {}
+                for val in nodo.lista:
+                    my_dict[val.valor] = val.valor
+                types[nodo.id] = my_dict
+            elif isinstance(nodo, SUpdateBase):
+
+                registros = jBase.extractTable(useActual, nodo.id)
+                actualizar = []
+
+                if registros != None:
+
+                    tabla = tablaSimbolos.get(useActual).getTabla(nodo.id)
+                    columnas = tabla.columnas
+                    tupla = {"nombreC": [], "tipo": [], "valor": []}
+                    nombres = []
+                    valores = []
+                    tipos = []
+                    diccionario = {}
+                    primary = tabla.get_pk_index()
+                    llaves = []
+
+                    for k in columnas:
+                        tupla["nombreC"].append(columnas[k].nombre)
+                        tupla["tipo"].append(columnas[k].tipo)
+                        nombres.append(columnas[k].nombre)
+                        tipos.append(columnas[k].tipo)
+
+                    i = 1
+                    for r in registros:
+
+                        for c in r:
+                            tupla["valor"].append(c)
+
+                        if nodo.listaWhere is not False:
+                            b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla,False)
+                        else:
+                            b = SExpresion(True,Expresion.BOOLEAN)
+                        tupla["valor"].clear()
+
+                        if b.valor:
+                            actualizar.append(r)
+                            if len(primary) == 0:
+                                llaves.append([str(i-1)])
+                            else:
+                                llaves.append([str(i) + "|"])                        
+                        i += 1
+
+                    bandera1 = False
+                    
+
+                    for x in range(len(actualizar)):
+
+                        for z in range(len(nombres)):
+
+                            bandera = False
+                            for y in range(len(nodo.listaSet)):
+
+                                if nombres[z] == nodo.listaSet[y].columna:
+                                    diccionario[tabla.getIndex(nombres[z])] = nodo.listaSet[y].valor.valor
+
+                                    valores.append(nodo.listaSet[y].valor)
+                                    bandera = True
+                                    break
+
+                            if not bandera:
+                                if hasattr(tipos[z],'dato'):
+                                    valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
+                                else:
+                                    valores.append(SExpresion(actualizar[x][z],tipos[z].tipo))
+
+
+                        validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x],tupla)
+                        valores.clear()
+                        diccionario = {}
+
+                else:
+
+                    listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                        "Error en UPDATE, no se encontró la base de datos [%s] o la tabla [%s] especificada" % (
+                                                        useActual, nodo.id)))
+            elif isinstance(nodo, SDeleteBase):
+                deleteBase(nodo, tablaSimbolos)
+            elif isinstance(nodo, STruncateBase):
+                truncatebase(nodo, tablaSimbolos)
+            elif isinstance(nodo, SInsertBase):
+                InsertTable(nodo, tablaSimbolos)
+            elif isinstance(nodo, SShowTable):
+                tablas = jBase.showTables(useActual)
+                for tabla in tablas:
+                    consola += tabla + "\n"
+            elif isinstance(nodo, SDropTable):
+                bandera = True
+                for fk in listaFK:
+                    if fk.idtlocal == nodo.id:
+                        bandera = False
+                if bandera:
+                    b = jBase.dropTable(useActual, nodo.id)
+                    if b == 0:
+                        base = tablaSimbolos.get(useActual)
+                        if base.deleteTable(nodo.id) == True:
+                            consola += "La tabla " + nodo.id + " de la base " + \
+                                    useActual + " se eliminó con éxito. \n"
+                        else:
+                            consola += "Error no se pudo eliminar la tabla " + \
+                                    nodo.id + " de la tabla de simbolos \n"
+                    elif b == 2:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                            "Error la base de datos " + useActual + " no existe, No se puede eliminar la tabla " + nodo.id))
+                    elif b == 3:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                            "Error la tabla " + nodo.id + " no existe en la base de datos " + useActual))
+                    elif b == 1:
+                        listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "Error en la operacion."))
+                else:
+                    consola += "No se puede eliminar la tabla debido a que esta siendo referenciada por una llave foranea \n"
+            elif isinstance(nodo, SAlterTableRenameColumn):
+                AlterRenameColumn(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterRenameTable):
+                AlterRenameTable(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTableAddColumn):
+                AlterAddColumn(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTableCheck):
+                AlterTableCheck(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTableAddUnique):
+                AlterTableUnique(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTableAddFK):
+                AlterTableFK(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTable_AlterColumn):
+                for col in nodo.columnas:
+                    if col.tipo == TipoAlterColumn.NOTNULL:
+                        AlterColumnNotNull(nodo, tablaSimbolos)
+                        break
+                    else:
+                        AlterColumnCTipo(nodo, tablaSimbolos)
+                        break
+            elif isinstance(nodo, SAlterTableDrop):
+                if nodo.tipo == TipoAlterDrop.COLUMN:
+                    AlterTableDropColumn(nodo, tablaSimbolos)
+                else:
+                    AlterTableDropConstraint(nodo, tablaSimbolos)
+            elif isinstance(nodo, SCrearTabla):
+                crearTabla(nodo, tablaSimbolos)
+            elif isinstance(nodo,SCreateFunction):
+                texttraduccion+=identacion+"label ."+nodo.id+"\n"
+                textoptimizado+=identacion+"label ."+nodo.id+"\n"
+                CrearFuncion(nodo,tablaSimbolos)
+            # FRANCISCO
+            elif isinstance(nodo, Squeries):
+                if nodo.ope == False:
+                    # print("Query Simple")
+                    if isinstance(nodo.query1, SQuery):
+                        Qselect = nodo.query1.select
+                        Qffrom = nodo.query1.ffrom
+                        Qwhere = nodo.query1.where
+                        Qgroupby = nodo.query1.groupby
+                        Qhaving = nodo.query1.having
+                        Qorderby = nodo.query1.orderby
+                        Qlimit = nodo.query1.limit
+                        base = tablaSimbolos.get(useActual)
+                        if useActual != None:
+                            if base == None:
+                                listaSemanticos.append(
+                                    Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
+                                return
+                        pT = PrettyTable()
+                        B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
+                        if B!=0:
+                            consola += str(pT) + "\n"
+
+
+                else:
+                    print("Query no 1")
+                    consulta1=[]
+                    consulta2=[]
+
+                    Qselect = nodo.query1.select
+                    Qffrom = nodo.query1.ffrom
+                    Qwhere = nodo.query1.where
+                    Qgroupby = nodo.query1.groupby
+                    Qhaving = nodo.query1.having
+                    Qorderby = nodo.query1.orderby
+                    Qlimit = nodo.query1.limit
+                    base = tablaSimbolos.get(useActual)
+                    if useActual != None:
+                        if base == None:
+                            listaSemanticos.append(
+                                Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
+                            return
+                    pT = PrettyTable()
+                    consulta1=hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
+
+                    Qselect2 = nodo.query2.select
+                    Qffrom2 = nodo.query2.ffrom
+                    Qwhere2 = nodo.query2.where
+                    Qgroupby2 = nodo.query2.groupby
+                    Qhaving2 = nodo.query2.having
+                    Qorderby2 = nodo.query2.orderby
+                    Qlimit2 = nodo.query2.limit
+                    base2 = tablaSimbolos.get(useActual)
+                    pT = PrettyTable()
+                    consulta2=hacerConsulta(Qselect2, Qffrom2, Qwhere2, Qgroupby2, Qhaving2, Qorderby2, Qlimit2, base2, pT, False,tablaSimbolos)
+
+                    arrColNames = []
+                    arrFinal = []
+                    arrAux = []
+                    arrAux2 = []
+                    if nodo.ope.lower() == "union":
+                        print("union")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                            x+=1
+
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrFinal:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+
+                    elif nodo.ope.lower() == "intersect":
+                        print("intersect")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                                    else :
+                                        arrAux.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                                    else :
+                                        arrAux.append(z)
+                            x+=1
+
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrAux:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+
+                    elif nodo.ope.lower() == "except":
+                        print("intersect")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                                    else :
+                                        arrAux.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                                    else :
+                                        arrAux.append(z)
+                            x+=1
+
+                        #no Repetidos
+                        g=0
+                        for e in consulta1:
+                            if g != 0 :
+                                for x in e :
+                                    if x not in arrAux:
+                                        arrAux2.append(x)
+                            g+=1
+
+
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrAux2:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+            
+
+def TraducirAsignacion(nodo,tablaSimbolos):
+    global texttraduccion,textoptimizado
+    banderita = False
+    valor = Interpreta_Expresion(nodo.expre,tablaSimbolos,None,True)
+    valor3 = Interpreta_Expresion(nodo.expre,tablaSimbolos,None,False) 
+    for simbolo in tablaSimbolos.tabla.keys():
+        if tablaSimbolos.tabla[simbolo].nombre ==nodo.id:
+            tablaSimbolos.tabla[simbolo].valor = valor3.valor
+            tablaSimbolos.tabla[simbolo].tipo = valor3.tipo
+            banderita = True
+
+    if banderita : 
+        texttraduccion += identacion + nodo.id + "=" + valor.valor +"\n"
+        textoptimizado += identacion + nodo.id + "=" + valor.valor +"\n"
+    else: 
+        listaSemanticos.append(Error.ErrorS("Error semantico", "No se encontró la variable"+nodo.id))
+
+
+
+
 
 def TraducirIF(nodo,tablaSimbolos):
-    global texttraduccion,textoptimizado
-    condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
-    texttraduccion += "goto " + condicion.EtiquetaV + " \n"
-    texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
+    global texttraduccion,textoptimizado,contadoresEtiqueta,contadoresT
+    if nodo.eliff == False and nodo.eelse == False:
+        condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+        texttraduccion += "goto " + condicion.EtiquetaV + " \n"
+        texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
 
-    textoptimizado += "goto " + condicion.EtiquetaV + " \n"
-    textoptimizado += identacion+"goto " + condicion.EtiquetaF + " \n"
+        textoptimizado += "goto " + condicion.EtiquetaV + " \n"
+        textoptimizado += identacion+"goto " + condicion.EtiquetaF + " \n"
+
+        texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
+        TraducirBloque(nodo.iff,tablaSimbolos)
+        texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
+    
+    elif nodo.eliff == False and nodo.eelse != False: 
+        etiquetaSalida = ""
+        condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+        texttraduccion += "goto " + condicion.EtiquetaV + " \n"
+        texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
+
+        textoptimizado += "goto " + condicion.EtiquetaV + " \n"
+        textoptimizado += identacion+"goto " + condicion.EtiquetaF + " \n"
+
+        texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
+        TraducirBloque(nodo.iff,tablaSimbolos)
+        etiquetaSalida = ".L"+str(contadoresEtiqueta)
+        contadoresEtiqueta += 1
+        texttraduccion += identacion + "goto "+etiquetaSalida + "\n"
+        texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
+
+        TraducirBloque(nodo.eelse,tablaSimbolos)
+        texttraduccion += identacion +"label "+etiquetaSalida +"\n"
+
+    elif nodo.eliff != False and nodo.eelse == False: 
+        condicion2 = ""
+        etiquetaSalida = ""
+        condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+        texttraduccion += "goto " + condicion.EtiquetaV + " \n"
+        texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
+
+        textoptimizado += "goto " + condicion.EtiquetaV + " \n"
+        textoptimizado += identacion+"goto " + condicion.EtiquetaF + " \n"        
+        
+        for e in nodo.eliff:
+            texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
+            condicion2 = Interpreta_Expresion(e.condicion, tablaSimbolos,None,True)
+            texttraduccion += "goto " + condicion2.EtiquetaV + " \n"
+            texttraduccion += identacion+"goto " + condicion2.EtiquetaF + " \n"
+            texttraduccion += identacion+"label " + condicion2.EtiquetaV + " \n"
+            TraducirBloque(e.bloque,tablaSimbolos)
+            texttraduccion += identacion + "goto "+condicion2.EtiquetaF + "\n"
+
+        texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
+        TraducirBloque(nodo.iff,tablaSimbolos)
+        texttraduccion += identacion + "goto "+condicion2.EtiquetaF + "\n"
+
+        texttraduccion += identacion + "label "+condicion2.EtiquetaF + "\n"
+
+
+    elif nodo.eliff != False and nodo.eelse != False: 
+        condicion2=""
+        condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+        texttraduccion += "goto " + condicion.EtiquetaV + " \n"
+        texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
+
+        textoptimizado += "goto " + condicion.EtiquetaV + " \n"
+        textoptimizado += identacion+"goto " + condicion.EtiquetaF + " \n"
+
+        texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
+        TraducirBloque(nodo.iff,tablaSimbolos)
+        etiquetaSalida = ".L"+str(contadoresEtiqueta)
+        contadoresEtiqueta += 1
+        texttraduccion += identacion + "goto "+etiquetaSalida + "\n"
+        
+        if isinstance(nodo.eliff,list):
+            for e in nodo.eliff:
+                texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
+                condicion2 = Interpreta_Expresion(e.condicion, tablaSimbolos,None,True)
+                texttraduccion += "goto " + condicion2.EtiquetaV + " \n"
+                texttraduccion += identacion+"goto " + condicion2.EtiquetaF + " \n"
+                TraducirBloque(e.bloque,tablaSimbolos)
+                texttraduccion += identacion + "goto "+etiquetaSalida + "\n"
+        else:
+            texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
+            condicion2 = Interpreta_Expresion(nodo.eliff.condicion, tablaSimbolos,None,True)
+            texttraduccion += "goto " + condicion2.EtiquetaV + " \n"
+            texttraduccion += identacion+"goto " + condicion2.EtiquetaF + " \n"
+            TraducirBloque(nodo.eliff.bloque,tablaSimbolos)
+            texttraduccion += identacion + "goto "+etiquetaSalida + "\n"
+
+        texttraduccion += identacion + "label "+condicion2.EtiquetaF + "\n"
+        TraducirBloque(nodo.eelse,tablaSimbolos)
+        texttraduccion += identacion + "label "+etiquetaSalida + "\n"
+
+    
+
 
 def deleteBase(nodo, tablaSimbolos):
     global consola
@@ -1800,11 +2287,11 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if cod3D:
                 texttraduccion += "goto " + str(opIzq.EtiquetaV) + "\n"
                 texttraduccion += identacion+"goto " + str(opIzq.EtiquetaF) + "\n"
-                textoptimizado += identacion+"label "+ str(opIzq.EtiquetaV) + ":"
+                texttraduccion += identacion+"label "+ str(opIzq.EtiquetaV) + ":"+"\n"
                
                 textoptimizado += "goto " + str(opIzq.EtiquetaV) + "\n"
                 textoptimizado += identacion+"goto " + str(opIzq.EtiquetaF) + "\n"
-                textoptimizado += identacion+"label "+str(opIzq.EtiquetaV) + ":"
+                textoptimizado += identacion+"label "+str(opIzq.EtiquetaV) + ":"+"\n"
                 
                 opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
                 opDer.EtiquetaF = opIzq.EtiquetaF
@@ -1817,19 +2304,18 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         if (expresion.operador == Logicas.OR):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             if cod3D:
-                texttraduccion += identacion+"goto " + str(opIzq.EtiquetaV) + "\n"
+                texttraduccion += "goto " + str(opIzq.EtiquetaV) + "\n"        
                 texttraduccion += identacion+"goto " + str(opIzq.EtiquetaF) + "\n"
-                textoptimizado += identacion+"label "+str(opIzq.EtiquetaV) + ":"
+                texttraduccion += identacion+"label "+str(opIzq.EtiquetaF) + ": \n"
 
-                textoptimizado += identacion+"goto " + str(opIzq.EtiquetaV) + "\n"
+                textoptimizado += "goto " + str(opIzq.EtiquetaV) + "\n"
                 textoptimizado += identacion+"goto " + str(opIzq.EtiquetaF) + "\n"
-                textoptimizado += identacion+"label "+str(opIzq.EtiquetaV) + ":"
+                textoptimizado += identacion+"label "+str(opIzq.EtiquetaF) + ":"
 
 
                 opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
                 opDer.EtiquetaV = opIzq.EtiquetaV
-                textoptimizado+=texttraduccion
-                return Etiquetas(False,False,opDer.EtiquetaV,opIzq.EtiquetaF,False)
+                return Etiquetas(False,False,opIzq.EtiquetaV,opDer.EtiquetaF,False)
             else:
                 opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
                 result = (opIzq.valor or opDer.valor)
@@ -2395,7 +2881,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                 Etiqueta = "t" + contadoresT
                 contadoresT += 1
                 texttraduccion += Etiqueta + "=" + str(expresion.valor.valor) + "*-1"
-                return Etiquetas(Etiqueta,Expresion.NEGATIVO,False,False)
+                return Etiquetas(Etiqueta,Expresion.NEGATIVO,False,False,False)
             else:
                 return SExpresion(result, Expresion.NEGATIVO)
 

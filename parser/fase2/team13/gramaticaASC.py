@@ -58,7 +58,6 @@ reservadas = {
 
     'values': 'values',
     'null': 'null',
-    'primarykey': 'primarykey',
     'into': 'into',
     'from': 'from',
 
@@ -133,24 +132,18 @@ reservadas = {
     'factorial': 'factorial',
     'floor': 'floor',
     'gcd': 'gcd',
-    'lcm': 'lcm',
     'ln': 'ln',
     'log': 'log',
-    'log10': 'log10',
-    'min_scale': 'min_scale',
     'mod': 'mod',
     'pi': 'pi',
     'power': 'power',
     'radians': 'radians',
     'round': 'round',
-    'scale': 'scale',
     'sign': 'sign',
     'sqrt': 'sqrt',
-    'trim_scale': 'trim_scale',
     'trunc': 'trunc',
     'width_bucket': 'width_bucket',
     'random': 'random',
-    'setseed': 'setseed',
     # trigonometricas
     'acos': 'acos',
     'acosd': 'acosd',
@@ -235,8 +228,6 @@ reservadas = {
     'language': 'language',
     'for': 'tfor',
     'alias': 'talias',
-    'loop': 'loop',
-    'while': 'twhile',
     'do': 'do',
     'elsif':'elsif',
     'continue':'tcontinue',
@@ -262,8 +253,6 @@ reservadas = {
 tokens = [
              'punto',
              'dosPts',
-             'corcheI',
-             'corcheD',
              'mas',
 
              'menos',
@@ -313,8 +302,6 @@ tokens = [
 t_punto = r'\.'
 t_asig = r':='
 t_dosPts = r':'
-t_corcheI = r'\['
-t_corcheD = r'\]'
 
 t_mas = r'\+'
 t_menos = r'-'
@@ -543,7 +530,7 @@ def p_sentencia(t):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< Edi Yovani Tomas  <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def p_BLOCKDO(t):
-    ''' BLOCKDO :   dobledolar BLOQUE dobledolar ptComa
+    ''' BLOCKDO : do dobledolar BLOQUE dobledolar ptComa
     '''
 
 def p_CrearFunciones(t):
@@ -807,17 +794,16 @@ def p_IF(t):
     '''    IF : if  E then  L_BLOCK  end if ptComa
               | if  E then  L_BLOCK  ELSE
               | if  E then  L_BLOCK  ELSEIF  ELSE
+              | if  E then  L_BLOCK  ELSEIF  end if ptComa
     '''
     if len(t) == 6:
-        print("gramatica t[2]")
-        print(t[2])
         t[0]=SIf(t[2],t[4],False,t[5])
     elif len(t) == 7:
         t[0]=SIf(t[2],t[4],t[5],t[6])
     elif len(t) == 8:
-        print("gramatica t[2]")
-        print(t[2])
         t[0]=SIf(t[2],t[4],False,False)
+    elif len(t)==9:
+        t[0]=SIf(t[2],t[4],t[5],False)
 
 def p_ELSE(t):
     '''   ELSE : else L_BLOCK end if ptComa
@@ -832,7 +818,7 @@ def p_ELSEIF(t):
         t[1].append(t[2])
         t[0] = t[1]
     else:
-        t[0] == [t[1]]
+        t[0] = [t[1]]
 
 def p_SINOSI(t):
     '''   SINOSI :   elsif E then L_BLOCK
