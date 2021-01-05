@@ -12,6 +12,7 @@ from Expresiones import *
 from Instrucciones import *
 from Retorno import Retorno
 from NodoAST import NodoAST
+from analizadorFase2.Instrucciones.Parametros_llamada import Parametro_llamada
 from analizadorFase2.Instrucciones.Else import Else_inst
 from analizadorFase2.Operaciones.TiposOperacionesLR import TiposOperacionesLR
 from analizadorFase2.Operaciones.Operaciones_LogicasRelacionales import OperacionesLogicasRelacionales
@@ -25,6 +26,8 @@ from analizadorFase2.Operaciones.TiposOperacionesA import TiposOperaciones
 from analizadorFase2.Operaciones.OperacionesUnarias import OperacionesUnarias
 from analizadorFase2.Abstractas.Primitivo import Primitivo
 from analizadorFase2.Abstractas.Expresion import Tipos
+from analizadorFase2.Instrucciones.Return import Return_inst
+from analizadorFase2.Instrucciones.Llamada import Llamada
 import re
 
 # VARIABLES GLOBALES
@@ -4841,7 +4844,7 @@ def p_Retorno1(t):
 
 def p_Params(t):
     'PARAMS  :   PARAMS COMA PARAM '
-    t[1].getInstruccion().append(t[2].getInstruccion())
+    t[1].getInstruccion().append(t[3].getInstruccion())
     ret = Retorno(t[1].getInstruccion(), t[3].getNodo())
     ret.getNodo().setHijo(t[1].getNodo())
     t[0] = ret
@@ -4911,6 +4914,7 @@ def p_InstruccionFN1(t):
 
 def p_InstruccionFN2(t):
     'INSTRUCCIONFN  :   PRETURN'
+    t[0] = t[1]
 
 def p_InstruccionFN3(t):
     'INSTRUCCIONFN  :   INSTRUCCION'
@@ -5003,9 +5007,16 @@ def p_Else5(t):
 
 def p_Return(t):
     'PRETURN  :   RETURN PCOMA'
+    val = Return_inst(None)
+    ret = Retorno(val, NodoAST("RETURN"))
+    t[0] = ret
 
 def p_Return2(t):
     'PRETURN  :   RETURN VALORF PCOMA'
+    val = Return_inst(t[2].getInstruccion())
+    ret = Retorno(val, NodoAST("RETURN"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_CuerpoIf(t):
     'CUERPOIF  :   LINSTRUCCIONESFN'
@@ -5331,20 +5342,44 @@ def p_VALORFAtanh(t):
 
 def p_VALORFAsigna(t):
     'VALORF  :   ID PABRE PCIERRA '
+    val = Llamada(t[1], None)
+    ret = Retorno(val, NodoAST("LLAMADA"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_VALORFAsigna2(t):
-    'VALORF  :   ID PABRE PARAMETROS PCIERRA '
+    'VALORF  :   ID PABRE PARAMETROSL PCIERRA '
+    val = Llamada(t[1], t[3].getInstruccion())
+    ret = Retorno(val, NodoAST("LLAMADA"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFInstruccion(t):
     'VALORF  :  PABRE INSTRUCCION PCIERRA '
 
 
 def p_Parametros(t):
-    'PARAMETROS  :   PARAMETROS COMA ID '
+    'PARAMETROSL  :   PARAMETROSL COMA PARAML'
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_Parametros1(t):
-    'PARAMETROS  :   ID '
+    'PARAMETROSL  :   PARAML '
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
+def p_Paraml(t):
+    'PARAML  :   VALORF'
+    val = Parametro_llamada(t[1].getInstruccion())
+    ret = Retorno(val, t[1].getNodo())
+    t[0] = ret
 
 def p_LVALOR(t):
     'LVALOR  :   VALORF  '
@@ -5414,7 +5449,7 @@ def p_Execute(t):
     'PEXECUTE  :   EXECUTE ID PABRE PCIERRA PCOMA'
 
 def p_Execute2(t):
-    'PEXECUTE  :   EXECUTE ID PABRE PARAMETROS PCIERRA PCOMA'
+    'PEXECUTE  :   EXECUTE ID PABRE PARAMETROSL PCIERRA PCOMA'
 
 
 
