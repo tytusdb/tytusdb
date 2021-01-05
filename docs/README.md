@@ -178,15 +178,13 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 - creación y eliminación de índices únicos
 
 ```
-def alterTableAddUnique(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
 ```
 Agrega un índice único, creando una estructura adicional con el modo indicado para la base de datos.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
 Parámetro indexName: es el nombre único del índice manejado como metadato de la tabla para ubicarlo fácilmente.
 Parámetro columns: es el conjunto de índices de columnas que forman parte de la llave foránea, mínimo debe ser una columna.  
-Parámetro tableRef: es el nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s).  
-Parámetro columnsRef: es el conjunto de índices de columnas que forman parte de la llave primaria, mínimo debe ser una columna.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table o tableRef no existente, 4 cantidad no exacta entre columns y columnsRef, 5 no se cumple la integridad de unicidad (es decir, algún valor de las llaves está duplicado).  
 La restricción de unicidad en los insert se debe verificar.  
 
@@ -202,15 +200,13 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 - creación y eliminación de índices
 
 ```
-def alterTableAddIndex(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
 ```
 Agrega un índice, creando una estructura adicional con el modo indicado para la base de datos.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
 Parámetro indexName: es el nombre único del índice manejado como metadato de la tabla para ubicarlo fácilmente.
 Parámetro columns: es el conjunto de índices de columnas que forman parte de la llave foránea, mínimo debe ser una columna.  
-Parámetro tableRef: es el nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s).  
-Parámetro columnsRef: es el conjunto de índices de columnas que forman parte de la llave primaria, mínimo debe ser una columna.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table o tableRef no existente, 4 cantidad no exacta entre columns y columnsRef.  
 
 ```
@@ -253,7 +249,7 @@ def checksumDatabase(database: str, mode: str) -> str:
 Genera un diggest a partir del contenido de la base de datos incluyendo sus tablas.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 nombre de modo no existente.  
+Valor de retorno: cadena que devuelva o None si hay algún error.  
 
 ```
 def checksumTable(database: str, table:str, mode: str) -> str:
@@ -262,7 +258,7 @@ Genera un diggest a partir del contenido de la tabla de una base de datos.  (UPD
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro table: es el nombre de la tabla que se desea calcular el checksum.  
 Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 nombre de modo no existente.  
+Valor de retorno: cadena que devuelva o None si hay algún error.  
 
 
 ### 6. Compresión de datos
@@ -312,10 +308,11 @@ def encrypt(backup: str, password: str) -> str:
 ```
 Crifra el texto backup con la llave password y devuelve el criptograma. Se puede utilizar cualquier método y biblioteca.  (UPDATE)  
 Parámetro backup: es el nombre de la base de datos a utilizar.  
+Parámetro password: es la llave para cifrar.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación.  
 
 ```
-def encrypt(cipherBackup: str, password: str) -> str:
+def decrypt(cipherBackup: str, password: str) -> str:
 ```
 Descrifra el texto cipherBackup con la llave password y devuelve el texto plano. Se puede utilizar cualquier método y biblioteca.  (UPDATE)  
 Parámetro cipherBackup: es el nombre de la base de datos a utilizar.  
