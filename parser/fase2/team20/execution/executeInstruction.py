@@ -1,8 +1,9 @@
 from .AST.instruction import *
 from .AST.expression import *
 from .AST.error import * 
+from .AST.sentence import *
 
-def executeInstruction(self, instruction,indent):
+def executeInstruction(self, instruction,indent, main):
     if isinstance(instruction, CreateFunction):
         functioncode = ""
         functionname = instruction.name
@@ -50,6 +51,15 @@ def executeInstruction(self, instruction,indent):
                         else: functioncode+="\t"+declaration.name+":"+vartype+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
         # statements
         for statement in instruction.block.statements:
+            if isinstance(statement,Sentence):
+                old_stdout = sys.stdout
+                new_stdout = StringIO()
+                sys.stdout = new_stdout
+                print(statement)
+                val1 = new_stdout.getvalue()[:-1]
+                sys.stdout = old_stdout
+                print(val1)
+                functioncode+=(indent*"\t")+str(val1)+"\n"
             if(isinstance(statement,StatementReturn)):
                 functioncode+=statement.expression.translate(self,indent)
                 functioncode+=(indent*"\t")+"return "+self.getLastTemp()+"\n"
@@ -59,7 +69,7 @@ def executeInstruction(self, instruction,indent):
                 iflabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
                 ifcode+=(indent*"\t")+"\tgoto ."+self.getLastLabel()+"\n"
                 for ifstatement in statement.statements:
-                    iflabel+=executeInstruction(self,ifstatement,indent)
+                    iflabel+=executeInstruction(self,ifstatement,indent,1)
                 #else if list
                 elselabel=""
                 elsecode=""
@@ -67,7 +77,7 @@ def executeInstruction(self, instruction,indent):
                     elselabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
                     elsecode=(indent*"\t")+"else:\n"+(indent*"\t")+"\tgoto. "+self.getLastLabel()+"\n"
                     for elsestatement in statement.statementsElse:
-                        elselabel+=executeInstruction(self,elsestatement,indent)
+                        elselabel+=executeInstruction(self,elsestatement,indent,1)
                     elselabel+=(indent*"\t")+"label ."+self.generateLabel()+"\n"
                     iflabel+=(indent*"\t")+"goto ."+self.getLastLabel()+"\n"
                 else:
@@ -80,6 +90,12 @@ def executeInstruction(self, instruction,indent):
                     functioncode+=(indent*"\t")+statement.name+"="+self.getLastTemp()+"\n"
                 else:
                     functioncode += "#SelectF1"
+            elif(isinstance(statement,Call) or isinstance(statement,Excute)):
+                params="("
+                for expression in statement.params:
+                    functioncode+=expression.translate(self,indent)
+                    params+=self.getLastTemp()+", "
+                functioncode+=(indent*"\t")+statement.name+params[:-2]+")\n"
         if(len(instruction.block.statements)==0): functioncode+="\tprint(1)"
         # save functioncode in TypeChecker
         self.plcode += functioncode
@@ -96,6 +112,27 @@ def executeInstruction(self, instruction,indent):
         else:
             code += "#SelectF1"
         return code
+    elif(isinstance(instruction,Call) or isinstance(instruction,Excute)):
+        code = ""
+        params="("
+        if instruction.params != None:
+            for expression in instruction.params:
+                code+=expression.translate(self,indent)
+                params+=self.getLastTemp()+", "
+            code=(indent*"\t")+instruction.name+params[:-2]+")\n"
+            if(main==0): 
+                code=(indent*"\t")+"print("+instruction.name+params[:-2]+"))\n"
+                archivo = open("C3D.py", 'a')
+                archivo.write(code) 
+                archivo.close()
+        else:
+            code=(indent*"\t")+instruction.name+"()\n"
+            if(main==0): 
+                code=(indent*"\t")+"print("+instruction.name+"())\n"
+                archivo = open("C3D.py", 'a')
+                archivo.write(code) 
+                archivo.close()
+        return code
     elif isinstance(instruction,If):
         code = ""
         code+=instruction.expression.translate(self,indent)
@@ -103,7 +140,7 @@ def executeInstruction(self, instruction,indent):
         iflabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
         ifcode+=(indent*"\t")+"\tgoto ."+self.getLastLabel()+"\n"
         for ifstatement in instruction.statements:
-            iflabel+=executeInstruction(self,ifstatement,indent)
+            iflabel+=executeInstruction(self,ifstatement,indent,1)
         #else if list
         elselabel=""
         elsecode=""
@@ -111,7 +148,7 @@ def executeInstruction(self, instruction,indent):
             elselabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
             elsecode=(indent*"\t")+"else:\n"+(indent*"\t")+"\tgoto. "+self.getLastLabel()+"\n"
             for elsestatement in instruction.statementsElse:
-                elselabel+=executeInstruction(self,elsestatement,indent)
+                elselabel+=executeInstruction(self,elsestatement,indent,1)
             elselabel+=(indent*"\t")+"label ."+self.generateLabel()+"\n"
             iflabel+=(indent*"\t")+"goto ."+self.getLastLabel()+"\n"
         code+=ifcode+elsecode+iflabel+elselabel

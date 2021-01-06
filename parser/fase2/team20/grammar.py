@@ -366,7 +366,7 @@ def p_instructions_list_single(t):
 def p_instructions_sql(t):
     '''sentence : ddl SEMICOLON
                 | dml SEMICOLON
-                | pl SEMICOLON'''
+                | pl'''
     global grammarreport
     if(isinstance(t[1],DropDatabase)
     or isinstance(t[1],AlterDatabaseOwner)
@@ -1344,10 +1344,26 @@ def p_expression_all(t):
 
 #-------------------------------------------PROCEDURAL LANGUAGE---------------------------------------------------------
 def p_instructions_pl(t):
-    '''pl : function'''
+    '''pl : function SEMICOLON
+          | call SEMICOLON
+          | excute SEMICOLON
+          | procedure'''
     t[0]  = t[1]
 
 #FUNCTION
+def p_pl_PROC_1(t):
+    '''procedure : CREATE PROCEDURE ID BRACKET_OPEN BRACKET_CLOSE LANGUAGE PLPGSQL AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR'''
+    t[0] = CreateFunction(t[3],False,None,None,t[11])
+def p_pl_PROC_2(t):
+    '''procedure : CREATE OR REPLACE PROCEDURE ID BRACKET_OPEN BRACKET_CLOSE LANGUAGE PLPGSQL AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR'''
+    t[0] = CreateFunction(t[5],True,None,None,t[13])
+def p_pl_PROC_3(t):
+    '''procedure : CREATE PROCEDURE ID BRACKET_OPEN paramList BRACKET_CLOSE LANGUAGE PLPGSQL AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR'''
+    t[0] = CreateFunction(t[3],False,t[5],None,t[12])
+def p_pl_PROC_4(t):
+    '''procedure : CREATE OR REPLACE PROCEDURE ID BRACKET_OPEN paramList BRACKET_CLOSE LANGUAGE PLPGSQL AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR'''
+    t[0] = CreateFunction(t[5],True,t[7],None,t[14])
+#PROCEDURE    
 def p_pl_function_1(t):
     '''function : CREATE FUNCTION ID BRACKET_OPEN BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
     t[0] = CreateFunction(t[3],False,None,t[7],t[11])
@@ -1564,7 +1580,7 @@ def p_pl_assignmenttpexp(t):
     
 #STATEMENTS BLOCK
 def p_pl_statementsBlock(t):
-    '''statementsBlock : BEGIN statementList  END SEMICOLON'''
+    '''statementsBlock : BEGIN statementList END SEMICOLON'''
     t[0]  = t[2]
 
 def p_pl_statementlist_list(t):

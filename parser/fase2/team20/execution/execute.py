@@ -15,6 +15,7 @@ class Execute():
     messages = []
     querys = []
     ts = []
+    pila =[] # cada item es un diccionario {}
     plcode = ""
     #intermediate = IntermediateFunctions()
     types = {
@@ -45,11 +46,11 @@ class Execute():
             archivo.write("\nfrom goto import with_goto")
             archivo.write("\n\n@with_goto")
             archivo.write("\ndef up():")
-            archivo.write("\n\tprint(1)")
+            archivo.write("\n\tprint(1)\n")
             archivo.close()
             if(len(self.nodes)==0):
                 archivo = open("C3D.py", 'a')
-                archivo.write("\n\tprint(1)")
+                archivo.write("\n\tprint(1)\n")
                 archivo.close() 
             for node in self.nodes:
                 #pprint(vars(node))
@@ -65,7 +66,7 @@ class Execute():
                     archivo.write(val1) 
                     archivo.close()
                 else:
-                    executeInstruction(self,node, 1)
+                    executeInstruction(self,node, 1, 0)
                 
                 #executeSentence2(self,node)
         archivo = open("C3D.py", 'a')
