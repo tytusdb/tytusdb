@@ -8228,3 +8228,355 @@ class DropIndice(Instruccion):
         else:
             ts_global.DropIndice(self.id_indice)
             imprir("CREATE INDEX:  El Indice " + str(self.id_indice) + "Se elimino !")
+
+#=======================================================================  INSTRUCCIONES PL SQL
+
+# #----------------------------   FUNCIONES
+class Funciones_(Instruccion):
+    def __init__(self,Reservada, Nombre,Retorno,Alias, Parametros=[], Instrucciones=[], Declaraciones=[], Codigo=[]):
+        self.Reservada     = Reservada #create or replace
+        self.Nombre        = Nombre #
+        self.Retorno       = Retorno #que retorna, expresion
+        self.Parametros    = Parametros #lista de ID's ( nombre tipo )
+        self.Alias         = Alias
+        self.Instrucciones = Instrucciones # sql
+        self.Declaraciones = Declaraciones #
+        self.Codigo        = Codigo # sentencias
+
+
+    def Ejecutar(self):
+
+        #-------------------------  Instrucciones
+        if (isinstance(self.Instrucciones, list)):
+            sente = self.Codigo.Codigo
+            for i in sente:
+                if isinstance(i, CreateDataBase):
+                    i.Ejecutar()
+                elif isinstance(i, ShowDatabases):
+                    i.Ejecutar()
+                elif isinstance(i, AlterDataBase):
+                    i.Ejecutar()
+                elif isinstance(i, DropDataBase):
+                    i.Ejecutar()
+                elif isinstance(i, CreateTable):
+                    i.Ejecutar()
+                elif isinstance(i, Insert_Datos):
+                    i.Ejecutar()
+                elif isinstance(i, DropTable):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_AddColumn):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_Drop_Column):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_Rename_Column):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_Drop_Constraint):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_table_Add_Foreign_Key):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_Add_Constraint):
+                    i.Ejecutar()
+                elif isinstance(i, Delete_Datos):
+                    i.Ejecutar()
+                elif isinstance(i, Update_Datos):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_COLUMN):
+                    i.Ejecutar()
+                elif isinstance(i, Select):
+                    i.Ejecutar()
+                elif isinstance(i, Select2):
+                    i.Ejecutar()
+                elif isinstance(i, Select3):
+                    i.Ejecutar()
+                elif isinstance(i, SelectExpresion):
+                    i.Ejecutar()
+                elif isinstance(i, CreacionEnum):
+                    i.Ejecutar()
+                elif isinstance(i, Select4):
+                    i.Ejecutar()
+                elif isinstance(i, SubSelect):
+                    i.Ejecutar()
+                elif isinstance(i, SubSelect2):
+                    i.Ejecutar()
+                elif isinstance(i, SubSelect3):
+                    i.Ejecutar()
+                elif isinstance(i, SubSelect4):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_table_Alter_Column_Set):
+                    i.Ejecutar()
+                elif isinstance(i, useClase):
+                    i.Ejecutar()
+                elif isinstance(i, CrearIndice):
+                    i.Ejecutar()
+                elif isinstance(i, AlterIndiceCol):
+                    i.Ejecutar()
+                elif isinstance(i, AlterIndiceName):
+                    i.Ejecutar()
+                elif isinstance(i, DropIndice):
+                    i.Ejecutar()
+                elif isinstance(i, Funciones_):
+                    i.Ejecutar()
+                elif isinstance(i, Procedimientos_):
+                    i.Ejecutar()
+
+                else:
+                    print("NO ejecuta")
+        else:
+            print("Esta vacia ")
+
+        # -------------------------  Codigo
+        if isinstance(self.Codigo,Code_Funciones):
+
+            if(isinstance(self.Codigo.Codigo,list)):
+                sente = self.Codigo.Codigo
+
+                for i in sente:
+                    if isinstance(i, CreateDataBase):
+                        i.Ejecutar()
+                    elif isinstance(i, ShowDatabases):
+                        i.Ejecutar()
+                    elif isinstance(i, AlterDataBase):
+                        i.Ejecutar()
+                    elif isinstance(i, DropDataBase):
+                        i.Ejecutar()
+                    elif isinstance(i, CreateTable):
+                        i.Ejecutar()
+                    elif isinstance(i, Insert_Datos):
+                        i.Ejecutar()
+                    elif isinstance(i, DropTable):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_AddColumn):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_Drop_Column):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_Rename_Column):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_Drop_Constraint):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_table_Add_Foreign_Key):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_Add_Constraint):
+                        i.Ejecutar()
+                    elif isinstance(i, Delete_Datos):
+                        i.Ejecutar()
+                    elif isinstance(i, Update_Datos):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_COLUMN):
+                        i.Ejecutar()
+                    elif isinstance(i, Select):
+                        i.Ejecutar()
+                    elif isinstance(i, Select2):
+                        i.Ejecutar()
+                    elif isinstance(i, Select3):
+                        i.Ejecutar()
+                    elif isinstance(i, SelectExpresion):
+                        i.Ejecutar()
+                    elif isinstance(i, CreacionEnum):
+                        i.Ejecutar()
+                    elif isinstance(i, Select4):
+                        i.Ejecutar()
+                    elif isinstance(i, SubSelect):
+                        i.Ejecutar()
+                    elif isinstance(i, SubSelect2):
+                        i.Ejecutar()
+                    elif isinstance(i, SubSelect3):
+                        i.Ejecutar()
+                    elif isinstance(i, SubSelect4):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_table_Alter_Column_Set):
+                        i.Ejecutar()
+                    elif isinstance(i, useClase):
+                        i.Ejecutar()
+                    elif isinstance(i, CrearIndice):
+                        i.Ejecutar()
+                    elif isinstance(i, AlterIndiceCol):
+                        i.Ejecutar()
+                    elif isinstance(i, AlterIndiceName):
+                        i.Ejecutar()
+                    elif isinstance(i, DropIndice):
+                        i.Ejecutar()
+                    elif isinstance(i, Funciones_):
+                        i.Ejecutar()
+                    elif isinstance(i, Procedimientos_):
+                        i.Ejecutar()
+
+                    else:
+                        print("NO ejecuta")
+            else:
+                print("Esta vacia ")
+
+
+
+#----------------------------   PROCEDURES
+class Procedimientos_(Instruccion):
+    def __init__(self,Reservada, Nombre,Comand,Alias, Parametros=[], Instrucciones=[], Declaraciones=[], Codigo=[]):
+        self.Reservada     = Reservada  #create or replace
+        self.Nombre        = Nombre
+        self.Comand        = Comand
+        self.Alias         = Alias
+        self.Parametros    = Parametros
+        self.Instrucciones = Instrucciones
+        self.Declaraciones = Declaraciones
+        self.Codigo        = Codigo
+
+
+    def Ejecutar(self):
+        #-------------------------  Instrucciones
+        if (isinstance(self.Instrucciones, list)):
+            sente = self.Codigo.Codigo
+            for i in sente:
+                if isinstance(i, CreateDataBase):
+                    i.Ejecutar()
+                elif isinstance(i, ShowDatabases):
+                    i.Ejecutar()
+                elif isinstance(i, AlterDataBase):
+                    i.Ejecutar()
+                elif isinstance(i, DropDataBase):
+                    i.Ejecutar()
+                elif isinstance(i, CreateTable):
+                    i.Ejecutar()
+                elif isinstance(i, Insert_Datos):
+                    i.Ejecutar()
+                elif isinstance(i, DropTable):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_AddColumn):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_Drop_Column):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_Rename_Column):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_Drop_Constraint):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_table_Add_Foreign_Key):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_Table_Add_Constraint):
+                    i.Ejecutar()
+                elif isinstance(i, Delete_Datos):
+                    i.Ejecutar()
+                elif isinstance(i, Update_Datos):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_COLUMN):
+                    i.Ejecutar()
+                elif isinstance(i, Select):
+                    i.Ejecutar()
+                elif isinstance(i, Select2):
+                    i.Ejecutar()
+                elif isinstance(i, Select3):
+                    i.Ejecutar()
+                elif isinstance(i, SelectExpresion):
+                    i.Ejecutar()
+                elif isinstance(i, CreacionEnum):
+                    i.Ejecutar()
+                elif isinstance(i, Select4):
+                    i.Ejecutar()
+                elif isinstance(i, SubSelect):
+                    i.Ejecutar()
+                elif isinstance(i, SubSelect2):
+                    i.Ejecutar()
+                elif isinstance(i, SubSelect3):
+                    i.Ejecutar()
+                elif isinstance(i, SubSelect4):
+                    i.Ejecutar()
+                elif isinstance(i, Alter_table_Alter_Column_Set):
+                    i.Ejecutar()
+                elif isinstance(i, useClase):
+                    i.Ejecutar()
+                elif isinstance(i, CrearIndice):
+                    i.Ejecutar()
+                elif isinstance(i, AlterIndiceCol):
+                    i.Ejecutar()
+                elif isinstance(i, AlterIndiceName):
+                    i.Ejecutar()
+                elif isinstance(i, DropIndice):
+                    i.Ejecutar()
+                elif isinstance(i, Funciones_):
+                    i.Ejecutar()
+                elif isinstance(i, Procedimientos_):
+                    i.Ejecutar()
+
+                else:
+                    print("NO ejecuta")
+        else:
+            print("Esta vacia ")
+
+
+        #-------------------------  Codigo
+        if isinstance(self.Codigo,Code_Funciones):
+            if(isinstance(self.Codigo.Codigo,list)):
+                sente = self.Codigo.Codigo
+                for i in sente:
+                    if isinstance(i, CreateDataBase):
+                        i.Ejecutar()
+                    elif isinstance(i, ShowDatabases):
+                        i.Ejecutar()
+                    elif isinstance(i, AlterDataBase):
+                        i.Ejecutar()
+                    elif isinstance(i, DropDataBase):
+                        i.Ejecutar()
+                    elif isinstance(i, CreateTable):
+                        i.Ejecutar()
+                    elif isinstance(i, Insert_Datos):
+                        i.Ejecutar()
+                    elif isinstance(i, DropTable):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_AddColumn):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_Drop_Column):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_Rename_Column):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_Drop_Constraint):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_table_Add_Foreign_Key):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_Table_Add_Constraint):
+                        i.Ejecutar()
+                    elif isinstance(i, Delete_Datos):
+                        i.Ejecutar()
+                    elif isinstance(i, Update_Datos):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_COLUMN):
+                        i.Ejecutar()
+                    elif isinstance(i, Select):
+                        i.Ejecutar()
+                    elif isinstance(i, Select2):
+                        i.Ejecutar()
+                    elif isinstance(i, Select3):
+                        i.Ejecutar()
+                    elif isinstance(i, SelectExpresion):
+                        i.Ejecutar()
+                    elif isinstance(i, CreacionEnum):
+                        i.Ejecutar()
+                    elif isinstance(i, Select4):
+                        i.Ejecutar()
+                    elif isinstance(i, SubSelect):
+                        i.Ejecutar()
+                    elif isinstance(i, SubSelect2):
+                        i.Ejecutar()
+                    elif isinstance(i, SubSelect3):
+                        i.Ejecutar()
+                    elif isinstance(i, SubSelect4):
+                        i.Ejecutar()
+                    elif isinstance(i, Alter_table_Alter_Column_Set):
+                        i.Ejecutar()
+                    elif isinstance(i, useClase):
+                        i.Ejecutar()
+                    elif isinstance(i, CrearIndice):
+                        i.Ejecutar()
+                    elif isinstance(i, AlterIndiceCol):
+                        i.Ejecutar()
+                    elif isinstance(i, AlterIndiceName):
+                        i.Ejecutar()
+                    elif isinstance(i, DropIndice):
+                        i.Ejecutar()
+                    elif isinstance(i, Funciones_):
+                        i.Ejecutar()
+                    elif isinstance(i, Procedimientos_):
+                        i.Ejecutar()
+
+                    else:
+                        print("NO ejecuta")
+            else:
+                print("Esta vacia ")
+
+

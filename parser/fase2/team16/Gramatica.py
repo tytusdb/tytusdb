@@ -3277,7 +3277,7 @@ def p_where_in_e(t):
 
 
 def p_AlterIndex(t):
-    'EDITINDEX  :   ALTER INDEX  IFEXISTI  ID ALTER COLE  ENTERO SET STATISTICS  ENTERO  PUNTOCOMA'
+    'EDITINDEX  :   ALTER INDEX  IFEXISTI  ID ALTER COLEMN  ENTERO SET STATISTICS  ENTERO  PUNTOCOMA'
     t[0] = AlterIndiceCol(t[4],t[7],t[10])
 
 
@@ -3297,12 +3297,12 @@ def p_IfExistAlterIndex(t):
 
 #-------------  cole
 
-def p_ColeIndex(t):
-    'COLE   :   COLUMN'
+def p_ColeIndex1(t):
+    'COLEMN   :   COLUMN'
     t[0] = t[1]
 
-def p_ColeIndexEpsilon(t):
-    'CODE   :   '
+def p_ColeIndexEpsilon1(t):
+    'COLEMN   :   '
     t[0]= ""
 
 

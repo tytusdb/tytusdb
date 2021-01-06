@@ -143,13 +143,16 @@ class Ast2:
 
 #----------------------  Alter de los indices
             elif isinstance(i,AlterIndiceCol):
-                self.Grafo_AlterIndexColumna(i,padre)
+                pass
+                #self.Grafo_AlterIndexColumna(i,padre)
 
             elif isinstance(i,AlterIndiceName):
-                self.Grafo_AlterIndexName(i,padre)
+                pass
+                #self.Grafo_AlterIndexName(i,padre)
 
             elif isinstance(i, DropIndice):
-                self.Grafo_DropIndex(i,padre)
+                pass
+                #self.Grafo_DropIndex(i,padre)
             else:
                 print("No es droptable")
 

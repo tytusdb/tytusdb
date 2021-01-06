@@ -1573,7 +1573,6 @@ from expresiones import *
 
 
 class interprete2:
-
     def __init__(self, sentencias):
         self.i = 0
         self.sentencias = sentencias
@@ -1584,6 +1583,7 @@ class interprete2:
 
     def ejecucion(self):
         self.recorrerInstrucciones(self.sentencias)
+
 
     def recorrerInstrucciones(self, sente):
         global ts_global
@@ -1652,6 +1652,11 @@ class interprete2:
                 i.Ejecutar()
             elif isinstance(i, DropIndice):
                 i.Ejecutar()
+            elif isinstance(i, Funciones_):
+                i.Ejecutar()
+            elif isinstance(i, Procedimientos_):
+                i.Ejecutar()
+
             else:
                 print("NO ejecuta")
 
