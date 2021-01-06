@@ -51,7 +51,9 @@ class Simbolo() :
     #tipoind = tipo de indice
     #ordenind = orden del indice
     #columnaind = columna del indice
-    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = "", indicesind = ""):
+    #indicesind = indices que afectan al indice
+    #listacolind = mismos elementos que columnaind pero en una lista
+    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = "", indicesind = "", listacolind = ""):
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -75,6 +77,7 @@ class Simbolo() :
         self.ordenind = ordenind
         self.columnaind = columnaind
         self.indicesind = indicesind
+        self.listacolind = listacolind
 
 
 class Tabla() :

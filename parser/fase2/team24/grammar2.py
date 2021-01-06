@@ -1346,6 +1346,10 @@ def p_parametrosind1(p):
     "parametrosind  :   parind"
     p[0] = p[1]
 
+def p_parametrosind11(p):
+    "parametrosind  :   id id"
+    p[0] = inst.alterind(p[1],p[2])
+
 def p_parind(p):
     "parind :   parind COMA idind"
     p[1].append(p[3])
