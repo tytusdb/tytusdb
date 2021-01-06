@@ -5,6 +5,7 @@ from InterpreteF2.Valor.Valor import Valor
 from InterpreteF2.simbolo import Simbolo
 from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
+from InterpreteF2.Reporteria.ReporteOptimizacion import ReporteOptimizacion
 
 class var_declaracion(NodoArbol):
 
@@ -24,11 +25,99 @@ class var_declaracion(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         if self.exp != None:
-            tmp = self.exp.traducir(entorno, arbol)
+
+            expres = self.exp.traducir(entorno, arbol)
+
+            # modulo de insercion a TS
             val_exp:Valor = self.exp.getValueAbstract(entorno, arbol)
             simbol:Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
-            simbol.setTemp(str(tmp))
+            try:
+                simbol.setTemp(str(expres[0]))
+            except:
+                simbol.setTemp(str(expres))
             entorno.insertar_variable(simbol)
+            # ----------------------------------------------------------------------------------
+
+            # modulo de insercion a TS optimizado
+            try:
+                tmp = str(self.identificador)
+                if str(expres[1]) == '8-12':
+                    arbol.addC3D(tmp + ' = ' + str(expres[0]))
+                    # Regla no. 9 -----------------------------
+                    original = str(tmp) + ' = ' + str(expres[0]) + ' + 0'
+                    optimizado = str(tmp) + ' = ' + str(expres[0])
+                    reportero = ReporteOptimizacion('Regla 12', original, optimizado, str(self.linea),
+                                                    str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '9-13':
+                    arbol.addC3D(tmp + ' = ' + str(expres[0]))
+                    # Regla no. 9 -----------------------------
+                    original = str(tmp) + ' = ' + str(expres[0]) + ' - 0'
+                    optimizado = str(tmp) + ' = ' + str(expres[0])
+                    reportero = ReporteOptimizacion('Regla 13', original, optimizado, str(self.linea),
+                                                    str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '10-14':
+                    arbol.addC3D(tmp + ' = ' + str(expres[0]))
+                    # Regla no. 9 -----------------------------
+                    original = str(tmp) + ' = ' + str(expres[0]) + ' * 1'
+                    optimizado = str(tmp) + ' = ' + str(expres[0])
+                    reportero = ReporteOptimizacion('Regla 14', original, optimizado, str(self.linea),
+                                                    str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '11-15':
+                    arbol.addC3D(tmp + ' = ' + str(expres[0]))
+                    # Regla no. 9 -----------------------------
+                    original = str(tmp) + ' = ' + str(expres[0]) + ' / 1'
+                    optimizado = str(tmp) + ' = ' + str(expres[0])
+                    reportero = ReporteOptimizacion('Regla 15', original, optimizado, str(self.linea),
+                                                    str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '16':
+                    arbol.addC3D(tmp + ' = ' + str(expres[0]) + ' + ' + str(expres[0]))
+                    # Regla no. 16 -----------------------------
+                    original = str(tmp) + ' = ' + str(expres[0]) + ' * 2'
+                    optimizado = str(tmp) + ' = ' + str(expres[0]) + ' + ' + str(expres[0])
+                    reportero = ReporteOptimizacion('Regla 16', original, optimizado, str(self.linea),
+                                                    str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '17':
+                    arbol.addC3D(tmp + ' = 0')
+                    # Regla no. 17 -----------------------------
+                    original = str(tmp) + ' = ' + str(expres[0]) + ' * 0'
+                    optimizado = str(tmp) + ' = 0'
+                    reportero = ReporteOptimizacion('Regla 17', original, optimizado, str(self.linea),
+                                                    str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '18':
+                    arbol.addC3D(tmp + ' = 0')
+                    # Regla no. 18 -----------------------------
+                    original = str(tmp) + ' = 0 / ' + str(expres[0])
+                    optimizado = str(tmp) + ' = 0'
+                    reportero = ReporteOptimizacion('Regla 18', original, optimizado, str(self.linea),
+                                                    str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+            except:
+                pass
+            # ----------------------------------------------------------------------------------
+
+
+
+
         else:
             tmp = arbol.getTemp()
             arbol.addC3D(tmp + " = ''")

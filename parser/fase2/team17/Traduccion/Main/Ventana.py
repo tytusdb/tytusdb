@@ -116,21 +116,36 @@ def analizador():
     my_text1.delete("1.0", END)
 
     try:
+        my_text1.delete("1.0", END)
         cadena = my_text.get("1.0", END)
 
         result: Arbol = AnaParse(cadena)
-
         entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
         entornoCero.NuevoAmbito()
-
+        print(result)
         for item in result.instrucciones:
-            item.execute(entornoCero, result)
+            item.traducir(entornoCero, result)
+        print("C3D generado:")
+        print(result.getC3D())
 
-        consola = ""
-        for item in result.console:
-            consola = consola + item
+        consola = result.getC3D()
+        consola = consola + '\n\n' + result.getC3D_funciones()
+
+        for i in result.ReporteTS:
+            print('Nombre: ' + str(i.nombre))
+            print('Tipo: ' + str(i.tipo))
+            print('----------------------------------------------')
+
+        for i in result.ReporteTS_Funciones:
+            print('Nombre: ' + str(i.nombre))
+            print('Tipo: ' + str(i.tipo))
+            print('Estado: ' + str(i.estado))
+            print('----------------------------------------------')
+        # for item in result.console:
+        #    consola = consola + item
 
         my_text1.insert(END, consola)
+        print('SIntactico realizado con exito')
 
         global arboAux_errores
 
