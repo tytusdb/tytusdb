@@ -1,9 +1,9 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion, IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import  Time
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion, IdId
+from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time import  Time
 import re
 
 class Update(Instruccion):
