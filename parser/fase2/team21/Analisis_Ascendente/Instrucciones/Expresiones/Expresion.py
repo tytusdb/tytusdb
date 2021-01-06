@@ -310,7 +310,7 @@ class Expresion(Exp):
                             return temp
 
             #booleanos
-            elif expre.operador == '<' or expre.operador == '<=' or expre.operador == '>' or expre.operador == '>=' or expre.operador == '==' or expre.operador == '!=':
+            elif expre.operador == '<' or expre.operador == '<=' or expre.operador == '>' or expre.operador == '>=' or expre.operador == '==' or expre.operador == '!=' or expre.operador == '=':
                 if ID == 'IF':
                     if Expresion.esNumero(expre1) and Expresion.esNumero(expre2):
                         print('REGLA 4 o 5')
@@ -327,6 +327,8 @@ class Expresion(Exp):
                             verdadero = expre1 == expre2
                         elif expre.operador == '!=':
                             verdadero = expre1 != expre2
+                        elif expre.operador == '=':
+                            verdadero = expre1 == expre2
                         if verdadero:
                             #regla 4
                             print('regla 4')
@@ -351,6 +353,8 @@ class Expresion(Exp):
 
             if bandera:
                 temp = tv.Temp()
+                if expre.operador == '=':
+                    expre.operador = '=='
                 consola.append(f'\t{temp} = {expre1} {expre.operador} {expre2}\n')
                 return temp
         elif isinstance(expre, Unario):
