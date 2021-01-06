@@ -551,7 +551,7 @@ def p_plpgsql(t):
                 | functions_or_procedures label definitions BEGIN definitions plpgsql_ending
                 | functions_or_procedures BEGIN definitions plpgsql_ending
                 | label BEGIN definitions plpgsql_ending
-                | declare BEGIN definitions plpgsql_ending
+                | definitions BEGIN definitions plpgsql_ending
                 | BEGIN definitions plpgsql_ending
     '''
     if len(t) == 6:
@@ -598,6 +598,20 @@ def p_procedure(t):
                   | CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
                   | CREATE OR REPLACE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
     '''
+    if len(t) == 12:
+        # CREATE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR
+        t[0] = funheader(t[3], t[5], 1, 1)
+    elif len(t) == 14:
+        # CREATE OR REPLACE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR
+        t[0] = funheader(t[5], t[7], 1, 1)
+    if len(t) == 11:
+        # CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
+        t[0] = funheader(t[3], None, 1, 1)
+    elif len(t) == 13:
+        # CREATE OR REPLACE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
+        t[0] = funheader(t[5], None, 1, 1)
+
+
     set('<TR> \n <TD> procedure → CREATE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR | CREATE OR REPLACE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR | CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR | CREATE OR REPLACE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR : </TD> \n <TD>  procedure = procedure(t[2]. t[4]) </TD> \n </TR> \n')
 
 # ================= EXCEPTION =================
@@ -647,8 +661,23 @@ def p_exception_when(t):
 def p_function(t):
     '''
         function : CREATE FUNCTION ID PARIZQ arguments function_ending
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+                 | CREATE FUNCTION ID PARIZQ function_ending
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
     '''
-    t[0] = funheader(t[3], t[5], 1, 1)
+    if len(t) == 7:
+        # CREATE FUNCTION ID PARIZQ arguments function_ending
+        t[0] = funheader(t[3], t[5], 1, 1)
+    elif len(t) == 9:
+        # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+        t[0] = funheader(t[5], t[7], 1, 1)
+    elif len(t) == 6:
+        # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+        t[0] = funheader(t[3], None, 1, 1)
+    elif len(t) == 8:
+        # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+        t[0] = funheader(t[5], None, 1, 1)
+
     set('<TR> \n <TD> function → CREATE FUNCTION ID PARIZQ arguments function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending | CREATE FUNCTION ID PARIZQ function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending : </TD> \n <TD>  function = function(t[2], t[4]) </TD> \n </TR> \n')
 
 def p_function_ending(t):
@@ -986,15 +1015,23 @@ def p_returning(t):
 def p_callfunction(t):
     '''
         callfunction : SELECT ID PARIZQ exp_list PARDER
+                     | SELECT ID PARIZQ PARDER
     '''
-    t[0] = callfunction(t[2], t[4], 1, 1)
+    if len(t) == 6:
+        t[0] = callfunction(t[2], t[4], 1, 1)
+    else:
+        t[0] = callfunction(t[2], None, 1, 1)
     set('<TR> \n <TD> callfunction → SELECT ID PARIZQ exp_list PARDER: </TD> \n <TD> callfunction = call_function(t[2], t[4]) </TD> \n </TR> \n')
 
 def p_callfunction_lappel(t):
     '''
         callfunction : ID PARIZQ exp_list PARDER
+                     | ID PARIZQ PARDER
     '''
-    t[0] = lappel(t[1], t[3], 1, 1)
+    if len(t) == 5:
+        t[0] = lappel(t[1], t[3], 1, 1)
+    else:
+        t[0] = lappel(t[1], None, 1, 1)
     set('<TR> \n <TD> callfunction → SELECT ID PARIZQ exp_list PARDER: </TD> \n <TD> callfunction = call_function(t[2], t[4]) </TD> \n </TR> \n')
 
 # =================  INDEX =================

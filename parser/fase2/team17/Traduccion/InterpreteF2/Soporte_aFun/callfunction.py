@@ -33,15 +33,15 @@ class callfunction(NodoArbol):
         argumentos = ''
         contador = 0
 
-        try:
+        if self.expres == None:
+            pass
+        else:
             for i in self.expres:
                 if contador == 0:
                     argumentos = argumentos + i.getString(entorno, arbol)
                     contador = 1
                 else:
                     argumentos = argumentos + ',' + i.getString(entorno, arbol)
-        except:
-            argumentos = ''
 
         temp = arbol.getTemp()
         arbol.addC3D(temp + ' = ' + str(self.identificador) + '(' + argumentos + ')')

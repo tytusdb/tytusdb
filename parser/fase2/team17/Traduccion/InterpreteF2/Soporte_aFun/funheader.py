@@ -16,8 +16,11 @@ class funheader(NodoArbol):
         pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        for item in self.argumentos:
-            item.traducir(entorno, arbol)
+        if self.argumentos == None:
+            pass
+        else:
+            for item in self.argumentos:
+                item.traducir(entorno, arbol)
         return
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
@@ -35,10 +38,13 @@ class funheader(NodoArbol):
     def getArgumentos(self):
         argumentos = ""
         contador = 0
-        for item in self.argumentos:
-            if contador == 0:
-                argumentos = argumentos + str(item.getID())
-                contador = 1
-            else:
-                argumentos = argumentos + ', ' + str(item.getID())
+        if self.argumentos == None:
+            pass
+        else:
+            for item in self.argumentos:
+                if contador == 0:
+                    argumentos = argumentos + str(item.getID())
+                    contador = 1
+                else:
+                    argumentos = argumentos + ', ' + str(item.getID())
         return argumentos
