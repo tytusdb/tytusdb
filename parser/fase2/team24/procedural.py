@@ -2,7 +2,6 @@ import hashlib
 from InstruccionesDGA import tabla as ts
 import tablaDGA as TAS
 import InstruccionesDGA as dga
-from Interfaz import lista
 funciones = []
 
 class pl():
