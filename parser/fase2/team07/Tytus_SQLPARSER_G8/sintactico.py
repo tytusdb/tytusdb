@@ -27,7 +27,11 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
+<<<<<<< HEAD
 from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias
+=======
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable,condicional_case
+>>>>>>> cbb922da5bf6c2f078b46ee9c7f4b478b225e736
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -2284,22 +2288,24 @@ def p_sentencia_if(t):
 				  | IF expre THEN instrucciones_if condicionesif END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if ELSE  instrucciones_if END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if END IF PUNTO_COMA
-				  | CASE ID condiciones_cuando ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE ID condiciones_cuando ELSE instrucciones_if END CASE PUNTO_COMA
 				  | CASE ID condiciones_cuando END CASE PUNTO_COMA
-				  | CASE condiciones_cuandoB ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB ELSE instrucciones_if END CASE PUNTO_COMA
 				  | CASE condiciones_cuandoB END CASE PUNTO_COMA
 				  | BEGIN instrucciones_if EXCEPTION WHEN l_identificadores THEN instrucciones_if END PUNTO_COMA
 				  | BEGIN instrucciones_if EXCEPTION WHEN sql_states THEN instrucciones_if END PUNTO_COMA
     '''
-    if t[1] == "IF" and  len(t) == 8:
+    if t[1] == "IF" and len(t) == 11:
+        print("Llega")
+        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
+    elif t[1] == "IF" and len(t) == 9:
+        t[0] = condicional_if.IfElseIf(t[2],t[4],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and  len(t) == 8:
         print("Llega")
         t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     elif t[1] == "IF" and len(t) == 10:
         print("Llega")
         t[0] = condicional_if.Ifelse(t[2],t[4],t[6],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "IF" and len(t) == 11:
-        print("Llega")
-        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
 
 def p_instrucciones_if(t):
     ''' 
@@ -2321,8 +2327,8 @@ def p_instruccion_if(t):
 
 def p_condiciones_if(t):
     '''
-condicionesif : condicionesif condicionif
-			  | condicionif
+    condicionesif : condicionesif condicionif
+			      | condicionif
     '''
     if len(t) == 3:
         t[1].append(t[2])
@@ -2332,43 +2338,55 @@ condicionesif : condicionesif condicionif
 
 def p_condicion_if(t):
     '''
-condicionif : ELSIF expre THEN instrucciones_if 
-			| ELSEIF expre THEN instrucciones_if  
+    condicionif : ELSIF expre THEN instrucciones_if 
+			    | ELSEIF expre THEN instrucciones_if  
     '''
     t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     
 def p_condiciones_cuando(t):
     '''
-condiciones_cuando : condiciones_cuando condicion_cuando
-				   | condicion_cuando
+    condiciones_cuando : condiciones_cuando condicion_cuando
+				       | condicion_cuando
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_condicion_cuando(t):
     '''
-condicion_cuando : WHEN l_expresiones THEN instrucciones
+    condicion_cuando : WHEN l_expresiones THEN instrucciones_if
 
     '''
 
 def p_condiciones_cuando_B(t):
     '''
-condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
-					| condicion_cuandoB
+    condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
+					    | condicion_cuandoB
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_condicion_cuando_B(t):
     '''
-condicion_cuandoB ::= WHEN expre THEN instrucciones
+    condicion_cuandoB : WHEN expre THEN instrucciones_if
     '''
+    print("regresando")
+    t[0] = condicional_case.condicion_case(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
 
 def p_sql_states(t):
     '''
-sql_states ::= sql_states OR sql_state
-			 | sql_state
+    sql_states : sql_states OR sql_state
+			   | sql_state
     '''
 
 def p_sql_state(t):
     '''
-sql_state ::= SQLSTATE CADENA
+    sql_state : SQLSTATE CADENA
     '''
 
 def p_identificadores(t):
