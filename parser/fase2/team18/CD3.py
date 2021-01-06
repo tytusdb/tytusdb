@@ -285,7 +285,6 @@ def PInstrFun(inst):
             var+="\t#sentencia case\n"
             var+=txtCase(i)
         elif isinstance(i,Operacion_Expresion):
-            var+="\t#sentencia EXPRESION, Return,Raise y asignacion\n"
             var+=txtExpresion(i)
         elif isinstance(i,Select_Asigacion):
             var+="\t#sentencia select asignacion\n"
@@ -295,8 +294,15 @@ def PInstrFun(inst):
 
 def txtIF(inst):
     var=''
-    varT="t"+str(numT())
-    var+="\t"+varT+"='"+str(inst.condicion)+"'\n"
+    var+="\t#condicion IF\n"
+    mivar=mivar=txtC3dExp(inst.condicion)
+    varT=""
+    if(mivar[1]==''):
+        varT="t"+str(numT())
+        var+="\t"+varT+"="+mivar[0]+"\n"
+    else:
+        var+=mivar[0]+"\n"
+        varT="t"+str(mivar[1])
     var+="\tif("+varT+"):\n"
     var+="\t\tgoto .if"+str(contT)+"\n"
     var+="\telse:\n"
@@ -320,11 +326,255 @@ def txtIF(inst):
     return var
 
 def txtCase(inst):
-    return ""
+    var=""
+    print(inst.busqueda,inst.sentencia_when)
+    if(inst.busqueda!=None):
+        valorB=inst.busqueda.id
+        finCase=contT
+        for wen in inst.sentencia_when:
+            finWen=contT
+            var+="\t#cabecera wen\n"
+            if(wen.condicion!=None):
+                mivar=mivar=txtC3dExp(wen.condicion)
+                varT=""
+                if(mivar[1]==''):
+                    varT="t"+str(numT())
+                    var+="\t"+varT+"="+mivar[0]+"!='"+valorB+"'\n"
+                else:
+                    var+=mivar[0]+"\n"
+                    varT="t"+str(mivar[1])
+                var+="\tif("+varT+"):\n"
+                var+="\t\tgoto.finWen"+str(finWen)+"\n"
+                var+=PInstrFun(wen.sentencias)
+                var+="\tgoto.finCase"+str(finCase)+"\n"
+                var+="\tlabel.finWen"+str(finWen)+"\n"
+            else:
+                var+=PInstrFun(wen.sentencias)
+        var+="\tlabel.finCase"+str(finCase)+"\n"
+    else:
+        finCase=contT
+        for wen in inst.sentencia_when:
+            finWen=contT
+            var+="\t#cabecera wen\n"
+            if(wen.condicion!=None):
+                mivar=mivar=txtC3dExp(wen.condicion)
+                varT=""
+                if(mivar[1]==''):
+                    varT="t"+str(numT())
+                    var+="\t"+varT+"="+mivar[0]+"\n"
+                else:
+                    var+=mivar[0]+"\n"
+                    varT="t"+str(mivar[1])
+                var+="\tif("+varT+"):\n"
+                var+="\t\tgoto.finWen"+str(finWen)+"\n"
+                var+=PInstrFun(wen.sentencias)
+                var+="\tgoto.finCase"+str(finCase)+"\n"
+                var+="\tlabel.finWen"+str(finWen)+"\n"
+            else:
+                var+=PInstrFun(wen.sentencias)
+        var+="\tlabel.finCase"+str(finCase)+"\n"
+
+    return var
 
 def txtExpresion(inst):
-    return ""
+    var=''
+    if(inst.tipo=="return"):
+        var+="\t#Return\n"
+        mivar=txtC3dExp(inst.expresion)
+        if(mivar[1]==''):
+            varT="t"+str(numT())
+            var+="\t"+varT+"="+mivar[0]+"\n"
+        else:
+            var+=mivar[0]+"\n"
+            varT="t"+str(mivar[1])
+        var+="\t#return "+varT+"\n"
+    elif(inst.tipo=="asignacion"):
+        var+="\t#Asignacion\n"
+        mivar=txtC3dExp(inst.expresion)
+        if(mivar[1]==''):
+            #variable
+            varT="t"+str(numT())
+            var+="\t"+str(inst.variable.id)+"="+mivar[0]+"\n"
+        else:
+            varT="t"+str(numT())
+            var+=mivar[0]+"\n"
+            var+="\t"+str(inst.variable.id)+"=t"+str(mivar[1])+"\n"
+    elif(inst.tipo=="raise"):
+        var+="\t#Raise\n"
+        mivar=txtC3dExp(inst.expresion)
+        if(mivar[1]==''):
+            varT="t"+str(numT())
+            var+="\t"+varT+"="+mivar[0]+"\n"
+        else:
+            var+=mivar[0]+"\n"
+            varT="t"+str(mivar[1])
+        var+="\tprint("+varT+");\n"
+    return var
+#generar el codigo de 3 direcciones para una expresion---> a+b+c*1+3..... 
+def txtC3dExp(inst):
+    result=''
+    if isinstance(inst,Operando_ID):
+        txt="'"+str(inst.id)+"'"
+        result=[txt,'']
+    elif isinstance(inst,Operando_Numerico):
+        txt=str(inst.valor)
+        result=[txt,'']
+    elif isinstance(inst,Operando_Cadena):
+        txt="'"+str(inst.valor)+"'"
+        result=[txt,'']
+    elif isinstance(inst,Operacion_Aritmetica):
+        var=numT()
+        simbolo=''
+        a=txtC3dExp(inst.op1)
+        b=txtC3dExp(inst.op2)
+        if(inst.operador==OPERACION_ARITMETICA.MAS):
+            simbolo=" + "
+        elif(inst.operador==OPERACION_ARITMETICA.MENOS):
+            simbolo=" - "
+        elif(inst.operador==OPERACION_ARITMETICA.POR):
+            simbolo=" * "
+        elif(inst.operador==OPERACION_ARITMETICA.DIVIDIDO):
+            simbolo=" / "
+        elif(inst.operador==OPERACION_ARITMETICA.POTENCIA):
+            simbolo=" ^ "
+        elif(inst.operador==OPERACION_ARITMETICA.MODULO):
+            simbolo=" % "
 
+
+        if(a[1]==''):
+            txt="\tt"+str(var)+"="+a[0]+simbolo
+        else:
+            txt2=a[0]+"\n"
+            txt="\tt"+str(var)+"="+"t"+str(a[1])+simbolo
+            txt=txt2+txt
+
+        if(b[1]==''):
+            txt+=b[0]
+        else:
+            txt2=b[0]+"\n"
+            txt+="t"+str(b[1])
+            txt=txt2+txt
+        result=[txt,var]
+    elif isinstance(inst,Operacion_Relacional) or isinstance(inst,Operacion_Logica_Binaria):
+        var=numT()
+        simbolo=''
+        a=txtC3dExp(inst.op1)
+        b=txtC3dExp(inst.op2)
+        if(inst.operador==OPERACION_RELACIONAL.IGUAL):
+            simbolo=" == "
+        elif(inst.operador==OPERACION_RELACIONAL.DIFERENTE):
+            simbolo=" != "
+        elif(inst.operador==OPERACION_RELACIONAL.MAYORIGUALQUE):
+            simbolo=" >= "
+        elif(inst.operador==OPERACION_RELACIONAL.MENORIGUALQUE):
+            simbolo=" <= "
+        elif(inst.operador==OPERACION_RELACIONAL.MAYOR_QUE):
+            simbolo=" > "
+        elif(inst.operador==OPERACION_RELACIONAL.MENOR_QUE):
+            simbolo=" < "
+        elif(inst.operador==OPERACION_LOGICA.AND):
+            simbolo=" and "
+        elif(inst.operador==OPERACION_LOGICA.OR):
+            simbolo=" or "
+
+        if(a[1]==''):
+            txt="\tt"+str(var)+"="+a[0]+simbolo
+        else:
+            txt2=a[0]+"\n"
+            txt="\tt"+str(var)+"="+"t"+str(a[1])+simbolo
+            txt=txt2+txt
+
+        if(b[1]==''):
+            txt+=b[0]
+        else:
+            txt2=b[0]+"\n"
+            txt+="t"+str(b[1])+"\n"
+            txt=txt2+txt
+        result=[txt,var]
+    else:
+        txt="'"+str(inst)+"'"
+        result=[txt,'']
+    result[0]=filtroC3DExp(result[0])
+    return result
+    
+def filtroC3DExp(cadena):
+    listEx=[]
+    listEx=cadena.split(sep='\n')
+    newList=[]
+    for exp in listEx:
+        listAux=[]
+        #filtro asignacion
+        listAux=exp.split(sep='=')
+        #reglas suma
+        if " + " in exp and len(listAux)==2:
+            auxVal=[]
+            auxVal=listAux[1].split(sep=' + ')
+            #regla 12
+            if(auxVal[0]=='0'):
+                regla="12 se elimina el valor 0"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[1]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
+            elif(auxVal[1]=='0'):
+                regla="12 se elimina el valor 0"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[0]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
+            else:
+                newList.append(exp)
+        #reglas multi
+        elif " * " in exp and len(listAux)==2:
+            auxVal=[]
+            auxVal=listAux[1].split(sep=' * ')
+            #regla 17
+            if(auxVal[0]=='0'):
+                newList.append(listAux[0]+"="+auxVal[0])
+            elif(auxVal[1]=='0'):
+                newList.append(listAux[0]+"="+auxVal[1])
+            #regla 14
+            elif(auxVal[0]=='1'):
+                newList.append(listAux[0]+"="+auxVal[1])
+            elif(auxVal[1]=='1'):
+                newList.append(listAux[0]+"="+auxVal[0])
+            #regla 16
+            elif(auxVal[0]=='2'):
+                newList.append(listAux[0]+"="+auxVal[1]+" + "+auxVal[1])
+            elif(auxVal[1]=='2'):
+                newList.append(listAux[0]+"="+auxVal[0]+" + "+auxVal[0])
+            
+            else:
+                newList.append(exp)
+        #reglas resta
+        elif " - " in exp and len(listAux)==2:
+            auxVal=[]
+            auxVal=listAux[1].split(sep=' - ')
+            #regla 13
+            if(auxVal[0]=='0'):
+                newList.append(listAux[0]+"="+auxVal[1])
+            elif(auxVal[1]=='0'):
+                newList.append(listAux[0]+"="+auxVal[0])
+            else:
+                newList.append(exp)
+        #reglas multi 
+        else:
+            newList.append(exp)
+    res=""
+    finfor=0
+    for sal in newList:
+        finfor+=1
+        if len(newList)>finfor:
+            res+=sal+"\n"
+        else:
+            res+=sal
+    if(res==""):
+        res=cadena
+
+    print("Salida antigua\n",cadena)
+    print("Salida nueva\n",res)
+
+    return res
 def txtSelectAsig(inst):
     return ""
 
@@ -857,6 +1107,15 @@ def ExcuteFun():
         listaMemoria.pop(0)
     return result
 
+def ExecuteProc2():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    result=False
+    if(len(listaMemoria)>0):
+        result=listaMemoria[0]
+        listaMemoria.pop(0)
+    return result
+
 def ECantidadRegistros():
     cargarMemoria()
     #llamar la funcion de EDD
@@ -879,6 +1138,7 @@ def ECreateProcedure():
     cargarMemoria()
     if(len(listaMemoria)>0):
         crea=listaMemoria[0]
+        print(crea)
         print("Procedure ",crea[0])
         print("\tparametros:",crea[3])
         listaMemoria.pop(0)
