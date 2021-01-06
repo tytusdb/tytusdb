@@ -1,3 +1,4 @@
+import hashlib
 import switchMode as switch
 
 class main():
@@ -5,12 +6,10 @@ class main():
         #self.godGuide2 = {}
         self.godGuide = {'avl': {}, 'b': {}, 'bplus': {}, 'dict': {}, 'isam': {}, 'json': {}, 'hash': {}}
         self.guiaModos = {}
-        self.DB = {}
         self.listMode = ['avl', 'hash', 'b', 'bplus', 'dict', 'isam', 'json']
         self.listEncoding = ['ascii', 'iso-8859-1', 'utf8']
-        
 
-    #---------------------FUNCIONES BASES DE DATOS (NUEVAS)----------------------#
+    #---------------------FUNCIONES DE UNIFICACION DE MODOS DE ALMACENAMIENTO----------------------#
 
     # CREAR BASE DE DATOS
 
@@ -30,6 +29,8 @@ class main():
                 return 2
             return 3
         return 1
+
+    # ---------------------FUNCIONES DE ADMINISTRACION DEL MODO DE ALMACENAMIENTO----------------------#
 
     # CAMBIA EL MODO DE UNA TABLA
     
@@ -108,6 +109,73 @@ class main():
                 return 2
             return 4
         return 1
+
+    # ---------------------FUNCIONES DE ADMINISTRACION DE INDICES----------------------#
+
+    # ---------------------FUNCIONES DE ADMINISTRACION DE LA CODIFICACION----------------------#
+
+    # ---------------------FUNCIONES DE GENERACION DEL CHECKSUM----------------------#
+
+    # GENERA EL CHECKSUM DE TODAS LAS TABLAS DE UNA BASE DE DATOS
+
+    def checksumDatabase(self, database, mode):
+        modos = ['MD5', 'SHA256']
+        tablas = self.showTables(database)
+        tuplas = []
+        tmp = ""
+        try:
+            if mode not in modos:
+                return None
+            for i in tablas:
+                for j in self.extractTable(database, i):
+                    tuplas.append(j)
+            for i in tuplas:
+                for j in i:
+                    tmp += str(j)
+            for i in self.listMode:
+                if database in self.godGuide[i].keys():
+                    encoding = self.godGuide[i][database][1]
+            if mode == 'MD5':
+                hash = hashlib.md5(tmp.encode(encoding))
+            elif mode == 'SHA256':
+                hash = hashlib.sha256(tmp.encode(encoding))
+            hash = hash.hexdigest()
+            print(tmp)
+            return hash
+        except:
+            return None
+
+    # GENERA EL CHECKSUM DE UNA TABLA EN ESPECIFICO
+
+    def checksumTable(self, database, table, mode):
+        modos = ['MD5', 'SHA256']
+        tmp = ""
+        try:
+            if mode not in modos:
+                return None
+            for i in self.listMode:
+                for j in self.godGuide[i].keys():
+                    if table in self.godGuide[i][j][0].keys() and j == database:
+                        encoding = self.godGuide[i][j][0][table][2]
+            tuplas = self.extractTable(database, table)
+            for i in tuplas:
+                for j in i:
+                    tmp += str(j)
+            if mode == 'MD5':
+                hash = hashlib.md5(tmp.encode(encoding))
+            elif mode == 'SHA256':
+                hash = hashlib.sha256(tmp.encode(encoding))
+            hash = hash.hexdigest()
+            print(tmp)
+            return hash
+        except:
+            return None
+
+    # ---------------------FUNCIONES DE COMPRESION DE DATOS----------------------#
+
+    # ---------------------FUNCIONES DE SEGURIDAD----------------------#
+
+    # ---------------------FUNCIONES DE GRAFOS----------------------#
     
     #---------------------FUNCIONES BASES DE DATOS (ANTERIORES)----------------------#
 
@@ -161,9 +229,8 @@ class main():
         re = switch.switchMode(self.guiaModos[database]).createTable(database, table, numberColumns)
         if re == 0:
             mod = self.guiaModos[database]
-            self.godGuide[mod][database][0][table] = [numberColumns, None, self.godGuide[self.guiaModos[database]][database][1]]
+            self.godGuide[mod][database][0][table] = [numberColumns, None, self.godGuide[self.guiaModos[database]][database][1], False]
         return re
-       
 
     # LISTA DE TABLAS AGREGADAS A UNA BASE DE DATOS
 
@@ -340,6 +407,16 @@ class main():
                 return False
         return False
 
+    def verifyMode(self, mode):
+        if mode in self.listMode:
+            return True
+        return False
+
+    def verifyEncoding(self, encoding):
+        if encoding in self.listEncoding:
+            return True
+        return False
+
     def searchDB(self, key, mode):
         if key in switch.switchMode(mode).showDatabases():
             return True
@@ -370,13 +447,3 @@ class main():
                 if table in switch.switchMode(i).showTables(j):
                     switch.switchMode(i).dropTable(j, table)
                     return None
-
-    def verifyMode(self, mode):
-        if mode in self.listMode:
-            return True
-        return False
-
-    def verifyEncoding(self, encoding):
-        if encoding in self.listEncoding:
-            return True
-        return False
