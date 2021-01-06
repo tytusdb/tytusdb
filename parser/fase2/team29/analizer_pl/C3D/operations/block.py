@@ -1,10 +1,10 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.abstract.environment import Environment
 
 
-class Block(Expression):
+class Block(Instruction):
     def __init__(
         self, function, declaration, blocks, exception, label, row, column
     ) -> None:
@@ -16,12 +16,12 @@ class Block(Expression):
         self.label = label
 
     def execute(self, environment):
-        newEnv = Environment()
+        newEnv = Environment(environment)
         decl = ""
         bl = ""
-        self.function.execute(newEnv)
+        defFunc = self.function.execute(newEnv).value
         for d in self.declaration:
             decl += d.execute(newEnv).value
         for b in self.blocks:
             bl += b.execute(newEnv).value
-        return code.C3D(decl + bl, "block", self.row, self.column)
+        return code.C3D(defFunc + decl + bl + "\n", "block", self.row, self.column)

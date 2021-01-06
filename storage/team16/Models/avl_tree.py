@@ -112,17 +112,15 @@ class AVLTree:
                     node.content = tmp.content
 
                     if tmp.left:
-                        tmp2 = tmp.left
-                        tmp.index = tmp2.index
-                        tmp.content = tmp2.content
-                        tmp.left = tmp2.left
-                        tmp.right = tmp2.right
+                        tmp = self.exchange(tmp, tmp.left)
                     else:
                         if first:
                             up.left = None
                         else:
                             up.right = None
                 else:
+                    if node.right:
+                        return self.exchange(node, node.right)
                     return None
             elif node.index < index:
                 node.right = self.__delete(index, node.right)
@@ -161,6 +159,14 @@ class AVLTree:
         else:
             return node, up
 
+    @staticmethod
+    def exchange(node, new):
+        node.index = new.index
+        node.content = new.content
+        node.left = new.left
+        node.right = new.right
+        return node
+
     def __balance(self, node):
         if node:
             if node.left:
@@ -172,10 +178,10 @@ class AVLTree:
             if abs(self.difference(node, 'r')) == 2:
                 if self.height(node.left) > self.height(node.right):
                     node = self.__DR(node, 'l') if self.height(node.left.left) < \
-                                                   self.height(node.left.right) else self.__SR(node, 'l')
+                        self.height(node.left.right) else self.__SR(node, 'l')
                 else:
                     node = self.__DR(node, 'r') if self.height(node.right.left) > \
-                                                   self.height(node.right.right) else self.__SR(node, 'r')
+                        self.height(node.right.right) else self.__SR(node, 'r')
             return node
 
     # endregion
@@ -192,10 +198,10 @@ class AVLTree:
     def difference(self, node, first):
         if first == 'l':
             return self.height(node.left) - \
-                   self.height(node.right)
+                self.height(node.right)
         else:
             return self.height(node.right) - \
-                   self.height(node.left)
+                self.height(node.left)
 
     def greater(self, left, right):
         left = self.height(left)

@@ -192,19 +192,19 @@ class MainWindow(object):
             report_ast = result2
 
             # ---------- TEST ---------
-            # for inst in result:
-            #     # esto es por los select anidados (subquerys), no encontre otra menera
-            #     # de retornar la tabla dibujada, lo hacia en mi clase
-            #     # pero si lo dejaba ahi me tronaban las subquery,
-            #     # prueben que no les de problema
-            #     if isinstance(inst, Select):
-            #         result = inst.process(0)
-            #         if isinstance(result, DataFrame):
-            #             DataWindow().consoleText(format_df(result))
-            #         elif isinstance(result, list):
-            #             DataWindow().consoleText(format_table_list(result))
-            #     else:
-            #         inst.process(0)
+            for inst in result:
+                # esto es por los select anidados (subquerys), no encontre otra menera
+                # de retornar la tabla dibujada, lo hacia en mi clase
+                # pero si lo dejaba ahi me tronaban las subquery,
+                # prueben que no les de problema
+                if isinstance(inst, Select):
+                    result = inst.process(0)
+                    if isinstance(result, DataFrame):
+                        DataWindow().consoleText(format_df(result))
+                    elif isinstance(result, list):
+                        DataWindow().consoleText(format_table_list(result))
+                else:
+                    inst.process(0)
             # ---------- TEST ---------
 
     def generar_tac(self):

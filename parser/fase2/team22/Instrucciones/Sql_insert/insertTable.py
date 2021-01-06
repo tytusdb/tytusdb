@@ -59,6 +59,7 @@ class insertTable(Instruccion):
 
                     # Recorrido para insertar
                     for c in range(0,len(listaColumnas)):
+                        print("==>", self.lexpre[c])
                         res = self.lexpre[c].ejecutar(tabla, arbol)
                         if isinstance(res, Excepcion):
                             return res
@@ -188,7 +189,8 @@ class insertTable(Instruccion):
                         return error
                     tablaLocal = Tabla(tabla)
                     for c in range(0,len(objetoTabla.lista_de_campos)):
-                        res = self.lexpre[c].ejecutar(tabla, arbol)
+                        if self.lexpre[c] != None:
+                            res = self.lexpre[c].ejecutar(tabla, arbol)
                         if isinstance(res, Excepcion):
                             return res
                         if objetoTabla.lista_de_campos[c].constraint != None:
@@ -217,7 +219,8 @@ class insertTable(Instruccion):
                                         arbol.consola.append(error.toString())
                                         return error
                         # Comprobación de que el tipo sea el mismo
-                        comprobar = self.comprobarTipo(objetoTabla.lista_de_campos[c].tipo,self.lexpre[c].tipo, res, arbol)
+                        if self.lexpre[c] != None:
+                            comprobar = self.comprobarTipo(objetoTabla.lista_de_campos[c].tipo,self.lexpre[c].tipo, res, arbol)
                         if isinstance(comprobar, Excepcion):
                             return comprobar
                         if comprobar:
@@ -402,6 +405,12 @@ class insertTable(Instruccion):
             if not isinstance(result, list):
                 t1 = c3d.getTemporal()
                 code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(result) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                '''if col != None:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(col.generar3D(tabla, arbol)) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+                if contador != sizeCol:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))'''
                 t0 = t1
                 t1 = c3d.getTemporal()
             else:

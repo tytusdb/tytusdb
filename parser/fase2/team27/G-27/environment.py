@@ -1,4 +1,5 @@
 tempCount = 0 #Contador de temporales para su generación
+labelCount = 0 #Contador de etiquetas para su generación
 entorno = 0 #Contador de entorno
 temporales ={} #Diccionario en el que se almacena [id:temporal] 
 funciones = []#Diccionario para metadata de las funciones

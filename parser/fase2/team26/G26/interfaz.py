@@ -42,21 +42,11 @@ def analisis():
 
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
-
-    try:
-        f = open("./Utils/tabla.txt", "r")
-        text = f.read()
-        f.close()
-        text = text.replace('\'','"')
-        text = text.replace('False','"False"')
-        text = text.replace('None','""')
-        text = text.replace('True','"True"')
-        datos.reInsertarValores(json.loads(text))
-    except:
-        print('error')
     
     #g2.tempos.restartTemp() #reinicia el contador de temporales.
     prueba = g2.parse(texto)
+
+
     #print(prueba['text'])
 
     exepy = '''
@@ -65,21 +55,43 @@ from goto import with_goto
 import gramatica as g
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
+import Instrucciones.DML.select as select
 
 storage.dropAll()
 
 heap = []
 
-datos = l.Lista({}, '') 
+datos = l.Lista({}, '')
+l.readData(datos)
 '''
     exepy += '''
 #funcion intermedia    
 def mediador():
     global heap
-    # Analisis sintactico
+   # Analisis sintactico
     instrucciones = g.parse(heap.pop())
     for instr in instrucciones['ast'] :
-        print(instr.execute(datos))
+        if isinstance(instr, select.Select) :
+            val = instr.execute(datos)
+            try:
+                print(val)
+                if len(val.keys()) > 1 :
+                    print('El numero de columnas retornadas es mayor a 1')
+                    return 0
+                for key in val:
+                    if len(val[key]['columnas']) > 1 :
+                        print('El numero de filas retornadas es mayor a 1')
+                    else :
+                        return val[key]['columnas'][0][0]
+                    break
+            except:
+                return 0
+            
+
+        else :
+            print(instr.execute(datos))
+
+    l.writeData(datos)
 '''
 
     exepy += '''
@@ -90,7 +102,7 @@ def mediador():
 
     exepy += '''
 #main
-#@with_goto
+@with_goto
 def main():
     global heap
 '''
@@ -107,6 +119,18 @@ if __name__ == "__main__":
     f.write(exepy)
     f.close()
 
+    '''try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        f.close()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
+        datos.reInsertarValores(json.loads(text))
+    except:
+        print('error')
+
     instrucciones = g.parse(texto)
     erroresSemanticos = []
 
@@ -115,19 +139,6 @@ if __name__ == "__main__":
     except:
         print("")
 
-    '''try:
-        f = open("./Utils/tabla.txt", "r")
-        text = f.read()
-        text = text.replace('\'','"')
-        text = text.replace('False','"False"')
-        text = text.replace('None','""')
-        text = text.replace('True','"True"')
-
-        print(text)
-        datos.reInsertarValores(json.loads(text))
-        print(str(datos))
-    except:
-        print('error')'''
     for instr in instrucciones['ast'] :
 
             if instr != None:
@@ -152,7 +163,7 @@ if __name__ == "__main__":
     erroresSemanticos.clear()
 
     reporteTabla()
-    del instrucciones
+    del instrucciones'''
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
 
 def Rerrores(errores, semanticos):
