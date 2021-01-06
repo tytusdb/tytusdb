@@ -57,7 +57,7 @@ class Pantalla:
         frame_btn.pack()
         # Creacion del notebook
         self.tabControl = ttk.Notebook(self.window, width=650, height=300)
-        console_frame = Frame(self.tabControl, height=20, width=150, bg="#d3d3d3")
+        console_frame = Frame(self.tabControl, height=20, width=150, bg="#d3d3d3")  
         self.text_Consola = tk.Text(console_frame, height=20, width=150)
         self.text_Consola.pack(fill=BOTH)
         console_frame.pack(fill=BOTH)
@@ -119,8 +119,8 @@ class Pantalla:
         entrada = self.txt_entrada.get(
             "1.0", END
         )  # variable de almacenamiento de la entrada
-        result = interpreter.execution(entrada)
         result_c3d = interpreter.getc3d(entrada)
+        result = interpreter.execution(entrada)
         self.lexicalErrors = result["lexical"]
         self.syntacticErrors = result["syntax"]
         self.semanticErrors = result["semantic"]

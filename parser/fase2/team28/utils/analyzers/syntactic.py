@@ -24,7 +24,7 @@ from utils.analyzers.lex import *
 
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
-from models.procedural.clases import BodyDeclaration
+from models.procedural.clases import BodyDeclaration, ReturnFuncProce
 from models.procedural.if_statement import If,anidarIFs
 
 
@@ -95,6 +95,7 @@ def p_sql_instruction(p):
     p[0] = p[1]
     if p.slice[1].type != "error":
         contador_instr += 1
+    print("STRING PARA PASARLO: \n" + p[0]._tac)
 
 
 def p_use_statement(p):
@@ -116,7 +117,7 @@ def p_ddl(p):
 def p_create_statement(p):
     '''createstatement : CREATE optioncreate SEMICOLON'''
     p[0] = p[2]
-
+    p[0]._tac = f'CREATE {p[2]._tac};'
 
 def p_option_create(p):
     '''optioncreate : TYPE SQLNAME AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS
@@ -131,18 +132,36 @@ def p_option_create(p):
     if len(p) == 8:
         p[0] = CreateType(p[2], p[6], generateC3D(p))
 
+        string = ''
+        for index, var in enumerate(p[6]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f"TYPE {p[2]._tac} AS ENUM ({string})"
+        
     elif len(p) == 3:
         p[0] = CreateDB(p[2], False, generateC3D(p), noLine, noColumn)
-
+        p[0]._tac = f"DATABASE {p[2]['_tac']} "
     elif len(p) == 5:
         p[0] = CreateDB(p[4], True, generateC3D(p), noLine, noColumn)
+        p[0]._tac = f"OR REPLACE DATABASE {p[2]['_tac']} "
 
     elif len(p) == 6:
         p[0] = CreateTB(p[2], p[4], None, generateC3D(p))
+        string = ''
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f"TABLE {p[2]._tac} ({string}) "
 
     elif len(p) == 10:
         p[0] = CreateTB(p[2], p[4], p[8], generateC3D(p))
-
+        string = ''
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+        p[0]._tac = f"TABLE {p[2]._tac} ({string}) INHERITS ({p[8]})"
 
 def p_type_list(p):
     '''typelist : typelist COMMA SQLNAME
@@ -161,24 +180,27 @@ def p_create_db(p):
                 | ID listpermits
                 | ID 
     '''
-    p[0] = {'if_not_exists': False, 'id': None, 'listpermits': []}
+    p[0] = {'if_not_exists': False, 'id': None, 'listpermits': [], '_tac': ''}
 
-    if len(p) == 6:
+    if len(p) == 6: #IF NOT EXISTS ID listpermits
         p[0]['if_not_exists'] = True
         p[0]['id'] = p[4]
         p[0]['listpermits'] = p[5]
+        p[0]['_tac'] = f'IF NOT EXISTS {p[4]} {p[5]._tac}'
 
-    elif len(p) == 5:
+    elif len(p) == 5: #IF NOT EXISTS ID
         p[0]['if_not_exists'] = True
         p[0]['id'] = p[4]
+        p[0]['_tac'] = f'IF NOT EXISTS {p[4]}'
 
-    elif len(p) == 3:
+    elif len(p) == 3: #ID listpermits
         p[0]['id'] = p[1]
         p[0]['listpermits'] = p[2]
+        p[0]['_tac'] = f'{p[1]} {p[2]._tac}'
 
-    else:
+    else: #ID
         p[0]['id'] = p[1]
-
+        p[0]['_tac'] = f'{p[1]}'
 
 def p_list_permits(p):
     '''listpermits : listpermits permits
@@ -201,13 +223,17 @@ def p_permits(p):
     if p[1].lower() == 'MODE'.lower():
         if len(p) == 4:
             p[0] = {'MODE': p[3]}
+            p[0] =  f'OWNER = {p[3]}'
         else:
             p[0] = {'MODE': p[2]}
+            p[0] =  f'OWNER {p[2]}'
     else:
         if len(p) == 4:
             p[0] = {'OWNER': p[3]}
+            p[0] =  f'MODE = {p[3]}'
         else:
             p[0] = {'OWNER': p[2]}
+            p[0] =  f'MODE {p[2]}'
 
 
 def p_columns_table(p):
@@ -221,7 +247,6 @@ def p_columns_table(p):
     else:
         p[0] = [p[1]]
 
-
 def p_column(p):
     '''column : ID typecol optionscollist
               | ID typecol
@@ -234,6 +259,7 @@ def p_column(p):
 
     if len(p) == 4:
         p[0] = CreateCol(p[1], p[2], p[3])
+        p[0]._tac = f'{p[1]} {p[2]._tac} {p[3]._tac}'
 
     elif len(p) == 3:
         p[0] = CreateCol(p[1], p[2], [{
@@ -246,22 +272,31 @@ def p_column(p):
             'pk_option': None,
             'fk_references_to': None
         }])
+        p[0]._tac = f'{p[1]} {p[2]._tac} '
 
     elif len(p) == 5:
         if p[1].lower() == 'UNIQUE'.lower():
             p[0] = Unique(p[3])
+            p[0]._tac = f'UNIQUE ({p[3]._tac})'
 
         else:  # CHECK
             p[0] = Check(p[3])
+            p[0]._tac = f'CHECK ({p[3]._tac})'
 
     elif len(p) == 6:
         p[0] = PrimaryKey(p[4])
-
+        string = ''
+        for index, var in enumerate(p[9]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+        p[0]._tac = f'PRIMARY KEY ({p[4]._tac}) REFERENCES {p[7]}({string})'
     elif len(p) == 11:
         p[0] = ForeignKey(p[4], p[7], p[9])
+        p[0]._tac = f'FOREIGN KEY ({p[4]._tac})'
 
     elif len(p) == 7:
         p[0] = Constraint(p[2], p[5])
+        p[0]._tac = f'CONSTRAINT {p[2]} ({p[5]._tac})'
 
 
 def p_type_col(p):
@@ -370,11 +405,30 @@ def p_type_col(p):
         else:
             p[0] = ColumnTipo(ColumnsTypes.VARCHAR, None, None)
 
-    #dataType = ''
-    # for i in range(1, len(p)):
-    #    dataType += str(p[i])
-    #p[0] = dataType
 
+    if len(p) == 2:
+        p[0]._tac = p[1].upper()
+    
+    elif p.slice[3].type == "VARYING":
+        if len(p) == 3:
+            p[0]._tac = 'CHARACTER VARYING'
+        else:
+            p[0]._tac = f'CHARACTER VARYING ({p[4]})'
+
+    elif p.slice[2].type == "INTERVAL":
+        p[0]._tac = f'INTERVAL {p[3]._tac}'
+
+    elif p.slice[2].type == "DOUBLE":
+        p[0]._tac = 'DOUBLE PRECISION'
+
+    elif len(p) == 5:
+        p[0]._tac = f'{p[1].upper()}({p[3]})'
+
+    elif len(p) == 7:
+        p[0]._tac = f'{p[1].upper()}({p[3]}, {p[5]})'
+
+
+#TODO: TIPOS CON MAS PARAMETROS
 
 def p_options_col_list(p):
     '''optionscollist : optionscollist optioncol
@@ -972,14 +1026,28 @@ def p_assignation_symbol(p):
 #El tercero es un cuerpo
 def p_staments(p):
     '''STATEMENTS : OPTIONS_STATEMENTS RETURN PLPSQL_EXPRESSION SEMICOLON
+                  | OPTIONS_STATEMENTS RETURN SEMICOLON
                   | RETURN PLPSQL_EXPRESSION SEMICOLON 
+                  | RETURN SEMICOLON 
                   | OPTIONS_STATEMENTS
 
     '''
     if p.slice[1].type == "OPTIONS_STATEMENTS":
+        if len(p) == 4:     #segunda produccion
+            p[1].append(ReturnFuncProce(None))
+        elif len(p) == 2:
+            pass
+        else:               #primera produccion
+            p[1].append(ReturnFuncProce(p[3]))
+
         p[0] = p[1]
 
-
+    elif p.slice[1].type == "RETURN":
+        if len(p) == 3:     #tercera produccion
+            p[0] = ReturnFuncProce(None)
+        else:               #cuarta produccion
+            p[0] = ReturnFuncProce(p[2])
+    
 
 def p_options_statements(p):
     '''OPTIONS_STATEMENTS : OPTIONS_STATEMENTS statementType
@@ -1008,7 +1076,10 @@ def p_statement_type(p):
                     |  DML
                     | CALL_FUNCTIONS_PROCEDURE SEMICOLON
     '''
-    p[0] = p[1]
+    if len(p) == 4:
+        p[0] = [p[1],p[2],p[3]]
+    else:
+        p[0] = p[1]
 
 #TODO: CONCAT
 def p_plpsql_expression(p):
@@ -1185,7 +1256,7 @@ def p_dml(p):
            | UPDATESTATEMENT'''
     p[0] = p[1]
 
-
+#TODO: OBTENER STRING
 def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
@@ -1193,6 +1264,7 @@ def p_update_statement(p):
     if(len(p) == 8):
         p[0] = Update(p[2], p[5], p[6], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        p[0] = f'UPDATE ID {p[3]._tac} SET ;'
     elif(len(p) == 7):
         p[0] = Update(p[2], p[4], p[5], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
@@ -1287,9 +1359,14 @@ def p_delete_statement(p):
     if (len(p) == 6):
         p[0] = Delete(p[3], p[4], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        string = ''
+        for val in p[4]:
+            string += val._tac
+        p[0]._tac = f'DELETE FROM {p[3]} {string};'
     else:
         p[0] = Delete(p[3], None, generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'DELETE FROM {p[3]};'
 
 
 def p_options_list(p):
@@ -1329,18 +1406,28 @@ def p_options1(p):
     '''OPTIONS1 : ASTERISK SQLALIAS
                 | ASTERISK
                 | SQLALIAS'''
-    if(len(p) == 2):
+    if(len(p) == 3):
         p[0] = Opt1(True, p[2])
+
+        p[0]._tac = f'* {p[2]._tac}'
     else:
         if(p[1] == "*"):
             p[0] = Opt1(True, None)
+            p[0]._tac = f'* '
+
         else:
             p[0] = Opt1(False, p[2])
+            p[0]._tac = f'{p[2]._tac} '
 
 
 def p_options2(p):
     '''OPTIONS2 : USING USINGLIST'''
     p[0] = Using(p[2])
+    string = ''
+    for index, var in enumerate(p[2]):
+        if index > 0: string += f', {var._tac}'
+        else: string += f'{var._tac}'
+    p[0]._tac = f'USING {string}'
 
 
 def p_using_list(p):
@@ -1352,15 +1439,16 @@ def p_using_list(p):
     else:
         p[0] = [p[1]]
 
-# def p_options3(p):
-#     '''OPTIONS3 : WHERE SQLEXPRESSION'''
-#     p[0] = Where(p[2]) --------> GRAMATICA SE REPITE
-
-
 def p_options4(p):
     '''OPTIONS4 : RETURNING RETURNINGLIST'''
     p[0] = Returning(p[2])
-
+    string = ''
+    if type(p[2]) is list:
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+    else: string = '* '
+    p[0]._tac = f'RETURNING {string}'
 
 def p_returning_list(p):
     '''RETURNINGLIST   : ASTERISK
@@ -1377,17 +1465,33 @@ def p_returning_expression(p):
     else:
         p[0] = [p[1]]
 
-
 def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
     if(len(p) == 12):
         p[0] = Insert(p[3], p[5], p[9], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        string = ''
+        string1 = ''
+        #LISTPARAMSINSERT
+        for index, var in enumerate(p[5]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+        #LISTVALUESINSERT
+        for index, var in enumerate(p[9]):
+            if index > 0: string1 += f', {var._tac}'
+            else: string1 += f'{var._tac}'
+
+        p[0]._tac = f'INSERT INTO {p[3]._tac} ({string}) VALUES ({string1});'
     else:
         p[0] = Insert(p[3], None, p[6], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        #LISTVALUESINSERT
+        for index, var in enumerate(p[6]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
 
+        p[0]._tac = f'INSERT INTO {p[3]._tac} VALUES ({string});'
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
@@ -1620,7 +1724,7 @@ def p_limit_types(p):
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
     p[0] = Where(p[2])
-
+    p[0]._tac = f'WHERE {p[2]._tac}'
 
 def p_group_by_clause(p):
     '''GROUPBYCLAUSE : GROUP BY SQLEXPRESSIONLIST'''
@@ -2233,7 +2337,8 @@ def p_sql_name(p):
                              p.lineno(1), find_column(p.slice[1]))
     else:
         p[0] = Identifiers(p[1], p.lineno(1), find_column(p.slice[1]))
-
+        
+    p[0]._tac = f'{p[1]}'
 
 def p_type_select(p):
     '''TYPESELECT : ALL

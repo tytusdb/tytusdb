@@ -1,19 +1,30 @@
 from analizer_pl.abstract import instruction
+from analizer_pl.statement.expressions import code
 
 
 class CreateIndex(instruction.Instruction):
-    def __init__(self, unique, idIndex, idTable, usingMethod, whereCl, optList=[]):
+    def __init__(
+        self, unique, idIndex, idTable, usingMethod, whereCl, row, column, optList
+    ):
+        super().__init__(row, column)
         self.unique = unique
         self.idIndex = idIndex
         self.idTable = idTable
         self.optList = optList
         self.whereCl = whereCl
         self.usingMethod = usingMethod
-        if not idIndex:
-            idIndex = "index_" + idTable
-            for l in optList:
-                idIndex += "_" + l[0]
-            self.idIndex = idIndex
 
     def execute(self, environment):
-        pass
+        out = "fase1.execution(dbtemp + "
+        out += '" '
+        out += "CREATE "
+        out += self.unique + " "
+        out += "INDEX "
+        out += self.idIndex + " "
+        out += "ON "
+        out += self.idTable
+        out += self.usingMethod + " ("
+        out += self.optList + ")"
+        out += self.whereCl + ";"
+        out += '")\n'
+        return code.C3D(out, "create_index", self.row, self.column)

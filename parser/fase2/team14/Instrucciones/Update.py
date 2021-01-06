@@ -233,6 +233,33 @@ class Update(Instruccion):
 
         return None
 
+    def traducir(self, Entorno):
+        if((self.tabla!=None or self.tabla!="") and self.listaCampos!=None and self.where!=None):
+            self.codigo3d = 'ci.ejecutarsql('+'"'+'update '+self.tabla+' set '
+
+            for i in range(0, len(self.listaCampos)):
+                nombrecol = self.listaCampos[i].columna
+                expresion = self.listaCampos[i].exp
+                contenido = expresion.getval(Entorno).valor
+                if ((i + 1) == len(self.listaCampos)):
+                    try:
+                        float(contenido)
+                        self.codigo3d += nombrecol + "=" + str(contenido)
+                    except:
+                        self.codigo3d += nombrecol + "='" + str(contenido) +"'"
+                else:
+                    try:
+                        float(contenido)
+                        self.codigo3d += nombrecol + "=" + str(contenido) + ","
+                    except:
+                        self.codigo3d += nombrecol + "='"+ str(contenido) +"',"
+
+
+            self.codigo3d += ' Where '
+            self.codigo3d += self.where.stringsql
+
+            self.codigo3d += ';'+'"'+')\n'
+            return self
 
 class Campo():
     def __init__(self,columna,exp):

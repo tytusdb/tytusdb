@@ -28,10 +28,11 @@ from reporteTS import *
 import webbrowser
 from Graficar import Graficar
 from archivoC3D import *
+from optimizacion import *
 from analizadorFase2.Generador.Generador import Generador
 from analizadorFase2.Instrucciones.Funcion import Funcion
 from analizadorFase2.Instrucciones.Parametro import Parametro
-
+GC3D = []
 
 # MAIN CLASS
 class Main(tk.Tk):
@@ -442,10 +443,10 @@ class Main(tk.Tk):
         g.graficar_arbol(self.raiz_ast)
 
     def help_user_manual(self):
-        webbrowser.open('file://' + os.path.realpath("documents/Manual de Usuario.pdf"))
+        webbrowser.open('file://' + os.path.realpath("documents/Manual de Usuario/Manual de Usuario.pdf"))
 
     def help_technical_manual(self):
-        webbrowser.open('file://' + os.path.realpath("documents/Manual Técnico.pdf"))
+        webbrowser.open('file://' + os.path.realpath("documents/Manual Técnico/Manual Técnico.pdf"))
 
     # About it section
     def help_about_it(self):
@@ -520,10 +521,22 @@ class Main(tk.Tk):
             print(event.keysym)
 
     def tytus_optimizado(self):
-        pass
+        global GC3D
+        C3D_opt = []
+        f = open("team29/ui/codigo3D.py", 'r')
+        Lines = f.readlines()
+        optimizarDesde = Lines.index(str(GC3D[0]) + '\n')
+        while optimizarDesde < len(Lines):
+            porOptimizar = Lines[optimizarDesde]
+            C3D_opt.append(porOptimizar)
+            optimizarDesde += 1
+        optimizar(C3D_opt)
+        reporteOptimizacion(retornoOpt())
+
 
     # Ejecución de Parser
     def tytus_ejecutar(self):
+        global GC3D
         # Getting widget
         index = self.ta_input.index(self.ta_input.select())
         ta_input = self.array_tabs[index]
@@ -549,8 +562,10 @@ class Main(tk.Tk):
             temp = g.contador
             gen = Generador(temp, 0, ins.getInstruccion())
             gen.ejecutar()
+            GC3D = gen.codigo3d
+            #reporteOptimizacion(reglasOpt)
             C3D = g.codigo_3D
-            crearArchivo(C3D)
+            crearArchivo(C3D, gen.codigo3d)
            ##g.analizar(tytus)
             st_global = st.SymbolTable()
             es_global = es.ListaErroresSemanticos()
@@ -562,6 +577,7 @@ class Main(tk.Tk):
             else:
                 self.do_body(ins.getInstruccion(), st_global, es_global, ct_global)
                 self.raiz_ast = ins.getNodo()
+                self.new_output("--- SE HA GENERADO EL ARCHIVO ÉXITOSAMENTE ---")
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
@@ -702,8 +718,6 @@ class Main(tk.Tk):
             if not existe:
                 simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',None,'','')
                 p_st.add(simbolo)
-            
-
 
     # CREACIÓN DE TABLAS EN BASE DE DATOS
     def do_create_tb(self, p_inst, p_st, p_es, p_ct):

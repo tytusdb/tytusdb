@@ -3,6 +3,7 @@ from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.abstract.environment import Environment
 from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
 
 amb = 0
 
@@ -88,3 +89,28 @@ class Case(Instruction):
 
         self.codigo = c3d
         return code.C3D(c3d, "case", self.row, self.column)
+
+    def dot(self):
+        new = Nodo("CASE")
+        when = Nodo("WHEN")
+        new.addNode(when)
+
+        when.addNode(self.expBool.dot())
+        then = Nodo("THEN")
+        when.addNode(then)
+        for bs in self.blockStmt:
+
+            then.addNode(bs.dot())
+
+        if self.elseCase:
+            for ec in self.elseCase:
+                w = Nodo("WHEN")
+                new.addNode(w)
+                w.addNode(ec[0].dot())
+                t = Nodo("THEN")
+                w.addNode(t)
+                for i in ec[1]:
+                    t.addNode(i.dot())
+        if self.elseStmt:
+            new.addNode(self.elseStmt.dot())
+        return new

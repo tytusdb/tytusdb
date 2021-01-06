@@ -52,6 +52,42 @@ class Valor:
     def __str__(self):
         return str(self.Valor)
 
+class ValorLista:
+    def __init__(self, valor):
+        self.Valor = valor
+        '''
+        Ejemplo:
+        t1 = [var]
+        ValorLista(Identificador('var'))
+        '''
+    
+    def __str__(self):
+        return str('[' + str(self.Valor) + ']')
+
+class ListaPosicion:
+    def __init__(self, id, posicion):
+        self.Id = id
+        self.Posicion = posicion
+        '''
+        Ejemplo:
+        heap[t1] = 'esto'
+        ListaPosicion(Identificador('heap'), Identificador('t1'))
+        '''
+    def __str__(self):
+        return str(str(self.Id) + '[' + str(self.Posicion) + ']')
+
+class LlamFuncion:
+    def __init__(self, id):
+        self.Id = id
+        '''
+        Ejemplo:
+        call_insert_table()
+        LlamFuncion(Identificador('call_insert_table'))
+        '''
+    
+    def __str__(self):
+        return str(str(self.Id) + '()')
+
 class Operacion:
     def __init__(self, op1, op2, operador):
         self.Op1 = op1 #Op1 será el id o valor que estará a la izquierda del operador
