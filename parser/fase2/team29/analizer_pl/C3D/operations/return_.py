@@ -1,8 +1,8 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl.statement.expressions import code
 
 
-class Return(Expression):
+class Return(Instruction):
     def __init__(self, exp, row, column) -> None:
         super().__init__(row, column)
         self.exp = exp

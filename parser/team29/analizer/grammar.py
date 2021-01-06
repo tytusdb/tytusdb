@@ -865,6 +865,7 @@ def p_datatype_case_when(t):
     """
     datatype : R_CASE caseList optElse R_END
     """
+    repGrammar.append(t.slice)
 
 
 def p_case_list(t):
@@ -872,16 +873,19 @@ def p_case_list(t):
     caseList : caseList caseWhen
             | caseWhen
     """
+    repGrammar.append(t.slice)
 
 
 def p_caseWhen(t):
     """caseWhen : R_WHEN expBool R_THEN literal"""
+    repGrammar.append(t.slice)
 
 
 def p_caseWhen_2(t):
     """optElse : R_ELSE literal
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_datatype_operadores_unarios(t):

@@ -1838,25 +1838,22 @@ class IndexDrop(instruccion):
         global tabla
         global NombreDB
         global contambito
+        textores = ""
         try:
-            NuevoDropIndex = TS.Simbolo(cont,"Ninguno",TS.TIPO.INDICE,contambito)
-            NuevoDropIndex.tipoind = self.tipo
-            NuevoDropIndex.tablaind = "Ninguno"
-            if self.orden == "":
-                NuevoDropIndex.ordenind = "Ninguno"
-            else:
-                NuevoDropIndex.ordenind = self.orden
-            cont +=1
-            contambito +=1
-            ListaDrop = ""
+            eliminar = []
             for indice in self.listaindices:
-                ListaDrop += indice + " "
-            NuevoDropIndex.indicesind = ListaDrop
-            NuevoDropIndex.columnaind = "Ninguno"
-            tabla.agregar(NuevoDropIndex)
-            return "Se agrego el DROP INDEX a la tabla de simbolos"
+                if tabla.BuscarNombre(indice):
+                    eliminarindice = tabla.BuscarNombre(indice)
+                    eliminar.append(eliminarindice)
+                else:
+                    textores += "No se encontro el indice " + indice + "\n"
+            for simbolo in eliminar:
+                if simbolo.tipo == TS.TIPO.INDICE:
+                    tabla.simbolos.pop(simbolo.id)
+                    textores += "Se elimino el indice " + simbolo.nombre + " de la tabla de simbolos\n"
+            return textores
         except:
-            return "Error al crear instruccion DROP INDEX"
+            return "Error en " + self.tipo
 
 #--------------------------------------------CLASES PARA ALTER INDICES-------------------------------------------------
 class IndexAlter(instruccion):

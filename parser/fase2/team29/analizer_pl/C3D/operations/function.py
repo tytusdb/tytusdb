@@ -1,8 +1,8 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl.statement.expressions import code
 
 
-class FunctionDeclaration(Expression):
+class FunctionDeclaration(Instruction):
     def __init__(self, id, params, returns, row, column) -> None:
         super().__init__(row, column)
         self.id = id
@@ -11,7 +11,7 @@ class FunctionDeclaration(Expression):
 
     def execute(self, environment):
         environment.globalEnv.addFunction(self.id, self.returns, len(self.params))
-        cd = "def " + self.id + "():\n"
+        cd = "\ndef " + self.id + "():\n"
         for p in self.params:
             cd += "\t" + p.execute(environment).temp + " = stack.pop()\n"
 
