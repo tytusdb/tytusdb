@@ -678,6 +678,8 @@ def p_statements_conditionals(t):
                    | exit
                    | asignacionvar
                    | declarer
+                   | drop_function
+                   | drop_procedure
     '''
     t[0] = t[1]
     set('<TR> \n <TD> statements → conditionals | return | execute_procedure | PRAISE | callfunction | exit | asignacionvar: </TD> \n <TD> statements = t[1] </TD> \n </TR> \n')
@@ -773,6 +775,21 @@ def p_case(t):
         t[0] = WhenElse(1, 1, t[2], t[4], t[5])
     else:
         t[0] = When(1, 1, t[2], t[4])
+
+
+# ================= DROP FUNCTION Y PROCEDURE =================
+
+def p_drop_function(t):
+    '''
+        drop_function : DROP FUNCTION ID
+    '''
+
+
+def p_drop_procedure(t):
+    '''
+        drop_procedure : DROP PROCEDURE ID
+    '''
+
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
 
