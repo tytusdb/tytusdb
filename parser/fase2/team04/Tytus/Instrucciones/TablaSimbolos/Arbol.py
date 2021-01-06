@@ -18,6 +18,9 @@ class Arbol():
         self.comprobacionCreate = False
         self.columnaCheck = None
         self.order = None
+        self.temporal = -1
+        self.index = []
+        self.ts = {}
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)
@@ -36,7 +39,7 @@ class Arbol():
     #esto es para la base de datos actual
     def setBaseDatos(self,datos):
         self.bdUsar = datos
-        print("la tabla a usar es "+self.bdUsar)
+        #print("la tabla a usar es "+self.bdUsar)
 
     #retornar la base de datos
     def getBaseDatos(self):
@@ -171,6 +174,7 @@ class Arbol():
             cad += '+---'+'-'*lf[s]
         cad += '+\n'
         self.consola.append(cad)
+        print(cad)
 
     def setColumnasActual(self, valor):
         self.columnasActual = valor
@@ -218,4 +222,16 @@ class Arbol():
     
     def getOrder(self):
         return self.order
+    
+    def getTemporal(self):
+        self.temporal += 1
+        return f"t{self.temporal}"
+    
+    def setIndex(self, nueva):
+        self.index.append(nueva)
+    def addSymbol(self, name, dic):
+        self.ts[name] = dic
+        
+    def get_ts(self):
+        return self.ts
     
