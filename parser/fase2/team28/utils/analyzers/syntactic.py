@@ -24,7 +24,7 @@ from utils.analyzers.lex import *
 
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
-from models.procedural.clases import BodyDeclaration
+from models.procedural.clases import BodyDeclaration, ReturnFuncProce
 from models.procedural.if_statement import If,anidarIFs
 
 
@@ -972,14 +972,26 @@ def p_assignation_symbol(p):
 #El tercero es un cuerpo
 def p_staments(p):
     '''STATEMENTS : OPTIONS_STATEMENTS RETURN PLPSQL_EXPRESSION SEMICOLON
+                  | OPTIONS_STATEMENTS RETURN SEMICOLON
                   | RETURN PLPSQL_EXPRESSION SEMICOLON 
+                  | RETURN SEMICOLON 
                   | OPTIONS_STATEMENTS
 
     '''
     if p.slice[1].type == "OPTIONS_STATEMENTS":
+        if len(p) == 4:     #segunda produccion
+            p[1].append(ReturnFuncProce(None))
+        else:               #primera produccion
+            p[1].append(ReturnFuncProce(p[3]))
+
         p[0] = p[1]
-
-
+        
+    elif p.slice[1].type == "RETURN":
+        if len(p) == 3:     #tercera produccion
+            p[0] = ReturnFuncProce(None)
+        else:               #cuarta produccion
+            p[0] = ReturnFuncProce(p[2])
+    
 
 def p_options_statements(p):
     '''OPTIONS_STATEMENTS : OPTIONS_STATEMENTS statementType
