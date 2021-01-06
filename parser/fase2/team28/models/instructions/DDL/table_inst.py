@@ -65,7 +65,16 @@ class CreateTB(Instruction):
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+
+
 
     def numberOfColumns(self, arrayColumns):
         count = 0
@@ -630,7 +639,11 @@ class DropTB(Instruction):
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
 
 
 class AlterTable(Instruction):
