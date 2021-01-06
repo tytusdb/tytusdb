@@ -159,6 +159,66 @@ def AlterIndice_Renombrar(instr,ts):
     else:
         agregarMensjae('error','No se renombro,index '+nmnuevo+' registrado','')
 
+def AlterIndice_Col(instr,ts):
+    agregarMensjae('normal','Alter Index Column','')
+    nombreIndex=resolver_operacion(instr.nombreindex,ts)
+    colindex=''
+    colnueva=''
+    if instr.colvieja != False:
+        colindex=resolver_operacion(instr.colvieja,ts)
+        colnueva=resolver_operacion(instr.colnueva,ts)
+        if buscarIndice(nombreIndex):
+            pos=0
+            while pos< len(outputTS):
+                if pos+1 < len(outputTS):
+                    if(outputTS[pos].instruccion=="INDEX" and outputTS[pos+1].identificador==nombreIndex):
+                        outputTS[pos+1].columnas=modificar_columnas(nombreIndex,outputTS[pos+1].columnas,outputTS[pos+1].referencia,colindex,colnueva)
+                        break
+                    else:
+                        pos=pos+1
+                else:
+                    break
+        else:
+            agregarMensjae('error','Indice '+nombreIndex+' no registrado','')
+    else:
+        agregarMensjae('error','Se necesita columna a modificar de indice '+nombreIndex,'')
+
+def modificar_columnas(nombreindex,columnasindex,tabla,colvieja,nuevacol):
+    lcols=[]
+    lcols=columnasindex.split(sep=',')
+    encontrada=False
+    if isinstance(nuevacol, int): # nueva col es numero
+        cont=0
+        contt=0
+        for col in lcols:
+            if colvieja==col:
+                tb=buscarTabla(baseActiva,tabla)
+                for c in tb.atributos:
+                    if contt==(nuevacol-1):
+                        lcols[cont]=c.nombre
+                        encontrada=True
+                        agregarMensjae('exito','Indice '+nombreindex+" cambio columna "+colvieja+" por "+c.nombre,'')
+                    contt+=1
+            cont+=1
+        if encontrada==False:
+            agregarMensjae('error','Indice no corresponde a ninguna columna de tabla '+tabla,'')
+    else: # nueva col es nombrecol
+        cont=0
+        for col in lcols:
+            if colvieja==col:
+                lcols[cont]=nuevacol
+                agregarMensjae('exito','Indice '+nombreindex+" cambio columna "+colvieja+" por "+nuevacol,'')
+            cont+=1
+    #revertir split
+    cont=0
+    result=""
+    for col in lcols:
+        result+=col
+        if cont!=(len(lcols)-1):
+            result+=","
+        cont+=1
+    return result
+
 def buscarIndice(nombre):
     global outputTS
     pos=0
@@ -3876,7 +3936,7 @@ def Crear_Procedimiento(instr,ts):
                 param.tipo=x.tipo.lower()
                 #validar el tipo
                 if(validarTipoF(param.tipo)==False):
-                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+parAux.nombre
+                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+param.nombre
                     agregarMensjae("error",msg,"")
                     flag=False
             #agregar size
@@ -3915,7 +3975,7 @@ def Crear_Procedimiento(instr,ts):
                 #eliminar la funcion
                 eliminarProcedure(name)
                 addProcedure(name,cuerpo,parametros)
-                CD3.PCreateProcedure(nombre,cuerpo,parametros,1)
+                CD3.PCreateProcedure(name,cuerpo,parametros,1)
                 msg="Funcion reemplazada"
                 agregarMensjae("alert",msg,"")
             else:
@@ -3966,7 +4026,7 @@ def cuerpo_Procedure(body,ts):
                 agregarMensjae("error",msg,"")
                 flag=False
             else:  
-                parametro.tipo=o.tipo.lower()
+                parametro.tipo=i.tipo.lower()
                 #validar el tipo
                 if(validarTipoF(parametro.tipo)==False):
                     msg="El tipo "+parametro.tipo+" no es posible asignarlo al parametro "+parametro.nombre
@@ -3979,7 +4039,7 @@ def cuerpo_Procedure(body,ts):
             #agregar valor
             if(i.valor!=False):
                 val=resolver_operacion(i.valor,ts)
-                result=validarTipo(parAux.tipo,val)
+                result=validarTipo(parametro.tipo,val)
                 if(result==None):
                     flag=False
                     msg="no es posible asignar "+str(val)+" en "+parametro.nombre
@@ -4318,6 +4378,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, Procedimiento): Crear_Procedimiento(instr,ts)
             elif isinstance(instr, Drop_Indice): EliminarIndice(instr,ts)
             elif isinstance(instr, Alter_Index_Rename): AlterIndice_Renombrar(instr,ts)
+            elif isinstance(instr, Alter_Index_Col): AlterIndice_Col(instr,ts)
             elif isinstance(instr, Call_Procedure): Execute_Procedimiento(instr,ts)
             else: 
                 if instr is not None:

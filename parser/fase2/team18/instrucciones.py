@@ -425,6 +425,14 @@ class Alter_Index_Rename(Instruccion):
         self.nombreviejo=nombreviejo
         self.nombrenuevo=nombrenuevo
 
+class Alter_Index_Col(Instruccion):
+    '''
+        Esta clase representa el alter index column
+    '''
+    def __init__(self,nombreindex,colvieja,colnueva):
+        self.nombreindex=nombreindex
+        self.colvieja=colvieja
+        self.colnueva=colnueva
 
 class Call_Procedure(Instruccion):
     '''

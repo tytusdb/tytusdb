@@ -457,6 +457,30 @@ def p_alterIndex(t):
      t[0] = Alter_Index_Rename(Operando_ID(t[3]),Operando_ID(t[6]))
 
 
+def p_alterIndex_column(t):
+     '''alterindex : ALTER INDEX existencia ID alterop column_id valor_alter'''
+     t[0] = Alter_Index_Col(Operando_ID(t[4]),t[6],t[7])
+
+def p_alterIndex_op(t):
+     '''alterop : ALTER
+                | empty'''
+
+def p_columna_id(t):
+     '''column_id : COLUMN'''
+     t[0] = False
+
+def p_columna_id_id(t):
+     '''column_id : ID'''
+     t[0] = Operando_ID(t[1])
+
+def p_valor_alter(t):
+     '''valor_alter : ENTERO'''
+     t[0] = Operando_Numerico(t[1])
+
+def p_valor_alter_id(t):
+     '''valor_alter : ID'''
+     t[0] = Operando_ID(t[1])
+
 #fin alter codigo-----------------------------------------------------------------
 
 def p_insertar(t):

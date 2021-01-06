@@ -511,13 +511,13 @@ def filtroC3DExp(cadena):
             auxVal=listAux[1].split(sep=' + ')
             #regla 12
             if(auxVal[0]=='0'):
-                regla="12 se elimina el valor 0"
+                regla="12 - reduccion eliminando el valor 0"
                 txtold=exp
                 txtnew=listAux[0]+"="+auxVal[1]
                 agregarOptimizacion(regla,txtold,txtnew)
                 newList.append(txtnew)
             elif(auxVal[1]=='0'):
-                regla="12 se elimina el valor 0"
+                regla="12 - reduccion eliminando el valor 0"
                 txtold=exp
                 txtnew=listAux[0]+"="+auxVal[0]
                 agregarOptimizacion(regla,txtold,txtnew)
@@ -530,20 +530,43 @@ def filtroC3DExp(cadena):
             auxVal=listAux[1].split(sep=' * ')
             #regla 17
             if(auxVal[0]=='0'):
-                newList.append(listAux[0]+"="+auxVal[0])
+                regla="17 - se asigna 0"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[0]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
             elif(auxVal[1]=='0'):
-                newList.append(listAux[0]+"="+auxVal[1])
+                regla="17 - se asigna 0"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[1]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
             #regla 14
             elif(auxVal[0]=='1'):
-                newList.append(listAux[0]+"="+auxVal[1])
+                regla="14 - reduccion eliminando el valor 1"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[1]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
             elif(auxVal[1]=='1'):
-                newList.append(listAux[0]+"="+auxVal[0])
+                regla="14 - reduccion eliminando el valor 1"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[0]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
             #regla 16
             elif(auxVal[0]=='2'):
-                newList.append(listAux[0]+"="+auxVal[1]+" + "+auxVal[1])
+                regla="16 - se agrega la suma del mismo valor"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[1]+" + "+auxVal[1]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
             elif(auxVal[1]=='2'):
-                newList.append(listAux[0]+"="+auxVal[0]+" + "+auxVal[0])
-            
+                regla="16 - se agrega la suma del mismo valor"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[0]+" + "+auxVal[0]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
             else:
                 newList.append(exp)
         #reglas resta
@@ -552,12 +575,39 @@ def filtroC3DExp(cadena):
             auxVal=listAux[1].split(sep=' - ')
             #regla 13
             if(auxVal[0]=='0'):
-                newList.append(listAux[0]+"="+auxVal[1])
+                regla="13 - reduccion eliminando el valor 0"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[1]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
             elif(auxVal[1]=='0'):
-                newList.append(listAux[0]+"="+auxVal[0])
+                regla="13 - reduccion eliminando el valor 0"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[0]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
+            else:
+                newList.append(exp) 
+        #reglas div
+        elif " / " in exp and len(listAux)==2:
+            auxVal=[]
+            auxVal=listAux[1].split(sep=' / ')
+            #regla 15
+            if(auxVal[1]=='1'):
+                regla="15 - reduccion eliminando el valor 1"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[0]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
+            #regla 18
+            elif(auxVal[0]=='0'):
+                regla="18 - se asigna 0"
+                txtold=exp
+                txtnew=listAux[0]+"="+auxVal[0]
+                agregarOptimizacion(regla,txtold,txtnew)
+                newList.append(txtnew)
             else:
                 newList.append(exp)
-        #reglas multi 
         else:
             newList.append(exp)
     res=""
