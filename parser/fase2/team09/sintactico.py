@@ -29,6 +29,7 @@ from Instrucciones import Relaciones
 
 from Instrucciones.Sql_create import CreateIndex, Campo
 from Instrucciones.Undefined import Undefined
+from Instrucciones.Sql_drop import DropIndex
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -173,12 +174,25 @@ def p_op_where1(t):
     strGram = "<instructionWhere> ::=  WHERE <expre>"
     t[0] = Where.Where(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_op_where1(t):
+def p_op_where2(t):
     '''op_where : 
     '''
     strGram = "<op_where> ::= "
     t[0] = Undefined.Undefined("WHERE", None, strGram, t.lexer.lineno, t.lexer.lexpos)
     
+# DROP INDEX
+def p_instruccion_drop_index1(t):
+    '''instruccion : DROP INDEX ID PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= DROP INDEX ID PUNTO_COMA"
+    t[0] = DropIndex.DropIndex(True, t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_drop_index2(t):
+    '''instruccion : DROP INDEX IF EXISTS ID PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= DROP INDEX IF EXISTS ID PUNTO_COMA"
+    t[0] = DropIndex.DropIndex(False, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
     '''instruccion : CREATE DATABASE if_not_exists ID PUNTO_COMA
@@ -700,12 +714,12 @@ def p_instruccion_select7(t):
     val.append(Select.Select(t[2], t[3], t[5], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos))
     t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
-def p_lista_case(t):
+def p_lista_case1(t):
     '''lcase : lcase case
     '''
     t[0] = t[1].append(t[2])
 
-def p_lista_case(t):
+def p_lista_case2(t):
     '''lcase : case
     '''
     t[0] = t[1]
@@ -776,7 +790,7 @@ def p_instruccion_rows(t):
         strGram = "<rows> ::= LIMIT ENTERO"
         t[0] = Limit.Limit(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def P_instruccion_row2(t):
+def p_instruccion_row2(t):
     '''rows : LIMIT ENTERO OFFSET ENTERO'''
     #LIMIT(LIMITE,FILAS_A_EXCLUIR,fila,columna)
     strGram = "<rows> ::= LIMIT ENTERO OFFSET ENTERO"

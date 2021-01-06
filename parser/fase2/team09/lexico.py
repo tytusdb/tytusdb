@@ -20,7 +20,7 @@ columna=0
 reservadas = (
 
     'TABLE', 'INT', 'VARCHAR', 'DATE', 'CHAR', 'DOUBLE', 'DECIMAL', 'NULL', 'PRIMARY', 'KEY', 'REFERENCES', 'FOREIGN',
-    'FLOAT',
+    #'FLOAT',
     'BETWEEN',
     'LIKE',
     'IN',
@@ -91,11 +91,9 @@ tokens = reservadas + (
     'DISTINTO',
     'PARIZQ',
     'PARDER',
-    'CORIZQ',
-    'CORDER',
+    #'CORIZQ', 'CORDER',
     'MAS',
-    'LLAVEA',
-    'LLAVEC',
+    #'LLAVEA', 'LLAVEC',
     'MENOS',
     'POR',
     'DIVIDIDO',
@@ -118,8 +116,8 @@ tokens = reservadas + (
 t_ARROBA = r'@'
 t_PARIZQ = r'\('
 t_PARDER = r'\)'
-t_CORIZQ = r'\['
-t_CORDER = r'\]'
+#t_CORIZQ = r'\['
+#t_CORDER = r'\]'
 t_PUNTO_COMA = r';'
 t_COMA = r','
 t_PUNTO = r'\.'

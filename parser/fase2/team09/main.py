@@ -210,8 +210,11 @@ class interfaz():
         arbol.lRepDin.append("<init> ::= <instrucciones>")
         arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
-        
+        if arbol is None or arbol.instrucciones is None:
+            return
         for i in arbol.instrucciones:
+            if i is None:
+                break
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
             resultado = i.ejecutar(tablaGlobal,arbol)
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.

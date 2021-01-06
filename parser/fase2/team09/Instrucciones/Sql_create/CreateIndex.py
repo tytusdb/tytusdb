@@ -42,7 +42,7 @@ class CreateIndex(Instruccion):
                             if c.nombre == self.nombre:
                                 error = Excepcion('INX00', "Semántico", "Ya existe un índice llamado «" + self.nombre + "» en la tabla «" + self.tabla + "»", self.linea, self.columna)
                                 arbol.excepciones.append(error)
-                                arbol.consola.append(error.toString())
+                                arbol.consola.append("\n" + error.toString())
                                 err = True
                                 break
                         else:
@@ -57,13 +57,13 @@ class CreateIndex(Instruccion):
                             l.ejecutar(tabla, arbol)
                             error = Excepcion("INX01", "Semántico", "No existe el campo «" + l.nombre + "» en la tabla «" + self.tabla + "»", self.linea, self.columna)
                             arbol.excepciones.append(error)
-                            arbol.consola.append(error.toString())
+                            arbol.consola.append("\n" + error.toString())
                             err = True
                         for w in self.campos:
                             if l != w and not w.dupli and l.nombre == w.nombre:
                                 error = Excepcion("INX02", "Semántico", "Ya existe el campo «" + l.nombre + "» en el índice", self.linea, self.columna)
                                 arbol.excepciones.append(error)
-                                arbol.consola.append(error.toString())
+                                arbol.consola.append("\n" + error.toString())
                                 err = True
                                 l.dupli = True
                                 break
@@ -74,6 +74,8 @@ class CreateIndex(Instruccion):
                         else:
                             self.constraint.append(Cons(restricciones, "<br>campos(s)"))
                         t.lista_de_campos.append(self)
+                        arbol.consola.append("\nSe ha creado el índice «" + self.nombre + "» correctamente.")
+                        return
 
 class Cons():
     def __init__(self, id, rindex):
