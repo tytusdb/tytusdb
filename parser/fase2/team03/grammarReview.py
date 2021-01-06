@@ -175,7 +175,6 @@ reserved = {
     'convert' : 'CONVERT',
     'encode' : 'ENCODE',
     'decode' : 'DECODE',
-    'substring' : 'SUBSTRING',
     'any' : 'ANY',
     'all' : 'ALL',
     'some' : 'SOME',
@@ -954,6 +953,7 @@ def p_stm_execute(t):
                     |  EXECUTE    ID PARA  TEXTO  COMA column_list PARC  USING  group_list
                     |  EXECUTE    ID PARA  TEXTO  TEXTO COMA column_list PARC  USING  group_list                     
                     |  EXECUTE    ID PARA  TEXTO  COMA  column_list  PARC  
+                    |  EXECUTE    expression
                          '''
 
     token = t.slice[1]
@@ -1013,7 +1013,11 @@ def p_stm_execute(t):
         addCad("**\<STM_EXECUTE>** ::=   tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   \<COLUMN_LIST>   ’)’   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
-
+    elif len(t) == 3:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2]],childsProduction )
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  \<EXPRESSION>     ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
 
 
 
@@ -3236,6 +3240,8 @@ def p_aritmetic(t):
                     | SETSEED PARA expression PARC
                     | TRUNC PARA expression PARC
                     | MD5 PARA expression PARC
+                    | SUBSTRING PARA expression COMA expression COMA expression PARC
+                    | LENGTH PARA expression PARC
                 '''
     token = t.slice[1]
     if token.type == "ABS":
@@ -3386,6 +3392,17 @@ def p_aritmetic(t):
         graph_ref = graph_node(str("exp"), [t[1], t[2], t[3], t[4]], childsProduction)
         addCad("**\<EXP>** ::=   tMd5 '(' \<EXP> ')'      ")
         t[0] = MD5_(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == "SUBSTRING":
+        childsProduction = addNotNoneChild(t, [3,5,7])
+        graph_ref = graph_node(str("exp"), [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
+        addCad("**\<EXP>** ::=   tSubstring '(' \<EXP> ','  \<EXP> ','  \<EXP> ')'      ")
+        t[0] = SUBSTRING_(t[3],t[5], t[7], token.lineno, token.lexpos, graph_ref)
+    elif token.type == "LENGTH":
+        childsProduction = addNotNoneChild(t, [3])
+        graph_ref = graph_node(str("exp"), [t[1], t[2], t[3], t[4]], childsProduction)
+        addCad("**\<EXP>** ::=   tLength '(' \<EXP> ')'      ")
+        t[0] = LENGTH_(t[3], token.lineno, token.lexpos, graph_ref)
+
 
 
 def p_exp_unary(t):

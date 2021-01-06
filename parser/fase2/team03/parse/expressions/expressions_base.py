@@ -546,3 +546,59 @@ class MD5_(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         return f'MD5({self.exp.generate(table, tree)})'
+
+
+
+#TODO @VIC aca se agrega el generate?
+class SUBSTRING_(ASTNode):
+    def __init__(self, exp, str_pos, ext_char,  line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.str_pos = str_pos
+        self.ext_char = ext_char
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        str_por = self.str_pos.execute(table, tree)
+        ext_char = self.ext_char.execute(table, tree)
+        try:
+            str_por = int(str_por)
+            ext_char = int(ext_char)
+            if (str_por >=0) and (ext_char >=0) and (str_por < ext_char):
+                str_por = str_por-1
+                r = exp[str_por : ext_char]
+                return r
+            else:
+                raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'SUBSTRING() function argument error'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'SUBSTRING() function argument error'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'SUBSTRING({self.exp.generate(table, tree)})'
+
+#TODO @VIC aca se agrega el generate?
+class LENGTH_(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        try:
+            if type(exp) == str:
+                return len(exp)
+            else: 
+                raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'LENGTH() function argument error'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'LENGTH() function argument error'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'LENGTH({self.exp.generate(table, tree)})'
+
+
