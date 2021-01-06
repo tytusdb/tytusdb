@@ -136,6 +136,8 @@ class Codigo3d:
                 cadenaT += self.t_TraduccionCaseBuscado(i, "")
             elif isinstance(i, Print_I):
                 cadenaT += self.t_print(i)
+            elif isinstance(i, Insert_Datos):
+                cadena += self.t_Insert(i)
             else:
                 aux = SQL(i)
                 aux.generarCadenaSQL()
@@ -332,7 +334,7 @@ class Codigo3d:
         # Temporal de retorno
         cadenaF +="\n\t# Retorno \n"
         tempoP = t_global.varRetorno()
-        cadenaF +="\tglobal "+str(tempoP) + "\n"
+        cadenaF +="\t"+str(tempoP) + "= 0\n"
         p = tipoSimbolo(str(tempoP), "return", "return", 1, 1, 'local', instancia.Nombre)
         t_global.agregarSimbolo(p)
 
@@ -385,7 +387,7 @@ class Codigo3d:
         # Temporal de retorno
         cadenaF +="\n\t# Retorno \n"
         tempoP = t_global.varRetorno()
-        cadenaF +="\tglobal "+str(tempoP) + "\n"
+        cadenaF +="\t"+str(tempoP) + " = 0\n"
         p = tipoSimbolo(str(tempoP), "return", "return", 1, 1, 'local', instancia.Nombre)
         t_global.agregarSimbolo(p)
 
@@ -688,11 +690,13 @@ class Codigo3d:
         return cadena
 
     def t_Insert(self, insert: Insert_Datos):
+        global cadenaExpresion
         print(insert)
         cadena = ""
         cadaux = ""
         for valor in insert.valores:
             v, c = self.procesar_expresion(valor, None)
+            cadenaExpresion = ""
             cadena += c + "\n"
             cadaux = "\theap.append(" + str(v) + ")" + "\n" + cadaux
 

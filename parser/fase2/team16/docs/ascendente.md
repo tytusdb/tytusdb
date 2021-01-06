@@ -435,4 +435,121 @@
                 | <expresion_aritmetica> LEFTSHIFT <expresion_aritmetica> 
                 | <expresion_aritmetica> RIGHTSHIFT <expresion_aritmetica> 
                 | VIRGULILLA <expresion_aritmetica>
+<instruccion_if>  ::= IF <xpresion> THEN <CODEEPSILON> END IF PUNTOCOMA
+                | IF <expresion> THEN <CODEEPSILON> ELSE <CODEEPSILON> END IF PUNTOCOMA
+                | IF <expresion> THEN <CODEEPSILON> <listas_elsif> END IF PUNTOCOMA
+                | IF <expresion> THEN <CODEEPSILON> <listas_elsif> ELSE <CODEEPSILON> END IF PUNTOCOMA 
+<listas_elsif>  ::= <listas_elsif> <elsif>
+                | <elsif>
+<elsif>  ::=  ELSIF <expresion> THEN <CODEEPSILON>
+<case_simple>  ::= CASE <expresion_busqueda> <lista_when> <case_else> END <CASE> PUNTOCOMA
+<case_else> ::= ELSE <CODEEPSILON>
+                |  ϵ 
+<expresion_busqueda>  ::= ID
+<lista_when>  ::= lista_when cs_when
+                | cs_when
+<cs_expresiones> ::= <cs_expresiones>  COMA expresion_aritmetica
+                | <expresion_aritmetica>
+<case_buscado>  ::= CASE <cb_lista_when> case_else END CASE PUNTOCOMA
+<cb_lista_when> ::= <cb_lista_when> cb_when
+                | <cb_when>
+<cs_when>  ::= WHEN <cs_expresiones> THEN <CODEEPSILON>
+                | WHEN <expresion> THEN <CODEEPSILON>
+<loop_simple>  ::= label <LOOP> <CODEEPSILON> END LOOP <label_final> PUNTOCOMA
+<label>  ::= MENOR MENOR ID MAYOR MAYOR
+                | 
+<label_final>  ::= ID
+                | 
+<salir>  ::= EXIT <label_final> <when_auxiliar> PUNTOCOMA
+<continuar>  ::= CONTINUE <label_final> <when_auxiliar> PUNTOCOMA
+<when_auxiliar>  ::= WHEN <expresion>
+                | 
+<FUNCIONESS>   ::=  FUNTIONE  FUNCTION  ID  PARIZQ <PARAMETROSG> PARDER RETURNS <TIPO_CAMPO> <ALIASRET> <CODEEPSILON> <DECLAEP> CODE  
+                |  FUNTIONE  PROCEDURE  ID  PARIZQ <PARAMETROSG> PARDER  <ARGU_N_N>  <ALIASRET> <CODEEPSILON> <DECLAEP> CODE 
+<FUNTIONE>   ::=  CREATE 
+                |  CREATE OR REPLACE
+<FUNCI>   ::=       FUNCTION
+                |  
+<PARAMETROSG>   ::=  <PARAMETROS> 
+                |   
+                |  PARAMETROS COMA PARAMETRO
+                |  PARAMETRO 
+<PARAMETRO>   ::=    <ARGU_N> TIPO_CAMPO  <ARGU_N>
+<ARGU_N>   ::=  ID
+                | 
+<DECLAEP>   ::= DECLARE  <VARIABLES_N>
+                |   
+<VARIABLES_N>  ::= <VARIABLES_N> <VARIABLES_S>
+                |  <VARIABLES_S>
+                | <declaracion_variable>
+                | <asignacion_variable>
+<RETORNOS>   ::=   RETURN <expresion> PUNTOCOMA
+<ALIASRET>   ::=  AS ALI 
+<ALI>   ::=  ID 
+                |  DOLAR DOLAR 
+<CODE>   ::= BEGIN <CODEEPSILON> END PUNTOCOMA <DOL> <ARGU_N_N>
+<DOL>   ::=  DOLAR DOLAR 
+<ARGU_N_N>  ::=  LANGUAGE SQL  PUNTOCOMA
+                |  LANGUAGE PLPGSQL PUNTOCOMA
+                |  ID PUNTOCOMA
+                |  
+<CODEEPSILON>   ::=  <CODE_S> 
+<CODE_S>   ::=  <CODE_S>  <CODE_>
+                |   <CODE_>
+                |   FOR ID IN <TIPEE> <EXPRESI>  <BY_EXPRE>  LOOP  <CODEEPSILON>  END LOOP <ARGU_N> PUNTOCOMA
+CODE_   ::=     case_simple
+                | <case_buscado>
+                | <loop_simple>
+                | <instruccion_if>
+                | <declaracion_variable>
+                | <asignacion_variable>
+                | salir
+                | continuar
+                | <EJECUTARFUNCION> PUNTOCOMA
+                | RETORNOS
+<EJECUTARFUNCION   ::= EXECUTE ID PARIZQ <EXPRESI> PARDER 
+                 | SELECT ID PARIZQ <EXPRESI> PARDER 
+<EXPRESI>   ::=  <LISTAEXPRES>
+                |  
+<LISTAEXPRES>   ::=  <LISTAEXPRES> COMA <LISTEXPR>
+                |  <LISTEXPR>
+                |  <expresion>
+<TIPEE>   ::=  REVERSE
+                |  EXECUTE
+                |  
+<BY_EXPRE>   ::=  BY <expresion>
+                |  USING <expresion>
+                | 
+<CODE_>   ::=   FOREACH ID <SLICEC> IN ARRAY <expresion>  LOOP  CODEEPSILON  END LOOP <ARGU_N> PUNTOCOM
+                |   WHILE <expresion> LOOP <CODEEPSILON> END LOOP <ARGU_N> PUNTOCOMA
+                | <DQL_COMANDOS>
+                | <DDL_COMANDOS>
+                | <DML_COMANDOS>
+                | <COMENTARIOMULTI>
+                | <COMENTARIONORMAL>
+<declaracion_variable>  ::= <D declaracion_constante TIPO_CAMPO declaracion_not_null declaracion_asignacion PUNTOCOMA 
+<declaracion_constante>  ::= CONSTANT
+<declaracion_not_nul>  ::= NOT NULL
+<SLICEC>   ::=  <SLICE>  <expresion>
+<declaracion_asignacion>  ::= <declaracion_simbolo>  expresion
+<declaracion_simbolo>  ::= IGUAL 
+                | IGUAL2 
+                | DEFAULT
+<asignacion_variable>  ::= ID <signacion_simbolo> <expresion> PUNTOCOMA
+<<<signacion_simbolo>  ::= IGUAL 
+                | IGUAL2
+<crear_indice>  ::= CREATE <unique_in> INDEX ID ON ID <hash_in> PARIZQ <columnas_indice> PARDER <where_in> PUNTOCOMA
+<unique_in>  ::= UNIQUE
+<unique_in>  ::= < 
+<hash_in>  ::= USING HASH
+<hash_in>  ::= < 
+<columnas_indice>  ::= <columnas_indice> COMA <columna_indice>
+<columnas_indice>  ::= <columna_indice>
+<columna_indice>  ::= ID <orden_col> nulable_col
+<orden_col>  ::= ASC 
+<orden_col>  ::= < 
+<nulable_col>  ::= NULLS FIRS
+                | NULLS LAST
+<nulable_col>  ::= < 
+<where_in>  ::= WHERE <expresion_logica>
 ```

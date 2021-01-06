@@ -12,7 +12,7 @@ graph g {
                                 <TD bgcolor="#BEF781">FILA</TD>
                                 <TD bgcolor="#BEF781"></TD>
                             </TR>
-                             <TR>
+                            <TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>1</TD><TD>6</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Laptop Lenovo</TD><TD>6</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>6</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>6</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>2</TD><TD>257</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Bateria para Laptop Lenovo T420</TD><TD>257</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>257</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>257</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>3</TD><TD>330</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Teclado Inalambrico</TD><TD>330</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>330</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>330</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>4</TD><TD>12</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Mouse Inalambrico</TD><TD>12</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>12</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>12</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>5</TD><TD>246</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>WIFI USB</TD><TD>246</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>246</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>246</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>6</TD><TD>228</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Laptop HP</TD><TD>228</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>228</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>228</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>7</TD><TD>54</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Teclado Flexible USB</TD><TD>54</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>54</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>54</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>8</TD><TD>201</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Laptop Samsung</TD><TD>201</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-02</TD><TD>201</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>201</TD></TR><TR><TD>DBFase2</TD><TD>tbCalificacion</TD><TD>idcalifica</TD><TD>1</TD><TD>123</TD></TR><TR><TD>DBFase2</TD><TD>tbCalificacion</TD><TD>item</TD><TD>PRUEBA Table and Insert</TD><TD>123</TD></TR><TR><TD>DBFase2</TD><TD>tbCalificacion</TD><TD>punteo</TD><TD>1</TD><TD>123</TD></TR> <TR>
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
@@ -84,8 +84,24 @@ graph g {
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
+                            </TR><TR><TD>DBFase2</TD><TD></TD><TD></TD><TD></TD><TD></TD></TR>
+                            <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>FUNCIONES O PROCEDIMIENTOS</B> </TD>
+                            </TR>
+                            <TR>
+                                <TD bgcolor="#BEF781">NOMBRE</TD>
+                                <TD bgcolor="#BEF781"> TIPO </TD>
                                 <TD bgcolor="#BEF781"></TD>
-                            </TR><TR><TD>DBFase2</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD> </TD></TR>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                            </TR>
                             <TR>
                                 <TD></TD>
                                 <TD></TD>
