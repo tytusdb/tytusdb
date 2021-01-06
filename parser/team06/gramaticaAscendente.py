@@ -837,7 +837,7 @@ def p_contDrop(t):
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
     '''
-    listaid     :   listaid COMA ID
+    listaid     :   listaid COMA final
     '''
     h.reporteGramatical1 +="listaid    ::=         listaid COMA ID\n"
     h.reporteGramatical2 +="t[1].append(t[3])\nt[0]=t[1]\n"
@@ -846,7 +846,7 @@ def p_listaID(t):
 
 def p_listaID_2(t):
     '''
-    listaid     :   ID
+    listaid     :   final
     '''
     h.reporteGramatical1 +="listaid    ::=          ID\n"
     h.reporteGramatical2 +="t[0]=[t[1]]"
@@ -890,7 +890,8 @@ def p_operacion(t):
                           | operacion MAYOR operacion
                           | operacion MENOR operacion
                           | operacion DIFERENTE operacion
-                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA                          
+                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                          | PARENTESISIZQUIERDA listaid PARENTESISDERECHA                             
                           '''
 # --------------------------------------------------------------------------------------------------------------                          
     if t[2]=='+':
@@ -1477,7 +1478,7 @@ def p_insertBD_2(t):
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_listaParam(t):
-    '''listaParam         : listaParam COMA operacion
+    '''listaParam         : listaParam COMA listaP
     '''
     t[1].append(t[3])
     t[0] = t[1]
@@ -1485,11 +1486,26 @@ def p_listaParam(t):
     h.reporteGramatical2 +="t[0]=t[1]\n"
 
 def p_listaParam_2(t):
-    '''listaParam           : operacion
+    '''listaParam           : listaP
     '''
     t[0] = [t[1]]
     h.reporteGramatical1 +="listaParam    ::=      operacion\n"
     h.reporteGramatical2 +="t[0]=[t[1]]\n"
+
+def p_listaP_1(t):
+    'listaP                 : operacion'
+    print("---------------",t[1])
+    t[0] = t[1]
+
+def p_listaP_2(t):
+    'listaP             : ID operacion'
+    t[0] = t[1]
+    print(t[0])
+
+def p_listaP_3(t):
+    'listaP             : ID PARENTESISIZQUIERDA PARENTESISDERECHA'
+    t[0] = t[1]+"()"
+    print(t[0])
 
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------

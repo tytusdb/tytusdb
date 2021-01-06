@@ -13,13 +13,22 @@ import sys
 #imports instrucciones
 from Instrucciones.instruction import *
 from Instrucciones.ins_if import *
+from prettytable import PrettyTable
+from copy import copy
+from environment import arregloFunciones
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
 # ======================================================================
 TokenError = list()
 ListaIndices = list()
 ListaAux = list()
-
+ListaFunciones = list()
+consid = list()
+consid.append('none')
+consid.append('none')
+consid.append('false')
+consid.append('false')
+executing = False
 # ======================================================================
 #                        PALABRAS RESERVADAS DEL LENGUAJE
 # ======================================================================
@@ -52,7 +61,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'TRUNC','RADIANS','RANDOM','WIDTH_BUCKET'
               ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL','INDEX','HASH','INCLUDE','COLLATE', 'CONSTANT', 'ALIAS', 'FOR', 'RETURN', 'NEXT', 'ELSIF',
               'ROWTYPE', 'RECORD', 'QUERY', 'STRICT', 'VAR', 'EXECUTE',
-              'FUNCTION','LANGUAGE','RETURNS','ANYELEMENT','ANYCOMPATIBLE','VOID', 'OUT'
+              'FUNCTION','LANGUAGE','RETURNS','ANYELEMENT','ANYCOMPATIBLE','VOID', 'OUT', 'PERFORM'
               ]
 
 tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -63,7 +72,6 @@ tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENAS
                        'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT','DOSPUNTOS','DOLAR',
                        'DOLAR_LABEL'
                        ]
-
 # ======================================================================
 #                      EXPRESIONES REGULARES TOKEN
 # ======================================================================
@@ -141,7 +149,7 @@ def t_NUMERO(t):
 def t_F_HORA(t):
     r'\'\s*(\d+\s+(hours|HOURS))?(\s*\d+\s+(minutes|MINUTES))?(\s*\d+\s+(seconds|SECONDS))?\s*\''
     t.value = t.value[1:-1]
-    return t
+    return t.replace('\'','\"')
 
 # EXPRESION REGULAR PARA FORMATO FECHA HORA
 def t_FECHA_HORA(t):
@@ -179,7 +187,7 @@ def t_HORA(t):
 # EXPRESION REGULAR PARA CADENA SIMLE
 def t_CADENASIMPLE(t):
     r'\'(\s*|.*?)\''
-    t.value = str(t.value)
+    t.value = str(t.value).replace('\'','\"')
     return t
     
 # EXPRESION REGULAR PARA FORMATO CADENAS
@@ -195,7 +203,8 @@ def t_newline(t):
 
 # EXPRESION REGULAR PARA RECONOCER ERRORES
 def t_error(t):
-    print('LEXICO' + ' ' + str(t.value) + ' ' + 'TOKEN DESCONOCIDO' + ' ' + str(t.lineno) + ' ' + str(t.lexpos))
+    err = 'LÉXICO. Token = \"' + str(t.value) + '\". TOKEN DESCONOCIDO' + ' ' + str(t.lineno) + ' ' + str(t.lexpos)
+    TokenError.append(err)
     t.lexer.skip(1)
 
 # ======================================================================
@@ -250,7 +259,11 @@ def nuevo_temporal():
 # DEFINICION GRAMATICA
 def p_inicio(t):
     '''inicio : instrucciones '''
-    print(str(t[1].code))
+    arreglo = []
+    for value in ListaFunciones:
+        arreglo.append(value)
+    ListaFunciones.clear()
+    t[0]= resFinal(arreglo,t[1].code)
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
@@ -273,18 +286,20 @@ def p_instrucciones_evaluar(t):
                    | ins_update
                    | ins_delete
                    | exp
+                   | execute
                    | ins_create_pl
-                   | create_index'''
-   # if isinstance(t[1],Ins_If):
-       # t[0] = GenerarC3D()
-        #3t[0].code = t[1].Traduct()
-    #else:
+                   | drop_pf
+                   | create_index
+                   | drop_index
+                   | alter_index'''
     if t[1].statement == 'INDEX':
         t[0] = GenerarC3D()
         t[0].code += '# parser.parse(\'' + t[1].code + '\')' + '\n'
     elif t[1].statement == 'CREATE_FUNCTION':
         t[0] = GenerarC3D()
         t[0].code += t[1].code
+    elif t[1].statement == 'EXECUTE':
+        t[0] = t[1]
     else:
         t[0] = GenerarC3D()
         t[0].code += 'parser.parse(\'' + t[1].code + '\')' + '\n'
@@ -708,13 +723,17 @@ def p_list_id(t):
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA exp
-                | exp '''
+                | exp 
+                | '''
     if len(t) == 4:
         t[0] = GenerarC3D()
         t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
-    else:
+    elif len(t) == 2:
         t[0] = GenerarC3D()
         t[0].code += t[1].code
+    else: 
+        t[0] = GenerarC3D()
+        t[0].code += ''
 
 def p_val_value(t):
     '''val_value : CADENA
@@ -858,7 +877,7 @@ def p_functions(t):
                     |   trig
                     |   string_func
                     |   time_func
-                     '''
+                    '''
     t[0] = GenerarC3D()
     t[0].code += t[1].code
 
@@ -1119,6 +1138,15 @@ def p_arg_having(t):
         t[0] = GenerarC3D()
         t[0].code += ''
 
+def p_exp_aux(t):
+    ''' exp : ID PARABRE list_vls PARCIERRE'''
+    global executing
+    t[0] = GenerarC3D()
+    if not executing:
+        t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
+    else:
+        t[0].code = t[1] + t[2] + t[3].code + t[4] 
+
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
             | exp SIGNO_MENOS exp 
@@ -1148,7 +1176,6 @@ def p_exp(t):
             | arg_greatest
             | arg_least 
             | val_value
-            | ID PARABRE list_vls PARCIERRE
             | PARABRE exp PARCIERRE
             | data NOT IN PARABRE ins_select PARCIERRE '''
     if len(t) == 7:
@@ -1444,14 +1471,58 @@ def p_ins_delete(t):
 #                        INSTRUCCIONES PL/SQL
 # ======================================================================
 
+def p_drop_pf(t):
+    ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
+    result = deleteProcFunc(t[2], t[4], t[6])
+    t[0] = GenerarC3D()
+    t[0].code = str(result)
+
+def p_drop_case(t):
+    ''' drop_case : FUNCTION
+                  | PROCEDURE'''
+    t[0] = t[1]
+
+def p_opt_exist(t):
+    ''' opt_exist : IF EXIST
+                  |'''
+    if len(t)== 3:
+        t[0] = True
+    else:
+        t[0] = False
+
+def p_arg_list_opt(t):
+    ''' arg_list_opt : arg_list 
+                     |'''
+    if len(t)== 2:
+        t[0] = t[1]
+    else:
+        t[0] = []
+
+def p_arg_list(t):
+    ''' arg_list : arg_list COMA ID
+             	| ID'''
+    if len(t) == 3:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+
 def p_ins_create_pl(t):
     '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameteropt PARCIERRE returns AS block LANGUAGE ID PUNTO_COMA
-                     | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE AS  block LANGUAGE ID PUNTO_COMA
+                     | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE LANGUAGE ID AS  block 
                      '''
     t[0] = GenerarC3D()
     if len(t) == 14:
-        func = funcion({'id':t[4], 'parametros':t[6]},t[10])
-        t[0].code = func
+        meta = {'id':t[4], 'parametros':t[6],'estado': 'ALMACENADO', 'tipo': t[3]}
+        func = funcion(meta,t[10])
+        ListaFunciones.append(func)
+        t[0].code = ""
+        t[0].statement = 'CREATE_FUNCTION'
+    else: 
+        meta = {'id':t[4], 'parametros':t[6], 'estado': 'ALMACENADO', 'tipo':t[3]}
+        func = funcion(meta,t[11])
+        ListaFunciones.append(func)
+        t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
 
 def p_op_replace(t):
@@ -1497,6 +1568,60 @@ def p_idopt(t):
         t[0] = t[1]
     else:
         t[0] = ""
+def p_t_dato(t):
+    '''t_dato : SMALLINT          
+                 | BIGINT
+                 | NUMERIC
+                 | DECIMAL PARABRE NUMERO COMA NUMERO PARCIERRE
+                 | INTEGER
+                 | INT
+                 | REAL
+                 | DOUBLE PRECISION
+                 | CHAR PARABRE NUMERO PARCIERRE
+                 | VARCHAR PARABRE NUMERO PARCIERRE
+                 | VARCHAR 
+                 | CHARACTER PARABRE NUMERO PARCIERRE
+                 | TEXT
+                 | TIMESTAMP arg_precision
+                 | TIME arg_precision
+                 | DATE
+                 | INTERVAL arg_tipo arg_precision
+                 | BOOLEAN
+                 | MONEY
+                 | ID '''
+    if t[1] == 'SMALLINT':
+        t[0]= DBType.smallint
+    elif t[1] == 'BIGING':
+        t[0]= DBType.bigint
+    elif t[1] == 'DOUBLE':
+        t[0] = DBType.double_precision
+    elif t[1] == 'NUMERIC':
+        t[0] = DBType.numeric
+    elif t[1] == 'CHAR':
+        t[0] = DBType.char
+    elif t[1] == 'VARCHAR':
+        t[0] = DBType.varchar
+    elif t[1] == 'CHARACTER':
+        t[0] = DBType.character
+    elif t[1] == 'TEXT':
+        t[0] = DBType.text
+    elif t[1] == 'TIMESTAMP':
+        t[0] = DBType.timestamp_wtz
+    elif t[1] == 'DOUBLE':
+        t[0] = DBType.double
+    elif t[1] == 'TIME':
+        t[0] = DBType.time_wtz
+    elif t[1] == 'DATE':
+        t[0] = DBType.date
+    elif t[1] == 'INTERVAL':
+        t[0] = DBType.interval
+    elif t[1] == 'BOOLEAN':
+        t[0] = DBType.boolean
+    elif t[1] == 'MONEY':
+        t[0] = DBType.money
+    else:
+        t[0] = 'None'
+    
 
 def p_retruns(t):
     '''returns : RETURNS exp_plsql
@@ -1515,31 +1640,47 @@ def p_block(t):
 def p_body(t):
     '''body :  declare_statement BEGIN internal_blockopt END '''
     t1 = ""
-    t2 = ""
     t3 = ""
     if t[1] != None:
         t1 = t[1]
     if t[3] != None:
         t3 = t[3]
-    t[0] = t1 + t3
+    if len(t1) == 0 and t[3] != None:
+        t[0] = t3
+    elif len(t3) == 0 and t[1] != None:
+        t[0] = t1
+    else: 
+        t[0] = t1 + t3
 
 def p_declare(t):
-    '''declare_statement : DECLARE statements
-                         | 
+    '''declare_statement : declare_statement DECLARE declares
+                        | DECLARE declares
+                        | '''
+    if len(t) == 3:
+        t[0] = t[2]
+    elif len(t) == 4:
+        t[0] = t[1] + t[3]
+    else: 
+        t[0] = []
+
+def p_declares(t):
+    '''declares : declares declaracion
+               | declaracion
     '''
     if len(t) == 3:
-        t[0] = t[2][:-1]
+        t[1] += t[2]
+        t[0] = t[1]
     else:
-        t[0] = ""
+        t[0] = t[1]
 
 def p_declaracion(t):
-    '''declaracion  : ID constante tipo_dato not_null declaracion_default PUNTO_COMA'''
+    '''declaracion  : ID constante t_dato not_null declaracion_default PUNTO_COMA'''
     temp = None
     v2 = ""
     if isinstance(t[5],dict):
         temp = t[5]['temp']
         v2 = t[5]['c3d']
-    v1 = declare(t[1], DBType.text,temp)
+    v1 = declare(t[1],t[3],temp)
     t[0] = v2 + v1
 
 def p_internal_blockopt(t):
@@ -1621,10 +1762,14 @@ def p_asignacion(t):
     t[0] = '\n' + valor['c3d'] + codigo
 
 def p_asignacion_igual(t):
-    '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
+    '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA
+    '''
+    t[0] = assignQ(t[1],t[4].code)
 
 def p_asignacion_igual_parentesis(t):
-    '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
+    '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA
+    '''
+    t[0] = assignQ(t[1],t[5].code)
 
 def p_asignacion_dos(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL exp_plsql PUNTO_COMA'''
@@ -1635,19 +1780,23 @@ def p_asignacion_dos(t):
 
 def p_asignacion_dos_signo_(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
+    t[0] = assignQ(t[1], t[5].code)
 
 def p_asignacion_dos_signo(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
+    t[0] = assignQ(t[1], t[6].code)
 
 def p_referencia_id(t):
     '''referencia_id : PUNTO ID
                 | '''
 
 def p_return(t):
-    '''return : RETURN exp PUNTO_COMA'''
+    '''return : RETURN exp_plsql PUNTO_COMA'''
+    t[0] = returnF(t[2])
 
 def p_return_next(t):
-    '''return : RETURN NEXT exp PUNTO_COMA'''
+    '''return : RETURN NEXT exp_plsql PUNTO_COMA'''
+    t[0] = returnF(t[2])
 
 def p_return_query(t):
     '''return : RETURN QUERY query'''
@@ -1707,7 +1856,6 @@ def p_else(t):
 
 def p_else_null(t):
     '''else : '''
-    print('NULL')
 
 def p_sentencia(t):
     '''sentencia : statements'''
@@ -1725,7 +1873,11 @@ def p_cases_ins_null(t):
     '''cases : '''
 
 def p_instruccion_case_only(t):
-    '''instruccion_case_only : WHEN exp_plsql then'''
+    '''instruccion_case_only : WHEN multiple then'''
+
+def p_multiple(t):
+    '''multiple : multiple COMA exp_plsql
+                    | exp_plsql'''
 
 def p_lista_exp(t):
     ''' lista_exp : lista_exp COMA exp_plsql'''
@@ -1743,8 +1895,7 @@ def p_statements(t):
 
 def p_statement(t):
     '''statement : asignacion
-                | f_query 
-                | execute
+                | f_query
                 | null
                 | declaracion
                 | declaracion_funcion
@@ -1763,30 +1914,58 @@ def p_statement(t):
 
 def p_f_query(t):
     '''f_query : SELECT arg_distict colum_list into FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
+                | ins_select f_return
                 | ins_insert f_return
                 | ins_update f_return
                 | ins_delete f_return'''
+    if len(t) == 3:
+        if t[2] != None:
+            t[0] = 'parser.parse(\'' + t[1].code + '\')' + '\n' + t[2]
+        else:
+            t[0] = 'parser.parse(\'' + t[1].code + '\')' + '\n'
+            
 
 def p_f_return(t):
-    ''' f_return : RETURNING exp_plsql into '''
+    ''' f_return : RETURNING exp_plsql into 
+            |'''
+    t[0] = ''
 
 def p_into(t):
     '''into : INTO ID '''
+    t[0] = ''
 
 def p_into_strict(t):
     '''into : INTO STRICT ID '''
+    t[0] = ''
 
 def p_execute(t):
-    '''execute : EXECUTE CADENA into USING exp_list'''
+    '''execute : exp_execute_aux exp_list_opt PARCIERRE PUNTO_COMA'''
+    global executing
+    t[0] = GenerarC3D()
+    t[0].statement = 'EXECUTE'
+    t[0].code = t[1] + '(' +t[2].code +')\n'
+    executing = False
 
-def p_execute_use(t):
-    '''execute : EXECUTE CADENASIMPLE into USING exp_list'''
+def p_execute_aux(t):
+    ''' exp_execute_aux : EXECUTE ID PARABRE'''
+    global executing
+    executing = True
+    t[0] = t[2]
+    
 
-def p_execute_exp(t):
-    '''execute : EXECUTE exp_plsql'''
+def p_exp_list_opt(t):
+    '''exp_list_opt : exp_list
+                    |
+    '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = GenerarC3D()
+        t[0].code = ""   
 
 def p_null(t):
     '''null : NULL PUNTO_COMA'''
+    t[0] = 'null;'
 
 # ======================================================================
 #                        EXPRESIONES PLSQL
@@ -1808,7 +1987,6 @@ def p_exp_plsql(t):
             | exp_plsql SIGNO_MENORQUE_MAYORQUE exp_plsql
             | exp_plsql SIGNO_NOT exp_plsql 
             | NOT exp_plsql
-            | ID PARABRE list_vls_plsql PARCIERRE
             | PARABRE exp_plsql PARCIERRE
             | val_value_plsql'''
     if len(t)== 4:
@@ -1819,8 +1997,6 @@ def p_exp_plsql(t):
             t[0] = t[2]
     elif len(t) == 3:
         t[0] = {'left': t[2], 'right': None, 'data': t[1]}
-    elif len(t) == 5:
-        t[0] = call(t[1], t[3])
     else:
         t[0] = t[1]
 
@@ -1828,6 +2004,8 @@ def p_val_value_plsql(t):
     '''val_value_plsql : CADENA
                 |   CADENASIMPLE
                 |   NUMERO
+                |   SIGNO_MENOS NUMERO
+                |   SIGNO_MENOS NUM_DECIMAL
                 |   NUM_DECIMAL
                 |   FECHA_HORA
                 |   TRUE
@@ -1836,184 +2014,374 @@ def p_val_value_plsql(t):
                 |   F_HORA
                 |   FECHA
                 |   HORA
-                |   ID'''
-    t[0] = {'left':None, 'right': None, 'data': t[1]}
+                |   ID
+                |   ffunctions
+                |   ID PARABRE paramopt PARCIERRE
+                '''
+    if t[1] == 'TRUE':
+        t[1] = 'True'
+    elif t[1] == 'FALSE':
+        t[1] = 'False'
+    if len(t) == 5:
+        t[0] = call(t[1], t[3])
+    elif len(t) == 3:
+        t[0] ={'left':None, 'right':None, 'data': t[1] + str(t[2])}
+    else:
+        t[0] = {'left':None, 'right': None, 'data': t[1]}
 
-def p_list_vls_plsql(t):
-    '''list_vls_plsql : list_vls_plsql COMA exp_plsql
-                | exp_plsql '''
+def p_ffunctions(t):
+    '''ffunctions : fmath
+                  | ftrig
+                  | fstring_func
+                  | ftime_func'''
+    t[0] = t[1]
+
+def p_fmath(t):
+    '''fmath :    ABS PARABRE paramopt PARCIERRE
+                |   CBRT PARABRE paramopt PARCIERRE
+                |   CEIL PARABRE paramopt PARCIERRE
+                |   CEILING PARABRE paramopt PARCIERRE
+                |   DEGREES PARABRE paramopt PARCIERRE
+                |   DIV PARABRE paramopt PARCIERRE
+                |   EXP PARABRE paramopt PARCIERRE
+                |   FACTORIAL PARABRE paramopt PARCIERRE
+                |   FLOOR PARABRE paramopt PARCIERRE
+                |   GCD PARABRE paramopt PARCIERRE
+                |   LN PARABRE paramopt PARCIERRE
+                |   LOG PARABRE paramopt PARCIERRE
+                |   MOD PARABRE paramopt PARCIERRE
+                |   PI PARABRE paramopt  PARCIERRE
+                |   POWER PARABRE paramopt PARCIERRE 
+                |   ROUND PARABRE paramopt PARCIERRE 
+                |   SQRT PARABRE paramopt PARCIERRE 
+                |   SIGN PARABRE paramopt PARCIERRE
+                |   TRUNC PARABRE paramopt PARCIERRE
+                |   RANDOM PARABRE paramopt PARCIERRE
+                |   RADIANS PARABRE paramopt PARCIERRE
+                |   WIDTH_BUCKET PARABRE paramopt PARCIERRE'''
+    t[0] = callNative(t[1], t[3])
+def p_ftrig(t):
+    '''ftrig :   ACOS PARABRE paramopt PARCIERRE
+                |   ACOSD PARABRE paramopt PARCIERRE
+                |   ASIN PARABRE paramopt PARCIERRE
+                |   ASIND PARABRE paramopt PARCIERRE
+                |   ATAN PARABRE paramopt PARCIERRE
+                |   ATAND PARABRE paramopt PARCIERRE
+                |   ATAN2 PARABRE paramopt PARCIERRE
+                |   ATAN2D PARABRE paramopt PARCIERRE
+                |   COS PARABRE paramopt PARCIERRE
+                |   COSD PARABRE paramopt PARCIERRE
+                |   COT PARABRE paramopt PARCIERRE
+                |   COTD PARABRE paramopt PARCIERRE
+                |   SIN PARABRE paramopt PARCIERRE
+                |   SIND PARABRE paramopt PARCIERRE
+                |   TAN PARABRE paramopt PARCIERRE
+                |   TAND PARABRE paramopt PARCIERRE
+                |   SINH PARABRE paramopt PARCIERRE
+                |   COSH PARABRE paramopt PARCIERRE
+                |   TANH PARABRE paramopt PARCIERRE
+                |   ASINH PARABRE paramopt PARCIERRE
+                |   ACOSH PARABRE paramopt PARCIERRE
+                |   ATANH PARABRE paramopt PARCIERRE  '''
+    t[0] = callNative(t[1], t[3])
+def p_fstring_func(t):
+    '''fstring_func  :  LENGTH PARABRE paramopt PARCIERRE
+                    |   SUBSTRING PARABRE paramopt PARCIERRE
+                    |   TRIM PARABRE paramopt PARCIERRE
+                    |   GET_BYTE PARABRE paramopt PARCIERRE
+                    |   MD5 PARABRE paramopt PARCIERRE
+                    |   SET_BYTE PARABRE paramopt PARCIERRE
+                    |   SHA256 PARABRE paramopt PARCIERRE
+                    |   SUBSTR PARABRE paramopt PARCIERRE
+                    |   CONVERT PARABRE paramopt PARCIERRE
+                    |   ENCODE PARABRE paramopt PARCIERRE
+                    |   DECODE PARABRE paramopt PARCIERRE '''
+    t[0] = callNative(t[1], t[3])
+def p_ftime_func(t):
+    '''ftime_func    :   DATE_PART PARABRE  paramopt PARCIERRE 
+                    |   NOW PARABRE paramopt PARCIERRE
+                    |   EXTRACT PARABRE paramopt PARCIERRE
+                    |   TIMESTAMP CADENASIMPLE
+                    |   CURRENT_TIME
+                    |   CURRENT_DATE'''
+    if len(t) == 4:
+        t[0] = callNative(t[1], t[3])
+def p_paramopt(t):
+    ''' paramopt : fparametros
+                 | 
+    '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = []
+
+def p_fparametros(t):
+    '''fparametros : fparametros COMA exp_plsql
+                   | exp_plsql
+    '''
     if len(t) == 4:
         t[1].append(t[3])
         t[0] = t[1]
     else:
         t[0] = [t[1]]
+
 # ======================================================================
 #                         INSTRUCCIONES SQL
 # ======================================================================
 
-def p_create_index(t):
-    '''create_index : CREATE arg_unique INDEX ID ON ID arg_hash PARABRE param_index PARCIERRE arg_include arg_where_index arg_punto_coma'''
+def p_alter_index(t):
+    '''alter_index : ALTER INDEX ID ID argcol arg_punto_coma'''
+    bandera = False
+    for it in ListaIndices:
+        if it['name'] == str(t[3]):
+            iterador = 0
+            for ite in it['columns']:
+                if ite == str(t[4]):
+                    bandera = True
+                    del it['columns'][iterador]
+                    break
+                iterador = iterador + 1
+            if bandera == True:
+                if isinstance(t[5],str):
+                    it['columns'].append(str(t[5]))
+                else:
+                    it['columns'].append('column('+str(t[5])+')')
+                break
     t[0] = GenerarC3D()
     t[0].statement = 'INDEX'
-    t[0].code += str(t[1]) + ' ' + t[2].code + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6]) + ' ' + t[7].code + ' ' + str(t[8]) + ' ' + t[9].code + ' ' + str(t[10]) + ' ' + t[11].code + ' ' + t[12].code + ' ' + t[13].code
+    t[0].code = t[1] +' '+ t[2]  +' '+t[3]+' '+ t[4]  +' '+str(t[5])
     
+def p_argcol(t):
+    '''argcol : ID
+              | NUMERO'''
+    t[0] = t[1]
+
+def p_arg_existe(t):
+    '''arg_existe : IF EXISTS
+                   | '''#EPSILON
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2]  +' '
+    else:
+        t[0] = ''
+
+def p_drop_index(t):
+    '''drop_index : DROP INDEX ID arg_punto_coma'''
+    indici = str(t[3])
+    iterador = 0
+    for it in ListaIndices:
+        if it['name'] == indici:
+            del ListaIndices[iterador]
+            break
+        iterador = iterador + 1
+
+    t[0] = GenerarC3D()
+    t[0].statement = 'INDEX'
+    t[0].code = t[1] +' '+ t[2]  +' '+t[3]
+    
+
+def p_create_index(t):
+    '''create_index : CREATE arg_unique INDEX ID ON ID arg_hash PARABRE param_index PARCIERRE arg_include arg_where_index arg_punto_coma'''
+    guardarIndice(t[4],t[6],copy(ListaAux),t.slice[1].lineno,consid[0],consid[1],consid[2],consid[3])
+    ListaAux.clear()
+    consid[0]='none'
+    consid[1]='none'
+    consid[2]='false'
+    consid[3]='false'
+    
+    t[0] = GenerarC3D()
+    t[0].statement = 'INDEX'
+    t[0].code = t[1] +' '+ t[2] + t[3] +' '+ t[4] +' '+ t[5] +' '+ t[6] +' '+ t[7] + t[8] +' '+ t[9] +' '+t[10] +' '+t[11]+t[12]+t[13]
+
 def p_arg_include(t):
     '''arg_include : INCLUDE PARABRE index_str PARCIERRE
                    | '''#EPSILON
+
     if len(t) == 5:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].code + ' ' + str(t[4])
-    else: 
-        t[0] = GenerarC3D()
-        t[0].code += ''
+        t[0] = t[1] +' '+ t[2]  +' '+ t[3] +' '+ t[4] +' '
+    else:
+        t[0] = ''
 
 def p_param_index(t):
     '''param_index : id_list arg_order arg_null
                    | PARABRE concat_list PARCIERRE
                    | ID ID 
                    | ID COLLATE tipo_cadena'''
-    if len(t) == 4:
-        if isinstance(t[1], GenerarC3D):
-            t[0] = GenerarC3D()
-            t[0].code += t[1].code + ' ' + t[2].code + ' ' + t[3].code
-        elif t[2] == 'COLLATE':
-            t[0] = GenerarC3D()
-            t[0].code += str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].code
-        else: 
-            t[0] = GenerarC3D()
-            t[0].code += str(t[1]) + ' ' + t[2].code + ' ' + str(t[3])
-    else: 
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + str(t[2])
+    if len(t) == 3:
+        t[0] = t[1] +' '+ t[2] 
+        ListaAux.append(str(t[1])) 
+    elif len(t) == 4:
+        if  t.slice[1].type == 'PARABRE':
+            t[0] = t[1] +' '+ t[2]  +' '+ t[3]
+            ListaAux.append(str(t[2])) 
+        elif t.slice[2].type == 'COLLATE':
+            t[0] = t[1] +' '+ t[2]  +' '+ t[3]
+            ListaAux.append(str(t[1]))  
+        else:
+            if t[2] == '' and t[3] == '':
+                t[0] = t[1]
+            elif t[2] == '' and t[3] != '':
+                t[0] = t[1] +' '+ t[3]
+            elif t[2] != '' and t[3] == '':
+                t[0] = t[1] +' '+ t[2]
+            elif t[2] != '' and t[3] != '':
+                t[0] =t[1] +' '+ t[2]  +' '+ t[3] 
 
 def p_tipo_cadena(t):
     '''tipo_cadena : CADENA
                    | CADENASIMPLE'''
-    t[0] = GenerarC3D()
-    t[0].code += str(t[1])
     
+    t[0] = t[1]  
+
 def p_concat_list(t):
     '''concat_list : concat_list SIGNO_DOBLE_PIPE index_str
                    | index_str'''
     if len(t) == 4:
-        t[0] = GenerarC3D()
-        t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += t[1].code
-     
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]      
+    else: 
+        t[0] = t[1]  
+        
 def p_index_str(t):
     '''index_str : ID
                  | ID PARABRE ID PARCIERRE
                  | CADENA
                  | CADENASIMPLE'''
-    if len(t) == 5:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4])
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1])
-    
+    if len(t) == 2:
+        t[0] = t[1]        
+    else:  
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]+' '+ t[4]
+
 def p_arg_hash(t):
     '''arg_hash : USING HASH
                 | '''#EPSILON
     if len(t) == 3:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + str(t[2])
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += ''
-    
+        t[0] = t[1] +' '+ t[2]+' '
+    else: 
+        t[0] = ''
+
 def p_id_list(t):
     '''id_list : id_list COMA index
                | index'''
-    if len(t) == 4:
-        t[0] = GenerarC3D()
-        t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += t[1].code
-    
+    if len(t) == 4 :
+        t[0] = t[1] + t[2] + t[3]
+        ListaAux.append(str(t[3]))
+    else: 
+        t[0] = t[1]
+        ListaAux.append(str(t[1]))
+
 def p_index(t):
     '''index : ID PARABRE ID PARCIERRE
              | ID'''
+
     if len(t) == 5:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4])
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1])
+        t[0] = t[1] +' '+ t[2]+' '+ t[3]+' '+ t[4]
+    else: 
+        t[0] = t[1]
 
 def p_arg_punto_coma(t):
     '''arg_punto_coma : PUNTO_COMA
                       | '''#EPSILON
-    if len(t) == 2:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1])
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += ''
     
+    if len(t) == 2:
+        t[0] = t[1] 
+    else: 
+        t[0] = ''
+
 def p_arg_unique(t):
     '''arg_unique : UNIQUE
                   | '''#EPSILON
+
     if len(t) == 2:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1])
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += ''
+        t[0] = t[1]+' '
+        consid[3] = 'true'
+    else: 
+        t[0] = ''
 
 def p_arg_order(t):
     '''arg_order : ASC 
                  | DESC
                  | '''#EPSILON
+
     if len(t) == 2:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1])
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += ''
+        consid[0] = str(t[1])
+        t[0] = t[1]
+    else: 
+        t[0] = ''
 
 def p_arg_null(t):
     '''arg_null :  NULLS FIRST
                  | NULLS LAST
                  | '''#EPSILON}
     if len(t) == 3:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + str(t[2])
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += ''
+        t[0] = t[1] +' '+ t[2]
+        consid[1] = str(t[1]+' '+t[2])
+    else: 
+        t[0] = ''
 
 def p_arg_where_index(t):
     '''arg_where_index : WHERE arg_where_param 
                        | '''#EPSILON
     if len(t) == 3:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + t[2].code
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += ''
-
+        consid[2] = 'true'
+        t[0] = t[1] +' '+ t[2]+' '
+    else: 
+        t[0] = ''
 def p_arg_where_param(t):
     '''arg_where_param : PARABRE exp PARCIERRE
                        | exp'''
     if len(t) == 4:
-        t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + t[2].code + ' ' + str(t[3]) 
-    else:
-        t[0] = GenerarC3D()
-        t[0].code += t[1].code
+        t[0] = t[1] +' '+ str(t[2]) +' '+ t[3]
+    else: 
+        t[0] = str(t[1])
 
 def p_error(t):
     if t != None:
-        print('SINTACTICO ' + str(t.value )+ ' ERROR SINTÁCTICO ' + 'Fila: ' + str(t.lineno) + ' Columna: ' + str(t.lexpos))
+        err = 'SINTACTICO: Token = \"' + str(t.value), '\". ERROR SINTÁCTICO en la linea: '+ str(t.lineno) +' y columna: '+str(t.lexpos)
+        TokenError.append(err)
 
+def get_errores():
+    aux = ""
+    for index in range(len(TokenError)):
+        aux += '\n'+str(index)+'. Error: ' + str(TokenError[index]) 
+    TokenError.clear()
+    return aux
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar
 def analizarSin(texto):
     parser = yacc.yacc()
     contenido = parser.parse(texto, lexer= analizador)# el parametro cadena, es la cadena de texto que va a analizar.
     return contenido
+
+
+def guardarIndice(name,table,columns,fila,orden,nul,wher,un):
+    num = 1
+    if len(ListaIndices) !=0:
+        for it in ListaIndices:
+            num = it['num'] + 1
+    ind = {'num':num,'name':name,'table':table,'columns':columns,'fila':fila,'order':orden,'null':nul,'where':wher,'unique':un}
+    ListaIndices.append(ind)
+
+def tab_string():
+    x = PrettyTable()
+    encabezados = ['NUM','NOMBRE','TABLA','COLUMNA','FILA','ORDER','NULL','WHERE','UNIQUE']
+    x.field_names = encabezados
+    for it in ListaIndices:
+        indic = ''
+        for item in it['columns']:
+            if len(ListaAux) == 1:
+                indic += item
+            else:
+                indic += item+','
+
+        tupla = [it['num'],it['name'],it['table'],indic,it['fila'],it['order'],it['null'],it['where'],it['unique']]
+        x.add_row(tupla)
+    return '\n'+ x.get_string() +'\n'
+
+def tab_func():
+    x = PrettyTable()
+    x.field_names = ['ID', 'PARAMETROS', 'ESTADO', 'TIPO']
+    for value in arregloFunciones:
+        tupla = [value['id'], value['parametros'], value['estado'], value['tipo']]
+        x.add_row(tupla)
+    arregloFunciones.clear()
+    return '\n' + x.get_string() + '\n'
 

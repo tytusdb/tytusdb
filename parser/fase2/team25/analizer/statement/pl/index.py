@@ -6,8 +6,9 @@ from analizer.reports import Nodo
 from analizer.symbol.environment import Environment
 
 indexEnv = Environment(None)
+indicesReg = dict()
 
-class CreateIndex(instruction.Instruction):
+class Index(instruction.Instruction):
     def __init__(self, indice, tabla, campos, tipo, row, column) -> None:
         self.index = indice
         self.table = tabla
@@ -30,8 +31,11 @@ class CreateIndex(instruction.Instruction):
             campos += self.fields +';'
 
         valor = 'Tabla: ' + self.table + '; ' + campos
-        tipo = 'INDEX' if self.type else 'UNIQUE INDEX'
-        indexEnv.addVar(self.index,  valor, tipo, self.row, self.column)
+        tipo = 'INDEX' if not self.type else 'UNIQUE INDEX'
+        if indexEnv.addVar(self.index,  valor, tipo, self.row, self.column):
+            indicesReg[self.index] = self
+        else:
+            pass
 
     def dot(self):
         texto = "CREATE_INDEX"
@@ -65,4 +69,29 @@ class CreateIndex(instruction.Instruction):
         return new
 
     def __str__(self) -> str:
-        return 'Index: ' + self.index 
+        return 'Index: ' + self.index
+
+#TODO Implementar errores semanticos
+def dropIndex(id):
+    if not indexEnv in instruction.envVariables:
+        instruction.envVariables.append(indexEnv)
+
+    if id in indexEnv.variables:
+        indexEnv.variables.pop(id)
+        return indicesReg.pop(id)
+    else:
+        pass
+
+def alterIndex(id, indice):
+    if not indexEnv in instruction.envVariables:
+        instruction.envVariables.append(indexEnv)
+
+    if id in indexEnv.variables:
+        mod = dropIndex(id)
+        try:
+            mod.fields.pop(indice)
+            mod.execute(None)
+        except:
+            pass 
+    else:
+        pass

@@ -1,5 +1,10 @@
 from environment import *
 
+fp = {
+      'FUNCTION':'LA FUNCION',
+      'PROCEDURE': 'EL PROCEDIMIENTO'
+}
+
 """
 Clase enum DBType:
 _____________________________________________________________
@@ -72,7 +77,7 @@ def declare(identificador, tipo, valor):
             if isinstance(valor, str):
                   return id + '=' + valor + '\n'
             return id + '=' + str(valor) + '\n'
-      default = tipos[tipo]
+      default = tipos.get(tipo,'None')
       if isinstance(default, str):
             return id + '=' + default + '\n'
       return id + '=' + str(default) + '\n'
@@ -235,6 +240,8 @@ def traduct(raiz):
                               if data in temporales:
                                     temporal = temporales[data]
                               value['temp'] = temporal
+                        elif isinstance(data,dict):
+                              value = data
                         else:
                               value['temp'] = str(data)
                   return value
@@ -246,15 +253,17 @@ ______________________________________________________________
 def funcion(diccionarioFuncion, codigo3D):
       arregloFunciones.append(diccionarioFuncion) #Agrego a la metadata general de las funciones.      
       id = diccionarioFuncion['id']
-      codigoGenerado = "def " + id + '('
+      codigoGenerado = '@with_goto\n'
+      codigoGenerado += "def " + id + '('
       for v in diccionarioFuncion['parametros']:
             codigoGenerado += v + ','
-      codigoGenerado = codigoGenerado[:-1]
+      if codigoGenerado[len(codigoGenerado)-1] == ',':
+            codigoGenerado = codigoGenerado[:-1]
       codigoGenerado += '):\n'
       codigo3D = '\n' +  codigo3D
       codigo3D = codigo3D.replace('\n', '\n\t')
       codigo3D = codigo3D[:-1]
-      return codigoGenerado +"\t#ZONA DE DECLARE"+ codigo3D
+      return codigoGenerado +"\t#INICIA DECLARE"+ codigo3D
 """
 ______________________________________________________________
 
@@ -270,6 +279,156 @@ def call(id, listaParámetros):
       c3d += temporal + '=' + id + '('
       for temp in paramsTemp:
             c3d += temp + ','
+      if c3d[len(c3d)-1] == ',':
+            c3d = c3d[:-1]
+      c3d += ')\n'
+      retorno = {'c3d':c3d,'temp':temporal}
+      return retorno
+
+"""
+______________________________________________________________
+
+"""
+def callNative(id, listaParámetros):
+
+      c3d = ""
+      paramsTemp = []
+      for v in listaParámetros:
+            aux = traduct(v)
+            paramsTemp.append(aux['temp'])
+            c3d += aux['c3d']
+      temporal = getTemp()
+      c3d += temporal + '=' + str(get_lower(id)) + '('
+      for temp in paramsTemp:
+            c3d += temp + ','
       c3d = c3d[:-1]
       c3d += ')\n'
       return {'c3d':c3d,'temp':temporal}
+
+
+"""
+______________________________________________________________
+
+"""
+def returnF (exp):
+      ret = traduct(exp)
+      res = ret['c3d'] + '\nreturn ' + ret['temp'] + '\n'
+      return res
+
+"""
+______________________________________________________________
+
+"""
+def assignQ(identificador,valor):
+      id = temporales[identificador]
+      if isinstance(valor,str):
+            return '\n' +id + '= parser.parse( \''  + valor +'\')\n'
+"""
+______________________________________________________________
+
+"""
+def resFinal(funciones, codigo):
+      resultado = 'from goto import with_goto\nfrom parser import parser\n\n'
+      for f in funciones:
+            resultado += f +'\n'
+      resultado += codigo 
+      return resultado     
+
+
+"""
+DICCIONARIO PARA LOS METODOS
+______________________________________________________________
+
+"""
+dict_Func = {
+      'LENGTH':'length',
+      'SUBSTRING':'substring',
+      'TRIM':'trim',
+      'MD5':'md5',
+      'SHA256':'sha256',
+      'SUBSTR':'substr',
+      'GET_BYTE':'get_byte',
+      'SET_BYTE':'set_byte',
+      'CONVERT':'convert',
+      'DECODE':'decode',
+      'ENCODE':'encode',
+      'NOW':'now',
+      'EXTRACT':'extract',
+      'DATE_PART':'date_part',
+      'CURRENT_DATE':'current_date',
+      'CURRENT_TIME':'current_time',
+      'ABSOLUTE':'absolute',
+      'CBRT':'cbrt',
+      'CEIL':'ceil',
+      'CEILING':'ceiling',
+      'DEGREES':'degrees',
+      'DIV':'div',
+      'EXP':'exp',
+      'FACTORIAL':'factorial',
+      'FLOOR':'floor',
+      'GCD':'gcd',
+      'LN':'ln',
+      'LOG':'log',
+      'PI':'pi',
+      'POWER':'power',
+      'RADIANS':'radians',
+      'SIGN':'sign',
+      'SQRT':'sqrt',
+      'TRUNC':'trunc',
+      'RANDOM':'random',
+      'ACOS':'acos',
+      'ACOSD':'acosd',
+      'ASIN':'asin',
+      'ASIND':'asind',
+      'ATAN':'atan',
+      'ATAND':'atand',
+      'ATAN2':'atan2',
+      'ATAN2D':'atan2d',
+      'COS':'cos',
+      'COSD':'cosd',
+      'COT':'cot',
+      'COTD':'cotd',
+      'SIN':'sin',
+      'SIND':'sind',
+      'TAN':'tan',
+      'TAND':'tand',
+      'SINH':'sinh',
+      'COSH':'cosh',
+      'TANH':'tanh',
+      'ASINH':'asinh',
+      'ACOSH':'acosh',
+      'ATANH':'atanh'
+}
+
+
+"""
+DICCIONARIO PARA LOS METODOS
+______________________________________________________________
+funcion para castear un strig de mayusculas a minusculas
+"""
+
+def get_lower(name_func):
+     return dict_Func.get(name_func, name_func)
+
+"""
+______________________________________________________________
+
+"""
+def deleteProcFunc(tipo, id, parametros):
+      for v in arregloFunciones:
+            if v['tipo'] == tipo and v['id'] == id and v['parametros']== parametros:
+                  v['estado'] = 'ELIMINADO'
+                  return 'SELECT "SE HA ELIMINADO ' + fp[tipo] + ' CON ÉXITO.";'
+      return 'SELECT "ERROR NO SE HA ENCONTRADO' + fp[tipo] + ' QUE DESEA ELIMINAR";'
+
+"""
+______________________________________________________________
+
+"""
+def resFinal(funciones, codigo):
+      resultado = 'from goto import with_goto\nfrom parser import parser\n\n'
+      for f in funciones:
+            resultado += f +'\n'
+      resultado += codigo 
+      funciones = []
+      return resultado    

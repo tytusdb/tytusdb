@@ -1,9 +1,10 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl import grammar
 from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
 
 
-class If_Statement(Expression):
+class If_Statement(Instruction):
     def __init__(self, row, column, expBool, elseif_list, else_, stmts) -> None:
         super().__init__(row, column)
         self.expBool = expBool
@@ -66,3 +67,17 @@ class If_Statement(Expression):
         val = "\tlabel .etiqS" + str(grammar.next_etiq) + "\n"
         grammar.next_etiq += 1
         return val
+
+    def dot(self):
+        new = Nodo("IF")
+        new.addNode(self.expBool.dot())
+        then = Nodo("THEN")
+        new.addNode(then)
+        for s in self.stmts:
+            then.addNode(s.dot())
+        for eif in self.elseif_list:
+            new.addNode(eif.dot())
+
+        if self.else_:
+            new.addNode(self.else_.dot())
+        return new

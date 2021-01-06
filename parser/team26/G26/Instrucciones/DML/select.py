@@ -14,6 +14,7 @@ from datetime import *
 from TablaSimbolos import *
 from prettytable import *
 from operator import itemgetter
+from Identificador import *
 
 import math
 import random
@@ -39,26 +40,40 @@ class Select(Instruccion):
             columnasImprimir = select.listadeseleccion
             for columnasSeleccionadas in columnasImprimir:
                 nombreColumna = columnasSeleccionadas.listaseleccionados
-                try:
-                    if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionmatematica
-                    else: nombreTabla = nombreColumna.tipofuncionmatematica + str(contadorNombre)
-                except:
+
+                while True:
                     try:
-                        if nombreColumna.operador == 'md5':
-                            return Error('Sintactico', 'El md5 solamente puede venir en el insert y update', 0, 0)
-                        if contadorNombre == 0: nombreTabla = nombreColumna.operador
-                        else: nombreTabla = nombreColumna.operador + str(contadorNombre)
+                        if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionmatematica
+                        else: nombreTabla = nombreColumna.tipofuncionmatematica + str(contadorNombre)
                     except:
                         try:
-                            if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
-                            else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+                            if nombreColumna.operador == 'md5':
+                                return Error('Sintactico', 'El md5 solamente puede venir en el insert y update', 0, 0)
+                            if contadorNombre == 0: nombreTabla = nombreColumna.operador
+                            else: nombreTabla = nombreColumna.operador + str(contadorNombre)
                         except:
-                            if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
-                            else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
-                        
+                            try:
+                                if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
+                                else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+                            except:
+                                try:
+                                    if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
+                                    else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
+                                except:
+                                    if contadorNombre == 0: nombreTabla = nombreColumna.val
+                                    else: nombreTabla = nombreColumna.val + str(contadorNombre)
 
+                    try:
+                        s = diccionarioColumnasAceptadas[nombreTabla]
+                        contadorNombre = contadorNombre + 1
+                    except:
+                        break
 
-                comprobar = nombreColumna.execute(data, None)
+                try:
+                    comprobar = nombreColumna.execute(data, None)
+                except:
+                    comprobar = nombreColumna.execute()
+
                 if isinstance(comprobar, Error):
                     return comprobar
 
@@ -204,11 +219,13 @@ class Select(Instruccion):
                             try:
                                 if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
                                 else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
-                            except :
-                                if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
-                                else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
-
-
+                            except:
+                                try:
+                                    if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
+                                    else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
+                                except:
+                                    if contadorNombre == 0: nombreTabla = nombreColumna.val
+                                    else: nombreTabla = nombreColumna.val + str(contadorNombre)
 
                     try:
                         a = diccionarioColumnasAceptadas[nombreTabla]
@@ -222,7 +239,10 @@ class Select(Instruccion):
                         break;
                     for keys in columnasAceptadas:
                         directorioTablas[keys]['fila'] = columnasAceptadas[keys][i]
-                    comprobar = nombreColumna.execute(data, directorioTablas)
+                    try:
+                        comprobar = nombreColumna.execute(data, directorioTablas)
+                    except:
+                        comprobar = nombreColumna.execute()
 
                     if isinstance(comprobar, Error):
                         return comprobar
@@ -288,7 +308,108 @@ class Select(Instruccion):
                 groupByOpcional = True
 
         if groupByData == None:
-            ''
+            bFlag = False
+            cantColumnas = 0
+            for columnasSeleccionadas in columnasImprimir:
+                nombreColumna = columnasSeleccionadas.listaseleccionados
+                cantColumnas = cantColumnas + 1
+                if isinstance(nombreColumna, FuncionMatematicaSimple):
+                    if nombreColumna.operador == 'max' or nombreColumna.operador == 'min' or nombreColumna.operador == 'count':
+                        bFlag = True
+                    else:
+                        return Error('Semantico', 'Solo MAX, MIN y COUNT se pueden realizar sin GROUP BY.', 0, 0)
+
+            if bFlag:
+                for columnasSeleccionadas in columnasImprimir:
+                    nombreColumna = columnasSeleccionadas.listaseleccionados
+                    try:
+                        a = Identificador('*', None)
+                        retorno = a.obtenerSeleccionado(data, directorioTablas, columnasAceptadas, diccionarioColumnasAceptadas)
+
+                        if isinstance(retorno, Error):
+                            for borrarTemporales in columnasFromTemporales.keys():
+                                del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
+                            return retorno
+                    except:
+                        cant = 0
+                        for keys in columnasAceptadas:
+                            cant = len(columnasAceptadas[keys])
+                            break
+
+                        nuevaColumna = []
+                        i = 0
+                        contadorNombre = 0
+                        nombreTabla = ''
+                        while True:
+                            try:
+                                if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionmatematica
+                                else: nombreTabla = nombreColumna.tipofuncionmatematica + str(contadorNombre)
+                            except:
+                                try:
+                                    if nombreColumna.operador == 'md5':
+                                        return Error('Sintactico', 'El md5 solamente puede venir en el insert y update', 0, 0)
+                                    if contadorNombre == 0: nombreTabla = nombreColumna.operador
+                                    else: nombreTabla = nombreColumna.operador + str(contadorNombre)
+                                except:
+                                    try:
+                                        if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionTrigonometrica
+                                        else: nombreTabla = nombreColumna.tipofuncionTrigonometrica + str(contadorNombre)
+                                    except:
+                                        try:
+                                            if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
+                                            else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
+                                        except:
+                                            if contadorNombre == 0: nombreTabla = nombreColumna.val
+                                            else: nombreTabla = nombreColumna.val + str(contadorNombre)
+
+                            try:
+                                a = diccionarioColumnasAceptadas[nombreTabla]
+                                contadorNombre = contadorNombre + 1
+                            except:
+                                diccionarioColumnasAceptadas[nombreTabla] = {'columnas': [], 'tipo': ''}
+                                break;
+
+                        while True:
+                            if i == cant:
+                                break;
+                            for keys in columnasAceptadas:
+                                directorioTablas[keys]['fila'] = columnasAceptadas[keys][i]
+                                print(directorioTablas)
+                            try:
+                                comprobar = nombreColumna.execute(data, directorioTablas)
+                            except:
+                                comprobar = nombreColumna.execute()
+
+                            if isinstance(comprobar, Error):
+                                return comprobar
+
+                            diccionarioColumnasAceptadas[nombreTabla]['columnas'].append([comprobar.val])
+                            diccionarioColumnasAceptadas[nombreTabla]['tipo'] = comprobar.type
+                            i = i + 1
+                    break
+
+                agregarColumnas = False
+                columnasGNuevas = []
+                for agregacion in columnasAgregacion:
+                    val = agregacion.execute(data, {}, diccionarioColumnasAceptadas, columnasAceptadas)
+
+                    if isinstance(val, Error):
+                        for borrarTemporales in columnasFromTemporales.keys():
+                            del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
+                        return val
+
+                    columnasGNuevas.append(val)
+                    agregarColumnas = True
+
+                if len(columnasGNuevas) == cantColumnas:
+                    diccionarioColumnasAceptadas = {}
+                    for c in columnasGNuevas:
+                        for v in c['val']:
+                            valor = c['val'][v]
+                        diccionarioColumnasAceptadas[c['name'].upper()] = {'columnas': [valor], 'tipo': c['type']}
+                    return diccionarioColumnasAceptadas
+                else:
+                    return Error('Semantico', 'Se debe de utilizar el MAX, MIN o COUNT solos o con Group By.', 0, 0)
         else:
             if len(diccionarioColumnasAceptadas.keys()) == len(groupByData.lista):
                 for keys in groupByData.lista:
@@ -399,6 +520,38 @@ class Select(Instruccion):
                         diccionarioColumnasAceptadas[nuevas['name']]['columnas'].append(nuevas['val'][col])
                         cont = cont + 1
 
+        if self.fromopcional.orderby != None:
+            for ordenColumnas in self.fromopcional.orderby:
+                nombre = ''
+                if ordenColumnas.table != None:
+                    nombre = ordenColumnas.table.upper() + '.'
+                nombre = nombre + ordenColumnas.column.upper()
+                try:
+                    columna = diccionarioColumnasAceptadas[nombre]
+                except:
+                    for borrarTemporales in columnasFromTemporales.keys():
+                        del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
+                    return Error('Semántico', 'Error(42P01): undefined_table. Descripcion: La columna ' + nombre + " no existe.", 0, 0)
+                cont = 0
+                vals = []
+                tamanio = len(columna['columnas'])
+                for val in columna['columnas']:
+                    vals.append(cont)
+                    cont = cont + 1
+                self.quick_sort(columna['columnas'], vals,  0, tamanio - 1)
+                diccionarioValoresNuevos = {}
+                cont = 0
+                for filas in diccionarioColumnasAceptadas.keys():
+                    if filas == nombre:
+                        continue
+                    diccionarioValoresNuevos[filas] = {'columnas' : []}
+                    for x in range(len(vals)):
+                        diccionarioValoresNuevos[filas]['columnas'].append(diccionarioColumnasAceptadas[filas]['columnas'][vals[x]])
+                    cont = cont + 1
+
+                for llaves in diccionarioValoresNuevos.keys():
+                    diccionarioColumnasAceptadas[llaves]['columnas'] = diccionarioValoresNuevos[llaves]['columnas']
+
         for borrarTemporales in columnasFromTemporales.keys():
             del(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][borrarTemporales])
 
@@ -406,6 +559,41 @@ class Select(Instruccion):
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def partition(self, array, array2, start, end):
+        pivot = array[start]
+        low = start + 1
+        high = end
+
+        while True:
+
+            while low <= high and array[high] >= pivot:
+                high = high - 1
+
+
+            while low <= high and array[low] <= pivot:
+                low = low + 1
+
+            if low <= high:
+                array[low], array[high] = array[high], array[low]
+                array2[low], array2[high] = array2[high], array2[low]
+            else:
+                break
+
+        array[start], array[high] = array[high], array[start]
+        array2[start], array2[high] = array2[high], array2[start]
+
+        return high
+
+
+    def quick_sort(self, array, array2, start, end):
+        if start >= end:
+            return
+
+        p = self.partition(array, array2, start, end)
+        self.quick_sort(array, array2, start, p-1)
+        self.quick_sort(array, array2, p+1, end)
+
 
     def funcionPosibilidades(self, data, nombres, columna, nombreAux, ordenTablas, noWhere, columnasAceptadas, temporales, columnasFromTemporales):
         if len(nombres) == 0:
@@ -455,7 +643,6 @@ class Select(Instruccion):
     def ImprimirTabla(self, columnasMostrar):
         juntarValores = []
         inicio = 0
-        print(columnasMostrar)
         for keys in columnasMostrar.keys():
             contador = 0
             for val in columnasMostrar[keys]['columnas']:
@@ -523,8 +710,6 @@ class ListaDeSeleccionadosConOperador(Instruccion):
         self.arg2 = arg2
 
     def execute(self,data, valoresTabla):
-        print(self)
-        print(valoresTabla)
         if self.operador.upper() == 'CASE' :
             left = ''
             for arg in self.arg1 :
@@ -2139,7 +2324,6 @@ class FuncionFecha(Instruccion):
                 elif dex.isalpha() :
                     descrip +=dex
             dic[descrip] = valor
-            #print(dic)
             for key in dic:
                 if str(key).find(extraccion.val) != -1 :
                      return Primitive('integer',dic[key])
@@ -2209,7 +2393,6 @@ class FuncionMatematicaSimple(Instruccion):
             if columnaImprimir.type == 'integer' or columnaImprimir.type == 'float':
                 val = 0
                 for key in diccionarioAgrupacion:
-                    print (key)
                     val = 0
                     for pos in diccionarioAgrupacion[key]:
                         val = val + columnasAceptadas[tablaAceptada][pos][contador]
@@ -2219,36 +2402,68 @@ class FuncionMatematicaSimple(Instruccion):
             else:
                 return Error('Semantico', 'El tipo para SUM debe ser numerico o float.', 0, 0)
         elif self.operador == 'count':
-            val = 0
-            for key in diccionarioAgrupacion:
-                val = len(diccionarioAgrupacion[key])
-                diccionarioRetorno['val'][key] = [val]
+            if diccionarioAgrupacion == {}:
+                val = 0
+                arr = []
+                for key in columnasAceptadas:
+                    for v in columnasAceptadas[key]:
+                        arr.append(v)
+                    val = len(arr)
+                    diccionarioRetorno['val'][key] = [val]
+                    break
+            else:
+                val = 0
+                for key in diccionarioAgrupacion:
+                    val = len(diccionarioAgrupacion[key])
+                    diccionarioRetorno['val'][key] = [val]
 
             return diccionarioRetorno
 
         elif self.operador == 'max':
-            val = 0
-            valComp = []
-            for key in diccionarioAgrupacion:
+            if diccionarioAgrupacion == {}:
                 val = 0
                 valComp = []
-                for pos in diccionarioAgrupacion[key]:
-                    valComp.append(columnasAceptadas[tablaAceptada][pos][contador])
+                for key in columnasAceptadas:
+                    val = 0
+                    valComp = []
+                    for pos in columnasAceptadas[key]:
+                        valComp.append(pos[contador])
                 r = max(valComp)
                 diccionarioRetorno['val'][key] = [r]
+            else:
+                val = 0
+                valComp = []
+                for key in diccionarioAgrupacion:
+                    val = 0
+                    valComp = []
+                    for pos in diccionarioAgrupacion[key]:
+                        valComp.append(columnasAceptadas[tablaAceptada][pos][contador])
+                    r = max(valComp)
+                    diccionarioRetorno['val'][key] = [r]
 
             return diccionarioRetorno
 
         elif self.operador == 'min':
-            val = 0
-            valComp = []
-            for key in diccionarioAgrupacion:
+            if diccionarioAgrupacion == {}:
                 val = 0
                 valComp = []
-                for pos in diccionarioAgrupacion[key]:
-                    valComp.append(columnasAceptadas[tablaAceptada][pos][contador])
+                for key in columnasAceptadas:
+                    val = 0
+                    valComp = []
+                    for pos in columnasAceptadas[key]:
+                        valComp.append(pos[contador])
                 r = min(valComp)
                 diccionarioRetorno['val'][key] = [r]
+            else:
+                val = 0
+                valComp = []
+                for key in diccionarioAgrupacion:
+                    val = 0
+                    valComp = []
+                    for pos in diccionarioAgrupacion[key]:
+                        valComp.append(columnasAceptadas[tablaAceptada][pos][contador])
+                    r = min(valComp)
+                    diccionarioRetorno['val'][key] = [r]
 
             return diccionarioRetorno
         return self
