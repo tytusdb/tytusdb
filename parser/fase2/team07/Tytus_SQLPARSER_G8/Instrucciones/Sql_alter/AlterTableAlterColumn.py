@@ -45,4 +45,9 @@ class AlterTableAlterColumn(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
-        
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tself.mensaje += FuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo    
