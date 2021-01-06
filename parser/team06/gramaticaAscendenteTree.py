@@ -483,6 +483,7 @@ def p_query(t):
                     | createIndex
                     | combinacionSelects PUNTOYCOMA
                     | execFunction
+                    | if
                     
                     
     '''
@@ -2093,7 +2094,129 @@ def p_contDrop(t):
         nodeFather.son.append(nodeSon2)
 
         t[0]=nodeFather
+#---------------------------------------------- STATEMENT IF -----------------------------------------------
+def p_if_1(t):
+    '''
+    if          :  IF  operacion THEN operacion END IF PUNTOYCOMA
+    ''' 
+    nodeFather = nodeAst()
+    nodeFather.token = 'IF'
 
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'IF'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'THEN'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'END'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = nodeAst()
+    nodeSon6.token = 'IF'
+    nodeSon6.lexeme = t[6]
+    nodeFather.son.append(nodeSon6)
+
+    nodeSon7 = nodeAst()
+    nodeSon7.token = ';'
+    nodeSon7.lexeme = t[7]
+    nodeFather.son.append(nodeSon7)
+
+    t[0]=nodeFather
+def p_if_2(t):
+    '''
+    if          : IF operacion THEN operacion ELSE if 
+    '''
+    nodeFather = nodeAst()
+    nodeFather.token = 'IF'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'IF'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'THEN'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'ELSE'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = t[6]
+    nodeFather.son.append(nodeSon6)
+    t[0] = nodeFather
+
+def p_if_3(t):
+    '''
+    if          : IF operacion THEN operacion ELSE operacion END IF PUNTOYCOMA
+    '''
+    nodeFather = nodeAst()
+    nodeFather.token = 'IF'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'IF'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'THEN'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'ELSE'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = t[6]
+    nodeFather.son.append(nodeSon6)
+    
+    nodeSon51 = nodeAst()
+    nodeSon51.token = 'END'
+    nodeSon51.lexeme = t[7]
+    nodeFather.son.append(nodeSon51)
+
+    nodeSon61 = nodeAst()
+    nodeSon61.token = 'IF'
+    nodeSon61.lexeme = t[8]
+    nodeFather.son.append(nodeSon61)
+
+    nodeSon7 = nodeAst()
+    nodeSon7.token = ';'
+    nodeSon7.lexeme = t[9]
+    nodeFather.son.append(nodeSon7)
+
+    t[0]= nodeFather
+#---------------------------------------------- STATEMENT IF TERMINA ---------------------------------------
+#-----------------------------------------------------STATEMENT CASE--------------------------------------------------------------------
+
+#-----------------------------------------------------STATEMENT CASE TERMINA--------------------------------------------------------------------
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
     '''
@@ -2125,7 +2248,7 @@ def p_listaID_2(t):
     nodeFather.son.append(nodeSon1)
 
     t[0]=nodeFather
-    
+#-----------------------------------------------------STATEMENT CASE--------------------------------------------------------------------    
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
 def p_tipoAlter(t):
     '''
