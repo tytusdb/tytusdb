@@ -2822,14 +2822,14 @@ def p_when_auxiliar_e(t):
 def p_Funciones_General(t):
     'FUNCIONESS  :  FUNTIONE  FUNCTION  ID  PARIZQ PARAMETROSG PARDER RETURNS TIPO_CAMPO ALIASRET CODEEPSILON DECLAEP CODE  '
     t[0]=Funciones_(t[1],t[3],t[8],t[9] , t[5], t[10], t[11], t[12])
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<  Estoy llegando")
+    rep_gramatica('\n <TR><TD> FUNCIONESS →     FUNTIONE  FUNCTION  ID  PARIZQ PARAMETROSG PARDER CODIGO  </TD><TD> t[0]=Funciones_(t[1],t[3],t[8],t[9] , t[5], t[10], t[11], t[12]) </TD></TR>')
 
 
 def p_Store_ProcedureGeneral(t):
     'FUNCIONESS  :  FUNTIONE  PROCEDURE  ID  PARIZQ PARAMETROSG PARDER  ARGU_N_N  ALIASRET CODEEPSILON DECLAEP CODE '
     t[0]=Procedimientos_(t[1],t[3],t[7],t[8], t[5], t[9], t[10], t[11])
+    rep_gramatica('\n <TR><TD> FUNCIONESS →      FUNTIONE  PROCEDURE  ID  PARIZQ PARAMETROSG PARDER CODIGO  </TD><TD> t[0]=Procedimientos_(t[1],t[3],t[7],t[8], t[5], t[9], t[10], t[11]) </TD></TR>')
 
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<  Estoy llegando al procedure")
 
 
 
@@ -2837,18 +2837,22 @@ def p_Store_ProcedureGeneral(t):
 def p_Funcionee(t):
     'FUNTIONE  :  CREATE '
     t[0] = str(t[1])
+    rep_gramatica('\n <TR><TD> FUNTIONE →      CREATE  </TD><TD> t[0] = str(t[1]) </TD></TR>')
+
 
 
 
 def p_FuncioneeR(t):
     'FUNTIONE  :  CREATE OR REPLACE'
     t[0] = str(t[1])+" "+ str(t[2])+" "+ str(t[3])
+    rep_gramatica('\n <TR><TD> FUNTIONE →       CREATE OR REPLACE  </TD><TD> t[0] = str(t[1]),str(t[2]),str(t[3]) </TD></TR>')
 
 
 
 def p_ReservadaFunc(t):
     'FUNCI  :  FUNCTION'
     t[0] = str(t[1])
+    rep_gramatica('\n <TR><TD> FUNCI →      FUNCTION </TD><TD> t[0] = str(t[1])  </TD></TR>')
 
 
 def p_ReservadaEpsilon(t):
@@ -2865,15 +2869,18 @@ def p_ReservadaEpsilon(t):
 def p_Parametros_General(t):
     'PARAMETROSG  :  PARAMETROS '
     t[0] = t[1]
+    rep_gramatica('\n <TR><TD> PARAMETROSG →      PARAMETROS </TD><TD> t[0] = t[1]  </TD></TR>')
 
 def p_Parametros_GeneralEpsilon(t):
     'PARAMETROSG  :   '
     t[0] = ""
+    
 #+++++++ Lista de comandos
 def p_Parametros_P(t):
     'PARAMETROS  :  PARAMETROS COMA PARAMETRO'
     t[1].append(t[3])
     t[0] = t[1]
+    rep_gramatica('\n <TR><TD> PARAMETROS →     PARAMETROS COMA PARAMETRO  </TD><TD>   t[1].append(t[3]) t[0] = t[1] </TD></TR>')
 
 def p_Parametros_List(t):
     'PARAMETROS  :  PARAMETRO '
@@ -2900,6 +2907,7 @@ def p_Parametros_ArgumentosEpsilon(t):
 def p_Declaracion_ListaMore(t):
     'DECLAEP  : DECLARE  VARIABLES_N'
     t[0] = t[2]
+    rep_gramatica('\n <TR><TD> DECLAEP →    DECLARE  VARIABLES_N  </TD><TD>   t[0] = t[2] </TD></TR>')
 
 
 def p_Declaracion_Epsion(t):
@@ -2938,7 +2946,7 @@ def p_Retorno_Cuerpo(t):
 def p_Alias_Retorno(t):
     'ALIASRET  :  AS ALI '
     t[0] = str(t[2])
-    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<  ESTOY JALANDO EL ALIAS >>>>>>>>>>>>>>>>>>>>>>"+str(t[2]))
+    rep_gramatica('\n <TR><TD> ALIASRET →   AS ALI  </TD><TD>   t[0] = str(t[2]) </TD></TR>')
 
 
 def p_Alias_RetornoID(t):
@@ -2962,6 +2970,7 @@ def p_Alias_RetornoEpsilon(t):
 def p_Code_Estructures(t):
     'CODE  : BEGIN CODEEPSILON END PUNTOCOMA DOL ARGU_N_N'
     t[0] = Code_Funciones(t[4], t[2])
+    rep_gramatica('\n <TR><TD> CODE →    BEGIN CODEEPSILON END PUNTOCOMA DOL ARGU_N_N    </TD><TD>    t[0] = Code_Funciones(t[4], t[2])  </TD></TR>')
 
 
 
@@ -3045,15 +3054,18 @@ def p_CodigoFunciones(t):
                         | EJECUTARFUNCION PUNTOCOMA
                         | RETORNOS '''
     t[0] = t[1]
+    rep_gramatica('\n <TR><TD> CODE_ →    INSTRUCCION PLSQL    </TD><TD>   t[0] = t[1]  </TD></TR>')
 
 
 def p_Codigo_FuncionesLl(t):
     'EJECUTARFUNCION  : EXECUTE ID PARIZQ EXPRESI PARDER '
     t[0] = EjecucionFuncion(t[2],t[4])
+    rep_gramatica('\n <TR><TD> EJECUTARFUNCION →    EXECUTE ID PARIZQ EXPRESI PARDER   </TD><TD>   t[0] = EjecucionFuncion(t[2],t[4]) </TD></TR>')
 
 def p_Codigo_FuncionesLl2(t):
     'EJECUTARFUNCION  : SELECT ID PARIZQ EXPRESI PARDER '
     t[0] = EjecucionFuncion(t[2],t[4])
+    rep_gramatica('\n <TR><TD> EJECUTARFUNCION →    EXECUTE ID PARIZQ EXPRESI PARDER   </TD><TD>   t[0] = EjecucionFuncion(t[2],t[4]) </TD></TR>')
 
 #------------ Lista Expresiones
 def p_ExpressEs(t):
@@ -3282,8 +3294,8 @@ def p_AlterIndex(t):
 
 
 def p_AlterNameIndex(t):
-    'EDITNAMEINDEX  :  ALTER INDEX IFEXISTI ID RENAME ID PUNTOCOMA'
-    t[0]  = AlterIndiceName(t[4],t[6])
+    'EDITNAMEINDEX  :  ALTER INDEX IFEXISTI ID RENAME TO ID PUNTOCOMA'
+    t[0]  = AlterIndiceName(t[4],t[7])
 
 
 #------------- if exists
