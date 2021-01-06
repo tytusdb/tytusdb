@@ -172,6 +172,11 @@ def Seleccionar():
 
         my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
+
+        global arboAux_errores
+
+        arboAux_errores = result
+
     except:
         my_text1.insert(END, 'Ocurrio un error al compilar')
 
@@ -419,7 +424,7 @@ def Optimizacion():
         texto += '<td> ' + Error.regla + '</td>'
         texto += '<td> ' + Error.original + '</td>'
         texto += '<td> ' + Error.optimizado + '</td>'
-        texto += '<td> ' + str(Error.linea) + '</td>'
+        texto += '<td> ' + str(Error.fila) + '</td>'
         texto += '<td> ' + str(Error.columna) + '</td></tr>'
         contador = contador + 1
     texto += "</table> </div> </body> </html>"

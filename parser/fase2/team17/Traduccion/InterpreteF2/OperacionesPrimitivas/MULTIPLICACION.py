@@ -23,6 +23,10 @@ class MULTIPLICACION(NodoArbol):
             pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+
+        if self.esNecesarioOptimizar(entorno, arbol):
+            return self.traducir_optimizado(entorno, arbol)
+
         izquierdo = self.izq.traducir(entorno, arbol)  # <-- tiene un temporal
         derecho = self.der.traducir(entorno, arbol)  # <-- tiene un temporal
         if self.analizar_semanticamente(entorno, arbol) == 0:
@@ -58,3 +62,22 @@ class MULTIPLICACION(NodoArbol):
             #newVal: Valor = Valor(TIPO.CADENA, str(str(izquierdo.data)) * str(derecho.data))
             # ERROR SEMANTICO DE TIPOS NO SE PUEDEN OPERAR TIPOS CADENA
             return None
+
+    def esNecesarioOptimizar(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        if str(self.izq.getString(entorno, arbol)) == '1':
+            return True
+        elif str(self.der.getString(entorno, arbol)) == '1':
+            return True
+        return False
+
+    def traducir_optimizado(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+        if str(self.izq.getString(entorno, arbol)) == '1':
+            derecho = []
+            derecho.append(self.der.traducir(entorno, arbol))
+            derecho.append('10-14')
+            return derecho
+        elif str(self.der.getString(entorno, arbol)) == '1':
+            izquierdo = []
+            izquierdo.append(self.izq.traducir(entorno, arbol))
+            izquierdo.append('10-14')
+            return izquierdo

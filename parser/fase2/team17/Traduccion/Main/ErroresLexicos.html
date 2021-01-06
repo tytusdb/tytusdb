@@ -1,7 +1,7 @@
 
             <!DOCTYPE html>
             <html lang="es">
-            <head><meta charset="UTF-8">  <title> Errores Lexicos</title> 
+            <head><meta charset="UTF-8">  <title> Reporte de Optimizacion</title> 
             <style type="text/css"> 
 body{ background-color: white; font-family: Arial;} 
         #main-container{ margin: 170px auto; width: 500px;}
@@ -11,11 +11,13 @@ body{ background-color: white; font-family: Arial;}
         tr:nth-child(even){ background-color: #ddd;}
         tr:hover td{background-color: black;color: white;}</style> </head> </body>
             <div id="main-container">
-            <h1>Reporte de errores Lexicos OLC2- G17</h1>
+            <h1>Reporte de Optimizaxion OLC2- G17</h1>
             <table> <thead> <tr>
-            <th>#</th>
-            <th>Descripcion</th>
+            <th>No.</th>
+            <th>Regla Utilizada</th>
+            <th>Codigo Original</th>
+            <th>Codigo Optimizado</th>
             <th>Fila</th>
-            <th>Origen</th>
+            <th>Columna</th>
             </tr> </thead>
-            <tr><td> 1</td><td> Caracter ilegal @</td><td> 5</td><td> Lexico</td></tr></table> </div> </body> </html>
+            <tr><td> 1</td><td> Regla 8</td><td> t1 = t1 + 0</td><td> Se elimina la instruccion</td><td> 1</td><td> 1</td></tr><tr><td> 2</td><td> Regla 9</td><td> t1 = t1 - 0</td><td> Se elimina la instruccion</td><td> 1</td><td> 1</td></tr><tr><td> 3</td><td> Regla 12</td><td> t1 = t0 + 0</td><td> t1 = t0</td><td> 1</td><td> 1</td></tr><tr><td> 4</td><td> Regla 13</td><td> t0 = t1 - 0</td><td> t0 = t1</td><td> 1</td><td> 1</td></tr><tr><td> 5</td><td> Regla 10</td><td> t0 = t0 * 0</td><td> Se elimina la instruccion</td><td> 1</td><td> 1</td></tr><tr><td> 6</td><td> Regla 14</td><td> t0 = t1 * 0</td><td> t0 = t1</td><td> 1</td><td> 1</td></tr></table> </div> </body> </html>

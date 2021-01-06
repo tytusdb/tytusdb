@@ -92,7 +92,7 @@ class SI(NodoArbol):
         # Regla no.5:
         original = "if " + validacion + " goto " + str(Bv) + ' goto ' + str(Bf)
         optimizado = "goto " + str(Bf)
-        reportero = ReporteOptimizacion('Regla 4', original, optimizado, str(self.linea), str(self.columna))
+        reportero = ReporteOptimizacion('Regla 5', original, optimizado, str(self.linea), str(self.columna))
         arbol.ReporteOptimizacion.append(reportero)
         # ----------------------------------------------------------------
         return

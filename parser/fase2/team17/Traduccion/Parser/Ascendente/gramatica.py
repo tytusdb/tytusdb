@@ -37,6 +37,9 @@ from InterpreteF2.Primitivos.ENTERO import ENTERO
 from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
 from InterpreteF2.RAISE.RAISE_complex import RAISE_complex
 from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
+from InterpreteF2.OperacionesPrimitivas.RESTA import RESTA
+from InterpreteF2.OperacionesPrimitivas.MULTIPLICACION import MULTIPLICACION
+from InterpreteF2.OperacionesPrimitivas.DIVISION import DIVISION
 from InterpreteF2.OperacionesPrimitivas.OperaRelacional import OperaRelacional
 from InterpreteF2.IF.SI import SI
 from InterpreteF2.IF.SIELSE import SIELSE
@@ -1926,9 +1929,11 @@ def p_exp(t):
             pass
         elif t[2]=='*':
             # exp MULTI exp
+            t[0] = MULTIPLICACION(t[1], t[3], 1, 1)
             pass
         elif t[2]=='/':
             # exp DIVISION exp
+            t[0] = DIVISION(t[1], t[3], 1, 1)
             pass
         elif t[2]=='%':
             # exp MODULO exp
@@ -1939,6 +1944,7 @@ def p_exp(t):
             pass
         elif t[2]=='-':
             # exp MENOS exp
+            t[0] = RESTA(t[1], t[3], 1, 1)
             pass
         elif t[2].lower()=='like':
             # exp like  exp

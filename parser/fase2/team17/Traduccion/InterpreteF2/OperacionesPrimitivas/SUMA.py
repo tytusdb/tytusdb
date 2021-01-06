@@ -11,6 +11,7 @@ class SUMA(NodoArbol):
         super().__init__(line, coliumn)
         self.izq = izq
         self.der = der
+        self.regla_usada = 0
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         tipoRes = COMPROBADOR_deTipos(self.izq.analizar_semanticamente(entorno, arbol), self.der.analizar_semanticamente(entorno, arbol), "+")
@@ -22,6 +23,10 @@ class SUMA(NodoArbol):
             pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+
+        if self.esNecesarioOptimizar(entorno, arbol):
+            return self.traducir_optimizado(entorno, arbol)
+
         izquierdo = self.izq.traducir(entorno, arbol) # <-- tiene un temporal
         derecho = self.der.traducir(entorno, arbol) # <-- tiene un temporal
         try:
@@ -54,6 +59,11 @@ class SUMA(NodoArbol):
         pass
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        print('A1: ' + str(self.izq.getString(entorno, arbol)))
+        print('A2: ' + str(self.der.getString(entorno, arbol)))
+        print(self.esNecesarioOptimizar(entorno, arbol))
+        self.hayQueOptimizar = self.esNecesarioOptimizar(entorno, arbol)
+
         izquierdo: Valor = self.izq.getValueAbstract(entorno, arbol) # <-- tiene un temporal
         derecho: Valor = self.der.getValueAbstract(entorno, arbol) # <-- tiene un temporal
         if self.analizar_semanticamente(entorno, arbol) == 0:
@@ -65,3 +75,22 @@ class SUMA(NodoArbol):
         elif self.analizar_semanticamente(entorno, arbol) == 2:
             newVal: Valor = Valor(TIPO.CADENA, str(str(izquierdo.data)) + str(derecho.data))
             return newVal
+
+    def esNecesarioOptimizar(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        if str(self.izq.getString(entorno, arbol)) == '0':
+            return True
+        elif str(self.der.getString(entorno, arbol)) == '0':
+            return True
+        return False
+
+    def traducir_optimizado(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+        if str(self.izq.getString(entorno, arbol)) == '0':
+            derecho = []
+            derecho.append(self.der.traducir(entorno, arbol))
+            derecho.append('8-12')
+            return derecho
+        elif str(self.der.getString(entorno, arbol)) == '0':
+            izquierdo = []
+            izquierdo.append(self.izq.traducir(entorno, arbol))
+            izquierdo.append('8-12')
+            return izquierdo
