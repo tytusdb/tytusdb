@@ -95,7 +95,7 @@ def p_sql_instruction(p):
     p[0] = p[1]
     if p.slice[1].type != "error":
         contador_instr += 1
-    print("STRING PARA PASARLO: \n" + p[0]._tac)
+    # print("STRING PARA PASARLO: \n" + p[0]._tac)
 
 
 def p_use_statement(p):
@@ -863,10 +863,14 @@ def p_sql_functions(p):
     '''
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
-    if len(p) == 14: 
+    if len(p) == 14:
         p[0] = Funcion(p[3], p[5], p[10], p[8], True, False, noLine, noColumn)
+    elif len(p) == 13:
+        p[0] = Funcion(p[3], [], p[9], p[7], True, False, noLine, noColumn)
+    elif len(p) == 12:
+        p[0] = Funcion(p[3], [5], p[8], None, True, False, noLine, noColumn)
     else:
-        print("NO ENTRO EN ESA PRODUCCION XD  --- CREATE FUNCTION")
+        p[0] = Funcion(p[3], [], p[7], None, True, False, noLine, noColumn)
 
 #--->
 
@@ -1090,12 +1094,6 @@ def p_options_statements(p):
 def p_statement_type(p):
     '''statementType : PLPSQL_EXPRESSION  SEMICOLON 
                     |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL QUERYSTATEMENT
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS INSERTSTATEMENT RIGHT_PARENTHESIS
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL INSERTSTATEMENT
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS DELETESTATEMENT RIGHT_PARENTHESIS
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL DELETESTATEMENT
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS UPDATESTATEMENT RIGHT_PARENTHESIS
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL UPDATESTATEMENT
                     |  RAISE_EXCEPTION 
                     |  BODY_DECLARATION
                     |  ifStatement
@@ -1105,7 +1103,10 @@ def p_statement_type(p):
                     | CALL_FUNCTIONS_PROCEDURE SEMICOLON
     '''
     if len(p) == 4:
-        p[0] = [p[1],p[2],p[3]]
+        if isinstance(p[1], ObjectReference): 
+            p[0] = AsignacionID(p[1].reference_column.value, p[3], 0, 0)
+        else:
+            p[0] = AsignacionID(p[1], p[3], 0, 0)
     else:
         p[0] = p[1]
 
@@ -1284,21 +1285,40 @@ def p_dml(p):
            | UPDATESTATEMENT'''
     p[0] = p[1]
 
-#TODO: OBTENER STRING
+#TODO: PROBAR UPDATE
 def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
+    string = ''
     if(len(p) == 8):
         p[0] = Update(p[2], p[5], p[6], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
-        p[0] = f'UPDATE ID {p[3]._tac} SET ;'
+
+        for index, var in enumerate(p[5]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f'UPDATE {p[2]} {p[3]._tac} SET {string} {p[6]._tac};'
+
     elif(len(p) == 7):
         p[0] = Update(p[2], p[4], p[5], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f'UPDATE {p[2]} SET {string} {p[5]._tac};'
     else:
         p[0] = Update(p[2], p[4], None, generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f'UPDATE {p[2]} SET {string};'
 
 
 def p_set_list(p):
@@ -1379,7 +1399,7 @@ def p_options_list2(p):
     # else:
     #     nodo.add_childrens(p[1])
     # p[0] = nodo
-
+    p[0] = p[1]
 
 def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
@@ -2492,11 +2512,13 @@ def p_sql_name(p):
                | ID'''
     if p.slice[1].type == "STRINGCONT" or p.slice[1].type == "CHARCONT":
         p[0] = PrimitiveData(DATA_TYPE.STRING, p[1],
-                             p.lineno(1), find_column(p.slice[1]))
+                             p.lineno(1), find_column(p.slice[1]))                     
+        p[0]._tac = f'\'{p[1]}\''
+
     else:
         p[0] = Identifiers(p[1], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'{p[1]}'
         
-    p[0]._tac = f'{p[1]}'
 
 def p_type_select(p):
     '''TYPESELECT : ALL
