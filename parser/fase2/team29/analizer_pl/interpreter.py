@@ -34,37 +34,60 @@ def reporteFunciones(env):
 
 
 s = """ 
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+CREATE procedure myFuncion(texto text, puta integer) RETURNS text AS $$
+declare 
+    texto2 integer := 2;
 BEGIN
-	RETURN texto;
+    case when 1=2 then
+    texto2 := 25; 
+        case when texto is true then
+            puta = 'cisco';
+        else
+            puta = 'alv';
+        end case;
+    else 
+    texto := 'd'; 
+    puta := 'i'; 
+    end case;
+    RETURN (5+2>81 and  1+33 != 4) is not TRUE;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE INDEX ON tbbodega ((lower(bodega)));
+CREATE function alv(texto text) RETURNS text AS $$
+declare 
+    texto2 integer := 2;
+    puta text;
+BEGIN
+    case when 1=2 then
+    texto2 := 25; 
+        case when texto is true then
+            puta = 'cisco';
+        else
+            puta = 'alv';
+        end case;
+    else 
+    texto := 'd'; 
+    puta := 'i'; 
+    end case;
+    RETURN (5+2>81 and  1+33 != 4) is not TRUE;
+END;
+$$ LANGUAGE plpgsql;
 
-create procedure sp_validainsert()
-language plpgsql
-as $$
-DECLARE resultado INTEGER; 
-		retorna   INTEGER;
-begin
-	resultado = 5;
-end; $$
-								 
-EXECUTE sp_validainsert();
-																			  
-
-create procedure sp_validaupdate()
-language plpgsql
-as $$
-begin
-	update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
-end; $$
-
-EXECUTE sp_validaupdate();
-
+CREATE FUNCTION sales_tax(nombre integer) RETURNS integer AS $$
+DECLARE
+    x integer := 12;
+    msg integer := 0;
+BEGIN
+CASE
+    WHEN x BETWEEN 0 AND 10 THEN
+        msg := 'value is between zero and ten';
+    WHEN x BETWEEN 11 AND 20 THEN
+        msg := 'value is between eleven and twenty';
+END CASE;
+END;
+$$ LANGUAGE plpgsql;
 """
 
-# traducir(s)
+traducir(s)
 result = grammar2.parse(s)
 print(result)

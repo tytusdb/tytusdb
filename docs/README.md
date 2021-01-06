@@ -320,6 +320,23 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación.
 
 - BlockChain: el storageManager debe proveer un mecanismo para trabajar en modo seguro una tabla. Es decir, al activar el modo seguro de una tabla, cuando se realicen operaciones de inserción se debe ir creando bloques con sus respectivos valores Hash (esto almacenado en un archivo JSON), cuando algún bloque sea modificado o eliminado la cadena quedará incosistente y debe mostrarse de manera gráfica.
 
+```
+def safeModeOn(database: str, table: str): -> int
+```
+Activa el modo seguro para una tabla de una base de datos.  
+Parámetro database: nombre de la base de datos. 
+Parámetro table: nombre de la tabla.  
+Valor de retorno: 0 operación exitora, 1 error en la operación, 2 database inexistente, 3 table inexistente, 4 modo seguro existente.  
+
+```
+def safeModeOff(database: str, table: str): -> int
+```
+Desactiva el modo seguro en la tabla especificada de la base de datos.  
+Parámetro database: nombre de la base de datos.  
+Parámetro table: nombre de la tabla.  
+Valor de retorno: 0 operación exitora, 1 error en la operación, 2 database inexistente, 3 table inexistente, 4 modo seguro no existente.  
+
+
 ### 8. Grafos
 
 El storageManager debe tener un paquete de generación de diagramas de estructuras de datos basado en GraphViz. Para esto se deben crear los siguientes grafos de dependencias:
@@ -366,12 +383,6 @@ La segunda fase del proyecto, en cuanto al parser de SQL, consiste en agregar lo
 
 ### Reportes para estructuras de datos
 Los reportes de las estructuras utilizadas se deben mostrar mediante una aplicación de interfaz gráfica utilizando cualquier herramienta gráfica (que cumpla compatibilidades de licencia). 
-
-De la fase 1, la aplicación debe mostrar de manera gráfica y navegable las siguientes estructuras:
-- bases de datos
-- conjunto de tablas 
-- tabla
-- tupla
 
 Para la fase 2, se debe mostrar los dos grafos de dependencias y el blockchain.
 

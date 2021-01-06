@@ -112,8 +112,6 @@ def p_isblock_f(t):
 
 # region function
 
-# TODO: isBlock = True
-
 
 def p_function_stmt(t):
     """
@@ -585,9 +583,6 @@ def p_else_case_stmt_n(t):
 def p_case_stmt_bool(t):
     """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
     t[0] = code.Case(t[3], t[5], t[6], t[7], t.slice[1].lineno, t.slice[1].lexpos)
-    # t[0] = t[3]
-    # expBool contiene el C3D de la expresion
-    # TODO: agregar el else case
     repGrammar.append(t.slice)
 
 
@@ -988,6 +983,7 @@ def p_id_string(t):
     | STRING
     | CHARACTER
     """
+    t[0] = {"text": "", "c3d": None}
     repGrammar.append(t.slice)
 
 
@@ -1012,6 +1008,7 @@ def p_createopts_db(t):
     """
     createOpts : orReplace R_DATABASE ifNotExists idOrString createOwner createMode
     """
+    print(t)
     repGrammar.append(t.slice)
 
 
@@ -1591,8 +1588,6 @@ def p_literal(t):
     | R_NULL
     """
     val = t.slice[1].value
-    if val == "NULL":
-        val = "True"
     t[0] = expression.C3D("", val, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
@@ -1602,10 +1597,7 @@ def p_literal_bool(t):
     literal :  R_TRUE
     | R_FALSE
     """
-    if t.slice[1].value == "TRUE":
-        val = "True"
-    else:
-        val = "False"
+    val = t.slice[1].value
     t[0] = expression.C3D("", val, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
@@ -1645,6 +1637,7 @@ def p_datatype_case_when(t):
     """
     datatype : R_CASE caseList optElse R_END
     """
+    repGrammar.append(t.slice)
 
 
 def p_case_list(t):
@@ -1652,16 +1645,19 @@ def p_case_list(t):
     caseList : caseList caseWhen
             | caseWhen
     """
+    repGrammar.append(t.slice)
 
 
 def p_caseWhen(t):
     """caseWhen : R_WHEN expBool R_THEN literal"""
+    repGrammar.append(t.slice)
 
 
 def p_caseWhen_2(t):
     """optElse : R_ELSE literal
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_datatype_operadores_unarios(t):
@@ -1865,12 +1861,6 @@ def p_optBoolPredicate_1(t):
     | R_IS R_FALSE
     | R_IS R_UNKNOWN
     """
-    if t[2] == "TRUE":
-        t[2] = "True"
-    elif t[2] == "FALSE":
-        t[2] = "False"
-    elif t[2] == "NULL" or t[2] == "UNKNOWN":
-        t[2] = "None"
     t[0] = t[1] + t[2]
     repGrammar.append(t.slice)
 
@@ -1881,12 +1871,6 @@ def p_optBoolPredicate_2(t):
     | R_IS R_NOT R_FALSE
     | R_IS R_NOT R_UNKNOWN
     """
-    if t[3] == "TRUE":
-        t[3] = "True"
-    elif t[3] == "FALSE":
-        t[3] = "False"
-    elif t[3] == "NULL" or t[3] == "UNKNOWN":
-        t[3] = "None"
     t[0] = t[1] + t[2] + t[3]
     repGrammar.append(t.slice)
 
@@ -1953,10 +1937,6 @@ def p_idOrLiteral(t):
     | R_TRUE
     | R_FALSE
     """
-    if t[1] == "TRUE":
-        t[1] = "True"
-    elif t[1] == "FALSE":
-        t[1] = "False"
     repGrammar.append(t.slice)
 
 
