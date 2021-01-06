@@ -1,9 +1,9 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl import grammar
 from analizer_pl.statement.expressions import code
 
 
-class ElseStmt(Expression):
+class ElseStmt(Instruction):
     def __init__(self, row, column, stmt) -> None:
         super().__init__(row, column)
         self.stmts = stmt

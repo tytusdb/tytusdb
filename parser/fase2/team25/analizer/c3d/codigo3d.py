@@ -120,7 +120,7 @@ class Codigo3d:
         cadena+=("from goto import with_goto" + "\n")
         cadena+=("from interpreter import execution"+"\n")
         cadena+=("from c3d.stack import Stack"+"\n")
-        cadena+=('\nstack = Stack()\n\n')
+        cadena+=('\nstack = Stack()\nRETURN=[None]\n')
         cadena+=("\n\n\n@with_goto\n")
         cadena+=("def principal():\n")
         for inst in self.listaCode3d:

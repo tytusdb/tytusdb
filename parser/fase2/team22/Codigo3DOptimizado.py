@@ -7,7 +7,8 @@ import sintactico
 tablaGlobal = Tabla(None)
 arbol = Arbol()
 
-def ejecutar3D():
+def call_funcion_intermedia():
+    dropAll()
     input = ""
     for i in stack:
         input += stack[i] + "\n"
@@ -25,6 +26,3 @@ h = 0
 @with_goto
 def exec():
     global p
-
-exec()
-ejecutar3D()

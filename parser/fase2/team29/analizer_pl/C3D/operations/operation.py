@@ -119,7 +119,6 @@ class Unary(Expression):
             if "NOT" in self.operator:
                 exp2 = self.operator[5:]
                 self.operator = " != "
-
             else:
                 exp2 = self.operator[2:]
                 self.operator = " == "
