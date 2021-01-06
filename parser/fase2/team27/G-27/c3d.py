@@ -2085,26 +2085,26 @@ def p_fparametros(t):
 # ======================================================================
 
 def p_alter_index(t):
-    '''alter_index : ALTER INDEX if_exists ID ID argcol arg_punto_coma'''
+    '''alter_index : ALTER INDEX ID ID argcol arg_punto_coma'''
     bandera = False
     for it in ListaIndices:
-        if it['name'] == str(t[4]):
+        if it['name'] == str(t[3]):
             iterador = 0
             for ite in it['columns']:
-                if ite == str(t[5]):
+                if ite == str(t[4]):
                     bandera = True
                     del it['columns'][iterador]
                     break
                 iterador = iterador + 1
             if bandera == True:
-                if isinstance(t[6],str):
-                    it['columns'].append(str(t[6]))
+                if isinstance(t[5],str):
+                    it['columns'].append(str(t[5]))
                 else:
-                    it['columns'].append('column('+str(t[6])+')')
+                    it['columns'].append('column('+str(t[5])+')')
                 break
     t[0] = GenerarC3D()
     t[0].statement = 'INDEX'
-    t[0].code = t[1] +' '+ t[2]  +' '+t[5]+' '+ t[5]  +' '+str(t[6])
+    t[0].code = t[1] +' '+ t[2]  +' '+t[3]+' '+ t[4]  +' '+str(t[5])
     
 def p_argcol(t):
     '''argcol : ID

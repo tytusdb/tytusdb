@@ -260,9 +260,7 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | execute
                    | ins_create_pl
-                   | create_index
-                   | drop_index
-                   | alter_index'''
+                   | create_index'''
     t[0] = GenerarBNF()
     t[0].produccion = '<INSTRUCCION>'
     t[0].code += '\n' + '<INSTRUCCION>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
@@ -1656,7 +1654,7 @@ def p_ins_delete(t):
 
 def p_ins_create_pl(t):
     '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameters PARCIERRE returns AS  block LANGUAGE ID PUNTO_COMA
-                    | CREATE op_replace PROCEDURE ID PARABRE parameters PARCIERRE LANGUAGE ID AS  block 
+                    | CREATE op_replace PROCEDURE ID PARABRE parameters PARCIERRE AS  block LANGUAGE ID PUNTO_COMA
     '''
     if len(t) == 14:
         t[0] = GenerarBNF()
@@ -1665,7 +1663,7 @@ def p_ins_create_pl(t):
     else: #13
         t[0] = GenerarBNF()
         t[0].produccion = '<INS_CREATE_PL>'
-        t[0].code += '\n' + '<INS_CREATE_PL>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + str(t[9]) + ' ' + str(t[10]) + ' ' + t[11].produccion + ' ' + t[2].code + ' ' + t[6].code + ' ' + t[11].code
+        t[0].code += '\n' + '<INS_CREATE_PL>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + str(t[8]) + ' ' + t[9].produccion + ' ' + str(t[10]) + ' ' + str(t[11]) + ' ' + str(t[12]) + ' ' + t[2].code + ' ' + t[6].code + ' ' + t[9].code
 
 def p_op_replace(t):
     '''op_replace :  OR REPLACE
@@ -2362,25 +2360,6 @@ def p_arg_where_param(t):
         t[0] = GenerarBNF()
         t[0].produccion = '<ARG_WHERE_PARAM>'
         t[0].code += '\n' + '<ARG_WHERE_PARAM>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
-
-def p_drop_index(t):
-    '''drop_index : DROP INDEX ID arg_punto_coma'''
-    t[0] = GenerarBNF()
-    t[0].produccion = '<DROP_INDEX>'
-    t[0].code += '\n' + '<DROP_INDEX>' + ' ::= ' + str(t[1]) + ' ' + str(t[2])  + ' ' + str(t[3]) + ' ' + t[4].produccion + ' ' + t[4].code 
-
-def p_alter_index(t):
-    '''alter_index : ALTER INDEX if_exists ID ID argcol arg_punto_coma'''
-    t[0] = GenerarBNF()
-    t[0].produccion = '<ALTER_INDEX>'
-    t[0].code += '\n' + '<ALTER_INDEX>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + str(t[5])  + ' ' + t[6].produccion  + ' ' + t[7].produccion  + ' ' + t[3].code  + ' ' + t[6].code + ' ' + t[7].code 
-
-def p_argcol(t):
-    '''argcol : ID
-              | NUMERO'''
-    t[0] = GenerarBNF()
-    t[0].produccion = '<ARGCOL>'
-    t[0].code += '\n' + '<ARGCOL>' + ' ::= ' + str(t[1])
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
