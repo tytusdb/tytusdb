@@ -7,7 +7,6 @@ class Declare(Instruccion):
         self.identificador = id
         self.valor = id2
         self.operacion = operacion
-        
 
     def ejecutar(self, ts, arbol):
         super().ejecutar(ts,arbol)
@@ -15,6 +14,10 @@ class Declare(Instruccion):
         exp = Simbolo(self.identificador,self.operacion,self.valor,self.linea,self.columna)
         ts.setVariable(exp)
         print("imprimir_declaracion")
+
+    def traducir(self, tabla, controlador):
+        codigo =''
+        print(str(self.identificador.id)+ ' = ' + str(self.valor))
 
 '''
 instruccion = Declare("hola mundo",None, 1,2)

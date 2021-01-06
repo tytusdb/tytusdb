@@ -8,7 +8,12 @@ class Set(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+        print(str(self.valor) + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+
+    def traducir(self, tabla, controlador):
+        codigo =''
+        #print(self.identificador + ' = ' + str(self.valor))
+        
 '''
 instruccion = Use("hola mundo",None, 1,2)
 
