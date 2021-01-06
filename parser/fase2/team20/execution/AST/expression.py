@@ -193,17 +193,25 @@ class ExtractFunction(Expression):
         dot += self.expression.graphAST('',hash(self))
         return dot
 
-class DatePartFunction(Expression):
-    def __init__(self, function, expression):
+class CreatedFunction(Expression):
+    def __init__(self, function, expressions):
         self.function = function
-        self.expression = expression
-    def __repr__(self):
-        
-        return "DatePartFunction('"+str(self.function)+"',"+str(self.expression)+")" 
+        self.expressions = expressions
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
-        dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
-        dot += self.expression.graphAST('',hash(self))
+        str(hash("expressions") + hash(self)) + '\n'
+        dot += str(hash("expressions") + hash(self)) + \
+            '[label=\"' + "expressions" + '\"]\n'
+        for expression in self.expressions:
+            dot+= expression.graphAST('',str(hash("expressions") + hash(self)))
+        return dot
+
+class SelectFunction(Expression):
+    def __init__(self, select):
+        self.select = select
+    def graphAST(self, dot, parent):
+        dot += str(parent) + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"' + str("SELECT") + '\"]\n'
         return dot
 
 class ExpressionAsStringFunction(Expression):
@@ -213,15 +221,6 @@ class ExpressionAsStringFunction(Expression):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"AS STRING\"]\n'
         dot += self.expression.graphAST('',hash(self))
-        return dot
-
-class CountFunction(Expression):
-    def __init__(self, function):
-        self.function = function
-    def graphAST(self, dot, parent):
-        dot += str(parent) + '->' + str(hash(self)) + '\n'
-        dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
-        #dot += self.expression.graphAST('',hash(self))
         return dot
 
 class NSeparator(Expression):

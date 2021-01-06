@@ -64,7 +64,6 @@ class Execute():
                 else:
                     executeInstruction(self,node)
                 
-                #executeSentence(self,node)
                 #executeSentence2(self,node)
         archivo = open("C3D.py", 'a')
         archivo.write("\n")
