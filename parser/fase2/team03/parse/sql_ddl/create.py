@@ -1,7 +1,9 @@
 from jsonMode import createDatabase, createTable, dropDatabase, alterAddPK
 from parse.ast_node import ASTNode
-from parse.symbol_table import SymbolTable, TableSymbol, FieldSymbol, TypeSymbol
+from parse.symbol_table import SymbolTable, TableSymbol, FieldSymbol, TypeSymbol, generate_tmp
 from parse.errors import Error, ErrorType
+from TAC.tac_enum import *
+from TAC.quadruple import *
 
 
 class CreateEnum(ASTNode):
@@ -26,7 +28,7 @@ class CreateEnum(ASTNode):
         all_val = ''
         for val in self.value_list:
             all_val = f'{all_val}\'{val.generate(table, tree)}\','
-        return f'CREATE TYPE {self.name} AS ENUM({all_val[:-1]});'
+        return Quadruple(None, f'CREATE TYPE {self.name} AS ENUM({all_val[:-1]});', None, generate_tmp(), OpTAC.CALL)
 
 
 class CreateDatabase(ASTNode):
@@ -69,7 +71,9 @@ class CreateDatabase(ASTNode):
         super().generate(table, tree)
         result_mode = self.mode.generate(table, tree) if self.mode is not None else 1
         result_name = self.name.generate(table, tree)
-        return f'CREATE DATABASE{" IF NOT EXISTS" if self.exists else ""} {result_name} MODE = {result_mode};'
+        return Quadruple(None,
+                         f'CREATE DATABASE{" IF NOT EXISTS" if self.exists else ""} {result_name} MODE = {result_mode};',
+                         None, generate_tmp(), OpTAC.CALL)
 
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
@@ -129,8 +133,9 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
             field_str = f'{field_str}{field.name} {field.field_type}' \
                         f'{" IS NOT NULL" if field.allows_null is False else ""}' \
                         f'{" PRIMARY KEY" if field.is_pk is True else ""},'
-        return f'CREATE TABLE {self.name} ({field_str[:-1]}) ' \
-               f'{f"INHERITS ({result_inherits_from})" if result_inherits_from is not None else ""};'
+        return Quadruple(None, f'CREATE TABLE {self.name} ({field_str[:-1]})'
+                               f'{f" INHERITS ({result_inherits_from})" if result_inherits_from is not None else ""};',
+                         None, generate_tmp(), OpTAC.CALL)
 
 
 class TableField(ASTNode):  # returns an item, grammar has to add it to a list and synthesize value to table

@@ -1,7 +1,9 @@
 from parse.ast_node import ASTNode
 from jsonMode import dropDatabase, dropTable
-from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol
+from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol, generate_tmp
 from parse.errors import Error, ErrorType
+from TAC.tac_enum import *
+from TAC.quadruple import *
 
 
 class DropDatabase(ASTNode):
@@ -32,7 +34,8 @@ class DropDatabase(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         result_name = self.name.generate(table, tree)
-        return f'DROP DATABASE{" IF EXISTS" if self.if_exists else ""} {result_name};'
+        return Quadruple(None, f'DROP DATABASE{" IF EXISTS" if self.if_exists else ""} {result_name};',
+                         None, generate_tmp(), OpTAC.CALL)
 
 
 class DropTable(ASTNode):
@@ -58,4 +61,4 @@ class DropTable(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         result_name = self.name.generate(table, tree)
-        return f'DROP TABLE {result_name};'
+        return Quadruple(None, f'DROP TABLE {result_name};', None, generate_tmp(), OpTAC.CALL)

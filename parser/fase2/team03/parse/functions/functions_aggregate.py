@@ -14,13 +14,14 @@ class Avg(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'AVG({self.exp.generate(table, tree)})'
 
 
 class Count(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, all_results, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.all_results = all_results
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -28,7 +29,7 @@ class Count(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'COUNT({self.exp.generate(table, tree)})'
 
 
 class Greatest(ASTNode):
@@ -70,7 +71,7 @@ class Max(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'MAX({self.exp.generate(table, tree)})'
 
 
 class Min(ASTNode):
@@ -84,7 +85,7 @@ class Min(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'MIN({self.exp.generate(table, tree)})'
 
 
 class Sum(ASTNode):
@@ -98,7 +99,7 @@ class Sum(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'SUM({self.exp.generate(table, tree)})'
 
 
 class Top(ASTNode):
@@ -112,7 +113,7 @@ class Top(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'TOP({self.exp.generate(table, tree)})'
 
 
 def test():

@@ -2,6 +2,9 @@ from parse.ast_node import ASTNode
 from util import *
 from jsonMode import *
 from parse.errors import Error, ErrorType
+from parse.symbol_table import *
+from TAC.tac_enum import *
+from TAC.quadruple import *
 
 
 class Update(ASTNode):
@@ -55,8 +58,9 @@ class Update(ASTNode):
         for update in self.update_list:
             updates_str = f'{updates_str}{update.generate(table, tree)},'
 
-        return f'UPDATE {self.table_name} SET {updates_str[:-1]} ' \
-               f'{self.where.generate(table, tree) if self.where is not None else ""};'
+        return Quadruple(None, f'UPDATE {self.table_name} SET {updates_str[:-1]} '
+                               f'{self.where.generate(table, tree) if self.where is not None else ""};'
+                         , None, generate_tmp(), OpTAC.CALL)
 
 
 class UpdateItem(ASTNode):

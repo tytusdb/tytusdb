@@ -2,6 +2,9 @@ from parse.ast_node import ASTNode
 from jsonMode import *
 from parse.errors import Error, ErrorType
 from util import *
+from TAC.tac_enum import *
+from TAC.quadruple import *
+from parse.symbol_table import *
 
 
 class Delete(ASTNode):
@@ -40,8 +43,9 @@ class Delete(ASTNode):
         elif result == 4:
             raise Error(0, 0, ErrorType.RUNTIME, '42P10: PK_does_not_exists')
         else:
-            return True
+            return f'A register has been deleted from {self.table_name}'
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'DELETE FROM {self.table_name} {self.where.generate(table, tree) if self.where is not None else ""};'
+        return Quadruple(None, f'DELETE FROM {self.table_name} {self.where.generate(table, tree) if self.where is not None else ""};'
+                         , None, generate_tmp(), OpTAC.CALL)

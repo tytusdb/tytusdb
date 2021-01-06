@@ -1,6 +1,8 @@
 from parse.ast_node import ASTNode
 from jsonMode import showDatabases as showDB
-from parse.symbol_table import SymbolTable
+from parse.symbol_table import SymbolTable, generate_tmp
+from TAC.quadruple import *
+from TAC.tac_enum import *
 
 
 class ShowDatabases(ASTNode):
@@ -16,7 +18,7 @@ class ShowDatabases(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return 'SHOW DATABASES;'
+        return Quadruple(None, 'SHOW DATABASES;', None, generate_tmp(), OpTAC.CALL)
 
 
 class UseDatabase(ASTNode):
@@ -34,7 +36,7 @@ class UseDatabase(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
 
-        return 'USE DATABASE;'
+        return Quadruple(None, f'USE DATABASE {self.name.generate(table, tree)};', None, generate_tmp(), OpTAC.CALL)
 
 
 class Union(ASTNode):
@@ -59,7 +61,7 @@ class Union(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'{self.records_a.generate(table, tree)} UNION {self.records_b.generate(table, tree)};'
+        return Quadruple(None, f'{self.records_a.generate_pure(table, tree)} UNION {self.records_b.generate_pure(table, tree)};', None, generate_tmp(), OpTAC.CALL)
 
 
 class Intersect(ASTNode):
@@ -82,7 +84,7 @@ class Intersect(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'{self.records_a.generate(table, tree)} INTERSECT {self.records_b.generate(table, tree)};'
+        return Quadruple(None, f'{self.records_a.generate_pure(table, tree)} INTERSECT {self.records_b.generate_pure(table, tree)};', None, generate_tmp(), OpTAC.CALL)
 
 
 class Except(ASTNode):
@@ -119,4 +121,4 @@ class Except(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'{self.records_a.generate(table, tree)} EXCEPT {self.records_b.generate(table, tree)};'
+        return Quadruple(None, f'{self.records_a.generate_pure(table, tree)} EXCEPT {self.records_b.generate_pure(table, tree)};', None, generate_tmp(), OpTAC.CALL)
