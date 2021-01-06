@@ -82,7 +82,8 @@ class AST:
                     # elif isinstance(i, Union):
                     #     self.Union(i, padre)
                 except:
-                    print('Instruccion no reconocida o con problemas: ', i)
+                    #print('Instruccion no reconocida o con problemas: ', i)
+                    pass
     
 
     def CreateDatabase(self, inst, padre):

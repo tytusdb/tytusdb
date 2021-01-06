@@ -4,6 +4,7 @@ from analizer_pl.statement.expressions import code
 from analizer_pl.abstract.environment import Environment
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
+
 amb = 0
 
 
@@ -88,6 +89,7 @@ class Case(Instruction):
 
         self.codigo = c3d
         return code.C3D(c3d, "case", self.row, self.column)
+
     def dot(self):
         new = Nodo("CASE")
         when = Nodo("WHEN")

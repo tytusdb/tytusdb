@@ -1210,7 +1210,6 @@ def p_alterDb(t):
     | R_OWNER R_TO ownerOPts
     """
     t[0] = [t[1], t[3]]
-
     repGrammar.append(t.slice)
 
 
@@ -1775,7 +1774,6 @@ def p_tableOpt(t):
 
 def p_showStmt(t):
     """showStmt : R_SHOW R_DATABASES likeOpt"""
-
     t[0] = instruction2.showDataBases(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
