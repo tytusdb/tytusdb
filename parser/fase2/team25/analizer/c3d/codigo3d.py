@@ -38,10 +38,7 @@ class Codigo3d:
         self.principal.append(nuevaLinea_de_codigo+"\n")
 
     def showCode(self):
-        contenido = ""
-        for inst in self.listaCode3d:
-            contenido+=(inst)
-        print(contenido)
+        print(self.getCodigo())
 
 
 
