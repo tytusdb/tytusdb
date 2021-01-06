@@ -3,7 +3,7 @@ begin
     tax := subtotal * 0.06;
     my_recoser_id := 20;
     SELECT table1.column1 INTO STRICT lol FROM table1;
-    insert into tblibrosalario values(4,2020,10,2500,6885) RETURNING col1,col2, into var1;
+    insert into tblibrosalario values(4,2020,10,2500,6885) RETURNING col1,col2 into var1;
     insert into tblibrosalario values(4,2020,10,2500,6885) RETURNING col1,col2 into var1;
     insert into tblibrosalario values(4,2020,10,2500,6885) RETURNING col1,col2 into  strict var1;
     update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into var1;
@@ -11,6 +11,20 @@ begin
     delete from tbfuncionesmath where idfuncion = 1 RETURNING col1,col2 into var1;
 
 end;
+
+CREATE FUNCTION Fun2 (n integer, m integer)
+declare ide1 integer = 'primer ide';
+BEGIN
+if 'uno' == 'dos' then
+raise notice 'hola';
+end if;
+    update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into var1;
+    update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into strict var1;
+    delete from tbfuncionesmath where idfuncion = 1 RETURNING col1,col2 into var1;
+
+END;
+
+
 
 SELECT ValidaRegistros('lol exd',456 );
 
