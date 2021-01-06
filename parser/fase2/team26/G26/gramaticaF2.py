@@ -2094,6 +2094,11 @@ def p_alterpi(t):
     text = "INDEX " + t[2] + " " +t[3] + " ALTER " + t[5] + " " + t[6] + ";"
     t[0] =  {'text': text, 'c3d' : '' }
 
+def p_alterpiN(t):
+    '''alter    : INDEX iexi ID ALTER coluem ENTERO PTCOMA'''
+    text = "INDEX " + t[2] + " " +t[3] + " ALTER " + t[5] + " " + t[6] + ";"
+    t[0] =  {'text': text, 'c3d' : '' }  
+
 def p_alterpiiexi(t):
     '''iexi    : IF EXISTS
                 | '''

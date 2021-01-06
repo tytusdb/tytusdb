@@ -8,16 +8,6 @@
  
 <instrucciones> ::= <instruccion>
  
-<campos_c> ::= <campos_c> COMA ID
- 
-<campos_c> ::= <campos_c> COMA ID
- 
-<campos_c> ::= ID
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
 <instruccion> ::= <create_Table_isnrt>
  
 <create_Table_isnrt> ::= CREATE TABLE ID PAR_A <cuerpo_createTable_lista> PAR_C PTCOMA 
@@ -30,13 +20,43 @@
  
 <cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
  
-<campos_c> ::= ID <TIPO_DATO_DEF>
+<cuerpo_createTable> ::= ID <TIPO_DATO_DEF> <createTable_options>
  
-<TIPO_DATO_DEF> ::= INTEGER
+<createTable_options> ::= <cT_options>
+ 
+<cT_options> ::= <N_null>
+ 
+<N_null> ::= NOT NULL
+ 
+<TIPO_DATO_DEF> ::= DATE
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<cuerpo_createTable> ::= ID <TIPO_DATO_DEF> <createTable_options>
+ 
+<createTable_options> ::= <cT_options>
+ 
+<cT_options> ::= <N_null>
+ 
+<N_null> ::= NOT NULL
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
  
 <cuerpo_createTable_lista> ::= <cuerpo_createTable>
  
-<campos_c> ::= ID <TIPO_DATO_DEF>
+<cuerpo_createTable> ::= ID <TIPO_DATO_DEF> <createTable_options>
+ 
+<createTable_options> ::= <createTable_options> <cT_options>
+ 
+<cT_options> ::= <llave>
+ 
+<llave> ::= PRIMARY KEY
+ 
+<createTable_options> ::= <cT_options>
+ 
+<cT_options> ::= <N_null>
+ 
+<N_null> ::= NOT NULL
  
 <TIPO_DATO_DEF> ::= INTEGER
  

@@ -1,0 +1,13 @@
+digraph AST {
+	node1 [label=INIT]
+	node2 [label=INSTRUCCIONES]
+	node1 -> node2
+	node3 [label="CREATE INDEX"]
+	node2 -> node3
+	node4 [label=idx_producto]
+	node3 -> node4
+	node5 [label=tbProducto]
+	node3 -> node5
+	node6 [label=idproducto]
+	node3 -> node6
+}
