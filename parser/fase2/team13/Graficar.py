@@ -958,6 +958,201 @@ def p_DECLARATION8(t):
      
 
 
+#  *******QQQQQQQQQ SE AGREGO MAS PRODUCCIONES EDI TOMAS 
+def p_ASIGNACIONES(t):
+    '''   ASIGNACION : id asig  parAbre QUERY parCierra   ptComa
+                     | id igual parAbre QUERY parCierra   ptComa
+    '''
+    global cont
+    t[0]  = Node("ASIGNACION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node(str(t[2]),t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+    
+def p_ASIGNACIONES1(t):
+    '''   ASIGNACION :  id asig   QUERY  ptComa
+                      | id igual  QUERY  ptComa
+    '''
+    global cont
+    t[0]  = Node("ASIGNACION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("id",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node(str(t[2]),t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+    
+
+
+
+
+def p_DECLARATIONQUERY1(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO ASIGNAR QUERY ptComa
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(t[3])
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_DECLARATIONQUERY2(t):
+    ''' DECLARATION :  NAME_CONSTANT ASIGNAR QUERY ptComa
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(t[3])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_DECLARATIONQUERY3(t):
+    ''' DECLARATION :   NAME_CONSTANT TIPO not null ASIGNAR QUERY ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("not",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo2 = Node("null",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[5])
+    t[0].AddHijos(t[6])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_DECLARATIONQUERY4(t):
+    ''' DECLARATION :  NAME_CONSTANT talias tfor QUERY ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("alias",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("for",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_DECLARATIONQUERY5(t):
+    ''' DECLARATION :  NAME_CONSTANT not null ASIGNAR QUERY ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("not",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("null",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    t[0].AddHijos(t[5])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_DECLARATIONQUERY6(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO ASIGNAR parAbre QUERY parCierra ptComa
+     '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(t[3])
+    t[0].AddHijos(t[5])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+def p_DECLARATIONQUERY7(t):
+    ''' DECLARATION :  NAME_CONSTANT ASIGNAR parAbre QUERY parCierra ptComa
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_DECLARATIONQUERY8(t):
+    ''' DECLARATION :  NAME_CONSTANT TIPO not null ASIGNAR parAbre QUERY parCierra ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("not",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    nodo2 = Node("null",t[4],cont,t.lineno(4) ,t.lexpos(4))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(t[2])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[5])
+    t[0].AddHijos(t[7])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+
+def p_DECLARATIONQUERY9(t):
+    ''' DECLARATION :  NAME_CONSTANT talias tfor parAbre QUERY parCierra ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("alias",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("for",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[5])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+
+def p_DECLARATIONQUERY10(t):
+    ''' DECLARATION :   NAME_CONSTANT not null ASIGNAR parAbre QUERY parCierra ptComa 
+    '''
+    global cont
+    t[0]  = Node("DECLARATION","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("not",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("null",t[3],cont,t.lineno(3) ,t.lexpos(3))
+    cont  = cont+1
+    t[0].AddHijos(t[1])
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    t[0].AddHijos(t[6])
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
+ 
+
+#*********************************************************************************************************************
+
 def p_ACCESO(t):
     ''' ACCESO : ACCESO punto id
     '''

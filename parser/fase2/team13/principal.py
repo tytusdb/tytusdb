@@ -969,7 +969,12 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
         print(bloque)
         if isinstance(bloque, list):
             for sent in bloque:
-                if isinstance(sent,SIf):
+                if isinstance(sent, list):
+                        for sent2 in sent:
+                            if isinstance(sent2, SInsertBase):
+                                InsertTable(sent2, tablaSimbolos,True)
+           
+                elif isinstance(sent,SIf):
                     TraducirIF(sent,funcion,tablaSimbolos)
                 elif isinstance(sent,SSearchCase):
                     TraducirCase(sent,funcion,tablaSimbolos)
@@ -1128,8 +1133,6 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
             deleteBase(nodo, tablaSimbolos)
         elif isinstance(nodo, STruncateBase):
             truncatebase(nodo, tablaSimbolos)
-        elif isinstance(nodo, SInsertBase):
-            InsertTable(nodo, tablaSimbolos,True)
         elif isinstance(nodo, SShowTable):
             tablas = jBase.showTables(useActual)
             for tabla in tablas:
