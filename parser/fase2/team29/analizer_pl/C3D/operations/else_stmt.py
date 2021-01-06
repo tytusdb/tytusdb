@@ -1,9 +1,9 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl import grammar
 from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
 
-
-class ElseStmt(Expression):
+class ElseStmt(Instruction):
     def __init__(self, row, column, stmt) -> None:
         super().__init__(row, column)
         self.stmts = stmt
@@ -29,3 +29,10 @@ class ElseStmt(Expression):
         val = "\tlabel .etiqS" + str(grammar.next_etiq) + "\n"
         grammar.next_etiq += 1
         return val
+
+    def dot(self):
+        new = Nodo("ELSE")
+        for s in self.stmts:
+            new.addNode(s.dot())
+
+        return new

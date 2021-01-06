@@ -8,7 +8,10 @@ from analizer_pl.C3D.operations import return_
 from analizer_pl.C3D.operations import if_stmt
 from analizer_pl.C3D.operations import else_stmt
 from analizer_pl.C3D.operations import elseif_stmt
-
+from analizer_pl.sql_statement.create import create_database
+from analizer_pl.sql_statement.create import create_index
+from analizer_pl.sql_statement.create import create_table
+from analizer_pl.sql_statement.create import create_type
 
 def TernaryOperation(temp, exp1, exp2, exp3, operator, row, column):
     return operation.Ternary(temp, exp1, exp2, exp3, operator, row, column)
@@ -56,3 +59,15 @@ def ElseIfStatement(row, column, expBool, stmt):
 
 def ElseStatement(row, column, stmt):
     return else_stmt.ElseStmt(row, column, stmt)
+
+def CreateDatabase(replace, exists, name, owner, mode, row, column):
+    return create_database.CreateDatabase(replace, exists, name, owner, mode, row, column)
+
+def CreateTable(exists, name, inherits, row, column, columns):
+    return create_table.CreateTable(exists, name, inherits, row, column, columns)
+
+def CreateType(exists, name, row, column, values):
+    return create_type.CreateType(exists, name, row, column, values)
+
+def CreateIndex(unique, idIndex, idTable, usingMethod, whereCl, row, column, optList):
+    return create_index.CreateIndex(unique, idIndex, idTable, usingMethod, whereCl, row, column, optList)

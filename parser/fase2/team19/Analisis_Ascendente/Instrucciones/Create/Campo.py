@@ -238,3 +238,62 @@ class Campo(Instruccion):
 
         print(valor)
         return valor
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        codigo_quemado = ''
+        if self.caso == 1: #ID tipo acompaniamiento || ID tipo  Da lo mismo son la misma chingadera pero uno con complemento = None
+            tipo = ''
+            lista_tipo = self.tipo.tipo.split('-')
+            if len(lista_tipo) == 1:
+                tipo = self.tipo.tipo
+            elif len(lista_tipo) == 2:
+                if lista_tipo[0] == 'CHARACTERVARYING':
+                    tipo = 'CHARACTER VARYING ( %s )' % lista_tipo[1]
+                else:
+                    tipo = '%s ( %s )' % (lista_tipo[0], lista_tipo[1])
+            else:
+                tipo = '%s ( %s, %s )' % (lista_tipo[0], lista_tipo[1], lista_tipo[2])
+            acompaniamiento = ''
+            if self.acompaniamiento is not None:
+                for acom in self.acompaniamiento:
+                    acompaniamiento += '%s ' % acom.getC3D(lista_optimizaciones_C3D)
+            return '%s %s %s' % (self.id, tipo, acompaniamiento)
+        elif self.caso == 2: #CONSTRAINT ID FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
+            idFk = None
+            for var in self.idFk:
+                if idFk is None:
+                    idFk = var.id
+                else:
+                    idFk += ', %s' % var.id
+            idR = None
+            for var in self.idR:
+                if idR is None:
+                    idR = var.id
+                else:
+                    idR += ', %s' % var.id
+            return 'constraint %s foreign key ( %s ) references %s ( %s )' % (self.id, idFk, self.tablaR, idR)
+        elif self.caso == 3: #FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
+            idFk = None
+            for var in self.idFk:
+                if idFk is None:
+                    idFk = var.id
+                else:
+                    idFk += ', %s' % var.id
+            idR = None
+            for var in self.idR:
+                if idR is None:
+                    idR = var.id
+                else:
+                    idR += ', %s' % var.id
+            return 'foreign key ( %s ) references %s ( %s )' % (idFk, self.tablaR, idR)
+        elif self.caso == 4: #PRIMARY KEY PARIZQ listaID PARDR
+            idFk = None
+            for var in self.id:
+                if idFk is None:
+                    idFk = var.id
+                else:
+                    idFk += ', %s' % var.id
+            return 'primary key ( %s )' % idFk
+        elif self.caso == 5: #ID ID
+            return '%s %s' % (self.id, self.tipo)
+        return codigo_quemado

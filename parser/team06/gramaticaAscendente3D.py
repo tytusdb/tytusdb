@@ -2586,32 +2586,74 @@ def p_statementValores_2(t):
 #----------------------------------------------------- IF --------------------------------------------------------------------
 def p_if_1(t):
     '''
-    if          :  IF  operacion THEN operacion END IF PUNTOYCOMA
+    if          : IF operacion THEN operacion ELSE ifAnidados END IF PUNTOYCOMA
+    '''
+    a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+    a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
+    h.conteoEtiquetas+=1
+
+    ifAnidados = t[6]
+    tamanioIfA = len(ifAnidados)
+    contador = 0
+    print("EL TAMAÑO DE LOS IF ANIDADOS ES ---> ",tamanioIfA)
+    for x in ifAnidados:
+        contador+=1
+        if x.sino!=None and contador == tamanioIfA: #VIENE UN IF QUE CIERRA PORQUE TRAE UN ELSE operacion
+            #IF operacion THEN operacion ELSE operacion
+            a+= "elif "+x.condicion+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+            a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
+            a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+x.then+"\n"
+            a+= "L"+str(h.conteoEtiquetas+1)+":"+"\n    "+str(x.sino)+"\n"
+            h.conteoEtiquetas+=2
+        elif x.sino == None: 
+            a+= "elif "+x.condicion+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
+            a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+x.then+"\n"
+            h.conteoEtiquetas+=1
+    t[0]=a
+def p_if_2(t):
+    '''
+    if          : IF  operacion THEN operacion END IF PUNTOYCOMA
     '''
     a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
     a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
     h.conteoEtiquetas+=1
     t[0]=a 
-def p_if_2(t):
-    '''
-    if          : IF operacion THEN operacion ELSE if 
-    '''
-    a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
-    a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
-    a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
-    h.conteoEtiquetas+=2
-    a+= t[6]
-    t[0]=a
 def p_if_3(t):
     '''
     if          : IF operacion THEN operacion ELSE operacion END IF PUNTOYCOMA
-    '''
+    '''       
     a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
     a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
     a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
     a+= "L"+str(h.conteoEtiquetas+1)+":"+"\n    "+str(t[6])+"\n"
     h.conteoEtiquetas+=2
     t[0]=a
+def p_ifAnidados(t):
+    '''
+    ifAnidados  : ifAnidados ifFinal
+    '''
+    t[1].append(t[2])
+    t[0]=t[1]
+
+def p_ifAnidados_2(t):
+    '''
+    ifAnidados  : ifFinal
+    '''
+    t[0]=[t[1]]
+
+def p_ifFinal_1(t):
+    '''
+    ifFinal          :  IF  operacion THEN operacion ELSE  
+    '''
+    t[0]=contIf(t[2],t[4],None)
+     
+
+def p_ifFinal_2(t):
+    '''
+    ifFinal          : IF operacion THEN operacion ELSE operacion 
+    '''
+    t[0]=contIf(t[2],t[4],t[6])
+    
 #----------------------------------------------------- CASE --------------------------------------------------------------------
 def p_case_1(t):
     '''

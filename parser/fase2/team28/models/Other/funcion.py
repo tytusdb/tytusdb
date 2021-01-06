@@ -66,11 +66,7 @@ class Funcion(Instruction):
             pos = ThreeAddressCode().stackCounter
             var_array.append(newAmbito.addVar(var.id, var.data_type, None,
                              pos, var.line, var.column))
-            ThreeAddressCode().incStackCounter()          
-            # temp = ThreeAddressCode().newTemp()
-            # # TODO: MANEJAR PARAMETROS
-            # ThreeAddressCode().addCode(f"{temp} = None")
-            # ThreeAddressCode().addStack(temp)
+            ThreeAddressCode().incStackCounter()
         pos = ThreeAddressCode().stackCounter
         lbl_exit = ThreeAddressCode().newLabel()
         self.body.compile(newAmbito)
@@ -92,3 +88,7 @@ class Funcion(Instruction):
                     if value.data_type == DATA_TYPE.STRING:
                         value.value = f"\'{value.value}\'"
                 ThreeAddressCode().addCode(f"Stack[{var.position}] = {value.value}")
+               
+                temp = ThreeAddressCode().newTemp()
+                ThreeAddressCode().addCode("#Retornando valor --------")
+                ThreeAddressCode().addCode(f"{temp} = Stack[P]")

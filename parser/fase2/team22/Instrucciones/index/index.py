@@ -48,29 +48,32 @@ class index(Instruccion):
         if self.where:
             listaMods = self.where.ejecutar(tabla, arbol)
 
+
         for x in range(0, len(self.lcol)):
-            variable = self.lcol[x]
+            var = self.lcol[x]
             objetoTabla = arbol.devolviendoTablaDeBase(val)
-            if 'Identificador' in str(variable):
-                idcol = variable.id
-                if self.validar_columna(variable.id, res):
-                    if objetoTabla:
-                        for indices in objetoTabla.lista_de_indices:
-                            if indices.obtenerNombre == variable.id :
-                                error = Excepcion('42P01',"Semántico","el indice «"+variable.id+"» ya fue creado.",self.linea,self.columna)
-                                arbol.excepciones.append(error)
-                                arbol.consola.append(error.toString())
-                                return error
+            for variable in var:
+                if 'Identificador' in str(variable):
+                    idcol = variable.id
+
+                    if self.validar_columna(variable.id, res):
+                        if objetoTabla:
+                            for indices in objetoTabla.lista_de_indices:
+                                if indices.obtenerNombre == variable.id :
+                                    error = Excepcion('42P01',"Semántico","el indice «"+variable.id+"» ya fue creado.",self.linea,self.columna)
+                                    arbol.excepciones.append(error)
+                                    arbol.consola.append(error.toString())
+                                    return error
+                            
+                        ind = Indice(self.idIndex, "Indice")
+                        ind.lRestricciones.append(variable.id + '#' + str(self.lcol[x]))
+                        if self.tipoIndex:
+                            ind.lRestricciones.append(self.tipoIndex)
                         
-                    ind = Indice(self.idIndex, "Indice")
-                    ind.lRestricciones.append("ID_Columna = "+ variable.id)
-                    if self.tipoIndex:
-                        ind.lRestricciones.append(self.tipoIndex)
-                    
-                    objetoTabla.lista_de_indices.append(ind)
-                    arbol.consola.append("Indice agregado con la columna: " + variable.id)    
-                else:
-                    print("La columna indicada no pertenece a la tabla: " + self.idTabla)
+                        objetoTabla.lista_de_indices.append(ind)
+                        arbol.consola.append("Indice agregado con la columna: " + variable.id)    
+                    else:
+                        print("La columna indicada no pertenece a la tabla: " + self.idTabla)
 
 
     def validar_columna(self, nombre, listacolumnas):

@@ -30,7 +30,7 @@ class Environment:
         while env != None:
             if id in env.variables:
                 symbol = env.variables[id]
-                symbol = sym.Symbol(id, value, type_, symbol.row, symbol.column)
+                symbol = sym.Symbol(value, type_, symbol.row, symbol.column)
                 env.variables[id] = symbol
                 return True
             env = env.previous

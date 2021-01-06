@@ -1,9 +1,9 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl import grammar
 from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
 
-
-class ElseIfStmt(Expression):
+class ElseIfStmt(Instruction):
     def __init__(self, row, column, expBool, stmt) -> None:
         super().__init__(row, column)
         self.expBool = expBool
@@ -50,3 +50,14 @@ class ElseIfStmt(Expression):
         val = "\tgoto .etiqS" + str(grammar.next_etiq) + "\n"
         val += grammar.back_fill.take_out_true_list()
         return val
+        
+    def dot(self):
+        new = Nodo("ELSE_IF")
+        new.addNode(self.expBool.dot())
+        then = Nodo("THEN")
+        new.addNode(then)
+        if self.stmts:
+            for s in self.stmts:
+                then.addNode(s.dot())
+
+        return new
