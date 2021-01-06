@@ -3,6 +3,7 @@ import analizer_pl.modules.expressions as expression
 from analizer_pl.abstract.expression import incTemp
 from analizer_pl.abstract.expression import newTemp
 from analizer_pl.abstract.expression import TYPE
+from optimizer_folder.optimizer import Optimizer
 from analizer_pl.tokens import *
 import ply.lex as lex
 import ply.yacc as yacc
@@ -21,7 +22,9 @@ current_etiq = 0
 next_etiq = 0
 if_stmt = 0
 back_fill = BackFill()
+optimizer_ = Optimizer()
 lexer = lex.lex()
+
 # Asociación de operadores y precedencia
 listInst = []
 repGrammar = []
@@ -83,7 +86,11 @@ def p_instruction(t):
     | block
     | execute S_PUNTOCOMA
     """
-    # TODO: listInst.append(t[1].dot())
+    try:
+        if t[1].dot():
+            listInst.append(t[1].dot())
+    except:
+        pass
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -483,7 +490,6 @@ def p_stmt_without_substmt(t):
     stmt_without_substmt : R_NULL S_PUNTOCOMA
     | query_single_row
     """
-    print("alv")
 
 
 def p_stmt_without_substmt_rtn(t):
@@ -671,10 +677,9 @@ def p_exp1(t):
 # TODO: isblock False
 def p_return_stmt(t):
     """
-    return_stmt : R_QUERY selectStmt S_PUNTOCOMA
-                | S_PUNTOCOMA
-                | R_QUERY execute_return S_PUNTOCOMA
+    return_stmt : S_PUNTOCOMA
     """
+    t[0] = None
     repGrammar.append(t.slice)
 
 
@@ -682,16 +687,7 @@ def p_return_stmt_exp(t):
     """
     return_stmt : expresion S_PUNTOCOMA
     """
-
     t[0] = t[1]
-    repGrammar.append(t.slice)
-
-
-def p_return_stmt_exp_next(t):
-    """
-    return_stmt : R_NEXT expresion S_PUNTOCOMA
-    """
-    t[0] = t[2]
     repGrammar.append(t.slice)
 
 
@@ -700,13 +696,9 @@ def p_return_stmt_exp_next(t):
 # region EXECUTE
 
 
-def p_execute_return(t):
-    """execute_return : R_EXECUTE exp_string  using  """
-    repGrammar.append(t.slice)
-
-
 def p_execute(t):
-    """execute : R_EXECUTE exp_string into_strict using """
+    """execute : R_EXECUTE funcCall into_strict"""
+    t[0] = code.Execute_(t[2], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -715,40 +707,6 @@ def p_into_strict(t):
     into_strict : R_INTO strict ID
     |
     """
-    repGrammar.append(t.slice)
-
-
-def p_exp_string(t):
-    """
-    exp_string : id_or_string
-                | exp_string OC_CONCATENAR id_or_string
-    """
-    repGrammar.append(t.slice)
-
-
-def p_using(t):
-    """
-    using : R_USING list_expression_2
-    |
-    """
-    repGrammar.append(t.slice)
-
-
-def p_list_expression_2(t):
-    """
-    list_expression_2 : ID
-                    | list_expression_2 S_COMA ID
-    """
-    repGrammar.append(t.slice)
-
-
-def p_exp_string_id(t):
-    """
-    id_or_string : STRING
-    | ID
-    | funcCall
-    """
-
     repGrammar.append(t.slice)
 
 
@@ -2102,6 +2060,8 @@ def p_idOrLiteral(t):
 def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
     | R_ALTER R_TABLE idOrString alterTableList
+    | R_ALTER R_INDEX ifExists idOrString R_RENAME R_TO idOrString
+    | R_ALTER R_INDEX ifExists idOrString R_ALTER column idOrString idOrNumber
     """
     if t[2] == "DATABASE":
         t[0] = code.AlterDataBase(
@@ -2109,6 +2069,21 @@ def p_alterStmt(t):
         )
     else:
         t[0] = code.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
+    repGrammar.append(t.slice)
+
+
+def p_column(t):
+    """column : R_COLUMN
+    |
+    """
+    repGrammar.append(t.slice)
+
+
+def p_idOrNumber(t):
+    """idOrNumber : ID
+    | INTEGER
+    """
+    t[0] = t.slice[1].value
     repGrammar.append(t.slice)
 
 
@@ -2234,6 +2209,13 @@ def p_dropStmt_database(t):
     dropStmt : R_DROP R_DATABASE ifExists idOrString
     """
     t[0] = code.DropDatabase(t[4], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+
+def p_dropStmt_index(t):
+    """
+    dropStmt : R_DROP R_INDEX ifExists idList
+    """
     repGrammar.append(t.slice)
 
 
@@ -2646,14 +2628,20 @@ def makeAst(root):
     ast.makeAst(root)
 
 
+def getRepGrammar():
+    return repGrammar
+
+
 syntax_errors = list()
-PostgreSQL = list()
 
 
 def p_error(t):
     try:
         print(t)
         print("Error sintáctico en '%s'" % t.value)
+        syntax_errors.insert(
+            len(syntax_errors), ["Error sintáctico en '%s'" % t.value, t.lineno]
+        )
     except AttributeError:
         print("end of file")
 
@@ -2661,10 +2649,16 @@ def p_error(t):
 parser = yacc.yacc()
 
 
+def returnSyntacticErrors():
+    global syntax_errors
+    return syntax_errors
+
+
 def parse(input):
     try:
-        global repGrammar
-        repGrammar = []
+        global repGrammar, syntax_errors
+        syntax_errors = list()
+        repGrammar = list()
         lexer.lineno = 1
         result = parser.parse(input)
         return result

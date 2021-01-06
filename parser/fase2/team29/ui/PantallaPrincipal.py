@@ -80,29 +80,28 @@ class Pantalla:
             for consult in consults:
                 i += 1
                 if consult != None:
-                    frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
-                    # Creacion del scrollbar
-                    table_scroll = Scrollbar(frame, orient="vertical")
-                    table_scrollX = Scrollbar(frame, orient="horizontal")
-                    table = ttk.Treeview(
-                        frame,
-                        yscrollcommand=table_scroll.set,
-                        xscrollcommand=table_scrollX.set,
-                        height=12,
-                    )
-                    table_scroll.config(command=table.yview)
-                    table_scrollX.config(command=table.xview)
-                    self.fill_table(consult[0], consult[1], table)
-                    table_scroll.pack(side=RIGHT, fill=Y)
-                    table_scrollX.pack(side=BOTTOM, fill=X)
-                    table.pack(side=LEFT, fill=BOTH)
-                    frame.pack(fill=BOTH)
-                    self.tabControl.add(frame, text="Consulta " + str(i))
-                else:
-                    self.text_Consola.insert(
-                        INSERT, "Error: Consulta sin resultado" + "\n"
-                    )
+                    self.create_table(consult, "Consulta  " + str(i))
         self.tabControl.pack()
+
+    def create_table(self, table, name):
+        frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
+        # Creacion del scrollbar
+        table_scroll = Scrollbar(frame, orient="vertical")
+        table_scrollX = Scrollbar(frame, orient="horizontal")
+        table = ttk.Treeview(
+            frame,
+            yscrollcommand=table_scroll.set,
+            xscrollcommand=table_scrollX.set,
+            height=12,
+        )
+        table_scroll.config(command=table.yview)
+        table_scrollX.config(command=table.xview)
+        self.fill_table(table[0], table[1], table)
+        table_scroll.pack(side=RIGHT, fill=Y)
+        table_scrollX.pack(side=BOTTOM, fill=X)
+        table.pack(side=LEFT, fill=BOTH)
+        frame.pack(fill=BOTH)
+        self.tabControl.add(frame, text=name)
 
     def parse(self):
         self.refresh()
@@ -134,6 +133,8 @@ class Pantalla:
         self.semanticErrors = result["semantic"]
         self.postgreSQL = result["postgres"]
         self.ts = result["symbols"]
+        self.indexes = result["indexes"]
+        self.functions = result["functions"]
         if (
             len(self.lexicalErrors)
             + len(self.syntacticErrors)
@@ -204,7 +205,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        windowTableS = Pantalla_TS(self.window, self.ts)
+        windowTableS = Pantalla_TS(self.window, self.ts, self.indexes, self.functions)
 
     def open_AST(self):  # Abre la pantalla del AST
         windowTableS = Pantalla_AST(self.window)

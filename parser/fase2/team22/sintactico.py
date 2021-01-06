@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
 # from Instrucciones.Imprimir import Imprimir
-from Instrucciones.index import index
+from Instrucciones.index import index, DropIndex, AlterIndex
 from Instrucciones import Funcion, Declaracion,  Retorno
 
 # IMPORTAMOS EL STORAGE
@@ -42,6 +42,10 @@ import Instrucciones.AST as AST
 
 # Variable almacenada reporte gramatical dinamico
 lsStrGram = []
+
+# LISTA PARA GUARDAR LOS INDICES CON SUS TABLAS
+almacenar_tabla_indices = []
+
 
 #Funcion para validar reporte gramatical dinamico
 def agregaGram(grama):
@@ -1730,6 +1734,10 @@ def p_instruccion_creacion(t) :
     '''instruccion  : CREATE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
                     | CREATE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
     
+    global almacenar_tabla_indices
+    almacenar_tabla_indices.append(t[5])
+    almacenar_tabla_indices.append(t[3])
+
     if len(t) == 11:
         strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
         strGram2 = ""
@@ -1739,6 +1747,7 @@ def p_instruccion_creacion(t) :
         agregaGram(strGram)
         strGram = obtenerGram()
         t[0] = index.index( id1, id2, t[7], t[10], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+
         # global lsStrGram
         # lsStrGram = []
     else:
@@ -1884,12 +1893,71 @@ def p_params_crt_indx(t) :
 
 def p_instruccion_drop_index(t) :
     '''instruccion  : DROP INDEX ID PUNTO_COMA'''
+
+    tabla = ''
+    indice = ''
+    temp = ''
+    for id_tab in almacenar_tabla_indices:
+        if id_tab == str(t[3]):
+            tabla = temp
+            indice = t[3]
+        temp = id_tab
+
     strGram = "<instruccion> ::= DROP INDEX ID PUNTO_COMA\n"
-    agregaGram(strGram)
-    strGram = obtenerGram()
-    t[0] = indexFunction.indexFunction(strGram)
-    global lsStrGram
-    lsStrGram = []
+    strGram2 = ""
+
+    if indice != '':
+        id1 = Identificador(tabla, strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        t[0] =DropIndex.DropIndex(id1,indice, 0, strGram, t.lexer.lineno, t.lexer.lexpos)
+    else:
+        t[0] =DropIndex.DropIndex('','', 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+    
+    # agregaGram(strGram)
+    # strGram = obtenerGram()
+    # t[0] = indexFunction.indexFunction(strGram)
+    # global lsStrGram
+    # lsStrGram = []
+
+def p_instruccion_alter_index(t) :
+    '''instruccion  : ALTER INDEX ID ID ID PUNTO_COMA
+                    | ALTER INDEX ID ID ENTERO PUNTO_COMA'''
+    strGram = "<instruccion> ::= ALTER INDEX ID ID ID PUNTO_COMA\n"
+    strGram2 = ""
+    id1 = Identificador(t[3], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    existe = 1
+    tabla = ''
+    temp = ''
+    for a in almacenar_tabla_indices:
+        if a == str(t[3]):
+            existe = 0
+            tabla = temp
+        temp = a
+
+    strGram3 = ""
+    id_tab = Identificador(tabla, strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] =AlterIndex.AlterIndex(id_tab, id1, t[4], t[5], existe, strGram, t.lexer.lineno, t.lexer.lexpos)
+   
+
+def p_instruccion_alter_index2(t) :
+    '''instruccion  : ALTER INDEX IF EXISTS ID ID ID PUNTO_COMA
+                    | ALTER INDEX IF EXISTS ID ID ENTERO PUNTO_COMA'''
+    strGram = "<instruccion> ::= ALTER INDEX IF EXISTS ID ID PUNTO_COMA\n"
+    strGram2 = ""
+    id1 = Identificador(t[5], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    existe = 1
+    tabla = ''
+    temp = ''
+    for a in almacenar_tabla_indices:
+        if a == str(t[5]):
+            existe = 0
+            tabla = temp
+        temp = a
+
+    strGram3 = ""
+    id_tab = Identificador(tabla, strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] =AlterIndex.AlterIndex(id_tab, id1, t[6], t[7], existe, strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_lista_or(t) :
     '''expre     : expre PIPE PIPE expre'''

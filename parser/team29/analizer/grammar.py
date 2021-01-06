@@ -79,7 +79,11 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
-    listInst.append(t[1].dot())
+    try:
+        if t[1].dot():
+            listInst.append(t[1].dot())
+    except:
+        pass
     try:
         t[0] = t[1]
     except:
@@ -1195,13 +1199,40 @@ def p_idOrLiteral(t):
 def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
     | R_ALTER R_TABLE idOrString alterTableList
+    | R_ALTER R_INDEX ifExists idOrString R_RENAME R_TO idOrString
+    | R_ALTER R_INDEX ifExists idOrString R_ALTER column idOrString idOrNumber
     """
     if t[2] == "DATABASE":
         t[0] = instruction2.AlterDataBase(
             t[4][0], t[3], t[4][1], t.slice[1].lineno, t.slice[1].lexpos
         )
-    else:
+    elif t[2] == "TABLE":
         t[0] = instruction2.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
+    else:
+        if t[5] == "RENAME":
+
+            t[0] = instruction2.AlterIndex(
+                t[4], t[3], t[7], t.slice[1].lineno, t.slice[1].lexpos
+            )
+        else:
+            t[0] = instruction2.AlterIndex(
+                t[4], t[3], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[8]
+            )
+    repGrammar.append(t.slice)
+
+
+def p_column(t):
+    """column : R_COLUMN
+    |
+    """
+    repGrammar.append(t.slice)
+
+
+def p_idOrNumber(t):
+    """idOrNumber : ID
+    | INTEGER
+    """
+    t[0] = t.slice[1].value
     repGrammar.append(t.slice)
 
 
@@ -1326,11 +1357,23 @@ def p_dropStmt(t):
     repGrammar.append(t.slice)
 
 
-def p_ifExists(t):
-    """ifExists : R_IF R_EXISTS
-    |
+def p_dropStmt_index(t):
     """
+    dropStmt : R_DROP R_INDEX ifExists idList
+    """
+    t[0] = instruction2.DropIndex(t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
 
+
+def p_ifExists(t):
+    """ifExists : R_IF R_EXISTS"""
+    t[0] = True
+    repGrammar.append(t.slice)
+
+
+def p_ifExists_none(t):
+    """ifExists :"""
+    t[0] = False
     repGrammar.append(t.slice)
 
 
@@ -1682,7 +1725,6 @@ def p_offsetLimit_n(t):
 
 def p_insertStmt(t):
     """insertStmt : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER"""
-
     t[0] = instruction2.InsertInto(
         t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos
     )

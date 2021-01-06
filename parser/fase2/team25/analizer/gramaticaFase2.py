@@ -17,6 +17,9 @@ repGrammar = []
 count_ins = 0
 entrada = ''
 
+syntax_errors = list()
+PostgreSQL = list()
+
 precedence = (
     ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
     ("right", "R_NOT"),
@@ -59,6 +62,8 @@ from analizer.statement.pl.declaration import Declaration
 from analizer.statement.pl.procedure import Procedure
 from analizer.statement.pl.function import Function
 from analizer.statement.pl.index import Index, dropIndex, alterIndex
+from analizer.statement.pl.raise_print import Raise
+import analizer.symbol.c3dSymbols as SymbolTable
 
 def p_init(t):
     """init : stmtList"""
@@ -202,8 +207,8 @@ def p_llamadaProcedimiento_o_funcion(t):# esta aparte porque va directo al MAIN
 #_----------------------------------------------- FUNCION
 def p_drop_procedure_and_functions2(t):
     '''
-    pl_drop : R_DROP R_FUNCTION R_IF R_EXISTS detalle_drop S_PUNTOCOMA
-            | R_DROP R_FUNCTION detalle_drop S_PUNTOCOMA
+    pl_drop : R_DROP R_FUNCTION R_IF R_EXISTS detalle_drop
+            | R_DROP R_FUNCTION detalle_drop
     '''
     repGrammar.append(t.slice)
     if len(t) == 7:
@@ -213,8 +218,8 @@ def p_drop_procedure_and_functions2(t):
 
 def p_drop_procedure_and_functions(t):
     '''
-    pl_drop : R_DROP R_PROCEDURE R_IF R_EXISTS detalle_drop S_PUNTOCOMA
-            | R_DROP R_PROCEDURE detalle_drop S_PUNTOCOMA
+    pl_drop : R_DROP R_PROCEDURE R_IF R_EXISTS detalle_drop
+            | R_DROP R_PROCEDURE detalle_drop
     '''
     repGrammar.append(t.slice)
     if len(t) == 7:
@@ -254,13 +259,13 @@ def p_raise_main(t):
     raise_main : R_RAISE R_NOTICE STRING S_COMA datatype
             | R_RAISE  STRING S_COMA datatype
     '''
-    print('raise MAIN')
     repGrammar.append(t.slice)
-
     if len(t) == 6:
-        pass
+        t[0] = Raise(t[3],t[5] , t.slice[1].lineno, t.slice[1].lexpos , True)
+        t[0].generate3dToMain(0,instancia_codigo3d)
     elif len(t) == 5:
-        pass
+        t[0] = Raise(string1 = t[2], string2 = t[4] , row = t.slice[1].lineno, column = t.slice[1].lexpos)
+        t[0].generate3dToMain(0,instancia_codigo3d)
     else:
         print('no entro en len(t)')
     #ambos son un print
@@ -270,12 +275,11 @@ def p_raise_procedural(t):
     raise_procedural : R_RAISE R_NOTICE STRING S_COMA datatype
             | R_RAISE  STRING S_COMA datatype
     '''
-    print('raise PROCEDURAL ')
     repGrammar.append(t.slice)
     if len(t) == 6:
-        pass
+        t[0] = Raise(t[3],t[5] , t.slice[1].lineno, t.slice[1].lexpos , True)
     elif len(t) == 5:
-        pass
+        t[0] = Raise(string1 = t[2], string2 = t[4] , row = t.slice[1].lineno, column = t.slice[1].lexpos)
     else:
         print('no entro en len(t)')
     #ambos son un print
@@ -398,47 +402,47 @@ def p_plInstructions(t):
         t[0] = [t[1]]
     repGrammar.append(t.slice)
 
-#                                                                       * INSTRUCCIONES INTERNAS AL IF
-def p_plInstructionsIf(t):
-    """
-    plInstructionIf : plInstructionIf instruc
-    | instruc
-    """
-    if len(t) == 3:
-        t[1].append(t[2])
-        t[0] = t[1]
-    else:
-        t[0] = [t[1]]
-    repGrammar.append(t.slice)
-#               * cree esta produccion extra solo para que se comportara diferente en su accion semantica a la de plInstruccion
-def p_plInstructionIf(t):
-    """
-    instruc : assignment S_PUNTOCOMA
-    | executeStmt S_PUNTOCOMA
-    | ifStmt S_PUNTOCOMA
-    | caseStmt S_PUNTOCOMA
-    | codeBlock S_PUNTOCOMA
-    | returnStmt S_PUNTOCOMA
-    """
-    t[0] = t[1]
-    global count_ins
-    count_ins += 1
-    repGrammar.append(t.slice)
-#                                                                       * INSTRUCCIONES INTERNAS AL IF
-def p_plInstructionIf2(t):# los separe solo para generar su codigo 3d diferente
-    """
-    instruc : insertStmt S_PUNTOCOMA
-    | updateStmt S_PUNTOCOMA
-    | deleteStmt S_PUNTOCOMA
-    | selectStmt S_PUNTOCOMA
-    | raise_procedural S_PUNTOCOMA
-    """
-    global count_ins
-    repGrammar.append(t.slice)
-    t[0] = F1([1],C3D_INSTRUCCIONES_FASE1_CADENA(t), t.slice[2].lineno , t.slice[2].lexpos )
-    count_ins += 1
+# #                                                                       * INSTRUCCIONES INTERNAS AL IF
+# def p_plInstructionsIf(t):
+#     """
+#     plInstructionIf : plInstructionIf instruc
+#     | instruc
+#     """
+#     if len(t) == 3:
+#         t[1].append(t[2])
+#         t[0] = t[1]
+#     else:
+#         t[0] = [t[1]]
+#     repGrammar.append(t.slice)
+# #               * cree esta produccion extra solo para que se comportara diferente en su accion semantica a la de plInstruccion
+# def p_plInstructionIf(t):
+#     """
+#     instruc : assignment S_PUNTOCOMA
+#     | executeStmt S_PUNTOCOMA
+#     | ifStmt S_PUNTOCOMA
+#     | caseStmt S_PUNTOCOMA
+#     | codeBlock S_PUNTOCOMA
+#     | returnStmt S_PUNTOCOMA
+#     """
+#     t[0] = t[1]
+#     global count_ins
+#     count_ins += 1
+#     repGrammar.append(t.slice)
+# #                                                                       * INSTRUCCIONES INTERNAS AL IF
+# def p_plInstructionIf2(t):# los separe solo para generar su codigo 3d diferente
+#     """
+#     instruc : insertStmt S_PUNTOCOMA
+#     | updateStmt S_PUNTOCOMA
+#     | deleteStmt S_PUNTOCOMA
+#     | selectStmt S_PUNTOCOMA
+#     | raise_procedural S_PUNTOCOMA
+#     """
+#     global count_ins
+#     repGrammar.append(t.slice)
+#     t[0] = F1([1],C3D_INSTRUCCIONES_FASE1_CADENA(t), t.slice[2].lineno , t.slice[2].lexpos )
+#     count_ins += 1
 
-#*_________________________________________________________________________________ACA VA SER EL PUNTO DE TRADUCCION
+# #*_________________________________________________________________________________ACA VA SER EL PUNTO DE TRADUCCION
 def p_plInstruction(t):
     """
     plInstruction : assignment S_PUNTOCOMA
@@ -447,6 +451,7 @@ def p_plInstruction(t):
     | caseStmt S_PUNTOCOMA
     | codeBlock S_PUNTOCOMA
     | returnStmt S_PUNTOCOMA
+    | raise_procedural S_PUNTOCOMA
     """
     t[0]=t[1]
 
@@ -461,8 +466,8 @@ def p_plInstruction2(t):# los separe solo para generar su codigo 3d diferente
     | deleteStmt S_PUNTOCOMA
     | selectStmt S_PUNTOCOMA
     """
+    t[0] = F1([1],C3D_INSTRUCCIONES_FASE1_CADENA(t), t.slice[2].lineno , t.slice[2].lexpos )
     global count_ins
-    C3D_INSTRUCCIONES_FASE1_SIMBOLICO(t)    #TODO -comentario: no lo ejecuto de una vez y tal vez la tabulacion cambien seria de ver eso
     count_ins += 1
     repGrammar.append(t.slice)
 
@@ -499,8 +504,8 @@ def p_executeStmt(t):
 
 def p_ifStmt(t):
     """
-    ifStmt : R_IF expresion R_THEN plInstructionIf elsifList R_ELSE plInstructionIf R_END R_IF
-    | R_IF expresion R_THEN plInstructionIf elsifList R_END R_IF
+    ifStmt : R_IF expresion R_THEN plInstructions elsifList R_ELSE plInstructions R_END R_IF
+    | R_IF expresion R_THEN plInstructions elsifList R_END R_IF
     """
     if len(t) == 10:
         t[0] = If_Elseif(if_exp=t[2] , if_inst=t[4], lista_elifs = t[5],  row=t.slice[1].lineno , column=t.slice[1].lexpos , else_inst=t[7])
@@ -510,8 +515,8 @@ def p_ifStmt(t):
 
 def p_ifStmt2(t): # ! NO SE PUEDE HACER UN AND CON UN PRIMITIVO
     """
-    ifStmt : R_IF expresion R_THEN plInstructionIf R_ELSE plInstructionIf R_END R_IF
-    | R_IF expresion R_THEN plInstructionIf R_END R_IF
+    ifStmt : R_IF expresion R_THEN plInstructions R_ELSE plInstructions R_END R_IF
+    | R_IF expresion R_THEN plInstructions R_END R_IF
     """
     if len(t) == 9:
         t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[1].lineno , column=t.slice[1].lexpos , else_inst=t[6])
@@ -533,7 +538,7 @@ def p_elsifList(t):
 
 def p_elsifStmt(t):
     """
-    elsifStmt : reservada_elseif expresion R_THEN plInstructionIf
+    elsifStmt : reservada_elseif expresion R_THEN plInstructions
     """
     t[0] = IfSimple(if_exp=t[2] , if_inst=t[4], row=t.slice[3].lineno , column=t.slice[3].lexpos)
     repGrammar.append(t.slice)
@@ -546,7 +551,7 @@ def p_reservada_elseif(t):
 
 def p_caseStmt(t):
     """
-    caseStmt : R_CASE expresion caseListStmt R_ELSE plInstructionIf R_END R_CASE
+    caseStmt : R_CASE expresion caseListStmt R_ELSE plInstructions R_END R_CASE
             | R_CASE expresion caseListStmt R_END R_CASE
     """
     if len(t) == 8:
@@ -568,7 +573,7 @@ def p_caseListStmt(t):
     repGrammar.append(t.slice)
 
 def p_caseWhenStmt(t):
-    """caseWhenStmt : R_WHEN expresion R_THEN plInstructionIf"""
+    """caseWhenStmt : R_WHEN expresion R_THEN plInstructions"""
     t[0] = CaseWhen(t[2], t[4],t.slice[1].lineno,t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
@@ -2184,8 +2189,7 @@ def p_useStmt(t):
 # endregion
 
 
-syntax_errors = list()
-PostgreSQL = list()
+
 
 
 def p_error(t):
@@ -2257,6 +2261,7 @@ def parserTo3D(input)-> None:
     instruction.semanticErrors = list()
     lexer.lineno = 1
     instancia_codigo3d.restart()
+    SymbolTable.symbolTable.clear()
     parser.parse(input)
 
 
@@ -2288,30 +2293,11 @@ def C3D_INSTRUCCIONES_FASE1(t):
     if len(instruccionAnlizada) != 0:
         tn = instancia_codigo3d.getNewTemporal()
         instruccionC3D = f'\t{tn} = "{instruccionAnlizada}"'
-        instancia_codigo3d.addToCode(instruccionC3D)
-        instancia_codigo3d.addToCode(f"\tstack.push({tn})")
-        instancia_codigo3d.addToCode(f"\tfuncionIntermedia()")
+        instancia_codigo3d.addToMain(instruccionC3D)
+        instancia_codigo3d.addToMain(f"\tstack.push({tn})")
+        instancia_codigo3d.addToMain(f"\tfuncionIntermedia()")
 
 
-def C3D_INSTRUCCIONES_FASE1_SIMBOLICO(t):
-    """
-    lo mismo que el metodo  C3D_INSTRUCCIONES_FASE1 pero no manda a ejecutar de una vez
-    """
-
-
-    global count_ins
-    arreglo_split = entrada.split(sep=";", maxsplit=count_ins + 1)
-    # POSEE UN MAX SPLIT poque no es necesario dividir las instrucciones que aun no se han analizado
-    instruccionAnlizada = str(arreglo_split[count_ins]).strip() + ";"
-
-    # antes verificar que inicie con una de las palabras reservadas
-    instruccionAnlizada = instancia_codigo3d.asegurarIntruccion(instruccionAnlizada)
-    if len(instruccionAnlizada) != 0:
-        tn = instancia_codigo3d.getNewTemporal()
-        instruccionC3D = f'\t{tn} = "{instruccionAnlizada}"'
-        instancia_codigo3d.addToCode(instruccionC3D)
-        # instancia_codigo3d.addToCode(f'\tstack.push({tn})')
-        # instancia_codigo3d.addToCode(f"\tfuncionIntermedia()")
 def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
     """
     retorna la cadena de la fase 1 correspondiente
@@ -2337,8 +2323,48 @@ def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
 
 # PARA PROBAR LA GENERACION DE CODIGO 3D
 
-'''parserTo3D("""
+# parserTo3D("""
+# raise 'nose' , 'nose2';
+# raise 'nose' , '715226';
+# insert into tablon values (1,2,3,4,5,6,7,8);
+# create table t444 (col integer );
 
-""")
-print("\n---------------- SALIDA: -----------------")
-instancia_codigo3d.showCode()'''
+
+
+# CREATE FUNCTION CALCULOS() RETURNS integer AS $$
+# BEGIN
+#         a = (select 2+1);
+#         return 9;
+# END;
+# $$ LANGUAGE plpgsql;
+
+# CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
+# DECLARE
+#     nomnbre varchar:='test';
+#     absolute integer:=abs(-52);
+#     numero integer=-5;
+#     indice integer:=5;
+#     final integer=numero*5;
+
+# BEGIN
+# IF 9 > 0  and 9+5 = 14 THEN
+#     raise 'imprime' , 'es 14';
+#     RETURN final;
+# elseif 97 = 90 then
+#    return 0;
+
+# elseif 99 = 90 then
+#    return 80;
+
+# elseif 100 = 100 then
+#    return 100;
+   
+# else
+#     return 60;
+# END IF;
+# END;
+# $$ LANGUAGE plpgsql;
+
+# """)
+# print("\n---------------- SALIDA: -----------------")
+# instancia_codigo3d.showCode()

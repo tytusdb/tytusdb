@@ -13,9 +13,10 @@ import sys
 #imports instrucciones
 from Instrucciones.instruction import *
 from Instrucciones.ins_if import *
+from Instrucciones.ins_case import *
 from prettytable import PrettyTable
 from copy import copy
-from environment import arregloFunciones
+from environment import arregloFunciones,arregloF
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
 # ======================================================================
@@ -29,6 +30,9 @@ consid.append('none')
 consid.append('false')
 consid.append('false')
 executing = False
+auxiliarTable = []
+bandexp = list()
+bandexp.append('prim')
 # ======================================================================
 #                        PALABRAS RESERVADAS DEL LENGUAJE
 # ======================================================================
@@ -1474,6 +1478,7 @@ def p_ins_delete(t):
 def p_drop_pf(t):
     ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
     result = deleteProcFunc(t[2], t[4], t[6])
+
     t[0] = GenerarC3D()
     t[0].code = str(result)
 
@@ -1516,12 +1521,14 @@ def p_ins_create_pl(t):
         meta = {'id':t[4], 'parametros':t[6],'estado': 'ALMACENADO', 'tipo': t[3]}
         func = funcion(meta,t[10])
         ListaFunciones.append(func)
+        genTable(t[4])
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
     else: 
         meta = {'id':t[4], 'parametros':t[6], 'estado': 'ALMACENADO', 'tipo':t[3]}
         func = funcion(meta,t[11])
         ListaFunciones.append(func)
+        genTable(t[4])
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
 
@@ -1549,15 +1556,20 @@ def p_parameters(t):
         t[0] = [t[1]]
 
 def p_parameter(t):
-    '''parameter : idopt tipo_dato
+    '''parameter : idopt t_dato
                 | ID ANYELEMENT
                 | ID ANYCOMPATIBLE
-                | OUT ID tipo_dato
+                | OUT ID t_dato
                 | ID
     '''   
     if len(t) == 4:
+        AddTs(t[2], 'None', 'DECLARACION PARÁMETRO')
         t[0] = t[2]
+    elif len(t) == 2:
+        AddTs(t[1], 'None', 'DECLARACION PARÁMETRO')
+        t[0] = t[1]
     else:
+        AddTs(t[1], t[2], 'DECLARACION PARÁMETRO')
         t[0] = t[1]
 
 def p_idopt(t):
@@ -1591,18 +1603,26 @@ def p_t_dato(t):
                  | ID '''
     if t[1] == 'SMALLINT':
         t[0]= DBType.smallint
-    elif t[1] == 'BIGING':
+    elif t[1] == 'BIGINT':
         t[0]= DBType.bigint
     elif t[1] == 'DOUBLE':
         t[0] = DBType.double_precision
     elif t[1] == 'NUMERIC':
         t[0] = DBType.numeric
+    elif t[1] == 'DECIMAL':
+        t[0] = DBType.decimal
+    elif t[1] == 'INTEGER':
+        t[0] = DBType.integer
     elif t[1] == 'CHAR':
         t[0] = DBType.char
     elif t[1] == 'VARCHAR':
         t[0] = DBType.varchar
     elif t[1] == 'CHARACTER':
         t[0] = DBType.character
+    elif t[1] == 'REAL':
+        t[0] = DBType.real
+    elif t[1] == 'INT':
+        t[0] = DBType.integer
     elif t[1] == 'TEXT':
         t[0] = DBType.text
     elif t[1] == 'TIMESTAMP':
@@ -1681,6 +1701,7 @@ def p_declaracion(t):
         temp = t[5]['temp']
         v2 = t[5]['c3d']
     v1 = declare(t[1],t[3],temp)
+    AddTs(t[1], t[3], 'DECLARACIÓN')
     t[0] = v2 + v1
 
 def p_internal_blockopt(t):
@@ -1757,18 +1778,23 @@ def p_declaracionre_record(t):
 def p_asignacion(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL exp_plsql PUNTO_COMA'''
     valor = traduct(t[4])
-    codigo = assign(t[1], valor['temp'])
+    temporal = valor['temp']
+    codigo = assign(t[1], temporal)
     if codigo == None: codigo = ""
+    modifyTs(t[1],temporal, 'ASIGNACION')
     t[0] = '\n' + valor['c3d'] + codigo
 
 def p_asignacion_igual(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA
     '''
-    t[0] = assignQ(t[1],t[4].code)
+    v = assignQ(t[1],t[4].code)
+    modifyTs(t[1],t[4].code, 'ASIGNACION')
+    t[0] = v 
 
 def p_asignacion_igual_parentesis(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA
     '''
+    modifyTs(t[1],t[5].code, 'ASIGNACION')
     t[0] = assignQ(t[1],t[5].code)
 
 def p_asignacion_dos(t):
@@ -1776,14 +1802,17 @@ def p_asignacion_dos(t):
     valor = traduct(t[5])
     codigo = assign(t[1], valor['temp'])
     if codigo == None: codigo = ""
+    modifyTs(t[1],valor['temp'], 'ASIGNACION')
     t[0] ='\n' + valor['c3d'] + codigo
 
 def p_asignacion_dos_signo_(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
+    modifyTs(t[1],t[5].code, 'ASIGNACION')
     t[0] = assignQ(t[1], t[5].code)
 
 def p_asignacion_dos_signo(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
+    modifyTs(t[1],t[6].code, 'ASIGNACION')
     t[0] = assignQ(t[1], t[6].code)
 
 def p_referencia_id(t):
@@ -1851,40 +1880,51 @@ def p_then(t):
     else: 
         t[0] = ''
 
-def p_else(t):
-    '''else : ELSE sentencia  '''
-
-def p_else_null(t):
-    '''else : '''
-
 def p_sentencia(t):
-    '''sentencia : statements'''
+    '''sentencia : statements
+                 | '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else: 
+        t[0] = ''
 
 def p_instruccion_case(t):
-    '''instruccion_case : CASE exp_plsql cases else END CASE PUNTO_COMA'''
+    '''instruccion_case : CASE exp_plsql cases END CASE PUNTO_COMA'''
+    codi = ''
+    condi = traduct(t[2])
+    if isinstance(t[3],Ins_Case):
+        t[3].case = condi['temp']
+        codi = t[3].Traduct()
+
+    t[0] = condi['c3d']+'\n'+t[1]+' '+condi['temp']+'\n'+codi+' '+t[4]+' '+t[5]+' '+t[6]+'\n'
 
 def p_cases(t):
-    '''cases : cases instruccion_case_only '''
-
-def p_cases_ins(t):
-    '''cases : instruccion_case_only'''
-
-def p_cases_ins_null(t):
-    '''cases : '''
-
-def p_instruccion_case_only(t):
-    '''instruccion_case_only : WHEN multiple then'''
+    '''cases : WHEN multiple then cases
+             | WHEN multiple then ELSE sentencia
+             | WHEN multiple then '''
+    
+    if len(t) == 6:
+        print('when else')
+        insif = Ins_Case(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('when when')
+        insif = Ins_Case(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('when solo ')
+        insif = Ins_Case(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
 
 def p_multiple(t):
     '''multiple : multiple COMA exp_plsql
-                    | exp_plsql'''
-
-def p_lista_exp(t):
-    ''' lista_exp : lista_exp COMA exp_plsql'''
-
-def p_lista_exp_only(t):
-    ''' lista_exp : exp_plsql'''
-
+                | exp_plsql'''
+    
+    if len(t) == 4:
+        t[1].append({'valor':t[3],'tipo':copy(bandexp[0])})
+        t[0] = t[1]
+    else:       
+        t[0] = [{'valor':t[1],'tipo':copy(bandexp[0])}]
 def p_statements(t):
     ''' statements : statements statement
                    | statement'''
@@ -2385,3 +2425,16 @@ def tab_func():
     arregloFunciones.clear()
     return '\n' + x.get_string() + '\n'
 
+def tab_simbolos():
+    master = ""
+    for function in arregloF:
+        slave = '===== TABLA DE SIMBOLOS EN <<' + function['id'] + '>> ====='
+        x = PrettyTable()
+        x.field_names = ['ID','TIPO','VALOR', 'OPERACION']
+        x.fields
+        for v in function['valor']:
+            tupla = [v['id'], v['tipo'], v['temporal'], v['operacion']]
+            x.add_row(tupla)
+        slave += '\n'+x.get_string() + '\n\n'
+        master+= slave
+    return master
