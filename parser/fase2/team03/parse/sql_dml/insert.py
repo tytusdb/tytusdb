@@ -1,9 +1,11 @@
+import datetime
 from parse.ast_node import ASTNode
 from jsonMode import insert
-from parse.symbol_table import SymbolTable, SymbolType
+from parse.symbol_table import SymbolTable, SymbolType, generate_tmp
 from parse.errors import Error, ErrorType
 from parse.sql_dml.select import Select
-
+from TAC.tac_enum import *
+from TAC.quadruple import *
 
 class InsertInto(ASTNode):
     def __init__(self, table_name, column_list, insert_list, line, column, graph_ref):
@@ -52,7 +54,12 @@ class InsertInto(ASTNode):
                     to_insert.append(self.insert_list[value_related_to_match].execute(table, tree))
                 # TODO ADD HERE CHECK VALIDATION
             else:
-                to_insert = list(map(lambda x: x.val, self.insert_list))
+                to_insert = []
+                for node in self.insert_list:
+                    value = node.execute(table, tree)
+                    if isinstance(value, datetime.datetime):
+                        value = value.strftime("%m/%d/%Y, %H:%M:%S")
+                    to_insert.append(value)
             result = insert(table.get_current_db().name, self.table_name, to_insert)
             if result == 1:
                 raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
@@ -89,7 +96,8 @@ class InsertInto(ASTNode):
             for value in self.insert_list:
                 values = f'{values}{value.val},'
             values = f' VALUES({values[:-1]})'
-        return f'INSERT INTO {self.table_name}{f" ({col_str})" if col_str != "" else ""}{values};'
+        return Quadruple(None, f'INSERT INTO {self.table_name}{f" ({col_str})" if col_str != "" else ""}{values};'
+                         , None, generate_tmp(), OpTAC.CALL)
 
 
 # This class probably is not going to be needed, depends on how the contents are gonna be handled

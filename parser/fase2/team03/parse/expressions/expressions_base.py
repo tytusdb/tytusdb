@@ -8,7 +8,6 @@ from TAC.tac_enum import *
 from parse.symbol_table import generate_tmp
 
 
-
 class Numeric(ASTNode):
     def __init__(self, val, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -171,7 +170,7 @@ class ColumnName(ASTNode):
             return fullname
 
     def generate(self, table, tree):
-        super().generate(table, tree)        
+        super().generate(table, tree)
         fullname = self.cName
         if self.tName is not None and self.tName != "":
             fullname = f'{self.tName}.{fullname}'
@@ -265,23 +264,22 @@ class BinaryExpression(ASTNode):
                 return f'{self.exp1.execute(table, tree)} % {self.exp2.execute(table, tree)}'
             if self.operator == OpArithmetic.POWER:
                 return f'{self.exp1.execute(table, tree)} ^ {self.exp2.execute(table, tree)}'
-        else:#TAC
-            #Classes who return scalar values NOT expressions: Numeric, Text, BoolAST, ColumnName for ID's, expressions_math.py, expressions_trig.py        
+        else:  # TAC
+            # Classes who return scalar values NOT expressions: Numeric, Text, BoolAST, ColumnName for ID's, expressions_math.py, expressions_trig.py
             arg1 = None
             arg2 = None
             gen_exp1 = self.exp1.generate(table, tree)
-            if isinstance(gen_exp1,Quadruple):
+            if isinstance(gen_exp1, Quadruple):
                 arg1 = gen_exp1.res
             else:
-                arg1 = gen_exp1 #if isn´t Cuadrupe must be scallar value such as 1,45,'OLC2 100 pts', False
-            #same as arg2 but with ternary operator syntax ;)
+                arg1 = gen_exp1  # if isn´t Cuadrupe must be scallar value such as 1,45,'OLC2 100 pts', False
+            # same as arg2 but with ternary operator syntax ;)
             gen_exp2 = self.exp2.generate(table, tree)
-            arg2 = gen_exp2.res if isinstance(gen_exp2,Quadruple) else gen_exp2
+            arg2 = gen_exp2.res if isinstance(gen_exp2, Quadruple) else gen_exp2
 
             this_tac = Quadruple(self.operator, arg1, arg2, generate_tmp(), OpTAC.ASSIGNMENT)
             tree.append(this_tac)
             return this_tac
-
 
 
 class RelationalExpression(ASTNode):
@@ -335,13 +333,14 @@ class RelationalExpression(ASTNode):
         else:
             arg1 = None
             arg2 = None
-            gen_exp1 = self.exp1.generate(table, tree)            
-            arg1 = gen_exp1.res if isinstance(gen_exp1,Quadruple) else gen_exp1 
+            gen_exp1 = self.exp1.generate(table, tree)
+            arg1 = gen_exp1.res if isinstance(gen_exp1, Quadruple) else gen_exp1
             gen_exp2 = self.exp2.generate(table, tree)
-            arg2 = gen_exp2.res if isinstance(gen_exp2,Quadruple) else gen_exp2
+            arg2 = gen_exp2.res if isinstance(gen_exp2, Quadruple) else gen_exp2
             this_tac = Quadruple(self.operator, arg1, arg2, generate_tmp(), OpTAC.ASSIGNMENT)
             tree.append(this_tac)
             return this_tac
+
 
 class PredicateExpression(ASTNode):  # TODO check operations and call to exceute function
     # Class that handles every logic expression
@@ -401,6 +400,8 @@ class PredicateExpression(ASTNode):  # TODO check operations and call to exceute
                 return f'{self.exp1.generate(table, tree)} IS NOT UNKNOWN'
         else:
             pass
+
+
 class BoolExpression(ASTNode):
     def __init__(self, exp1, exp2, operator, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -433,12 +434,13 @@ class BoolExpression(ASTNode):
                 return f'{exec1} OR {exec2}'
         else:
             arg1 = None
-            arg2 = None            
-            arg1 = exec1.res if isinstance(exec1,Quadruple) else exec1             
-            arg2 = exec2.res if isinstance(exec2,Quadruple) else exec2
+            arg2 = None
+            arg1 = exec1.res if isinstance(exec1, Quadruple) else exec1
+            arg2 = exec2.res if isinstance(exec2, Quadruple) else exec2
             this_tac = Quadruple(self.operator, arg1, arg2, generate_tmp(), OpTAC.ASSIGNMENT)
             tree.append(this_tac)
             return this_tac
+
 
 class Negation(ASTNode):
     def __init__(self, exp1, line, column, graph_ref):
@@ -462,11 +464,12 @@ class Negation(ASTNode):
             if exec1 != 'TRUE' and exec1 != 'FALSE':
                 raise Exception("The result of operation isn't boolean value")
             return 'TRUE' if exec1 == 'FALSE' else 'FALSE'
-        else:                       
-            arg1 = exec1.res if isinstance(exec1,Quadruple) else exec1                         
+        else:
+            arg1 = exec1.res if isinstance(exec1, Quadruple) else exec1
             this_tac = Quadruple(OpLogic.NOT, arg1, None, generate_tmp(), OpTAC.ASSIGNMENT)
             tree.append(this_tac)
             return this_tac
+
 
 class Identifier(ASTNode):
     def __init__(self, val, line, column, graph_ref):
@@ -526,7 +529,7 @@ class Nullable(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return self.val
+        return 'TRUE' if self.val else 'FALSE'
 
 
 class MD5_(ASTNode):
@@ -548,10 +551,8 @@ class MD5_(ASTNode):
         return f'MD5({self.exp.generate(table, tree)})'
 
 
-
-#TODO @VIC aca se agrega el generate?
 class SUBSTRING_(ASTNode):
-    def __init__(self, exp, str_pos, ext_char,  line, column, graph_ref):
+    def __init__(self, exp, str_pos, ext_char, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
         self.str_pos = str_pos
@@ -566,9 +567,9 @@ class SUBSTRING_(ASTNode):
         try:
             str_por = int(str_por)
             ext_char = int(ext_char)
-            if (str_por >=0) and (ext_char >=0) and (str_por < ext_char):
-                str_por = str_por-1
-                r = exp[str_por : ext_char]
+            if (str_por >= 0) and (ext_char >= 0) and (str_por < ext_char):
+                str_por = str_por - 1
+                r = exp[str_por: ext_char]
                 return r
             else:
                 raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'SUBSTRING() function argument error'))
@@ -579,7 +580,7 @@ class SUBSTRING_(ASTNode):
         super().generate(table, tree)
         return f'SUBSTRING({self.exp.generate(table, tree)})'
 
-#TODO @VIC aca se agrega el generate?
+
 class LENGTH_(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -592,7 +593,7 @@ class LENGTH_(ASTNode):
         try:
             if type(exp) == str:
                 return len(exp)
-            else: 
+            else:
                 raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'LENGTH() function argument error'))
         except:
             raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'LENGTH() function argument error'))
@@ -600,5 +601,3 @@ class LENGTH_(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         return f'LENGTH({self.exp.generate(table, tree)})'
-
-

@@ -114,7 +114,19 @@ class Select(ASTNode):
         quad = Quadruple(None, 'exec_sql', f'\'{ret};\'', generate_tmp(), OpTAC.CALL)
         tree.append(quad)
         return quad
+       
+    def generate_pure(self, table, tree):
+        super().generate(table, tree)
+        col_str = ''
+        table_str = ''
+        for col in self.col_names:
+            col_str = f'{col_str}{col.generate(table, tree)},'
 
+        for table in self.tables:
+            table_str = f'{table_str}{table.generate(table, tree)},'
+
+        return f'SELECT{" DISTINCT" if self.is_distinct else ""} {col_str[:-1]}' \
+               f'{f" FROM {table_str[:-1]}" if self.tables is not None else ""} {self.where.generate(table, tree)};'
 
 
 class Names(ASTNode):
