@@ -26,18 +26,17 @@ END;
 
 
 
-SELECT ValidaRegistros('lol exd',456 );
+CREATE FUNCTION Fun2 (n integer, m integer)
+declare ide1 integer = 'primer ide';
+BEGIN
+if 'uno' == 'dos' then
+raise notice 'hola';
+end if;
+    update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into var1;
+    update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into strict var1;
+    delete from tbfuncionesmath where idfuncion = 1 RETURNING col1,col2 into var1;
 
-
-CREATE INDEX mytable_cat_1 ON mytable (data) WHERE category = 1;
-CREATE INDEX test3_desc_index 	ON test3 (id DESC NULLS LAST, id DESC NULLS LAST);
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-CREATE UNIQUE INDEX index2 ON tbCalificacion (idcalifica);
-CREATE UNIQUE INDEX index3 ON tbCalificacion (idcalifica);
-CREATE UNIQUE INDEX index4 ON tbCalificacion (idcalifica);
-
-drop INDEX            index4,test3_desc_index, index4;
-drop INDEX if exists  index2 cascade;
+END;
 
 
 ALTER INDEX mytable_cat_1 RENAME TO index1;
