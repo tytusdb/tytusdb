@@ -247,6 +247,7 @@ class Identifiers(Expression):
         self.line = line
         self.column = column
         self.alias = f'{self.value}'
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -573,6 +574,7 @@ class PrimitiveData(Expression):
         self.alias = str(self.value)
         self.line = line
         self.column = column
+        self._tac = ''
 
         if self.data_type == DATA_TYPE.STRING:
             self.alias = "\'" + self.alias + "\'"
