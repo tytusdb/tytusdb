@@ -4,12 +4,12 @@ import hashlib
 import time
 from datetime import date
 
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo, Id
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion, IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones import IdAsId
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo, Id
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion, IdId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones import IdAsId
 #from currency_converter import CurrencyConverter
 
 class Binario(Instruccion):

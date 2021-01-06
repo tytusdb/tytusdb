@@ -1,18 +1,18 @@
 import  math
 
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time import Time
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
 
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Function.Llamada import Llamada
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select as Select
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.selectInst as SelectInst
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.Select2 as Selectp3
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.Select3 as Selectp4
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Function.Llamada import Llamada
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.select as Select
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.selectInst as SelectInst
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.Select2 as Selectp3
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.Select3 as Selectp4
 
 class Expresion(Exp):
     def __init__(self, iz, dr, operador,fila,columna):
