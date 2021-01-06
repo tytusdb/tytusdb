@@ -4,6 +4,7 @@ from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
 
+
 class Ternary(Expression):
     def __init__(self, temp, exp1, exp2, exp3, operator, row, column):
         super().__init__(row, column)
@@ -56,6 +57,8 @@ class Ternary(Expression):
         new.addNode(n2)
         new.addNode(n3)
         return new
+
+
 class Binary(Expression):
     """
     Esta clase recibe dos parametros de expresion
@@ -95,6 +98,7 @@ class Binary(Expression):
             + "\n"
         )
         return code.C3D(exp, self.temp, self.row, self.column)
+
     def dot(self):
         n1 = self.exp1.dot()
         n2 = self.exp2.dot()
@@ -102,6 +106,7 @@ class Binary(Expression):
         new.addNode(n1)
         new.addNode(n2)
         return new
+
 
 class Unary(Expression):
     """
@@ -156,6 +161,8 @@ class Unary(Expression):
         new = Nodo(self.operator)
         new.addNode(n)
         return new
+
+
 values = {
     "TRUE": "True",
     "FALSE": "False",
