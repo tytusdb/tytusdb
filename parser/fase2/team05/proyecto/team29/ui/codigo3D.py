@@ -184,26 +184,18 @@ def funcionIntermedia():
 
 @with_goto
 def main3d(): 
-	global lista
-
+	global lista 
 
 def ValidaRegistros():
-    t0 = t0 + 0
-    t4 = t5 + 0
-
-    t1 = t1 - 0
-    t6 = t5 - 0
-
-    t2 = t2 * 1
-    t7 = t5 * 1
-
-    t3 = t3 / 1
-    t8 = t5 / 1
-    t11 = 0 / t5
-
-    t9 = t5 * 2
-    t10 = t5 * 0
+	if T4==5: goto .L0
+	goto .L1
+	label .L0
+	T5=True
+	goto .L2
+	label .L1
+	T5=False
+	label .L2
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
 	 main()

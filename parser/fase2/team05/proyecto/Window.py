@@ -531,7 +531,7 @@ class Main(tk.Tk):
             C3D_opt.append(porOptimizar)
             optimizarDesde += 1
         optimizar(C3D_opt)
-        reporteOptimizacion(retornoOpt())
+        reporteOptimizacion(reglasOpt)
 
 
     # Ejecución de Parser
