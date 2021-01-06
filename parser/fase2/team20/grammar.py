@@ -1,6 +1,7 @@
 from pathlib import Path
 from execution.AST.expression import *
 from execution.AST.sentence import *
+from execution.AST.instruction import *
 from execution.execute import *  
 from execution.AST.error import *
 import webbrowser
@@ -203,6 +204,8 @@ reservedwords = (
     'ELSE',
     'CASE',
     'WHEN',
+    'PROCEDURE',
+    'EXECUTE',
 )
 
 symbols = (
@@ -1349,6 +1352,25 @@ def p_expression_extractfunctions(t):
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = ExtractFunction('"+t[3]+"',expression.val) }\n" + grammarreport
 
+#CREATED FUNCTIONS
+def p_expression_createdfunctions(t):
+    '''expression : ID BRACKET_OPEN expressionList BRACKET_CLOSE'''
+    t[0] = CreatedFunction(t[1],t[3])
+    global grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expressionList> ')' { expression.val = CreatedFunction('"+t[1]+"',expressionList.val) }\n" + grammarreport
+
+#SELECT
+def p_expression_selectfunctions(t):
+    '''expression : BRACKET_OPEN select BRACKET_CLOSE'''
+    t[0] = SelectFunction(t[2])
+    global grammarreport
+    grammarreport = "<expression> ::= SELECT '(' <expressionList> ')' { expression.val = SelectFunction('SELECT',expression.val) }\n" + grammarreport
+def p_expression_selectfunctions_(t):
+    '''expression : select'''
+    t[0] = SelectFunction(t[1])
+    global grammarreport
+    grammarreport = "<expression> ::= SELECT '(' <expressionList> ')' { expression.val = SelectFunction('SELECT',expression.val) }\n" + grammarreport
+
 #VALUES
 def p_expression_int(t):
     '''expression : INT'''
@@ -1390,138 +1412,195 @@ def p_expression_all(t):
 #-------------------------------------------PROCEDURAL LANGUAGE---------------------------------------------------------
 def p_instructions_pl(t):
     '''pl : function'''
+    t[0]  = t[1]
 
 #FUNCTION
 def p_pl_function_1(t):
     '''function : CREATE FUNCTION ID BRACKET_OPEN BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+    t[0] = CreateFunction(t[3],False,None,t[7],t[11])
 
 def p_pl_function_2(t):
     '''function : CREATE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+    t[0] = CreateFunction(t[3],False,t[5],t[8],t[12])
 
 def p_pl_function_3(t):
     '''function : CREATE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+    t[0] = CreateFunction(t[3],False,t[5],None,t[10])
 
 def p_pl_function_4(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+    t[0] = CreateFunction(t[3],True,None,t[9],t[13])
 
 def p_pl_function_5(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+    t[0] = CreateFunction(t[3],True,t[7],t[10],t[14])
 
 def p_pl_function_6(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
+    t[0] = CreateFunction(t[3],True,t[7],None,t[12])
 
 #PARAMS
 def p_pl_paramlist_list(t):
     '''paramList : paramList COMMA param'''
+    t[1].append(t[3])
+    t[0]  = t[1]
 
 def p_pl_paramlist_single(t):
     '''paramList : param'''
+    t[0] = [t[1]]
 
-def p_pl_param(t):
-    '''param : ID typeParam
-            | OUT ID typeParam
-            | typeParam'''
+def p_pl_param_1(t):
+    '''param : ID typeParam'''
+    t[0] = CreateParam(t[1],t[2],False)
+
+def p_pl_param_2(t):
+    '''param : OUT ID typeParam'''
+    t[0] = CreateParam(t[1],t[2],True)
+
+def p_pl_param_3(t):
+    '''param : typeParam'''
+    t[0] = CreateParam(None,t[1],False)
 
 def p_pl_typeparam(t):
     '''typeParam : ANYELEMENT
                 | ANYCOMPATIBL
                 | type'''
+    t[0] = t[1]
 
 #RETURNS
 def p_pl_returns(t):
     '''optReturns : typeParam'''
+    t[0] = CreateReturn(t[1],None)
 
 def p_pl_returns_table(t):
     '''optReturns : TABLE BRACKET_OPEN paramListTable BRACKET_CLOSE'''
+    t[0] = CreateReturn(None,t[3])
 
 def p_pl_paramlist_list_tablereturn(t):
     '''paramListTable : paramListTable COMMA paramTable'''
+    t[1].append(t[3])
+    t[0]  = t[1]
 
 def p_pl_paramlist_single_tablereturn(t):
     '''paramListTable : paramTable'''
+    t[0] = [t[1]]
 
 def p_pl_param_tablereturn(t):
     '''paramTable : ID type'''
+    t[0] = CreateParam(t[1],t[2],False)
 
 #BODY FUNCTION
 #MAIN BLOCK
-def p_pl_mainblock(t):
-    '''mainBlock : declarationBlock statementsBlock
-                 | statementsBlock'''
+def p_pl_mainblock_1(t):
+    '''mainBlock : declarationBlock statementsBlock'''
+    t[0] = BlockFunction(t[1],t[2])
+
+def p_pl_mainblock_2(t):
+    '''mainBlock : statementsBlock'''
+    t[0] = BlockFunction(None,t[1])
 
 #DECLARATION BLOCK
 def p_pl_declarationblock(t):
     '''declarationBlock : DECLARE declarationList'''
+    t[0] = t[2]
 
 def p_pl_declarelist_list(t):
     '''declarationList : declarationList optDeclaration'''
+    t[1].append(t[2])
+    t[0]  = t[1]
 
 def p_pl_declarelist_single(t):
     '''declarationList : optDeclaration'''
+    t[0] = [t[1]]
 
 def p_pl_declare(t):
     '''optDeclaration : declarationVar SEMICOLON
                       | declarationAlias SEMICOLON
                       | declarationType SEMICOLON'''
+    t[0] = t[1]
 
 #VARIABLE DECLARATIONS
 def p_pl_declarationvar_1(t):
     '''declarationVar : ID type'''
+    t[0] = VariableDeclaration(t[1],False,t[2],None,False,None)
 
 def p_pl_declarationvar_2(t):
     '''declarationVar : ID CONSTANT type'''
+    t[0] = VariableDeclaration(t[1],True,t[3],None,False,None)
 
 def p_pl_declarationvar_3(t):#collate
     '''declarationVar : ID type COLLATE STRING'''
+    t[0] = VariableDeclaration(t[1],False,t[2],t[4],False,None)
 
 def p_pl_declarationvar_4(t):
     '''declarationVar : ID CONSTANT type COLLATE STRING'''
+    t[0] = VariableDeclaration(t[1],True,t[3],t[5],False,None)
 
 def p_pl_declarationvar_5(t):#not null
     '''declarationVar : ID type NOT NULL'''
+    t[0] = VariableDeclaration(t[1],False,t[2],None,True,None)
 
 def p_pl_declarationvar_6(t):
     '''declarationVar : ID CONSTANT type NOT NULL'''
+    t[0] = VariableDeclaration(t[1],True,t[3],None,True,None)
 
 def p_pl_declarationvar_7(t):
     '''declarationVar : ID type COLLATE STRING NOT NULL'''
+    t[0] = VariableDeclaration(t[1],False,t[2],t[4],True,None)
 
 def p_pl_declarationvar_8(t):
     '''declarationVar : ID CONSTANT type COLLATE STRING NOT NULL'''
+    t[0] = VariableDeclaration(t[1],True,t[3],t[5],True,None)
 
 def p_pl_declarationvar_9(t):#assignment
     '''declarationVar : ID type assigDeclaration'''
+    t[0] = VariableDeclaration(t[1],False,t[2],None,False,t[3])
 
 def p_pl_declarationvar_10(t):
     '''declarationVar : ID CONSTANT type assigDeclaration'''
+    t[0] = VariableDeclaration(t[1],True,t[3],None,False,t[4])
 
 def p_pl_declarationvar_11(t):
     '''declarationVar : ID type COLLATE STRING assigDeclaration'''
+    t[0] = VariableDeclaration(t[1],False,t[2],t[4],False,t[5])
 
 def p_pl_declarationvar_12(t):
     '''declarationVar : ID CONSTANT type COLLATE STRING assigDeclaration'''
+    t[0] = VariableDeclaration(t[1],True,t[3],t[5],False,t[6])
 
 def p_pl_declarationvar_13(t):
     '''declarationVar : ID type NOT NULL assigDeclaration'''
+    t[0] = VariableDeclaration(t[1],False,t[2],None,True,t[5])
 
 def p_pl_declarationvar_14(t):
     '''declarationVar : ID CONSTANT type NOT NULL assigDeclaration'''
+    t[0] = VariableDeclaration(t[1],True,t[3],None,True,t[6])
 
 def p_pl_declarationvar_15(t):
     '''declarationVar : ID type COLLATE STRING NOT NULL assigDeclaration'''
+    t[0] = VariableDeclaration(t[1],False,t[2],t[4],True,t[7])
 
 def p_pl_declarationvar_16(t):
     '''declarationVar : ID CONSTANT type COLLATE STRING NOT NULL assigDeclaration'''
+    t[0] = VariableDeclaration(t[1],True,t[3],t[5],True,t[8])
 
-def p_pl_declaration_assignment(t):
+def p_pl_declaration_assignment_1(t):
     '''assigDeclaration : DEFAULT expression
-                        | EQUAL expression
-                        | TWOPOINTS EQUAL expression'''
+                        | EQUAL expression'''
+    t[0] = t[2]
+
+def p_pl_declaration_assignment_2(t):
+    '''assigDeclaration : TWOPOINTS EQUAL expression'''
+    t[0] = t[3]
 
 #ALIAS DECLARATION
-def p_pl_declarationalias(t):
-    '''declarationAlias : ID ALIAS FOR ID
-                        | ID ALIAS FOR DOLLAR INT'''
+def p_pl_declarationalias_1(t):
+    '''declarationAlias : ID ALIAS FOR ID'''
+    t[0] = AliasDeclaration(t[1],t[4])
+
+def p_pl_declarationalias_2(t):
+    '''declarationAlias : ID ALIAS FOR DOLLAR INT'''
+    t[0] = AliasDeclaration(t[1],str(t[5]))
 
 #TYPES DECLARATION
 def p_pl_declarationtype_1(t):
@@ -1534,19 +1613,35 @@ def p_pl_declarationtype_3(t):
     '''declarationType : ID RECORD'''
 
 #ASSIGNMENT
-def p_pl_assignment(t):
-    '''assignment : ID EQUAL expression
-                  | ID TWOPOINTS EQUAL expression'''
+def p_pl_assignmentselect(t):
+    '''assignment : ID EQUAL select'''
+    t[0] = Asignment(t[1],None,t[3])
 
+def p_pl_assignmenttpselect(t):
+    '''assignment : ID TWOPOINTS EQUAL select'''
+    t[0] = Asignment(t[1],None,t[4])
+
+def p_pl_assignmentexp(t):
+    '''assignment : ID EQUAL expression'''
+    t[0] = Asignment(t[1],t[3],None)
+
+def p_pl_assignmenttpexp(t):
+    '''assignment : ID TWOPOINTS EQUAL expression'''
+    t[0] = Asignment(t[1],t[4],None)
+    
 #STATEMENTS BLOCK
 def p_pl_statementsBlock(t):
     '''statementsBlock : BEGIN statementList  END SEMICOLON'''
+    t[0]  = t[2]
 
 def p_pl_statementlist_list(t):
     '''statementList : statementList statement'''
+    t[1].append(t[2])
+    t[0]  = t[1]
 
 def p_pl_statementlist_single(t):
     '''statementList : statement'''
+    t[0]  = [t[1]]
 
 #STATEMENTS
 def p_pl_statement(t):
@@ -1555,78 +1650,114 @@ def p_pl_statement(t):
                  | controlStructure SEMICOLON
                  | ddl SEMICOLON
                  | dml SEMICOLON'''
+    t[0]  = t[1]
 
 #CONTROL ESTRUCTURES
 def p_pl_controlstructure(t):
     '''controlStructure : return
                         | call
+                        | excute
                         | conditionals'''
+    t[0]  = t[1]
 
 #RETURN
 def p_pl_controlstructure_return_1(t):
     '''return : RETURN NEXT expression'''
+    t[0] = StatementReturn(t[3],True,None,None)
 
 def p_pl_controlstructure_return_2(t):
     '''return : RETURN expression COLLATE STRING'''
+    t[0] = StatementReturn(t[2],False,t[4],None)
 
 def p_pl_controlstructure_return_3(t):
     '''return : RETURN expression'''
+    t[0] = StatementReturn(t[2],False,None,None)
 
 def p_pl_controlstructure_return_4(t):
     '''return : RETURN QUERY select'''
+    t[0] = StatementReturn(None,False,None,t[3])
 
 #CALL
 def p_pl_controlstructure_call(t):
-    '''call : CALL ID BRACKET_OPEN paramList BRACKET_CLOSE'''
+    '''call : CALL ID BRACKET_OPEN expressionList BRACKET_CLOSE'''
+    t[0] = Call(t[2],t[4])
+def p_pl_controlstructure_callempty(t):
+    '''call : CALL ID BRACKET_OPEN BRACKET_CLOSE'''
+    t[0] = Call(t[2],None)
+
+#Excute
+def p_pl_controlstructure_excute(t):
+    '''excute : EXECUTE ID BRACKET_OPEN expressionList BRACKET_CLOSE'''
+    t[0] = Excute(t[2],t[4])
+def p_pl_controlstructure_excuteempty(t):
+    '''excute : EXECUTE ID BRACKET_OPEN BRACKET_CLOSE'''
+    t[0] = Excute(t[2],None)
 
 #CONDITIONALS
 def p_pl_controlstructure_conditionals(t):
     '''conditionals : if
                     | case'''
+    t[0]  = t[1]
 
 #CONDITIONAL IF
 def p_pl_conditional_ifthen(t):
     '''if : IF expression THEN statementList END IF'''
+    t[0] = If(t[2],t[4],None,None)
 
 def p_pl_conditional_ifthenelse(t):
     '''if : IF expression THEN statementList ELSE statementList END IF'''
+    t[0] = If(t[2],t[4],None,t[6])
 
 def p_pl_conditional_ifthenelsif_else(t):
     '''if : IF expression THEN statementList elsifList ELSE statementList END IF'''
+    t[0] = If(t[2],t[4],t[5],t[7])
 
 def p_pl_conditional_ifthenelsif(t):
     '''if : IF expression THEN statementList elsifList END IF'''
+    t[0] = If(t[2],t[4],t[5],None)
 
 def p_pl_elsiflist_list(t):
     '''elsifList : elsifList elsif'''
+    t[1].append(t[2])
+    t[0]  = t[1]
 
 def p_pl_elsiflist_single(t):
     '''elsifList : elsif'''
+    t[0]  = [t[1]]
 
 def p_pl_elsif(t):
     '''elsif : ELSIF expression THEN statementList'''
+    t[0] = ElsIf(t[2],t[4])
 
 #CONDITIONAL CASE
 def p_pl_conditional_simplecase_else(t):
     '''case : CASE expression whenList ELSE statementList END CASE'''
+    t[0] = Case(t[2],t[3],t[5])
 
 def p_pl_conditional_simplecase(t):
     '''case : CASE expression whenList END CASE'''
+    t[0] = Case(t[2],t[4],None)
 
 def p_pl_conditional_searchedcase_else(t):
     '''case : CASE whenList ELSE statementList END CASE'''
+    t[0] = Case(None,t[2],t[4])
 
 def p_pl_conditional_searchedcase(t):
     '''case : CASE whenList END CASE'''
+    t[0] = Case(None,t[2],None)
 
 def p_pl_whenlist_list(t):
     '''whenList : whenList when'''
+    t[1].append(t[2])
+    t[0]  = t[1]
 
 def p_pl_whenlist_single(t):
     '''whenList : when'''
+    t[0]  = [t[1]]
 
 def p_pl_when(t):
     '''when : WHEN expressionList THEN statementList'''
+    t[0] = When(t[2],t[4])
 
 #ERROR
 def p_error(t):
