@@ -1,19 +1,45 @@
 import hashlib
 
-def checksum(mode , data):
-    lis = []
-    for p in data:
-        if ( mode == "sha"):
-            lis.append(sha(p))
-        else:
-            lis.append(md(p))
-    return lis
+def checksum(data, mode):
+    f = list(map(_toString, data))
+    b = _toByte(f)
+    if mode == "SHA256":
+        return sha(b)
+    elif mode == "MD5":
+        return md(b)
+    else:
+        return None
+
 
 def sha(pieza):
-    r = hashlib.sha256(str(pieza).encode())
-    return r.hexdigest()
+    try:
+        r = hashlib.sha256(pieza)
+        return str(r.hexdigest())
+    except:
+        return None
+
 
 def md(pieza):
-    r = hashlib.md5(str(pieza).encode())
-    return r.hexdigest()
+    try:
+        r = hashlib.md5(pieza)
+        return str(r.hexdigest())
+    except:
+        return None
+
+def _toString(data):
+    if type(data) is str:
+        return data
+    l = ""
+    for x in data:
+        l = l + str(x)
+    return l
+
+
+def _toByte(data):
+    d = ""
+    for x in data:
+        if type(x) is str:
+            d += x
+    return d.encode()
+
 
