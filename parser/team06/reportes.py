@@ -21,6 +21,16 @@ global conteoTemporales
 conteoTemporales=0
 global conteoEtiquetas
 conteoEtiquetas=0
+global ayudanteCase
+ayudanteCase=""
+global ayudanteIf
+ayudanteIf=0
+
+global reportitoOptimizado
+reportitoOptimizado=""
+
+global temporalesEliminados
+temporalesEliminados=[]
 
 def invertir_cadena_manual(cadena):
     cadena_invertida = ""
@@ -131,4 +141,22 @@ def reporteSimbolos(ruta,cadena):
     print("forma bien la cadena")
     with open(ruta, "w") as f:
         f.write(ar3)
+        f.closed
+
+
+def reporteOptimizacion():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    ruta = script_dir + "\\Reportes\\OptimizacionDeCodigo.html"
+    var3="""<h1 style="text-align:center;">OPTIMIZACION DE CODIGO 3D<h1>
+    <table  border="1" style="margin-left: auto; margin-right: auto">
+  <tr>
+    <td>Regla</td>
+    <td>Definicion</td>
+    <td>Operacion</td>
+    <td>optimizado</td>
+  </tr>
+    """+reportitoOptimizado+"""
+</table> """
+    with open(ruta, "w") as f:
+        f.write(var3)
         f.closed

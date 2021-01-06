@@ -18,3 +18,10 @@ class Timestamp_Expresion(Expresion):
     
     def execute(self, eviroment):
         print("")
+    
+    def compile(self, eviroment):
+        print("text")
+
+    def getText(self):
+        cadenaTexto2 = self.hijos[0]
+        return "TIMESTAMP " + '\'' + cadenaTexto2.valor + '\''

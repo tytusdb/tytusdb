@@ -5,14 +5,14 @@ from Expresion.Terminal import Terminal
 from Expresion.Unaria import Unaria
 from Expresion.Relacional import Relacional
 from Expresion.Logica import Logica
-from Expresion.Expresion import Expresion
+from Tipo import  Tipo
 from Expresion.variablesestaticas import variables
 from Expresion.FuncionesNativas import FuncionesNativas
 from Expresion.Aritmetica import Aritmetica
 from tkinter import *
 from reportes import *
 from Expresion.Id import  Identificador
-import copy
+from Entorno.Simbolo import Simbolo
 
 
 class Select(Instruccion):
@@ -22,6 +22,7 @@ class Select(Instruccion):
     todo=[]
     tipos=[]
     aliast = []
+    agregacion=0
 
 
     def __init__(self, distinct=None, exps=None, froms=None, where=None, group=None, having=None, combinging=None,order=None, limit=None):
@@ -61,20 +62,21 @@ class Select(Instruccion):
                     result.append(exp.getval(ent).valor)
 
                 result=[result]
-                self.encabezado=newenc[:]
+                self.encabezado=newenc
 
             elif self.froms != None and self.exps != None:
 
                 for exp in self.froms:
-                        if isinstance(exp,Identificador):
-                            self.aliast.append('')
-                            tipo = exp.tipo
-                            tablas=self.gettablas(tipo,exp,ent,tablas)
-                        elif isinstance(exp,Alias):
-                            self.aliast.append(exp.nombre)
-                            expre=exp.expresion
-                            tipo=expre.tipo
-                            tablas=self.gettablas(tipo,expre,ent,tablas)
+                    if isinstance(exp,Identificador)  or isinstance(exp,Terminal):
+                        self.aliast.append('')
+                        tipo = exp.tipo
+                        tablas=self.gettablas(tipo,exp,ent,tablas)
+
+                    elif isinstance(exp,Alias):
+                        self.aliast.append(exp.nombre)
+                        expre=exp.expresion
+                        tipo=expre.tipo
+                        tablas=self.gettablas(tipo,expre,ent,tablas)
 
                 if len(tablas) > 1:
                     'Obteniendo encabezados de las tablas'
@@ -109,56 +111,41 @@ class Select(Instruccion):
                             self.encabezado.append(nombre)
 
                 # add  columnas
-                if len(self.exps) == 1:
-                    if  not isinstance(self.exps[0],Identificador):
-                        newenc = []
-                        'obtengo  solo columnas pedidas'
-                        for i in range(0, len(self.encabezado)):
-                            nombrediv = self.encabezado[i].split('.')
-                            nombrecol = nombrediv[0]
-                            if self.exps[0].getval(ent).valor == nombrecol:
-                                for x in range(0, len(result)):
-                                    valcol = result[x][i]
-                                    result[x] = [valcol]
-                                    if (len(newenc) == 0):
-                                        newenc.append(self.encabezado[i])
-                        self.encabezado = (self.encabezado+newenc)
 
-                else:
-                    newenc = []
-                    newres = []
-                    for i in range(0, len(self.exps)):
+                newenc = []
+                newres = []
+                for i in range(0, len(self.exps)):
 
-                        if isinstance(self.exps[i], Terminal) or isinstance(self.exps[i],Identificador):
-                           'aqui no agrego las que ya existen'
+                    if isinstance(self.exps[i], Terminal) or isinstance(self.exps[i], Identificador):
+                        'aqui no agrego las que ya existen'
 
+                    else:
+                        exp = self.exps[i]
+                        'aqui agrego las expresiones que se agregaran para filtrar'
+                        if isinstance(self.exps[i], FuncionesNativas):
+                            newenc.append(self.exps[i].identificador)
+                        elif isinstance(self.exps[i], Alias):
+                            newenc.append(self.exps[i].nombre)
+                            exp = self.exps[i].expresion
+                        elif isinstance(self.exps[i], Identificador):
+                            newenc.append(self.exps[i].nombre)
                         else:
-                            exp = self.exps[i]
-                            'aqui agrego las expresiones que se agregaran para filtrar'
-                            if isinstance(self.exps[i],FuncionesNativas):
-                                newenc.append(self.exps[i].identificador)
-                            elif isinstance(self.exps[i], Alias):
-                                newenc.append(self.exps[i].nombre)
-                                exp=self.exps[i].expresion
-                            elif isinstance(self.exps[i], Identificador):
-                                newenc.append(self.exps[i].nombre)
+                            newenc.append('Exp' + str(len(newenc)))
+
+                        for fila in range(0, len(result)):
+                            res = self.resolver(exp, ent, result, tablas, fila)
+                            if fila == 0:
+                                self.tipos.append([newenc[len(newenc) - 1], res.tipo])
+                            if len(newres) != len(result):
+                                newres.append([res.valor])
                             else:
-                                newenc.append('Exp'+str(len(newenc)))
+                                newres[fila].append(res.valor)
 
-                            for fila in range(0,len(result)):
-                                res=self.resolver(exp,ent,result,tablas,fila)
-                                if fila==0:
-                                    self.tipos.append([newenc[len(newenc)-1],res.tipo])
-                                if len(newres) != len(result):
-                                    newres.append([res.valor])
-                                else:
-                                    newres[fila].append(res.valor)
+                for i in range(0, len(result)):
+                    if newres != []:
+                        result[i] = result[i] + newres[i]
 
-                    for i in range(0,len(result)):
-                        if newres!=[]:
-                            result[i]=result[i]+newres[i]
-
-                    self.encabezado = (self.encabezado+ newenc)
+                self.encabezado = (self.encabezado + newenc)
 
                 # filtros
                 if self.where != None:
@@ -276,15 +263,117 @@ class Select(Instruccion):
                     result=newres
 
                 #imprimir resultado solo si no se llamo de un subquery,union,intersect,except
-
+            if self.agregacion==1:
+                result=[result[0]]
             if imp == 1:
                 self.mostarresult(result, self.encabezado, self.nombreres)
+
 
             return [self.encabezado, result]
 
         #except  Exception as inst:
             #print(inst)
             #return
+    def traducir(self,Entorno):
+        self.codigo3d= 'ci.ejecutarsql("select '
+        self.stringsql=' Select '
+        if self.distinct !=None:
+            self.codigo3d += ' distinct '
+            self.stringsql += ' distinct '
+        
+        if self.exps != None:
+            for i in range(0,len(self.exps)):
+                    if i==0:
+
+                        exp=self.exps[i]
+                        if isinstance(self.exps[i], FuncionesNativas):
+                            self.codigo3d+=self.exps[i].stringsql
+                            self.stringsql+=self.exps[i].stringsql
+                        elif isinstance(self.exps[i], Alias):
+                            self.codigo3d+=self.exps[i].stringsql
+                            self.stringsql+=self.exps[i].stringsql
+                        elif isinstance(self.exps[i],Identificador):
+                            self.codigo3d+= (self.exps[i].nombre)
+                            self.stringsql+=self.exps[i].stringsql
+                        else:
+                            self.codigo3d+= (self.exps[i].stringsql)
+                            self.stringsql+=self.exps[i].stringsql
+                    else:
+                        exp=self.exps[i]
+                        if isinstance(self.exps[i], FuncionesNativas):
+                            self.codigo3d+= ', ' +self.exps[i].stringsql
+                            self.stringsql+= ', ' +self.exps[i].stringsql
+                        elif isinstance(self.exps[i], Alias):
+                            self.codigo3d+= ', '+ self.exps[i].stringsql
+                            self.stringsql+= ', ' +self.exps[i].stringsql
+                            exp = self.exps[i].expresion
+                        elif isinstance(self.exps[i],Identificador):
+                            self.codigo3d+= ', ' +self.exps[i].nombre
+                            self.stringsql+= ', ' +self.exps[i].stringsql
+                        else:
+                            self.codigo3d+= ', '+self.exps[i].stringsql
+                            self.stringsql+= ', ' +self.exps[i].stringsql
+
+        
+        if self.froms !=None:
+            self.codigo3d += ' from '
+            self.stringsql += ' from '
+            i=0
+            for exp in self.froms:
+                if i==0:
+
+                    if isinstance(exp,Identificador)  or isinstance(exp,Terminal):
+                        self.codigo3d += exp.stringsql 
+                        self.stringsql += exp.stringsql 
+                    elif isinstance(exp,Alias):
+                        self.codigo3d +=exp.stringsql
+                        self.stringsql += exp.stringsql 
+                else:
+                    if isinstance(exp,Identificador)  or isinstance(exp,Terminal):
+                        self.codigo3d += ', '+exp.stringsql 
+                        self.stringsql += ', '+exp.stringsql
+                    elif isinstance(exp,Alias):
+                        self.codigo3d +=', '+ exp.stringsql
+                        self.stringsql += ', '+exp.stringsql
+                i=i+1
+        
+        if self.where != None:
+            self.codigo3d += ' Where '
+            self.stringsql += ' Where '
+            #v=self.where.getval(ent)
+            self.codigo3d += self.where.stringsql
+            self.stringsql += self.where.stringsql
+
+        
+        if self.group != None:
+            self.codigo3d += ' Group by '
+            self.stringsql += ' Group by '
+            i=0
+            for exp in self.group:
+                if i==0:
+                    self.codigo3d += exp.stringsql 
+                    self.stringsql += exp.stringsql 
+                else:
+                    self.codigo3d +=', '+ exp.stringsql
+                    self.stringsql +=', '+ exp.stringsql
+                i=i+1
+
+        if self.having != None:
+            ''
+        if self.order != None:
+            ''
+        if self.limit != None:
+            self.codigo3d += ' '+self.limit.stringsql 
+            self.stringsql += ' '+self.limit.stringsql   
+        if self.combinig != None:
+            self.codigo3d += self.combinig.stringsql
+            self.stringsql += self.combinig.stringsql
+
+
+        self.codigo3d += ' ;")\n'
+       
+        return self
+
 
     def getasterisco(self,nombtabla,tablas,result,ent,newres,newenc):
         real=''
@@ -325,7 +414,11 @@ class Select(Instruccion):
 
 
     def gettablas(self,tipo,exp,ent,tablas):
-        nombre = exp.nombre
+        if isinstance(exp,Identificador):
+            nombre = exp.nombre
+        elif isinstance(exp,Terminal):
+            nombre=exp.getval(ent).valor
+
         self.nombreres = nombre
         tabla = ent.buscarSimbolo(nombre + "_" + ent.getDataBase())
         if tabla != None:
@@ -431,6 +524,10 @@ class Select(Instruccion):
                     return expresion
 
             elif isinstance(expresion,FuncionesNativas):
+                if expresion.identificador.lower()=='count':
+                    t=Tipo('integer',None,-1,-1)
+                    self.agregacion=1
+                    return Terminal(t,len(result))
                 tempexp=[]
                 for exp in expresion.expresiones:
                     tempexp.append(exp)
@@ -507,16 +604,17 @@ class Select(Instruccion):
 
 
 
-    def group(self):
-        'Ejecucucion del group'
-    def having(self):
-        'Ejecucucion del having'
-    def order(self):
-        'Ejecucucion del order'
+    #def group(self):
+        #'Ejecucucion del group'
+    #def having(self):
+        #'Ejecucucion del having'
+    #def order(self):
+        #'Ejecucucion del order'
     def m_limit(self,result,limit,off):
+        
         if str(limit).lower=='all':
             limit=len(result)
-
+            
         if off <0 or off>len(result) :
             off=0
 
@@ -530,6 +628,7 @@ class Select(Instruccion):
 
 
     def m_combining(self,combi,enc1,res1,enc2,res2):
+        
         if len(enc1) == len(enc2):
             if combi.combi.lower() == 'union':
                 if combi.all == 'all':
@@ -576,17 +675,29 @@ class Select(Instruccion):
 
 
 class Limit():
-    def __init__(self,limit=-1,off=-1):
+    def __init__(self,limit=-1,off=-1,sqls=''):
         self.limit=limit
         self.off=off
+        self.sqls=sqls
+        self.stringsql = sqls
 
 class Alias():
-    def __init__(self,expresion,nombre):
+    def __init__(self,expresion,nombre,ali):
         self.expresion=expresion
         self.nombre=nombre
+        self.ali =ali
+        self.stringsql = self.expresion.stringsql + ' ' +self.ali
+    
 
 class Combi():
     def __init__(self,combi,select,all=''):
         self.combi=combi
         self.select=select
         self.all=all
+
+        sel:Instruccion= select
+        v=sel.traducir(Entorno).stringsql
+        self.stringsql = ' '+combi + ' '+ all + ' '+ v
+        
+
+     

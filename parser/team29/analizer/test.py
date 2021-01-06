@@ -13,9 +13,11 @@ if dropAll:
 
 
 s = """ 
-CREATE INDEX orderindex ON orders (x,t);
+USE db1;
+DROP INDEX patito;
 """
 result = grammar.parse(s)
 print(result)
-#print(result[0].execute(None))
+print(result[0].execute(None))
+print(result[1].execute(None))
 # print(grammar.returnPostgreSQLErrors())

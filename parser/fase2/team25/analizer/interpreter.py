@@ -80,7 +80,7 @@ def symbolReport():
     for env in environments:
         vars = env.variables
         types = env.types
-        enc = [["Alias", "Nombre", "Tipo", "Fila", "Columna"]]
+        enc = [["Nombre", "Valor", "Tipo", "Fila", "Columna"]]
         filas = []
         for (key, symbol) in vars.items():
             r = [
@@ -94,6 +94,12 @@ def symbolReport():
         for (key, type_) in types.items():
             r = [key, key, str(type_.name) if type_ else "Columna", "-", "-"]
             filas.append(r)
+        for (key, func) in env.functions.items():
+            r = [key, "-", "Function " + str(func.type[0]), "-", "-"]
+            filas.append(r)
+        for key in env.procedures:
+            r = [key, "-", "Procedure", "-", "-"]
+            filas.append(r)
         enc.append(filas)
         report.append(enc)
     instruction.envVariables = list()
@@ -103,13 +109,14 @@ def generar_codigo_3d(entrada):
     parserTo3D(entrada)
     lErrors = gramaticaFase2.returnLexicalErrors()
     sErrors = gramaticaFase2.returnSyntacticErrors()
+    semanticErrors = gramaticaFase2.returnSemanticErrors()
     symbols = symbolReport()
     obj = {
         "err_lexicos": lErrors,
         "err_sintacticos": sErrors,
-        #"semantic": semanticErrors,
+        "semantic": semanticErrors,
         "symbols": symbols,
     }
     astReport()
-    BnfGrammar.grammarReport2()
+    #BnfGrammar.grammarReport2()
     return obj

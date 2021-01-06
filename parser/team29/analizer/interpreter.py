@@ -9,6 +9,7 @@ from analizer.abstract import instruction
 from analizer import grammar
 from analizer.reports import BnfGrammar
 import pandas as pd
+from analizer.typechecker.Metadata import File
 
 
 def execution(input):
@@ -100,6 +101,37 @@ def symbolReport():
         report.append(enc)
     instruction.envVariables = list()
     return report
+
+
+def selectFirstValue(input):
+    """
+    Funcion para obtener el primer valor de un select
+    """
+    result = grammar.parse(input)
+    if len(result) > 1:
+        result = result[0].execute(None)
+        result = result[1].execute(None)[0].iloc[0].iloc[0]
+    else:
+        result = result[0].execute(None)[0].iloc[0].iloc[0]
+    return result
+
+
+print(selectFirstValue("SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');"))
+
+
+def indexReport():
+    index = File.importFile("Index")
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
+    filas = []
+    for (name, Index) in index.items():
+        columns = ""
+        for column in Index["Columns"]:
+            columns += ", " + column["Name"]
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
+    enc.append(filas)
+    return [enc]
 
 
 def printTable_PT(tables):

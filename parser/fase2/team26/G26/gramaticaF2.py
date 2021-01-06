@@ -230,7 +230,9 @@ reservadas = {
     'declare': 'DECLARE',
     'return': 'RETURN',
     'alias': 'ALIAS',
-    'for': 'FOR'
+    'for': 'FOR',
+    'raise' : 'RAISE',
+    'procedure' : 'PROCEDURE'
 }
 
 tokens = [
@@ -376,19 +378,36 @@ precedence = (
 
 def p_init(t) :
     'init            : instrucciones'
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
-
+    t[0] = t[1]
 
 def p_instrucciones_lista(t) :
     'instrucciones : instrucciones instruccion'
-    text = t[1]['text'] + "\n" + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    texto = ''
+    if 'valSelectPrint' in t[2]:
+        texto += '    valSelectPrint = 1\n'
+
+    text = t[1]['text'] + "\n" + texto + t[2]['text']
+    try:
+        printList = t[1]['printList'] + t[2]['printList']
+    except:
+        printList = t[1]['printList']
+    t[0] =  {'text': text, 'c3d' : '', 'printList': printList}
+
 
 def p_instruciones(t):
     'instrucciones : instruccion'''
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    valSelectPrint = 1\n'
+
+    text += t[1]['text']
+    try:
+        printList = t[1]['printList']
+    except:
+        printList = ''
+
+    t[0] =  {'text': text, 'c3d' : '', 'printList': printList}
+
 
 
 def p_instruccion(t) :
@@ -400,11 +419,14 @@ def p_instruccion(t) :
                         | INSERT insert
                         | UPDATE update
                         | ALTER alter'''
-
-    text = '    ' + tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
-    text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += '    ' + 'mediador()\n'
-    t[0] = {'text' : text, 'c3d': ''}
+    if t[2]['text'] == '':
+        text = ''
+    else:
+        text = t[2]['c3d']
+        text += '    ' + tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
+        text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
+        text += '    ' + 'mediador(0)\n'
+    t[0] = {'text' : text, 'c3d': '', 'printList': ''}
 
 #----------------testing condiciones--------------------
 #def p_instrcond(t):
@@ -421,33 +443,78 @@ def p_instruccion_ccreateind(t):
     t[0] = {'text' : t[1]['text'], 'c3d': ''}
 
 def p_instruccion_ccreateindf(t):
-    'createops    : createfunction'
-    print(t[1]['ftext'])
-    t[0] = {'text' : '', 'c3d': ''}
+    'instruccion    : CREATE createfunction'
+    #print(t[2]['ftext'])
+    t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList']}
+
+def p_instruccion_ccreateindpr(t):
+    'instruccion    : CREATE createprocedure'
+    #print(t[2]['ftext'])
+    t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList']}
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
     text = t[1]['c3d']
     text += '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
     text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += '    ' + 'mediador()\n'
+    text += '    ' + tempos.getcurrent()+ ' = mediador(' + 'valSelectPrint' + ')\n'
 
-    t[0] =  {'text': text, 'c3d' : ''}
+    t[0] =  {'text': text, 'c3d' : '', 'printList':'', 'valSelectPrint': 0}
 
 def p_instruccionQuerys(t):
     'instruccion  : querys PTCOMA'
     text = '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
     text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += '    ' + 'mediador()\n'
-    t[0] =  {'text': text, 'c3d' : '' }
+    text += '    ' + tempos.getcurrent()+ ' = mediador(0)\n'
+    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
+
+def p_instruccionraise(t):
+    'instruccion  : rise'
+    #text = '    '+'rraise = True\n'
+    text = t[1]['text']
+    #text += '    '+'rraise = False\n'
+    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
+
+#-------------------------------------------EXECUTE
+def p_stament_a(t):
+    '''instruccion : execute PTCOMA'''
+    text = t[1]['text']
+    #print(text)
+    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
 
 def p_instruccionError(t):
     'instruccion  : problem'
     text = "\n"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'printList': '' }
 
 def p_problem(t):
     '''problem  :  error PTCOMA'''
+    t[0] =  {'text': '', 'c3d' : '', 'printList': str(t[1]) + '\n' }
+
+
+
+#---------------------------------------------------------RAISE-------------------------------------------------------
+def p_riseaA(t):
+    '''rise : RAISE argument PTCOMA'''
+    text = t[2]['c3d']
+    text += '    print ('+t[2]['tflag']+')\n'
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_riseB(t):
+    '''rise : RAISE condiciones PTCOMA'''
+    text = t[2]['c3d']
+    text += '    print ('+t[2]['tflag']+')\n'
+    t[0] = {'text': text, 'c3d': ''}
+
+def p_riseC(t):
+    '''rise : RAISE instruccion'''
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    valSelectPrint = 1\n'
+
+    text += t[1]['text']
+    text += '    print ('+tempos.getcurrent()+')\n'
+    t[0] = {'text': text, 'c3d': ''}
 
 #---------------------------------------------------------------INDEX-----------------------------------
 def p_createindex(t):
@@ -554,7 +621,8 @@ def p_select_err(t):
 def p_from_opcional(t):
     'fromopcional     :  FROM parametrosfrom whereopcional '
     text = " FROM "+ t[2]['text'] + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    c3d = t[3]['c3d']
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_from_opcional_2(t):
     'fromopcional     :  FROM parametrosfrom groupbyopcional '
@@ -569,7 +637,8 @@ def p_from_opcional_null(t):
 def p_where_opcional(t):
     'whereopcional :  WHERE condiciones groupbyopcional'
     text = " WHERE "+ t[2]['text'] + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    c3d = t[2]['select']
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_where_opcional_null(t):
     'whereopcional :   '
@@ -696,7 +765,6 @@ def p_lista_de_seleccionados_funcion_params(t):
     cant = len(t[3]['c3d']) - 1
     arr = []
     c3d = ''
-    print(t[3])
     for val in t[3]['extra']:
         if val != '':
             c3d += val
@@ -710,36 +778,50 @@ def p_lista_de_seleccionados_funcion_params(t):
         c3d += '    heap.append(' + val + ')\n'
 
     c3d += '    ' + t[1] + '()\n'
-    
+
     text = ''
 
-    try:
-        if t[-1].lower() == 'execute' :
-            ''
-        else :
-            temporal = tempos.newTemp()
-            c3d += '    ' + temporal + ' = heap.pop()\n'
-            text = '\\\'\' + str(' + temporal + ') + \'\\\''
-    except:
-        temporal = tempos.newTemp()
-        c3d += '    ' + temporal + ' = heap.pop()\n'
-        text = '\\\'\' + str(' + temporal + ') + \'\\\''
-    
+    l.readData(datos)
+    if 'funciones_' in datos.tablaSimbolos:
+        for nombres in datos.tablaSimbolos['funciones_']:
+            if nombres['name'] == t[1]:
+                if nombres['tipo'] == 'Procedimiento':
+                    ''
+                else:
+                    temporal = tempos.newTemp()
+                    c3d += '    ' + temporal + ' = heap.pop()\n'
+
+                    if nombres['return'] == 'varchar' or nombres['return'] == 'text' or nombres['return'] == 'char' or nombres['return'] == 'character':
+                        text = '\\\'\' + str(' + temporal + ') + \'\\\''
+                    else:
+                        text = '\' + str(' + temporal + ') + \''
+
     t[0] =  {'text': text, 'c3d' : c3d}
 
 def p_lista_de_seleccionados_funcion(t):
     'funcionesLlamada : ID PARENIZQ PARENDER'
     c3d = '    ' + t[1] + '()\n'
     val = tempos.newTemp()
-    c3d += '    ' + val + ' = heap.pop()\n'
-    text = '\\\'\' + str(' + val + ') + \'\\\''
+    text = ''
+    l.readData(datos)
+    if 'funciones_' in datos.tablaSimbolos:
+        for nombres in datos.tablaSimbolos['funciones_']:
+            if nombres['name'] == t[1]:
+                if nombres['tipo'] == 'Procedimiento':
+                    ''
+                else:
+                    if nombres['return'] == 'varchar' or nombres['return'] == 'text' or nombres['return'] == 'char' or nombres['return'] == 'character':
+                        text = '\\\'\' + str(' + val + ') + \'\\\''
+                    else:
+                        text = '\' + str(' + val + ') + \''
+                    c3d += '    ' + val + ' = heap.pop()\n'
+
     t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_params_FR(t):
     'params : params COMA param'
     text = t[1]['text'] + ', ' + t[3]['text']
 
-    print(t[3])
     t[1]['c3d'].append(t[3]['text'])
     t[1]['extra'].append(t[3]['c3d'])
     t[1]['tflag'].append(t[3]['tflag'])
@@ -752,7 +834,6 @@ def p_params_F(t):
         t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [''], 'tflag': [t[1]['tflag']]}
     else:
         t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [t[1]['c3d']], 'tflag': [t[1]['tflag']]}
-
 
 def p_param_F(t):
     '''param : condiciones
@@ -1185,8 +1266,12 @@ def p_argument_noterminal(t):
                 | funcionesdefechas
                 | funcionesbinarias'''
     text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
-
+    tempo = tempos.newTemp()
+    c3d = "    "+tempo+ " = '"+ t[1]['text']+"'\n"
+    c3d += "    "+"heap.append("+tempo+")\n"
+    c3d += "    "+tempo + " = mediador(0)\n"
+    #print(text)
+    t[0] =  {'text': text, 'c3d' : c3d, 'tflag': tempo}
 
 
 #------------------------------------------------------CONDICIONES-----------------------------------------
@@ -1198,7 +1283,8 @@ def p_condiciones_recursivo(t):
     c3 += t[3]['c3d']
     c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
-    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
+    c3d = t[1]['select'] + t[3]['select']
+    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': c3d}
 
 def p_codiciones(t):
     'condiciones    :  condicion'
@@ -1215,8 +1301,8 @@ def p_condicion(t):
 
     c3 = t[2]['c3d']
     c3 += '    ' + tempos.newTemp() + ' = ' + t[1].lower() + ' ' + t[2]['tflag']  + '\n'
-
-    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
+    c3d = t[2]['select']
+    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': select}
 
 def p_condicionPs(t):
     '''condicion    : condicions'''
@@ -1241,67 +1327,136 @@ def p_condicions(t):
                   | argument SOME PARENIZQ select PARENDER'''   ## Falta de hacer
     text = ''
     c3 = ''
+    select = ''
     if t[2] == '<'    :
-        text = str(t[1]['text'])  + "<" + str(t[3]['text'])
+        text = str(t[1]['text'])  + " < " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
+
+        select = ''
+        try:
+            select += t[1]['select']
+        except:
+            ''
+        try:
+            select += t[3]['select']
+        except:
+            ''
 
     elif t[2] == '>'  :
-        text = str(t[1]['text'])  + ">" +str( t[3]['text'])
+        text = str(t[1]['text'])  + " > " +str( t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
+        select = ''
+        try:
+            select += t[1]['select']
+        except:
+            ''
+        try:
+            select += t[3]['select']
+        except:
+            ''
+
     elif t[2] == '='  :
-        text = str(t[1]['text'])  + "=" + str(t[3]['text'])
+        text = str(t[1]['text'])  + " = " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' == ' + t[3]['tflag'] + '\n'
 
+        select = ''
+        try:
+            select += t[1]['select']
+        except:
+            ''
+        try:
+            select += t[3]['select']
+        except:
+            ''
+
     elif t[2] == '<=' :
-        text = str(t[1]['text'])  + "<=" + str(t[3]['text'])
+        text = str(t[1]['text'])  + " <= " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
+        select = ''
+        try:
+            select += t[1]['select']
+        except:
+            ''
+        try:
+            select += t[3]['select']
+        except:
+            ''
+
     elif t[2] == '>=' :
-        text = str(t[1]['text'])  + ">=" + str(t[3]['text'])
+        text = str(t[1]['text'])  + " >= " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 = t[3]['c3d']
         c3 = '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
+        select = ''
+        try:
+            select += t[1]['select']
+        except:
+            ''
+        try:
+            select += t[3]['select']
+        except:
+            ''
+
     elif t[2] == '<>' or t[2] == '!=' :
-        text = str(t[1]['text'])  + "<>" + str(t[3]['text'])
+        text = str(t[1]['text'])  + " <> " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
         c3 += t[3]['c3d']
         c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' != ' + t[3]['tflag'] + '\n'
 
+        select = ''
+        try:
+            select += t[1]['select']
+        except:
+            ''
+        try:
+            select += t[3]['select']
+        except:
+            ''
+
     elif t[2].lower() == 'between' :
         text = str(t[1]['text'])  + " BETWEEN " + str(t[3]['text'])
-
         tp = tempos.newTemp()
-        c3 = '    ' + tp + ' = ' + t[1]['tflag'] + ' >= ' + t[3]['c3d'] + '\n'
+        try:
+            c3 = t[3]['select'] + '    ' + tp + ' = ' + t[1]['tflag'] + ' >= ' + t[3]['c3d'] + '\n'
+        except:
+            c3 = '    ' + tp + ' = ' + t[1]['tflag'] + ' >= ' + t[3]['c3d'] + '\n'
+
         ts = tempos.newTemp()
         c3 += '    ' + ts + ' = ' + t[1]['tflag'] + ' <= ' + t[3]['tflag'] + '\n'
         c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' and ' + ts + '\n'
 
+        select = t[3]['select']
     elif t[2].lower() == 'not' :
         if t[3].lower() == 'between':
             text = str(t[1]['text'])  + " NOT BETWEEN" + str(t[4]['text'])
 
             tp = tempos.newTemp()
-            c3 = '    ' + tp + ' = ' + t[1]['tflag'] + ' >= ' + t[4]['c3d'] + '\n'
+            try:
+                c3 = t[4]['select'] + '    ' + tp + ' = ' + t[1]['tflag'] + ' >= ' + t[4]['c3d'] + '\n'
+            except:
+                c3 = '    ' + tp + ' = ' + t[1]['tflag'] + ' >= ' + t[4]['c3d'] + '\n'
+
             ts = tempos.newTemp()
             c3 += '    ' + ts + ' = ' + t[1]['tflag'] + ' <= ' + t[4]['tflag'] + '\n'
             c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' and ' + ts + '\n'
-
+            select = t[4]['select']
         else :
             text = str(t[1]['text'])  + " NOT IN(" + str(t[5]['text']) + ")"
             t[0] =  {'text': text, 'c3d' : '' }
@@ -1337,7 +1492,7 @@ def p_condicions(t):
     else :
         text = str(t[1]['text'])  + " IN(" + str(t[4]['text']) + ")"
 
-    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
+    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': select}
 
 def p_condicionsP(t):
     'condicions : EXISTS PARENIZQ select PARENDER'
@@ -1346,14 +1501,34 @@ def p_condicionsP(t):
 
 def p_betweenopcion(t):
     '''betweenopcion    : argument AND argument'''
+    select = ''
+    try:
+        select += t[1]['select']
+    except:
+        ''
+    try:
+        select += t[3]['select']
+    except:
+        ''
     text = t[1]['text']  + " AND " + t[3]['text']
-    t[0] = {'text' : text, 'c3d' : t[1]['tflag'], 'tflag' : t[3]['tflag']}
+
+    t[0] = {'text' : text, 'c3d' : t[1]['tflag'], 'tflag' : t[3]['tflag'], 'select':select}
 
 
 def p_betweenopcionP(t):
     '''betweenopcion    : symm argument AND argument'''
+    select = ''
+    try:
+        select += t[2]['select']
+    except:
+        ''
+    try:
+        select += t[4]['select']
+    except:
+        ''
+
     text = t[1] + ' '  + t[2]['text'] + " AND " + t[4]['text']
-    t[0] = {'text' : text, 'c3d' : t[2]['tflag'], 'tflag' : t[4]['tflag']}
+    t[0] = {'text' : text, 'c3d' : t[2]['tflag'], 'tflag' : t[4]['tflag'], 'select': select}
 
 def p_symmetric(t):
     'symm   : SYMMETRIC'
@@ -1444,7 +1619,17 @@ def p_argument_binary(t):
     c3 += t[3]['c3d']
     c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
-    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
+    select = ''
+    try:
+        select += t[1]['select']
+    except:
+        ''
+    try:
+        select += t[3]['select']
+    except:
+        ''
+
+    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select':select}
 
 def p_argument_bolano(t):
     'argument : boleano'
@@ -1495,6 +1680,10 @@ def p_boleano(t):
         text = " FALSE"
         c = ' False '
     t[0] = {'text' : text, 'c3d' : '', 'tflag' : str(c)}
+
+def p_argument_funcion(t):
+    'argument : funcionesLlamada'
+    t[0] = {'text' : t[1]['text'], 'c3d' : t[1]['c3d'], 'tflag':str(tempos.getcurrent()), 'select': t[1]['c3d']}
 
 #-------------------------------------------CREATEEE----------------------------------------------------
 def p_create_instruccion(t) :
@@ -2044,21 +2233,18 @@ def p_tipodedrop(t):
 def p_instrucciones_delete(t) :
     '''delete    : FROM ID condicionesops PTCOMA'''
     text = "FROM " + t[2] + " "+ t[3]['text']+ ";"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : t[3]['c3d'] }
 
 def p_instruccionesdelete_e(t):
     '''delete : problem'''
     text = ""
     t[0] =  {'text': text, 'c3d' : '' }
-
-
 #-------------------------------------------------------INSERT------------------------------------------
 def p_instrucciones_insert(t):
     '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
-    text = ""
-    if t[1].lower() == "into":
-        text = "INTO "+t[2] + " VALUES ( " +t[5]['text']+ " ) ;"
-    t[0] =  {'text': text, 'c3d' : '' }
+    text = "INTO "+t[2] + " VALUES ( " +t[5]['text']+ " ) ;"
+    c3d = t[5]['c3d']
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_instrucciones_insert_err(t):
     "insert : problem"
@@ -2068,17 +2254,27 @@ def p_instrucciones_insert_err(t):
 def p_values_rec(t):
     '''values   : values COMA value'''
     text = str(t[1]['text']) + " , " +str(t[3]['text'])
-    t[0] =  {'text': text, 'c3d' : '' }
+    select = ''
+    if 'select' in t[3]:
+        select = t[3]['select']
+
+    c3d = t[1]['c3d'] + select
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_values(t):
     '''values   : value'''
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    select = ''
+    if 'select' in t[1]:
+        select = t[1]['select']
+    t[0] = {'text':t[1]['text'], 'c3d':'', 'select':select}
+
+def p_value_funcion(t):
+    'value : funcionesLlamada'
+    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'], 'select':t[1]['c3d'] }
 
 def p_value(t):
     '''value   : ENTERO'''
-    text = t[1]
-    t[0] =  {'text': text, 'c3d' : str(t[1]) }
+    t[0] =  {'text': t[1], 'c3d' : str(t[1]) }
 
 def p_valuef(t):
     '''value   : DECIMAL'''
@@ -2125,9 +2321,10 @@ def p_value_substr(t):
 def p_instrucciones_update(t):
     '''update    : ID SET asignaciones condicionesops PTCOMA'''
     text=""
+    c3d = t[3]['c3d'] + t[4]['c3d']
     if t[2].lower() == "set":
         text = t[1] + " SET "+t[3]['text']+t[4]['text']+";"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_instruccions_update_e(t):
     '''update : problem'''
@@ -2137,17 +2334,21 @@ def p_instruccions_update_e(t):
 def p_asignaciones_rec(t):
     '''asignaciones     : asignaciones COMA ID IGUAL argument'''
     text =t[1]['text']+" , "+ t[3]+" = "+ t[5]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : t[5]['select'] }
 
 def p_asignaciones(t):
     '''asignaciones : ID IGUAL argument'''
     text = t[1]+ " = " + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    try:
+        c3d = t[3]['select']
+    except:
+        c3d = ''
+    t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_instrucciones_update_condsops(t):
     'condicionesops    : WHERE condiciones'
     text = " WHERE "+ t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : t[2]['select'] }
 
 def p_instrucciones_update_condsopsE(t):
     'condicionesops    : '
@@ -2155,40 +2356,141 @@ def p_instrucciones_update_condsopsE(t):
     t[0] =  {'text': text, 'c3d' : '' }
 
 #----------------------------------------NUEVO---------------------------------------------------------
+#------------------------------------------------------------PROCEDURE--------------------------------------------------------------------
+def p_createprocedure(t):
+    'createprocedure : orreplaceopcional PROCEDURE ID PARENIZQ argumentosp PARENDER LANGUAGE ID AS DOLARS bodystrcpr DOLARS '
+    ftext = '@with_goto\n' + 'def ' + t[3] + '():\n'
+    ftext += t[5]['text']
+    ftext += t[11]['text']
+
+    printList = ''
+    try:
+        if t[1].lower() == 'or' :
+            f = open('./Funciones/'+t[2]+'.py', "w")
+            f.write(ftext)
+            f.close()
+    except:
+        l.readData(datos)
+        if not 'funciones_' in datos.tablaSimbolos:
+            datos.tablaSimbolos['funciones_'] = []
+        found = False
+        for func in datos.tablaSimbolos['funciones_'] :
+            if func['name'] == t[3] and func['tipo'] == 'Procedimiento':
+                found = True
+                break
+        if not found :
+            datos.tablaSimbolos['funciones_'].append({'name' : t[3], 'return' : None, 'tipo': 'Procedimiento'})
+            #-----Creando archivo de función
+            f = open('./Funciones/'+t[3]+'.py', "w")
+            f.write(ftext)
+            f.close()
+            #-------------------------------
+        else :
+            printList = 'La funcion ' + t[3] + ' ya esta creada.\n'
+
+        l.writeData(datos)
+    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList}
+
+def p_orreplaceopcional(t):
+    '''orreplaceopcional :  OR REPLACE'''
+    t[0] = t[1]
+
+def p_orreplaceopcionalE(t):
+    '''orreplaceopcional : '''
+    t[0] =  {'text':'' , 'c3d' : '' }
+
+def p_body_strcpr(t):
+    '''bodystrcpr : cuerpodeclare BEGIN statementspr END  PTCOMA'''
+    text = t[1]['text'] + '\n' + t[3]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_body_strcBpr(t):
+    '''bodystrcpr : BEGIN statementspr END  PTCOMA'''
+    text = t[2]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_statements_cpr(t):
+    'statementspr : statementspr statementpr'
+    text = t[1]['text']
+    text += t[2]['text']  + '\n'
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_statements_cpr_a(t):
+    'statementspr : statementpr'
+    text = t[1]['text']  + '\n'
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_stament_cpro(t):
+    '''statementpr : CASE case PTCOMA'''
+    c3d = ''
+    text = t[2]['c3d']
+    #print(text)
+    t[0] =  {'text': text, 'c3d' : c3d}
+
+def p_stament_ifpr(t):
+    'statementpr : if'
+    c3d = ''
+    text = t[1]['c3d']
+    t[0] =  {'text': text, 'c3d' : c3d}
+
+def p_stament_asignpr(t):
+    '''statementpr : asigment'''
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_stament_caspr(t):
+    '''statementpr : '''
+    text = ""
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_statement_pr(t):
+    'statementpr : instruccion'
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    valSelectPrint = 1\n'
+
+    text += t[1]['text']
+
+    t[0] = {'text': text, 'c3d': ''}
+
+#--------------------------------------------------------------------FUNCIONES--------------------------------------------------------------
 def p_createfunction(t):
-    'createfunction :  FUNCTION ID PARENIZQ argumentos PARENDER RETURNS tipo AS body LANGUAGE ID PTCOMA'
-    ftext = 'def ' + t[2] + '():\n'
+    'createfunction :  FUNCTION ID PARENIZQ argumentosp PARENDER RETURNS tipo AS body LANGUAGE ID PTCOMA'
+    ftext = '@with_goto\n' + 'def ' + t[2] + '():\n'
     ftext += t[4]['text']
     ftext += t[9]['text']
     #----Validando función--------
-
-    '''burger = ts.DataFile()
-    burger.readData(datos)
-
-    if not 'funciones' in datos.:
-        datos.tablaSimbolos[datos.databaseSeleccionada]['funciones'] = []
+    l.readData(datos)
+    printList = ''
+    if not 'funciones_' in datos.tablaSimbolos:
+        datos.tablaSimbolos['funciones_'] = []
     found = False
-    for func in datos.tablaSimbolos[datos.databaseSeleccionada]['funciones'] :
-        if func.name == t[2].upper() :
+    for func in datos.tablaSimbolos['funciones_'] :
+        if func['name'] == t[2] and func['tipo'] == 'Funcion':
             found = True
             break
     if not found :
-        datos.tablaSimbolos[datos.databaseSeleccionada]['funciones'].append({'name' : t[2].upper(), 'return' : t[7]['text']})
+        datos.tablaSimbolos['funciones_'].append({'name' : t[2], 'return' : t[7]['text'], 'tipo': 'Funcion'})
         #-----Creando archivo de función
-        f = open('./funciones/'+t[2]+'.py', "w")
+        f = open('./Funciones/'+t[2]+'.py', "w")
         f.write(ftext)
         f.close()
         #-------------------------------
-    else : 
-        print('La funcion ' + t[2] + ' ya esta creada.')
-        
-    #print(datos)
-    burger.writeData(datos)'''
-    f = open('./funciones/'+t[2]+'.py', "w")
-    f.write(ftext)
-    f.close()
-    #--------------------------------
-    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext}
+    else :
+        printList = 'La funcion ' + t[2] + ' ya esta creada.\n'
+
+    l.writeData(datos)
+    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList}
+
+
+def p_argumento_p(t):
+    '''argumentosp : argumentos'''
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_argumento_p_ep(t):
+    'argumentosp : '
+    t[0] =  {'text': '', 'c3d' : '' }
 
 
 def p_argumentos_cfr(t):
@@ -2216,12 +2518,12 @@ def p_body_cf(t):
 def p_body_strc(t):
     '''bodystrc : cuerpodeclare BEGIN statements END  PTCOMA'''
     text = t[1]['text'] + '\n' + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }  
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_body_strcB(t):
     '''bodystrc : BEGIN statements END  PTCOMA'''
     text = t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }  
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_cuerpodeclare(t):
     'cuerpodeclare : DECLARE declarations'
@@ -2232,12 +2534,12 @@ def p_decla(t):
     'declarations : declarations declaration '
     text = t[1]['text']
     text += t[2]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declar(t):
     'declarations : declaration '
     text = t[1]['text'] + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declartion_cf(t):
     '''declaration : ID tipo declarationc '''
@@ -2247,59 +2549,59 @@ def p_declartion_cf(t):
         text = t[3]['c3d']
         text += '    ' + t[1] + ' = ' + t[3]['text']
     text += ''
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declarationc_a(t):
     '''declarationc :   defaultop PTCOMA'''
     text = t[1]['text']
     t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
-	
+
 def p_declarationc_aB(t):
     '''declarationc :   PTCOMA'''
     text = ''
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_default_cf(t):
     '''defaultop : DEFAULT  argocond
                 | IGUAL argocond
                 | IGUALESP argocond'''
     text = t[2]['text']
-    t[0] =  {'text': text, 'c3d' : t[2]['c3d'] } 
+    t[0] =  {'text': text, 'c3d' : t[2]['c3d'] }
 
 def p_default_argocond(t):
     '''argocond : argument
                 | condiciones'''
     text = t[1]['tflag']
-    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] } 
+    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
 
 def p_statements_cf(t):
     'statements : statements statement'
     text = t[1]['text']
     text += t[2]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_statements_cf_a(t):
     'statements : statement'
     text = t[1]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_stament_cf(t):
     '''statement : RETURN argument PTCOMA
-                | CASE case PTCOMA
-                | if '''
+                | CASE case PTCOMA'''
+    c3d = ''
     if t[1].lower() == 'return':
         text = t[2]['c3d']
-        text += '    ' + 'heap.append(' + t[2]['tflag'] + ')\n return \n'
-    else :
-        c3d = t[1]['c3d']
-        text = ""
-        #aqui deberiamos de retornar el c3d pero pos no lo pongo aun xd
-    t[0] =  {'text': text, 'c3d' : '' }
-	
-def p_stament_a(t):
-    '''statement : execute PTCOMA'''
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+        text += '    ' + 'heap.append(' + t[2]['tflag'] + ')\n'+'    return \n'
+    elif t[1].lower() == 'case' :
+        text = t[2]['c3d']
+        #print(text)
+    t[0] =  {'text': text, 'c3d' : c3d}
+
+def p_stament_if(t):
+    'statement : if'
+    c3d = ''
+    text = t[1]['c3d']
+    t[0] =  {'text': text, 'c3d' : c3d}
 
 def p_stament_asign(t):
     '''statement : asigment'''
@@ -2312,8 +2614,12 @@ def p_stament_casf(t):
     t[0] =  {'text': text, 'c3d' : '' }
 
 def p_statement_b(t):
-    'statement : instruccion' #arreglarlo para que no tome los selec
-    text = ""
+    'statement : instruccion'
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    valSelectPrint = 1\n'
+
+    text += t[1]['text']
     t[0] = {'text': text, 'c3d': ''}
 
 def p_asigment(t):
@@ -2325,16 +2631,20 @@ def p_asigment(t):
 def p_finasigment_conds(t):
     '''fasign   : condiciones PTCOMA'''
     text = t[1]['tflag']
-    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] } 
+    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
 
 def p_finasigment_args(t):
     '''fasign   : argument PTCOMA'''
     text = t[1]['tflag']
     t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
-    
+
 def p_finasigment_inst(t):
     '''fasign   : instruccion'''
-    text = t[1]['text']
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    ' +'valSelectPrint = 0\n'
+
+    text += t[1]['text']
     t[0] = {'text': tempos.getcurrent(), 'c3d': text}
 
 def p_igualdadcf(t):
@@ -2346,7 +2656,6 @@ def p_igualdadcf(t):
 
 def p_executecf(t):
     'execute : EXECUTE funcionesLlamada'
-    #execute : EXECUTE ID PARENIZQ PARENDER
     #text = ''
     text = t[2]['c3d']
     t[0] = {'text': text, 'c3d': ''}
@@ -2354,18 +2663,18 @@ def p_executecf(t):
 def p_if_(t):
     '''if : IF condiciones THEN statements ifend PTCOMA '''
     text = ""
-    temp1 = tempos.newTemp() 
-    temp2 = tempos.newTemp() 
+    temp1 = tempos.newTemp()
+    temp2 = tempos.newTemp()
     c3d = t[2]['c3d']
     c3d +=  "    "+"if (" + t[2]['tflag'] + "):   goto ."+ temp1 +"  \n"
     c3d += "    "+"goto ."+temp2+"\n"
     c3d += "    "+"label ." +temp1 +"\n"
-    c3d += t[4]['c3d']+"\n"
-    c3d += "    "+"label ." +temp2 +"\n"
+    c3d += t[4]['text']
     c3d += "    "+"goto ." +t[5]['tflagif']+"\n"
+    c3d += "    "+"label ." +temp2 +"\n"
     c3d += t[5]['c3d']+"\n"
     c3d += "    "+"label ."+t[5]['tflagif']
-    print(c3d)
+    #print(c3d)
     t[0] = {'text': text, 'c3d': c3d}
 
 def p_if_end(t):
@@ -2374,24 +2683,24 @@ def p_if_end(t):
             | ELSE statements END IF  '''
     text = ""
     c3d = ""
-    tflagif = "" 
+    tflagif = ""
     if t[1].lower() == 'end':
         tflagif = tempos.newTempif()
         c3d = ""
     elif t[1].lower() == 'else':
-        c3d = t[2]['c3d']
+        c3d = t[2]['text']
         tflagif = tempos.newTempif()
     elif t[1].lower() == 'elseif':
-        temp1 = tempos.newTemp() 
-        temp2 = tempos.newTemp() 
+        temp1 = tempos.newTemp()
+        temp2 = tempos.newTemp()
         tflagif = t[5]['tflagif']
         c3d = t[2]['c3d']
         c3d +=  "    "+"if (" + t[2]['tflag'] + "):   goto ."+ temp1 +"  \n"
         c3d += "    "+"goto ."+temp2+"\n"
         c3d += "    "+"label ." +temp1 +"\n"
-        c3d += t[4]['c3d']+"\n"
-        c3d += "    "+"label ." +temp2 +"\n"
+        c3d += t[4]['text']
         c3d += "    "+"goto ." +t[5]['tflagif']+"\n"
+        c3d += "    "+"label ." +temp2 +"\n"
         c3d += t[5]['c3d']+"\n"
     t[0] = {'text': text, 'c3d': c3d,'tflagif' : tflagif}
 
@@ -2404,42 +2713,39 @@ def p_casecf(t):
     text = ""
     code = ""
     try:
-        if t[2].lower() == "when":
-            arreglo = []    
-            for a in t[3]['c3d']:
-                temporal = tempos.newTemp()
-                arreglo.append(temporal)
-                code += '    ' + temporal + ' = ' + t[1] + " == " + a + "\n"
-            i = -1
-            ultimo = ""
-            for c in arreglo:
-                i += 1
-                if i > 0:
-                    ultimo = tempos.newTemp()
-                    code += '    ' + ultimo + ' = ' + arreglo[i-1] + " or " + arreglo[i] + "\n"
-            code +=  '    ' + " if("+ ultimo +"): goto ." + tempos.newLabel() +"\n" 
-            code += '    ' + "goto ." + tempos.newLabel() + "\n"
-            code += '    ' + "label .L_case_" + str(tempos.getindex2() - 1) + "\n"
-            code += t[5]['c3d'] + "\n"
-            code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n"
-            code += t[6]['c3d'] + "\n"
-        else:
-            code = t[1]['c3d']
+        arreglo = []
+        for a in t[3]['c3d']:
+            temporal = tempos.newTemp()
+            arreglo.append(temporal)
+            code += '    ' + temporal + ' = ' + t[1] + " == " + a + "\n"
+        i = -1
+        ultimo = ""
+        for c in arreglo:
+            i += 1
+            if i > 0:
+                ultimo = tempos.newTemp()
+                code += '    ' + ultimo + ' = ' + arreglo[i-1] + " or " + arreglo[i] + "\n"
+        code +=  '    ' + "if("+ ultimo +"): goto ." + tempos.newLabel() +"\n"
+        code += '    ' + "goto ." + tempos.newLabel() + "\n"
+        code += '    ' + "label .L_case_" + str(tempos.getindex2() - 1) + "\n"
+        code += t[5]['text'] + "\n"
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n"
+        code += t[6]['c3d'] + "\n"
     except:
         code = t[1]['c3d']
-    print(code)
+    #print(code)
     t[0] = {'text': text, 'c3d': code}
 
 def p_elsecase(t):
-    '''elsecase : ELSE statements END CASE 
+    '''elsecase : ELSE statements END CASE
                 | END CASE'''
     text = ""
     code = ""
     if t[1].lower() == "else":
-        code  += t[2]['c3d']
+        code  += t[2]['text']
     else:
         code = ""
-    t[0] = {'text': text, 'c3d': code}   
+    t[0] = {'text': text, 'c3d': code}
 
 def p_expresionlist(t):
     '''expresionlist : expresionlist COMA argument'''
@@ -2456,7 +2762,7 @@ def p_expresionlidefst(t):
     t[0] = {'text': text, 'c3d': lista_explist}
 
 def p_casewhens(t):
-    '''casewhens :  WHEN condiciones THEN statements casewhens 
+    '''casewhens :  WHEN condiciones THEN statements casewhens
                 | ELSE statements
                 | END CASE'''
     text = ""
@@ -2464,15 +2770,15 @@ def p_casewhens(t):
     if t[1].lower() == "end":
         code = ""
     elif t[1].lower() == "else":
-        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n" 
-        code += t[2]['c3d']
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n"
+        code += t[2]['text']
     else:
         code += t[2]['c3d']
         code += "    if(" + t[2]['tflag'] + "): goto ." + tempos.newLabel() + "\n"
         code += '    ' + "goto ." + tempos.newLabel() + "\n"
-        code += '    ' + "label .L_case_" + str(tempos.getindex2()-1) + "\n" 
-        code += t[4]['c3d']
-        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n" 
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()-1) + "\n"
+        code += t[4]['text']
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n"
         code += t[5]['c3d']
     t[0] = {'text': text, 'c3d': code}
 
@@ -2483,6 +2789,7 @@ def p_error(t):
     description = "Error sintactico con: " + str(t.value)
     mistake = error("Sintactico", description, str(t.lineno))
     errores.append(mistake)
+    print(mistake.toString())
     return None
 
 def getMistakes():

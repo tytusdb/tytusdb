@@ -30,3 +30,11 @@ class Function_Radians(Expresion):
             self.tipo = Type_Expresion(Data_Type.error)
             self.valorExpresion = None
             return self.valorExpresion
+
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+        exp = self.hijos[0]
+        stringReturn = 'radians('+ exp.getText() +')'
+        return stringReturn
