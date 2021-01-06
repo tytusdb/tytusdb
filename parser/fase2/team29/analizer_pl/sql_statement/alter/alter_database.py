@@ -1,4 +1,5 @@
 from analizer_pl.abstract import instruction
+from analizer_pl.statement.expressions import code
 
 
 class AlterDataBase(instruction.Instruction):
@@ -9,4 +10,11 @@ class AlterDataBase(instruction.Instruction):
         self.newname = newname
 
     def execute(self, environment):
-        pass
+        out = "fase1.execution("
+        out += '"'
+        out += "ALTER DATABASE "
+        out += self.name + " "
+        out += self.option + " TO "
+        out += self.newname + ";"
+        out += '")\n'
+        return code.C3D(out, "alter_db", self.row, self.column)

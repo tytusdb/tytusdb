@@ -14,6 +14,7 @@ def optimizacion_de_codigo(entra):
     cadena=entra
     print(cadena)
     pasada=purgarCadena(cadena)
+    pasada=regla5(pasada)
     pasada=regla8(pasada)
     pasada=regla9(pasada)
     pasada=regla10(pasada)
@@ -446,6 +447,29 @@ def regla8(entrada):
                 val-=1
                 line+=1
     return entrada
+
+
+
+
+def regla5(entrada):
+    for line in range(0,len(entrada)):
+        #salidaString
+        #print(entrada[line])
+        if len(entrada[line])>=5:
+            if entrada[line][0].upper()=="IF" and entrada[line][3]=="==" and entrada[line][2]=="1" and entrada[line][4]=="1":
+                if entrada[line+1][0].uppder()=="GOTO":
+                    del(entrada[line])
+
+
+                print("LA SALIDA OPTIMIZADA SERIA: ", entrada[line])
+            else:
+                print("LA SALIDA OPTIMIZADA SERIA: ", entrada[line])
+        else:
+            print("LA SALIDA normal SERIA: ", entrada[line])
+    print("cadena regla 5:\n",entrada)
+    return entrada
+
+
 
 
 

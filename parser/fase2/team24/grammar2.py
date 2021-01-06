@@ -212,6 +212,7 @@ reservadas = {
     'procedure' :'PROCEDURE',
     'language' : 'LANGUAGE',
     'plpgsql' : 'PLPGSQL',
+    'execute' : 'EXECUTE',
 }
 
 tokens = [
@@ -401,9 +402,100 @@ def p_inst(p):
             |   dropind
             |   alterind
             
+            
     """
     p[0] = p[1]
     insertProduction(p.slice, len(p.slice))
+
+def p_instprocedural(t):
+    """
+    instp    :   createdbp
+            |   showdbp
+            |   alterdbp
+            |   dropdbp
+            |   createtbp
+            |   droptbp
+            |   altertbp
+            |   insertp
+            |   updatep
+            |   deletep
+            |   querypp
+            |   createindp
+            |   dropindp
+            |   alterindp
+            
+    """
+    t[0] = t[1]
+
+def p_alterindp(p):
+    """
+    alterindp    :   ALTER INDEX ifexistsind alterind2 ownedbyind alterind2 nowait PUNTOCOMA
+    """
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+
+def p_dropindp(p):
+    "dropindp    :   DROP INDEX concind ifexistsind listaidind cascrestind PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+
+def p_createindp(p):
+    "createindp  :   CREATE uniqueind INDEX id ON id createind2"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7])
+
+def p_querypp(t):
+    'querypp : queryp com PUNTOCOMA'
+    #por el momento 
+    t[0] = t[1]
+    insertProduction(t.slice, len(t.slice))
+
+def p_deletep(p):
+    "deletep :   DELETE FROM id WHERE wherecond PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6])
+    insertProduction(p.slice, len(p.slice))
+
+def p_updatep(p):
+    "updatep :   UPDATE id SET cond WHERE wherecond PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7])
+    insertProduction(p.slice, len(p.slice))
+
+def p_insertp(p):
+    "insertp :   INSERT INTO id colkey VALUES PARA valores PARC PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8]+p[9])
+    insertProduction(p.slice, len(p.slice))
+
+def p_altertbp(p):
+    "altertbp   :   ALTER TABLE id altertb2 PUNTOCOMA"
+    p[0] = inst.altertb(p[1]+p[2]+p[3]+p[4]+p[5])
+    insertProduction(p.slice, len(p.slice))
+
+def p_droptbp(p):
+    "droptbp :   DROP TABLE id PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4])
+    insertProduction(p.slice, len(p.slice))
+
+def p_createtbp(p):
+    "createtbp   :   CREATE TABLE id PARA coltb PARC inherits PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+    insertProduction(p.slice, len(p.slice))
+
+def p_dropdbp(p):
+    "dropdbp :   DROP DATABASE ifexists id PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5])
+    insertProduction(p.slice, len(p.slice))
+
+def p_alterdbp(p):
+    "alterdbp    :   ALTER DATABASE alterdb2 PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4])
+    insertProduction(p.slice, len(p.slice))
+
+def p_showdbp(p):
+    "showdbp :   SHOW DATABASES PUNTOCOMA"
+    p[0] = inst_procedural(p[1]+p[2]+p[3])
+    insertProduction(p.slice, len(p.slice))
+
+def p_createdbp(t):
+    "createdbp   :   CREATE replacedb DATABASE ifnotexists id owner mode PUNTOCOMA"
+    t[0] = inst_procedural(t[1]+t[2]+t[3]+t[4]+t[5]+t[6]+t[7]+t[8])
+    insertProduction(t.slice, len(t.slice))
 
 def p_id(p):
     "id : ID"
@@ -1256,6 +1348,10 @@ def p_parametrosind1(p):
     "parametrosind  :   parind"
     p[0] = p[1]
 
+def p_parametrosind11(p):
+    "parametrosind  :   id id"
+    p[0] = inst.alterind(p[1],p[2])
+
 def p_parind(p):
     "parind :   parind COMA idind"
     p[1].append(p[3])
@@ -1997,11 +2093,23 @@ def p_instruccion(t):
                     | instif
                     | instSimplecase
                     | instScase
+                    | instp
+                    | callfunc
+                    | callproc
                     
     
      '''
     t[0] = t[1]
 
+def p_callpro(t):
+    ''' callproc : EXECUTE ID PARA nlexps PARC PUNTOCOMA'''
+    t[0] = llamadaP(t[1],t[3])
+
+
+
+def p_callfunc(t):
+    ''' callfunc : ID PARA nlexps PARC PUNTOCOMA'''
+    t[0] = llamadaF(t[1],t[3])
 
 def p_instSimplecase(t):
     '''instSimplecase : CASE newexp WHEN lnexp THEN body lwhenv pelse END CASE PUNTOCOMA'''
@@ -2011,7 +2119,7 @@ def p_instSimplecase(t):
 #searched case
 def p_instScase(t):
     '''instScase : CASE WHEN newexp THEN body lwhen pelse END CASE PUNTOCOMA'''
-    t[0] = searched_case(t[3],t[6],t[7],t[8])
+    t[0] = iff(t[3],t[6],t[7],t[8])
 
 
 def p_lwhen(t):
@@ -2093,7 +2201,7 @@ def p_bodyu(t):
              | instif
              | instSimplecase
              | instScase
-             | 
+             | instp
              '''
     t[0] = t[1]
 
@@ -2203,33 +2311,33 @@ def p_mathn(t):
 		| SETSEED PARA  newexp PARC    
 
     '''
-    if t[1].lower() == 'abs' : t[0] =  math_abs(t[3],None)
-    elif t[1].lower() == 'cbrt' : t[0] =  math_cbrt(t[3],None)
-    elif t[1].lower() == 'ceil' : t[0] =  math_ceil(t[3],None)
-    elif t[1].lower() == 'ceiling' : t[0] =  math_ceil(t[3],None)
-    elif t[1].lower() == 'div' : t[0] =  math_div(t[3],t[5],None)
-    elif t[1].lower() == 'exp' : t[0] =  math_exp(t[3],None)
-    elif t[1].lower() == 'factorial' : t[0] =  math_factorial(t[3],None)
-    elif t[1].lower() == 'floor' : t[0] =  math_floor(t[3],None)
-    elif t[1].lower() == 'gcd' : t[0] =  math_gcd(t[3],t[5],None)
-    elif t[1].lower() == 'lcm' : t[0] =  math_lcm(t[3],t[5],None)
-    elif t[1].lower() == 'ln' : t[0] =  math_ln(t[3],None)
-    elif t[1].lower() == 'log' : t[0] =  math_log(t[3],t[5],None)
-    elif t[1].lower() == 'log10' : t[0] =  math_log10(t[3],None)
-    elif t[1].lower() == 'min_scale' : t[0] =  math_min_scale(t[3],None)
-    elif t[1].lower() == 'mod' : t[0] =  math_mod(t[3],t[5],None)
-    elif t[1].lower() == 'pi' : t[0] =  math_pi(None)
-    elif t[1].lower() == 'power' : t[0] =  math_power(t[3],t[5],None)
-    elif t[1].lower() == 'radians' : t[0] =  math_radians(t[3],None)
-    elif t[1].lower() == 'round' : t[0] =  math_round(t[3],None)
-    elif t[1].lower() == 'scale' : t[0] =  math_scale(t[3],None)
-    elif t[1].lower() == 'sign' : t[0] =  math_sign(t[3],None)
-    elif t[1].lower() == 'sqrt' : t[0] =  math_sqrt(t[3],None)
-    elif t[1].lower() == 'trim_scale' : t[0] =  math_trim_scale(t[3],None)
-    elif t[1].lower() == 'trunc' : t[0] =  math_trunc(t[3],None)
-    elif t[1].lower() == 'width_bucket' : t[0] =  math_widthBucket(t[3],t[5],t[7],t[9],None)
-    elif t[1].lower() == 'random' : t[0] =  math_random(None)
-    elif t[1].lower() == 'setseed' : t[0] =  math_setseed(t[3],None)
+    if t[1].lower() == 'abs' : t[0] =  math_absp(t[3],None)
+    elif t[1].lower() == 'cbrt' : t[0] =  math_cbrtp(t[3],None)
+    elif t[1].lower() == 'ceil' : t[0] =  math_ceilp(t[3],None)
+    elif t[1].lower() == 'ceiling' : t[0] =  math_ceilp(t[3],None)
+    elif t[1].lower() == 'div' : t[0] =  math_divp(t[3],t[5],None)
+    elif t[1].lower() == 'exp' : t[0] =  math_expp(t[3],None)
+    elif t[1].lower() == 'factorial' : t[0] =  math_factorialp(t[3],None)
+    elif t[1].lower() == 'floor' : t[0] =  math_floorp(t[3],None)
+    elif t[1].lower() == 'gcd' : t[0] =  math_gcdp(t[3],t[5],None)
+    elif t[1].lower() == 'lcm' : t[0] =  math_lcmp(t[3],t[5],None)
+    elif t[1].lower() == 'ln' : t[0] =  math_lnp(t[3],None)
+    elif t[1].lower() == 'log' : t[0] =  math_logp(t[3],t[5],None)
+    elif t[1].lower() == 'log10' : t[0] =  math_log10p(t[3],None)
+    elif t[1].lower() == 'min_scale' : t[0] =  math_min_scalep(t[3],None)
+    elif t[1].lower() == 'mod' : t[0] =  math_modp(t[3],t[5],None)
+    elif t[1].lower() == 'pi' : t[0] =  math_pip(None)
+    elif t[1].lower() == 'power' : t[0] =  math_powerp(t[3],t[5],None)
+    elif t[1].lower() == 'radians' : t[0] =  math_radiansp(t[3],None)
+    elif t[1].lower() == 'round' : t[0] =  math_roundp(t[3],None)
+    elif t[1].lower() == 'scale' : t[0] =  math_scalep(t[3],None)
+    elif t[1].lower() == 'sign' : t[0] =  math_signp(t[3],None)
+    elif t[1].lower() == 'sqrt' : t[0] =  math_sqrtp(t[3],None)
+    elif t[1].lower() == 'trim_scale' : t[0] =  math_trim_scalep(t[3],None)
+    elif t[1].lower() == 'trunc' : t[0] =  math_truncp(t[3],None)
+    elif t[1].lower() == 'width_bucket' : t[0] =  math_widthBucketp(t[3],t[5],t[7],t[9],None)
+    elif t[1].lower() == 'random' : t[0] =  math_randomp(None)
+    elif t[1].lower() == 'setseed' : t[0] =  math_setseedp(t[3],None)
 
 def p_trign(t):
     '''
@@ -2256,32 +2364,61 @@ def p_trign(t):
 		| ACOSH PARA newexp PARC
 		| ATANH PARA newexp PARC
     '''
+    if t[1].lower() == 'acos' : t[0] =  trig_acosp(t[3],None)
+    elif t[1].lower() == 'acosd' : t[0] =  trig_acosdp(t[3],None)
+    elif t[1].lower() == 'asin' : t[0] =  trig_asinp(t[3],None)
+    elif t[1].lower() == 'asind' : t[0] =  trig_asindp(t[3],None)
+    elif t[1].lower() == 'atan' : t[0] =  trig_atanp(t[3],None)
+    elif t[1].lower() == 'atand' : t[0] =  trig_atandp(t[3],None)
+    elif t[1].lower() == 'atan2' : t[0] =  trig_atan2p(t[3],t[5],None)
+    elif t[1].lower() == 'atan2d' : t[0] =  trig_atan2dp(t[3],t[5],None)
+    elif t[1].lower() == 'cos' : t[0] =  trig_cosp(t[3],None)
+    elif t[1].lower() == 'cosd' : t[0] =  trig_cosdp(t[3],None)
+    elif t[1].lower() == 'cot' : t[0] =  trig_cotp(t[3],None)
+    elif t[1].lower() == 'cotd' : t[0] =  trig_cotdp(t[3],None)
+    elif t[1].lower() == 'sin' : t[0] =  trig_sinp(t[3],None)
+    elif t[1].lower() == 'sind' : t[0] =  trig_sindp(t[3],None)
+    elif t[1].lower() == 'tan' : t[0] =  trig_tanp(t[3],None)
+    elif t[1].lower() == 'tand' : t[0] =  trig_tandp(t[3],None)
+    elif t[1].lower() == 'sinh' : t[0] =  trig_sinhp(t[3],None)
+    elif t[1].lower() == 'cosh' : t[0] =  trig_coshp(t[3],None)
+    elif t[1].lower() == 'tanh' : t[0] =  trig_tanhp(t[3],None)
+    elif t[1].lower() == 'asinh' : t[0] =  trig_asinhp(t[3],None)
+    elif t[1].lower() == 'acosh' : t[0] =  trig_acoshp(t[3],None)
+    elif t[1].lower() == 'atanh' : t[0] =  trig_atanhp(t[3],None)
 
 def p_funcn(t):
     '''
-        funcn : SUM PARA newexp PARC
-                | AVG PARA newexp PARC
-                | MAX PARA newexp PARC
-                | MIN PARA newexp PARC
-                | COUNT PARA newexp PARC
-                | LENGTH PARA newexp PARC
+        funcn :  LENGTH PARA newexp PARC
                 | SUBSTRING PARA newexp COMA INT COMA INT PARC
                 | TRIM PARA newexp PARC
                 | MD5 PARA newexp PARC
                 | SHA256 PARA newexp PARC
                 | SUBSTR PARA newexp COMA INT COMA INT PARC
                 | CONVERT PARA newexp AS type PARC
-                | GREATEST PARA nlexps PARC
-                | LEAST PARA nlexps PARC
                 | NOW PARA PARC
 
     '''
+    
+    if t[1].lower() == 'length' : t[0] = fun_lengthp(t[3],None)
+    elif t[1].lower() == 'substring' : t[0] = fun_substrp(t[3],t[5],t[7],None)
+    elif t[1].lower() == 'trim' : t[0] = fun_trimp(t[3],None)
+    elif t[1].lower() == 'md5' : t[0] = fun_md5p(t[3],None)
+    elif t[1].lower() == 'sha256' : t[0] = fun_sha256p(t[3],None)
+    elif t[1].lower() == 'substr' : t[0] = fun_substrp(t[3],t[5],t[7],None)
+    elif t[1].lower() == 'convert' : t[0] = fun_convertp(t[3],t[5],None)
+    elif t[1].lower() == 'now' : t[0] = fun_nowp(None)
+
+
 
 def p_nlexps(t):
     'nlexps : nlexps newexp'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_nlexpsS(t):
     'nlexps : newexp'
+    t[0] = [t[1]]
 
 def p_newexp_una(t):
     '''newexp : MENOS newexp %prec UMENOS
@@ -2328,7 +2465,8 @@ def p_newexp_bi(t):
 
 def p_createproc(t):
     'createproc : CREATE PROCEDURE ID PARA lparamsp PARC LANGUAGE PLPGSQL AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
-
+    pritn('Esta en proceso')
+    t[0] = createfunc(t[3],t[5],None,t[12])
 
 def p_error(t):
     if t:

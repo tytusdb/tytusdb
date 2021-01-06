@@ -269,7 +269,9 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | execute
                    | ins_create_pl
-                   | create_index'''
+                   | create_index
+                   | alter_index
+                   | drop_index'''
     id = inc()
     t[0] = id
     dot.node(str(id), "instruccion")
@@ -5120,6 +5122,67 @@ def p_arg_where_param(t):
         dot.node(str(id), 'ARG_WHERE_PARAM')
         dot.node(str(id), str(t[1]))
 
+def p_drop_index(t):
+    '''drop_index : DROP INDEX ID arg_punto_coma'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), 'ARG_COL')
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+    dot.edge(str(id4), str(t[4]))
+
+def p_alter_index(t):
+    '''alter_index : ALTER INDEX if_exists ID ID argcol arg_punto_coma'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), 'ARG_COL')
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    if t[3] != None:
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+    id5 = inc()
+    dot.edge(str(id), str(id5)) 
+    dot.node(str(id5), str(t[5]))
+    if t[6] != None:
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[6]))
+        dot.edge(str(id6), str(t[6]))
+    if t[7] != None:
+        id7 = inc()
+        dot.edge(str(id), str(id7)) 
+        dot.node(str(id7), str(t[7]))
+        dot.edge(str(id7), str(t[7]))
+
+def p_argcol(t):
+    '''argcol : ID
+              | NUMERO'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), 'ARG_COL')
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
