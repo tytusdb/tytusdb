@@ -12,7 +12,7 @@ from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as json
 
 import os, traceback
-from storage.misc import serealizar as sr
+from storage.misc import serealizar as sr, ForeignKeyStr as fk_str, UniqueIndexStr as ui_str, IndexStr as i_str
 
 _main_path = os.getcwd() + "\\data"
 
@@ -23,27 +23,49 @@ def __init__():
     _data = []
 
     # database:
-    # { nombre: str,
+    # { 
+    #   nombre: str,
     #   modo: str,
     #   encoding: str,
-    #   tablas: list<dict>,
-    #   fks: list<dict>
+    #   tablas: list<dict>
     # }
 
         # tabla:
-        # { nombre: str,
+        # { 
+        #   nombre: str,
         #   modo: str,
         #   numero_columnas: int,
-        #   pk: list
+        #   pk: list,
+        #   foreign_keys: ForeignKeyStr,
+        #   unique_index: UniqueIndexStr,
+        #   index: IndexStr
         # }
+
+            # REGISTROS
     
-        # fk: {
-        #   nombre: str,
-        #   table: str,
-        #   tableRef: str,
-        #   columns: str,
-        #   columnsref: str
-        # }
+            # foreign_key: 
+            # { 
+            #   nombre: str,
+            #   table: str,
+            #   tableRef: str,
+            #   columns: str,
+            #   columnsRef: str
+            # }
+    
+            # unique_index: 
+            # { 
+            #   nombre: str,
+            #   table: str,
+            #   columns: str,
+            #   registerRef: str
+            # }
+    
+            # index: 
+            # { 
+            #   nombre: str,
+            #   table: str,
+            #   columns: str
+            # }
 
 
     if not os.path.isfile(_main_path + "\\" + "data"):
@@ -106,50 +128,83 @@ def _table(database, table):
     return False
 
 
-def _foreign_key(database, foreign_key):
+def _foreign_key(database, table, foreign_key):
     
     db = _database(database)
 
     if db:
-        for fk in _data["fk"]:
-            if fk["nombre"].casefold() == foreign_key.casefold():
-                return fk
 
+        tb = _table(database, table)
+
+        if tb:
+
+            return tb["foreign_keys"].extractRow(foreign_key)
+        
     return False
     
 
-def _Comprobar(database, table, registro):
-
+def _unique_index(database, table, unique_index):
+    
     db = _database(database)
 
     if db:
 
-        for fk in db["fks"]:
+        tb = _table(database, table)
 
-            if fk["table"].casefold() == table.casefold():
+        if tb:
 
-                for i in range(len(fk["columns"])):
+            return tb["unique_index"].extractRow(unique_index)
+        
+    return False
+    
 
-                    pos=fk["columns"][i]
-                    pos_r=fk["columnsRef"][i]
+def _index(database, table, index):
+    
+    db = _database(database)
 
-                    registros_r = extractTable(database, fk["tableRef"])
+    if db:
 
-                    columna_r = []
+        tb = _table(database, table)
 
-                    for registro_r in registros_r:
+        if tb:
 
-                        columna_r.append(registro_r[pos_r])
+            return tb["index"].extractRow(index)
+        
+    return False
+    
 
-                    if registro[pos] not in columna_r:
+# def _Comprobar(database, table, registro):
 
-                        return False
+#     db = _database(database)
+
+#     if db:
+
+#         for fk in db["fks"]:
+
+#             if fk["table"].casefold() == table.casefold():
+
+#                 for i in range(len(fk["columns"])):
+
+#                     pos=fk["columns"][i]
+#                     pos_r=fk["columnsRef"][i]
+
+#                     registros_r = extractTable(database, fk["tableRef"])
+
+#                     columna_r = []
+
+#                     for registro_r in registros_r:
+
+#                         columna_r.append(registro_r[pos_r])
+
+#                     if registro[pos] not in columna_r:
+
+#                         return False
 
 
-        return True
+#         return True
 
-    else:
-        return False
+#     else:
+#         return False
 
 
 def _Graficar(database, table):
@@ -207,7 +262,7 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
         val = _createDatabase(database, mode, encoding)
 
         if val == 0:
-            _data.append({"nombre":database, "modo":mode, "encoding":encoding, "tablas":[], "fks":[]})
+            _data.append({"nombre":database, "modo":mode, "encoding":encoding, "tablas":[]})
             _Guardar()
 
         return val
@@ -436,7 +491,7 @@ def _createTable(database, table, numberColumns, mode):
         val = dict.createTable(database, table, numberColumns)
 
     if val == 0:
-        _database(database)["tablas"].append({"nombre": table, "modo":mode, "columnas": numberColumns, "pk": []})
+        _database(database)["tablas"].append({"nombre": table, "modo": mode, "columnas": numberColumns, "pk": [], "foreign_keys": fk_str.ForeignKeyStr(mode, database, table), "unique_index": ui_str.UniqueIndexStr(mode, database, table), "index": i_str.IndexStr(mode, database, table)})
         _Guardar()
 
     return val
@@ -753,6 +808,7 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
                 val = dict.alterTable(database, tableOld, tableNew)
 
             if val == 0:
+                for key in ["foreign_keys", "unique_index", "index"]: _table(database, tableOld)[key].alterTable(tableNew)
                 _table(database, tableOld)["nombre"]=tableNew
                 _Guardar()
 
@@ -937,6 +993,7 @@ def dropTable(database: str, table: str) -> int:
                 val = dict.dropTable(database, table)
                 
             if val == 0:
+                for key in ["foreign_keys", "unique_index", "index"]: _table(database, table)[key].dropTable()
                 _database(database)["tablas"].remove(_table(database, table))
                 _Guardar()
 
@@ -974,7 +1031,7 @@ def insert(database: str, table: str, register: list) -> int:
 
         if tb:
 
-            if _Comprobar(database, table, register):
+            # if _Comprobar(database, table, register):
 
                 mode = tb["modo"]
 
@@ -1003,8 +1060,8 @@ def insert(database: str, table: str, register: list) -> int:
 
                 return val
 
-            else:
-                return -1
+            # else:
+            #     return -1
 
         else:
             return 3
@@ -1402,6 +1459,8 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
 
                 dropTable(database, table)
                 alterTable(database, table+"_temp", table)
+                
+                for key in ["foreign_keys", "unique_index", "index"]: print(">> "+key+" :", _table(database, table)[key].alterTableMode(mode))
 
                 return 0
 
@@ -1452,26 +1511,24 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list, ta
             if len(columns) != len(columnsRef):
                 return 4
 
-            registros=extractTable(database, table) # Partida
-            registros_r=extractTable(database, tableRef) # Usuarios
+            # registros=extractTable(database, table) # Partida
+            # registros_r=extractTable(database, tableRef) # Usuarios
 
-            for i in range(len(columns)):
+            # for i in range(len(columns)):
                 
-                columna, columna_r = [], []
+            #     columna, columna_r = [], []
 
-                for registro in registros:
-                    columna.append(registro[columns[i]])
+            #     for registro in registros:
+            #         columna.append(registro[columns[i]])
 
-                for registro in registros_r:
-                    columna_r.append(registro[columnsRef[i]])
+            #     for registro in registros_r:
+            #         columna_r.append(registro[columnsRef[i]])
 
-                for valor in columna:
-                    if valor not in columna_r:
-                        return 5
+            #     for valor in columna:
+            #         if valor not in columna_r:
+            #             return 5
 
-            bd["fks"].append({"nombre":indexName, "table":table, "tableRef":tableRef, "columns":columns, "columnsRef":columnsRef})
-            _Guardar()
-
+            tb["foreign_keys"].insert([indexName, table, tableRef, columns, columnsRef])        
             return 0
 
         else:
@@ -1501,19 +1558,26 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
 
     if bd:
 
-        fk = _foreign_key(database, indexName)
+        tb = _table(database, table)
 
-        if fk:
-            bd["fks"].remove(fk)
+        if tb:
+
+            fk = _foreign_key(database, indexName)
+
+            if fk:
+                return tb["foreign_keys"].delete(indexName)
+
+            else:
+                return 4
 
         else:
-            return 4
+            return 3
 
     else:
         return 2
 
 
-def alterTableAddUnique(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list, registerRef: list) -> int:
     """Adds an unique index to a table
 
         Pararameters:\n
@@ -1538,33 +1602,10 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
     if bd:
 
         tb = _table(database, table)
-        tb_r = _table(database, tableRef)
 
-        if tb and tb_r:
+        if tb:
 
-            if len(columns) != len(columnsRef):
-                return 4
-
-            registros=extractTable(database, table) # Partida
-            registros_r=extractTable(database, tableRef) # Usuarios
-
-            for i in range(len(columns)):
-                
-                columna, columna_r = [], []
-
-                for registro in registros:
-                    columna.append(registro[columns[i]])
-
-                for registro in registros_r:
-                    columna_r.append(registro[columnsRef[i]])
-
-                for valor in columna:
-                    if valor not in columna_r:
-                        return 5
-
-            bd["fks"].append({"nombre":indexName, "table":table, "tableRef":tableRef, "columns":columns, "columnsRef":columnsRef})
-            _Guardar()
-
+            tb["unique_index"].insert([indexName, table, columns, registerRef])        
             return 0
 
         else:
@@ -1575,7 +1616,7 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
 
 
 def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
-    """ Deletes na unique index
+    """ Deletes an unique index
 
         Pararameters:\n
             database (str): name of the database
@@ -1594,19 +1635,26 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
 
     if bd:
 
-        fk = _foreign_key(database, indexName)
+        tb = _table(database, table)
 
-        if fk:
-            bd["fks"].remove(fk)
+        if tb:
+
+            fk = _unique_index(database, indexName)
+
+            if fk:
+                return tb["unique_index"].delete(indexName)
+
+            else:
+                return 4
 
         else:
-            return 4
+            return 3
 
     else:
         return 2
 
 
-def alterTableAddIndex(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
     """Adds an index to a table
 
         Pararameters:\n
@@ -1631,33 +1679,10 @@ def alterTableAddIndex(database: str, table: str, indexName: str, columns: list,
     if bd:
 
         tb = _table(database, table)
-        tb_r = _table(database, tableRef)
 
-        if tb and tb_r:
+        if tb:
 
-            if len(columns) != len(columnsRef):
-                return 4
-
-            registros=extractTable(database, table) # Partida
-            registros_r=extractTable(database, tableRef) # Usuarios
-
-            for i in range(len(columns)):
-                
-                columna, columna_r = [], []
-
-                for registro in registros:
-                    columna.append(registro[columns[i]])
-
-                for registro in registros_r:
-                    columna_r.append(registro[columnsRef[i]])
-
-                for valor in columna:
-                    if valor not in columna_r:
-                        return 5
-
-            bd["fks"].append({"nombre":indexName, "table":table, "tableRef":tableRef, "columns":columns, "columnsRef":columnsRef})
-            _Guardar()
-
+            tb["index"].insert([indexName, table, columns])
             return 0
 
         else:
@@ -1687,13 +1712,20 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
 
     if bd:
 
-        fk = _foreign_key(database, indexName)
+        tb = _table(database, table)
 
-        if fk:
-            bd["fks"].remove(fk)
+        if tb:
+
+            fk = _index(database, indexName)
+
+            if fk:
+                return tb["index"].delete(indexName)
+
+            else:
+                return 4
 
         else:
-            return 4
+            return 3
 
     else:
         return 2
