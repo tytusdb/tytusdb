@@ -1825,3 +1825,67 @@ class indwherecond(instruccion):
         self.signo = signo
         self.valortipo = valortipo
 #----------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------CLASES PARA DROP INDICES--------------------------------------------------
+class IndexDrop(instruccion):
+    def __init__(self, tipo, listaindices, orden):
+        self.tipo = tipo
+        self.listaindices = listaindices
+        self.orden = orden
+
+    def ejecutar(self):
+        global resultadotxt
+        global cont
+        global tabla
+        global NombreDB
+        global contambito
+        textores = ""
+        try:
+            eliminar = []
+            for indice in self.listaindices:
+                if tabla.BuscarNombre(indice):
+                    eliminarindice = tabla.BuscarNombre(indice)
+                    eliminar.append(eliminarindice)
+                else:
+                    textores += "No se encontro el indice " + indice + "\n"
+            for simbolo in eliminar:
+                if simbolo.tipo == TS.TIPO.INDICE:
+                    tabla.simbolos.pop(simbolo.id)
+                    textores += "Se elimino el indice " + simbolo.nombre + " de la tabla de simbolos\n"
+            return textores
+        except:
+            return "Error en " + self.tipo
+
+#--------------------------------------------CLASES PARA ALTER INDICES-------------------------------------------------
+class IndexAlter(instruccion):
+    def __init__(self, tipo, alterind2):
+        self.tipo = tipo
+        self.alterind2 = alterind2
+
+    def ejecutar(self):
+        global resultadotxt
+        global cont
+        global tabla
+        global NombreDB
+        global contambito
+        try:
+            NuevoAlterIndex = TS.Simbolo(cont,self.alterind2.id,TS.TIPO.INDICE,contambito)
+            cont+=1
+            contambito+=1
+            NuevoAlterIndex.tipoind = self.tipo
+            NuevoAlterIndex.indicesind = self.alterind2.id
+            NuevoAlterIndex.ordenind = self.alterind2.tipocambio
+            NuevoAlterIndex.tablaind = "Ninguno"
+            coltexto = ""
+            for col in self.alterind2.listacol:
+                coltexto += col + " "
+            NuevoAlterIndex.columnaind = coltexto
+            tabla.agregar(NuevoAlterIndex)
+            return "Se agrego el " + self.tipo + " a la tabla de simbolos"
+        except:
+            return "Error al agregar el " + self.tipo + " a la tabla de simbolos"
+
+class propalter(instruccion):
+    def __init__(self, tipocambio, id, listacol):
+        self.tipocambio = tipocambio
+        self.id = id
+        self.listacol = listacol

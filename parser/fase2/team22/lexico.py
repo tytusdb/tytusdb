@@ -46,7 +46,7 @@ reservadas = (
     'UPDATE', 'SET',
     'DELETE',
     # SENTENCIAS DDL
-    'CREATE', 'DROP', 'ALTER', 'COLUMN', 'ADD', 'TRUNCATE', 'DATABASE',
+    'CREATE', 'DROP', 'ALTER', 'COLUMN', 'ADD', 'TRUNCATE', 'DATABASE', 'PROCEDURE', 'INOUT',
     # SENTENCIAS DE AGREGACIÓN
     'SUM', 'MAX', 'MIN', 'AVG', 'COUNT', 'TOP',
     # JOIN
@@ -119,7 +119,8 @@ tokens = reservadas + (
     'ARROBA',
     'PIPE',
     'PROC',
-    'DOS_PUNTOS'
+    'DOS_PUNTOS',
+    'FIN_DOLAR'
 )
 
 # EXPRESIONES REGULARES BASICAS
@@ -148,6 +149,7 @@ t_MAYORQ = r'\>'
 t_MENORQ = r'\<'
 t_MAYOR_IGUALQ = r'\>\='
 t_MENOR_IGUALQ = r'\<\='
+t_FIN_DOLAR = r'\$\$'
 
 
 

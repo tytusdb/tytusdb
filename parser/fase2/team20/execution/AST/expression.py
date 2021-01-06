@@ -1,5 +1,6 @@
 from io import StringIO  # Python3
 import sys
+import inspect
 
 class Expression:
     ''' '''
@@ -27,6 +28,8 @@ class Value(Expression):
         if(self.types[self.type]!='Cadena'): dot += str(hash(self)) + '[label=\"' + str(self.value) + '\"]\n'
         else: dot += str(hash(self)) + '[label=\"\'' + str(self.value) + '\'\"]\n'
         return dot
+    def translate(self,opts,indent):
+        return (indent*"\t")+opts.generateTemp()+"="+str(self.value)+"\n"
 
 class Arithmetic(Expression):
     def __init__(self, value1, value2, type):
@@ -52,6 +55,10 @@ class Arithmetic(Expression):
         dot += self.value1.graphAST('',hash(self))
         dot += self.value2.graphAST('',hash(self))
         return dot
+    def translate(self,opts,indent):
+        t1 = self.value1.translate(opts,indent)
+        t2 = self.value2.translate(opts,indent)
+        return t1+t2+(indent*"\t")+opts.generateTemp()+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+self.type+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
 
 class Range(Expression):
     def __init__(self, value1, value2, type):
@@ -64,6 +71,10 @@ class Range(Expression):
         dot += self.value1.graphAST('',hash(self))
         dot += self.value2.graphAST('',hash(self))
         return dot
+    def translate(self,opts,indent):
+        t1 = self.value1.translate(opts,indent)
+        t2 = self.value2.translate(opts,indent)
+        return t1+t2+(indent*"\t")+opts.generateTemp()+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+self.type+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
 
 class Logical(Expression):
     def __init__(self, value1, value2, type):
@@ -80,6 +91,10 @@ class Logical(Expression):
         except Exception as e:
             print(e)
         return dot
+    def translate(self,opts,indent):
+        t1 = self.value1.translate(opts,indent)
+        t2 = self.value2.translate(opts,indent)
+        return t1+t2+(indent*"\t")+opts.generateTemp()+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+" "+self.type.lower()+" "+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
 
 class Relational(Expression):
     def __init__(self, value1, value2, type):
@@ -105,6 +120,12 @@ class Relational(Expression):
         dot += self.value1.graphAST('',hash(self))
         dot += self.value2.graphAST('',hash(self))
         return dot
+    def translate(self,opts,indent):
+        t1 = self.value1.translate(opts,indent)
+        t2 = self.value2.translate(opts,indent)
+        transtype = self.type
+        if self.type == "=": transtype = "=="
+        return t1+t2+(indent*"\t")+opts.generateTemp()+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+" "+transtype+" "+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
 
 class Unary(Expression):
     def __init__(self, value, type):
