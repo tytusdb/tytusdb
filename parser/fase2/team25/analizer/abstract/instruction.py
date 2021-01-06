@@ -22,7 +22,7 @@ Struct.load()
 dbtemp = ""
 # listas encargadas de almacenar los errores semanticos
 syntaxPostgreSQL = list()
-semanticErrors = list()
+semanticErrors = []
 
 
 def makeAst(root):

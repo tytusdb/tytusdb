@@ -101,6 +101,10 @@ class Environment:
             env = env.previous
         return type
 
+    def updateVar(self, id, sym):
+        env = self
+        env.variables[id] = sym
+
     def getVar(self, id):
         env = self
         while env != None:
@@ -145,4 +149,5 @@ class Environment:
     def getEtiqueta(self):
         env = self
         env.conta_etiqueta += 1
-        return "L"+str(env.conta_etiqueta) 
+        return "L"+str(env.conta_etiqueta)
+

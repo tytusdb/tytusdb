@@ -11,6 +11,10 @@ from jsonMode import *
 class Use():
     def __init__(self):
         self.databaseName = None
+
+    def compile(self, parent):
+        return "USE " + parent.hijos[0].valor.upper()+";"
+
     
     def execute(self, parent):
 

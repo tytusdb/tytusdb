@@ -1,5 +1,6 @@
 from analizer_pl.abstract import instruction
-
+from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
 
 class AlterDataBase(instruction.Instruction):
     def __init__(self, option, name, newname, row, column):
@@ -9,4 +10,14 @@ class AlterDataBase(instruction.Instruction):
         self.newname = newname
 
     def execute(self, environment):
-        pass
+        out = "fase1.execution("
+        out += '"'
+        out += "ALTER DATABASE "
+        out += self.name + " "
+        out += self.option + " TO "
+        out += self.newname + ";"
+        out += '")\n'
+        return code.C3D(out, "alter_db", self.row, self.column)
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_ALTER_DATABASEs")
+        

@@ -25,3 +25,12 @@ class Char_Expresion(Expresion):
         newString = newString.replace('\\r','\r')
         self.valorExpresion = newString
         return self.valorExpresion
+    
+    def compile(self, enviroment):
+        self.tipo = Type_Expresion(Data_Type.character)
+        self.dir = '\'' + self.valor + '\''
+        self.cod = ''
+        return self.cod
+    
+    def getText(self):
+        return '\''+str(self.valor)+'\''

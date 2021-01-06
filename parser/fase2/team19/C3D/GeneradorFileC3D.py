@@ -2,6 +2,7 @@ from tkinter import messagebox
 
 funciones_extra = ""
 
+
 class GeneradorFileC3D:
     def __init__(self):
         self.path_archivo_c3d = '../interfaz/c3d.py'
@@ -94,6 +95,7 @@ if __name__ == "__main__":
                 file_c3d.write(inicio_main)
                 file_c3d.write(c3d)
                 file_c3d.write(fin_main)
+            funciones_extra = ''
 
         except Exception as er:
             messagebox.showwarning(er, "No existe archivo para guardar la informacion")

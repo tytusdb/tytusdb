@@ -83,7 +83,7 @@ reservadas = (
     # INDEX
     'INDEX', 'USING', 'HASH', 'INCLUDE', 'COLLATE',
     # PROCEDIMIENTOS
-    'PROCEDURE', 'COMMIT', 'ROLLBACK'
+    'COMMIT', 'ROLLBACK'
 )
 
 tokens = reservadas + (

@@ -34,4 +34,11 @@ class Function_Ceiling(Expresion):
             self.tipo = Type_Expresion(Data_Type.error)
             self.valorExpresion = None
             return self.valorExpresion
-            
+
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+        exp = self.hijos[0]
+        stringReturn = 'ceiling('+ exp.getText() +')'
+        return stringReturn

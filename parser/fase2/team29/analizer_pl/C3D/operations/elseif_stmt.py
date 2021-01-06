@@ -1,6 +1,7 @@
 from analizer_pl.abstract.instruction import Instruction
 from analizer_pl import grammar
 from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
 
 
 class ElseIfStmt(Instruction):
@@ -21,7 +22,13 @@ class ElseIfStmt(Instruction):
             + str(grammar.current_etiq + 1)
             + "\n"
         )
+        grammar.optimizer_.addIF(
+            str(boolCode.temp), str("etiv" + str(grammar.current_etiq + 1)), self.row
+        )
         cod3d += "\tgoto .etif" + str(grammar.current_etiq + 2) + "\n"
+        grammar.optimizer_.addGoto(
+            str("etif" + str(grammar.current_etiq + 2)), self.row
+        )
         grammar.back_fill.insert_true(grammar.current_etiq + 1)
         grammar.back_fill.insert_false(grammar.current_etiq + 2)
         grammar.current_etiq += 2
@@ -41,12 +48,24 @@ class ElseIfStmt(Instruction):
         grammar.if_stmt -= 1
 
     def p_iev(self):
-        return grammar.back_fill.take_out_true_list()
+        return grammar.back_fill.take_out_true_list(self.row)
 
     def p_fev(self):
-        return grammar.back_fill.take_out_false_list()
+        return grammar.back_fill.take_out_false_list(self.row)
 
     def p_fef(self):
         val = "\tgoto .etiqS" + str(grammar.next_etiq) + "\n"
-        val += grammar.back_fill.take_out_true_list()
+        grammar.optimizer_.addGoto(str("etiqS" + str(grammar.next_etiq)), self.row)
+        val += grammar.back_fill.take_out_true_list(self.row)
         return val
+
+    def dot(self):
+        new = Nodo("ELSE_IF")
+        new.addNode(self.expBool.dot())
+        then = Nodo("THEN")
+        new.addNode(then)
+        if self.stmts:
+            for s in self.stmts:
+                then.addNode(s.dot())
+
+        return new
