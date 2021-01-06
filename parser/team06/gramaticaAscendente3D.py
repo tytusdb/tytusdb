@@ -3165,45 +3165,63 @@ def p_if_1(t):
     '''
     if          : IF operacion THEN operacion ELSE ifAnidados END IF PUNTOYCOMA
     '''
-    a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
-    a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
-    h.conteoEtiquetas+=1
+    EtiquetasSalida =[]
+    a= "if "+str(t[2])+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
+    a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"
+    a+= "label .L"+str(h.conteoEtiquetas)+"\n"+str(t[4])+"\n"
+    a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"
+    a+= "label .L"+str(h.conteoEtiquetas+2)+"\n"
+    EtiquetasSalida.append(h.conteoEtiquetas+1)
+    h.conteoEtiquetas+=3
 
     ifAnidados = t[6]
     tamanioIfA = len(ifAnidados)
     contador = 0
-    print("EL TAMAÑO DE LOS IF ANIDADOS ES ---> ",tamanioIfA)
+    
+    #print("EL TAMAÑO DE LOS IF ANIDADOS ES ---> ",tamanioIfA)
     for x in ifAnidados:
         contador+=1
         if x.sino!=None and contador == tamanioIfA: #VIENE UN IF QUE CIERRA PORQUE TRAE UN ELSE operacion
             #IF operacion THEN operacion ELSE operacion
-            a+= "elif "+x.condicion+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
-            a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
-            a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+x.then+"\n"
-            a+= "L"+str(h.conteoEtiquetas+1)+":"+"\n    "+str(x.sino)+"\n"
-            h.conteoEtiquetas+=2
+            a+= "if "+x.condicion+":"+"\n"+"    goto .L"+str(h.conteoEtiquetas)+"\n"
+            a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"
+            a+= "label .L"+str(h.conteoEtiquetas)+"\n"+x.then+"\n"
+            a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"
+            EtiquetasSalida.append(h.conteoEtiquetas+2)
+            #aqui debe ir el goto a la etiqueta de salida, tengo que guardar este h.conteoetiquetas
+            a+= "label .L"+str(h.conteoEtiquetas+1)+"\n"+str(x.sino)+"\n"
+            h.conteoEtiquetas+=3
         elif x.sino == None: 
-            a+= "elif "+x.condicion+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
-            a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+x.then+"\n"
-            h.conteoEtiquetas+=1
+            a+= "if "+x.condicion+":"+"\n"+"    goto .L"+str(h.conteoEtiquetas)+"\n"
+            a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"
+            a+= "label .L"+str(h.conteoEtiquetas)+"\n"+x.then+"\n"
+            a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"
+            a+= "label .L"+str(h.conteoEtiquetas+2)+"\n"
+            EtiquetasSalida.append(h.conteoEtiquetas+1)
+            h.conteoEtiquetas+=3
+    for y in EtiquetasSalida:
+        print("ETIQUETA SALIDA ---> ",y)
+        a+="label .L"+str(y)+"\n"
     t[0]=a
 def p_if_2(t):
     '''
     if          : IF  operacion THEN operacion END IF PUNTOYCOMA
     '''
-    a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
-    a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
+    a= "if "+str(t[2])+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
+    a+= "label .L"+str(h.conteoEtiquetas)+"\n  "+str(t[4])+"\n"
     h.conteoEtiquetas+=1
     t[0]=a 
 def p_if_3(t):
     '''
     if          : IF operacion THEN operacion ELSE operacion END IF PUNTOYCOMA
     '''       
-    a= "IF "+str(t[2])+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
-    a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
-    a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+str(t[4])+"\n"
-    a+= "L"+str(h.conteoEtiquetas+1)+":"+"\n    "+str(t[6])+"\n"
-    h.conteoEtiquetas+=2
+    a= "if "+str(t[2])+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
+    a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"
+    a+= "label .L"+str(h.conteoEtiquetas)+"\n"+str(t[4])+"\n"
+    a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"#salida
+    a+= "label .L"+str(h.conteoEtiquetas+1)+"\n"+str(t[6])+"\n"
+    a+= "label .L"+str(h.conteoEtiquetas+2)+"\n"
+    h.conteoEtiquetas+=3
     t[0]=a
 def p_ifAnidados(t):
     '''
@@ -3236,6 +3254,7 @@ def p_case_1(t):
     '''
     case          :  CASE operacion contCase END CASE PUNTOYCOMA
     '''
+    EtiquetasSalida =[]
     contenido = t[3]
     cases = len(contenido)
     print("EL TOTAL DE CASES QUE VIENE ES---> ",cases)
@@ -3246,15 +3265,21 @@ def p_case_1(t):
         contador=contador+1
         #a+= "IF "+str(t[2])+"=="+x.when+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
         if x.elsee!=None and contador==cases: #VIENE UN ELSE EN ESTE CONTCASE Y ES EL ULTIMO, COMO DEBE SER
-            a+= "IF "+str(t[2])+"=="+x.when+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
-            a+= "goto L"+str(h.conteoEtiquetas+1)+":"+"\n"
-            a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+x.then+"\n"
-            a+= "L"+str(h.conteoEtiquetas+1)+":"+"\n    "+x.elsee+"\n"
-            h.conteoEtiquetas+=2
+            a+= "if "+str(t[2])+"=="+x.when+":   goto .L"+str(h.conteoEtiquetas)+"\n"
+            a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"
+            a+= "label .L"+str(h.conteoEtiquetas)+"\n"+x.then+"\n"
+            a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"#ir a etiqueta de salida
+            EtiquetasSalida.append(h.conteoEtiquetas+2)
+            a+= "label .L"+str(h.conteoEtiquetas+1)+"\n"+x.elsee+"\n"
+            h.conteoEtiquetas+=3
         elif x.elsee==None:
-            a+= "IF "+str(t[2])+"=="+x.when+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
-            a+= "L"+str(h.conteoEtiquetas)+":"+"\n  "+x.then+"\n"
-            h.conteoEtiquetas+=1
+            a+= "if "+str(t[2])+"=="+x.when+":  goto .L"+str(h.conteoEtiquetas)+"\n"
+            a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"
+            a+= "label .L"+str(h.conteoEtiquetas)+"\n"+x.then+"\n"
+            a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"#ir a etiqueta de salida
+            a+= "label .L"+str(h.conteoEtiquetas+2)+"\n"
+            EtiquetasSalida.append(h.conteoEtiquetas+1)
+            h.conteoEtiquetas+=3
         else:
             print("ERROR EN EL CASE")
         #if(x.when==t[2]):
@@ -3263,9 +3288,11 @@ def p_case_1(t):
         #elif(x.elsee!=None):
         #    print("ENCONTRE UN ELSE")
         #    print(x.elsee)
-        print(x.when)
+    for y in EtiquetasSalida:
+        #print("ETIQUETA SALIDA ---> ",y)
+        a+="label .L"+str(y)+"\n"    
     #case          :  CASE operacion WHEN operacion THEN operacion END IF
-    print("AQUI DEBERIA PASAR PRIMERO")
+    #print("AQUI DEBERIA PASAR PRIMERO")
     t[0]=a 
 def p_contCase(t):
     '''
