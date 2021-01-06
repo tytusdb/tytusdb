@@ -28,6 +28,7 @@ from analizadorFase2.Abstractas.Primitivo import Primitivo
 from analizadorFase2.Abstractas.Expresion import Tipos
 from analizadorFase2.Instrucciones.Return import Return_inst
 from analizadorFase2.Instrucciones.Llamada import Llamada
+from analizadorFase2.Instrucciones.EliminarFuncion import EliminarFuncion
 import re
 
 # VARIABLES GLOBALES
@@ -492,6 +493,31 @@ def p_instruccion2(t):
     """
     t[0] = t[1]
 
+def p_instruccion3(t):
+    """ 
+    INSTRUCCION   :   DROP FUNCTION ID
+                  |   DROP FUNCTION ID PCOMA
+    """
+    global codigo_3D
+    C3D = "del " + t[3]
+    codigo_3D.append(C3D)
+    val = EliminarFuncion(t[3])
+    ret = Retorno(val, NodoAST("DROP FUNCTION"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+def p_instruccion4(t):
+    """
+    INSTRUCCION :   DROP PROCEDURE ID
+                |   DROP PROCEDURE ID PCOMA
+    """
+    global codigo_3D
+    C3D = "del " + t[3]
+    codigo_3D.append(C3D)
+    val = EliminarFuncion(t[3])
+    ret = Retorno(val, NodoAST("DROP FUNCTION"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_use(t):
     'I_USE           :   USE ID PCOMA'
