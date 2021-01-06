@@ -160,15 +160,15 @@ class SqlComandos:
 
 
         elif isinstance(i, AlterIndiceCol):
-            #self.CadenaSQL =self.Grafo_AlterIndexColumna(i)
+            self.CadenaSQL =self.Grafo_AlterIndexColumna(i)
             pass
 
         elif isinstance(i, AlterIndiceName):
-            #self.CadenaSQL =self.Grafo_AlterIndexName(i)
+            self.CadenaSQL =self.Grafo_AlterIndexName(i)
             pass
 
         elif isinstance(i, DropIndice):
-            #self.CadenaSQL =self.Grafo_DropIndex(i)
+            self.CadenaSQL =self.Grafo_DropIndex(i)
             pass
 
         else:

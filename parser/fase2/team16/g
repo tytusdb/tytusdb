@@ -1,166 +1,31 @@
 graph g {
 	node [height=.1 shape=plaintext]
-	table [label=<<TABLE border="1" cellpadding="0" cellspacing="0"   >
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>DATOS</B> </TD>
-                            </TR>
-                            <TR bgcolor="#BEF781">
-                                <TD bgcolor="#BEF781">BASE DATOS</TD>
-                                <TD bgcolor="#BEF781">TABLA</TD>
-                                <TD bgcolor="#BEF781">COLUMNA</TD>
-                                <TD bgcolor="#BEF781">VALOR </TD>
-                                <TD bgcolor="#BEF781">FILA</TD>
-                                <TD bgcolor="#BEF781"></TD>
-                            </TR>
-<<<<<<< Updated upstream
-                            <TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>1</TD><TD>378</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA CENTRAL</TD><TD>378</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>378</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>4</TD><TD>496</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA ZONA 12</TD><TD>496</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>496</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>4</TD><TD>322</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA ZONA 11</TD><TD>322</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>322</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>4</TD><TD>51</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA ZONA 1</TD><TD>51</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>51</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>5</TD><TD>34</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA ZONA 10</TD><TD>34</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>34</TD><TD> </TD></TR> <TR>
-=======
-                             <TR>
->>>>>>> Stashed changes
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>VALIDACIONES</B> </TD>
-                            </TR>
-                            <TR bgcolor="#BEF781">
-                                <TD bgcolor="#BEF781">TABLA</TD>
-                                <TD bgcolor="#BEF781">CAMPO</TD>
-                                <TD bgcolor="#BEF781">TIPO</TD>
-                                <TD bgcolor="#BEF781">ID</TD>
-                                <TD bgcolor="#BEF781"> </TD>
-                                <TD bgcolor="#BEF781"> </TD>
-                            </TR>
-<<<<<<< Updated upstream
-                            <TR><TD>tbbodega</TD><TD>idbodega</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbbodega</TD><TD>idbodega</TD><TD>primary</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbbodega</TD><TD>bodega</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR> <TR>
-=======
-                            <TR><TD>tbProducto</TD><TD>idproducto</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>idproducto</TD><TD>primary</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>producto</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>fechacreacion</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbCalificacion</TD><TD>idcalifica</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbCalificacion</TD><TD>idcalifica</TD><TD>primary</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbCalificacion</TD><TD>item</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbCalificacion</TD><TD>punteo</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR> <TR>
->>>>>>> Stashed changes
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"><B> TABLAS</B> </TD>
-                            </TR>
-                            <TR bgcolor="#BEF781">
-                                <TD bgcolor="#BEF781">ID TABLA</TD>
-                                <TD bgcolor="#BEF781">ID COLUMNA</TD>
-                                <TD bgcolor="#BEF781">TIPO COLUMNA</TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                                <TD bgcolor="#BEF781">  </TD>
-<<<<<<< Updated upstream
-                            </TR><TR><TD COLSPAN="6" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbbodega</TD><TD>idbodega</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbbodega</TD><TD>bodega</TD><TD>varchar(100)</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbbodega</TD><TD>estado</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR> <TR>
-=======
-                            </TR><TR><TD COLSPAN="6" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbProducto</TD><TD>idproducto</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>producto</TD><TD>varchar(150)</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>fechacreacion</TD><TD>date</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>estado</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD COLSPAN="6" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbCalificacion</TD><TD>idcalifica</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbCalificacion</TD><TD>item</TD><TD>varchar(100)</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbCalificacion</TD><TD>punteo</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR> <TR>
->>>>>>> Stashed changes
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>TIPOS </B></TD>
-                            </TR>
-                            <TR bgcolor="#BEF781">
-                                <TD bgcolor="#BEF781">BASE DE DATOS</TD>
-                                <TD bgcolor="#BEF781"> TIPO </TD>
-                                <TD bgcolor="#BEF781">VALOR</TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                            </TR> <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>BASES DE DATOS</B> </TD>
-                            </TR>
-                            <TR>
-                                <TD bgcolor="#BEF781">ID BASE DE DATOS</TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                            </TR><TR><TD>DBFase2</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD> </TD></TR>
-                            <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>FUNCIONES O PROCEDIMIENTOS</B> </TD>
-                            </TR>
-                            <TR>
-                                <TD bgcolor="#BEF781">NOMBRE</TD>
-                                <TD bgcolor="#BEF781"> TIPO </TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                            </TR>
-                            <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>INDICES</B> </TD>
-                            </TR>
-                            <TR>
-                                <TD bgcolor="#BEF781">ID INDICE</TD>
-                                <TD bgcolor="#BEF781">ID TABLA</TD>
-                                <TD bgcolor="#BEF781">UNIQUE</TD>
-                                <TD bgcolor="#BEF781">HASH</TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-<<<<<<< Updated upstream
-                            </TR>
-=======
-                            </TR><TR><TD>idx_producto</TD><TD>tbProducto</TD><TD>True</TD><TD>False</TD><TD></TD><TD> </TD></TR><TR><TD>id_calificacion</TD><TD>tbCalificacion</TD><TD>True</TD><TD>False</TD><TD></TD><TD> </TD></TR>
->>>>>>> Stashed changes
-                            <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>COLUMNAS INDICE</B> </TD>
-                            </TR>
-                            <TR>
-                                <TD bgcolor="#BEF781">ID COLUMNA</TD>
-                                <TD bgcolor="#BEF781">ORDEN</TD>
-                                <TD bgcolor="#BEF781">NULLS</TD>
-                                <TD bgcolor="#BEF781">STATISTICS</TD>
-                                <TD bgcolor="#BEF781">ID INDICE</TD>
-                                <TD bgcolor="#BEF781">ID TABLA</TD>
-<<<<<<< Updated upstream
-                            </TR></TABLE>>]
-=======
-                            </TR><TR><TD>idproducto</TD><TD>None</TD><TD>None</TD><TD>None</TD><TD>tbProducto</TD><TD>idx_producto</TD></TR><TR><TD>idcalifica</TD><TD>None</TD><TD>None</TD><TD>None</TD><TD>tbCalificacion</TD><TD>id_calificacion</TD></TR></TABLE>>]
->>>>>>> Stashed changes
+	table [label=<<TABLE><TR><TD>CODIGO</TD><TD>OPTIMIZACION</TD></TR>
+ <TR><TD>	t9 = t0 + 0
+</TD><TD>t9= t0- Regla: 12</TD></TR>
+ <TR><TD>	t10 = t1 - 0
+</TD><TD>t10 = t1- Regla: 13</TD></TR>
+ <TR><TD>	t11 = t2 * 1
+</TD><TD>t11 = t2- Regla: 14</TD></TR>
+ <TR><TD>	t12 = t3 / 1
+</TD><TD>t12 = t3- Regla: 15</TD></TR>
+ <TR><TD>	t13 = t3 + 0
+</TD><TD>t13= t3- Regla: 12</TD></TR>
+ <TR><TD>	t14 = t3 - 0
+</TD><TD>t14 = t3- Regla: 13</TD></TR>
+ <TR><TD>	t15 = t6 * 1
+</TD><TD>t15 = t6- Regla: 14</TD></TR>
+ <TR><TD>	t16 = t7 / 1
+</TD><TD>t16 = t7- Regla: 15</TD></TR>
+ <TR><TD>	t17 = t8 * 2
+</TD><TD>t17 = t8+t8- Regla: 16</TD></TR>
+ <TR><TD>	t18 = t8 * 0
+</TD><TD>t18= 0- Regla: 17</TD></TR>
+ <TR><TD>	t19 = 0 / t8
+</TD><TD>t19= 0- Regla: 18</TD></TR>
+ <TR><TD>if t20: goto .L0 else: goto.L1</TD><TD>goto .L0- Regla: 4</TD></TR>
+ <TR><TD>if t21: goto .L3 else: goto.L4</TD><TD>goto .L4- Regla: 5</TD></TR>
+ <TR><TD>t1=t0-t0=t1</TD><TD>t1=t0- Regla: 1</TD></TR>
+ <TR><TD>t0=t1-t1=t0</TD><TD>t0=t1- Regla: 1</TD></TR>
+ <TR><TD>goto .R-Label .R</TD><TD>Label .R- Regla: 2</TD></TR></TABLE>>]
 }

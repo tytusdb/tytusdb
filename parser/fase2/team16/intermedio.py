@@ -8,59 +8,10 @@ def main():
 	global heap
 	global stack
 
-<<<<<<< Updated upstream
-	t0 = """CREATE DATABASE DBFase2;"""
-=======
-	t0 = """
- CREATE TABLE tbProducto (
-  
- idproducto  integer   not null     primary key    
-,   
- producto  varchar( 150)   not null    
-,   
- fechacreacion  date   not null    
-,   
- estado  integer  
-  );
-"""
->>>>>>> Stashed changes
-	heap.append(t0)
-	F3D.ejecutarSQL()
-
-	t1 = """USE DBFase2;"""
-	heap.append(t1)
-	F3D.ejecutarSQL()
-
-	t2 = """
- CREATE TABLE tbbodega (
-  
- idbodega  integer   not null     primary key    
-,   
- bodega  varchar( 100)   not null    
-,   
- estado  integer  
-  );
-"""
-	heap.append(t2)
-	F3D.ejecutarSQL()
-
-	t3 = "CREATE INDEX id_index ON tbbodega (bodega);"
-	heap.append(t3)
-	F3D.ejecutarSQL()
-
 	#Llamada a funcion o procedimiento.
 	stack.append("F2")
 	goto .F1
 	label .F2
-	t9 = """ DELETE  From tbbodega WHERE idbodega = 4;  """
-	heap.append(t9)
-	F3D.ejecutarSQL()
-
-	t10 = """Select  idbodega,bodega from tbbodega; 
-"""
-	heap.append(t10)
-	F3D.ejecutarSQL()
-
 
 	goto .END
 
@@ -70,31 +21,85 @@ def main():
 	# Parametros 
 
 	# Retorno 
-	global r0
+	r0= 0
 
 	# Declaraciones 
+	t0 = 0
+	t1 = 0
+	t2 = 0
+	t3 = 0
+	t4 = 0
+	t5 = 0
+	t6 = 0
+	t7 = 0
+	t8 = 0
 	#Fin declaraciones
 
+	t9 = t0 + 0
+	t0 = t9
 
-	t4 = """ INSERT INTO   tbbodega  values(  1,  "BODEGA CENTRAL",  1   );"""
-	heap.append(t4)
-	F3D.ejecutarSQL()
+	t10 = t1 - 0
+	t1 = t10
 
-	t5 = """ INSERT INTO   tbbodega  values(  4,  "BODEGA ZONA 12",  1   );"""
-	heap.append(t5)
-	F3D.ejecutarSQL()
+	t11 = t2 * 1
+	t2 = t11
 
-	t6 = """ INSERT INTO   tbbodega  values(  4,  "BODEGA ZONA 11",  1   );"""
-	heap.append(t6)
-	F3D.ejecutarSQL()
+	t12 = t3 / 1
+	t3 = t12
 
-	t7 = """ INSERT INTO   tbbodega  values(  4,  "BODEGA ZONA 1",  1   );"""
-	heap.append(t7)
-	F3D.ejecutarSQL()
+	t13 = t3 + 0
+	t4 = t13
 
-	t8 = """ INSERT INTO   tbbodega  values(  5,  "BODEGA ZONA 10",  1   );"""
-	heap.append(t8)
-	F3D.ejecutarSQL()
+	t14 = t3 - 0
+	t5 = t14
+
+	t15 = t6 * 1
+	t6 = t15
+
+	t16 = t7 / 1
+	t7 = t16
+
+	t17 = t8 * 2
+	t8 = t17
+
+	t18 = t8 * 0
+	 = t18
+
+	t19 = 0 / t8
+	 = t19
+
+	t0 = t1
+
+	t1 = t0
+
+	# ------ If ------- 
+	t20 = 100 == 100
+	if t20: 
+		goto .L0
+	else: 
+		goto .L1
+	label .L0
+	print("verdadero")
+	t0 = t2
+
+	goto .L2
+
+	label .L1
+	label .L2
+	# ------ If ------- 
+	t21 = 10 == 1
+	if t21: 
+		goto .L3
+	else: 
+		goto .L4
+	label .L3
+	print("verdadero")
+	t0 = t2
+
+	goto .L5
+
+	label .L4
+	label .L5
 
 	goto .R
 

@@ -137,7 +137,7 @@ class Codigo3d:
             elif isinstance(i, Print_I):
                 cadenaT += self.t_print(i)
             elif isinstance(i, Insert_Datos):
-                cadena += self.t_Insert(i)
+                cadenaT += self.t_Insert(i)
             else:
                 aux = SQL(i)
                 aux.generarCadenaSQL()
@@ -206,19 +206,19 @@ class Codigo3d:
 
         original = "if " + str(condicion) + ": goto ."+verdadero+" else: goto."+falso
         # OPTIMIZACION REGLA 4 y 5
-        if isinstance(instancia.condicion.exp1, ExpresionValor) and instancia(instancia.condicion.exp2, ExpresionValor):
-            if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
-                if instancia.condicion.exp1.val == instancia.condicion.exp2.val:
-                    co = "goto ."+verdadero + "- Regla: 4"
-                    o = Optimizacion(original, co)
-                    listaOpt.append(o)
+        #if isinstance(instancia.condicion.exp1, ExpresionValor) and instancia(instancia.condicion.exp2, ExpresionValor):
+        if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
+            if instancia.condicion.exp1.val == instancia.condicion.exp2.val:
+                co = "goto ."+verdadero + "- Regla: 4"
+                o = Optimizacion(original, co)
+                listaOpt.append(o)
 
-            original2 = "if " + str(condicion) + ": goto ."+verdadero+" else: goto."+falso
-            if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
-                if instancia.condicion.exp1.val != instancia.condicion.exp2.val:
-                    co = "goto ."+falso + "- Regla: 5"
-                    o = Optimizacion(original2, co)
-                    listaOpt.append(o)
+        original2 = "if " + str(condicion) + ": goto ."+verdadero+" else: goto."+falso
+        if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
+            if instancia.condicion.exp1.val != instancia.condicion.exp2.val:
+                co = "goto ."+falso + "- Regla: 5"
+                o = Optimizacion(original2, co)
+                listaOpt.append(o)
 
         return cadenaIf
 
