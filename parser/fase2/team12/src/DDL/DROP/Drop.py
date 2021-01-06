@@ -29,7 +29,8 @@ class Drop(Nodo):
         tmp = instanceTemporal.getTemporal()
         dir = f"{tmp} = '{self.getText()}'\n"
         dir += f'display[p] = {tmp}\n'
-        dir += 'p = p + 1'
+        dir += 'p = p + 1\n'
+        return dir
 
     def getText(self):
         if(self.hijos[1].hijos[0].nombreNodo == "DATABASE"):
@@ -41,19 +42,19 @@ class Drop(Nodo):
             else:
                 dbname = self.hijos[1].hijos[1].valor 
 
-            return f'DROP DATABASE {dbname} ;\n'            
+            return f'DROP DATABASE {dbname} ;'            
         elif(self.hijos[1].hijos[0].nombreNodo == "TABLE"):
         ######### TABLES
             identificador = self.hijos[1].hijos[1].valor
-            return f'DROP TABLE {identificador}; \n'
+            return f'DROP TABLE {identificador};'
         elif(self.hijos[1].hijos[0].nombreNodo == "INDEX"):
             pass
             identificador = self.hijos[1].hijos[1].valor
-            return f'DROP INDEX {identificador}; \n'  
+            return f'DROP INDEX {identificador};'  
         elif(self.hijos[1].hijos[0].nombreNodo == "PROCEDURE"):
             pass
             identificador = self.hijos[1].hijos[1].valor
-            return f'DROP PROCEDURE {identificador}(); \n'                   
+            return f'DROP PROCEDURE {identificador}();'                   
 
 
     def execute(self,enviroment = None):

@@ -20,7 +20,8 @@ class Insert(Nodo):
         tmp = instanceTemporal.getTemporal()
         dir = f"{tmp} = '{self.getText()}'\n"
         dir += f'display[p] = {tmp}\n'
-        dir += 'p = p + 1'
+        dir += 'p = p + 1\n'
+        return dir
     
     def execute(self,enviroment = None):
         print('Llamar al insert')
@@ -34,7 +35,7 @@ class Insert(Nodo):
             #SOLO VALUES
             parametros = self.hijos[1].hijos
             str_params = self.getTextParams(parametros)
-            return f' INSERT INTO {nombre_tabla} VALUES ({str_params});\n'
+            return f' INSERT INTO {nombre_tabla} VALUES ({str_params});'
 
 
     def getTextParams(self,lista):
@@ -79,7 +80,5 @@ class Insert(Nodo):
                 i = i + 1
         return string_
 
-    def compile(self):
-        pass
 
 

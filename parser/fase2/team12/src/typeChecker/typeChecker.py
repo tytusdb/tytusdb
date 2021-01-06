@@ -141,6 +141,19 @@ class TypeChecker():
             file.write(dataFinal)
             file.close()
 
+    def search_procedure(self,database : str, procedure_name : str):
+        with open(file_dir) as file:
+            data = json.load(file)
+            if database in data:
+                procedures = data[database]["procedures"]
+                for ind in procedures:
+                    if ind["nombre"] == procedure_name:
+                        return ind
+                return None
+            else:
+                return None
+
+
     ######################## CreateIndex
     def create_index(self, database : str, index : Index):
         dataFinal = None

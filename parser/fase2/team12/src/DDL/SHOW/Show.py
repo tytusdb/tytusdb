@@ -51,7 +51,8 @@ class Show(Nodo):
         tmp = instanceTemporal.getTemporal()
         dir = f"{tmp} = '{self.getText()}'\n"
         dir += f'display[p] = {tmp}\n'
-        dir += 'p = p + 1'
+        dir += 'p = p + 1\n'
+        return dir
         
 
         return dir
@@ -59,7 +60,7 @@ class Show(Nodo):
     def getText(self):
         r = 'SHOW DATABASES '
         if(len(self.hijos) < 3):
-            return r
+            return r +';'
         else:
-            r += f"LIKE '{self.hijos[2].hijos[1].valor}'"
+            r += f"LIKE '{self.hijos[2].hijos[1].valor}';"
             return r

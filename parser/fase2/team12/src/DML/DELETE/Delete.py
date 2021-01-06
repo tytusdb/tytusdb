@@ -46,7 +46,8 @@ class Delete(Nodo):
         tmp = instanceTemporal.getTemporal()
         dir = f"{tmp} = '{self.getText()}'\n"
         dir += f'display[p] = {tmp}\n'
-        dir += 'p = p + 1'
+        dir += 'p = p + 1\n'
+        return dir
 
     def getText(self):
         table_ =  self.hijos[2].valor.upper()
