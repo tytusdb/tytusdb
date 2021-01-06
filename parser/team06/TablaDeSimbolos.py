@@ -174,6 +174,29 @@ class TablaDeSimbolos() :
         if not clave in self.simbolos:
             return 0
         return 1
+    
+    def eliminarVariablesFuncion(self,BD,ambito):
+        for simb in self.simbolos:
+            if self.simbolos[simb].BD == BD and self.simbolos[simb].ambito == ambito:
+                del self.simbolos[simb]
+                return 1
+        return 0
+    
+    def contVariablesFunction(self,BD,ambito):
+        contt=0
+        for simb in self.simbolos:
+            if self.simbolos[simb].BD == BD and self.simbolos[simb].ambito == ambito:
+                contt+=1
+        return contt
+
+    def eliminarFunction(self,nombre,BD):
+        clave = str(nombre)+str(BD)
+        for simb in self.simbolos:
+            if clave == simb:
+                del self.simbolos[simb]
+                return 1
+        return 0
+        
 
     #-----------------------------------------------------------------------------------------------------------------------
     def agregarnuevTablaBD(self,simbolo):
