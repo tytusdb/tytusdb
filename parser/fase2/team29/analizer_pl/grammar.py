@@ -3,6 +3,7 @@ import analizer_pl.modules.expressions as expression
 from analizer_pl.abstract.expression import incTemp
 from analizer_pl.abstract.expression import newTemp
 from analizer_pl.abstract.expression import TYPE
+from optimizer_folder.optimizer import Optimizer
 from analizer_pl.tokens import *
 import ply.lex as lex
 import ply.yacc as yacc
@@ -21,6 +22,7 @@ current_etiq = 0
 next_etiq = 0
 if_stmt = 0
 back_fill = BackFill()
+optimizer_= Optimizer()
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 listInst = []
@@ -120,10 +122,10 @@ def p_isblock_f(t):
 def p_function_stmt(t):
     """
     function_stmt : R_CREATE orReplace R_FUNCTION ID function_opt
-                | R_CREATE orReplace R_PROCEDURE ID function_opt
+                | R_CREATE orReplace R_PROCEDURE ID procedure_opt
     """
     t[0] = code.FunctionDeclaration(
-        t[4], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+        t[3], t[4], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
     )
     repGrammar.append(t.slice)
 
@@ -133,6 +135,22 @@ def p_function_opt_param(t):
     function_opt : S_PARIZQ params_function S_PARDER returns_function
     """
     t[0] = [t[2], t[4]]
+    repGrammar.append(t.slice)
+
+
+def p_procedure_opt_param(t):
+    """
+    procedure_opt : S_PARIZQ params_function S_PARDER
+    """
+    t[0] = [t[2], None]
+    repGrammar.append(t.slice)
+
+
+def p_procedure_opt(t):
+    """
+    procedure_opt : S_PARIZQ S_PARDER
+    """
+    t[0] = [None, None]
     repGrammar.append(t.slice)
 
 
@@ -1590,6 +1608,10 @@ def p_funcCall_1(t):
     """
     funcCall : ID S_PARIZQ paramsList S_PARDER
     """
+    global isBlock
+    t[0] = code.FunctionCall(
+        t.slice[1].value, t[3], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -1598,6 +1620,10 @@ def p_funcCall_2(t):
     funcCall : ID S_PARIZQ S_PARDER
             | R_NOW S_PARIZQ S_PARDER
     """
+    global isBlock
+    t[0] = code.FunctionCall(
+        t.slice[1].value, None, isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -1709,21 +1735,31 @@ def p_literal_bool(t):
     literal :  R_TRUE
     | R_FALSE
     """
-    val = t.slice[1].value
+    if t[1] == "TRUE":
+        val = "True"
+    else:
+        val = "False"
     t[0] = expression.C3D("", val, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_params_list(t):
     """paramsList : paramsList S_COMA datatype"""
-    t[1] += ", " + t[3].temp
-    t[0] = t[1]
+    if not isBlock:
+        t[1] += ", " + t[3].temp
+        t[0] = t[1]
+    else:
+        t[1].append(t[3])
+        t[0] = t[1]
     repGrammar.append(t.slice)
 
 
 def p_params_u(t):
     """paramsList : datatype"""
-    t[0] = t[1].temp
+    if not isBlock:
+        t[0] = t[1].temp
+    else:
+        t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -2068,6 +2104,8 @@ def p_idOrLiteral(t):
 def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
     | R_ALTER R_TABLE idOrString alterTableList
+    | R_ALTER R_INDEX ifExists idOrString R_RENAME R_TO idOrString
+    | R_ALTER R_INDEX ifExists idOrString R_ALTER column idOrString idOrNumber
     """
     if t[2] == "DATABASE":
         t[0] = code.AlterDataBase(
@@ -2075,6 +2113,20 @@ def p_alterStmt(t):
         )
     else:
         t[0] = code.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
+    repGrammar.append(t.slice)
+
+
+def p_column(t):
+    """column : R_COLUMN
+    |
+    """
+    repGrammar.append(t.slice)
+
+def p_idOrNumber(t):
+    """idOrNumber : ID
+    | INTEGER
+    """
+    t[0] = t.slice[1].value
     repGrammar.append(t.slice)
 
 
@@ -2200,6 +2252,13 @@ def p_dropStmt_database(t):
     dropStmt : R_DROP R_DATABASE ifExists idOrString
     """
     t[0] = code.DropDatabase(t[4], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+
+def p_dropStmt_index(t):
+    """
+    dropStmt : R_DROP R_INDEX ifExists idList
+    """
     repGrammar.append(t.slice)
 
 

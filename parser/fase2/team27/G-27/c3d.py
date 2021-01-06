@@ -15,18 +15,21 @@ from Instrucciones.instruction import *
 from Instrucciones.ins_if import *
 from prettytable import PrettyTable
 from copy import copy
+from environment import arregloFunciones,arregloF
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
 # ======================================================================
 TokenError = list()
 ListaIndices = list()
 ListaAux = list()
+ListaFunciones = list()
 consid = list()
 consid.append('none')
 consid.append('none')
 consid.append('false')
 consid.append('false')
-
+executing = False
+auxiliarTable = []
 # ======================================================================
 #                        PALABRAS RESERVADAS DEL LENGUAJE
 # ======================================================================
@@ -201,7 +204,8 @@ def t_newline(t):
 
 # EXPRESION REGULAR PARA RECONOCER ERRORES
 def t_error(t):
-    print('LEXICO' + ' ' + str(t.value) + ' ' + 'TOKEN DESCONOCIDO' + ' ' + str(t.lineno) + ' ' + str(t.lexpos))
+    err = 'LÉXICO. Token = \"' + str(t.value) + '\". TOKEN DESCONOCIDO' + ' ' + str(t.lineno) + ' ' + str(t.lexpos)
+    TokenError.append(err)
     t.lexer.skip(1)
 
 # ======================================================================
@@ -256,7 +260,11 @@ def nuevo_temporal():
 # DEFINICION GRAMATICA
 def p_inicio(t):
     '''inicio : instrucciones '''
-    print(str(t[1].code))
+    arreglo = []
+    for value in ListaFunciones:
+        arreglo.append(value)
+    ListaFunciones.clear()
+    t[0]= resFinal(arreglo,t[1].code)
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
@@ -281,6 +289,7 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | execute
                    | ins_create_pl
+                   | drop_pf
                    | create_index
                    | drop_index
                    | alter_index'''
@@ -290,6 +299,8 @@ def p_instrucciones_evaluar(t):
     elif t[1].statement == 'CREATE_FUNCTION':
         t[0] = GenerarC3D()
         t[0].code += t[1].code
+    elif t[1].statement == 'EXECUTE':
+        t[0] = t[1]
     else:
         t[0] = GenerarC3D()
         t[0].code += 'parser.parse(\'' + t[1].code + '\')' + '\n'
@@ -1127,10 +1138,15 @@ def p_arg_having(t):
     else:
         t[0] = GenerarC3D()
         t[0].code += ''
+
 def p_exp_aux(t):
     ''' exp : ID PARABRE list_vls PARCIERRE'''
+    global executing
     t[0] = GenerarC3D()
-    t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
+    if not executing:
+        t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
+    else:
+        t[0].code = t[1] + t[2] + t[3].code + t[4] 
 
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
@@ -1456,18 +1472,61 @@ def p_ins_delete(t):
 #                        INSTRUCCIONES PL/SQL
 # ======================================================================
 
+def p_drop_pf(t):
+    ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
+    result = deleteProcFunc(t[2], t[4], t[6])
+
+    t[0] = GenerarC3D()
+    t[0].code = str(result)
+
+def p_drop_case(t):
+    ''' drop_case : FUNCTION
+                  | PROCEDURE'''
+    t[0] = t[1]
+
+def p_opt_exist(t):
+    ''' opt_exist : IF EXIST
+                  |'''
+    if len(t)== 3:
+        t[0] = True
+    else:
+        t[0] = False
+
+def p_arg_list_opt(t):
+    ''' arg_list_opt : arg_list 
+                     |'''
+    if len(t)== 2:
+        t[0] = t[1]
+    else:
+        t[0] = []
+
+def p_arg_list(t):
+    ''' arg_list : arg_list COMA ID
+             	| ID'''
+    if len(t) == 3:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+
 def p_ins_create_pl(t):
     '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameteropt PARCIERRE returns AS block LANGUAGE ID PUNTO_COMA
                      | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE LANGUAGE ID AS  block 
                      '''
     t[0] = GenerarC3D()
     if len(t) == 14:
-        func = funcion({'id':t[4], 'parametros':t[6]},t[10])
-        t[0].code = func
+        meta = {'id':t[4], 'parametros':t[6],'estado': 'ALMACENADO', 'tipo': t[3]}
+        func = funcion(meta,t[10])
+        ListaFunciones.append(func)
+        genTable(t[4])
+        t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
     else: 
-        func = funcion({'id':t[4], 'parametros':t[6]},t[11])
-        t[0].code = func
+        meta = {'id':t[4], 'parametros':t[6], 'estado': 'ALMACENADO', 'tipo':t[3]}
+        func = funcion(meta,t[11])
+        ListaFunciones.append(func)
+        genTable(t[4])
+        t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
 
 def p_op_replace(t):
@@ -1494,15 +1553,20 @@ def p_parameters(t):
         t[0] = [t[1]]
 
 def p_parameter(t):
-    '''parameter : idopt tipo_dato
+    '''parameter : idopt t_dato
                 | ID ANYELEMENT
                 | ID ANYCOMPATIBLE
-                | OUT ID tipo_dato
+                | OUT ID t_dato
                 | ID
     '''   
     if len(t) == 4:
+        AddTs(t[2], 'None', 'DECLARACION PARÁMETRO')
         t[0] = t[2]
+    elif len(t) == 2:
+        AddTs(t[1], 'None', 'DECLARACION PARÁMETRO')
+        t[0] = t[1]
     else:
+        AddTs(t[1], t[2], 'DECLARACION PARÁMETRO')
         t[0] = t[1]
 
 def p_idopt(t):
@@ -1536,18 +1600,26 @@ def p_t_dato(t):
                  | ID '''
     if t[1] == 'SMALLINT':
         t[0]= DBType.smallint
-    elif t[1] == 'BIGING':
+    elif t[1] == 'BIGINT':
         t[0]= DBType.bigint
     elif t[1] == 'DOUBLE':
         t[0] = DBType.double_precision
     elif t[1] == 'NUMERIC':
         t[0] = DBType.numeric
+    elif t[1] == 'DECIMAL':
+        t[0] = DBType.decimal
+    elif t[1] == 'INTEGER':
+        t[0] = DBType.integer
     elif t[1] == 'CHAR':
         t[0] = DBType.char
     elif t[1] == 'VARCHAR':
         t[0] = DBType.varchar
     elif t[1] == 'CHARACTER':
         t[0] = DBType.character
+    elif t[1] == 'REAL':
+        t[0] = DBType.real
+    elif t[1] == 'INT':
+        t[0] = DBType.integer
     elif t[1] == 'TEXT':
         t[0] = DBType.text
     elif t[1] == 'TIMESTAMP':
@@ -1592,10 +1664,10 @@ def p_body(t):
         t3 = t[3]
     if len(t1) == 0 and t[3] != None:
         t[0] = t3
-    elif len(t3) == 0  == "" and t[1] != None:
+    elif len(t3) == 0 and t[1] != None:
         t[0] = t1
     else: 
-        t[0] = t3
+        t[0] = t1 + t3
 
 def p_declare(t):
     '''declare_statement : declare_statement DECLARE declares
@@ -1626,6 +1698,7 @@ def p_declaracion(t):
         temp = t[5]['temp']
         v2 = t[5]['c3d']
     v1 = declare(t[1],t[3],temp)
+    AddTs(t[1], t[3], 'DECLARACIÓN')
     t[0] = v2 + v1
 
 def p_internal_blockopt(t):
@@ -1702,41 +1775,54 @@ def p_declaracionre_record(t):
 def p_asignacion(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL exp_plsql PUNTO_COMA'''
     valor = traduct(t[4])
-    codigo = assign(t[1], valor['temp'])
+    temporal = valor['temp']
+    codigo = assign(t[1], temporal)
     if codigo == None: codigo = ""
+    modifyTs(t[1],temporal, 'ASIGNACION')
     t[0] = '\n' + valor['c3d'] + codigo
 
 def p_asignacion_igual(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA
     '''
-    t[0] = ""
+    v = assignQ(t[1],t[4].code)
+    modifyTs(t[1],t[4].code, 'ASIGNACION')
+    t[0] = v 
 
 def p_asignacion_igual_parentesis(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA
     '''
-    t[0] = ""
+    modifyTs(t[1],t[5].code, 'ASIGNACION')
+    t[0] = assignQ(t[1],t[5].code)
+
 def p_asignacion_dos(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL exp_plsql PUNTO_COMA'''
     valor = traduct(t[5])
     codigo = assign(t[1], valor['temp'])
     if codigo == None: codigo = ""
+    modifyTs(t[1],valor['temp'], 'ASIGNACION')
     t[0] ='\n' + valor['c3d'] + codigo
 
 def p_asignacion_dos_signo_(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
-    t[0] = ""
+    modifyTs(t[1],t[5].code, 'ASIGNACION')
+    t[0] = assignQ(t[1], t[5].code)
+
 def p_asignacion_dos_signo(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
-    t[0] = ""
+    modifyTs(t[1],t[6].code, 'ASIGNACION')
+    t[0] = assignQ(t[1], t[6].code)
+
 def p_referencia_id(t):
     '''referencia_id : PUNTO ID
                 | '''
 
 def p_return(t):
-    '''return : RETURN exp PUNTO_COMA'''
+    '''return : RETURN exp_plsql PUNTO_COMA'''
+    t[0] = returnF(t[2])
 
 def p_return_next(t):
-    '''return : RETURN NEXT exp PUNTO_COMA'''
+    '''return : RETURN NEXT exp_plsql PUNTO_COMA'''
+    t[0] = returnF(t[2])
 
 def p_return_query(t):
     '''return : RETURN QUERY query'''
@@ -1835,8 +1921,7 @@ def p_statements(t):
 
 def p_statement(t):
     '''statement : asignacion
-                | f_query 
-                | execute
+                | f_query
                 | null
                 | declaracion
                 | declaracion_funcion
@@ -1855,6 +1940,7 @@ def p_statement(t):
 
 def p_f_query(t):
     '''f_query : SELECT arg_distict colum_list into FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
+                | ins_select f_return
                 | ins_insert f_return
                 | ins_update f_return
                 | ins_delete f_return'''
@@ -1879,16 +1965,29 @@ def p_into_strict(t):
     t[0] = ''
 
 def p_execute(t):
-    '''execute : EXECUTE CADENA into USING exp_list PUNTO_COMA'''
-    t[0] = ''
+    '''execute : exp_execute_aux exp_list_opt PARCIERRE PUNTO_COMA'''
+    global executing
+    t[0] = GenerarC3D()
+    t[0].statement = 'EXECUTE'
+    t[0].code = t[1] + '(' +t[2].code +')\n'
+    executing = False
 
-def p_execute_use(t):
-    '''execute : EXECUTE CADENASIMPLE into USING exp_list PUNTO_COMA'''
-    t[0] = ''
+def p_execute_aux(t):
+    ''' exp_execute_aux : EXECUTE ID PARABRE'''
+    global executing
+    executing = True
+    t[0] = t[2]
+    
 
-def p_execute_exp(t):
-    '''execute : EXECUTE exp_plsql PUNTO_COMA'''
-    t[0] = ''
+def p_exp_list_opt(t):
+    '''exp_list_opt : exp_list
+                    |
+    '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = GenerarC3D()
+        t[0].code = ""   
 
 def p_null(t):
     '''null : NULL PUNTO_COMA'''
@@ -1931,6 +2030,8 @@ def p_val_value_plsql(t):
     '''val_value_plsql : CADENA
                 |   CADENASIMPLE
                 |   NUMERO
+                |   SIGNO_MENOS NUMERO
+                |   SIGNO_MENOS NUM_DECIMAL
                 |   NUM_DECIMAL
                 |   FECHA_HORA
                 |   TRUE
@@ -1949,6 +2050,8 @@ def p_val_value_plsql(t):
         t[1] = 'False'
     if len(t) == 5:
         t[0] = call(t[1], t[3])
+    elif len(t) == 3:
+        t[0] ={'left':None, 'right':None, 'data': t[1] + str(t[2])}
     else:
         t[0] = {'left':None, 'right': None, 'data': t[1]}
 
@@ -2053,27 +2156,27 @@ def p_fparametros(t):
 # ======================================================================
 
 def p_alter_index(t):
-    '''alter_index : ALTER INDEX ID ID argcol arg_punto_coma'''
+    '''alter_index : ALTER INDEX if_exists ID ID argcol arg_punto_coma'''
     bandera = False
     for it in ListaIndices:
-        if it['name'] == str(t[3]):
+        if it['name'] == str(t[4]):
             iterador = 0
             for ite in it['columns']:
-                if ite == str(t[4]):
+                if ite == str(t[5]):
                     bandera = True
                     del it['columns'][iterador]
                     break
                 iterador = iterador + 1
             if bandera == True:
-                if isinstance(t[5],str):
-                    it['columns'].append(str(t[5]))
+                if isinstance(t[6],str):
+                    it['columns'].append(str(t[6]))
                 else:
-                    it['columns'].append('column('+str(t[5])+')')
+                    it['columns'].append('column('+str(t[6])+')')
                 break
     t[0] = GenerarC3D()
     t[0].statement = 'INDEX'
-    t[0].code = t[1] +' '+ t[2]  +' '+t[3]+' '+ t[4]  +' '+str(t[5])
-    
+    t[0].code = t[1] +' '+ t[2]  +' '+t[4]+' '+ t[5]  +' '+str(t[6])
+
 def p_argcol(t):
     '''argcol : ID
               | NUMERO'''
@@ -2255,10 +2358,18 @@ def p_arg_where_param(t):
         t[0] = t[1] +' '+ str(t[2]) +' '+ t[3]
     else: 
         t[0] = str(t[1])
+
 def p_error(t):
     if t != None:
-        print('SINTACTICO ' + str(t.value )+ ' ERROR SINTÁCTICO ' + 'Fila: ' + str(t.lineno) + ' Columna: ' + str(t.lexpos))
+        err = 'SINTACTICO: Token = \"' + str(t.value), '\". ERROR SINTÁCTICO en la linea: '+ str(t.lineno) +' y columna: '+str(t.lexpos)
+        TokenError.append(err)
 
+def get_errores():
+    aux = ""
+    for index in range(len(TokenError)):
+        aux += '\n'+str(index)+'. Error: ' + str(TokenError[index]) 
+    TokenError.clear()
+    return aux
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar
 def analizarSin(texto):
@@ -2291,3 +2402,25 @@ def tab_string():
         x.add_row(tupla)
     return '\n'+ x.get_string() +'\n'
 
+def tab_func():
+    x = PrettyTable()
+    x.field_names = ['ID', 'PARAMETROS', 'ESTADO', 'TIPO']
+    for value in arregloFunciones:
+        tupla = [value['id'], value['parametros'], value['estado'], value['tipo']]
+        x.add_row(tupla)
+    arregloFunciones.clear()
+    return '\n' + x.get_string() + '\n'
+
+def tab_simbolos():
+    master = ""
+    for function in arregloF:
+        slave = '===== TABLA DE SIMBOLOS EN <<' + function['id'] + '>> ====='
+        x = PrettyTable()
+        x.field_names = ['ID','TIPO','VALOR', 'OPERACION']
+        x.fields
+        for v in function['valor']:
+            tupla = [v['id'], v['tipo'], v['temporal'], v['operacion']]
+            x.add_row(tupla)
+        slave += '\n'+x.get_string() + '\n\n'
+        master+= slave
+    return master

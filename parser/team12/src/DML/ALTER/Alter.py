@@ -14,3 +14,19 @@ class Alter(Nodo):
 
     def execute(self,enviroment = None):
         print('Llamar al Alter')
+        
+    def compile(self):
+        tmp = instanceTemporal.getTemporal()
+        dir = f"{tmp} = '{self.getText()}'\n"
+        dir += f'display[p] = {tmp}\n'
+        dir += 'p = p + 1'
+
+    def getText(self):
+        if self.hijos[1].nombreNodo == "DATABASE":
+            table_ =  self.hijos[1].valor.upper()
+            return f"ALTER DATABASE {table_};"
+        elif self.hijos[0].nombreNodo == "TABLE":
+            table_ =  self.hijos[0].valor.upper()
+            #exp =  self.hijos[3].hijos[0].getText()
+            #where_body = f" WHERE {exp};"
+            return f"ALTER TABLE {table_}"

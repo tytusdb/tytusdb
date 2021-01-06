@@ -5,7 +5,7 @@ from analizer.abstract import instruction
 from analizer.reports import Nodo
 from analizer.symbol.environment import Environment
 
-envFunction = Environment()
+envFunction = Environment(for3d=True)
 
 class Function(instruction.Instruction):
     def __init__(self, name, type_, params, block, row, column) -> None:

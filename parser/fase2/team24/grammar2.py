@@ -212,6 +212,7 @@ reservadas = {
     'procedure' :'PROCEDURE',
     'language' : 'LANGUAGE',
     'plpgsql' : 'PLPGSQL',
+    'execute' : 'EXECUTE',
 }
 
 tokens = [
@@ -400,6 +401,7 @@ def p_inst(p):
             |   createproc
             |   dropind
             |   alterind
+            
             
     """
     p[0] = p[1]
@@ -1346,6 +1348,10 @@ def p_parametrosind1(p):
     "parametrosind  :   parind"
     p[0] = p[1]
 
+def p_parametrosind11(p):
+    "parametrosind  :   id id"
+    p[0] = inst.alterind(p[1],p[2])
+
 def p_parind(p):
     "parind :   parind COMA idind"
     p[1].append(p[3])
@@ -2088,11 +2094,22 @@ def p_instruccion(t):
                     | instSimplecase
                     | instScase
                     | instp
+                    | callfunc
+                    | callproc
                     
     
      '''
     t[0] = t[1]
 
+def p_callpro(t):
+    ''' callproc : EXECUTE ID PARA nlexps PARC PUNTOCOMA'''
+    t[0] = llamadaP(t[1],t[3])
+
+
+
+def p_callfunc(t):
+    ''' callfunc : ID PARA nlexps PARC PUNTOCOMA'''
+    t[0] = llamadaF(t[1],t[3])
 
 def p_instSimplecase(t):
     '''instSimplecase : CASE newexp WHEN lnexp THEN body lwhenv pelse END CASE PUNTOCOMA'''
@@ -2102,7 +2119,7 @@ def p_instSimplecase(t):
 #searched case
 def p_instScase(t):
     '''instScase : CASE WHEN newexp THEN body lwhen pelse END CASE PUNTOCOMA'''
-    t[0] = searched_case(t[3],t[6],t[7],t[8])
+    t[0] = iff(t[3],t[6],t[7],t[8])
 
 
 def p_lwhen(t):
@@ -2392,11 +2409,16 @@ def p_funcn(t):
     elif t[1].lower() == 'convert' : t[0] = fun_convertp(t[3],t[5],None)
     elif t[1].lower() == 'now' : t[0] = fun_nowp(None)
 
+
+
 def p_nlexps(t):
     'nlexps : nlexps newexp'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_nlexpsS(t):
     'nlexps : newexp'
+    t[0] = [t[1]]
 
 def p_newexp_una(t):
     '''newexp : MENOS newexp %prec UMENOS
@@ -2443,6 +2465,7 @@ def p_newexp_bi(t):
 
 def p_createproc(t):
     'createproc : CREATE PROCEDURE ID PARA lparamsp PARC LANGUAGE PLPGSQL AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
+    pritn('Esta en proceso')
     t[0] = createfunc(t[3],t[5],None,t[12])
 
 def p_error(t):

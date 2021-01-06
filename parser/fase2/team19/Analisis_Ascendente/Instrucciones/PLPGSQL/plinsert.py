@@ -18,7 +18,7 @@ class plinsert(Instruccion):
         self.columna = columna
 
 
-    def ejecutar(plinsert,ts,tspl,consola,exceptions):
+    def ejecutar(plinsert,ts,simfuncion,consola,exceptions):
         if ts.validar_sim("usedatabase1234") == 1:
             # nombre de la bd
             bdactual = ts.buscar_sim("usedatabase1234")
@@ -133,6 +133,36 @@ class plinsert(Instruccion):
                         if todobien:
                             insert(BD.id,simbolo_tabla.id,dataainsertar)
                             consola.append(f"insert en la tabla {plinsert.id}, exitoso\n")
+                            # *************************+*********RETURNING***********************************************
+                            dicci = {}
+                            if plinsert.returning == '*':  # Cada columna corresponde a un valor del registro
+                                posi = 0
+                                for columna in entornoTabla.simbolos:
+                                    dicci[columna.id] = dataainsertar[posi]
+                                    posi += 1
+                            else:  # plreturning = lista de identificadores
+                                posicionesvalores = []
+                                for campo in plinsert.returning:  # campo = Id() o IdAsId()
+                                    posicion = 0
+                                    identificador = None
+                                    if isinstance(campo, Id):
+                                        identificador = campo.id
+                                    else:  # isinstance(campo,IdAsId):
+                                        identificador = campo.id1
+                                    for columna in entornoTabla.simbolos:
+                                        if columna.id == identificador:
+                                            posicionesvalores.append(posicion)
+                                            break
+                                        posicion += 1
+                                for campo in plinsert.returning:
+                                    pos = posicionesvalores.pop(0)
+                                    identificador = None
+                                    if isinstance(campo, Id):
+                                        identificador = campo.id
+                                    else:  # isinstance(campo,IdAsId):
+                                        identificador = campo.id2  # AS
+                                    dicci[identificador] = dataainsertar[pos]
+                            # *************************+*********CLOSE RETURNING***************************************
                         else:
                             consola.append(f"Campos insconsistentes")
                     else:
