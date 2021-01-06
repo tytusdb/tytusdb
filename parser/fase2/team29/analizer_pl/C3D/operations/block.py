@@ -1,10 +1,10 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.abstract.environment import Environment
 
 
-class Block(Expression):
+class Block(Instruction):
     def __init__(
         self, function, declaration, blocks, exception, label, row, column
     ) -> None:

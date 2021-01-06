@@ -2404,10 +2404,11 @@ class FuncionMatematicaSimple(Instruccion):
         elif self.operador == 'count':
             if diccionarioAgrupacion == {}:
                 val = 0
+                arr = []
                 for key in columnasAceptadas:
                     for v in columnasAceptadas[key]:
-                        val = len(v)
-                        break
+                        arr.append(v)
+                    val = len(arr)
                     diccionarioRetorno['val'][key] = [val]
                     break
             else:

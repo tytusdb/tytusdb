@@ -54,6 +54,7 @@ from analizer.statement.pl.sentenciaReturn import  Return_
 from analizer.statement.pl.codeblock import CodeBlock
 from analizer.statement.pl.instruccionesF1 import F1
 from analizer.statement.pl.case import Case, CaseWhen
+from analizer.statement.pl.asignacion import Asignacion
 
 def p_init(t):
     """init : stmtList"""
@@ -323,6 +324,7 @@ def p_assignment(t):
     assignment : ID S_ASIGNACION expresion
     | ID S_IGUAL expresion
     """
+    t[0] = Asignacion(t[1],t[3], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 def p_executeStmt(t):
@@ -2171,26 +2173,35 @@ def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
 
 # PARA PROBAR LA GENERACION DE CODIGO 3D
 
-parserTo3D("""
-CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
-BEGIN
+# parserTo3D("""
+# CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
+# BEGIN
 
 
 
 
-IF 9 > 0 THEN
-    RETURN 7;
-ELSEIF 10 < 9 THEN
-    return 40;
-ELSE
-    RETURN 2;
+# IF 9 > 0  and 9+5 = 14 THEN
+#     RETURN 7;
 
 
+# elseif 97 = 90 then
+#    return 0;
 
 
-END IF;
-END;
-$$ LANGUAGE plpgsql;
-""")
-print("\n---------------- SALIDA: -----------------")
-instancia_codigo3d.showCode()
+# elseif 99 = 90 then
+#    return 80;
+
+
+# elseif 100 = 100 then
+#    return 100;
+   
+# else
+#     return 60;
+
+
+# END IF;
+# END;
+# $$ LANGUAGE plpgsql;
+# """)
+# print("\n---------------- SALIDA: -----------------")
+# instancia_codigo3d.showCode()

@@ -28,6 +28,7 @@ class Tipo_Dato(Enum):
     # ID 
     ID = 20
     QUERY =21
+    VOID = 22
 
 class Tipo():
     'Esta clase será de utilidad para la comprobación de tipos.'
