@@ -149,6 +149,7 @@ class Relop(Expression):
         self.line = line
         self.column = column
         self.alias = f'{str(self.value1.alias)}  {str(op)}  {str(self.value2.alias)}'
+        self._tac = self.alias
 
     def __repr__(self):
         return str(vars(self))
