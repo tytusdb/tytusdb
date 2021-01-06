@@ -85,12 +85,16 @@ class Simbolo:
                     tam) + "'>"
                 cadena += self.tabla + "</TD><TD> columna : " + self.valor['columna'] + "</TD></TR>\n"
                 cadena += aux
-            elif self.nombre[:2] == "_f": 
+            elif self.nombre[:2] == "_f":
                 parametros = self.valor[0]
-                tamano = len(parametros)
-                cadena += "<TR><TD rowspan='" + str(tamano) + "'>" + self.nombre[2:] + "</TD><TD rowspan='" + str(tamano) + "'>FUNCION : " + str(self.tipo.tipo) + "</TD><TD rowspan='" + str(tamano) + "'></TD><TD rowspan='" + str(tamano) + "'>"
-                cadena += "</TD><TD>" + str(parametros[0].nombre) + ":" + str(parametros[0].tipo.tipo) + "</TD></TR>\n"
-                for x in range(1,len(parametros),1):
-                    cadena += "<TR><TD>" + str(parametros[x].nombre) + ":" + str(parametros[x].tipo.tipo) + "</TD></TR>\n"
+                if parametros!=None:
+                    tamano = len(parametros)
+                    cadena += "<TR><TD rowspan='" + str(tamano) + "'>" + self.nombre[2:] + "</TD><TD rowspan='" + str(tamano) + "'>FUNCION : " + str(self.tipo.tipo) + "</TD><TD rowspan='" + str(tamano) + "'></TD><TD rowspan='" + str(tamano) + "'>"
+                    cadena += "</TD><TD>" + str(parametros[0].nombre) + ":" + str(parametros[0].tipo.tipo) + "</TD></TR>\n"
+                    for x in range(1,len(parametros),1):
+                        cadena += "<TR><TD>" + str(parametros[x].nombre) + ":" + str(parametros[x].tipo.tipo) + "</TD></TR>\n"
+                else:
+                    cadena += "<TR><TD>" + self.nombre[2:] + "</TD><TD>FUNCION : " + str(self.tipo.tipo) + "</TD><TD></TD><TD>"
+                    cadena += "</TD><TD></TD></TR>\n"
 
         return cadena

@@ -80,10 +80,10 @@ class Pantalla:
             for consult in consults:
                 i += 1
                 if consult != None:
-                    self.create_table(consult,"Consulta  "+str(i))
+                    self.create_table(consult, "Consulta  " + str(i))
         self.tabControl.pack()
 
-    def create_table(self,table,name):
+    def create_table(self, table, name):
         frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
         # Creacion del scrollbar
         table_scroll = Scrollbar(frame, orient="vertical")
@@ -205,7 +205,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        windowTableS = Pantalla_TS(self.window, self.ts,self.indexes,self.functions)
+        windowTableS = Pantalla_TS(self.window, self.ts, self.indexes, self.functions)
 
     def open_AST(self):  # Abre la pantalla del AST
         windowTableS = Pantalla_AST(self.window)

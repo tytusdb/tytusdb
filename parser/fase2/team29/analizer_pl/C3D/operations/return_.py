@@ -4,6 +4,7 @@ from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
 from analizer_pl import grammar
 
+
 class Return(Instruction):
     def __init__(self, exp, row, column) -> None:
         super().__init__(row, column)
@@ -17,14 +18,16 @@ class Return(Instruction):
         if self.exp:
             e = self.exp.execute(environment)
             cd += tab + "stack.append(" + e.temp + ")\n"
-            grammar.optimizer_.addIgnoreString(str("stack.append(" + str(e.temp) + ")"),self.row)
+            grammar.optimizer_.addIgnoreString(
+                str("stack.append(" + str(e.temp) + ")"), self.row
+            )
             cd += tab + "goto .endLabel\n"
-            grammar.optimizer_.addGoto(str("endLabel"),self.row)
+            grammar.optimizer_.addGoto(str("endLabel"), self.row)
             return code.C3D(e.value + cd, "return", self.row, self.column)
         cd = tab + "stack.append(None)\n"
-        grammar.optimizer_.addIgnoreString(str("stack.append(Nonen"),self.row)
+        grammar.optimizer_.addIgnoreString(str("stack.append(Nonen"), self.row)
         cd += tab + "goto .endLabel\n"
-        grammar.optimizer_.addGoto(str("endLabel"),self.row)
+        grammar.optimizer_.addGoto(str("endLabel"), self.row)
         return code.C3D(cd, "return", self.row, self.column)
 
     def dot(self):

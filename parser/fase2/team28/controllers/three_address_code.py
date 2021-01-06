@@ -98,12 +98,12 @@ class ThreeAddressCode(object):
         """
         self.__content = 'from goto import with_goto'
         self.__content += '\nfrom math import *'
-        self.__content += '\nfrom controllers.three_address_code import ThreeAddressCode'
+        self.__content += '\nfrom models.procedural.intermedia import parse'
         self.__content += '\n\nStack = [None]*10000\nP = 0'
 
         self.__content += '\n\n@with_goto'
         self.__content += '\ndef main():'
-        self.__content += '\n\tglobal Stack'
+        self.__content += '\n\tglobal Stack, P'
         self.__content += self.__code
 
         for functions in self.__functions:
