@@ -2,7 +2,7 @@
 #import tkinter
 from tkinter import *
 import tkinter
-from c3d import analizarLex, analizarSin
+from c3d import analizarLex, analizarSin,tab_string
 from bnf import analizarBNFLex, analizarBNFSin
 
 # creamos una nueva ventana
@@ -34,6 +34,7 @@ def analizar_texto():
     response= txt_consultas.get("1.0","end")
     salida_lexico_ast = analizarLex(response)
     analizarSin(response)
+    print(tab_string())
 
 # Metodo para limpiar la salida de gramatica
 def limpiar():
