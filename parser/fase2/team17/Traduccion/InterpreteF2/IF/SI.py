@@ -23,14 +23,17 @@ class SI(NodoArbol):
         # REGLA 4
         if self.exp.validador_Regla4(entorno, Arbol):
             return self.traducir_regla4(entorno, arbol)
+        # REGLA 5
+        if self.exp.validador_Regla5(entorno, Arbol):
+            return self.traducir_regla5(entorno, arbol)
 
         Bv = arbol.getLabel()
         Bf = arbol.getLabel()
         validacion = str(self.exp.traducir(entorno, arbol))
-        arbol.addC3D("if " + validacion + " goto " + str(Bf))
+        arbol.addC3D("if " + validacion + " goto " + str(Bv))
+        arbol.addC3D("goto " + Bf)
         arbol.addC3D(Bv + ":")
         arbol.addIdentacion()
-        #arbol.addC3D(self.body.traducir(entorno, arbol))
         for item in self.body:
             item.traducir(entorno, arbol)
         arbol.popIdentacion()
@@ -41,7 +44,7 @@ class SI(NodoArbol):
         original = "if " + validacion + " goto " + str(Bv) + ' goto ' + str(Bf)
         optimizado = "if " + validacion + " goto " + str(Bf)
         reportero = ReporteOptimizacion('Regla 3', original, optimizado, str(self.linea), str(self.columna))
-        #arbol.
+        arbol.ReporteOptimizacion.append(reportero)
         # ----------------------------------------------------------------
         return
 
@@ -71,8 +74,25 @@ class SI(NodoArbol):
         # optimizacion ---------------------------
         # Regla no.4:
         original = "if " + validacion + " goto " + str(Bv) + ' goto ' + str(Bf)
-        optimizado = " goto " + str(Bv)
-        reportero = ReporteOptimizacion('Regla 3', original, optimizado, str(self.linea), str(self.columna))
+        optimizado = "goto " + str(Bv)
+        reportero = ReporteOptimizacion('Regla 4', original, optimizado, str(self.linea), str(self.columna))
+        arbol.ReporteOptimizacion.append(reportero)
         # ----------------------------------------------------------------
 
+        return
+
+    # Regla 5
+    def traducir_regla5(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+        Bv = arbol.getLabel()
+        Bf = arbol.getLabel()
+        validacion = str(self.exp.traducir(entorno, arbol))
+        arbol.addC3D(Bf + ":")
+
+        # optimizacion ---------------------------
+        # Regla no.5:
+        original = "if " + validacion + " goto " + str(Bv) + ' goto ' + str(Bf)
+        optimizado = "goto " + str(Bf)
+        reportero = ReporteOptimizacion('Regla 4', original, optimizado, str(self.linea), str(self.columna))
+        arbol.ReporteOptimizacion.append(reportero)
+        # ----------------------------------------------------------------
         return

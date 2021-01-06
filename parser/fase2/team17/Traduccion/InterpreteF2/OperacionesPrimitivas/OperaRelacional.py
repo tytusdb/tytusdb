@@ -44,3 +44,11 @@ class OperaRelacional(NodoArbol):
             return True
         return False
 
+    def validador_Regla5(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        if str(self.tipoOperaRelacional) == '==':
+            izquierdo:Valor = self.izq.getValueAbstract(entorno, arbol)  # <-- tiene un temporal
+            derecho:Valor = self.der.getValueAbstract(entorno, arbol)  # <-- tiene un temporal
+            if str(izquierdo.data) != str(derecho.data):
+                return True
+        return False
+

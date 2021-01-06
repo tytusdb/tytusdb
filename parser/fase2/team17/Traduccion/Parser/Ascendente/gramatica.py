@@ -1887,7 +1887,8 @@ def p_exp(t):
               | exp SIMILAR     exp
               | exp NOT         exp
               | exp IN          exp
-              | exp IGUAL       exp
+              | exp IGUALQUE exp
+              | exp IGUAL exp
               | exp MAYORQUE    exp
               | exp MENORQUE    exp
               | exp MAYORIG     exp
@@ -1957,8 +1958,10 @@ def p_exp(t):
         elif t[2]=='=':
             # exp IGUAL exp
             #t[0] = OperadoresCondicionales(t[1], t[3], "=")
-            t[0] = OperaRelacional(t[1], t[3], "=", 1, 1)
+            #t[0] = OperaRelacional(t[1], t[3], "=", 1, 1)
             pass
+        elif t[2] == '==':
+            t[0] = OperaRelacional(t[1], t[3], "==", 1, 1)
         elif t[2]=='>':
             # exp MAYORQUE exp
             t[0] = OperaRelacional(t[1], t[3], ">", 1, 1)
