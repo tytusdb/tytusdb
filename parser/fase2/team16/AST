@@ -2,44 +2,10 @@ digraph AST {
 	edge [arrowhead=none]
 	node [color="#31CEF0" shape=box]
 	Node0 [label="\"AST\""]
-	Node1 [label="CREATE DATABASE"]
+	Node1 [label=DROP_INDEX]
 	Node0 -> Node1
-	Node2 [label="Id: test2"]
+	Node2 [label=" DROP INDEX "]
 	Node1 -> Node2
-	Node3 [label="CREATE TABLE"]
-	Node0 -> Node3
-	Node4 [label="Id: tbpuesto"]
-	Node3 -> Node4
-	Node5 [label=CAMPO]
-	Node3 -> Node5
-	Node6 [label="Id: idpuesto"]
-	Node5 -> Node6
-	Node7 [label="Tipo: smallint"]
-	Node5 -> Node7
-	Node8 [label=CAMPO]
-	Node3 -> Node8
-	Node9 [label="Id: puesto"]
-	Node8 -> Node9
-	Node10 [label="Tipo: character"]
-	Node8 -> Node10
-	Node11 [label=EXPRESION]
-	Node10 -> Node11
-	12 [label=ExpresionValor]
-	12 -> 13
-	13 [label=25]
-	Node11 -> 12
-	Node14 [label=CAMPO]
-	Node3 -> Node14
-	Node15 [label="Id: salariobase"]
-	Node14 -> Node15
-	Node16 [label="Tipo: money"]
-	Node14 -> Node16
-	Node17 [label="CONSTRAINT:"]
-	Node3 -> Node17
-	Node18 [label="Valor: primary key"]
-	Node17 -> Node18
-	Node19 [label=COLUMNA]
-	Node17 -> Node19
-	Node20 [label=idpuesto]
-	Node19 -> Node20
+	Node3 [label=" ;  "]
+	Node1 -> Node3
 }

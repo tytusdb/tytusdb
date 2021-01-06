@@ -140,8 +140,19 @@ class Ast2:
             elif isinstance(i,EjecucionFuncion):
                 dot.edge(padre, str(self.i + 1))
                 self.GrafoEjecucion(i.Id, i.Parametros)
+
+#----------------------  Alter de los indices
+            elif isinstance(i,AlterIndiceCol):
+                self.Grafo_AlterIndexColumna(i,padre)
+
+            elif isinstance(i,AlterIndiceName):
+                self.Grafo_AlterIndexName(i,padre)
+
+            elif isinstance(i, DropIndice):
+                self.Grafo_DropIndex(i,padre)
             else:
                 print("No es droptable")
+
 
 
     def RecorrerTipoSelect(self, sente, padre):
@@ -3433,10 +3444,9 @@ class Ast2:
 
 
 
-
-
     def GrafoRetorno(self, Retorn, padre):
         global dot
+
         self.inc()
         nuevoPadre = self.i
         dot.node('Node' + str(self.i), "RETORNO__")
@@ -3447,3 +3457,6 @@ class Ast2:
         dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
         #--------- Recorremos retorno
         self.Recorrer_Condiciones(Retorn, 'Node' + str(self.i))
+
+
+
