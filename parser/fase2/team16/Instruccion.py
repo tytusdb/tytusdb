@@ -1786,8 +1786,8 @@ def tabla_simbolos():
                                 <TD bgcolor="#BEF781">ORDEN</TD>
                                 <TD bgcolor="#BEF781">NULLS</TD>
                                 <TD bgcolor="#BEF781">STATISTICS</TD>
-                                <TD bgcolor="#BEF781">ID INDICE</TD>
-                                <TD bgcolor="#BEF781">ID TABLA</TD>
+                                <TD bgcolor="#BEF781">ID TABLA </TD>
+                                <TD bgcolor="#BEF781">ID INDICE </TD>
                             </TR>'''
                             + cadena7 +
 

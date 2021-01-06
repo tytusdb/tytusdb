@@ -3460,3 +3460,89 @@ class Ast2:
 
 
 
+
+#---------------------------------------  alter y drop de los indices
+
+    def Grafo_AlterIndexColumna(self, objeto, padre):
+        global dot
+        ob: AlterIndiceCol = objeto
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "ALTER_INDEX_COLUMN")
+        dot.edge(padre, 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), " ALTER INDEX ")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), ob.id_indice  )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), " ALTER COLUMN " )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i), str(ob.no_col) )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc()
+        dot.node('Node' + str(self.i)," SET STATISTICS " )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i),  ob.tipo_set + " ; ")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+    def Grafo_AlterIndexName(self, objeto,padre):
+        global  dot
+        ob:AlterIndiceName = objeto
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "ALTER_INDEX_NAME")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), " ALTER INDEX " )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), ob.id_indice  )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i),  "RENAME "  )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i),  ob.new_Indice +" ;  " )
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+    def Grafo_DropIndex(self, objeto,padre):
+        global dot
+        ob: DropIndice = objeto
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DROP_INDEX")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), " DROP INDEX ")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), ob.id_indice + " ;  ")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))

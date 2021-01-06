@@ -2,10 +2,14 @@ digraph AST {
 	edge [arrowhead=none]
 	node [color="#31CEF0" shape=box]
 	Node0 [label="\"AST\""]
-	Node1 [label=DROP_INDEX]
+	Node1 [label=ALTER_INDEX_NAME]
 	Node0 -> Node1
-	Node2 [label=" DROP INDEX "]
+	Node2 [label=" ALTER INDEX "]
 	Node1 -> Node2
-	Node3 [label=" ;  "]
+	Node3 [label=idx_califica]
 	Node1 -> Node3
+	Node4 [label="RENAME "]
+	Node1 -> Node4
+	Node5 [label="id_calificacion ;  "]
+	Node1 -> Node5
 }

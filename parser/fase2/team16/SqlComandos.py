@@ -1515,4 +1515,19 @@ class SqlComandos:
 
         return cadena
 
+    def Grafo_AlterIndexColumna(self, objeto):
+        ob: AlterIndiceCol = objeto
+        Cadenita = " ALTER INDEX " + ob.id_indice + " ALTER COLUMN " + str(
+            ob.no_col) + " SET STATISTICS " + ob.tipo_set + " ; "
 
+        return Cadenita
+
+    def Grafo_AlterIndexName(self, objeto):
+        ob: AlterIndiceName = objeto
+        Cadenita = " ALTER INDEX " + ob.id_indice + " RENAME TO " + ob.new_Indice + " ;  "
+        return Cadenita
+
+    def Grafo_DropIndex(self, objeto):
+        ob: DropIndice = objeto
+        Cadenita = " DROP INDEX " + ob.id_indice + " ;  "
+        return Cadenita

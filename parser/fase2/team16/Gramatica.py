@@ -3282,8 +3282,8 @@ def p_AlterIndex(t):
 
 
 def p_AlterNameIndex(t):
-    'EDITNAMEINDEX  :  ALTER INDEX IFEXISTI ID RENAME ID PUNTOCOMA'
-    t[0]  = AlterIndiceName(t[4],t[6])
+    'EDITNAMEINDEX  :  ALTER INDEX IFEXISTI ID RENAME TO ID PUNTOCOMA'
+    t[0]  = AlterIndiceName(t[4],t[7])
 
 
 #------------- if exists
