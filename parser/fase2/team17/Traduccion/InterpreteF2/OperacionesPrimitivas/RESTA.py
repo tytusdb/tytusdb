@@ -1,9 +1,9 @@
-from Interprete.NodoAST import NodoArbol
-from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
-from Interprete.Arbol import Arbol
-from Interprete.Valor.Valor import Valor
-from Interprete.Primitivos.TIPO import TIPO
-from Interprete.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
+from InterpreteF2.NodoAST import NodoArbol
+from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
+from InterpreteF2.Arbol import Arbol
+from InterpreteF2.Valor.Valor import Valor
+from InterpreteF2.Primitivos.TIPO import TIPO
+from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 
 class RESTA(NodoArbol):
 
