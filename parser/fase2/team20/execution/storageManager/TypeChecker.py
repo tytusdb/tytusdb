@@ -194,6 +194,157 @@ def TCaddCheckTable (database: str, table: str,column:str ,value:None,op:str) ->
     else:
         return 1
 
+def TCcreateIndex (database: str, table: str,column:str,name:str ,op:str) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            else:
+                if not column in data[database][table]:
+                    return 4
+                else:
+                    if not 'INDEX' in data[database]:
+                        new = {'INDEX':[]}
+                        data[database].update(new)
+                    #new1 = {'INDEX':{'NAME':name,'TYPE':op}}
+                    #data[database][table][column].update(new1)
+                    data[database]['INDEX'].append({'COLUMN':column,'NAME':name,'TYPE':op})
+                    dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 1
+
+def TCDropIndex(database:str, index:str)->int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not 'INDEX' in data[database]:
+                return 3
+            else: 
+                n=data[database]['INDEX']
+                m=0
+                for j in n:
+                    if j['NAME']==index: 
+                        data[database]['INDEX'].pop(m)
+                        dump = True
+                    m+=1
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 4
+
+def TCAlterIndex(database:str, oldindex:str, newindex:str)->int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not 'INDEX' in data[database]:
+                return 3
+            else: 
+                n=data[database]['INDEX']
+                m=0
+                for j in n:
+                    if j['NAME']==oldindex: 
+                        data[database]['INDEX']['NAME']=newindex
+                        dump = True
+                    m+=1
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0 
+    else:
+        return 4
+
+
+def TCgetIndex(database:str,a:int)->None:
+    Array=[]
+    initCheck()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if 'INDEX' in data[database] :
+            '''for d in data[database]['INDEX']:
+                Array.append([a,str(d),data[database]['INDEX'][d],'Local'])
+                a+=1'''
+            return data[database]['INDEX']
+    return Array
+     
+def TCcreateFunction(function:str,code:str,replace:bool)->int:
+    initCheck()
+    dump = False
+    mandar= True
+    database=TCgetDatabase()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not 'FUNCTIONS' in data[database]:
+            new = {'FUNCTIONS':{}}
+            data[database].update(new)
+        if not function in data[database]['FUNCTIONS']:
+            data[database]['FUNCTIONS'].update({function:{'CODE':code}})
+            dump = True 
+        else:   
+            if replace :
+                data[database]['FUNCTIONS'].update({function:{'CODE':code}})
+                dump = True
+                mandar=False
+            else:
+                return 3
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        if mandar :
+            return 1
+        else:
+            return 2
+    else:
+        return 4 #error
+
+def TCgetFunctions()->None:
+    Array=[]
+    initCheck()
+    database=TCgetDatabase()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if 'FUNCTIONS' in data[database] :
+            for d in data[database]['FUNCTIONS']:
+                Array.append(data[database]['FUNCTIONS'][d]['CODE'])
+    return Array
+
+def TCdeleteFunction(function:str)->int:
+    initCheck()
+    dump = False
+    database=TCgetDatabase()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not function in data[database]['FUNCTIONS']:
+            return 2
+        else:
+            data[database]['FUNCTIONS'].pop(function)
+            dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 1 
+    else:
+        return 4
+
+
 def TCaddPrimaryKey (database: str, table: str,column:str,value:bool) -> int:
     initCheck()
     dump = False

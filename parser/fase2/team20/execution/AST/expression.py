@@ -22,6 +22,8 @@ class Value(Expression):
         v="'"+str(self.value)+"'"
         if self.type==1:
             v=int(str(self.value))
+        elif self.type==2:
+            v=float(str(self.value))
         return "Value("+str(self.type)+","+str(v)+")"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
@@ -66,6 +68,19 @@ class Range(Expression):
         self.value1 = value1
         self.value2 = value2
         self.type = type
+    def __repr__(self):    
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.value1)
+        val1 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.value2)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "Range("+val1+","+val2+",'"+str(self.type)+"')"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.type) + '\"]\n'
@@ -82,7 +97,19 @@ class Logical(Expression):
         self.value1 = value1
         self.value2 = value2
         self.type = type
-    
+    def __repr__(self):    
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.value1)
+        val1 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.value2)
+        val2 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "Logical("+val1+","+val2+",'"+str(self.type)+"')"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.type) + '\"]\n'
@@ -132,6 +159,8 @@ class Unary(Expression):
     def __init__(self, value, type):
         self.value = value
         self.type = type
+    def __repr__(self):
+        return "Unary("+str(self.value)+",'"+str(self.type)+"')" 
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.type) + '\"]\n'
@@ -142,6 +171,8 @@ class MathFunction(Expression):
     def __init__(self, function, expression):
         self.function = function
         self.expression = expression
+    def __repr__(self):
+        return "MathFunction('"+self.function+"',"+str(self.expression)+")" 
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
@@ -152,6 +183,9 @@ class TrigonometricFunction(Expression):
     def __init__(self, function, expression):
         self.function = function
         self.expression = expression
+    def __repr__(self):
+        
+        return "TrigonometricFunction('"+self.function+"',"+str(self.expression)+")"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
@@ -162,6 +196,14 @@ class ArgumentListFunction(Expression):
     def __init__(self, function, expressions):
         self.function = function
         self.expressions = expressions
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.expressions)
+        exp = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "ArgumentListFunction('"+self.function+"',"+str(exp)+")"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         str(hash("expressions") + hash(self)) + '\n'
@@ -175,6 +217,14 @@ class AggFunction(Expression):
     def __init__(self, function, expression):
         self.function = function
         self.expression = expression
+    def __repr__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.expressions)
+        exp = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        return "AggFunction('"+self.function+"',"+str(exp)+")"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
@@ -238,6 +288,9 @@ class Alias(Expression):
     def __init__(self, expression, alias):
         self.expression = expression
         self.alias = alias
+    def __repr__(self):
+        
+        return "Alias("+str(self.expression)+",'"+str(self.alias)+"')" 
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"AS ' + str(self.alias) + '\"]\n'
