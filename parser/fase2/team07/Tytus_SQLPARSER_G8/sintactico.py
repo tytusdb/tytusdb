@@ -72,6 +72,11 @@ def p_instrucciones_lista1(t):
 def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
     t[0] = [t[1]]
+
+def p_instrucion_exp(t):
+    '''instruccion  :   expre'''
+
+    t[0] = t[1]
     
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
