@@ -1,0 +1,14 @@
+src/ply/
+src/parser.out
+src/parsetab.py
+src/Diccionario
+**__pycache__
+src/*.sql
+env/
+src/Storage/
+data/
+__pycache__
+src/storageManager
+storageManager
+src/Reports
+.vscode/
