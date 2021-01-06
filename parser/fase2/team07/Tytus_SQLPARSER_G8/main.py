@@ -21,7 +21,7 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 from Codigo_3D import FuncionesPara3D
-from Codigo_3D import Codigo3D
+#from Codigo_3D import Codigo3D
 
 import sintactico
 
@@ -174,10 +174,10 @@ class interfaz():
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(3,\"David\");")
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("SELECT * FROM persona;")'''
 
-        c3d = Codigo3D.Codigo3D()
-        c3d.ejecutar()
+        #c3d = Codigo3D.Codigo3D()
+        #c3d.ejecutar()
         
-        self.txtsalida[self.tab.index("current")].insert(INSERT,c3d.mensaje)
+        #self.txtsalida[self.tab.index("current")].insert(INSERT,c3d.mensaje)
         pass
 
     def abrir_click(self):
