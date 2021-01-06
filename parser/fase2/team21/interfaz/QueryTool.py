@@ -211,7 +211,29 @@ class Application(ttk.Frame):
             "outer",
             "join",
             "asc",
-            "desc"
+            "desc",
+            'procedure',
+            'language',
+            'index',
+            'using',
+            'hash',
+            'constant',
+            'colate',
+            'function',
+            'returns',
+            'begin',
+            'declare',
+            'end',
+            'return',
+            'call',
+            'execute',
+            'do',
+            'loop',
+            'while',
+            'for',
+            'reverse',
+            'else',
+            'elsif'
         ]
         self.contadorN = 1
         self.Copiado = ""
