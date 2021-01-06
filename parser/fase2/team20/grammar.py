@@ -1540,10 +1540,22 @@ def p_pl_declarationtype_3(t):
     '''declarationType : ID RECORD'''
 
 #ASSIGNMENT
-def p_pl_assignment(t):
-    '''assignment : ID EQUAL expression
-                  | ID TWOPOINTS EQUAL expression'''
+def p_pl_assignmentselect(t):
+    '''assignment : ID EQUAL select'''
+    t[0] = Asignment(t[1],None,t[3])
 
+def p_pl_assignmenttpselect(t):
+    '''assignment : ID TWOPOINTS EQUAL select'''
+    t[0] = Asignment(t[1],None,t[4])
+
+def p_pl_assignmentexp(t):
+    '''assignment : ID EQUAL expression'''
+    t[0] = Asignment(t[1],t[3],None)
+
+def p_pl_assignmenttpexp(t):
+    '''assignment : ID TWOPOINTS EQUAL expression'''
+    t[0] = Asignment(t[1],t[4],None)
+    
 #STATEMENTS BLOCK
 def p_pl_statementsBlock(t):
     '''statementsBlock : BEGIN statementList  END SEMICOLON'''
@@ -1562,16 +1574,16 @@ def p_pl_statementlist_single(t):
 def p_pl_statement(t):
     '''statement : assignment SEMICOLON
                  | optDeclaration SEMICOLON
-                 | controlStructure
+                 | controlStructure SEMICOLON
                  | ddl SEMICOLON
                  | dml SEMICOLON'''
     t[0]  = t[1]
 
 #CONTROL ESTRUCTURES
 def p_pl_controlstructure(t):
-    '''controlStructure : return SEMICOLON
-                        | call SEMICOLON
-                        | excute SEMICOLON
+    '''controlStructure : return
+                        | call
+                        | excute
                         | conditionals'''
     t[0]  = t[1]
 

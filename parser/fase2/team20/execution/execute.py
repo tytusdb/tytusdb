@@ -26,6 +26,7 @@ class Execute():
     }
     def __init__(self, nodes):
         self.tempcount = -1
+        self.labelcount = -1
         self.nodes = nodes
         self.errors = []
         self.messages = []
@@ -41,6 +42,8 @@ class Execute():
             archivo.write("from execution.executeSentence import executeSentence ") 
             archivo.write("\nfrom execution.AST.sentence import *")
             archivo.write("\nfrom execution.AST.expression import *")
+            archivo.write("\nfrom goto import with_goto")
+            archivo.write("\n\n@with_goto")
             archivo.write("\ndef up():")
             archivo.write("\n\tprint(1)")
             archivo.close()
@@ -62,13 +65,14 @@ class Execute():
                     archivo.write(val1) 
                     archivo.close()
                 else:
-                    executeInstruction(self,node)
+                    executeInstruction(self,node, 1)
                 
                 #executeSentence(self,node)
                 #executeSentence2(self,node)
         archivo = open("C3D.py", 'a')
         archivo.write("\n")
-        archivo.write(self.plcode) 
+        archivo.write(self.plcode)
+        archivo.write("\nup()")
         archivo.close()
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)
@@ -81,6 +85,13 @@ class Execute():
     def getLastTemp(self):
         temp = 't'+str(self.tempcount)
         return temp
+    def generateLabel(self):
+        self.labelcount+=1
+        label = 'lbl'+str(self.labelcount)
+        return label
+    def getLastLabel(self):
+        label = 'lbl'+str(self.labelcount)
+        return label
 
 
 

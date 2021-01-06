@@ -2,12 +2,15 @@ from .AST.instruction import *
 from .AST.expression import *
 from .AST.error import * 
 
-def executeInstruction(self, instruction):
+def executeInstruction(self, instruction,indent):
     if isinstance(instruction, CreateFunction):
+        functioncode = ""
+        functionname = instruction.name
+        replace = instruction.replace
         # def alterDatabase(databaseOld: str, databaseNew) -> int:
-        if(instruction.params==None):self.plcode+="\ndef "+instruction.name+"():\n" #funcion sin parametros
+        if(instruction.params==None):functioncode+="\n@with_goto\ndef "+instruction.name+"():\n" #funcion sin parametros
         else: #funcion con parametros
-            self.plcode+="\ndef "+instruction.name+"("
+            functioncode+="\n@with_goto\ndef "+instruction.name+"("
             textparams = ""
             for param in instruction.params:#definicion de cada parametro en la lista
                 paramtype = ""
@@ -21,14 +24,14 @@ def executeInstruction(self, instruction):
                         print("Error, no existe alias para parametro sin nombre")
                     else:
                         print("parametros sin nombre hay que recolectar el nombre del alias")
-            self.plcode+= textparams[:-2]
-            if(instruction.returnValue==None):self.plcode+="):\n"# sin valor de retorno
+            functioncode+= textparams[:-2]
+            if(instruction.returnValue==None):functioncode+="):\n"# sin valor de retorno
             elif(instruction.returnValue.type != None):
                 returntype = ""
                 if(instruction.returnValue.type!="ANYELEMENT" or instruction.returnValue.type!="ANYCOMPATIBL"):
                     returntype = getType(instruction.returnValue.type[0])# se mapea el tipo
-                if(returntype==""):self.plcode+="):\n"
-                else: self.plcode+=") ->"+returntype+":\n"# se asigna el tipo a la funcion de python
+                if(returntype==""):functioncode+="):\n"
+                else: functioncode+=") ->"+returntype+":\n"# se asigna el tipo a la funcion de python
         # Body function
         if(instruction.block.declarations != None):
             # declarations
@@ -38,23 +41,81 @@ def executeInstruction(self, instruction):
                     if(instruction.returnValue.type!="ANYELEMENT" or instruction.returnValue.type!="ANYCOMPATIBL"):
                         vartype = getType(declaration.type[0])
                     if(declaration.expression == None):
-                        if(vartype==""):self.plcode+="\t"+declaration.name+"\n"
-                        else: self.plcode+="\t"+declaration.name+":"+vartype+"\n" # declaracion sin valor de la forma 'ID type;'
+                        if(vartype==""):functioncode+="\t"+declaration.name+"\n"
+                        else: functioncode+="\t"+declaration.name+":"+vartype+"\n" # declaracion sin valor de la forma 'ID type;'
                     else:
                         # executeExpressionC3D, retorna codigo de 3 direcciones de una expresion declaration.expression
-                        self.plcode+=declaration.expression.translate(self,1)
-                        if(vartype==""):self.plcode+="\t"+declaration.name+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
-                        else: self.plcode+="\t"+declaration.name+":"+vartype+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
+                        functioncode+=declaration.expression.translate(self,indent)
+                        if(vartype==""):functioncode+="\t"+declaration.name+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
+                        else: functioncode+="\t"+declaration.name+":"+vartype+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
         # statements
-        self.plcode+="\tprint(1)" 
-    elif isinstance(instruction, CreateParam):
-        print(instruction.name)
-    elif isinstance(instruction, CreateReturn):
-        print(instruction.type)
-        print(instruction.paramsTable)
-    elif isinstance(instruction, BlockFunction):
-        print(instruction.declarations)
-        print(instruction.statements)
+        for statement in instruction.block.statements:
+            if(isinstance(statement,StatementReturn)):
+                functioncode+=statement.expression.translate(self,indent)
+                functioncode+=(indent*"\t")+"return "+self.getLastTemp()+"\n"
+            elif isinstance(statement,If):
+                functioncode+=statement.expression.translate(self,indent)
+                ifcode=(indent*"\t")+"if "+self.getLastTemp()+":\n"
+                iflabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
+                ifcode+=(indent*"\t")+"\tgoto ."+self.getLastLabel()+"\n"
+                for ifstatement in statement.statements:
+                    iflabel+=executeInstruction(self,ifstatement,indent)
+                #else if list
+                elselabel=""
+                elsecode=""
+                if(statement.statementsElse != None):
+                    elselabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
+                    elsecode=(indent*"\t")+"else:\n"+(indent*"\t")+"\tgoto. "+self.getLastLabel()+"\n"
+                    for elsestatement in statement.statementsElse:
+                        elselabel+=executeInstruction(self,elsestatement,indent)
+                    elselabel+=(indent*"\t")+"label ."+self.generateLabel()+"\n"
+                    iflabel+=(indent*"\t")+"goto ."+self.getLastLabel()+"\n"
+                else:
+                    elselabel+=(indent*"\t")+"label ."+self.generateLabel()+"\n"
+                    elsecode=(indent*"\t")+"else:\n"+(indent*"\t")+"\tgoto. "+self.getLastLabel()+"\n"
+                functioncode+=ifcode+elsecode+iflabel+elselabel
+            elif isinstance(statement,Asignment):
+                if statement.expression !=None:
+                    functioncode+=statement.expression.translate(self,indent)
+                    functioncode+=(indent*"\t")+statement.name+"="+self.getLastTemp()+"\n"
+                else:
+                    functioncode += "#SelectF1"
+        if(len(instruction.block.statements)==0): functioncode+="\tprint(1)"
+        # save functioncode in TypeChecker
+        self.plcode += functioncode
+    elif(isinstance(instruction,StatementReturn)):
+        code = ""
+        code+=instruction.expression.translate(self,indent)
+        code+=(indent*"\t")+"return "+self.getLastTemp()+"\n"
+        return code
+    elif(isinstance(instruction,Asignment)):
+        code = ""
+        if instruction.expression !=None:
+            code+=instruction.expression.translate(self,indent)
+            code+=(indent*"\t")+instruction.name+"="+self.getLastTemp()+"\n"
+        else:
+            code += "#SelectF1"
+        return code
+    elif isinstance(instruction,If):
+        code = ""
+        code+=instruction.expression.translate(self,indent)
+        ifcode=(indent*"\t")+"if "+self.getLastTemp()+":\n"
+        iflabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
+        ifcode+=(indent*"\t")+"\tgoto ."+self.getLastLabel()+"\n"
+        for ifstatement in instruction.statements:
+            iflabel+=executeInstruction(self,ifstatement,indent)
+        #else if list
+        elselabel=""
+        elsecode=""
+        if(instruction.statementsElse != None):
+            elselabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
+            elsecode=(indent*"\t")+"else:\n"+(indent*"\t")+"\tgoto. "+self.getLastLabel()+"\n"
+            for elsestatement in instruction.statementsElse:
+                elselabel+=executeInstruction(self,elsestatement,indent)
+            elselabel+=(indent*"\t")+"label ."+self.generateLabel()+"\n"
+            iflabel+=(indent*"\t")+"goto ."+self.getLastLabel()+"\n"
+        code+=ifcode+elsecode+iflabel+elselabel
+        return code
     
 
 def getType(sqltype):

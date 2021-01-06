@@ -29,6 +29,7 @@ class Value(Expression):
         else: dot += str(hash(self)) + '[label=\"\'' + str(self.value) + '\'\"]\n'
         return dot
     def translate(self,opts,indent):
+        if(self.type == 3): return (indent*"\t")+opts.generateTemp()+"='"+str(self.value)+"'\n"
         return (indent*"\t")+opts.generateTemp()+"="+str(self.value)+"\n"
 
 class Arithmetic(Expression):
