@@ -206,7 +206,6 @@ reservedwords = (
     'WHEN',
     'PROCEDURE',
     'EXECUTE',
-    'DATE_PART',
 )
 
 symbols = (
@@ -1269,13 +1268,9 @@ def p_expression_aggfunctions(t):
     '''expression : COUNT BRACKET_OPEN expression BRACKET_CLOSE
                   | AVG BRACKET_OPEN expression BRACKET_CLOSE
                   | SUM BRACKET_OPEN expression BRACKET_CLOSE'''
+    t[0] = AggFunction(t[1],t[3])
     global grammarreport
-    if(t[1]=='COUNT'):
-        t[0] = CountFunction(t[1])
-        grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = CountFunction('"+t[1]+"') }\n" + grammarreport
-    else:
-        t[0] = AggFunction(t[1],t[3])
-        grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = AggFunction('"+t[1]+"',expression.val) }\n" + grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = AggFunction('"+t[1]+"',expression.val) }\n" + grammarreport
 
 #EXTRACT
 def p_expression_extractfunctions(t):
@@ -1290,13 +1285,24 @@ def p_expression_extractfunctions(t):
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = ExtractFunction('"+t[3]+"',expression.val) }\n" + grammarreport
 
-#DATE PART
-def p_expression_datepartfunctions(t):
-    '''expression : DATE_PART BRACKET_OPEN expression COMMA INTERVAL expression BRACKET_CLOSE 
-                  '''
-    t[0] = DatePartFunction(t[3],t[6])
+#CREATED FUNCTIONS
+def p_expression_createdfunctions(t):
+    '''expression : ID BRACKET_OPEN expressionList BRACKET_CLOSE'''
+    t[0] = CreatedFunction(t[1],t[3])
     global grammarreport
-    grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = DatePartFunction(expression.val,expression.val) }\n" + grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expressionList> ')' { expression.val = CreatedFunction('"+t[1]+"',expressionList.val) }\n" + grammarreport
+
+#SELECT
+def p_expression_selectfunctions(t):
+    '''expression : BRACKET_OPEN select BRACKET_CLOSE'''
+    t[0] = SelectFunction(t[2])
+    global grammarreport
+    grammarreport = "<expression> ::= SELECT '(' <expressionList> ')' { expression.val = SelectFunction('SELECT',expression.val) }\n" + grammarreport
+def p_expression_selectfunctions_(t):
+    '''expression : select'''
+    t[0] = SelectFunction(t[1])
+    global grammarreport
+    grammarreport = "<expression> ::= SELECT '(' <expressionList> ')' { expression.val = SelectFunction('SELECT',expression.val) }\n" + grammarreport
 
 #VALUES
 def p_expression_int(t):
@@ -1622,7 +1628,7 @@ def p_pl_controlstructure_excuteempty(t):
 
 #CONDITIONALS
 def p_pl_controlstructure_conditionals(t):
-    '''conditionals : if
+    '''conditionals : if SEMICOLON
                     | case'''
     t[0]  = t[1]
 
