@@ -1,8 +1,9 @@
 import hashlib
+from datetime import date
 from InstruccionesDGA import tabla as ts
 import tablaDGA as TAS
 import InstruccionesDGA as dga
-from Interfaz import lista
+#from Interfaz import lista
 funciones = []
 
 class pl():
@@ -237,6 +238,53 @@ class expre(pl):
     def traducir(self):
         return self.exp.traducir()
 
+class llamadaP(pl):
+    def __init__(self,id,lparams) -> None:
+        self.id = id
+        self.lparams = lparams
+
+    def traducir(self):
+        c3d = ''
+        contadorP = 0
+        for expresion in self.lparams:
+            trad = expresion.traducir()
+            c3d += trad[0] +'\n'
+            c3d += 'pila['+contadorP+'] = '+trad[1]
+            contadorP +=1
+
+
+
+        c3d += self.id+'()\n'
+
+        return c3d
+    
+    def c3d():
+        return '\n'
+
+class llamadaF(pl):
+    def __init__(self,id,lparams) -> None:
+        self.id = id
+        self.lparams = lparams
+
+    def traducir(self):
+        c3d = ''
+        contadorP = 0
+        for expresion in self.lparams:
+            trad = expresion.traducir()
+            c3d += trad[0] +'\n'
+            c3d += 'pila['+contadorP+'] = '+trad[1]
+            contadorP +=1
+
+
+
+        c3d += self.id+'()\n'
+        valor = 'pila[10]'
+        return c3d,valor,0
+    
+    def c3d():
+        return '\n'
+    
+
 class createfunc(pl):
     def __init__(self,id,lparams,returntype,block) -> None:
         self.id = id
@@ -445,6 +493,7 @@ class searched_case(instruccion):
 
 class iff(instruccion):
     def __init__(self,condition,instrucciones,elsif,els) -> None:
+    
         self.condition = condition
         self.instrucciones = instrucciones
         self.elsif = elsif
@@ -727,7 +776,8 @@ class exp_mayorp(expresion):
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
-        res = res1 > res2
+        #res = res1 > res2
+        res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'>')
         #print(codigo,valor)
         return codigo,valor,res
@@ -752,7 +802,8 @@ class exp_menorp(expresion):
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
-        res = res1 < res2
+        #res = res1 < res2
+        res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'<')
         #print(codigo,valor)
         return codigo,valor,res
@@ -777,7 +828,8 @@ class exp_igualp(expresion):
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
-        res = res1 == res2
+        #res = res1 == res2
+        res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'==')
         #print(codigo,valor)
         return codigo,valor,res
@@ -802,7 +854,8 @@ class exp_mayor_igualp(expresion):
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
-        res = res1 >= res2
+        #res = res1 >= res2
+        res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'>=')
         #print(codigo,valor)
         return codigo,valor,res
@@ -827,7 +880,8 @@ class exp_menor_igualp(expresion):
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
-        res = res1 <= res2
+        #res = res1 <= res2
+        #True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'<=')
         #print(codigo,valor)
         return codigo,valor,res
@@ -852,7 +906,8 @@ class exp_diferentep(expresion):
         c3df += f'\n{tmpf} \n'
         codigo = c3df 
         valor = tmp
-        res = res1 != res2
+        #res = res1 != res2
+        res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'!=')
         #print(codigo,valor)
         return codigo,valor,res

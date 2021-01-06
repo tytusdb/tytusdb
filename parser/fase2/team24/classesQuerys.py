@@ -7,7 +7,6 @@ import storage as s
 from enum import Enum
 import InstruccionesDGA as dga
 import mathtrig as mt
-import main
 import prettytable as pt
 import reportError as errores
 from reportError import CError

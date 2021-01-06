@@ -457,6 +457,17 @@ class CreateIndex(query):
         self.id2 = id2
         self.listaid = listaid
 
+class CreateIndexLow(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,tipo, id1, id2, listaid):
+        self.tipo = tipo
+        self.id1 = id1
+        self.id2 = id2
+        self.listaid = listaid
+
 class CreateIndexParams(query):
     '''
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
@@ -494,6 +505,34 @@ class CreateIndexParamsWhere(query):
         self.id3 = id3
         self.indexParams = indexParams
         self.whereOptions = whereOptions
+
+
+
+class AlterIndex(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1, id2):
+        self.id1 = id1
+        self.id2 = id2
+
+class AlterColumnIndex(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1, id2):
+        self.id1 = id1
+        self.id2 = id2
+
+class DropIndex(query):
+    '''
+        Esta clase representa la posible variante de ADD que venta luego del Alter Table
+        Recibe como parametro el contenido de expresiones extras de la variante de ADD
+    '''
+    def __init__(self,id1):
+        self.id1 = id1
 
 class execFunction(query):
     '''

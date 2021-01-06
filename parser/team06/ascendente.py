@@ -85,6 +85,7 @@ def procesar_showdb(query,ts):
         return h.textosalida
 
 def procesar_createindex(query,ts):
+    parametro = []
     print("TIPO:",query.tipo)
     print(query.id1)
     print(query.id2)
@@ -93,28 +94,55 @@ def procesar_createindex(query,ts):
     idIndex = query.id1
     idTabla = query.id2
     ids = query.listaid
-        
+    for val in ids:
+        parametro.append(val.id)
+    print(parametro)
     
     verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,parametro)
+    verificacionColumna = ts.obtenerColumnaIndex(verificacionTabla,h.bd_enuso,parametro)
     if verificacion == 0:
-        simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,ids,None,None,None,tipo,None,None,None)
-        ts.agregarnuevoIndex(simbolo)
-        print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
-        h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
-    elif verificacion == 2:
-        h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
-        return "No hay una BD en uso"
-    elif verificacion == 3:
-        h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
-        return "La tabla donde quiere crear el indice no existe"
-    elif verificacion == 4:
-        h.textosalida+="TYTUS>> No se puede crear no hay tablas ni bd existentes"+ "\n"
-        return "No se puede crear no hay tablas ni bd existentes"
+        if verificacionColumna == 0:
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,parametro,None,None,None,tipo,None,None,None)
+            ts.agregarnuevoIndex(simbolo)
+            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+        else:
+            h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> Ya existe el indice"+ "\n"
-        return "Ya existe el indice"
+        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 
+
+def procesar_createindexlow(query,ts):
+    print("TIPO:",query.tipo)
+    print(query.id1)
+    print(query.id2)
+    print(query.listaid.sort)
+    print(query.listaid.option)
+    tipo = query.tipo
+    idIndex = query.id1
+    idTabla = query.id2
+    idColumn = query.listaid.option
+    idSort = query.listaid.sort
+    
+    verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,idColumn)
+    verificacionColumna = ts.obtenerColumnaUnicaIndex(verificacionTabla,h.bd_enuso,idColumn)
+    if verificacion == 0:
+        if verificacionColumna == 0:
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,idSort,None,None)
+            ts.agregarnuevoIndex(simbolo)
+            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+        else:
+            h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
+    else:
+        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 def procesar_createindexParams(query,ts):
     print("TIPO:",query.tipo)
@@ -128,30 +156,31 @@ def procesar_createindexParams(query,ts):
     idColumn = query.id3
     idParams = query.indexParams
     verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,idColumn)
+    verificacionColumna = ts.obtenerColumnaUnicaIndex(verificacionTabla,h.bd_enuso,idColumn)
     if verificacion == 0:
-        if isinstance(idParams,SortOptions):
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,[idParams.sort,idParams.option],None,None)
-            ts.agregarnuevoIndex(simbolo)
-            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
-            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+        if verificacionColumna == 0:
+            if isinstance(idParams,SortOptions):
+                simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,[idParams.sort,idParams.option],None,None)
+                ts.agregarnuevoIndex(simbolo)
+                print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+                h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+            else:
+                simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,idParams,None,None)
+                ts.agregarnuevoIndex(simbolo)
+                print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+                h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
         else:
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,idParams,None,None)
-            ts.agregarnuevoIndex(simbolo)
-            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
-            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
-    elif verificacion == 2:
-        h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
-        return "No hay una BD en uso"
-    elif verificacion == 3:
-        h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
-        return "La tabla donde quiere crear el indice no existe"
+            h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> Ya existe el indice"+ "\n"
-        return "Ya existe el indice"
+        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 
 
 def procesar_createindexWhere(query,ts):
+    parametro = []
     print(query.tipo)
     print(query.id1)
     print(query.id2)
@@ -160,23 +189,27 @@ def procesar_createindexWhere(query,ts):
     tipo = query.tipo
     idIndex = query.id1
     idTabla = query.id2
-    ids = query.id3    
+    ids = query.id3
+    for val in ids:
+        parametro.append(val.id)
+    print(parametro)    
 
     verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,parametro)
+    verificacionColumna = ts.obtenerColumnaIndex(verificacionTabla,h.bd_enuso,parametro)
     if verificacion == 0:
-        simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,ids,None,None,None,tipo,None,None,None)
-        ts.agregarnuevoIndex(simbolo)
-        print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
-        h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
-    elif verificacion == 2:
-        h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
-        return "No hay una BD en uso"
-    elif verificacion == 3:
-        h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
-        return "La tabla donde quiere crear el indice no existe"
+        if verificacionColumna == 0:
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,parametro,None,None,None,tipo,None,None,None)
+            ts.agregarnuevoIndex(simbolo)
+            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+        else:
+            h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> Ya existe el indice"+ "\n"
-        return "Ya existe el indice"
+        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
+
 
 def procesar_createindexParamsWhere(query,ts):
     print(query.tipo)
@@ -193,26 +226,78 @@ def procesar_createindexParamsWhere(query,ts):
     tipo = query.tipo
 
     verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
+    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,idColumn)
+    verificacionColumna = ts.obtenerColumnaUnicaIndex(verificacionTabla,h.bd_enuso,idColumn)
     if verificacion == 0:
-        if isinstance(idParams,SortOptions):
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,[idParams.sort,idParams.option],None,None)
-            ts.agregarnuevoIndex(simbolo)
-            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
-            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+        if verificacionColumna == 0:            
+            if isinstance(idParams,SortOptions):
+                simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,[idParams.sort,idParams.option],None,None)
+                ts.agregarnuevoIndex(simbolo)
+                print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+                h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
+            else:
+                simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,idParams,None,None)
+                ts.agregarnuevoIndex(simbolo)
+                print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
+                h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
         else:
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,idParams,None,None)
-            ts.agregarnuevoIndex(simbolo)
-            print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
-            h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
-    elif verificacion == 2:
-        h.textosalida+="TYTUS>> No hay una BD en uso"+ "\n"
-        return "No hay una BD en uso"
-    elif verificacion == 3:
-        h.textosalida+="TYTUS>> La tabla donde quiere crear el indice no existe"+ "\n"
-        return "La tabla donde quiere crear el indice no existe"
+            h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> Ya existe el indice"+ "\n"
-        return "Ya existe el indice"
+        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
+
+def procesar_alterindex(query,ts):
+    print("INDEX",query.id1)
+    old = query.id1
+    print("ALTER:",query.id2)
+    new = query.id2
+    verificacion = ts.verificacionAlterIndex(old,h.bd_enuso)
+    verificacion2 = ts.verificacionAlterIndex(new,h.bd_enuso)
+    if verificacion==1:
+        if verificacion2 == 0:
+            ts.actualizarAlterIndex(old,new,h.bd_enuso)
+            h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(old) + " por " +str(new) + "\n"
+            return "se actualizo la bd: "+str(old) + "por" +str(new)
+        elif verificacion2 == 1:
+            h.textosalida+="TYTUS>> " + "La BD "+str(old)+" ya existe en memoria dinamica, elija otro nombre por favor" + "\n"
+    elif verificacion==0:
+        h.textosalida+="TYTUS>> " +str(old) + " No se encontro ningun index con ese nombre" + "\n"
+        return "No se encontro ninguna base de datos con ese nombre"
+
+
+def procesar_altercolumnindex(query,ts):
+    index = query.id1
+    print("INDEX: ",index)
+    column = query.id2
+    print("COLUMN: ",column)
+    if isinstance(column,ExpresionNumero):        
+        verificacion_Tabla = ts.verificacionAlterColumnIndex(index,h.bd_enuso,column.id)
+        verificacion = ts.obtenerTablasIndex(verificacion_Tabla,h.bd_enuso,column.id)
+    elif isinstance(column,ExpresionIdentificador):
+        verificacion_Tabla = ts.verificacionAlterStringColumIndex(index,h.bd_enuso,column.id)
+        verificacion = ts.obtenerTablasStringIndex(verificacion_Tabla,h.bd_enuso,column.id)
+    if verificacion!=0:        
+        ts.actualizarAlterColumnIndex(index,verificacion,h.bd_enuso)
+        h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(index) + " por " +str(verificacion) + "\n"
+        return "se actualizo la bd: "+str(index) + "por" +str(verificacion)
+    elif verificacion==0:
+        h.textosalida+="TYTUS>> " +str(index) + " No se encontro ningun index con ese nombre" + "\n"
+        return "No se encontro ninguna base de datos con ese nombre"
+
+
+
+def procesar_dropindex(query,ts):
+    print("INDEX",query.id1)
+    index = query.id1
+    verificacion = ts.verificacionAlterIndex(index,h.bd_enuso)
+    if verificacion==1:
+        ts.deleteAlterIndex(index,h.bd_enuso)
+        h.textosalida+="TYTUS>> "+"se elimino el index: "+str(index) + "\n"
+        return "se elimino el index: "+str(index)
+    elif verificacion==0:
+        h.textosalida+="TYTUS>> " +str(index) + " No se encontro ningun index con ese nombre" + "\n"
+        return "No se encontro ninguna base de datos con ese nombre"
 
 def procesar_execFunction(query,ts):
     print(query.id1)
@@ -3714,9 +3799,13 @@ def procesar_queries(queries, ts) :
         elif isinstance(query, Select5) : procesar_select_Tipo5(query, ts)
         elif isinstance(query, CreateDatabases) : procesar_createdb(query, ts)
         elif isinstance(query, CreateIndex) : procesar_createindex(query, ts)
+        elif isinstance(query, CreateIndexLow) : procesar_createindexlow(query, ts)
         elif isinstance(query, CreateIndexParams) : procesar_createindexParams(query, ts)
         elif isinstance(query, CreateIndexWhere) : procesar_createindexWhere(query, ts)
         elif isinstance(query, CreateIndexParamsWhere) : procesar_createindexParamsWhere(query, ts)
+        elif isinstance(query, AlterIndex) : procesar_alterindex(query, ts)
+        elif isinstance(query, AlterColumnIndex) : procesar_altercolumnindex(query, ts)
+        elif isinstance(query, DropIndex) : procesar_dropindex(query, ts)
         elif isinstance(query, Create_IF_Databases) : procesar_create_if_db(query, ts)
         elif isinstance(query, Create_Replace_Databases) : procesar_create_replace_db(query, ts)
         elif isinstance(query, Create_Replace_IF_Databases) : procesar_create_replace_if_db(query, ts)

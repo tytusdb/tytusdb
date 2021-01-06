@@ -17,6 +17,9 @@ repGrammar = []
 count_ins = 0
 entrada = ''
 
+syntax_errors = list()
+PostgreSQL = list()
+
 precedence = (
     ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
     ("right", "R_NOT"),
@@ -59,6 +62,7 @@ from analizer.statement.pl.declaration import Declaration
 from analizer.statement.pl.procedure import Procedure
 from analizer.statement.pl.function import Function
 from analizer.statement.pl.index import Index, dropIndex, alterIndex
+import analizer.symbol.c3dSymbols as SymbolTable
 
 def p_init(t):
     """init : stmtList"""
@@ -2184,8 +2188,7 @@ def p_useStmt(t):
 # endregion
 
 
-syntax_errors = list()
-PostgreSQL = list()
+
 
 
 def p_error(t):
@@ -2257,6 +2260,7 @@ def parserTo3D(input)-> None:
     instruction.semanticErrors = list()
     lexer.lineno = 1
     instancia_codigo3d.restart()
+    SymbolTable.symbolTable.clear()
     parser.parse(input)
 
 
@@ -2337,8 +2341,45 @@ def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
 
 # PARA PROBAR LA GENERACION DE CODIGO 3D
 
-'''parserTo3D("""
+# parserTo3D("""
 
-""")
-print("\n---------------- SALIDA: -----------------")
-instancia_codigo3d.showCode()'''
+# CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
+# DECLARE
+#     nomnbre varchar:='test';
+#     absolute integer:=abs(-52);
+#     numero integer=-5;
+#     indice integer:=5;
+#     final integer=numero*5;
+
+# BEGIN
+
+
+
+
+# IF 9 > 0  and 9+5 = 14 THEN
+#     RETURN final;
+
+
+# elseif 97 = 90 then
+#    return 0;
+
+
+# elseif 99 = 90 then
+#    return 80;
+
+
+# elseif 100 = 100 then
+#    return 100;
+   
+# else
+#     return 60;
+
+
+# END IF;
+# END;
+# $$ LANGUAGE plpgsql;
+
+
+# """)
+# print("\n---------------- SALIDA: -----------------")
+# instancia_codigo3d.showCode()

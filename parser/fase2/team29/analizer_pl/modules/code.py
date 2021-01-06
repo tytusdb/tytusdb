@@ -8,6 +8,7 @@ from analizer_pl.C3D.operations import return_
 from analizer_pl.C3D.operations import if_stmt
 from analizer_pl.C3D.operations import else_stmt
 from analizer_pl.C3D.operations import elseif_stmt
+from analizer_pl.C3D.operations import func_call
 from analizer_pl.sql_statement.create import create_database
 from analizer_pl.sql_statement.create import create_index
 from analizer_pl.sql_statement.create import create_table
@@ -46,8 +47,8 @@ def Block(function, declaration, blocks, exception, label, row, column):
     return block.Block(function, declaration, blocks, exception, label, row, column)
 
 
-def FunctionDeclaration(id, params, returns, row, column):
-    return function.FunctionDeclaration(id, params, returns, row, column)
+def FunctionDeclaration(proc, id, params, returns, row, column):
+    return function.FunctionDeclaration(proc, id, params, returns, row, column)
 
 
 def Case(expBool, blockStmt, elseCase, elseStmt, row, column):
@@ -116,3 +117,7 @@ def ShowDataBase(like, row, column):
 
 def Truncate(name, row, column):
     return truncate_.Truncate(name, row, column)
+
+
+def FunctionCall(id, params, isBlock, temp, row, column):
+    return func_call.FunctionCall(id, params, isBlock, temp, row, column)
