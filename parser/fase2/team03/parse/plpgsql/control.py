@@ -16,8 +16,8 @@ class IfNode(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        self.generate(table, [])
-        return f'If node not executable, generating three address code...'
+        #self.generate(table, [])
+        #return f'If node not executable, generating three address code...'
     
     def generate(self, table, tree):
         # 1 instance a list for TACS
@@ -50,7 +50,7 @@ class IfNode(ASTNode):
         if isinstance(self.elif_block, IfNode):
             self.elif_block.generate(table, tac_elif_block)#take Quedruple for Ln value
 
-        if isinstance(self.else_block, IfNode):
+        if isinstance(self.else_block, ElseNode):
             self.else_block.generate(table, tac_else_block)#take Quedruple for Ln value
 
         tree += tac_if_cond
@@ -78,7 +78,7 @@ class ElseNode(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        self.generate(table, [])
+        #self.generate(table, [])
         return f'Else node not executable.'
     
     def generate(self, table, tree):

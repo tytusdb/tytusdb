@@ -139,14 +139,14 @@ class Quadruple(object):
             return f'label.{self.arg1}'
         elif self.instType == OpTAC.CONDITIONAL:
             oper = self.op.strSymbol() if self.op else ''
-            ar2 = self.arg2 if self.arg2 else ''
-            return f'if {self.arg1} {oper} {ar2}:\n{getFileTab()}goto.{self.res}'
+            ar2 = self.arg2 if self.arg2 else ''            
+            return f'if {self.arg1} {oper} {ar2}: goto.{self.res}'
         elif self.instType == OpTAC.POP:
             return f'{self.res} = pop()'
         elif self.instType == OpTAC.PUSH:
-            pass
+            return f'push({self.arg1})'
         elif self.instType == OpTAC.CALL:
-            pass
+            return f'ExecuteSQL({self.res})'
 
 #This Funtion will unquewe each TAC (Quadruplees) from param list, aply each rule for each TAC and push that TAC to reslut
 # Ohh and save a log for wich rule was applied
@@ -210,11 +210,13 @@ def strTAC_pySyntax(quadL: list, ntabs):
     for i in range(ntabs):
         tabs+= getFileTab()
     for q in quadL:
+        tacstr = q.strpy()
+        tacstr = tacstr.replace(getFileTab(),f'{getFileTab()}{tabs}')
         r+= f'{tabs}{q.strpy()}\n'
     return r    
 
 def getHeader():
-    return f'from from goto import with_goto\nfrom wrapper import *\n\n@with_goto\ndef all_code():\n'
+    return f'from goto import with_goto\nfrom wrapper import *\n\n@with_goto\ndef all_code():\n'
 
 def getFooter():
     return f'all_code()\nreport_stored_st()\n'
@@ -223,12 +225,12 @@ def getFileTab():
     return '    '
 
 def getPlpgFolder():    
-    if not os.path.exists('data'):
-        os.makedirs('data')
+    if not os.path.exists('data'): os.makedirs('data')
     if not os.path.exists('data/plpgObj'):
         os.makedirs('data/plpgObj')
     
-    return 'data/plpgObj/'
+    #return 'data/plpgObj/'#comment to use the root
+    return ''
 def getParamNameFormat():
     return '___sys_param_'
 #Takes a list of Quadrupes (TAC) aply optimization rules

@@ -74,6 +74,8 @@ class FunctionBody(ASTNode):
     def generate(self, table, tree):
         tac_declaraciones = []
         tac_sentancias = []
+        tac_return = []
+        tec_exception = []
         if isinstance(self.var_declara, list): 
             for d in self.var_declara:
                 d.generate(table, tac_declaraciones)
@@ -83,12 +85,13 @@ class FunctionBody(ASTNode):
                 s.generate(table, tac_sentancias)
 
         #TODO: Implement this.
-        #self.func_exception.generate(self, table, tree)
-        #self.func_return.generate(self, table, tree)
+        #self.func_exception.generate(table, tree)
+        self.func_return.generate(table, tac_return)
         #union all TAC arrarys
         ##tree = tree + tac_declaraciones + tac_sentancias this not work by ref ue extend() instead
         tree.extend(tac_declaraciones)
         tree.extend(tac_sentancias)
+        tree.extend(tac_return)
 
 class Parameter(ASTNode):
     def __init__(self, param_name, param_mode, param_type, line, column, graph_ref):
@@ -131,6 +134,26 @@ class ParamMode(ASTNode):
         super().generate(table, tree)
         return self.val.upper()
 
+
+class Return(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp      
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        #self.generate(table, tree)
+        return self.exp.execute(table, tree)
+    
+    def generate(self, table, tree):
+        last_tac = self.exp.generate(table, tree)
+        pushID = Quadruple(None, '0', None, None, OpTAC.PUSH)#push zero value for ndicate to caller that the next value in stack is returned vaue
+        push = Quadruple(None, last_tac.res if(isinstance(last_tac,Quadruple)) else last_tac, None, None, OpTAC.PUSH)
+        gotoExit = Quadruple(None, 'exit', None, None, OpTAC.GOTO)
+        tree.append(pushID)
+        tree.append(push)
+        tree.append(gotoExit)
 
 
 class Parameters(ASTNode):

@@ -20,8 +20,8 @@ class Declaration(ASTNode):
 
     def execute(self, table, tree):# this execute must return tac list
         super().execute(table, tree)
-        self.generate(table, tree)
-        return f'{self.name} declared'
+        #self.generate(table, tree)
+        #return f'{self.name} declared'
     #for this test tree will contains the thre address code list
     #pay atention in the order to call genrate function for each childnode because it will affect the TAC list (order of eleents)
     def generate(self, table, tree):  
