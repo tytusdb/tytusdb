@@ -1,22 +1,25 @@
 from InstruccionesDGA import tabla 
+from datetime import date
 from InstruccionesDGA import cont 
 from InstruccionesDGA import NombreDB
 from tablaDGA import *
 from sql import * 
+import mathtrig as mt
 #Funcion sql.execute
 
 pila = []
 for i in range(100):
-    x.append(i)
+    pila.append(i)
 
 def ejecutar(): 
-	id_db = id_db(NombreDB)
-	NuevoSimbolo = Simbolo(cont,myFuncion,TIPO.FUNCTION,id_db)
+	n_db = tabla.id_db(NombreDB)
+	NuevoSimbolo = Simbolo(cont,myFuncion,TIPO.FUNCTION,n_db)
 	cont+=1
 
-	tabla.modificar_valor(res, t17)
-	tabla.modificar_valor(color, t18)
-	tabla.modificar_valor(res, t36)
+	tabla.modificar_valor(res, t15)
+	tabla.modificar_valor(color, t16)
+	tabla.modificar_valor(identificador, today.strftime("%Y-%m-%d %H:%M:%S"))
+	tabla.modificar_valor(res, t25)
 
 def myFuncion():
 	
@@ -42,20 +45,26 @@ def myFuncion():
 		t16 = positive
 		color = t16
 		
+	else:
+		
+		today = date.today()
+		identificador = today.strftime("%Y-%m-%d %H:%M:%S")
+		
 	
-	t19 = 9
-	t20 = 8
-	t21 = t19 + t20
-	t22 = 7
-	t23 = t21 - t22
-	t24 = 6
-	t25 = t23 * t24
-	t26 = 5
-	t27 = t25 / t26
+	t17 = 9
+	t18 = 8
+	t19 = t17 + t18
+	t20 = 7
+	t21 = t19 - t20
+	t22 = 6
+	t23 = t21 * t22
+	t24 = 5
+	t25 = t23 / t24
 	
-	res = t27
+	res = t25
 	
-	t37 = texto
+	t26 = texto
 	
-	pila[10] = t37
+	pila[10] = t26
 	
+ejecutar() 

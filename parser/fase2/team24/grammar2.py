@@ -2046,33 +2046,33 @@ def p_mathn(t):
 		| SETSEED PARA  newexp PARC    
 
     '''
-    if t[1].lower() == 'abs' : t[0] =  math_abs(t[3],None)
-    elif t[1].lower() == 'cbrt' : t[0] =  math_cbrt(t[3],None)
-    elif t[1].lower() == 'ceil' : t[0] =  math_ceil(t[3],None)
-    elif t[1].lower() == 'ceiling' : t[0] =  math_ceil(t[3],None)
-    elif t[1].lower() == 'div' : t[0] =  math_div(t[3],t[5],None)
-    elif t[1].lower() == 'exp' : t[0] =  math_exp(t[3],None)
-    elif t[1].lower() == 'factorial' : t[0] =  math_factorial(t[3],None)
-    elif t[1].lower() == 'floor' : t[0] =  math_floor(t[3],None)
-    elif t[1].lower() == 'gcd' : t[0] =  math_gcd(t[3],t[5],None)
-    elif t[1].lower() == 'lcm' : t[0] =  math_lcm(t[3],t[5],None)
-    elif t[1].lower() == 'ln' : t[0] =  math_ln(t[3],None)
-    elif t[1].lower() == 'log' : t[0] =  math_log(t[3],t[5],None)
-    elif t[1].lower() == 'log10' : t[0] =  math_log10(t[3],None)
-    elif t[1].lower() == 'min_scale' : t[0] =  math_min_scale(t[3],None)
-    elif t[1].lower() == 'mod' : t[0] =  math_mod(t[3],t[5],None)
-    elif t[1].lower() == 'pi' : t[0] =  math_pi(None)
-    elif t[1].lower() == 'power' : t[0] =  math_power(t[3],t[5],None)
-    elif t[1].lower() == 'radians' : t[0] =  math_radians(t[3],None)
-    elif t[1].lower() == 'round' : t[0] =  math_round(t[3],None)
-    elif t[1].lower() == 'scale' : t[0] =  math_scale(t[3],None)
-    elif t[1].lower() == 'sign' : t[0] =  math_sign(t[3],None)
-    elif t[1].lower() == 'sqrt' : t[0] =  math_sqrt(t[3],None)
-    elif t[1].lower() == 'trim_scale' : t[0] =  math_trim_scale(t[3],None)
-    elif t[1].lower() == 'trunc' : t[0] =  math_trunc(t[3],None)
-    elif t[1].lower() == 'width_bucket' : t[0] =  math_widthBucket(t[3],t[5],t[7],t[9],None)
-    elif t[1].lower() == 'random' : t[0] =  math_random(None)
-    elif t[1].lower() == 'setseed' : t[0] =  math_setseed(t[3],None)
+    if t[1].lower() == 'abs' : t[0] =  math_absp(t[3],None)
+    elif t[1].lower() == 'cbrt' : t[0] =  math_cbrtp(t[3],None)
+    elif t[1].lower() == 'ceil' : t[0] =  math_ceilp(t[3],None)
+    elif t[1].lower() == 'ceiling' : t[0] =  math_ceilp(t[3],None)
+    elif t[1].lower() == 'div' : t[0] =  math_divp(t[3],t[5],None)
+    elif t[1].lower() == 'exp' : t[0] =  math_expp(t[3],None)
+    elif t[1].lower() == 'factorial' : t[0] =  math_factorialp(t[3],None)
+    elif t[1].lower() == 'floor' : t[0] =  math_floorp(t[3],None)
+    elif t[1].lower() == 'gcd' : t[0] =  math_gcdp(t[3],t[5],None)
+    elif t[1].lower() == 'lcm' : t[0] =  math_lcmp(t[3],t[5],None)
+    elif t[1].lower() == 'ln' : t[0] =  math_lnp(t[3],None)
+    elif t[1].lower() == 'log' : t[0] =  math_logp(t[3],t[5],None)
+    elif t[1].lower() == 'log10' : t[0] =  math_log10p(t[3],None)
+    elif t[1].lower() == 'min_scale' : t[0] =  math_min_scalep(t[3],None)
+    elif t[1].lower() == 'mod' : t[0] =  math_modp(t[3],t[5],None)
+    elif t[1].lower() == 'pi' : t[0] =  math_pip(None)
+    elif t[1].lower() == 'power' : t[0] =  math_powerp(t[3],t[5],None)
+    elif t[1].lower() == 'radians' : t[0] =  math_radiansp(t[3],None)
+    elif t[1].lower() == 'round' : t[0] =  math_roundp(t[3],None)
+    elif t[1].lower() == 'scale' : t[0] =  math_scalep(t[3],None)
+    elif t[1].lower() == 'sign' : t[0] =  math_signp(t[3],None)
+    elif t[1].lower() == 'sqrt' : t[0] =  math_sqrtp(t[3],None)
+    elif t[1].lower() == 'trim_scale' : t[0] =  math_trim_scalep(t[3],None)
+    elif t[1].lower() == 'trunc' : t[0] =  math_truncp(t[3],None)
+    elif t[1].lower() == 'width_bucket' : t[0] =  math_widthBucketp(t[3],t[5],t[7],t[9],None)
+    elif t[1].lower() == 'random' : t[0] =  math_randomp(None)
+    elif t[1].lower() == 'setseed' : t[0] =  math_setseedp(t[3],None)
 
 def p_trign(t):
     '''
@@ -2099,26 +2099,50 @@ def p_trign(t):
 		| ACOSH PARA newexp PARC
 		| ATANH PARA newexp PARC
     '''
+    if t[1].lower() == 'acos' : t[0] =  trig_acosp(t[3],None)
+    elif t[1].lower() == 'acosd' : t[0] =  trig_acosdp(t[3],None)
+    elif t[1].lower() == 'asin' : t[0] =  trig_asinp(t[3],None)
+    elif t[1].lower() == 'asind' : t[0] =  trig_asindp(t[3],None)
+    elif t[1].lower() == 'atan' : t[0] =  trig_atanp(t[3],None)
+    elif t[1].lower() == 'atand' : t[0] =  trig_atandp(t[3],None)
+    elif t[1].lower() == 'atan2' : t[0] =  trig_atan2p(t[3],t[5],None)
+    elif t[1].lower() == 'atan2d' : t[0] =  trig_atan2dp(t[3],t[5],None)
+    elif t[1].lower() == 'cos' : t[0] =  trig_cosp(t[3],None)
+    elif t[1].lower() == 'cosd' : t[0] =  trig_cosdp(t[3],None)
+    elif t[1].lower() == 'cot' : t[0] =  trig_cotp(t[3],None)
+    elif t[1].lower() == 'cotd' : t[0] =  trig_cotdp(t[3],None)
+    elif t[1].lower() == 'sin' : t[0] =  trig_sinp(t[3],None)
+    elif t[1].lower() == 'sind' : t[0] =  trig_sindp(t[3],None)
+    elif t[1].lower() == 'tan' : t[0] =  trig_tanp(t[3],None)
+    elif t[1].lower() == 'tand' : t[0] =  trig_tandp(t[3],None)
+    elif t[1].lower() == 'sinh' : t[0] =  trig_sinhp(t[3],None)
+    elif t[1].lower() == 'cosh' : t[0] =  trig_coshp(t[3],None)
+    elif t[1].lower() == 'tanh' : t[0] =  trig_tanhp(t[3],None)
+    elif t[1].lower() == 'asinh' : t[0] =  trig_asinhp(t[3],None)
+    elif t[1].lower() == 'acosh' : t[0] =  trig_acoshp(t[3],None)
+    elif t[1].lower() == 'atanh' : t[0] =  trig_atanhp(t[3],None)
 
 def p_funcn(t):
     '''
-        funcn : SUM PARA newexp PARC
-                | AVG PARA newexp PARC
-                | MAX PARA newexp PARC
-                | MIN PARA newexp PARC
-                | COUNT PARA newexp PARC
-                | LENGTH PARA newexp PARC
+        funcn :  LENGTH PARA newexp PARC
                 | SUBSTRING PARA newexp COMA INT COMA INT PARC
                 | TRIM PARA newexp PARC
                 | MD5 PARA newexp PARC
                 | SHA256 PARA newexp PARC
                 | SUBSTR PARA newexp COMA INT COMA INT PARC
                 | CONVERT PARA newexp AS type PARC
-                | GREATEST PARA nlexps PARC
-                | LEAST PARA nlexps PARC
                 | NOW PARA PARC
 
     '''
+    
+    if t[1].lower() == 'length' : t[0] = fun_lengthp(t[3],None)
+    elif t[1].lower() == 'substring' : t[0] = fun_substrp(t[3],t[5],t[7],None)
+    elif t[1].lower() == 'trim' : t[0] = fun_trimp(t[3],None)
+    elif t[1].lower() == 'md5' : t[0] = fun_md5p(t[3],None)
+    elif t[1].lower() == 'sha256' : t[0] = fun_sha256p(t[3],None)
+    elif t[1].lower() == 'substr' : t[0] = fun_substrp(t[3],t[5],t[7],None)
+    elif t[1].lower() == 'convert' : t[0] = fun_convertp(t[3],t[5],None)
+    elif t[1].lower() == 'now' : t[0] = fun_nowp(None)
 
 def p_nlexps(t):
     'nlexps : nlexps newexp'
