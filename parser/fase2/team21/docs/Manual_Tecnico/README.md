@@ -166,7 +166,7 @@ class Expresion(Exp):
 
 ## Gramática utilizada
 
->Se optó por utilizar la [gramática ascendente](https://github.com/tytusdb/tytus/blob/main/parser/team21/Analisis_Ascendente/ascendente.py)
+>Se optó por utilizar la [gramática ascendente](https://github.com/MarcosAlberto21/tytus/blob/main/parser/fase2/team21/Analisis_Ascendente/ascendente.py)
 
 ___
 
