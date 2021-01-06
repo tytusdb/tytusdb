@@ -13,6 +13,8 @@ import prettytable as pt
 import os
 from reportBNF import *
 import webbrowser as wb
+import OptimizarMirilla as optm
+import OptimizarObjetos as optobj
 
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
@@ -30,9 +32,27 @@ def analiz(input):
     #graphTable(ts)
     #report_errors()
     #report_BNF()
+    #--------------------------------------------------------
+    ListaAsignaciones = []
+
+    ListaAsignaciones.append(optobj.Asignacion("x","x","0","+"))
+    ListaAsignaciones.append(optobj.Asignacion("x","x","0","-"))
+    ListaAsignaciones.append(optobj.Asignacion("x","x","1","*"))
+    ListaAsignaciones.append(optobj.Asignacion("x","x","1","/"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","0","+"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","0","-"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","1","*"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","1","/"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","2","*"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","0","*"))
+    ListaAsignaciones.append(optobj.Asignacion("x","0","y","/"))
+
+    #optm.Optimizador(ListaAsignaciones).ejecutar()
+    
     for simbolo in ts.simbolos:
-        print(" Tipo: " + str(ts.simbolos[simbolo].tipoind) +" Nombre: " + ts.simbolos[simbolo].nombre + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind))
-        print("\n")
+        print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
+
+    #--------------------------------------------------------
     return results
 
 def traducir(input):

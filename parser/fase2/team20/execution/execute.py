@@ -1,20 +1,22 @@
 #Importacion de metodos de ejecucion
 #Se utilizan archivos separados para minimizar los conflictos
+from .AST.sentence import *
 from .executeSentence import executeSentence
 from .executeSentence2 import executeSentence2
+from .executeInstruction import executeInstruction
 from .generateASTReport import graphAST
 from .generateSymbolTableReport import printSymbolTable
 from .execute_result import *
 from io import StringIO  # Python3
 import sys
-from .intermediateFunctions import *
 class Execute():
     nodes = []
     errors = []
     messages = []
     querys = []
+    ts = []
+    plcode = ""
     #intermediate = IntermediateFunctions()
-    code = "from goto import with_goto\n@with_goto\ndef c3d():\n"
     types = {
         1: 'Entero',
         2: 'Decimal',
@@ -23,6 +25,7 @@ class Execute():
         5: 'Regex'
     }
     def __init__(self, nodes):
+        self.tempcount = -1
         self.nodes = nodes
         self.errors = []
         self.messages = []
@@ -39,30 +42,44 @@ class Execute():
             archivo.write("\nfrom execution.AST.sentence import *")
             archivo.write("\nfrom execution.AST.expression import *")
             archivo.write("\ndef up():")
+            archivo.write("\n\tprint(1)")
             archivo.close()
-            
+            if(len(self.nodes)==0):
+                archivo = open("C3D.py", 'a')
+                archivo.write("\n\tprint(1)")
+                archivo.close() 
             for node in self.nodes:
                 #pprint(vars(node))
-                old_stdout = sys.stdout
-                new_stdout = StringIO()
-                sys.stdout = new_stdout
-                print(node)
-                val1 = new_stdout.getvalue()[:-1]
-                sys.stdout = old_stdout
-                archivo = open("C3D.py", 'a')
-                archivo.write("\n\t")
-                archivo.write(val1) 
-                archivo.close()
+                if isinstance(node,Sentence):
+                    old_stdout = sys.stdout
+                    new_stdout = StringIO()
+                    sys.stdout = new_stdout
+                    print(node)
+                    val1 = new_stdout.getvalue()[:-1]
+                    sys.stdout = old_stdout
+                    archivo = open("C3D.py", 'a')
+                    archivo.write("\n\t")
+                    archivo.write(val1) 
+                    archivo.close()
+                else:
+                    executeInstruction(self,node)
                 
-                executeSentence2(self,node)
+                #executeSentence2(self,node)
+        archivo = open("C3D.py", 'a')
+        archivo.write("\n")
+        archivo.write(self.plcode) 
+        archivo.close()
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)
-        '''self.code += "c3d()"
-        inter_exec_file = open("C3D.py", "w")
-        inter_exec_file.write(self.code)
-        inter_exec_file.close()'''
         result = execute_result(dotAST, printSymbolTable_, self.errors, self.messages, self.querys)
         return result
+    def generateTemp(self):
+        self.tempcount+=1
+        temp = 't'+str(self.tempcount)
+        return temp
+    def getLastTemp(self):
+        temp = 't'+str(self.tempcount)
+        return temp
 
 
 
