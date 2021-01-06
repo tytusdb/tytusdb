@@ -467,7 +467,9 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 texttraduccion+=identacion+"label ."+nodo.id+"\n"
                 textoptimizado+=identacion+"label ."+nodo.id+"\n"
                 CrearFuncion(nodo,tablaSimbolos)
-            # FRANCISCO
+            elif isinstance(nodo,SDropFunction):
+                DropFuncion(nodo,tablaSimbolos)
+        # FRANCISCO
             elif isinstance(nodo, Squeries):
                 if nodo.ope == False:
                     # print("Query Simple")
@@ -637,6 +639,8 @@ def interpretar_sentencias(arbol,ejecutar3D):
                             print(e)
                             x.add_row(e)
                         consola += str(x) + "\n"
+            
+            
             elif isinstance(nodo, SCrearIndice):
                 crearIndice(nodo, tablaSimbolos)
             
@@ -887,25 +891,31 @@ def crearIndice(nodo, tablaSimbolos):
                         "Error Semantico", "=>ERROR: La base de datos no ha sido encontrada, imposible crear el índice."))
 
 
+def DropFuncion(nodo,tablaSimbolos):
+    global texttraduccion,identacion,textoptimizado,useActual,consola
+    base=tablaSimbolos.get(useActual)
+    if base.deleteFuncion(nodo.id):
+        consola+="Se eliminó la función "+nodo.id+" con éxito \n"
+
 def CrearFuncion(nodo,tablaSimbolos):
-    global texttraduccion,identacion,textoptimizado
+    global texttraduccion,identacion,textoptimizado,useActual,consola
     if nodo.params!=False:
         auxNodo=TS.SimboloFuncion(nodo.id,False,nodo.tipo,nodo.retorno,"global")
-        tablaSimbolosL = tablaSimbolos
-        TraducirBloque(nodo.contenido,tablaSimbolosL)
+        base=tablaSimbolos.get(useActual)
+        TraducirBloque(nodo.contenido,auxNodo,tablaSimbolos)
+        if base.crearF(nodo.id,auxNodo):
+            consola+="Se creó la funcion "+ nodo.id +" con exito \n"
     else:
-        auxNodo=TS.SimboloFuncion(nodo.id,nodo.params,nodo.tipo,nodo.retorno,"global")
-        tablaSimbolosL = tablaSimbolos
-        for bloque in nodo.contenido:
-            if isinstance(bloque,SDeclaracion):
-                print("SOY DECLARACION")
-                Declara(bloque,tablaSimbolosL)
+        auxNodo=TS.SimboloFuncion(nodo.id,False,nodo.tipo,nodo.retorno,"global")
+        base=tablaSimbolos.get(useActual)
+        TraducirBloque(nodo.contenido,nodo.id,tablaSimbolos)
+        base.crearF(nodo.id,auxNodo)
 
-def Declara(nodo,tablaSimbolos):
+def Declara(nodo,funcion,tablaSimbolos):
     global texttraduccion,identacion,textoptimizado
     if(nodo.expre!=None):
-        val=Interpreta_Expresion(nodo.expre,tablaSimbolos,None,True)
-        valor =Interpreta_Expresion(nodo.expre,tablaSimbolos,None,False)
+        val=Interpreta_Expresion(nodo.expre,funcion.variables,None,True)
+        valor =Interpreta_Expresion(nodo.expre,funcion.variables,None,False)
         texttraduccion+=identacion+nodo.id+"="+str(val.valor)+"\n"
         if (val.vopt!=nodo.id):
             textoptimizado+=identacion+nodo.id+"="+str(val.vopt)+"\n" 
@@ -948,34 +958,34 @@ def Declara(nodo,tablaSimbolos):
              
         nodo.tipo=valor.tipo
         auxvar = TS.SimboloVariable(nodo.id,valor.tipo,valor.valor,"Local")
-        tablaSimbolos.put(nodo.id,auxvar)
+        funcion.crearVariable(nodo.id,auxvar)
     else:
         texttraduccion+=identacion+nodo.id+"= None \n"
 
-def TraducirBloque(nodo,tablaSimbolos):
+def TraducirBloque(nodo,funcion,tablaSimbolos):
     for bloque in nodo:
         print(bloque)
         if isinstance(bloque, list):
             for sent in bloque:
                 if isinstance(sent,SIf):
-                    TraducirIF(sent,tablaSimbolos)
+                    TraducirIF(sent,funcion,tablaSimbolos)
                 elif isinstance(sent,SSearchCase):
-                    TraducirCase(sent,tablaSimbolos)
+                    TraducirCase(sent,funcion,tablaSimbolos)
                 elif isinstance(sent,SAsignacion):
-                    TraducirAsignacion(bloque,tablaSimbolos)
+                    TraducirAsignacion(bloque,funcion,tablaSimbolos)
 
         
         elif isinstance(bloque,SDeclaracion):
-            Declara(bloque,tablaSimbolos)
+            Declara(bloque,funcion,tablaSimbolos)
 
         elif isinstance(bloque,SAsignacion):
-            TraducirAsignacion(bloque,tablaSimbolos)
+            TraducirAsignacion(bloque,funcion,tablaSimbolos)
 
         elif isinstance(bloque,SSearchCase):
-            TraducirCase(bloque,tablaSimbolos)
+            TraducirCase(bloque,funcion,tablaSimbolos)
 
         elif isinstance(bloque,SIf):
-            TraducirIF(bloque,tablaSimbolos)
+            TraducirIF(bloque,funcion,tablaSimbolos)
 
         #sql     
         elif isinstance(nodo, SCrearBase):
@@ -1351,41 +1361,44 @@ def TraducirBloque(nodo,tablaSimbolos):
                     consola += str(x) + "\n"
         
 
-def TraducirCase(nodo,tablaSimbolos):
+def TraducirCase(nodo,funcion,tablaSimbolos):
     global texttraduccion,textoptimizado,contadoresEtiqueta
-    condicion=Interpreta_Expresion(nodo.expre,tablaSimbolos,None,True)
+    condicion=Interpreta_Expresion(nodo.expre,funcion.variables,None,True)
     etiquetaSalida=".L"+str(contadoresEtiqueta)
     contadoresEtiqueta+=1
-    tempo = ""
+    tempo2 = ""
     ctcasos = 0
     for bcase in nodo.lcase:
-        condicion2=Interpreta_Expresion(bcase.condicion,tablaSimbolos,None,True)
+        condicion2=Interpreta_Expresion(bcase.condicion,funcion.variables,None,True)
+        print("SOY TU PRIN ANTES DE")
+        print(tempo2)
         if ctcasos>0:
-            texttraduccion+=identacion+"label "+tempo+"\n"
+            texttraduccion+=identacion+"label "+tempo2+"\n"
         tempo=".L"+str(contadoresEtiqueta)
         contadoresEtiqueta+=1
         texttraduccion+=identacion+"if "+str(condicion2.valor)+"!="+str(condicion.valor)+": goto "+tempo+"\n"
-        TraducirBloque(bcase.bloque,tablaSimbolos)
+        TraducirBloque(bcase.bloque,funcion,tablaSimbolos)
         texttraduccion+=identacion+"goto "+etiquetaSalida+"\n"
+        print("SOY TU PRINT TEMPO")
+        print(tempo2)
+        tempo2=tempo
         ctcasos+=1
-    etiquetaElse=".L"+str(contadoresEtiqueta)
-    contadoresEtiqueta+=1
-    texttraduccion+=identacion+"label "+etiquetaElse+"\n"
-    TraducirBloque(nodo.elsee,tablaSimbolos)
+    texttraduccion+=identacion+"label "+tempo2+"\n"
+    TraducirBloque(nodo.elsee,funcion,tablaSimbolos)
     
     texttraduccion+=identacion+"label "+etiquetaSalida+"\n"
 
 
-def TraducirAsignacion(nodo,tablaSimbolos):
+def TraducirAsignacion(nodo,funcion,tablaSimbolos):
     global texttraduccion,textoptimizado
     print("ENTRO EN ASIGNACION---------------------------------")
     banderita = False
-    valor = Interpreta_Expresion(nodo.expre,tablaSimbolos,None,True)
-    valor3 = Interpreta_Expresion(nodo.expre,tablaSimbolos,None,False) 
-    for simbolo in tablaSimbolos.tabla.keys():
-        if tablaSimbolos.tabla[simbolo].nombre ==nodo.id:
-            tablaSimbolos.tabla[simbolo].valor = valor3.valor
-            tablaSimbolos.tabla[simbolo].tipo = valor3.tipo
+    valor = Interpreta_Expresion(nodo.expre,funcion.variables,None,True)
+    valor3 = Interpreta_Expresion(nodo.expre,funcion.variables,None,False) 
+    for simbolo in funcion.variables.keys():
+        if funcion.variables[simbolo].nombre ==nodo.id:
+            funcion.variables[simbolo].valor = valor3.valor
+            funcion.variables[simbolo].tipo = valor3.tipo
             banderita = True
 
     if banderita : 
@@ -1434,11 +1447,10 @@ def TraducirAsignacion(nodo,tablaSimbolos):
         listaSemanticos.append(Error.ErrorS("Error semantico", "No se encontró la variable"+nodo.id))
 
 
-def TraducirIF(nodo,tablaSimbolos):
+def TraducirIF(nodo,funcion,tablaSimbolos):
     global texttraduccion,textoptimizado,contadoresEtiqueta,contadoresT
     if nodo.eliff == False and nodo.eelse == False:
-        condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
-        aux = item3D("","","")
+        condicion=Interpreta_Expresion(nodo.condicion,funcion.variables,None,True)
         if condicion.ropt==0:
             texttraduccion += "goto " + condicion.EtiquetaV + " \n"
             texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
@@ -1448,7 +1460,7 @@ def TraducirIF(nodo,tablaSimbolos):
 
             texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaV + "\n"
-            TraducirBloque(nodo.iff,tablaSimbolos)
+            TraducirBloque(nodo.iff,funcion,tablaSimbolos)
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
         elif condicion.ropt==3:
             
@@ -1457,7 +1469,7 @@ def TraducirIF(nodo,tablaSimbolos):
 
             texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
             textoptimizado += "goto " + condicion.EtiquetaF
-            TraducirBloque(nodo.iff,tablaSimbolos)
+            TraducirBloque(nodo.iff,funcion,tablaSimbolos)
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaF + "\n"
 
@@ -1477,7 +1489,7 @@ def TraducirIF(nodo,tablaSimbolos):
             textoptimizado+=identacion+"goto "+ condicion.EtiquetaV
             textoptimizado += identacion + "label "+condicion.EtiquetaV + "\n"
             
-            TraducirBloque(nodo.iff,tablaSimbolos)
+            TraducirBloque(nodo.iff,funcion,tablaSimbolos)
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaF + "\n"
 
@@ -1498,7 +1510,7 @@ def TraducirIF(nodo,tablaSimbolos):
             textoptimizado+=identacion+"goto "+ condicion.EtiquetaF+"\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaV + "\n"
             
-            TraducirBloque(nodo.iff,tablaSimbolos)
+            TraducirBloque(nodo.iff,funcion,tablaSimbolos)
 
             textoptimizado += identacion + "label "+condicion.EtiquetaF + "\n"
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
@@ -1516,8 +1528,7 @@ def TraducirIF(nodo,tablaSimbolos):
     
     elif nodo.eliff == False and nodo.eelse != False: 
         etiquetaSalida = ""
-        condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
-        aux = item3D("","","")
+        condicion=Interpreta_Expresion(nodo.condicion,funcion.variables,None,True)
         if condicion.ropt==0:
             texttraduccion += "goto " + condicion.EtiquetaV + " \n"
             texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
@@ -1527,7 +1538,7 @@ def TraducirIF(nodo,tablaSimbolos):
 
             texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaV + "\n"
-            TraducirBloque(nodo.iff,tablaSimbolos)
+            TraducirBloque(nodo.iff,funcion,tablaSimbolos)
             etiquetaSalida = ".L"+str(contadoresEtiqueta)
             contadoresEtiqueta += 1
             texttraduccion += identacion + "goto "+etiquetaSalida + "\n"
@@ -1536,7 +1547,7 @@ def TraducirIF(nodo,tablaSimbolos):
             textoptimizado += identacion + "goto "+etiquetaSalida + "\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaF + "\n"
 
-            TraducirBloque(nodo.eelse,tablaSimbolos)
+            TraducirBloque(nodo.eelse,funcion,tablaSimbolos)
             texttraduccion += identacion +"label "+etiquetaSalida +"\n"
             textoptimizado += identacion +"label "+etiquetaSalida +"\n"
         #aqui
@@ -1546,7 +1557,7 @@ def TraducirIF(nodo,tablaSimbolos):
 
             texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
             textoptimizado += "goto " + condicion.EtiquetaF
-            TraducirBloque(nodo.iff,tablaSimbolos)
+            TraducirBloque(nodo.iff,funcion,tablaSimbolos)
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
             etiquetaSalida = ".L"+str(contadoresEtiqueta)
             contadoresEtiqueta += 1
@@ -1555,7 +1566,7 @@ def TraducirIF(nodo,tablaSimbolos):
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaF 
 
-            TraducirBloque(nodo.eelse,tablaSimbolos)
+            TraducirBloque(nodo.eelse,funcion,tablaSimbolos)
             texttraduccion += identacion +"label "+etiquetaSalida +"\n"
             textoptimizado += identacion +"label "+etiquetaSalida +"\n"
 
@@ -1574,7 +1585,7 @@ def TraducirIF(nodo,tablaSimbolos):
             textoptimizado+=identacion+"goto "+ condicion.EtiquetaV +"\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaV + "\n"
             
-            TraducirBloque(nodo.iff,tablaSimbolos)
+            TraducirBloque(nodo.iff,funcion,tablaSimbolos)
             etiquetaSalida = ".L"+str(contadoresEtiqueta)
             contadoresEtiqueta += 1
             textoptimizado += identacion + "goto "+etiquetaSalida + "\n"
@@ -1583,7 +1594,7 @@ def TraducirIF(nodo,tablaSimbolos):
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaF 
 
-            TraducirBloque(nodo.eelse,tablaSimbolos)
+            TraducirBloque(nodo.eelse,funcion,tablaSimbolos)
             texttraduccion += identacion +"label "+etiquetaSalida +"\n"
             textoptimizado += identacion +"label "+etiquetaSalida +"\n"
 
@@ -1604,7 +1615,7 @@ def TraducirIF(nodo,tablaSimbolos):
             textoptimizado+=identacion+"goto "+ condicion.EtiquetaF+"\n"
             textoptimizado += identacion + "label "+condicion.EtiquetaV + "\n"
             
-            TraducirBloque(nodo.iff,tablaSimbolos)
+            TraducirBloque(nodo.iff,funcion,tablaSimbolos)
             etiquetaSalida = ".L"+str(contadoresEtiqueta)
             contadoresEtiqueta += 1
             textoptimizado += identacion + "goto "+etiquetaSalida + "\n"
@@ -1612,7 +1623,7 @@ def TraducirIF(nodo,tablaSimbolos):
 
             textoptimizado += identacion + "label "+condicion.EtiquetaF
             texttraduccion += identacion + "label "+condicion.EtiquetaF +"\n"
-            TraducirBloque(nodo.eelse,tablaSimbolos)
+            TraducirBloque(nodo.eelse,funcion,tablaSimbolos)
             texttraduccion += identacion +"label "+etiquetaSalida +"\n"
             textoptimizado += identacion +"label "+etiquetaSalida +"\n"
 
@@ -1629,7 +1640,7 @@ def TraducirIF(nodo,tablaSimbolos):
     elif nodo.eliff != False and nodo.eelse == False: 
         condicion2 = ""
         etiquetaSalida = ""
-        condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+        condicion=Interpreta_Expresion(nodo.condicion,funcion.variables,None,True)
         texttraduccion += "goto " + condicion.EtiquetaV + " \n"
         texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
 
@@ -1638,15 +1649,15 @@ def TraducirIF(nodo,tablaSimbolos):
         
         for e in nodo.eliff:
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
-            condicion2 = Interpreta_Expresion(e.condicion, tablaSimbolos,None,True)
+            condicion2 = Interpreta_Expresion(e.condicion,funcion.variables,None,True)
             texttraduccion += "goto " + condicion2.EtiquetaV + " \n"
             texttraduccion += identacion+"goto " + condicion2.EtiquetaF + " \n"
             texttraduccion += identacion+"label " + condicion2.EtiquetaV + " \n"
-            TraducirBloque(e.bloque,tablaSimbolos)
+            TraducirBloque(e.bloque,funcion,tablaSimbolos)
             texttraduccion += identacion + "goto "+condicion2.EtiquetaF + "\n"
 
         texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
-        TraducirBloque(nodo.iff,tablaSimbolos)
+        TraducirBloque(nodo.iff,funcion,tablaSimbolos)
         texttraduccion += identacion + "goto "+condicion2.EtiquetaF + "\n"
 
         texttraduccion += identacion + "label "+condicion2.EtiquetaF + "\n"
@@ -1654,7 +1665,7 @@ def TraducirIF(nodo,tablaSimbolos):
 
     elif nodo.eliff != False and nodo.eelse != False: 
         condicion2=""
-        condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+        condicion=Interpreta_Expresion(nodo.condicion,funcion.variables,None,True)
         texttraduccion += "goto " + condicion.EtiquetaV + " \n"
         texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
 
@@ -1662,7 +1673,7 @@ def TraducirIF(nodo,tablaSimbolos):
         textoptimizado += identacion+"goto " + condicion.EtiquetaF + " \n"
 
         texttraduccion += identacion + "label "+condicion.EtiquetaV + "\n"
-        TraducirBloque(nodo.iff,tablaSimbolos)
+        TraducirBloque(nodo.iff,funcion,tablaSimbolos)
         etiquetaSalida = ".L"+str(contadoresEtiqueta)
         contadoresEtiqueta += 1
         texttraduccion += identacion + "goto "+etiquetaSalida + "\n"
@@ -1670,24 +1681,23 @@ def TraducirIF(nodo,tablaSimbolos):
         if isinstance(nodo.eliff,list):
             for e in nodo.eliff:
                 texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
-                condicion2 = Interpreta_Expresion(e.condicion, tablaSimbolos,None,True)
+                condicion2 = Interpreta_Expresion(e.condicion,funcion.variables,None,True)
                 texttraduccion += "goto " + condicion2.EtiquetaV + " \n"
                 texttraduccion += identacion+"goto " + condicion2.EtiquetaF + " \n"
-                TraducirBloque(e.bloque,tablaSimbolos)
+                TraducirBloque(e.bloque,funcion,tablaSimbolos)
                 texttraduccion += identacion + "goto "+etiquetaSalida + "\n"
         else:
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
-            condicion2 = Interpreta_Expresion(nodo.eliff.condicion, tablaSimbolos,None,True)
+            condicion2 = Interpreta_Expresion(nodo.eliff.condicion,funcion.variables,None,True)
             texttraduccion += "goto " + condicion2.EtiquetaV + " \n"
             texttraduccion += identacion+"goto " + condicion2.EtiquetaF + " \n"
-            TraducirBloque(nodo.eliff.bloque,tablaSimbolos)
+            TraducirBloque(nodo.eliff.bloque,funcion,tablaSimbolos)
             texttraduccion += identacion + "goto "+etiquetaSalida + "\n"
 
         texttraduccion += identacion + "label "+condicion2.EtiquetaF + "\n"
-        TraducirBloque(nodo.eelse,tablaSimbolos)
+        TraducirBloque(nodo.eelse,funcion,tablaSimbolos)
         texttraduccion += identacion + "label "+etiquetaSalida + "\n"
 
-   
 def deleteBase(nodo, tablaSimbolos):
     global consola
     if nodo.listaWhere == False:
@@ -2414,7 +2424,6 @@ def AlterDatabase(nodo, tablaSimbolos):
             listaSemanticos.append(Error.ErrorS(
                 "Error Semantico", "Error en la operacion."))
 
-
 def AlterAddColumn(nodo, tablaSimbolos):
     global consola
     global useActual
@@ -2439,7 +2448,6 @@ def AlterAddColumn(nodo, tablaSimbolos):
                     "Error Semantico", "Error la tabla " + nodo.idtabla + "no existe"))
         else:
             consola += "Error al crear la columna " + col.idcolumna + " \n"
-
 
 def AlterRenameColumn(nodo, tablaSimbolos):
     base = tablaSimbolos.get(useActual)
@@ -2467,7 +2475,6 @@ def AlterRenameColumn(nodo, tablaSimbolos):
     elif op == 2:
         listaSemanticos.append(Error.ErrorS(
             "Error Semantico", "La columna con nombre " + nodo.idactual + " no existe"))
-
 
 def AlterRenameTable(nodo, tablaSimbolos):
     global useActual
@@ -2509,7 +2516,6 @@ def AlterRenameTable(nodo, tablaSimbolos):
         listaSemanticos.append(Error.ErrorS(
             "Error Semantico", "La tabla con nombre " + nodo.idactual + " no existe"))
 
-
 def AlterTableCheck(nodo, tablaSimbolos):
     global useActual
     base = tablaSimbolos.get(useActual)
@@ -2532,7 +2538,6 @@ def AlterTableCheck(nodo, tablaSimbolos):
     if result != True:
         listaSemanticos.append(Error.ErrorS(
             "Error Semantico", "No se encontró la columna con id " + idcol))
-
 
 def AlterTableUnique(nodo, tablaSimbolos):
     global consola
@@ -4240,10 +4245,9 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         elif expresion.tipo == Expresion.ID:
 
             if cod3D:
-                print("ANTES DE ENTRAR A TABLA SIMBOLOS----------------------")
-                for simbolo in tablaSimbolos.tabla.keys():
-                    if tablaSimbolos.tabla[simbolo].nombre ==expresion.valor:
-                        return Etiquetas(expresion.valor,tablaSimbolos.tabla[simbolo].tipo,False,False,expresion.valor,0)
+                for simbolo in tablaSimbolos.keys():
+                    if tablaSimbolos[simbolo].nombre ==expresion.valor:
+                        return Etiquetas(expresion.valor,tablaSimbolos[simbolo].tipo,False,False,expresion.valor,0)
                 listaSemanticos.append(Error.ErrorS("Error Semantico","No se encontró la variable "+expresion.valor))
                 return None
             else:
@@ -4256,9 +4260,9 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                             return SExpresion(valor, tipo)
                 
                         
-                for simbolo in tablaSimbolos.tabla.keys():
-                    if tablaSimbolos.tabla[simbolo].nombre ==expresion.valor:
-                        return SExpresion(tablaSimbolos.tabla[simbolo].valor,tablaSimbolos.tabla[simbolo].tipo)
+                for simbolo in tablaSimbolos.keys():
+                    if tablaSimbolos[simbolo].nombre ==expresion.valor:
+                        return SExpresion(tablaSimbolos[simbolo].valor,tablaSimbolos[simbolo].tipo)
         elif expresion.tipo == Expresion.FECHA:
 
             valor = datetime.strptime(str(expresion.valor),'%Y-%m-%d').date()

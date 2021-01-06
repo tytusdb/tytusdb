@@ -869,6 +869,10 @@ class SDatePart(Sentencia):
         self.ts = ts
         self.param2 = param2
 
+class SDropFunction(Sentencia):
+    def __init__(self, id):
+        self.id = id
+
 
 class SCrearIndice(Sentencia):
 

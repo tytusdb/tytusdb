@@ -20,10 +20,28 @@ class SimboloBase:
         self.owner = owner
         self.mode = mode
         self.tablas = {}
+        self.funciones={}
 
     def crearTabla(self, id, tabla):
         if id not in self.tablas:
             self.tablas[id] = tabla
+            return True
+        return None
+
+    def crearF(self,id,funcion):
+        if id not in self.funciones:
+            self.funciones[id]=funcion
+            return True
+        return None 
+
+    def getFuncion(self,id):
+        if id in self.funciones:
+            return self.funciones[id]
+        return None
+
+    def deleteFuncion(self,id):
+        if id in self.funciones:
+            del self.funciones[id]
             return True
         return None
 
@@ -390,6 +408,25 @@ class SimboloFuncion:
         self.tipo = tipo
         self.retorno = retorno
         self.ambito = ambito
+        self.variables={}
+
+    def crearVariable(self,id,variable):
+        if id not in self.variables:
+            self.variables[id]=variable
+            return True
+        return None 
+
+    def getVariable(self,id):
+        if id in self.variables:
+            return self.variables[id]
+        return None
+
+    def deleteVariable(self,id):
+        if id in self.variables:
+            del self.variables[id]
+            return True
+        return None
+
 
 class SimboloProcedure:
     def __init__(self, nombre,parametros, tipo, retorno, ambito):
