@@ -25,7 +25,7 @@ from Instrucciones.Sql_select import GroupBy, Having, Limit, OrderBy, Select, Wh
 from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
-from Instrucciones import Relaciones
+from Instrucciones import Relaciones, LlamadoFuncion
 
 from Instrucciones.plpgsql import condicional_if 
 
@@ -595,7 +595,7 @@ def p_instruccion_insert2(t):
     strSent = strSent + ");"
 
     t[0] = insertTable.insertTable(t[3], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-
+    
 # SELECT col, col FROM id;
 # SELECT * from id;
 def p_instruccion_query(t):
@@ -713,8 +713,6 @@ def p_instruccion_select2(t):
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <instructionWhere>"
     strGram2 = ""
     val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos))
-    
     strSent = "SELECT " + t[2]
     for col in t[3]:
         if isinstance(col, str):
@@ -730,6 +728,10 @@ def p_instruccion_select2(t):
             strSent = strSent + col.strSent + ","
     strSent = strSent[:-1]
     strSent = strSent + " " + t[6].strSent
+
+    val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos, strSent))
+    
+    
 
 
     t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos, strSent)
@@ -976,26 +978,25 @@ def p_operadores_relacionales(t):
     '''
     strGram = ""
     strSent = ""
-    if t[2] == "IGUAL":
+    if t[2] == "=":
         strGram = "<expre> ::= <expre> IGUAL <expre>"
         strSent = t[1].strSent + " = " + t[3].strSent
-    elif t[2] == "MAYORQ":
+    elif t[2] == ">":
         strGram = "<expre> ::= <expre> MAYORQ <expre>"
         strSent = t[1].strSent + " > " + t[3].strSent
-    elif t[2] == "MENORQ":
+    elif t[2] == "<":
         strGram = "<expre> ::= <expre> MENORQ <expre>"
         strSent = t[1].strSent + " < " + t[3].strSent
-    elif t[2] == "MAYOR_IGUALQ":
+    elif t[2] == ">=":
         strGram = "<expre> ::= <expre> MAYOR_IGUALQ <expre>"
         strSent = t[1].strSent + " >= " + t[3].strSent
-    elif t[2] == "MENOR_IGUALQ":
+    elif t[2] == "<=":
         strGram = "<expre> ::= <expre> MENOR_IGUALQ <expre>"
         strSent = t[1].strSent + " <= " + t[3].strSent
-    elif t[2] == "DISTINTO":
+    elif t[2] == "<>":
         strGram = "<expre> ::= <expre> DISTINTO <expre>"
         strSent = t[1].strSent + " <> " + t[3].strSent
 
-    
     t[0] = Relacional.Relacional(t[1], t[3], t[2],strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_operadores_aritmeticos(t):
@@ -1009,22 +1010,22 @@ def p_operadores_aritmeticos(t):
     
     strGram = ""
     strSent = ""
-    if t[2] == "MAS":
+    if t[2] == "+":
         strGram = "<expre> ::= <expre> MAS <expre>"
         strSent = t[1].strSent + " + " + t[3].strSent
-    elif t[2] == "MENOS":
+    elif t[2] == "-":
         strGram = "<expre> ::= <expre> MENOS <expre>"
         strSent = t[1].strSent + " - " + t[3].strSent
-    elif t[2] == "POR":
+    elif t[2] == "*":
         strGram = "<expre> ::= <expre> POR <expre>"
         strSent = t[1].strSent + " * " + t[3].strSent
-    elif t[2] == "DIVIDIDO":
+    elif t[2] == "/":
         strGram = "<expre> ::= <expre> DIVIDIDO <expre>"
         strSent = t[1].strSent + " / " + t[3].strSent
-    elif t[2] == "EXPONENCIACION":
+    elif t[2] == "^":
         strGram = "<expre> ::= <expre> EXPONENCIACION <expre>"
         strSent = t[1].strSent + " ^ " + t[3].strSent
-    elif t[2] == "MODULO":
+    elif t[2] == "%":
         strGram = "<expre> ::= <expre> MODULO <expre>"
         strSent = t[1].strSent + " % " + t[3].strSent
 
@@ -1829,6 +1830,16 @@ def p_expresion7(t):
 def p_expresion8(t):
     '''expresion : ID PARIZQ lcol PARDER
     '''
+    strGram = "<expresion> ::= ID PARIZQ <lcol> PARDER\n"
+    strSent = t[1] + "("
+    for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ")"
+    t[0] = LlamadoFuncion.LlamadoFuncion(strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_expresion9(t):
     '''expresion : TRUE
@@ -2200,6 +2211,12 @@ def p_cont_funcion(t):
     if t[1] == "IF" and  len(t) == 8:
         print("Llega")
         t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and len(t) == 10:
+        print("Llega")
+        t[0] = condicional_if.Ifelse(t[2],t[4],t[6],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and len(t) == 11:
+        print("Llega")
+        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
 
 def p_instrucciones_if(t):
     ''' 
@@ -2225,13 +2242,19 @@ def p_condiciones_if(t):
 condicionesif : condicionesif condicionif
 			  | condicionif
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_condicion_if(t):
     '''
 condicionif : ELSIF expre THEN instrucciones_if 
-			| ELSEIF expre THEN instrucciones_if 
+			| ELSEIF expre THEN instrucciones_if  
     '''
-
+    t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    
 def p_condiciones_cuando(t):
     '''
 condiciones_cuando : condiciones_cuando condicion_cuando
