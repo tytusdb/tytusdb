@@ -9,10 +9,11 @@ from Parser.Ascendente.gramatica import parse as AnaParse
 #from Parser.Reportes.gramatica1 import parse as ReportParse
 from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
 from InterpreteF2.Arbol import Arbol
-from Interprete.Manejo_errores.ErroresSemanticos import ErroresSemanticos
-from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
-from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
-from Interprete.Manejo_errores.ReporteTS import ReporteTS
+from InterpreteF2.Reporteria.ErroresSemanticos import ErroresSemanticos
+from InterpreteF2.Reporteria.ErroresSintacticos import ErroresSintacticos
+from InterpreteF2.Reporteria.ErroresLexicos import ErroresLexicos
+from InterpreteF2.Reporteria.ReporteTS import ReporteTS
+from InterpreteF2.Reporteria.ReporteOptimizacion import  ReporteOptimizacion
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from Parser.Reportes.Nodo1 import Nodo
@@ -382,6 +383,53 @@ def Tabla_Simbolos():
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
+def Optimizacion():
+
+    global arboAux_errores
+
+    texto = '''
+            <!DOCTYPE html>
+            <html lang=\"es\">
+            <head><meta charset=\"UTF-8\">  <title> Reporte de Optimizacion</title> 
+            <style type=\"text/css\"> \n'''
+    texto += """body{ background-color: white; font-family: Arial;} 
+        #main-container{ margin: 170px auto; width: 500px;}
+        table{ background-color: white; text-align: center; border-collapse: collapse; width: 100%;}
+        th, td{padding: 10px;}
+        thead{background-color: #2464333;border-bottom: solid 5px #0F3543; color: black;}
+        tr:nth-child(even){ background-color: #ddd;}
+        tr:hover td{background-color: black;color: white;}"""
+    texto += '''</style> </head> </body>
+            <div id=\"main-container\">
+            <h1>Reporte de Optimizaxion OLC2- G17</h1>
+            <table> <thead> <tr>
+            <th>No.</th>
+            <th>Regla Utilizada</th>
+            <th>Codigo Original</th>
+            <th>Codigo Optimizado</th>
+            <th>Fila</th>
+            <th>Columna</th>
+            </tr> </thead>
+            '''
+    contador = 1
+
+    for i in arboAux_errores.ReporteOptimizacion:
+        Error: ReporteOptimizacion = i
+        texto += '<tr><td> ' + str(contador) + '</td>'
+        texto += '<td> ' + Error.regla + '</td>'
+        texto += '<td> ' + Error.original + '</td>'
+        texto += '<td> ' + Error.optimizado + '</td>'
+        texto += '<td> ' + str(Error.linea) + '</td>'
+        texto += '<td> ' + str(Error.columna) + '</td></tr>'
+        contador = contador + 1
+    texto += "</table> </div> </body> </html>"
+
+    try:
+        with open('ErroresLexicos.html', 'w') as lexicos:
+            lexicos.write(texto)
+    except Exception as e:
+        print("No fue posible escribir el html: " + str(e))
+
 def generar():
     global COD3D
 
@@ -474,4 +522,5 @@ edit_menu.add_command(label='Lexico', command=Err_Lexico)
 edit_menu.add_command(label='Sintactico', command=Err_Sintactico)
 edit_menu.add_command(label='Semantico', command=Err_Semantico)
 edit_menu.add_command(label='Tabla Simbolos', command=Tabla_Simbolos)
+edit_menu.add_command(label='Optimizacion', command=Optimizacion)
 file_menu.add_separator()
