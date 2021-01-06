@@ -140,7 +140,7 @@ def t_NUMERO(t):
 def t_F_HORA(t):
     r'\'\s*(\d+\s+(hours|HOURS))?(\s*\d+\s+(minutes|MINUTES))?(\s*\d+\s+(seconds|SECONDS))?\s*\''
     t.value = t.value[1:-1]
-    return t
+    return t.replace('\'','\"')
 
 # EXPRESION REGULAR PARA FORMATO FECHA HORA
 def t_FECHA_HORA(t):
@@ -178,7 +178,7 @@ def t_HORA(t):
 # EXPRESION REGULAR PARA CADENA SIMLE
 def t_CADENASIMPLE(t):
     r'\'(\s*|.*?)\''
-    t.value = str(t.value)
+    t.value = str(t.value).replace('\'','\"')
     return t
     
 # EXPRESION REGULAR PARA FORMATO CADENAS
@@ -713,7 +713,7 @@ def p_list_vls(t):
     if len(t) == 4:
         t[0] = GenerarC3D()
         t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
-    if len(t) == 2:
+    elif len(t) == 2:
         t[0] = GenerarC3D()
         t[0].code += t[1].code
     else: 
@@ -1122,6 +1122,10 @@ def p_arg_having(t):
     else:
         t[0] = GenerarC3D()
         t[0].code += ''
+def p_exp_aux(t):
+    ''' exp : ID PARABRE list_vls PARCIERRE'''
+    t[0] = GenerarC3D()
+    t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
 
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
@@ -1152,7 +1156,6 @@ def p_exp(t):
             | arg_greatest
             | arg_least 
             | val_value
-            | ID PARABRE list_vls PARCIERRE
             | PARABRE exp PARCIERRE
             | data NOT IN PARABRE ins_select PARCIERRE '''
     if len(t) == 7:
