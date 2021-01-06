@@ -1,48 +1,60 @@
 // AST
 digraph {
-	23 [label=INSTRUCTION_LIST]
-	24 [label=IF]
-	25 [label="("]
-	26 [label=">"]
-	27 [label=5]
-	28 [label=9]
-	29 [label=")"]
-	30 [label=THEN]
-	31 [label=CREATE_DATABASE]
-	32 [label=hola]
-	33 [label=ELSE]
-	34 [label=IF]
-	35 [label="("]
-	36 [label="<"]
-	37 [label=5]
-	38 [label=9]
-	39 [label=")"]
-	40 [label=THEN]
-	41 [label=CREATE_DATABASE]
-	42 [label=adios]
-	43 [label="END IF"]
-	44 [label="END IF"]
-	45 [label=INST]
-	23 -> 24
-	24 -> 25
-	24 -> 26
-	26 -> 27
-	26 -> 28
-	24 -> 29
-	24 -> 30
-	24 -> 31
-	31 -> 32
-	24 -> 33
-	24 -> 34
+	29 [label=INSTRUCTION_LIST]
+	30 [label=DROP]
+	31 [label=INDEX]
+	32 [label=title_idx1]
+	33 [label=INST]
+	34 [label="CREATE INDEX"]
+	35 [label=title_idx3]
+	36 [label=ON]
+	37 [label=test1]
+	38 [label="("]
+	39 [label="['id']"]
+	40 [label=")"]
+	41 [label=INST]
+	42 [label="CREATE INDEX"]
+	43 [label=title_idx2]
+	44 [label=ON]
+	45 [label=test1]
+	46 [label="("]
+	47 [label="['id']"]
+	48 [label=")"]
+	49 [label=INST]
+	50 [label="CREATE INDEX"]
+	51 [label=title_idx1]
+	52 [label=ON]
+	53 [label=test1]
+	54 [label="("]
+	55 [label="['id']"]
+	56 [label=")"]
+	57 [label=INST]
+	29 -> 30
+	30 -> 31
+	30 -> 32
+	29 -> 33
+	33 -> 34
 	34 -> 35
 	34 -> 36
-	36 -> 37
-	36 -> 38
+	34 -> 37
+	34 -> 38
 	34 -> 39
 	34 -> 40
-	34 -> 41
+	33 -> 41
 	41 -> 42
-	34 -> 43
-	24 -> 44
-	23 -> 45
+	42 -> 43
+	42 -> 44
+	42 -> 45
+	42 -> 46
+	42 -> 47
+	42 -> 48
+	41 -> 49
+	49 -> 50
+	50 -> 51
+	50 -> 52
+	50 -> 53
+	50 -> 54
+	50 -> 55
+	50 -> 56
+	49 -> 57
 }

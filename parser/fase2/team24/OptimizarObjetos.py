@@ -1,4 +1,3 @@
-from enum import Enum
 
 class Asignacion():
     def __init__(self, indice, operador1, operador2 = "", signo = ""):

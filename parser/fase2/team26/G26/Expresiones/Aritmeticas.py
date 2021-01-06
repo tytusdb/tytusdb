@@ -15,14 +15,30 @@ class Arithmetic(Instruccion):
         self.sign = sign
 
     def execute(self):
-        left = self.leftOperator.execute()
+
+        try:
+            left = self.leftOperator.execute()
+        except:
+            try:
+                left = self.leftOperator.executeInsert(data, valoresTabla)
+            except:
+                left = self.leftOperator.execute(data, valoresTabla)
+            
+
+        try:
+            right = self.rightOperator.execute()
+        except:
+            try:
+                right = self.rightOperator.executeInsert(data, valoresTabla)
+            except:
+                right = self.rightOperator.execute(data, valoresTabla)
+            
+
+        #checking returns of both arguments in case of error
         if isinstance(left, Error) :
             return left
-        right = self.rightOperator.execute()
         if isinstance(right, Error) :
             return right
-
-        print(self.sign)
 
         if self.sign == '+' :
             if (left.type == 'integer' and right.type == 'integer') or (left.type == 'float' and right.type == 'float') or (left.type == 'float' and right.type == 'integer') or (left.type == 'integer' and right.type == 'float'):
@@ -79,3 +95,36 @@ class Arithmetic(Instruccion):
                 
     def __repr__(self):
         return str(self.__dict__)
+
+class ArithmeticUnary(Instruccion):
+
+    def __init__(self, rightOperator, sign):
+        self.rightOperator = rightOperator
+        self.sign = sign
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def execute(self):
+        
+        try:
+            right = self.rightOperator.execute()
+        except:
+            try:
+                right = self.rightOperator.executeInsert(data, valoresTabla)
+            except:
+                right = self.rightOperator.execute(data, valoresTabla)
+            
+
+        #checking returns of both arguments in case of error
+        if isinstance(right, Error) :
+            return right
+
+        if self.sign == '-' :
+            try:
+                res = -1 * right.val
+                return Primitive(right.type, res)
+            except :
+                error = Error('Semántico', 'Error de tipos, no se puede operar -1 con ' + right.type, 0, 0)
+                return error
+        

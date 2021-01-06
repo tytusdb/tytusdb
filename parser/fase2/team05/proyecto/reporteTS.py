@@ -29,11 +29,18 @@ def generarTablaSimbolos(tabladeSimbolos) :
     fin = file3.read()
 
     for key, v in tabladeSimbolos.symbols.items():
-        html += '''  <tr>
-                    <td>''' + str(v.type) + '''</td>
-                    <td>''' + str(v.id) + '''</td>
-                    <td>''' + str(v.value) + '''</td>
-                </tr>'''
+        if v.type == "INDEX":
+            v.value = str(v.value).replace(' ',',')
+        elif v.type == "create table":
+            v.value = str(v.value).replace(' ,','<br>')
+        if v.id != "" and v.type != "":
+            html += '''  <tr>
+                        <td>''' + str(v.type) + '''</td>
+                        <td>''' + str(v.id) + '''</td>
+                        <td>''' + str(v.value) + '''</td>
+                        <td>''' + str(v.p_Orden) + '''</td>
+                        <td>''' + str(v.p_Declaracion) + '''</td>
+                    </tr>'''
     html += fin
     f.write(html)
     f.close()

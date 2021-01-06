@@ -4,6 +4,11 @@ from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 from Analisis_Ascendente.storageManager.jsonMode import *
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 from datetime import date,datetime
+
+from C3D import GeneradorTemporales
+from Analisis_Ascendente.Instrucciones.expresion import Funcion
+
+
 todoBien = True
 #INSERT INTO
 class InsertInto(Instruccion):
@@ -15,7 +20,40 @@ class InsertInto(Instruccion):
         self.fila = fila
         self.columna = columna
 
-
+    def getC3D(self, lista_Optim):
+        etiqueta = GeneradorTemporales.nuevo_temporal()
+        code = '\n     # ---------INSERT INTO----------- \n'
+        code += '    top_stack = top_stack + 1 \n'
+        code += '    %s = ' % etiqueta
+        code += '\"insert into ' + self.id
+        ides = ''
+        if self.listaId is not None:
+            code += '('
+            for ide in self.listaId:
+                ides += ide.id + ','
+            ids = list(ides)
+            size = len(ids) - 1
+            del (ids[size])
+            s = "".join(ids)
+            code += s + ') values('
+        else:
+            code += ' values ('
+        values = ''
+        for val in self.values:
+            if isinstance(val.valor, str):
+                values += '\''+ str(val.valor) + '\','
+            else:
+                values += str(val.valor) + ','
+        vals = list(values)
+        size = len(vals) - 1
+        del (vals[size])
+        v = "".join(vals)
+        code += v
+        code += ')'
+        code += ';\" \n'
+        code += '    stack[top_stack] = %s \n' % etiqueta
+        code += '    funcion_intermedia() \n'
+        return code
 
 
     def ejecutar(insertinto,ts,consola,exceptions):
@@ -161,6 +199,9 @@ def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consol
     datafinal = None
     if isinstance(lista_valores[index],Instruccion):
         datafinal = Expresion.Resolver(lista_valores[index],ts,Consola,exception)
+        datainsertar.append(datafinal)
+    elif isinstance(lista_valores[index],Funcion):
+        datafinal = Expresion.ResolverFuncion(lista_valores[index],globall,ts,Consola,exception)
         datainsertar.append(datafinal)
     else:
         datafinal = lista_valores[index].valor

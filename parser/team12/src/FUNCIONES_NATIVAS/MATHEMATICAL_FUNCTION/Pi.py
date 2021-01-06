@@ -20,3 +20,10 @@ class Function_Pi(Expresion):
         self.tipo = Type_Expresion(Data_Type.numeric)
         self.valorExpresion = math.pi
         return self.valorExpresion
+    
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):        
+        stringReturn = 'pi()'
+        return stringReturn

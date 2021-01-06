@@ -1,0 +1,4 @@
+// AST
+digraph {
+	7 [label=INSTRUCTION_LIST]
+}

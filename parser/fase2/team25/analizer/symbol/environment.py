@@ -12,7 +12,7 @@ class Environment:
     dataFrame = None
     groupCols = 0
 
-    def __init__(self, previous=None, database="") -> None:
+    def __init__(self, previous=None, database="",for3d=False) -> None:
         self.database = database
         self.previous = previous
         self.variables = {}
@@ -21,6 +21,7 @@ class Environment:
         # Cosas de Fase 2
         self.functions = {}
         self.procedures = {}
+        self.for3d=True
 
     def updateVar(self, id, value, type_):
         """
@@ -30,7 +31,7 @@ class Environment:
         while env != None:
             if id in env.variables:
                 symbol = env.variables[id]
-                symbol = sym.Symbol(id, value, type_, symbol.row, symbol.column)
+                symbol = sym.Symbol(value, type_, symbol.row, symbol.column)
                 env.variables[id] = symbol
                 return True
             env = env.previous
