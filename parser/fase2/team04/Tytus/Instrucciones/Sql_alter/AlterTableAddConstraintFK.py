@@ -96,4 +96,44 @@ class AlterTableAddConstraintFK(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
 
+
+    def getCodigo(self, tabla, arbol):
+        tabla = f"{self.tabla}"
+        tabla2 = f"{self.tabla2}"
+        campos1 = f""
+        campos2 = f""
         
+        for item in self.lista_id1:
+            campos1 += f"{item}{', ' if self.lista_id1.index(item) < len(self.lista_id1) - 1 else ''}"    
+
+        for item in self.lista_id2:
+            campos2 += f"{item}{', ' if self.lista_id2.index(item) < len(self.lista_id2) - 1 else ''}"
+
+        table = f"ALTER TABLE {tabla} ADD CONSTRAINT {self.id_constraint} FOREIGN KEY ({campos1})"
+        table += f"\n\tREFERENCES {tabla2} ({campos2});"
+ 
+
+        
+        num_params = 1
+        
+        temp_param1 = arbol.getTemporal()
+        temp_tam_func = arbol.getTemporal()
+        temp_index_param1 = arbol.getTemporal()
+        temp_return = arbol.getTemporal()
+        temp_result = arbol.getTemporal()
+        
+        codigo = f"\t#ALTER TABLE ADD CONSTRAINT FK 3D\n"
+        codigo += f"\t{temp_param1} = f\"{table}\"\n"
+        codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
+        codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
+        codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
+        codigo += f"\tpointer = pointer + {num_params}\n"
+        codigo += f"\tinter()\n"
+        codigo += f"\t{temp_return} = pointer + 0\n"
+        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        codigo += f"\tpointer = pointer - {num_params}\n"
+        codigo += f"\tprint({temp_result})\n"
+        
+        arbol.consola.append(codigo)
+
+
