@@ -177,13 +177,108 @@ def p_alter_index(t):
 def p_fase2_stmt(t):
     '''
     fase2_stmt : createStmt  S_PUNTOCOMA
+                | llamadaProcedimiento_o_funcion S_PUNTOCOMA
+                | pl_drop S_PUNTOCOMA
+                | raise_main S_PUNTOCOMA
     '''
+    repGrammar.append(t.slice)
     global count_ins
     count_ins += 1
 
 
 # region FASE 2
 # Indices
+def p_llamadaProcedimiento_o_funcion(t):# esta aparte porque va directo al MAIN
+    '''llamadaProcedimiento_o_funcion : STRING
+                                    | ID S_PARIZQ paramsList S_PARDER '''
+    repGrammar.append(t.slice)
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = expression.FunctionCall(t[2], t[4], t.slice[1].lineno, t.slice[1].lexpos) # NO USAR EL GENERATE3D ACA porque ese se usara para manejar los excute internos en funciones y procedimientos
+        #addToMain
+
+
+#_----------------------------------------------- FUNCION
+def p_drop_procedure_and_functions2(t):
+    '''
+    pl_drop : R_DROP R_FUNCTION R_IF R_EXISTS detalle_drop S_PUNTOCOMA
+            | R_DROP R_FUNCTION detalle_drop S_PUNTOCOMA
+    '''
+    repGrammar.append(t.slice)
+    if len(t) == 7:
+        pass
+    else:
+        pass
+
+def p_drop_procedure_and_functions(t):
+    '''
+    pl_drop : R_DROP R_PROCEDURE R_IF R_EXISTS detalle_drop S_PUNTOCOMA
+            | R_DROP R_PROCEDURE detalle_drop S_PUNTOCOMA
+    '''
+    repGrammar.append(t.slice)
+    if len(t) == 7:
+        pass
+    else:
+        pass
+
+def p_detalle_drop(t):
+    '''
+    detalle_drop : detalle_drop S_COMA drop_argumentos
+                | drop_argumentos
+    '''
+    repGrammar.append(t.slice)
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [[t[1]]]
+
+def p_drop_argumentos(t):
+    '''
+    drop_argumentos : ID S_PARIZQ  typeParamsList S_PARDER
+                    | ID S_PARIZQ  S_PARDER
+                    | ID
+    '''
+    repGrammar.append(t.slice)
+    if len(t) == 5:
+        pass
+    elif len(t) == 4:
+        pass
+    else:
+        pass
+
+
+def p_raise_main(t):
+    '''
+    raise_main : R_RAISE R_NOTICE STRING S_COMA datatype
+            | R_RAISE  STRING S_COMA datatype
+    '''
+    print('raise MAIN')
+    repGrammar.append(t.slice)
+
+    if len(t) == 6:
+        pass
+    elif len(t) == 5:
+        pass
+    else:
+        print('no entro en len(t)')
+    #ambos son un print
+
+def p_raise_procedural(t):
+    '''
+    raise_procedural : R_RAISE R_NOTICE STRING S_COMA datatype
+            | R_RAISE  STRING S_COMA datatype
+    '''
+    print('raise PROCEDURAL ')
+    repGrammar.append(t.slice)
+    if len(t) == 6:
+        pass
+    elif len(t) == 5:
+        pass
+    else:
+        print('no entro en len(t)')
+    #ambos son un print
 
 
 
@@ -336,9 +431,10 @@ def p_plInstructionIf2(t):# los separe solo para generar su codigo 3d diferente
     | updateStmt S_PUNTOCOMA
     | deleteStmt S_PUNTOCOMA
     | selectStmt S_PUNTOCOMA
+    | raise_procedural S_PUNTOCOMA
     """
     global count_ins
-
+    repGrammar.append(t.slice)
     t[0] = F1([1],C3D_INSTRUCCIONES_FASE1_CADENA(t), t.slice[2].lineno , t.slice[2].lexpos )
     count_ins += 1
 
@@ -376,12 +472,28 @@ def p_assignment(t):
     assignment : ID S_ASIGNACION expresion
     | ID S_IGUAL expresion
     """
+    if isinstance( t[3] , instruction.Instruction): # PARA VALIDACION DEL SELECT
+        cadena = C3D_INSTRUCCIONES_FASE1_CADENA(t)
+        cadena = (cadena)[0: len(cadena)-2]
+        cadena = cadena +';'
+        #print(cadena)
+        t[3] = F1([1],cadena, t.slice[2].lineno , t.slice[2].lexpos )
     t[0] = Asignacion(t[1],t[3], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
+def p_call_procedure(t):
+    '''call_procedure : STRING
+                    |   ID S_PARIZQ paramsList S_PARDER'''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = expression.FunctionCall(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+
+    #puede subir un function call :v
+    
 def p_executeStmt(t):
     """
-    executeStmt : R_EXECUTE STRING
+    executeStmt : R_EXECUTE call_procedure
     """
     repGrammar.append(t.slice)
 
