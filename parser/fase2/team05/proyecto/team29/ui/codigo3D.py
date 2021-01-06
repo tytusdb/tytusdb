@@ -184,26 +184,18 @@ def funcionIntermedia():
 
 @with_goto
 def main3d(): 
-	global lista
+	global lista 
+	t0 = "use dbfase2;"
+	lista = [t0 ] 
+	funcionIntermedia() 
+	t1 = "SELECT COUNT(*) from tbProducto where estado = 2;"
+	lista = [t1 ] 
+	funcionIntermedia() 
+	t2 = "SELECT COUNT(*) from tbbodega;"
+	lista = [t2 ] 
+	funcionIntermedia() 
 
 
-def ValidaRegistros():
-    t0 = t0 + 0
-    t4 = t5 + 0
 
-    t1 = t1 - 0
-    t6 = t5 - 0
-
-    t2 = t2 * 1
-    t7 = t5 * 1
-
-    t3 = t3 / 1
-    t8 = t5 / 1
-    t11 = 0 / t5
-
-    t9 = t5 * 2
-    t10 = t5 * 0
-
-
-if __name__ == "__main__":
+if __name__ == "__main__": 
 	 main()
