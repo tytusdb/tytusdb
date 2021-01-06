@@ -23,6 +23,8 @@ global conteoEtiquetas
 conteoEtiquetas=0
 global ayudanteCase
 ayudanteCase=""
+global ayudanteIf
+ayudanteIf=0
 
 global reportitoOptimizado
 reportitoOptimizado=""
