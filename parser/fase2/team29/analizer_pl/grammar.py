@@ -8,12 +8,16 @@ import ply.lex as lex
 import ply.yacc as yacc
 from sys import path
 from os.path import dirname as dir
+from analizer_pl.C3D.operations.BackFill import BackFill
 
 path.append(dir(path[0]))
 
 
 # Construccion del analizador léxico
-
+current_etiq = 0
+next_etiq = 0
+if_stmt = 0
+back_fill = BackFill()
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 listInst = []
@@ -74,6 +78,7 @@ def p_instruction(t):
     """
     instruction : stmt
     | block
+    | execute S_PUNTOCOMA
     """
     t[0] = t[1]
     repGrammar.append(t.slice)
@@ -81,7 +86,7 @@ def p_instruction(t):
 
 def p_block(t):
     """
-    block : function_stmt isblock_ R_AS S_DOLAR S_DOLAR declaration_stmt R_BEGIN block_stmts exception_stmts R_END label S_PUNTOCOMA S_DOLAR S_DOLAR language_function S_PUNTOCOMA
+    block : function_stmt isblock_ R_AS S_DOLAR S_DOLAR declaration_stmt R_BEGIN block_stmts exception_stmts R_END label S_PUNTOCOMA S_DOLAR S_DOLAR language_function_1
     """
     t[0] = code.Block(t[1], t[6], t[8], t[9], t[11], t[1].row, t[1].column)
     global isBlock
@@ -91,7 +96,7 @@ def p_block(t):
 
 def p_isblock_(t):
     """
-    isblock_ :
+    isblock_ : language_function
     """
     global isBlock
     isBlock = True
@@ -104,9 +109,8 @@ def p_isblock_f(t):
     global isBlock
     isBlock = False
 
-# region function
 
-# TODO: isBlock = True
+# region function
 
 
 def p_function_stmt(t):
@@ -115,7 +119,8 @@ def p_function_stmt(t):
                 | R_CREATE orReplace R_PROCEDURE ID function_opt
     """
     t[0] = code.FunctionDeclaration(
-        t[4], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos)
+        t[4], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -156,8 +161,7 @@ def p_param_function_id(t):
     """
     param_function : ID types_d
     """
-    t[0] = code.Declaration(
-        t[1], t[2], None, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.Declaration(t[1], t[2], None, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -185,6 +189,14 @@ def p_language_function(t):
     repGrammar.append(t.slice)
 
 
+def p_language_function_1(t):
+    """
+    language_function_1 : language_function S_PUNTOCOMA
+    |
+    """
+    repGrammar.append(t.slice)
+
+
 # endregion
 
 
@@ -205,6 +217,25 @@ def p_declaration_stmt_n(t):
     """
     t[0] = []
     repGrammar.append(t.slice)
+
+
+'''
+def p_declaration_list(t):
+    """
+    declaration_list : declaration_list R_DECLARE global_variable_declaration
+    """
+    t[1].append(t[3])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_declaration_list(t):
+    """
+    declaration_list : R_DECLARE global_variable_declaration
+    """
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
+'''
 
 
 def p_global_variable_declaration(t):
@@ -239,8 +270,7 @@ def p_global_vd_assignment(t):
     ass = None
     if t[4]:
         ass = code.Assignment(t[1], t[4], t.slice[1].lineno, t.slice[1].lexpos)
-    t[0] = code.Declaration(
-        t[1], t[3], ass, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.Declaration(t[1], t[3], ass, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -314,8 +344,19 @@ def p_types_d_simple_num(t):
 def p_types_d_simple_str(t):
     """
     types_d :  T_TEXT
+        | R_TIMESTAMP
+        | T_DATE
+        | T_TIME
     """
     t[0] = TYPE.STRING
+    repGrammar.append(t.slice)
+
+
+def p_types_d_simple_bool(t):
+    """
+    types_d : T_BOOLEAN
+    """
+    t[0] = TYPE.BOOLEAN
     repGrammar.append(t.slice)
 
 
@@ -346,21 +387,6 @@ def p_typesvar(t):
     """
     t[0] = TYPE.STRING
 
-    repGrammar.append(t.slice)
-
-
-def p_vartype(t):
-    """types_d :  ID O_MODULAR R_TYPE"""
-    repGrammar.append(t.slice)
-
-
-def p_columntype(t):
-    """types_d :  ID S_PUNTO ID O_MODULAR R_TYPE"""
-    repGrammar.append(t.slice)
-
-
-def p_rowtypes(t):
-    """types_d :  ID O_MODULAR R_ROWTYPE """
     repGrammar.append(t.slice)
 
 
@@ -437,6 +463,7 @@ def p_stmt_without_substmt(t):
     stmt_without_substmt : R_NULL S_PUNTOCOMA
     | query_single_row
     """
+    print("alv")
 
 
 def p_stmt_without_substmt_rtn(t):
@@ -454,31 +481,50 @@ def p_stmt_without_substmt_rtn(t):
 
 def p_if_stmt(t):
     """if_stmt : R_IF expBool R_THEN block_stmts elseif_stmts_opt else_stmt_opt R_END R_IF S_PUNTOCOMA"""
-
+    t[0] = code.IfStatement(
+        t.slice[1].lineno, t.slice[1].lexpos, t[2], t[5], t[6], t[4]
+    )
     repGrammar.append(t.slice)
-    t[0] = t[2]
     # expBool contiene el C3D de la expresion
 
 
 def p_elseif_stmts_opt(t):
     """
     elseif_stmts_opt : elseif_stmts
-                |
     """
+    t[0] = t[1]
+
+    repGrammar.append(t.slice)
+
+
+def p_elseif_stmts_opt_1(t):
+    """
+    elseif_stmts_opt :
+    """
+    t[0] = []
     repGrammar.append(t.slice)
 
 
 def p_elseif_stmts(t):
     """
     elseif_stmts : elseif_stmts elseif_stmt
-                | elseif_stmt
     """
+    t[1].append(t[2])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_elseif_stmts_1(t):
+    """
+    elseif_stmts : elseif_stmt
+    """
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
 def p_elseif_stmt(t):
     """elseif_stmt :  R_ELSEIF expBool R_THEN block_stmts"""
-
+    t[0] = code.ElseIfStatement(t.slice[1].lineno, t.slice[1].lexpos, t[2], t[4])
     # expBool contiene el C3D de la expresion
     repGrammar.append(t.slice)
 
@@ -486,12 +532,16 @@ def p_elseif_stmt(t):
 def p_else_stmt_opt(t):
     """
     else_stmt_opt : R_ELSE block_stmts
-                |
     """
-    if len(t) == 1:
-        t[0] = None
-    else:
-        t[0] = t[2]
+    t[0] = code.ElseStatement(t.slice[1].lineno, t.slice[1].lexpos, t[2])
+    repGrammar.append(t.slice)
+
+
+def p_else_stmt_opt_1(t):
+    """
+    else_stmt_opt :
+    """
+    t[0] = None
     repGrammar.append(t.slice)
 
 
@@ -532,11 +582,7 @@ def p_else_case_stmt_n(t):
 
 def p_case_stmt_bool(t):
     """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
-    t[0] = code.Case(t[3], t[5], t[6], t[7],
-                     t.slice[1].lineno, t.slice[1].lexpos)
-    #t[0] = t[3]
-    # expBool contiene el C3D de la expresion
-    # TODO: agregar el else case
+    t[0] = code.Case(t[3], t[5], t[6], t[7], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -564,7 +610,7 @@ def p_else_case_stmt_bool(t):
     t[0] = t[1]
     # expBool contiene el C3D de la expresion
     # t[1].append(t[3])
-    #t[0] = t[1]
+    # t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -574,7 +620,7 @@ def p_else_case_stmt_bool_u(t):
     """
     t[0] = [[t[2], t[4]]]
     # expBool contiene el C3D de la expresion
-    #t[0] = [t[2]]
+    # t[0] = [t[2]]
     repGrammar.append(t.slice)
 
 
@@ -625,7 +671,6 @@ def p_return_stmt_exp_next(t):
     """
     return_stmt : R_NEXT expresion S_PUNTOCOMA
     """
-
     t[0] = t[2]
     repGrammar.append(t.slice)
 
@@ -938,6 +983,7 @@ def p_id_string(t):
     | STRING
     | CHARACTER
     """
+    t[0] = {"text": "", "c3d": None}
     repGrammar.append(t.slice)
 
 
@@ -962,34 +1008,88 @@ def p_createopts_db(t):
     """
     createOpts : orReplace R_DATABASE ifNotExists idOrString createOwner createMode
     """
+    print(t)
     repGrammar.append(t.slice)
 
 
 def p_createopts_index(t):
     """
-    createOpts : indexUnique R_INDEX ID R_ON ID usingHash S_PARIZQ indexList S_PARDER whereCl
+    createOpts : indexUnique R_INDEX indexName R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
+    """
+    repGrammar.append(t.slice)
+
+
+def p_indexName(t):
+    """
+    indexName : ID
+    """
+    repGrammar.append(t.slice)
+
+
+def p_indexName_n(t):
+    """
+    indexName :
     """
     repGrammar.append(t.slice)
 
 
 def p_indexList(t):
     """
-    indexList : indexList S_COMA ID indexOrder indexNull firstLast
+    indexList : indexList S_COMA columnIndex
     """
     repGrammar.append(t.slice)
 
 
 def p_indexList2(t):
     """
-    indexList : ID indexOrder indexNull firstLast
+    indexList : columnIndex
     """
     repGrammar.append(t.slice)
 
 
-def p_usingHash(t):
+def p_columnIndex(t):
     """
-    usingHash : R_USING R_HASH
-    |
+    columnIndex : columnOpt indexOrder indexNull
+    """
+    repGrammar.append(t.slice)
+
+
+def p_index_columnOpt(t):
+    """
+    columnOpt : ID
+    """
+    repGrammar.append(t.slice)
+
+
+def p_index_functionIndex(t):
+    """
+    columnOpt : ID S_PARIZQ ID S_PARDER
+    """
+    repGrammar.append(t.slice)
+
+
+def p_index_agrupacion(t):
+    """
+    columnOpt : S_PARIZQ columnOpt S_PARDER
+    """
+    repGrammar.append(t.slice)
+
+
+def p_usingMethod(t):
+    """
+    usingMethod : R_USING R_HASH
+    | R_USING R_BTREE
+    | R_USING R_GIST
+    | R_USING R_SPGIST
+    | R_USING R_GIN
+    | R_USING R_BRIN
+    """
+    repGrammar.append(t.slice)
+
+
+def p_usingMethod_none(t):
+    """
+    usingMethod :
     """
     repGrammar.append(t.slice)
 
@@ -1005,7 +1105,7 @@ def p_indexOrder(t):
 
 def p_indexNull(t):
     """
-    indexNull : R_NULL
+    indexNull : R_NULLS firstLast
     |
     """
     repGrammar.append(t.slice)
@@ -1488,10 +1588,7 @@ def p_literal(t):
     | R_NULL
     """
     val = t.slice[1].value
-    if val == "NULL":
-        val = "True"
-    t[0] = expression.C3D("", val,
-                          t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.C3D("", val, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1500,12 +1597,8 @@ def p_literal_bool(t):
     literal :  R_TRUE
     | R_FALSE
     """
-    if t.slice[1].value == "TRUE":
-        val = "True"
-    else:
-        val = "False"
-    t[0] = expression.C3D("", val,
-                          t.slice[1].lineno, t.slice[1].lexpos)
+    val = t.slice[1].value
+    t[0] = expression.C3D("", val, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1528,8 +1621,7 @@ def p_datatype_operadores_binarios1(t):
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1537,8 +1629,7 @@ def p_datatype_operadores_binarios2(t):
     """
     datatype : datatype OC_CONCATENAR datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1546,6 +1637,7 @@ def p_datatype_case_when(t):
     """
     datatype : R_CASE caseList optElse R_END
     """
+    repGrammar.append(t.slice)
 
 
 def p_case_list(t):
@@ -1553,16 +1645,19 @@ def p_case_list(t):
     caseList : caseList caseWhen
             | caseWhen
     """
+    repGrammar.append(t.slice)
 
 
 def p_caseWhen(t):
     """caseWhen : R_WHEN expBool R_THEN literal"""
+    repGrammar.append(t.slice)
 
 
 def p_caseWhen_2(t):
     """optElse : R_ELSE literal
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_datatype_operadores_unarios(t):
@@ -1604,8 +1699,7 @@ def p_expCompBinario_1(t):
     | datatype S_IGUAL datatype
     | datatype OL_DISTINTODE datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1613,8 +1707,7 @@ def p_expCompBinario_2(t):
     """
     expComp : datatype R_IS R_DISTINCT R_FROM datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[5], "!=", t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[5], "!=", t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1622,8 +1715,7 @@ def p_expCompBinario_3(t):
     """
     expComp : datatype R_IS R_NOT R_DISTINCT R_FROM datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[6], "==", t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[6], "==", t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1676,14 +1768,7 @@ def p_expComp_unario_2(t):
     | datatype R_IS R_FALSE
     | datatype R_IS R_UNKNOWN
     """
-    if t[3] == "TRUE":
-        t[3] = "True"
-    elif t[3] == "FALSE":
-        t[3] = "False"
-    elif t[3] == "NULL" or t[3] == "UNKNOWN":
-        t[3] = "None"
-    t[0] = code.UnaryOperation(
-        newTemp(), t[1], t[2] + t[3], t[1].row, t[1].column)
+    t[0] = code.UnaryOperation(newTemp(), t[1], t[2] + t[3], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1694,12 +1779,6 @@ def p_expComp_unario_3(t):
     | datatype R_IS R_NOT R_FALSE
     | datatype R_IS R_NOT R_UNKNOWN
     """
-    if t[4] == "TRUE":
-        t[4] = "True"
-    elif t[4] == "FALSE":
-        t[4] = "False"
-    elif t[4] == "NULL" or t[4] == "UNKNOWN":
-        t[4] = "None"
     t[0] = code.UnaryOperation(
         newTemp(), t[1], t[2] + t[3] + t[4], t[1].row, t[1].column
     )
@@ -1740,8 +1819,7 @@ def p_expBool_1(t):
     expBool : expBool R_AND expBool
             | expBool R_OR expBool
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1783,12 +1861,6 @@ def p_optBoolPredicate_1(t):
     | R_IS R_FALSE
     | R_IS R_UNKNOWN
     """
-    if t[2] == "TRUE":
-        t[2] = "True"
-    elif t[2] == "FALSE":
-        t[2] = "False"
-    elif t[2] == "NULL" or t[2] == "UNKNOWN":
-        t[2] = "None"
     t[0] = t[1] + t[2]
     repGrammar.append(t.slice)
 
@@ -1799,12 +1871,6 @@ def p_optBoolPredicate_2(t):
     | R_IS R_NOT R_FALSE
     | R_IS R_NOT R_UNKNOWN
     """
-    if t[3] == "TRUE":
-        t[3] = "True"
-    elif t[3] == "FALSE":
-        t[3] = "False"
-    elif t[3] == "NULL" or t[3] == "UNKNOWN":
-        t[3] = "None"
     t[0] = t[1] + t[2] + t[3]
     repGrammar.append(t.slice)
 
@@ -1871,10 +1937,6 @@ def p_idOrLiteral(t):
     | R_TRUE
     | R_FALSE
     """
-    if t[1] == "TRUE":
-        t[1] = "True"
-    elif t[1] == "FALSE":
-        t[1] = "False"
     repGrammar.append(t.slice)
 
 

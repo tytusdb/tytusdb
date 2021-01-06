@@ -608,4 +608,3 @@ def parse(input):
     lexer = lex.lex()
     return parser.parse(input)
 
-

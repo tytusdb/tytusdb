@@ -650,15 +650,7 @@ class TablaDeSimbolos() :
     def verificarIndex(self,nombre,BD,tabla):
         clave = str(nombre) + str(BD) + str(tabla)
         if not clave in self.simbolos :
-            for simb in self.simbolos:
-                if BD == '' :
-                    print("NO HAY BD")
-                    h.index = 2
-                elif self.simbolos[simb].tabla != tabla:
-                    print("NO HAY TABLA")
-                    h.index = 3
-                else:
-                    print("SI SE PUEDE CREAR")
-                    h.index = 0
-            h.index = 4
-        return 1
+            return 0
+        else:
+            return 1
+
