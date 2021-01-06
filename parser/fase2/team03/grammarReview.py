@@ -1071,7 +1071,9 @@ def p_stm_case(t):
 
         graph_ref = graph_node(str("stm_case"), [t[1], lista,t[3],t[4],t[5],t[6]],childsProduction )
         addCad("**\<STM_CASE>** ::=   tCase  tIdentifier     [\<WHEN_INST>]   [\<CASE_ELSE>]   tEnd  tCase      ")
-        t[0] = IfNode(None, None, t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
+        #t[0] = IfNode(None, None, t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
+        #t[3].else_block = t[4]
+        t[0] = t[3]
         #t[0]= upNodo("token", 0, 0, graph_ref)
 
 def p_id_case(t):
