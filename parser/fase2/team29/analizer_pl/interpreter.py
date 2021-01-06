@@ -10,7 +10,7 @@ from analizer_pl.abstract import global_env
 def traducir(input):
     result = grammar2.parse(input)
     env = global_env.GlobalEnvironment()
-    c3d = "from analizer import interpreter\ndbtemp = None\n"
+    c3d = "from analizer import interpreter as fase1\ndbtemp = None\n"
     c3d += "stack = []\n"
     c3d += "\n"
     for r in result:
@@ -73,6 +73,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE or replace DATABASE  test
+    OWNER = 'root'
+    MODE = 1;
+
+CREATE DATABASE  califica
+
+    MODE = 2;
+
 CREATE FUNCTION sales_tax(nombre integer) RETURNS integer AS $$
 DECLARE
     x integer := 12;
@@ -88,6 +97,11 @@ END;
 $$ LANGUAGE plpgsql;
 """
 
-traducir(s)
-result = grammar2.parse(s)
-print(result)
+sql = \
+"""
+CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
+CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
+CREATE INDEX ON tbbodega ((lower(bodega)));
+"""
+
+traducir(sql)
