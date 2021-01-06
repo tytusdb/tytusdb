@@ -94,11 +94,11 @@ class Logica(Instruccion):
                         etiqueta2 = arbol.generaEtiqueta()
                         resultadoIzq.codigo += "\t\tif("+resultadoIzq.temporal+"==true): \n\t\t\tgoto ."+etiqueta1+" \n"
                         resultadoIzq.codigo += "\t\tgoto ."+etiqueta2+" \n"
-                        resultadoIzq.etiquetaV = "\t\t."+etiqueta1+":\n"
-                        resultadoIzq.etiquetaF = "\t\t."+etiqueta2+":\n"
+                        resultadoIzq.etiquetaV = "\t\t."+etiqueta1+"\n"
+                        resultadoIzq.etiquetaF = "\t\t."+etiqueta2+"\n"
 
                     codigo += resultadoIzq.codigo
-                    codigo += resultadoIzq.etiquetaF + "\n\n"
+                    codigo += "label " + resultadoIzq.etiquetaF + "\n\n"
 
                     # operador Derecho
                     if resultadoDer.temporal != "":
@@ -106,8 +106,8 @@ class Logica(Instruccion):
                         etiqueta2 = arbol.generaEtiqueta()
                         resultadoDer.codigo += "\t\tif("+resultadoDer.temporal+"==true): \n\t\t\tgoto ."+etiqueta1+ "\n"
                         resultadoDer.codigo += "\t\tgoto ."+etiqueta2+" \n"
-                        resultadoDer.etiquetaV = "\t\t."+etiqueta1+":\n"
-                        resultadoDer.etiquetaF = "\t\t."+etiqueta2+":\n"
+                        resultadoDer.etiquetaV = "\t\t."+etiqueta1+"\n"
+                        resultadoDer.etiquetaF = "\t\t."+etiqueta2+"\n"
 
                     codigo += resultadoDer.codigo
                     etiquetaV = resultadoIzq.etiquetaV + resultadoDer.etiquetaV
@@ -133,11 +133,11 @@ class Logica(Instruccion):
                         etiqueta2 = arbol.generaEtiqueta()
                         resultadoIzq.codigo += "\t\tif("+resultadoIzq.temporal+"==true): \n\t\t\tgoto ."+etiqueta1+" \n"
                         resultadoIzq.codigo += "\t\tgoto ."+etiqueta2+" \n"
-                        resultadoIzq.etiquetaV =  "\t\t."+etiqueta1+":\n"
-                        resultadoIzq.etiquetaF = "\t\t."+etiqueta2+":\n"
+                        resultadoIzq.etiquetaV =  "\t\t."+etiqueta1+"\n"
+                        resultadoIzq.etiquetaF = "\t\t."+etiqueta2+"\n"
 
                     codigo += resultadoIzq.codigo
-                    codigo += resultadoIzq.etiquetaV +"\n"
+                    codigo += "label "+resultadoIzq.etiquetaV +"\n"
 
                     #Operador Derecho
                     if resultadoDer.temporal != "":
@@ -145,8 +145,8 @@ class Logica(Instruccion):
                         etiqueta2 = arbol.generaEtiqueta()
                         resultadoDer.codigo += "\t\tif("+resultadoDer.temporal+"==true): \n\t\t\tgoto ."+etiqueta1+" \n"
                         resultadoDer.codigo += "\t\tgoto ."+etiqueta2+" \n"
-                        resultadoDer.etiquetaV = "\t\t."+etiqueta1+":\n"
-                        resultadoDer.etiquetaF = "\t\t."+etiqueta2+":\n"
+                        resultadoDer.etiquetaV = "\t\t."+etiqueta1+"\n"
+                        resultadoDer.etiquetaF = "\t\t."+etiqueta2+"\n"
 
                     codigo += resultadoDer.codigo
                     etiquetaV = resultadoDer.etiquetaV
@@ -179,8 +179,8 @@ class Logica(Instruccion):
                         etiqueta2 = arbol.generaEtiqueta()
                         resultadoIzq.codigo += "\t\tif("+resultadoIzq.temporal+"==true): \n\t\t\tgoto ."+etiqueta1+"\n"
                         resultadoIzq.codigo += "\t\tgoto ."+etiqueta2+"\n"
-                        resultadoIzq.etiquetaV = etiqueta1
-                        resultadoIzq.etiquetaF = etiqueta2
+                        resultadoIzq.etiquetaV = "\tt\t."+etiqueta1+"\n"
+                        resultadoIzq.etiquetaF = "\t\t."+etiqueta2+"\n"
 
                     
                     veradadera = resultadoIzq.etiquetaV
