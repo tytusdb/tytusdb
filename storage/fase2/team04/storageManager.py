@@ -1,7 +1,7 @@
 # Package:      Storage Manager
 # License:      Released under MIT License
 # Notice:       Copyright (c) 2020 TytusDB Team
-# Developers:   Alexis Peralta
+# Developers:   Alexis Peralta, Juan Carlos Gomez
 
 from storage.avl import avlMode
 from storage.b import BMode
@@ -230,3 +230,135 @@ def dropDatabase(database: str) -> int:
             return 1
     else:
         return 1
+
+def delete(database: str, table: str, columns: list):
+    db = databases.search(database)
+    if db == None:
+        return 2
+    if db.mode == "avl":
+        result = avlMode.delete(database, table, columns)
+    elif db.mode == "b":
+        result = BMode.delete(database, table, columns)
+    elif db.mode == "bplus":
+        result = BPlusMode.delete(database, table, columns)
+    elif db.mode == "dict":
+        result = DictMode.delete(database, table, columns)
+    elif db.mode == "isam":
+        result = ISAMMode.delete(database, table, columns)
+    elif db.mode == "json":
+        result = jsonMode.delete(database, table, columns)
+    elif db.mode == "hash":
+        result = HashMode.delete(database, table, columns)
+    return result
+
+def extractTable(database,table):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return None
+    if databases.find_table(database, table) == None:
+        return None
+    result = []
+    for db in dbs:
+        tb = db.tables.search(table)
+        if tb != None:
+            if db.mode == "avl":
+                result = avlMode.extractTable(database,table)
+            elif db.mode == "b":
+                result = BMode.extractTable(database,table)
+            elif db.mode == "bplus":
+                result = BPlusMode.extractTable(database,table)
+            elif db.mode == "dict":
+                result = DictMode.extractTable(database,table)
+            elif db.mode == "isam":
+                result = ISAMMode.extractTable(database,table)
+            elif db.mode == "json":
+                result = jsonMode.extractTable(database,table)
+            elif db.mode == "hash":
+                result = HashMode.extractTable(database,table)
+            else:
+                continue
+    return result
+
+def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
+    db = databases.search(database)
+    if db == None:
+        return None
+    if db.mode == "avl":
+        result = avlMode.extractRangeTable(database,table,columnNumber,lower, upper)
+    elif db.mode == "b":
+        result = BMode.extractRangeTable(database,table,columnNumber,lower, upper)
+    elif db.mode == "bplus":
+        result = BPlusMode.extractRangeTable(database,table,columnNumber,lower, upper)
+    elif db.mode == "dict":
+        result = DictMode.extractRangeTable(database,table,columnNumber,lower, upper)
+    elif db.mode == "isam":
+        result = ISAMMode.extractRangeTable(database,table,columnNumber,lower, upper)
+    elif db.mode == "json":
+        result = jsonMode.extractRangeTable(database,table,columnNumber,lower, upper)
+    elif db.mode == "hash":
+        result = HashMode.extractRangeTable(database,table,columnNumber,lower, upper)
+    return result
+
+def alterTable(database, tableOld, tableNew):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    for db in dbs:
+        if db.mode == "avl":
+            result = avlMode.alterTable(database,tableOld,tableNew)
+        elif db.mode == "b":
+            result = BMode.alterTable(database,tableOld,tableNew)
+        elif db.mode == "bplus":
+            result = BPlusMode.alterTable(database,tableOld,tableNew)
+        elif db.mode == "dict":
+            result = DictMode.alterTable(database,tableOld,tableNew)
+        elif db.mode == "isam":
+            result = ISAMMode.alterTable(database,tableOld,tableNew)
+        elif db.mode == "json":
+            result = jsonMode.alterTable(database,tableOld,tableNew)
+        elif db.mode == "hash":
+            result = HashMode.alterTable(database,tableOld,tableNew)
+        if result != 3:
+            if result == 0:
+                db.tables.search(tableOld).name = tableNew
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        return result
+                    except:
+                        break
+                return 1
+            break
+    return result
+
+def dropTable(database,table):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    for db in dbs:
+        if db.mode == "avl":
+            result = avlMode.dropTable(database, table)
+        elif db.mode == "b":
+            result = BMode.dropTable(database, table)
+        elif db.mode == "bplus":
+            result = BPlusMode.dropTable(database, table)
+        elif db.mode == "dict":
+            result = DictMode.dropTable(database, table)
+        elif db.mode == "isam":
+            result = ISAMMode.dropTable(database, table)
+        elif db.mode == "json":
+            result = jsonMode.dropTable(database, table)
+        elif db.mode == "hash":
+            result = HashMode.dropTable(database, table)
+        if result != 3:
+            if result == 0:
+                db.tables.delete(table)
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        return result
+                    except:
+                        break
+                return 1
+            break
+    return result    
