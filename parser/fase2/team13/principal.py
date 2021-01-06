@@ -14,10 +14,16 @@ import hashlib
 from prettytable import PrettyTable
 from hashlib import sha256
 import itertools
+from graphviz import Digraph
+from Error import item3D
 
+tablaSimbolos =TS.Entorno(None)
 consola = ""
-texttraduccion="import principal3 as p3 \n from goto import with_goto \n useActual="" "" \n@with_goto \ndef main():\n"
-textoptimizado="import principal3 as p3 \n from goto import with_goto \n useActual="" "" \n@with_goto \ndef main():\n"
+puntero =0 
+texttraduccion=""
+textoptimizado=""
+#texttraduccion="import principal as p3 \nfrom goto import with_goto \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n"
+#textoptimizado="import principal as p3 \nfrom goto import with_goto \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n"
 useActual = ""
 listaSemanticos = []
 listaSemanticos2 = []
@@ -30,129 +36,356 @@ contadoresT = 0
 contadoresEtiqueta = 0
 identacion="    "
 ubicacion_indices = []
+arr_optimizacion =[]
+stack = []
 
 
-def interpretar_sentencias(arbol, tablaSimbolos):
+def interpretar_sentencias(arbol,ejecutar3D):
     # jBase.dropAll()
     global consola
     global texttraduccion, textoptimizado,identacion
-    for nodo in arbol:
-        if isinstance(nodo, SCrearBase):
-            crearBase(nodo, tablaSimbolos)
-        elif isinstance(nodo, SShowBase):
-            if nodo.like == False:
-                bases = jBase.showDatabases()
-                for base in bases:
-                    consola += base + "\n"
-            else:
-                bases = jBase.showDatabases()
-                basn = []
-                for base in bases:
-                    basn.append(base)
-                basn2 = []
-                r = re.compile(".*" + nodo.cadena + ".*")
-                basn2 = list(filter(r.match, basn))
+    global stack
+    global useActual 
+    global tablaSimbolos
+    global contadoresT,contadoresEtiqueta
+    global puntero
+    if ejecutar3D:
+        for nodo in arbol:
+            if isinstance(nodo, SCrearBase):
+                #crearBase(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.crearBase(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1
+                texttraduccion += identacion+"print("+Eti+")\n"                
 
-                for bas in basn2:
-                    consola += bas + "\n"
-        elif isinstance(nodo, SUse):
-            global useActual
-            useActual = nodo.id
-            consola += "La base de datos '" + nodo.id + "' es ahora la seleccionada como activa\n"
-        elif isinstance(nodo, SAlterBase):
-            AlterDatabase(nodo, tablaSimbolos)
-        elif isinstance(nodo, SDropBase):
-            if nodo.exists == False:
-                db = jBase.dropDatabase(nodo.id.valor)
-                if db == 2:
-                    listaSemanticos.append(
-                        Error.ErrorS("Error Semantico", "Error la base de datos " + nodo.id.valor + " no existe"))
-                elif db == 1:
-                    listaSemanticos.append(Error.ErrorS(
-                        "Error Semantico", "Error en la operacion."))
+            elif isinstance(nodo, SShowBase):
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.showBaseEx(\"stack["+str(puntero)+"]\")\n"
+                #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                texttraduccion += identacion+"print("+Eti+")\n"
+            elif isinstance(nodo, SUse):
+                #stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.definirUseActual(\""+nodo.id +"\")\n"
+                #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                texttraduccion += identacion+"useActual="+Eti +"\n"
+                texttraduccion += identacion+"print("+Eti+")\n"
+            elif isinstance(nodo, SAlterBase):
+                #AlterDatabase(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.AlterDatabase(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SDropBase):
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.dropBaseEx(\"stack["+str(puntero)+"]\")\n"
+                #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                texttraduccion += identacion+"print("+Eti+")\n"  
+            elif isinstance(nodo, STypeEnum):
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.typeEnumEx(\"stack["+str(puntero)+"]\")\n"
+                #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                texttraduccion += identacion+"print("+Eti+")\n"
+            elif isinstance(nodo, SUpdateBase):
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.updateBaseEx(\"stack["+str(puntero)+"],p3.tablaSimbolos\")\n"
+                #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                texttraduccion += identacion+"useActual="+Eti +"\n"
+                texttraduccion += identacion+"print("+Eti+")\n"
+                                                    
+            elif isinstance(nodo, SDeleteBase):
+                #deleteBase(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.deleteBase(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, STruncateBase):
+                #truncatebase(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.truncatebase(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SInsertBase):
+                #InsertTable(nodo, tablaSimbolos,True)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.InsertTable(stack["+str(puntero)+"],p3.tablaSimbolos,False)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SShowTable):
+                #stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.showTableEx()\n"
+                #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                texttraduccion += identacion+"print("+Eti+")\n"
+
+            elif isinstance(nodo, SDropTable):
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.dropTableEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                texttraduccion += identacion+"print("+Eti+")\n"
+
+            elif isinstance(nodo, SAlterTableRenameColumn):
+                #AlterRenameColumn(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.AlterRenameColumn(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SAlterRenameTable):
+                #AlterRenameTable(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.AlterRenameTable(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SAlterTableAddColumn):
+                #AlterAddColumn(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.AlterAddColumn(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SAlterTableCheck):
+                #AlterTableCheck(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.AlterTableCheck(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SAlterTableAddUnique):
+                #AlterTableUnique(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.AlterTableUnique(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SAlterTableAddFK):
+                #AlterTableFK(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.AlterTableFK(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+
+            elif isinstance(nodo, SAlterTable_AlterColumn):
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.alterTable_AlterColumnEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+
+            elif isinstance(nodo, SAlterTableDrop):
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.alterTableDropEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+
+            elif isinstance(nodo, SCrearTabla):
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.crearTabla(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo,SCreateFunction):
+                texttraduccion+=identacion+"label ."+nodo.id+"\n"
+                textoptimizado+=identacion+"label ."+nodo.id+"\n"
+                CrearFuncion(nodo,tablaSimbolos)
+
+            elif isinstance(nodo, Squeries):
+                #crearIndice(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.queryEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n"
+            elif isinstance(nodo, SCrearIndice):
+                #crearIndice(nodo, tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.crearIndice(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+               
+            elif isinstance(nodo, SDropIndex):
+                #borrarIndice(nodo,tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.borrarIndice(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+            elif isinstance(nodo, SAlterIndex):
+                #alterarIndice(nodo,tablaSimbolos)
+                stack.append(nodo)
+                Eti ="t"+str(contadoresT)
+                contadoresT+=1
+                texttraduccion += identacion+Eti+"= p3.alterarIndice(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                puntero += 1    
+                texttraduccion += identacion+"print("+Eti+")\n" 
+
+            for i in listaSemanticos:
+                consola += "\n" + i.descripcion + "\n"
+                listaSemanticos2.append(i)
+            listaSemanticos.clear()
+
+    else:    
+        for nodo in arbol:
+            if isinstance(nodo, SCrearBase):
+                crearBase(nodo, tablaSimbolos)
+            elif isinstance(nodo, SShowBase):
+                if nodo.like == False:
+                    bases = jBase.showDatabases()
+                    for base in bases:
+                        consola += base + "\n"
                 else:
-                    b = tablaSimbolos.eliminar(nodo.id.valor)
-                    if b == True:
-                        consola += "La base de datos " + nodo.id.valor + " se elimino con exito. \n"
+                    bases = jBase.showDatabases()
+                    basn = []
+                    for base in bases:
+                        basn.append(base)
+                    basn2 = []
+                    r = re.compile(".*" + nodo.cadena + ".*")
+                    basn2 = list(filter(r.match, basn))
 
-            else:
-                db = jBase.dropDatabase(nodo.id.valor)
-                if db == 1:
-                    listaSemanticos.append(Error.ErrorS(
-                        "Error Semantico", "Error en la operacion."))
-                elif db == 0:
-                    b = tablaSimbolos.eliminar(nodo.id.valor)
-                    if b == True:
-                        consola += "La base de datos " + nodo.id.valor + " se elimino con exito. \n"
+                    for bas in basn2:
+                        consola += bas + "\n"
+            elif isinstance(nodo, SUse):
+                useActual = nodo.id
+                consola += "La base de datos '" + nodo.id + "' es ahora la seleccionada como activa\n"
+            elif isinstance(nodo, SAlterBase):
+                AlterDatabase(nodo, tablaSimbolos)
+            elif isinstance(nodo, SDropBase):
+                if nodo.exists == False:
+                    db = jBase.dropDatabase(nodo.id.valor)
+                    if db == 2:
+                        listaSemanticos.append(
+                            Error.ErrorS("Error Semantico", "Error la base de datos " + nodo.id.valor + " no existe"))
+                    elif db == 1:
+                        listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "Error en la operacion."))
                     else:
-                        consola += "Error no se pudo elminar la base " + \
-                                   nodo.id.valor + " de la tabla de simbolos \n"
-                elif db == 2:
-                    consola += "La base de datos " + nodo.id.valor + " no existe \n"
-        elif isinstance(nodo, STypeEnum):
-            my_dict = {}
-            for val in nodo.lista:
-                my_dict[val.valor] = val.valor
-            types[nodo.id] = my_dict
-        elif isinstance(nodo, SUpdateBase):
+                        b = tablaSimbolos.eliminar(nodo.id.valor)
+                        if b == True:
+                            consola += "La base de datos " + nodo.id.valor + " se elimino con exito. \n"
 
-            registros = jBase.extractTable(useActual, nodo.id)
-            actualizar = []
-
-            if registros != None:
-
-                tabla = tablaSimbolos.get(useActual).getTabla(nodo.id)
-                columnas = tabla.columnas
-                tupla = {"nombreC": [], "tipo": [], "valor": []}
-                nombres = []
-                valores = []
-                tipos = []
-                diccionario = {}
-                primary = tabla.get_pk_index()
-                llaves = []
-
-                for k in columnas:
-                    tupla["nombreC"].append(columnas[k].nombre)
-                    tupla["tipo"].append(columnas[k].tipo)
-                    nombres.append(columnas[k].nombre)
-                    tipos.append(columnas[k].tipo)
-
-                i = 1
-                for r in registros:
-
-                    for c in r:
-                        tupla["valor"].append(c)
-
-                    if nodo.listaWhere is not False:
-                        b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla,False)
-                    else:
-                        b = SExpresion(True,Expresion.BOOLEAN)
-                    tupla["valor"].clear()
-
-                    if b.valor:
-                        actualizar.append(r)
-                        if len(primary) == 0:
-                            llaves.append([str(i-1)])
+                else:
+                    db = jBase.dropDatabase(nodo.id.valor)
+                    if db == 1:
+                        listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "Error en la operacion."))
+                    elif db == 0:
+                        b = tablaSimbolos.eliminar(nodo.id.valor)
+                        if b == True:
+                            consola += "La base de datos " + nodo.id.valor + " se elimino con exito. \n"
                         else:
-                            llaves.append([str(i) + "|"])                        
-                    i += 1
+                            consola += "Error no se pudo elminar la base " + \
+                                    nodo.id.valor + " de la tabla de simbolos \n"
+                    elif db == 2:
+                        consola += "La base de datos " + nodo.id.valor + " no existe \n"
+            elif isinstance(nodo, STypeEnum):
+                my_dict = {}
+                for val in nodo.lista:
+                    my_dict[val.valor] = val.valor
+                types[nodo.id] = my_dict
+            elif isinstance(nodo, SUpdateBase):
 
-                bandera1 = False
-                
+                registros = jBase.extractTable(useActual, nodo.id)
+                actualizar = []
 
-                for x in range(len(actualizar)):
+                if registros != None:
 
-                    for z in range(len(nombres)):
+                    tabla = tablaSimbolos.get(useActual).getTabla(nodo.id)
+                    columnas = tabla.columnas
+                    tupla = {"nombreC": [], "tipo": [], "valor": []}
+                    nombres = []
+                    valores = []
+                    tipos = []
+                    diccionario = {}
+                    primary = tabla.get_pk_index()
+                    llaves = []
 
-                        bandera = False
-                        for y in range(len(nodo.listaSet)):
+                    for k in columnas:
+                        tupla["nombreC"].append(columnas[k].nombre)
+                        tupla["tipo"].append(columnas[k].tipo)
+                        nombres.append(columnas[k].nombre)
+                        tipos.append(columnas[k].tipo)
 
-                            if nombres[z] == nodo.listaSet[y].columna:
-                                diccionario[tabla.getIndex(nombres[z])] = nodo.listaSet[y].valor.valor
+                    i = 1
+                    for r in registros:
 
-                                valores.append(nodo.listaSet[y].valor)
-                                bandera = True
-                                break
+                        for c in r:
+                            tupla["valor"].append(c)
+
+                        if nodo.listaWhere is not False:
+                            b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla,False)
+                        else:
+                            b = SExpresion(True,Expresion.BOOLEAN)
+                        tupla["valor"].clear()
+
+                        if b.valor:
+                            actualizar.append(r)
+                            if len(primary) == 0:
+                                llaves.append([str(i-1)])
+                            else:
+                                llaves.append([str(i) + "|"])                        
+                        i += 1
+
+                    bandera1 = False
+                    
+
+                    for x in range(len(actualizar)):
+
+                        for z in range(len(nombres)):
+
+                            bandera = False
+                            for y in range(len(nodo.listaSet)):
+
+                                if nombres[z] == nodo.listaSet[y].columna:
+                                    diccionario[tabla.getIndex(nombres[z])] = nodo.listaSet[y].valor.valor
+
+                                    valores.append(nodo.listaSet[y].valor)
+                                    bandera = True
+                                    break
+
+                            if not bandera:
+                                if hasattr(tipos[z],'dato'):
+                                    valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
+                                else:
+                                    valores.append(SExpresion(actualizar[x][z],tipos[z].tipo))
+
 
                         if not bandera:
                             if hasattr(tipos[z],'dato'):
@@ -162,88 +395,107 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                             else:
                                 valores.append(SExpresion(actualizar[x][z],tipos[z]))
 
-
-                    validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x],tupla)
-                    valores.clear()
-                    diccionario = {}
-
-            else:
-
-                listaSemanticos.append(Error.ErrorS("Error Semantico",
-                                                    "Error en UPDATE, no se encontró la base de datos [%s] o la tabla [%s] especificada" % (
-                                                    useActual, nodo.id)))
-        elif isinstance(nodo, SDeleteBase):
-            deleteBase(nodo, tablaSimbolos)
-        elif isinstance(nodo, STruncateBase):
-            truncatebase(nodo, tablaSimbolos)
-        elif isinstance(nodo, SInsertBase):
-            InsertTable(nodo, tablaSimbolos,False)
-        elif isinstance(nodo, SShowTable):
-            tablas = jBase.showTables(useActual)
-            for tabla in tablas:
-                consola += tabla + "\n"
-        elif isinstance(nodo, SDropTable):
-            bandera = True
-            for fk in listaFK:
-                if fk.idtlocal == nodo.id:
-                    bandera = False
-            if bandera:
-                b = jBase.dropTable(useActual, nodo.id)
-                if b == 0:
-                    base = tablaSimbolos.get(useActual)
-                    if base.deleteTable(nodo.id) == True:
-                        consola += "La tabla " + nodo.id + " de la base " + \
-                                   useActual + " se eliminó con éxito. \n"
-                    else:
-                        consola += "Error no se pudo eliminar la tabla " + \
-                                   nodo.id + " de la tabla de simbolos \n"
-                elif b == 2:
-                    listaSemanticos.append(Error.ErrorS("Error Semantico",
-                                                        "Error la base de datos " + useActual + " no existe, No se puede eliminar la tabla " + nodo.id))
-                elif b == 3:
-                    listaSemanticos.append(Error.ErrorS("Error Semantico",
-                                                        "Error la tabla " + nodo.id + " no existe en la base de datos " + useActual))
-                elif b == 1:
-                    listaSemanticos.append(Error.ErrorS(
-                        "Error Semantico", "Error en la operacion."))
-            else:
-                consola += "No se puede eliminar la tabla debido a que esta siendo referenciada por una llave foranea \n"
-        elif isinstance(nodo, SAlterTableRenameColumn):
-            AlterRenameColumn(nodo, tablaSimbolos)
-        elif isinstance(nodo, SAlterRenameTable):
-            AlterRenameTable(nodo, tablaSimbolos)
-        elif isinstance(nodo, SAlterTableAddColumn):
-            AlterAddColumn(nodo, tablaSimbolos)
-        elif isinstance(nodo, SAlterTableCheck):
-            AlterTableCheck(nodo, tablaSimbolos)
-        elif isinstance(nodo, SAlterTableAddUnique):
-            AlterTableUnique(nodo, tablaSimbolos)
-        elif isinstance(nodo, SAlterTableAddFK):
-            AlterTableFK(nodo, tablaSimbolos)
-        elif isinstance(nodo, SAlterTable_AlterColumn):
-            for col in nodo.columnas:
-                if col.tipo == TipoAlterColumn.NOTNULL:
-                    AlterColumnNotNull(nodo, tablaSimbolos)
-                    break
                 else:
-                    AlterColumnCTipo(nodo, tablaSimbolos)
-                    break
-        elif isinstance(nodo, SAlterTableDrop):
-            if nodo.tipo == TipoAlterDrop.COLUMN:
-                AlterTableDropColumn(nodo, tablaSimbolos)
-            else:
-                AlterTableDropConstraint(nodo, tablaSimbolos)
-        elif isinstance(nodo, SCrearTabla):
-            crearTabla(nodo, tablaSimbolos)
-        elif isinstance(nodo,SCreateFunction):
-            texttraduccion+=identacion+"label ."+nodo.id+"\n"
-            textoptimizado+=identacion+"label ."+nodo.id+"\n"
-            CrearFuncion(nodo,tablaSimbolos)
-        # FRANCISCO
-        elif isinstance(nodo, Squeries):
-            if nodo.ope == False:
-                # print("Query Simple")
-                if isinstance(nodo.query1, SQuery):
+
+                    listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                        "Error en UPDATE, no se encontró la base de datos [%s] o la tabla [%s] especificada" % (
+                                                        useActual, nodo.id)))
+            elif isinstance(nodo, SDeleteBase):
+                deleteBase(nodo, tablaSimbolos)
+            elif isinstance(nodo, STruncateBase):
+                truncatebase(nodo, tablaSimbolos)
+            elif isinstance(nodo, SInsertBase):
+                InsertTable(nodo, tablaSimbolos,True)
+            elif isinstance(nodo, SShowTable):
+                tablas = jBase.showTables(useActual)
+                for tabla in tablas:
+                    consola += tabla + "\n"
+            elif isinstance(nodo, SDropTable):
+                bandera = True
+                for fk in listaFK:
+                    if fk.idtlocal == nodo.id:
+                        bandera = False
+                if bandera:
+                    b = jBase.dropTable(useActual, nodo.id)
+                    if b == 0:
+                        base = tablaSimbolos.get(useActual)
+                        if base.deleteTable(nodo.id) == True:
+                            consola += "La tabla " + nodo.id + " de la base " + \
+                                    useActual + " se eliminó con éxito. \n"
+                        else:
+                            consola += "Error no se pudo eliminar la tabla " + \
+                                    nodo.id + " de la tabla de simbolos \n"
+                    elif b == 2:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                            "Error la base de datos " + useActual + " no existe, No se puede eliminar la tabla " + nodo.id))
+                    elif b == 3:
+                        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                            "Error la tabla " + nodo.id + " no existe en la base de datos " + useActual))
+                    elif b == 1:
+                        listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "Error en la operacion."))
+                else:
+                    consola += "No se puede eliminar la tabla debido a que esta siendo referenciada por una llave foranea \n"
+            elif isinstance(nodo, SAlterTableRenameColumn):
+                AlterRenameColumn(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterRenameTable):
+                AlterRenameTable(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTableAddColumn):
+                AlterAddColumn(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTableCheck):
+                AlterTableCheck(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTableAddUnique):
+                AlterTableUnique(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTableAddFK):
+                AlterTableFK(nodo, tablaSimbolos)
+            elif isinstance(nodo, SAlterTable_AlterColumn):
+                for col in nodo.columnas:
+                    if col.tipo == TipoAlterColumn.NOTNULL:
+                        AlterColumnNotNull(nodo, tablaSimbolos)
+                        break
+                    else:
+                        AlterColumnCTipo(nodo, tablaSimbolos)
+                        break
+            elif isinstance(nodo, SAlterTableDrop):
+                if nodo.tipo == TipoAlterDrop.COLUMN:
+                    AlterTableDropColumn(nodo, tablaSimbolos)
+                else:
+                    AlterTableDropConstraint(nodo, tablaSimbolos)
+            elif isinstance(nodo, SCrearTabla):
+                crearTabla(nodo, tablaSimbolos)
+            elif isinstance(nodo,SCreateFunction):
+                texttraduccion+=identacion+"label ."+nodo.id+"\n"
+                textoptimizado+=identacion+"label ."+nodo.id+"\n"
+                CrearFuncion(nodo,tablaSimbolos)
+            # FRANCISCO
+            elif isinstance(nodo, Squeries):
+                if nodo.ope == False:
+                    # print("Query Simple")
+                    if isinstance(nodo.query1, SQuery):
+                        Qselect = nodo.query1.select
+                        Qffrom = nodo.query1.ffrom
+                        Qwhere = nodo.query1.where
+                        Qgroupby = nodo.query1.groupby
+                        Qhaving = nodo.query1.having
+                        Qorderby = nodo.query1.orderby
+                        Qlimit = nodo.query1.limit
+                        base = tablaSimbolos.get(useActual)
+                        if useActual != None:
+                            if base == None:
+                                listaSemanticos.append(
+                                    Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
+                                return
+                        pT = PrettyTable()
+                        B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
+                        if B!=0:
+                            consola += str(pT) + "\n"
+
+
+                else:
+                    print("Query no 1")
+                    consulta1=[]
+                    consulta2=[]
+
                     Qselect = nodo.query1.select
                     Qffrom = nodo.query1.ffrom
                     Qwhere = nodo.query1.where
@@ -258,167 +510,143 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
                             return
                     pT = PrettyTable()
-                    B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
-                    if B!=0:
-                        consola += str(pT) + "\n"
+                    consulta1=hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
+
+                    Qselect2 = nodo.query2.select
+                    Qffrom2 = nodo.query2.ffrom
+                    Qwhere2 = nodo.query2.where
+                    Qgroupby2 = nodo.query2.groupby
+                    Qhaving2 = nodo.query2.having
+                    Qorderby2 = nodo.query2.orderby
+                    Qlimit2 = nodo.query2.limit
+                    base2 = tablaSimbolos.get(useActual)
+                    pT = PrettyTable()
+                    consulta2=hacerConsulta(Qselect2, Qffrom2, Qwhere2, Qgroupby2, Qhaving2, Qorderby2, Qlimit2, base2, pT, False,tablaSimbolos)
+
+                    arrColNames = []
+                    arrFinal = []
+                    arrAux = []
+                    arrAux2 = []
+                    if nodo.ope.lower() == "union":
+                        print("union")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                            x+=1
+
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrFinal:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+
+                    elif nodo.ope.lower() == "intersect":
+                        print("intersect")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                                    else :
+                                        arrAux.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                                    else :
+                                        arrAux.append(z)
+                            x+=1
+
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrAux:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+
+                    elif nodo.ope.lower() == "except":
+                        print("intersect")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                                    else :
+                                        arrAux.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                                    else :
+                                        arrAux.append(z)
+                            x+=1
+
+                        #no Repetidos
+                        g=0
+                        for e in consulta1:
+                            if g != 0 :
+                                for x in e :
+                                    if x not in arrAux:
+                                        arrAux2.append(x)
+                            g+=1
 
 
-            else:
-                print("Query no 1")
-                consulta1=[]
-                consulta2=[]
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrAux2:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+            elif isinstance(nodo, SCrearIndice):
+                crearIndice(nodo, tablaSimbolos)
+            
+            elif isinstance(nodo, SDropIndex):
+                borrarIndice(nodo,tablaSimbolos)
+            elif isinstance(nodo, SAlterIndex):
+                alterarIndice(nodo,tablaSimbolos)
 
-                Qselect = nodo.query1.select
-                Qffrom = nodo.query1.ffrom
-                Qwhere = nodo.query1.where
-                Qgroupby = nodo.query1.groupby
-                Qhaving = nodo.query1.having
-                Qorderby = nodo.query1.orderby
-                Qlimit = nodo.query1.limit
-                base = tablaSimbolos.get(useActual)
-                if useActual != None:
-                    if base == None:
-                        listaSemanticos.append(
-                            Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
-                        return
-                pT = PrettyTable()
-                consulta1=hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
-
-                Qselect2 = nodo.query2.select
-                Qffrom2 = nodo.query2.ffrom
-                Qwhere2 = nodo.query2.where
-                Qgroupby2 = nodo.query2.groupby
-                Qhaving2 = nodo.query2.having
-                Qorderby2 = nodo.query2.orderby
-                Qlimit2 = nodo.query2.limit
-                base2 = tablaSimbolos.get(useActual)
-                pT = PrettyTable()
-                consulta2=hacerConsulta(Qselect2, Qffrom2, Qwhere2, Qgroupby2, Qhaving2, Qorderby2, Qlimit2, base2, pT, False,tablaSimbolos)
-
-                arrColNames = []
-                arrFinal = []
-                arrAux = []
-                arrAux2 = []
-                if nodo.ope.lower() == "union":
-                    print("union")
-                    n=0
-                    for e in consulta1:
-                        if n == 0:
-                            arrColNames .append(e)
-                        n+=1
-
-                    m=0
-                    for e in consulta1:
-                        if m != 0 :
-                            for x in e :
-                                if x not in arrFinal:
-                                    arrFinal.append(x)
-                        m+=1
-
-                    x=0
-                    for e in consulta2:
-                        if x != 0 :
-                            for z in e :
-                                if z not in arrFinal:
-                                    arrFinal.append(z)
-                        x+=1
-
-                    x = PrettyTable()
-                    x.field_names = arrColNames[0]
-                    for e in arrFinal:
-                        print(e)
-                        x.add_row(e)
-                    consola += str(x) + "\n"
-
-                elif nodo.ope.lower() == "intersect":
-                    print("intersect")
-                    n=0
-                    for e in consulta1:
-                        if n == 0:
-                            arrColNames .append(e)
-                        n+=1
-
-                    m=0
-                    for e in consulta1:
-                        if m != 0 :
-                            for x in e :
-                                if x not in arrFinal:
-                                    arrFinal.append(x)
-                                else :
-                                    arrAux.append(x)
-                        m+=1
-
-                    x=0
-                    for e in consulta2:
-                        if x != 0 :
-                            for z in e :
-                                if z not in arrFinal:
-                                    arrFinal.append(z)
-                                else :
-                                    arrAux.append(z)
-                        x+=1
-
-                    x = PrettyTable()
-                    x.field_names = arrColNames[0]
-                    for e in arrAux:
-                        print(e)
-                        x.add_row(e)
-                    consola += str(x) + "\n"
-
-                elif nodo.ope.lower() == "except":
-                    print("intersect")
-                    n=0
-                    for e in consulta1:
-                        if n == 0:
-                            arrColNames .append(e)
-                        n+=1
-
-                    m=0
-                    for e in consulta1:
-                        if m != 0 :
-                            for x in e :
-                                if x not in arrFinal:
-                                    arrFinal.append(x)
-                                else :
-                                    arrAux.append(x)
-                        m+=1
-
-                    x=0
-                    for e in consulta2:
-                        if x != 0 :
-                            for z in e :
-                                if z not in arrFinal:
-                                    arrFinal.append(z)
-                                else :
-                                    arrAux.append(z)
-                        x+=1
-
-                    #no Repetidos
-                    g=0
-                    for e in consulta1:
-                        if g != 0 :
-                            for x in e :
-                                if x not in arrAux:
-                                    arrAux2.append(x)
-                        g+=1
-
-
-                    x = PrettyTable()
-                    x.field_names = arrColNames[0]
-                    for e in arrAux2:
-                        print(e)
-                        x.add_row(e)
-                    consola += str(x) + "\n"
-        elif isinstance(nodo, SCrearIndice):
-            crearIndice(nodo, tablaSimbolos)
-        
-        elif isinstance(nodo, SDropIndex):
-            borrarIndice(nodo,tablaSimbolos)
-        elif isinstance(nodo, SAlterIndex):
-            alterarIndice(nodo,tablaSimbolos)
-
-        elif isinstance(nodo,SAlterIndexColumna):
-            alterarIndiceColumna(nodo,tablaSimbolos)
+            elif isinstance(nodo,SAlterIndexColumna):
+                alterarIndiceColumna(nodo,tablaSimbolos)
 
         for i in listaSemanticos:
             consola += "\n" + i.descripcion + "\n"
@@ -427,8 +655,8 @@ def interpretar_sentencias(arbol, tablaSimbolos):
 
 
     print("SOY TU TRADUCCION------------------")
-    texttraduccion+="\ndef FunctionInsert():\n"
-    texttraduccion+= identacion+ "print("+"\""+"Aqui va la logica"+"\""+"):\n"
+    #texttraduccion+="\ndef FunctionInsert():\n"
+    #texttraduccion+= identacion+ "print("+"\""+"Aqui va la logica"+"\""+"):\n"
     print(texttraduccion)
     print("YA OPTIMIZADO------------------------- ")
     print(textoptimizado)
@@ -684,23 +912,40 @@ def Declara(nodo,tablaSimbolos):
 
         else:
             #AGREGAR A OPTIMIZACION 
+            aux = item3D("","","")
             if val.ropt==12:
                 #agregar a optimizacion regla 8
-                cadenaText=nodo.id+"="+str(val.opt)
+                cadenaText=nodo.id+"="+str(val.vopt)
                 cadenaopt="Se elimina la cadena"
+                aux.cod3d = cadenaText
+                aux.opt =cadenaopt
+                aux.regla ="Regla 8"
+                arr_optimizacion.append(aux) 
             elif val.ropt==13:
                 #agregar a optimizacion regla 9
-                cadenaText=nodo.id+"="+str(val.opt)
+                cadenaText=nodo.id+"="+str(val.vopt)
                 cadenaopt="Se elimina la cadena"
+                aux.cod3d = cadenaText
+                aux.opt =cadenaopt
+                aux.regla ="Regla 9"
+                arr_optimizacion.append(aux) 
             elif val.ropt==14:
                 #agregar a optimizacion regla 10
-                cadenaText=nodo.id+"="+str(val.opt)
+                cadenaText=nodo.id+"="+str(val.vopt)
                 cadenaopt="Se elimina la cadena"
+                aux.cod3d = cadenaText
+                aux.opt =cadenaopt
+                aux.regla ="Regla 10"
+                arr_optimizacion.append(aux) 
             elif val.ropt==15:
                 #agregar a optimizacion regla 11
-                cadenaText=nodo.id+"="+str(val.opt)
+                cadenaText=nodo.id+"="+str(val.vopt)
                 cadenaopt="Se elimina la cadena"
-            
+                aux.cod3d = cadenaText
+                aux.opt =cadenaopt
+                aux.regla ="Regla 11"
+                arr_optimizacion.append(aux) 
+             
         nodo.tipo=valor.tipo
         auxvar = TS.SimboloVariable(nodo.id,valor.tipo,valor.valor,"Local")
         tablaSimbolos.put(nodo.id,auxvar)
@@ -1144,19 +1389,56 @@ def TraducirAsignacion(nodo,tablaSimbolos):
             banderita = True
 
     if banderita : 
+
+        if (valor.vopt!=nodo.id):
+            textoptimizado += identacion + nodo.id + "=" + str(valor.valor) +"\n"
+        else:
+            #AGREGAR A OPTIMIZACION 
+            aux = item3D("","","")
+            if valor.ropt==12:
+                #agregar a optimizacion regla 8
+                cadenaText=nodo.id+"="+str(valor.vopt)
+                cadenaopt="Se elimina la cadena"
+                aux.cod3d = cadenaText
+                aux.opt =cadenaopt
+                aux.regla ="Regla 8"
+                arr_optimizacion.append(aux) 
+            elif valor.ropt==13:
+                #agregar a optimizacion regla 9
+                cadenaText=nodo.id+"="+str(valor.vopt)
+                cadenaopt="Se elimina la cadena"
+                aux.cod3d = cadenaText
+                aux.opt =cadenaopt
+                aux.regla ="Regla 9"
+                arr_optimizacion.append(aux) 
+            elif valor.ropt==14:
+                #agregar a optimizacion regla 10
+                cadenaText=nodo.id+"="+str(valor.vopt)
+                cadenaopt="Se elimina la cadena"
+                aux.cod3d = cadenaText
+                aux.opt =cadenaopt
+                aux.regla ="Regla 10"
+                arr_optimizacion.append(aux) 
+            elif valor.ropt==15:
+                #agregar a optimizacion regla 11
+                cadenaText=nodo.id+"="+str(valor.vopt)
+                cadenaopt="Se elimina la cadena"
+                aux.cod3d = cadenaText
+                aux.opt =cadenaopt
+                aux.regla ="Regla 11"
+                arr_optimizacion.append(aux) 
+           
         texttraduccion += identacion + nodo.id + "=" + str(valor.valor) +"\n"
-        textoptimizado += identacion + nodo.id + "=" + str(valor.valor) +"\n"
+       
     else: 
         listaSemanticos.append(Error.ErrorS("Error semantico", "No se encontró la variable"+nodo.id))
-
-
-
 
 
 def TraducirIF(nodo,tablaSimbolos):
     global texttraduccion,textoptimizado,contadoresEtiqueta,contadoresT
     if nodo.eliff == False and nodo.eelse == False:
         condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+        aux = item3D("","","")
         if condicion.ropt==0:
             texttraduccion += "goto " + condicion.EtiquetaV + " \n"
             texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
@@ -1169,6 +1451,7 @@ def TraducirIF(nodo,tablaSimbolos):
             TraducirBloque(nodo.iff,tablaSimbolos)
             texttraduccion += identacion + "label "+condicion.EtiquetaF + "\n"
         elif condicion.ropt==3:
+            
             texttraduccion += "goto " + condicion.EtiquetaV + " \n"
             texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
 
@@ -1180,6 +1463,10 @@ def TraducirIF(nodo,tablaSimbolos):
 
             cadenatext=condicion.vopt["cadenatext"]
             cadenaopt=condicion.vopt["cadenaopt"]
+            aux.cod3d = cadenatext
+            aux.opt =cadenaopt
+            aux.regla ="Regla 3"
+            arr_optimizacion.append(aux)
 
             #agregar regla de optimizacion 3
         elif condicion.ropt==4:
@@ -1196,6 +1483,10 @@ def TraducirIF(nodo,tablaSimbolos):
 
             cadenatext=condicion.vopt
             cadenaopt="goto "+ condicion.EtiquetaV
+            aux.cod3d = cadenatext
+            aux.opt =cadenaopt
+            aux.regla ="Regla 4"
+            arr_optimizacion.append(aux)
             #agregar regla de optimizacion 4
         elif condicion.ropt==5:
 
@@ -1214,13 +1505,19 @@ def TraducirIF(nodo,tablaSimbolos):
 
             cadenatext=condicion.vopt
             cadenaopt="goto "+ condicion.EtiquetaF
+            aux.cod3d = cadenatext
+            aux.opt =cadenaopt
+            aux.regla ="Regla 5"
+            arr_optimizacion.append(aux)
             #agregar regla de optimizacion 5
+        
 
 
     
     elif nodo.eliff == False and nodo.eelse != False: 
         etiquetaSalida = ""
         condicion=Interpreta_Expresion(nodo.condicion,tablaSimbolos,None,True)
+        aux = item3D("","","")
         if condicion.ropt==0:
             texttraduccion += "goto " + condicion.EtiquetaV + " \n"
             texttraduccion += identacion+"goto " + condicion.EtiquetaF + " \n"
@@ -1264,6 +1561,10 @@ def TraducirIF(nodo,tablaSimbolos):
 
             cadenatext=condicion.vopt["cadenatext"]
             cadenaopt=condicion.vopt["cadenaopt"]
+            aux.cod3d = cadenatext
+            aux.opt =cadenaopt
+            aux.regla ="Regla 3"
+            arr_optimizacion.append(aux)
             #agregar opt regla 3
         elif condicion.ropt==4:
             texttraduccion += "goto " + condicion.EtiquetaV + " \n"
@@ -1288,6 +1589,10 @@ def TraducirIF(nodo,tablaSimbolos):
 
             cadenatext=condicion.vopt
             cadenaopt="goto "+ condicion.EtiquetaV
+            aux.cod3d = cadenatext
+            aux.opt =cadenaopt
+            aux.regla ="Regla 4"
+            arr_optimizacion.append(aux)
             #agregar regla de optimizacion 4
         elif condicion.ropt==5:
 
@@ -1313,6 +1618,10 @@ def TraducirIF(nodo,tablaSimbolos):
 
             cadenatext=condicion.vopt
             cadenaopt="goto "+ condicion.EtiquetaF
+            aux.cod3d = cadenatext
+            aux.opt =cadenaopt
+            aux.regla ="Regla 5"
+            arr_optimizacion.append(aux)
             #agregar regla de optimizacion 5
         
 
@@ -1378,9 +1687,7 @@ def TraducirIF(nodo,tablaSimbolos):
         TraducirBloque(nodo.eelse,tablaSimbolos)
         texttraduccion += identacion + "label "+etiquetaSalida + "\n"
 
-    
-
-
+   
 def deleteBase(nodo, tablaSimbolos):
     global consola
     if nodo.listaWhere == False:
@@ -1465,6 +1772,368 @@ def deleteBase(nodo, tablaSimbolos):
                     listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                         "Error al intentar eliminar la columna con PK '%s', Llave primaria no encontrada" % (
                                                             str(llaves))))
+####################################################################
+
+def showBaseEx(nodo):
+    global useActual,consola
+    if nodo.like == False:
+        bases = jBase.showDatabases()
+        for base in bases:
+            consola += base + "\n"
+    else:
+        bases = jBase.showDatabases()
+        basn = []
+        for base in bases:
+            basn.append(base)
+        basn2 = []
+        r = re.compile(".*" + nodo.cadena + ".*")
+        basn2 = list(filter(r.match, basn))
+
+        for bas in basn2:
+            consola += bas + "\n"
+
+def dropBaseEx(nodo):
+    global useActual,consola
+    if nodo.exists == False:
+        db = jBase.dropDatabase(nodo.id.valor)
+        if db == 2:
+            listaSemanticos.append(
+                Error.ErrorS("Error Semantico", "Error la base de datos " + nodo.id.valor + " no existe"))
+        elif db == 1:
+            listaSemanticos.append(Error.ErrorS(
+                "Error Semantico", "Error en la operacion."))
+        else:
+            b = tablaSimbolos.eliminar(nodo.id.valor)
+            if b == True:
+                consola += "La base de datos " + nodo.id.valor + " se elimino con exito. \n"
+
+    else:
+        db = jBase.dropDatabase(nodo.id.valor)
+        if db == 1:
+            listaSemanticos.append(Error.ErrorS(
+                "Error Semantico", "Error en la operacion."))
+        elif db == 0:
+            b = tablaSimbolos.eliminar(nodo.id.valor)
+            if b == True:
+                consola += "La base de datos " + nodo.id.valor + " se elimino con exito. \n"
+            else:
+                consola += "Error no se pudo elminar la base " + \
+                        nodo.id.valor + " de la tabla de simbolos \n"
+        elif db == 2:
+            consola += "La base de datos " + nodo.id.valor + " no existe \n"
+
+def updateBaseEx(nodo,tablaSimbolos):
+    global consola,useActual
+    registros = jBase.extractTable(useActual, nodo.id)
+    actualizar = []
+
+    if registros != None:
+
+        tabla = tablaSimbolos.get(useActual).getTabla(nodo.id)
+        columnas = tabla.columnas
+        tupla = {"nombreC": [], "tipo": [], "valor": []}
+        nombres = []
+        valores = []
+        tipos = []
+        diccionario = {}
+        primary = tabla.get_pk_index()
+        llaves = []
+
+        for k in columnas:
+            tupla["nombreC"].append(columnas[k].nombre)
+            tupla["tipo"].append(columnas[k].tipo)
+            nombres.append(columnas[k].nombre)
+            tipos.append(columnas[k].tipo)
+
+        i = 1
+        for r in registros:
+
+            for c in r:
+                tupla["valor"].append(c)
+
+            if nodo.listaWhere is not False:
+                b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla,False)
+            else:
+                b = SExpresion(True,Expresion.BOOLEAN)
+            tupla["valor"].clear()
+
+            if b.valor:
+                actualizar.append(r)
+                if len(primary) == 0:
+                    llaves.append([str(i-1)])
+                else:
+                    llaves.append([str(i) + "|"])                        
+            i += 1
+
+        bandera1 = False
+        
+
+        for x in range(len(actualizar)):
+
+            for z in range(len(nombres)):
+
+                bandera = False
+                for y in range(len(nodo.listaSet)):
+
+                    if nombres[z] == nodo.listaSet[y].columna:
+                        diccionario[tabla.getIndex(nombres[z])] = nodo.listaSet[y].valor.valor
+
+                        valores.append(nodo.listaSet[y].valor)
+                        bandera = True
+                        break
+
+                if not bandera:
+                    if hasattr(tipos[z],'dato'):
+                        valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
+                    else:
+                        valores.append(SExpresion(actualizar[x][z],tipos[z].tipo))
+
+
+            validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x],tupla)
+            valores.clear()
+            diccionario = {}
+
+    else:
+
+        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                            "Error en UPDATE, no se encontró la base de datos [%s] o la tabla [%s] especificada" % (
+                                            useActual, nodo.id)))
+
+def showTableEx():
+    global useActual,consola
+    tablas = jBase.showTables(useActual)
+    for tabla in tablas:
+        consola += tabla + "\n"  
+
+def typeEnumEx(nodo):
+    my_dict = {}
+    for val in nodo.lista:
+        my_dict[val.valor] = val.valor
+    types[nodo.id] = my_dict
+                
+def dropTableEx(nodo,tablaSimbolos):
+    global useActual,consola
+    bandera = True
+    for fk in listaFK:
+        if fk.idtlocal == nodo.id:
+            bandera = False
+    if bandera:
+        b = jBase.dropTable(useActual, nodo.id)
+        if b == 0:
+            base = tablaSimbolos.get(useActual)
+            if base.deleteTable(nodo.id) == True:
+                consola += "La tabla " + nodo.id + " de la base " + \
+                        useActual + " se eliminó con éxito. \n"
+            else:
+                consola += "Error no se pudo eliminar la tabla " + \
+                        nodo.id + " de la tabla de simbolos \n"
+        elif b == 2:
+            listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                "Error la base de datos " + useActual + " no existe, No se puede eliminar la tabla " + nodo.id))
+        elif b == 3:
+            listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                "Error la tabla " + nodo.id + " no existe en la base de datos " + useActual))
+        elif b == 1:
+            listaSemanticos.append(Error.ErrorS(
+                "Error Semantico", "Error en la operacion."))
+    else:
+        consola += "No se puede eliminar la tabla debido a que esta siendo referenciada por una llave foranea \n"
+            
+def alterTable_AlterColumnEx(nodo,tablaSimbolos):
+    global useActual,consola
+    for col in nodo.columnas:
+        if col.tipo == TipoAlterColumn.NOTNULL:
+            AlterColumnNotNull(nodo,tablaSimbolos)
+            break
+        else:
+            AlterColumnCTipo(nodo, tablaSimbolos)
+            break
+
+def alterTableDropEx(nodo,tablaSimbolos):
+    if nodo.tipo == TipoAlterDrop.COLUMN:
+        AlterTableDropColumn(nodo, tablaSimbolos)
+    else:
+        AlterTableDropConstraint(nodo, tablaSimbolos)
+
+def queryEx(nodo,tablaSimbolos):
+    global consola,useActual
+    if nodo.ope == False:
+        # print("Query Simple")
+        if isinstance(nodo.query1, SQuery):
+            Qselect = nodo.query1.select
+            Qffrom = nodo.query1.ffrom
+            Qwhere = nodo.query1.where
+            Qgroupby = nodo.query1.groupby
+            Qhaving = nodo.query1.having
+            Qorderby = nodo.query1.orderby
+            Qlimit = nodo.query1.limit
+            base = tablaSimbolos.get(useActual)
+            if useActual != None:
+                if base == None:
+                    listaSemanticos.append(
+                        Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
+                    return
+            pT = PrettyTable()
+            B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
+            if B!=0:
+                consola += str(pT) + "\n"
+
+    else:
+                    print("Query no 1")
+                    consulta1=[]
+                    consulta2=[]
+
+                    Qselect = nodo.query1.select
+                    Qffrom = nodo.query1.ffrom
+                    Qwhere = nodo.query1.where
+                    Qgroupby = nodo.query1.groupby
+                    Qhaving = nodo.query1.having
+                    Qorderby = nodo.query1.orderby
+                    Qlimit = nodo.query1.limit
+                    base = tablaSimbolos.get(useActual)
+                    if useActual != None:
+                        if base == None:
+                            listaSemanticos.append(
+                                Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
+                            return
+                    pT = PrettyTable()
+                    consulta1=hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
+
+                    Qselect2 = nodo.query2.select
+                    Qffrom2 = nodo.query2.ffrom
+                    Qwhere2 = nodo.query2.where
+                    Qgroupby2 = nodo.query2.groupby
+                    Qhaving2 = nodo.query2.having
+                    Qorderby2 = nodo.query2.orderby
+                    Qlimit2 = nodo.query2.limit
+                    base2 = tablaSimbolos.get(useActual)
+                    pT = PrettyTable()
+                    consulta2=hacerConsulta(Qselect2, Qffrom2, Qwhere2, Qgroupby2, Qhaving2, Qorderby2, Qlimit2, base2, pT, False,tablaSimbolos)
+
+                    arrColNames = []
+                    arrFinal = []
+                    arrAux = []
+                    arrAux2 = []
+                    if nodo.ope.lower() == "union":
+                        print("union")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                            x+=1
+
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrFinal:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+
+                    elif nodo.ope.lower() == "intersect":
+                        print("intersect")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                                    else :
+                                        arrAux.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                                    else :
+                                        arrAux.append(z)
+                            x+=1
+
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrAux:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+
+                    elif nodo.ope.lower() == "except":
+                        print("intersect")
+                        n=0
+                        for e in consulta1:
+                            if n == 0:
+                                arrColNames .append(e)
+                            n+=1
+
+                        m=0
+                        for e in consulta1:
+                            if m != 0 :
+                                for x in e :
+                                    if x not in arrFinal:
+                                        arrFinal.append(x)
+                                    else :
+                                        arrAux.append(x)
+                            m+=1
+
+                        x=0
+                        for e in consulta2:
+                            if x != 0 :
+                                for z in e :
+                                    if z not in arrFinal:
+                                        arrFinal.append(z)
+                                    else :
+                                        arrAux.append(z)
+                            x+=1
+
+                        #no Repetidos
+                        g=0
+                        for e in consulta1:
+                            if g != 0 :
+                                for x in e :
+                                    if x not in arrAux:
+                                        arrAux2.append(x)
+                            g+=1
+
+
+                        x = PrettyTable()
+                        x.field_names = arrColNames[0]
+                        for e in arrAux2:
+                            print(e)
+                            x.add_row(e)
+                        consola += str(x) + "\n"
+            
+
+def definirUseActual(id):
+    global useActual,consola
+    useActual = id
+    consola += "La base de datos '" + id + "' es ahora la seleccionada como activa\n"
+    return consola
+
+####################################################################
+
 
 def crearBase(nodo, tablaSimbolos):
     val = nodo.id.valor
@@ -2768,6 +3437,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             if cod3D:
                 ropt=0
+                aux = item3D("","","")
                 if opIzq.ropt==0:
                     texttraduccion += "goto " + opIzq.EtiquetaV + " \n"
                     texttraduccion += identacion+"goto " + opIzq.EtiquetaF + " \n"
@@ -2794,6 +3464,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
                     cadenatext=opIzq.vopt["cadenatext"]
                     cadenaopt=opIzq.vopt["cadenaopt"]
+                    aux.cod3d = cadenatext
+                    aux.opt =cadenaopt
+                    aux.regla ="Regla 3"
+                    arr_optimizacion.append(aux)
 
                     #agregar regla de optimizacion 3
                 elif opIzq.ropt==4:
@@ -2810,6 +3484,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
                     cadenatext=opIzq.vopt
                     cadenaopt="goto "+ opIzq.EtiquetaV
+                    aux.cod3d = cadenatext
+                    aux.opt =cadenaopt
+                    aux.regla ="Regla 4"
+                    arr_optimizacion.append(aux)
                     #agregar regla de optimizacion 4
                 elif opIzq.ropt==5:
 
@@ -2827,6 +3505,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                     
                     cadenatext=opIzq.vopt
                     cadenaopt="goto "+ opIzq.EtiquetaF
+                    aux.cod3d = cadenatext
+                    aux.opt =cadenaopt
+                    aux.regla ="Regla 5"
+                    arr_optimizacion.append(aux)
                     #agregar regla de optimizacion 5
 
                 return Etiquetas(False,False,opDer.EtiquetaV,opIzq.EtiquetaF,opDer.vopt,opDer.ropt)
@@ -2838,6 +3520,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             if cod3D:
                 ropt=0
+                aux = item3D("","","")
                 if opIzq.ropt==0:
                     texttraduccion += "goto " + opIzq.EtiquetaV + " \n"
                     texttraduccion += identacion+"goto " + opIzq.EtiquetaF + " \n"
@@ -2864,6 +3547,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
                     cadenatext=opIzq.vopt["cadenatext"]
                     cadenaopt=opIzq.vopt["cadenaopt"]
+                    aux.cod3d = cadenatext
+                    aux.opt =cadenaopt
+                    aux.regla ="Regla 3"
+                    arr_optimizacion.append(aux)
 
                     #agregar regla de optimizacion 3
                 elif opIzq.ropt==4:
@@ -2880,6 +3567,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
                     cadenatext=opIzq.vopt
                     cadenaopt="goto "+ opIzq.EtiquetaV
+                    aux.cod3d = cadenatext
+                    aux.opt =cadenaopt
+                    aux.regla ="Regla 4"
+                    arr_optimizacion.append(aux)
                     #agregar regla de optimizacion 4
                 elif opIzq.ropt==5:
 
@@ -2897,6 +3588,10 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                     
                     cadenatext=opIzq.vopt
                     cadenaopt="goto "+ opIzq.EtiquetaF
+                    aux.cod3d = cadenatext
+                    aux.opt =cadenaopt
+                    aux.regla ="Regla 5"
+                    arr_optimizacion.append(aux)
                     #agregar regla de optimizacion 5
 
                 opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
@@ -3026,25 +3721,36 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
+                    aux = item3D("","","")
                     Etiqueta = "t" + str(contadoresT)
                     vopt=""
                     ropt=0
                     contadoresT += 1
                     '''OPTIMIZACION REGLAS 12'''
+                    aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor)
                     if (str(opDer.valor)=="0"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt=opIzq.valor
+                        aux.opt =vopt
+                        aux.regla ="Regla 12"
+                        arr_optimizacion.append(aux)
                         ropt=12
                     
                     elif(str(opIzq.valor)=="0"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt=opDer.valor
+                        aux.opt =vopt
+                        aux.regla ="Regla 12"
+                        arr_optimizacion.append(aux)
                         ropt=12
                     
                     elif(str(opIzq.valor)=="0" and str(opDer.valor)=="0"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt="0"
+                        aux.opt =vopt
+                        aux.regla ="Regla 12"
                         ropt=12
+                        arr_optimizacion.append(aux)
                     else:
                         textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor) +"\n"
                         vopt=Etiqueta
@@ -3059,18 +3765,26 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
+                    aux = item3D("","","")
                     Etiqueta = "t" + str(contadoresT)
                     contadoresT += 1
                     vopt=""
                     ropt=0
                     '''OPTIMIZACION REGLAS 13'''
+                    aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor)
                     if (str(opDer.valor)=="0"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt=opIzq.valor
                         ropt=13
+                        aux.opt =vopt
+                        aux.regla ="Regla 13"                        
+                        arr_optimizacion.append(aux)                        
                     elif(str(opIzq.valor)=="0" and str(opDer.valor)=="0"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt="0"
+                        aux.opt =vopt
+                        aux.regla ="Regla 13"
+                        arr_optimizacion.append(aux)
                         #ropt13
                     else:
                         textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor) +"\n"
@@ -3086,31 +3800,48 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
+                    aux = item3D("","","")
                     Etiqueta = "t" + str(contadoresT)
                     contadoresT += 1
                     vopt=""
                     ropt=0
                     ''' OPTIMIZACION REGLAS 14,16,17'''
+                    aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor)
                     if (str(opDer.valor)=="0" or str(opIzq.valor)=="0"):
-                        contadoresT-=1
-                        vopt="0"  
+                        #contadoresT-=1
+                        vopt="0"
+                        aux.opt =vopt
+                        aux.regla ="Regla 17"
+                        arr_optimizacion.append(aux) 
                         ropt=17
                     elif(str(opDer.valor)=="1"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt=opIzq.valor
+                        aux.opt =vopt
+                        aux.regla ="Regla 14"
+                        arr_optimizacion.append(aux) 
                         ropt=14
                     elif(str(opIzq.valor)=="1"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt=opDer.valor
+                        aux.opt =vopt
+                        aux.regla ="Regla 14"
+                        arr_optimizacion.append(aux) 
                         ropt=14
                     elif(str(opDer.valor)=="2"):
                         textoptimizado +=identacion+ Etiqueta + "="+str(opIzq.valor)+"+" +str(opIzq.valor)+"\n"
                         vopt=Etiqueta
+                        aux.opt =vopt
+                        aux.regla ="Regla 16"
+                        arr_optimizacion.append(aux)          
                         ropt=16
                     elif(str(opIzq.valor)=="2"):
                         textoptimizado +=identacion+ Etiqueta + "="+str(opDer.valor)+"+" +str(opDer.valor)+"\n"
                         vopt=Etiqueta
                         ropt=16
+                        aux.opt =vopt
+                        aux.regla ="Regla 16"
+                        arr_optimizacion.append(aux) 
                     else:
                         textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor) +"\n"
                         vopt=Etiqueta
@@ -3125,19 +3856,27 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 if cod3D:
+                    aux = item3D("","","")
                     Etiqueta = "t" + str(contadoresT)
                     contadoresT += 1
                     vopt=""
                     ropt=0
+                    aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor)
                     ''' OPTIMIZACION REGLA 18,15'''
                     if(str(opDer.valor)=="1"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt=opIzq.valor
                         ropt=15
+                        aux.opt =vopt
+                        aux.regla ="Regla 15"
+                        arr_optimizacion.append(aux)
                     elif (str(opIzq.valor)=="0"):
-                        contadoresT-=1
+                        #contadoresT-=1
                         vopt="0"
                         ropt=18
+                        aux.opt =vopt
+                        aux.regla ="Regla 18"
+                        arr_optimizacion.append(aux)
                     else:
                         textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor) +"\n"
                         vopt=Etiqueta
@@ -5760,4 +6499,37 @@ def SubstrSinWhere(arrCols, base, tablasColumna, pT,groupby):
         # x.field_names = nombreCols
         # x.add_rows([arrGlobal])
         # consola += str(x)+"\n"
-   
+
+# MÉTODO PARA GENERAR EL REPORTE DE ERRORES LÉXICOS
+def ccod3D():
+    print('Generando reporte de codigo de optimizacion')
+    __generar_reporte_cod('Optimización', arr_optimizacion)
+
+# FUNCIÓN PARA GENERAR EL REPORTE DE ERRORES
+def __generar_reporte_cod(titulo, lista):
+    if len(lista) > 0:
+        ''' '''
+        nodos = '''<
+        <TABLE>        
+        <TR>
+            <TD colspan="5">Reporte de %s <BR/> %s </TD>
+        </TR>
+        <TR>
+            <TD>Codigo 3D </TD>
+            <TD>Codigo Optimizado</TD>
+            <TD>Regla Utilizada</TD>
+        </TR>                               \n''' % (titulo, str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        s = Digraph(titulo,
+                    node_attr={'color': 'black', 'fillcolor': 'lightblue2', 'style': 'filled', 'shape': 'record'})
+        for e in lista:
+            nodos += '<TR> '
+            nodos += (' \n\t<TD> ' + str(e.cod3d).replace('{', '\{').replace('}', '\}').replace('<', '\<').replace('>',
+                                                                                                                    '\>') + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.opt) + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.regla).replace('{', '\{').replace('}', '\}').replace('<',
+                                                                                                      '\<').replace('>',
+                                                                                                                    '\>') + ' </TD> ')
+            nodos += ' \n</TR> \n'
+        nodos += '</TABLE>>'
+        s.node('lbl', nodos)
+        s.render('Reportes/' + titulo, format='png', view=True)

@@ -1,4 +1,5 @@
 import tkinter as tk
+import os
 import gramaticaASC as g
 from tkinter import filedialog as FileDialog
 from tkinter import colorchooser as ColorChooser
@@ -13,10 +14,11 @@ from tkinter import StringVar
 from tkinter.constants import END, INSERT
 import TablaSimbolos as TS
 
-tablaSimbolos = TS.Entorno(None)
 from tkinter import messagebox
 import pickle
 from graphviz import Digraph
+import cod3d as c3ddddd
+import sentencias as senttt 
 
 pathFile=''
 
@@ -201,8 +203,68 @@ if __name__ == "__main__":
         root.quit()
         print('Cerrando...')
 
+    
+    def __funcion_Hacer_3D2():
+        print(principal.stack)
+        c3ddddd.main(principal.stack)
+
+    def __funcion_Hacer_3D():
+
+        g.errores_lexicos.clear()
+        g.errores_sintacticos.clear()
+        
+        principal.consola = ""
+        principal.listaSemanticos.clear()
+        
+        entrada = my_editor.text.get('1.0', END)
+
+        arbol = g.parse(entrada)
+                
+        if len(g.errores_lexicos) == 0:
+
+            if len(g.errores_sintacticos) == 0:
+                imprimir_consola("") 
+                principal.texttraduccion = ""
+                principal.texttraduccion="import principal as p3 \nfrom goto import with_goto \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n"
+                principal.textoptimizado="import principal as p3 \nfrom goto import with_goto \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n"
+                data=principal.interpretar_sentencias(arbol,True)
+                #tablaSimbolos.mostrar()
+                imprimir_consola(principal.texttraduccion)
+                archivo = open("cod3d.py", 'w+') 
+                archivo.write(principal.texttraduccion) 
+                archivo.write("    print(p3.consola)")
+                archivo.close()
+                MessageBox.showinfo("Archivo generado","El archivo se guardo exitosamente")      
+                #append_consola(tablaSimbolos.mostrar_tabla())
+                #raiz = graficando.analizador(entrada)
+                #graficando.GraficarAST(raiz)
+                #graficando.ReporteGramatical()
+            else:
+
+                imprimir_consola('Se detectaron algunos errores sintácticos')
+                append_consola('')
+                append_consola('No. \t Lexema \t Tipo \t\t Fila \t Columna \t Descripción ')
+                
+                i = 0
+                while i < len(g.errores_sintacticos):
+                    
+                    append_consola( str(i) + ' \t ' + str(g.errores_sintacticos[i].lexema) +  ' \t ' + str(g.errores_sintacticos[i].tipo) +  ' \t ' + str(g.errores_sintacticos[i].fila) +  ' \t ' + str(g.errores_sintacticos[i].columna) +  ' \t ' + str(g.errores_sintacticos[i].descripcion) +  ' ')
+                    i += 1
+        else:
+
+            imprimir_consola('Se detectaron algunos errores léxicos')
+            append_consola('')
+            append_consola('No. \t Lexema \t Tipo \t\t Fila \t Columna \t Descripción ')
+                
+            i = 0
+            while i < len(g.errores_lexicos):
+                    
+                append_consola( str(i) + ' \t ' + str(g.errores_lexicos[i].lexema) +  ' \t ' + str(g.errores_lexicos[i].tipo) +  ' \t ' + str(g.errores_lexicos[i].fila) +  ' \t ' + str(g.errores_lexicos[i].columna) +  ' \t ' + str(g.errores_lexicos[i].descripcion) +  ' ')
+                i += 1
 
 
+        # FUNCIÓN PRIVADA PARA ANALIZAR EL ARCHIVO DE ENTRADA
+    
 
     def __funcion_analizar():
 
@@ -220,7 +282,7 @@ if __name__ == "__main__":
 
             if len(g.errores_sintacticos) == 0:
                 imprimir_consola("") 
-                data=principal.interpretar_sentencias(arbol,tablaSimbolos)
+                data=principal.interpretar_sentencias(arbol,False)
                 #tablaSimbolos.mostrar()
                 imprimir_consola(data)
                 #append_consola(tablaSimbolos.mostrar_tabla())
@@ -256,6 +318,9 @@ if __name__ == "__main__":
     
         """ entrada = my_editor.text.get('1.0',END)
         gd.parse(entrada) """
+
+    def __funcion_cod3d():
+        principal.ccod3D()
 
 
     # FUNCIÓN PRIVADA PARA REALIZAR EL REPORTE DE ERRORES LÉXICOS
@@ -296,9 +361,9 @@ if __name__ == "__main__":
         c_clus = 0
         con = 0
         tag = "t"
-        for i in tablaSimbolos.tabla:
+        for i in principal.tablaSimbolos.tabla:
 
-            base = tablaSimbolos.tabla[i]
+            base = principal.tablaSimbolos.tabla[i]
 
             cl = clus + str(c_clus)
             with ast.subgraph(name=cl) as c:
@@ -348,6 +413,7 @@ if __name__ == "__main__":
 
     def __funcion_ManualTecnico():
         os.startfile('Manual_Tecnico.pdf') 
+        
    
     def __funcion_ManualUsuario():
         os.startfile('Manual_Usuario.pdf') 
@@ -397,6 +463,8 @@ if __name__ == "__main__":
     #SUB MENÚS PARA EL MENÚ ANALIZAR
     menu_analizar.add_command(label="Análisis Ascendente", command=__funcion_analizar)
     menu_analizar.add_command(label="Análisis Descendente", command=__funcion_analizar_desc)
+    menu_analizar.add_command(label="Generar 3D", command=__funcion_Hacer_3D)
+    menu_analizar.add_command(label="EJECUTAR", command=__funcion_Hacer_3D2)
 
     # CREACIÓN DEL MENÚ ANALIZAR INCRUSTANDO LOS SUBMENÚS
     menubar.add_cascade(label="Analizar", menu=menu_analizar)
@@ -412,12 +480,14 @@ if __name__ == "__main__":
     menu_reporte.add_command(label="Gramatical Estatico", command=__funcion_GramaticalEstatico)
     menu_reporte.add_command(label="Gramatical Dinamico", command=__funcion_GramaticalDinamico)
     menu_reporte.add_command(label="Tabla de Símbolos", command=__funcion_TS)
+    menu_reporte.add_command(label="COD3D", command=__funcion_cod3d)
 
        
     menu_reporte.add_separator()
     menu_reporte.add_command(label="Errores Léxicos", command=__funcion_errores_lexicos)
     menu_reporte.add_command(label="Errores Sintácticos", command=__funcion_errores_sintacticos)
     menu_reporte.add_command(label="Errores Semánticos", command=__funcion_analizar)
+
      # CREACIÓN DEL MENÚ ANALIZAR INCRUSTANDO LOS SUBMENÚS
     menubar.add_cascade(label="Reportes", menu=menu_reporte)
    
