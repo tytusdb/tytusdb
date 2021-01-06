@@ -3346,7 +3346,7 @@ def p_sortoptions(t):
 
 def p_sortoptions0(t):
     'sortoptions : sortoption'
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_sortoptions1(t):
     '''sortoption : COLLATE

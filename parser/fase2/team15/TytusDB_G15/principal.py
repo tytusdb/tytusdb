@@ -1,4 +1,5 @@
 import gramatica as g
+import ts_index as TSINDEX
 import ts as TS
 import tc as TC
 from expresiones import *
@@ -2761,61 +2762,97 @@ def procesar_select_for_UNIONES(instr,ts,tc):
 
         return arrayReturn
 
-def procesar_index(instr, ts, tc):
+def procesar_index(instr, ts, tc,tsIndex):
     global salida
-    #print('---------------- si entra al index ---------------------')
-    if instr.etiqueta == INDEX.INDEX:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-        if type(instr.lista_index.identificador) == type([]):
-            for lista in instr.lista_index.identificador:
-                print(lista.val)
-        else:
-            print(instr.lista_index.identificador)
-        
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
     
-    elif instr.etiqueta == INDEX.INDEX_WHERE:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-        for lis in instr.lista_index.identificador:
-            print(lis.val)
+    buscar = tc.obtenerReturnTabla(useCurrentDatabase,instr.nombre_index)
+    if buscar == False:
+        salida = "\nERROR:  relation \"" + str(instr.nombre_index) +"\" does not exist\nSQL state: 42P01"
+    else:
+        #print('---------------- si entra al index ---------------------')
+        if instr.etiqueta == INDEX.INDEX:
+            
+            colums = ""
+            if type(instr.lista_index.identificador) == type([]):
+                for lista in instr.lista_index.identificador:
+                    colums += ' '
+                    colums += str(lista.val)
+                    colums += ' '
+                    '''print(lista.val)'''
+
+            else:
+                colums += ' '
+                colums += str(instr.lista_index.identificador)
+                colums += ' '
+            
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
+
         
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
+        elif instr.etiqueta == INDEX.INDEX_WHERE:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
+            
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
 
-    elif instr.etiqueta == INDEX.INDEX_INCLUDE:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-        for lis in instr.lista_index.identificador:
-            print(lis.val)
+        elif instr.etiqueta == INDEX.INDEX_INCLUDE:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
 
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
 
-    elif instr.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-        for lis in instr.lista_index.identificador:
-            print(lis.val)
-        
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
+        elif instr.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
+            
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
 
-    elif instr.etiqueta == INDEX.INDEX_INCLUDE:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
+        elif instr.etiqueta == INDEX.INDEX_INCLUDE:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
+
+        elif instr.etiqueta == INDEX.INDEX_CLASS:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
     
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
-
-    elif instr.etiqueta == INDEX.INDEX_CLASS:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
 
     
     
@@ -2844,7 +2881,7 @@ def obtener_indexbody(instr):
     salida = '\nCREATE INDEX'
     
 
-def procesar_instrucciones(instrucciones,ts,tc) :
+def procesar_instrucciones(instrucciones,ts,tc,tsIndex) :
     try:
         global salida,useCurrentDatabase
         salida = ""
@@ -2862,7 +2899,7 @@ def procesar_instrucciones(instrucciones,ts,tc) :
             elif isinstance(instr, ExpresionRelacional) : 
                 procesar_Expresion_Relacional(instr,ts,tc)
             elif isinstance(instr, Funcion_Index) :
-                procesar_index(instr,ts,tc)
+                procesar_index(instr,ts,tc,tsIndex)
             elif isinstance(instr, ExpresionBinaria) : 
                 procesar_Expresion_Binaria(instr,ts,tc)
             elif isinstance(instr, ExpresionLogica) : 

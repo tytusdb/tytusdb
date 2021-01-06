@@ -3,6 +3,7 @@ import PLSQL.tfPLSQL as TF
 from PLSQL.instruccionesPLSQL import *
 from PLSQL.expresionesPLSQL import *
 import PLSQL.gramaticaPLSQL as g
+from PLSQL.report_astPLSQL import *
 
 temporalT = 0
 temporalA = 0
@@ -91,6 +92,7 @@ def generarC3D(instrucciones, ts_global):
     cadenaFuncionIntermedia += "\nfrom gramatica import parse"
     cadenaFuncionIntermedia += "\nfrom principal import * "
     cadenaFuncionIntermedia += "\nimport ts as TS"
+    cadenaFuncionIntermedia += "\nimport ts_index as TSINDEX"
     cadenaFuncionIntermedia += "\nfrom expresiones import *"
     cadenaFuncionIntermedia += "\nfrom instrucciones import *"
     cadenaFuncionIntermedia += "\nfrom report_ast import *"
@@ -100,6 +102,7 @@ def generarC3D(instrucciones, ts_global):
     cadenaFuncionIntermedia += "\nclass Intermedio():"
     cadenaFuncionIntermedia += "\n\tinstrucciones_Global = []"
     cadenaFuncionIntermedia += "\n\ttc_global1 = []"
+    cadenaFuncionIntermedia += "\n\tts_globalIndex1 = []"
     cadenaFuncionIntermedia += "\n\tts_global1 = []\n"
     cadenaFuncionIntermedia += "\n\tdef __init__(self):"
     cadenaFuncionIntermedia += "\n\t\t''' Funcion Intermedia '''\n\n"
@@ -680,16 +683,18 @@ def generarFuncionesSQL(instruccionSQL,numero):
     global numFuncionSQL
     cadenaFuncionSQL = ""
     cadenaFuncionSQL += "\n\tdef procesar_funcion"+str(numero)+"(self):"
-    cadenaFuncionSQL += "\n\t\tglobal instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss"
+    cadenaFuncionSQL += "\n\t\tglobal instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1"
     cadenaFuncionSQL += "\n\t\tinstrucciones = g.parse('"+instruccionSQL+"')"
     cadenaFuncionSQL += "\n\t\terroressss = ErrorHTML()"
     cadenaFuncionSQL += "\n\t\tif  erroressss.getList()== []:"
     cadenaFuncionSQL += "\n\t\t\tinstrucciones_Global = instrucciones"
     cadenaFuncionSQL += "\n\t\t\tts_global = TS.TablaDeSimbolos()"
+    cadenaFuncionSQL += "\n\t\t\tts_globalIndex = TSINDEX.TablaDeSimbolos()"
     cadenaFuncionSQL += "\n\t\t\ttc_global = TC.TablaDeTipos()"
     cadenaFuncionSQL += "\n\t\t\ttc_global1 = tc_global"
     cadenaFuncionSQL += "\n\t\t\tts_global1 = ts_global"
-    cadenaFuncionSQL += "\n\t\t\tsalida = procesar_instrucciones(instrucciones, ts_global,tc_global)"
+    cadenaFuncionSQL += "\n\t\t\tts_globalIndex1 = ts_globalIndex"
+    cadenaFuncionSQL += "\n\t\t\tsalida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)"
     cadenaFuncionSQL += "\n\t\t\treturn salida"
     cadenaFuncionSQL += "\n\t\telse:"
     cadenaFuncionSQL += "\n\t\t\treturn 'Parser Error'\n\n"
@@ -700,13 +705,13 @@ def generarFuncionesSQL(instruccionSQL,numero):
 def generarFuncionesSQLREPORTES():
     cadenaFuncionSQL = ""
     cadenaFuncionSQL += "\n\tdef Reportes(self):"
-    cadenaFuncionSQL += "\n\t\tglobal instrucciones_Global,tc_global1,ts_global1,listaErrores"
+    cadenaFuncionSQL += "\n\t\tglobal instrucciones_Global,tc_global1,ts_global1,listaErrores,ts_globalIndex1"
     cadenaFuncionSQL += "\n\t\t#astGraph = AST()"
     cadenaFuncionSQL += "\n\t\t#astGraph.generarAST(instrucciones_Global)"
     cadenaFuncionSQL += "\n\t\ttypeC = TipeChecker()"
     cadenaFuncionSQL += "\n\t\ttypeC.crearReporte(tc_global1)"
     cadenaFuncionSQL += "\n\t\tRTablaS = RTablaDeSimbolos()"
-    cadenaFuncionSQL += "\n\t\tRTablaS.crearReporte(ts_global1)"
+    cadenaFuncionSQL += "\n\t\tRTablaS.crearReporte(ts_global1,ts_globalIndex1)"
     cadenaFuncionSQL += "\n\t\treturn \'\'\n\n"
     return cadenaFuncionSQL
 
@@ -716,10 +721,11 @@ instrucciones = runC3D(input)
 instrucciones_Global = instrucciones
 ts_global = TS.TablaDeSimbolos()
 codigo3D = generarC3D(instrucciones, ts_global)
+
 salida = open("./salida3D.py", "w")
 salida.write(codigo3D)
-salida.close()'''
-
+salida.close()
+'''
 '''if len(ts.simbolos) > 0:
     for simb in ts_global.simbolos.values():
         print(simb.id,simb.tipo,simb.valor,simb.temporal)
