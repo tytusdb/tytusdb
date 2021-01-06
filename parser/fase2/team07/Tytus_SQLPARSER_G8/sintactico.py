@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -2074,7 +2074,7 @@ def p_procedimiento(t):
     '''
     instruccion     :   CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
     '''
-
+    t[0] = Procedimiento.Procedimiento(t[3], t[5], t[12], t[14], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 
 #DECLARACION DE UNA FUNCION
@@ -2277,8 +2277,16 @@ def p_cont_funcion(t):
     '''
     cont_funcion    :   sentencia_if
                     |   instruccion
+                    |   sentencia_retorno
     '''
     t[0] = t[1]
+
+def p_sentencia_retorno(t):
+    '''
+    sentencia_retorno   :  RETURN PUNTO_COMA
+                        | RETURN expre PUNTO_COMA
+    '''
+
 
 def p_sentencia_if(t):    
     '''
@@ -2320,8 +2328,6 @@ def p_instruccion_if(t):
     '''
     instruccion_if : cont_funcion
                    | expre PUNTO_COMA
-                   | RETURN PUNTO_COMA
-                   | RETURN expre PUNTO_COMA
                    | RAISE NOTICE CADENA PUNTO_COMA
                    | RAISE NOTICE CADENA COMA ID PUNTO_COMA
                    | RAISE NOTICE CARACTER PUNTO_COMA
