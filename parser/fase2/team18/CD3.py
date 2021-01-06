@@ -344,12 +344,12 @@ def PDropProcedimientos(nombres):
     txt+="\tCD3.EDropProcedure()\n"
     agregarInstr(drop_procedimientos,txt)
 
-def PCreateProcedure(nombre,contenido,parametros,reemplazada):
+def PCreateProcedure(nombre,cuerpo,parametros,reemplazada):
     reinicar_contOP()
     txt="\t#Crear Stored  Procedure\n"
     txt+="\tt"+str(numT())+"='"+nombre+"'\n"
     txt+="\tt"+str(numT())+"="+str(parametros)+"\n"
-    txt+="\tt"+str(numT())+"="+str(reemplazada)+" #Reemplazar funcion\n"
+    txt+="\tt"+str(numT())+"="+str(reemplazada)+" #Reemplazar procedure\n"
     varT="t"+str(numT())
     txt+="\t"+varT+"=CD3.ECreateProcedure()\n"
 
@@ -357,33 +357,70 @@ def PCreateProcedure(nombre,contenido,parametros,reemplazada):
     #------------------optimizacion---------------
     regla="3 - se nego condicion para poder eliminar etiqueta"
     msg="if("+varT+"):\n"
-    msg+="\tgoto .bodyFun"+str(contT)+"\n"
+    msg+="\tgoto .bodyProc"+str(contT)+"\n"
     msg+="else:\n"
-    msg+="\tgoto .endFun"+str(contT)
+    msg+="\tgoto .endProc"+str(contT)
     msg2=""
     #---------------------------------------------
-    txt2="\tif("+varT+"==False):\n"
+
+    txt2="\tif("+varT+"==0):\n"
     fin=contT
     txt2+="\t\tgoto .endProc"+str(fin)+"\n"
     varT="t"+str(numT())
-    #txt2+="\t"+varT+"=CD3.ExecuteProc()\n"
-    txt2+="\tif("+varT+"==False):\n"
+    txt2+="\t"+varT+"=CD3.ExecuteProc()\n"
+    txt2+="\tif("+varT+"==0):\n"
     txt2+="\t\tgoto .endProc"+str(fin)+"\n"
+
     #declaraciones
     txt2+="\tlabel.decProc"+str(contT)+" #Declaraciones Procedure\n"
-    for i in contenido.declaraciones:
+    for i in cuerpo.declaraciones:
         txt2+="\tt"+str(numT())+"='"+i.nombre+"'\n"
         print("CD3------>",i)
-    #contenido
-    txt2+="\tlabel.bodyFun"+str(contT)+" #Contenido Procedure\n"
-    #txt2+=PInstrFun(contenido.contenido)+"\n"
+
+    #Body procedure
+    txt2+="\tlabel.bodyProc"+str(contT)+" #Cuerpo Procedure\n"
+    txt2+=PInstrProcedure(cuerpo.contenido)+"\n"
     txt2+="\tlabel.endProc"+str(fin)+"\n"
-    #agregarOptimizacion(regla,msg,txt2)
+    agregarOptimizacion(regla,msg,txt2)
     txt+=txt2
-    data=[nombre,str(contenido),parametros,reemplazada]
+    data=[nombre,str(cuerpo),parametros,reemplazada]
     agregarInstr(data,txt)
     agregarInstr(False,'')
 
+
+def PInstrProcedure(inst):
+    print("Imprimir procedure", inst)
+    var=''
+    '''for i in inst:
+        if isinstance(i,Insertar):
+            var+="\t#Instruccion INSERT\n"
+            txtInsert(i)
+    
+        elif isinstance(i,Actualizar):
+            var+="\t#Instruccion update\n"
+            txtUpdate(i)
+            
+        elif isinstance(i,Operacion_Expresion):
+            var+="\t#sentencia EXPRESION, Return,Raise y asignacion\n"
+            
+        elif isinstance(i,Eliminar):
+            var+="\t#Instruccion delete\n"
+            txtEliminar(i)'''
+            
+    return var
+
+
+def txtInsert(instr):
+    print("Insert")
+    return ""
+
+def txtUpdate(instr):
+    print("Update")
+    return ""
+
+def txtEliminar(instr):
+    print("Delete")
+    return ""
 
 #Fin procedimientos
 
@@ -878,10 +915,22 @@ def EDropProcedure():
 def ECreateProcedure():
     cargarMemoria()
     if(len(listaMemoria)>0):
-        crea=listaMemoria[0]
-        print("Procedure ",crea[0])
-        print("\tparametros:",crea[3])
+        creaF=listaMemoria[0]
+        if(creaF[3] == 1):
+            print("Stored procedure ",creaF[0]," reemplazada ")
+        else:
+            print("Stored procedure ",creaF[0])
         listaMemoria.pop(0)
+
+
+def ExecuteProc():
+    cargarMemoria()
+    #llamar la funcion de EDD
+    result=False
+    if(len(listaMemoria)>0):
+        result=listaMemoria[0]
+        listaMemoria.pop(0)
+    return result
 
 
 #FIN ejecucion

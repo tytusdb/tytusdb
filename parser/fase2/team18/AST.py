@@ -3842,7 +3842,7 @@ def Crear_Procedimiento(instr,ts):
         #verificar que no exista
         if(findProcedure(name)==None):
             addProcedure(name,cuerpo,parametros)
-            CD3.PCreateProcedure(name,cuerpo,parametros,False)
+            CD3.PCreateProcedure(name,cuerpo,parametros,0)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
         else:
@@ -3851,7 +3851,7 @@ def Crear_Procedimiento(instr,ts):
                 #eliminar la funcion
                 eliminarProcedure(name)
                 addProcedure(name,cuerpo,parametros)
-                CD3.PCreateProcedure(nombre,cuerpo,parametros,True)
+                CD3.PCreateProcedure(nombre,cuerpo,parametros,1)
                 msg="Funcion reemplazada"
                 agregarMensjae("alert",msg,"")
             else:
