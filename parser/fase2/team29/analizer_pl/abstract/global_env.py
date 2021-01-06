@@ -1,4 +1,3 @@
-
 class FunctionSymbol:
     def __init__(self, id, returnType, params) -> None:
         self.id = id
@@ -7,7 +6,6 @@ class FunctionSymbol:
 
 
 class GlobalEnvironment:
-
     def __init__(self) -> None:
         self.functions = {}
 

@@ -236,7 +236,9 @@ reservadas = {
     'procedure' : 'PROCEDURE',
     'out' : 'OUT',
     'language' : 'LANGUAGE',
-    'plpgsql' : 'PLPGSQL'
+    'plpgsql' : 'PLPGSQL',
+    'rowtype' : 'ROWTYPE',
+    'alias' : 'ALIAS'
 # revisar funciones de tiempo y fechas
 }
 
@@ -1100,8 +1102,8 @@ def p_funcion_basica(t):
                         | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | EXTRACT PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA
-                        | CURRENT_DATE PARENTESISIZQUIERDA operacion PARENTESISDERECHA
-                        | CURRENT_TIME PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | CURRENT_TIME 
+                        | CURRENT_DATE
     '''
     if t[1].upper()=="ABS":
         h.reporteGramatical1 +="funcionBasica    ::=      ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"

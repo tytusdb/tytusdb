@@ -10,6 +10,9 @@ import re
 import codecs
 import os
 import sys
+#imports instrucciones
+from Instrucciones.instruction import *
+from Instrucciones.ins_if import *
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
 # ======================================================================
@@ -49,7 +52,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'TRUNC','RADIANS','RANDOM','WIDTH_BUCKET'
               ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL','INDEX','HASH','INCLUDE','COLLATE', 'CONSTANT', 'ALIAS', 'FOR', 'RETURN', 'NEXT', 'ELSIF',
               'ROWTYPE', 'RECORD', 'QUERY', 'STRICT', 'VAR', 'EXECUTE',
-              'FUNCTION','LANGUAGE','RETURNS','ANYELEMENT','ANYCOMPATIBLE','VOID', 'OUT'
+              'FUNCTION','LANGUAGE','RETURNS','ANYELEMENT','ANYCOMPATIBLE','VOID', 'OUT', 'PERFORM'
               ]
 
 tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -60,7 +63,6 @@ tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENAS
                        'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT','DOSPUNTOS','DOLAR',
                        'DOLAR_LABEL'
                        ]
-
 # ======================================================================
 #                      EXPRESIONES REGULARES TOKEN
 # ======================================================================
@@ -270,8 +272,13 @@ def p_instrucciones_evaluar(t):
                    | ins_update
                    | ins_delete
                    | exp
+                   | execute
                    | ins_create_pl
                    | create_index'''
+   # if isinstance(t[1],Ins_If):
+       # t[0] = GenerarC3D()
+        #3t[0].code = t[1].Traduct()
+    #else:
     if t[1].statement == 'INDEX':
         t[0] = GenerarC3D()
         t[0].code += '# parser.parse(\'' + t[1].code + '\')' + '\n'
@@ -701,13 +708,17 @@ def p_list_id(t):
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA exp
-                | exp '''
+                | exp 
+                | '''
     if len(t) == 4:
         t[0] = GenerarC3D()
         t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
-    else:
+    if len(t) == 2:
         t[0] = GenerarC3D()
         t[0].code += t[1].code
+    else: 
+        t[0] = GenerarC3D()
+        t[0].code += ''
 
 def p_val_value(t):
     '''val_value : CADENA
@@ -1439,7 +1450,7 @@ def p_ins_delete(t):
 
 def p_ins_create_pl(t):
     '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameteropt PARCIERRE returns AS block LANGUAGE ID PUNTO_COMA
-                     | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE AS  block LANGUAGE ID PUNTO_COMA
+                     | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE LANGUAGE ID AS  block 
                      '''
     t[0] = GenerarC3D()
     if len(t) == 14:
@@ -1490,6 +1501,60 @@ def p_idopt(t):
         t[0] = t[1]
     else:
         t[0] = ""
+def p_t_dato(t):
+    '''t_dato : SMALLINT          
+                 | BIGINT
+                 | NUMERIC
+                 | DECIMAL PARABRE NUMERO COMA NUMERO PARCIERRE
+                 | INTEGER
+                 | INT
+                 | REAL
+                 | DOUBLE PRECISION
+                 | CHAR PARABRE NUMERO PARCIERRE
+                 | VARCHAR PARABRE NUMERO PARCIERRE
+                 | VARCHAR 
+                 | CHARACTER PARABRE NUMERO PARCIERRE
+                 | TEXT
+                 | TIMESTAMP arg_precision
+                 | TIME arg_precision
+                 | DATE
+                 | INTERVAL arg_tipo arg_precision
+                 | BOOLEAN
+                 | MONEY
+                 | ID '''
+    if t[1] == 'SMALLINT':
+        t[0]= DBType.smallint
+    elif t[1] == 'BIGING':
+        t[0]= DBType.bigint
+    elif t[1] == 'DOUBLE':
+        t[0] = DBType.double_precision
+    elif t[1] == 'NUMERIC':
+        t[0] = DBType.numeric
+    elif t[1] == 'CHAR':
+        t[0] = DBType.char
+    elif t[1] == 'VARCHAR':
+        t[0] = DBType.varchar
+    elif t[1] == 'CHARACTER':
+        t[0] = DBType.character
+    elif t[1] == 'TEXT':
+        t[0] = DBType.text
+    elif t[1] == 'TIMESTAMP':
+        t[0] = DBType.timestamp_wtz
+    elif t[1] == 'DOUBLE':
+        t[0] = DBType.double
+    elif t[1] == 'TIME':
+        t[0] = DBType.time_wtz
+    elif t[1] == 'DATE':
+        t[0] = DBType.date
+    elif t[1] == 'INTERVAL':
+        t[0] = DBType.interval
+    elif t[1] == 'BOOLEAN':
+        t[0] = DBType.boolean
+    elif t[1] == 'MONEY':
+        t[0] = DBType.money
+    else:
+        t[0] = 'None'
+    
 
 def p_retruns(t):
     '''returns : RETURNS exp_plsql
@@ -1513,28 +1578,31 @@ def p_body(t):
     if t[1] != None:
         t1 = t[1]
     if t[3] != None:
-        t2 = t[3]
-        for v in t2:
-            t3 += v 
+        t3 = t[3]
     t[0] = t1 + t3
 
+#TODO: Revisar declare_statement
+#def p_declare(t):
+#    '''declare_statement : DECLARE statements
+#                         | 
+#    '''
 def p_declare(t):
-    '''declare_statement : DECLARE statements
-                         | 
-    '''
+    '''declare_statement : declare_statement DECLARE statements
+                        | DECLARE statements
+                        | '''
     if len(t) == 3:
         t[0] = t[2][:-1]
     else:
         t[0] = ""
 
 def p_declaracion(t):
-    '''declaracion  : ID constante tipo_dato not_null declaracion_default PUNTO_COMA'''
+    '''declaracion  : ID constante t_dato not_null declaracion_default PUNTO_COMA'''
     temp = None
     v2 = ""
     if isinstance(t[5],dict):
         temp = t[5]['temp']
         v2 = t[5]['c3d']
-    v1 = declare(t[1], DBType.text,temp)
+    v1 = declare(t[1],t[3],temp)
     t[0] = v2 + v1
 
 def p_internal_blockopt(t):
@@ -1552,12 +1620,15 @@ def p_internal_block(t):
 
 def p_internal_body(t):
     '''internal_body : body PUNTO_COMA
-                   | instruccion_if
+                   | instruccion_if END IF PUNTO_COMA
                    | instruccion_case
                    | return
                    | statements
     '''
-    t[0] = t[1]
+    if isinstance(t[1],Ins_If):
+        t[0] = t[1].Traduct()
+    else:
+        t[0] = t[1]
 
 def p_constante(t):
     '''constante  : CONSTANT'''
@@ -1585,20 +1656,25 @@ def p_declaracion_default_null(t):
     t[0] = None
 def p_declaracionf_funcion(t):
     '''declaracion_funcion : ID ALIAS FOR DOLAR NUMERO PUNTO_COMA'''
+    t[0] = ''
 
 def p_declaracionf_funcion_rename(t):
     '''declaracion_funcion : ID ALIAS FOR ID PUNTO_COMA'''
+    t[0] = ''
 
 def p_declaracionc_copy(t):
     '''declaracion_copy : ID ID PUNTO ID SIGNO_MODULO TYPE PUNTO_COMA'''
+    t[0] = ''
 
 def p_declaracionr_row(t):
     '''declaracion_row : ID ID SIGNO_MODULO ROWTYPE PUNTO_COMA'''
     print('COPY ROW')
+    t[0] = ''
 
 def p_declaracionre_record(t):
     '''declaracion_record : ID RECORD PUNTO_COMA'''
     print('RECORD')
+    t[0] = ''
 
 def p_asignacion(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL exp_plsql PUNTO_COMA'''
@@ -1608,11 +1684,14 @@ def p_asignacion(t):
     t[0] = '\n' + valor['c3d'] + codigo
 
 def p_asignacion_igual(t):
-    '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
+    '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA
+    '''
+    t[0] = ""
 
 def p_asignacion_igual_parentesis(t):
-    '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
-
+    '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA
+    '''
+    t[0] = ""
 def p_asignacion_dos(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL exp_plsql PUNTO_COMA'''
     valor = traduct(t[5])
@@ -1622,10 +1701,10 @@ def p_asignacion_dos(t):
 
 def p_asignacion_dos_signo_(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
-
+    t[0] = ""
 def p_asignacion_dos_signo(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
-
+    t[0] = ""
 def p_referencia_id(t):
     '''referencia_id : PUNTO ID
                 | '''
@@ -1646,22 +1725,48 @@ def p_query(t):
                 | ins_delete '''
 
 def p_instruccion_if(t):
-    '''instruccion_if : IF exp_plsql then else_if else END IF PUNTO_COMA'''
+    '''instruccion_if : IF exp_plsql then ELSE statements 
+                      | IF exp_plsql then instruccion_elif 
+                      | IF exp_plsql then'''
+    
+    if len(t) == 6:
+        print('INSTRUCCION IF else')
+        insif = Ins_If(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('INSTRUCCION IF elif')
+        insif = Ins_If(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('INSTRUCCION IFsolo')
+        insif = Ins_If(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+
+def p_elsif(t):
+    '''instruccion_elif : ELSIF exp_plsql then ELSE statements 
+                        | ELSIF exp_plsql then instruccion_elif 
+                        | ELSIF exp_plsql then '''
+    
+    if len(t) == 6:
+        print('INSTRUCCION elsIF - else')
+        insif = Ins_If(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('INSTRUCCION elsIF - elsif')
+        insif = Ins_If(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('INSTRUCCION elsIF')
+        insif = Ins_If(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
 
 def p_then(t):
-    '''then : THEN statements'''
-
-def p_else_if(t):
-    '''else_if : else_if instruccion_else '''
-
-def p_else_if_else(t):
-    '''else_if : instruccion_else '''
-
-def p_else_if_else_null(t):
-    '''else_if :  '''
-                
-def p_instruccion_else(t):
-    '''instruccion_else : ELSIF exp_plsql then'''
+    '''then : THEN statements
+            | THEN '''
+    if len(t) == 3:
+        t[0] = t[2]
+    else: 
+        t[0] = ''
 
 def p_else(t):
     '''else : ELSE sentencia  '''
@@ -1685,7 +1790,11 @@ def p_cases_ins_null(t):
     '''cases : '''
 
 def p_instruccion_case_only(t):
-    '''instruccion_case_only : WHEN exp_plsql then'''
+    '''instruccion_case_only : WHEN multiple then'''
+
+def p_multiple(t):
+    '''multiple : exp_plsql COMA exp_plsql
+                    | exp_plsql'''
 
 def p_lista_exp(t):
     ''' lista_exp : lista_exp COMA exp_plsql'''
@@ -1711,10 +1820,14 @@ def p_statement(t):
                 | declaracion_copy
                 | declaracion_row
                 | declaracion_record
-                | instruccion_if
+                | instruccion_if END IF PUNTO_COMA
                 | instruccion_case
                 | return'''
-    t[0] = t[1]
+
+    if isinstance(t[1],Ins_If):
+        t[0] = t[1].Traduct()
+    else:
+        t[0] = t[1]
  
 
 def p_f_query(t):
@@ -1722,27 +1835,36 @@ def p_f_query(t):
                 | ins_insert f_return
                 | ins_update f_return
                 | ins_delete f_return'''
+    t[0] = ''
 
 def p_f_return(t):
-    ''' f_return : RETURNING exp_plsql into '''
+    ''' f_return : RETURNING exp_plsql into 
+            |'''
+    t[0] = ''
 
 def p_into(t):
     '''into : INTO ID '''
+    t[0] = ''
 
 def p_into_strict(t):
     '''into : INTO STRICT ID '''
+    t[0] = ''
 
 def p_execute(t):
-    '''execute : EXECUTE CADENA into USING exp_list'''
+    '''execute : EXECUTE CADENA into USING exp_list PUNTO_COMA'''
+    t[0] = ''
 
 def p_execute_use(t):
-    '''execute : EXECUTE CADENASIMPLE into USING exp_list'''
+    '''execute : EXECUTE CADENASIMPLE into USING exp_list PUNTO_COMA'''
+    t[0] = ''
 
 def p_execute_exp(t):
-    '''execute : EXECUTE exp_plsql'''
+    '''execute : EXECUTE exp_plsql PUNTO_COMA'''
+    t[0] = ''
 
 def p_null(t):
     '''null : NULL PUNTO_COMA'''
+    t[0] = 'null;'
 
 # ======================================================================
 #                        EXPRESIONES PLSQL
@@ -1793,6 +1915,10 @@ def p_val_value_plsql(t):
                 |   FECHA
                 |   HORA
                 |   ID'''
+    if t[1] == 'TRUE':
+        t[1] = 'True'
+    elif t[1] == 'FALSE':
+        t[1] = 'False'
     t[0] = {'left':None, 'right': None, 'data': t[1]}
 
 def p_list_vls_plsql(t):

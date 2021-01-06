@@ -84,7 +84,10 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
         | functionStmt
+        | procedureStmt 
+        | executePL S_PUNTOCOMA
         | ifStmt R_END R_IF S_PUNTOCOMA
+        | asignacionStmt S_PUNTOCOMA
     """
     listInst.append(t[1].dot())
     try:
@@ -94,6 +97,7 @@ def p_stmt(t):
     repGrammar.append(t.slice)
 
 # Statement para el IF
+# region IF
 def p_ifStmt(t):
 
     """ifStmt : R_IF S_PARIZQ expresion S_PARDER R_THEN List_body  else_"""
@@ -173,8 +177,9 @@ def p_body(t):
         | truncateStmt S_PUNTOCOMA
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
-        | functionStmt
+        | functionStmt S_PUNTOCOMA
         | ifStmt R_END R_IF S_PUNTOCOMA
+        | expresion S_PUNTOCOMA
     """
     try:
         t[0] = t[1]
@@ -182,7 +187,6 @@ def p_body(t):
         return
     repGrammar.append(t.slice)
 
-# endregion IF
 # endregion IF
 
 # Statement para el CREATE
@@ -528,6 +532,7 @@ def p_types_params(t):
     """
     t[0] = [t[1], t[2]]
     repGrammar.append(t.slice)
+
 
 
 def p_types_var(t):
@@ -1912,8 +1917,8 @@ def p_useStmt(t):
 
 # endregion
 
-# Statement para FUNCTIONS
-# region FUNCTIONS
+# Statement para FUNCTIONS Y PROCEDURE
+# region FUNCTIONS Y PROCEDURE
 
 def p_functionStmt(t):
     """functionStmt : R_CREATE R_FUNCTION ID S_PARIZQ params_list S_PARDER returnsStmt R_AS S_DOLAR S_DOLAR bloqueFunction"""
@@ -2062,6 +2067,81 @@ def p_labelEnd2(t):
 def p_labelEnd(t):
     """labelEnd : S_DOLAR S_DOLAR R_LANGUAGE ID S_PUNTOCOMA"""
     t[0] = t[4]
+    repGrammar.append(t.slice)
+
+def p_asignacionStmt(t):
+    """asignacionStmt : ID S_DOSPUNTOS S_IGUAL expresion"""
+    t[0] = t[4]
+    repGrammar.append(t.slice)
+
+def p_procedureStmt(t):
+    """procedureStmt : R_CREATE orReplace R_PROCEDURE ID S_PARIZQ params_list S_PARDER languageProcedure R_AS S_DOLAR S_DOLAR beginWord beginStmt endProcedure dolarEndProcedure"""
+    t[0] = instruction.ProcedureStmt(t[4], t[6], t[13], t[8], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+def p_procedureStmt2(t):
+    """procedureStmt : R_CREATE orReplace R_PROCEDURE ID S_PARIZQ S_PARDER languageProcedure R_AS S_DOLAR S_DOLAR beginWord beginStmt endProcedure dolarEndProcedure"""
+    t[0] = instruction.ProcedureStmt(t[4], None, t[12], t[7], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+def p_endProcedure2(t):
+    """endProcedure : """
+    repGrammar.append(t.slice)
+
+def p_endProcedure(t):
+    """endProcedure : R_END S_PUNTOCOMA"""
+    repGrammar.append(t.slice)
+
+def p_dolarEndProc2(t):
+    """dolarEndProcedure : """
+    repGrammar.append(t.slice)
+
+def p_dolarEndProc(t):
+    """dolarEndProcedure : S_DOLAR S_DOLAR S_PUNTOCOMA"""
+    repGrammar.append(t.slice)
+
+def p_beginProcWord2(t):
+    """beginWord : """
+    repGrammar.append(t.slice)
+
+def p_beginProcWord(t):
+    """beginWord : R_BEGIN"""
+    repGrammar.append(t.slice)
+
+def p_procedureLanguage(t):
+    """languageProcedure : R_LANGUAGE ID"""
+    t[0] = t[2]
+    repGrammar.append(t.slice)
+
+def p_procedureLanguage2(t):
+    """languageProcedure : """
+    t[0] = None
+    repGrammar.append(t.slice)
+
+def p_executePL(t):
+    """executePL : R_EXECUTE ID S_PARIZQ executeParams S_PARDER"""
+    t[0] = instruction.llamadaFunction(t[2], t[4], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+def p_executePL2(t):
+    """executePL : R_EXECUTE ID S_PARIZQ S_PARDER"""
+    t[0] = instruction.llamadaFunction(t[2], None, t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+def p_executeParams(t):
+    """executeParams : executeParams S_COMA executeItem"""
+    t[1].append(t[2])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_executeParams2(t):
+    """executeParams : executeItem"""
+    t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+def p_executeItem(t):
+    """executeItem : expresion"""
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 # endregion
