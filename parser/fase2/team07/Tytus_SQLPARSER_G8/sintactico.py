@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -73,10 +73,7 @@ def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
     t[0] = [t[1]]
 
-def p_instrucion_exp(t):
-    '''instruccion  :   expre'''
 
-    t[0] = t[1]
     
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
@@ -2187,13 +2184,20 @@ def p_list_dec_var_funcion2(t):
 
 def p_dec_var_funcion(t):
     '''
-    dec_var_funcion : 	ID constant_n tipo collate_n nnull aisgnacion_valor 
-				    |	ID ALIAS FOR DOLLAR ENTERO
+    dec_var_funcion : 	ID constant_n tipo nnull aisgnacion_valor 
+    '''
+    t[0] = DeclaracionVariable.DeclaracionVariable(t[1], t[2], t[3], t[4], t[5], "", t.lexer.lineno, t.lexer.lexpos, "")
+    
+def p_dec_var_funcion2(t):
+    '''
+    dec_var_funcion : 	ID ALIAS FOR DOLLAR ENTERO
 				    |	ID ALIAS FOR ID
-				    |	ID tabla_typerow MODULO type_row
     '''
 
-
+def p_dec_var_funcion3(t):
+    '''
+    dec_var_funcion : 	ID tabla_typerow MODULO type_row
+    '''
 
 def p_tabla_typerow(t):
     '''
@@ -2205,10 +2209,13 @@ def p_constant(t):
     '''
     constant_n  :   CONSTANT
     '''
+    t[0] = t[1]
+
 def p_constant_e(t):
     '''
     constant_n  :   
     '''
+    t[0] = None
 
 def p_type_row(t):
     '''
@@ -2216,23 +2223,18 @@ def p_type_row(t):
 			    |	ROWTYPE
     '''
 
-def p_collate(t):
-    '''
-    collate_n : COLLATE CADENA
-    '''
-def p_collate_e(t):
-    '''
-    collate_n :
-    '''
 
 def p_nnull(t):
     '''
     nnull : NOT NULL
     '''
+    t[0] = "NOT NULL"
+
 def p_nnull_e(t):
     '''
     nnull :
     '''
+    t[0] = None
 
 def p_aisgnacion_valor(t):
     '''
@@ -2289,7 +2291,6 @@ def p_instrucciones_if(t):
 def p_instruccion_if(t):
     '''
     instruccion_if : cont_funcion
-                   | instruccion
                    | expre PUNTO_COMA
                    | RETURN PUNTO_COMA
                    | RETURN expre PUNTO_COMA
