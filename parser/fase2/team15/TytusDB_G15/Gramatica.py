@@ -3369,10 +3369,11 @@ def p_opclass(t):
 
 
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
-    global reporte_sintactico
-    reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
-    
+    #print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
+    #global reporte_sintactico
+    #reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
+    errorSintactico = Error(str(t.value),int(t.lineno),int(find_column(str(entradaa),t)), "Error Sintactico")
+    listaErrores.append(errorSintactico) 
 
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
