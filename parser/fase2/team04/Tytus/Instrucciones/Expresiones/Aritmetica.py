@@ -305,3 +305,24 @@ class Aritmetica(Instruccion):
                 arbol.consola.append(error.toString())
                 return error
         return None
+    
+    def getCodigo(self, tabla, arbol):
+        leftOp = self.opIzq.getCodigo(tabla, arbol)
+        rightOp = self.opDer.getCodigo(tabla, arbol) if self.opDer else None
+        
+        temp_result = arbol.getTemporal()
+        
+        if leftOp and rightOp:
+            codigo = f"{leftOp['codigo']}{rightOp['codigo']}\t{temp_result} = {leftOp['dir']} {self.operador} {rightOp['dir']}\n"
+            return { 'codigo' : codigo, 'dir' : temp_result }
+        
+        codigo = f"{leftOp['codigo']}\t{temp_result} = {self.operador} {leftOp['dir']}\n"
+        return { 'codigo' : codigo, 'dir' : temp_result }
+    
+    def toString(self):
+        leftOp = self.opIzq.toString()
+        rightOp = self.opDer.toString() if self.opDer else None
+        
+        if leftOp and rightOp:
+            return f"{leftOp} {self.operador} {rightOp}"
+        return f"{self.operador} {leftOp}"

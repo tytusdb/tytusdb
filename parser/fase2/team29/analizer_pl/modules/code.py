@@ -118,5 +118,6 @@ def ShowDataBase(like, row, column):
 def Truncate(name, row, column):
     return truncate_.Truncate(name, row, column)
 
-def FunctionCall( id, params, isBlock, temp, row, column):
-    return func_call.FunctionCall( id, params, isBlock, temp, row, column)
+
+def FunctionCall(id, params, isBlock, temp, row, column):
+    return func_call.FunctionCall(id, params, isBlock, temp, row, column)

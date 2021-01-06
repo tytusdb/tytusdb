@@ -52,12 +52,9 @@ class Abs(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
-
             temporal = ThreeAddressCode().newTemp()
-            ThreeAddressCode().addCode(
-                f"{temporal} = {math.fabs(value.value)} # ABS({temp.value})")
+            ThreeAddressCode().addCode(f"{temporal} = abs({temp.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -114,12 +111,13 @@ class Cbrt(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
-            temp = self.value.compile(environment)
+            tempDIV = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{tempDIV} = 1 / 3")
 
+            temp = self.value.compile(environment)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.pow(value.value, 1 / 3)} # CBRT({temp.value})")
+                f"{temporal} = pow({temp.value}, {tempDIV}) # CBRT()")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -177,12 +175,10 @@ class Ceil(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
-            ThreeAddressCode().addCode(
-                f"{temporal} = {math.ceil(value.value)} # CEIL({temp.value})")
+            ThreeAddressCode().addCode(f"{temporal} = ceil({temp.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -239,12 +235,11 @@ class Ceiling(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.ceil(value.value)} # CEILING({temp.value})")
+                f"{temporal} = ceil({temp.value})  # CEILING()")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -301,12 +296,10 @@ class Degrees(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
-            ThreeAddressCode().addCode(
-                f"{temporal} = {math.degrees(value.value)} # DEGREES({temp.value})")
+            ThreeAddressCode().addCode(f"{temporal} = degrees({temp.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -383,14 +376,12 @@ class Div(Expression):
 
     def compile(self, environment):
         try:
-            value1 = self.dividendo.process(0)
             temp1 = self.dividendo.compile(environment)
-            value2 = self.divisor.process(0)
             temp2 = self.divisor.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {value1.value // value2.value} # DIV({temp1.value}, {temp2.value})")
+                f"{temporal} = {temp1.value} // {temp2.value}  # DIV()")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -447,12 +438,11 @@ class Exp(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.exp(value.value)} # EXP({temp.value})")
+                f"{temporal} = exp({temp.value}) # EXP()")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -508,12 +498,11 @@ class Factorial(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.factorial(value.value)} # FACTORIAL({temp.value})")
+                f"{temporal} = factorial({temp.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
 
@@ -573,12 +562,11 @@ class Floor(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.floor(value.value)} # FLOOR({temp.value})")
+                f"{temporal} = floor({temp.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -657,14 +645,12 @@ class Gcd(Expression):
 
     def compile(self, environment):
         try:
-            value1 = self.value1.process(0)
             temp1 = self.value1.compile(environment)
-            value2 = self.value2.process(0)
             temp2 = self.value2.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.gcd(value1.value, value2.value)} # GCD({temp1.value}, {temp2.value})")
+                f"{temporal} = gcd({temp1.value}, {temp2.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -721,12 +707,11 @@ class Ln(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {round(math.log(value.value), 3)} # LN({temp.value})")
+                f"{temporal} = log({temp.value})  # LN()")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -782,12 +767,11 @@ class Log(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {round(math.log10(value.value), 3)} # LOG({temp.value})")
+                f"{temporal} = log10({temp.value}) # LOG()")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -865,14 +849,12 @@ class Mod(Expression):
 
     def compile(self, environment):
         try:
-            value1 = self.value1.process(0)
             temp1 = self.value1.compile(environment)
-            value2 = self.value2.process(0)
             temp2 = self.value2.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {value1.value % value2.value} # MOD({temp1.value}, {temp2.value})")
+                f"{temporal} = {temp1.value} % {temp2.value} # MOD()")
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Mod"
@@ -983,14 +965,12 @@ class Power(Expression):
 
     def compile(self, environment):
         try:
-            value1 = self.base.process(0)
             temp1 = self.base.compile(environment)
-            value2 = self.exp.process(0)
             temp2 = self.exp.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.pow(value1.value, value2.value)} # POWER({temp1.value}, {temp2.value})")
+                f"{temporal} = pow({temp1.value}, {temp2.value}) # POWER()")
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Power"
@@ -1046,12 +1026,10 @@ class Radians(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
-            ThreeAddressCode().addCode(
-                f"{temporal} = {math.radians(value.value)} # RADIANS({temp.value})")
+            ThreeAddressCode().addCode(f"{temporal} = radians({temp.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -1130,21 +1108,13 @@ class Round(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp1 = self.value.compile(environment)
-
-            digits = self.n_digits.process(0)
             temp2 = self.n_digits.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
-            if digits.value == 0:
-                ThreeAddressCode().addCode(
-                    f"{temporal} = {math.trunc(value.value)} # ROUND({temp1.value}, {temp2.value})")
-                return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
-            else:
-                ThreeAddressCode().addCode(
-                    f"{temporal} = {round(value.value, digits.value)} # ROUND({temp1.value}, {temp2.value})")
-                return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
+            ThreeAddressCode().addCode(
+                f"{temporal} = round({temp1.value}, {temp2.value})")
+            return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
 
         except TypeError:
             desc = "Tipo de dato invalido para Round"
@@ -1272,12 +1242,11 @@ class Sqrt(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.sqrt(value.value)} # SQRT({temp.value})")
+                f"{temporal} = sqrt({temp.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:
@@ -1395,12 +1364,11 @@ class Trunc(Expression):
 
     def compile(self, environment):
         try:
-            value = self.value.process(0)
             temp = self.value.compile(environment)
 
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
-                f"{temporal} = {math.trunc(value.value)} # TRUNC({temp.value})")
+                f"{temporal} = trunc({temp.value})")
 
             return PrimitiveData(DATA_TYPE.NUMBER, temporal, self.line, self.column)
         except TypeError:

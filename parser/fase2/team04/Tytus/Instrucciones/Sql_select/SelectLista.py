@@ -57,6 +57,16 @@ class SelectLista(Instruccion):
                 n.lista_de_campos = columnas
                 n.data = valores
                 return n
+    
+    def getCodigo(self, tabla, arbol):
+        col = f""
+        for item in self.lista:
+            col += f"{item.getCodigo(tabla,arbol)}" 
+        column = f"{col}"
+        return column
+
+
+         
 
 
 class Alias():

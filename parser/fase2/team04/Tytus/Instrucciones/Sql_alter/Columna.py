@@ -9,3 +9,14 @@ class Columna(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         
+    def getCodigo(self, tabla, arbol):
+        id = f"{self.id}"
+        tipo = f"{self.tipo.toString()}"
+       
+        
+        column = f"{id} {tipo}"
+        
+        return column
+
+    def getCodigoTipo(self, tabla, arbol):
+        return self.tipo.toString()

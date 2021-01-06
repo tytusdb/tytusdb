@@ -443,10 +443,10 @@ class Main(tk.Tk):
         g.graficar_arbol(self.raiz_ast)
 
     def help_user_manual(self):
-        webbrowser.open('file://' + os.path.realpath("documents/Manual de Usuario.pdf"))
+        webbrowser.open('file://' + os.path.realpath("documents/Manual de Usuario/Manual de Usuario.pdf"))
 
     def help_technical_manual(self):
-        webbrowser.open('file://' + os.path.realpath("documents/Manual Técnico.pdf"))
+        webbrowser.open('file://' + os.path.realpath("documents/Manual Técnico/Manual Técnico.pdf"))
 
     # About it section
     def help_about_it(self):
@@ -577,6 +577,7 @@ class Main(tk.Tk):
             else:
                 self.do_body(ins.getInstruccion(), st_global, es_global, ct_global)
                 self.raiz_ast = ins.getNodo()
+                self.new_output("--- SE HA GENERADO EL ARCHIVO ÉXITOSAMENTE ---")
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
@@ -717,8 +718,6 @@ class Main(tk.Tk):
             if not existe:
                 simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',None,'','')
                 p_st.add(simbolo)
-            
-
 
     # CREACIÓN DE TABLAS EN BASE DE DATOS
     def do_create_tb(self, p_inst, p_st, p_es, p_ct):

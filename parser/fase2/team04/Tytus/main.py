@@ -11,16 +11,23 @@ import os
 #from sintactico import ejecutar_analisis
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
+import reportes.reportesimbolos3D as rs3D
 import reportes.RealizarGramatica
+import reportes.reporteindex as indexs
 
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
+from Instrucciones.plsql.proc import Proc
+from Instrucciones.plsql.statement import Statement
 
 from storageManager.jsonMode import *
 
 import sintactico
+
+
+#import sintacticoFake
 
 global arbol
 arbol = None
@@ -60,9 +67,9 @@ class interfaz():
         #img = PhotoImage(file='img/icons/Postgresql.ico')
         #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         self.window.configure(background="#6a8d92")
-        self.window.title("Query Tool - Grupo 8")
+        self.window.title("Query Tool - Grupo 8 y Grupo 4")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
-        w, h = 1370,670
+        w, h = 1300,670
         self.window.geometry("%dx%d+0+0" % (w, h))
         
         ##############################################MENU####################################
@@ -77,6 +84,8 @@ class interfaz():
         mnreportes = Menu(menu,tearoff=0)
         mnreportes.add_command(label='Tabla de Errores', command=self.tblerrores_click)
         mnreportes.add_command(label='Tabla de Simbolos', command=self.tblsimbolos_click)
+        mnreportes.add_command(label='Tabla de Index', command=self.tbindex_click)
+        mnreportes.add_command(label='Tabla de Simbolos 3D', command=self.tblsimbolos3D_click)
         mnreportes.add_command(label='AST', command=self.ast_click)
         mnreportes.add_command(label='Reporte Gramatical', command=self.repDin_click)
         menu.add_cascade(label='Reportes', menu=mnreportes)
@@ -84,13 +93,19 @@ class interfaz():
 
         ##############################################BOTONES####################################
         
-        img2 = PhotoImage(file='img/icons/AnalyzeMP.png')
+        img2 = PhotoImage(file='img/icons/lupita2.png')
         btnanalizar = Button(self.window,image=img2 , bg="#6a8d92",height=35, width=40, command=self.btnanalizar_click)
         btnanalizar.place(x=20,y=4)
 
-        img3 = PhotoImage(file='img/icons/play32.png')
-        btnejecutar = Button(self.window,image = img3 , bg="#6a8d92",height=35, width=40,command=self.btnejecutar_click)
-        btnejecutar.place(x=115,y=5)
+        img3 = PhotoImage(file='img/icons/lupita3.png')
+        btnpostsql = Button(self.window,image = img3 , bg="#6a8d92",height=35, width=40,command=self.btnanalizar3D_click)
+        btnpostsql.place(x=115,y=5)
+
+        img4 = PhotoImage(file='img/icons/play32.png')
+        btnejecutar = Button(self.window,image = img4 , bg="#6a8d92",height=35, width=40,command=self.btngetCodigo_click)
+        btnejecutar.place(x=210,y=5)
+
+
 
         ##############################################PESTAÑAS####################################
         self.tab = ttk.Notebook(self.window)
@@ -170,11 +185,24 @@ class interfaz():
         # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
         global arbol
         rs.crear_tabla(arbol)  
+       
         arbol = None         
+        arbol = None     
+        
+    def tblsimbolos3D_click(self):
+        # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
+        global arbol
+        rs3D.crear_reporte(arbol.get_ts())  
+        arbol = None      
 
     def ast_click(self):
         print("ast")   
     
+    
+    def tbindex_click(self):
+        global arbol
+        indexs.crear_tabla(arbol) 
+
     def repDin_click(self):
         global arbol
         reportes.RealizarGramatica.RealizarGramatica.generar_reporte_gamatical(arbol.lRepDin)
@@ -216,11 +244,188 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+
+
+
+    def btnanalizar3D_click(self):
+
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+
+        inst = sintactico3D.ejecutar_analisis(input)
+
+
+        if len(sintactico3D.lista_lexicos)>0:
+            messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico3D.lista_lexicos)
+       
+     
         
         
 
-        
+    def btngetCodigo_click(self):
+        global arbol
+        arbol = None
+        dropAll()
+        os.system ("cls")
+        self.txtsalida[self.tab.index("current")].delete(1.0,END)
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+        tablaGlobal = Tabla(None)
+        inst = sintactico.ejecutar_analisis(input)
+        arbol = Arbol(inst)
 
+        if len(sintactico.lista_lexicos)>0:
+            messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
+        
+        #PRIMERA PASADA: Para almacenar las funcines, procedimientos y variables
+        for i in arbol.instrucciones:
+            scope = 'Global'
+            if isinstance(i, Proc):
+                rol = 'Función' if i.ret else 'Procedimiento'
+                symbol = {'name': i.name, 'type': '--', 'scope': scope, 'rol': rol, 'pointer': '--'}
+                arbol.addSymbol(i.name, symbol)
+                scope = i.name
+                
+                pointer = 0
+                if i.ret:
+                    symbol = {'name': 'return', 'type': '--', 'scope': scope, 'rol': 'Variable Local', 'pointer': str(pointer)}
+                    arbol.addSymbol('return', symbol)
+                    pointer += 1
+                
+                for param in i.params:
+                    symbol = {'name': param[0], 'type': param[1].toString(), 'scope': scope, 'rol': 'Variable Local', 'pointer': str(pointer)}
+                    arbol.addSymbol(param[0], symbol)
+                    pointer += 1
+                    
+                for inst in i.block.inst:
+                    if isinstance(inst, Statement):
+                        dec = inst.dec
+                        symbol = {'name': dec[0], 'type': dec[1].toString(), 'scope': scope, 'rol': 'Variable Local', 'pointer': str(pointer)}
+                        arbol.addSymbol(dec[0], symbol)
+                        pointer += 1
+                        
+        
+        for i in arbol.instrucciones:
+            resultado = i.getCodigo(tablaGlobal,arbol)
+            
+        # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semáretunticos.
+        if len(arbol.excepciones) != 0:
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
+        else:
+            mensaje = f"from goto import with_goto\n\n"
+            mensaje += f"from Instrucciones.TablaSimbolos.Tabla import Tabla\n"
+            mensaje += f"from Instrucciones.TablaSimbolos.Arbol import Arbol\n"
+            mensaje += f"\n"
+            mensaje += f"import sintactico\n"
+            mensaje += f"from Instrucciones.Sql_create.CreateDatabase import CreateDatabase\n"
+            mensaje += f"from Instrucciones.Sql_create.ShowDatabases import ShowDatabases\n"
+            mensaje += f"from Instrucciones.Sql_create.Use import Use\n"
+            mensaje += f"from Instrucciones.Sql_create.CreateTable import CreateTable\n"
+            mensaje += f"from Instrucciones.Sql_alter.AlterDatabase import AlterDatabase\n"    
+            mensaje += f"from Instrucciones.Sql_alter.AlterDBOwner import AlterDBOwner\n"  
+            mensaje += f"from Instrucciones.Sql_drop.DropDatabase import DropDatabase\n"
+            mensaje += f"from Instrucciones.Sql_drop.DropTable import DropTable\n"     
+            mensaje += f"from Instrucciones.Sql_select.Select import Select\n"
+            mensaje += f"from Instrucciones.Sql_insert import insertTable\n"
+            mensaje += f"\n"
+            mensaje += f"global pointer\n"
+            mensaje += f"global stack\n"
+            mensaje += f"global table\n"
+            mensaje += f"global tree\n"
+            mensaje += f"\n"
+            mensaje += f"pointer = 0\n"
+            mensaje += f"stack = [None] * 10000\n"
+            mensaje += f"table = Tabla(None)\n"
+            mensaje += f"tree = Arbol(None)\n\n"
+            
+            for i in arbol.instrucciones:
+                if isinstance(i, Proc):
+                    mensaje += i.getCodigo(tablaGlobal,arbol)
+            
+            mensaje += self.getFuncionIntermedia(arbol)
+            
+            mensaje += f"@with_goto\n"
+            mensaje += f"def main():\n"
+            mensaje += f"\tglobal pointer\n"
+            mensaje += f"\tglobal stack\n"
+            
+            for m in arbol.consola:
+                mensaje += m + '\n'
+            self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+            
+            mensaje += f"if __name__ == \"__main__\":\n"
+            mensaje += f"\tmain()\n"
+            
+            file = open("traducido.py", "w")
+            file.write(mensaje)
+            file.close()
+
+    def getFuncionIntermedia(self, arbol):
+        temp_return = arbol.getTemporal()
+        temp_index_param1 = arbol.getTemporal()
+        temp_result = arbol.getTemporal()
+        
+        res = "\"Se ejecuto la funcion intermedia\""
+        
+        intermedia = f"def inter():\n"
+        intermedia += f"\tglobal pointer\n"
+        intermedia += f"\tglobal stack\n"
+        intermedia += f"\tglobal table\n"
+        intermedia += f"\tglobal tree\n"
+        intermedia += f"\t{temp_return} = pointer + 0\n"
+        intermedia += f"\t{temp_index_param1} = {temp_return} + 1\n"
+        intermedia += f"\t{temp_result} = stack[{temp_index_param1}]\n"
+        intermedia += f"\tinst = sintactico.ejecutar_analisis({temp_result})\n"
+        intermedia += f"\tres = inst[0].ejecutar(table, tree)\n"
+        intermedia += f"\tstack[{temp_return}] = res\n\n"
+              
+        intermedia += self.getCustomInter(arbol, 'inter_createDataBase', 8, 'createDataBase', 'CreateDatabase')
+        intermedia += self.getCustomInter(arbol, 'inter_showDataBases', 5, 'showDataBases', 'ShowDatabases')
+        intermedia += self.getCustomInter(arbol, 'inter_useDataBase', 4, 'useDataBase', 'Use')
+        intermedia += self.getCustomInter(arbol, 'inter_insertTable', 7, 'insertTable', 'insertTable')
+        intermedia += self.getCustomInter(arbol, 'inter_alterDataBaseRename', 7, 'AlterDBRename', 'AlterDatabase')
+        intermedia += self.getCustomInter(arbol, 'inter_alterDataBaseOwner', 5, 'AlterDBOwner', 'AlterDBOwner')
+        intermedia += self.getCustomInter(arbol, 'inter_DropDataBase', 7, 'DropDB', 'DropDatabase')
+        intermedia += self.getCustomInter(arbol, 'inter_dropTable', 5, 'drop', 'DropTable')
+
+        return intermedia
+
+
+
+
+
+
+
+    
+    def getCustomInter(self, arbol, name, size, nameObject, nameClass):
+        temp_return = arbol.getTemporal()
+        indexList = [None] * size
+        paramList = [None] * size
+        
+        i = 0
+        while i < size:
+            indexList[i] = arbol.getTemporal()
+            paramList[i] = arbol.getTemporal()
+            i += 1
+            
+        intermedia = f"def {name}():\n"
+        intermedia += f"\tglobal pointer\n"
+        intermedia += f"\tglobal stack\n"
+        intermedia += f"\tglobal table\n"
+        intermedia += f"\tglobal tree\n"
+        intermedia += f"\t{temp_return} = pointer + 0\n"
+        
+        i = 1
+        while i <= size:
+            intermedia += f"\t{indexList[i - 1]} = {temp_return} + {i}\n"
+            intermedia += f"\t{paramList[i - 1]} = stack[{indexList[i - 1]}]\n"
+            i += 1
+            
+        intermedia += f"\t{nameObject} = {nameClass}({','.join(paramList)})\n"
+        intermedia += f"\tres = {nameObject}.ejecutar(table,tree)\n"
+        intermedia += f"\tstack[{temp_return}] = res\n\n"
+        
+        return intermedia
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")
