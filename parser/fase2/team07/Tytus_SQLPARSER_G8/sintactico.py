@@ -2258,6 +2258,7 @@ def p_cont_funcion(t):
     cont_funcion    :   sentencia_if
                     |   instruccion
     '''
+    t[0] = t[1]
 
 def p_sentencia_if(t):    
     '''
@@ -2289,6 +2290,11 @@ def p_instrucciones_if(t):
     instrucciones_if : instrucciones_if instruccion_if 
                      | instruccion_if
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
     
 def p_instruccion_if(t):
     '''
@@ -2301,6 +2307,7 @@ def p_instruccion_if(t):
                    | RAISE NOTICE CARACTER PUNTO_COMA
                    | RAISE NOTICE CARACTER COMA ID PUNTO_COMA
     '''
+    t[0] = t[1]
 
 def p_condiciones_if(t):
     '''
