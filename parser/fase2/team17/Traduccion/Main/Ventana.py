@@ -128,7 +128,8 @@ def analizador():
         print("C3D generado:")
         print(result.getC3D())
 
-        consola = result.getC3D()
+        consola = 'def main(): \n'
+        consola = consola + result.getC3D()
         consola = consola + '\n\n' + result.getC3D_funciones()
 
         for i in result.ReporteTS:

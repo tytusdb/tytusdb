@@ -5,6 +5,7 @@ from InterpreteF2.Valor.Valor import Valor
 from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 from InterpreteF2.Reporteria.ReporteOptimizacion import ReporteOptimizacion
+from InterpreteF2.Soporte_aVar.var_declaracion import var_declaracion
 
 class var_asignacion(NodoArbol):
 
@@ -17,6 +18,11 @@ class var_asignacion(NodoArbol):
         pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+
+        if entorno.varibaleExiste(str(self.identificador)):
+            pass
+        else:
+            return var_declaracion(str(self.identificador), 0, self.exp, self.linea, self.columna)
 
         tmp = entorno.obtener_temporal_deVar(str(self.identificador))
         #val:Valor = self.exp.getValueAbstract(entorno, arbol)

@@ -548,8 +548,28 @@ def p_instruction(t):
 def p_plpgsql(t):
     '''
         plpgsql : functions_or_procedures definitions BEGIN definitions plpgsql_ending
+                | functions_or_procedures label definitions BEGIN definitions plpgsql_ending
+                | functions_or_procedures BEGIN definitions plpgsql_ending
+                | label BEGIN definitions plpgsql_ending
+                | declare BEGIN definitions plpgsql_ending
+                | BEGIN definitions plpgsql_ending
     '''
-    t[0] = funexecute(t[1], t[2], t[4], 1, 1)
+    if len(t) == 6:
+        # functions_or_procedures definitions BEGIN definitions plpgsql_ending
+        t[0] = funexecute(t[1], t[2], t[4], 1, 1)
+    elif len(t) == 7:
+        # functions_or_procedures label definitions BEGIN definitions plpgsql_ending
+        t[0] = funexecute(t[1], t[3], t[5], 1, 1)
+    elif len(t) == 5:
+        if t[1].lower()  == 'label':
+            pass
+        elif t[1].lower()  == 'declare':
+            pass
+        else:
+            # functions_or_procedures BEGIN definitions plpgsql_endingng
+            t[0] = funexecute(t[1], None, t[3], 1, 1)
+    else:
+        pass
     set('<TR> \n <TD> plpgsql → functions_or_procedures label declare BEGIN stmts plpgsql_ending | functions_or_procedures declare BEGIN stmts plpgsql_ending | functions_or_procedures BEGIN stmts plpgsql_ending | label BEGIN stmts plpgsql_ending | declare BEGIN stmts plpgsql_ending | BEGIN stmts plpgsql_ending : </TD> \n <TD>  plpgsql = plpgsqlTraduccion(t[0], t[1], t[2], t[3], t[4]) </TD> \n </TR> \n')
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
@@ -723,7 +743,10 @@ def p_execute_procedure(t):
         execute_procedure : EXECUTE ID PARIZQ exp_list PARDER
                           | EXECUTE ID PARIZQ PARDER
     '''
-    t[0] = callfunction(t[2], t[4], 1, 1)
+    if len(t) == 6:
+        t[0] = callfunction(t[2], t[4], 1, 1)
+    else:
+        t[0] = callfunction(t[2], None, 1, 1)
     set('<TR> \n <TD> execute_procedure → EXECUTE ID PARIZQ exp_list PARDER | EXECUTE ID PARIZQ PARDER: </TD> \n <TD> execute_procedure = execute(t[2], t[4]) </TD> \n </TR> \n')
 
 
@@ -739,6 +762,10 @@ def p_statements_return(t):
     '''
     if len(t) == 3:
         t[0] = retorno_simple(t[2], 1, 1)
+    elif len(t) == 4:
+        t[0] = retorno_simple(t[3], 1, 1)
+    else:
+        t[0] = retorno_simple(t[4], 1, 1)
     set('<TR> \n <TD> return → RETURN exp | RETURN QUERY select | RETURN QUERY select | RETURN QUERY EXECUTE exp | RETURN QUERY EXECUTE exp USING exp_list: </TD> \n <TD> return = return(t[2], t[4]) </TD> \n </TR> \n')
 
 

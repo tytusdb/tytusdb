@@ -31,9 +31,11 @@ class var_declaracion(NodoArbol):
             # modulo de insercion a TS
             val_exp:Valor = self.exp.getValueAbstract(entorno, arbol)
             simbol:Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
-            try:
+            if str(expres[1]) == '8-12' or str(expres[1]) == '9-13' or str(expres[1]) == '10-14' or \
+                    str(expres[1]) == '11-15' or str(expres[1]) == '16' or str(expres[1]) == '17' \
+                    or str(expres[1]) == '18':
                 simbol.setTemp(str(expres[0]))
-            except:
+            else:
                 simbol.setTemp(str(expres))
             entorno.insertar_variable(simbol)
             # ----------------------------------------------------------------------------------
@@ -42,7 +44,6 @@ class var_declaracion(NodoArbol):
             try:
                 tmp = str(self.identificador)
                 if str(expres[1]) == '8-12':
-                    arbol.addC3D(tmp + ' = ' + str(expres[0]))
                     # Regla no. 9 -----------------------------
                     original = str(tmp) + ' = ' + str(expres[0]) + ' + 0'
                     optimizado = str(tmp) + ' = ' + str(expres[0])
@@ -52,7 +53,6 @@ class var_declaracion(NodoArbol):
                     # -----------------------------------------------------------------------------
                     return
                 elif str(expres[1]) == '9-13':
-                    arbol.addC3D(tmp + ' = ' + str(expres[0]))
                     # Regla no. 9 -----------------------------
                     original = str(tmp) + ' = ' + str(expres[0]) + ' - 0'
                     optimizado = str(tmp) + ' = ' + str(expres[0])
@@ -62,7 +62,6 @@ class var_declaracion(NodoArbol):
                     # -----------------------------------------------------------------------------
                     return
                 elif str(expres[1]) == '10-14':
-                    arbol.addC3D(tmp + ' = ' + str(expres[0]))
                     # Regla no. 9 -----------------------------
                     original = str(tmp) + ' = ' + str(expres[0]) + ' * 1'
                     optimizado = str(tmp) + ' = ' + str(expres[0])
@@ -72,7 +71,6 @@ class var_declaracion(NodoArbol):
                     # -----------------------------------------------------------------------------
                     return
                 elif str(expres[1]) == '11-15':
-                    arbol.addC3D(tmp + ' = ' + str(expres[0]))
                     # Regla no. 9 -----------------------------
                     original = str(tmp) + ' = ' + str(expres[0]) + ' / 1'
                     optimizado = str(tmp) + ' = ' + str(expres[0])
@@ -82,7 +80,6 @@ class var_declaracion(NodoArbol):
                     # -----------------------------------------------------------------------------
                     return
                 elif str(expres[1]) == '16':
-                    arbol.addC3D(tmp + ' = ' + str(expres[0]) + ' + ' + str(expres[0]))
                     # Regla no. 16 -----------------------------
                     original = str(tmp) + ' = ' + str(expres[0]) + ' * 2'
                     optimizado = str(tmp) + ' = ' + str(expres[0]) + ' + ' + str(expres[0])
@@ -92,7 +89,6 @@ class var_declaracion(NodoArbol):
                     # -----------------------------------------------------------------------------
                     return
                 elif str(expres[1]) == '17':
-                    arbol.addC3D(tmp + ' = 0')
                     # Regla no. 17 -----------------------------
                     original = str(tmp) + ' = ' + str(expres[0]) + ' * 0'
                     optimizado = str(tmp) + ' = 0'
@@ -102,7 +98,6 @@ class var_declaracion(NodoArbol):
                     # -----------------------------------------------------------------------------
                     return
                 elif str(expres[1]) == '18':
-                    arbol.addC3D(tmp + ' = 0')
                     # Regla no. 18 -----------------------------
                     original = str(tmp) + ' = 0 / ' + str(expres[0])
                     optimizado = str(tmp) + ' = 0'

@@ -43,8 +43,13 @@ class funexecute(NodoArbol):
         arbol.addIdentacion()
 
         self.header.traducir(entorno, arbol)
-        for item in self.stmt_declare:
-            item.traducir(entorno, arbol)
+
+        if self.stmt_declare == None:
+            pass
+        else:
+            for item in self.stmt_declare:
+                item.traducir(entorno, arbol)
+
         for item in self.stmt_body:
             item.traducir(entorno, arbol)
 

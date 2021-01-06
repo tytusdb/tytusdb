@@ -26,7 +26,9 @@ class lappel(NodoArbol):
             descripcion = 'Funcion ' + str(self.identificador) + ' esta inactivado, no puede usarse'
             reportero = ErroresSemanticos(descripcion, str(self.linea), str(self.columna), 'lappel')
             arbol.ErroresSemanticos.append(reportero)
-            return
+            temp = arbol.getTemp()
+            arbol.addC3D(temp + ' = \'\'')
+            return temp
         #------------------------------------------
 
         argumentos = ''
