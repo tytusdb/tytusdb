@@ -123,7 +123,7 @@ class Pantalla:
         self.syntacticErrors = result["syntax"]
         self.semanticErrors = result["semantic"]
         self.postgreSQL = result["postgres"]
-        self.ts = result["symbols"]        
+        self.ts = result["symbols"]
         self.indexes = result["indexes"]
         if (
             len(self.lexicalErrors)
@@ -195,7 +195,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        windowTableS = Pantalla_TS(self.window, self.ts,self.indexes)
+        windowTableS = Pantalla_TS(self.window, self.ts, self.indexes)
 
     def open_AST(self):  # Abre la pantalla del AST
         windowTableS = Pantalla_AST(self.window)

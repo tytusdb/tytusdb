@@ -5,6 +5,7 @@ from analizer_pl.abstract.environment import Environment
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl import grammar
+
 amb = 0
 
 
@@ -27,13 +28,17 @@ class Case(Instruction):
         var = self.expBool.execute(environment)
         c3d += var.value
         c3d += "\tif " + var.temp + ": goto .labelCase0" + str(self.ambito) + " \n"
-        grammar.optimizer_.addIF_CASE(str(var.temp),str("labelCase0"+str(self.ambito)),self.row)
+        grammar.optimizer_.addIF_CASE(
+            str(var.temp), str("labelCase0" + str(self.ambito)), self.row
+        )
         c3d += "\tgoto .labelCase1" + str(self.ambito) + "\n"
-        grammar.optimizer_.addGoto(str("labelCase1"+str(self.ambito)),self.row)
+        grammar.optimizer_.addGoto(str("labelCase1" + str(self.ambito)), self.row)
         if self.elseCase != None:
             for ec in self.elseCase:
                 c3d += "\tlabel .labelCase" + str(contLabel) + str(self.ambito) + "\n"
-                grammar.optimizer_.addLabel(str("labelCase"+str(contLabel)+str(self.ambito)),self.row)
+                grammar.optimizer_.addLabel(
+                    str("labelCase" + str(contLabel) + str(self.ambito)), self.row
+                )
                 contLabel += 1
                 cdtemp = ec[0].execute(environment)
                 c3d += cdtemp.value
@@ -45,13 +50,19 @@ class Case(Instruction):
                     + str(self.ambito)
                     + "\n"
                 )
-                grammar.optimizer_.addIF_CASE(str(cdtemp.temp),str("labelCase"+str(contLabel)+str(self.ambito)),self.row)
+                grammar.optimizer_.addIF_CASE(
+                    str(cdtemp.temp),
+                    str("labelCase" + str(contLabel) + str(self.ambito)),
+                    self.row,
+                )
                 contLabel += 1
                 c3d += "\tgoto .labelCase" + str(contLabel) + str(self.ambito) + "\n"
-                grammar.optimizer_.addGoto(str("labelCase"+str(contLabel)+str(self.ambito)),self.row)
+                grammar.optimizer_.addGoto(
+                    str("labelCase" + str(contLabel) + str(self.ambito)), self.row
+                )
             contLabel = 0
         blockCad = ""
-        grammar.optimizer_.addLabel(str("labelCase0"+str(self.ambito)),self.row)
+        grammar.optimizer_.addLabel(str("labelCase0" + str(self.ambito)), self.row)
         for bs in self.blockStmt:
             blockCad += bs.execute(environment).value
         c3d += (
@@ -63,12 +74,16 @@ class Case(Instruction):
             + str(self.ambito)
             + " \n"
         )
-        grammar.optimizer_.addGoto(str("labelCaseEnd"+str(self.ambito)),self.row)  # contenido del primer case
+        grammar.optimizer_.addGoto(
+            str("labelCaseEnd" + str(self.ambito)), self.row
+        )  # contenido del primer case
         if self.elseCase != None:
             for ec2 in self.elseCase:
                 contLabel += 2
                 blockCad2 = ""
-                grammar.optimizer_.addLabel(str("labelCase"+str(contLabel)+str(self.ambito)),self.row)
+                grammar.optimizer_.addLabel(
+                    str("labelCase" + str(contLabel) + str(self.ambito)), self.row
+                )
                 for e in ec2[1]:
                     blockCad2 += e.execute(environment).value
                 c3d += (
@@ -81,20 +96,22 @@ class Case(Instruction):
                     + str(self.ambito)
                     + " \n"
                 )  # contenido del case
-                grammar.optimizer_.addGoto(str("labelCaseEnd"+str(self.ambito)),self.row)
+                grammar.optimizer_.addGoto(
+                    str("labelCaseEnd" + str(self.ambito)), self.row
+                )
             contLabel += 1
         els = ""
 
         if self.elseStmt:
             els += self.elseStmt.execute(environment).value
 
-        c3d += (
-            "\tlabel .labelCase" + str(contLabel) + str(self.ambito) + "\n" + els
-        ) 
-        grammar.optimizer_.addLabel(str("labelCase"+str(contLabel)+str(self.ambito)),self.row)
-         # contenido del else
+        c3d += "\tlabel .labelCase" + str(contLabel) + str(self.ambito) + "\n" + els
+        grammar.optimizer_.addLabel(
+            str("labelCase" + str(contLabel) + str(self.ambito)), self.row
+        )
+        # contenido del else
         c3d += "\tlabel .labelCaseEnd" + str(self.ambito) + "\n"  # etiqueta final
-        grammar.optimizer_.addLabel(str("labelCaseEnd"+ str(self.ambito)),self.row)
+        grammar.optimizer_.addLabel(str("labelCaseEnd" + str(self.ambito)), self.row)
         self.codigo = c3d
         return code.C3D(c3d, "case", self.row, self.column)
 

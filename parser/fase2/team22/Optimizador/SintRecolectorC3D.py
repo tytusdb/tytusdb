@@ -167,7 +167,6 @@ def p_error(p):
 parser = yacc.yacc()
 
 def ejecutarEscaneo(texto):
-    instrucciones = parser.parse(texto)
     columna = 0
     lexer.lineno= 0
     return parser.parse(texto)
