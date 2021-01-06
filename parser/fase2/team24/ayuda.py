@@ -6,6 +6,7 @@ f = open("entrada.txt", "r")
 a = open("c3d.py", "w")
 
 a.write('''from InstruccionesDGA import tabla 
+from datetime import date
 from InstruccionesDGA import cont 
 from InstruccionesDGA import NombreDB
 from tablaDGA import *
@@ -15,9 +16,11 @@ import mathtrig as mt
 
 pila = []
 for i in range(100):
-    x.append(i)
+    pila.append(i)
 
 def ejecutar(): \n''')
+
+
 
 input = f.read()
 
@@ -28,6 +31,7 @@ res =''
     #executeGraphTree(raiz)
 for val in raiz:
     res += val.traducir()
+
     
     #pass
 a.write(res)
@@ -36,5 +40,5 @@ for fa in g.funciones:
    
    a.write(fa)
 
-
+a.write('''ejecutar() ''')
 a.close()

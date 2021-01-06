@@ -12,3 +12,10 @@ class GlobalEnvironment:
     def addFunction(self, id, returnType, params):
         if id not in self.functions:
             self.functions[id] = FunctionSymbol(id, returnType, params)
+
+    def getFunction(self, id):
+        """
+        Esta funcion retorna el simbolo de funcion asociado al id que recibe.
+        """
+        if id in self.functions:
+            return self.functions[id]

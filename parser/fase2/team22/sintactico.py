@@ -1793,15 +1793,18 @@ def p_can_where(t):
 
 def p_l_expresiones_atri(t) :
     '''l_expresiones    : l_expresiones COMA expre lista_options'''
-    t[1] = t[1].append(t[3], t[4])
-    t[0] = t[1]
+    t[3] = [t[3]]
+    t[3].append(t[4])
+    t[0] = [t[1], t[3]]
+    print(t[0])
     strGram = "<l_expresiones> := <l_expresiones> COMA <expre> <lista_options>\n"
     agregaGram(strGram)
 
 def p_l_expresiones_atri_ind(t) :
     '''l_expresiones    : expre lista_options'''
-    t[1] = t[1].append(t[2])
-    t[0] = t[1]
+    
+    t[0] = [t[1]]
+    t[0].append(t[2])
     strGram = "<l_expresiones> := <expre> <lista_options>\n"
     agregaGram(strGram)
 
@@ -1818,7 +1821,7 @@ def p_operadores_is_not_true(t):
 
 def p_lista_options(t) :
     'lista_options  : lista_options options'
-    t[1] = t[1].append(t[2])
+    t[1].append(t[2])
     t[0] = t[1]
     strGram = "<lista_options> := <lista_options> <options>\n"
     agregaGram(strGram)
@@ -1828,7 +1831,7 @@ def p_lista_options_2(t) :
 # <<<<<<< HEAD
 #     t[0] = [t[1]]
 # =======
-    t[0] = t[1]
+    t[0] = [t[1]]
     strGram = "<lista_options> := <options>\n"
     agregaGram(strGram)
 # >>>>>>> upstream/main
@@ -1846,7 +1849,7 @@ def p_options(t) :
     if len(t) == 2:
         t[0] = t[1]
     else:
-        t[0] = t[1] + t[2]
+        t[0] = t[1] + ' ' + t[2]
 
     strGram = ""
     if t[1] == "ASC":
@@ -1899,7 +1902,7 @@ def p_instruccion_creacion_funct(t) :
                     | CREATE FUNCTION ID PARIZQ list_params_funct PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
                     | CREATE FUNCTION ID PARIZQ PARDER return_funct as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
                     | CREATE FUNCTION ID PARIZQ PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA'''
-    
+    print(t[5])
     strGram = ""
     if len(t) == 15 and t[6] == ")":
         strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <list_params_funct> PARDER <return_funct> <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
@@ -1944,34 +1947,24 @@ def p_list_params_funct(t) :
                             | list_params_funct COMA OUT ID ID'''
     strGram = ""
     print("====================================")
+    
     if len(t) == 5:
-        t[1] = t[1].append(t[3])
-        print("11")
+        if isinstance(t[4], Tipo):
+            t[1].append(['id_tipo', t[3], t[4]])
+            strGram = "<list_params_funct> ::= <list_params_funct> COMA ID <tipo>\n"
+        else:
+            t[1].append(['id_id', t[3], t[4]])
+            strGram = "<list_params_funct> ::= <list_params_funct> COMA ID ID\n"
     else:
-        print("22")
-        t[1] = t[1].append(t[4])
-    t[0] = t[1] 
+        if isinstance(t[5], Tipo):
+            t[1].append(['out_id_tipo', t[4], t[5]])
+            strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID <tipo>\n"
+        else:
+            t[1].append(['out_id_id', t[4], t[5]])
+            strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID ID\n"
+    
+    t[0] = t[1]
 
-    if t[3] == "ID" and t[4] != "ID":
-        t[1] = t[1].append(t[3])
-        t[0] = t[1]
-        print("aqui 1")
-        strGram = "<list_params_funct> ::= <list_params_funct> COMA ID <tipo>\n"
-    elif len(t) > 5 and t[3] == "OUT" and t[5] != "ID":
-        t[1] = t[1].append(t[4])
-        t[0] = t[1]
-        print("aqui 2")
-        strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID <tipo>\n"
-    elif t[3] == "ID" and t[4] == "ID":
-        t[1] = t[1].append(t[3])
-        t[0] = t[1]
-        print("aqui no 1")
-        strGram = "<list_params_funct> ::= <list_params_funct> COMA ID ID\n"
-    elif len(t) > 5 and t[3] == "OUT" and t[5] == "ID":
-        t[1] = t[1].append(t[4])
-        t[0] = t[1]
-        print("aqui no 2")
-        strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID ID\n"
     agregaGram(strGram)
 
 def p_list_params_funct2(t) :
@@ -1982,18 +1975,21 @@ def p_list_params_funct2(t) :
 
     print("-------------------------------")
     strGram = "<return_funct> ::= RETURNS TABLE PARIZQ <list_params_funct> PARDER\n"
-    if t[1] == "ID" and t[2] != "ID":
-        t[0] = [t[1], t[2]]
-        strGram += "<list_params_funct> ::= ID <tipo>\n"
-    elif len(t) > 3 and t[1] == "OUT" and t[3] != "ID":
-        t[0] = [t[2], t[3]]
-        strGram += "<list_params_funct> ::= OUT ID <tipo>\n"
-    elif t[1] == "ID" and t[2] == "ID":
-        t[0] = [t[1], t[2]]
-        strGram += "<list_params_funct> ::= ID ID\n"
-    elif len(t) > 3 and t[1] == "OUT" and t[3] == "ID":
-        t[0] = [t[2], t[3]]
-        strGram += "<list_params_funct> ::= OUT ID ID\n"
+    if len(t) == 3:
+        if isinstance(t[2], Tipo):
+            t[0] = [['id_tipo', t[1], t[2]]]
+            strGram += "<list_params_funct> ::= ID <tipo>\n"
+        else:
+            t[0] = [['id_id', t[1], t[2]]]
+            strGram += "<list_params_funct> ::= ID ID\n"
+    else:
+        if isinstance(t[3], Tipo):
+            t[0] = [['out_id_tipo', t[2], t[3]]]
+            strGram += "<list_params_funct> ::= OUT ID <tipo>\n"
+        else:
+            t[0] = [['out_id_id', t[2], t[3]]]
+            strGram += "<list_params_funct> ::= OUT ID ID\n"
+        
     agregaGram(strGram)
 
 def p_as_def(t) :
@@ -2595,7 +2591,7 @@ def find_column(input,token):
 parser = yacc.yacc()
 
 def ejecutar_analisis(texto):
-    instrucciones = parser.parse(texto)
+    instrucciones = None
     # reporte = AST.AST(instrucciones)
     # reporte.ReportarAST()
 
@@ -2614,5 +2610,5 @@ def ejecutar_analisis(texto):
     lexer.lineno = 0
     #se obtiene la acción de analisis sintactico
     print("inicio")
-    return parser.parse(texto)
+    return instrucciones
 

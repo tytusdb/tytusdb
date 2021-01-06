@@ -22,7 +22,7 @@ class Funcion(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        tablaLocal = Tabla(None)
+        '''tablaLocal = Tabla(None)
         print("==>>>", self.parametros)
         for i in self.parametros:
             i.ejecutar(tablaLocal, arbol)
@@ -56,7 +56,7 @@ class Funcion(Instruccion):
             arbol.consola.append(error.toString())
             return error  
         pass
-
+'''
     def llenarTS(self, tabla, arbol):
         existe = tabla.getSimboloFuncion(self.id)
         if existe != None:
