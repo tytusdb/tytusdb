@@ -34,7 +34,7 @@ class Index():
     def __init__(self):
         self.name = None
         self.table = None
-        self.method = None
+        self.method = "BTREE"
         self.listaAtribb = []
         self.sentenciaWhere = None
 
@@ -44,7 +44,6 @@ class Index():
 
 
     def execute(self, parent):
-
         # Se recibe una sentencia CREATE INDEX
         self.name = parent.hijos[0].valor
         self.table = parent.hijos[1].valor
@@ -65,9 +64,17 @@ class Index():
             config = json.load(file)
         
         if config['databaseIndex'] == None:
+            print("DATABASE NONE")
             err_resp = Error(3,"No se ha seleccionado ninguna base de datos.",-1)
             resp = Response("42P12",err_resp)
-        create_index(config.upper(),self)
+
+        indexI = Index()
+        indexI.listaAtribb = self.listaAtribb
+        indexI.name = self.name
+        indexI.table = self.table
+        indexI.method = self.method
+        tc.create_index(config['databaseIndex'].upper(),indexI)
+        print("Llego al final")
         
 
 

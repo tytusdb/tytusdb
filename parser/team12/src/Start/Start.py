@@ -19,7 +19,7 @@ from Libraries import Intersect
 from Libraries import Except
 from Libraries import UpdateTable
 from Libraries import AlterTable
-
+from Libraries import Index
 from Traduccion import *
 from Label import *
 from Temporal import *
@@ -120,7 +120,6 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
             elif hijo.nombreNodo == 'SENTENCIA_EXCEPT':
                 nuevoExcept = Except()
-                
                 resp = nuevoExcept.execute(hijo)
                 if resp.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
@@ -138,8 +137,12 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
                 else:
                     self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
-           
-                
+            elif hijo.nombreNodo == 'EXECUTE':
+                print(hijo.nombreNodo)
+            elif hijo.nombreNodo == 'CREATE_INDEX' or hijo.nombreNodo == 'CREATE_UNIQUE_INDEX':
+                nuevoIndex = Index()
+                resp = nuevoIndex.execute(hijo)
+
                 
     def compile(self,enviroment = None):
 
