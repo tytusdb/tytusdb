@@ -15,7 +15,7 @@ class ENTERO(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         temp = arbol.getTemp()
-        arbol.addC3D(temp + " = "  + str(self.data) )
+        arbol.addC3D(temp + " = " + str(self.data))
         return temp
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):

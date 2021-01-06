@@ -33,6 +33,7 @@ from graphviz import Digraph
 from InterpreteF2.CASE.whenelse import WhenElse
 from InterpreteF2.CASE.when import When
 from InterpreteF2.Primitivos.CADENAS import CADENAS
+from InterpreteF2.Primitivos.ENTERO import ENTERO
 from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
 from InterpreteF2.RAISE.RAISE_complex import RAISE_complex
 from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
@@ -828,11 +829,11 @@ def p_declarevarheader(t):
 
 def p_declarevar(t):
     '''
-         declarerdeep : ID INTEGER NOTNULL DOSPTS IGUAL exp
-                      | ID INTEGER NOTNULL IGUAL exp
-                      | ID INTEGER DOSPTS IGUAL exp
-                      | ID INTEGER IGUAL exp
-                      | ID INTEGER
+         declarerdeep : ID types NOTNULL DOSPTS IGUAL exp
+                      | ID types NOTNULL IGUAL exp
+                      | ID types DOSPTS IGUAL exp
+                      | ID types IGUAL exp
+                      | ID types
     '''
     set('<TR> \n <TD> declare → ID INTEGER NOTNULL PREDICATEDECLARATION PTCOMA | ID VARCHAR NOTNULL PREDICATEDECLARATION PTCOMA | ID INTEGER  PREDICATEDECLARATION PTCOMA | ID VARCHAR  PREDICATEDECLARATION PTCOMA | ID NUMERIC  PREDICATEDECLARATION PTCOMA | ID NUMERIC NOTNULL PREDICATEDECLARATION PTCOMA: </TD> \n <TD> declare = declare(t[1], t[2] t[3], t[4], 1, 1) </TD> \n </TR> \n')
 
@@ -2120,7 +2121,7 @@ def p_expSimples_entero(t):
     '''
         expSimple   :   ENTERO
     '''
-    #t[0] = ENTERO(t[1],1,1)
+    t[0] = ENTERO(t[1],1,1)
     set('<TR> \n <TD> expSimples  → ENTERO: </TD> \n <TD> expSimple  = entorno(t[1]) </TD> \n </TR> \n')
 
 

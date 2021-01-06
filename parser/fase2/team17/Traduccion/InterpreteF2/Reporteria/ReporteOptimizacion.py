@@ -1,7 +1,8 @@
 class ReporteOptimizacion():
 
-    def __init__(self, regla, descripcion, fila, columna):
+    def __init__(self, regla, original, optimizado, fila, columna):
         self.regla = regla
-        self.descripcion = descripcion
+        self.original = original
+        self.optimizado = optimizado
         self.fila = fila
         self.columna = columna
