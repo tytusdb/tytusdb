@@ -14,6 +14,25 @@ import csv
 class Handler:
 
     @staticmethod
+    def createJson(database:str, table:str, text:str):
+        try:
+            f = open("blockchain/" + database + "_" + table + ".json", "wb")
+            f.write(text)
+            f.close()
+        except:
+            None
+
+    @staticmethod
+    def readJson(database:str, table:str) -> str:
+        try:
+            f = open("blockchain/" + database + "_" + table + ".json", "r")
+            result = f.read()
+            f.close()
+            return result
+        except:
+            return None
+
+    @staticmethod
     def rootinstance() -> list:
         if not os.path.exists('data'):
             os.makedirs('data')
@@ -60,3 +79,4 @@ class Handler:
             os.remove(filename)
         except:
             print("No se encontró el archivo")
+
