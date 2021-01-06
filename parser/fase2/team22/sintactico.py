@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
 # from Instrucciones.Imprimir import Imprimir
-from Instrucciones.index import index, DropIndex
+from Instrucciones.index import index, DropIndex, AlterIndex
 from Instrucciones import Funcion, Declaracion,  Retorno
 
 # IMPORTAMOS EL STORAGE
@@ -1918,6 +1918,46 @@ def p_instruccion_drop_index(t) :
     # t[0] = indexFunction.indexFunction(strGram)
     # global lsStrGram
     # lsStrGram = []
+
+def p_instruccion_alter_index(t) :
+    '''instruccion  : ALTER INDEX ID ID ID PUNTO_COMA
+                    | ALTER INDEX ID ID ENTERO PUNTO_COMA'''
+    strGram = "<instruccion> ::= ALTER INDEX ID ID ID PUNTO_COMA\n"
+    strGram2 = ""
+    id1 = Identificador(t[3], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    existe = 1
+    tabla = ''
+    temp = ''
+    for a in almacenar_tabla_indices:
+        if a == str(t[3]):
+            existe = 0
+            tabla = temp
+        temp = a
+
+    strGram3 = ""
+    id_tab = Identificador(tabla, strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] =AlterIndex.AlterIndex(id_tab, id1, t[4], t[5], existe, strGram, t.lexer.lineno, t.lexer.lexpos)
+   
+
+def p_instruccion_alter_index2(t) :
+    '''instruccion  : ALTER INDEX IF EXISTS ID ID ID PUNTO_COMA
+                    | ALTER INDEX IF EXISTS ID ID ENTERO PUNTO_COMA'''
+    strGram = "<instruccion> ::= ALTER INDEX IF EXISTS ID ID PUNTO_COMA\n"
+    strGram2 = ""
+    id1 = Identificador(t[5], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    existe = 1
+    tabla = ''
+    temp = ''
+    for a in almacenar_tabla_indices:
+        if a == str(t[5]):
+            existe = 0
+            tabla = temp
+        temp = a
+
+    strGram3 = ""
+    id_tab = Identificador(tabla, strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] =AlterIndex.AlterIndex(id_tab, id1, t[6], t[7], existe, strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_lista_or(t) :
     '''expre     : expre PIPE PIPE expre'''

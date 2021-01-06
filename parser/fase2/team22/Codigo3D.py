@@ -26,45 +26,54 @@ h = 0
 @with_goto
 def exec():
     global p
-    t0 = "CREATE DATABASE IF NOT EXISTS test"
-    t1 = t0 + " OWNER = \'root\'" 
-    t2 = t1 + " MODE = 1"
-    t3 = t2 + ";"
-    stack[p] = t3
+    t66 = "CREATE DATABASE IF NOT EXISTS test"
+    t67 = t66 + " OWNER = \'root\'" 
+    t68 = t67 + " MODE = 1"
+    t69 = t68 + ";"
+    stack[p] = t69
     p = p + 1
-    t4 = "USE test;"
-    stack[p] = t4
+    t70 = "USE test;"
+    stack[p] = t70
     p = p + 1
-    t5 = "CREATE TABLE tabla (\n"
-    t6 = "id integer"
-    t7 = t6 + ",\n"
-    t8 = t5 + t7
-    t9 = "column2 integer"
-    t10 = t8 + t9
-    t11 = t10 + ");"
-    stack[p] = t11
+    t71 = "CREATE TABLE tabla (\n"
+    t72 = "id integer"
+    t73 = t72 + ",\n"
+    t74 = t71 + t73
+    t75 = "column2 integer"
+    t76 = t75 + ",\n"
+    t77 = t74 + t76
+    t78 = "column3 integer"
+    t79 = t78 + ",\n"
+    t80 = t77 + t79
+    t81 = "column4 integer"
+    t82 = t80 + t81
+    t83 = t82 + ");"
+    stack[p] = t83
     p = p + 1
-    t12 = "CREATE TABLE tbbodega (\n"
-    t13 = "id integer"
-    t14 = t13 + ",\n"
-    t15 = t12 + t14
-    t16 = "bodega varchar"
-    t17 = t16 + "(120)"
-    t18 = t17 + ",\n"
-    t19 = t15 + t18
-    t20 = "id2 integer"
-    t21 = t19 + t20
-    t22 = t21 + ");"
-    stack[p] = t22
+    t84 = "CREATE TABLE tbbodega (\n"
+    t85 = "id integer"
+    t86 = t85 + ",\n"
+    t87 = t84 + t86
+    t88 = "bodega varchar"
+    t89 = t88 + "(120)"
+    t90 = t89 + ",\n"
+    t91 = t87 + t90
+    t92 = "id2 integer"
+    t93 = t91 + t92
+    t94 = t93 + ");"
+    stack[p] = t94
     p = p + 1
-    t23 = "CREATE INDEX test2_mm_idx ON tabla(id);"
-    stack[p] = t23
+    t95 = "CREATE INDEX test2_mm_idx ON tabla(id);"
+    stack[p] = t95
     p = p + 1
-    t24 = "CREATE INDEX test2_mm_idx ON tabla(id);"
-    stack[p] = t24
+    t96 = "CREATE INDEX test2_mm_idx ON tabla(id);"
+    stack[p] = t96
     p = p + 1
-    t25 = "DROP INDEX test2_mm_idx;"
-    stack[p] = t25
+    t97 = "DROP INDEX ;"
+    stack[p] = t97
+    p = p + 1
+    t98 = "DROP INDEX ;"
+    stack[p] = t98
     p = p + 1
 
 exec()

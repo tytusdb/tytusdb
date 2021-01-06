@@ -37,7 +37,16 @@ class DropIndex(Instruccion):
         # objetoTabla.lista_de_indices.remove(self.id_indice)
 
         for i in objetoTabla.lista_de_indices:
-            print("=>>>", i.obtenerNombre)
+            # print("***", i.nombre.id)
+            ind = Indice(i.nombre.id, "Indice")
+            # print("---", ind.lRestricciones)
+            # ind.lRestricciones.remove('id#[\'ASC\', \'NULLS LAST\']')
+
+            for a in objetoTabla.lista_de_indices:
+                if a.nombre.id == self.id_indice:
+                    a.nombre.id = ''
+                # print("~~:", a.nombre.id)
+
         
 
 
