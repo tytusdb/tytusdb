@@ -92,6 +92,20 @@ class query_tool:
         self.archivoMenu.add_command(label="Save As...", command=self.SaveAs)
         self.archivoMenu.add_separator()
         self.archivoMenu.add_command(label="Exit", command=self.vp.quit)
+        # Menu Edit
+        self.editMenu = Menu(self.barraMenu, tearoff=0)
+        self.editMenu.add_command(label="Cut", \
+                         accelerator="Ctrl+X", \
+                         command=lambda: \
+                                 self.entrada.event_generate('<<Cut>>'))
+        self.editMenu.add_command(label="Copy", \
+                         accelerator="Ctrl+C", \
+                         command=lambda: \
+                                 self.entrada.event_generate('<<Copy>>'))
+        self.editMenu.add_command(label="Paste", \
+                         accelerator="Ctrl+V", \
+                         command=lambda: \
+                                 self.entrada.event_generate('<<Paste>>'))
         # Menu Run
         self.runMenu = Menu(self.barraMenu, tearoff=0)
         self.runMenu.add_command(label="Run", command=self.Run, accelerator="Ctrl+R")
@@ -118,6 +132,7 @@ class query_tool:
         self.helpMenu.add_command(label="User Manual", command=self.openUser)
         # Barra de Menú
         self.barraMenu.add_cascade(label="File", menu=self.archivoMenu)
+        self.barraMenu.add_cascade(label="Edit", menu=self.editMenu)
         self.barraMenu.add_cascade(label="Run", menu=self.runMenu)
         self.barraMenu.add_cascade(label="Reports", menu=self.reportsMenu)
         self.barraMenu.add_cascade(label="Help", menu=self.helpMenu)
@@ -196,7 +211,6 @@ class query_tool:
             archivoA = open(self.rutaArchivo, "w", encoding="utf-8")
             archivoA.write(self.entrada.get(1.0, END))
             archivoA.close()
-
     def run_listener(self, event):
         self.Run()
 
