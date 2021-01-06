@@ -27,11 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-<<<<<<< HEAD
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias
-=======
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable,condicional_case
->>>>>>> cbb922da5bf6c2f078b46ee9c7f4b478b225e736
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
