@@ -44,9 +44,9 @@ ___
 * Especificos
 
     * Diseñar una interfaz amigable para el usuario.
-* Construir el árbol de sintaxis abstracta para verificar el funcionamiento del parser.
+    * Construir el árbol de sintaxis abstracta para verificar el funcionamiento del parser.
     * Realizar validaciones semánticas de manera adecuada.
-* Almacenar de manera correcta los datos proporcionados para obtener las consultas que se realicen.
+    * Almacenar de manera correcta los datos proporcionados para obtener las consultas que se realicen.
     * Implementar código tres direcciones.
 
 ---
@@ -210,35 +210,48 @@ De manera similar se envió cada instrucción a ejecución, dentro de cada clase
 Se agrego en la gramática ascendente el manejo de índices como el lenguaje procedural (PL/pgSQL). De igual manera como en la fase 1 se manejó el mismo patrón, de crear cada clase para cada tipo de instrucción.
 
 ```python
-def p_createIndex1(t):
-    'instruccion : CREATE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA'
-    global columna
-    global concatena_index
-    t[0] = Index(1, t[3], t[5], t[7],concatena_index ,lexer.lineno, columna)
+class Index(Instruccion):
+    def __init__(self, caso, id1, id2, listaId, concatena,fila, columna):
+        self.caso = caso
+        self.id1 = id1
+        self.id2 = id2
+        self.listaId = listaId
+        self.concatena = concatena
+        self.fila = fila
+        self.columna = columna
     
 ```
 
 ```python
-def p_createfunction2(t):
-    '''instruccion : CREATE orreplace FUNCTION ID PARIZQ parametros PARDR RETURNS tipo AS E \
-    BEGIN \
-        instrucciones \
-    END PTCOMA'''
-    global columna
-    t[0] = Function(2, t[2], t[4], t[6], t[9], t[11], None, t[13], lexer.lineno, columna)
+class Function(Instruccion):
+    def __init__(self, caso, replace, id, parametros, tipo, E, declareInst, beginInst, linea, columna):
+        self.caso = caso
+        self.replace = replace
+        self.id = id
+        self.parametros = parametros
+        self.tipo = tipo
+        self.E = E
+        self.declareInst = declareInst
+        self.beginInst = beginInst
+        self.linea = linea
+        self.columna = columna
 ```
 
 ```python
-def p_createProcedure3(t):
-    ''' instruccion : CREATE orreplace PROCEDURE ID PARIZQ parametros PARDR \
-    LANGUAGE E \
-    AS E \
-    BEGIN \
-        instrucciones \
-    END PTCOMA
-    '''
-    global columna
-    t[0] = Procedure(3, t[2], t[4], t[6], t[9], t[11], None, None, None, t[13], lexer.lineno, columna)
+class Procedure(Instruccion):
+    def __init__(self, caso, replace, id, parametros, languageE, asE, inst, id2, declareInst, beginInst, linea, columna):
+        self.caso = caso
+        self.replace = replace
+        self.id = id
+        self.parametros = parametros
+        self.languageE = languageE
+        self.asE = asE
+        self.inst = inst
+        self.id2 = id2
+        self.declareInst = declareInst
+        self.beginInst = beginInst
+        self.linea = linea
+        self.columna = columna
 ```
 
 ## Código tres direcciones
@@ -304,120 +317,71 @@ La optimización que se utilizo fue la de mirilla esta trata de estructurar de m
 Este se implemento de en el mismo método traducir.
 
 ```python
-class SIF(Instruccion):
-    def __init__(self, E, instrucciones, elsesif, Belse, instruccionesElse, fila, columna):
+class CaseF2(Instruccion):
+    def __init__(self, E, listaWhen, elseCase, fila, columna):
         self.E = E
-        self.instrucciones = instrucciones
-        self.elsesif = elsesif
-        self.Belse = Belse
-        self.instruccionesElse = instruccionesElse
+        self.listaWhen = listaWhen
+        self.elseCase = elseCase
         self.fila = fila
         self.columna = columna
 
 
+    def traducir(cs, ts, consola, metodos_funciones, exception, tv, concatena, regla, antes, optimizado):
+        if cs.elseCase == None:
+            condicion = Expresion.traducir(cs.E, ts, consola, exception, tv, regla, antes, optimizado, None)
+            salida = tv.Et()
+            i = 0
+            if cs.listaWhen != None and len(cs.listaWhen) != 0:
+                for c in cs.listaWhen:
+                    cond2 = Expresion.traducir(c.E, ts, consola, exception, tv, regla, antes, optimizado, None)
+                    tempCond = tv.Temp()
+                    consola.append(f'\t{tempCond} = {condicion} == {cond2}\n')
+                    siguiente = salida
+                    if len(cs.listaWhen) != i + 1:
+                        siguiente = tv.Et()
+                    consola.append(f'\tif not {tempCond}:\n\t\tgoto .{siguiente}\n')
+                    if c.instrucciones != None:
+                        tr.traduccion(c.instrucciones, ts, consola, metodos_funciones, exception, concatena, tv)
+                    #consola.append(f'\tgoto .{salida}\n') equivalente a break no es necesario
+                    consola.append(f'\tlabel .{siguiente}\n')
 
-    def traducir(sif, ts, consola,metodos_funciones, exception, tv, concatena, regla, antes, optimizado):
-        ei = False
-        if sif.elsesif != None:
-            if len(sif.elsesif) == 1:
-                if sif.elsesif[0] != None:
-                    ei = True
-                else:
-                    ei = False
-            else:
-                ei = True
-        if ei:
-            #tiene elsif
-            #tiene else
-            condicion = Expresion.traducir(sif.E, ts, consola, exception, tv, regla, antes, optimizado, 'IF')
-            verdadero = tv.Et()
-            falso = tv.Et()
-            consola.append('\tif ' + condicion + ':\n\t\t goto .' + verdadero + '\n')
-            consola.append(f'\telse:\n\t\tgoto .{falso}\n')
-            consola.append(f'\tlabel .{verdadero}\n')
-            #reporte optimizacion
-            regla.append('3')
-            antes.append(f'if {condicion}:<br> &nbsp goto .{verdadero}<br>else:<br> &nbsp goto .{falso}<br>label .{verdadero}<br>#instrucciones<br>label .{falso}')
-            optimizado.append(f'if not {condicion}:<br> &nbsp goto .{verdadero}<br>#instrucciones<br>label .{verdadero}')
+                    i = i + 1
 
-            if sif.instrucciones != None:
-                tr.traduccion(sif.instrucciones, ts, consola,metodos_funciones, exception, concatena, tv)
-            #cuenta de la etiqueta final
-            final = int(falso[1:]) #numero de la etiqueta falso
-            final = final + len(sif.elsesif) * 2
-            if sif.instruccionesElse != None:
-                final = final + 1
-            etfinal = 'L' + str(final)
-            consola.append(f'\tgoto .{etfinal}\n')
-            consola.append(f'\tlabel .{falso}\n')
-            #recorrer elsif
-            for eli in sif.elsesif:
-                condicion = Expresion.traducir(eli.E, ts, consola, exception, tv, regla, antes, optimizado, 'IF')
-                verdadero = tv.Et()
-                falso = tv.Et()
-                consola.append('\tif ' + condicion + ':\n\t\t goto .' + verdadero + '\n')
-                consola.append(f'\telse:\n\t\tgoto .{falso}\n')
-                consola.append(f'\tlabel .{verdadero}\n')
-                #reporte optimizacion
-                regla.append('3')
-                antes.append(f'if {condicion}:<br> &nbsp goto .{verdadero}<br>else:<br> &nbsp goto .{falso}<br>label .{verdadero}<br>#instrucciones<br>label .{falso}')
-                optimizado.append(f'if not {condicion}:<br> &nbsp goto .{verdadero}<br>#instrucciones<br>label .{verdadero}')
+                    regla.append('3')
+                    et = siguiente[1:]
+                    print(et)
+                    et = int(et)
+                    antes.append(f'if {tempCond}:<br> &nbsp goto .{siguiente}<br>else:<br> &nbsp goto .L{et + 1}<br>label .{siguiente}<br>#instrucciones<br>label .L{et + 1}')
+                    optimizado.append(f'if not {tempCond}:<br> &nbsp goto .{siguiente}<br>#instrucciones<br>label .{siguiente}')
 
-                if eli.instrucciones != None:
-                    tr.traduccion(eli.instrucciones, ts, consola,metodos_funciones, exception, concatena, tv)
-                consola.append(f'\tgoto .{etfinal}\n')
-                consola.append(f'\tlabel .{falso}\n')
-            if sif.instruccionesElse != None:
-                consola.append('\t#en else\n')
-                tr.traduccion(sif.instruccionesElse, ts, consola,metodos_funciones, exception, concatena, tv)
-                fn = tv.Et()
-                consola.append(f'\tlabel .{fn}\n')
         else:
-            if sif.Belse:
-                #tiene else
-                condicionIf = Expresion.traducir(sif.E, ts, consola, exception, tv, regla, antes, optimizado, 'IF')
-                verdadero = tv.Et()
-                falso = tv.Et()
-                consola.append('\tif ' + condicionIf + ':\n\t\t goto .' + verdadero + '\n')
-                consola.append(f'\telse:\n\t\tgoto .{falso}\n')
-                consola.append(f'\tlabel .{verdadero}\n')
-                #reporte optimizacion
-                regla.append('3')
-                antes.append(f'if {condicionIf}:<br> &nbsp goto .{verdadero}<br>else:<br> &nbsp goto .{falso}<br>label .{verdadero}<br>#instrucciones<br>label .{falso}')
-                optimizado.append(f'if not {condicionIf}:<br> &nbsp goto .{verdadero}<br>#instrucciones<br>label .{verdadero}')
+            condicion = Expresion.traducir(cs.E, ts, consola, exception, tv, regla, antes, optimizado, None)
+            salida = tv.Et()
+            if cs.listaWhen != None and len(cs.listaWhen) != 0:
+                for c in cs.listaWhen:
+                    cond2 = Expresion.traducir(c.E, ts, consola, exception, tv, regla, antes, optimizado, None)
+                    tempCond = tv.Temp()
+                    consola.append(f'\t{tempCond} = {condicion} == {cond2}\n')
+                    siguiente = tv.Et()
+                    consola.append(f'\tif not {tempCond}:\n\t\tgoto .{siguiente}\n')
+                    if c.instrucciones != None:
+                        tr.traduccion(c.instrucciones, ts, consola, metodos_funciones, exception, concatena, tv)
+                    consola.append(f'\tgoto .{salida}\n') #equivalente a break, por el else lo dejare
+                    consola.append(f'\tlabel .{siguiente}\n')
 
-                continuacion = tv.Et()   #donde quedara lo que esta despues de else
-                if sif.instrucciones != None:
-                    #agregar
-                    consola.append('\t#parte verdadera\n')
-                    consola.append('\tprint("verdadera")\n')
-                    tr.traduccion(sif.instrucciones, ts, consola,metodos_funciones, exception, concatena, tv)
-                    consola.append(f'\tgoto .{continuacion}\n')
-                consola.append(f'\tlabel .{falso}\n')
-                if sif.instruccionesElse != None:
-                    #agregar
-                    consola.append('\t#parte falsa\n')
-                    consola.append('\tprint("falsa")\n')
-                    tr.traduccion(sif.instruccionesElse, ts, consola,metodos_funciones,exception, concatena, tv)
-                consola.append(f'\tlabel .{continuacion}\n')
-                consola.append('\t#continuacion\n')
-                consola.append('\tprint("continuacion")\n')
-            else: #solo if
-                condicion = Expresion.traducir(sif.E, ts, consola, exception, tv, regla, antes, optimizado, 'IF')
-                verdadero = tv.Et()
-                falso = tv.Et()
-                consola.append(f'\tif {condicion}:\n\t\t goto .{verdadero}\n')
-                consola.append(f'\telse:\n\t\tgoto .{falso}\n')
-                consola.append(f'\tlabel .{verdadero}\n')
-                # reporte optimizacion
-                regla.append('3')
-                antes.append(f'if {condicion}:<br> &nbsp goto .{verdadero}<br>else:<br> &nbsp goto .{falso}<br>label .{verdadero}<br>#instrucciones<br>label .{falso}')
-                optimizado.append(f'if not {condicion}:<br> &nbsp goto .{verdadero}<br>#instrucciones<br>label .{verdadero}')
+                    # reporte optimizacion
+                    regla.append('3')
+                    et = siguiente[1:]
+                    print(et)
+                    et = int(et)
+                    antes.append(f'if {tempCond}:<br> &nbsp goto .{siguiente}<br>else:<br> &nbsp goto .L{et + 1}<br>label .{siguiente}<br>#instrucciones<br>label .L{et + 1}')
+                    optimizado.append(f'if not {tempCond}:<br> &nbsp goto .{siguiente}<br>#instrucciones<br>label .{siguiente}')
 
-                if sif.instrucciones != None:
-                    consola.append('\tprint("verdadera")\n')
-                    tr.traduccion(sif.instrucciones, ts, consola,metodos_funciones, exception, concatena, tv)
-                consola.append(f'\tlabel .{falso}\n')
+
+
+
+            tr.traduccion(cs.elseCase, ts, consola, metodos_funciones, exception, concatena, tv)
+            consola.append(f'\tlabel .{salida}\n')
 ```
 
 ## Bibliografía
