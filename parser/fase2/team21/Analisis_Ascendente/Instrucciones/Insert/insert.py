@@ -1,8 +1,8 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from  tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import  tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 from datetime import date,datetime
 todoBien = True
 #INSERT INTO
