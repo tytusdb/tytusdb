@@ -7,6 +7,7 @@ class Arbol:
         self.ErroresLexicos: list = []
         self.ErroresSintacticos: list = []
         self.ReporteTS: list = []
+        self.ReporteTS_Funciones: list = []
 
         # Soporte de temporales
         self.noTemp:int = 0
@@ -90,3 +91,16 @@ class Arbol:
     def resetIdentacion_funciones(self):
         self.contadorIdentacion_funciones = 0
         self.C3Dfunciones = self.C3Dfunciones + "\n"
+
+    # soporte para simulacion de funciones
+    def dropFuncione(self, id):
+        for i in self.ReporteTS_Funciones:
+            if str(i.nombre) == str(id):
+                i.pop()
+        return
+
+    def existFun(self, id):
+        for i in self.ReporteTS_Funciones:
+            if str(i.nombre) == str(id):
+                return True
+        return False

@@ -8,11 +8,12 @@ from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 
 class insert(NodoArbol):
 
-    def __init__(self, identificador, expres, tipoInsert, line, coliumn):
+    def __init__(self, identificador, expres, idlist, tipoInsert, line, coliumn):
         super().__init__(line, coliumn)
         self.identificador = identificador
         self.expres = expres
         self.tipoInsert = tipoInsert
+        self.idlist = idlist
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         pass
@@ -32,7 +33,27 @@ class insert(NodoArbol):
             arbol.addC3D(temp + ' = inter()')
             return temp
         else:
-            pass
+            lista_id = ''
+            contador_1 = 0
+            for i in self.idlist:
+                if contador_1 == 0:
+                    lista_id = lista_id + str(i)
+                    contador_1 = 1
+                else:
+                    lista_id = lista_id + ',' + str(i)
+            argumentos = ''
+            contador = 0
+            for i in self.expres:
+                if contador == 0:
+                    argumentos = argumentos + i.getString(entorno, arbol)
+                    contador = 1
+                else:
+                    argumentos = argumentos + ',' + i.getString(entorno, arbol)
+            arbol.addC3D(
+                'heap = \'' + 'insert into ' + str(self.identificador) + ' (' + lista_id + ') values (' + argumentos + ');' + '\'')
+            temp = arbol.getTemp()
+            arbol.addC3D(temp + ' = inter()')
+            return temp
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         pass

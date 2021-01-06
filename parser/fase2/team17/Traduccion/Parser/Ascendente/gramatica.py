@@ -48,6 +48,8 @@ from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 from InterpreteF2.indices.indice import indice
 from InterpreteF2.retorno.retorno_simple import retorno_simple
 from InterpreteF2.DML.insert.insert import insert
+from InterpreteF2.Soporte_aFun.callfunction import callfunction
+from InterpreteF2.DML.drops.droptable import droptable
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -702,6 +704,7 @@ def p_execute_procedure(t):
         execute_procedure : EXECUTE ID PARIZQ exp_list PARDER
                           | EXECUTE ID PARIZQ PARDER
     '''
+    t[0] = callfunction(t[2], t[4], 1, 1)
     set('<TR> \n <TD> execute_procedure → EXECUTE ID PARIZQ exp_list PARDER | EXECUTE ID PARIZQ PARDER: </TD> \n <TD> execute_procedure = execute(t[2], t[4]) </TD> \n </TR> \n')
 
 
@@ -834,7 +837,7 @@ def p_declarevar(t):
         t[0] = var_declaracion(t[1], t[2], t[4], 1, 1)
     else:
         # ID types
-        t[0] = var_declaracion(t[1], t[2], None)
+        t[0] = var_declaracion(t[1], t[2], None,1 ,1)
 
 
 # -------------------------------Cristopher PL/PGSQL ---------------------------------------------
@@ -930,6 +933,7 @@ def p_callfunction(t):
     '''
         callfunction : SELECT ID PARIZQ exp_list PARDER
     '''
+    t[0] = callfunction(t[2], t[4], 1, 1)
     set('<TR> \n <TD> callfunction → SELECT ID PARIZQ exp_list PARDER: </TD> \n <TD> callfunction = call_function(t[2], t[4]) </TD> \n </TR> \n')
 
 
@@ -1834,6 +1838,7 @@ def p_exp(t):
               | exp OR          exp
               | expSimple
               | dateFunction
+              | callfunction
               | exp NOT IN exp
     '''
     if len(t) == 4:
@@ -2344,11 +2349,10 @@ def p_insert(t):
                | INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER
     '''
     if len(t)==8:
-        #INSERT INTO ID VALUES PARIZQ exp_list PARDER
-        t[0] = insert(t[3], t[6], 1, 1, 1)
+        t[0] = insert(t[3], t[6], None, 1, 1, 1)
+
     elif len(t)==11:
-        #INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER
-        t[0]= Insert(t[3],t[5],t[9],t.lineno,0)
+        t[0] = insert(t[3], t[9], t[5], 2, 1, 1)
 
     set('<TR> \n <TD> insert → INSERT INTO ID VALUES PARIZQ exp_list PARDER: </TD> \n <TD> insert = Insert(t[3], t[5], t[9]) </TD> \n </TR> \n')
 
@@ -2578,11 +2582,10 @@ def p_drop_table(t):
     '''
     if len(t)==6:
         #DROP TABLE IF EXISTS ID
-        t[0] = DropTable(t.lineno, 0, t[5])
+        t[0] = droptable(t[5], 1, 1)
 
     elif len(t)==4:
-        #DROP TABLE ID
-        t[0] = DropTable(t.lineno, 0, t[3])
+        t[0] = droptable(t[3], 1, 1)
 
     set('<TR> \n <TD> drop_table → DROP TABLE ID: </TD> \n <TD>  drop_table = DropTable(t[5]) </TD> \n </TR> \n')
 
