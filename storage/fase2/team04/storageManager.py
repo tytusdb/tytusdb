@@ -566,3 +566,142 @@ def dropTable(database,table):
                 return 1
             break
     return result
+
+# Descripción:
+#     Elimina una tabla especificada en una base de datos con el nombre y modo especificados.
+# Parámetros:
+#     database:str - El nombre de la base de datos que se va a utilizar
+#     table:str - El nombre de la tabla que se desea eliminar
+#     mode:str - El modo que debe tener la base de datos que se va a utilizar
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error durante la operación
+#     2 - database no existe
+#     3 - table no existe
+def __drop_table_sp(database, table, mode):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    if databases.find_table(database, table) == None:
+        return 3
+    for db in dbs:
+        if db.mode == mode == "avl":
+            result = avlMode.dropTable(database, table)
+        elif db.mode == mode == "b":
+            result = BMode.dropTable(database, table)
+        elif db.mode == mode == "bplus":
+            result = BPlusMode.dropTable(database, table)
+        elif db.mode == mode == "dict":
+            result = DictMode.dropTable(database, table)
+        elif db.mode == mode == "isam":
+            result = ISAMMode.dropTable(database, table)
+        elif db.mode == mode == "json":
+            result = jsonMode.dropTable(database, table)
+        elif db.mode == mode == "hash":
+            result = HashMode.dropTable(database, table)
+        else:
+            continue
+        if result != 3:
+            if result == 0:
+                db.tables.delete(table)
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        return result
+                    except:
+                        break
+                return 1
+            break
+    return result
+
+def extractRow(database, table, columns):
+    db = databases.search(database)
+    if    db == None:
+        return 2
+    if db.mode == "avl":
+        result = avlMode.extractRow(database, table, columns)
+    elif db.mode == "b":
+        result = BMode.extractRow(database, table, columns)
+    elif db.mode == "bplus":
+        result = BPlusMode.extractRow(database, table, columns)
+    elif db.mode == "dict":
+        result = DictMode.extractRow(database, table, columns)
+    elif db.mode == "isam":
+        result = ISAMMode.extractRow(database, table, columns)
+    elif db.mode == "json":
+        result = jsonMode.extractRow(database, table, columns)
+    elif db.mode == "hash":
+        result = HashMode.extractRow(database, table, columns)
+    return result
+
+def update(database, table, register, columns):
+    db = databases.search(database)
+    if db == None:
+        return 2
+    if db.mode == "avl":
+        result = avlMode.update(database, table, register, columns)
+    elif db.mode == "b":
+        result = BMode.update(database, table, register, columns)
+    elif db.mode == "bplus":
+        result = BPlusMode.update(database, table, register, columns)
+    elif db.mode == "dict":
+        result = DictMode.update(database, table, register, columns)
+    elif db.mode == "isam":
+        result = ISAMMode.update(database, table, register, columns)
+    elif db.mode == "json":
+        result = jsonMode.update(database, table, register, columns)
+    elif db.mode == "hash":
+        result = HashMode.update(database, table, register, columns)
+    return result
+
+def truncate(database, table):
+    db = databases.search(database)
+    if db == None:
+        return 2
+    if db.mode == "avl":
+        result = avlMode.truncate(database, table)
+    elif db.mode == "b":
+        result = BMode.truncate(database, table)
+    elif db.mode == "bplus":
+        result = BPlusMode.truncate(database, table)
+    elif db.mode == "dict":
+        result = DictMode.truncate(database, table)
+    elif db.mode == "isam":
+        result = ISAMMode.truncate(database, table)
+    elif db.mode == "json":
+        result = jsonMode.truncate(database, table)
+    elif db.mode == "hash":
+        result = HashMode.truncate(database, table)
+    return result
+
+def alterAddPK(database, table, columns):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    for db in dbs:
+        if db.mode == "avl":
+            result = avlMode.alterAddPK(database, table, columns)
+        elif db.mode == "b":
+            result = BMode.alterAddPK(database, table, columns)
+        elif db.mode == "bplus":
+            result = BPlusMode.alterAddPK(database, table, columns)
+        elif db.mode == "dict":
+            result = DictMode.alterAddPK(database, table, columns)
+        elif db.mode == "isam":
+            result = ISAMMode.alterAddPK(database, table, columns)
+        elif db.mode == "json":
+            result = jsonMode.alterAddPK(database, table, columns)
+        elif db.mode == "hash":
+            result = HashMode.alterAddPK(database, table, columns)
+        if result != 3:
+            if result == 0:
+                db.tables.search(table).pk += columns
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        return result
+                    except:
+                        break
+                return 1
+            break
+    return result
