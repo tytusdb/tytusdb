@@ -28,7 +28,7 @@ class dropindex(NodoArbol):
                     self.listid.pop(j)
                     arbol.ReporteTS.pop(i)
                 j += 1
-        i+=1
+            i+=1
 
 
         #for i in range(len(arbol.ReporteTS)):
