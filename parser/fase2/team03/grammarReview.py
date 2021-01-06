@@ -1039,24 +1039,20 @@ def p_stm_get(t):
 
 
 def p_stm_case(t):
-    '''stm_case   : CASE id_case when_inst  case_else   END CASE  '''
+    '''stm_case   : CASE id_case    when_inst  case_else   END CASE  '''
     
     token = t.slice[1]
     if len(t) == 7:
-        childsProduction  = addNotNoneChild(t,[4])
+        childsProduction  = addNotNoneChild(t,[3,4])
         lista = None
         if t[2] != None:
             lista = t[2][0]
             childsProduction.append(lista.graph_ref)
 
-        lista2 = None
-        if t[3] != None:
-            lista2 = t[3][0]
-            childsProduction.append(lista2.graph_ref)
-        graph_ref = graph_node(str("stm_case"), [t[1], lista,lista2,t[4],t[5],t[6]],childsProduction )
+        graph_ref = graph_node(str("stm_case"), [t[1], lista,t[3],t[4],t[5],t[6]],childsProduction )
         addCad("**\<STM_CASE>** ::=   tCase  tIdentifier     [\<WHEN_INST>]   [\<CASE_ELSE>]   tEnd  tCase      ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #print(t)
+        t[0] = IfNode(None, None, t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
+        #t[0]= upNodo("token", 0, 0, graph_ref)
 
 def p_id_case(t):
     '''id_case   : column_list
@@ -1073,32 +1069,30 @@ def p_id_case(t):
 def p_when_inst(t):
     '''when_inst   : when_inst WHEN condition THEN case_inst
                    | WHEN condition THEN case_inst   '''
-    token = t.slice[1]
+    
     if len(t) == 6:
-        childsProduction  = addNotNoneChild(t,[3])
-        lista1 = None
-        if t[1] != None:
-            lista1 = t[1][0]
-            childsProduction.append(lista1.graph_ref)        
+        childsProduction  = addNotNoneChild(t,[1,3])
+       
         lista = None
         if t[5] != None:
             lista = t[5][0]
             childsProduction.append(lista.graph_ref)
             
-        graph_ref = graph_node(str("when_inst"), [lista1, t[2],t[3],t[4],lista],childsProduction )
+        graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],t[4],lista],childsProduction )
         addCad("**\<WHEN_INST>** ::=  \<WHEN_INST >         tWhen  \<CONDITION> tThen   \<CASE_INST>   ")
-        t[0] = [upNodo("token", 0, 0, graph_ref)]
-        
-    elif len(t) == 5:
+        t[0] = IfNode(t[3], t[5], None, None, t.slice[2].lineno, t.slice[2].lexpos,graph_ref)
+        #t[0]= [upNodo("token", 0, 0, graph_ref)]
+    else:        
         childsProduction  = addNotNoneChild(t,[2])
+       
         lista = None
         if t[4] != None:
             lista = t[4][0]
-            childsProduction.append(lista.graph_ref)
+            childsProduction.append(lista.graph_ref)            
         graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],lista],childsProduction )
-        addCad("**\<WHEN_INST>** ::=     tWhen  \<CONDITION> tThen   \<CASE_INST>      ")
-        t[0] = [upNodo("token", 0, 0, graph_ref)]
-        #print(t)
+        addCad("**\<WHEN_INST>** ::=  \<WHEN_INST >         tWhen  \<CONDITION> tThen   \<CASE_INST>   ")
+        t[0] = IfNode(t[2], t[4], None, None, t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
+        #t[0]= [upNodo("token", 0, 0, graph_ref)]
    
 
 
