@@ -31,8 +31,14 @@ class Value(Expression):
         else: dot += str(hash(self)) + '[label=\"\'' + str(self.value) + '\'\"]\n'
         return dot
     def translate(self,opts,indent):
-        if(self.type == 3): return (indent*"\t")+opts.generateTemp()+"='"+str(self.value)+"'\n"
-        return (indent*"\t")+opts.generateTemp()+"="+str(self.value)+"\n"
+        diccionario = None
+        if(self.type == 3):
+            diccionario = {'resultado':opts.generateTemp(),'argumento1':"'"+str(self.value)+"'",'argumento2':None,'operacion':None}
+            opts.pila.append(diccionario)
+            return (indent*"\t")+diccionario['resultado']+"='"+str(self.value)+"'\n"
+        diccionario = {'resultado':opts.generateTemp(),'argumento1':str(self.value),'argumento2':None,'operacion':None}
+        opts.pila.append(diccionario)
+        return (indent*"\t")+diccionario['resultado']+"="+str(self.value)+"\n"
 
 class Arithmetic(Expression):
     def __init__(self, value1, value2, type):
@@ -61,7 +67,9 @@ class Arithmetic(Expression):
     def translate(self,opts,indent):
         t1 = self.value1.translate(opts,indent)
         t2 = self.value2.translate(opts,indent)
-        return t1+t2+(indent*"\t")+opts.generateTemp()+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+self.type+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
+        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':inspect.cleandoc(t2.split("\n")[-2].split("=")[0]),'operacion':self.type}
+        opts.pila.append(diccionario)
+        return t1+t2+(indent*"\t")+diccionario['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+self.type+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
 
 class Range(Expression):
     def __init__(self, value1, value2, type):
@@ -90,7 +98,9 @@ class Range(Expression):
     def translate(self,opts,indent):
         t1 = self.value1.translate(opts,indent)
         t2 = self.value2.translate(opts,indent)
-        return t1+t2+(indent*"\t")+opts.generateTemp()+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+self.type+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
+        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':inspect.cleandoc(t2.split("\n")[-2].split("=")[0]),'operacion':self.type}
+        opts.pila.append(diccionario)
+        return t1+t2+(indent*"\t")+diccionario['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+self.type+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
 
 class Logical(Expression):
     def __init__(self, value1, value2, type):
@@ -122,7 +132,9 @@ class Logical(Expression):
     def translate(self,opts,indent):
         t1 = self.value1.translate(opts,indent)
         t2 = self.value2.translate(opts,indent)
-        return t1+t2+(indent*"\t")+opts.generateTemp()+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+" "+self.type.lower()+" "+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
+        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':inspect.cleandoc(t2.split("\n")[-2].split("=")[0]),'operacion':self.type}
+        opts.pila.append(diccionario)
+        return t1+t2+(indent*"\t")+diccionario['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+" "+self.type.lower()+" "+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
 
 class Relational(Expression):
     def __init__(self, value1, value2, type):
@@ -153,7 +165,9 @@ class Relational(Expression):
         t2 = self.value2.translate(opts,indent)
         transtype = self.type
         if self.type == "=": transtype = "=="
-        return t1+t2+(indent*"\t")+opts.generateTemp()+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+" "+transtype+" "+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
+        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':inspect.cleandoc(t2.split("\n")[-2].split("=")[0]),'operacion':transtype}
+        opts.pila.append(diccionario)
+        return t1+t2+(indent*"\t")+diccionario['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+" "+transtype+" "+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
 
 class Unary(Expression):
     def __init__(self, value, type):
@@ -221,7 +235,7 @@ class AggFunction(Expression):
         old_stdout = sys.stdout
         new_stdout = StringIO()
         sys.stdout = new_stdout
-        print(self.expressions)
+        print(self.expression)
         exp = new_stdout.getvalue()[:-1]
         sys.stdout = old_stdout
         return "AggFunction('"+self.function+"',"+str(exp)+")"

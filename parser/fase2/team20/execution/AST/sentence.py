@@ -545,6 +545,8 @@ class AlterIndex(Sentence):
         self.isNum=isNum
     def __str__(self):
         return "executeSentence(AlterIndex,AlterIndex('"+str(self.oldname)+"','"+str(self.newname)+"',"+str(self.ifExistsFlag)+","+str(self.isNum)+"))"
+    def graphAST(self,dot,parent):
+        return ""
     
 
 class Insert(Sentence):
@@ -819,6 +821,8 @@ class DropIndex(Sentence):
         self.ifExistsFlag= ifExistsFlag  #bool
     def __str__(self):
         return "executeSentence(DropIndex,DropIndex('"+self.name+"',"+str(self.ifExistsFlag)+"))"
+    def graphAST(self,dot,parent):
+        return ""
     
 
 class Select(Sentence):

@@ -7,6 +7,7 @@ from .executeInstruction import executeInstruction
 from .generateASTReport import graphAST
 from .generateSymbolTableReport import printSymbolTable
 from .execute_result import *
+from .storageManager.TypeChecker import *
 from io import StringIO  # Python3
 import sys
 class Execute():
@@ -15,7 +16,7 @@ class Execute():
     messages = []
     querys = []
     ts = []
-    pila =[] # cada item es un diccionario {}
+    pila =[] # cada item es un diccionario {resultado,argumento1,argumento2,operacion}
     plcode = ""
     #intermediate = IntermediateFunctions()
     types = {
@@ -69,6 +70,9 @@ class Execute():
                     executeInstruction(self,node, 1, 0)
                 
                 #executeSentence2(self,node)
+        for storedproc in TCgetFunctions():
+            if storedproc not in self.plcode: 
+                self.plcode+=storedproc
         archivo = open("C3D.py", 'a')
         archivo.write("\n")
         archivo.write(self.plcode)

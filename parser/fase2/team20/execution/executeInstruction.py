@@ -2,6 +2,8 @@ from .AST.instruction import *
 from .AST.expression import *
 from .AST.error import * 
 from .AST.sentence import *
+from .storageManager.TypeChecker import * 
+from console import print_success, print_table, print_error
 
 def executeInstruction(self, instruction,indent, main):
     if isinstance(instruction, CreateFunction):
@@ -58,7 +60,6 @@ def executeInstruction(self, instruction,indent, main):
                 print(statement)
                 val1 = new_stdout.getvalue()[:-1]
                 sys.stdout = old_stdout
-                print(val1)
                 functioncode+=(indent*"\t")+str(val1)+"\n"
             if(isinstance(statement,StatementReturn)):
                 functioncode+=statement.expression.translate(self,indent)
@@ -98,6 +99,16 @@ def executeInstruction(self, instruction,indent, main):
                 functioncode+=(indent*"\t")+statement.name+params[:-2]+")\n"
         if(len(instruction.block.statements)==0): functioncode+="\tprint(1)"
         # save functioncode in TypeChecker
+        res = TCcreateFunction(functionname,functioncode,replace)
+        if res==1:
+            print("Function "+functionname+" stored")
+            print_success("MESSAGE","Function "+functionname+" stored")
+        elif res==2:
+            print("Function "+functionname+" replaced")
+            print_success("MESSAGE","Function "+functionname+" replaced")
+        else:
+            print("Function "+functionname+" already exists")
+            print_error("SEMANTIC","Function "+functionname+" already exists")
         self.plcode += functioncode
     elif(isinstance(instruction,StatementReturn)):
         code = ""
@@ -113,25 +124,27 @@ def executeInstruction(self, instruction,indent, main):
             code += "#SelectF1"
         return code
     elif(isinstance(instruction,Call) or isinstance(instruction,Excute)):
-        code = ""
+        code = "\n"
         params="("
         if instruction.params != None:
             for expression in instruction.params:
                 code+=expression.translate(self,indent)
                 params+=self.getLastTemp()+", "
-            code=(indent*"\t")+instruction.name+params[:-2]+")\n"
             if(main==0): 
-                code=(indent*"\t")+"print("+instruction.name+params[:-2]+"))\n"
+                code+="\n"+(indent*"\t")+"print("+instruction.name+params[:-2]+"))\n"
                 archivo = open("C3D.py", 'a')
                 archivo.write(code) 
                 archivo.close()
+            else:
+                code+=(indent*"\t")+instruction.name+params[:-2]+")\n"
         else:
-            code=(indent*"\t")+instruction.name+"()\n"
             if(main==0): 
-                code=(indent*"\t")+"print("+instruction.name+"())\n"
+                code+="\n"+(indent*"\t")+"print("+instruction.name+"())\n"
                 archivo = open("C3D.py", 'a')
                 archivo.write(code) 
                 archivo.close()
+            else:
+                code+=(indent*"\t")+instruction.name+"()\n"
         return code
     elif isinstance(instruction,If):
         code = ""
@@ -153,6 +166,14 @@ def executeInstruction(self, instruction,indent, main):
             iflabel+=(indent*"\t")+"goto ."+self.getLastLabel()+"\n"
         code+=ifcode+elsecode+iflabel+elselabel
         return code
+    elif isinstance(instruction,DropFunction):
+        ans = TCdeleteFunction(instruction.name)
+        if(ans == 1):
+            print("Function "+instruction.name+" droped")
+            print_success("MESSAGE","Function "+instruction.name+" droped")
+        else: 
+            print("Function "+instruction.name+" does not exist")
+            print_error("SEMANTIC","Function "+instruction.name+" does not exist")
     
 
 def getType(sqltype):

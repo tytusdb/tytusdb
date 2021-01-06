@@ -781,7 +781,8 @@ def p_instruction_type_bin(t):
             | VARCHAR BRACKET_OPEN INT BRACKET_CLOSE
             | CHARACTER BRACKET_OPEN INT BRACKET_CLOSE
             | CHAR BRACKET_OPEN INT BRACKET_CLOSE
-            | NUMERIC BRACKET_OPEN INT BRACKET_CLOSE'''
+            | NUMERIC BRACKET_OPEN INT BRACKET_CLOSE
+            | DECIMAL BRACKET_OPEN INT COMMA INT BRACKET_CLOSE'''
     t[0] = [t[1],t[3]]
     global grammarreport
     grammarreport = "<type> ::= "+t[1]+" '(' "+str(t[3])+" ')' { type.val=['"+t[1]+"',"+str(t[3])+"] }\n" + grammarreport
@@ -1414,8 +1415,19 @@ def p_instructions_pl(t):
     '''pl : function SEMICOLON
           | call SEMICOLON
           | excute SEMICOLON
-          | procedure'''
+          | procedure
+          | dropproc SEMICOLON'''
     t[0]  = t[1]
+
+def p_pl_DROPPROC_1(t):
+    '''dropproc : DROP PROCEDURE ID
+                 | DROP FUNCTION ID'''
+    t[0] = DropFunction(t[3],False)
+
+def p_pl_DROPfunc_1(t):
+    '''dropproc : DROP FUNCTION IF EXISTS ID
+                 | DROP PROCEDURE IF EXISTS ID'''
+    t[0] = DropFunction(t[5],True)
 
 #FUNCTION
 def p_pl_PROC_1(t):

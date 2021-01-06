@@ -196,8 +196,23 @@ class Asignment(Instruction):
         str(hash(self.name) + hash(self)) + '\n'
         dot += str(hash(self.name) + hash(self)) + \
             '[label=\"' + self.name + '\"]\n'
-        if self.expression != None: dot += self.expression.graphAST('',str(hash(self)))
-        else: dot+=self.select.graphAST('',str(hash(self)))
+        if self.expression != None: 
+            dot += self.expression.graphAST('',str(hash(self)))
+        else: 
+            dot+=self.select.graphAST('',str(hash(self)))
+        return dot
+
+class DropFunction(Instruction):
+    def __init__(self, name, ifexists):
+        self.name = name
+        self.ifexists = ifexists
+    def graphAST(self, dot, parent):
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"DropFunction\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
         return dot 
 
 class Call(Instruction):
