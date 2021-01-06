@@ -1,4 +1,5 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 
 class DeclaracionVariable(Instruccion):
     def __init__(self, id, constante, tipo, isnull, asignacion_valor, strGram, linea, columna, strSent):
@@ -14,5 +15,15 @@ class DeclaracionVariable(Instruccion):
 
     def traducir(self,tabla,arbol,cadenaTraducida):
         codigo = ""
+
+        #Tiene un valor asignado
+        if self.asignacion_valor is not None:
+            simbolo = self.asignacion_valor.traducir(tabla,arbol,cadenaTraducida)
+            codigo += simbolo.codigo
+            codigo += "\t\t" + self.id + " = " + simbolo.temporal + "\n"
+        
+        #Al no asignarsele nada se inicializa como None
+        else:
+            codigo += "\t\t" + self.id + " = None\n"
 
         return codigo

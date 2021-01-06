@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -2082,7 +2082,7 @@ def p_funciones(t):
     '''
     instruccion    :   CREATE FUNCTION ID PARIZQ parametros_funcion PARDER returns_n retorno_funcion declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
-    t[0] = Funcion.Funcion(t[3], t[5], t[8], t[9], t[10], "", t.lexer.lineno, t.lexer.lexpos, "")
+    t[0] = Funcion.Funcion(t[3], t[5], t[8], t[9], t[11], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 def p_parametros_funcion(t):
     '''
@@ -2194,16 +2194,31 @@ def p_dec_var_funcion2(t):
 				    |	ID ALIAS FOR ID
     '''
 
+    if len(t) == 5:
+        t[0] = DeclaracionAlias.DeclaracionAlias(t[1], t[4], None, "", t.lexer.lineno, t.lexer.lexpos, "")
+    else:
+        t[0] = DeclaracionAlias.DeclaracionAlias(t[1], None, t[5], "", t.lexer.lineno, t.lexer.lexpos, "")
+
+
 def p_dec_var_funcion3(t):
     '''
     dec_var_funcion : 	ID tabla_typerow MODULO type_row
     '''
+
 
 def p_tabla_typerow(t):
     '''
     tabla_typerow   :   ID PUNTO ID
                     |   ID
     '''
+
+
+def p_type_row(t):
+    '''
+    type_row 	:	TYPE
+			    |	ROWTYPE
+    '''
+
 
 def p_constant(t):
     '''
@@ -2216,13 +2231,6 @@ def p_constant_e(t):
     constant_n  :   
     '''
     t[0] = None
-
-def p_type_row(t):
-    '''
-    type_row 	:	TYPE
-			    |	ROWTYPE
-    '''
-
 
 def p_nnull(t):
     '''
@@ -2242,15 +2250,25 @@ def p_aisgnacion_valor(t):
 					    |	DOSP_IGUAL expre 
 					    |	IGUAL expre 
     '''
+    t[0] = t[2]
+
+
 def p_aisgnacion_valor_e(t):
     '''
     aisgnacion_valor    :
     '''
+    t[0] = None
 
 def p_contenido_funcion(t):
     '''
-    contenido_funcion   : contenido_funcion cont_funcion
-                        | cont_funcion ''' 
+    contenido_funcion   : contenido_funcion cont_funcion''' 
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_contenido_funcion2(t):
+    '''
+    contenido_funcion   : cont_funcion '''
+    t[0] = [t[1]]
     
     
 def p_cont_funcion(t):
@@ -2258,6 +2276,7 @@ def p_cont_funcion(t):
     cont_funcion    :   sentencia_if
                     |   instruccion
     '''
+    t[0] = t[1]
 
 def p_sentencia_if(t):    
     '''
