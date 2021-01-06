@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -73,10 +73,7 @@ def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
     t[0] = [t[1]]
 
-def p_instrucion_exp(t):
-    '''instruccion  :   expre'''
 
-    t[0] = t[1]
     
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
@@ -2085,7 +2082,7 @@ def p_funciones(t):
     '''
     instruccion    :   CREATE FUNCTION ID PARIZQ parametros_funcion PARDER returns_n retorno_funcion declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
-    t[0] = Funcion.Funcion(t[3], t[5], t[8], t[9], t[10], "", t.lexer.lineno, t.lexer.lexpos, "")
+    t[0] = Funcion.Funcion(t[3], t[5], t[8], t[9], t[11], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 def p_parametros_funcion(t):
     '''
@@ -2187,12 +2184,26 @@ def p_list_dec_var_funcion2(t):
 
 def p_dec_var_funcion(t):
     '''
-    dec_var_funcion : 	ID constant_n tipo collate_n nnull aisgnacion_valor 
-				    |	ID ALIAS FOR DOLLAR ENTERO
+    dec_var_funcion : 	ID constant_n tipo nnull aisgnacion_valor 
+    '''
+    t[0] = DeclaracionVariable.DeclaracionVariable(t[1], t[2], t[3], t[4], t[5], "", t.lexer.lineno, t.lexer.lexpos, "")
+    
+def p_dec_var_funcion2(t):
+    '''
+    dec_var_funcion : 	ID ALIAS FOR DOLLAR ENTERO
 				    |	ID ALIAS FOR ID
-				    |	ID tabla_typerow MODULO type_row
     '''
 
+    if len(t) == 5:
+        t[0] = DeclaracionAlias.DeclaracionAlias(t[1], t[4], None, "", t.lexer.lineno, t.lexer.lexpos, "")
+    else:
+        t[0] = DeclaracionAlias.DeclaracionAlias(t[1], None, t[5], "", t.lexer.lineno, t.lexer.lexpos, "")
+
+
+def p_dec_var_funcion3(t):
+    '''
+    dec_var_funcion : 	ID tabla_typerow MODULO type_row
+    '''
 
 
 def p_tabla_typerow(t):
@@ -2201,14 +2212,6 @@ def p_tabla_typerow(t):
                     |   ID
     '''
 
-def p_constant(t):
-    '''
-    constant_n  :   CONSTANT
-    '''
-def p_constant_e(t):
-    '''
-    constant_n  :   
-    '''
 
 def p_type_row(t):
     '''
@@ -2216,23 +2219,30 @@ def p_type_row(t):
 			    |	ROWTYPE
     '''
 
-def p_collate(t):
+
+def p_constant(t):
     '''
-    collate_n : COLLATE CADENA
+    constant_n  :   CONSTANT
     '''
-def p_collate_e(t):
+    t[0] = t[1]
+
+def p_constant_e(t):
     '''
-    collate_n :
+    constant_n  :   
     '''
+    t[0] = None
 
 def p_nnull(t):
     '''
     nnull : NOT NULL
     '''
+    t[0] = "NOT NULL"
+
 def p_nnull_e(t):
     '''
     nnull :
     '''
+    t[0] = None
 
 def p_aisgnacion_valor(t):
     '''
@@ -2240,15 +2250,25 @@ def p_aisgnacion_valor(t):
 					    |	DOSP_IGUAL expre 
 					    |	IGUAL expre 
     '''
+    t[0] = t[2]
+
+
 def p_aisgnacion_valor_e(t):
     '''
     aisgnacion_valor    :
     '''
+    t[0] = None
 
 def p_contenido_funcion(t):
     '''
-    contenido_funcion   : contenido_funcion cont_funcion
-                        | cont_funcion ''' 
+    contenido_funcion   : contenido_funcion cont_funcion''' 
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_contenido_funcion2(t):
+    '''
+    contenido_funcion   : cont_funcion '''
+    t[0] = [t[1]]
     
     
 def p_cont_funcion(t):
@@ -2256,6 +2276,7 @@ def p_cont_funcion(t):
     cont_funcion    :   sentencia_if
                     |   instruccion
     '''
+    t[0] = t[1]
 
 def p_sentencia_if(t):    
     '''
@@ -2263,22 +2284,24 @@ def p_sentencia_if(t):
 				  | IF expre THEN instrucciones_if condicionesif END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if ELSE  instrucciones_if END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if END IF PUNTO_COMA
-				  | CASE ID condiciones_cuando ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE ID condiciones_cuando ELSE instrucciones_if END CASE PUNTO_COMA
 				  | CASE ID condiciones_cuando END CASE PUNTO_COMA
-				  | CASE condiciones_cuandoB ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB ELSE instrucciones_if END CASE PUNTO_COMA
 				  | CASE condiciones_cuandoB END CASE PUNTO_COMA
 				  | BEGIN instrucciones_if EXCEPTION WHEN l_identificadores THEN instrucciones_if END PUNTO_COMA
 				  | BEGIN instrucciones_if EXCEPTION WHEN sql_states THEN instrucciones_if END PUNTO_COMA
     '''
-    if t[1] == "IF" and  len(t) == 8:
+    if t[1] == "IF" and len(t) == 11:
+        print("Llega")
+        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
+    elif t[1] == "IF" and len(t) == 9:
+        t[0] = condicional_if.IfElseIf(t[2],t[4],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and  len(t) == 8:
         print("Llega")
         t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     elif t[1] == "IF" and len(t) == 10:
         print("Llega")
         t[0] = condicional_if.Ifelse(t[2],t[4],t[6],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "IF" and len(t) == 11:
-        print("Llega")
-        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
 
 def p_instrucciones_if(t):
     ''' 
@@ -2289,7 +2312,6 @@ def p_instrucciones_if(t):
 def p_instruccion_if(t):
     '''
     instruccion_if : cont_funcion
-                   | instruccion
                    | expre PUNTO_COMA
                    | RETURN PUNTO_COMA
                    | RETURN expre PUNTO_COMA
@@ -2301,8 +2323,8 @@ def p_instruccion_if(t):
 
 def p_condiciones_if(t):
     '''
-condicionesif : condicionesif condicionif
-			  | condicionif
+    condicionesif : condicionesif condicionif
+			      | condicionif
     '''
     if len(t) == 3:
         t[1].append(t[2])
@@ -2312,43 +2334,55 @@ condicionesif : condicionesif condicionif
 
 def p_condicion_if(t):
     '''
-condicionif : ELSIF expre THEN instrucciones_if 
-			| ELSEIF expre THEN instrucciones_if  
+    condicionif : ELSIF expre THEN instrucciones_if 
+			    | ELSEIF expre THEN instrucciones_if  
     '''
     t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     
 def p_condiciones_cuando(t):
     '''
-condiciones_cuando : condiciones_cuando condicion_cuando
-				   | condicion_cuando
+    condiciones_cuando : condiciones_cuando condicion_cuando
+				       | condicion_cuando
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_condicion_cuando(t):
     '''
-condicion_cuando : WHEN l_expresiones THEN instrucciones
+    condicion_cuando : WHEN l_expresiones THEN instrucciones_if
 
     '''
 
 def p_condiciones_cuando_B(t):
     '''
-condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
-					| condicion_cuandoB
+    condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
+					    | condicion_cuandoB
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_condicion_cuando_B(t):
     '''
-condicion_cuandoB ::= WHEN expre THEN instrucciones
+    condicion_cuandoB : WHEN expre THEN instrucciones_if
     '''
+    print("regresando")
+    t[0] = condicional_case.condicion_case(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
 
 def p_sql_states(t):
     '''
-sql_states ::= sql_states OR sql_state
-			 | sql_state
+    sql_states : sql_states OR sql_state
+			   | sql_state
     '''
 
 def p_sql_state(t):
     '''
-sql_state ::= SQLSTATE CADENA
+    sql_state : SQLSTATE CADENA
     '''
 
 def p_identificadores(t):

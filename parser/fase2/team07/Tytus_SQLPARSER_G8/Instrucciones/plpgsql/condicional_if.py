@@ -157,15 +157,17 @@ class IfElseIf(Instruccion):
         #   ................
         #
         #   if temporal_logico2:
-        #       goto L2
-        #   goto L3
-        #   Label L2
+        #       goto L3
+        #   goto L4
+        #   Label L3
         #   instrucciones_elseif
-        #   label L3
+        #   goto L2
+        #   label L4
         #
         #   ....................
         #   label L1    
         #   instrucciones_if
+        #   label L2
         #   ...
 
 class IfElseIfElse(Instruccion):
@@ -230,6 +232,7 @@ class IfElseIfElse(Instruccion):
         #   goto L4
         #   Label L3
         #   instrucciones_elseif
+        #   goto L2
         #   label L4
         #
         #   ....................

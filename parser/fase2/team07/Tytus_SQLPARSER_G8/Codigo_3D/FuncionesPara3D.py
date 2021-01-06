@@ -33,8 +33,8 @@ class FuncionesPara3D():
         
         cont += "class Codigo3D():\n\n"
 
-        cont += "\tdef __init__(self):
-		cont += "\t\tself.mensaje = \"\"\n\n"
+        cont += "\tdef __init__(self):\n"
+        cont += "\t\tself.mensaje = \"\" \n\n"
 
         cont += "\tdef ejecutar(self):\n\n"
         #Se esribe el codigo traducido
