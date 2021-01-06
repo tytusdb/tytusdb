@@ -66,6 +66,17 @@ def showDatabases() -> list:
     except:
         return []
 
+# borrar todas las bases de datos
+def dropAll() -> int:
+    bases = showDatabases()    
+    if len(bases) != 0:
+        for data in bases:            
+            dropDatabase(str(data))
+        return 0
+    else:
+        return 1
+
+
 #Crea una tabla en una base de datos especificada
 def createTable(database: str, table: str, numberColumns: int) -> int:
     try:

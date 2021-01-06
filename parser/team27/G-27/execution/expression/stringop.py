@@ -1,10 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from expression import *
-from typ import *
-from literal import *
+from execution.abstract.expression import *
+from execution.symbol.typ import *
+from execution.expression.literal import *
 
 class Stringop(Expression):
     """

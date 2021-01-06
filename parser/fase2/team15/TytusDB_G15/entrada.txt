@@ -1,0 +1,17 @@
+CREATE DATABASE Prueba1;
+USE Prueba1;
+CREATE TABLE tbUSUARIO(
+     id_usuario INTEGER
+);
+ALTER TABLE tbUSUARIO ADD CONSTRAINT fk_id_usuario FOREIGN KEY (id_usuario) REFERENCES tbESTUDIANTE(id_usuario);
+
+CREATE INDEX test1_id_index ON tbUSUARIO (id_usuario);
+CREATE INDEX name ON tbUSUARIO USING HASH (id_usuario);
+CREATE INDEX test2_mm_idx ON tbUSUARIO (id_usuario, id_usuario);
+CREATE INDEX test2_info_nulls_low ON tbUSUARIO (id_usuario NULLS FIRST);
+CREATE INDEX test3_desc_index ON tbUSUARIO (id_usuario DESC NULLS LAST);
+CREATE UNIQUE INDEX name ON tbUSUARIO (id_usuario , id_usuario, id_usuario);
+CREATE INDEX test1_lower_col1_idx ON tbUSUARIO (lower(id_usuariooooooo));
+CREATE INDEX access_log_client_ip_ix ON tbUSUARIO (id_usuario)
+     WHERE NOT (id_usuario > inet  AND
+     id_usuario < inet );

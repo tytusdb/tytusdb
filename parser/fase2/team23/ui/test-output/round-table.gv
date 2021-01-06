@@ -1,0 +1,60 @@
+// AST
+digraph {
+	29 [label=INSTRUCTION_LIST]
+	30 [label=DROP]
+	31 [label=INDEX]
+	32 [label=title_idx1]
+	33 [label=INST]
+	34 [label="CREATE INDEX"]
+	35 [label=title_idx3]
+	36 [label=ON]
+	37 [label=test1]
+	38 [label="("]
+	39 [label="['id']"]
+	40 [label=")"]
+	41 [label=INST]
+	42 [label="CREATE INDEX"]
+	43 [label=title_idx2]
+	44 [label=ON]
+	45 [label=test1]
+	46 [label="("]
+	47 [label="['id']"]
+	48 [label=")"]
+	49 [label=INST]
+	50 [label="CREATE INDEX"]
+	51 [label=title_idx1]
+	52 [label=ON]
+	53 [label=test1]
+	54 [label="("]
+	55 [label="['id']"]
+	56 [label=")"]
+	57 [label=INST]
+	29 -> 30
+	30 -> 31
+	30 -> 32
+	29 -> 33
+	33 -> 34
+	34 -> 35
+	34 -> 36
+	34 -> 37
+	34 -> 38
+	34 -> 39
+	34 -> 40
+	33 -> 41
+	41 -> 42
+	42 -> 43
+	42 -> 44
+	42 -> 45
+	42 -> 46
+	42 -> 47
+	42 -> 48
+	41 -> 49
+	49 -> 50
+	50 -> 51
+	50 -> 52
+	50 -> 53
+	50 -> 54
+	50 -> 55
+	50 -> 56
+	49 -> 57
+}

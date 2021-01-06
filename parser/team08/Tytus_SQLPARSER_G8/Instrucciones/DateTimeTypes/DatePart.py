@@ -2,8 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo 
 
 class DatePart(Instruccion):
-    def __init__(self, id, id2, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, id, id2, strGram, linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
         self.identificador = id
         self.valor = id2
         
@@ -19,7 +19,6 @@ class DatePart(Instruccion):
         minuto = 0
         hora = 0
         for x in range(0,len(parser)):
-            print(parser[x])
             if(parser[x]=="seconds"):
                 segundo = parser[x-1]
             elif(parser[x]=="minutes"):

@@ -751,115 +751,116 @@ class Select(Sentence):
             '[label=\"' + "Columns" + '\"]\n'
         for column in self.columns:
             dot += column.graphAST('',str(hash("Columns") + hash(self)))
-        dot += str(hash(self)) + '->' + \
-        str(hash("Tables") + hash(self)) + '\n'
-        dot += str(hash("Tables") + hash(self)) + \
-            '[label=\"' + "Tables" + '\"]\n'
-        for table in self.tables:
-            dot += table.graphAST('',str(hash("Tables") + hash(self)))
-        if (bool(self.options)):
+        if(self.tables != None):
             dot += str(hash(self)) + '->' + \
-            str(hash("Options") + hash(self)) + '\n'
-            dot += str(hash("Options") + hash(self)) + \
-                '[label=\"' + "Options" + '\"]\n'
-            try:
-                self.options['where']
-                dot += str(hash("Options") +hash(self)) + '->' + \
-                str(hash("WhereClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("WhereClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "WhereClause" + '\"]\n'
-                dot += str(hash("WhereClause") + hash("Options") +hash(self)) + '->' + \
-                str(hash("WHERE")+hash("WhereClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("WHERE")+hash("WhereClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "WHERE" + '\"]\n'
-                dot += self.options['where'].graphAST('',str(hash("WhereClause") + hash("Options") +hash(self)))
-            except:
-                pass
-            try:
-                self.options['limit']
-                dot += str(hash("Options") +hash(self)) + '->' + \
-                str(hash("LimitClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("LimitClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "LimitClause" + '\"]\n'
-                dot += str(hash("LimitClause") + hash("Options") +hash(self)) + '->' + \
-                str(hash("LIMIT")+hash("LimitClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("LIMIT")+hash("LimitClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "LIMIT" + '\"]\n'
-                if(self.options['limit']!='ALL'):
-                    dot += self.options['limit'].graphAST('',str(hash("LimitClause") + hash("Options") +hash(self)))
-                else:
+            str(hash("Tables") + hash(self)) + '\n'
+            dot += str(hash("Tables") + hash(self)) + \
+                '[label=\"' + "Tables" + '\"]\n'
+            for table in self.tables:
+                dot += table.graphAST('',str(hash("Tables") + hash(self)))
+            if (bool(self.options)):
+                dot += str(hash(self)) + '->' + \
+                str(hash("Options") + hash(self)) + '\n'
+                dot += str(hash("Options") + hash(self)) + \
+                    '[label=\"' + "Options" + '\"]\n'
+                try:
+                    self.options['where']
+                    dot += str(hash("Options") +hash(self)) + '->' + \
+                    str(hash("WhereClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("WhereClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "WhereClause" + '\"]\n'
+                    dot += str(hash("WhereClause") + hash("Options") +hash(self)) + '->' + \
+                    str(hash("WHERE")+hash("WhereClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("WHERE")+hash("WhereClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "WHERE" + '\"]\n'
+                    dot += self.options['where'].graphAST('',str(hash("WhereClause") + hash("Options") +hash(self)))
+                except:
+                    pass
+                try:
+                    self.options['limit']
+                    dot += str(hash("Options") +hash(self)) + '->' + \
+                    str(hash("LimitClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("LimitClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "LimitClause" + '\"]\n'
                     dot += str(hash("LimitClause") + hash("Options") +hash(self)) + '->' + \
-                    str(hash("ALL")+hash("LimitClause") + hash("Options") +hash(self)) + '\n'
-                    dot += str(hash("ALL")+hash("LimitClause") + hash("Options") +hash(self)) + \
-                        '[label=\"' + "ALL" + '\"]\n'
-            except:
-                pass
-            try:
-                self.options['offset']
-                dot += str(hash("Options") +hash(self)) + '->' + \
-                str(hash("OffsetClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("OffsetClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "OffsetClause" + '\"]\n'
-                dot += str(hash("OffsetClause") + hash("Options") +hash(self)) + '->' + \
-                str(hash("OFFSET")+hash("OffsetClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("OFFSET")+hash("OffsetClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "OFFSET" + '\"]\n'
-                dot += self.options['offset'].graphAST('',str(hash("OffsetClause") + hash("Options") +hash(self)))
-            except:
-                pass
-            try:
-                self.options['orderby']
-                dot += str(hash("Options") + hash(self)) + '->' + \
-                str(hash("OrderByClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("OrderByClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "OrderByClause" + '\"]\n'
-                dot += str(hash("OrderByClause") + hash("Options") +hash(self)) + '->' + \
-                str(hash("ORDER")+hash("OrderByClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("ORDER")+hash("OrderByClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "ORDER" + '\"]\n'
-                dot += str(hash("OrderByClause") + hash("Options") +hash(self)) + '->' + \
-                str(hash("BY")+hash("OrderByClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("BY")+hash("OrderByClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "BY" + '\"]\n'
-                for sortexpression in self.options['orderby']:
-                    dot += sortexpression[0].graphAST('',str(hash("OrderByClause") + hash("Options") +hash(self)))
+                    str(hash("LIMIT")+hash("LimitClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("LIMIT")+hash("LimitClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "LIMIT" + '\"]\n'
+                    if(self.options['limit']!='ALL'):
+                        dot += self.options['limit'].graphAST('',str(hash("LimitClause") + hash("Options") +hash(self)))
+                    else:
+                        dot += str(hash("LimitClause") + hash("Options") +hash(self)) + '->' + \
+                        str(hash("ALL")+hash("LimitClause") + hash("Options") +hash(self)) + '\n'
+                        dot += str(hash("ALL")+hash("LimitClause") + hash("Options") +hash(self)) + \
+                            '[label=\"' + "ALL" + '\"]\n'
+                except:
+                    pass
+                try:
+                    self.options['offset']
+                    dot += str(hash("Options") +hash(self)) + '->' + \
+                    str(hash("OffsetClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("OffsetClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "OffsetClause" + '\"]\n'
+                    dot += str(hash("OffsetClause") + hash("Options") +hash(self)) + '->' + \
+                    str(hash("OFFSET")+hash("OffsetClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("OFFSET")+hash("OffsetClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "OFFSET" + '\"]\n'
+                    dot += self.options['offset'].graphAST('',str(hash("OffsetClause") + hash("Options") +hash(self)))
+                except:
+                    pass
+                try:
+                    self.options['orderby']
+                    dot += str(hash("Options") + hash(self)) + '->' + \
+                    str(hash("OrderByClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("OrderByClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "OrderByClause" + '\"]\n'
                     dot += str(hash("OrderByClause") + hash("Options") +hash(self)) + '->' + \
-                    str(hash(sortexpression[0])+hash(sortexpression[1])+hash("OrderByClause") + hash(self)) + '\n'
-                    dot += str(hash(sortexpression[0])+hash(sortexpression[1])+hash("OrderByClause") + hash(self)) + \
-                        '[label=\"' + sortexpression[1] + '\"]\n'
-            except:
-                pass
-            try:
-                self.options['groupby']
-                dot += str(hash("Options") +hash(self)) + '->' + \
-                str(hash("GroupbyClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("GroupbyClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "GroupbyClause" + '\"]\n'
-                dot += str(hash("GroupbyClause") + hash("Options") +hash(self)) + '->' + \
-                str(hash("GROUP")+hash("GroupbyClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("GROUP")+hash("GroupbyClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "GROUP" + '\"]\n'
-                dot += str(hash("GroupbyClause") + hash("Options") +hash(self)) + '->' + \
-                str(hash("BY")+hash("GroupbyClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("BY")+hash("GroupbyClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "BY" + '\"]\n'
-                for expression in self.options['groupby']:
-                    dot += expression.graphAST('',str(hash("GroupbyClause") + hash("Options") +hash(self)))
-            except:
-                pass
-            try:
-                self.options['having']
-                dot += str(hash("Options") +hash(self)) + '->' + \
-                str(hash("HavingClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("HavingClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "HavingClause" + '\"]\n'
-                dot += str(hash("HavingClause") + hash("Options") +hash(self)) + '->' + \
-                str(hash("HAVING")+hash("HavingClause") + hash("Options") +hash(self)) + '\n'
-                dot += str(hash("HAVING")+hash("HavingClause") + hash("Options") +hash(self)) + \
-                    '[label=\"' + "HAVING" + '\"]\n'
-                dot += self.options['having'].graphAST('',str(hash("HavingClause") + hash("Options") +hash(self)))
-            except:
-                pass
+                    str(hash("ORDER")+hash("OrderByClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("ORDER")+hash("OrderByClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "ORDER" + '\"]\n'
+                    dot += str(hash("OrderByClause") + hash("Options") +hash(self)) + '->' + \
+                    str(hash("BY")+hash("OrderByClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("BY")+hash("OrderByClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "BY" + '\"]\n'
+                    for sortexpression in self.options['orderby']:
+                        dot += sortexpression[0].graphAST('',str(hash("OrderByClause") + hash("Options") +hash(self)))
+                        dot += str(hash("OrderByClause") + hash("Options") +hash(self)) + '->' + \
+                        str(hash(sortexpression[0])+hash(sortexpression[1])+hash("OrderByClause") + hash(self)) + '\n'
+                        dot += str(hash(sortexpression[0])+hash(sortexpression[1])+hash("OrderByClause") + hash(self)) + \
+                            '[label=\"' + sortexpression[1] + '\"]\n'
+                except:
+                    pass
+                try:
+                    self.options['groupby']
+                    dot += str(hash("Options") +hash(self)) + '->' + \
+                    str(hash("GroupbyClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("GroupbyClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "GroupbyClause" + '\"]\n'
+                    dot += str(hash("GroupbyClause") + hash("Options") +hash(self)) + '->' + \
+                    str(hash("GROUP")+hash("GroupbyClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("GROUP")+hash("GroupbyClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "GROUP" + '\"]\n'
+                    dot += str(hash("GroupbyClause") + hash("Options") +hash(self)) + '->' + \
+                    str(hash("BY")+hash("GroupbyClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("BY")+hash("GroupbyClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "BY" + '\"]\n'
+                    for expression in self.options['groupby']:
+                        dot += expression.graphAST('',str(hash("GroupbyClause") + hash("Options") +hash(self)))
+                except:
+                    pass
+                try:
+                    self.options['having']
+                    dot += str(hash("Options") +hash(self)) + '->' + \
+                    str(hash("HavingClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("HavingClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "HavingClause" + '\"]\n'
+                    dot += str(hash("HavingClause") + hash("Options") +hash(self)) + '->' + \
+                    str(hash("HAVING")+hash("HavingClause") + hash("Options") +hash(self)) + '\n'
+                    dot += str(hash("HAVING")+hash("HavingClause") + hash("Options") +hash(self)) + \
+                        '[label=\"' + "HAVING" + '\"]\n'
+                    dot += self.options['having'].graphAST('',str(hash("HavingClause") + hash("Options") +hash(self)))
+                except:
+                    pass
         return dot
 class SelectMultiple(Sentence):
     def __init__(self, select1, operator, select2):

@@ -129,7 +129,7 @@
 
 
     <ALTER_TABLE> ::=  'alter' 'table' 'id' <ALTER_OPTIONS>
-                   | 'alter' 'table' 'id' <ALTER_VARCHAR_LISTA>
+                   |   'alter' 'table' 'id' <ALTER_VARCHAR_LISTA>
 
     
     <ALTER_OPTIONS> ::= 'add' 'column' 'id' <TIPO>
@@ -139,6 +139,10 @@
                     | 'add' 'foreign' 'key' '('<LISTA_IDS>')' 'references' <LISTA_IDS>
                     | 'alter' 'column' 'id' 'set' 'not' 'null' 
                     | 'drop' 'constraint' 'id'
+                    | 'ADD' 'CONSTRAINT' 'ID' 'FOREIGN' 'KEY' '(' 'ID' ')' 'REFERENCES' 'ID' '(' 'ID' ')'
+                    | 'ADD' 'FOREIGN' 'KEY' '(' <lista_ids> ')' 'REFERENCES' 'ID' '(' <lista_ids> ')'
+                    | 'ALTER' 'COLUMN' 'ID' 'SET' 'NOT'  'NULL'
+                    | 'DROP' 'CONSTRAINT' 'ID'
                     
     <ALTER_VARCHAR_LISTA>::= <ALTER_VARCHAR>
                            | <ALTER_VARCHAR_LISTA> ',' <ALTER_VARCHAR>

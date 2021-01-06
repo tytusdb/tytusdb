@@ -507,7 +507,7 @@ import ply.yacc as yacc
 lexer = lex.lex()
 parser = yacc.yacc()
 
-f = open("./entrada2.txt", "r")
+f = open("entrada2.sql", "r")
 input = f.read()
 print(input)
 parser.parse(input)

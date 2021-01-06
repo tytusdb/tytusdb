@@ -44,7 +44,7 @@ class ErrorType(enum.Enum):
     internal_error = 34
     invalid_catalog_name = 35
     invalid_table_definition = 36
-
+    invalid_data_type = 37
 # Este metodo rebice el numero de error, es decir de clase enum que esta arriba
 # asi como warning es el 1, entonces para retornar su descripcion y id del error
 # el metodo debe recibir como parametro el 1
@@ -198,4 +198,8 @@ def get_type_error(option):
     elif ErrorType.invalid_table_definition.value == option:
         description = 'invalid_table_definition'
         id_error = '42P16'
+        return id_error, description
+    elif ErrorType.invalid_data_type.value == option:
+        description = 'invalid_data_type'
+        id_error = '22000'
         return id_error, description

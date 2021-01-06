@@ -52,7 +52,7 @@ def p_ltimes(t):
     if unittime == 'years':
         time2 = relativedelta(years=number)
     elif unittime == 'months':
-        time2 = relativedelta(month=number)
+        time2 = relativedelta(months=number)
     elif unittime == 'days':
         time2 = relativedelta(days=number)
     elif unittime == 'hours':
@@ -74,7 +74,7 @@ def p_ltimes2(t):
     if unittime == 'years':
         time2 = relativedelta(years=number)
     elif unittime == 'months':
-        time2 = relativedelta(month=number)
+        time2 = relativedelta(months=number)
     elif unittime == 'days':
         time2 = relativedelta(days=number)
     elif unittime == 'hours':

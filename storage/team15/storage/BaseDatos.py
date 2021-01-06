@@ -43,13 +43,15 @@ class BaseDatos:
 
     def Cargar(self, table):
         try:
-            if self.tabla_actual.nombre==table:
+
+            if self.tabla_actual.nombre.casefold()==table.casefold():
                 return self.tabla_actual
             elif table in self.list_table:
                 self.tabla_actual = serealizar.rollback(table, self.main_path)
                 return self.tabla_actual
             else:
                 return False
+
         except:
             
             if table in self.list_table:
@@ -84,8 +86,8 @@ class BaseDatos:
         salida = self.Buscar(table)
         if salida[0]:
             try:
-                temp = serealizar.rollback(table, self.main_path)    
-                return temp.extractTable()
+                tabla = self.Cargar(table)    
+                return tabla.extractTable()
             except:
                 return None
         else:
@@ -96,8 +98,8 @@ class BaseDatos:
         salida = self.Buscar(table)
         if salida[0]:
             try:
-                temp = serealizar.rollback(table, self.main_path)    
-                return temp.extractRangeTable(columnNumber, lower, upper)
+                tabla = self.Cargar(table)    
+                return tabla.extractRangeTable(columnNumber, lower, upper)
             except:
                 return 1
         else:

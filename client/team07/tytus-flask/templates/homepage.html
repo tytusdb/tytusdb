@@ -18,7 +18,8 @@
                     <div class="col-12">
                         BASES DE DATOS
                         <div class="col-12">
-                            <button type="button" class="btn btn-light">
+
+                            <button onclick="crearDB();" type="button" class="btn btn-light">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
                                     <path
@@ -31,7 +32,7 @@
                             </button>
                         </div>
                         <div class="col-12">
-                            <button type="button" class="btn btn-light">
+                            <button onclick="dropDB();" type="button" class="btn btn-light">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
                                     <path
@@ -52,7 +53,7 @@
                     <div class="col-12">
                         TABLAS
                         <div class="col-12">
-                            <button type="button" class="btn btn-light">
+                            <button onclick="crearTB();" type="button" class="btn btn-light">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
                                     <path
@@ -65,7 +66,7 @@
                             </button>
                         </div>
                         <div class="col-12">
-                            <button type="button" class="btn btn-light">
+                            <button onclick="alterTB();"type="button" class="btn btn-light">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     <path
@@ -77,7 +78,7 @@
                             </button>
                         </div>
                         <div class="col-12">
-                            <button type="button" class="btn btn-light">
+                            <button onclick="dropTB();" type="button" class="btn btn-light">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
                                     <path
@@ -90,7 +91,7 @@
                             </button>
                         </div>
                         <div class="col-12">
-                            <button type="button" class="btn btn-light">
+                            <button onclick="showTB();"type="button" class="btn btn-light">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-eye"
                                      viewBox="0 0 16 16">
@@ -124,7 +125,7 @@
                             </button>
                         </div>
                         <div class="col-12">
-                            <button type="button" class="btn btn-light">
+                            <button onclick="crearTG();"type="button" class="btn btn-light">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                      class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
                                     <path
@@ -199,11 +200,16 @@
                         <div class="col-12">
                             <div class="form-floating">
                             <form action="{{url_for('com')}}" method="POST">
-
-
-
-              <textarea class="form-control" placeholder="Leave a comment here" name="code"
-                        style="height: 100px"></textarea>
+                        <textarea id="editor" placeholder="Leave a comment here" name="code"></textarea> 
+                        <script>
+                            var contenido = CodeMirror.fromTextArea(document.getElementById('editor'),
+                            {
+                                mode: "text/x-pgsql",
+                                theme: "neat",
+                                lineNumbers: true,
+                                autoCloseTags: true              
+                            });
+                        </script> 
                                 <br>
                                 <button  class="btn btn-primary">Ejecutar</button>
                                 <br>
@@ -228,5 +234,111 @@
             </div>
         </div>
     </div>
+
+    <script>
+    function crearDB(){
+        contenido.setValue(`
+-- Syntax:
+-- CREATE [OR REPLACE] DATABASE [IF NOT EXISTS] name
+-- [ OWNER [=] user_name ]-- [ MODE [=] mode_number ]
+-- Example:
+CREATE OR REPLACE DATABASE IF NOT EXISTS Tytusdb;`
+        )
+        
+    }function dropDB(){
+        contenido.setValue(`
+-- Syntax:
+-- DROP DATABASE [ IF EXISTS ] name
+-- Example:
+CREATE OR REPLACE DATABASE IF NOT EXISTS Tytusdb;`
+        )
+        
+    }
+    function crearTB(){
+        contenido.setValue(`
+-- Syntax:
+-- CREATE TABLE my_first_table (
+-- column1 type [DEFAULT value] [[NOT] NULL] [[CONSTRAINT name] UNIQUE] [[CONSTRAINT name] CHECK (condition_column1)]
+-- [, column2...]
+-- [, [CONSTRAINT name] CHECK (condition_many_columns)...]
+-- [, UNIQUE (column1 [, column2]...)]
+-- [, [PRIMARY KEY (column1,..., column_n)]
+-- [, [FOREIGN KEY (column1,..., column_n) REFERENCES table (column1_other,..., column_n_other)]);
+-- Example:
+CREATE TABLE accounts (
+\tuser_id serial PRIMARY KEY,
+\tusername VARCHAR ( 50 ) UNIQUE NOT NULL,
+\tpassword VARCHAR ( 50 ) NOT NULL,
+\temail VARCHAR ( 255 ) UNIQUE NOT NULL,
+\tcreated_on TIMESTAMP NOT NULL,
+\tlast_login TIMESTAMP 
+);
+        `
+        )
+        
+    }
+    function alterTB(){
+        contenido.setValue(`
+-- Syntax:
+-- ALTER TABLE table ADD COLUMN column type;
+-- ALTER TABLE products DROP COLUMN description;
+-- ALTER TABLE table ADD CHECK (name <> '');
+-- ALTER TABLE table ADD CONSTRAINT some_name UNIQUE (column);
+-- ALTER TABLE table ADD FOREIGN KEY (column_group_id) REFERENCES column_groups;
+-- ALTER TABLE table ALTER COLUMN column SET NOT NULL;
+-- ALTER TABLE table DROP CONSTRAINT some_name;
+-- ALTER TABLE table RENAME COLUMN column1 TO column1_1;
+-- [... ;]
+-- Example:
+ALTER TABLE table ADD COLUMN Mycolumn INTEGER;`
+        )
+        
+    }
+    function dropTB(){
+        contenido.setValue(`
+-- Syntax:
+-- DROP TABLE name;
+-- Example:
+DROP TABLE accounts;`
+        )
+        
+    }
+    function showTB(){
+        contenido.setValue(`
+-- Syntax:
+-- SELECT select_list FROM ... [WHERE ...] GROUP BY ... HAVING boolean_expression
+-- Example:
+SELECT * FROM accounts;`
+        )
+        
+    }
+    function crearTG(){
+        contenido.setValue(`
+-- Syntax:
+-- CREATE [ CONSTRAINT ] TRIGGER name { BEFORE | AFTER | INSTEAD OF } { event [ OR ... ] }
+-- ON table
+-- [ FROM referenced_table_name ]
+-- [ NOT DEFERRABLE | [ DEFERRABLE ] { INITIALLY IMMEDIATE | INITIALLY DEFERRED } ]
+-- [ FOR [ EACH ] { ROW | STATEMENT } ]
+-- [ WHEN ( condition ) ]
+-- EXECUTE PROCEDURE function_name ( arguments )
+
+-- where event can be one of:
+
+--     INSERT
+--     UPDATE [ OF column_name [, ... ] ]
+--     DELETE
+--     TRUNCATE
+-- Example:
+CREATE TRIGGER check_update
+BEFORE UPDATE ON accounts
+FOR EACH ROW
+WHEN (OLD.balance IS DISTINCT FROM NEW.balance)
+EXECUTE PROCEDURE check_account_update();`
+        )
+        
+    }
+
+    </script>
 
 {% endblock %}

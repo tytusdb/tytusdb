@@ -3,7 +3,8 @@
 from graphviz import Digraph, nohtml
 import os
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
-
+import pathlib
+ruta=str(pathlib.Path().absolute())+"/team01/"
 #Clase Nodo de Arbol AVL
 class NodoAVL:
     #Constructor de Nodo de Arbol Binario de Busqueda
@@ -149,66 +150,6 @@ class AVL:
     #Sobrecarga del operador método len
     def __len__(self):
         return self.tamano
-    
-    #Comprobacion de factores de equilibrio despues de la insercion
-    def comprobarInsercion(self,n):
-        y = n
-        x = n.padre
-        fin = False
-        while fin == False and x != None:
-            if x.Izq == y: #y es hijo izquierdo
-                x.factorEquilibrio += 1
-                if x.factorEquilibrio == 2: #Reestructuracion y final
-                    if y.factorEquilibrio == -1:
-                        #Doble rotacion a la derecha
-                        self.rotacion_doble_neg(x)
-                    else:
-                        #Rotacion simple a la derecha
-                        self.rotacion_simple_neg(x)
-                    fin = True
-                elif x.factorEquilibrio == 1: #Continuar
-                    y = x
-                    x = x.padre
-                else: #Final x.factorEquilibrio = 0
-                    fin = True
-            else: #x.Der = y, o sea, y es hijo Derecho
-                x.factorEquilibrio -= 1
-                if x.factorEquilibrio == -2: #Reestructuracion y final
-                    if y.factorEquilibrio == 1:
-                        #doble rotacion a la izquierda
-                        self.rotacion_doble_pos(x)
-                    else:
-                        #rotacion simple a la izquierda
-                        self.rotacion_simple_pos(x)
-                    fin = True
-                elif x.factorEquilibrio == -1: #Continuar
-                    y = x
-                    x = x.padre
-                else: #Final x.factorEquilibrio = 0
-                    fin = True
-
-    def aaaagregar(self,clave,valor=None,datos=None) -> int:
-        tamanoinicial = self.tamano
-        if self.raiz:
-            nodo = self._obtener(clave,self.raiz)
-            if nodo:
-                datos = AVL()
-                nuevoNodo = NodoAVL(clave,valor,datos,padre=nodoActual)
-                nuevoNodo.padre = nodo
-                if clave < nodo.clave:
-                    nodo.Izq = nuevoNodo
-                else:
-                    nodo.Der = nuevoNodo
-                self.tamano = self.tamano + 1
-                self.comprobarInsercion(nuevoNodo)
-        else:
-            datos = AVL()
-            self.raiz = NodoAVL(clave,valor,datos)
-            self.tamano = self.tamano + 1
-        if tamanoinicial == self.tamano:
-            return 2
-        else:
-            return 0
 
     #Agrega nodo al arbol (Asigna nodo a raiz si está vacía, o llama a _agregar si no está vacóa)
     def agregar(self,clave,valor=None,datos=None) -> int:
@@ -223,132 +164,6 @@ class AVL:
             return 2
         else:
             return 0
-
-    #Rotacion simple a la izquierda
-    def rotacion_simple_pos(self, x):
-        y = x.Der
-        b = y.Izq
-        #Modificar enlaces del padre de x
-        if x.padre:
-            if x.padre.Izq == x:
-                x.padre.Izq = y
-            else:
-                x.padre.Der = y
-        else:
-            self.raiz = y
-        y.padre = x.padre
-        y.Izq = x
-        x.padre = y
-        x.Der = b
-        if b:
-            b.padre = x
-        #Factores de equilibrio
-        if y.factorEquilibrio == -1:
-            y.factorEquilibrio = 0
-            x.factorEquilibrio = 0
-        else:
-            y.factorEquilibrio = 1
-            x.factorEquilibrio = -1
-    
-    #Rotacion simple a la derecha
-    def rotacion_simple_neg(self, x):
-        y = x.Izq
-        b = y.Der
-        #Modificar enlaces del padre de x
-        if x.padre:
-            if x.padre.Izq == x:
-                x.padre.Izq = y
-            else:
-                x.padre.Der = y
-        else:
-            self.raiz = y
-        y.padre = x.padre
-        y.Der = x
-        x.padre = y
-        x.Izq = b
-        if b:
-            b.padre = x
-        #Factores de equilibrio
-        if y.factorEquilibrio == 1:
-            y.factorEquilibrio = 0
-            x.factorEquilibrio = 0
-        else:
-            y.factorEquilibrio = -1
-            x.factorEquilibrio = 1
-
-    #Rotacion doble a la izquierda
-    def rotacion_doble_pos(self, x):
-        y = x.Der
-        z = y.Izq
-        b = z.Izq
-        c = z.Der
-        #Modificar enlaces del padre de x
-        if x.padre:
-            if x.padre.Izq == x:
-                x.padre.Izq = z
-            else:
-                x.padre.Der = z
-        else:
-            self.raiz = z
-        z.padre = x.padre
-        z.Izq = x
-        z.Der = y
-        x.padre = z
-        x.Der = b
-        y.padre = z
-        y.Izq = c
-        if b:
-            b.padre = x
-        if c:
-            c.padre = y
-        #Factores de equilibrio
-        if z.factorEquilibrio == 1:
-            x.factorEquilibrio = 0
-            y.factorEquilibrio = -1
-        elif z.factorEquilibrio == 0:
-            x.factorEquilibrio = 0
-            y.factorEquilibrio = 0
-        else: #z.factorEquilibrio = -1
-            x.factorEquilibrio = 1
-            y.factorEquilibrio = 0
-        z.factorEquilibrio = 0
-
-    #Rotacion doble a la derecha
-    def rotacion_doble_neg(self, x):
-        y = x.Izq
-        z = y.Der
-        b = z.Izq
-        c = z.Der
-        #Modificar enlaces del padre de x
-        if x.padre:
-            if x.padre.Izq == x:
-                x.padre.Izq = z
-            else:
-                x.padre.Der = z
-        else:
-            self.raiz = z
-        z.padre = x.padre
-        z.Izq = y
-        z.Der = x
-        x.padre = z
-        x.Izq = c
-        y.padre = z
-        y.Der = b
-        if b:
-            b.padre = y
-        if c:
-            c.padre = x
-        #Factores de equilibrio
-        if z.factorEquilibrio == 1:
-            x.factorEquilibrio = -1
-            y.factorEquilibrio = 0
-        elif z.factorEquilibrio == 0:
-            x.factorEquilibrio = 0
-            y.factorEquilibrio = 0
-        else: #z.factorEquilibrio = -1
-            x.factorEquilibrio = 0
-            y.factorEquilibrio = 1
-        z.factorEquilibrio = 0
 
     #Realiza una rotación a la izquierda
     def rotarIzquierda(self,rotRaiz):
@@ -407,9 +222,6 @@ class AVL:
     def actualizarEquilibrio(self,nodo):
         if nodo.factorEquilibrio > 1 or nodo.factorEquilibrio < -1:
             self.reequilibrar(nodo)
-            #if nodo.padre.padre:
-            #    if nodo.padre.padre.factorEquilibrio == 2 or nodo.padre.padre.factorEquilibrio == -2:
-            #        self.reequilibrar(nodo.padre.padre)
             return
         if nodo.padre != None:
             if nodo.esIzq():
@@ -444,8 +256,7 @@ class AVL:
             else:
                 datos = AVL()
                 nodoActual.Izq = NodoAVL(clave,valor,datos,padre=nodoActual)
-                #self.actualizarEquilibrio(nodoActual.Izq) #xyz
-                self.comprobarInsercion(nodoActual.Izq)
+                self.actualizarEquilibrio(nodoActual.Izq)
                 self.tamano = self.tamano + 1
         else:
             if nodoActual.tieneDer():
@@ -453,8 +264,7 @@ class AVL:
             else:
                 datos = AVL()
                 nodoActual.Der = NodoAVL(clave,valor,datos,padre=nodoActual)
-                #self.actualizarEquilibrio(nodoActual.Der)
-                self.comprobarInsercion(nodoActual.Der)
+                self.actualizarEquilibrio(nodoActual.Der)
                 self.tamano = self.tamano + 1
     
     #Sobrecarga del operador [] para asignación --> arbolbb[c] = d
@@ -504,28 +314,18 @@ class AVL:
                 x.factorEquilibrio += 1
                 if x.factorEquilibrio == 2:
                     if x.Izq.factorEquilibrio == -1:
-                        #self.rotarIzquierda(x.Izq)
-                        #self.rotarDerecha(x)
-                        #Doble rotacion a la derecha
-                        self.rotacion_doble_neg(x)
+                        self.rotarIzquierda(x.Izq)
+                        self.rotarDerecha(x)
                     else:
-                        #self.rotarDerecha(x)
-                        #Rotacion simple a la derecha
-                        self.rotacion_simple_neg(x)
-                    if x.Der.factorEquilibrio == 0:
+                        self.rotarDerecha(x)
+                    if x.padre != None:
+                        if x.padre.padre != None:
+                            es_Izq = x.padre.padre.Izq != x.padre
+                            x = x.padre.padre
+                        else:
+                            Fin = True
+                    else:
                         Fin = True
-                    else:
-                        if x.padre:
-                            es_Izq = x.padre.Izq != x
-                        x = x.padre
-                    #if x.padre != None:
-                    #    if x.padre.padre != None:
-                    #        es_Izq = x.padre.padre.Izq != x.padre
-                    #        x = x.padre.padre
-                    #    else:
-                    #        Fin = True
-                    #else:
-                    #    Fin = True
                 elif x.factorEquilibrio == 1:
                     Fin = True
                 else: #x.factorEquilibrio = 0
@@ -536,31 +336,21 @@ class AVL:
                 x.factorEquilibrio -= 1
                 if x.factorEquilibrio == -2:
                     if x.Der.factorEquilibrio == 1:
-                        #self.rotarDerecha(x.Der)
-                        #self.rotarIzquierda(x)
-                        #doble rotacion a la izquierda
-                        self.rotacion_doble_pos(x)
+                        self.rotarDerecha(x.Der)
+                        self.rotarIzquierda(x)
                     else:
-                        #self.rotarIzquierda(x)
-                        #Rotacion simple a la izquierda
-                        self.rotacion_simple_pos(x)
-                    if x.Der.factorEquilibrio == 0:
+                        self.rotarIzquierda(x)
+                    if x.padre != None:
+                        if x.padre.padre != None:
+                            es_Izq = x.padre.padre.Izq != x.padre
+                            x = x.padre.padre
+                        else:
+                            Fin = True
+                    else:
                         Fin = True
-                    else:
-                        if x.padre:
-                            es_Izq = x.padre.Izq != x
-                        x= x.padre
-                    #if x.padre != None:
-                    #    if x.padre.padre != None:
-                    #        es_Izq = x.padre.padre.Izq != x.padre
-                    #        x = x.padre.padre
-                    #    else:
-                    #        Fin = True
-                    #else:
-                    #    Fin = True
                 elif x.factorEquilibrio == -1:
                     Fin = True
-                else: #x.factorEquilibrio = 0, continuar
+                else:
                     if x.padre != None:
                         es_Izq = x.padre.Izq != x
                     x = x.padre
@@ -609,29 +399,31 @@ class AVL:
        self.quitar(clave)
 
     #Crea nodos en la graficación de un árbol
-    def crearnodos(self, arbol, f, dir):
-        if arbol != None:
-            strclave = str(arbol.clave)
-            f.node(strclave, nohtml('<f0> |<f1> ' + strclave + '|<f2>'))
-            if arbol.padre != None:
-                if dir == 0:
-                    f.edge(str(arbol.padre.clave)+':<f0>', str(arbol.clave)+':<f1>')
-                else:
-                    f.edge(str(arbol.padre.clave)+':<f2>', str(arbol.clave)+':<f1>')
-            self.crearnodos(arbol.Izq, f, 0)
-            self.crearnodos(arbol.Der, f, 1)
-
+    def crearnodos(self, arbol, f, dir,tipo=""):        
+        if tipo =="":
+            if arbol != None: 
+                strclave = str(arbol.clave)
+                f.node(strclave, nohtml('<f0> |<f1> ' + strclave + '|<f2>'))
+                if arbol.padre != None:
+                    if dir == 0:
+                        f.edge(str(arbol.padre.clave)+':<f0>', str(arbol.clave)+':<f1>')
+                    else:
+                        f.edge(str(arbol.padre.clave)+':<f2>', str(arbol.clave)+':<f1>')
+                self.crearnodos(arbol.Izq, f, 0)
+                self.crearnodos(arbol.Der, f, 1)
+        else:            
+            for index in range(0, len(arbol)):
+                try:                    
+                    f.edge(str(arbol[index]),str(arbol[index+1]))
+                except:
+                    pass 
     #Crea un gráfico del árbol
-    def armararbol(self, arbol, titulo, nombreArchivo):
-        f = Digraph('arbol', filename=nombreArchivo,
+    def armararbol(self, arbol, titulo, nombreArchivo,tipo=""):
+        f = Digraph('arbol', filename=ruta+"Imagenes/graficaArboles/"+nombreArchivo,
                 format="png", node_attr={'shape': 'record', 'height': '.1'})
-        self.crearnodos(arbol, f, 0)
+        self.crearnodos(arbol, f, 0,tipo=tipo)
         f.attr(label=r'\n\n'+titulo)
         f.attr(fontsize='20')
         f.render()
 
-    def fe(self, arbol):
-        if arbol:
-            self.fe(arbol.Izq)
-            print("Clave = ", arbol.clave, "FE = ", arbol.factorEquilibrio)
-            self.fe(arbol.Der)
+    
