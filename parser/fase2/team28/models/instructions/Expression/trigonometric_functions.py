@@ -18,6 +18,7 @@ class ExpressionsTrigonometric(Expression):
         self.line = line
         self.column = column
         self.alias = f'{self.type_trigonometric}({self.expression1.alias})'
+        self._tac = ""
 
     def __repr__(self):
         return str(vars(self))

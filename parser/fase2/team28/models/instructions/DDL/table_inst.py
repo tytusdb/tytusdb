@@ -618,7 +618,7 @@ class DropTB(Instruction):
         self._table_name = table_name
         self._noLine = noLine
         self._noColumn = noColumn
-        self._tac = tac
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -641,7 +641,7 @@ class AlterTable(Instruction):
     def __init__(self, tablaAModificar, listaCambios, tac):
         self._tablaAModificar = tablaAModificar
         self._listaCambios = listaCambios
-        self._tac = tac
+        self._tac = ''
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
@@ -685,7 +685,7 @@ class AlterTableAdd(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
-
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
 
@@ -831,6 +831,7 @@ class AlterTableAlter(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -903,7 +904,7 @@ class AlterTableDrop(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
-
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
 
@@ -944,6 +945,7 @@ class AlterTableRename(AlterTable):
     def __init__(self, oldName, newName):
         self._oldName = oldName
         self._newName = newName
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))

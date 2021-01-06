@@ -110,3 +110,7 @@ class InsertInto(instruction.Instruction):
 
         new.addNode(par)
         return new
+
+
+    def generate3d(self, environment, instanciaAux):
+        pass
