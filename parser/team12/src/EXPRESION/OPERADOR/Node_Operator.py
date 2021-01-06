@@ -12,3 +12,9 @@ class Operator(Nodo):
 
     def execute(self, enviropment):
         print("f")
+    
+    def compile(self, enviropment):
+        print("compile")
+    
+    def getText(self):
+        return str(self.nombreNodo)

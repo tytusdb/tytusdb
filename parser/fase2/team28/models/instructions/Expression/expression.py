@@ -74,6 +74,7 @@ class ArithmeticBinaryOperation(Expression):
         self.line = line
         self.column = column
         self.alias = str(self.value1.alias) + str(op) + str(self.value2.alias)
+        self._tac = self.alias
 
     def __repr__(self):
         return str(vars(self))
@@ -292,6 +293,7 @@ class ExpressionsTime(Expression):
         self.line = line
         self.column = column
         self.alias = f'{name_date2}'
+        self._tac = ""
 
     def __repr__(self):
         return str(vars(self))
@@ -414,7 +416,7 @@ class UnaryOrSquareExpressions(Expression):
         self.line = line
         self.column = column
         self.alias = str(sign1) + str(self.value.alias)
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -483,7 +485,7 @@ class LogicalOperators(Expression):
         self.line = line
         self.column = column
         self.alias = f'{str(self.value1.alias)}  {str(self.operator)}  {str(self.value2.alias)}'
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -584,7 +586,7 @@ class PrimitiveData(Expression):
         self.alias = str(self.value)
         self.line = line
         self.column = column
-        self._tac = ''
+        self._tac = self.alias
 
         if self.data_type == DATA_TYPE.STRING:
             self.alias = "\'" + self.alias + "\'"

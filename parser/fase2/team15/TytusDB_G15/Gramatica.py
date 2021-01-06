@@ -527,9 +527,19 @@ def p_instruccion6(t) :
     reporte_bnf.append("<instruccion> ::= <alterDB_insrt>")
     t[0] = t[1] 
 
+def p_instruccion66(t) :
+    'instruccion      : alterindex_insrt'
+    reporte_bnf.append("<instruccion> ::= <alterindex_insrt>")
+    t[0] = t[1] 
+
 def p_instruccion7(t) :
     'instruccion      : drop_insrt'
     reporte_bnf.append("<instruccion> ::= <drop_insrt>")
+    t[0] = t[1] 
+
+def p_instruccion77(t) :
+    'instruccion      : drop_insrt_index'
+    reporte_bnf.append("<instruccion> ::= <drop_insrt_index>")
     t[0] = t[1] 
     
 def p_instruccion8(t) :
@@ -552,6 +562,10 @@ def p_instruccion11(t) :
     reporte_bnf.append("<instruccion> ::= <delete_insrt>")
     t[0] = t[1]                          
 
+def p_instruccion12(t) :
+    'instruccion      : update_insrt'
+    reporte_bnf.append("<instruccion> ::= <update_insrt>")
+    t[0] = t[1] 
 
 
 def p_instruccion_f_select(t):
@@ -565,60 +579,7 @@ def p_instruccion_f_select_union(t):
     t[0] = Select_Uniones(t[1][0],t[1][1])
 
 
-def p_instruccion_f_select_uodate(t):
-    'instruccion : update_insrt'  
-'''def p_instruccion_error(t) :
-    'instruccion      : createDB_insrt error'
-    reporte_bnf.append("<instruccion> ::= <createDB_insrt><error>")
 
-def p_instruccion_error1(t) :
-    'instruccion      : create_Table_isnrt error '
-    reporte_bnf.append("<instruccion> ::= <create_Table_isnrt><error>")
-
-def p_instruccion_error2(t) :
-    'instruccion      : show_databases_instr error'
-    reporte_bnf.append("<instruccion> ::= <show_databases_instr><error>")
-
-def p_instruccion_error3(t) :
-    'instruccion      : show_tables_instr error'
-    reporte_bnf.append("<instruccion> ::= <show_tables_instr><error>")
-
-def p_instruccion_error4(t) :
-    'instruccion      : drop_database_instr error'
-    reporte_bnf.append("<instruccion> ::= <drop_database_instr><error>")
-
-def p_instruccion_error5(t) :
-    'instruccion      : use_database_instr error'
-    reporte_bnf.append("<instruccion> ::= <use_database_instr><error>")
-
-def p_instruccion_error6(t) :
-    'instruccion      : alterDB_insrt error'
-    reporte_bnf.append("<instruccion> ::= <alterDB_insrt><error>")
-
-def p_instruccion_error7(t) :
-    'instruccion      : update_insrt error'
-    reporte_bnf.append("<instruccion> ::= <update_insrt><error>")
-
-def p_instruccion_error8(t) :
-    'instruccion      : drop_insrt error'
-    reporte_bnf.append("<instruccion> ::= <drop_insrt><error>")
-
-def p_instruccion_error9(t) :
-    'instruccion      : alterTable_insrt error'
-    reporte_bnf.append("<instruccion> ::= <alterTable_insrt><error>")
-
-def p_instruccion_error10(t) :
-    'instruccion      : insert_insrt error'
-    reporte_bnf.append("<instruccion> ::= <insert_insrt><error>")
-
-def p_instruccion_error11(t) :
-    'instruccion      : TIPO_ENUM_INSRT error'
-    reporte_bnf.append("<instruccion> ::= <TIPO_ENUM_INSRT><error>")
-
-def p_instruccion_error12(t) :
-    'instruccion      : delete_insrt error'
-    reporte_bnf.append("<instruccion> ::= <delete_insrt><error>")
-'''
 #?######################################################
 # TODO        GRAMATICA INSTRUCCION DELETE
 #?######################################################
@@ -946,7 +907,7 @@ def p_lista_update_lista(t):
     t[0] = [t[1]]
 
 def p_parametro_update(t):
-    ' parametro_update : ID IGUAL expresion'
+    ' parametro_update : ID IGUAL exclusiva_insert'
     reporte_bnf.append("<parametro_update> ::= ID IGUAL <expresion>")
     t[0] = Create_Parametro_update(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1]),t[3])
 
@@ -3346,7 +3307,7 @@ def p_sortoptions(t):
 
 def p_sortoptions0(t):
     'sortoptions : sortoption'
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_sortoptions1(t):
     '''sortoption : COLLATE
@@ -3367,12 +3328,58 @@ def p_opclass(t):
                | BPCHAR_PATTERN_OPS '''
     t[0] = t[1]
 
+#?######################################################
+# TODO        GRAMATICA DROP INDEX
+#?######################################################
+
+
+def p_dropIndex(t):
+    ' drop_insrt_index : DROP INDEX lista_drop_id_index PTCOMA'
+    reporte_bnf.append("<drop_insrt> ::= DROP TABLE <lista_drop_id> PTCOMA")
+    t[0] = Crear_Drop_INDEX(t[3])
+
+def p_lista_tabla_lista_index(t):
+    ' lista_drop_id_index :   lista_drop_id_index COMA ID '
+    reporte_bnf.append("<lista_drop_id> ::= <lista_drop_id> COMA ID")
+    t[1].append(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[3]))
+    t[0] = t[1]
+
+def p_lista_tabla_lista_index2(t):
+    ' lista_drop_id_index : ID '
+    reporte_bnf.append("<lista_drop_id> ::= ID")
+    t[0] = [ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1])]
+
+#?######################################################
+# TODO        GRAMATICA ALTER INDEX
+#?######################################################
+
+
+def p_AlterIndex(t):
+    ' alterindex_insrt : ALTER INDEX ID RENAME TO ID PTCOMA'
+    t[0] = Create_AlterIndex(t[3],t[6])
+
+def p_Alter_Index_Column(t):
+    'alterindex_insrt : ALTER INDEX ID ALTER ID opcionIndex PTCOMA'
+    t[0] = Create_AlterIndexColumn(t[3],t[5],t[6])
+
+def p_Alter_Index_Column2(t):
+    'alterindex_insrt : ALTER INDEX IF EXISTS ID ALTER ID opcionIndex PTCOMA'
+    t[0] = Create_AlterIndexColumn(t[5],t[7],t[8])
+
+def p_Alter_Index_Column_Opciones(t):
+    '''opcionIndex : ENTERO'''
+    t[0] = ExpresionEntero('ENTERO',t[1])
+
+def p_Alter_Index_Column_Opciones2(t):
+    '''opcionIndex : ID'''
+    t[0] = ExpresionIdentificador('ID',t[1])
 
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
-    global reporte_sintactico
-    reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
-    
+    #print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
+    #global reporte_sintactico
+    #reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
+    errorSintactico = Error(str(t.value),int(t.lineno),int(find_column(str(entradaa),t)), "Error Sintactico")
+    listaErrores.append(errorSintactico) 
 
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1

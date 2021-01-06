@@ -33,8 +33,6 @@ def execution(input):
                 else:
                     querys.append(None)
                     messages.append("Error: Select.")
-                # print(r[0].iloc[0].iloc[0])
-                # print(r)
             else:
                 r = v.execute(None)
                 print(r)
@@ -42,6 +40,7 @@ def execution(input):
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
     symbols = symbolReport()
+    indexes = indexReport()
     obj = {
         "messages": messages,
         "querys": querys,
@@ -50,6 +49,7 @@ def execution(input):
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
         "symbols": symbols,
+        "indexes": indexes,
     }
     printTable_PT(querys)
     astReport()
@@ -116,9 +116,6 @@ def selectFirstValue(input):
     return result
 
 
-print(selectFirstValue("SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');"))
-
-
 def indexReport():
     index = File.importFile("Index")
     enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
@@ -131,7 +128,7 @@ def indexReport():
             [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
         )
     enc.append(filas)
-    return [enc]
+    return enc
 
 
 def printTable_PT(tables):
