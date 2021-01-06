@@ -21,12 +21,13 @@ from copy import copy
 TokenError = list()
 ListaIndices = list()
 ListaAux = list()
+ListaFunciones = list()
 consid = list()
 consid.append('none')
 consid.append('none')
 consid.append('false')
 consid.append('false')
-
+executing = False
 # ======================================================================
 #                        PALABRAS RESERVADAS DEL LENGUAJE
 # ======================================================================
@@ -256,7 +257,7 @@ def nuevo_temporal():
 # DEFINICION GRAMATICA
 def p_inicio(t):
     '''inicio : instrucciones '''
-    print(str(t[1].code))
+    t[0]= resFinal(ListaFunciones,t[1].code)
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
@@ -290,6 +291,8 @@ def p_instrucciones_evaluar(t):
     elif t[1].statement == 'CREATE_FUNCTION':
         t[0] = GenerarC3D()
         t[0].code += t[1].code
+    elif t[1].statement == 'EXECUTE':
+        t[0] = t[1]
     else:
         t[0] = GenerarC3D()
         t[0].code += 'parser.parse(\'' + t[1].code + '\')' + '\n'
@@ -1127,10 +1130,15 @@ def p_arg_having(t):
     else:
         t[0] = GenerarC3D()
         t[0].code += ''
+
 def p_exp_aux(t):
     ''' exp : ID PARABRE list_vls PARCIERRE'''
+    global executing
     t[0] = GenerarC3D()
-    t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
+    if not executing:
+        t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
+    else:
+        t[0].code = t[1] + t[2] + t[3].code + t[4] 
 
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
@@ -1463,11 +1471,13 @@ def p_ins_create_pl(t):
     t[0] = GenerarC3D()
     if len(t) == 14:
         func = funcion({'id':t[4], 'parametros':t[6]},t[10])
-        t[0].code = func
+        ListaFunciones.append(func)
+        t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
     else: 
         func = funcion({'id':t[4], 'parametros':t[6]},t[11])
-        t[0].code = func
+        ListaFunciones.append(func)
+        t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
 
 def p_op_replace(t):
@@ -1592,10 +1602,10 @@ def p_body(t):
         t3 = t[3]
     if len(t1) == 0 and t[3] != None:
         t[0] = t3
-    elif len(t3) == 0  == "" and t[1] != None:
+    elif len(t3) == 0 and t[1] != None:
         t[0] = t1
     else: 
-        t[0] = t3
+        t[0] = t1 + t3
 
 def p_declare(t):
     '''declare_statement : declare_statement DECLARE declares
@@ -1709,12 +1719,13 @@ def p_asignacion(t):
 def p_asignacion_igual(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA
     '''
-    t[0] = ""
+    t[0] = assignQ(t[1],t[4].code)
 
 def p_asignacion_igual_parentesis(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA
     '''
-    t[0] = ""
+    t[0] = assignQ(t[1],t[5].code)
+
 def p_asignacion_dos(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL exp_plsql PUNTO_COMA'''
     valor = traduct(t[5])
@@ -1724,19 +1735,23 @@ def p_asignacion_dos(t):
 
 def p_asignacion_dos_signo_(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
-    t[0] = ""
+    t[0] = assignQ(t[1], t[5].code)
+
 def p_asignacion_dos_signo(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
-    t[0] = ""
+    t[0] = assignQ(t[1], t[6].code)
+
 def p_referencia_id(t):
     '''referencia_id : PUNTO ID
                 | '''
 
 def p_return(t):
-    '''return : RETURN exp PUNTO_COMA'''
+    '''return : RETURN exp_plsql PUNTO_COMA'''
+    t[0] = returnF(t[2])
 
 def p_return_next(t):
-    '''return : RETURN NEXT exp PUNTO_COMA'''
+    '''return : RETURN NEXT exp_plsql PUNTO_COMA'''
+    t[0] = returnF(t[2])
 
 def p_return_query(t):
     '''return : RETURN QUERY query'''
@@ -1835,8 +1850,7 @@ def p_statements(t):
 
 def p_statement(t):
     '''statement : asignacion
-                | f_query 
-                | execute
+                | f_query
                 | null
                 | declaracion
                 | declaracion_funcion
@@ -1855,6 +1869,7 @@ def p_statement(t):
 
 def p_f_query(t):
     '''f_query : SELECT arg_distict colum_list into FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA
+                | ins_select f_return
                 | ins_insert f_return
                 | ins_update f_return
                 | ins_delete f_return'''
@@ -1879,16 +1894,29 @@ def p_into_strict(t):
     t[0] = ''
 
 def p_execute(t):
-    '''execute : EXECUTE CADENA into USING exp_list PUNTO_COMA'''
-    t[0] = ''
+    '''execute : exp_execute_aux exp_list_opt PARCIERRE PUNTO_COMA'''
+    global executing
+    t[0] = GenerarC3D()
+    t[0].statement = 'EXECUTE'
+    t[0].code = t[1] + '(' +t[2].code +')\n'
+    executing = False
 
-def p_execute_use(t):
-    '''execute : EXECUTE CADENASIMPLE into USING exp_list PUNTO_COMA'''
-    t[0] = ''
+def p_execute_aux(t):
+    ''' exp_execute_aux : EXECUTE ID PARABRE'''
+    global executing
+    executing = True
+    t[0] = t[2]
+    
 
-def p_execute_exp(t):
-    '''execute : EXECUTE exp_plsql PUNTO_COMA'''
-    t[0] = ''
+def p_exp_list_opt(t):
+    '''exp_list_opt : exp_list
+                    |
+    '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = GenerarC3D()
+        t[0].code = ""   
 
 def p_null(t):
     '''null : NULL PUNTO_COMA'''
@@ -1931,6 +1959,8 @@ def p_val_value_plsql(t):
     '''val_value_plsql : CADENA
                 |   CADENASIMPLE
                 |   NUMERO
+                |   SIGNO_MENOS NUMERO
+                |   SIGNO_MENOS NUM_DECIMAL
                 |   NUM_DECIMAL
                 |   FECHA_HORA
                 |   TRUE
@@ -1949,6 +1979,8 @@ def p_val_value_plsql(t):
         t[1] = 'False'
     if len(t) == 5:
         t[0] = call(t[1], t[3])
+    elif len(t) == 3:
+        t[0] ={'left':None, 'right':None, 'data': t[1] + str(t[2])}
     else:
         t[0] = {'left':None, 'right': None, 'data': t[1]}
 

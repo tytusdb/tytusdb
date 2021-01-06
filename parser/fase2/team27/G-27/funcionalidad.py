@@ -248,7 +248,8 @@ ______________________________________________________________
 def funcion(diccionarioFuncion, codigo3D):
       arregloFunciones.append(diccionarioFuncion) #Agrego a la metadata general de las funciones.      
       id = diccionarioFuncion['id']
-      codigoGenerado = "def " + id + '('
+      codigoGenerado = '@with_goto\n'
+      codigoGenerado += "def " + id + '('
       for v in diccionarioFuncion['parametros']:
             codigoGenerado += v + ','
       if codigoGenerado[len(codigoGenerado)-1] == ',':
@@ -257,7 +258,7 @@ def funcion(diccionarioFuncion, codigo3D):
       codigo3D = '\n' +  codigo3D
       codigo3D = codigo3D.replace('\n', '\n\t')
       codigo3D = codigo3D[:-1]
-      return codigoGenerado +"\t#ZONA DE DECLARE"+ codigo3D
+      return codigoGenerado +"\t#INICIA DECLARE"+ codigo3D
 """
 ______________________________________________________________
 
@@ -279,7 +280,12 @@ def call(id, listaParámetros):
       retorno = {'c3d':c3d,'temp':temporal}
       return retorno
 
+"""
+______________________________________________________________
+
+"""
 def callNative(id, listaParámetros):
+
       c3d = ""
       paramsTemp = []
       for v in listaParámetros:
@@ -293,3 +299,32 @@ def callNative(id, listaParámetros):
       c3d = c3d[:-1]
       c3d += ')\n'
       return {'c3d':c3d,'temp':temporal}
+
+
+"""
+______________________________________________________________
+
+"""
+def returnF (exp):
+      ret = traduct(exp)
+      res = ret['c3d'] + '\nreturn ' + ret['temp'] + '\n'
+      return res
+
+"""
+______________________________________________________________
+
+"""
+def assignQ(identificador,valor):
+      id = temporales[identificador]
+      if isinstance(valor,str):
+            return '\n' +id + '= parser.parse( \''  + valor +'\')\n'
+"""
+______________________________________________________________
+
+"""
+def resFinal(funciones, codigo):
+      resultado = 'from goto import with_goto\nfrom parser import parser\n\n'
+      for f in funciones:
+            resultado += f +'\n'
+      resultado += codigo 
+      return resultado     
