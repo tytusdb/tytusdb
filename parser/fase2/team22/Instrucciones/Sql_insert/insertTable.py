@@ -430,3 +430,35 @@ class insertTable(Instruccion):
         code.append(c3d.aumentarP())
 
         return code
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t00 = c3d.getTemporal()
+        code.append(t00 + ' = "' + arbol.bdUsar + '"')
+        code.append('heap[h] = ' + t00)
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        code.append(t0 + ' = "' + self.valor + '"')
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        if self.lcol != None:
+            code.append('heap[h] = []')
+            for columna in self.lcol:
+                t1 = c3d.getTemporal()
+                code.append(t1 + ' = ["' + columna + '"]')
+                code.append('heap[h] = heap[h] + ' + t1)
+        else:
+            code.append('heap[h] = None')
+        code.append('h = h + 1')
+        code.append('heap[h] = []')
+        for valor in self.lexpre:
+            t2 = c3d.getTemporal()
+            code.append(t2 + ' = [' + str(valor.generar3D(tabla, arbol)) + ']')
+            code.append('heap[h] = heap[h] + ' + t2)
+        code.append('p = h')
+        code.append('call_insert_table()')
+        
+        return code

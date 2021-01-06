@@ -4,6 +4,7 @@ from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 from Analisis_Ascendente.storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as ts
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import C3D.GeneradorTemporales as GeneradorTemporales
 
 #DROP
 class Drop(Instruccion):
@@ -67,15 +68,34 @@ class Drop(Instruccion):
                 else:
 
                     if dropObject.exists:
-                        print("no pasa nada")
+                        consola.append(f"La bd {dropObject.id} no existe, pero no hubo error")
                     else:
                         consola.append(f"42P01	undefined_table, no existe la tabla {dropObject.id}")
-                        exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, no existe la tabla {dropObject.id}-fila-columna")
+                        exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, no existe la bd {dropObject.id}-fila-columna")
 
         else:
 
             consola.append("22005	error_in_assignment, No se ha seleccionado una BD\n")
             exceptions.append("Error semantico-22005	error_in_assignment-No se ha seleccionado DB-fila-columna")
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        temporal = GeneradorTemporales.nuevo_temporal()
+        codigo_quemado = ''
+        if self.caso == 2: #Drop table
+            codigo_quemado = 'drop table '
+        else: #Drop database
+            codigo_quemado = 'drop database '
+            if self.exists:
+                codigo_quemado += 'if exists '
+        codigo_quemado += '%s ;' % self.id
+        c3d = '''
+    # ----------DROP %s-----------
+    top_stack = top_stack + 1
+    %s = "%s"
+    stack[top_stack] = %s
+    funcion_intermedia()
+''' % ('DATABASE' if self.caso == 2 else 'TABLE---', temporal, codigo_quemado, temporal)
+        return c3d
 
 
 

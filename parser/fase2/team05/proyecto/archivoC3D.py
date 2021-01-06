@@ -1,7 +1,7 @@
 def crearArchivo(input, instfuncion):
     archivo = ''
-    f = open("proyecto/team29/ui/codigo3D.py", "w")
-    file1 = open("proyecto/salida/header.txt", "r")
+    f = open("team29/ui/codigo3D.py", "w")
+    file1 = open("salida/header.txt", "r")
 
     archivo += file1.read()
 

@@ -12,6 +12,13 @@ import sys
 from io import StringIO
 import contextlib
 
+import  os
+import  glob
+
+
+from os import  path
+from os import  remove
+
 instrucciones_Global = []
 instrucciones_GlobalPL = []
 
@@ -261,3 +268,8 @@ def salida_table(salida,textoSalida):
 
 
 root.mainloop() 
+
+print("Eliminar DB")
+files = glob.glob('data/json/*')
+for ele in files:
+    os.remove(ele)
