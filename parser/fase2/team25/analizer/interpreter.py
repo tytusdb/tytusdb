@@ -80,7 +80,7 @@ def symbolReport():
     for env in environments:
         vars = env.variables
         types = env.types
-        enc = [["Alias", "Nombre", "Tipo", "Fila", "Columna"]]
+        enc = [["Nombre", "Valor", "Tipo", "Fila", "Columna"]]
         filas = []
         for (key, symbol) in vars.items():
             r = [
@@ -93,6 +93,12 @@ def symbolReport():
             filas.append(r)
         for (key, type_) in types.items():
             r = [key, key, str(type_.name) if type_ else "Columna", "-", "-"]
+            filas.append(r)
+        for (key, func) in env.functions.items():
+            r = [key, "-", "Function " + str(func.type[0]), "-", "-"]
+            filas.append(r)
+        for key in env.procedures:
+            r = [key, "-", "Procedure", "-", "-"]
             filas.append(r)
         enc.append(filas)
         report.append(enc)

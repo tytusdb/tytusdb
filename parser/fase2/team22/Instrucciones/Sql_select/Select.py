@@ -402,9 +402,6 @@ class Select(Instruccion):
         
         if self.lcol2 != None:
             code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\" FROM " + self.lcol2[0].id + "\"", "STRING"), ClassOP_ARITMETICO.SUMA))
-                
-        code.append(c3d.asignacionTemporalStack(t1))
-        code.append(c3d.aumentarP())
 
         return code
 

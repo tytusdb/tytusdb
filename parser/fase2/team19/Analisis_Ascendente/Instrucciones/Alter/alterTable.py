@@ -1,10 +1,12 @@
 #from Instrucciones.instruccion import Instruccion
-from Analisis_Ascendente.Instrucciones.expresion import Id
+from Analisis_Ascendente.Instrucciones.expresion import Id, Primitivo
 from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 #from storageManager.jsonMode import *
 from Analisis_Ascendente.storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as ts
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import C3D.GeneradorTemporales as GeneradorTemporales
+from Analisis_Ascendente.Instrucciones.instruccion import Tipo
 
 
 class Alter(Instruccion):
@@ -20,6 +22,127 @@ class Alter(Instruccion):
         self.id3 = id3
         self.fila = fila
         self.columna = columna
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        if self.caso == 1: #ADD COLUMN listaID tipo
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            tipo = ''
+            lista_tipo = self.tipo.tipo.split('-')
+            if len(lista_tipo) == 1:
+                tipo = self.tipo.tipo
+            elif len(lista_tipo) == 2:
+                if lista_tipo[0] == 'CHARACTERVARYING':
+                    tipo = 'CHARACTER VARYING ( %s )' % lista_tipo[1]
+                else:
+                    tipo = '%s ( %s )' % (lista_tipo[0], lista_tipo[1])
+            else:
+                tipo = '%s ( %s, %s )' % (lista_tipo[0], lista_tipo[1], lista_tipo[2])
+            return 'add column %s %s' % (lista_id, tipo)
+        elif self.caso == 2: #DROP COLUMN listaID
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            return 'drop column %s' % lista_id
+        elif self.caso == 3: #ADD CHECK PARIZQ checkprima PARDR
+            izquierda = self.check.iz
+            derecha = self.check.dr
+            if isinstance(izquierda, Primitivo):
+                if isinstance(izquierda.valor, str):
+                    izquierda = "'%s'" % izquierda.valor
+                else:
+                    izquierda = izquierda.valor
+            elif isinstance(izquierda, Id):
+                izquierda = izquierda.id
+            if isinstance(derecha, Primitivo):
+                if isinstance(derecha.valor, str):
+                    derecha = "'%s'" % derecha.valor
+                else:
+                    derecha = derecha.valor
+            elif isinstance(derecha, Id):
+                derecha = derecha.id
+            return 'add check ( %s %s %s )' % (izquierda, self.valorDefault.operador, derecha)
+        elif self.caso == 4: #DROP CONSTRAINT ID
+            return 'drop constraint %s' % self.id
+        elif self.caso == 5: #ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            lista_id_ref = None
+            for id_en_lista in self.id3:
+                if lista_id_ref is None:
+                    lista_id_ref = id_en_lista.id
+                else:
+                    lista_id_ref += ', %s' % id_en_lista.id
+            return 'add foreign key ( %s ) references %s ( %s )' % (lista_id, self.id2, lista_id_ref)
+        elif self.caso == 6: #ALTER COLUMN ID TYPE tipo
+            tipo = ''
+            lista_tipo = self.tipo.tipo.split('-')
+            if len(lista_tipo) == 1:
+                tipo = self.tipo.tipo
+            elif len(lista_tipo) == 2:
+                if lista_tipo[0] == 'CHARACTERVARYING':
+                    tipo = 'CHARACTER VARYING ( %s )' % lista_tipo[1]
+                else:
+                    tipo = '%s ( %s )' % (lista_tipo[0], lista_tipo[1])
+            else:
+                tipo = '%s ( %s, %s )' % (lista_tipo[0], lista_tipo[1], lista_tipo[2])
+            return 'alter column %s type %s' % (self.id, tipo)
+        elif self.caso == 7: #ALTER COLUMN ID SET NOT NULL
+            return 'alter column %s set not null' % self.id
+        elif self.caso == 8: #ADD PRIMARY KEY PARIZQ listaID PARDR
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            return 'add primary key ( %s )' % lista_id
+        elif self.caso == 9: #ADD CONSTRAINT ID PRIMARY KEY PARIZQ listaID PARDR
+            id = self.ccc[11:len(self.ccc)]
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            return 'add constraint %s primary key ( %s )' % (id, lista_id)
+        elif self.caso == 10: #ADD CONSTRAINT ID FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR
+            id_constraint = self.ccc[11:len(self.ccc)]
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            lista_id_ref = None
+            for id_en_lista in self.id3:
+                if lista_id_ref is None:
+                    lista_id_ref = id_en_lista.id
+                else:
+                    lista_id_ref += ', %s' % id_en_lista.id
+            return 'add constraint %s foreign key ( %s ) references %s ( %s )' % (id_constraint, lista_id, self.id2, lista_id_ref)
+        elif self.caso == 11: #ADD CONSTRAINT ID UNIQUE PARIZQ listaID PARDR
+            id_constraint = self.ccc[11:len(self.ccc)]
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            return 'add constraint %s unique ( %s )' % (id_constraint, lista_id)
+
+
 
 
 class AlterTable(Instruccion):
@@ -439,6 +562,30 @@ class AlterTable(Instruccion):
         else:
             consola.append("22005	error_in_assignment, No se ha seleccionado una BD\n")
             exceptions.append("Error semantico-22005	error_in_assignment-No se ha seleccionado DB-fila-columna")
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        temporal1 = GeneradorTemporales.nuevo_temporal()
+        codigo_quemado1 = 'alter table %s ' % self.id
+        c3d = '''
+    # ------------ALTER TABLE------------
+    top_stack = top_stack + 1
+    %s = "%s \\n"
+''' % (temporal1, codigo_quemado1)
+        temporal2 = GeneradorTemporales.nuevo_temporal()
+        temporal2_anterior = temporal1
+        for i, elemento_lista in enumerate(self.alter):
+            c3d += '    %s = "%s \\n"\n' % (temporal2, elemento_lista.getC3D(lista_optimizaciones_C3D))
+            c3d += '    %s = %s + %s\n' % (temporal2, temporal2_anterior, temporal2)
+            if (i+1) != len(self.alter):
+                temporal2_anterior = temporal2
+                temporal2 = GeneradorTemporales.nuevo_temporal()
+        temporal3 = GeneradorTemporales.nuevo_temporal()
+        c3d += '''    %s = ";"
+    %s = %s + %s 
+    stack[top_stack] = %s 
+    funcion_intermedia() 
+''' % (temporal3, temporal3, temporal2, temporal3, temporal3)
+        return c3d
 
 
 

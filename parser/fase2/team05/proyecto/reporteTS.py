@@ -44,6 +44,42 @@ def generarTablaSimbolos(tabladeSimbolos) :
     f.close()
     webbrowser.open('file://' + os.path.realpath("reports/TablaSimbolos.html"))
 
+def reporteOptimizacion(lOpt):
+    error = ''
+    f = open ( 'optimizacion.html' , 'w' )
+    html = ''' <!DOCTYPE html>
+                  <html>
+                    <head>
+                    <style>
+                        table {
+                            font-family: arial, sans-serif;
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        td, th {
+                            border: 1px solid #dddddd;
+                            text-align: left;
+                            padding: 8px;
+                        }
+                        tr:nth-child(even) {
+                            background-color: #dddddd;
+                        }
+                        </style>
+                        </head>
+                        <body>
+                        <h2>Optimizaciones</h2>
+                        <table>
+                            <tr>
+                                <th>Reglas</th>
+                            </tr>
+                '''
+    for regla in lOpt :
+        html += '''  <tr>
+                        <td>''' + str (regla) + '''</td>
+                    </tr>'''
+    f.write ( html )
+    f.close ( )
+    os.startfile ( 'optimizacion.html' )
 
 def reporteErrores() :
     try :
