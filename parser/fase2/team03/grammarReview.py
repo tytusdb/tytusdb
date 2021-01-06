@@ -3492,27 +3492,55 @@ def p_exp_unary(t):
 #TODO @ESTEBAN llamada a funcion 
 def p_exp_call_function(t):
     '''expression : ID PARA list_param_function_opt2  PARC'''
-    childsProduction  = addNotNoneChild(t,[3])
-    graph_ref = graph_node(str("stm_call_function"), [t[1],t[2],t[3],t[4]],  childsProduction )
+    lista = None
+    childsProduction = []
+    if t[3] != None:
+        lista = t[3][0]
+        childsProduction.append(lista.graph_ref)
+    graph_ref = graph_node(str("stm_call_function"), [t[1],t[2],t[4]],  childsProduction )
     addCad("**\<EXPRESSION>** ::= tIdentifier '(' [\<LIST_PARAM_FUNCTION_OPT>] ')' ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    t[0] = FuncCall(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 def p_list_param_function_opt2(t):
-    '''list_param_function_opt2  : column_list 
+    '''list_param_function_opt2  : expression_list 
                                 | empty'''
     token = t.slice[1]
-    if token.type == "column_list":
+    if token.type == "expression_list":
         lista = None
         childsProduction = []
         if t[1] != None:
             lista = t[1][0]
             childsProduction.append(lista.graph_ref)
         graph_ref = graph_node(str("list_param_function"), [lista] ,childsProduction )
-        addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<COLUMN_LIST>] ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        addCad("**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<EXPRESSION_LIST>] ")
+        t[0] = t[1]
         #####
     else:
         t[0]=None
+
+
+def p_expression_list(t):
+    '''expression_list  : expression_list COMA expression
+                    | expression'''
+    if len(t) == 4:
+        lista = None
+        childsProduction = []
+        if t[1] != None:
+            lista = t[1][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("column_list"), [lista, t[2], t[3]], childsProduction)
+        addCad("**\<COLUMN_LIST>** ::= \<COLUMN_LIST> ',' tIdentifier ")
+        token_id = t.slice[3]
+        t[1][0].graph_ref = graph_ref
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<COLUMN_LIST>** ::=  EXPRESSION ")
+        token_id = t.slice[1]
+        t[0] = [t[1]]
+
+  
 
 
 def p_exp_num(t):

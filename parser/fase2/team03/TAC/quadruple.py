@@ -219,7 +219,7 @@ def getHeader():
     return f'from goto import with_goto\nfrom wrapper import *\n\n@with_goto\ndef all_code():\n'
 
 def getFooter():
-    return f'all_code()\nreport_stored_st()\n'
+    return f'#all_code()\n#report_stored_st()\n'
 
 def getFileTab():
     return '    '

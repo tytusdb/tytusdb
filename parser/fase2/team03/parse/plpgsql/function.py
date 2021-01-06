@@ -48,10 +48,11 @@ class Function(ASTNode):
         #add this functi on to ST
         currDB = table.get_current_db()
         #TODO: set params
-        sym = FunctionSymbol(currDB.id, self.name, labelname, paramCounter)
+        tac_file_name = f'{currDB.name}_func_{self.name}'
+        sym = FunctionSymbol(currDB.id, self.name, labelname, paramCounter, tac_file_name )
         table.add(sym)        
         #write File.py
-        Save_TAC_obj(f'{currDB.name}_func_{self.name}', tree)
+        Save_TAC_obj(tac_file_name, tree)
         
         return f'Function -{self.name}- created.'
 
@@ -155,6 +156,60 @@ class Return(ASTNode):
         tree.append(push)
         tree.append(gotoExit)
 
+
+class FuncCall(ASTNode):
+    def __init__(self, func_name, param_list, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.func_name = func_name
+        self.param_list = param_list     
+        self.graph_ref = graph_ref
+        self.qlist = None
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        #Search in table symbol
+        #Load File
+        #Execute file
+        #return value
+        funcObj = table.get(self.func_name, SymbolType.FUNCTION)
+        tac_modue = __import__(funcObj.tac_file_name)
+        
+        #set parms to pseudo tack? ore heap? i don't now how is it
+        #TODO maybe some type validation ?¿
+        if isinstance(self.param_list, list):
+            for p in self.param_list:
+                paramval = p.execute(table, tree)
+                tac_modue.push(paramval)
+        tac_modue.all_code()
+        #my_module = importlib.import_module('os.path')
+        retval = None
+        #The stack structure is for the retuened value firs we get the 0 vale next the returned values 
+        #next the number 1 if a param inth pos 1 was sendes by out option same way with the otther parameter
+        #lets pop it!!! tneee better use a loop jejeje
+        poped = tac_modue.pop()
+        isval = True
+        paramval = None
+        paramIndex = -1
+        while poped is not None:
+            if isval:
+                paramval = poped
+            else:
+                paramIndex = poped
+                #TODO: this asignation is not valid look for annother vay
+                #self.param_list[paramIndex] = paramval            
+            if paramIndex == 0:
+                retval = paramval
+                return retval
+            isval = not isval 
+            poped = tac_modue.pop()   
+        return retval
+    
+    #call this function when the Func call exist in the column retuenes of a query
+    def setQueryTable(self, qlist):
+        self.qlist=qlist
+
+    def generate(self, table, tree):
+        return 'No generate code is avaible for FuncCall'
 
 class Parameters(ASTNode):
     def __init__(self, name, parameters, returntype, body , line, column, graph_ref):

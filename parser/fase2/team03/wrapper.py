@@ -34,3 +34,17 @@ def clear_all_execution():
     if os.path.exists('stored_st.bin'):
         os.remove('stored_st.bin')
     shutil.rmtree('data')
+
+#TODO: implement IT
+stack = []
+def push(arg):
+    stack.append(arg)
+
+def pop():
+    size = len(stack)    
+    if size > 0:
+        obj = stack.pop(size-1)
+        return obj
+    else:
+        print('Stack empty :\'(')
+    return None

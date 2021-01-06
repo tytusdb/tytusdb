@@ -90,12 +90,13 @@ class TypeSymbol(Symbol):
 
 #TODO: if you want to validate types on params better add a list of types or List of Param(ASTNode) instead number params
 class FunctionSymbol(Symbol):
-    def __init__(self, db_id, func_name, tac_label, number_params):
+    def __init__(self, db_id, func_name, tac_label, number_params, tac_file_name):
         Symbol.__init__(self, SymbolType.FUNCTION, func_name)
         self.db_id = db_id
         self.func_name = func_name
         self.tac_label = tac_label
         self.number_params = number_params
+        self.tac_file_name = tac_file_name
 
 
 class IndexSymbol(Symbol):
