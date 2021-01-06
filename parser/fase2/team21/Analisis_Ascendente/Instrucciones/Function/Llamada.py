@@ -1,6 +1,6 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
 
 class Llamada(Instruccion):
     def __init__(self, caso, id, listaE, linea, columna):

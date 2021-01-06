@@ -1,6 +1,6 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-import Compi2RepoAux.team21.Analisis_Ascendente.ascendente as tr
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+import tytus.parser.fase2.team21.Analisis_Ascendente.ascendente as tr
+import tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 
 class Function(Instruccion):
     #replace sube True o False
