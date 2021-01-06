@@ -57,6 +57,10 @@ def limpiar():
 def reporte():
     print("REPORTE AST")
     response = txt_consultas.get("1.0","end")
+    salida_lexico_ast = analizarASTLex(response)  # se envia el texto a el analizador lexico
+    print(salida_lexico_ast)
+    analizarASTSin(response)  # se envia el texto a el analizador sintactico
+    print(salida_lexico_ast)
 
 # Metodo reporte BNF
 def reporteBNF():
