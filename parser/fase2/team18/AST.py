@@ -103,9 +103,16 @@ def eliminarFuncion(nombre):
 
 def eliminarProcedure(name):
     global listaProcedure
-    for i in listaProcedure:
+    '''for i in listaProcedure:
+        if(listaProcedure[i].nombre==name):
+            listaProcedure.pop(i)'''
+    i=0
+    while i < len(listaProcedure):
         if(listaProcedure[i].nombre==name):
             listaProcedure.pop(i)
+            break
+        else:
+            i=i+1
 
 def EliminarIndice(instr,ts):
     global outputTS
@@ -3929,7 +3936,7 @@ def Crear_Procedimiento(instr,ts):
                 param.tipo=x.tipo.lower()
                 #validar el tipo
                 if(validarTipoF(param.tipo)==False):
-                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+parAux.nombre
+                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+param.nombre
                     agregarMensjae("error",msg,"")
                     flag=False
             #agregar size
@@ -3959,7 +3966,7 @@ def Crear_Procedimiento(instr,ts):
         #verificar que no exista
         if(findProcedure(name)==None):
             addProcedure(name,cuerpo,parametros)
-            CD3.PCreateProcedure(name,cuerpo,parametros,False)
+            CD3.PCreateProcedure(name,cuerpo,parametros,0)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
         else:
@@ -3968,7 +3975,7 @@ def Crear_Procedimiento(instr,ts):
                 #eliminar la funcion
                 eliminarProcedure(name)
                 addProcedure(name,cuerpo,parametros)
-                CD3.PCreateProcedure(nombre,cuerpo,parametros,True)
+                CD3.PCreateProcedure(name,cuerpo,parametros,1)
                 msg="Funcion reemplazada"
                 agregarMensjae("alert",msg,"")
             else:
@@ -4019,7 +4026,7 @@ def cuerpo_Procedure(body,ts):
                 agregarMensjae("error",msg,"")
                 flag=False
             else:  
-                parametro.tipo=o.tipo.lower()
+                parametro.tipo=i.tipo.lower()
                 #validar el tipo
                 if(validarTipoF(parametro.tipo)==False):
                     msg="El tipo "+parametro.tipo+" no es posible asignarlo al parametro "+parametro.nombre
@@ -4032,7 +4039,7 @@ def cuerpo_Procedure(body,ts):
             #agregar valor
             if(i.valor!=False):
                 val=resolver_operacion(i.valor,ts)
-                result=validarTipo(parAux.tipo,val)
+                result=validarTipo(parametro.tipo,val)
                 if(result==None):
                     flag=False
                     msg="no es posible asignar "+str(val)+" en "+parametro.nombre
@@ -4067,8 +4074,11 @@ def cuerpo_Procedure(body,ts):
 
 #Ejecucion de los procedimientos
 
-def Execute_Procedimiento():
+def Execute_Procedimiento(instr,ts):
     print("Metodo para ejecutar el stored procedure")
+    print(instr)
+    agregarMensjae('normal','Execute procedure: '+ str(instr.procedimiento),'')
+    
 
 #Eliminar procedimiento 
 def Eliminar_Procedimientos(instr,ts):
@@ -4346,6 +4356,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, Drop_Indice): EliminarIndice(instr,ts)
             elif isinstance(instr, Alter_Index_Rename): AlterIndice_Renombrar(instr,ts)
             elif isinstance(instr, Alter_Index_Col): AlterIndice_Col(instr,ts)
+            elif isinstance(instr, Call_Procedure): Execute_Procedimiento(instr,ts)
             else: 
                 if instr is not None:
                     for val in instr:

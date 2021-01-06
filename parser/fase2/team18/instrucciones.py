@@ -433,3 +433,11 @@ class Alter_Index_Col(Instruccion):
         self.nombreindex=nombreindex
         self.colvieja=colvieja
         self.colnueva=colnueva
+
+class Call_Procedure(Instruccion):
+    '''
+        Esta clase representa la llamada a un stored procedure
+    '''
+    def __init__(self, procedimiento,parametros):
+        self.procedimiento = procedimiento
+        self.parametros = parametros
