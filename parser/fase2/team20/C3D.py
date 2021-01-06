@@ -98,3 +98,6 @@ def VALIDAREGISTROS(TABLA: str, CANTIDAD: int) ->int:
 	return t27
 
 up()
+
+
+up()

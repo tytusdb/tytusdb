@@ -1628,7 +1628,7 @@ def p_pl_controlstructure_excuteempty(t):
 
 #CONDITIONALS
 def p_pl_controlstructure_conditionals(t):
-    '''conditionals : if SEMICOLON
+    '''conditionals : if
                     | case'''
     t[0]  = t[1]
 
