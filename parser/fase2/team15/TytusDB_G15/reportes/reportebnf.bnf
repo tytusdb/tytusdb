@@ -10,9 +10,11 @@
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <drop_database_instr>
+<instruccion> ::= <alterDB_insrt>
  
-<drop_database_instr> ::= DROP DATABASE ID PTCOMA
+<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
+ 
+<usuariosDB> ::= CADENA
  
 <init> ::= <instrucciones>
  
@@ -21,6 +23,100 @@
 <instruccion> ::= <show_databases_instr>
  
 <show_databases_instr> ::= SHOW DATABASES PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <alterDB_insrt>
+ 
+<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
+ 
+<usuariosDB> ::= ID
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <show_databases_instr>
+ 
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <alterDB_insrt>
+ 
+<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
+ 
+<usuariosDB> ::= ID
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <show_databases_instr>
+ 
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <alterDB_insrt>
+ 
+<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
+ 
+<usuariosDB> ::= ID
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <show_databases_instr>
+ 
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <alterDB_insrt>
+ 
+<alterDB_insrt> ::= ALTER DATABASE ID RENAME TO ID PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <show_databases_instr>
+ 
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <use_database_instr>
+ 
+<use_database_instr> ::= USE ID PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <createDB_insrt>
+ 
+<createDB_insrt> ::= CREATE DATABASE ID PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <createDB_insrt>
+ 
+<createDB_insrt> ::= CREATE DATABASE ID PTCOMA
  
 <init> ::= <instrucciones>
  

@@ -90,6 +90,14 @@ class ShowTables(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
 
+class DropTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class AlterDatabase(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
 
 
 
