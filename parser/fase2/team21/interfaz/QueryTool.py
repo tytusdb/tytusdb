@@ -3,7 +3,7 @@ import os
 import sys
 import tkinter as tk
 from tkinter import ttk, font, messagebox, Image, filedialog
-import Compi2RepoAux.team21.Analisis_Ascendente.ascendente as parser
+import tytus.parser.fase2.team21.Analisis_Ascendente.ascendente as parser
 import webbrowser as wb
 # from PIL import Image,ImageTk
 # vscode://vscode.github-authentication/did-authenticate?windowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c

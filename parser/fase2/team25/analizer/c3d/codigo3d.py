@@ -10,6 +10,7 @@ class Codigo3d:
         self.count_temporal = 0
         self.count_label = 0
         self.listaCode3d = []
+        self.principal = []
         self.tabulaciones = 1
 
 
@@ -33,7 +34,8 @@ class Codigo3d:
     def addToCode(self, nuevaLinea_de_codigo) -> None:
         self.listaCode3d.append(nuevaLinea_de_codigo+"\n")
 
-
+    def addToMain(self, nuevaLinea_de_codigo) -> None:
+        self.principal.append(nuevaLinea_de_codigo+"\n")
 
     def showCode(self):
         contenido = ""
@@ -121,10 +123,13 @@ class Codigo3d:
         cadena+=("from interpreter import execution"+"\n")
         cadena+=("from c3d.stack import Stack"+"\n")
         cadena+=('\nstack = Stack()\nRETURN=[None]\n')
-        cadena+=("\n\n\n@with_goto\n")
-        cadena+=("def principal():\n")
+        # Funciones
         for inst in self.listaCode3d:
             cadena+=(inst)
+        cadena+=("\n\n\n@with_goto\n")
+        cadena+=("def principal():\n")
+        for inst in self.principal:
+            cadena += (inst)
         cadena+=('\n\n\ndef funcionIntermedia():\n')
         cadena+=("\texecution(stack.pop())\n")
         cadena+=("principal()")

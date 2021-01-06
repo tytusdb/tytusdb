@@ -1,15 +1,15 @@
 #from Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import *
 #from storageManager.jsonMode import *
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as ts
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select as Select
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import IdAsId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import  Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
+import tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.select import *
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select as Select
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import IdAsId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time import  Time
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
 from prettytable import PrettyTable
 
 class Select_Dist(Instruccion):
