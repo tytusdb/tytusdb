@@ -126,14 +126,19 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
             elif hijo.nombreNodo == 'SENTENCIA_UPDATE':
                 nuevoUpdate = UpdateTable()
-                nuevoUpdate.execute(hijo,enviroment)
-            elif hijo.nombreNodo == 'SENTENCIA_ALTER_TABLE':
-                nuevoAlterT = AlterTable()
-                res = "00000" #nuevoAlterT.execute(hijo,enviroment)
+                res = nuevoUpdate.execute(hijo,enviroment)
                 if res.code != "00000":
                     self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
                 else:
                     self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
+            elif hijo.nombreNodo == 'SENTENCIA_ALTER_TABLE':
+                nuevoAlterT = AlterTable()
+                res = nuevoAlterT.execute(hijo,enviroment)
+                if res.code != "00000":
+                    self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
+                else:
+                    self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
+           
                 
                 
     def compile(self,enviroment = None):

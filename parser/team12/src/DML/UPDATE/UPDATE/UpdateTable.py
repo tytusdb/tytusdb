@@ -14,12 +14,15 @@ sys.path.append(response_path)
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\typeChecker\\')
 sys.path.append(storage)
 
+where_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\Where')
+sys.path.append(where_path)
 
 from jsonMode import * 
 
 from typeChecker.typeChecker import *
 from Error import Error
 from Response.Response import Response
+from Where import Where
 
 tc = TypeChecker()
 
@@ -46,6 +49,19 @@ class UpdateTable():
         self.values = []
         self.checkers = []
         self.listaids = []
+    
+    def obtenerColumnasDictionary(self,dbUse, tabla):
+            # Se obtiene el diccionario de columnas para la tabla del Storage,
+            # Solo se utiliza para selects de tablas, hay casos en los que se pueden
+            # Recibir tablas como parámetros, en las subconsultas, por ejemplo.
+            tc = TypeChecker()
+            listTemp = tc.return_columnsJSON(dbUse, tabla.upper())
+            listaCols = []
+            if listTemp != None:
+                for col in listTemp:
+                    listaCols.append([col['name'], col['type']])
+                return [listaCols]
+            return [[]]
         
     def execute(self, parent, enviroment):
         # OBTENER TABLAS CAMPOS VALORES
@@ -68,41 +84,71 @@ class UpdateTable():
             err_resp = Error(3,"No se ha seleccionado ninguna base de datos.",-1)
             resp = Response("42P12",err_resp)
             return resp
-        listTables = showTables(config['databaseIndex'].upper())
         useDB = config['databaseIndex'].upper()
+        listTables = showTables(useDB)
         
         if not(self.name.upper() in listTables) :
             err_resp = Error(3,"No existe la tabla en la DB.",-1)
             resp = Response("42P12",err_resp)
             return resp        
-        print('2')
+                                      
         # INFO A INSERTAR
+        tablename = self.name.upper()      
+        print('DB ACTUAL', useDB)        
+        print('Tabla Update',tablename)
+        
         columnasI = []
         valoresI = []
-        l_col = tc.return_columnsObject(useDB,self.name.upper())
+        val_update = {}
+        l_col = tc.return_columnsObject(useDB,tablename)
         for h in self.columnas:
-            columnasI.append(h.valor)
+            columnasI.append(h.valor.upper())
         for h in self.values:
             valoresI.append(h.valor)
-        print('DB ACTUAL', useDB)
-        print('Tabla Update',self.name)
-        print('Values Update', valoresI)
-        print('Columns Update', columnasI)  
-        print('L_col', len(l_col))
         
-        valores_insertar = []
         contador = 0
-        keywords = {
-            'seno' : 23,
-            'coseno' : 23
-        }
-        # VALIDACIONES
-
-        # INSERTAR 
-        '''print('update code: ',update(useDB, self.name.upper(), keywords, columnasI) )
-        resp = Response("00000","Se actualizo el valor en la tabla")
-        return resp'''
+        contador2 = 0
+        for h in l_col:
+            for j in columnasI:
+                if h.name.upper() == j:
+                    val_update[contador] = valoresI[contador2]
+                contador2 = contador2 + 1
+            contador2 = 0
+            contador = contador + 1   
         
+        # VALIDACIONES
+        if len(parent.hijos) <  4:
+            #Update sin where
+            res = update(useDB, tablename, val_update,['0'])
+            print('update code: ', res )
+            if res == 0:
+                resp = Response("00000","Se actualizo el valor en la tabla")
+            else:
+                err_resp = Error(3,"No se logro actualizar el valor",-1)
+                resp = Response("42P12",err_resp)
+            return resp          
+        else:
+            #update con where
+            parent_node = parent.hijos[3]
+            raw_matrix = [extractTable(useDB,tablename)]
+            columnas = self.obtenerColumnasDictionary(useDB,tablename)
+            tablas = [[tablename,tablename]]
+
+            nuevoWhere = Where()
+            listaResult = nuevoWhere.execute(parent_node, raw_matrix, tablas, columnas,None)
+            print('listaREsult ', listaResult)
+            res = ""
+            for elemento in listaResult:
+                if elemento[0] is True:
+                    res = update(useDB, tablename, val_update, [str(elemento[1])])
+                    print('update code: ',res)
+                    
+            if res == 0:
+                resp = Response("00000","Se actualizo el valor en la tabla")
+            else:
+                err_resp = Error(3,"No se logro actualizar el valor",-1)
+                resp = Response("42P12",err_resp)
+            return resp                                            
         
     def validar_tipo(self, tipo: str, variable: str):
         print('Variable ', variable, ' tipo ', tipo)

@@ -2027,6 +2027,15 @@ def p_list_param_insert1(t):
 
 # SENTENCIA DE UPDATE //FALTA WHERE
 def p_update(t):
+    '''sent_update : UPDATE IDENTIFICADOR SET l_col_update''' 
+    reportebnf.append(bnf["p_update"])    
+    nuevo = Update('SENTENCIA_UPDATE')
+    nuevo.hijos.append(IdentificadorDML("TABLE",t.lineno(1),t.lexpos(1)+1,t[2]))
+    nuevo.hijos.append(Update('SET',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(t[4])
+    t[0] = nuevo
+    
+def p_update1(t):
     '''sent_update : UPDATE IDENTIFICADOR SET l_col_update sentencia_where''' 
     reportebnf.append(bnf["p_update"])    
     nuevo = Update('SENTENCIA_UPDATE')
