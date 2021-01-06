@@ -61,7 +61,7 @@ class Start(Nodo):
         
     # recursiva por la izquierda
     def execute(self, enviroment):
-        
+ 
         for hijo in self.hijos:
             if hijo.nombreNodo == 'CREATE_DATABASE':
                 nuevaBase=Database()                
@@ -178,5 +178,11 @@ class Start(Nodo):
             
             if hijo.nombreNodo == 'SENTENCIA_SELECT':
                 textoEntrada += traduccionSelect(hijo)
+            elif hijo.nombreNodo == 'CREATE_TYPE_ENUM':
+                pass    
+            elif hijo.nombreNodo == 'CREATE_DATABASE':
+                textoEntrada += traduccionCreate_database(hijo) 
+            elif hijo.nombreNodo == 'CREATE_TABLE':
+                textoEntrada += traduccion_create_table(hijo)                                                           
 
         return textoEntrada
