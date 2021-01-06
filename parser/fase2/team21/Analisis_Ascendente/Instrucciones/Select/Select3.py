@@ -1,17 +1,17 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select as Select
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select import GroupBy,Having
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import  Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import  *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import  Trigonometrica
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import  IdAsId,Id,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select as Select
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.select import GroupBy,Having
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time import  Time
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import  *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import  Trigonometrica
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import  IdAsId,Id,IdId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
 from prettytable import PrettyTable
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
 
 class Selectp4(Instruccion):
 
