@@ -537,6 +537,7 @@ def getTemp():
     global tempcont
     tempcont += 1
     return 't'+str(tempcont-1)
+import OptimizarObjetos as oo
 
 class exp_boolp(expresion):
     'Esta expresion devuelve un'
@@ -550,6 +551,7 @@ class exp_boolp(expresion):
         codigo = tmp + f' = {self.val}'
         valor = tmp
         res = self.val
+        obj = oo.Asignacion(tmp,self.val,None,None)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -564,6 +566,7 @@ class exp_textp(expresion):
         codigo = tmp + f' = \'{self.val}\''
         valor = tmp
         res = self.val
+        obj = oo.Asignacion(tmp,self.val,None,None)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -578,6 +581,7 @@ class exp_nump(expresion):
         codigo = tmp + f' = {self.val}'
         valor = tmp
         res = float(self.val)
+        obj = oo.Asignacion(tmp,self.val,None,None)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -607,6 +611,7 @@ class exp_sumap(expresionC):
         codigo = c3df 
         valor = tmp
         res =  res1 + res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'+')
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -632,6 +637,7 @@ class exp_restap(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 - res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'-')
         #print(codigo,valor)
         return codigo,valor,res    
 
@@ -657,6 +663,7 @@ class exp_multiplicacionp(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 * res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'*')
         #print(codigo,valor)
         return codigo,valor,res
         
@@ -683,6 +690,7 @@ class exp_divisionp(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 / res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'/')
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -695,6 +703,7 @@ class exp_idp(expresion):
         codigo = tmp + f' = {self.val}\n'
         valor = tmp
         res = ts.getVariable(self.val)
+        obj = oo.Asignacion(tmp,self.val,None,None)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -719,6 +728,7 @@ class exp_mayorp(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 > res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'>')
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -743,6 +753,7 @@ class exp_menorp(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 < res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'<')
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -767,6 +778,7 @@ class exp_igualp(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 == res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'==')
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -791,6 +803,7 @@ class exp_mayor_igualp(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 >= res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'>=')
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -815,6 +828,7 @@ class exp_menor_igualp(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 <= res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'<=')
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -839,13 +853,15 @@ class exp_diferentep(expresion):
         codigo = c3df 
         valor = tmp
         res = res1 != res2
+        obj = oo.Asignacion(tmp,tmp1,tmp2,'!=')
         #print(codigo,valor)
         return codigo,valor,res
 
 class inst_procedural(expresion):
     def __init__(self,val):
         self.val = val
-class mathtrig(pl):
+
+class pl_mathtrig(pl):
     'Abstract Class'
 
 class math_absp(pl_mathtrig):
