@@ -1,0 +1,7 @@
+#primero actualizar pip
+#pip install ply
+#pip install PyQt5
+#pip install QScintilla
+#pip3 install numpy
+#pip3 install pandas
+#pip install goto-statement

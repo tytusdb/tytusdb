@@ -1,0 +1,15 @@
+parser.out
+parsetab.py
+**/__pycache__/**
+**/test-output/**
+**/.idea/**
+**/.vscode/**
+storage
+data
+**/*.csv
+**/*.sql
+analizer/__init__.py
+analizer/libs/__init__.py
+Databases.json
+Types.json
+ReporteGramatica.bnf

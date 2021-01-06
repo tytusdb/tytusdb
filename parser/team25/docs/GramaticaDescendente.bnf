@@ -1,0 +1,308 @@
+# Inicial
+
+<inicial> ::= <instruction>
+
+<instruction> ::= EOF
+               | <ddl>
+
+# DDL
+
+<ddl> ::= 'create' <create> ';' <instruction>
+       | 'alter' <alter> ';' <instruction>
+       | 'drop' <drop> ';' <instruction>
+       | <dml>
+
+## Create
+
+<create> ::= 'table' <create_table>
+	   | 'database' <create_database>
+
+### Create Table
+
+<create_table> ::= ID '(' <create_field> <create_other_fields> ')' <create_table_inheritance>
+
+<create_field> ::= ID <type> <create_primary_key_field> <create_references_field> <create_default_field> <create_special_condition_field> <create_constraint_field> 
+
+<type> ::= smallint
+        | integer
+        | bigint
+        | decimal
+        | numeric
+        | real
+        | bool
+        | double_precision
+        | money
+        | varchar
+        | char
+        | text
+
+<create_primary_key_field> ::= 'primary' 'key'
+			       | ε
+
+<create_references_field> ::= 'references' ID
+                           | ε
+
+<create_default_field> ::= 'default' <expression>
+                        | ε
+
+<create_special_condition_field> ::= 'NOT' 'NULL'
+                                  | 'NULL'
+                                  | ε
+
+<create_constraint_field> ::= 'constraint' ID <create_constraint_fieldp> <create_constraint_field>
+                           | 'unique' <create_constraint_field>
+                           | 'check' '(' <conditions> ')' <create_constraint_field>
+                           | ε
+
+<create_constraint_fieldp> ::= 'unique' 
+                            | 'check' '(' <conditions> ')'
+
+<create_other_fields> ::= ',' <create_fieldp> <create_other_fields>
+		         | ε
+
+<create_fieldp> ::= 'primary' 'key' '(' <list_id> ')'
+                 | 'foreign' 'key' '(' <list_id> ')' 'references' '(' <list_id> ')'
+                 | <create_field>
+
+<list_id> ::= ID <list_idp>
+
+<list_idp> ::= ',' ID <list_idp>
+           | ε
+
+<create_table_inheritance> ::= 'inherits' '(' ID ')'
+                            | ε
+
+### Create Database
+
+<create_database> ::= <create_or_replace> ID <create_if_not_exists> <create_owner> <create_mode>
+
+<create_replace> ::= 'or' 'replace'
+		    | ε
+
+<create_if_not_exists> ::= 'if' 'not' 'exists'
+                        | ε
+
+<create_owner> ::= 'owner' <create_equal> ID
+                | ε
+
+<create_mode> ::= 'mode' <create_equal> ID
+               | ε
+
+<create_equal> ::= '='
+                | ε
+
+# Create Type
+
+<create_type> ::= ID 'as' 'enum' '(' <list_values> ')'
+
+<list_values> ::= STRING <list_valuesp>
+
+<list_valuesp> ::= , STRING <list_valuesp>
+                | ε
+
+## Alter
+
+<alter> ::= 'table' ID <alter_table>
+         | 'database' ID <alter_database>
+
+<alter_table> ::= 'drop' 'constraint' ID
+               | 'alter' 'column' ID <alter_column> <alter_other_columns>
+               | 'add' <alter_add_table> 
+
+<alter_column> ::= 'set' <alter_column_set>
+                | 'type' <type>
+
+<alter_other_columns> ::= , 'alter' 'column' ID <alter_column> <alter_other_columns>
+                       | ε
+
+<alter_add_table> ::= 'check' '(' 'name' '<>' "''"  ')'
+                   | 'constraint' ID 'unique' '(' ID ')'
+                   | 'foreign' 'key' '(' ID ')' 'references' ID
+
+<alter_database> ::= 'rename' 'to' ID
+                  | 'owner' 'to' <alter_database_owner>
+
+<alter_database_owner> ::= 'currente_user'
+                        | 'session_user'
+                        | ID
+
+## Drop
+
+<drop> ::= 'table' ID
+       | 'database' <drop_database_exists> ID
+
+<drop_database_exists> ::= 'if' 'exists'
+                        | ε
+
+# DML
+
+<dml> ::= 'delete' 'from' ID <where> ';' <instruction>
+       | 'update' ID 'set' <update> <where> ';' <instruction>
+       | 'insert' 'into' ID 'values' '(' <list_values>  ')' ';' <instruction>
+       | <select> ';' <instruction>
+
+<where> ::= 'where' <expression>
+         | ε
+
+# Select
+
+<select> ::= 'select' <select_special> <select_list_field> 'from' <selectp> <select_joins> <where> <select_group_by> <select_order_by> <select_limit> <select_offset> <select_having> <select_combining> 
+
+<selectp> ::= '(' <select> ')' <select_as>
+           | ID <select_as>
+
+<select_as> ::= ID
+             | ε
+
+<select_special> ::= 'distinct'
+                  | 'extract'
+                  | ε
+
+<select_list_field> ::= <select_field> <select_list_fieldp>
+
+<select_list_fieldp> ::= ',' <select_field> <select_list_fieldp>
+                      | ε
+
+<select_field> := '*'
+               | id <expression_table_associative>
+
+<select_joins> ::= 'join' <select_joinsp> <selectp> 'on' <select_join_on>
+         | ε
+
+<select_joinsp> ::= 'right' <select_join_outer>
+                 | 'left' <select_join_outer>
+                 | 'full' <select_join_outer>
+                 | <select_join_inner>
+
+<select_join_inner> ::= 'inner'
+                     | ε
+
+<select_join_outer> ::= 'outer'
+                     | ε
+
+<select_join_on> ::= ID <expression_table_associative> '=' ID <expression_table_associative> <select_join_onp>
+
+<select_join_onp> ::= ',' ID <expression_table_associative> '=' ID <expression_table_associative> <select_join_onp>
+                   | ε
+
+<select_group_by> ::= 'group' 'by' <list_id>
+            | ε
+
+<select_order_by> ::= 'order' 'by' <select_order_by_list>
+            | ε
+
+<select_order_by_list> ::= <select_order_by_item> <select_order_by_listp>
+
+<select_order_by_listp> ::= ',' <select_order_by_item> <select_order_by_listp>
+                         | ε
+
+<select_order_by_item> ::= ID<expression_table_associative> <select_order_by_item_order> <select_order_by_item_null>
+
+<select_order_by_item_order> ::= 'asc'
+                              | 'desc'
+                              | ε
+
+<select_order_by_item_null> ::= 'nulls' <select_order_by_item_nullp>
+                             | ε
+
+<select_order_by_item_nullp> ::= 'first'
+                              | 'last'
+
+<select_limit> ::= 'limit' <select_limitp>
+         | ε
+
+<select_limitp> ::= 'all'
+          | <expression_add_sub>
+
+<select_offset> ::= 'offset' <expression_add_sub>
+          | ε
+
+<select_having> ::= 'having' <expression>
+          | ε
+
+<select_combining> ::= 'union' <select_combiningp> <select>
+                 | 'intersect' <select_combiningp> <select>
+                 | 'except' <select_combiningp> <select>
+                 | ε
+
+<select_combiningp> ::= 'all'
+                     | ε
+
+# Expression
+
+<expression> ::= <expression_and> <expression_or>
+
+<expression_or> ::= 'or' <expression_and> <expression_or>
+                 | ε
+
+<expression_and> ::= <expression_not> <expression_andp>
+
+<expression_andp> ::= 'and' <expression_not> <expression_andp>
+                   | ε
+
+<expression_not> ::= 'not' <expression_is>
+                  | <expression_is>
+
+<expression_is> ::= 'is' <expression_isp>
+                 | 'isnull'
+                 | 'notnull'
+                 | <expression_compare>
+
+<expression_isp> ::= 'distinct'
+                  | <expression>
+              
+<expression_compare> ::= <expression_relation> <expression_comparep>
+
+<expression_comparep> ::= '<=' <expression>
+                       | '<' <expression>
+                       | '>=' <expression>
+                       | '>' <expression>
+                       | '=' <expression>
+                       | '<>' <expression>
+                       | '!=' <expression>
+                       | ε
+
+<expression_relation> ::= <expression_add_sub> <expression_relationp>
+
+<expression_relationp> ::= 'between' <expression_add_sub> 'and' <expression_add_sub>
+                        | 'in' <expression_in>
+                        | 'like' string
+                        | 'ilke' string
+                        | 'similar' string
+                        | ε
+
+<expression_in> ::= ID <list_idp>
+                 | <query>
+
+<expression_add_sub> ::= <expression_mul_div> <expression_add_subp>
+
+<expression_add_subp> ::= '+' <expression_mul_div> <expression_add_subp>
+                       | '-' <expression_mul_div> <expression_add_subp>
+                       | ε
+
+<expression_mul_div> ::= <expression_power> <expression_mul_divp>
+
+<expression_mul_divp> ::= '*' <expression_power> <expression_mul_divp>
+                       | '/' <expression_power> <expression_mul_divp>
+                       | '%' <expression_power> <expression_mul_divp>
+                       | ε
+
+<expression_power> ::= <expression_unary> <expression_powerp>
+
+<expression_powerp> ::= '^' <expression_unary> <expression_powerp>
+                     | ε
+
+<expression_unary> ::= '-' <expression_value>
+                    | '+' <expression_value>
+                    | <expression_value>
+
+<expression_value> ::= '(' <expression> ')'
+                    | 'true'
+                    | 'false'
+                    | string
+                    | number
+                    | decimal
+                    | ID <expression_table_associative>
+
+<expression_table_associative> ::= '.' ID
+                               | ε

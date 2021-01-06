@@ -1,0 +1,77 @@
+ROOT -> SETinstrucciones
+
+SETinstrucciones -> SETinstrucciones SETinstrucciones_paso
+                |   SETinstrucciones_paso
+
+SETinstrucciones_paso -> INSTRUCCION
+                | INSTRUCCION ';'
+
+INSTRUCCION -> PRINTC
+            |   SELECT
+            |   UPDATE
+            |   ...
+
+// --------------------------------------------------
+
+SELECT ->       'select' 'distinct' CUERPO_SELECT
+            |   'select' CUERPO_SELECT
+
+CUERPO_SELECT -> grouping_column_reference 'from' table_expression condition
+
+condition ->  WHERE_condition condition
+            | GROUP BY grouping_column_reference condition
+            | , grouping_column_reference condition
+            | GROUP BY grouping_column_reference
+            | , grouping_column_reference 
+            | WHERE_condition
+
+WHERE_condition -> 'WHERE' search_condition
+
+grouping_column_reference ->    * , grouping_column_reference
+                            | IDen , grouping_column_reference
+                            | OBJETO , grouping_column_reference
+                            | AGREGACION , grouping_column_reference
+                            | * 
+                            | IDen 
+                            | OBJETO 
+                            | AGREGACION
+
+IDen ->     ID
+        |   ID as IDen
+        |   cadena
+
+search_condition ->     search_condition '=' search_condition
+                    |   search_condition '!=' search_condition
+                    |   search_condition '>' search_condition
+                    |   search_condition '<' search_condition
+                    |   search_condition '>=' search_condition
+                    |   search_condition '<=' search_condition
+                    |   search_condition 'or' search_condition
+                    |   search_condition 'and' search_condition
+                    |   search_condition 'like' search_condition
+                    |   IDen
+                    |   number
+                    |   boolean
+                    |   '(' search_condition ')'
+
+
+// -------- UPDATE
+
+UPDATE -> 'UPDATE' IDen set L_search_condition WHERE_condition
+
+L_search_condition ->       search_condition L_search_condition 
+                        |   ',' search_condition L_search_condition 
+                        |   search_condition
+
+// -------- INSERT
+
+INSERT ->   'insert' 'into' IDen '(' grouping_column_reference ')' INSERT_CUERPO
+        |   'insert' 'into' IDen  INSERT_CUERPO
+
+INSERT_CUERPO -> 'values' '(' grouping_column_reference ')'
+
+// ---- DELETE
+
+DELETE -> 'DELETE' 'from' IDen WHERE_condition
+
+// ---------------------------------------------------

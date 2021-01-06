@@ -1,0 +1,12 @@
+/Interpreter/__pycache__/
+/Interpreter/Instruction/__pycache__/
+/Interpreter/Expression/__pycache__/
+/Interpreter/parser.out
+/Interpreter/parsetab.py
+/Statics/__pycache__
+/Interface/__pycache__
+/__pycache__
+/ply
+/storageManager
+/data
+.vscode/

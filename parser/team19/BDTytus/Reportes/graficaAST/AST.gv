@@ -1,0 +1,27 @@
+// AST generado
+digraph AST {
+	edge [arrowhead=none]
+	7 [label=SentenciasSQL]
+	2 [label=SentenciaDDL]
+	7 -> 2
+	1 [label=ShowDatabases]
+	2 -> 1
+	4 [label=SentenciaDDL]
+	7 -> 4
+	3 [label=ShowDatabases]
+	4 -> 3
+	6 [label=SentenciaDDL]
+	7 -> 6
+	5 [label=CreateType]
+	6 -> 5
+	nombre_type5 [label="nombre: mood"]
+	5 -> nombre_type5
+	lista_type5 [label=lista_enum]
+	5 -> lista_type5
+	"0enum5" [label=sad]
+	lista_type5 -> "0enum5"
+	"1enum5" [label=ok]
+	lista_type5 -> "1enum5"
+	"2enum5" [label=happy]
+	lista_type5 -> "2enum5"
+}

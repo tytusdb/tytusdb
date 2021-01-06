@@ -1,0 +1,3 @@
+SELECT * FROM tablita
+--Comentario de una linea
+/*Estos son comentarios multilinea*/

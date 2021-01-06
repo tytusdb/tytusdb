@@ -1,0 +1,15 @@
+select * from table1;
+
+databases ;
+
+select *
+from tbcolaborador
+where nombre is not distinct from 'sujeto1'
+
+CREATE DATABASE casa;
+
+CREATE DATABASE $ casa;
+CREATE DATABASE & casa;
+
+CREATE DATABASE & casa;
+CREATE DATABASE $ casa;

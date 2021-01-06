@@ -1,0 +1,108 @@
+// AST
+digraph {
+	151 [label=INSTRUCTION_LIST]
+	152 [label=IF]
+	153 [label="("]
+	154 [label="="]
+	155 [label=cantidad]
+	156 [label=resultado]
+	157 [label=")"]
+	158 [label=THEN]
+	159 [label="="]
+	160 [label=retorna]
+	161 [label=1]
+	162 [label=ELSE]
+	163 [label="="]
+	164 [label=retorna]
+	165 [label=0]
+	166 [label="END IF"]
+	167 [label=INST]
+	168 [label=IF]
+	169 [label="("]
+	170 [label="="]
+	171 [label=cantidad]
+	172 [label=resultado]
+	173 [label=")"]
+	174 [label=THEN]
+	175 [label="="]
+	176 [label=retorna]
+	177 [label=1]
+	178 [label=ELSE]
+	179 [label="="]
+	180 [label=retorna]
+	181 [label=0]
+	182 [label="END IF"]
+	183 [label=INST]
+	184 [label=ASIGNACION]
+	185 [label=estado]
+	186 [label=2]
+	187 [label=INST]
+	188 [label=IF]
+	189 [label="("]
+	190 [label="="]
+	191 [label=cantidad]
+	192 [label=resultado]
+	193 [label=")"]
+	194 [label=THEN]
+	195 [label="="]
+	196 [label=retorna]
+	197 [label=1]
+	198 [label=ELSE]
+	199 [label="="]
+	200 [label=retorna]
+	201 [label=0]
+	202 [label="END IF"]
+	203 [label=INST]
+	151 -> 152
+	152 -> 153
+	152 -> 154
+	154 -> 155
+	154 -> 156
+	152 -> 157
+	152 -> 158
+	152 -> 159
+	159 -> 160
+	159 -> 161
+	152 -> 162
+	152 -> 163
+	163 -> 164
+	163 -> 165
+	152 -> 166
+	151 -> 167
+	167 -> 168
+	168 -> 169
+	168 -> 170
+	170 -> 171
+	170 -> 172
+	168 -> 173
+	168 -> 174
+	168 -> 175
+	175 -> 176
+	175 -> 177
+	168 -> 178
+	168 -> 179
+	179 -> 180
+	179 -> 181
+	168 -> 182
+	167 -> 183
+	183 -> 184
+	184 -> 185
+	184 -> 186
+	183 -> 187
+	187 -> 188
+	188 -> 189
+	188 -> 190
+	190 -> 191
+	190 -> 192
+	188 -> 193
+	188 -> 194
+	188 -> 195
+	195 -> 196
+	195 -> 197
+	188 -> 198
+	188 -> 199
+	199 -> 200
+	199 -> 201
+	188 -> 202
+	187 -> 203
+}

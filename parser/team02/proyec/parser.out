@@ -1,0 +1,3037 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    AMPER
+    AND
+    AS
+    BAR
+    CORCHIN
+    CORCHOUT
+    CURRENT_DATE
+    CURRENT_TIME
+    DATABASES
+    DATE_PART
+    DAY
+    DEFAULT
+    DIV
+    DOSPUNTOS
+    EXISTS
+    EXP
+    EXTRACT
+    HORA
+    HOUR
+    IF
+    ILIKE
+    INNER
+    INTERVAL
+    JOIN
+    LIKE
+    MAS
+    MENOS
+    MINUTE
+    MODE
+    MONTH
+    NOT
+    NOW
+    OR
+    OR2
+    ORDER
+    OWNER
+    PORC
+    PRECISION
+    RENAME
+    REPLACE
+    SECOND
+    SHOW
+    SIMILAR
+    TIME
+    TO
+    USING
+    VARYING
+    WITH
+    WITHOUT
+    YEAR
+    ZONE
+
+Grammar
+
+Rule 0     S' -> init
+Rule 1     init -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> creartable PUNTOCOMA
+Rule 5     instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA
+Rule 6     instruccion -> createbase PUNTOCOMA
+Rule 7     instruccion -> selecttable PUNTOCOMA
+Rule 8     instruccion -> DROP TABLE ID PUNTOCOMA
+Rule 9     instruccion -> altertable
+Rule 10    instruccion -> ddm PUNTOCOMA
+Rule 11    instruccion -> error
+Rule 12    createbase -> CREATE DATABASE ID
+Rule 13    createbase -> CREATE error DATABASE ID
+Rule 14    createbase -> CREATE DATABASE error ID
+Rule 15    altertable -> ALTER TABLE ID
+Rule 16    altertable -> ALTER COLUMN ID TYPE TIPODATO
+Rule 17    altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO
+Rule 18    altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT
+Rule 19    altertable -> ALTER TABLE ID DROP COLUMN ID
+Rule 20    altertable -> ALTER TABLE ID DROP CONSTRAINT ID
+Rule 21    altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL
+Rule 22    ddm -> INSERT INTO ID VALUES PARENIN valores PARENOUT
+Rule 23    ddm -> UPDATE ID SET ID IGUAL valor wherecondicion
+Rule 24    ddm -> UPDATE ID SET ID IGUAL valor
+Rule 25    ddm -> DELETE FROM ID wherecondicion
+Rule 26    wherecondicion -> WHERE condition
+Rule 27    wherecondicion -> WHERE condition AND2 condition
+Rule 28    creartable -> CREATE TABLE ID PARENIN params PARENOUT
+Rule 29    selecttable -> SELECT selectclausules FROM selectbody
+Rule 30    selecttable -> SELECT selectclausules FROM selectbody wherecondicion
+Rule 31    selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores
+Rule 32    selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones
+Rule 33    selectbody -> ID
+Rule 34    selectbody -> PARENIN selecttable PARENOUT
+Rule 35    selectbody -> ID ID
+Rule 36    selectclausules -> POR
+Rule 37    selectclausules -> valores
+Rule 38    selectclausules -> DISTINCT valores
+Rule 39    selectclausules -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT
+Rule 40    funciones -> SUM PARENIN ID PARENOUT signos valor
+Rule 41    params -> params COMA expresion
+Rule 42    params -> expresion
+Rule 43    valores -> valores COMA valor
+Rule 44    valores -> valor
+Rule 45    expresion -> ID TIPODATO
+Rule 46    expresion -> PRIMARY KEY PARENIN ID PARENOUT
+Rule 47    expresion -> FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT
+Rule 48    condition -> valor signos valor
+Rule 49    condition -> valor BETWEEN valor AND2 valor
+Rule 50    condition -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor
+Rule 51    signos -> MENOR
+Rule 52    signos -> MAYOR
+Rule 53    signos -> MENOROIGUAL
+Rule 54    signos -> MAYOROIGUAL
+Rule 55    signos -> IGUALIGUAL
+Rule 56    signos -> IGUAL
+Rule 57    signos -> NOT2 IN
+Rule 58    signos -> IN
+Rule 59    signos -> NOIGUAL
+Rule 60    signos -> IS NOT2 DISTINCT FROM
+Rule 61    signos -> IS DISTINCT FROM
+Rule 62    valor -> ENTERO
+Rule 63    valor -> DECIMAL
+Rule 64    valor -> APOST FECHA APOST
+Rule 65    valor -> CADENA
+Rule 66    valor -> CADENA2
+Rule 67    valor -> ID
+Rule 68    valor -> ID PUNTO ID
+Rule 69    valor -> PARENIN selecttable PARENOUT
+Rule 70    TIPODATO -> TEXT
+Rule 71    TIPODATO -> SMALLINT
+Rule 72    TIPODATO -> INTEGER
+Rule 73    TIPODATO -> INT
+Rule 74    TIPODATO -> BIGINT
+Rule 75    TIPODATO -> DECIMAL2
+Rule 76    TIPODATO -> NUMERIC
+Rule 77    TIPODATO -> REAL
+Rule 78    TIPODATO -> DOUBLE
+Rule 79    TIPODATO -> CHARACTER
+Rule 80    TIPODATO -> CHAR PARENIN ENTERO PARENOUT
+Rule 81    TIPODATO -> TIMESTAMP
+Rule 82    TIPODATO -> DATETIME
+Rule 83    TIPODATO -> FLOAT
+Rule 84    TIPODATO -> DATE
+Rule 85    TIPODATO -> MONEY
+Rule 86    TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT
+
+Terminals, with rules where they appear
+
+ADD                  : 17 18
+ALTER                : 15 16 17 18 19 20 21 21
+AMPER                : 
+AND                  : 
+AND2                 : 27 49
+APOST                : 64 64
+AS                   : 
+BAR                  : 
+BETWEEN              : 49
+BIGINT               : 74
+BY                   : 31 32
+CADENA               : 65
+CADENA2              : 66
+CHAR                 : 80
+CHARACTER            : 79
+CHECK                : 18
+COLUMN               : 16 17 19 21
+COMA                 : 39 39 41 43 50 50
+CONSTRAINT           : 20
+CORCHIN              : 
+CORCHOUT             : 
+CREATE               : 12 13 14 28
+CURRENT_DATE         : 
+CURRENT_TIME         : 
+DATABASE             : 12 13 14
+DATABASES            : 
+DATE                 : 84
+DATETIME             : 82
+DATE_PART            : 
+DAY                  : 
+DECIMAL              : 63
+DECIMAL2             : 75
+DEFAULT              : 
+DELETE               : 25
+DISTINCT             : 38 60 61
+DIV                  : 
+DOSPUNTOS            : 
+DOUBLE               : 78
+DROP                 : 8 19 20
+ENTERO               : 62 80 86
+EXISTS               : 
+EXP                  : 
+EXTRACT              : 
+FECHA                : 64
+FLOAT                : 83
+FOREIGN              : 47
+FROM                 : 25 29 30 31 32 60 61
+GROUP                : 31 32
+HAVING               : 32
+HORA                 : 
+HOUR                 : 
+ID                   : 5 8 12 13 14 15 16 17 17 18 19 19 20 20 21 21 22 23 23 24 24 25 28 33 35 35 40 45 46 47 47 47 67 68 68
+IF                   : 
+IGUAL                : 23 24 56
+IGUALIGUAL           : 55
+ILIKE                : 
+IN                   : 57 58
+INHERITS             : 5
+INNER                : 
+INSERT               : 22
+INT                  : 73
+INTEGER              : 72
+INTERVAL             : 
+INTO                 : 22
+IS                   : 60 61
+JOIN                 : 
+KEY                  : 46 47
+LIKE                 : 
+MAS                  : 
+MAYOR                : 52
+MAYOROIGUAL          : 54
+MENOR                : 51
+MENOROIGUAL          : 53
+MENOS                : 
+MINUTE               : 
+MODE                 : 
+MONEY                : 85
+MONTH                : 
+NOIGUAL              : 59
+NOT                  : 
+NOT2                 : 21 57 60
+NOW                  : 
+NULL                 : 21
+NUMERIC              : 76
+OR                   : 
+OR2                  : 
+ORDER                : 
+OWNER                : 
+PARENIN              : 5 18 22 28 34 39 40 46 47 47 50 69 80 86
+PARENOUT             : 5 18 22 28 34 39 40 46 47 47 50 69 80 86
+POR                  : 36
+PORC                 : 
+PRECISION            : 
+PRIMARY              : 46
+PUNTO                : 68
+PUNTOCOMA            : 4 5 6 7 8 10
+REAL                 : 77
+REFERENCES           : 47
+RENAME               : 
+REPLACE              : 
+SECOND               : 
+SELECT               : 29 30 31 32
+SET                  : 21 23 24
+SHOW                 : 
+SIMILAR              : 
+SMALLINT             : 71
+SUBSTRING            : 39 50
+SUM                  : 40
+TABLE                : 8 15 17 18 19 20 21 28
+TEXT                 : 70
+TIME                 : 
+TIMESTAMP            : 81
+TO                   : 
+TYPE                 : 16
+UPDATE               : 23 24
+USING                : 
+VALUES               : 22
+VARCHAR              : 86
+VARYING              : 
+WHERE                : 26 27
+WITH                 : 
+WITHOUT              : 
+YEAR                 : 
+ZONE                 : 
+error                : 11 13 14
+
+Nonterminals, with rules where they appear
+
+TIPODATO             : 16 17 45
+altertable           : 9
+condition            : 18 26 27 27
+creartable           : 4 5
+createbase           : 6
+ddm                  : 10
+expresion            : 41 42
+funciones            : 32
+init                 : 0
+instruccion          : 2 3
+instrucciones        : 1 2
+params               : 28 41
+selectbody           : 29 30 31 32
+selectclausules      : 29 30 31 32
+selecttable          : 7 34 69
+signos               : 40 48 50
+valor                : 23 24 39 39 39 40 43 44 48 48 49 49 49 50 50 50 50
+valores              : 22 31 32 37 38 43
+wherecondicion       : 23 25 30 31 32
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . init
+    (1) init -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . creartable PUNTOCOMA
+    (5) instruccion -> . creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA
+    (6) instruccion -> . createbase PUNTOCOMA
+    (7) instruccion -> . selecttable PUNTOCOMA
+    (8) instruccion -> . DROP TABLE ID PUNTOCOMA
+    (9) instruccion -> . altertable
+    (10) instruccion -> . ddm PUNTOCOMA
+    (11) instruccion -> . error
+    (28) creartable -> . CREATE TABLE ID PARENIN params PARENOUT
+    (12) createbase -> . CREATE DATABASE ID
+    (13) createbase -> . CREATE error DATABASE ID
+    (14) createbase -> . CREATE DATABASE error ID
+    (29) selecttable -> . SELECT selectclausules FROM selectbody
+    (30) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion
+    (31) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores
+    (32) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones
+    (15) altertable -> . ALTER TABLE ID
+    (16) altertable -> . ALTER COLUMN ID TYPE TIPODATO
+    (17) altertable -> . ALTER TABLE ID ADD COLUMN ID TIPODATO
+    (18) altertable -> . ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT
+    (19) altertable -> . ALTER TABLE ID DROP COLUMN ID
+    (20) altertable -> . ALTER TABLE ID DROP CONSTRAINT ID
+    (21) altertable -> . ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL
+    (22) ddm -> . INSERT INTO ID VALUES PARENIN valores PARENOUT
+    (23) ddm -> . UPDATE ID SET ID IGUAL valor wherecondicion
+    (24) ddm -> . UPDATE ID SET ID IGUAL valor
+    (25) ddm -> . DELETE FROM ID wherecondicion
+
+    DROP            shift and go to state 7
+    error           shift and go to state 10
+    CREATE          shift and go to state 11
+    SELECT          shift and go to state 12
+    ALTER           shift and go to state 13
+    INSERT          shift and go to state 14
+    UPDATE          shift and go to state 15
+    DELETE          shift and go to state 16
+
+    init                           shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    creartable                     shift and go to state 4
+    createbase                     shift and go to state 5
+    selecttable                    shift and go to state 6
+    altertable                     shift and go to state 8
+    ddm                            shift and go to state 9
+
+state 1
+
+    (0) S' -> init .
+
+
+
+state 2
+
+    (1) init -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . creartable PUNTOCOMA
+    (5) instruccion -> . creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA
+    (6) instruccion -> . createbase PUNTOCOMA
+    (7) instruccion -> . selecttable PUNTOCOMA
+    (8) instruccion -> . DROP TABLE ID PUNTOCOMA
+    (9) instruccion -> . altertable
+    (10) instruccion -> . ddm PUNTOCOMA
+    (11) instruccion -> . error
+    (28) creartable -> . CREATE TABLE ID PARENIN params PARENOUT
+    (12) createbase -> . CREATE DATABASE ID
+    (13) createbase -> . CREATE error DATABASE ID
+    (14) createbase -> . CREATE DATABASE error ID
+    (29) selecttable -> . SELECT selectclausules FROM selectbody
+    (30) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion
+    (31) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores
+    (32) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones
+    (15) altertable -> . ALTER TABLE ID
+    (16) altertable -> . ALTER COLUMN ID TYPE TIPODATO
+    (17) altertable -> . ALTER TABLE ID ADD COLUMN ID TIPODATO
+    (18) altertable -> . ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT
+    (19) altertable -> . ALTER TABLE ID DROP COLUMN ID
+    (20) altertable -> . ALTER TABLE ID DROP CONSTRAINT ID
+    (21) altertable -> . ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL
+    (22) ddm -> . INSERT INTO ID VALUES PARENIN valores PARENOUT
+    (23) ddm -> . UPDATE ID SET ID IGUAL valor wherecondicion
+    (24) ddm -> . UPDATE ID SET ID IGUAL valor
+    (25) ddm -> . DELETE FROM ID wherecondicion
+
+    $end            reduce using rule 1 (init -> instrucciones .)
+    DROP            shift and go to state 7
+    error           shift and go to state 10
+    CREATE          shift and go to state 11
+    SELECT          shift and go to state 12
+    ALTER           shift and go to state 13
+    INSERT          shift and go to state 14
+    UPDATE          shift and go to state 15
+    DELETE          shift and go to state 16
+
+    instruccion                    shift and go to state 17
+    creartable                     shift and go to state 4
+    createbase                     shift and go to state 5
+    selecttable                    shift and go to state 6
+    altertable                     shift and go to state 8
+    ddm                            shift and go to state 9
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    DROP            reduce using rule 3 (instrucciones -> instruccion .)
+    error           reduce using rule 3 (instrucciones -> instruccion .)
+    CREATE          reduce using rule 3 (instrucciones -> instruccion .)
+    SELECT          reduce using rule 3 (instrucciones -> instruccion .)
+    ALTER           reduce using rule 3 (instrucciones -> instruccion .)
+    INSERT          reduce using rule 3 (instrucciones -> instruccion .)
+    UPDATE          reduce using rule 3 (instrucciones -> instruccion .)
+    DELETE          reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> creartable . PUNTOCOMA
+    (5) instruccion -> creartable . INHERITS PARENIN ID PARENOUT PUNTOCOMA
+
+    PUNTOCOMA       shift and go to state 18
+    INHERITS        shift and go to state 19
+
+
+state 5
+
+    (6) instruccion -> createbase . PUNTOCOMA
+
+    PUNTOCOMA       shift and go to state 20
+
+
+state 6
+
+    (7) instruccion -> selecttable . PUNTOCOMA
+
+    PUNTOCOMA       shift and go to state 21
+
+
+state 7
+
+    (8) instruccion -> DROP . TABLE ID PUNTOCOMA
+
+    TABLE           shift and go to state 22
+
+
+state 8
+
+    (9) instruccion -> altertable .
+
+    DROP            reduce using rule 9 (instruccion -> altertable .)
+    error           reduce using rule 9 (instruccion -> altertable .)
+    CREATE          reduce using rule 9 (instruccion -> altertable .)
+    SELECT          reduce using rule 9 (instruccion -> altertable .)
+    ALTER           reduce using rule 9 (instruccion -> altertable .)
+    INSERT          reduce using rule 9 (instruccion -> altertable .)
+    UPDATE          reduce using rule 9 (instruccion -> altertable .)
+    DELETE          reduce using rule 9 (instruccion -> altertable .)
+    $end            reduce using rule 9 (instruccion -> altertable .)
+
+
+state 9
+
+    (10) instruccion -> ddm . PUNTOCOMA
+
+    PUNTOCOMA       shift and go to state 23
+
+
+state 10
+
+    (11) instruccion -> error .
+
+    DROP            reduce using rule 11 (instruccion -> error .)
+    error           reduce using rule 11 (instruccion -> error .)
+    CREATE          reduce using rule 11 (instruccion -> error .)
+    SELECT          reduce using rule 11 (instruccion -> error .)
+    ALTER           reduce using rule 11 (instruccion -> error .)
+    INSERT          reduce using rule 11 (instruccion -> error .)
+    UPDATE          reduce using rule 11 (instruccion -> error .)
+    DELETE          reduce using rule 11 (instruccion -> error .)
+    $end            reduce using rule 11 (instruccion -> error .)
+
+
+state 11
+
+    (28) creartable -> CREATE . TABLE ID PARENIN params PARENOUT
+    (12) createbase -> CREATE . DATABASE ID
+    (13) createbase -> CREATE . error DATABASE ID
+    (14) createbase -> CREATE . DATABASE error ID
+
+    TABLE           shift and go to state 24
+    DATABASE        shift and go to state 25
+    error           shift and go to state 26
+
+
+state 12
+
+    (29) selecttable -> SELECT . selectclausules FROM selectbody
+    (30) selecttable -> SELECT . selectclausules FROM selectbody wherecondicion
+    (31) selecttable -> SELECT . selectclausules FROM selectbody wherecondicion GROUP BY valores
+    (32) selecttable -> SELECT . selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones
+    (36) selectclausules -> . POR
+    (37) selectclausules -> . valores
+    (38) selectclausules -> . DISTINCT valores
+    (39) selectclausules -> . SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT
+    (43) valores -> . valores COMA valor
+    (44) valores -> . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    POR             shift and go to state 29
+    DISTINCT        shift and go to state 30
+    SUBSTRING       shift and go to state 31
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    selectclausules                shift and go to state 27
+    valores                        shift and go to state 28
+    valor                          shift and go to state 33
+
+state 13
+
+    (15) altertable -> ALTER . TABLE ID
+    (16) altertable -> ALTER . COLUMN ID TYPE TIPODATO
+    (17) altertable -> ALTER . TABLE ID ADD COLUMN ID TIPODATO
+    (18) altertable -> ALTER . TABLE ID ADD CHECK PARENIN condition PARENOUT
+    (19) altertable -> ALTER . TABLE ID DROP COLUMN ID
+    (20) altertable -> ALTER . TABLE ID DROP CONSTRAINT ID
+    (21) altertable -> ALTER . TABLE ID ALTER COLUMN ID SET NOT2 NULL
+
+    TABLE           shift and go to state 40
+    COLUMN          shift and go to state 41
+
+
+state 14
+
+    (22) ddm -> INSERT . INTO ID VALUES PARENIN valores PARENOUT
+
+    INTO            shift and go to state 42
+
+
+state 15
+
+    (23) ddm -> UPDATE . ID SET ID IGUAL valor wherecondicion
+    (24) ddm -> UPDATE . ID SET ID IGUAL valor
+
+    ID              shift and go to state 43
+
+
+state 16
+
+    (25) ddm -> DELETE . FROM ID wherecondicion
+
+    FROM            shift and go to state 44
+
+
+state 17
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    DROP            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    error           reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    CREATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    SELECT          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    ALTER           reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    INSERT          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    UPDATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    DELETE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 18
+
+    (4) instruccion -> creartable PUNTOCOMA .
+
+    DROP            reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+    error           reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+    CREATE          reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+    SELECT          reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+    ALTER           reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+    INSERT          reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+    UPDATE          reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+    DELETE          reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+    $end            reduce using rule 4 (instruccion -> creartable PUNTOCOMA .)
+
+
+state 19
+
+    (5) instruccion -> creartable INHERITS . PARENIN ID PARENOUT PUNTOCOMA
+
+    PARENIN         shift and go to state 45
+
+
+state 20
+
+    (6) instruccion -> createbase PUNTOCOMA .
+
+    DROP            reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+    error           reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+    CREATE          reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+    SELECT          reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+    ALTER           reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+    INSERT          reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+    UPDATE          reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+    DELETE          reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+    $end            reduce using rule 6 (instruccion -> createbase PUNTOCOMA .)
+
+
+state 21
+
+    (7) instruccion -> selecttable PUNTOCOMA .
+
+    DROP            reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+    error           reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+    CREATE          reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+    SELECT          reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+    ALTER           reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+    INSERT          reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+    UPDATE          reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+    DELETE          reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+    $end            reduce using rule 7 (instruccion -> selecttable PUNTOCOMA .)
+
+
+state 22
+
+    (8) instruccion -> DROP TABLE . ID PUNTOCOMA
+
+    ID              shift and go to state 46
+
+
+state 23
+
+    (10) instruccion -> ddm PUNTOCOMA .
+
+    DROP            reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+    error           reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+    CREATE          reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+    SELECT          reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+    ALTER           reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+    INSERT          reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+    UPDATE          reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+    DELETE          reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+    $end            reduce using rule 10 (instruccion -> ddm PUNTOCOMA .)
+
+
+state 24
+
+    (28) creartable -> CREATE TABLE . ID PARENIN params PARENOUT
+
+    ID              shift and go to state 47
+
+
+state 25
+
+    (12) createbase -> CREATE DATABASE . ID
+    (14) createbase -> CREATE DATABASE . error ID
+
+    ID              shift and go to state 48
+    error           shift and go to state 49
+
+
+state 26
+
+    (13) createbase -> CREATE error . DATABASE ID
+
+    DATABASE        shift and go to state 50
+
+
+state 27
+
+    (29) selecttable -> SELECT selectclausules . FROM selectbody
+    (30) selecttable -> SELECT selectclausules . FROM selectbody wherecondicion
+    (31) selecttable -> SELECT selectclausules . FROM selectbody wherecondicion GROUP BY valores
+    (32) selecttable -> SELECT selectclausules . FROM selectbody wherecondicion GROUP BY valores HAVING funciones
+
+    FROM            shift and go to state 51
+
+
+state 28
+
+    (37) selectclausules -> valores .
+    (43) valores -> valores . COMA valor
+
+    FROM            reduce using rule 37 (selectclausules -> valores .)
+    COMA            shift and go to state 52
+
+
+state 29
+
+    (36) selectclausules -> POR .
+
+    FROM            reduce using rule 36 (selectclausules -> POR .)
+
+
+state 30
+
+    (38) selectclausules -> DISTINCT . valores
+    (43) valores -> . valores COMA valor
+    (44) valores -> . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valores                        shift and go to state 53
+    valor                          shift and go to state 33
+
+state 31
+
+    (39) selectclausules -> SUBSTRING . PARENIN valor COMA valor COMA valor PARENOUT
+
+    PARENIN         shift and go to state 54
+
+
+state 32
+
+    (69) valor -> PARENIN . selecttable PARENOUT
+    (29) selecttable -> . SELECT selectclausules FROM selectbody
+    (30) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion
+    (31) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores
+    (32) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones
+
+    SELECT          shift and go to state 12
+
+    selecttable                    shift and go to state 55
+
+state 33
+
+    (44) valores -> valor .
+
+    COMA            reduce using rule 44 (valores -> valor .)
+    FROM            reduce using rule 44 (valores -> valor .)
+    PARENOUT        reduce using rule 44 (valores -> valor .)
+    HAVING          reduce using rule 44 (valores -> valor .)
+    PUNTOCOMA       reduce using rule 44 (valores -> valor .)
+
+
+state 34
+
+    (62) valor -> ENTERO .
+
+    COMA            reduce using rule 62 (valor -> ENTERO .)
+    FROM            reduce using rule 62 (valor -> ENTERO .)
+    PARENOUT        reduce using rule 62 (valor -> ENTERO .)
+    HAVING          reduce using rule 62 (valor -> ENTERO .)
+    PUNTOCOMA       reduce using rule 62 (valor -> ENTERO .)
+    BETWEEN         reduce using rule 62 (valor -> ENTERO .)
+    MENOR           reduce using rule 62 (valor -> ENTERO .)
+    MAYOR           reduce using rule 62 (valor -> ENTERO .)
+    MENOROIGUAL     reduce using rule 62 (valor -> ENTERO .)
+    MAYOROIGUAL     reduce using rule 62 (valor -> ENTERO .)
+    IGUALIGUAL      reduce using rule 62 (valor -> ENTERO .)
+    IGUAL           reduce using rule 62 (valor -> ENTERO .)
+    NOT2            reduce using rule 62 (valor -> ENTERO .)
+    IN              reduce using rule 62 (valor -> ENTERO .)
+    NOIGUAL         reduce using rule 62 (valor -> ENTERO .)
+    IS              reduce using rule 62 (valor -> ENTERO .)
+    WHERE           reduce using rule 62 (valor -> ENTERO .)
+    AND2            reduce using rule 62 (valor -> ENTERO .)
+    GROUP           reduce using rule 62 (valor -> ENTERO .)
+
+
+state 35
+
+    (63) valor -> DECIMAL .
+
+    COMA            reduce using rule 63 (valor -> DECIMAL .)
+    FROM            reduce using rule 63 (valor -> DECIMAL .)
+    PARENOUT        reduce using rule 63 (valor -> DECIMAL .)
+    HAVING          reduce using rule 63 (valor -> DECIMAL .)
+    PUNTOCOMA       reduce using rule 63 (valor -> DECIMAL .)
+    BETWEEN         reduce using rule 63 (valor -> DECIMAL .)
+    MENOR           reduce using rule 63 (valor -> DECIMAL .)
+    MAYOR           reduce using rule 63 (valor -> DECIMAL .)
+    MENOROIGUAL     reduce using rule 63 (valor -> DECIMAL .)
+    MAYOROIGUAL     reduce using rule 63 (valor -> DECIMAL .)
+    IGUALIGUAL      reduce using rule 63 (valor -> DECIMAL .)
+    IGUAL           reduce using rule 63 (valor -> DECIMAL .)
+    NOT2            reduce using rule 63 (valor -> DECIMAL .)
+    IN              reduce using rule 63 (valor -> DECIMAL .)
+    NOIGUAL         reduce using rule 63 (valor -> DECIMAL .)
+    IS              reduce using rule 63 (valor -> DECIMAL .)
+    WHERE           reduce using rule 63 (valor -> DECIMAL .)
+    AND2            reduce using rule 63 (valor -> DECIMAL .)
+    GROUP           reduce using rule 63 (valor -> DECIMAL .)
+
+
+state 36
+
+    (64) valor -> APOST . FECHA APOST
+
+    FECHA           shift and go to state 56
+
+
+state 37
+
+    (65) valor -> CADENA .
+
+    COMA            reduce using rule 65 (valor -> CADENA .)
+    FROM            reduce using rule 65 (valor -> CADENA .)
+    PARENOUT        reduce using rule 65 (valor -> CADENA .)
+    HAVING          reduce using rule 65 (valor -> CADENA .)
+    PUNTOCOMA       reduce using rule 65 (valor -> CADENA .)
+    BETWEEN         reduce using rule 65 (valor -> CADENA .)
+    MENOR           reduce using rule 65 (valor -> CADENA .)
+    MAYOR           reduce using rule 65 (valor -> CADENA .)
+    MENOROIGUAL     reduce using rule 65 (valor -> CADENA .)
+    MAYOROIGUAL     reduce using rule 65 (valor -> CADENA .)
+    IGUALIGUAL      reduce using rule 65 (valor -> CADENA .)
+    IGUAL           reduce using rule 65 (valor -> CADENA .)
+    NOT2            reduce using rule 65 (valor -> CADENA .)
+    IN              reduce using rule 65 (valor -> CADENA .)
+    NOIGUAL         reduce using rule 65 (valor -> CADENA .)
+    IS              reduce using rule 65 (valor -> CADENA .)
+    WHERE           reduce using rule 65 (valor -> CADENA .)
+    AND2            reduce using rule 65 (valor -> CADENA .)
+    GROUP           reduce using rule 65 (valor -> CADENA .)
+
+
+state 38
+
+    (66) valor -> CADENA2 .
+
+    COMA            reduce using rule 66 (valor -> CADENA2 .)
+    FROM            reduce using rule 66 (valor -> CADENA2 .)
+    PARENOUT        reduce using rule 66 (valor -> CADENA2 .)
+    HAVING          reduce using rule 66 (valor -> CADENA2 .)
+    PUNTOCOMA       reduce using rule 66 (valor -> CADENA2 .)
+    BETWEEN         reduce using rule 66 (valor -> CADENA2 .)
+    MENOR           reduce using rule 66 (valor -> CADENA2 .)
+    MAYOR           reduce using rule 66 (valor -> CADENA2 .)
+    MENOROIGUAL     reduce using rule 66 (valor -> CADENA2 .)
+    MAYOROIGUAL     reduce using rule 66 (valor -> CADENA2 .)
+    IGUALIGUAL      reduce using rule 66 (valor -> CADENA2 .)
+    IGUAL           reduce using rule 66 (valor -> CADENA2 .)
+    NOT2            reduce using rule 66 (valor -> CADENA2 .)
+    IN              reduce using rule 66 (valor -> CADENA2 .)
+    NOIGUAL         reduce using rule 66 (valor -> CADENA2 .)
+    IS              reduce using rule 66 (valor -> CADENA2 .)
+    WHERE           reduce using rule 66 (valor -> CADENA2 .)
+    AND2            reduce using rule 66 (valor -> CADENA2 .)
+    GROUP           reduce using rule 66 (valor -> CADENA2 .)
+
+
+state 39
+
+    (67) valor -> ID .
+    (68) valor -> ID . PUNTO ID
+
+    COMA            reduce using rule 67 (valor -> ID .)
+    FROM            reduce using rule 67 (valor -> ID .)
+    PARENOUT        reduce using rule 67 (valor -> ID .)
+    HAVING          reduce using rule 67 (valor -> ID .)
+    PUNTOCOMA       reduce using rule 67 (valor -> ID .)
+    BETWEEN         reduce using rule 67 (valor -> ID .)
+    MENOR           reduce using rule 67 (valor -> ID .)
+    MAYOR           reduce using rule 67 (valor -> ID .)
+    MENOROIGUAL     reduce using rule 67 (valor -> ID .)
+    MAYOROIGUAL     reduce using rule 67 (valor -> ID .)
+    IGUALIGUAL      reduce using rule 67 (valor -> ID .)
+    IGUAL           reduce using rule 67 (valor -> ID .)
+    NOT2            reduce using rule 67 (valor -> ID .)
+    IN              reduce using rule 67 (valor -> ID .)
+    NOIGUAL         reduce using rule 67 (valor -> ID .)
+    IS              reduce using rule 67 (valor -> ID .)
+    WHERE           reduce using rule 67 (valor -> ID .)
+    AND2            reduce using rule 67 (valor -> ID .)
+    GROUP           reduce using rule 67 (valor -> ID .)
+    PUNTO           shift and go to state 57
+
+
+state 40
+
+    (15) altertable -> ALTER TABLE . ID
+    (17) altertable -> ALTER TABLE . ID ADD COLUMN ID TIPODATO
+    (18) altertable -> ALTER TABLE . ID ADD CHECK PARENIN condition PARENOUT
+    (19) altertable -> ALTER TABLE . ID DROP COLUMN ID
+    (20) altertable -> ALTER TABLE . ID DROP CONSTRAINT ID
+    (21) altertable -> ALTER TABLE . ID ALTER COLUMN ID SET NOT2 NULL
+
+    ID              shift and go to state 58
+
+
+state 41
+
+    (16) altertable -> ALTER COLUMN . ID TYPE TIPODATO
+
+    ID              shift and go to state 59
+
+
+state 42
+
+    (22) ddm -> INSERT INTO . ID VALUES PARENIN valores PARENOUT
+
+    ID              shift and go to state 60
+
+
+state 43
+
+    (23) ddm -> UPDATE ID . SET ID IGUAL valor wherecondicion
+    (24) ddm -> UPDATE ID . SET ID IGUAL valor
+
+    SET             shift and go to state 61
+
+
+state 44
+
+    (25) ddm -> DELETE FROM . ID wherecondicion
+
+    ID              shift and go to state 62
+
+
+state 45
+
+    (5) instruccion -> creartable INHERITS PARENIN . ID PARENOUT PUNTOCOMA
+
+    ID              shift and go to state 63
+
+
+state 46
+
+    (8) instruccion -> DROP TABLE ID . PUNTOCOMA
+
+    PUNTOCOMA       shift and go to state 64
+
+
+state 47
+
+    (28) creartable -> CREATE TABLE ID . PARENIN params PARENOUT
+
+    PARENIN         shift and go to state 65
+
+
+state 48
+
+    (12) createbase -> CREATE DATABASE ID .
+
+    PUNTOCOMA       reduce using rule 12 (createbase -> CREATE DATABASE ID .)
+
+
+state 49
+
+    (14) createbase -> CREATE DATABASE error . ID
+
+    ID              shift and go to state 66
+
+
+state 50
+
+    (13) createbase -> CREATE error DATABASE . ID
+
+    ID              shift and go to state 67
+
+
+state 51
+
+    (29) selecttable -> SELECT selectclausules FROM . selectbody
+    (30) selecttable -> SELECT selectclausules FROM . selectbody wherecondicion
+    (31) selecttable -> SELECT selectclausules FROM . selectbody wherecondicion GROUP BY valores
+    (32) selecttable -> SELECT selectclausules FROM . selectbody wherecondicion GROUP BY valores HAVING funciones
+    (33) selectbody -> . ID
+    (34) selectbody -> . PARENIN selecttable PARENOUT
+    (35) selectbody -> . ID ID
+
+    ID              shift and go to state 69
+    PARENIN         shift and go to state 70
+
+    selectbody                     shift and go to state 68
+
+state 52
+
+    (43) valores -> valores COMA . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 71
+
+state 53
+
+    (38) selectclausules -> DISTINCT valores .
+    (43) valores -> valores . COMA valor
+
+    FROM            reduce using rule 38 (selectclausules -> DISTINCT valores .)
+    COMA            shift and go to state 52
+
+
+state 54
+
+    (39) selectclausules -> SUBSTRING PARENIN . valor COMA valor COMA valor PARENOUT
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 72
+
+state 55
+
+    (69) valor -> PARENIN selecttable . PARENOUT
+
+    PARENOUT        shift and go to state 73
+
+
+state 56
+
+    (64) valor -> APOST FECHA . APOST
+
+    APOST           shift and go to state 74
+
+
+state 57
+
+    (68) valor -> ID PUNTO . ID
+
+    ID              shift and go to state 75
+
+
+state 58
+
+    (15) altertable -> ALTER TABLE ID .
+    (17) altertable -> ALTER TABLE ID . ADD COLUMN ID TIPODATO
+    (18) altertable -> ALTER TABLE ID . ADD CHECK PARENIN condition PARENOUT
+    (19) altertable -> ALTER TABLE ID . DROP COLUMN ID
+    (20) altertable -> ALTER TABLE ID . DROP CONSTRAINT ID
+    (21) altertable -> ALTER TABLE ID . ALTER COLUMN ID SET NOT2 NULL
+
+  ! shift/reduce conflict for DROP resolved as shift
+  ! shift/reduce conflict for ALTER resolved as shift
+    error           reduce using rule 15 (altertable -> ALTER TABLE ID .)
+    CREATE          reduce using rule 15 (altertable -> ALTER TABLE ID .)
+    SELECT          reduce using rule 15 (altertable -> ALTER TABLE ID .)
+    INSERT          reduce using rule 15 (altertable -> ALTER TABLE ID .)
+    UPDATE          reduce using rule 15 (altertable -> ALTER TABLE ID .)
+    DELETE          reduce using rule 15 (altertable -> ALTER TABLE ID .)
+    $end            reduce using rule 15 (altertable -> ALTER TABLE ID .)
+    ADD             shift and go to state 77
+    DROP            shift and go to state 78
+    ALTER           shift and go to state 76
+
+  ! DROP            [ reduce using rule 15 (altertable -> ALTER TABLE ID .) ]
+  ! ALTER           [ reduce using rule 15 (altertable -> ALTER TABLE ID .) ]
+
+
+state 59
+
+    (16) altertable -> ALTER COLUMN ID . TYPE TIPODATO
+
+    TYPE            shift and go to state 79
+
+
+state 60
+
+    (22) ddm -> INSERT INTO ID . VALUES PARENIN valores PARENOUT
+
+    VALUES          shift and go to state 80
+
+
+state 61
+
+    (23) ddm -> UPDATE ID SET . ID IGUAL valor wherecondicion
+    (24) ddm -> UPDATE ID SET . ID IGUAL valor
+
+    ID              shift and go to state 81
+
+
+state 62
+
+    (25) ddm -> DELETE FROM ID . wherecondicion
+    (26) wherecondicion -> . WHERE condition
+    (27) wherecondicion -> . WHERE condition AND2 condition
+
+    WHERE           shift and go to state 83
+
+    wherecondicion                 shift and go to state 82
+
+state 63
+
+    (5) instruccion -> creartable INHERITS PARENIN ID . PARENOUT PUNTOCOMA
+
+    PARENOUT        shift and go to state 84
+
+
+state 64
+
+    (8) instruccion -> DROP TABLE ID PUNTOCOMA .
+
+    DROP            reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+    error           reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+    CREATE          reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+    SELECT          reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+    ALTER           reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+    INSERT          reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+    UPDATE          reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+    DELETE          reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+    $end            reduce using rule 8 (instruccion -> DROP TABLE ID PUNTOCOMA .)
+
+
+state 65
+
+    (28) creartable -> CREATE TABLE ID PARENIN . params PARENOUT
+    (41) params -> . params COMA expresion
+    (42) params -> . expresion
+    (45) expresion -> . ID TIPODATO
+    (46) expresion -> . PRIMARY KEY PARENIN ID PARENOUT
+    (47) expresion -> . FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT
+
+    ID              shift and go to state 85
+    PRIMARY         shift and go to state 88
+    FOREIGN         shift and go to state 89
+
+    params                         shift and go to state 86
+    expresion                      shift and go to state 87
+
+state 66
+
+    (14) createbase -> CREATE DATABASE error ID .
+
+    PUNTOCOMA       reduce using rule 14 (createbase -> CREATE DATABASE error ID .)
+
+
+state 67
+
+    (13) createbase -> CREATE error DATABASE ID .
+
+    PUNTOCOMA       reduce using rule 13 (createbase -> CREATE error DATABASE ID .)
+
+
+state 68
+
+    (29) selecttable -> SELECT selectclausules FROM selectbody .
+    (30) selecttable -> SELECT selectclausules FROM selectbody . wherecondicion
+    (31) selecttable -> SELECT selectclausules FROM selectbody . wherecondicion GROUP BY valores
+    (32) selecttable -> SELECT selectclausules FROM selectbody . wherecondicion GROUP BY valores HAVING funciones
+    (26) wherecondicion -> . WHERE condition
+    (27) wherecondicion -> . WHERE condition AND2 condition
+
+    PUNTOCOMA       reduce using rule 29 (selecttable -> SELECT selectclausules FROM selectbody .)
+    PARENOUT        reduce using rule 29 (selecttable -> SELECT selectclausules FROM selectbody .)
+    WHERE           shift and go to state 83
+
+    wherecondicion                 shift and go to state 90
+
+state 69
+
+    (33) selectbody -> ID .
+    (35) selectbody -> ID . ID
+
+    WHERE           reduce using rule 33 (selectbody -> ID .)
+    PUNTOCOMA       reduce using rule 33 (selectbody -> ID .)
+    PARENOUT        reduce using rule 33 (selectbody -> ID .)
+    ID              shift and go to state 91
+
+
+state 70
+
+    (34) selectbody -> PARENIN . selecttable PARENOUT
+    (29) selecttable -> . SELECT selectclausules FROM selectbody
+    (30) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion
+    (31) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores
+    (32) selecttable -> . SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones
+
+    SELECT          shift and go to state 12
+
+    selecttable                    shift and go to state 92
+
+state 71
+
+    (43) valores -> valores COMA valor .
+
+    COMA            reduce using rule 43 (valores -> valores COMA valor .)
+    FROM            reduce using rule 43 (valores -> valores COMA valor .)
+    PARENOUT        reduce using rule 43 (valores -> valores COMA valor .)
+    HAVING          reduce using rule 43 (valores -> valores COMA valor .)
+    PUNTOCOMA       reduce using rule 43 (valores -> valores COMA valor .)
+
+
+state 72
+
+    (39) selectclausules -> SUBSTRING PARENIN valor . COMA valor COMA valor PARENOUT
+
+    COMA            shift and go to state 93
+
+
+state 73
+
+    (69) valor -> PARENIN selecttable PARENOUT .
+
+    COMA            reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    FROM            reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    PARENOUT        reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    HAVING          reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    PUNTOCOMA       reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    BETWEEN         reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    MENOR           reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    MAYOR           reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    MENOROIGUAL     reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    MAYOROIGUAL     reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    IGUALIGUAL      reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    IGUAL           reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    NOT2            reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    IN              reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    NOIGUAL         reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    IS              reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    WHERE           reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    AND2            reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+    GROUP           reduce using rule 69 (valor -> PARENIN selecttable PARENOUT .)
+
+
+state 74
+
+    (64) valor -> APOST FECHA APOST .
+
+    COMA            reduce using rule 64 (valor -> APOST FECHA APOST .)
+    FROM            reduce using rule 64 (valor -> APOST FECHA APOST .)
+    PARENOUT        reduce using rule 64 (valor -> APOST FECHA APOST .)
+    HAVING          reduce using rule 64 (valor -> APOST FECHA APOST .)
+    PUNTOCOMA       reduce using rule 64 (valor -> APOST FECHA APOST .)
+    BETWEEN         reduce using rule 64 (valor -> APOST FECHA APOST .)
+    MENOR           reduce using rule 64 (valor -> APOST FECHA APOST .)
+    MAYOR           reduce using rule 64 (valor -> APOST FECHA APOST .)
+    MENOROIGUAL     reduce using rule 64 (valor -> APOST FECHA APOST .)
+    MAYOROIGUAL     reduce using rule 64 (valor -> APOST FECHA APOST .)
+    IGUALIGUAL      reduce using rule 64 (valor -> APOST FECHA APOST .)
+    IGUAL           reduce using rule 64 (valor -> APOST FECHA APOST .)
+    NOT2            reduce using rule 64 (valor -> APOST FECHA APOST .)
+    IN              reduce using rule 64 (valor -> APOST FECHA APOST .)
+    NOIGUAL         reduce using rule 64 (valor -> APOST FECHA APOST .)
+    IS              reduce using rule 64 (valor -> APOST FECHA APOST .)
+    WHERE           reduce using rule 64 (valor -> APOST FECHA APOST .)
+    AND2            reduce using rule 64 (valor -> APOST FECHA APOST .)
+    GROUP           reduce using rule 64 (valor -> APOST FECHA APOST .)
+
+
+state 75
+
+    (68) valor -> ID PUNTO ID .
+
+    COMA            reduce using rule 68 (valor -> ID PUNTO ID .)
+    FROM            reduce using rule 68 (valor -> ID PUNTO ID .)
+    PARENOUT        reduce using rule 68 (valor -> ID PUNTO ID .)
+    HAVING          reduce using rule 68 (valor -> ID PUNTO ID .)
+    PUNTOCOMA       reduce using rule 68 (valor -> ID PUNTO ID .)
+    BETWEEN         reduce using rule 68 (valor -> ID PUNTO ID .)
+    MENOR           reduce using rule 68 (valor -> ID PUNTO ID .)
+    MAYOR           reduce using rule 68 (valor -> ID PUNTO ID .)
+    MENOROIGUAL     reduce using rule 68 (valor -> ID PUNTO ID .)
+    MAYOROIGUAL     reduce using rule 68 (valor -> ID PUNTO ID .)
+    IGUALIGUAL      reduce using rule 68 (valor -> ID PUNTO ID .)
+    IGUAL           reduce using rule 68 (valor -> ID PUNTO ID .)
+    NOT2            reduce using rule 68 (valor -> ID PUNTO ID .)
+    IN              reduce using rule 68 (valor -> ID PUNTO ID .)
+    NOIGUAL         reduce using rule 68 (valor -> ID PUNTO ID .)
+    IS              reduce using rule 68 (valor -> ID PUNTO ID .)
+    WHERE           reduce using rule 68 (valor -> ID PUNTO ID .)
+    AND2            reduce using rule 68 (valor -> ID PUNTO ID .)
+    GROUP           reduce using rule 68 (valor -> ID PUNTO ID .)
+
+
+state 76
+
+    (21) altertable -> ALTER TABLE ID ALTER . COLUMN ID SET NOT2 NULL
+
+    COLUMN          shift and go to state 94
+
+
+state 77
+
+    (17) altertable -> ALTER TABLE ID ADD . COLUMN ID TIPODATO
+    (18) altertable -> ALTER TABLE ID ADD . CHECK PARENIN condition PARENOUT
+
+    COLUMN          shift and go to state 95
+    CHECK           shift and go to state 96
+
+
+state 78
+
+    (19) altertable -> ALTER TABLE ID DROP . COLUMN ID
+    (20) altertable -> ALTER TABLE ID DROP . CONSTRAINT ID
+
+    COLUMN          shift and go to state 97
+    CONSTRAINT      shift and go to state 98
+
+
+state 79
+
+    (16) altertable -> ALTER COLUMN ID TYPE . TIPODATO
+    (70) TIPODATO -> . TEXT
+    (71) TIPODATO -> . SMALLINT
+    (72) TIPODATO -> . INTEGER
+    (73) TIPODATO -> . INT
+    (74) TIPODATO -> . BIGINT
+    (75) TIPODATO -> . DECIMAL2
+    (76) TIPODATO -> . NUMERIC
+    (77) TIPODATO -> . REAL
+    (78) TIPODATO -> . DOUBLE
+    (79) TIPODATO -> . CHARACTER
+    (80) TIPODATO -> . CHAR PARENIN ENTERO PARENOUT
+    (81) TIPODATO -> . TIMESTAMP
+    (82) TIPODATO -> . DATETIME
+    (83) TIPODATO -> . FLOAT
+    (84) TIPODATO -> . DATE
+    (85) TIPODATO -> . MONEY
+    (86) TIPODATO -> . VARCHAR PARENIN ENTERO PARENOUT
+
+    TEXT            shift and go to state 100
+    SMALLINT        shift and go to state 101
+    INTEGER         shift and go to state 102
+    INT             shift and go to state 103
+    BIGINT          shift and go to state 104
+    DECIMAL2        shift and go to state 105
+    NUMERIC         shift and go to state 106
+    REAL            shift and go to state 107
+    DOUBLE          shift and go to state 108
+    CHARACTER       shift and go to state 109
+    CHAR            shift and go to state 110
+    TIMESTAMP       shift and go to state 111
+    DATETIME        shift and go to state 112
+    FLOAT           shift and go to state 113
+    DATE            shift and go to state 114
+    MONEY           shift and go to state 115
+    VARCHAR         shift and go to state 116
+
+    TIPODATO                       shift and go to state 99
+
+state 80
+
+    (22) ddm -> INSERT INTO ID VALUES . PARENIN valores PARENOUT
+
+    PARENIN         shift and go to state 117
+
+
+state 81
+
+    (23) ddm -> UPDATE ID SET ID . IGUAL valor wherecondicion
+    (24) ddm -> UPDATE ID SET ID . IGUAL valor
+
+    IGUAL           shift and go to state 118
+
+
+state 82
+
+    (25) ddm -> DELETE FROM ID wherecondicion .
+
+    PUNTOCOMA       reduce using rule 25 (ddm -> DELETE FROM ID wherecondicion .)
+
+
+state 83
+
+    (26) wherecondicion -> WHERE . condition
+    (27) wherecondicion -> WHERE . condition AND2 condition
+    (48) condition -> . valor signos valor
+    (49) condition -> . valor BETWEEN valor AND2 valor
+    (50) condition -> . SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    SUBSTRING       shift and go to state 121
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    condition                      shift and go to state 119
+    valor                          shift and go to state 120
+
+state 84
+
+    (5) instruccion -> creartable INHERITS PARENIN ID PARENOUT . PUNTOCOMA
+
+    PUNTOCOMA       shift and go to state 122
+
+
+state 85
+
+    (45) expresion -> ID . TIPODATO
+    (70) TIPODATO -> . TEXT
+    (71) TIPODATO -> . SMALLINT
+    (72) TIPODATO -> . INTEGER
+    (73) TIPODATO -> . INT
+    (74) TIPODATO -> . BIGINT
+    (75) TIPODATO -> . DECIMAL2
+    (76) TIPODATO -> . NUMERIC
+    (77) TIPODATO -> . REAL
+    (78) TIPODATO -> . DOUBLE
+    (79) TIPODATO -> . CHARACTER
+    (80) TIPODATO -> . CHAR PARENIN ENTERO PARENOUT
+    (81) TIPODATO -> . TIMESTAMP
+    (82) TIPODATO -> . DATETIME
+    (83) TIPODATO -> . FLOAT
+    (84) TIPODATO -> . DATE
+    (85) TIPODATO -> . MONEY
+    (86) TIPODATO -> . VARCHAR PARENIN ENTERO PARENOUT
+
+    TEXT            shift and go to state 100
+    SMALLINT        shift and go to state 101
+    INTEGER         shift and go to state 102
+    INT             shift and go to state 103
+    BIGINT          shift and go to state 104
+    DECIMAL2        shift and go to state 105
+    NUMERIC         shift and go to state 106
+    REAL            shift and go to state 107
+    DOUBLE          shift and go to state 108
+    CHARACTER       shift and go to state 109
+    CHAR            shift and go to state 110
+    TIMESTAMP       shift and go to state 111
+    DATETIME        shift and go to state 112
+    FLOAT           shift and go to state 113
+    DATE            shift and go to state 114
+    MONEY           shift and go to state 115
+    VARCHAR         shift and go to state 116
+
+    TIPODATO                       shift and go to state 123
+
+state 86
+
+    (28) creartable -> CREATE TABLE ID PARENIN params . PARENOUT
+    (41) params -> params . COMA expresion
+
+    PARENOUT        shift and go to state 124
+    COMA            shift and go to state 125
+
+
+state 87
+
+    (42) params -> expresion .
+
+    PARENOUT        reduce using rule 42 (params -> expresion .)
+    COMA            reduce using rule 42 (params -> expresion .)
+
+
+state 88
+
+    (46) expresion -> PRIMARY . KEY PARENIN ID PARENOUT
+
+    KEY             shift and go to state 126
+
+
+state 89
+
+    (47) expresion -> FOREIGN . KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT
+
+    KEY             shift and go to state 127
+
+
+state 90
+
+    (30) selecttable -> SELECT selectclausules FROM selectbody wherecondicion .
+    (31) selecttable -> SELECT selectclausules FROM selectbody wherecondicion . GROUP BY valores
+    (32) selecttable -> SELECT selectclausules FROM selectbody wherecondicion . GROUP BY valores HAVING funciones
+
+    PUNTOCOMA       reduce using rule 30 (selecttable -> SELECT selectclausules FROM selectbody wherecondicion .)
+    PARENOUT        reduce using rule 30 (selecttable -> SELECT selectclausules FROM selectbody wherecondicion .)
+    GROUP           shift and go to state 128
+
+
+state 91
+
+    (35) selectbody -> ID ID .
+
+    WHERE           reduce using rule 35 (selectbody -> ID ID .)
+    PUNTOCOMA       reduce using rule 35 (selectbody -> ID ID .)
+    PARENOUT        reduce using rule 35 (selectbody -> ID ID .)
+
+
+state 92
+
+    (34) selectbody -> PARENIN selecttable . PARENOUT
+
+    PARENOUT        shift and go to state 129
+
+
+state 93
+
+    (39) selectclausules -> SUBSTRING PARENIN valor COMA . valor COMA valor PARENOUT
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 130
+
+state 94
+
+    (21) altertable -> ALTER TABLE ID ALTER COLUMN . ID SET NOT2 NULL
+
+    ID              shift and go to state 131
+
+
+state 95
+
+    (17) altertable -> ALTER TABLE ID ADD COLUMN . ID TIPODATO
+
+    ID              shift and go to state 132
+
+
+state 96
+
+    (18) altertable -> ALTER TABLE ID ADD CHECK . PARENIN condition PARENOUT
+
+    PARENIN         shift and go to state 133
+
+
+state 97
+
+    (19) altertable -> ALTER TABLE ID DROP COLUMN . ID
+
+    ID              shift and go to state 134
+
+
+state 98
+
+    (20) altertable -> ALTER TABLE ID DROP CONSTRAINT . ID
+
+    ID              shift and go to state 135
+
+
+state 99
+
+    (16) altertable -> ALTER COLUMN ID TYPE TIPODATO .
+
+    DROP            reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+    error           reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+    CREATE          reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+    SELECT          reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+    ALTER           reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+    INSERT          reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+    UPDATE          reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+    DELETE          reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+    $end            reduce using rule 16 (altertable -> ALTER COLUMN ID TYPE TIPODATO .)
+
+
+state 100
+
+    (70) TIPODATO -> TEXT .
+
+    DROP            reduce using rule 70 (TIPODATO -> TEXT .)
+    error           reduce using rule 70 (TIPODATO -> TEXT .)
+    CREATE          reduce using rule 70 (TIPODATO -> TEXT .)
+    SELECT          reduce using rule 70 (TIPODATO -> TEXT .)
+    ALTER           reduce using rule 70 (TIPODATO -> TEXT .)
+    INSERT          reduce using rule 70 (TIPODATO -> TEXT .)
+    UPDATE          reduce using rule 70 (TIPODATO -> TEXT .)
+    DELETE          reduce using rule 70 (TIPODATO -> TEXT .)
+    $end            reduce using rule 70 (TIPODATO -> TEXT .)
+    PARENOUT        reduce using rule 70 (TIPODATO -> TEXT .)
+    COMA            reduce using rule 70 (TIPODATO -> TEXT .)
+
+
+state 101
+
+    (71) TIPODATO -> SMALLINT .
+
+    DROP            reduce using rule 71 (TIPODATO -> SMALLINT .)
+    error           reduce using rule 71 (TIPODATO -> SMALLINT .)
+    CREATE          reduce using rule 71 (TIPODATO -> SMALLINT .)
+    SELECT          reduce using rule 71 (TIPODATO -> SMALLINT .)
+    ALTER           reduce using rule 71 (TIPODATO -> SMALLINT .)
+    INSERT          reduce using rule 71 (TIPODATO -> SMALLINT .)
+    UPDATE          reduce using rule 71 (TIPODATO -> SMALLINT .)
+    DELETE          reduce using rule 71 (TIPODATO -> SMALLINT .)
+    $end            reduce using rule 71 (TIPODATO -> SMALLINT .)
+    PARENOUT        reduce using rule 71 (TIPODATO -> SMALLINT .)
+    COMA            reduce using rule 71 (TIPODATO -> SMALLINT .)
+
+
+state 102
+
+    (72) TIPODATO -> INTEGER .
+
+    DROP            reduce using rule 72 (TIPODATO -> INTEGER .)
+    error           reduce using rule 72 (TIPODATO -> INTEGER .)
+    CREATE          reduce using rule 72 (TIPODATO -> INTEGER .)
+    SELECT          reduce using rule 72 (TIPODATO -> INTEGER .)
+    ALTER           reduce using rule 72 (TIPODATO -> INTEGER .)
+    INSERT          reduce using rule 72 (TIPODATO -> INTEGER .)
+    UPDATE          reduce using rule 72 (TIPODATO -> INTEGER .)
+    DELETE          reduce using rule 72 (TIPODATO -> INTEGER .)
+    $end            reduce using rule 72 (TIPODATO -> INTEGER .)
+    PARENOUT        reduce using rule 72 (TIPODATO -> INTEGER .)
+    COMA            reduce using rule 72 (TIPODATO -> INTEGER .)
+
+
+state 103
+
+    (73) TIPODATO -> INT .
+
+    DROP            reduce using rule 73 (TIPODATO -> INT .)
+    error           reduce using rule 73 (TIPODATO -> INT .)
+    CREATE          reduce using rule 73 (TIPODATO -> INT .)
+    SELECT          reduce using rule 73 (TIPODATO -> INT .)
+    ALTER           reduce using rule 73 (TIPODATO -> INT .)
+    INSERT          reduce using rule 73 (TIPODATO -> INT .)
+    UPDATE          reduce using rule 73 (TIPODATO -> INT .)
+    DELETE          reduce using rule 73 (TIPODATO -> INT .)
+    $end            reduce using rule 73 (TIPODATO -> INT .)
+    PARENOUT        reduce using rule 73 (TIPODATO -> INT .)
+    COMA            reduce using rule 73 (TIPODATO -> INT .)
+
+
+state 104
+
+    (74) TIPODATO -> BIGINT .
+
+    DROP            reduce using rule 74 (TIPODATO -> BIGINT .)
+    error           reduce using rule 74 (TIPODATO -> BIGINT .)
+    CREATE          reduce using rule 74 (TIPODATO -> BIGINT .)
+    SELECT          reduce using rule 74 (TIPODATO -> BIGINT .)
+    ALTER           reduce using rule 74 (TIPODATO -> BIGINT .)
+    INSERT          reduce using rule 74 (TIPODATO -> BIGINT .)
+    UPDATE          reduce using rule 74 (TIPODATO -> BIGINT .)
+    DELETE          reduce using rule 74 (TIPODATO -> BIGINT .)
+    $end            reduce using rule 74 (TIPODATO -> BIGINT .)
+    PARENOUT        reduce using rule 74 (TIPODATO -> BIGINT .)
+    COMA            reduce using rule 74 (TIPODATO -> BIGINT .)
+
+
+state 105
+
+    (75) TIPODATO -> DECIMAL2 .
+
+    DROP            reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    error           reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    CREATE          reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    SELECT          reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    ALTER           reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    INSERT          reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    UPDATE          reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    DELETE          reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    $end            reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    PARENOUT        reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+    COMA            reduce using rule 75 (TIPODATO -> DECIMAL2 .)
+
+
+state 106
+
+    (76) TIPODATO -> NUMERIC .
+
+    DROP            reduce using rule 76 (TIPODATO -> NUMERIC .)
+    error           reduce using rule 76 (TIPODATO -> NUMERIC .)
+    CREATE          reduce using rule 76 (TIPODATO -> NUMERIC .)
+    SELECT          reduce using rule 76 (TIPODATO -> NUMERIC .)
+    ALTER           reduce using rule 76 (TIPODATO -> NUMERIC .)
+    INSERT          reduce using rule 76 (TIPODATO -> NUMERIC .)
+    UPDATE          reduce using rule 76 (TIPODATO -> NUMERIC .)
+    DELETE          reduce using rule 76 (TIPODATO -> NUMERIC .)
+    $end            reduce using rule 76 (TIPODATO -> NUMERIC .)
+    PARENOUT        reduce using rule 76 (TIPODATO -> NUMERIC .)
+    COMA            reduce using rule 76 (TIPODATO -> NUMERIC .)
+
+
+state 107
+
+    (77) TIPODATO -> REAL .
+
+    DROP            reduce using rule 77 (TIPODATO -> REAL .)
+    error           reduce using rule 77 (TIPODATO -> REAL .)
+    CREATE          reduce using rule 77 (TIPODATO -> REAL .)
+    SELECT          reduce using rule 77 (TIPODATO -> REAL .)
+    ALTER           reduce using rule 77 (TIPODATO -> REAL .)
+    INSERT          reduce using rule 77 (TIPODATO -> REAL .)
+    UPDATE          reduce using rule 77 (TIPODATO -> REAL .)
+    DELETE          reduce using rule 77 (TIPODATO -> REAL .)
+    $end            reduce using rule 77 (TIPODATO -> REAL .)
+    PARENOUT        reduce using rule 77 (TIPODATO -> REAL .)
+    COMA            reduce using rule 77 (TIPODATO -> REAL .)
+
+
+state 108
+
+    (78) TIPODATO -> DOUBLE .
+
+    DROP            reduce using rule 78 (TIPODATO -> DOUBLE .)
+    error           reduce using rule 78 (TIPODATO -> DOUBLE .)
+    CREATE          reduce using rule 78 (TIPODATO -> DOUBLE .)
+    SELECT          reduce using rule 78 (TIPODATO -> DOUBLE .)
+    ALTER           reduce using rule 78 (TIPODATO -> DOUBLE .)
+    INSERT          reduce using rule 78 (TIPODATO -> DOUBLE .)
+    UPDATE          reduce using rule 78 (TIPODATO -> DOUBLE .)
+    DELETE          reduce using rule 78 (TIPODATO -> DOUBLE .)
+    $end            reduce using rule 78 (TIPODATO -> DOUBLE .)
+    PARENOUT        reduce using rule 78 (TIPODATO -> DOUBLE .)
+    COMA            reduce using rule 78 (TIPODATO -> DOUBLE .)
+
+
+state 109
+
+    (79) TIPODATO -> CHARACTER .
+
+    DROP            reduce using rule 79 (TIPODATO -> CHARACTER .)
+    error           reduce using rule 79 (TIPODATO -> CHARACTER .)
+    CREATE          reduce using rule 79 (TIPODATO -> CHARACTER .)
+    SELECT          reduce using rule 79 (TIPODATO -> CHARACTER .)
+    ALTER           reduce using rule 79 (TIPODATO -> CHARACTER .)
+    INSERT          reduce using rule 79 (TIPODATO -> CHARACTER .)
+    UPDATE          reduce using rule 79 (TIPODATO -> CHARACTER .)
+    DELETE          reduce using rule 79 (TIPODATO -> CHARACTER .)
+    $end            reduce using rule 79 (TIPODATO -> CHARACTER .)
+    PARENOUT        reduce using rule 79 (TIPODATO -> CHARACTER .)
+    COMA            reduce using rule 79 (TIPODATO -> CHARACTER .)
+
+
+state 110
+
+    (80) TIPODATO -> CHAR . PARENIN ENTERO PARENOUT
+
+    PARENIN         shift and go to state 136
+
+
+state 111
+
+    (81) TIPODATO -> TIMESTAMP .
+
+    DROP            reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    error           reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    CREATE          reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    SELECT          reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    ALTER           reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    INSERT          reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    UPDATE          reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    DELETE          reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    $end            reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    PARENOUT        reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+    COMA            reduce using rule 81 (TIPODATO -> TIMESTAMP .)
+
+
+state 112
+
+    (82) TIPODATO -> DATETIME .
+
+    DROP            reduce using rule 82 (TIPODATO -> DATETIME .)
+    error           reduce using rule 82 (TIPODATO -> DATETIME .)
+    CREATE          reduce using rule 82 (TIPODATO -> DATETIME .)
+    SELECT          reduce using rule 82 (TIPODATO -> DATETIME .)
+    ALTER           reduce using rule 82 (TIPODATO -> DATETIME .)
+    INSERT          reduce using rule 82 (TIPODATO -> DATETIME .)
+    UPDATE          reduce using rule 82 (TIPODATO -> DATETIME .)
+    DELETE          reduce using rule 82 (TIPODATO -> DATETIME .)
+    $end            reduce using rule 82 (TIPODATO -> DATETIME .)
+    PARENOUT        reduce using rule 82 (TIPODATO -> DATETIME .)
+    COMA            reduce using rule 82 (TIPODATO -> DATETIME .)
+
+
+state 113
+
+    (83) TIPODATO -> FLOAT .
+
+    DROP            reduce using rule 83 (TIPODATO -> FLOAT .)
+    error           reduce using rule 83 (TIPODATO -> FLOAT .)
+    CREATE          reduce using rule 83 (TIPODATO -> FLOAT .)
+    SELECT          reduce using rule 83 (TIPODATO -> FLOAT .)
+    ALTER           reduce using rule 83 (TIPODATO -> FLOAT .)
+    INSERT          reduce using rule 83 (TIPODATO -> FLOAT .)
+    UPDATE          reduce using rule 83 (TIPODATO -> FLOAT .)
+    DELETE          reduce using rule 83 (TIPODATO -> FLOAT .)
+    $end            reduce using rule 83 (TIPODATO -> FLOAT .)
+    PARENOUT        reduce using rule 83 (TIPODATO -> FLOAT .)
+    COMA            reduce using rule 83 (TIPODATO -> FLOAT .)
+
+
+state 114
+
+    (84) TIPODATO -> DATE .
+
+    DROP            reduce using rule 84 (TIPODATO -> DATE .)
+    error           reduce using rule 84 (TIPODATO -> DATE .)
+    CREATE          reduce using rule 84 (TIPODATO -> DATE .)
+    SELECT          reduce using rule 84 (TIPODATO -> DATE .)
+    ALTER           reduce using rule 84 (TIPODATO -> DATE .)
+    INSERT          reduce using rule 84 (TIPODATO -> DATE .)
+    UPDATE          reduce using rule 84 (TIPODATO -> DATE .)
+    DELETE          reduce using rule 84 (TIPODATO -> DATE .)
+    $end            reduce using rule 84 (TIPODATO -> DATE .)
+    PARENOUT        reduce using rule 84 (TIPODATO -> DATE .)
+    COMA            reduce using rule 84 (TIPODATO -> DATE .)
+
+
+state 115
+
+    (85) TIPODATO -> MONEY .
+
+    DROP            reduce using rule 85 (TIPODATO -> MONEY .)
+    error           reduce using rule 85 (TIPODATO -> MONEY .)
+    CREATE          reduce using rule 85 (TIPODATO -> MONEY .)
+    SELECT          reduce using rule 85 (TIPODATO -> MONEY .)
+    ALTER           reduce using rule 85 (TIPODATO -> MONEY .)
+    INSERT          reduce using rule 85 (TIPODATO -> MONEY .)
+    UPDATE          reduce using rule 85 (TIPODATO -> MONEY .)
+    DELETE          reduce using rule 85 (TIPODATO -> MONEY .)
+    $end            reduce using rule 85 (TIPODATO -> MONEY .)
+    PARENOUT        reduce using rule 85 (TIPODATO -> MONEY .)
+    COMA            reduce using rule 85 (TIPODATO -> MONEY .)
+
+
+state 116
+
+    (86) TIPODATO -> VARCHAR . PARENIN ENTERO PARENOUT
+
+    PARENIN         shift and go to state 137
+
+
+state 117
+
+    (22) ddm -> INSERT INTO ID VALUES PARENIN . valores PARENOUT
+    (43) valores -> . valores COMA valor
+    (44) valores -> . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valores                        shift and go to state 138
+    valor                          shift and go to state 33
+
+state 118
+
+    (23) ddm -> UPDATE ID SET ID IGUAL . valor wherecondicion
+    (24) ddm -> UPDATE ID SET ID IGUAL . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 139
+
+state 119
+
+    (26) wherecondicion -> WHERE condition .
+    (27) wherecondicion -> WHERE condition . AND2 condition
+
+    PUNTOCOMA       reduce using rule 26 (wherecondicion -> WHERE condition .)
+    GROUP           reduce using rule 26 (wherecondicion -> WHERE condition .)
+    PARENOUT        reduce using rule 26 (wherecondicion -> WHERE condition .)
+    AND2            shift and go to state 140
+
+
+state 120
+
+    (48) condition -> valor . signos valor
+    (49) condition -> valor . BETWEEN valor AND2 valor
+    (51) signos -> . MENOR
+    (52) signos -> . MAYOR
+    (53) signos -> . MENOROIGUAL
+    (54) signos -> . MAYOROIGUAL
+    (55) signos -> . IGUALIGUAL
+    (56) signos -> . IGUAL
+    (57) signos -> . NOT2 IN
+    (58) signos -> . IN
+    (59) signos -> . NOIGUAL
+    (60) signos -> . IS NOT2 DISTINCT FROM
+    (61) signos -> . IS DISTINCT FROM
+
+    BETWEEN         shift and go to state 142
+    MENOR           shift and go to state 143
+    MAYOR           shift and go to state 144
+    MENOROIGUAL     shift and go to state 145
+    MAYOROIGUAL     shift and go to state 146
+    IGUALIGUAL      shift and go to state 147
+    IGUAL           shift and go to state 148
+    NOT2            shift and go to state 149
+    IN              shift and go to state 150
+    NOIGUAL         shift and go to state 151
+    IS              shift and go to state 152
+
+    signos                         shift and go to state 141
+
+state 121
+
+    (50) condition -> SUBSTRING . PARENIN valor COMA valor COMA valor PARENOUT signos valor
+
+    PARENIN         shift and go to state 153
+
+
+state 122
+
+    (5) instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .
+
+    DROP            reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+    error           reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+    CREATE          reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+    SELECT          reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+    ALTER           reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+    INSERT          reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+    UPDATE          reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+    DELETE          reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+    $end            reduce using rule 5 (instruccion -> creartable INHERITS PARENIN ID PARENOUT PUNTOCOMA .)
+
+
+state 123
+
+    (45) expresion -> ID TIPODATO .
+
+    PARENOUT        reduce using rule 45 (expresion -> ID TIPODATO .)
+    COMA            reduce using rule 45 (expresion -> ID TIPODATO .)
+
+
+state 124
+
+    (28) creartable -> CREATE TABLE ID PARENIN params PARENOUT .
+
+    PUNTOCOMA       reduce using rule 28 (creartable -> CREATE TABLE ID PARENIN params PARENOUT .)
+    INHERITS        reduce using rule 28 (creartable -> CREATE TABLE ID PARENIN params PARENOUT .)
+
+
+state 125
+
+    (41) params -> params COMA . expresion
+    (45) expresion -> . ID TIPODATO
+    (46) expresion -> . PRIMARY KEY PARENIN ID PARENOUT
+    (47) expresion -> . FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT
+
+    ID              shift and go to state 85
+    PRIMARY         shift and go to state 88
+    FOREIGN         shift and go to state 89
+
+    expresion                      shift and go to state 154
+
+state 126
+
+    (46) expresion -> PRIMARY KEY . PARENIN ID PARENOUT
+
+    PARENIN         shift and go to state 155
+
+
+state 127
+
+    (47) expresion -> FOREIGN KEY . PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT
+
+    PARENIN         shift and go to state 156
+
+
+state 128
+
+    (31) selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP . BY valores
+    (32) selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP . BY valores HAVING funciones
+
+    BY              shift and go to state 157
+
+
+state 129
+
+    (34) selectbody -> PARENIN selecttable PARENOUT .
+
+    WHERE           reduce using rule 34 (selectbody -> PARENIN selecttable PARENOUT .)
+    PUNTOCOMA       reduce using rule 34 (selectbody -> PARENIN selecttable PARENOUT .)
+    PARENOUT        reduce using rule 34 (selectbody -> PARENIN selecttable PARENOUT .)
+
+
+state 130
+
+    (39) selectclausules -> SUBSTRING PARENIN valor COMA valor . COMA valor PARENOUT
+
+    COMA            shift and go to state 158
+
+
+state 131
+
+    (21) altertable -> ALTER TABLE ID ALTER COLUMN ID . SET NOT2 NULL
+
+    SET             shift and go to state 159
+
+
+state 132
+
+    (17) altertable -> ALTER TABLE ID ADD COLUMN ID . TIPODATO
+    (70) TIPODATO -> . TEXT
+    (71) TIPODATO -> . SMALLINT
+    (72) TIPODATO -> . INTEGER
+    (73) TIPODATO -> . INT
+    (74) TIPODATO -> . BIGINT
+    (75) TIPODATO -> . DECIMAL2
+    (76) TIPODATO -> . NUMERIC
+    (77) TIPODATO -> . REAL
+    (78) TIPODATO -> . DOUBLE
+    (79) TIPODATO -> . CHARACTER
+    (80) TIPODATO -> . CHAR PARENIN ENTERO PARENOUT
+    (81) TIPODATO -> . TIMESTAMP
+    (82) TIPODATO -> . DATETIME
+    (83) TIPODATO -> . FLOAT
+    (84) TIPODATO -> . DATE
+    (85) TIPODATO -> . MONEY
+    (86) TIPODATO -> . VARCHAR PARENIN ENTERO PARENOUT
+
+    TEXT            shift and go to state 100
+    SMALLINT        shift and go to state 101
+    INTEGER         shift and go to state 102
+    INT             shift and go to state 103
+    BIGINT          shift and go to state 104
+    DECIMAL2        shift and go to state 105
+    NUMERIC         shift and go to state 106
+    REAL            shift and go to state 107
+    DOUBLE          shift and go to state 108
+    CHARACTER       shift and go to state 109
+    CHAR            shift and go to state 110
+    TIMESTAMP       shift and go to state 111
+    DATETIME        shift and go to state 112
+    FLOAT           shift and go to state 113
+    DATE            shift and go to state 114
+    MONEY           shift and go to state 115
+    VARCHAR         shift and go to state 116
+
+    TIPODATO                       shift and go to state 160
+
+state 133
+
+    (18) altertable -> ALTER TABLE ID ADD CHECK PARENIN . condition PARENOUT
+    (48) condition -> . valor signos valor
+    (49) condition -> . valor BETWEEN valor AND2 valor
+    (50) condition -> . SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    SUBSTRING       shift and go to state 121
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    condition                      shift and go to state 161
+    valor                          shift and go to state 120
+
+state 134
+
+    (19) altertable -> ALTER TABLE ID DROP COLUMN ID .
+
+    DROP            reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+    error           reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+    CREATE          reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+    SELECT          reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+    ALTER           reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+    INSERT          reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+    UPDATE          reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+    DELETE          reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+    $end            reduce using rule 19 (altertable -> ALTER TABLE ID DROP COLUMN ID .)
+
+
+state 135
+
+    (20) altertable -> ALTER TABLE ID DROP CONSTRAINT ID .
+
+    DROP            reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+    error           reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+    CREATE          reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+    SELECT          reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+    ALTER           reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+    INSERT          reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+    UPDATE          reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+    DELETE          reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+    $end            reduce using rule 20 (altertable -> ALTER TABLE ID DROP CONSTRAINT ID .)
+
+
+state 136
+
+    (80) TIPODATO -> CHAR PARENIN . ENTERO PARENOUT
+
+    ENTERO          shift and go to state 162
+
+
+state 137
+
+    (86) TIPODATO -> VARCHAR PARENIN . ENTERO PARENOUT
+
+    ENTERO          shift and go to state 163
+
+
+state 138
+
+    (22) ddm -> INSERT INTO ID VALUES PARENIN valores . PARENOUT
+    (43) valores -> valores . COMA valor
+
+    PARENOUT        shift and go to state 164
+    COMA            shift and go to state 52
+
+
+state 139
+
+    (23) ddm -> UPDATE ID SET ID IGUAL valor . wherecondicion
+    (24) ddm -> UPDATE ID SET ID IGUAL valor .
+    (26) wherecondicion -> . WHERE condition
+    (27) wherecondicion -> . WHERE condition AND2 condition
+
+    PUNTOCOMA       reduce using rule 24 (ddm -> UPDATE ID SET ID IGUAL valor .)
+    WHERE           shift and go to state 83
+
+    wherecondicion                 shift and go to state 165
+
+state 140
+
+    (27) wherecondicion -> WHERE condition AND2 . condition
+    (48) condition -> . valor signos valor
+    (49) condition -> . valor BETWEEN valor AND2 valor
+    (50) condition -> . SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    SUBSTRING       shift and go to state 121
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    condition                      shift and go to state 166
+    valor                          shift and go to state 120
+
+state 141
+
+    (48) condition -> valor signos . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 167
+
+state 142
+
+    (49) condition -> valor BETWEEN . valor AND2 valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 168
+
+state 143
+
+    (51) signos -> MENOR .
+
+    ENTERO          reduce using rule 51 (signos -> MENOR .)
+    DECIMAL         reduce using rule 51 (signos -> MENOR .)
+    APOST           reduce using rule 51 (signos -> MENOR .)
+    CADENA          reduce using rule 51 (signos -> MENOR .)
+    CADENA2         reduce using rule 51 (signos -> MENOR .)
+    ID              reduce using rule 51 (signos -> MENOR .)
+    PARENIN         reduce using rule 51 (signos -> MENOR .)
+
+
+state 144
+
+    (52) signos -> MAYOR .
+
+    ENTERO          reduce using rule 52 (signos -> MAYOR .)
+    DECIMAL         reduce using rule 52 (signos -> MAYOR .)
+    APOST           reduce using rule 52 (signos -> MAYOR .)
+    CADENA          reduce using rule 52 (signos -> MAYOR .)
+    CADENA2         reduce using rule 52 (signos -> MAYOR .)
+    ID              reduce using rule 52 (signos -> MAYOR .)
+    PARENIN         reduce using rule 52 (signos -> MAYOR .)
+
+
+state 145
+
+    (53) signos -> MENOROIGUAL .
+
+    ENTERO          reduce using rule 53 (signos -> MENOROIGUAL .)
+    DECIMAL         reduce using rule 53 (signos -> MENOROIGUAL .)
+    APOST           reduce using rule 53 (signos -> MENOROIGUAL .)
+    CADENA          reduce using rule 53 (signos -> MENOROIGUAL .)
+    CADENA2         reduce using rule 53 (signos -> MENOROIGUAL .)
+    ID              reduce using rule 53 (signos -> MENOROIGUAL .)
+    PARENIN         reduce using rule 53 (signos -> MENOROIGUAL .)
+
+
+state 146
+
+    (54) signos -> MAYOROIGUAL .
+
+    ENTERO          reduce using rule 54 (signos -> MAYOROIGUAL .)
+    DECIMAL         reduce using rule 54 (signos -> MAYOROIGUAL .)
+    APOST           reduce using rule 54 (signos -> MAYOROIGUAL .)
+    CADENA          reduce using rule 54 (signos -> MAYOROIGUAL .)
+    CADENA2         reduce using rule 54 (signos -> MAYOROIGUAL .)
+    ID              reduce using rule 54 (signos -> MAYOROIGUAL .)
+    PARENIN         reduce using rule 54 (signos -> MAYOROIGUAL .)
+
+
+state 147
+
+    (55) signos -> IGUALIGUAL .
+
+    ENTERO          reduce using rule 55 (signos -> IGUALIGUAL .)
+    DECIMAL         reduce using rule 55 (signos -> IGUALIGUAL .)
+    APOST           reduce using rule 55 (signos -> IGUALIGUAL .)
+    CADENA          reduce using rule 55 (signos -> IGUALIGUAL .)
+    CADENA2         reduce using rule 55 (signos -> IGUALIGUAL .)
+    ID              reduce using rule 55 (signos -> IGUALIGUAL .)
+    PARENIN         reduce using rule 55 (signos -> IGUALIGUAL .)
+
+
+state 148
+
+    (56) signos -> IGUAL .
+
+    ENTERO          reduce using rule 56 (signos -> IGUAL .)
+    DECIMAL         reduce using rule 56 (signos -> IGUAL .)
+    APOST           reduce using rule 56 (signos -> IGUAL .)
+    CADENA          reduce using rule 56 (signos -> IGUAL .)
+    CADENA2         reduce using rule 56 (signos -> IGUAL .)
+    ID              reduce using rule 56 (signos -> IGUAL .)
+    PARENIN         reduce using rule 56 (signos -> IGUAL .)
+
+
+state 149
+
+    (57) signos -> NOT2 . IN
+
+    IN              shift and go to state 169
+
+
+state 150
+
+    (58) signos -> IN .
+
+    ENTERO          reduce using rule 58 (signos -> IN .)
+    DECIMAL         reduce using rule 58 (signos -> IN .)
+    APOST           reduce using rule 58 (signos -> IN .)
+    CADENA          reduce using rule 58 (signos -> IN .)
+    CADENA2         reduce using rule 58 (signos -> IN .)
+    ID              reduce using rule 58 (signos -> IN .)
+    PARENIN         reduce using rule 58 (signos -> IN .)
+
+
+state 151
+
+    (59) signos -> NOIGUAL .
+
+    ENTERO          reduce using rule 59 (signos -> NOIGUAL .)
+    DECIMAL         reduce using rule 59 (signos -> NOIGUAL .)
+    APOST           reduce using rule 59 (signos -> NOIGUAL .)
+    CADENA          reduce using rule 59 (signos -> NOIGUAL .)
+    CADENA2         reduce using rule 59 (signos -> NOIGUAL .)
+    ID              reduce using rule 59 (signos -> NOIGUAL .)
+    PARENIN         reduce using rule 59 (signos -> NOIGUAL .)
+
+
+state 152
+
+    (60) signos -> IS . NOT2 DISTINCT FROM
+    (61) signos -> IS . DISTINCT FROM
+
+    NOT2            shift and go to state 170
+    DISTINCT        shift and go to state 171
+
+
+state 153
+
+    (50) condition -> SUBSTRING PARENIN . valor COMA valor COMA valor PARENOUT signos valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 172
+
+state 154
+
+    (41) params -> params COMA expresion .
+
+    PARENOUT        reduce using rule 41 (params -> params COMA expresion .)
+    COMA            reduce using rule 41 (params -> params COMA expresion .)
+
+
+state 155
+
+    (46) expresion -> PRIMARY KEY PARENIN . ID PARENOUT
+
+    ID              shift and go to state 173
+
+
+state 156
+
+    (47) expresion -> FOREIGN KEY PARENIN . ID PARENOUT REFERENCES ID PARENIN ID PARENOUT
+
+    ID              shift and go to state 174
+
+
+state 157
+
+    (31) selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY . valores
+    (32) selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY . valores HAVING funciones
+    (43) valores -> . valores COMA valor
+    (44) valores -> . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valores                        shift and go to state 175
+    valor                          shift and go to state 33
+
+state 158
+
+    (39) selectclausules -> SUBSTRING PARENIN valor COMA valor COMA . valor PARENOUT
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 176
+
+state 159
+
+    (21) altertable -> ALTER TABLE ID ALTER COLUMN ID SET . NOT2 NULL
+
+    NOT2            shift and go to state 177
+
+
+state 160
+
+    (17) altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .
+
+    DROP            reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+    error           reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+    CREATE          reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+    SELECT          reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+    ALTER           reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+    INSERT          reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+    UPDATE          reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+    DELETE          reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+    $end            reduce using rule 17 (altertable -> ALTER TABLE ID ADD COLUMN ID TIPODATO .)
+
+
+state 161
+
+    (18) altertable -> ALTER TABLE ID ADD CHECK PARENIN condition . PARENOUT
+
+    PARENOUT        shift and go to state 178
+
+
+state 162
+
+    (80) TIPODATO -> CHAR PARENIN ENTERO . PARENOUT
+
+    PARENOUT        shift and go to state 179
+
+
+state 163
+
+    (86) TIPODATO -> VARCHAR PARENIN ENTERO . PARENOUT
+
+    PARENOUT        shift and go to state 180
+
+
+state 164
+
+    (22) ddm -> INSERT INTO ID VALUES PARENIN valores PARENOUT .
+
+    PUNTOCOMA       reduce using rule 22 (ddm -> INSERT INTO ID VALUES PARENIN valores PARENOUT .)
+
+
+state 165
+
+    (23) ddm -> UPDATE ID SET ID IGUAL valor wherecondicion .
+
+    PUNTOCOMA       reduce using rule 23 (ddm -> UPDATE ID SET ID IGUAL valor wherecondicion .)
+
+
+state 166
+
+    (27) wherecondicion -> WHERE condition AND2 condition .
+
+    PUNTOCOMA       reduce using rule 27 (wherecondicion -> WHERE condition AND2 condition .)
+    GROUP           reduce using rule 27 (wherecondicion -> WHERE condition AND2 condition .)
+    PARENOUT        reduce using rule 27 (wherecondicion -> WHERE condition AND2 condition .)
+
+
+state 167
+
+    (48) condition -> valor signos valor .
+
+    AND2            reduce using rule 48 (condition -> valor signos valor .)
+    PUNTOCOMA       reduce using rule 48 (condition -> valor signos valor .)
+    GROUP           reduce using rule 48 (condition -> valor signos valor .)
+    PARENOUT        reduce using rule 48 (condition -> valor signos valor .)
+
+
+state 168
+
+    (49) condition -> valor BETWEEN valor . AND2 valor
+
+    AND2            shift and go to state 181
+
+
+state 169
+
+    (57) signos -> NOT2 IN .
+
+    ENTERO          reduce using rule 57 (signos -> NOT2 IN .)
+    DECIMAL         reduce using rule 57 (signos -> NOT2 IN .)
+    APOST           reduce using rule 57 (signos -> NOT2 IN .)
+    CADENA          reduce using rule 57 (signos -> NOT2 IN .)
+    CADENA2         reduce using rule 57 (signos -> NOT2 IN .)
+    ID              reduce using rule 57 (signos -> NOT2 IN .)
+    PARENIN         reduce using rule 57 (signos -> NOT2 IN .)
+
+
+state 170
+
+    (60) signos -> IS NOT2 . DISTINCT FROM
+
+    DISTINCT        shift and go to state 182
+
+
+state 171
+
+    (61) signos -> IS DISTINCT . FROM
+
+    FROM            shift and go to state 183
+
+
+state 172
+
+    (50) condition -> SUBSTRING PARENIN valor . COMA valor COMA valor PARENOUT signos valor
+
+    COMA            shift and go to state 184
+
+
+state 173
+
+    (46) expresion -> PRIMARY KEY PARENIN ID . PARENOUT
+
+    PARENOUT        shift and go to state 185
+
+
+state 174
+
+    (47) expresion -> FOREIGN KEY PARENIN ID . PARENOUT REFERENCES ID PARENIN ID PARENOUT
+
+    PARENOUT        shift and go to state 186
+
+
+state 175
+
+    (31) selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores .
+    (32) selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores . HAVING funciones
+    (43) valores -> valores . COMA valor
+
+    PUNTOCOMA       reduce using rule 31 (selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores .)
+    PARENOUT        reduce using rule 31 (selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores .)
+    HAVING          shift and go to state 187
+    COMA            shift and go to state 52
+
+
+state 176
+
+    (39) selectclausules -> SUBSTRING PARENIN valor COMA valor COMA valor . PARENOUT
+
+    PARENOUT        shift and go to state 188
+
+
+state 177
+
+    (21) altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 . NULL
+
+    NULL            shift and go to state 189
+
+
+state 178
+
+    (18) altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .
+
+    DROP            reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+    error           reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+    CREATE          reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+    SELECT          reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+    ALTER           reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+    INSERT          reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+    UPDATE          reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+    DELETE          reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+    $end            reduce using rule 18 (altertable -> ALTER TABLE ID ADD CHECK PARENIN condition PARENOUT .)
+
+
+state 179
+
+    (80) TIPODATO -> CHAR PARENIN ENTERO PARENOUT .
+
+    DROP            reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    error           reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    CREATE          reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    SELECT          reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    ALTER           reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    INSERT          reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    UPDATE          reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    DELETE          reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    $end            reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    PARENOUT        reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+    COMA            reduce using rule 80 (TIPODATO -> CHAR PARENIN ENTERO PARENOUT .)
+
+
+state 180
+
+    (86) TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .
+
+    DROP            reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    error           reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    CREATE          reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    SELECT          reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    ALTER           reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    INSERT          reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    UPDATE          reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    DELETE          reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    $end            reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    PARENOUT        reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+    COMA            reduce using rule 86 (TIPODATO -> VARCHAR PARENIN ENTERO PARENOUT .)
+
+
+state 181
+
+    (49) condition -> valor BETWEEN valor AND2 . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 190
+
+state 182
+
+    (60) signos -> IS NOT2 DISTINCT . FROM
+
+    FROM            shift and go to state 191
+
+
+state 183
+
+    (61) signos -> IS DISTINCT FROM .
+
+    ENTERO          reduce using rule 61 (signos -> IS DISTINCT FROM .)
+    DECIMAL         reduce using rule 61 (signos -> IS DISTINCT FROM .)
+    APOST           reduce using rule 61 (signos -> IS DISTINCT FROM .)
+    CADENA          reduce using rule 61 (signos -> IS DISTINCT FROM .)
+    CADENA2         reduce using rule 61 (signos -> IS DISTINCT FROM .)
+    ID              reduce using rule 61 (signos -> IS DISTINCT FROM .)
+    PARENIN         reduce using rule 61 (signos -> IS DISTINCT FROM .)
+
+
+state 184
+
+    (50) condition -> SUBSTRING PARENIN valor COMA . valor COMA valor PARENOUT signos valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 192
+
+state 185
+
+    (46) expresion -> PRIMARY KEY PARENIN ID PARENOUT .
+
+    PARENOUT        reduce using rule 46 (expresion -> PRIMARY KEY PARENIN ID PARENOUT .)
+    COMA            reduce using rule 46 (expresion -> PRIMARY KEY PARENIN ID PARENOUT .)
+
+
+state 186
+
+    (47) expresion -> FOREIGN KEY PARENIN ID PARENOUT . REFERENCES ID PARENIN ID PARENOUT
+
+    REFERENCES      shift and go to state 193
+
+
+state 187
+
+    (32) selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING . funciones
+    (40) funciones -> . SUM PARENIN ID PARENOUT signos valor
+
+    SUM             shift and go to state 195
+
+    funciones                      shift and go to state 194
+
+state 188
+
+    (39) selectclausules -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT .
+
+    FROM            reduce using rule 39 (selectclausules -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT .)
+
+
+state 189
+
+    (21) altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .
+
+    DROP            reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+    error           reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+    CREATE          reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+    SELECT          reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+    ALTER           reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+    INSERT          reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+    UPDATE          reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+    DELETE          reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+    $end            reduce using rule 21 (altertable -> ALTER TABLE ID ALTER COLUMN ID SET NOT2 NULL .)
+
+
+state 190
+
+    (49) condition -> valor BETWEEN valor AND2 valor .
+
+    AND2            reduce using rule 49 (condition -> valor BETWEEN valor AND2 valor .)
+    PUNTOCOMA       reduce using rule 49 (condition -> valor BETWEEN valor AND2 valor .)
+    GROUP           reduce using rule 49 (condition -> valor BETWEEN valor AND2 valor .)
+    PARENOUT        reduce using rule 49 (condition -> valor BETWEEN valor AND2 valor .)
+
+
+state 191
+
+    (60) signos -> IS NOT2 DISTINCT FROM .
+
+    ENTERO          reduce using rule 60 (signos -> IS NOT2 DISTINCT FROM .)
+    DECIMAL         reduce using rule 60 (signos -> IS NOT2 DISTINCT FROM .)
+    APOST           reduce using rule 60 (signos -> IS NOT2 DISTINCT FROM .)
+    CADENA          reduce using rule 60 (signos -> IS NOT2 DISTINCT FROM .)
+    CADENA2         reduce using rule 60 (signos -> IS NOT2 DISTINCT FROM .)
+    ID              reduce using rule 60 (signos -> IS NOT2 DISTINCT FROM .)
+    PARENIN         reduce using rule 60 (signos -> IS NOT2 DISTINCT FROM .)
+
+
+state 192
+
+    (50) condition -> SUBSTRING PARENIN valor COMA valor . COMA valor PARENOUT signos valor
+
+    COMA            shift and go to state 196
+
+
+state 193
+
+    (47) expresion -> FOREIGN KEY PARENIN ID PARENOUT REFERENCES . ID PARENIN ID PARENOUT
+
+    ID              shift and go to state 197
+
+
+state 194
+
+    (32) selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones .
+
+    PUNTOCOMA       reduce using rule 32 (selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones .)
+    PARENOUT        reduce using rule 32 (selecttable -> SELECT selectclausules FROM selectbody wherecondicion GROUP BY valores HAVING funciones .)
+
+
+state 195
+
+    (40) funciones -> SUM . PARENIN ID PARENOUT signos valor
+
+    PARENIN         shift and go to state 198
+
+
+state 196
+
+    (50) condition -> SUBSTRING PARENIN valor COMA valor COMA . valor PARENOUT signos valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 199
+
+state 197
+
+    (47) expresion -> FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID . PARENIN ID PARENOUT
+
+    PARENIN         shift and go to state 200
+
+
+state 198
+
+    (40) funciones -> SUM PARENIN . ID PARENOUT signos valor
+
+    ID              shift and go to state 201
+
+
+state 199
+
+    (50) condition -> SUBSTRING PARENIN valor COMA valor COMA valor . PARENOUT signos valor
+
+    PARENOUT        shift and go to state 202
+
+
+state 200
+
+    (47) expresion -> FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN . ID PARENOUT
+
+    ID              shift and go to state 203
+
+
+state 201
+
+    (40) funciones -> SUM PARENIN ID . PARENOUT signos valor
+
+    PARENOUT        shift and go to state 204
+
+
+state 202
+
+    (50) condition -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT . signos valor
+    (51) signos -> . MENOR
+    (52) signos -> . MAYOR
+    (53) signos -> . MENOROIGUAL
+    (54) signos -> . MAYOROIGUAL
+    (55) signos -> . IGUALIGUAL
+    (56) signos -> . IGUAL
+    (57) signos -> . NOT2 IN
+    (58) signos -> . IN
+    (59) signos -> . NOIGUAL
+    (60) signos -> . IS NOT2 DISTINCT FROM
+    (61) signos -> . IS DISTINCT FROM
+
+    MENOR           shift and go to state 143
+    MAYOR           shift and go to state 144
+    MENOROIGUAL     shift and go to state 145
+    MAYOROIGUAL     shift and go to state 146
+    IGUALIGUAL      shift and go to state 147
+    IGUAL           shift and go to state 148
+    NOT2            shift and go to state 149
+    IN              shift and go to state 150
+    NOIGUAL         shift and go to state 151
+    IS              shift and go to state 152
+
+    signos                         shift and go to state 205
+
+state 203
+
+    (47) expresion -> FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID . PARENOUT
+
+    PARENOUT        shift and go to state 206
+
+
+state 204
+
+    (40) funciones -> SUM PARENIN ID PARENOUT . signos valor
+    (51) signos -> . MENOR
+    (52) signos -> . MAYOR
+    (53) signos -> . MENOROIGUAL
+    (54) signos -> . MAYOROIGUAL
+    (55) signos -> . IGUALIGUAL
+    (56) signos -> . IGUAL
+    (57) signos -> . NOT2 IN
+    (58) signos -> . IN
+    (59) signos -> . NOIGUAL
+    (60) signos -> . IS NOT2 DISTINCT FROM
+    (61) signos -> . IS DISTINCT FROM
+
+    MENOR           shift and go to state 143
+    MAYOR           shift and go to state 144
+    MENOROIGUAL     shift and go to state 145
+    MAYOROIGUAL     shift and go to state 146
+    IGUALIGUAL      shift and go to state 147
+    IGUAL           shift and go to state 148
+    NOT2            shift and go to state 149
+    IN              shift and go to state 150
+    NOIGUAL         shift and go to state 151
+    IS              shift and go to state 152
+
+    signos                         shift and go to state 207
+
+state 205
+
+    (50) condition -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 208
+
+state 206
+
+    (47) expresion -> FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT .
+
+    PARENOUT        reduce using rule 47 (expresion -> FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT .)
+    COMA            reduce using rule 47 (expresion -> FOREIGN KEY PARENIN ID PARENOUT REFERENCES ID PARENIN ID PARENOUT .)
+
+
+state 207
+
+    (40) funciones -> SUM PARENIN ID PARENOUT signos . valor
+    (62) valor -> . ENTERO
+    (63) valor -> . DECIMAL
+    (64) valor -> . APOST FECHA APOST
+    (65) valor -> . CADENA
+    (66) valor -> . CADENA2
+    (67) valor -> . ID
+    (68) valor -> . ID PUNTO ID
+    (69) valor -> . PARENIN selecttable PARENOUT
+
+    ENTERO          shift and go to state 34
+    DECIMAL         shift and go to state 35
+    APOST           shift and go to state 36
+    CADENA          shift and go to state 37
+    CADENA2         shift and go to state 38
+    ID              shift and go to state 39
+    PARENIN         shift and go to state 32
+
+    valor                          shift and go to state 209
+
+state 208
+
+    (50) condition -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor .
+
+    AND2            reduce using rule 50 (condition -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor .)
+    PUNTOCOMA       reduce using rule 50 (condition -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor .)
+    GROUP           reduce using rule 50 (condition -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor .)
+    PARENOUT        reduce using rule 50 (condition -> SUBSTRING PARENIN valor COMA valor COMA valor PARENOUT signos valor .)
+
+
+state 209
+
+    (40) funciones -> SUM PARENIN ID PARENOUT signos valor .
+
+    PUNTOCOMA       reduce using rule 40 (funciones -> SUM PARENIN ID PARENOUT signos valor .)
+    PARENOUT        reduce using rule 40 (funciones -> SUM PARENIN ID PARENOUT signos valor .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for DROP in state 58 resolved as shift
+WARNING: shift/reduce conflict for ALTER in state 58 resolved as shift

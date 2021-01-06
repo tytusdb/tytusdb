@@ -1,3 +1,8 @@
 parser.out
 parsetab.py
+entrada.txt
+Graph.gv
+Graph.gv.pdf
 **/__pycache__/**
+storageManager/
+data/
