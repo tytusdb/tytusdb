@@ -1035,7 +1035,7 @@ def p_stm_get(t):
 
 
 def p_stm_case(t):
-    '''stm_case   : CASE column_list when_inst  case_else   END CASE  '''
+    '''stm_case   : CASE id_case when_inst  case_else   END CASE  '''
     
     token = t.slice[1]
     if len(t) == 7:
@@ -1054,19 +1054,44 @@ def p_stm_case(t):
         t[0] = upNodo("token", 0, 0, graph_ref)
         #print(t)
 
+def p_id_case(t):
+    '''id_case   : column_list
+                |  empty  '''
+       
+    token = t.slice[1]
+    if token.type == "column_list":
+        t[0]=t[1]
+    else:
+        t[0] = None
+        #print(t)
+
+
 def p_when_inst(t):
     '''when_inst   : when_inst WHEN condition THEN case_inst
                    | WHEN condition THEN case_inst   '''
     token = t.slice[1]
     if len(t) == 6:
-        childsProduction  = addNotNoneChild(t,[1,3,5])
-        graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],t[4],t[5]],childsProduction )
+        childsProduction  = addNotNoneChild(t,[3])
+        lista1 = None
+        if t[1] != None:
+            lista1 = t[1][0]
+            childsProduction.append(lista1.graph_ref)        
+        lista = None
+        if t[5] != None:
+            lista = t[5][0]
+            childsProduction.append(lista.graph_ref)
+            
+        graph_ref = graph_node(str("when_inst"), [lista1, t[2],t[3],t[4],lista],childsProduction )
         addCad("**\<WHEN_INST>** ::=  \<WHEN_INST >         tWhen  \<CONDITION> tThen   \<CASE_INST>   ")
         t[0] = [upNodo("token", 0, 0, graph_ref)]
         
     elif len(t) == 5:
-        childsProduction  = addNotNoneChild(t,[2,4])
-        graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],t[4]],childsProduction )
+        childsProduction  = addNotNoneChild(t,[2])
+        lista = None
+        if t[4] != None:
+            lista = t[4][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("when_inst"), [t[1], t[2],t[3],lista],childsProduction )
         addCad("**\<WHEN_INST>** ::=     tWhen  \<CONDITION> tThen   \<CASE_INST>      ")
         t[0] = [upNodo("token", 0, 0, graph_ref)]
         #print(t)
