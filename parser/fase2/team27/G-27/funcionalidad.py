@@ -1,5 +1,10 @@
 from environment import *
 
+fp = {
+      'FUNCTION':'LA FUNCION',
+      'PROCEDURE': 'EL PROCEDIMIENTO'
+}
+
 """
 Clase enum DBType:
 _____________________________________________________________
@@ -344,7 +349,7 @@ dict_Func = {
       'SUBSTR':'substr',
       'GET_BYTE':'get_byte',
       'SET_BYTE':'set_byte',
-      'CONVERT':'convert'
+      'CONVERT':'convert',
       'DECODE':'decode',
       'ENCODE':'encode',
       'NOW':'now',
@@ -404,3 +409,26 @@ funcion para castear un strig de mayusculas a minusculas
 
 def get_lower(name_func):
      return dict_Func.get(name_func, name_func)
+
+"""
+______________________________________________________________
+
+"""
+def deleteProcFunc(tipo, id, parametros):
+      for v in arregloFunciones:
+            if v['tipo'] == tipo and v['id'] == id and v['parametros']== parametros:
+                  v['estado'] = 'ELIMINADO'
+                  return 'SELECT "SE HA ELIMINADO ' + fp[tipo] + ' CON ÉXITO.";'
+      return 'SELECT "ERROR NO SE HA ENCONTRADO' + fp[tipo] + ' QUE DESEA ELIMINAR";'
+
+"""
+______________________________________________________________
+
+"""
+def resFinal(funciones, codigo):
+      resultado = 'from goto import with_goto\nfrom parser import parser\n\n'
+      for f in funciones:
+            resultado += f +'\n'
+      resultado += codigo 
+      funciones = []
+      return resultado    
