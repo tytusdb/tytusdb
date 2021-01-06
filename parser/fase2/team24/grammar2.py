@@ -199,10 +199,19 @@ reservadas = {
     'first' : 'FIRST',
     'if' : 'IF',
     'elsif' : 'ELSIF',
+    'concurrently'  :   'CONCURRENTLY',
+    'cascade'   :   'CASCADE',
+    'restrict'  :   'RESTRICT',
+    'reset' :   'RESET',
+    'nowait'    :   'NOWAIT',
+    'depends'   :   'DEPENDS',
+    'extension' :   'EXTENSION',
+    'tablespace'    :   'TABLESPACE',
+    'owned' :   'OWNED',
 
     'procedure' :'PROCEDURE',
     'language' : 'LANGUAGE',
-    'plpgsql' : 'PLPGSQL'
+    'plpgsql' : 'PLPGSQL',
 }
 
 tokens = [
@@ -389,6 +398,8 @@ def p_inst(p):
             |   createfunc
             |   createind
             |   createproc
+            |   dropind
+            |   alterind
             
     """
     p[0] = p[1]
@@ -1120,7 +1131,153 @@ def p_signo(p):
     """
     p[0] = p[1]
 
-"""FIN ANALIZADOR SINTACTICO ASCENDENTE"""
+#DROP INDEX
+def p_dropind(p):
+    "dropind    :   DROP INDEX concind ifexistsind listaidind cascrestind PUNTOCOMA"
+    p[0] = inst.IndexDrop(p[1] + " " + p[2], p[5], p[6])
+
+def p_concind(p):
+    "concind  :   CONCURRENTLY"
+    p[0] = p[1]
+
+def p_concind1(p):
+    "concind    :   "
+    p[0] = ""
+
+def p_ifexistsind(p):
+    "ifexistsind    :   IF EXISTS"
+    p[0] = p[1] + " " + p[2]
+
+def p_ifexistsind1(p):
+    "ifexistsind    :   "
+    p[0] = ""
+
+def p_listaidind(p):
+    "listaidind :   listaidind COMA id"
+    p[1].append(p[3])
+    p[0] = p[1]
+
+def p_listaidind1(p):
+    "listaidind :   id"
+    p[0] = [p[1]]
+
+def p_cascrestind(p):
+    """
+    cascrestind    :   CASCADE
+                   |   RESTRICT
+    """
+    p[0] = p[1]
+
+def p_cascrestind1(p):
+    "cascrestind    :   "
+    p[0] = ""
+
+#ALTER INDEX
+def p_alterind(p):
+    """
+    alterind    :   ALTER INDEX ifexistsind alterind2 ownedbyind alterind2 nowait PUNTOCOMA
+    """
+    p[0] = inst.IndexAlter(p[1] + " " + p[2], p[4])
+
+def p_nowait(p):
+    "nowait :   NOWAIT"
+    p[0] = p[1]
+
+def p_nowait1(p):
+    "nowait :   "
+    p[0] = ""
+
+def p_ownerbyind(p):
+    "ownedbyind :   OWNED BY parind"
+    p[0] = p[3]
+    
+def p_ownedbyind1(p):
+    "ownedbyind    :   "
+    p[0] = ""
+
+def p_alterind2(p):
+    """
+    alterind2   :   id tipocambioind parametrosind
+    """
+    p[0] = inst.propalter(p[2], p[1], p[3])
+
+def p_alterind21(p):
+    """
+    alterind2   :   ALL IN TABLESPACE id ownedbyind
+    """
+    p[0] = inst.propalter(p[1] + " " + p[2] + " " + p[3], p[4], p[5])
+
+def p_alterind211(p):
+    "alterind2  :   SET TABLESPACE id"
+    p[0] = p[3]
+
+def p_alterind2111(p):
+    "alterind2  :   "
+    p[0] = ""
+
+def p_tipocambioind(p):
+    """
+    tipocambioind   :   RENAME TO
+                    |   SET TABLESPACE
+    """
+    p[0] = p[1] + " " + p[2]
+
+def p_tipocambioind1(p):
+    """
+    tipocambioind   :   DEPENDS ON EXTENSION
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+
+def p_tipocambioind11(p):
+    """
+    tipocambioind   :   SET
+                    |   RESET
+                    |   ALTER columnindopc
+    """
+    p[0] = p[1]
+
+def p_columnindopc(p):
+    """
+    columnindopc    :   COLUMN
+    """
+    p[0] = p[1]
+
+def p_columnindopc1(p):
+    """
+    columnindopc    :   
+    """
+    p[0] = ""
+
+def p_parametrosind(p):
+    "parametrosind  :   PARA parind PARC"
+    p[0] = p[2]
+
+def p_parametrosind1(p):
+    "parametrosind  :   parind"
+    p[0] = p[1]
+
+def p_parind(p):
+    "parind :   parind COMA idind"
+    p[1].append(p[3])
+    p[0] = p[1]
+
+def p_parind1(p):
+    "parind :   idind"
+    p[0] = [p[1]]
+
+def p_idind(p):
+    "idind  :   id IGUAL valortipo"
+    p[0] = p[1] + p[2] + str(p[3])
+
+def p_idind1(p):
+    "idind  :   id"
+    p[0] = p[1]
+
+#-----------------------------------------------------------------------FIN ANALIZADOR SINTACTICO ASCENDENTE----------------------------------------------
+
+
+
+
 
 def p_empty(p):
      'empty :'

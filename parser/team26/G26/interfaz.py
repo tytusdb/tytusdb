@@ -1,9 +1,12 @@
+import sys
+sys.path.append('../tytus/storage/storageManager')
+
 from tkinter import * #importando tkinter
 import tkinter as TK
 import gramatica as g
 import Utils.TablaSimbolos as table
 import Utils.Lista as l
-import Librerias.storageManager.jsonMode as storage
+import jsonMode as storage
 from tkinter.filedialog import askopenfilename as files
 import os
 import webbrowser
@@ -15,7 +18,8 @@ import json
 
 ##########################################################################
 
-#storage.dropAll()
+storage.dropAll() #Comentar si quieren que se borre todo al cerrar y abrir la app
+
 datos = l.Lista({}, '')
 
 ##################################FUNCIONES#################################
@@ -47,36 +51,36 @@ def analisis():
     except:
         print("")
 
-    try:
-        f = open("./Utils/tabla.txt", "r")
+    '''try:
+        f = open("../G26/Utils/tabla.txt", "r")
         text = f.read()
         text = text.replace('\'','"')
         text = text.replace('False','"False"')
         text = text.replace('None','""')
         text = text.replace('True','"True"')
 
-        print(text)
+        #print(text)
         datos.reInsertarValores(json.loads(text))
-        print(str(datos))
+        #print(str(datos))
     except:
-        print('error')
+        print('error')'''
 
     for instr in instrucciones['ast'] :
 
             if instr != None:
                 result = instr.execute(datos)
                 if isinstance(result, Error):
-                    escribirEnSalidaFinal(str(result.desc))
+                    escribirEnSalidaFinal(str(result.desc))#imprimir en consola
                     erroresSemanticos.append(result)
                 elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
-                    escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
+                    escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))#imprimir en consola
                 else:
-                    escribirEnSalidaFinal(str(result))
+                    escribirEnSalidaFinal(str(result))#imprimir en consola
 
-
-    f = open("./Utils/tabla.txt", "w")
+    
+    '''f = open("../G26/Utils/tabla.txt", "w")
     f.write(str(datos))
-    f.close()
+    f.close()'''
 
     errores = g.getMistakes()
     recorrerErrores(errores)
@@ -89,7 +93,7 @@ def analisis():
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
 
 def Rerrores(errores, semanticos):
-    f = open("./Reportes/Reporte_Errores.html", "w")
+    f = open("../G26/Reportes/Reporte_Errores.html", "w")
     f.write("<!DOCTYPE html>\n")
     f.write("<html>\n")
     f.write("   <head>\n")
@@ -154,7 +158,7 @@ def hacerReporteGramatica(gramatica):
         f.write("No se detecto")
 
 def reporteTabla():
-    f = open("./Reportes/Reporte_TablaSimbolos.html", "w")
+    f = open("../G26/Reportes/Reporte_TablaSimbolos.html", "w")
     f.write("<!DOCTYPE html>\n")
     f.write("<html>\n")
     f.write("   <head>\n")

@@ -54,6 +54,7 @@ from analizer.statement.pl.sentenciaReturn import  Return_
 from analizer.statement.pl.codeblock import CodeBlock
 from analizer.statement.pl.instruccionesF1 import F1
 from analizer.statement.pl.case import Case, CaseWhen
+from analizer.statement.pl.asignacion import Asignacion
 
 def p_init(t):
     """init : stmtList"""
@@ -323,6 +324,7 @@ def p_assignment(t):
     assignment : ID S_ASIGNACION expresion
     | ID S_IGUAL expresion
     """
+    t[0] = Asignacion(t[1],t[3], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 def p_executeStmt(t):

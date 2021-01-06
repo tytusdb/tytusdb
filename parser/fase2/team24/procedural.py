@@ -539,8 +539,9 @@ class exp_boolp(expresion):
         tmp = getTemp()
         codigo = tmp + f' = {self.val}'
         valor = tmp
+        res = self.val
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_textp(expresion):
     'Devuelve el texto'
@@ -550,10 +551,11 @@ class exp_textp(expresion):
 
     def traducir(self):
         tmp = getTemp()
-        codigo = tmp + f' = {self.val}'
+        codigo = tmp + f' = \'{self.val}\''
         valor = tmp
+        res = self.val
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_nump(expresion):
     'Devuelve un número'
@@ -565,8 +567,9 @@ class exp_nump(expresion):
         tmp = getTemp()
         codigo = tmp + f' = {self.val}'
         valor = tmp
+        res = float(self.val)
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class expresionC:
     'clase abstracta para las operaciones'
@@ -585,14 +588,17 @@ class exp_sumap(expresionC):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} + {tmp2}'
         c3df += f'\n{tmpf}'
         codigo = c3df 
         valor = tmp
+        res =  res1 + res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_restap(expresion):
     'Suma las dos expresiones'
@@ -607,14 +613,17 @@ class exp_restap(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} - {tmp2}'
         c3df += f'\n{tmpf}'
         codigo = c3df 
         valor = tmp
+        res = res1 - res2
         #print(codigo,valor)
-        return codigo,valor    
+        return codigo,valor,res    
 
 class exp_multiplicacionp(expresion):
     'Multiplica las dos expresiones'
@@ -629,14 +638,17 @@ class exp_multiplicacionp(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} * {tmp2}'
         c3df += f'\n{tmpf}'
         codigo = c3df 
         valor = tmp
+        res = res1 * res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
         
 class exp_divisionp(expresion):
     'Suma las dos expresiones'
@@ -652,14 +664,17 @@ class exp_divisionp(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} / {tmp2}'
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
+        res = res1 / res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_idp(expresion):
     def __init__(self,val):
@@ -669,8 +684,9 @@ class exp_idp(expresion):
         tmp = getTemp()
         codigo = tmp + f' = {self.val}\n'
         valor = tmp
+        res = ts.getVariable(self.val)
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_mayorp(expresion):
     def __init__(self, exp1, exp2):
@@ -684,14 +700,17 @@ class exp_mayorp(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} > {tmp2}'
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
+        res = res1 > res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_menorp(expresion):
     def __init__(self, exp1, exp2):
@@ -705,14 +724,17 @@ class exp_menorp(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} < {tmp2}'
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
+        res = res1 < res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_igualp(expresion):
     def __init__(self, exp1, exp2):
@@ -726,14 +748,17 @@ class exp_igualp(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} == {tmp2}'
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
+        res = res1 == res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_mayor_igualp(expresion):
     def __init__(self, exp1, exp2):
@@ -747,14 +772,17 @@ class exp_mayor_igualp(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} >= {tmp2}'
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
+        res = res1 >= res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_menor_igualp(expresion):
     def __init__(self, exp1, exp2):
@@ -768,14 +796,17 @@ class exp_menor_igualp(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} <= {tmp2}'
         c3df += f'\n{tmpf}\n'
         codigo = c3df 
         valor = tmp
+        res = res1 <= res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 class exp_diferentep(expresion):
     def __init__(self, exp1, exp2):
@@ -789,14 +820,17 @@ class exp_diferentep(expresion):
         c3d2 = tr2[0]
         tmp1 = tr1[1]
         tmp2 = tr2[1]
+        res1 = tr1[2]
+        res2 = tr2[2]
         c3df = c3d1 + '\n' + c3d2 
         tmp = getTemp()
         tmpf  = f'{tmp} = {tmp1} != {tmp2}'
         c3df += f'\n{tmpf} \n'
         codigo = c3df 
         valor = tmp
+        res = res1 != res2
         #print(codigo,valor)
-        return codigo,valor
+        return codigo,valor,res
 
 
 class mathtrig(pl):

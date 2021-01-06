@@ -1,9 +1,9 @@
-from analizer_pl.abstract.expression import Expression
+from analizer_pl.abstract.instruction import Instruction
 from analizer_pl import grammar
 from analizer_pl.statement.expressions import code
 
 
-class If_Statement(Expression):
+class If_Statement(Instruction):
     def __init__(self, row, column, expBool, elseif_list, else_, stmts) -> None:
         super().__init__(row, column)
         self.expBool = expBool
