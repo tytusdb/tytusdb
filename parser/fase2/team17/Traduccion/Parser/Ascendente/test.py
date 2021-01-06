@@ -4,7 +4,7 @@ from Interprete.Arbol import Arbol
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 
 if __name__ == '__main__':
-	f = open("./entrada.txt", "r")
+	f = open("entrada.sql", "r")
 
 	try:
 		input = f.read()

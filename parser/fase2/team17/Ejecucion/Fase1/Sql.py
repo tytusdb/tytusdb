@@ -90,13 +90,28 @@ class Sql:
 		print(self.console)
 
 
-	def query(self, input):
+	def query(self, input) -> str:
 		self.parse(input)
-		self.analize(input)
-		print(self.console)
+		result = str(self.analize(input))
+		return  result
+
+	def analize1(self,entrada) -> str:
+		self.refresh()
+		resultado = ''
+		result = interpreter.execution(entrada)
+		querys = result["querys"]
+
+		try:
+			result = str(querys[0][1])
+		except:
+			resultado='error'
+
+		return   resultado
+
 
 
 if __name__ == '__main__':
+
 	f = open("entrada.txt", "r")
 	input = f.read()
 	sql:Sql = Sql()
