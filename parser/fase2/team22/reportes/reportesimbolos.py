@@ -72,8 +72,8 @@ def reporte_tabla(tabla):
     #Para la tabla de simbolos de la fase 2
     cadena += "<th><center>Alias - Indice</center></th>\n"
     # cadena += "<th><center>Nombre</center></th>\n"
-    cadena += "<th><center>Tipo Indice</center></th>\n"
     cadena += "<th><center>Columnas en Indices</center></th>\n"
+    cadena += "<th><center>Tipo Indice</center></th>\n"
     # cadena += "<th><center>Consideraciones</center></th>\n"
     # cadena += "<th><center>Fila</center></th>\n"
     cadena += "</tr>\n"
@@ -121,12 +121,14 @@ def reporte_tabla(tabla):
                 
                 cadena += isExist(indice)
                 cadena += "<td><center>" + str(indice.nombre.id) + "</center></td>\n"   # ESTE ES EL ALIAS
-                cadena += "<td><center>" + " ASC </center></td>\n"   # TIPO, ASC POR DEFECTO
-
+                
                 if len(indice.lRestricciones) > 0:
                     cadena += "<td><center>" + ",".join(indice.lRestricciones) + "</center></td>\n"
                 else:
                     cadena += "<td><center> None </center></td>\n"
+                
+                cadena += "<td><center>" + " ASC </center></td>\n"   # TIPO, ASC POR DEFECTO
+
                 cadena += "</tr>\n"
                 contador += 1
     '''

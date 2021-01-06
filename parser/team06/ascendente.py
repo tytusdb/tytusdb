@@ -3433,6 +3433,7 @@ def drop_table(query,ts):
         ts.destruirColumna(xd[x],h.bd_enuso,nombreTab)
         print (xd[x])
     xdd = ts.destruirTabla(nombreTab,h.bd_enuso)
+    h.textosalida+="TYTUS>> Se eliminó la tabla: "+nombreTab+"\n"
 
 
 def alter_table(query,ts):

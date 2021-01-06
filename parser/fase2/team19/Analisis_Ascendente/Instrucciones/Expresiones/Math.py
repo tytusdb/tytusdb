@@ -86,4 +86,21 @@ class Math_(Instruccion):
             return  mathe.valor
         elif isinstance(mathe, Expresion.Expresion):
             return Expresion.Expresion.Resolver(mathe,ts,Consola,exceptions)
+        elif isinstance(mathe, Unario):
+            num1 = Math_.Resolver(mathe.op, ts, Consola, exceptions)
+            if mathe.operador == '-':
+                if isinstance(num1, int) or isinstance(num1, float):
+                    return num1 * -1
+                else:
+                    return 0
+            elif mathe.operador == '+':
+                if isinstance(num1, int) or isinstance(num1, float):
+                    return num1
+                else:
+                    return 0
+            else:
+                if isinstance(num1, bool):
+                    return not num1
+                else:
+                    True
 
