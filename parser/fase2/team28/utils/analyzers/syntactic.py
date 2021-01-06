@@ -484,12 +484,30 @@ def p_indexes_drop(p):
     
 def p_indexes_alter(p):
     '''ALTER_INDEXES : ALTER INDEX IF EXISTS ID RENAME TO ID
-                     | ALTER INDEX ID RENAME TO ID'''
+                     | ALTER INDEX ID RENAME TO ID
+                     | ALTER INDEX IF EXISTS ID ALTER COLUMN body_cont_index
+                     | ALTER INDEX ID ALTER COLUMN body_cont_index
+                     | ALTER INDEX ID ALTER body_cont_index
+                     | ALTER INDEX IF EXISTS ID ALTER body_cont_index'''
     if len(p) == 9:
-        p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]))
+        if p.slice[6].type == "ALTER":
+            p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]), True)
+        else:
+            p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]), False)
+    elif len(p) == 7:
+        p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]), True)
+    elif len(p) == 6:
+        p[0] = AlterIndex(p[3], p[5], p.lineno(1), find_column(p.slice[1]), True)
+    elif len(p) == 8:
+        p[0] = AlterIndex(p[5], p[7], p.lineno(1), find_column(p.slice[1]), True)
     else:
-        p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]))
-                
+        p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]), False)
+
+def p_index_alter_body(p):
+    '''body_cont_index : ID
+                       | INT_NUMBER'''
+    p[0] = p[1]
+
 def p_indexes_create(p):
     '''CREATE_INDEXES    : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON

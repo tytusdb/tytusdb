@@ -87,9 +87,9 @@ class MainWindow(object):
         windows_menu.add_separator()
         windows_menu.add_command(label='Tabla de errores',
                                  command=self.report_errors_windows)
+        windows_menu.add_separator()
         windows_menu.add_command(label='Tabla de simbolos',
                                  command=self.report_symbols_windows)
-        windows_menu.add_separator()
         windows_menu.add_separator()
         windows_menu.add_command(label='Reporte de Optimizacion',
                                  command=self.report_optimization_windows)
@@ -106,12 +106,12 @@ class MainWindow(object):
         ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Tabla de errores',
                                 command=self.report_errors_ubuntu)
+        ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Tabla de simbolos',
                                 command=self.report_symbols_ubuntu)
         ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Reporte de Optimizacion',
                                  command=self.report_optimization_ubuntu)
-        ubuntu_menu.add_separator()
         ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Type Checker',
                                 command=self.report_typeChecker_ubuntu)
