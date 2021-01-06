@@ -530,7 +530,8 @@ def p_instrucciones_global_sent(t):
                                     | create_Table_isnrt
                                     | drop_insrt
                                     | alterDB_insrt
-                                    | alterTable_insrt'''
+                                    | alterTable_insrt
+                                    | insert_insrt'''
     t[0] = t[1]
 
 def p_instrucciones_global_sent_error(t):
@@ -1136,6 +1137,81 @@ def p_alterTable_add_tipodato(t):
     t[0] = ' ' + t[1] + ' '+ t[2] + ' '
 
 #?######################################################
+# TODO        GRAMATICA INSTRUCCION INSERT
+#?######################################################
+
+def p_insert_insrt(t):
+    ' insert_insrt : INSERT INTO ID PARA lista_parametros_lista PARC  VALUES PARA lista_datos PARC PTCOMA '
+    cadena = ""
+    for i in t[5]:
+        cadena += str(i)
+    cadena2 = ""
+    for j in t[9]:
+        cadena2 += str(j)
+    t[0] = InsertTable(t[1] + ' '+ t[2]+ ' '+ t[3]+ ' '+ t[4]+ ' '+ cadena + ' '+ t[6]+ ' '+ t[7]+ ' '+ t[8]+ ' '+ cadena2 + ' '+ t[10] + ';')  
+
+def p_opcion_lista_parametros_(t):
+    ' insert_insrt : INSERT INTO ID PARA  PARC  VALUES PARA lista_datos PARC PTCOMA '
+    cadena2 = ""
+    for j in t[8]:
+        cadena2 += str(j)
+    t[0] = InsertTable(t[1] + ' '+ t[2]+ ' '+ t[3]+ ' '+ t[4]+ ' '+ t[5] + ' '+ t[6]+ ' '+ t[7]+ ' '+ cadena2+ ' '+ t[9] + ';')  
+
+def p_opcion_lista_parametros_vacios(t):
+    ' insert_insrt : INSERT INTO ID VALUES PARA lista_datos PARC PTCOMA '
+    cadena2 = ""
+    for j in t[6]:
+        cadena2 += str(j)
+    t[0] = InsertTable(t[1] + ' '+ t[2]+ ' '+ t[3]+ ' '+ t[4]+ ' '+ t[5] + ' '+ cadena2 + ' '+ t[7]+ ';')  
+
+#?######################################################
+# TODO        GRAMATICA INSTRUCCION LISTA INSERT
+#?######################################################
+
+def p_lista_parametros_lista(t):
+    ' lista_parametros_lista : lista_parametros_lista COMA ID'
+    t[1].append(t[2])
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_parametros(t):
+    ' lista_parametros_lista : ID'
+    t[0] = [t[1]]  
+
+def p_parametros_lista_datos(t):
+    ' lista_datos : lista_datos COMA exclusiva_insert'
+    t[1].append(t[2])
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_parametros_exclusiva(t):
+    ' lista_datos : exclusiva_insert'
+    t[0] = [t[1]] 
+
+def p_expresion_lista(t):
+    ' exclusiva_insert : expresion'
+    t[0] = ' ' + str(t[1]) + ' '
+
+
+
+def p_expresiones_excluva(t):
+    ''' exclusiva_insert : SUBSTRING PARA string_type COMA expresion COMA expresion PARC
+                        | SUBSTR PARA string_type COMA expresion COMA expresion PARC'''
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '
+
+def p_expresiones_excluva1(t):
+    ''' exclusiva_insert : MD5 PARA string_type PARC
+                        | TRIM PARA string_type PARC'''
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+
+def p_expresiones_excluva2(t):
+    ''' exclusiva_insert : NOW PARA PARC'''
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
+    
+
+
+#?######################################################
 # TODO      TIPO DE DATO
 #?######################################################
 
@@ -1405,7 +1481,7 @@ def p_definicion_3(t):
     'declaracion    :  ID tipo DEFAULT expresionPLSQL PTCOMA'
     t[0] = ListaDeclaraciones(t[2], [Declaracion(t[1], t[4])])
 
-def p_tipo_dato(t):
+def p_tipo_dato_PLSQL(t):
     '''tipo     : INTEGER
                 | SMALLINT
                 | BIGINT
@@ -1453,7 +1529,7 @@ def p_tipo_dato_cadena5(t):
     'tipo     : TEXT'
     t[0] = TIPO_DATO.STRING
 
-def p_tipo_dato_time(t):
+def p_tipo_dato_time1(t):
     ' tipo :  TIME'
     t[0] = TIPO_DATO.STRING
 

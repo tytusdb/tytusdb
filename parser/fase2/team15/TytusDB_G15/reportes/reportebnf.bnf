@@ -2,35 +2,123 @@
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <alterTable_insrt>
+<instruccion> ::= <insert_insrt>
  
-<alterTable_insrt> ::= ALTER TABLE ID <alterTable_alter> PTCOMA
+<insert_insrt> ::= INSERT INTO ID PAR_A <lista_parametros_lista> PAR_C  VALUES PAR_A <lista_datos> PAR_C PTCOMA
  
-<alterTable_alter> ::= <alterTable_alter> COMA <Table_alter>
+<lista_datos> ::= <lista_datos> COMA <expresion>
  
-<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
+<exclusiva_insert> ::= <expresion>
  
-<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
+<expresion> ::= <expresion_dato>
  
-<alterTable_alter> ::= <Table_alter>
+<expresion_dato> ::= <string_type>
  
-<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
+<string_type> ::= CADENA
  
-<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_parametros_lista> ::= <lista_parametros_lista> COMA ID
+ 
+<lista_parametros_lista> ::= <lista_parametros_lista> COMA ID
+ 
+<lista_parametros_lista> ::= ID
  
 <init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <alterTable_insrt>
+<instruccion> ::= <insert_insrt>
  
-<alterTable_insrt> ::= ALTER TABLE ID <alterTable_alter> PTCOMA
+<insert_insrt> ::= INSERT INTO ID PAR_A <lista_parametros_lista> PAR_C  VALUES PAR_A <lista_datos> PAR_C PTCOMA
  
-<alterTable_alter> ::= <Table_alter>
+<lista_datos> ::= <lista_datos> COMA <expresion>
  
-<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
+<string_type> ::= CADENA
  
-<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<lista_parametros_lista> ::= <lista_parametros_lista> COMA ID
+ 
+<lista_parametros_lista> ::= <lista_parametros_lista> COMA ID
+ 
+<lista_parametros_lista> ::= ID
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <insert_insrt>
+ 
+<insert_insrt> ::= INSERT INTO ID VALUES PAR_A <lista_datos> PAR_C PTCOMA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <lista_datos> COMA <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<string_type> ::= CADENA
+ 
+<lista_datos> ::= <exclusiva_insert>
+ 
+<exclusiva_insert> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
  
 <init> ::= <instrucciones>
  
