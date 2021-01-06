@@ -180,6 +180,120 @@ def tupleGraph(list_):
     file.close()
     os.system("circo -Tpng List.circo -o List.png")   
     
+
+# ------------------------------------------------------ FASE 1 --------------------------------------------------------
+# -------------------------------------------------- Table CRUD --------------------------------------------------------
+
+
+def createTable(database, table, numberColumns):
+    try:
+        dictionary = load('metadata')
+
+        if dictionary.get(database) is None:
+            return 2  # database doesn't exist
+
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.createTable(database, table, numberColumns)
+
+        if value_return == 0:
+            dict_tables = dictionary.get(database)[2]
+            dict_tables[table] = [numberColumns, False]
+            save(dictionary, 'metadata')
+
+        return value_return
+    except:
+        return 1
+
+
+def showTables(database):
+    try:
+        dictionary = load('metadata')
+
+        if dictionary.get(database) is None:
+            return None  # database doesn't exist
+
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.showTables(database)
+        return value_return
+    except:
+        return 1
+
+
+def alterAddPK(database, table, columns):
+    try:
+        dictionary = load('metadata')
+
+        if dictionary.get(database) is None:
+            return 2  # database doesn't exist
+
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.alterAddPK(database, table, columns)
+        return value_return
+    except:
+        return 1
+
+
+def alterDropPK(database, table):
+    try:
+        dictionary = load('metadata')
+
+        value_base = dictionary.get(database)
+        if not value_base:
+            return 2
+
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.alterDropPK(database, table)
+        return value_return
+    except:
+        return 2    
+    
+    
+def alterDropColumn(database, table, columnNumber):
+    try:
+        dictionary = load('metadata')
+
+        if dictionary.get(database) is None:
+            return 2  # database doesn't exist
+
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.alterDropColumn(database, table, columnNumber)
+
+        if value_return == 0:
+            dict_tables = dictionary.get(database)[2]
+            number_columns = dict_tables.get(table)[0]
+            dict_tables.get(table)[0] = number_columns-1  # Updating number of columns
+
+            save(dictionary, 'metadata')
+
+        return value_return
+    except:
+        return 1
+
+
+def dropTable(database, table) :
+    try:
+        dictionary = load('metadata')
+
+        if dictionary.get(database) is None:
+            return 2  # database doesn't exist
+
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.dropTable(database, table)
+
+        if value_return == 0:
+            dict_tables = dictionary.get(database)[2]
+            dict_tables.pop(table)
+
+            save(dictionary, 'metadata')
+    except:
+        return 1    
+    
     
 # ------------------------------------------------------- FILES --------------------------------------------------------
 def save(objeto, nombre):
