@@ -424,3 +424,12 @@ class Alter_Index_Rename(Instruccion):
     def __init__(self,nombreviejo,nombrenuevo):
         self.nombreviejo=nombreviejo
         self.nombrenuevo=nombrenuevo
+
+
+class Call_Procedure(Instruccion):
+    '''
+        Esta clase representa la llamada a un stored procedure
+    '''
+    def __init__(self, procedimiento,parametros):
+        self.procedimiento = procedimiento
+        self.parametros = parametros

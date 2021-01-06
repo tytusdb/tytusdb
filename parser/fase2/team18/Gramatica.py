@@ -200,7 +200,11 @@ def p_sentencia_dml(t):
 #Call procedure
 def p_llamada_proc(t):
      '''llamada : EXECUTE ID PAR_A lista_exp PAR_C
-                | EXECUTE ID PAR_A PAR_C'''     
+                | EXECUTE ID PAR_A PAR_C'''  
+     if (len(t) == 6):
+          t[0] = Call_Procedure(t[2],t[4])
+     else:
+          t[0] =  Call_Procedure(t[2],None)   
 
 #NUEVO YO---------------------------------------------
 

@@ -40,6 +40,8 @@ class DOTAST:
                 self.getTextDotCrearType("node2",instruccion)
             elif isinstance(instruccion,EliminarTabla):
                 self.getTextDotEliminarTabla("node2",instruccion)
+            elif isinstance(instruccion, Eliminar) :
+                print("Eliminar de tabla")
             elif isinstance(instruccion,Insertar):
                 self.getTextDotInsertar("node2",instruccion)
             elif isinstance(instruccion,Actualizar):
@@ -50,12 +52,27 @@ class DOTAST:
                 self.getTextDotShowDB("node2",instruccion)
             elif isinstance(instruccion, ALTERDBO) : print('Alter dbo')
             elif isinstance(instruccion, ALTERTBO) : print('Alter tbo')
+            elif isinstance(instruccion, Indice) : 
+                print('Crear Indexs')
+                self.getTextDotCrearIndex("node2",instruccion)
+            elif isinstance(instruccion, Funcion): 
+                print('Crear Funciones')
+                self.getTextDotCrearFuncion("node2",instruccion)
+            elif isinstance(instruccion, Drop_Function): 
+                print('Eliminar funcion')
+                self.getTextDotDropFuncion("node2",instruccion)
+            elif isinstance(instruccion, Drop_Procedure): 
+                print('Eliminar procedimientos')
+                self.getTextDotDropProcedure("node2",instruccion)
+            elif isinstance(instruccion, Procedimiento): 
+                print('Crear procedimientos')
+                self.getTextDotCrearProcedure("node2",instruccion)
             else:
-                for val in instruccion:
-                    if(isinstance (val,SELECT)):
-                        self.getTextDotSelect("node2",val)
-               
-                    else : print('Error: instrucción no válida') 
+                if instruccion is not None:
+                    for val in instruccion:
+                        if(isinstance (val,SELECT)):
+                            self.getTextDotSelect("node2",val)
+                        else : print('Error: instrucción no válida') 
             tam = tam +1
             print(TextDot)
         TextDot.view('reporte_AST', cleanup=True)
@@ -128,10 +145,6 @@ class DOTAST:
         TextDot.edge(padre, "node"+str(contador))
         aux = "node"+str(contador)
         self.getTextDotNombreType(aux,instr.nombre)
-
-        '''if instr.valores != []:
-            for indice, valor in enumerate(instr.valores):
-                self.getTextDotListaType(aux.valor[indice])'''
               
 
     def getTextDotNombreType(self,padre,instr):
@@ -431,3 +444,91 @@ class DOTAST:
             TextDot.edge(padre,"node"+str(contador))
 
     
+    #Funciones fase 2
+
+    
+    def getTextDotCrearFuncion(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"CREATE_FUNCTION")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotNombreFunction(aux,instr)
+        self.getTextDotTipoFuncion(aux,instr)
+
+    def getTextDotNombreFunction(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"NOMBRE FUNCTION")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotTipoFuncion(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"TIPO RETORNO")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.tipo)
+
+    def getTextDotCrearProcedure(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"CREATE_PROCEDURE")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotNombreProcedure(aux,instr)
+
+
+    def getTextDotNombreProcedure(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"NOMBRE PROCEDURE")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotCrearIndex(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"CREATE_INDEX")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotNombreIndex(aux,instr)
+        self.getTextDotTablaIndex(aux,instr)
+
+    def getTextDotNombreIndex(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"NOMBRE INDEX")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre.id)
+
+    def getTextDotTablaIndex(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"TABLA")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.tabla.id)
+        
+
+    def getTextDotDropFuncion(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"DROP_FUNCION")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        for i in instr.nombres:
+            self.getTextDotExpresion(aux,i)
+
+    def getTextDotDropProcedure(self,padre,expresion):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"DROP_PROCEDURE")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        for i in instr.nombres:
+            self.getTextDotExpresion(aux,i)

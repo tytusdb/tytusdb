@@ -103,9 +103,16 @@ def eliminarFuncion(nombre):
 
 def eliminarProcedure(name):
     global listaProcedure
-    for i in listaProcedure:
+    '''for i in listaProcedure:
+        if(listaProcedure[i].nombre==name):
+            listaProcedure.pop(i)'''
+    i=0
+    while i < len(listaProcedure):
         if(listaProcedure[i].nombre==name):
             listaProcedure.pop(i)
+            break
+        else:
+            i=i+1
 
 def EliminarIndice(instr,ts):
     global outputTS
@@ -3899,7 +3906,7 @@ def Crear_Procedimiento(instr,ts):
         #verificar que no exista
         if(findProcedure(name)==None):
             addProcedure(name,cuerpo,parametros)
-            CD3.PCreateProcedure(name,cuerpo,parametros,False)
+            CD3.PCreateProcedure(name,cuerpo,parametros,0)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
         else:
@@ -3908,7 +3915,7 @@ def Crear_Procedimiento(instr,ts):
                 #eliminar la funcion
                 eliminarProcedure(name)
                 addProcedure(name,cuerpo,parametros)
-                CD3.PCreateProcedure(nombre,cuerpo,parametros,True)
+                CD3.PCreateProcedure(nombre,cuerpo,parametros,1)
                 msg="Funcion reemplazada"
                 agregarMensjae("alert",msg,"")
             else:
@@ -4007,8 +4014,11 @@ def cuerpo_Procedure(body,ts):
 
 #Ejecucion de los procedimientos
 
-def Execute_Procedimiento():
+def Execute_Procedimiento(instr,ts):
     print("Metodo para ejecutar el stored procedure")
+    print(instr)
+    agregarMensjae('normal','Execute procedure: '+ str(instr.procedimiento),'')
+    
 
 #Eliminar procedimiento 
 def Eliminar_Procedimientos(instr,ts):
@@ -4285,6 +4295,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, Procedimiento): Crear_Procedimiento(instr,ts)
             elif isinstance(instr, Drop_Indice): EliminarIndice(instr,ts)
             elif isinstance(instr, Alter_Index_Rename): AlterIndice_Renombrar(instr,ts)
+            elif isinstance(instr, Call_Procedure): Execute_Procedimiento(instr,ts)
             else: 
                 if instr is not None:
                     for val in instr:
