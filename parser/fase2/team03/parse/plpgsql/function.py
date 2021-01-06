@@ -87,7 +87,8 @@ class FunctionBody(ASTNode):
 
         #TODO: Implement this.
         #self.func_exception.generate(table, tree)
-        self.func_return.generate(table, tac_return)
+        if isinstance(self.func_return, Return):
+            self.func_return.generate(table, tac_return)
         #union all TAC arrarys
         ##tree = tree + tac_declaraciones + tac_sentancias this not work by ref ue extend() instead
         tree.extend(tac_declaraciones)
